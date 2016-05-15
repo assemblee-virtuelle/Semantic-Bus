@@ -1,0 +1,7 @@
+Plugn Benoit
+web mention -> notification d'un serveur sur un second -> propagation des url des noeuds existant
+le nouveau noeuds mention une url de reference -> cette url de réference mention les url de l'écosyteme qu'il connait. voir linked data fragments pour savoir 
+La logic de requette ditribué ou du crawler est toujours necessaire
+
+R&D
+Comment ajouter au schéma sémantic les sources de données potentielles qui proposent du contenu pour ce champ
