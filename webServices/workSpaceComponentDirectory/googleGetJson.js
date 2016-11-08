@@ -1,0 +1,62 @@
+module.exports = {
+  type: 'GOOGLE calc Get JSON',
+  description: 'intéroger une feuille de calcule GOOGLE calc qui fourni un flux JSON',
+  editor: 'google-get-json-editor',
+  //  url: require('url'),
+  //  http: require('http'),
+  sheetrock: require('sheetrock'),
+  makeRequest: function(key, select, offset, provider) {
+    console.log();
+    return new Promise((resolve, reject) => {
+      console.log();
+      this.sheetrock({
+        url: 'https://docs.google.com/spreadsheets/d/' + key + '/edit#gid=0',
+        reset: true,
+        query: select,
+        callback: function(error, options, response) {
+          //console.log('callback sheetrock',error,options,response);
+          if (!error || error == null) {
+            var cleanData = [];
+
+            for (var recordKey in response.raw.table.rows) {
+              if (recordKey < offset) {
+                continue;
+              }
+              var record = response.raw.table.rows[recordKey];
+              //console.log('record',record);
+              var cleanRecord = {};
+              cleanRecord.provider = provider;
+              for (var cellKey in record.c) {
+                var cell = record.c[cellKey];
+                var column = response.raw.table.cols[cellKey].id || cellKey;
+                //  console.log('column',column);
+                cleanRecord[column] = cell == null ? undefined : cell.v;
+
+              }
+              cleanData.push(cleanRecord);
+            }
+
+            resolve(cleanData);
+
+          } else {
+            console.log('Google query rejected');
+            reject({
+              "error": error
+            });
+          }
+        }.bind(this)
+      });
+    });
+  },
+  test: function(data) {
+    console.log('GOOGLE Get JSON | test : ', data);
+    return this.makeRequest(data.specificData.key, data.specificData.select, data.specificData.offset, data.specificData.provider);
+    /*this.makeRequest('GET', data.specificData.url).then(data => {
+      //console.log('ALLO', data);
+      res.json(data);
+    });*/
+    /*    res.json({
+          url: data.url
+        });*/
+  }
+}

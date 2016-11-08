@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Navigation</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link href='https://fonts.googleapis.com/css?family=Ubuntu|Ubuntu+Mono' rel='stylesheet' type='text/css'>
+  <link href='https://cdn.jsdelivr.net/semantic-ui/2.1.8/semantic.min.css' rel='stylesheet' type='text/css'>
+  <link href='./css/flex.css' rel='stylesheet' type='text/css'>
+  <link href='./css/main.css' rel='stylesheet' type='text/css'>
+  <link href='./js/jsonEditor/dist/jsoneditor.min.css' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+  <navigation></navigation>
+
+  <script src="https://cdn.jsdelivr.net/riot/2.6.2/riot+compiler.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-detect-element-resize/0.5.3/detect-element-resize.js"></script>
+  <script src="./js/jsonEditor/dist/jsoneditor.min.js"></script>
+  <script src="./js/RiotControl/riotcontrol.js"></script>
+  <script src="./store/workspaceBusiness.js"></script>
+  <script src="./store/workspaceStore.js"></script>
+  <script src="./store/technicalComponentStore.js"></script>
+  <script src="./store/genericStore.js"></script>
+  <script src="./store/mainController.js"></script>
+  <script type="riot/tag" src="tag/zenTable.tag"></script>
+  <script type="riot/tag" src="tag/navigation.tag"></script>
+  <script type="riot/tag" src="tag/workspaceTable.tag"></script>
+  <script type="riot/tag" src="tag/workspaceEditor.tag"></script>
+  <script type="riot/tag" src="tag/technicalComponentTable.tag"></script>
+  <script type="riot/tag" src="tag/googleSpreadSheetQuerier.tag"></script>
+  <script type="riot/tag" src="tag/jsonEditor.tag"></script>
+  <script type="riot/tag" src="tag/jsonTransformer.tag"></script>
+  <script type="riot/tag" src="tag/jsonPreviewer.tag"></script>
+  <script type="riot/tag" src="tag/httpApi.tag"></script>
+  <script type="riot/tag" src="tag/geoTransformer.tag"></script>
+  <script type="riot/tag" src="tag/no-editor.tag"></script>
+  <script type="riot/tag" src="tag/rest-get-json-editor.tag"></script>
+  <script type="riot/tag" src="tag/object-transformer.tag"></script>
+  <script type="riot/tag" src="tag/google-get-json-editor.tag"></script>
+  <script type="riot/tag" src="tag/simple-agregator-editor.tag"></script>
+  <script>
+
+  var worspaceStore = new WorkspaceStore(); // Create a store instance.
+  RiotControl.addStore(worspaceStore); // Register the store in central dispatch.
+  var technicalComponentStore = new TechnicalComponentStore();
+  RiotControl.addStore(technicalComponentStore);
+  var genericStore = new GenericStore();
+  RiotControl.addStore(genericStore);
+  var mainController = new MainController(worspaceStore,genericStore);
+  RiotControl.addStore(mainController);
+  riot.compile(function() {
+    // here tags are compiled and riot.mount works synchronously
+    var tags = riot.mount('*');
+    /*RiotControl.on('previewJSON',function(message){
+      tags[2].data=message.data;
+    }.bind(this));*/
+
+  });
+
+
+  </script>
+</body>
+
+</html>

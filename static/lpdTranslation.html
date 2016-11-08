@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>test</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <link href='https://fonts.googleapis.com/css?family=Ubuntu|Ubuntu+Mono' rel='stylesheet' type='text/css'>
+  <link href='https://cdn.jsdelivr.net/semantic-ui/2.1.8/semantic.min.css' rel='stylesheet' type='text/css'>
+  <link href='./css/flex.css' rel='stylesheet' type='text/css'>
+  <link href='./css/main.css' rel='stylesheet' type='text/css'>
+  <link href='./js/jsonEditor/dist/jsoneditor.min.css' rel='stylesheet' type='text/css'>
+</head>
+
+<body>
+  <div class="containerH" style="bottom:0;top:0;right:0;left:0;position:absolute;">
+    <div style="flex:1">
+      <ldpTranslation name="alternatibas" style="flex:1"></ldpTranslation>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/riot/2.6.2/riot+compiler.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-detect-element-resize/0.5.3/detect-element-resize.js"></script>
+  <script src="./js/RiotControl/riotcontrol.js"></script>
+  <script type="riot/tag" src="tag/zenTable.tag"></script>
+  <script type="riot/tag" src="tag/ldpTranslation.tag"></script>
+  <script>
+    riot.compile(function() {
+      // here tags are compiled and riot.mount works synchronously
+      var tags = riot.mount('*');
+
+    });
+  </script>
+</body>
+
+</html>

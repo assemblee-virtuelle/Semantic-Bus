@@ -1,0 +1,124 @@
+/* Lato Web font */
+
+/*csslint bulletproof-font-face: false*/
+
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 400;
+  src: url('http://themes.googleusercontent.com/static/fonts/lato/v6/qIIYRU-oROkIk8vfvxw6QvesZW2xOQ-xsNqO47m55DA.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Lato';
+  font-style: normal;
+  font-weight: 700;
+  src: url('http://themes.googleusercontent.com/static/fonts/lato/v6/qdgUG4U09HnJwhYI-uK18wLUuEpTyoUstqEm5AMlJo4.woff') format('woff');
+}
+
+
+/* Document */
+
+body {
+  font-family: 'Lato', Helvetica, Arial, sans-serif;
+  font-size: 1.75em;
+  line-height: 1.5em;
+  margin: 0 0 2em 0;
+  position: relative;
+}
+
+h1, h2, h3 {
+  font-weight: 700;
+  margin: 1.5em 0 0.5em 0;
+}
+
+h4 {
+  font-weight: 700;
+  margin: 0.25em 0;
+}
+
+p, ol, ul {
+  margin: 1em 0;
+}
+
+
+/* Menu */
+
+.nav {
+  margin-top: 3em;
+}
+
+.nested {
+  font-size: 1em;
+  line-height: 1em;
+}
+
+.nav > li.nested > a {
+  padding-left: 25px;
+}
+
+.active {
+  background-color: #eee;
+}
+
+
+/* Code and jsFiddles */
+
+.fiddle {
+  margin: 1em 0;
+}
+
+.fiddle a {
+  color: #69c;
+  cursor: pointer;
+  display: block;
+  font-weight: 700;
+  padding: 8px 15px;
+  text-align: center;
+}
+
+.fiddle a:hover {
+  background-color: #eee;
+}
+
+.operator-plus::after {
+  content: '+';
+}
+
+.operator-equals::after {
+  content: '=';
+}
+
+.operator-plus::after, .operator-equals::after {
+  color: #c00;
+  display: block;
+  font-weight: bold;
+  margin: 0.25em;
+  text-align: center;
+}
+
+.error {
+  color: #900;
+  font-weight: bold;
+}
+
+.output {
+  border: solid 1px #ddd;
+  margin-bottom: 1em;
+  padding: 1em;
+  padding-bottom: 0;
+}
+
+.grey {
+  color: #999;
+}
+
+
+/* GitHub tag */
+
+.github {
+  border: 0;
+  position: absolute;
+  right: 0;
+  top: 0;
+}

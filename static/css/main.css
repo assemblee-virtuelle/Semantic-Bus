@@ -1,0 +1,65 @@
+input[type="text"] {
+  font-size: 1.5em;
+  width:100%;
+  box-sizing: border-box;
+}
+
+input.readOnly {
+    border: none;
+}
+
+body{
+  font-size: 1.2em;
+}
+
+.commandBar{
+  /*justify-content: flex-end;*/
+  background-color: #3883fa;
+  color: #cce2ff;
+  justify-content: space-between;
+  flex-basis:35px;
+  padding: 2px;
+}
+
+.commandBar>*{
+  border-style: none;
+  margin:0px;
+
+}
+.commandBar .commandGroup{
+  padding: 0px;
+}
+.commandBar .commandTitle{
+}
+.commandBar .commandButton{
+  padding-left:10px;
+  padding-right:10px;
+  padding-top:2px;
+  padding-bottom:2px;
+  cursor: pointer;
+  align-self: flex-end;
+}
+.commandBar .commandButton:hover{
+  /*color:#1a1a1a;*/
+  background-color:#649DF9;
+  border-color: #cce2ff;
+  border-size: 1px;
+  border-style: solid;
+}
+
+.selector{
+  border-style: none;
+  cursor: pointer;
+  margin:5px;
+  padding-left:10px;
+  padding-right:10px;
+  padding-top:20px;
+  padding-bottom:2px;
+  background-color: #cce2ff;
+}
+
+.mainSelector{
+  font-size: 30px;
+  text-align: center;
+  flex-basis:35px;
+}

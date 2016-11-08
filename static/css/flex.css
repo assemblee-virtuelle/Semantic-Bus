@@ -1,0 +1,22 @@
+.containerH>*{
+  border-style: solid;
+  border-width: 1px;
+  border-radius:5px;
+  padding: 5px;
+  margin: 5px;
+}
+.containerH{
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  /*overflow-x: auto;*/
+  /*overflow-y: hidden;*/
+}
+.containerV
+{
+  display: flex;
+  flex-direction: column;
+  /*justify-content: top;*/
+  overflow-y: auto;
+
+}
