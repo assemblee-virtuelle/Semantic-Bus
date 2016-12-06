@@ -33,7 +33,7 @@
           </div>
         </div>
       </div>
-      <div  style="flex-grow:1" class="containerH">
+      <div  style="flex-grow:1;flex-wrap: nowrap" class="containerH">
         <div style="flex-basis:200px" class="containerV" show={modeComponentNetwork}>
           <div class="containerH commandBar" style="flex-basis:50px">
             <div class="commandGroup containerH">
@@ -48,7 +48,7 @@
         </div>
         <div id="editionContainer" style="flex-grow:1" class="containerV">
         </div>
-        <div show={modeComponentTest} style="flex-basis:50%" class="containerH">
+        <div show={modeComponentTest} style="flex-grow:2;flex-wrap: nowrap;" class="containerH">
           <!--<jsonPreviewer name="testPreviewer" style="flex-grow:1">
         </jsonPreviewer>-->
           <div class="containerV commandBar" style="flex-basis:50px">
@@ -167,24 +167,27 @@
   }.bind(this);
 
   this.mountEdition=function(componentName){
+    console.log('mountEdition | ',componentName);
     this.editionContainer =riot.mount('#editionContainer', componentName)[0];
-    if(this.detailContainer.isMounted){
+    /*if(this.detailContainer.isMounted){
       this.detailContainer.unmount(true);
-    }
-    this.editionContainer.on('addComponent',function(message){
+    }*/
+
+
+/*    this.editionContainer.on('addComponent',function(message){
         //console.log('addComponent');
         //this.modeNavigation=true;
         RiotControl.trigger('navigation_mode_edition_and_navigation');
         this.selectTechnicalComponentMode();
         //this.update();
-    }.bind(this));
+    }.bind(this));*/
     //console.log(this.editionContainer.title);
     this.editorTitle = this.editionContainer.title;
 
     RiotControl.trigger('navigation_mode_edition_only');
     //this.modeEdition=true;
     //this.modeNavigation=false;
-  }
+  };
 
   this.mountWorkspaceNavigator=function(syncFromServer){
     this.cleanNavigation();
@@ -211,6 +214,12 @@
       this.update();
     }.bind(this));
 
+    RiotControl.on('navigator_mount',function(webComponentName){
+      console.log('navigator_mount');
+      this.cleanNavigation();
+      this.contentNavigator =riot.mount('#contentNavigator', webComponentName)[0];
+    }.bind(this));
+
     RiotControl.on('item_current_edit_mode',function(itemType,item){
       console.log('item_current_edit_mode');
       var tagName;
@@ -233,7 +242,7 @@
           //this.modeComponentNetwork=false;
           break;
       }
-      console.log('item_current_edit_mode | modeComponentNetwork :',this.modeComponentNetwork);
+      //console.log('item_current_edit_mode | modeComponentNetwork :',this.modeComponentNetwork);
       this.mountEdition(tagName);
       this.update();
     }.bind(this));

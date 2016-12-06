@@ -10,38 +10,44 @@ module.exports = {
   technicalComponentDirectory: require('./technicalComponentDirectory.js'),
   restGetJson: require('./workSpaceComponentDirectory/restGetJson.js'),
   mLabPromise: require('./mLabPromise'),
-  resolveWebComponentPull(webcomponent) {
-    return this._makeRequest(webcomponent);
+  workspaceComponentPromise: require('./workspaceComponentPromise.js'),
+  resolveComponentPull(component, notMainNode) {
+    return this._makeRequest(component, notMainNode);
   },
 
-  _makeRequest(webcomponent) {
+  _makeRequest(component, notMainNode) {
 
     // create a new Promise
     return new Promise((resolve, reject) => {
 
-      var module = this.technicalComponentDirectory[webcomponent.module]
-
-      if (webcomponent.connectionsBefore.length > 0) {
+      var module = this.technicalComponentDirectory[component.module]
+      if (component.connectionsBefore.length > 0 && (module.stepNode!=true || notMainNode!=true)) {
         //console.log('resolveWebComponentPull | beforeId | ',webcomponent.connectionsBefore[0]);
-        var flowsPromise = webcomponent.connectionsBefore.map(connectionBefore =>
-            this.restGetJson.makeRequest('GET', 'http://localhost:3000/data/core/workspaceComponent/' + connectionBefore + '/test')
-          )
-        Promise.all(flowsPromise).then(function(connectionsBeforeData) {
 
-            if (module.test) {
-              module.test(webcomponent, connectionsBeforeData).then(function(data) {
-                resolve(data);
-              });
-            } else {
-              console.log('NO MODULE');
-              resolve(null);
-            }
-          });
+        Promise.all(
+          component.connectionsBefore.map(connectionBeforeId =>
+            this.workspaceComponentPromise.getReadPromiseById(connectionBeforeId)
+          )
+        ).then(workspaceComponents =>
+          Promise.all(
+            workspaceComponents.map(workspaceComponent =>
+              this.resolveComponentPull(workspaceComponent,true)
+            )
+          )
+        ).then(connectionsBeforeData => {
+          if (module.test) {
+            module.test(component, connectionsBeforeData).then(function(data) {
+              resolve(data);
+            });
+          } else {
+            console.log('NO MODULE');
+            resolve(null);
+          }
+        });
       } else {
-        console.log('resolveWebComponentPull | Last| ', webcomponent);
-        console.log('ALLO ' + module);
+        //console.log('resolveWebComponentPull | Last| ', component);
         if (module.test) {
-          module.test(webcomponent).then(function(data) {
+          module.test(component).then(function(data) {
             resolve(data);
           });
         } else {

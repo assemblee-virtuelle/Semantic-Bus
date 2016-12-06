@@ -9,7 +9,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       var resultFlow =[];
       for (flow of flowData){
-        console.log('Flow Agregator | result flow |  ',flow);
+        //console.log('Flow Agregator | result flow |  ',flow);
         resultFlow=resultFlow.concat(flow)
       }
       //console.log('Flow Agregator | result total |  ',resultFlow);

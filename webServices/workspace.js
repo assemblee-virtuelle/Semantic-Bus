@@ -23,7 +23,7 @@ module.exports = function(router) {
     }).then(function(responses) {
       for (var responseKey in responses) {
         //console.log('Check response | ',workspaces[responseKey], ' | components | ',responses[responseKey]);
-        console.log('workspace', workspaces[responseKey]._id.$oid);
+        //console.log('workspace', workspaces[responseKey]._id.$oid);
         workspaces[responseKey].components = workspaceBusiness.checkWorkspaceComponentConsistency(responses[responseKey]);
       }
       //console.log(workspaces);
@@ -76,7 +76,7 @@ router.put('/core/workspace/', function(req, res) {
       component.workspaceId = entityToUpdate._id.$oid
     });
     //TODO la sauvegerde su workspace dtruit les connections
-    console.log('PUT /core/workspace/ | insertedComopnents | ', req.body.components);
+    //console.log('PUT /core/workspace/ | insertedComopnents | ', req.body.components);
     const insertPromises = req.body.components.map(component => workspaceComponentPromise.getInsertPromise(component));
     //const insertPromises = req.body.components.map(component => mLabPromise.request('POST', 'workspaceComponent',component));
     //entityToUpdate = records[0];

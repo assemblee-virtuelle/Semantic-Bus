@@ -6,9 +6,9 @@ module.exports = {
   //  http: require('http'),
   sheetrock: require('sheetrock'),
   makeRequest: function(key, select, offset, provider) {
-    console.log();
+
     return new Promise((resolve, reject) => {
-      console.log();
+
       this.sheetrock({
         url: 'https://docs.google.com/spreadsheets/d/' + key + '/edit#gid=0',
         reset: true,
@@ -39,7 +39,7 @@ module.exports = {
             resolve(cleanData);
 
           } else {
-            console.log('Google query rejected');
+            console.log('Google query rejected | ', error);
             reject({
               "error": error
             });

@@ -46,21 +46,24 @@
       }
     };
 
-  this.innerData = new Proxy([], arrayChangeHandler);
-  //arrayChangeHandler.tag=this;
-   Object.defineProperty(this, 'data', {
-      set: function (data) {
-        this.innerData=new Proxy(data, arrayChangeHandler);
-        this.update();
-        //this.reportCss();
-        //this.reportFlex();
-        //console.log(this.items,data);
-      }.bind(this),
-      get: function () {
-       return this.innerData;
-     },
-     configurable: true
-   });
+//  this.innerData = new Proxy([], arrayChangeHandler);
+
+   this.innerData = [];
+   //arrayChangeHandler.tag=this;
+    Object.defineProperty(this, 'data', {
+       set: function (data) {
+         //this.innerData=new Proxy(data, arrayChangeHandler);
+         this.innerData=data;
+         this.update();
+         //this.reportCss();
+         //this.reportFlex();
+         //console.log(this.items,data);
+       }.bind(this),
+       get: function () {
+        return this.innerData;
+      },
+      configurable: true
+    });
 
    Object.defineProperty(this, 'indexedData', {
       get: function () {

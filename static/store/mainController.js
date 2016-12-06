@@ -34,6 +34,14 @@ function MainController(workSpaceStore, genericStore) {
     this.trigger('persist_end');
   }.bind(this));
 
+  workSpaceStore.on('workspace_current_persist_done', function(message) {
+    this.trigger('persist_end');
+  }.bind(this));
+  this.on('workspace_current_persist', function() {
+    this.trigger('persist_start');
+  });
+
+
 
   genericStore.on('item_current_edit_mode', function(message) {
     //console.log('currentItemType  Before:',this.currentItemType);
@@ -43,6 +51,7 @@ function MainController(workSpaceStore, genericStore) {
     });
     //console.log('currentItemType  :',this.currentItemType);
   }.bind(this));
+
 
   workSpaceStore.on('item_current_edit_mode', function(message) {
     //console.log('currentItemType  Before:',this.currentItemType);
@@ -82,6 +91,16 @@ function MainController(workSpaceStore, genericStore) {
       modeNavigation: true,
       modeEdition: true
     });
+  });
+
+
+
+  this.on('workspace_current_add_component', function(record) {
+    this.updateMode({
+      modeNavigation: true,
+      modeEdition: true
+    });
+    this.trigger('navigator_mount', 'technical-component-table');
   });
 
   this.on('workspace_current_edit', function(message) {
@@ -131,9 +150,5 @@ function MainController(workSpaceStore, genericStore) {
       }
     }
   });
-
-
-
-
 
 }
