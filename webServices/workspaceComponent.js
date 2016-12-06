@@ -21,8 +21,8 @@ module.exports = function(router) {
 
     var id = req.params.id;
     mLabPromise.request('GET', 'workspaceComponent/' + id).then(function(data) {
-      //console.log('workspaceComponent | test| ',data);
-      return recursivPullResolvePromise.resolveWebComponentPull(data);
+      console.log('workspaceComponent | test| ',data);
+      return recursivPullResolvePromise.resolveComponentPull(data,false);
     }).then(function(data) {
       res.json(data);
     })

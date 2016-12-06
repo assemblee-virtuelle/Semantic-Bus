@@ -67,7 +67,8 @@
   this.on('mount', function () {
     //console.log('workspaceEditor mount');
     this.tags.workspaceComponents.on('addRow',function(message){
-      this.trigger('addComponent');
+      RiotControl.trigger('workspace_current_add_component',message);
+
     }.bind(this));
     this.tags.workspaceComponents.on('delRow',function(message){
       RiotControl.trigger('workspace_current_delete_component',message);

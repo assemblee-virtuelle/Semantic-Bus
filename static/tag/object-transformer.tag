@@ -1,6 +1,6 @@
 <object-transformer>
   <div>configuration d'un objet de trasformation</div>
-  <jsonEditor name="jsonSchema" title="Transform Schema" style="flex:1"></jsonEditor>
+  <jsonEditor name="jsonSchema" title="Transform Schema" style="flex:1" modes="['tree','text']"></jsonEditor>
 
   <script>
 

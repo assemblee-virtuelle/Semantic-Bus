@@ -1,17 +1,17 @@
 module.exports = {
   type: 'Object Transformer',
   description: 'transformer un objet par mapping grâce à un objet transformation',
-  editor:'object-transformer',
-  transform : require('jsonpath-object-transform'),
-  initComponent : function(entity){
+  editor: 'object-transformer',
+  transform: require('jsonpath-object-transform'),
+  initComponent: function(entity) {
     //console.log('Object Transformer | initComponent : ',entity);
 
-    if (entity.specificData.transformObject==undefined){
-      entity.specificData.transformObject={};
+    if (entity.specificData.transformObject == undefined) {
+      entity.specificData.transformObject = {};
     }
     return entity;
   },
-  jsonTransform : function(source, jsonTransformPattern) {
+  jsonTransform: function(source, jsonTransformPattern) {
     //console.log('Object Transformer | source',source,' | pattern | ',jsonTransformPattern);
     //console.log(source);
     //console.log(jsonTransformPattern);
@@ -63,33 +63,62 @@ module.exports = {
     //console.log('jsonTransform | resultBeforUnresolved |',transformResult);
 
     var destResult;
-    if(transformResult instanceof Array){
-      destResult=[];
-      for(record of transformResult){
-        destResult.push(this.unresolveProcess(record,jsonTransformPattern[1]));
-      }
-    }else{
-      destResult=this.unresolveProcess(transformResult,jsonTransformPattern)
-    }
+    /*  if (transformResult instanceof Array) {
+        destResult = [];
+        for (record of transformResult) {
+          destResult.push(this.unresolveProcess(record, jsonTransformPattern[1]));
+        }
+      } else {*/
+    destResult = this.unresolveProcess(transformResult, jsonTransformPattern)
+      /*}*/
+
+
 
     return destResult;
   },
-  unresolveProcess : function(nodeIn,jsonTransformPattern){
-    var nodeOut ={};
-    for(var key in nodeIn){
-      if(nodeIn[key]==undefined){
+  unresolveProcess: function(nodeIn, jsonTransformPattern) {
+    var nodeOut;
+    if (Array.isArray(nodeIn)) {
+      nodeOut = [];
+    } else {
+      nodeOut = {};
+    }
+
+    for (var key in nodeIn) {
+      if (nodeIn[key] == undefined) {
         //console.log('unresolveProcess | ',key,'|',jsonTransformPattern);
-        nodeOut[key]=jsonTransformPattern[key];
-      }else{
-        nodeOut[key]=nodeIn[key];
+        if (typeof jsonTransformPattern[key] == 'string' && jsonTransformPattern[key].indexOf('$') != -1) {
+          nodeOut[key] =  '';
+        } else {
+          nodeOut[key] = jsonTransformPattern[key];
+        }
+      } else {
+
+
+        //nodeOut[key] = nodeIn[key];
+        if (typeof nodeIn[key] == 'object') {
+          //console.log('unresolveProcess | key | ', key, ' | array | ', Array.isArray(nodeIn), ' | nodeIn |', nodeIn);
+          //console.log('unresolveProcess | node[key] | ', nodeIn[key]);
+          //console.log('unresolveProcess | pattern | ', jsonTransformPattern[key]);
+          if (Array.isArray(nodeIn)) {
+            //console.log('unresolveProcess | array | ', nodeOut);
+            nodeOut.push(this.unresolveProcess(nodeIn[key], jsonTransformPattern[1]));
+
+          } else {
+            nodeOut[key] = this.unresolveProcess(nodeIn[key], jsonTransformPattern[key]);
+          }
+        } else {
+          nodeOut[key] = nodeIn[key];
+        }
+
       }
     }
     return nodeOut;
   },
-  test: function(data,flowData) {
+  test: function(data, flowData) {
     //console.log('Object Transformer | test : ',data,' | ',flowData[0].length);
     return new Promise((resolve, reject) => {
-      resolve(this.jsonTransform(flowData[0],data.specificData.transformObject));
+      resolve(this.jsonTransform(flowData[0], data.specificData.transformObject));
     })
   }
 }

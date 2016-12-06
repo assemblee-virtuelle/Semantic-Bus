@@ -1,5 +1,5 @@
 <jsonEditor class="containerV">
-  <div id="jsoneditor" style="flex:1">
+  <div id="jsoneditor" style="flex-grow:1">
   </div>
   <script>
     //var tag = this
@@ -8,7 +8,7 @@
        set: function (data) {
          this.editor.set(data);
          if(this.editor.options.mode!='text'){
-           this.editor.expandAll();   
+           this.editor.expandAll();
          }
 
          /*this.jsonEditorReadyPromise.then(function(){
@@ -53,9 +53,16 @@
       this.container = this.root.querySelector('#jsoneditor');
 
       var options = {};
+        //console.log('jsonEditor Tag modes|',this.opts.modes);
+        //  console.log('jsonEditor Tag modes|',"['tree','text']".split("\'").join("\""));
+      //console.log('jsonEditor Tag modes|',JSON.parse(this.opts.modes.split("\'").join("\"")));
       if (this.opts.mode!=undefined){
-        console.log(this.opts);
+
         options.mode=this.opts.mode;
+      }
+      if (this.opts.modes!=undefined){
+
+        options.modes=JSON.parse(this.opts.modes.split("\'").join("\""));
       }
       this.editor = new JSONEditor(this.container , options);
 
@@ -76,8 +83,8 @@
   </script>
   <style>
     /*@import 'js/jsonEditor/dist/jsoneditor.min.css';*/
-    #jsoneditor{
-      height: 100%;
+    .jsoneditor{
+      height : 100%;
     }
   </style>
 

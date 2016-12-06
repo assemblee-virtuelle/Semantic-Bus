@@ -41,9 +41,16 @@ module.exports = {
         params += '&'
       }
       //console.log(params);
+      console.log('PORT | ',process.env.NODE_PORT);
+      var databaseName;
+      if(process.env.NODE_PORT!=undefined){
+        databaseName='semantic_bus'
+      }else{
+        databaseName = 'sementic_bus_dev'
+      }
       return {
         hostname: 'api.mlab.com',
-        path: '/api/1/databases/semantic_bus/collections/' + resource + '/?' + params + 'apiKey=ue_eHVRDWSW0r2YZuTLCi1BxVB_zXnOI',
+        path: '/api/1/databases/'+databaseName+'/collections/' + resource + '/?' + params + 'apiKey=ue_eHVRDWSW0r2YZuTLCi1BxVB_zXnOI',
         /*port: url.port,*/
         method: methodREST,
         headers: {

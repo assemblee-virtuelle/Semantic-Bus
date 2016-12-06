@@ -1,6 +1,6 @@
 <jsonTransformer class="containerV">
  <h3>{opts.title}</h3>
- <jsonEditor name="jsonSchema" title="Transform Schema" style="flex:1"></jsonEditor>
+ <jsonEditor name="jsonSchema" title="Transform Schema" style="flex:1" mode="code"></jsonEditor>
  <script>
 
    this.on('mount', function () {
