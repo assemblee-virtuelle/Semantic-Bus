@@ -49,7 +49,7 @@ module.exports = function(router) {
 
       });
       httpsReturn.on('end', function() {
-        console.log('mlab return', bodyChunks);
+        //console.log('mlab return', bodyChunks);
         res.json(bodyChunks);
       });
     });
@@ -73,7 +73,7 @@ module.exports = function(router) {
 
       });
       httpsReturn.on('end', function() {
-        console.log('mlab return', bodyChunks);
+        //console.log('mlab return', bodyChunks);
         res.json(bodyChunks);
       });
     });

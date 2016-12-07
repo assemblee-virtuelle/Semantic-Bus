@@ -15,7 +15,7 @@ module.exports = function(router) {
 
         var compileData = [];
         for (source of bodyChunks['@graph']) {
-          console.log(source['http://www.w3.org/ns/ldp#contains']);
+          //console.log(source['http://www.w3.org/ns/ldp#contains']);
           for (initiative of source['http://www.w3.org/ns/ldp#contains']){
             compileData = compileData.concat({
               name: initiative['@id']

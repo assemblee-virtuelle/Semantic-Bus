@@ -35,6 +35,7 @@ function WorkspaceStore() {
       //this.trigger('workspace_current_create_done',this.workspaceCurrent);
       console.log(data);
       this.load(function(data) {
+        this.trigger('workspace_current_persist_done');
         this.select(data);
         //this.trigger('workspace_current_persist_done', this.workspaceCurrent);
       }.bind(this, data));
@@ -50,6 +51,7 @@ function WorkspaceStore() {
       contentType: 'application/json'
     }).done(function(data) {
       this.load(function(data) {
+        this.trigger('workspace_current_persist_done');
         this.select(data);
         //this.trigger('workspace_current_persist_done', this.workspaceCurrent);
       }.bind(this, data));
@@ -74,7 +76,7 @@ function WorkspaceStore() {
 
   this.select = function(record) {
     //console.log('store select :', record);
-    record.mode = 'read';
+    //record.mode = 'read';
     this.workspaceCurrent = record;
     //this.workspaceCurrent.mode = 'read';
     for (listRecord of this.workspaceCollection) {
@@ -150,7 +152,7 @@ function WorkspaceStore() {
   });
 
   this.on('workspace_current_select', function(record) {
-
+    record.mode = 'read'
     this.select(record);
   });
 
@@ -237,7 +239,7 @@ function WorkspaceStore() {
 
   this.on('item_current_cancel', function(data) {
     //console.log('item_current_cancel :',this.workspaceComponentCurrent);
-    this.workspaceCurrent.mode = undefined;
+    this.workspaceCurrent.mode = 'read';
     this.cancelRequire = true;
   });
 

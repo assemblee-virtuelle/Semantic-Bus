@@ -16,8 +16,12 @@ module.exports = {
     //console.log(entityToInsert);
     return this.mLabPromise.request('POST', 'workspaceComponent', entityToInsert);
   },
-  getReadPromise: function(entityIdToRead) {
+  getReadPromise: function() {
     //console.log(entityToInsert);
     return this.mLabPromise.request('GET', 'workspaceComponent');
+  },
+  getReadPromiseById: function(entityIdToRead) {
+    //console.log(entityToInsert);
+    return this.mLabPromise.request('GET', 'workspaceComponent/'+entityIdToRead);
   }
 }
