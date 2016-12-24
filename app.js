@@ -8,6 +8,7 @@ var router = express.Router();
 var bodyParser = require("body-parser");
 router.use(bodyParser.json()); // used to parse JSON object given in the request body
 var env = process.env;
+
 //var cors = require('cors');
 //router.use(cors());
 

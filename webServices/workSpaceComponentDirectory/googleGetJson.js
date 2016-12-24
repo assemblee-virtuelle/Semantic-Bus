@@ -39,7 +39,7 @@ module.exports = {
             resolve(cleanData);
 
           } else {
-            console.log('Google query rejected | ', error);
+            //console.log('Google query rejected | ', error);
             reject({
               "error": error
             });
@@ -49,7 +49,7 @@ module.exports = {
     });
   },
   test: function(data) {
-    console.log('GOOGLE Get JSON | test : ', data);
+    //console.log('GOOGLE Get JSON | test : ', data);
     return this.makeRequest(data.specificData.key, data.specificData.select, data.specificData.offset, data.specificData.provider);
     /*this.makeRequest('GET', data.specificData.url).then(data => {
       //console.log('ALLO', data);

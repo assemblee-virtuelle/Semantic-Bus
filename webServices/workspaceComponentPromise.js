@@ -10,10 +10,11 @@ module.exports = {
     if (module.initComponent != undefined) {
       entityToInsert = module.initComponent(entityToInsert);
     }
+    //console.log('getInsertPromise | ',entityToInsert);
     entityToInsert.connectionsAfter = entityToInsert.connectionsAfter || [];
     entityToInsert.connectionsBefore = entityToInsert.connectionsBefore || [];
 
-    //console.log(entityToInsert);
+
     return this.mLabPromise.request('POST', 'workspaceComponent', entityToInsert);
   },
   getReadPromise: function() {

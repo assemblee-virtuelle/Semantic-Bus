@@ -1,7 +1,7 @@
 <google-geolocaliser-editor>
   <div>
-    <div>champ de l'objet permettant de définir la date</div>
-    <label>key</label>
+    <div>champ de l'objet permettant de définir la position géographique</div>
+    <label>street</label>
     <input type="text" name="streetInput" value={data.specificData.streetPath}></input>
     <label>town</label>
     <input type="text" name="townInput" value={data.specificData.townPath}></input>

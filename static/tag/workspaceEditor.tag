@@ -1,5 +1,5 @@
 <workspace-editor>
-  <div class="containerV" style="flex:1">
+  <!--<div class="containerV" style="flex-grow:1">-->
     <div class="commandBar containerH" show={innerData.mode=="read"}>
       <div class="containerH commandGroup">
           <div onclick={editClick}  class="commandButton">
@@ -30,13 +30,15 @@
               composants
             </div>
           </div>
-          <div class="selector" each={innerData.components} onclick={componentClick}>
-            {type} : {name}
+          <div class="containerV" style="flex-grow:1">
+            <div class="selector" each={innerData.components} onclick={componentClick}>
+              {type} : {name}
+            </div>
           </div>
         </div>
       </div>
     </div>
-  </div>
+  <!--</div>-->
 <script>
   this.innerData={}
   this.title = "Workspace"

@@ -19,6 +19,7 @@ body{
   justify-content: space-between;
   flex-basis:35px;
   padding: 2px;
+  overflow-y :visible;
 }
 
 .commandBar>*{

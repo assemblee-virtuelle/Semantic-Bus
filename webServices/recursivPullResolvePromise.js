@@ -7,10 +7,10 @@
 
 
 module.exports = {
-  technicalComponentDirectory: require('./technicalComponentDirectory.js'),
-  restGetJson: require('./workSpaceComponentDirectory/restGetJson.js'),
-  mLabPromise: require('./mLabPromise'),
-  workspaceComponentPromise: require('./workspaceComponentPromise.js'),
+  technicalComponentDirectory: require('./technicalComponentDirectory'),
+  //restGetJson: require('./workSpaceComponentDirectory/restGetJson.js'),
+  //mLabPromise: require('./mLabPromise'),
+  workspaceComponentPromise: require('./workspaceComponentPromise'),
   resolveComponentPull(component, notMainNode) {
     return this._makeRequest(component, notMainNode);
   },
@@ -19,10 +19,12 @@ module.exports = {
 
     // create a new Promise
     return new Promise((resolve, reject) => {
+      //console.log('recursivPullResolvePromise | ',component,' | connectionsBefore |',component.connectionsBefore);
+      var module = this.technicalComponentDirectory[component.module];
+      //console.log('recursivPullResolvePromise module | ',module);
 
-      var module = this.technicalComponentDirectory[component.module]
       if (component.connectionsBefore.length > 0 && (module.stepNode!=true || notMainNode!=true)) {
-        //console.log('resolveWebComponentPull | beforeId | ',webcomponent.connectionsBefore[0]);
+        //console.log('resolveWebComponentPull | beforeId | ',component.connectionsBefore[0]);
 
         Promise.all(
           component.connectionsBefore.map(connectionBeforeId =>

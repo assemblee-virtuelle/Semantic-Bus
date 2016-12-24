@@ -4,6 +4,7 @@ module.exports = {
   editor: 'rest-get-json-editor',
   url: require('url'),
   http: require('http'),
+  https : require('https'),
   makeRequest: function(methodRest, urlString, options) {
     //console.log(urlString);
     // create a new Promise
@@ -15,11 +16,19 @@ module.exports = {
         hostname: parsedUrl.hostname,
         path: parsedUrl.path,
         port: parsedUrl.port,
-        method: methodRest
+        method: methodRest,
+        headers: {
+          Accept: 'application/json',
+          'user-agent' : 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0'
+        }
       }
-      console.log(requestOptions);
-      const request = this.http.request(requestOptions, response => {
+      //console.log(requestOptions);
+
+      var lib= urlString.indexOf('htts')!=-1?this.http:this.https;
+
+      const request = lib.request(requestOptions, response => {
         const hasResponseFailed = response.status >= 400;
+        //console.log('REST Get JSON | header |',response.headers);
         var responseBody = '';
 
         if (hasResponseFailed) {

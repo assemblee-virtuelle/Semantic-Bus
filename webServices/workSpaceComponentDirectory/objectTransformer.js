@@ -49,33 +49,155 @@ module.exports = {
       }
       jsonTransformPattern = destArray;
     }
-    //var transformResult = transform(req.query.data, req.query.transformPattern);
-    //console.log(source);
-    //console.log(jsonTransformPattern);
-    var transformResult = this.transform(source, jsonTransformPattern);
-    //console.log('result : ', transformResult);
-    //console.log(Object.keys(transformResult)[0], Object.keys(transformResult)[0] == 'undefined');
-    //report result simple array at root
+
+
+
+    var dissociatePatternResolvable = this.dissociatePatternResolvable(jsonTransformPattern);
+    var dissociatePatternPostProcess = this.dissociatePatternPostProcess(jsonTransformPattern);
+    console.log('resolvable | ', dissociatePatternResolvable);
+    console.log('postProcess | ', dissociatePatternPostProcess);
+    var transformResult = this.transform(source, dissociatePatternResolvable);
     if (Object.keys(transformResult)[0] == 'undefined') {
       transformResult = transformResult['undefined'];
     }
-
     //console.log('jsonTransform | resultBeforUnresolved |',transformResult);
+    var destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable)
+    console.log('jsonTransform | afterBeforUnresolved |',destResult);
+    var postProcessResult;
+    if (dissociatePatternPostProcess == undefined) {
+      postProcessResult = destResult;
+    } else {
+      postProcessResult = this.postProcess(destResult, dissociatePatternPostProcess)
+    }
 
-    var destResult;
-    /*  if (transformResult instanceof Array) {
-        destResult = [];
-        for (record of transformResult) {
-          destResult.push(this.unresolveProcess(record, jsonTransformPattern[1]));
-        }
-      } else {*/
-    destResult = this.unresolveProcess(transformResult, jsonTransformPattern)
-      /*}*/
-
-
-
-    return destResult;
+    console.log(postProcessResult);
+    return postProcessResult;
   },
+  dissociatePatternResolvable: function(nodeIn) {
+    var nodeOut = {}
+    if (Array.isArray(nodeIn)) {
+      nodeOut = [];
+    } else {
+      nodeOut = {};
+    }
+
+
+    for (var key in nodeIn) {
+      //console.log('node |', typeof nodeIn[key], ' | ', nodeIn[key]);
+      if (typeof nodeIn[key] == 'object') {
+
+        if (Array.isArray(nodeIn)) {
+          nodeOut.push(this.dissociatePatternResolvable(nodeIn[key]));
+        } else {
+          nodeOut[key] = this.dissociatePatternResolvable(nodeIn[key]);
+        }
+
+      } else {
+        if (typeof nodeIn[key] == 'string') {
+          if (nodeIn[key].indexOf(':') != -1) {
+            var resolvablePattern = nodeIn[key].substring(0, nodeIn[key].indexOf(':'));
+            nodeOut[key] = resolvablePattern;
+          } else {
+            nodeOut[key] = nodeIn[key];
+          }
+        } else {
+          nodeOut[key] = nodeIn[key];
+        }
+      }
+    }
+    //console.log(nodeOut);
+    return nodeOut;
+  },
+  dissociatePatternPostProcess: function(nodeIn) {
+    var nodeOut = {}
+    if (Array.isArray(nodeIn)) {
+      nodeOut = [];
+    } else {
+      nodeOut = {};
+    }
+
+    for (var key in nodeIn) {
+      //console.log('node |', typeof nodeIn[key], ' | ', nodeIn[key]);
+      if (typeof nodeIn[key] == 'object') {
+        var dissociatePatternPostProcess = this.dissociatePatternPostProcess(nodeIn[key]);
+        if (dissociatePatternPostProcess != undefined) {
+          if (Array.isArray(nodeIn)) {
+            nodeOut.push(this.dissociatePatternPostProcess(nodeIn[key]));
+          } else {
+            nodeOut[key] = this.dissociatePatternPostProcess(nodeIn[key]);
+          }
+        }
+      } else {
+        if (typeof nodeIn[key] == 'string') {
+          if (nodeIn[key].indexOf(':') != -1) {
+            var postProcessPattern = nodeIn[key].substring(nodeIn[key].indexOf(':') + 1, nodeIn[key].length);
+            nodeOut[key] = {
+              process: 'typeConvertion',
+              type: postProcessPattern
+            };
+          } else if (key == 0 && nodeIn[key].indexOf('$') != -1) {
+            //do nothing : source for a array
+          }
+        }
+      }
+    }
+    var atLeastOneProperty = false;
+    //console.log('nodeOut intemediate|',
+    for (var key in nodeOut) {
+      //console.log('property|', key);
+      atLeastOneProperty = true;
+    }
+    if (atLeastOneProperty == false) {
+      nodeOut = undefined;
+    }
+
+    //console.log(nodeOut);
+    return nodeOut;
+  },
+  postProcess: function(nodeInData, nodeInPostProcess) {
+
+
+
+    var nodeOut;
+
+    if (Array.isArray(nodeInData)) {
+      nodeOut = [];
+      if (nodeInPostProcess[0] != undefined) {
+        for (recordData of nodeInData) {
+          nodeOut.push(this.postProcess(recordData, nodeInPostProcess[0]));
+        }
+      } else {
+        nodeOut = nodeInData;
+      }
+    } else if (typeof nodeInPostProcess == 'object') {
+      nodeOut = {};
+      for (var nodeInDataProperty in nodeInData) {
+        if (nodeInPostProcess[nodeInDataProperty] != undefined) {
+          if (nodeInPostProcess[nodeInDataProperty].process != undefined) {
+            console.log('PostProcess | ', nodeInPostProcess[nodeInDataProperty]);
+            var processObject = nodeInPostProcess[nodeInDataProperty];
+            var result;
+            var nodeInValue = nodeInData[nodeInDataProperty];
+            if (processObject.process == 'typeConvertion') {
+              if (processObject.type == 'string') {
+                result = nodeInValue.toString();
+              }else if (processObject.type == 'float') {
+                result = parseFloat(nodeInValue.replace(",", "."));
+              }
+            }
+            nodeOut[nodeInDataProperty] = result;
+          } else {
+            nodeOut[nodeInDataProperty] = this.postProcess(nodeInData[nodeInDataProperty], nodeInPostProcess[nodeInDataProperty]);
+          }
+        } else {
+          nodeOut[nodeInDataProperty] = nodeInData[nodeInDataProperty];
+        }
+      }
+      //nodeOut[nodeInDataProperty] = this.postProcess(nodeInData[nodeInDataProperty], nodeInPostProcessValue)
+    }
+    return nodeOut;
+  },
+
   unresolveProcess: function(nodeIn, jsonTransformPattern) {
     var nodeOut;
     if (Array.isArray(nodeIn)) {
@@ -86,22 +208,18 @@ module.exports = {
 
     for (var key in nodeIn) {
       if (nodeIn[key] == undefined) {
-        //console.log('unresolveProcess | ',key,'|',jsonTransformPattern);
+
         if (typeof jsonTransformPattern[key] == 'string' && jsonTransformPattern[key].indexOf('$') != -1) {
-          nodeOut[key] =  '';
+          nodeOut[key] = '';
         } else {
+          //console.log('unresolveProcess | ',key,'|',jsonTransformPattern[key]);
           nodeOut[key] = jsonTransformPattern[key];
         }
       } else {
-
-
         //nodeOut[key] = nodeIn[key];
         if (typeof nodeIn[key] == 'object') {
-          //console.log('unresolveProcess | key | ', key, ' | array | ', Array.isArray(nodeIn), ' | nodeIn |', nodeIn);
-          //console.log('unresolveProcess | node[key] | ', nodeIn[key]);
-          //console.log('unresolveProcess | pattern | ', jsonTransformPattern[key]);
           if (Array.isArray(nodeIn)) {
-            //console.log('unresolveProcess | array | ', nodeOut);
+
             nodeOut.push(this.unresolveProcess(nodeIn[key], jsonTransformPattern[1]));
 
           } else {
@@ -113,6 +231,7 @@ module.exports = {
 
       }
     }
+    //console.log('unresolveProcess intermediate| ',nodeOut);
     return nodeOut;
   },
   test: function(data, flowData) {

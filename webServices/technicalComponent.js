@@ -1,6 +1,7 @@
 module.exports = function(router) {
   var https = require('https');
   var technicalComponentDirectory = require('./technicalComponentDirectory.js');
+  technicalComponentDirectory.initialise(router);
 
   router.get('/core/technicalComponent/', function(req, res) {
     var directory = [];
@@ -98,7 +99,7 @@ module.exports = function(router) {
 
       });
       httpsReturn.on('end', function() {
-        console.log('mlab return', bodyChunks);
+        //console.log('mlab return', bodyChunks);
         res.json(bodyChunks);
       });
     });

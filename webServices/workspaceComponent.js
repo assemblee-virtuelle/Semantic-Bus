@@ -1,9 +1,10 @@
 module.exports = function(router) {
   var mLabPromise = require('./mLabPromise');
   var recursivPullResolvePromise = require('./recursivPullResolvePromise')
-  var technicalComponentDirectory = require('./technicalComponentDirectory.js');
+  //var technicalComponentDirectory = require('./technicalComponentDirectory.js');
   var workspaceComponentPromise = require('./workspaceComponentPromise.js');
   var workspaceBusiness = require('./workspaceBusiness.js');
+
 
 
   //doc to promises : http://stackoverflow.com/questions/35182752/promises-with-http-get-node-js
@@ -21,8 +22,8 @@ module.exports = function(router) {
 
     var id = req.params.id;
     mLabPromise.request('GET', 'workspaceComponent/' + id).then(function(data) {
-      console.log('workspaceComponent | test| ',data);
-      return recursivPullResolvePromise.resolveComponentPull(data,false);
+      //console.log('workspaceComponent | test| ', data);
+      return recursivPullResolvePromise.resolveComponentPull(data, false);
     }).then(function(data) {
       res.json(data);
     })
@@ -30,41 +31,47 @@ module.exports = function(router) {
   });
 
   router.put('/core/workspaceComponent/', function(req, res) {
-    var id = req.body._id.$oid;
-    var componentToUpdate = req.body;
+    var configuration = require('../configuration');
+    if (configuration.saveLock==false) {
 
-    componentToUpdate.connectionsAfter = componentToUpdate.connectionsAfter || [];
-    componentToUpdate.connectionsBefore = componentToUpdate.connectionsBefore || [];
+      var id = req.body._id.$oid;
+      var componentToUpdate = req.body;
 
-    //console.log('put workspace component | componentToUpdate |',componentToUpdate);
+      componentToUpdate.connectionsAfter = componentToUpdate.connectionsAfter || [];
+      componentToUpdate.connectionsBefore = componentToUpdate.connectionsBefore || [];
 
-    mLabPromise.request('GET', 'workspaceComponent', undefined, {
-      q: {
-        workspaceId: componentToUpdate.workspaceId
-      }
-    }).then(function(workspaceComponents) {
-      var indexCurrentComponent
-      for (var i; i < workspaceComponents.length; i++) {
-        if (workspaceComponents[i]._id.$oid == componentToUpdate._id.$oid) {
-          indexCurrentComponent = i;
-          break;
+      //console.log('put workspace component | componentToUpdate |',componentToUpdate);
+
+      mLabPromise.request('GET', 'workspaceComponent', undefined, {
+        q: {
+          workspaceId: componentToUpdate.workspaceId
         }
-      }
-      workspaceComponents[indexCurrentComponent] = componentToUpdate;
-      impactedComponentPromises = [];
-      impactedComponentPromises.push(mLabPromise.request('PUT', 'workspaceComponent/' + componentToUpdate._id.$oid, componentToUpdate));
-      //console.log(workspaceBusiness);
-      workspaceBusiness.checkWorkspaceComponentConsistency(workspaceComponents, function(workspaceComponentImpacted) {
-        impactedComponentPromises.push(mLabPromise.request('PUT', 'workspaceComponent/' + workspaceComponentImpacted._id.$oid, workspaceComponentImpacted));
+      }).then(function(workspaceComponents) {
+        var indexCurrentComponent
+        for (var i; i < workspaceComponents.length; i++) {
+          if (workspaceComponents[i]._id.$oid == componentToUpdate._id.$oid) {
+            indexCurrentComponent = i;
+            break;
+          }
+        }
+        workspaceComponents[indexCurrentComponent] = componentToUpdate;
+        impactedComponentPromises = [];
+        impactedComponentPromises.push(mLabPromise.request('PUT', 'workspaceComponent/' + componentToUpdate._id.$oid, componentToUpdate));
+        //console.log(workspaceBusiness);
+        workspaceBusiness.checkWorkspaceComponentConsistency(workspaceComponents, function(workspaceComponentImpacted) {
+          impactedComponentPromises.push(mLabPromise.request('PUT', 'workspaceComponent/' + workspaceComponentImpacted._id.$oid, workspaceComponentImpacted));
+        });
+        return Promise.all(impactedComponentPromises);
+
+      }).then(function(Components) {
+        //console.log('put workspace component | componentsUpdated |', Components);
+
+        res.json(Components[0]);
+        //return mLabPromise.request('PUT', 'workspaceComponent/' + id, componentToUpdate);
       });
-      return Promise.all(impactedComponentPromises);
-
-    }).then(function(Components) {
-      console.log('put workspace component | componentsUpdated |',Components);
-
-      res.json(Components[0]);
-      return mLabPromise.request('PUT', 'workspaceComponent/' + id, componentToUpdate);
-    });
+    }else{
+      res.json({message : 'save forbiden'})
+    }
   });
 
   router.post('/core/workspaceComponent/', function(req, res) {

@@ -1,20 +1,21 @@
 <navigation>
-  <div class="containerV" style="bottom:0;top:0;right:0;left:0;position:absolute;">
+  <!--<div class="containerV" style="bottom:0;top:0;right:0;left:0;position:absolute;">-->
+  <div class="containerV" class="containerV" style="height: 100vh;flex-shrink:5">
+    <div show={modeNavigation} class="containerV" style="flex-grow:1;flex-basis:50%">
+      <div class="containerH" style="flex-grow:1">
+        <div class="containerV" style="flex-basis:20%">
+          <div name="workspaceSelector" class="selector mainSelector" style="flex-basis:100px"><div>Workspace</div></div>
+          <div name="technicalComponentSelector" class="selector mainSelector" style="flex-basis:100px"><div>Composant Technique</div></div>
+        </div>
+        <div class="containerV" id="contentNavigator" style="flex-basis:30%">
 
-    <div show={modeNavigation} class="containerH" style="flex-grow:1">
-      <div class="containerV" style="flex-basis:20%">
-        <div name="workspaceSelector" class="selector mainSelector" style="flex-basis:100px"><div>Workspace</div></div>
-        <div name="technicalComponentSelector" class="selector mainSelector" style="flex-basis:100px"><div>Composant Technique</div></div>
+        </div>
+        <div class="containerV" style="flex-grow:1" id="detailContainer">
+
+        </div>
       </div>
-      <div id="contentNavigator" style="flex-basis:30%">
-
-      </div>
-      <div style="flex-grow:1" id="detailContainer">
-
-      </div>
-
     </div>
-    <div style="flex-grow:1" class="containerV" show={modeEdition}>
+    <div style="flex-grow:1; flex-basis:50%" class="containerV" show={modeEdition}>
       <div class="containerH commandBar" style="flex-basis:50px">
         <div class="commandGroup" class="containerH">
         </div>

@@ -26,7 +26,11 @@ function MainController(workSpaceStore, genericStore) {
       });*/
 
   genericStore.on('item_current_persist_done', function(message) {
-    workSpaceStore.trigger('workspace_synchoniseFromServer_byId', message.workspaceId);
+    if(message.workspaceId!=undefined){
+      workSpaceStore.trigger('workspace_synchoniseFromServer_byId', message.workspaceId);
+    }else{
+      this.trigger('workspace_synchoniseFromServer_done', this.workspaceCollection);
+    }
   }.bind(this));
 
   workSpaceStore.on('workspace_synchoniseFromServer_done', function(message) {
