@@ -5,8 +5,11 @@ module.exports = {
    simpleAgregator : require('./workSpaceComponentDirectory/simpleAgregator.js'),
    googleGeoLocaliser : require('./workSpaceComponentDirectory/googleGeoLocaliser.js'),
    cacheNosql : require('./workSpaceComponentDirectory/cacheNosql.js'),
-   gouvInverseGeo : require('./workSpaceComponentDirectory/gouvInverseGeo.js'),
+   gouvFrInverseGeo : require('./workSpaceComponentDirectory/gouvFrInverseGeo.js'),
    restApiGet : require('./workSpaceComponentDirectory/restApiGet.js'),
+   xmlToObject : require('./workSpaceComponentDirectory/xmlToObject.js'),
+   framcalcGetCsv : require('./workSpaceComponentDirectory/framcalcGetCsv.js'),
+   gouvFrGeoLocaliser : require('./workSpaceComponentDirectory/gouvFrGeoLocaliser.js'),
    /* some other modules you want */
    initialise : function(router){
      this.restApiGet.initialise(router);

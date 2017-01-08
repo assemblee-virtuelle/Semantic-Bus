@@ -16,6 +16,8 @@
     "jsonpath-object-transform":"latest",
     "sheetrock":"latest",
     "slickgrid":"latest",
+    "xml2js":"latest",
+    "csvtojson":"latest",
     "jquery":"latest"
   }
 }
