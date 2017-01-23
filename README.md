@@ -4,8 +4,8 @@ semantic data transformation &amp; semantic container crawling
 2 Goals
 - transform data betwen heterogenus ontologies
   - multiple source protocole
-  - multiple detination protocole
-  - no coding transformation
+  - multiple destination protocole
+  - data transformation withiut coding
   - data completion from linked field
   - data agregation from multiple source
   - geo data completion from adresse
