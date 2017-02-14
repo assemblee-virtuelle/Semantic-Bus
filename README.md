@@ -5,7 +5,7 @@ semantic data transformation &amp; semantic container crawling
 - transform data betwen heterogenus ontologies
   - multiple source protocole
   - multiple destination protocole
-  - data transformation withiut coding
+  - data transformation without coding
   - data completion from linked field
   - data agregation from multiple source
   - geo data completion from adresse
