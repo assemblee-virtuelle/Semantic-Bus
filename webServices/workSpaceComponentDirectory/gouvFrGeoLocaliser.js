@@ -37,7 +37,7 @@ module.exports = {
               urlString = urlString + encodeURI(addressGouvFrFormated);
               //urlString = urlString + '&key='+apiKey;
 
-              console.log('geoLocalise | urlString |', urlString);
+              //console.log('geoLocalise | urlString |', urlString);
 
               const parsedUrl = this.url.parse(urlString);
               //console.log('REST Get JSON | makerequest | port',parsedUrl.port);
@@ -66,8 +66,14 @@ module.exports = {
 
                 // once all the data has been read, resolve the Promise
                 response.on('end', () => {
-                  console.log(responseBody);
-                  resolve(JSON.parse(responseBody));
+                  //console.log(responseBody);
+                  try {
+                    resolve(JSON.parse(responseBody));
+                  } catch(e) {
+                    resolve({error:e});
+                    console.log({error:e});
+                    //throw e;
+                  }
                 });
               });
 
@@ -81,10 +87,10 @@ module.exports = {
       }
       Promise.all(goePromises).then(geoLocalisations => {
         var result = [];
-        console.log('geoLocalise | geoLocalisations result |', geoLocalisations);
+        //console.log('geoLocalise | geoLocalisations result |', geoLocalisations);
         for (var geoLocalisationKey in geoLocalisations) {
           //console.log('geoLocalise | geoLocalisations line |',geoLocalisations[geoLocalisationKey].features[0]);
-          if (geoLocalisations[geoLocalisationKey].features[0] != undefined) {
+          if (geoLocalisations[geoLocalisationKey].error == undefined && geoLocalisations[geoLocalisationKey].features[0] != undefined) {
             var record = source[geoLocalisationKey];
             record[specificData.latitudePath] = geoLocalisations[geoLocalisationKey].features[0].geometry.coordinates[1];
             record[specificData.longitudePath] = geoLocalisations[geoLocalisationKey].features[0].geometry.coordinates[0];
