@@ -65,16 +65,16 @@ module.exports = {
                 });
 
                 // once all the data has been read, resolve the Promise
-                response.on('end', () => {
+                response.on('end', function(){
                   //console.log(responseBody);
                   try {
                     resolve(JSON.parse(responseBody));
                   } catch(e) {
-                    resolve({error:e});
                     console.log({error:e});
+                    resolve({error:e});
                     //throw e;
                   }
-                });
+                }.bind(this));
               });
 
               /* if there's an error, then reject the Promise
