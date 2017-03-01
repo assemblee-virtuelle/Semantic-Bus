@@ -70,7 +70,7 @@ module.exports = {
                   try {
                     resolve(JSON.parse(responseBody));
                   } catch(e) {
-                    console.log({error:e});
+                    //console.log({error:e});
                     resolve({error:e});
                     //throw e;
                   }
@@ -83,13 +83,19 @@ module.exports = {
               request.end();
             })
           );
+        }else{
+          goePromises.push(
+            new Promise((resolve, reject) => {
+              resolve({error:'no adresse'});
+            })
+          );
         }
       }
       Promise.all(goePromises).then(geoLocalisations => {
         var result = [];
         //console.log('geoLocalise | geoLocalisations result |', geoLocalisations);
         for (var geoLocalisationKey in geoLocalisations) {
-          //console.log('geoLocalise | geoLocalisations line |',geoLocalisations[geoLocalisationKey].features[0]);
+          console.log('geoLocalise | geoLocalisations line |',geoLocalisations[geoLocalisationKey]);
           if (geoLocalisations[geoLocalisationKey].error == undefined && geoLocalisations[geoLocalisationKey].features[0] != undefined) {
             var record = source[geoLocalisationKey];
             record[specificData.latitudePath] = geoLocalisations[geoLocalisationKey].features[0].geometry.coordinates[1];

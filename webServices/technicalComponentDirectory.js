@@ -10,6 +10,8 @@ module.exports = {
    xmlToObject : require('./workSpaceComponentDirectory/xmlToObject.js'),
    framcalcGetCsv : require('./workSpaceComponentDirectory/framcalcGetCsv.js'),
    gouvFrGeoLocaliser : require('./workSpaceComponentDirectory/gouvFrGeoLocaliser.js'),
+   gouvFrGeoLocaliserMass : require('./workSpaceComponentDirectory/gouvFrGeoLocaliserMass.js'),
+
    /* some other modules you want */
    initialise : function(router){
      this.restApiGet.initialise(router);
