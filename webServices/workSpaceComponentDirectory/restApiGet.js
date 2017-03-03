@@ -13,14 +13,13 @@ module.exports = new function() {
       this.recursivPullResolvePromise = require('../recursivPullResolvePromise')
       this.mLabPromise.request('GET', 'workspaceComponent', undefined, {
         q: {
-          specificData: {
-            url: urlRequiered
-          }
+          "specificData.url": urlRequiered
         }
       }).then(function(data) {
-
+        res.setHeader('content-type', data[0].specificData.contentType);
         return this.recursivPullResolvePromise.resolveComponentPull(data[0], false);
       }.bind(this)).then(function(data) {
+
         res.json(data);
       });
 

@@ -16,8 +16,9 @@
           <div>description</div>
         </yield>
         <yield to="row">
-          <div style="width:30%">{type}</div>
-          <div style="width:70%">{description}</div>
+          <div style="width:20%">{type}</div>
+          <div style="width:50%">{description}</div>
+          <div style="width:20%">{name}</div>
         </yield>
       </zenTable>
       <!--<span>composant d'initialisation : </span>

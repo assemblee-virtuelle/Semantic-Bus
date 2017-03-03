@@ -60,7 +60,7 @@ module.exports = {
     if (Object.keys(transformResult)[0] == 'undefined') {
       transformResult = transformResult['undefined'];
     }
-    console.log('jsonTransform | resultBeforUnresolved |',transformResult);
+    console.log('jsonTransform | resultBeforUnresolved |', transformResult);
     var destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable)
     console.log('jsonTransform | afterUnresolved |', destResult);
     var postProcessResult;
@@ -74,7 +74,8 @@ module.exports = {
     return postProcessResult;
   },
   dissociatePatternResolvable: function(nodeIn) {
-    var nodeOut = {}
+    console.log(nodeIn);
+    var nodeOut;
     if (Array.isArray(nodeIn)) {
       nodeOut = [];
     } else {
@@ -189,19 +190,33 @@ module.exports = {
         if (nodeInPostProcess[nodeInDataProperty] != undefined) {
           if (typeof nodeInPostProcess[nodeInDataProperty] == 'string') {
             //console.log('PostProcess | ', nodeInPostProcess[nodeInDataProperty]);
-            var javascriptEvalString=nodeInPostProcess[nodeInDataProperty];
-            for(evalParam in nodeInData[nodeInDataProperty]){
+            var javascriptEvalString = nodeInPostProcess[nodeInDataProperty];
+            for (evalParam in nodeInData[nodeInDataProperty]) {
               var evalParamValue = nodeInData[nodeInDataProperty][evalParam];
-              if (typeof evalParamValue == 'string'){
-                evalParamValue= '\''+evalParamValue+'\'';
+              if (typeof evalParamValue == 'string') {
+                evalParamValue = '"' + evalParamValue + '"';
               }
-              if (typeof evalParamValue == 'object'){
-                evalParamValue= 'JSON.parse(\''+JSON.stringify(evalParamValue)+'\')';
+              if (typeof evalParamValue == 'object') {
+                //evalParamValue= 'JSON.parse(\''+JSON.stringify(evalParamValue)+'\')';
+                evalParamValue = JSON.stringify(evalParamValue)
+                evalParamValue = evalParamValue.replace(/'/g, "\\'")
+                evalParamValue = "JSON.parse('" + evalParamValue + "')";
+                //evalParamValue = evalParamValue.replace("'", "X");
+                //evalParamValue=evalParamValue.replace(":","X");
+                console.log('evalParamValue |', evalParamValue);
+
               }
-              javascriptEvalString = javascriptEvalString.replace('{'+evalParam+'}',evalParamValue)
+              const regex = /({\$\.entities?})/g;
+              let regExpValue = new RegExp('({\\'+evalParam+'})', 'g');
+              javascriptEvalString = javascriptEvalString.replace(regExpValue, evalParamValue)
             }
             console.log(javascriptEvalString);
-            nodeOut[nodeInDataProperty] = eval(javascriptEvalString);
+            try {
+              nodeOut[nodeInDataProperty] = eval(javascriptEvalString);
+            } catch (e) {
+              console.log(e);
+            }
+            console.log('BOBO');
           } else {
             nodeOut[nodeInDataProperty] = this.postProcess(nodeInData[nodeInDataProperty], nodeInPostProcess[nodeInDataProperty]);
           }
@@ -233,7 +248,7 @@ module.exports = {
         }
       } else {
         //nodeOut[key] = nodeIn[key];
-        if (typeof nodeIn[key] == 'object' && jsonTransformPattern!=undefined) {
+        if (typeof nodeIn[key] == 'object' && jsonTransformPattern != undefined) {
 
           if (Array.isArray(nodeIn)) {
 
