@@ -1,6 +1,6 @@
 module.exports = function(router) {
   var mLabPromise = require('./mLabPromise');
-  var recursivPullResolvePromise = require('./recursivPullResolvePromise')
+  var recursivPullResolvePromise = require('./recursivPullResolvePromise');
   //var technicalComponentDirectory = require('./technicalComponentDirectory.js');
   var workspaceComponentPromise = require('./workspaceComponentPromise.js');
   var workspaceBusiness = require('./workspaceBusiness.js');
@@ -25,7 +25,7 @@ module.exports = function(router) {
       //console.log('workspaceComponent | test| ', data);
       return recursivPullResolvePromise.resolveComponentPull(data, false);
     }).then(function(data) {
-      res.json(data);
+      res.json(data.data);
     })
 
   });

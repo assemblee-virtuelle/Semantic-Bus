@@ -36,10 +36,10 @@ module.exports = {
               cleanData.push(cleanRecord);
             }
 
-            resolve(cleanData);
+            resolve({data:cleanData});
 
           } else {
-            //console.log('Google query rejected | ', error);
+            console.log('Google query rejected | ', error);
             reject({
               "error": error
             });

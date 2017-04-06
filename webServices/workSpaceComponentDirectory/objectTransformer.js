@@ -54,15 +54,15 @@ module.exports = {
 
     var dissociatePatternResolvable = this.dissociatePatternResolvable(jsonTransformPattern);
     var dissociatePatternPostProcess = this.dissociatePatternPostProcess(jsonTransformPattern);
-    console.log('resolvable | ', dissociatePatternResolvable);
-    console.log('postProcess | ', dissociatePatternPostProcess);
+    //console.log('resolvable | ', dissociatePatternResolvable);
+    //console.log('postProcess | ', dissociatePatternPostProcess);
     var transformResult = this.transform(source, dissociatePatternResolvable);
     if (Object.keys(transformResult)[0] == 'undefined') {
       transformResult = transformResult['undefined'];
     }
-    console.log('jsonTransform | resultBeforUnresolved |', transformResult);
+    //console.log('jsonTransform | resultBeforUnresolved |', transformResult);
     var destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable)
-    console.log('jsonTransform | afterUnresolved |', destResult);
+      //console.log('jsonTransform | afterUnresolved |', destResult);
     var postProcessResult;
     if (dissociatePatternPostProcess == undefined) {
       postProcessResult = destResult;
@@ -74,7 +74,7 @@ module.exports = {
     return postProcessResult;
   },
   dissociatePatternResolvable: function(nodeIn) {
-    console.log(nodeIn);
+    //console.log(nodeIn);
     var nodeOut;
     if (Array.isArray(nodeIn)) {
       nodeOut = [];
@@ -99,7 +99,7 @@ module.exports = {
           const regex = /^=(.*)/g;
           const str = nodeIn[key];
           if (str.match(regex) != null) {
-            const regex2 = /{(.*?)}/g;
+            const regex2 = /{(\$.*?)}/g;
             let elementsRaw = str.match(regex2);
             if (elementsRaw != null) {
               let elements = elementsRaw.map(function(match) {
@@ -109,6 +109,7 @@ module.exports = {
               for (elementKey in elements) {
                 dispatchParameter[elements[elementKey]] = elements[elementKey];
               }
+              //console.log(dispatchParameter);
               nodeOut[key] = dispatchParameter;
             }
 
@@ -192,7 +193,9 @@ module.exports = {
             //console.log('PostProcess | ', nodeInPostProcess[nodeInDataProperty]);
             var javascriptEvalString = nodeInPostProcess[nodeInDataProperty];
             for (evalParam in nodeInData[nodeInDataProperty]) {
+              //console.log(evalParam);
               var evalParamValue = nodeInData[nodeInDataProperty][evalParam];
+              //console.log('evalParamValue | ',evalParamValue);
               if (typeof evalParamValue == 'string') {
                 evalParamValue = '"' + evalParamValue + '"';
               }
@@ -203,20 +206,18 @@ module.exports = {
                 evalParamValue = "JSON.parse('" + evalParamValue + "')";
                 //evalParamValue = evalParamValue.replace("'", "X");
                 //evalParamValue=evalParamValue.replace(":","X");
-                console.log('evalParamValue |', evalParamValue);
+                //console.log('evalParamValue |', evalParamValue);
 
               }
-              const regex = /({\$\.entities?})/g;
-              let regExpValue = new RegExp('({\\'+evalParam+'})', 'g');
+              let regExpValue = new RegExp('({\\' + evalParam + '})', 'g');
               javascriptEvalString = javascriptEvalString.replace(regExpValue, evalParamValue)
             }
-            console.log(javascriptEvalString);
+            console.log('javascriptEvalString | ',javascriptEvalString);
             try {
               nodeOut[nodeInDataProperty] = eval(javascriptEvalString);
             } catch (e) {
               console.log(e);
             }
-            console.log('BOBO');
           } else {
             nodeOut[nodeInDataProperty] = this.postProcess(nodeInData[nodeInDataProperty], nodeInPostProcess[nodeInDataProperty]);
           }
@@ -237,7 +238,7 @@ module.exports = {
     }
 
     for (var key in nodeIn) {
-      console.log(key);
+      //console.log(key);
       if (nodeIn[key] == undefined) {
 
         if (typeof jsonTransformPattern[key] == 'string' && jsonTransformPattern[key].indexOf('$') != -1) {
@@ -270,7 +271,10 @@ module.exports = {
   test: function(data, flowData) {
     //console.log('Object Transformer | test : ',data,' | ',flowData[0].length);
     return new Promise((resolve, reject) => {
-      resolve(this.jsonTransform(flowData[0], data.specificData.transformObject));
+      //console.log('XXXX |',flowData[0]);
+      resolve({
+        data: this.jsonTransform(flowData[0].data, data.specificData.transformObject)
+      });
     })
   }
 }

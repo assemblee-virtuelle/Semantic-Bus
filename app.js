@@ -2,7 +2,7 @@
 var express = require('express')
 var cors = require('cors')
 var app = express();
-app.use(cors);
+app.use(cors());
 var server = require('http').Server(app);
 var https = require('https');
 //var io = require('socket.io')(server);

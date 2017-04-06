@@ -99,13 +99,13 @@ module.exports = {
           }
         }
         console.log('gouvInverse | result |',result);
-        resolve(result);
+        resolve({data:result});
       });
 
     })
   },
   test: function(data, flowData) {
     //console.log('Object Transformer | test : ',data,' | ',flowData[0].length);
-    return this.inverseGeoLocalise(flowData[0], data.specificData);
+    return this.inverseGeoLocalise(flowData[0].data, data.specificData);
   }
 }

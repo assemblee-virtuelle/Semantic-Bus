@@ -16,11 +16,12 @@ module.exports = new function() {
           "specificData.url": urlRequiered
         }
       }).then(function(data) {
+        //console.log(data);
         res.setHeader('content-type', data[0].specificData.contentType);
         return this.recursivPullResolvePromise.resolveComponentPull(data[0], false);
       }.bind(this)).then(function(data) {
-
-        res.json(data);
+        console.log(data);
+        res.json(data.data);
       });
 
       //console.log('restApiGet webservice Request');
@@ -32,10 +33,10 @@ module.exports = new function() {
     //console.log('Flow Agregator | test : ',data,' | ',flowData);
     return new Promise((resolve, reject) => {
       if (flowData != undefined) {
-        //console.log('cash data | ',flowData);
-        resolve(flowData)
+        //console.log('api data | ',flowData);
+        resolve({data:flowData[0].data})
       } else {
-        throw new Error('composant finale : ne peux etre braché comme source')
+        throw new Error('composant finale : ne peux etre branché comme source')
       }
     })
   }

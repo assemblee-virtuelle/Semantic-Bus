@@ -132,6 +132,6 @@ module.exports = {
   },
   test: function(data, flowData) {
     //console.log('Object Transformer | test : ',data,' | ',flowData[0].length);
-    return this.geoLocalise(flowData[0], data.specificData);
+    return this.geoLocalise(flowData[0].data, data.specificData);
   }
 }

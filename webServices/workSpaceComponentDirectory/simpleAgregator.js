@@ -10,10 +10,10 @@ module.exports = {
       var resultFlow =[];
       for (flow of flowData){
         //console.log('Flow Agregator | result flow |  ',flow);
-        resultFlow=resultFlow.concat(flow)
+        resultFlow=resultFlow.concat(flow.data)
       }
       //console.log('Flow Agregator | result total |  ',resultFlow);
-      resolve(resultFlow);
+      resolve({data:resultFlow});
     })
   }
 }

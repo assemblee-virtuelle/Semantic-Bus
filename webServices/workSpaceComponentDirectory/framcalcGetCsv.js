@@ -57,7 +57,7 @@ module.exports = {
               console.log('end')
             }).on('end_parsed', (jsonArr) => {
               console.log(jsonArr);
-              resolve(jsonArr);
+              resolve({data:jsonArr});
             })
             //resolve(JSON.parse(responseBody));
         });
