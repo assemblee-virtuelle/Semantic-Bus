@@ -13,6 +13,7 @@ module.exports = {
    gouvFrGeoLocaliserMass : require('./workSpaceComponentDirectory/gouvFrGeoLocaliserMass.js'),
    joinByField : require('./workSpaceComponentDirectory/joinByField.js'),
    deeperFocusOpeningBracket : require('./workSpaceComponentDirectory/deeperFocusOpeningBracket.js'),
+   filter : require('./workSpaceComponentDirectory/filter.js'),
 
 
    /* some other modules you want */
