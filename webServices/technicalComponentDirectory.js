@@ -10,8 +10,15 @@ module.exports = {
    xmlToObject : require('./workSpaceComponentDirectory/xmlToObject.js'),
    framcalcGetCsv : require('./workSpaceComponentDirectory/framcalcGetCsv.js'),
    gouvFrGeoLocaliser : require('./workSpaceComponentDirectory/gouvFrGeoLocaliser.js'),
+   gouvFrGeoLocaliserMass : require('./workSpaceComponentDirectory/gouvFrGeoLocaliserMass.js'),
+   joinByField : require('./workSpaceComponentDirectory/joinByField.js'),
+   deeperFocusOpeningBracket : require('./workSpaceComponentDirectory/deeperFocusOpeningBracket.js'),
+   filter : require('./workSpaceComponentDirectory/filter.js'),
+
+
    /* some other modules you want */
-   initialise : function(router){
+   initialise : function(router,recursivPullResolvePromise){
      this.restApiGet.initialise(router);
+     this.cacheNosql.initialise(router,recursivPullResolvePromise);
    }
 }

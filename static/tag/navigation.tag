@@ -87,8 +87,6 @@
         </div>
       </div>
     </div>
-
-
   </div>
 
 
@@ -170,19 +168,6 @@
   this.mountEdition=function(componentName){
     console.log('mountEdition | ',componentName);
     this.editionContainer =riot.mount('#editionContainer', componentName)[0];
-    /*if(this.detailContainer.isMounted){
-      this.detailContainer.unmount(true);
-    }*/
-
-
-/*    this.editionContainer.on('addComponent',function(message){
-        //console.log('addComponent');
-        //this.modeNavigation=true;
-        RiotControl.trigger('navigation_mode_edition_and_navigation');
-        this.selectTechnicalComponentMode();
-        //this.update();
-    }.bind(this));*/
-    //console.log(this.editionContainer.title);
     this.editorTitle = this.editionContainer.title;
 
     RiotControl.trigger('navigation_mode_edition_only');

@@ -11,9 +11,12 @@
   "license": "MIT",
   "dependencies": {
     "express": "latest",
+    "cors" : "latest",
     "http": "latest",
     "body-parser": "latest",
+    "promise-waterfall":"latest",
     "jsonpath-object-transform":"latest",
+    "sift":"latest",
     "sheetrock":"latest",
     "slickgrid":"latest",
     "xml2js":"latest",

@@ -1,5 +1,8 @@
-function GenericStore() {
+function GenericStore(specificStoreList) {
   riot.observable(this) // Riot provides our event emitter.
+  for (specificStore of specificStoreList) {
+    specificStore.genericStore=this;
+  }
   this.workspaceBusiness = new WorkspaceBusiness();
   this.itemCurrent;
   this.connectMode;

@@ -23,13 +23,13 @@ module.exports = {
           source[recordKey][property] = data[recordKey];
         }
 
-        resolve(source);
+        resolve({data:source});
       });
     })
   },
   test: function(data, flowData) {
     //console.log('Object Transformer | test : ',data,' | ',flowData[0].length);
-    return this.xmlTransform(flowData[0], data.specificData);
+    return this.xmlTransform(flowData[0].data, data.specificData);
 
   }
 }

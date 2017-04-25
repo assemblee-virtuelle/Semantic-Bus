@@ -1,9 +1,12 @@
 "use strict";
 var express = require('express')
+var cors = require('cors')
 var app = express();
+app.use(cors());
 var server = require('http').Server(app);
 var https = require('https');
 //var io = require('socket.io')(server);
+
 var router = express.Router();
 var bodyParser = require("body-parser");
 router.use(bodyParser.json()); // used to parse JSON object given in the request body

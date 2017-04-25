@@ -24,18 +24,16 @@
   <script src="./store/workspaceStore.js"></script>
   <script src="./store/technicalComponentStore.js"></script>
   <script src="./store/genericStore.js"></script>
+  <script src="./store/cacheNosqlStore.js"></script>
   <script src="./store/mainController.js"></script>
   <script type="riot/tag" src="tag/zenTable.tag"></script>
   <script type="riot/tag" src="tag/navigation.tag"></script>
   <script type="riot/tag" src="tag/workspaceTable.tag"></script>
   <script type="riot/tag" src="tag/workspaceEditor.tag"></script>
   <script type="riot/tag" src="tag/technicalComponentTable.tag"></script>
-  <script type="riot/tag" src="tag/googleSpreadSheetQuerier.tag"></script>
   <script type="riot/tag" src="tag/jsonEditor.tag"></script>
   <script type="riot/tag" src="tag/jsonTransformer.tag"></script>
   <script type="riot/tag" src="tag/jsonPreviewer.tag"></script>
-  <script type="riot/tag" src="tag/httpApi.tag"></script>
-  <script type="riot/tag" src="tag/geoTransformer.tag"></script>
   <script type="riot/tag" src="tag/no-editor.tag"></script>
   <script type="riot/tag" src="tag/rest-get-json-editor.tag"></script>
   <script type="riot/tag" src="tag/object-transformer.tag"></script>
@@ -48,13 +46,24 @@
   <script type="riot/tag" src="tag/xml-property-to-object-editor.tag"></script>
   <script type="riot/tag" src="tag/framacalc-get-csv-editor.tag"></script>
   <script type="riot/tag" src="tag/data-gouv-geolocaliser-editor.tag"></script>
+  <script type="riot/tag" src="tag/data-gouv-geolocaliser-mass-editor.tag"></script>
+  <script type="riot/tag" src="tag/join-by-field-editor.tag"></script>
+  <script type="riot/tag" src="tag/deeper-focus-opening-bracket-editor.tag"></script>
+  <script type="riot/tag" src="tag/filter-editor.tag"></script>
+
   <script>
+
 
   var worspaceStore = new WorkspaceStore(); // Create a store instance.
   RiotControl.addStore(worspaceStore); // Register the store in central dispatch.
   var technicalComponentStore = new TechnicalComponentStore();
   RiotControl.addStore(technicalComponentStore);
-  var genericStore = new GenericStore();
+  var specificStoreList=[];
+  specificStoreList.push(new CacheNosqlStore());
+  for (specificStore of specificStoreList) {
+    RiotControl.addStore(specificStore);
+  }
+  var genericStore = new GenericStore(specificStoreList);
   RiotControl.addStore(genericStore);
   var mainController = new MainController(worspaceStore,genericStore);
   RiotControl.addStore(mainController);
