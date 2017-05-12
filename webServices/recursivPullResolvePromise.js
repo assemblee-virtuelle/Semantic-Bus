@@ -28,14 +28,20 @@ module.exports = {
         //console.log('resolveWebComponentPull | beforeId | ',component.connectionsBefore[0]);
 
         Promise.all(
-          component.connectionsBefore.map(connectionBeforeId =>
-            this.workspaceComponentPromise.getReadPromiseById(connectionBeforeId)
-          )
+          component.connectionsBefore.map(connectionBeforeId =>{
+            //console.log(connectionBeforeId);
+            return this.workspaceComponentPromise.getReadPromiseById(connectionBeforeId)
+          })
         ).then(workspaceComponents =>
           Promise.all(
-            workspaceComponents.map(workspaceComponent =>
-              this.resolveComponentPull(workspaceComponent, true)
-            )
+            workspaceComponents.map(workspaceComponent =>{
+              if (workspaceComponent.message=='Document not found'){
+                return new Promise((resolve, reject) => {resolve({data:[]})});
+              }else{
+                //console.log(workspaceComponent);
+                return this.resolveComponentPull(workspaceComponent, true)
+              }
+            })
           )
         ).then(connectionsBeforeData => {
           //connectionsBeforeData=connectionsBeforeData.map(connectionBeforeData=>{data:connectionBeforeData})
@@ -63,7 +69,7 @@ module.exports = {
 
                 } else {
                   //console.log('XXX');
-                  //currentInspectObject = [currentInspectObject[0]]; 
+                  //currentInspectObject = [currentInspectObject[0]];
                   var testPromises = currentInspectObject.map(objectToProcess => {
                     var recomposedFlow = [];
                     recomposedFlow = recomposedFlow.concat([{

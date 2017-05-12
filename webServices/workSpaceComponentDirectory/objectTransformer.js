@@ -212,7 +212,7 @@ module.exports = {
               let regExpValue = new RegExp('({\\' + evalParam + '})', 'g');
               javascriptEvalString = javascriptEvalString.replace(regExpValue, evalParamValue)
             }
-            console.log('javascriptEvalString | ',javascriptEvalString);
+            //console.log('javascriptEvalString | ',javascriptEvalString);
             try {
               nodeOut[nodeInDataProperty] = eval(javascriptEvalString);
             } catch (e) {

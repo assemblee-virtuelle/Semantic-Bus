@@ -11,7 +11,7 @@ module.exports = {
   buildWaterFall: function(promisesTab) {
     return new Promise((resolve, reject) => {
       var currentPromise = promisesTab[promisesTab.lenth - 1];
-      console.log(promisesTab.lenth);
+      //console.log(promisesTab.lenth);
       if (promisesTab.lenth > 1) {
         var previousPromises = promisesTab.slice(0, promisesTab - 2);
         buildWaterFall(previousPromises).then(previousData => {
@@ -40,11 +40,11 @@ module.exports = {
 
           Promise.all(goePromises).then(geoLocalisations => {
             var result = [];
-            console.log('geoLocalise | geoLocalisations result |', geoLocalisations);
+            //console.log('geoLocalise | geoLocalisations result |', geoLocalisations);
             for (var geoLocalisationKey in geoLocalisations) {
               if (geoLocalisations[geoLocalisationKey].error == undefined && geoLocalisations[geoLocalisationKey].features[0] != undefined) {
                 //console.log('geoLocalise | geoLocalisations line |',geoLocalisations[geoLocalisationKey]);
-                console.log('geoLocalise | geoLocalisations key |', geoLocalisationKey);
+                //console.log('geoLocalise | geoLocalisations key |', geoLocalisationKey);
                 var record = source[geoLocalisationKey];
                 record[specificData.latitudePath] = geoLocalisations[geoLocalisationKey].features[0].geometry.coordinates[1];
                 record[specificData.longitudePath] = geoLocalisations[geoLocalisationKey].features[0].geometry.coordinates[0];
@@ -64,6 +64,11 @@ module.exports = {
             town: record[specificData.townPath],
             postalCode: record[specificData.postalCodePath],
             country: record[specificData.countryPath],
+          }
+
+          var postalCodeString = address.postalCode+'';
+          if (postalCodeString.length==4){
+            address.postalCode = '0'+postalCodeString;
           }
 
           var addressGouvFrFormated = ''
@@ -117,7 +122,7 @@ module.exports = {
                       //console.log(responseBody);
                       //console.log('try');
                       resolve(JSON.parse(responseBody));
-                      console.log('ok',sourceKey);
+                      //console.log('ok',sourceKey);
                     } catch (e) {
                       console.log('parse fail');
                       resolve({
