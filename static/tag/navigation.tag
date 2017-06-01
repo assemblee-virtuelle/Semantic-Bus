@@ -2,7 +2,7 @@
   <!--<div class="containerV" style="bottom:0;top:0;right:0;left:0;position:absolute;">-->
   <div class="containerV" class="containerV" style="height: 100vh;flex-shrink:5">
     <div show={modeNavigation} class="containerV" style="flex-grow:1;flex-basis:50%">
-      <div class="containerH" style="flex-grow:1">
+      <div class="containerH" style="flex-grow:1;flex-wrap: nowrap;">
         <div class="containerV" style="flex-basis:20%">
           <div name="workspaceSelector" class="selector mainSelector" style="flex-basis:100px"><div>Workspace</div></div>
           <div name="technicalComponentSelector" class="selector mainSelector" style="flex-basis:100px"><div>Composant Technique</div></div>

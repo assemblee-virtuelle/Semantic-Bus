@@ -54,13 +54,14 @@ module.exports = {
 
     var dissociatePatternResolvable = this.dissociatePatternResolvable(jsonTransformPattern);
     var dissociatePatternPostProcess = this.dissociatePatternPostProcess(jsonTransformPattern);
-    //console.log('resolvable | ', dissociatePatternResolvable);
-    //console.log('postProcess | ', dissociatePatternPostProcess);
+    //console.log('resolvable | ', JSON.stringify(dissociatePatternResolvable));
+    //console.log('postProcess | ', JSON.stringify(dissociatePatternPostProcess));
     var transformResult = this.transform(source, dissociatePatternResolvable);
+    //console.log('jsonTransform | resultBeforUnresolved |', transformResult);
     if (Object.keys(transformResult)[0] == 'undefined') {
       transformResult = transformResult['undefined'];
     }
-    //console.log('jsonTransform | resultBeforUnresolved |', transformResult);
+    //console.log('jsonTransform | resultBeforUnresolved |', JSON.stringify(transformResult));
     var destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable)
       //console.log('jsonTransform | afterUnresolved |', destResult);
     var postProcessResult;
@@ -73,24 +74,39 @@ module.exports = {
     //console.log(postProcessResult);
     return postProcessResult;
   },
-  dissociatePatternResolvable: function(nodeIn) {
+  dissociatePatternResolvable: function(nodeIn, depth, everArrayPath) {
+    if (depth == undefined) {
+      depth = 0;
+    }
+
+    if (everArrayPath == undefined) {
+      everArrayPath = false;
+    }
     //console.log(nodeIn);
+    //console.log(depth, everArrayPath);
     var nodeOut;
-    if (Array.isArray(nodeIn)) {
+    var arrayHack = false;
+    if (Array.isArray(nodeIn) && everArrayPath == false && nodeIn[0] != undefined && typeof nodeIn[0] == 'string' && nodeIn[0].search('$..')) {
       nodeOut = [];
+      everArrayPath = true;
     } else {
+      if (Array.isArray(nodeIn)) {
+        arrayHack = true;
+      }
       nodeOut = {};
     }
 
+    //console.log(nodeOut);
 
     for (var key in nodeIn) {
       //console.log('node |', typeof nodeIn[key], ' | ', nodeIn[key]);
       if (typeof nodeIn[key] == 'object') {
-
-        if (Array.isArray(nodeIn)) {
-          nodeOut.push(this.dissociatePatternResolvable(nodeIn[key]));
+        //console.log('----');
+        //console.log(key, Array.isArray(nodeOut));
+        if (Array.isArray(nodeOut)) {
+          nodeOut.push(this.dissociatePatternResolvable(nodeIn[key], depth + 1, everArrayPath));
         } else {
-          nodeOut[key] = this.dissociatePatternResolvable(nodeIn[key]);
+          nodeOut[key] = this.dissociatePatternResolvable(nodeIn[key], depth + 1, everArrayPath);
         }
 
       } else {
@@ -118,7 +134,9 @@ module.exports = {
           if (nodeOut[key] == null) {
             nodeOut[key] = nodeIn[key];
           }
-        } else {
+        } else if(typeof nodeIn[key] == 'number'){
+          nodeOut[key] = 'N~'+nodeIn[key].toString();
+        } else{
           nodeOut[key] = nodeIn[key];
         }
       }
@@ -126,23 +144,50 @@ module.exports = {
     //console.log(nodeOut);
     return nodeOut;
   },
-  dissociatePatternPostProcess: function(nodeIn) {
-    var nodeOut = {}
-    if (Array.isArray(nodeIn)) {
+  dissociatePatternPostProcess: function(nodeIn, depth, everArrayPath) {
+
+    if (depth == undefined) {
+      depth = 0;
+    }
+    if (everArrayPath == undefined) {
+      everArrayPath = false;
+    }
+
+    var nodeOut;
+    var arrayHack = false;
+    if (Array.isArray(nodeIn) && everArrayPath == false && nodeIn[0] != undefined && typeof nodeIn[0] == 'string' && nodeIn[0].search('$..')) {
       nodeOut = [];
+      everArrayPath = true;
     } else {
+      if (Array.isArray(nodeIn)) {
+        arrayHack = true;
+      }
       nodeOut = {};
+
+    }
+
+    if (typeof nodeIn == 'string') {
+      const regex = /^=(.*)/g;
+      const str = nodeIn[key];
+      let execResult = regex.exec(str)
+      if (execResult != null) {
+        nodeOut.process = 'javascriptExec';
+        nodeOut.processData = execResult[1]
+      };
+    }
+    if (arrayHack == true) {
+      nodeOut.process = 'arrayHack';
     }
 
     for (var key in nodeIn) {
       //console.log('node |', typeof nodeIn[key], ' | ', nodeIn[key]);
       if (typeof nodeIn[key] == 'object') {
-        var dissociatePatternPostProcess = this.dissociatePatternPostProcess(nodeIn[key]);
+        var dissociatePatternPostProcess = this.dissociatePatternPostProcess(nodeIn[key], depth + 1, everArrayPath);
         if (dissociatePatternPostProcess != undefined) {
-          if (Array.isArray(nodeIn)) {
-            nodeOut.push(this.dissociatePatternPostProcess(nodeIn[key]));
+          if (Array.isArray(nodeOut)) {
+            nodeOut.push(dissociatePatternPostProcess);
           } else {
-            nodeOut[key] = this.dissociatePatternPostProcess(nodeIn[key]);
+            nodeOut[key] = dissociatePatternPostProcess;
           }
         }
       } else {
@@ -152,8 +197,15 @@ module.exports = {
           const str = nodeIn[key];
           let execResult = regex.exec(str)
           if (execResult != null) {
-            nodeOut[key] = execResult[1];
+            nodeOut[key] = {
+              process: 'javascriptExec',
+              processData: execResult[1]
+            };
           }
+        }else if(typeof nodeIn[key] == 'number'){
+          nodeOut[key] = {
+            process: 'numericHack'
+          };
         }
       }
     }
@@ -171,14 +223,12 @@ module.exports = {
     return nodeOut;
   },
   postProcess: function(nodeInData, nodeInPostProcess) {
-
-
-
+    //console.log('********'+JSON.stringify(nodeInData),nodeInPostProcess);
     var nodeOut;
 
     if (Array.isArray(nodeInData)) {
       nodeOut = [];
-      if (nodeInPostProcess[0] != undefined) {
+      if ( nodeInPostProcess!=undefined && nodeInPostProcess[0] != undefined) {
         for (recordData of nodeInData) {
           nodeOut.push(this.postProcess(recordData, nodeInPostProcess[0]));
         }
@@ -189,13 +239,14 @@ module.exports = {
       nodeOut = {};
       for (var nodeInDataProperty in nodeInData) {
         if (nodeInPostProcess[nodeInDataProperty] != undefined) {
-          if (typeof nodeInPostProcess[nodeInDataProperty] == 'string') {
+          if (nodeInPostProcess[nodeInDataProperty].process == 'javascriptExec') {
+            //if (typeof nodeInPostProcess[nodeInDataProperty] == 'string') {
             //console.log('PostProcess | ', nodeInPostProcess[nodeInDataProperty]);
-            var javascriptEvalString = nodeInPostProcess[nodeInDataProperty];
+            var javascriptEvalString = nodeInPostProcess[nodeInDataProperty].processData;
             for (evalParam in nodeInData[nodeInDataProperty]) {
               //console.log(evalParam);
               var evalParamValue = nodeInData[nodeInDataProperty][evalParam];
-              //console.log('evalParamValue | ',evalParamValue);
+              //console.log('evalParam |',evalParam,' | evalParamValue | ',evalParamValue);
               if (typeof evalParamValue == 'string') {
                 evalParamValue = '"' + evalParamValue + '"';
               }
@@ -215,16 +266,34 @@ module.exports = {
             //console.log('javascriptEvalString | ',javascriptEvalString);
             try {
               nodeOut[nodeInDataProperty] = eval(javascriptEvalString);
+              //console.log('eval done');
             } catch (e) {
               console.log(e);
             }
+          } else if (nodeInPostProcess[nodeInDataProperty].process == 'arrayHack') {
+            //console.log('arrayHack',nodeInDataProperty);
+            var objectToTransform = this.postProcess(nodeInData[nodeInDataProperty], nodeInPostProcess[nodeInDataProperty]);
+            var arrayTransform=[];
+            for(key in objectToTransform){
+              arrayTransform.push(objectToTransform[key])
+            }
+            nodeOut[nodeInDataProperty] = arrayTransform;
+          } else if (nodeInPostProcess[nodeInDataProperty].process == 'numericHack') {
+            //console.log('numericHack');
+            nodeOut[nodeInDataProperty] = Number(nodeInData[nodeInDataProperty].substr(2, nodeInData[nodeInDataProperty].length-2));
           } else {
             nodeOut[nodeInDataProperty] = this.postProcess(nodeInData[nodeInDataProperty], nodeInPostProcess[nodeInDataProperty]);
           }
         } else {
-          nodeOut[nodeInDataProperty] = nodeInData[nodeInDataProperty];
+          //console.log(nodeInDataProperty);
+          nodeOut[nodeInDataProperty] = this.postProcess(nodeInData[nodeInDataProperty], nodeInPostProcess[nodeInDataProperty]);
+
+          //nodeOut[nodeInDataProperty] = nodeInData[nodeInDataProperty];
         }
       }
+    } else {
+      //console.log('COPY');
+      nodeOut = nodeInData;
     }
     return nodeOut;
   },
@@ -236,7 +305,7 @@ module.exports = {
     } else {
       nodeOut = {};
     }
-
+    //console.log('----------'+JSON.stringify(nodeIn));
     for (var key in nodeIn) {
       //console.log(key);
       if (nodeIn[key] == undefined) {
@@ -252,9 +321,7 @@ module.exports = {
         if (typeof nodeIn[key] == 'object' && jsonTransformPattern != undefined) {
 
           if (Array.isArray(nodeIn)) {
-
             nodeOut.push(this.unresolveProcess(nodeIn[key], jsonTransformPattern[1]));
-
           } else {
             nodeOut[key] = this.unresolveProcess(nodeIn[key], jsonTransformPattern[key]);
 

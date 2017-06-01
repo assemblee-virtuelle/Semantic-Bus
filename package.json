@@ -10,17 +10,18 @@
   "author": "Simon Louvet <simon.louvet.zen@gmail.com>",
   "license": "MIT",
   "dependencies": {
-    "express": "latest",
-    "cors" : "latest",
-    "http": "latest",
     "body-parser": "latest",
-    "promise-waterfall":"latest",
-    "jsonpath-object-transform":"latest",
-    "sift":"latest",
-    "sheetrock":"latest",
-    "slickgrid":"latest",
-    "xml2js":"latest",
-    "csvtojson":"latest",
-    "jquery":"latest"
+    "cors": "latest",
+    "csvtojson": "latest",
+    "data2xml": "^1.2.5",
+    "express": "latest",
+    "http": "latest",
+    "jquery": "latest",
+    "jsonpath-object-transform": "latest",
+    "promise-waterfall": "latest",
+    "sheetrock": "latest",
+    "sift": "latest",
+    "slickgrid": "latest",
+    "xml2js": "latest"
   }
 }

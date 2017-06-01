@@ -7,7 +7,7 @@ module.exports = {
 
   test: function(data, flowData) {
 
-    //console.log('Filter| test : ', data, ' | ', flowData);
+    console.log('Filter| test : ', data, ' | ', flowData);
     return new Promise((resolve, reject) => {
       /*var secondaryFlowData = this.sift({
         componentId: data.specificData.secondaryComponentId
@@ -21,7 +21,10 @@ module.exports = {
       //console.log(primaryFlowData.componentId);
       //console.log(secondaryFlowData);
       //console.log(this.sift({ agregName: 'Max - ORSET'}, secondaryFlowData));
-console.log(data.specificData.filterString);
+      console.log('Filter | filterString | ',JSON.parse(data.specificData.filterString));
+      console.log('Filter | flowData[0].data | ',JSON.stringify(flowData[0].data));
+
+
 
 
       var resultData = this.sift(JSON.parse(data.specificData.filterString), flowData[0].data);

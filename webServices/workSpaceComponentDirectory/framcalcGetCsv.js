@@ -48,15 +48,17 @@ module.exports = {
 
         // once all the data has been read, resolve the Promise
         response.on('end', () => {
-          console.log('responseBody | ', responseBody);
+          //console.log('responseBody | ', responseBody);
           this.csv({
               noheader: true
             }).fromString(responseBody).on('json', (jsonObj) => {
-              console.log('CSV', jsonObj)
+              //console.log('CSV', jsonObj)
             }).on('end', () => {
-              console.log('end')
+              //console.log('end')
             }).on('end_parsed', (jsonArr) => {
-              console.log(jsonArr);
+              //console.log(offset);
+              jsonArr.splice(0,offset);
+              //console.log(jsonArr);
               resolve({data:jsonArr});
             })
             //resolve(JSON.parse(responseBody));
