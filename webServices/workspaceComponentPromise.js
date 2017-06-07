@@ -26,3 +26,4 @@ module.exports = {
     return this.mLabPromise.request('GET', 'workspaceComponent/'+entityIdToRead);
   }
 }
+

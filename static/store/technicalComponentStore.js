@@ -3,7 +3,7 @@ function TechnicalComponentStore() {
 
   this.technicalComponentCollection =[];
   this.technicalComponentCurrent =[];
-
+  
   this.load=function(){
     //console.log('load GLF');
     $.ajax({

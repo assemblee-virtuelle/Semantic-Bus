@@ -14,11 +14,13 @@ module.exports = {
    joinByField : require('./workSpaceComponentDirectory/joinByField.js'),
    deeperFocusOpeningBracket : require('./workSpaceComponentDirectory/deeperFocusOpeningBracket.js'),
    filter : require('./workSpaceComponentDirectory/filter.js'),
+   upload: require('./workSpaceComponentDirectory/upload.js'),
 
 
    /* some other modules you want */
    initialise : function(router,recursivPullResolvePromise){
      this.restApiGet.initialise(router);
+     this.upload.initialise(router);
      this.cacheNosql.initialise(router,recursivPullResolvePromise);
    }
 }
