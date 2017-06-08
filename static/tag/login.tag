@@ -4,21 +4,21 @@
   <h1>Bienvenue sur le bus Semantic</h1>
     <div class="box">
       <input type="email" name="email" value="email" onFocus="field_focus(this, 'email');" onblur="field_blur(this, 'email');" class="email" />
-        
+
       <input type="password" name="email" value="email" onFocus="field_focus(this, 'email');" onblur="field_blur(this, 'email');" class="email" />
-        
+
       <a href="#"><div class="btn">Inscription</div></a> <!-- End Btn -->
 
       <a href="#"><div id="btn2">Connexion</div></a> <!-- End Btn2 -->
-    </div> <!-- End Box -->  
+    </div> <!-- End Box -->
     <p>mot de passe oublié? <u style="color:#f1c40f;">Clicker ici!</u></p>
   </form>
 
-  
+
 </div>
 
   <script>
-    
+
     function field_focus(field, email)
     {
       if(field.value == email)
@@ -42,17 +42,17 @@
 
   //Stop click event
   $('a').click(function(event){
-      event.preventDefault(); 
+      event.preventDefault();
     });
 
     </script>
-    <style>
+    <style scoped>
     body{
     font-family: 'Open Sans', sans-serif;
     background:#3498db;
-    margin: 0 auto 0 auto;  
-    width:100%; 
-    text-align:center; 
+    margin: 0 auto 0 auto;
+    width:100%;
+    text-align:center;
   }
 
   .Aligner {
@@ -67,7 +67,7 @@
     font-size:12px;
     text-decoration: none;
     color:#ffffff;
-    
+
   }
 
   h1{
@@ -82,8 +82,8 @@
     border-radius:6px;
     margin: 0 auto 0 auto;
     padding:10px 10px 80px 0px;
-    border: #2980b9 4px solid; 
-    
+    border: #2980b9 4px solid;
+
   }
 
   .email{
@@ -115,7 +115,7 @@
     color:white;
     border-radius:4px;
     border: #27ae60 1px solid;
-    
+
     margin-top:20px;
     margin-bottom:20px;
     float:left;
@@ -125,7 +125,7 @@
   }
 
   .btn:hover{
-    background:#2CC06B; 
+    background:#2CC06B;
   }
 
   #btn2{
@@ -136,7 +136,7 @@
     color:white;
     border-radius:4px;
     border: #2980b9 1px solid;
-    
+
     margin-top:20px;
     margin-bottom:20px;
     margin-left:10px;
@@ -144,8 +144,8 @@
     font-size:0.8em;
   }
 
-  #btn2:hover{ 
-  background:#3594D2; 
+  #btn2:hover{
+  background:#3594D2;
   }
   </style>
 
