@@ -18,6 +18,7 @@
     "http": "latest",
     "jquery": "latest",
     "jsonpath-object-transform": "latest",
+    "jsonwebtoken": "^7.4.1",
     "promise-waterfall": "latest",
     "sheetrock": "latest",
     "sift": "latest",

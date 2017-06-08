@@ -62,54 +62,25 @@ module.exports = {
               })
             })
           }else if (ext[ext.length - 1] == ".xlsx"){
-              // xls traitment
-              console.log("xlsx traitment")
-              var final_data = [];
-              formData.Lastfile.value.on('end',() => {
+               // xls traitment
+               console.log("xlsx traitment")
+               var final_data = [];
+               formData.Lastfile.value.on('end',() => {
                var workbook = xlsx.read(responseBody, {type:'buffer'});
-               console.log(workbook);
-              //  final_data.push(workbook)
-              
-               
-              //  console.log(test);
-              //  var test = { SheetNames: [ 'Sheet1' ],
-              //     Sheets: { Sheet1: { A1: [Object], B1: [Object], '!ref': 'A1:B1' } } }
-                for (var property in workbook.Sheets) {  
+               // console.log(workbook);
+               for (var property in workbook.Sheets) {  
                   // console.log(xlsx.utils.sheet_to_json(workbook.Sheets[property], {header:1, raw:"true"}));
                   final_data.push(workbook.Sheets[property]);
                   // console.log(workbook.Sheets[property])
                 }
-              //  workbook.SheetNames.forEach(function(sheetName){
-              //                // Here is your object
-                
-              //   var XL_row_object = xlsx.utils.sheet_to_row_object_array(workbook.Sheets[sheetName]);
-              //   var json_object = JSON.stringify(XL_row_object);
-                console.log(final_data);
-              // })
-              
-              //  console.log(formData.Lastfile.value)
-
-              // var ws = wb.Sheets[wb.SheetNames[0]]
-              //  console.log(JSON.stringify(wb.Sheets.join("\n")));
-              //  console.log(ws)
-              //  console.log(xlsx.utils.sheet_to_json(ws));
-              //  for (var property in wb.Sheets) {
-              //   // if (object.hasOwnProperty(property)) {
-              //      // do stuff
-              //      console.log(wb.Sheets[property]);
-              //     //  final_data.push(wb.Sheets[property]);
-              //     //  console.log(final_data);
-              //   // }
-              // }
-              // console.log(final_data);
-              return new Promise((resolve, reject) => {
+                // console.log(final_data);
+                return new Promise((resolve, reject) => {
                   console.log("from mlab");
                   mLabPromise.request('PUT', 'cache/' + compId, {
                   data: final_data
                 }).then(function(data) {
                     // console.log('cache | test| ',final_data);
                     resolve(final_data);
-                    //return recursivPullResolvePromise.resolveComponentPull(data);
                   })
                 });
             })
@@ -126,30 +97,8 @@ module.exports = {
     return new Promise((resolve, reject) => {
         this.mLabPromise.request('GET', 'cache/' + data._id.$oid).then(function(cachedData) {
           resolve({data:cachedData.data});
-          //console.log('cache | test| ',data);
-          //return recursivPullResolvePromise.resolveComponentPull(data);
         });
     })
   }
 }
 
-
-
-
-        // this.recursivPullResolvePromise.resolveComponentPull(data, false).then(data => {
-        //   console.log('CACHE LOADED');
-        // })
-        // res.json({
-        //   message: 'in progress'
-        // });
-    //      return new Promise((resolve, reject) => {
-    //   if (flowData != undefined) {
-    //     //console.log('cash data | ',flowData);
-    //     this.mLabPromise.request('PUT', 'cache/' + data._id.$oid, {
-    //       data: flowData[0].data
-    //     }).then(function(data) {
-    //       resolve(data);
-    //       //console.log('cache | test| ',data);
-    //       //return recursivPullResolvePromise.resolveComponentPull(data);
-    //     });
-    //   }
