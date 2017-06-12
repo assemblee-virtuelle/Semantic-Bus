@@ -11,7 +11,10 @@ function FlowStore() {
     //console.log('load GLF');
     $.ajax({
       method:'get',
-      url:'../data/core/flow'
+      url:'../data/core/flow',
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
     }).done(function(data){
       console.log('store load',data);
       this.googleLinearFlowCollection=data;
@@ -24,7 +27,10 @@ function FlowStore() {
       method:'post',
       url:'http://localhost:3000/data/core/flow',
       data:JSON.stringify(this.googleLinearFlowCurrent),
-      contentType : 'application/json'
+      contentType : 'application/json',
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
     }).done(function(data){
       this.googleLinearFlowCurrent.mode='edit';
       this.load();
@@ -36,7 +42,10 @@ function FlowStore() {
       method:'put',
       url:'http://localhost:3000/data/core/flow',
       data:JSON.stringify(this.googleLinearFlowCurrent),
-      contentType : 'application/json'
+      contentType : 'application/json',
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
     }).done(function(data){
       this.load();
       this.googleLinearFlowCurrent.mode='edit';
@@ -48,6 +57,9 @@ function FlowStore() {
       method:'delete',
       url:'http://localhost:3000/data/core/flow',
       data:JSON.stringify(record),
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
       contentType : 'application/json'
     }).done(function(data){
       this.load();
@@ -102,8 +114,11 @@ function FlowStore() {
     $.ajax({
       url: "/data/googleSpreadseetQuery/",
       type: 'get',
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
       data:  this.googleLinearFlowCurrent.source,
-      timeout: 5000
+      timeout: 5000,
     }).done(function(data) {
       //console.log(datas, JSON.stringify(datas))
       RiotControl.trigger('previewJSON',data)

@@ -12,24 +12,32 @@ function WorkspaceStore() {
     //console.log('load GLF');
     $.ajax({
       method: 'get',
-      url: '../data/core/workspace'
+      url: '../data/core/workspace/' + localStorage.user_id,
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
+      contentType: 'application/json',
     }).done(function(data) {
-      //console.log('store load',data);
+      console.log('store load',data);
       this.workspaceCollection = data;
       if (callback != undefined) {
         callback();
       }
-      //this.trigger('workspace_collection_changed', this.workspaceCollection);
+      this.trigger('workspace_collection_changed', this.workspaceCollection);
 
     }.bind(this));
   };
 
   this.create = function() {
+    console.log(localStorage.user_id)
     $.ajax({
       method: 'post',
-      url: '../data/core/workspace',
+      url: '../data/core/workspace/' + localStorage.user_id,
       data: JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent)),
-      contentType: 'application/json'
+      contentType: 'application/json',
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
     }).done(function(data) {
       //this.workspaceCurrent.mode='edit';
       //this.trigger('workspace_current_create_done',this.workspaceCurrent);
@@ -48,7 +56,10 @@ function WorkspaceStore() {
       method: 'put',
       url: '../data/core/workspace',
       data: JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent)),
-      contentType: 'application/json'
+      contentType: 'application/json',
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
     }).done(function(data) {
       this.load(function(data) {
         this.trigger('workspace_current_persist_done');
@@ -65,8 +76,11 @@ function WorkspaceStore() {
     //console.log('del Row :', record);
     $.ajax({
       method: 'delete',
-      url: '../data/core/workspace/' + record._id.$oid,
-      contentType: 'application/json'
+      url: '../data/core/workspace/' + record._id.$oid + '/' + localStorage.user_id,
+      contentType: 'application/json',
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
     }).done(function(data) {
       this.load(function() {
         this.trigger('workspace_collection_changed', this.workspaceCollection);
@@ -242,9 +256,4 @@ function WorkspaceStore() {
     this.workspaceCurrent.mode = 'read';
     this.cancelRequire = true;
   });
-
-
-
-
-
 }

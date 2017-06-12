@@ -4,14 +4,20 @@
     <div show={modeNavigation} class="containerV" style="flex-grow:1;flex-basis:50%">
       <div class="containerH" style="flex-grow:1;flex-wrap: nowrap;">
         <div class="containerV" style="flex-basis:20%">
-          <div name="workspaceSelector" class="selector mainSelector" style="flex-basis:100px"><div>Workspace</div></div>
+           <div class="commandBar containerH">
+            <div class="containerH commandGroup">
+              <div class="commandButton">
+                menu
+              </div>
+            </div>
+          </div>
+          <div name="workspaceSelector" class="selector mainSelector" style="flex-basis:100px"><div>Mes Workspaces</div></div>
           <div name="technicalComponentSelector" class="selector mainSelector" style="flex-basis:100px"><div>Composant Technique</div></div>
+        <div name="profilSelector" class="selector mainSelector" style="flex-basis:100px"><div>Mon profil</div></div>
         </div>
-        <div class="containerV" id="contentNavigator" style="flex-basis:30%">
-
+        <div class="containerV" id="contentNavigator" style="flex-basis:30%" show={!modeProfilEdition}>
         </div>
         <div class="containerV" style="flex-grow:1" id="detailContainer">
-
         </div>
       </div>
     </div>
@@ -91,15 +97,31 @@
 
 
   <script>
-  this.modeNavigation=true;
-  this.modeEdition=false;
+  this.modeNavigation= true;
+  this.modeEdition= false;
+  this.modeProfilEdition = false;
   this.modeComponentNetwork=false;
   this.modeComponentTest=false;
   this.editorTitle=""
   this.persistInProgress=false;
   this.itemCurrent;//TODO create a specific component for item with connections
 
+
+  ////TEST LOGIN ////
+  this.isGoodUser = function(){
+     RiotControl.trigger('is_token_valid?');
+  }
+
+
+  this.isGoodUser()
+
+
   this.cleanNavigation = function(){
+    if(this.profilNavigator){
+      if(this.profilNavigator.ismounted){
+        this.profilNavigator.unmount(true);
+      }
+    }
     if(this.contentNavigator.ismounted){
       this.contentNavigator.unmount(true);
     }
@@ -125,6 +147,8 @@
       this.editionContainer.persist();
     }
   }
+
+
 
   nagivationClick(e){
     RiotControl.trigger('item_current_cancel');
@@ -237,7 +261,7 @@
       this.itemCurrent=item;
       this.update();
     }.bind(this));
-
+    
     RiotControl.on('workspace_current_changed',function(item){
       if(!this.detailContainer.isMounted){
         this.detailContainer =riot.mount("#detailContainer", 'workspace-editor')[0];
@@ -259,20 +283,37 @@
       this.modeNavigation=data.modeNavigation;
       this.modeEdition=data.modeEdition;
       this.modeComponentNetwork=data.modeComponentNetwork;
-        this.modeComponentTest=data.modeComponentTest;
-
+      this.modeComponentTest=data.modeComponentTest;
+      this.modeProfilEdition = data.modeProfilEdition
       //console.log(this.modeNavigation);
       this.update();
     }.bind(this));
 
-
     this.workspaceSelector.addEventListener('click',function(e){
+      this.modeProfilEdition = false;
+      //clean navigation not work
+      if(this.profilNavigator){
+        console.log(this.profilNavigator);
+        this.profilNavigator.unmount(true);
+      }
+      this.update();
       this.mountWorkspaceNavigator();
     }.bind(this));
 
+    this.profilSelector.addEventListener('click',function(e){
+      this.profilNavigator = riot.mount("#detailContainer", 'profil-tag')[0];
+    }.bind(this));
+
     this.technicalComponentSelector.addEventListener('click',function(e){
-      this.cleanNavigation();
-      this.contentNavigator =riot.mount("#contentNavigator", 'technical-component-table')[0];
+      this.modeProfilEdition = false;
+      //clean navigation not work
+      
+    if(this.profilNavigator){
+        console.log(this.profilNavigator);
+        this.profilNavigator.unmount(true);
+      }
+      this.update();
+      this.contentNavigator = riot.mount("#contentNavigator", 'technical-component-table')[0];
     }.bind(this));
 
     this.nameComponentInput.addEventListener('change',function(e){

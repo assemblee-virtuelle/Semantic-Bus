@@ -7,7 +7,10 @@ function CacheNosqlStore() {
     $.ajax({
       method: 'get',
       url: '../data/specific/reloadcache/' + this.genericStore.itemCurrent._id.$oid ,
-      contentType: 'application/json'
+      contentType: 'application/json',
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
     }).done(function(data) {
       console.log(data);
     }.bind(this));

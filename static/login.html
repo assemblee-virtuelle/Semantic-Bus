@@ -14,22 +14,29 @@
 
 <body>
   <login></login>
-
+  <style>
+      body{
+    font-family: 'Open Sans', sans-serif;
+    background:#3498db;
+    margin: 0 auto 0 auto;  
+    width:100%; 
+    text-align:center; 
+  }</style>
   <script src="https://cdn.jsdelivr.net/riot/2.6.2/riot+compiler.min.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
   <script src="./js/RiotControl/riotcontrol.js"></script>
   <script src="./store/userStore.js"></script>
-  <script src="tag/login.tag"></script>
+  <script type="riot/tag" src="tag/login.tag"></script>
   <script>
 
   var userStore = new UserStore(); // Create a store instance.
-  RiotControl.addStore( userStore); // Register the store in central dispatch.
+  RiotControl.addStore(userStore); // Register the store in central dispatch.
   riot.compile(function() {
     // here tags are compiled and riot.mount works synchronously
     var tags = riot.mount('*');
     /*RiotControl.on('previewJSON',function(message){
       tags[2].data=message.data;
     }.bind(this));*/
-
   });
 
 
