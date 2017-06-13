@@ -5,7 +5,8 @@ var app = express();
 var passport = require('passport');  
 app.use(cors());
 app.use(passport.initialize()); 
-require('./webServices/passport')(passport);  
+require('./webServices/passport')(passport); 
+var helmet = require('helmet');
 
 var server = require('http').Server(app);
 var https = require('https');
@@ -13,6 +14,7 @@ var jwtService  = require('./webServices/jwtService')
 //var io = require('socket.io')(server);
 
 var dataRouter = express.Router();
+var apiRouteur = express.Router();
 
 var authRouter = express.Router();
 var bodyParser = require("body-parser");
@@ -32,7 +34,7 @@ dataRouter.use(function(req, res, next) {
 require('./webServices/authWebService')(authRouter);
 require('./webServices/workspace')(dataRouter);
 require('./webServices/workspaceComponent')(dataRouter);
-require('./webServices/technicalComponent')(dataRouter);
+require('./webServices/technicalComponent')(dataRouter, apiRouteur);
 require('./webServices/userWebservices')(dataRouter);
 //require('./webServices/ldp')(router);
 
@@ -53,6 +55,9 @@ server.listen(env.NODE_PORT || 3000, env.NODE_IP || 'localhost', function() {
 
 
 ///OTHER APP COMPONENT
+///SECURISATION DES REQUETES 
+app.use(helmet()); 
+app.disable('x-powered-by');
 app.use('/auth',  express.static('static'));
 app.use('/auth',  authRouter);
 app.use('/data',  dataRouter);

@@ -1,13 +1,12 @@
-module.exports = function(router) {
+module.exports = function(router, apiRouteur) {
   var https = require('https');
   var technicalComponentDirectory = require('./technicalComponentDirectory.js');
   var recursivPullResolvePromise = require('./recursivPullResolvePromise');
-  technicalComponentDirectory.initialise(router,recursivPullResolvePromise);
+  technicalComponentDirectory.initialise(router, apiRouteur,recursivPullResolvePromise);
 
   router.get('/core/technicalComponent/', function(req, res) {
     var directory = [];
     for(var technicalComponent in technicalComponentDirectory){
-
       directory.push({
         module : technicalComponent,
         type : technicalComponentDirectory[technicalComponent].type,
