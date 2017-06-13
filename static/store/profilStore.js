@@ -31,8 +31,14 @@ function profilStore() {
             },
             contentType: 'application/json'
         }).done(function(data) {
-            this.userCurrrent = data
-            this.trigger('profil_loaded', this.userCurrrent)      
+            console.log(data)
+            if(data != false){
+                this.userCurrrent = data
+                this.trigger('profil_loaded', this.userCurrrent)
+            }else{
+                console.log("in good trigger");
+                this.trigger('email_already_exist ') 
+            }             
         }.bind(this));
     })
 

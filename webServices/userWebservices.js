@@ -19,20 +19,31 @@ module.exports = function (router) {
     });
 
     router.put('/core/users/:id', function (req, res) {
-        console.log(req.body.email)	
         User.findOne({
             where: {
-                _id: req.params.id
+                email: req.body.email
             }
         }, function (err, user) {
             if (user) {
-                user.email = req.body.email
-                user.save(function () {
-                    res.send({
-                        user: user,
-                    });
+                console.log("in false")
+                console.log(user);
+                res.send(false)
+            } else {
+                User.findOne({
+                    where: {
+                        _id: req.params.id
+                    }
+                }, function (err, user) {
+                    if (user) {
+                        user.email = req.body.email
+                        user.save(function () {
+                            res.send({
+                                user: user,
+                            });
+                        })
+                    }
                 })
             }
         })
-    })
+    });
 }

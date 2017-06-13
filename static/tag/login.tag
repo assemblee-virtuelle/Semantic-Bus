@@ -48,7 +48,7 @@
     font-size:12px;
     text-decoration: none;
     color:#ffffff;
-    
+
   }
 
   h1{
@@ -63,8 +63,8 @@
     border-radius:6px;
     margin: 0 auto 0 auto;
     padding:10px 10px 80px 0px;
-    border: #2980b9 4px solid; 
-    
+    border: #2980b9 4px solid;
+
   }
 
   .email{
@@ -96,7 +96,7 @@
     color:white;
     border-radius:4px;
     border: #27ae60 1px solid;
-    
+
     margin-top:20px;
     margin-bottom:20px;
     float:left;
@@ -106,7 +106,7 @@
   }
 
   .btn:hover{
-    background:#2CC06B; 
+    background:#2CC06B;
   }
 
   #btn2{
@@ -117,7 +117,7 @@
     color:white;
     border-radius:4px;
     border: #2980b9 1px solid;
-    
+
     margin-top:20px;
     margin-bottom:20px;
     margin-left:10px;
@@ -125,8 +125,8 @@
     font-size:0.8em;
   }
 
-  #btn2:hover{ 
-  background:#3594D2; 
+  #btn2:hover{
+  background:#3594D2;
   }
   </style>
 

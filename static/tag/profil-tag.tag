@@ -1,9 +1,10 @@
 <profil-tag>
   <div>
     <div class="center-top">
-      <p> La partie profil est actuellement en cours de formation <p>
+      <p> La partie profil est actuellement en cours de dev <p>
       <form> 
         <input class="change-mail"value="{profil.email}" name="email"/>
+        <div id={ result? 'good-result' : 'bad-result' }> {resultEmail}<div>
       </form>
       <div class="inligne-box">
         <button class="mail-btn"  onclick = {changeEmail} type="button">Modifier</button>
@@ -12,11 +13,25 @@
     </div>
   <div>
   <style scoped>
+    #bad-result{
+      color: red;
+      font-size: 18px;
+      font-family: 'Raleway', sans-serif;
+      padding-top: 4%;
+    }
+
+    #good-result{
+      color: green;
+      font-size: 18px;
+      font-family: 'Raleway', sans-serif;
+      padding-top: 4%;
+    }
   .change-mail {
     background-color: inherit !important;
     border-bottom: 1px solid #3498db !important;
     border: none;
     color: #3498db;
+    text-align:center;
   }
     .center-top {
       margin-top: 20%!important;
@@ -52,8 +67,7 @@
     }
   </style>
   <script>
-
-  
+    this.resultEmail = ""
     deconnexion(e){
       RiotControl.trigger('deconnexion');
     }
@@ -70,16 +84,22 @@
       if(this.profil.email.match(regex)){
         if(this.profil.email != this.email ){
           RiotControl.trigger('change_email',this.profil.email);
-          alert("Votre email à bien été modifié");
+          RiotControl.on('email_already_exist', function(){
+            console.log("email existe");
+            this.result = false
+              this.resultEmail = "L'email choisi exsite déjà"
+          }.bind(this));
         }
       }
     }
 
     RiotControl.on('profil_loaded', function(data){
+      this.result = true;
+      this.resultEmail = "L'email a bien été modifié"
       this.profil = data.user
       this.email =  data.user.email
-      console.log(this.profil);
       this.update();
+      this.resultEmail = "";
     }.bind(this))
 
     this.on('mount', function () {
