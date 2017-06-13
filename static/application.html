@@ -26,6 +26,7 @@
   <script src="./store/genericStore.js"></script>
   <script src="./store/cacheNosqlStore.js"></script>
   <script src="./store/uploadFileStore.js"></script>
+  <script src="./store/profilStore.js"></script>
   <script src="./store/mainController.js"></script>
   <script type="riot/tag" src="tag/zenTable.tag"></script>
   <script type="riot/tag" src="tag/navigation.tag"></script>
@@ -54,12 +55,14 @@
   <script type="riot/tag" src="tag/filter-editor.tag"></script>
   <script type="riot/tag" src="tag/upload-editor.tag"></script>
   <script type="riot/tag" src="tag/login.tag"></script>
-
+  <script type="riot/tag" src="tag/profil-tag.tag"></script>
   <script>
 
 
   var worspaceStore = new WorkspaceStore(); // Create a store instance.
+  var profilStore = new profilStore();
   RiotControl.addStore(worspaceStore); // Register the store in central dispatch.
+  RiotControl.addStore(profilStore); 
   var technicalComponentStore = new TechnicalComponentStore();
   RiotControl.addStore(technicalComponentStore);
   var specificStoreList=[];
@@ -70,7 +73,7 @@
   }
   var genericStore = new GenericStore(specificStoreList);
   RiotControl.addStore(genericStore);
-  var mainController = new MainController(worspaceStore,genericStore);
+  var mainController = new MainController(worspaceStore,genericStore, profilStore);
   RiotControl.addStore(mainController);
   riot.compile(function() {
     // here tags are compiled and riot.mount works synchronously

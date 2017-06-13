@@ -8,7 +8,10 @@ function TechnicalComponentStore() {
     //console.log('load GLF');
     $.ajax({
       method:'get',
-      url:'../data/core/technicalComponent'
+      url:'../data/core/technicalComponent',
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
     }).done(function(data){
       //console.log('store load',data);
       this.technicalComponentCollection=data;
@@ -20,6 +23,9 @@ function TechnicalComponentStore() {
     $.ajax({
       method:'post',
       url:'../data/core/technicalComponent',
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
       data:JSON.stringify(this.technicalComponentCurrent),
       contentType : 'application/json'
     }).done(function(data){
@@ -32,6 +38,9 @@ function TechnicalComponentStore() {
     $.ajax({
       method:'put',
       url:'../data/core/technicalComponent',
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
       data:JSON.stringify(this.technicalComponentCurrent),
       contentType : 'application/json'
     }).done(function(data){
@@ -44,6 +53,9 @@ function TechnicalComponentStore() {
     $.ajax({
       method:'delete',
       url:'../data/core/flow',
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
       data:JSON.stringify(record),
       contentType : 'application/json'
     }).done(function(data){

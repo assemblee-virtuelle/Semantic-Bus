@@ -8,6 +8,9 @@ function UploadStore() {
       method: 'post',
       data: data,
       url: '../data/specific/upload/' + this.genericStore.itemCurrent._id.$oid ,
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
       processData: false,
       contentType: false,
     }).done(function(data) {

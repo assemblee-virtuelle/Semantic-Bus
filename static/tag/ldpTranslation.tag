@@ -21,7 +21,10 @@
     refresh(){
       $.ajax({
         method:'get',
-        url:'../data/testLdp'
+        url:'../data/testLdp',
+        headers: {
+          "Authorization": "JTW" + " " + localStorage.token
+        },
       }).done(function(data){
         /*var compileData= [];
         for(source of data['@graph']){

@@ -1,15 +1,18 @@
-function MainController(workSpaceStore, genericStore) {
+function MainController(workSpaceStore, genericStore, profilStore) {
   riot.observable(this) // Riot provides our event emitter.
   this.workspaceStore = workSpaceStore;
   this.genericStore = genericStore;
+  this.profilStore = profilStore;
   this.currentEditStore;
   this.displayMode = {
     modeNavigation: true,
     modeEdition: false,
     modeComponentNetwork: false,
-    modeComponentTest: false
+    modeComponentTest: false,
+    modeProfilEdition : false
   }
   this.updateMode = function(changedValueMode) {
+    this.displayMode.modeProfilEdition = changedValueMode.modeProfilEdition != undefined ? changedValueMode.modeProfilEdition : this.displayMode.modeProfilEdition;
     this.displayMode.modeNavigation = changedValueMode.modeNavigation != undefined ? changedValueMode.modeNavigation : this.displayMode.modeNavigation;
     this.displayMode.modeEdition = changedValueMode.modeEdition != undefined ? changedValueMode.modeEdition : this.displayMode.modeEdition;
     this.displayMode.modeComponentNetwork = changedValueMode.modeComponentNetwork != undefined ? changedValueMode.modeComponentNetwork : this.displayMode.modeComponentNetwork;
@@ -17,11 +20,40 @@ function MainController(workSpaceStore, genericStore) {
     this.trigger('navigation_mode_changed', this.displayMode);
   }.bind(this)
 
+  ////ON TEST SI LE USER A UN TOKEN VALIDE A CHAQUE ENTRE SUR APPLICATION.HTML///
+  // Rmq : Call ajax a deplacer dans le profil Store ou User Store ? 
+   this.on('is_token_valid?', function() {
+    $.ajax({
+      method: 'post',
+      data: JSON.stringify({token: localStorage.token}),
+      contentType: 'application/json',
+      url: '/auth/isTokenValid',
+    }).done(data => {
+      if(data){
+        localStorage.user_id = data.iss;
+        console.log(localStorage);
+      }
+      else{
+         window.open("../auth/login.html", "_self");
+      }
+    });
+   })
+
   this.on('item_current_persist', function() {
     this.trigger('persist_start');
   });
 
-  /*    genericStore.on('item_current_persist_done', function(message) {
+  //PROFIL STORE 
+
+  this.on('show_profil', function(message) {
+    profilStore.trigger('load_profil');
+    this.updateMode({
+      modeProfilEdition: true
+    });
+  }.bind(this))
+
+
+  /* genericStore.on('item_current_persist_done', function(message) {
         workSpaceStore.trigger('workspace_current_update_component', genericStore.itemCurrent)
       });*/
 
@@ -44,8 +76,6 @@ function MainController(workSpaceStore, genericStore) {
   this.on('workspace_current_persist', function() {
     this.trigger('persist_start');
   });
-
-
 
   genericStore.on('item_current_edit_mode', function(message) {
     //console.log('currentItemType  Before:',this.currentItemType);
@@ -92,6 +122,7 @@ function MainController(workSpaceStore, genericStore) {
   });
   this.on('navigation_mode_edition_and_navigation', function(message) {
     this.updateMode({
+      modeProfilEdition: true,
       modeNavigation: true,
       modeEdition: true
     });
@@ -148,7 +179,6 @@ function MainController(workSpaceStore, genericStore) {
     for (var workspaceComponent of this.workspaceStore.workspaceCurrent.components) {
       if (workspaceComponent._id.$oid == id) {
         console.log('GenericStore edit byId | component finded |', workspaceComponent);
-
         genericStore.trigger('item_current_edit', workspaceComponent);
         break;
       }

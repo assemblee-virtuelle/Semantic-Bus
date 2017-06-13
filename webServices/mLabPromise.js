@@ -39,12 +39,13 @@ module.exports = {
   // the options that are required by http.get
   _createMLabOptions(methodREST, resource, options) {
     var params = "";
+    // console.log(options);
     for (var paramKey in options) {
       params += paramKey + '=';
       params += JSON.stringify(options[paramKey]);
       params += '&'
     }
-    //console.log(params);
+    console.log(params);
     //console.log('PORT | ',process.env.NODE_PORT);
     var databaseName = this.configuration.mlabDB;
 

@@ -1,60 +1,41 @@
 <login>
-<div class="Aligner">
-  <form method="post" action="index.html">
-  <h1>Bienvenue sur le bus Semantic</h1>
-    <div class="box">
-      <input type="email" name="email" value="email" onFocus="field_focus(this, 'email');" onblur="field_blur(this, 'email');" class="email" />
+  <div class="Aligner" show={boole}>
+    <form >
+    <h1>Bienvenue sur le bus Semantic</h1>
+      <div class="box">
+        <input type="email" name="email"  placeholder="saisir email" class="email" />
+        <input type="password" name="password" id="password" placeholder="saisir mot de passe" class="email" required />
+        <div id="result">{resultConnexion}</div> 
+        <a onclick = {hidePage} class="btn">Inscription</a> 
 
-      <input type="password" name="email" value="email" onFocus="field_focus(this, 'email');" onblur="field_blur(this, 'email');" class="email" />
+        <a onclick = {login} id="btn2">Connexion</a> <!-- End Btn2 -->
+      </div> <!-- End Box -->  
+      <p>mot de passe oublié? <u style="color:#f1c40f;">Clicker ici!</u></p>
+    </form> 
+  </div>
 
-      <a href="#"><div class="btn">Inscription</div></a> <!-- End Btn -->
-
-      <a href="#"><div id="btn2">Connexion</div></a> <!-- End Btn2 -->
-    </div> <!-- End Box -->
-    <p>mot de passe oublié? <u style="color:#f1c40f;">Clicker ici!</u></p>
+<div class="Aligner" show = {!boole}>
+  <form>
+    <h1>Inscrivez vous</h1>
+      <div class="box">
+        <input type="email" name="emailInscription"  placeholder="saisir email"  class="email" />
+        <div id="result">{resultEmail}</div> 
+        <input type="password" required name="passwordInscription" placeholder="saisir mot de passe"  class="email" />
+        <input type="password" required name="confirmPasswordInscription" placeholder="confirmer mot de passe"  class="email" />
+        <div id="result">{resultMdp}</div> 
+         <!-- <input type="password" required name="passwordInscription" placeholder="confirmer mot de passe"  class="email" /> -->
+        <button onclick={showPage} id="btn2">Retour</button> 
+        <a onclick = {inscription} id="btn2">Inscription</a> 
+      </div> 
   </form>
-
-
 </div>
 
-  <script>
-
-    function field_focus(field, email)
-    {
-      if(field.value == email)
-      {
-        field.value = '';
-      }
-    }
-
-    function field_blur(field, email)
-    {
-      if(field.value == '')
-      {
-        field.value = email;
-      }
-    }
-
-  //Fade in dashboard box
-  $(document).ready(function(){
-      $('.box').hide().fadeIn(1000);
-      });
-
-  //Stop click event
-  $('a').click(function(event){
-      event.preventDefault();
-    });
-
-    </script>
-    <style scoped>
-    body{
-    font-family: 'Open Sans', sans-serif;
-    background:#3498db;
-    margin: 0 auto 0 auto;
-    width:100%;
-    text-align:center;
+<style scoped>
+  #result{
+    color:red;
+    font-size:12px;
+    font-family: 'Raleway', sans-serif;
   }
-
   .Aligner {
   height:100%;
   width:100%;
@@ -149,4 +130,103 @@
   }
   </style>
 
+    <script>
+  this.resultConnexion = "";
+  this.resultEmail = "";
+  this.resultMdp = "";
+  this.user = {};
+  this.newUser = {}
+  this.boole = true;
+  console.log(this.boole);
+  Object.defineProperty(this, 'data', {
+      set: function (data) {
+      this.user =data;
+      this.newUser = {}
+      this.update();
+    }.bind(this),
+      get: function () {
+      return this.user;
+    }
+  })
+
+  this.email.addEventListener('change',function(e){
+    this.user.email = e.currentTarget.value;
+  }.bind(this));
+
+  this.password.addEventListener('change',function(e){
+    this.user.password = e.currentTarget.value;
+  }.bind(this));
+
+
+  this.emailInscription.addEventListener('change',function(e){
+    this.resultEmail = ""
+    this.newUser.emailInscription = e.currentTarget.value;
+  }.bind(this));
+
+  this.passwordInscription.addEventListener('change',function(e){
+    this.newUser.passwordInscription = e.currentTarget.value;
+  }.bind(this));
+
+   this.confirmPasswordInscription.addEventListener('change',function(e){
+    this.newUser.confirmPasswordInscription = e.currentTarget.value;
+  }.bind(this));
+
+  inscription(e){
+    
+     if((this.newUser.passwordInscription != "") && (this.newUser.confirmPasswordInscription != "") && (this.newUser.emailInscription != "")){
+      var reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g;
+      if(this.newUser.emailInscription.match(reg) != null){
+        //if(this.newUser.passwordInscription.split().length > 5){
+          if((this.newUser.passwordInscription == this.newUser.confirmPasswordInscription) && (this.newUser.passwordInscription.split("").length > 5)){
+            RiotControl.trigger('user_inscription', this.newUser);
+            RiotControl.on('email_already_exist', function(){
+              this.resultEmail = "L'email choisi exsite déjà"
+            }.bind(this));
+          }else{
+              this.resultMdp = "mot de passe invalide"
+          }
+          //}
+        }else{
+          this.resultEmail = "Veuillez entrez un email Valide"
+          }
+        }else{
+          this.resultEmail = "Veuillez entrez un email Valide"
+        }
+    }
+
+  showPage(e){
+    this.resultEmail =  "";
+     this.resultConnexion = ""
+    this.boole = true;
+  }
+
+  hidePage(e){
+    this.resultEmail =  "";
+     this.resultConnexion = ""
+    this.boole = false;
+  }
+  login(e) {
+    if((this.user.password != "") && (this.user.email != "")){
+        RiotControl.trigger('user_connect', this.user);
+        RiotControl.on('bad_auth', function(){
+          this.resultConnexion = "Mauvais mot de passe ou email"
+        }.bind(this));
+    }
+  }
+
+
+  
+  $(document).ready(function(){
+      $('.box').hide().fadeIn(1000);
+        ///password
+  });
+
+  
+  $('a').click(function(event){
+      event.preventDefault(); 
+  });
+
+
+
+</script>
 </login>

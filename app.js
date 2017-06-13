@@ -2,22 +2,38 @@
 var express = require('express')
 var cors = require('cors')
 var app = express();
+var passport = require('passport');  
 app.use(cors());
+app.use(passport.initialize()); 
+require('./webServices/passport')(passport);  
+
 var server = require('http').Server(app);
 var https = require('https');
+var jwtService  = require('./webServices/jwtService')
 //var io = require('socket.io')(server);
 
-var router = express.Router();
+var dataRouter = express.Router();
+
+var authRouter = express.Router();
 var bodyParser = require("body-parser");
-router.use(bodyParser.json()); // used to parse JSON object given in the request body
+app.use(bodyParser.json())
+authRouter.use(bodyParser.json());
+dataRouter.use(bodyParser.json()); // used to parse JSON object given in the request body
 var env = process.env;
+
+//Sécurisation des route de data 
+dataRouter.use(function(req, res, next) {
+	jwtService.securityAPI(req, res, next)
+})
 
 //var cors = require('cors');
 //router.use(cors());
 
-require('./webServices/workspace')(router);
-require('./webServices/workspaceComponent')(router);
-require('./webServices/technicalComponent')(router);
+require('./webServices/authWebService')(authRouter);
+require('./webServices/workspace')(dataRouter);
+require('./webServices/workspaceComponent')(dataRouter);
+require('./webServices/technicalComponent')(dataRouter);
+require('./webServices/userWebservices')(dataRouter);
 //require('./webServices/ldp')(router);
 
 var transform = require('jsonpath-object-transform');
@@ -28,7 +44,18 @@ server.listen(env.NODE_PORT || 3000, env.NODE_IP || 'localhost', function() {
   console.log(this.address().port);
 })
 
-app.use('/data', router);
+/// Nous Securisons desormais IHM par un appel AJAX  
+/// à lentrée sur la page application.html
+
+//  app.all('/ihm/*', function(req, res, next) {
+//    jwtService.securityAPI(req, res, next)
+//  })
+
+
+///OTHER APP COMPONENT
+app.use('/auth',  express.static('static'));
+app.use('/auth',  authRouter);
+app.use('/data',  dataRouter);
 app.use('/ihm', express.static('static'));
 app.use('/browserify', express.static('browserify'));
 app.use('/npm', express.static('node_modules'));
