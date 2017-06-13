@@ -6,6 +6,7 @@
         <div class="containerV" style="flex-basis:20%">
           <div name="workspaceSelector" class="selector mainSelector" style="flex-basis:100px"><div>Workspace</div></div>
           <div name="technicalComponentSelector" class="selector mainSelector" style="flex-basis:100px"><div>Composant Technique</div></div>
+          <div name="configSelector" class="selector mainSelector" style="flex-basis:100px"><div>Config</div></div>
         </div>
         <div class="containerV" id="contentNavigator" style="flex-basis:30%">
 
@@ -159,11 +160,12 @@
     RiotControl.trigger('item_current_connect_after');
   }
 
-  this.selectTechnicalComponentMode=function(){
-    //console.log('selectTechnicalComponentMode');
-    //this.cleanNavigation();
-    this.contentNavigator =riot.mount("#contentNavigator", 'technical-component-table')[0];
-  }.bind(this);
+  // this.selectTechnicalComponentMode=function(){
+  //   //console.log('selectTechnicalComponentMode');
+  //   //this.cleanNavigation();
+  //   this.contentNavigator =riot.mount("#contentNavigator", 'technical-component-table')[0];
+  // }.bind(this);
+
 
   this.mountEdition=function(componentName){
     console.log('mountEdition | ',componentName);
@@ -259,7 +261,7 @@
       this.modeNavigation=data.modeNavigation;
       this.modeEdition=data.modeEdition;
       this.modeComponentNetwork=data.modeComponentNetwork;
-        this.modeComponentTest=data.modeComponentTest;
+      this.modeComponentTest=data.modeComponentTest;
 
       //console.log(this.modeNavigation);
       this.update();
@@ -267,12 +269,18 @@
 
 
     this.workspaceSelector.addEventListener('click',function(e){
+      this.cleanNavigation();
       this.mountWorkspaceNavigator();
     }.bind(this));
 
     this.technicalComponentSelector.addEventListener('click',function(e){
       this.cleanNavigation();
       this.contentNavigator =riot.mount("#contentNavigator", 'technical-component-table')[0];
+    }.bind(this));
+
+    this.configSelector.addEventListener('click',function(e){
+      this.cleanNavigation();
+      this.contentNavigator =riot.mount("#contentNavigator", 'config')[0];
     }.bind(this));
 
     this.nameComponentInput.addEventListener('change',function(e){

@@ -155,4 +155,8 @@ function MainController(workSpaceStore, genericStore) {
     }
   });
 
+  this.on('clone_database', function(data) {
+
+  });
+
 }
