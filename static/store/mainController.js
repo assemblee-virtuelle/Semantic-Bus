@@ -89,6 +89,10 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   }.bind(this));
 
   workSpaceStore.on('workspace_current_persist_done', function(message) {
+    this.updateMode({
+      modeTechnicalComponentNavigation: false,
+      modeWorkspaceNavigation : true,
+    });
     this.trigger('persist_end');
   }.bind(this));
   this.on('workspace_current_persist', function() {
@@ -195,10 +199,12 @@ function MainController(workSpaceStore, genericStore, profilStore) {
       modeComponentTest: false,
       modeComponentNetwork: false,
       modeNavigation: true,
+      modeWorkspaceNavigation : false,
       modeWorkspaceEdition : true,
       modeEdition: false,
       modeMenuHide : true
     });
+    this.workspaceStore.trigger('workspace_current_init',message);
   });
 
   this.on('workspace_current_cancel', function(message) {

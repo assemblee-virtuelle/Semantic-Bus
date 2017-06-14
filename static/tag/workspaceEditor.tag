@@ -8,7 +8,7 @@
           <div onclick={cancelClick}  class="commandButton" if={innerData.mode=="edit" || innerData.mode=="init"}>
             cancel
           </div>
-          <div onclick={saveClick}  class="commandButton" if={innerData.mode=="edit" || innerData.mode=="init"}>
+          <div onclick={persistClick}  class="commandButton" if={innerData.mode=="edit" || innerData.mode=="init"}>
             save
           </div>
       </div>
