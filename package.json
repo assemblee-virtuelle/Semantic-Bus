@@ -17,6 +17,7 @@
     "csvtojson": "latest",
     "data2xml": "^1.2.5",
     "express": "latest",
+    "formidable": "^1.1.1",
     "http": "latest",
     "jquery": "latest",
     "jsonpath-object-transform": "latest",

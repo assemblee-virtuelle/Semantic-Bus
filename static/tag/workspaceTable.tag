@@ -25,9 +25,9 @@
     this.on('mount', function (args) {
       //console.log('mount argr :',opts);
      this.tags.zentable.on('rowSelect',function(data){
-       console.log(data);
+       //console.log(data);
        RiotControl.trigger('workspace_current_select',data);
-       this.trigger('selectWorkspace');
+       //this.trigger('selectWorkspace');
      }.bind(this));
 
      this.tags.zentable.on('addRow',function(){

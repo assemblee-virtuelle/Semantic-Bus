@@ -33,7 +33,7 @@
   <script type="riot/tag" src="tag/workspaceTable.tag"></script>
   <script type="riot/tag" src="tag/workspaceEditor.tag"></script>
   <script type="riot/tag" src="tag/technicalComponentTable.tag"></script>
-  <script type="riot/tag" src="tag/config.tag"></script>
+  <script type="riot/tag" src="tag/admin.tag"></script>
   <script type="riot/tag" src="tag/jsonEditor.tag"></script>
   <script type="riot/tag" src="tag/jsonTransformer.tag"></script>
   <script type="riot/tag" src="tag/jsonPreviewer.tag"></script>
@@ -55,14 +55,14 @@
   <script type="riot/tag" src="tag/filter-editor.tag"></script>
   <script type="riot/tag" src="tag/upload-editor.tag"></script>
   <script type="riot/tag" src="tag/login.tag"></script>
-  <script type="riot/tag" src="tag/profil-tag.tag"></script>
+  <script type="riot/tag" src="tag/profil.tag"></script>
   <script>
 
 
   var worspaceStore = new WorkspaceStore(); // Create a store instance.
   var profilStore = new profilStore();
   RiotControl.addStore(worspaceStore); // Register the store in central dispatch.
-  RiotControl.addStore(profilStore); 
+  RiotControl.addStore(profilStore);
   var technicalComponentStore = new TechnicalComponentStore();
   RiotControl.addStore(technicalComponentStore);
   var specificStoreList=[];

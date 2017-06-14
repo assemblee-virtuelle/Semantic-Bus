@@ -1,0 +1,12 @@
+module.exports = {
+<<<<<<< HEAD
+   //mlabDB : 'sementic_bus_dev',
+   mlabDB : 'semantic_bus',
+   mlabDBToClone : 'semantic_bus',
+=======
+//    mlabDB : 'semantic_bus',
+   mlabDB : 'sementic_bus_dev',
+>>>>>>> 3127dc9286a5700f710a7a06fb29d5b052e9ceca
+   saveLock : false,
+   addLock : false
+}
