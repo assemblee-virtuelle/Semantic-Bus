@@ -19,6 +19,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-detect-element-resize/0.5.3/detect-element-resize.js"></script>
   <script src="./js/jsonEditor/dist/jsoneditor.min.js"></script>
+  <script src="./js/spin.min.js"></script>
   <script src="./js/RiotControl/riotcontrol.js"></script>
   <script src="./store/workspaceBusiness.js"></script>
   <script src="./store/workspaceStore.js"></script>
@@ -59,9 +60,6 @@
   <script>
 
    
-  RiotControl.on('login_redirect', function(){
-    window.open("../auth/login.html", "_self");
-  })
 
   var worspaceStore = new WorkspaceStore(); // Create a store instance.
   var profilStore = new profilStore();
@@ -79,6 +77,11 @@
   RiotControl.addStore(genericStore);
   var mainController = new MainController(worspaceStore,genericStore, profilStore);
   RiotControl.addStore(mainController);
+  RiotControl.on('login_redirect', function(){
+    console.log("in redirect");
+    window.open("../auth/login.html", "_self");
+  })
+
   riot.compile(function() {
     // here tags are compiled and riot.mount works synchronously
     var tags = riot.mount('*');

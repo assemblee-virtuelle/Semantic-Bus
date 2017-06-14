@@ -35,6 +35,7 @@ module.exports = {
         if(formData.Lastfile.options.filename){
           formData.Lastfile.value.on('data', function (chunk) {
              responseBody += chunk.toString();
+              console.log(responseBody)
           })
           //regex 
           // console.log(file.name)
@@ -62,28 +63,30 @@ module.exports = {
               })
             })
           }else if (ext[ext.length - 1] == ".xlsx"){
-               // xls traitment
-               console.log("xlsx traitment")
-               var final_data = [];
-               formData.Lastfile.value.on('end',() => {
-               var workbook = xlsx.read(responseBody, {type:'buffer'});
-               // console.log(workbook);
-               for (var property in workbook.Sheets) {  
-                  // console.log(xlsx.utils.sheet_to_json(workbook.Sheets[property], {header:1, raw:"true"}));
-                  final_data.push(workbook.Sheets[property]);
-                  // console.log(workbook.Sheets[property])
-                }
-                // console.log(final_data);
-                return new Promise((resolve, reject) => {
-                  console.log("from mlab");
-                  mLabPromise.request('PUT', 'cache/' + compId, {
-                  data: final_data
-                }).then(function(data) {
-                    // console.log('cache | test| ',final_data);
-                    resolve(final_data);
-                  })
-                });
-            })
+            //    // xls traitment
+            //    console.log("xlsx traitment")
+               
+            //    var final_data = [];
+            //    formData.Lastfile.value.on('end',() => {
+              
+            //    var workbook = xlsx.read(responseBody, {type: 'buffer'});
+            //    console.log(workbook.Sheets.Sheet1)
+            //    for (var property in workbook.Sheets) {
+            //       console.log(xlsx.utils.sheet_to_json(workbook.Sheets[property], {header:1, raw:"true"}));
+            //       final_data.push(workbook.Sheets[property]);
+            //       console.log(workbook.Sheets[property])
+            //     }
+            //     // console.log(final_data);
+            //     return new Promise((resolve, reject) => {
+            //       console.log("from mlab");
+            //       mLabPromise.request('PUT', 'cache/' + compId, {
+            //       data: final_data
+            //     }).then(function(data) {
+            //         // console.log('cache | test| ',final_data);
+            //         resolve(final_data);
+            //       })
+            //     });
+            // })
           }
         }
       })

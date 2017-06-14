@@ -8,6 +8,7 @@ module.exports = function (router) {
 
   ///TEST GESTION DES COMPTE EN MODIFIANT LES QUERY POUR AVOIR LES WORKSPACE DES USERS
   router.get('/core/workspace/:userId', function (req, res) {
+    console.log(req.params.userId);
     var userId = req.params.userId;
     //On recupere le user grace a l'id
     var requestPromise = mLabPromise.request('GET', 'users/' + userId);
@@ -16,6 +17,7 @@ module.exports = function (router) {
     var _completeWorkspaceByComponentsPromises = [];
     //console.log(requestPromise);
     requestPromise.then(function (data) {
+       console.log(data);
       // console.log(data);
       // On recupere les id des workspace du user
       // On requete sur la table workspace pour avoir ses workspaces
@@ -44,6 +46,7 @@ module.exports = function (router) {
           final_workspaces[responseKey].components = workspaceBusiness.checkWorkspaceComponentConsistency(responses[responseKey]);
         }
         // console.log(final_workspaces)
+        console.log(final_workspaces);
         res.json(final_workspaces);
       });
     });
@@ -75,8 +78,9 @@ module.exports = function (router) {
   });
 
   router.put('/core/workspace/', function (req, res) {
-    var id = req.body._id.$oid;
+    // var id = req.body._id.$oid;
     var entityToUpdate = JSON.parse(JSON.stringify(req.body));
+    console.log(entityToUpdate)
     entityToUpdate.components = undefined;
 
     mLabPromise.request('GET', 'workspaceComponent', undefined, {

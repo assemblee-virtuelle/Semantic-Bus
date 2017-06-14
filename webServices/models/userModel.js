@@ -14,7 +14,8 @@ var schemaMlab = new Schema("mongoose", config.configMongo);
 var User = schemaMlab.define('user', {
     email:     { type: schemaMlab.String,  limit: 255 },
     password:   { type: schemaMlab.Text },
-    googleid :{type: schemaMlab.Text, default: null},
+    googleid : {type: schemaMlab.Text, default: null},
+    googleToken: {type: schemaMlab.Text, default: null},
     workspaces:  {type: schemaMlab.JSON,  default: []},
     admin: { type: schemaMlab.Boolean, default: false},
 });

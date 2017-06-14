@@ -129,6 +129,7 @@
               var formData = new FormData();
               for (var i = 0; i < files.length; i++) {
                 var file = files[i];
+                console.log(file)
                 formData.append("uploads[]", file, file.name);
               }
               if(formData.getAll("uploads[]")[0].name.match(regex) == ".csv" || formData.getAll("uploads[]")[0].name.match(regex) == ".xlsx" ){

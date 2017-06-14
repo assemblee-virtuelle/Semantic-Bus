@@ -5,6 +5,7 @@ var passport = require('passport');
 const User = require('./models/userModel');
 const config = require('./models/configuration');
 var jwtService = require('./jwtService');
+var path = require('path');
 
 module.exports = function (authRouter) {
 	function generate_token(user) {
@@ -44,10 +45,7 @@ module.exports = function (authRouter) {
 
 	authRouter.post('/inscription', function (req, res) {
 		if (!req.body.emailInscription || !req.body.passwordInscription) {
-			res.json({
-				success: false,
-				message: 'Entrez un bon mot de passe'
-			});
+			res.send(false);
 		} else {
 			User.findOne({
 				where: {
@@ -56,11 +54,16 @@ module.exports = function (authRouter) {
 			}, function (err, user) {
 				console.log(user);
 				if (!user) {
-					const newUser = new User({
-						email: req.body.emailInscription,
-						password: req.body.passwordInscription,
-						workspaces: []
-					});
+					 var reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g;
+        				if((req.body.emailInscription.match(reg) != null) && (req.body.passwordInscription.split().length > 5)){
+							const newUser = new User({
+								email: req.body.emailInscription,
+								password: req.body.passwordInscription,
+								workspaces: []
+							});
+						}else{
+							res.send(false);
+						}
 					///ERREUR A CATCHER EN CAS DE DOUBLON (DOC A LIRE)
 					newUser.save(function () {
 						const token = generate_token(newUser);
@@ -78,52 +81,86 @@ module.exports = function (authRouter) {
 
 
 	authRouter.post('/authenticate', function (req, res) {
-		console.log(req.body.email)
-		User.findOne({
+		console.log(req.body.token)
+		if(req.body.token != null){
+			User.findOne({
+				where: {
+					googleToken: req.body.token
+				}
+			}, function (err, user) {
+				if (user) {
+					user.googleToken = null;
+					console.log(user);
+					user.save(function(err, result) {
+						if (err){
+							throw err;
+						}
+						const token = generate_token(user);
+						res.send({
+							user: user,
+							token: token
+						});	
+					});
+				}else{
+					res.send("creer toi un compte");
+				}
+			})
+		}
+		else{ 
+			console.log(req.body.googleid)
+			User.findOne({
 				where: {
 					email: req.body.email
 				}
 			}, function (err, user) {
-				console.log(user);
 				if (user) {
-					user.comparePassword(req.body.password, function (err, isMatch) {
-						if (isMatch && !err) {
-							//       if (isMatch && !err) {) {
-							const token = generate_token(user);
-							res.send({
-								user: user,
-								token: token
-							});
-						} else {
-							res.send("creer toi un compte");
-						}
-					})
-				} else {
+					if(req.body.googleid == null){
+						user.comparePassword(req.body.password, function (err, isMatch) {
+							if (isMatch && !err) {
+								//       if (isMatch && !err) {) {
+								const token = generate_token(user);
+								res.send({
+									user: user,
+									token: token
+								});
+							} else {
+								res.send("creer toi un compte");
+							}
+						})
+					} else {
+						res.send(false);
+					}
+				}else{
 					res.send("creer toi un compte");
 				}
 			})
 			.catch(err => {
 				return err
 			});
+		}
 	});
 
 	//GOOGLE AUTH
 
-	authRouter.get('/', function(req, res){
-		console.log(res)
-	})
+	// authRouter.get('/login', function(req, res){
+	// 	res.sendFile(path.join(__dirname, '../static', 'login.html'));
+	// })
 	
 	authRouter.get('/google',
-		passport.authenticate('google', { scope : ['profile', 'email'] }));
+		passport.authenticate('google', { scope : ['email'] }));
+
 
 
 	authRouter.get('/', 
-		passport.authenticate('google', { failureRedirect: '/' , session: false}),
-		function(req, res) {
-			var result = {user: res.req.user}
-			// console.log(result)
-			res.send(result)
+	passport.authenticate('google', { failureRedirect: '/login.html' , session: false}),
+	function(req, res) {
+		const token = generate_token(res.req.user);
+		var result = {token: token, user: res.req.user};
+		console.log(res.req.user)
+		res.redirect('./login.html?google_token=' + res.req.user.googleToken );
+		// res.sendFile(result)
 	});
+
 }
 
 

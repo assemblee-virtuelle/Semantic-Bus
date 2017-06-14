@@ -17,11 +17,8 @@
     "csvtojson": "latest",
     "data2xml": "^1.2.5",
     "express": "latest",
-<<<<<<< HEAD
     "helmet": "^3.6.1",
-=======
     "formidable": "^1.1.1",
->>>>>>> bbe42e3a77e8e8b90eaa554b6aea673287822368
     "http": "latest",
     "jquery": "latest",
     "jsonpath-object-transform": "latest",

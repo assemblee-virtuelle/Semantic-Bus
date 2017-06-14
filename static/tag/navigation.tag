@@ -1,7 +1,33 @@
-<navigation>
-  <!--<div class="containerV" style="bottom:0;top:0;right:0;left:0;position:absolute;">-->
+<navigation >
+
+  <div class="containerV" style="bottom:0;top:0;right:0;left:0;position:absolute;">
+  <!-- <div class="containerlanding" if={landingPage}>
+    <div id="row">
+      <h1 id="landingTitle"> Bienvenue sur le Bus Semantique </h1>
+  </div>
+    <div class="containerflexlanding">
+      <div onclick={workspaceSelectorClick} name="workspaceSelector" class="selector mainSelector" style="flex-basis:100px">
+        <div>Mes Workspaces</div>
+      </div>
+      <div onclick={technicalComponentSelectorClick} name="technicalComponentSelector" class="selector mainSelector" style="flex-basis:100px">
+        <div>Composant Technique</div>
+      </div>
+      <div onclick={profilSelectorClick} name="profilSelector" class="selector mainSelector" style="flex-basis:100px">
+        <div>Mon profil</div>
+      </div>
+      <div onclick={adminSelectorClick} name="adminSelector" class="selector mainSelector" style="flex-basis:100px">
+        <div>Admin</div>
+      </div>
+    </div>
+  </div> --> 
+  <div id="containerloaderDiv">
+    <div id="row">
+      <div id="loaderDiv"></div>
+      <h1 id="loaderText"> Sécurisation de l'application en cour </h1>
+    </div>
+  </div>
   <div class="containerV" class="containerV" style="height: 100vh;flex-shrink:5">
-    <div show={modeNavigation} class="containerV" style="flex-grow:1;flex-basis:50%">
+    <div if={modeNavigation} class="containerV" style="flex-grow:1;flex-basis:50%">
       <div class="containerH" style="flex-grow:1;flex-wrap: nowrap;">
         <div class="containerV" style="flex-basis:20%">
           <div class="commandBar containerH">
@@ -116,6 +142,7 @@
   <script>
     this.modeNavigation = true;
     this.modeEdition = false;
+    this.landingPage = true;
     this.modeComponentNetwork = false;
     this.modeComponentTest = false;
     this.modeProfilEdition = false;
@@ -129,6 +156,17 @@
     this.persistInProgress = false;
     this.itemCurrent; //TODO create a specific component for item with connections
 
+    RiotControl.on("ajax_receipt", function(){
+      console.log("in hide");
+      $("#containerloaderDiv").hide();
+      this.update()
+    }.bind(this));
+
+    RiotControl.on("ajax_send", function(){
+      console.log("in show");
+      $("#containerloaderDiv").show();
+      this.update()
+    }.bind(this));
     ////TEST LOGIN ////
     this.isGoodUser = function () {
       RiotControl.trigger('is_token_valid?');
@@ -302,7 +340,7 @@
       }.bind(this));
 
       // this.workspaceSelector.addEventListener('click', function (e) {   this.modeProfilEdition = false;   //clean navigation not work if(this.profilNavigator){   console.log(this.profilNavigator);   this.profilNavigator.unmount(true); }   this.update();
-      //   this.mountWorkspaceNavigator(); }.bind(this)); this.profilSelector.addEventListener('click', function (e) {   //  this.modeProfilEdition = true; this.profilNavigator = riot.mount("#detailContainer", 'profil-tag')[0];  this.update();
+      // this.mountWorkspaceNavigator(); }.bind(this)); this.profilSelector.addEventListener('click', function (e) {   //  this.modeProfilEdition = true; this.profilNavigator = riot.mount("#detailContainer", 'profil-tag')[0];  this.update();
       // RiotControl.trigger('profil_show'); }.bind(this));
 
       this.technicalComponentSelector.addEventListener('click', function (e) {
@@ -318,6 +356,85 @@
     });
   </script>
   <style>
+
+
+  /*LANDING CSS */
+
+  #landingTitle {
+    text-align:center;
+    margin-top: 15vh;
+  }
+
+  #landingText {
+    text-align:center;
+    margin-top: 15vh;
+  }
+
+    .containerflexlanding {
+    background-color:white;
+    width:100%;
+    height:125vh;
+    padding: 0;
+    margin: 0;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .containerlanding {
+    height:90vh!important;
+    background-color:white;
+    width:100%;
+    height:100%;
+    padding: 0;
+    margin: 0;
+  }
+  
+  #containerloaderDiv {
+    background-color:rgba(200,200,200,0.8);
+    width:100%;
+    height:125vh;
+    padding: 0;
+    margin: 0;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+
+
+  #row {
+    width: auto;
+  }
+
+  #loaderText {
+    padding-top:5%;
+    color:#3498db;
+    font-family: 'Raleway', sans-serif;
+    text-align:center;
+  }
+  #loaderDiv {
+    border: 16px solid #f3f3f3; 
+    border-top: 16px solid #3498db; 
+    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    animation: spin 2s linear infinite;
+    margin-left:13vw
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
     .persistInProgress {
       color: red;
     }

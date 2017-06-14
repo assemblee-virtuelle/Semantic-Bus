@@ -24,26 +24,41 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     }
     this.trigger('navigation_mode_changed', this.displayMode);
   }.bind(this)
-
   ////ON TEST SI LE USER A UN TOKEN VALIDE A CHAQUE ENTRE SUR APPLICATION.HTML///
   // Rmq : Call ajax a deplacer dans le profil Store ou User Store ?
    this.on('is_token_valid?', function() {
-    $.ajax({
-      method: 'post',
-      data: JSON.stringify({token: localStorage.token}),
-      contentType: 'application/json',
-      url: '/auth/isTokenValid',
-    }).done(data => {
-      console.log('is_token_valid | ',data);
-      if(data){
-        localStorage.user_id = data.iss;
-        console.log(localStorage);
-      }
-      else{
+      console.log(localStorage.token)
+      if (localStorage.token == null ){
+        console.log("in null")
         this.trigger('login_redirect');
-         window.open("../auth/login.html", "_self");
+      }else {
+        $.ajax({
+          method: 'post',
+          data: JSON.stringify({token: localStorage.token}),
+          contentType: 'application/json',
+          url: '/auth/isTokenValid',
+          beforeSend: function(){
+            console.log("before send")
+            this.trigger('ajax_send');
+          }.bind(this),
+          success: function(data)
+          {  
+            console.log("after send")
+            // this.trigger('ajax_receipt');
+          }.bind(this)
+        }).done(data => {
+          console.log('is_token_valid | ',data);
+          if(data.iss != null){
+            this.trigger('ajax_receipt');
+            localStorage.user_id = data.iss;
+            console.log(localStorage);
+          }
+          else{
+            this.trigger('login_redirect');
+            // window.open("../auth/login.html", "_self");
+          }
+        });
       }
-    });
    })
 
   this.on('item_current_persist', function() {
