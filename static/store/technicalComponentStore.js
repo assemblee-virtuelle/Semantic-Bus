@@ -3,7 +3,7 @@ function TechnicalComponentStore() {
 
   this.technicalComponentCollection =[];
   this.technicalComponentCurrent =[];
-  
+
   this.load=function(){
     //console.log('load GLF');
     $.ajax({
@@ -78,12 +78,12 @@ function TechnicalComponentStore() {
     this.trigger('technicalComponent_current_changed',this.technicalComponentCurrent);
   });
 
-  this.on('technicalComponent_current_select',function(data){
-    console.log('store select');
-    this.technicalComponentCurrent=data;
-    this.technicalComponentCurrent.mode='read';
-    this.trigger('technicalComponent_current_changed',this.technicalComponentCurrent);
-  });
+  // this.on('technicalComponent_current_select',function(data){
+  //   console.log('store select');
+  //   this.technicalComponentCurrent=data;
+  //   this.technicalComponentCurrent.mode='read';
+  //   this.trigger('technicalComponent_current_changed',this.technicalComponentCurrent);
+  // });
 
   this.on('technicalComponent_current_edit',function(data){
     console.log('store edit',data);

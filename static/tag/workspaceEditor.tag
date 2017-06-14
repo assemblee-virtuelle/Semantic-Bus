@@ -1,9 +1,15 @@
 <workspace-editor>
   <!--<div class="containerV" style="flex-grow:1">-->
-    <div class="commandBar containerH" show={innerData.mode=="read"}>
+    <div class="commandBar containerH">
       <div class="containerH commandGroup">
-          <div onclick={editClick}  class="commandButton">
+          <div onclick={editClick}  class="commandButton" if={innerData.mode=="read"}>
             edit
+          </div>
+          <div onclick={cancelClick}  class="commandButton" if={innerData.mode=="edit" || innerData.mode=="init"}>
+            cancel
+          </div>
+          <div onclick={persistClick}  class="commandButton" if={innerData.mode=="edit" || innerData.mode=="init"}>
+            save
           </div>
       </div>
     </div>
@@ -58,6 +64,10 @@
   editClick(e){
     //console.log('EDIT');
     RiotControl.trigger('workspace_current_edit');
+  }
+
+  cancelClick(e){
+    RiotControl.trigger('workspace_current_cancel');
   }
 
   componentClick(e){
