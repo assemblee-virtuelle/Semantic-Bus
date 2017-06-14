@@ -44,6 +44,7 @@ function WorkspaceStore() {
       console.log(data);
       this.load(function(data) {
         this.trigger('workspace_current_persist_done');
+        data.mode='read';
         this.select(data);
         //this.trigger('workspace_current_persist_done', this.workspaceCurrent);
       }.bind(this, data));
@@ -62,6 +63,7 @@ function WorkspaceStore() {
       },
     }).done(function(data) {
       this.load(function(data) {
+        data.mode='read';
         this.trigger('workspace_current_persist_done');
         this.select(data);
         //this.trigger('workspace_current_persist_done', this.workspaceCurrent);
