@@ -9,19 +9,24 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     modeEdition: false,
     modeComponentNetwork: false,
     modeComponentTest: false,
-    modeProfilEdition : false
+    modeProfilEdition : false,
+    modeWorksapceNavigation : false,
+    modeTechnicalComponentNavigation : false,
+    modeAdminNavigation : false,
+    modeWorksapceEdition : false,
+    modeWorksapceComponentEdition : false
   }
   this.updateMode = function(changedValueMode) {
-    this.displayMode.modeProfilEdition = changedValueMode.modeProfilEdition != undefined ? changedValueMode.modeProfilEdition : this.displayMode.modeProfilEdition;
-    this.displayMode.modeNavigation = changedValueMode.modeNavigation != undefined ? changedValueMode.modeNavigation : this.displayMode.modeNavigation;
-    this.displayMode.modeEdition = changedValueMode.modeEdition != undefined ? changedValueMode.modeEdition : this.displayMode.modeEdition;
-    this.displayMode.modeComponentNetwork = changedValueMode.modeComponentNetwork != undefined ? changedValueMode.modeComponentNetwork : this.displayMode.modeComponentNetwork;
-    this.displayMode.modeComponentTest = changedValueMode.modeComponentTest != undefined ? changedValueMode.modeComponentTest : this.displayMode.modeComponentTest;
+    for(displayKey in this.displayMode ){
+      if(changedValueMode[displayKey]!=undefined){
+        this.displayMode[displayKey]=changedValueMode[displayKey];
+      }
+    }
     this.trigger('navigation_mode_changed', this.displayMode);
   }.bind(this)
 
   ////ON TEST SI LE USER A UN TOKEN VALIDE A CHAQUE ENTRE SUR APPLICATION.HTML///
-  // Rmq : Call ajax a deplacer dans le profil Store ou User Store ? 
+  // Rmq : Call ajax a deplacer dans le profil Store ou User Store ?
    this.on('is_token_valid?', function() {
     $.ajax({
       method: 'post',
@@ -29,6 +34,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
       contentType: 'application/json',
       url: '/auth/isTokenValid',
     }).done(data => {
+      console.log('is_token_valid | ',data);
       if(data){
         localStorage.user_id = data.iss;
         console.log(localStorage);
@@ -44,12 +50,23 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     this.trigger('persist_start');
   });
 
-  //PROFIL STORE 
-
-  this.on('show_profil', function(message) {
+  //PROFIL STORE
+  this.on('profil_show', function(message) {
     profilStore.trigger('load_profil');
     this.updateMode({
-      modeProfilEdition: true
+      modeProfilEdition: true,
+      modeTechnicalComponentNavigation: false,
+      modeWorksapceNavigation : false,
+      modeAdminNavigation : false
+    });
+  }.bind(this))
+
+  this.on('admin_show', function(message) {
+    this.updateMode({
+      modeProfilEdition: false,
+      modeTechnicalComponentNavigation: false,
+      modeWorksapceNavigation : false,
+      modeAdminNavigation : true
     });
   }.bind(this))
 
@@ -110,6 +127,15 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     this.currentEditStore.addComponent(message);
   });
 
+  this.on('technicalComponent_show', function(message) {
+    this.updateMode({
+      modeTechnicalComponentNavigation: true,
+      modeProfilEdition : false,
+      modeWorksapceNavigation : false,
+      modeAdminNavigation : false
+    });
+  });
+
   this.on('navigation_mode_edition_only', function(message) {
     this.updateMode({
       modeNavigation: false,
@@ -125,7 +151,14 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   });
 
 
-
+  this.on('workspace_show', function(message) {
+    this.updateMode({
+      modeTechnicalComponentNavigation: false,
+      modeProfilEdition : false,
+      modeWorksapceNavigation : true,
+      modeAdminNavigation : false
+    });
+  });
   this.on('workspace_current_add_component', function(record) {
     this.updateMode({
       modeNavigation: true,
@@ -137,7 +170,18 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   this.on('workspace_current_edit', function(message) {
     this.updateMode({
       modeComponentTest: false,
-      modeComponentNetwork: false
+      modeComponentNetwork: false,
+      modeNavigation: false,
+      modeEdition: true
+    });
+  });
+
+  this.on('workspace_current_init', function(message) {
+    this.updateMode({
+      modeComponentTest: false,
+      modeComponentNetwork: false,
+      modeNavigation: false,
+      modeEdition: true
     });
   });
 
@@ -179,6 +223,10 @@ function MainController(workSpaceStore, genericStore, profilStore) {
         break;
       }
     }
+  });
+
+  this.on('clone_database', function(data) {
+
   });
 
 }

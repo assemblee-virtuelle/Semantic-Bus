@@ -1,6 +1,6 @@
 function UserStore() {
   riot.observable(this) // Riot provides our event emitter.
-  ////LE USER STORE EST RELIE A LOGIN EST NON A APPLICATION 
+  ////LE USER STORE EST RELIE A LOGIN EST NON A APPLICATION
   this.userCurrrent;
 
   this.on('user_connect', function(user) {

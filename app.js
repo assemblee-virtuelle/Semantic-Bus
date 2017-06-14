@@ -55,7 +55,6 @@ server.listen(env.NODE_PORT || 3000, env.NODE_IP || 'localhost', function() {
 //    jwtService.securityAPI(req, res, next)
 //  })
 
-
 ///OTHER APP COMPONENT
 ///SECURISATION DES REQUETES 
 app.use(helmet()); 

@@ -93,7 +93,7 @@
       this.innerData.description=e.currentTarget.value;
     }.bind(this));
 
-    RiotControl.trigger('workspace_current_refresh');
+    //RiotControl.trigger('workspace_current_refresh');
 
 
   });
