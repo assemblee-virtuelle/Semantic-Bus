@@ -3,10 +3,20 @@
   <div class="containerV" class="containerV" style="height: 100vh;flex-shrink:5">
     <div show={modeNavigation} class="containerV" style="flex-grow:1;flex-basis:50%">
       <div class="containerH" style="flex-grow:1;flex-wrap: nowrap;">
-        <div class="containerV" style="flex-basis:20%">
+        <div class="containerV commandBar" style="flex-basis:10px" if={modeMenuHide}>
+          <div></div>
+          <div class="commandGroup" class="containerH">
+            <div onclick={showMenu} class="commandButton">
+              >
+            </div>
+          </div>
+          <div></div>
+        </div>
+        <div class="containerV" style="flex-basis:20%" if={!modeMenuHide}>
           <div class="commandBar containerH">
             menu
           </div>
+
           <div onclick={workspaceSelectorClick} name="workspaceSelector" class="selector mainSelector" style="flex-basis:100px">
             <div>Mes Workspaces</div>
           </div>
@@ -20,10 +30,10 @@
             <div>Admin</div>
           </div>
         </div>
-        <div class="containerV" style="flex-basis:30%" if={modeWorksapceNavigation}>
+        <div class="containerV" style="flex-grow:1" if={modeWorkspaceNavigation}>
           <workspace-table></workspace-table>
         </div>
-        <div class="containerV" style="flex-grow:1" if={modeWorksapceNavigation}>
+        <div class="containerV" style="flex-grow:1" if={modeWorkspaceEdition}>
           <workspace-editor></workspace-editor>
         </div>
         <div class="containerV" style="flex-grow:1" if={modeTechnicalComponentNavigation}>
@@ -70,7 +80,7 @@
           </div>
         </div>
         <div id="editionContainer" style="flex-grow:1" class="containerV">
-          <workspace-editor if={modeWorkspaceEdition}></workspace-editor>
+          <!--<workspace-editor if={modeWorkspaceEdition}></workspace-editor>-->
 
         </div>
         <div if={modeComponentTest} style="flex-grow:2;flex-wrap: nowrap;" class="containerH">
@@ -119,7 +129,7 @@
     this.modeComponentNetwork = false;
     this.modeComponentTest = false;
     this.modeProfilEdition = false;
-    this.modeWorksapceNavigation = false;
+    this.modeWorkspaceNavigation = false;
     this.modeTechnicalComponentNavigation = false;
     this.modeAdminNavigation = false;
     this.modeWorkspaceEdition = false;
@@ -175,7 +185,7 @@
         var data = this.editionContainer.data;
         //console.log('saveEditionContainerClick : ', data );
         RiotControl.trigger('item_current_testPull');
-        
+
       } else {
         this.editionContainer.testPullClick();
 
@@ -205,6 +215,10 @@
     }
     adminSelectorClick(e) {
       RiotControl.trigger('admin_show');
+    }
+
+    showMenu(e){
+      RiotControl.trigger('menu_show');
     }
 
     // this.selectTechnicalComponentMode=function(){   //console.log('selectTechnicalComponentMode');   //this.cleanNavigation();   this.contentNavigator =riot.mount("#contentNavigator", 'technical-component-table')[0]; }.bind(this);
@@ -241,10 +255,6 @@
         console.log('item_current_edit_mode');
         var tagName;
         switch (itemType) {
-          case 'workspace':
-            tagName = 'workspace-editor'
-            //this.modeComponentNetwork=false;
-            break;
           case 'generic':
             //console.log('item_current_edit_mode generic :',item);
             if (item.editor != undefined) {
@@ -269,9 +279,9 @@
         this.update();
       }.bind(this));
 
-      RiotControl.on('workspace_current_changed', function (item) {
-        //if (!this.detailContainer.isMounted) {  this.detailContainer = riot.mount("#detailContainer", 'workspace-editor')[0]; }
-      }.bind(this));
+      // RiotControl.on('workspace_current_changed', function (item) {
+      //   //if (!this.detailContainer.isMounted) {  this.detailContainer = riot.mount("#detailContainer", 'workspace-editor')[0]; }
+      // }.bind(this));
 
       RiotControl.on('persist_start', function (data) {
         //console.log('persist_start | ',this.saveButton)
@@ -291,12 +301,12 @@
         this.modeComponentNetwork = data.modeComponentNetwork;
         this.modeComponentTest = data.modeComponentTest;
         this.modeProfilEdition = data.modeProfilEdition;
-        this.modeWorksapceNavigation = data.modeWorksapceNavigation;
+        this.modeWorkspaceNavigation = data.modeWorkspaceNavigation;
         this.modeTechnicalComponentNavigation = data.modeTechnicalComponentNavigation;
         this.modeAdminNavigation = data.modeAdminNavigation;
         this.modeWorkspaceEdition = data.modeWorkspaceEdition;
         this.modeWorkspaceComponentEdition = data.modeWorkspaceComponentEdition;
-
+        this.modeMenuHide=data.modeMenuHide;
         //console.log(this.modeNavigation);
         this.update();
       }.bind(this));

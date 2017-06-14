@@ -34,7 +34,7 @@
        //console.log(data);
 
        RiotControl.trigger('workspace_current_init');
-       this.trigger('newWorkspace');
+       //this.trigger('newWorkspace');
      }.bind(this));
 
      this.tags.zentable.on('delRow',function(data){

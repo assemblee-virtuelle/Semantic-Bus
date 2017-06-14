@@ -18,7 +18,7 @@ function WorkspaceStore() {
       },
       contentType: 'application/json',
     }).done(function(data) {
-      console.log('store load',data);
+      console.log('store load', data);
       this.workspaceCollection = data;
       if (callback != undefined) {
         callback();
@@ -117,7 +117,7 @@ function WorkspaceStore() {
         this.trigger('workspace_collection_changed', this.workspaceCollection);
       }.bind(this));
     } else {
-      this.cancelRequire=false;
+      this.cancelRequire = false;
       this.select(this.workspaceCurrent);
       //this.trigger('workspace_collection_changed', this.workspaceCollection);
     }
@@ -170,13 +170,17 @@ function WorkspaceStore() {
     this.select(record);
   });
 
+  this.on('workspace_current_cancel', function(record) {
+    this.workspaceCurrent.mode = 'read'
+  });
+
   this.on('workspace_current_edit', function(data) {
     //console.log('store edit',data||this.workspaceCurrent);
     if (data != undefined) {
       this.workspaceCurrent = data;
     }
     this.workspaceCurrent.mode = 'edit';
-    this.trigger('item_current_edit_mode', 'workspace');
+    //this.trigger('item_current_edit_mode', 'workspace');
     this.trigger('workspace_current_changed', this.workspaceCurrent);
 
   });
@@ -238,16 +242,16 @@ function WorkspaceStore() {
     this.trigger('workspace_current_changed', this.workspaceCurrent);
 
   });
-/*
-  this.on('workspace_current_update_component', function(record) {
-    //console.log('workspaceStore | workspace_current_update_component:',record);
-    for (workspaceComponentKey in this.workspaceCurrent.components) {
-      if (this.workspaceCurrent.components[workspaceComponentKey]._id.$oid == record._id.$oid) {
-        this.workspaceCurrent.components[workspaceComponentKey] = record;
+  /*
+    this.on('workspace_current_update_component', function(record) {
+      //console.log('workspaceStore | workspace_current_update_component:',record);
+      for (workspaceComponentKey in this.workspaceCurrent.components) {
+        if (this.workspaceCurrent.components[workspaceComponentKey]._id.$oid == record._id.$oid) {
+          this.workspaceCurrent.components[workspaceComponentKey] = record;
+        }
       }
-    }
-    this.trigger('workspace_current_changed', this.workspaceCurrent);
-  });*/
+      this.trigger('workspace_current_changed', this.workspaceCurrent);
+    });*/
 
 
 
