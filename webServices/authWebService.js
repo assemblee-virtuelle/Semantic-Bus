@@ -1,11 +1,12 @@
-module.exports = function (authRouter) {
-	const jwt = require('jsonwebtoken');
-	const bcrypt = require('bcrypt');
-	const moment = require('moment');
-	const User = require('./models/userModel');
-	const config = require('./models/configuration');
-	var jwtService = require('./jwtService')
+const jwt = require('jsonwebtoken');
+const bcrypt = require('bcrypt');
+const moment = require('moment');
+var passport = require('passport'); 
+const User = require('./models/userModel');
+const config = require('./models/configuration');
+var jwtService = require('./jwtService');
 
+module.exports = function (authRouter) {
 	function generate_token(user) {
 		const payload = {
 			exp: moment().add(14, 'days').unix(),
@@ -17,11 +18,11 @@ module.exports = function (authRouter) {
 
 	// Inutile pour le moment ici vu que on trigger l'enregistrement en BDD
 	// function format(user) {
-	// 	const salt = bcrypt.genSaltSync(10);
-	// 	return {
+	// const salt = bcrypt.genSaltSync(10);
+	// return {
 	// 		mail: user.mail,
 	// 		hash: bcrypt.hashSync(user.mail + user.pwd, salt)
-	// 	}
+	// }
 	// };
 
 	authRouter.post('/isTokenValid', function (req, res) {
@@ -33,6 +34,7 @@ module.exports = function (authRouter) {
 				if (token_result != false) {
 					res.send(token_result);
 				} else {
+					// authRouter.get('localhost://300//auth/login.html');
 					res.send(false)
 				}
 			})
@@ -75,8 +77,6 @@ module.exports = function (authRouter) {
 	});
 
 
-
-
 	authRouter.post('/authenticate', function (req, res) {
 		console.log(req.body.email)
 		User.findOne({
@@ -106,4 +106,25 @@ module.exports = function (authRouter) {
 				return err
 			});
 	});
+
+	//GOOGLE AUTH
+
+	authRouter.get('/', function(req, res){
+		console.log(res)
+	})
+	
+	authRouter.get('/google',
+		passport.authenticate('google', { scope : ['profile', 'email'] }));
+
+
+	authRouter.get('/', 
+		passport.authenticate('google', { failureRedirect: '/' , session: false}),
+		function(req, res) {
+			var result = {user: res.req.user}
+			// console.log(result)
+			res.send(result)
+	});
 }
+
+
+

@@ -2,7 +2,7 @@ var config = require('./configuration');
 var mongoose = require('mongoose');  
 var bcrypt = require('bcrypt');
 var caminte = require('caminte');
-var  Schema = caminte.Schema;
+var Schema = caminte.Schema;
 
 ///NOUS POUVONS DEFINIR ICI PLUSIEUR MODEL A MAPPER DANS DIFFERENTES BASES DE DONNÉES 
 //LA CONFIG DES DIFFERENTES BASES EST A METTRE DANS LE FICHIER DE CONFIGURATION
@@ -14,11 +14,12 @@ var schemaMlab = new Schema("mongoose", config.configMongo);
 var User = schemaMlab.define('user', {
     email:     { type: schemaMlab.String,  limit: 255 },
     password:   { type: schemaMlab.Text },
+    googleid :{type: schemaMlab.Text, default: null},
     workspaces:  {type: schemaMlab.JSON,  default: []},
     admin: { type: schemaMlab.Boolean, default: false},
 });
 
-User.validatesPresenceOf('password', 'email')
+User.validatesPresenceOf('email')
 User.validatesUniquenessOf('email', {message: 'email is not unique'});
 
 

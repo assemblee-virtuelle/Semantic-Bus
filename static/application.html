@@ -57,6 +57,10 @@
   <script type="riot/tag" src="tag/profil-tag.tag"></script>
   <script>
 
+   
+  RiotControl.on('login_redirect', function(){
+    window.open("../auth/login.html", "_self");
+  })
 
   var worspaceStore = new WorkspaceStore(); // Create a store instance.
   var profilStore = new profilStore();

@@ -25,6 +25,7 @@
     "moment": "^2.18.1",
     "mongoose": "^4.10.5",
     "passport": "^0.3.2",
+    "passport-google-oauth": "^1.0.0",
     "passport-jwt": "^2.2.1",
     "promise-waterfall": "latest",
     "sheetrock": "latest",

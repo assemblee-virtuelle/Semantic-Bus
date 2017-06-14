@@ -114,6 +114,8 @@ module.exports = function (router) {
   router.post('/core/workspace/:userId', function (req, res) {
     var entityToInsert = req.body;
     var userId = req.params.userId;
+    console.log(entityToInsert);
+    console.log(userId)
     //var firstComponentToInsert = entityToInsert.firstComponent;
     //entityToInsert.firstComponent = undefined;
     //AJOUT D'un Workspace pour un utilisateur

@@ -29,6 +29,11 @@
   <script type="riot/tag" src="tag/login.tag"></script>
   <script>
 
+     
+  RiotControl.on('application_redirect', function(){
+    window.open("../ihm/application.html", "_self");
+  })
+
   var userStore = new UserStore(); // Create a store instance.
   RiotControl.addStore(userStore); // Register the store in central dispatch.
   riot.compile(function() {

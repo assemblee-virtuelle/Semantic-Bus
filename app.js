@@ -28,8 +28,10 @@ dataRouter.use(function(req, res, next) {
 	jwtService.securityAPI(req, res, next)
 })
 
-//var cors = require('cors');
-//router.use(cors());
+
+
+var cors = require('cors');
+authRouter.use(cors());
 
 require('./webServices/authWebService')(authRouter);
 require('./webServices/workspace')(dataRouter);

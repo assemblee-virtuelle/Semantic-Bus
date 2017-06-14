@@ -284,7 +284,7 @@
       this.modeEdition=data.modeEdition;
       this.modeComponentNetwork=data.modeComponentNetwork;
       this.modeComponentTest=data.modeComponentTest;
-      //this.modeProfilEdition = data.modeProfilEdition
+      this.modeProfilEdition = data.modeProfilEdition
       //console.log(this.modeNavigation);
       this.update();
     }.bind(this));

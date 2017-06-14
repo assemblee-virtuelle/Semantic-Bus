@@ -34,6 +34,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
         console.log(localStorage);
       }
       else{
+        this.trigger('login_redirect');
          window.open("../auth/login.html", "_self");
       }
     });
@@ -51,11 +52,6 @@ function MainController(workSpaceStore, genericStore, profilStore) {
       modeProfilEdition: true
     });
   }.bind(this))
-
-
-  /* genericStore.on('item_current_persist_done', function(message) {
-        workSpaceStore.trigger('workspace_current_update_component', genericStore.itemCurrent)
-      });*/
 
   genericStore.on('item_current_persist_done', function(message) {
     if(message.workspaceId!=undefined){

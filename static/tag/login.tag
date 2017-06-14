@@ -9,6 +9,7 @@
         <a onclick = {hidePage} class="btn">Inscription</a> 
 
         <a onclick = {login} id="btn2">Connexion</a> <!-- End Btn2 -->
+        <a onclick = {loginGoogle} id="btn-google">Connexion Google</a> <!-- End Btn2 -->
       </div> <!-- End Box -->  
       <p>mot de passe oublié? <u style="color:#f1c40f;">Clicker ici!</u></p>
     </form> 
@@ -59,7 +60,7 @@
 
   .box{
     background:white;
-    width:300px;
+    width:500px;
     border-radius:6px;
     margin: 0 auto 0 auto;
     padding:10px 10px 80px 0px;
@@ -90,6 +91,23 @@
 
   .btn{
     background:#2ecc71;
+    width:125px;
+    padding-top:5px;
+    padding-bottom:5px;
+    color:white;
+    border-radius:4px;
+    border: #27ae60 1px solid;
+
+    margin-top:20px;
+    margin-bottom:20px;
+    float:left;
+    margin-left:16px;
+    font-weight:800;
+    font-size:0.8em;
+  }
+
+  .btn-google {
+    background:red;
     width:125px;
     padding-top:5px;
     padding-bottom:5px;
@@ -172,26 +190,25 @@
   }.bind(this));
 
   inscription(e){
-     if((this.newUser.passwordInscription != "") && (this.newUser.confirmPasswordInscription != "") && (this.newUser.emailInscription != "")){
-      var reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g;
-      if(this.newUser.emailInscription.match(reg) != null){
-        //if(this.newUser.passwordInscription.split().length > 5){
+    if((this.newUser.passwordInscription != "") && (this.newUser.confirmPasswordInscription != "") && (this.newUser.emailInscription != "")){
+        var reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g;
+        if(this.newUser.emailInscription.match(reg) != null){
+          //if(this.newUser.passwordInscription.split().length > 5){
           if((this.newUser.passwordInscription == this.newUser.confirmPasswordInscription) && (this.newUser.passwordInscription.split("").length > 5)){
             RiotControl.trigger('user_inscription', this.newUser);
             RiotControl.on('email_already_exist', function(){
               this.resultEmail = "L'email choisi exsite déjà"
             }.bind(this));
           }else{
-              this.resultMdp = "mot de passe invalide"
-          }
-          //}
-        }else{
-          this.resultEmail = "Veuillez entrez un email Valide"
+            this.resultMdp = "mot de passe invalide"
           }
         }else{
           this.resultEmail = "Veuillez entrez un email Valide"
         }
+      }else{
+        this.resultEmail = "Veuillez entrez un email Valide"
     }
+  }
 
   showPage(e){
     this.resultEmail =  "";
@@ -206,13 +223,16 @@
   }
   login(e) {
     if((this.user.password != "") && (this.user.email != "")){
-        RiotControl.trigger('user_connect', this.user);
-        RiotControl.on('bad_auth', function(){
-          this.resultConnexion = "Mauvais mot de passe ou email"
-        }.bind(this));
+      RiotControl.trigger('user_connect', this.user);
+      RiotControl.on('bad_auth', function(){
+        this.resultConnexion = "Mauvais mot de passe ou email"
+      }.bind(this));
     }
   }
 
+  loginGoogle(e){
+      RiotControl.trigger('google_user_connect', this.user);
+    }
 
   
   $(document).ready(function(){
