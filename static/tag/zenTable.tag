@@ -85,7 +85,9 @@
          data.mainSelected=false;
        }
        this.innerData[index].mainSelected=true;
-       this.trigger('rowSelect',this.innerData[index])
+       let dataWithRowId = this.innerData[index];
+       dataWithRowId.rowId=index;
+       this.trigger('rowSelect',dataWithRowId)
      }
      var selected= this.innerData[index].selected||false;
      this.innerData[index].selected=!selected;
@@ -99,10 +101,14 @@
    }
 
    delRowClic(e){
+     let i = 0;
      for(data of this.innerData){
        if(data.selected){
+         let dataWithRowId = data;
+         dataWithRowId.rowId=i;
         this.trigger('delRow',data)
        }
+       i++
      }
    }
 

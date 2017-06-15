@@ -7,7 +7,7 @@ module.exports = function (router) {
   //var https = require('https');
 
   ///TEST GESTION DES COMPTE EN MODIFIANT LES QUERY POUR AVOIR LES WORKSPACE DES USERS
-  router.get('/core/workspace/:userId', function (req, res) {
+  router.get('/core/workspaceByUser/:userId', function (req, res) {
     console.log(req.params.userId);
     var userId = req.params.userId;
     //On recupere le user grace a l'id
@@ -188,7 +188,7 @@ module.exports = function (router) {
           }
         })
       }).then(function(res){
-        // console.log(res)    
+        // console.log(res)
         return Promise.all(promisesList);
       }).then(function (records) {
         return mLabPromise.request('DELETE', 'workspace/' + id);

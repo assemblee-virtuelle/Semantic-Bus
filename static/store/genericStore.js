@@ -13,7 +13,10 @@ function GenericStore(specificStoreList) {
       method: 'put',
       url: '../data/core/workspaceComponent',
       data: JSON.stringify(  this.workspaceBusiness.serialiseWorkspaceComponent(this.itemCurrent)),
-      contentType: 'application/json'
+      contentType: 'application/json',
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      }
     }).done(function(data) {
       //this.workspaceCurrent.mode='edit';
       //this.trigger('workspace_current_create_done',this.workspaceCurrent);
@@ -89,6 +92,7 @@ function GenericStore(specificStoreList) {
   });
 
   this.on('item_current_add_component', function(data) {
+    //console.log('item_current_add_component',this.connectMode);
     switch (this.connectMode) {
       case 'before':
         this.itemCurrent.connectionsBefore = this.itemCurrent.connectionsBefore || [];

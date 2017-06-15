@@ -17,8 +17,8 @@
     "csvtojson": "latest",
     "data2xml": "^1.2.5",
     "express": "latest",
-    "helmet": "^3.6.1",
     "formidable": "^1.1.1",
+    "helmet": "^3.6.1",
     "http": "latest",
     "jquery": "latest",
     "jsonpath-object-transform": "latest",
@@ -32,6 +32,7 @@
     "sheetrock": "latest",
     "sift": "latest",
     "slickgrid": "latest",
+    "xlsx": "^0.10.5",
     "xml2js": "latest"
   }
 }

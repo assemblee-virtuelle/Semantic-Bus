@@ -12,7 +12,7 @@ function WorkspaceStore() {
     //console.log('load GLF');
     $.ajax({
       method: 'get',
-      url: '../data/core/workspace/' + localStorage.user_id,
+      url: '../data/core/workspaceByUser/' + localStorage.user_id,
       headers: {
         "Authorization": "JTW" + " " + localStorage.token
       },
@@ -129,9 +129,12 @@ function WorkspaceStore() {
     console.log('workspace_synchoniseFromServer_workspace_byId', id);
     $.ajax({
       method: 'get',
-      url: '../data/core/workspace/' + id
+      url: '../data/core/workspace/' + id,
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      }
     }).done(function(data) {
-      //console.log('store load',data);
+      console.log('store load',data);
       var synchronizedWorkspaceCollection = [];
       console.log(this.workspaceCollection);
       for (var workspace of this.workspaceCollection) {
@@ -234,13 +237,14 @@ function WorkspaceStore() {
 
 
   this.on('workspace_current_delete_component', function(record) {
-    var components = [];
-    this.workspaceCurrent.components.forEach(function(component) {
-      if (component._id.$oid != record._id.$oid) {
-        components.push(component);
-      }
-    })
-    this.workspaceCurrent.components = components;
+    console.log('workspace_current_delete_component',record);
+    //var components = [];
+    // this.workspaceCurrent.components.forEach(function(component) {
+    //   if (component._id.$oid != record._id.$oid) {
+    //     components.push(component);
+    //   }
+    // })
+    this.workspaceCurrent.components.splice(record.rowId,1);
     this.trigger('workspace_current_changed', this.workspaceCurrent);
 
   });
