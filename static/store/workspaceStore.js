@@ -266,4 +266,25 @@ function WorkspaceStore() {
     this.workspaceCurrent.mode = 'read';
     this.cancelRequire = true;
   });
+
+  this.on('own_all_workspace', function(data) {
+    $.ajax({
+      method: 'get',
+      url: '../data/core/workspaceOwnAll/' + localStorage.user_id,
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
+      contentType: 'application/json',
+    }).done(function(data) {
+      // console.log('store load', data);
+      this.workspaceCollection = data;
+      // if (callback != undefined) {
+      //   callback();
+      // }
+      this.trigger('workspace_collection_changed', this.workspaceCollection);
+
+    }.bind(this));
+  });
+
+
 }

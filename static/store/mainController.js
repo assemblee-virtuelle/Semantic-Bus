@@ -319,7 +319,22 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   });
 
   this.on('clone_database', function(data) {
+    $.ajax({
+      method: 'get',
+      url: '../data/core/cloneDatabase',
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
+      contentType: 'application/json',
+    }).done(function(data) {
+      //console.log('store load', data);
+      //this.workspaceCollection = data;
+      //if (callback != undefined) {
+      //  callback();
+      //}
+      this.trigger('dataBase_cloned', this.workspaceCollection);
 
+    }.bind(this));
   });
 
 }
