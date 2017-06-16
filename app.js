@@ -2,10 +2,10 @@
 var express = require('express')
 var cors = require('cors')
 var app = express();
-var passport = require('passport');  
+var passport = require('passport');
 app.use(cors());
-app.use(passport.initialize()); 
-require('./webServices/passport')(passport); 
+app.use(passport.initialize());
+require('./webServices/passport')(passport);
 var helmet = require('helmet');
 
 var server = require('http').Server(app);
@@ -23,7 +23,7 @@ authRouter.use(bodyParser.json());
 dataRouter.use(bodyParser.json()); // used to parse JSON object given in the request body
 var env = process.env;
 
-//Sécurisation des route de data 
+//Sécurisation des route de data
 dataRouter.use(function(req, res, next) {
 	jwtService.securityAPI(req, res, next)
 })
@@ -44,11 +44,14 @@ var transform = require('jsonpath-object-transform');
 var sheetrock = require('sheetrock');
 
 server.listen(env.NODE_PORT || 3000, env.NODE_IP || 'localhost', function() {
-  console.log('Listening on port ');
-  console.log(this.address().port);
+  console.log('Listening on  ');
+	console.log(this.address().port);
+  console.log(this.address());
+
+
 })
 
-/// Nous Securisons desormais IHM par un appel AJAX  
+/// Nous Securisons desormais IHM par un appel AJAX
 /// à lentrée sur la page application.html
 
 //  app.all('/ihm/*', function(req, res, next) {
@@ -57,8 +60,8 @@ server.listen(env.NODE_PORT || 3000, env.NODE_IP || 'localhost', function() {
 
 
 ///OTHER APP COMPONENT
-///SECURISATION DES REQUETES 
-app.use(helmet()); 
+///SECURISATION DES REQUETES
+app.use(helmet());
 app.disable('x-powered-by');
 app.use('/auth',  express.static('static'));
 app.use('/auth',  authRouter);
