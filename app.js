@@ -43,7 +43,7 @@ require('./webServices/userWebservices')(dataRouter);
 var transform = require('jsonpath-object-transform');
 var sheetrock = require('sheetrock');
 
-server.listen(env.NODE_PORT || 3000, env.NODE_IP || 'localhost', function() {
+server.listen(process.env.PORT || process.env.port || process.env.OPENSHIFT_NODEJS_PORT || 8080, process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0', function() {
   console.log('Listening on  ');
 	console.log(this.address().port);
   console.log(this.address());
