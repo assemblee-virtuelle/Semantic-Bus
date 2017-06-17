@@ -52,7 +52,7 @@
           <div onclick={profilSelectorClick} name="profilSelector" class="selector mainSelector" style="flex-basis:100px">
             <div>Mon profil</div>
           </div>
-          <div onclick={adminSelectorClick} name="adminSelector" class="selector mainSelector" style="flex-basis:100px">
+          <div onclick={adminSelectorClick} name="adminSelector" class="selector mainSelector" style="flex-basis:100px" if={showAdmin}>
             <div>Admin</div>
           </div>
         </div>
@@ -194,6 +194,8 @@
     this.itemCurrent; //TODO create a specific component for item with connections
     this.workspaceComponents=[];
 
+    this.showAdmin=false;
+
     RiotControl.on("ajax_receipt", function(){
       console.log("in hide");
       $("#containerloaderDiv").hide();
@@ -322,6 +324,8 @@
 
       RiotControl.on('profil_loaded', function (data) {
         console.log('profil_loaded',data);
+        this.showAdmin=data.admin;
+        this.update();
       }.bind(this));
 
 
