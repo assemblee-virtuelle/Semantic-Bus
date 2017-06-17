@@ -5,47 +5,49 @@ function UserStore() {
 
   this.on('user_connect', function(user) {
     console.log(user)
-      $.ajax({
+    $.ajax({
       method: 'post',
       data: JSON.stringify(user),
       contentType: 'application/json',
       url: '/auth/authenticate',
     }).done(data => {
-       console.log(data)
-      if(data == false){
+      console.log(data)
+      if (data == false) {
         this.trigger('google_auth')
-      } else if(data.user != null && data.token != null){
+      } else if (data.user != null && data.token != null) {
         console.log("in application ajax triiger");
-        localStorage.token = data.token  
+        localStorage.token = data.token
         // window.open("../ihm/application.html", "_self");
         this.trigger('application_redirect')
-      } else{
+      } else {
         console.log("data no");
         this.trigger('bad_auth')
       }
     });
   });
 
-    this.on('google_connect', function(token) {
-    var token = {token: token}
+  this.on('google_connect', function(token) {
+    var token = {
+      token: token
+    }
     console.log(token)
     $.ajax({
       method: 'post',
       data: JSON.stringify(token),
       contentType: 'application/json',
       url: '/auth/authenticate',
-      beforeSend: function(){
+      beforeSend: function() {
         console.log("before send")
         this.trigger('ajax_send');
       }.bind(this),
     }).done(data => {
-       console.log(data)
-      if(data.user != null && data.token != null){
-        localStorage.token = data.token  
+      console.log(data)
+      if (data.user != null && data.token != null) {
+        localStorage.token = data.token
         // window.open("../ihm/application.html", "_self");
         this.trigger('ajax_receipt');
         this.trigger('application_redirect')
-      } else{
+      } else {
         this.trigger('ajax_receipt');
         // console.log("data no");
         this.trigger('bad_auth')
@@ -66,11 +68,11 @@ function UserStore() {
       url: '/auth/inscription',
     }).done(data => {
       console.log(data);
-      if(data.user != null && data.token != null){
+      if (data.user != null && data.token != null) {
         localStorage.token = data.token
         // window.open("../ihm/application.html", "_self");
         this.trigger('application_redirect')
-      }else{
+      } else {
         this.trigger('email_already_exist')
       }
     });
@@ -81,9 +83,9 @@ function UserStore() {
     $.ajax({
       method: 'get',
       headers: {
-            'Access-Control-Allow-Origin': '*',
-            'Access-Control-Allow-Methods': 'GET, POST, PUT',
-            'Access-Control-Allow-Headers': 'Content-Type'
+        'Access-Control-Allow-Origin': '*',
+        'Access-Control-Allow-Methods': 'GET, POST, PUT',
+        'Access-Control-Allow-Headers': 'Content-Type'
       },
       contentType: 'text/html',
       url: '/auth/google'

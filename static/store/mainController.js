@@ -56,6 +56,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
             this.trigger('ajax_receipt');
             localStorage.user_id = data.iss;
             console.log(localStorage);
+            this.trigger('user_authentified');
           }
           else{
             this.trigger('login_redirect');

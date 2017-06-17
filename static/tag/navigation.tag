@@ -315,6 +315,10 @@
     // this.detailContainer = riot.mount("#detailContainer", 'workspace-editor')[0];     }   }.bind(this)); }.bind(this);
 
     this.on('mount', function () {
+      RiotControl.on('user_authentified', function (data) {
+        console.log('user_authentified',localStorage.user_id);
+      }.bind(this));
+      user_authentified
 
       RiotControl.on('item_current_testPull_done', function (data) {
         this.modeComponentTest = true;
