@@ -317,8 +317,13 @@
     this.on('mount', function () {
       RiotControl.on('user_authentified', function (data) {
         console.log('user_authentified',localStorage.user_id);
+        RiotControl.trigger('load_profil');
       }.bind(this));
-      user_authentified
+
+      RiotControl.on('profil_loaded', function (data) {
+        console.log('profil_loaded',data);
+      }.bind(this));
+
 
       RiotControl.on('item_current_testPull_done', function (data) {
         this.modeComponentTest = true;
