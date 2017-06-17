@@ -52,7 +52,7 @@
           <div onclick={profilSelectorClick} name="profilSelector" class="selector mainSelector" style="flex-basis:100px">
             <div>Mon profil</div>
           </div>
-          showAdmin
+          {showAdmin}
           <div onclick={adminSelectorClick} name="adminSelector" class="selector mainSelector" style="flex-basis:100px" if={showAdmin}>
             <div>Admin</div>
           </div>
