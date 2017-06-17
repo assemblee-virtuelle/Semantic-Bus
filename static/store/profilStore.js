@@ -5,7 +5,7 @@ function profilStore() {
 
     this.on('load_profil', function(message) {
         console.log('show_profil');
-        console.log(localStorage.user_id);
+        // console.log(localStorage.user_id);
         $.ajax({
             method: 'get',
             url: '../data/core/users/'+ localStorage.user_id,
@@ -15,6 +15,7 @@ function profilStore() {
             contentType: 'application/json'
         }).done(function(data) {
             this.userCurrrent = data
+            // console.log("load profil |",  this.userCurrrent)
             this.trigger('profil_loaded', this.userCurrrent)      
         }.bind(this));
     })
@@ -34,10 +35,9 @@ function profilStore() {
             console.log(data)
             if(data != false){
                 this.userCurrrent = data
-                this.trigger('profil_loaded', this.userCurrrent)
+                this.trigger('email_change', this.userCurrrent)
             }else{
-                console.log("in good trigger");
-                this.trigger('email_already_exist ') 
+                this.trigger('email_already_exist') 
             }             
         }.bind(this));
     })
@@ -45,6 +45,7 @@ function profilStore() {
     this.on('deconnexion', function(message) {
         localStorage.token = null;
         localStorage.user_id = null;
+        localStorage.googleid = null;
         console.log(localStorage)
          window.open("../auth/login.html", "_self");
     }.bind(this))
