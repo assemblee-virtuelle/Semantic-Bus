@@ -58,42 +58,38 @@
   <script type="riot/tag" src="tag/upload-editor.tag"></script>
   <script type="riot/tag" src="tag/login.tag"></script>
   <script type="riot/tag" src="tag/profil.tag"></script>
+  <script type="riot/tag" src="tag/landing.tag"></script>
   <script type="riot/tag" src="tag/graph.tag"></script>
   <script>
+    var worspaceStore = new WorkspaceStore(); // Create a store instance.
+    var profilStore = new profilStore();
+    RiotControl.addStore(worspaceStore); // Register the store in central dispatch.
+    RiotControl.addStore(profilStore);
+    var technicalComponentStore = new TechnicalComponentStore();
+    RiotControl.addStore(technicalComponentStore);
+    var specificStoreList = [];
+    specificStoreList.push(new CacheNosqlStore());
+    specificStoreList.push(new UploadStore());
+    for (specificStore of specificStoreList) {
+      RiotControl.addStore(specificStore);
+    }
+    var genericStore = new GenericStore(specificStoreList);
+    RiotControl.addStore(genericStore);
+    var mainController = new MainController(worspaceStore, genericStore, profilStore);
+    RiotControl.addStore(mainController);
+    RiotControl.on('login_redirect', function() {
+      console.log("in redirect");
+      window.open("../auth/login.html", "_self");
+    })
 
+    riot.compile(function() {
+      // here tags are compiled and riot.mount works synchronously
+      var tags = riot.mount('*');
+      /*RiotControl.on('previewJSON',function(message){
+        tags[2].data=message.data;
+      }.bind(this));*/
 
-
-  var worspaceStore = new WorkspaceStore(); // Create a store instance.
-  var profilStore = new profilStore();
-  RiotControl.addStore(worspaceStore); // Register the store in central dispatch.
-  RiotControl.addStore(profilStore);
-  var technicalComponentStore = new TechnicalComponentStore();
-  RiotControl.addStore(technicalComponentStore);
-  var specificStoreList=[];
-  specificStoreList.push(new CacheNosqlStore());
-  specificStoreList.push(new UploadStore());
-  for (specificStore of specificStoreList) {
-    RiotControl.addStore(specificStore);
-  }
-  var genericStore = new GenericStore(specificStoreList);
-  RiotControl.addStore(genericStore);
-  var mainController = new MainController(worspaceStore,genericStore, profilStore);
-  RiotControl.addStore(mainController);
-  RiotControl.on('login_redirect', function(){
-    console.log("in redirect");
-    window.open("../auth/login.html", "_self");
-  })
-
-  riot.compile(function() {
-    // here tags are compiled and riot.mount works synchronously
-    var tags = riot.mount('*');
-    /*RiotControl.on('previewJSON',function(message){
-      tags[2].data=message.data;
-    }.bind(this));*/
-
-  });
-
-
+    });
   </script>
 </body>
 

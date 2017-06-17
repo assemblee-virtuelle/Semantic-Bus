@@ -1,7 +1,7 @@
 {
   "name": "SemanticBus ",
-  "version": "0.0.1",
-  "description": "ETL style middlware data transformation embended in an ESB for all kind of data",
+  "version": "0.1.0",
+  "description": "ETL style data middlware transformation embended in an ESB for all kind of data",
   "private": true,
   "main": "start.js",
   "scripts": {

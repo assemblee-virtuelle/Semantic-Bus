@@ -52,10 +52,12 @@
           <div onclick={profilSelectorClick} name="profilSelector" class="selector mainSelector" style="flex-basis:100px">
             <div>Mon profil</div>
           </div>
-          {showAdmin}
           <div onclick={adminSelectorClick} name="adminSelector" class="selector mainSelector" style="flex-basis:100px" if={showAdmin}>
             <div>Admin</div>
           </div>
+        </div>
+        <div class="containerV" style="flex-grow:1" if={!modeWorkspaceNavigation && !modeWorkspaceEdition && !modeTechnicalComponentNavigation && !modeProfilEdition && !modeAdminNavigation}>
+          <landing></landing>
         </div>
         <div class="containerV" style="flex-grow:1" if={modeWorkspaceNavigation}>
           <workspace-table></workspace-table>
@@ -325,7 +327,7 @@
 
       RiotControl.on('profil_loaded', function (data) {
         console.log('profil_loaded',data);
-        this.showAdmin=data.admin;
+        this.showAdmin=data.user.admin;
         this.update();
       }.bind(this));
 
