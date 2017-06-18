@@ -1,14 +1,14 @@
 {
   "name": "SemanticBus ",
-  "version": "0.0.1",
-  "description": "middlware data transformation and crawling betwen web semantic data-source",
+  "version": "0.1.0",
+  "description": "ETL style data middlware transformation embended in an ESB for all kind of data",
   "private": true,
   "main": "start.js",
   "scripts": {
     "start": "node start.js"
   },
   "author": "Simon Louvet <simon.louvet.zen@gmail.com>",
-  "license": "MIT",
+  "license": "GNUV3",
   "dependencies": {
     "bcrypt": "^1.0.2",
     "body-parser": "latest",
@@ -17,8 +17,8 @@
     "csvtojson": "latest",
     "data2xml": "^1.2.5",
     "express": "latest",
-    "helmet": "^3.6.1",
     "formidable": "^1.1.1",
+    "helmet": "^3.6.1",
     "http": "latest",
     "jquery": "latest",
     "jsonpath-object-transform": "latest",
@@ -32,6 +32,7 @@
     "sheetrock": "latest",
     "sift": "latest",
     "slickgrid": "latest",
+    "xlsx": "^0.10.5",
     "xml2js": "latest"
   }
 }

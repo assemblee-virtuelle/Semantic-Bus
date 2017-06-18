@@ -19,7 +19,7 @@
         <div>Admin</div>
       </div>
     </div>
-  </div> --> 
+  </div> -->
   <div id="containerloaderDiv">
     <div id="row">
       <div id="loaderDiv"></div>
@@ -52,9 +52,12 @@
           <div onclick={profilSelectorClick} name="profilSelector" class="selector mainSelector" style="flex-basis:100px">
             <div>Mon profil</div>
           </div>
-          <div onclick={adminSelectorClick} name="adminSelector" class="selector mainSelector" style="flex-basis:100px">
+          <div onclick={adminSelectorClick} name="adminSelector" class="selector mainSelector" style="flex-basis:100px" if={showAdmin}>
             <div>Admin</div>
           </div>
+        </div>
+        <div class="containerV" style="flex-grow:1" if={!modeWorkspaceNavigation && !modeWorkspaceEdition && !modeTechnicalComponentNavigation && !modeProfilEdition && !modeAdminNavigation}>
+          <landing></landing>
         </div>
         <div class="containerV" style="flex-grow:1" if={modeWorkspaceNavigation}>
           <workspace-table></workspace-table>
@@ -74,7 +77,8 @@
 
       </div>
     </div>
-    <div style="flex-grow:1; flex-basis:50%" class="containerV" show={modeEdition}>
+
+    <div style="flex-grow:1; flex-basis:50%" class="containerV" if={modeEdition}>
       <div class="containerH commandBar" style="flex-basis:50px">
         <div class="commandGroup" class="containerH"></div>
         <div class="commandTitle">
@@ -92,8 +96,23 @@
           </div>
         </div>
       </div>
-      <div style="flex-grow:1;flex-wrap: nowrap" class="containerH">
-        <div style="flex-basis:200px" class="containerV" if={modeComponentNetwork}>
+      <div style="flex-grow:1" if={modeGraph}>
+        <graph></graph>
+      </div>
+      <div style="flex-grow:1;flex-wrap: nowrap" class="containerH" if={!modeGraph}>
+        <div style="flex-basis:200px" class="containerV" if={modeComponentNetwork && modeConnectBefore}>
+          <div class="containerH commandBar" style="flex-basis:50px">
+            <div class="commandGroup containerH">
+              <div onclick={cancelConnectBeforeClick} class="commandButton">
+                cancel
+              </div>
+            </div>
+          </div>
+          <div onclick={componentClick} class="selector" each={workspaceComponents}>
+            {type} : {name}
+          </div>
+        </div>
+        <div style="flex-basis:200px" class="containerV" if={modeComponentNetwork && !modeConnectBefore}>
           <div class="containerH commandBar" style="flex-basis:50px">
             <div class="commandGroup containerH">
               <div onclick={connectBeforeClick} class="commandButton">
@@ -115,11 +134,9 @@
           <div class="containerV commandBar" style="flex-basis:50px">
             <div></div>
             <div class="commandGroup" class="containerH">
-
               <div onclick={closeTest} class="commandButton">
                 >
               </div>
-
             </div>
             <div></div>
           </div>
@@ -127,7 +144,7 @@
           <jsonEditor name="testPreviewer" mode="text" style="flex-grow:1"></jsonEditor>
 
         </div>
-        <div style="flex-basis:200px" class="containerV" show={modeComponentNetwork}>
+        <div style="flex-basis:200px" class="containerV" show={modeComponentNetwork && !modeConnectAfter}>
           <div class="containerH commandBar" style="flex-basis:50px">
             <div class="commandGroup containerH">
               <div onclick={connectAfterClick} class="commandButton">
@@ -136,6 +153,18 @@
             </div>
           </div>
           <div onclick={navigateWorkspaceComponentClick} class="selector" each={itemCurrent.connectionsAfter}>
+            {type} : {name}
+          </div>
+        </div>
+        <div style="flex-basis:200px" class="containerV" if={modeComponentNetwork && modeConnectAfter}>
+          <div class="containerH commandBar" style="flex-basis:50px">
+            <div class="commandGroup containerH">
+              <div onclick={cancelConnectAfterClick} class="commandButton">
+                cancel
+              </div>
+            </div>
+          </div>
+          <div onclick={componentClick} class="selector" each={workspaceComponents}>
             {type} : {name}
           </div>
         </div>
@@ -162,9 +191,13 @@
     this.modeWorkspaceEdition = false;
     this.modeWorkspaceComponentEdition = false;
 
+
     this.editorTitle = "";
     this.persistInProgress = false;
     this.itemCurrent; //TODO create a specific component for item with connections
+    this.workspaceComponents=[];
+
+    this.showAdmin=false;
 
     RiotControl.on("ajax_receipt", function(){
       console.log("in hide");
@@ -230,16 +263,27 @@
       }
     }
 
-    connectBeforeClick(e) {
-      RiotControl.trigger('item_current_connect_before');
-    }
-
+    //TODO je pense que ca ne sert plus : tenter de commenter
     navigateWorkspaceComponentClick(e) {
       RiotControl.trigger('item_current_editById', e.item._id.$oid);
     }
 
+    connectBeforeClick(e) {
+      RiotControl.trigger('item_current_connect_before');
+    }
+    cancelConnectBeforeClick(e) {
+      RiotControl.trigger('item_current_cancel_connect_before');
+    }
     connectAfterClick(e) {
       RiotControl.trigger('item_current_connect_after');
+    }
+
+    cancelConnectBeforeClick(e) {
+      RiotControl.trigger('item_current_cancel_connect_after');
+    }
+    componentClick(e){
+      //console.log("componentClick",e.item);
+      RiotControl.trigger('item_current_click',e.item);
     }
 
     profilSelectorClick(e) {
@@ -262,11 +306,12 @@
     // this.selectTechnicalComponentMode=function(){   //console.log('selectTechnicalComponentMode');   //this.cleanNavigation();   this.contentNavigator =riot.mount("#contentNavigator", 'technical-component-table')[0]; }.bind(this);
 
     this.mountEdition = function (componentName) {
-      console.log('mountEdition | ', componentName);
+      //console.log('mountEdition | ', componentName,this.editionContainer);
       this.editionContainer = riot.mount('#editionContainer', componentName)[0];
+      console.log('mountEdition | ', componentName,this.editionContainer);
       this.editorTitle = this.editionContainer.title;
 
-      RiotControl.trigger('navigation_mode_edition_only');
+      //RiotControl.trigger('navigation_mode_edition_only');
       //this.modeEdition=true; this.modeNavigation=false;
     };
 
@@ -275,6 +320,17 @@
     // this.detailContainer = riot.mount("#detailContainer", 'workspace-editor')[0];     }   }.bind(this)); }.bind(this);
 
     this.on('mount', function () {
+      RiotControl.on('user_authentified', function (data) {
+        console.log('user_authentified',localStorage.user_id);
+        RiotControl.trigger('load_profil');
+      }.bind(this));
+
+      RiotControl.on('profil_loaded', function (data) {
+        console.log('profil_loaded',data);
+        this.showAdmin=data.user.admin;
+        this.update();
+      }.bind(this));
+
 
       RiotControl.on('item_current_testPull_done', function (data) {
         this.modeComponentTest = true;
@@ -332,6 +388,12 @@
         this.update();
       }.bind(this));
 
+      RiotControl.on('workspace_current_changed',function(data){
+        console.log('navigation | workspace_current_changed',data);
+        this.workspaceComponents=data.components;
+        this.update();
+      }.bind(this));
+
       RiotControl.on('navigation_mode_changed', function (data) {
         console.log('navigation_mode_changed : ', data);
         this.modeNavigation = data.modeNavigation;
@@ -344,7 +406,10 @@
         this.modeAdminNavigation = data.modeAdminNavigation;
         this.modeWorkspaceEdition = data.modeWorkspaceEdition;
         this.modeWorkspaceComponentEdition = data.modeWorkspaceComponentEdition;
+        this.modeConnectBefore = data.modeConnectBefore,
+        this.modeConnectAfter = data.modeConnectAfter,
         this.modeMenuHide=data.modeMenuHide;
+        this.modeGraph=data.modeGraph;
         //console.log(this.modeNavigation);
         this.update();
       }.bind(this));
@@ -353,12 +418,12 @@
       // this.mountWorkspaceNavigator(); }.bind(this)); this.profilSelector.addEventListener('click', function (e) {   //  this.modeProfilEdition = true; this.profilNavigator = riot.mount("#detailContainer", 'profil-tag')[0];  this.update();
       // RiotControl.trigger('profil_show'); }.bind(this));
 
-      this.technicalComponentSelector.addEventListener('click', function (e) {
-        // this.modeProfilEdition = false; clean navigation not work if(this.profilNavigator){     console.log(this.profilNavigator);     this.profilNavigator.unmount(true);   } this.update(); this.contentNavigator = riot.mount("#contentNavigator",
-        // 'technical-component-table')[0];
-        RiotControl.trigger('technicalComponent_show');
-      }.bind(this));
-
+      // this.technicalComponentSelector.addEventListener('click', function (e) {
+      //   // this.modeProfilEdition = false; clean navigation not work if(this.profilNavigator){     console.log(this.profilNavigator);     this.profilNavigator.unmount(true);   } this.update(); this.contentNavigator = riot.mount("#contentNavigator",
+      //   // 'technical-component-table')[0];
+      //   RiotControl.trigger('technicalComponent_show');
+      // }.bind(this));
+      //
       this.nameComponentInput.addEventListener('change', function (e) {
         this.itemCurrent.name = e.currentTarget.value;
       }.bind(this));
@@ -403,7 +468,7 @@
     padding: 0;
     margin: 0;
   }
-  
+
   #containerloaderDiv {
     background-color:rgba(200,200,200,0.8);
     width:100%;
@@ -432,8 +497,8 @@
     text-align:center;
   }
   #loaderDiv {
-    border: 16px solid #f3f3f3; 
-    border-top: 16px solid #3498db; 
+    border: 16px solid #f3f3f3;
+    border-top: 16px solid #3498db;
     border-radius: 50%;
     width: 120px;
     height: 120px;

@@ -15,7 +15,10 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     modeAdminNavigation : false,
     modeWorkspaceEdition : false,
     modeWorksapceComponentEdition : false,
-    modeMenuHide : false
+    modeConnectBefore : false,
+    modeConnectAfter : false,
+    modeMenuHide : false,
+    modeGraph :false
   }
   this.updateMode = function(changedValueMode) {
     for(displayKey in this.displayMode ){
@@ -43,7 +46,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
             this.trigger('ajax_send');
           }.bind(this),
           success: function(data)
-          {  
+          {
             console.log("after send")
             // this.trigger('ajax_receipt');
           }.bind(this)
@@ -56,6 +59,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
             localStorage.googleid = data.subject;
             localStorage.user_id = data.iss;
             console.log(localStorage);
+            this.trigger('user_authentified');
           }
           else{
             this.trigger('login_redirect');
@@ -116,22 +120,6 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     this.trigger('persist_start');
   });
 
-  genericStore.on('item_current_edit_mode', function(message) {
-    //console.log('currentItemType  Before:',this.currentItemType);
-    this.currentEditStore = genericStore;
-    this.updateMode({
-      modeComponentNetwork: true
-    });
-    //console.log('currentItemType  :',this.currentItemType);
-  }.bind(this));
-
-
-  workSpaceStore.on('item_current_edit_mode', function(message) {
-    //console.log('currentItemType  Before:',this.currentItemType);
-    this.currentEditStore = workSpaceStore;
-    //console.log('currentItemType  :',this.currentItemType);
-  }.bind(this));
-
   // workSpaceStore.on('item_current_element_added', function(message) {
   //   this.updateMode({
   //     modeNavigation: false,
@@ -142,7 +130,9 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   genericStore.on('item_current_element_added', function(message) {
     this.updateMode({
       modeNavigation: false,
-      modeEdition: true
+      modeEdition: true,
+      modeConnectBefore : false,
+      modeConnectAfter: false
     });
   }.bind(this));
 
@@ -207,6 +197,19 @@ function MainController(workSpaceStore, genericStore, profilStore) {
       modeWorkspaceNavigation : false,
       modeWorksapceEdition : true,
       modeMenuHide:true
+    });
+  });
+
+  this.on('workspace_current_graph', function(message) {
+    this.updateMode({
+      modeComponentTest: false,
+      modeComponentNetwork: false,
+      modeNavigation: false,
+      modeEdition: true,
+      modeGraph: true,
+      modeWorkspaceNavigation : false,
+      modeWorksapceEdition : false,
+      modeMenuHide:true
 
     });
   });
@@ -255,21 +258,51 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     //console.log('MainController | item_current_click');
     if (this.displayMode.modeNavigation && !this.displayMode.modeEdition) {
       this.genericStore.trigger('item_current_edit', message);
-    } else if (this.displayMode.modeNavigation && this.displayMode.modeEdition) {
+    } else if (this.displayMode.modeConnectBefore || this.displayMode.modeConnectAfter) {
       //console.log('MainController | add Component');
       this.genericStore.trigger('item_current_add_component', message);
     }
   });
 
-  this.on('item_current_connect_after', function(data) {
+  genericStore.on('item_current_edit_mode', function(message) {
+    //console.log('currentItemType  Before:',this.currentItemType);
+    this.currentEditStore = genericStore;
     this.updateMode({
-      modeNavigation: true
+      modeComponentNetwork: true,
+      modeEdition:true,
+      modeNavigation:false,
     });
-  });
+    //console.log('currentItemType  :',this.currentItemType);
+  }.bind(this));
+
+
+  workSpaceStore.on('item_current_edit_mode', function(message) {
+    //console.log('currentItemType  Before:',this.currentItemType);
+    this.currentEditStore = workSpaceStore;
+    //console.log('currentItemType  :',this.currentItemType);
+  }.bind(this));
 
   this.on('item_current_connect_before', function(data) {
     this.updateMode({
-      modeNavigation: true
+      modeConnectBefore : true,
+    });
+  });
+
+  this.on('item_current_cancel_connect_before', function(data) {
+    this.updateMode({
+      modeConnectBefore : false,
+    });
+  });
+
+  this.on('item_current_connect_after', function(data) {
+    this.updateMode({
+      modeConnectAfter: true
+    });
+  });
+
+  this.on('item_current_cancel_connect_after', function(data) {
+    this.updateMode({
+      modeConnectAfter : false,
     });
   });
 
@@ -291,7 +324,22 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   });
 
   this.on('clone_database', function(data) {
+    $.ajax({
+      method: 'get',
+      url: '../data/core/cloneDatabase',
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
+      contentType: 'application/json',
+    }).done(function(data) {
+      //console.log('store load', data);
+      //this.workspaceCollection = data;
+      //if (callback != undefined) {
+      //  callback();
+      //}
+      this.trigger('dataBase_cloned', this.workspaceCollection);
 
+    }.bind(this));
   });
 
 }

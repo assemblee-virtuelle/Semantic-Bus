@@ -5,6 +5,9 @@
           <div onclick={editClick}  class="commandButton" if={innerData.mode=="read"}>
             edit
           </div>
+          <div onclick={graphClick}  class="commandButton" if={innerData.mode=="read"}>
+            graph
+          </div>
           <div onclick={cancelClick}  class="commandButton" if={innerData.mode=="edit" || innerData.mode=="init"}>
             cancel
           </div>
@@ -66,6 +69,11 @@
     RiotControl.trigger('workspace_current_edit');
   }
 
+  graphClick(e){
+    //console.log('EDIT');
+    RiotControl.trigger('workspace_current_graph');
+  }
+
   cancelClick(e){
     RiotControl.trigger('workspace_current_cancel');
   }
@@ -73,8 +81,6 @@
   componentClick(e){
     //console.log(e.item);
     RiotControl.trigger('item_current_click',e.item);
-
-
   }
 
   this.on('mount', function () {
@@ -84,6 +90,7 @@
 
     }.bind(this));
     this.tags.workspaceComponents.on('delRow',function(message){
+      console.log('delRow');
       RiotControl.trigger('workspace_current_delete_component',message);
     }.bind(this));
 

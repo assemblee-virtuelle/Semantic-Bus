@@ -5,14 +5,19 @@
   padding: 5px;
   margin: 5px;
 }
+
+.noBorder{
+  border-style: none;
+}
+
 .containerH{
   display: flex;
   justify-content: center;
   flex-wrap: wrap;
   align-items : stretch;
   overflow-y: hidden;
-
 }
+
 .containerV
 {
   display: flex;
