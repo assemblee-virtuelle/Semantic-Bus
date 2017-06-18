@@ -24,7 +24,7 @@
 
     this.on('mount', function (args) {
       //console.log('mount argr :',opts);
-     this.tags.zentable.on('rowSelect',function(data){
+     this.tags.zentable.on('rowNavigation',function(data){
        //console.log(data);
        RiotControl.trigger('workspace_current_select',data);
        //this.trigger('selectWorkspace');

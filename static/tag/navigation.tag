@@ -42,13 +42,12 @@
           <div class="commandBar containerH">
             menu
           </div>
-
           <div onclick={workspaceSelectorClick} name="workspaceSelector" class="selector mainSelector" style="flex-basis:100px">
             <div>Mes Workspaces</div>
           </div>
-          <div onclick={technicalComponentSelectorClick} name="technicalComponentSelector" class="selector mainSelector" style="flex-basis:100px">
+          <!--<div onclick={technicalComponentSelectorClick} name="technicalComponentSelector" class="selector mainSelector" style="flex-basis:100px">
             <div>Composant Technique</div>
-          </div>
+          </div>-->
           <div onclick={profilSelectorClick} name="profilSelector" class="selector mainSelector" style="flex-basis:100px">
             <div>Mon profil</div>
           </div>
