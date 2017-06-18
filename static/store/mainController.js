@@ -54,6 +54,9 @@ function MainController(workSpaceStore, genericStore, profilStore) {
           console.log('is_token_valid | ',data);
           if(data.iss != null){
             this.trigger('ajax_receipt');
+            console.log(data);
+            ///HERE HERE
+            localStorage.googleid = data.subject;
             localStorage.user_id = data.iss;
             console.log(localStorage);
             this.trigger('user_authentified');
@@ -72,6 +75,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
 
   //PROFIL STORE
   this.on('profil_show', function(message) {
+    console.log("profil_show")
     profilStore.trigger('load_profil');
     this.updateMode({
       modeProfilEdition: true,

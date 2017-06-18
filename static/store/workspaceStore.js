@@ -9,7 +9,8 @@ function WorkspaceStore() {
 
   //TODO : Promise to replace callback
   this.load = function(callback) {
-    //console.log('load GLF');
+    console.log('load GLF');
+    console.log(localStorage.user_id)
     $.ajax({
       method: 'get',
       url: '../data/core/workspaceByUser/' + localStorage.user_id,
