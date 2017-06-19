@@ -112,7 +112,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   workSpaceStore.on('workspace_current_persist_done', function(message) {
     this.updateMode({
       modeTechnicalComponentNavigation: false,
-      modeWorkspaceNavigation : true,
+      //modeWorkspaceNavigation : false,
     });
     this.trigger('persist_end');
   }.bind(this));
