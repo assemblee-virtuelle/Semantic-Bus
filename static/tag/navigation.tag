@@ -78,7 +78,21 @@
     </div>
 
     <div style="flex-grow:1; flex-basis:50%" class="containerV" if={modeEdition}>
-      <div class="containerH commandBar" style="flex-basis:50px">
+      <div class="containerH commandBar" style="flex-basis:50px" if={modeGraph}>
+        <div class="commandGroup" class="containerH"></div>
+        <div class="commandTitle">
+          {editorTitle}
+        </div>
+        <div class="commandGroup containerH">
+          <div onclick={nagivationClick} class="commandButton">
+            back to navigation
+          </div>
+        </div>
+      </div>
+      <div style="flex-grow:1" if={modeGraph}>
+        <graph></graph>
+      </div>
+      <div class="containerH commandBar" style="flex-basis:50px" if={!modeGraph}>
         <div class="commandGroup" class="containerH"></div>
         <div class="commandTitle">
           {editorTitle}
@@ -94,9 +108,6 @@
             save
           </div>
         </div>
-      </div>
-      <div style="flex-grow:1" if={modeGraph}>
-        <graph></graph>
       </div>
       <div style="flex-grow:1;flex-wrap: nowrap" class="containerH" if={!modeGraph}>
         <div style="flex-basis:200px" class="containerV" if={modeComponentNetwork && modeConnectBefore}>
@@ -127,7 +138,7 @@
           <!--<workspace-editor if={modeWorkspaceEdition}></workspace-editor>-->
 
         </div>
-        <div if={modeComponentTest} style="flex-grow:2;flex-wrap: nowrap;" class="containerH">
+        <div show={modeComponentTest} style="flex-grow:2;flex-wrap: nowrap;" class="containerH">
           <!--<jsonPreviewer name="testPreviewer" style="flex-grow:1">
         </jsonPreviewer>-->
           <div class="containerV commandBar" style="flex-basis:50px">
@@ -271,13 +282,14 @@
       RiotControl.trigger('item_current_connect_before');
     }
     cancelConnectBeforeClick(e) {
+      //console.log('cancelConnectBeforeClick');
       RiotControl.trigger('item_current_cancel_connect_before');
     }
     connectAfterClick(e) {
       RiotControl.trigger('item_current_connect_after');
     }
 
-    cancelConnectBeforeClick(e) {
+    cancelConnectAfterClick(e) {
       RiotControl.trigger('item_current_cancel_connect_after');
     }
     componentClick(e){
@@ -333,7 +345,7 @@
 
       RiotControl.on('item_current_testPull_done', function (data) {
         this.modeComponentTest = true;
-        //console.log('item_current_testPull_done | data :',data);
+        console.log('item_current_testPull_done | data :',data);
         this.tags.testPreviewer.data = data;
         this.update();
       }.bind(this));

@@ -67,7 +67,10 @@ function GenericStore(specificStoreList) {
     $.ajax({
       method: 'get',
       url: '../data/core/workspaceComponent/' + id + '/test',
-      contentType: 'application/json'
+      contentType: 'application/json',
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      }
     }).done(function(data) {
       //this.workspaceCurrent.mode='edit';
       //this.trigger('workspace_current_create_done',this.workspaceCurrent);

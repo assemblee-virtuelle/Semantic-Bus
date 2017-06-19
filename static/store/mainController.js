@@ -270,6 +270,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     this.updateMode({
       modeComponentNetwork: true,
       modeEdition:true,
+      modeGraph:false,
       modeNavigation:false,
     });
     //console.log('currentItemType  :',this.currentItemType);
@@ -289,8 +290,9 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   });
 
   this.on('item_current_cancel_connect_before', function(data) {
+//console.log('item_current_cancel_connect_before');
     this.updateMode({
-      modeConnectBefore : false,
+      modeConnectBefore : false
     });
   });
 
