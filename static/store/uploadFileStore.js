@@ -2,7 +2,7 @@ function UploadStore() {
   riot.observable(this) // Riot provides our event emitter.
 
   this.on('item_current_upload', function(data) {
-    // console.log('item_current_upload |', data);
+    console.log('item_current_upload |', data);
     $.ajax({
       method: 'post',
       // data: data,
@@ -14,11 +14,8 @@ function UploadStore() {
       data:data,
       contentType : 'application/json',
       xhr: function() {
-
             var xhr = new XMLHttpRequest();
-
             xhr.upload.addEventListener('progress', function(evt) {
-
               if (evt.lengthComputable) {
                 // calcule du pourcentage de l'upload
                 var percentComplete = evt.loaded / evt.total;
@@ -27,7 +24,6 @@ function UploadStore() {
                 this.trigger('loading', percentComplete);
                 // changement design bar telechargement
               }
-
             }.bind(this), false);
             return xhr;
           }.bind(this)

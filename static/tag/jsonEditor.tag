@@ -10,7 +10,7 @@
          this.editor.set(data);
          if(this.editor.options.mode!='text'){
            this.editor.expandAll();
-        }
+         }
 
          /*this.jsonEditorReadyPromise.then(function(){
            console.log('json editor reday')
@@ -23,7 +23,6 @@
         return this.editor.get();
       }.bind(this)
     });
-
 
     /*this.jsonEditorReadyPromise=new Promise(function(resolve, reject) {
       var readyWait=function(){
@@ -51,9 +50,22 @@
         }.bind(this));
 
       }.bind(this));*/
-      console.log("in json editor")
 
-     
+      this.container = this.root.querySelector('#jsoneditor');
+
+      var options = {};
+        //console.log('jsonEditor Tag modes|',this.opts.modes);
+        //  console.log('jsonEditor Tag modes|',"['tree','text']".split("\'").join("\""));
+      //console.log('jsonEditor Tag modes|',JSON.parse(this.opts.modes.split("\'").join("\"")));
+      if (this.opts.mode!=undefined){
+
+        options.mode=this.opts.mode;
+      }
+      if (this.opts.modes!=undefined){
+
+        options.modes=JSON.parse(this.opts.modes.split("\'").join("\""));
+      }
+      this.editor = new JSONEditor(this.container , options);
 
       /*riot.compile(
         'js/jsonEditor/dist/jsoneditor.min.js',

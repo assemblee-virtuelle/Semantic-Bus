@@ -17,8 +17,8 @@ var dataRouter = express.Router();
 var unSafeRouteur = express.Router();
 
 var bodyParser = require("body-parser");
-app.use(bodyParser.json())
-unSafeRouteur.use(bodyParser.json());
+app.use(bodyParser.json({limit: '5mb'}));
+app.use(bodyParser.urlencoded({limit: '5mb', extended: true}));
 dataRouter.use(bodyParser.json()); // used to parse JSON object given in the request body
 var env = process.env;
 

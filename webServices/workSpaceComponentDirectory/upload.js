@@ -56,29 +56,30 @@ module.exports = {
                     // console.log(parseInt(Object.keys(content)[0].match(regnumero)[0]) <  parseInt(Object.keys(feuille.feuille.content[index + 1])[0].match(regnumero)[0]))
                     if (Object.keys(content)[0].match(regnumero)[0] < Object.keys(feuille.feuille.content[index + 1])[0].match(regnumero)[0]) {
                       var c = {}
-                      c[Object.keys(content)[0]] = Object.values(content)[0]
+                      c[Object.keys(content)[0].match(regLettre)[0]] = Object.values(content)[0]
                       Object.assign(cell, c);
                       // console.log(cell)
                       exel_table_to_json.push(cell)
                       cell = {}
                     } else {
                       var c = {}
-                      c[Object.keys(content)[0]] = Object.values(content)[0]
+                      c[Object.keys(content)[0].match(regLettre)[0]] = Object.values(content)[0]
                       Object.assign(cell, c);
                     }
                   } else {
                     // console.log("cas unicité 1")
                     // console.log(content)
                     var c = {}
-                    c[Object.keys(content)[0]] = Object.values(content)[0]
+                    c[Object.keys(content)[0].match(regLettre)[0]] = Object.values(content)[0]
                     Object.assign(cell, c);
                     exel_table_to_json.push(cell)
                   }
                 }
               }
             })
-            result.push(exel_table_to_json)
+            result.push({sheet:  feuille.feuille.name, data: exel_table_to_json})
           })
+          console.log(result)
           return new Promise((resolve, reject) => {
             console.log("from mlab");
             mLabPromise.request('PUT', 'cache/' + compId, {
@@ -87,8 +88,8 @@ module.exports = {
               console.log('cache | testEXEL| ', data);
               resolve(data);
               res.send(data)
-            })
-          });
+          })
+        });
         })
       } else if (req.body.ext == null) {
         console.log(req.body)

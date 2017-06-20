@@ -1,16 +1,22 @@
-<upload-editor>
+<upload-editor >
   <h2 class="center margin-top">Uploader votre fichier</h2>
   <h4 class="center">Ce composant vous permet d'uploader un fichier avec </br>une extension <b>XLSX</b> ou <b>CSV</b> et de le mapper en <b>JSON</b></h4>
   <div class="progress">
     <div class="progress-bar" role="progressbar">{progress}</div>
   </div>
-  <h3 class="{textloadclass}">{textload}</h3>
-  <button class="upload-btn"  onclick = {uploadClick} type="button">Telecharger</button>
-  <input id="upload-input" type="file" name="uploads[]"></br>
+  <div class="containerV uplaod-container" style="overflox:inherit">
+    <h3 class="{textloadclass}">{textload}</h3>
+    <button class="upload-btn"  onclick = {uploadClick} type="button">Telecharger</button>
+    <input id="upload-input" type="file" name="uploads[]"></br>
+  </div>
   <style scope>
     upload {
       height: 100%;
       background-color: #4791D2;
+    }
+
+    .uplaod-container{
+      margin-top:10%;
     }
     .no-text {
     text-align: center ;
@@ -56,8 +62,7 @@
       border-radius: 5px 5px 5px 5px;
       text-align:center;
       max-width: 25%;
-      margin-left: 35%;
-      margin-top: 10%;  
+      margin-left: 35%; 
     }
 
     .upload-btn:hover,
@@ -179,13 +184,12 @@
                 this.textload = "Le format " + ext +  " n'est pas encore pris en compte"
                 this.update()
               }else {
-              console.log("in else");
               reader.onload = function(e) {
                 //console.log("on load")
                 var data = e.target.result;
                 if(ext == ".json" || ext == ".jsonld"){
                   RiotControl.trigger('item_current_upload',  data);
-                }else if(ext ==".csv" || ext == ".xlsx" || ext ==  ".ods") {
+                }else if(ext == ".xlsx" || ext ==  ".ods" || ext ==".csv") {
                   var workbook;
                   if(rABS) {
                     //console.log("radbs");
@@ -196,8 +200,7 @@
                     var arr = fixdata(data);
                     workbook = XLSX.read(btoa(arr), {type: 'base64'});
                   }
-                  //console.log("wokrbook csv etc .." , workbook)
-                  RiotControl.trigger('item_current_upload', JSON.stringify({ext: "exel", data: workbook.Sheets}));
+                    RiotControl.trigger('item_current_upload', JSON.stringify({ext: "exel", data: workbook.Sheets}));
                   /* DO SOMETHING WITH workbook HERE */
                 }
               }.bind(this)
