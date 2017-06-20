@@ -17,7 +17,6 @@ body{
   background-color: #3883fa;
   color: #cce2ff;
   justify-content: space-between;
-  flex-basis:35px;
   padding: 2px;
   overflow-y :visible;
 }
@@ -44,8 +43,6 @@ body{
   /*color:#1a1a1a;*/
   background-color:#649DF9;
   border-color: #cce2ff;
-  border-size: 1px;
-  border-style: solid;
 }
 
 .selector{

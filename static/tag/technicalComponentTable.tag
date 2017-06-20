@@ -1,5 +1,5 @@
 <technical-component-table class="containerV">
-    <zenTable style="flex:1" title="Composant technique">
+    <zenTable style="flex:1" title="Composant technique" disallowcommand="true" disallownavigation="true">
       <yield to="header">
         <div>type</div>
         <div>description</div>

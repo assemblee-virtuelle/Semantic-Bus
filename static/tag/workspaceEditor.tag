@@ -1,6 +1,8 @@
 <workspace-editor>
   <!--<div class="containerV" style="flex-grow:1">-->
     <div class="commandBar containerH">
+      <div></div>
+      <div></div>
       <div class="containerH commandGroup">
           <div onclick={editClick}  class="commandButton" if={innerData.mode=="read"}>
             edit
@@ -19,21 +21,21 @@
     <div>
       <input readonly={innerData.mode=="read"} class={readOnly : innerData.mode=="read"} name="workspaceNameInput" type="text" placeholder="nom du workspace" value="{innerData.name}"></input>
       <input readonly={innerData.mode=="read"} class={readOnly : innerData.mode=="read"} name="workspaceDescriptionInput" type="text" placeholder="description du workspace" value="{innerData.description}"></input>
-      <zenTable show={innerData.mode!="read"} title="composants" name="workspaceComponents" style="flex:1">
+      <zenTable title="composants" style="flex:1" disallowcommand={innerData.mode=="read"}>
         <yield to="header" >
-          <div>type</div>
-          <div>description</div>
+          <div>nom</div>
+          <div>composant technique</div>
         </yield>
         <yield to="row">
-          <div style="width:20%">{type}</div>
-          <div style="width:50%">{description}</div>
           <div style="width:20%">{name}</div>
+          <div style="width:20%">{type}</div>
+          <div style="width:60%">{description}</div>
         </yield>
       </zenTable>
       <!--<span>composant d'initialisation : </span>
       <span>{innerData.firstComponent.type} : {innerData.firstComponent.desription}</span>-->
 
-      <div class="containerH" show={innerData.mode=="read"}>
+      <!-- <div class="containerH" show={innerData.mode=="read"}>
         <div class="containerV" style="flex-grow:1">
           <div class="commandBar containerH">
             <div class="commandTitle">
@@ -46,7 +48,7 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
     </div>
   <!--</div>-->
 <script>
@@ -78,27 +80,32 @@
     RiotControl.trigger('workspace_current_cancel');
   }
 
-  componentClick(e){
-    //console.log(e.item);
-    RiotControl.trigger('item_current_click',e.item);
-  }
+  // componentClick(e){
+  //   //console.log(e.item);
+  //   RiotControl.trigger('item_current_click',e.item);
+  // }
 
   this.on('mount', function () {
     //console.log('workspaceEditor mount');
-    this.tags.workspaceComponents.on('addRow',function(message){
+    this.tags.zentable.on('addRow',function(message){
       RiotControl.trigger('workspace_current_add_component',message);
 
     }.bind(this));
-    this.tags.workspaceComponents.on('delRow',function(message){
+    this.tags.zentable.on('delRow',function(message){
       console.log('delRow');
       RiotControl.trigger('workspace_current_delete_component',message);
+    }.bind(this));
+    this.tags.zentable.on('rowNavigation',function(data){
+      //console.log(data);
+      RiotControl.trigger('item_current_click',data);
+      //this.trigger('selectWorkspace');
     }.bind(this));
 
 
     RiotControl.on('workspace_current_changed',function(data){
       console.log('workspace-editor; change model : ',data);
       this.innerData=data;
-      this.tags.workspaceComponents.data=data.components;
+      this.tags.zentable.data=data.components;
       this.update();
     }.bind(this));
 

@@ -223,7 +223,7 @@ function WorkspaceStore() {
 
   this.on('technicalComponent_current_select', function(data) {
     //console.log('store select');
-    if (this.workspaceCurrent.mode == 'edit' || this.workspaceCurrent.mode == 'init') {
+    //if (this.workspaceCurrent.mode == 'edit' || this.workspaceCurrent.mode == 'init') {
       //need to delete id because technical component is not a worksapceComponent
       //mlap depency (_id.$oid)
       //data.technicalComponentId=data._id.$oid;
@@ -232,7 +232,7 @@ function WorkspaceStore() {
       this.workspaceCurrent.components.push(data);
       this.trigger('workspace_current_changed', this.workspaceCurrent);
       this.trigger('item_current_element_added', this.workspaceCurrent);
-    }
+    //}
   });
 
 

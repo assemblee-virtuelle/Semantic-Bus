@@ -112,7 +112,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   workSpaceStore.on('workspace_current_persist_done', function(message) {
     this.updateMode({
       modeTechnicalComponentNavigation: false,
-      modeWorkspaceNavigation : true,
+      //modeWorkspaceNavigation : false,
     });
     this.trigger('persist_end');
   }.bind(this));
@@ -120,12 +120,11 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     this.trigger('persist_start');
   });
 
-  // workSpaceStore.on('item_current_element_added', function(message) {
-  //   this.updateMode({
-  //     modeNavigation: false,
-  //     modeEdition: true
-  //   });
-  // }.bind(this));
+  workSpaceStore.on('item_current_element_added', function(message) {
+    this.updateMode({
+      modeTechnicalComponentNavigation: false,
+    });
+  }.bind(this));
 
   genericStore.on('item_current_element_added', function(message) {
     this.updateMode({
@@ -230,7 +229,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   this.on('workspace_current_cancel', function(message) {
     this.updateMode({
       modeWorkspaceEdition : true,
-      modeWorkspaceNavigation : true,
+      modeWorkspaceNavigation : false,
       modeTechnicalComponentNavigation: false,
     });
   });
@@ -240,6 +239,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
       modeComponentTest: false,
       modeComponentNetwork: false,
       modeNavigation: true,
+      modeWorkspaceNavigation : false,
       modeWorkspaceEdition : true,
       modeEdition: false,
       modeMenuHide : true
@@ -270,6 +270,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     this.updateMode({
       modeComponentNetwork: true,
       modeEdition:true,
+      modeGraph:false,
       modeNavigation:false,
     });
     //console.log('currentItemType  :',this.currentItemType);
@@ -289,8 +290,9 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   });
 
   this.on('item_current_cancel_connect_before', function(data) {
+//console.log('item_current_cancel_connect_before');
     this.updateMode({
-      modeConnectBefore : false,
+      modeConnectBefore : false
     });
   });
 

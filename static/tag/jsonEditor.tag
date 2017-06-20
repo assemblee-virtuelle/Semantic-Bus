@@ -6,22 +6,9 @@
     this.title="";
     Object.defineProperty(this, "data", {
        set: function (data) {
-        var options = {};
-        //console.log('jsonEditor Tag modes|',this.opts.modes);
-        //console.log('jsonEditor Tag modes|',"['tree','text']".split("\'").join("\""));
-         //console.log('jsonEditor Tag modes|',JSON.parse(this.opts.modes.split("\'").join("\"")));
-        if (this.opts.mode!=undefined){
-
-          options.mode=this.opts.mode;
-        }
-        if (this.opts.modes!=undefined){
-
-          options.modes=JSON.parse(this.opts.modes.split("\'").join("\""));
-        }
-        this.container = this.root.querySelector('#jsoneditor');
-        this.editor = new JSONEditor(this.container , options);
-        this.editor.set(data);
-        if(this.editor.options.mode!='text'){
+         console.log(this.editor);
+         this.editor.set(data);
+         if(this.editor.options.mode!='text'){
            this.editor.expandAll();
         }
 
