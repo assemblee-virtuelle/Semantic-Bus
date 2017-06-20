@@ -18,9 +18,9 @@ module.exports = {
 
 
    /* some other modules you want */
-   initialise : function(router, apiRouteur, recursivPullResolvePromise){
-     this.restApiGet.initialise(apiRouteur);//NO SECURE CHANGE ROUTER
-     this.upload.initialise(router);
-     this.cacheNosql.initialise(apiRouteur,recursivPullResolvePromise); //NO SECURE CHANGE ROUTER
+   initialise : function(router,unSafeRouteur, recursivPullResolvePromise){
+     this.restApiGet.initialise(unSafeRouteur);//NO SECURE CHANGE ROUTER
+     this.upload.initialise(unSafeRouteur);
+     this.cacheNosql.initialise(unSafeRouteur,recursivPullResolvePromise); //NO SECURE CHANGE ROUTER
    }
 }

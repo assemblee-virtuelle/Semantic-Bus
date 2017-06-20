@@ -1,10 +1,10 @@
-module.exports = function(router, apiRouteur) {
+module.exports = function(router, unSafeRouteur) {
   var https = require('https');
   var technicalComponentDirectory = require('./technicalComponentDirectory.js');
   var recursivPullResolvePromise = require('./recursivPullResolvePromise');
-  technicalComponentDirectory.initialise(router, apiRouteur,recursivPullResolvePromise);
+  technicalComponentDirectory.initialise(router, unSafeRouteur, recursivPullResolvePromise);
 
-  router.get('/core/technicalComponent/', function(req, res) {
+  router.get('/technicalComponent/', function(req, res) {
     var directory = [];
     for(var technicalComponent in technicalComponentDirectory){
       directory.push({
@@ -32,7 +32,7 @@ module.exports = function(router, apiRouteur) {
     mlabReq.end();*/
   });
 
-  router.put('/core/technicalComponent/', function(req, res) {
+  router.put('/technicalComponent/', function(req, res) {
     var bodyChunks;
     var id = req.body._id.$oid;
     var options = {
@@ -57,7 +57,7 @@ module.exports = function(router, apiRouteur) {
     mlabReq.end(JSON.stringify(req.body));
   });
 
-  router.post('/core/technicalComponent/', function(req, res) {
+  router.post('/technicalComponent/', function(req, res) {
     var bodyChunks;
     var options = {
       hostname: 'api.mlab.com',
@@ -81,7 +81,7 @@ module.exports = function(router, apiRouteur) {
     mlabReq.end(JSON.stringify(req.body));
   });
 
-  router.delete('/core/technicalComponent/', function(req, res) {
+  router.delete('/technicalComponent/', function(req, res) {
     var bodyChunks;
     var id = req.body._id.$oid;
     var options = {

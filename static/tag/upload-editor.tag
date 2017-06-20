@@ -1,9 +1,9 @@
 <upload-editor>
   <h2 class="center margin-top">Uploader votre fichier</h2>
   <h4 class="center">Ce composant vous permet d'uploader un fichier avec </br>une extension <b>XLSX</b> ou <b>CSV</b> et de le mapper en <b>JSON</b></h4>
-  <!-- <div class="progress">
-    <progress value="{progress}" min="0" max="100">{progress} %</progress>
-  </div> -->
+  <div class="progress">
+    <div class="progress-bar" role="progressbar">{progress}</div>
+  </div>
   <h3 class="{textloadclass}">{textload}</h3>
   <button class="upload-btn"  onclick = {uploadClick} type="button">Telecharger</button>
   <input id="upload-input" type="file" name="uploads[]"></br>
@@ -32,6 +32,16 @@
       margin-top:15%!important;
     }
 
+
+    .progress-bar {
+      height: 20px;
+      background-color: #3883fa;
+      border-radius: 5px;
+      margin-left:25%;
+      text-align: center;
+      font-size: 0.6em;
+      color: #FA8900;
+    }
 
 
     .row {
@@ -102,7 +112,7 @@
   <script>
 
     this.innerData = {};
-    this.progress = 0;
+    this.progress = 0 ;
     var regex = /\.([^.]+)/g;
     this.refuse = "";
     this.accept ="";
@@ -119,36 +129,86 @@
         configurable: true
       });
 
+
+      RiotControl.on('loading',function(pourcent){
+        console.log('on load')
+        console.log(pourcent)
+        this.progress = pourcent + '%';
+        $('.progress-bar').width((pourcent/ 2 )+ '%' );
+        this.update();
+      }.bind(this))
+
+      RiotControl.on('item_is_upload',function(){
+        this.progress = "Votre fichier  est chargé";
+        this.update();
+      }.bind(this))
+
       uploadClick() {
-          $('#upload-input').click();
-          $('#upload-input').on('change', function(e){
-            var files = e.currentTarget.files;
-            console.log(e);
-            var size = e.currentTarget.files.size;
-            if (files.length > 0){           
-              var formData = new FormData();
-              for (var i = 0; i < files.length; i++) {
-                var file = files[i];
-                console.log(file)
-                formData.append("uploads[]", file, file.name);
-              }
-              if(formData.getAll("uploads[]")[0].name.match(regex) == ".csv" || formData.getAll("uploads[]")[0].name.match(regex) == ".xlsx" ){
-                console.log(formData.getAll("uploads[]")[0].name);   
-                RiotControl.trigger('item_current_upload', formData);
-                this.textload = "Votre fichier  " + formData.getAll("uploads[]")[0].name + "  est chargé";
-                this.textloadclass = "yes-text"
-                this.update();
-              }else{
-                console.log("this.refuse",this.refuse )
-                this.textload = "Le format " + formData.getAll("uploads[]")[0].name.match(regex) + " n'est pas encore pris en compte"
+        /* processing array buffers, only required for readAsArrayBuffer */
+        this.progress = "";
+        this.textload = "";
+        $('.progress-bar').width(0 + '%');
+
+        function fixdata(data) {
+          var o = "", l = 0, w = 10240;
+          for(; l<data.byteLength/w; ++l) o+=String.fromCharCode.apply(null,new Uint8Array(data.slice(l*w,l*w+w)));
+          o+=String.fromCharCode.apply(null, new Uint8Array(data.slice(l*w)));
+          return o;
+        }
+
+        var rABS = true; // true: readAsBinaryString ; false: readAsArrayBuffer
+        $('#upload-input').unbind('change');
+        $('#upload-input').click();
+        $('#upload-input').on('change', function(e){
+          var regex = /\.([^.]+)/g;
+          var reg = new RegExp(regex, 'g');
+          var files = e.currentTarget.files;
+          //console.log(files)
+          var size = e.currentTarget.files.size;
+          /* fixdata and rABS are defined in the drag and drop example */
+          var files = e.currentTarget.files;
+          var i,f;
+          for (i = 0; i != files.length; ++i) {
+            f = files[i];
+            var reader = new FileReader();
+            var name = f.name;
+            var ext = name.match(reg)[0];
+            //console.log(reader)
+            if (ext != ".json" && ext != ".jsonld" && ext !=".csv" && ext != ".xlsx" && ext !=  ".ods") {
                 this.textloadclass = "no-text"
-                console.log("this.refuse", this.refuse )
-                this.update();
-              }
+                this.textload = "Le format " + ext +  " n'est pas encore pris en compte"
+                this.update()
+              }else {
+              console.log("in else");
+              reader.onload = function(e) {
+                //console.log("on load")
+                var data = e.target.result;
+                if(ext == ".json" || ext == ".jsonld"){
+                  RiotControl.trigger('item_current_upload',  data);
+                }else if(ext ==".csv" || ext == ".xlsx" || ext ==  ".ods") {
+                  var workbook;
+                  if(rABS) {
+                    //console.log("radbs");
+                    /* if binary string, read with type 'binary' */
+                    workbook = XLSX.read(data, {type: 'binary'});
+                  } else {
+                    /* if array buffer, convert to base64 */
+                    var arr = fixdata(data);
+                    workbook = XLSX.read(btoa(arr), {type: 'base64'});
+                  }
+                  //console.log("wokrbook csv etc .." , workbook)
+                  RiotControl.trigger('item_current_upload', JSON.stringify({ext: "exel", data: workbook.Sheets}));
+                  /* DO SOMETHING WITH workbook HERE */
+                }
+              }.bind(this)
+              reader.readAsBinaryString(f);     
             }
+          }
         }.bind(this))
       }.bind(this)
     this.on('mount', function () {
+      this.progress = "";
+      $('.progress-bar').width(0 + '%');
       RiotControl.on('item_current_changed',function(data){
           this.innerData=data;
           this.update();
