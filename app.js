@@ -14,12 +14,11 @@ var jwtService  = require('./webServices/jwtService')
 //var io = require('socket.io')(server);
 
 var dataRouter = express.Router();
-var apiRouteur = express.Router();
+var unSafeRouteur = express.Router();
 
-var authRouter = express.Router();
 var bodyParser = require("body-parser");
-app.use(bodyParser.json())
-authRouter.use(bodyParser.json());
+app.use(bodyParser.json({limit: '5mb'}));
+app.use(bodyParser.urlencoded({limit: '5mb', extended: true}));
 dataRouter.use(bodyParser.json()); // used to parse JSON object given in the request body
 var env = process.env;
 
@@ -31,12 +30,12 @@ dataRouter.use(function(req, res, next) {
 
 
 var cors = require('cors');
-authRouter.use(cors());
+unSafeRouteur.use(cors());
 
-require('./webServices/authWebService')(authRouter);
+require('./webServices/authWebService')(unSafeRouteur);
 require('./webServices/workspace')(dataRouter);
 require('./webServices/workspaceComponent')(dataRouter);
-require('./webServices/technicalComponent')(dataRouter, apiRouteur);
+require('./webServices/technicalComponent')(dataRouter, unSafeRouteur);
 require('./webServices/userWebservices')(dataRouter);
 //require('./webServices/ldp')(router);
 
@@ -62,8 +61,10 @@ server.listen(process.env.PORT || process.env.port || process.env.OPENSHIFT_NODE
 app.use(helmet());
 app.disable('x-powered-by');
 app.use('/auth',  express.static('static'));
-app.use('/auth',  authRouter);
-app.use('/data',  dataRouter);
+app.use('/auth',  unSafeRouteur);
+app.use('/data/specific',  unSafeRouteur);
+app.use('/data/api',  unSafeRouteur);
+app.use('/data/core',  dataRouter);
 app.use('/ihm', express.static('static'));
 app.use('/browserify', express.static('browserify'));
 app.use('/npm', express.static('node_modules'));

@@ -32,7 +32,7 @@
     border: none;
     color: #3498db;
     text-align:center;
-    min-width:40%
+    min-width:40%;
   }
     .center-top {
       margin-top: 20%!important;

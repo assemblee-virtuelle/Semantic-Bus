@@ -2,7 +2,7 @@ function CacheNosqlStore() {
   riot.observable(this) // Riot provides our event emitter.
 
   this.on('item_current_reloadCache', function(data) {
-    console.log('item_current_reloadCache', data);
+    console.log('item_current_reloadCache');
     console.log(this.genericStore);
     $.ajax({
       method: 'get',

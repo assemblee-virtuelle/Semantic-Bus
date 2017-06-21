@@ -7,7 +7,7 @@ module.exports = function(router) {
   //var https = require('https');
 
   ///TEST GESTION DES COMPTE EN MODIFIANT LES QUERY POUR AVOIR LES WORKSPACE DES USERS
-  router.get('/core/workspaceByUser/:userId', function(req, res) {
+  router.get('/workspaceByUser/:userId', function(req, res) {
     console.log(req.params.userId);
     var userId = req.params.userId;
     //On recupere le user grace a l'id
@@ -53,7 +53,7 @@ module.exports = function(router) {
   });
 
   //TEST GESTION DES COPOSANT DES UTILISATEURS
-  router.get('/core/workspace/:id', function(req, res) {
+  router.get('/workspace/:id', function(req, res) {
     var id = req.params.id;
     var requestPromise = mLabPromise.request('GET', 'workspace/' + id);
     var workspace;
@@ -78,7 +78,7 @@ module.exports = function(router) {
   });
 
 
-  router.get('/core/workspaceOwnAll/:userId', function(req, res) {
+  router.get('/workspaceOwnAll/:userId', function(req, res) {
     console.log(req.params.userId);
     var userId = req.params.userId;
     //On recupere le user grace a l'id
@@ -141,7 +141,7 @@ module.exports = function(router) {
     // });
   });
 
-  router.put('/core/workspace/', function(req, res) {
+  router.put('/workspace/', function(req, res) {
     // var id = req.body._id.$oid;
     var entityToUpdate = JSON.parse(JSON.stringify(req.body));
     console.log(entityToUpdate)
@@ -162,7 +162,7 @@ module.exports = function(router) {
         component.workspaceId = entityToUpdate._id.$oid
       });
       //TODO la sauvegerde su workspace dtruit les connections
-      //console.log('PUT /core/workspace/ | insertedComopnents | ', req.body.components);
+      //console.log('PUT /workspace/ | insertedComopnents | ', req.body.components);
       const insertPromises = req.body.components.map(component => workspaceComponentPromise.getInsertPromise(component));
       //const insertPromises = req.body.components.map(component => mLabPromise.request('POST', 'workspaceComponent',component));
       //entityToUpdate = records[0];
@@ -179,7 +179,7 @@ module.exports = function(router) {
 
   });
 
-  router.post('/core/workspace/:userId', function(req, res) {
+  router.post('/workspace/:userId', function(req, res) {
     var entityToInsert = req.body;
     var userId = req.params.userId;
     console.log(entityToInsert);
@@ -221,7 +221,7 @@ module.exports = function(router) {
     })
   });
 
-  router.delete('/core/workspace/:id/:userId', function(req, res) {
+  router.delete('/workspace/:id/:userId', function(req, res) {
     var id = req.params.id;
     var userId = req.params.userId;
     var newWorspaceUserStore = []

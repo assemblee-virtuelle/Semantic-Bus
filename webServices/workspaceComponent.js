@@ -10,7 +10,7 @@ module.exports = function(router) {
   //doc to promises : http://stackoverflow.com/questions/35182752/promises-with-http-get-node-js
   //var https = require('https');
 
-  router.get('/core/workspaceComponent/', function(req, res) {
+  router.get('/workspaceComponent/', function(req, res) {
     workspaceComponentPromise.getReadPromise.then(function(data) {
       //console.log(data);
       //var module = technicalComponentDirectory[data.module];
@@ -18,7 +18,7 @@ module.exports = function(router) {
     });
   });
 
-  router.get('/core/workspaceComponent/:id/test', function(req, res) {
+  router.get('/workspaceComponent/:id/test', function(req, res) {
 
     var id = req.params.id;
     mLabPromise.request('GET', 'workspaceComponent/' + id).then(function(data) {
@@ -30,7 +30,7 @@ module.exports = function(router) {
 
   });
 
-  router.put('/core/workspaceComponent/', function(req, res) {
+  router.put('/workspaceComponent/', function(req, res) {
     var configuration = require('../configuration');
     if (configuration.saveLock==false) {
 
@@ -74,7 +74,7 @@ module.exports = function(router) {
     }
   });
 
-  router.post('/core/workspaceComponent/', function(req, res) {
+  router.post('/workspaceComponent/', function(req, res) {
     workspaceComponentPromise.getInsertPromise(req.body).then(function(data) {
       res.json(data);
     });
@@ -93,7 +93,7 @@ module.exports = function(router) {
       });*/
   });
 
-  router.delete('/core/workspaceComponent/', function(req, res) {
+  router.delete('/workspaceComponent/', function(req, res) {
     var id = req.body._id.$oid;
     mLabPromise.request('DELETE', 'workspaceComponent/' + id).then(function(data) {
       res.json(data);

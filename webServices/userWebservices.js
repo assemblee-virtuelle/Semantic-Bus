@@ -3,7 +3,7 @@ const config = require('./models/configuration');
 const mLabPromise = require('./mLabPromise');
 
 module.exports = function(router) {
-  router.get('/core/users/:id', function(req, res) {
+  router.get('/users/:id', function(req, res) {
     console.log(req.params.id)
     User.findOne({
       where: {
@@ -19,7 +19,7 @@ module.exports = function(router) {
     })
   });
 
-  router.put('/core/users/:id', function(req, res) {
+  router.put('/users/:id', function(req, res) {
     User.findOne({
       where: {
         email: req.body.email
@@ -48,7 +48,7 @@ module.exports = function(router) {
     })
   });
 
-  router.get('/core/cloneDatabase', function(req, res) {
+  router.get('/cloneDatabase', function(req, res) {
     mLabPromise.cloneDatabase().then(data => {
       res.json(data)
     });
