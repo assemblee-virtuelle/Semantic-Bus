@@ -42,30 +42,44 @@
           <div class="commandBar containerH">
             menu
           </div>
-          <div onclick={workspaceSelectorClick} name="workspaceSelector" class="selector mainSelector" style="flex-basis:100px">
+          <div onclick={workspaceSelectorClick} name="workspaceSelector" class="selector mainSelector" style="padding: 5vh; font-size:1.2em">
             <div>Mes Workspaces</div>
+          </div>
+           <div onclick={workspaceShareSelectorClick} name="workspaceSelector" class="selector mainSelector" style="padding: 5vh; font-size:1.2em">
+            <div>Mes Workspaces partagés</div>
           </div>
           <!--<div onclick={technicalComponentSelectorClick} name="technicalComponentSelector" class="selector mainSelector" style="flex-basis:100px">
             <div>Composant Technique</div>
           </div>-->
-          <div onclick={profilSelectorClick} name="profilSelector" class="selector mainSelector" style="flex-basis:100px">
-            <div>Mon profil</div>
+          <div class="containerH" style="flex-basis:20% overflow-y: initial;" if={!modeMenuHide}>
+            <div onclick={profilSelectorClick} name="profilSelector" class="selector mainSelector" style="padding: 35px;
+font-size: 22px;">
+              <div>Mon profil</div>
+            </div>
+            <div onclick={adminSelectorClick} name="adminSelector" class="selector mainSelector" style="padding: 35px;
+font-size: 22px;" if={showAdmin}>
+              <div>Admin</div>
+            </div>
           </div>
-          <div onclick={adminSelectorClick} name="adminSelector" class="selector mainSelector" style="flex-basis:100px" if={showAdmin}>
-            <div>Admin</div>
-          </div>
+          </civ>
         </div>
-        <div class="containerV" style="flex-grow:1" if={!modeWorkspaceNavigation && !modeWorkspaceEdition && !modeTechnicalComponentNavigation && !modeProfilEdition && !modeAdminNavigation}>
+        <div class="containerV" style="flex-grow:1" if={!modeWorkspaceShareNavigation && !modeWorkspaceNavigation && !modeWorkspaceEdition && !modeTechnicalComponentNavigation && !modeProfilEdition && !modeAdminNavigation}>
           <landing></landing>
         </div>
         <div class="containerV" style="flex-grow:1" if={modeWorkspaceNavigation}>
           <workspace-table></workspace-table>
+        </div>
+        <div class="containerV" style="flex-grow:1" if={modeWorkspaceShareNavigation}>
+          <workspace-share-table></workspace-share-table>
         </div>
         <div class="containerV" style="flex-grow:1" if={modeWorkspaceEdition}>
           <workspace-editor></workspace-editor>
         </div>
         <div class="containerV" style="flex-grow:1" if={modeTechnicalComponentNavigation}>
           <technical-component-table></technical-component-table>
+        </div>
+        <div class="containerV" style="flex-grow:1" if={modeTechnicalUserNavigation}>
+          <user-list></user-list>
         </div>
         <div class="containerV" style="flex-grow:1" id="detailContainer" if={modeProfilEdition}>
           <profil></profil>
@@ -196,7 +210,9 @@
     this.modeComponentTest = false;
     this.modeProfilEdition = false;
     this.modeWorkspaceNavigation = false;
+    this.modeWorkspaceShareNavigation = false;
     this.modeTechnicalComponentNavigation = false;
+    this.modeTechnicalUserNavigation = false;
     this.modeAdminNavigation = false;
     this.modeWorkspaceEdition = false;
     this.modeWorkspaceComponentEdition = false;
@@ -301,7 +317,13 @@
       RiotControl.trigger('profil_show');
     }
     workspaceSelectorClick(e) {
+      console.log('workspace_show')
       RiotControl.trigger('workspace_show');
+    }
+    ////WORKSPACE SHARE ////
+    workspaceShareSelectorClick(e) {
+      console.log('workspace_share_show')
+      RiotControl.trigger('workspace_share_show');
     }
     technicalComponentSelectorClick(e) {
       RiotControl.trigger('technicalComponent_show');
@@ -401,9 +423,13 @@
 
       RiotControl.on('workspace_current_changed',function(data){
         console.log('navigation | workspace_current_changed',data);
+        console.log("testttttttterr")
         this.workspaceComponents=data.components;
         this.update();
       }.bind(this));
+
+
+      
 
       RiotControl.on('navigation_mode_changed', function (data) {
         console.log('navigation_mode_changed : ', data);
@@ -413,7 +439,9 @@
         this.modeComponentTest = data.modeComponentTest;
         this.modeProfilEdition = data.modeProfilEdition;
         this.modeWorkspaceNavigation = data.modeWorkspaceNavigation;
+        this.modeWorkspaceShareNavigation = data.modeWorkspaceShareNavigation;
         this.modeTechnicalComponentNavigation = data.modeTechnicalComponentNavigation;
+        this.modeTechnicalUserNavigation = data.modeTechnicalUserNavigation;
         this.modeAdminNavigation = data.modeAdminNavigation;
         this.modeWorkspaceEdition = data.modeWorkspaceEdition;
         this.modeWorkspaceComponentEdition = data.modeWorkspaceComponentEdition;

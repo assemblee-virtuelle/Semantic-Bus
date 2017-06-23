@@ -1,12 +1,11 @@
 <zenTable class="containerV" style="align-items:stretch">
-  <div class="commandBar containerH">
+  <div class="commandBar containerH" style = {opts.css}>
     <div></div>
-    <div>{opts.title}</div>
+    <div onclick={goComponent}>{opts.title}</div>
     <div class="containerH commandGroup" >
       <div onclick={addRowClic} class="commandButton" if={!opts.disallowcommand==true}>+</div>
       <div onclick={delRowClic} class="commandButton" if={!opts.disallowcommand==true}>-</div>
     </div>
-
   </div>
   <div name="tableHeader" class="tableHeader">
     <yield from="header"/>
@@ -14,7 +13,6 @@
   <div class="containerV" style="flex:1" name="tableBodyContainer">
     <div class="table" name="tableBody">
       <div class="tableRow {selected:selected} {mainSelected:mainSelected}" name="tableRow" onclick={rowClic} data-rowid={rowid} each={indexedData}>
-
         <yield from="row"/>
         <div style="width:10px" if={!opts.disallownavigation==true}>
           <div class="containerH commandBar" >
@@ -26,7 +24,6 @@
       </div>
     </div>
   </div>
-
   <script>
     var arrayChangeHandler = {
       tag: this,
@@ -55,6 +52,7 @@
     //  this.innerData = new Proxy([], arrayChangeHandler);
 
     this.innerData = [];
+    this.background = ""
     //arrayChangeHandler.tag=this;
     Object.defineProperty(this, 'data', {
       set: function (data) {
@@ -83,7 +81,6 @@
 
     rowClic(e) {
       var index = parseInt(e.currentTarget.dataset.rowid)
-
       if (!e.ctrlKey) {
         for (data of this.innerData) {
           data.selected = false;
@@ -103,7 +100,6 @@
       let dataWithRowId = this.innerData[index];
       dataWithRowId.rowId = index;
       this.trigger('rowNavigation', dataWithRowId)
-
     }
 
     addRowClic(e) {

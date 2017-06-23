@@ -3,6 +3,16 @@ const config = require('./models/configuration');
 const mLabPromise = require('./mLabPromise');
 
 module.exports = function(router) {
+
+
+  ///ALL USER FOR JAVASCRIPT TREATMENT AFTER ON POURRAIT FAIRE UNE QUERY DYNAMQUE?///
+  router.get('/users', function(req, res) {
+    console.log(req.params.id)
+    User.all(function(err, users){
+      res.send(users)
+    }) 
+  });
+
   router.get('/users/:id', function(req, res) {
     console.log(req.params.id)
     User.findOne({

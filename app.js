@@ -13,17 +13,17 @@ var https = require('https');
 var jwtService  = require('./webServices/jwtService')
 //var io = require('socket.io')(server);
 
-var dataRouter = express.Router();
+var safe = express.Router();
 var unSafeRouteur = express.Router();
 
 var bodyParser = require("body-parser");
 app.use(bodyParser.json({limit: '5mb'}));
 app.use(bodyParser.urlencoded({limit: '5mb', extended: true}));
-dataRouter.use(bodyParser.json()); // used to parse JSON object given in the request body
+safe.use(bodyParser.json()); // used to parse JSON object given in the request body
 var env = process.env;
 
 //Sécurisation des route de data
-dataRouter.use(function(req, res, next) {
+safe.use(function(req, res, next) {
 	jwtService.securityAPI(req, res, next)
 })
 
@@ -33,10 +33,11 @@ var cors = require('cors');
 unSafeRouteur.use(cors());
 
 require('./webServices/authWebService')(unSafeRouteur);
-require('./webServices/workspace')(dataRouter);
-require('./webServices/workspaceComponent')(dataRouter);
-require('./webServices/technicalComponent')(dataRouter, unSafeRouteur);
-require('./webServices/userWebservices')(dataRouter);
+require('./webServices/workspace')(safe);
+require('./webServices/workspaceComponent')(safe);
+require('./webServices/technicalComponent')(safe, unSafeRouteur);
+require('./webServices/userWebservices')(safe);
+require('./webServices/rightsManagement')(safe);
 //require('./webServices/ldp')(router);
 
 var transform = require('jsonpath-object-transform');
@@ -64,7 +65,7 @@ app.use('/auth',  express.static('static'));
 app.use('/auth',  unSafeRouteur);
 app.use('/data/specific',  unSafeRouteur);
 app.use('/data/api',  unSafeRouteur);
-app.use('/data/core',  dataRouter);
+app.use('/data/core',  safe);
 app.use('/ihm', express.static('static'));
 app.use('/browserify', express.static('browserify'));
 app.use('/npm', express.static('node_modules'));

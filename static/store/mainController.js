@@ -11,6 +11,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     modeComponentTest: false,
     modeProfilEdition : false,
     modeWorkspaceNavigation : false,
+    modeWorkspaceShareNavigation: false,
     modeTechnicalComponentNavigation : false,
     modeAdminNavigation : false,
     modeWorkspaceEdition : false,
@@ -18,7 +19,9 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     modeConnectBefore : false,
     modeConnectAfter : false,
     modeMenuHide : false,
-    modeGraph :false
+    modeGraph :false,
+    modeUserList: false,
+    modeTechnicalUserNavigation: false
   }
   this.updateMode = function(changedValueMode) {
     for(displayKey in this.displayMode ){
@@ -81,6 +84,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
       modeProfilEdition: true,
       modeTechnicalComponentNavigation: false,
       modeWorkspaceNavigation : false,
+      modeWorkspaceShareNavigation : false,
       modeWorkspaceEdition :false,
       modeAdminNavigation : false
     });
@@ -92,6 +96,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
       modeTechnicalComponentNavigation: false,
       modeWorkspaceNavigation : false,
       modeWorkspaceEdition :false,
+       modeWorkspaceShareNavigation : false,
       modeAdminNavigation : true
     });
   }.bind(this))
@@ -112,6 +117,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   workSpaceStore.on('workspace_current_persist_done', function(message) {
     this.updateMode({
       modeTechnicalComponentNavigation: false,
+      modeTechnicalUserNavigation:false
       //modeWorkspaceNavigation : false,
     });
     this.trigger('persist_end');
@@ -148,7 +154,8 @@ function MainController(workSpaceStore, genericStore, profilStore) {
       modeProfilEdition : false,
       modeWorkspaceNavigation : false,
       modeAdminNavigation : false,
-      modeWorkspaceEdition : false
+      modeWorkspaceEdition : false,
+      modeWorkspaceShareNavigation : false
     });
   });
 
@@ -166,6 +173,17 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     });
   });
 
+  this.on('navigation_mode_user_list', function(message) {
+    this.updateMode({
+      modeUserList: true,
+    });
+  });
+
+  this.on('navigation_mode_composant_list', function(message) {
+    this.updateMode({
+      modeUserList: false,
+    });
+  });
 
   this.on('workspace_show', function(message) {
     this.updateMode({
@@ -173,7 +191,19 @@ function MainController(workSpaceStore, genericStore, profilStore) {
       modeProfilEdition : false,
       modeWorkspaceNavigation : true,
       modeAdminNavigation : false,
-      modeWorkspaceEdition : false
+      modeWorkspaceEdition : false,
+      modeWorkspaceShareNavigation : false
+    });
+  });
+
+  this.on('workspace_share_show', function(message) {
+    this.updateMode({
+      modeTechnicalComponentNavigation: false,
+      modeProfilEdition : false,
+      modeWorkspaceNavigation : false,
+      modeAdminNavigation : false,
+      modeWorkspaceEdition : false,
+      modeWorkspaceShareNavigation : true
     });
   });
   this.on('workspace_current_add_component', function(record) {
@@ -181,10 +211,24 @@ function MainController(workSpaceStore, genericStore, profilStore) {
       modeNavigation: true,
       modeEdition: false,
       modeTechnicalComponentNavigation: true,
+      modeTechnicalUserNavigation:false,
       modeMenuHide:true,
+      modeWorkspaceNavigation:false,
+      modeWorkspaceShareNavigation : false
+    });
+    // this.trigger('navigator_mount', 'technical-component-table');
+  });
+
+  this.on('workspace_current_add_user', function(record) {
+    this.updateMode({
+      modeNavigation: true,
+      modeEdition: false,
+      modeTechnicalComponentNavigation: false,
+      modeTechnicalUserNavigation:true,
+      modeMenuHide:true,
+      modeWorkspaceShareNavigation : false,
       modeWorkspaceNavigation:false
     });
-    //this.trigger('navigator_mount', 'technical-component-table');
   });
 
   this.on('workspace_current_edit', function(message) {
@@ -195,6 +239,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
       modeEdition: false,
       modeWorkspaceNavigation : false,
       modeWorksapceEdition : true,
+      modeWorkspaceShareNavigation : false,
       modeMenuHide:true
     });
   });
@@ -207,6 +252,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
       modeEdition: true,
       modeGraph: true,
       modeWorkspaceNavigation : false,
+      modeWorkspaceShareNavigation : false,
       modeWorksapceEdition : false,
       modeMenuHide:true
 
@@ -220,6 +266,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
       modeNavigation: true,
       modeWorkspaceNavigation : false,
       modeWorkspaceEdition : true,
+      modeWorkspaceShareNavigation : false,
       modeEdition: false,
       modeMenuHide : true
     });
@@ -231,6 +278,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
       modeWorkspaceEdition : true,
       modeWorkspaceNavigation : false,
       modeTechnicalComponentNavigation: false,
+      modeTechnicalUserNavigation:false
     });
   });
 
@@ -241,6 +289,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
       modeNavigation: true,
       modeWorkspaceNavigation : false,
       modeWorkspaceEdition : true,
+      modeWorkspaceShareNavigation : false,
       modeEdition: false,
       modeMenuHide : true
     });

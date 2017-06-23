@@ -28,7 +28,7 @@ module.exports = {
       /* if there's an error, then reject the Promise
        * (can be handled with Promise.prototype.catch) */
       request.on('error', function(e) {
-        console.log(requestOptions);
+        // console.log(requestOptions);
         reject(e)
       });
       //request.on('error', function(e){resolve({info:'mlab fail',error:e})});
@@ -45,7 +45,7 @@ module.exports = {
       params += JSON.stringify(options[paramKey]);
       params += '&'
     }
-    console.log(params);
+    // console.log(params);
     //console.log('PORT | ',process.env.NODE_PORT);
     if (databaseName == undefined) {
       databaseName = this.configuration.mlabDB;
