@@ -8,7 +8,7 @@ module.exports = new function() {
 
 
   this.initialise = function(router) {
-    router.get('/api/:urlRequiered', function(req, res) {
+    router.get('/:urlRequiered', function(req, res) {
       var urlRequiered = req.params.urlRequiered;
       //this require is live because constructor require cause cyclic dependencies (recursivPullResolvePromise->restApiGet)
       this.recursivPullResolvePromise = require('../recursivPullResolvePromise')
