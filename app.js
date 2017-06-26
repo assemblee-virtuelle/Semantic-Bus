@@ -6,7 +6,7 @@ var passport = require('passport');
 app.use(cors());
 app.use(passport.initialize());
 require('./webServices/passport')(passport);
-var helmet = require('helmet');
+//var helmet = require('helmet');
 
 var server = require('http').Server(app);
 var https = require('https');
@@ -59,8 +59,8 @@ server.listen(process.env.PORT || process.env.port || process.env.OPENSHIFT_NODE
 
 ///OTHER APP COMPONENT
 ///SECURISATION DES REQUETES
-app.use(helmet());
-app.disable('x-powered-by');
+//app.use(helmet());
+//app.disable('x-powered-by');
 app.use('/auth',  express.static('static'));
 app.use('/auth',  unSafeRouteur);
 app.use('/data/specific',  unSafeRouteur);
