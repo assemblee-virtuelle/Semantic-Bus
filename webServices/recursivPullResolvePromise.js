@@ -25,7 +25,7 @@ module.exports = {
         console.log('recursivPullResolvePromise | module | ', module.type, module.name);
         //console.log('recursivPullResolvePromise | before | ',component.connectionsBefore.length,' | stepNode |',module.stepNode,' | notMainNode |',notMainNode);
         if (component.connectionsBefore.length > 0 && (module.stepNode != true || notMainNode != true)) {
-          //console.log('resolveWebComponentPull | beforeId | ',component.connectionsBefore[0]);
+          console.log('resolveWebComponentPull | beforeId | ',component.connectionsBefore[0]);
 
           Promise.all(
             component.connectionsBefore.map(connectionBeforeId => {
@@ -135,11 +135,11 @@ module.exports = {
           });
 
       } else {
-        //console.log('resolveWebComponentPull | Last| ', component);
+        console.log('resolveWebComponentPull | Last| ', component);
         if (module.test) {
           module.test(component).then(function(dataTest) {
             console.log('recursivPullResolvePromise | module end | ', module.type);
-            //console.log('recursivPullResolvePromise | module end | dataTest', dataTest);
+            console.log('recursivPullResolvePromise | module end | dataTest', dataTest);
             resolve({
               componentId: component._id.$oid,
               data: dataTest.data

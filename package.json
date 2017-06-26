@@ -13,6 +13,7 @@
     "bcrypt": "^1.0.2",
     "body-parser": "latest",
     "caminte": "^0.3.7",
+    "cheerio": "^1.0.0-rc.1",
     "cors": "latest",
     "csvtojson": "latest",
     "data2xml": "^1.2.5",
@@ -29,9 +30,11 @@
     "passport-google-oauth": "^1.0.0",
     "passport-jwt": "^2.2.1",
     "promise-waterfall": "latest",
+    "scraperjs": "^1.2.0",
     "sheetrock": "latest",
     "sift": "latest",
     "slickgrid": "latest",
+    "url-parse": "^1.1.9",
     "xlsx": "^0.10.5",
     "xml2js": "latest"
   }

@@ -1,10 +1,11 @@
-<upload-editor >
+<upload-editor>
   <h2 class="center margin-top">Uploader votre fichier</h2>
-  <h4 class="center">Ce composant vous permet d'uploader un fichier avec </br>une extension <b>XLSX</b> ou <b>CSV</b> et de le mapper en <b>JSON</b></h4>
+  <h4 class="center">Ce composant vous permet d'uploader un fichier avec </br>une extension <b>XLSX</b> ou <b>CSV</b> et de le mapper en <b>JSON</b></b>
+  </h4>
   <div class="progress">
     <div class="progress-bar" role="progressbar">{progress}</div>
   </div>
-  <div class="containerV uplaod-container" style="overflox:inherit">
+  <div class="containerV uplaod-container" style="overflow:inherit">
     <h3 class="{textloadclass}">{textload}</h3>
     <button class="upload-btn"  onclick = {uploadClick} type="button">Telecharger</button>
     <input id="upload-input" type="file" name="uploads[]"></br>
@@ -15,7 +16,7 @@
       background-color: #4791D2;
     }
 
-    .uplaod-container{
+    .upload-container {
       margin-top:10%;
     }
     .no-text {

@@ -6,6 +6,7 @@ module.exports = function(router, unSafeRouteur) {
 
   router.get('/technicalComponent/', function(req, res) {
     var directory = [];
+    console.log(technicalComponentDirectory)
     for(var technicalComponent in technicalComponentDirectory){
       directory.push({
         module : technicalComponent,
