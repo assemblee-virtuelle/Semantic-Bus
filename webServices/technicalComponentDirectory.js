@@ -15,6 +15,8 @@ module.exports = {
    deeperFocusOpeningBracket : require('./workSpaceComponentDirectory/deeperFocusOpeningBracket.js'),
    filter : require('./workSpaceComponentDirectory/filter.js'),
    upload: require('./workSpaceComponentDirectory/upload.js'),
+   scrapper: require('./workSpaceComponentDirectory/scrapper.js'),
+   crawler: require('./workSpaceComponentDirectory/crawler.js'),
 
 
    /* some other modules you want */

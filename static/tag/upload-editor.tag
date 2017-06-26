@@ -4,7 +4,7 @@
   <div class="progress">
     <div class="progress-bar" role="progressbar">{progress}</div>
   </div>
-  <div class="containerV upload-container" style="overflow:inherit">
+  <div class="containerV uplaod-container" style="overflow:inherit">
     <h3 class="{textloadclass}">{textload}</h3>
     <button class="upload-btn"  onclick = {uploadClick} type="button">Telecharger</button>
     <input id="upload-input" type="file" name="uploads[]"></br>
@@ -15,7 +15,7 @@
       background-color: #4791D2;
     }
 
-    .upload-container{
+    .upload-container {
       margin-top:10%;
     }
     .no-text {
@@ -62,7 +62,7 @@
       border-radius: 5px 5px 5px 5px;
       text-align:center;
       max-width: 25%;
-      margin-left: 35%;
+      margin-left: 35%; 
     }
 
     .upload-btn:hover,
@@ -121,7 +121,7 @@
     var regex = /\.([^.]+)/g;
     this.refuse = "";
     this.accept ="";
-
+    
 
       Object.defineProperty(this, 'data', {
         set: function (data) {
@@ -204,7 +204,7 @@
                   /* DO SOMETHING WITH workbook HERE */
                 }
               }.bind(this)
-              reader.readAsBinaryString(f);
+              reader.readAsBinaryString(f);     
             }
           }
         }.bind(this))

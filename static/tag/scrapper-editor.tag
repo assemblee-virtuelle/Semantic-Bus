@@ -1,9 +1,9 @@
-<framacalc-get-csv-editor>
-  <div>information de connection à framacalc</div>
-  <label>key</label>
-  <input type="text" name="keyInput" value={data.specificData.key}></input>
-  <label>offset</label>
-  <input type="text" name="offsetInput" value={data.specificData.offset}></input>
+<scrapper-editor>
+  <div>Information à propos du scrappeur</div>
+  <label>url</label>
+  <input type="text" name="url" value={data.specificData.url}></input>
+  <label>chemin (2 attributs minimum)</label>
+  <input type="text" name="chemin" value={data.specificData.chemin}></input>
   <script>
 
     this.innerData={};
@@ -22,13 +22,12 @@
       configurable: true
     });
     this.on('mount', function () {
-      this.keyInput.addEventListener('change',function(e){
-        this.innerData.specificData.key=e.currentTarget.value;
+      this.url.addEventListener('change',function(e){
+        this.innerData.specificData.url = e.currentTarget.value;
       }.bind(this));
 
-    
-      this.offsetInput.addEventListener('change',function(e){
-        this.innerData.specificData.offset=e.currentTarget.value;
+      this.chemin.addEventListener('change',function(e){
+        this.innerData.specificData.chemin = e.currentTarget.value;
       }.bind(this));
 
       RiotControl.on('item_current_changed',function(data){
@@ -36,6 +35,5 @@
         this.update();
       }.bind(this));
     });
-
   </script>
-</framacalc-get-csv-editor>
+</scrapper-editor>

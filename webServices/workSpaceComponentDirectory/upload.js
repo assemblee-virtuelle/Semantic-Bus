@@ -10,7 +10,7 @@ module.exports = {
   stepNode: true,
   //recursivPullResolvePromise : require('../recursivPullResolvePromise'),
   initialise: function (router, recursivPullResolvePromise) {
-    this.recursivPullResolvePromise = recursivPullResolvePromise;
+    // this.recursivPullResolvePromise = recursivPullResolvePromise;
     router.post('/upload/:compId', function (req, res) {
       console.log("CALL")
       var compId = req.params.compId;
