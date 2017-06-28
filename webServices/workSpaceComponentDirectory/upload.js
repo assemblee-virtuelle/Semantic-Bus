@@ -56,6 +56,7 @@ module.exports = {
                     // console.log(parseInt(Object.keys(content)[0].match(regnumero)[0]) <  parseInt(Object.keys(feuille.feuille.content[index + 1])[0].match(regnumero)[0]))
                     if (Object.keys(content)[0].match(regnumero)[0] < Object.keys(feuille.feuille.content[index + 1])[0].match(regnumero)[0]) {
                       var c = {}
+                      console.log(Object.values(content)[0])
                       c[Object.keys(content)[0].match(regLettre)[0]] = Object.values(content)[0]
                       Object.assign(cell, c);
                       // console.log(cell)
