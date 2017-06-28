@@ -255,7 +255,7 @@ module.exports = function(router) {
         entityToInsert = data;
         userToInsert.workspaces.push(
           {_id: data._id.$oid,
-            role: owner})
+            role: "owner"})
         data.components.forEach(component => {
           //component.technicalComponent = component._id.$oid;
           component.workspaceId = data._id.$oid

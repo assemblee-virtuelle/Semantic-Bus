@@ -181,7 +181,7 @@
             //console.log(reader)
             if (ext != ".json" && ext != ".jsonld" && ext !=".csv" && ext != ".xlsx" && ext !=  ".ods") {
                 this.textloadclass = "no-text"
-                this.textload = "Le format " + ext +  " n'est pas encore pris en compte"
+                this.textload = "Le format" + ext +  "n'est pas encore pris en compte"
                 this.update()
               }else {
               reader.onload = function(e) {

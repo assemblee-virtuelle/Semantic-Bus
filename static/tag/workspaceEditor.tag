@@ -45,8 +45,8 @@
                 <div>role</div>
               </yield>
               <yield to="row">
-                <div style="width:100%">{email}</div>
-                <div style="width:100%">{role}</div>
+                <div style="width:70%">{email}</div>
+                <div style="width:30%">{role}</div>
               </yield>
           </zenTable>
         </div>

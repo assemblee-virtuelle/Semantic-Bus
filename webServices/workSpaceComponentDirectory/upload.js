@@ -12,7 +12,7 @@ module.exports = {
   initialise: function (router, recursivPullResolvePromise) {
     // this.recursivPullResolvePromise = recursivPullResolvePromise;
     router.post('/upload/:compId', function (req, res) {
-      console.log("CALL")
+      console.log("//// UPLOAD  TRAITMENT ////")
       var compId = req.params.compId;
       var final_tab = []
       var count_table = []
