@@ -49,8 +49,10 @@
         this.update();
       }.bind(this));
       this.tags.zentable.on('addRow', function () {
+        //console.log(this.data.specificData.unicityFields)
         this.data.specificData.unicityFields.push({field: this.fieldValue});
         this.tags.zentable.data = this.data.specificData.unicityFields;
+        console.log(this.tags.zentable.data)
       }.bind(this));
 
       this.tags.zentable.on('delRow', function (row) {
@@ -76,9 +78,10 @@
     this.fieldValueChange = function (e) {
       //console.log(e.target.value);
       this.fieldValue = e.target.value;
+      console.log(this.currentRowId)
       this.data.specificData.unicityFields[this.currentRowId]={field:this.fieldValue};
+      console.log("value change", this.data.specificData.unicityFields)
       this.tags.zentable.data = this.data.specificData.unicityFields;
-
     }.bind(this);
 
   </script>
