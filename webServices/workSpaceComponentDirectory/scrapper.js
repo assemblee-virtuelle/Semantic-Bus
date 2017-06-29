@@ -4,59 +4,70 @@ module.exports = {
     editor: 'scrapper-editor',
     scraperjs: require('scraperjs'),
     sift: require('sift'),
+    ////function qui permet de netoyyer le tableau de fin//////
+    contains: function (a) {
+        var i = a.length;
+        while (i--) {
+            if (a[i - 1] != null) {
+                if (a[i].url == a[i - 1].url) {
+                    a.splice(i, 1)
+                }
+            }
+        }
+    },
+    ////requete principale//////
     makeRequest: function (flowData, url, flow_before, fix_url, scrappes) {
         // console.log("flowData |", flowData, "attribut |", scrappes, "url |", "flow_before |", flow_before, "fix_url |", fix_url)
-        console.log("STARTING PARSE")
+        //nous permet de recuperer le contexte a tout moment
+        var _self = this;
         var finaltab = []
         var tablePromise = []
-        var router = new this.scraperjs.Router({
+        var idControleUrlTraitement = 0
+        var scraperjsRouter = new this.scraperjs.Router({
             firstMatch: true
         });
-        var idControleUrlTraitement = 0
-        router
-            .on("https://*" || "https://*")
-            .get()
-            .createStatic()
-            // if the status code is different from OK (200) we stop
-            .onStatusCode(function (statusCode, utils) {
-                if (statusCode !== 200) {
-                    utils.stop();
-                    console.log("in page ERROR")
-                    return "in page error"
-                } else {
-                    console.log("in page")
-                }
-            })
-            .scrape(function ($) {
-                var d = []
-                console.log("in middle")
-                scrappes.forEach(function (scrappeAttribute) {
-                    type = scrappeAttribute.attribut
-                    console.log("MIDDLE TYPE", type)
-                    // console.log("scrappeAttributefield |", scrappeAttribute.field, "scrappeAttributeAttribut |", scrappeAttribute.attribut); 
-                    d.push($(scrappeAttribute.field).map(function () {
-                        if (scrappeAttribute.attribut == "text") {
-                            return {
-                                type: scrappeAttribute.attribut,
-                                value: eval("$(this)." + scrappeAttribute.attribut + "()")
-                            }
-                        } else {
-                            return {
-                                type: scrappeAttribute.attribut,
-                                value: eval("(this)." + scrappeAttribute.attribut)
-                            }
-                        }
-                    }).get())
-                    console.log(d)
-                });
-                return d
-            }).then(function (last, utils) {
-                // console.log(last)
-                return last;
-            }, function (error) {
-                console.log(error)
-            })
 
+        //description du comportement du router de scrapperjs 
+        scraperjsRouter
+        .on("http*")
+        .get()
+        .createStatic()
+        .onStatusCode(function (statusCode, utils) {
+            if (statusCode !== 200) {
+                utils.stop();
+                console.log("in page ERROR")
+                return "in page error"
+            } else {
+                console.log("in page")
+            }
+        })
+        .scrape(function ($) {
+            var d = []
+            console.log("in middle")
+            scrappes.forEach(function (scrappeAttribute) {
+                type = scrappeAttribute.attribut
+                d.push($(scrappeAttribute.field).map(function () {
+                    if (scrappeAttribute.attribut == "text") {
+                        return {
+                            type: scrappeAttribute.attribut,
+                            value: eval("$(this)." + scrappeAttribute.attribut + "()")
+                        }
+                    } else {
+                        return {
+                            type: scrappeAttribute.attribut,
+                            value: eval("(this)." + scrappeAttribute.attribut)
+                        }
+                    }
+                }).get())
+            });
+            return d
+        }).then(function (last, utils) {
+            return last;
+        }, function (error) {
+            console.log(error)
+        })
+
+        ///début algo pour le cas ou on a pas de flux entrant////
 
         if (flowData == null) {
             console.log('////////IN  ONE URL CASE////////////');
@@ -68,10 +79,8 @@ module.exports = {
                 } else {
                     var id = 0
                     var regex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b/g;
-                    console.log("in table push |", url)
-                    router.route(url, function (found, returned) {
+                    scraperjsRouter.route(url, function (found, returned) {
                         if (found && returned) {
-                            console.log("///// RETOUR //////")
                             returned.forEach(function (elements) {
                                 elements.forEach(function (element) {
                                     // console.log(element)
@@ -81,6 +90,7 @@ module.exports = {
                                         if ((element.value.match(regex) == null && element.type == "attribs.href")) {
                                             // console.log(" point", element)
                                             var newElement = element.value.replace(/(\r\n|\n|\r)/gm, "")
+
                                             finaltab.push(url.match(regex)[0].concat(newElement))
                                         } else {
                                             // console.log("no Point" ,element)
@@ -108,19 +118,16 @@ module.exports = {
                 }
             })
         } else {
+            ///début algo pour le cas ou on a un  flux entrant////
             console.log('////////IN FLUX BEFORE CASE////////////');
             var urls = flowData[0].data
             var d = null
             var regex = /https?:\/\/(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b/g;
-            console.log("SIZE", flowData[0].data.length)
             return new Promise(function (resolve, reject) {
                 urls.forEach(function (url) {
                     var id = 0
                     var c = {}
-                    var d = {}
-                    d[url] = c
-                    var count = 0
-                    return router.route(url, function (found, returned) {
+                    return scraperjsRouter.route(url, function (found, returned) {
                         idControleUrlTraitement++
                         // console.log("found |", found, "returned |", returned)
                         if (found && returned) {
@@ -130,7 +137,6 @@ module.exports = {
                                     var relative_link = element.value.split("")
                                     if (relative_link.indexOf("#") == -1) {
                                         if ((element.value.match(regex) == null) && (element.type != "text")) {
-                                            // console.log(" no Point", element)
                                             var newElement = element.value.replace(/(\r\n|\n|\r)/gm, "")
                                             // console.log(url.match(regex)[0].concat(newElement))
                                             c[id] = url.match(regex)[0].concat(newElement)
@@ -140,7 +146,6 @@ module.exports = {
                                             })
                                             id++
                                         } else {
-                                            // console.log("point" ,element)
                                             var newElement = element.value.replace(/(\r\n|\n|\r)/gm, "")
                                             newElement.replace(/\s+/g, ' ').trim();
                                             // console.log(newElement.replace(/\s+/g, ' ').trim())
@@ -149,7 +154,6 @@ module.exports = {
                                                 "url": url,
                                                 "data": c
                                             })
-                                            // console.log(Object.keys(d))
                                             id++
                                         }
                                     }
@@ -157,12 +161,13 @@ module.exports = {
                             })
                         }
                         if (urls.length == idControleUrlTraitement) {
+                            _self.contains(finaltab)
                             resolve({
                                 data: finaltab
                             })
                         }
-                    }.bind(this))
-                }.bind(this))
+                    })
+                })
             })
         }
     },
