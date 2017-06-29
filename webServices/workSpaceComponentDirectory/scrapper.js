@@ -49,11 +49,13 @@ module.exports = {
                 d.push($(scrappeAttribute.field).map(function () {
                     if (scrappeAttribute.attribut == "text") {
                         return {
+                            field:scrappeAttribute.field,
                             type: scrappeAttribute.attribut,
                             value: eval("$(this)." + scrappeAttribute.attribut + "()")
                         }
                     } else {
                         return {
+                            field:scrappeAttribute.field,
                             type: scrappeAttribute.attribut,
                             value: eval("(this)." + scrappeAttribute.attribut)
                         }
@@ -138,8 +140,10 @@ module.exports = {
                                     if (relative_link.indexOf("#") == -1) {
                                         if ((element.value.match(regex) == null) && (element.type != "text")) {
                                             var newElement = element.value.replace(/(\r\n|\n|\r)/gm, "")
-                                            // console.log(url.match(regex)[0].concat(newElement))
-                                            c[id] = url.match(regex)[0].concat(newElement)
+                                            console.log(element.field)
+                                            c[id] = {}
+                                            c[id].url = url.match(regex)[0].concat(newElement)
+                                            c[id].chemin =  element.field,
                                             finaltab.push({
                                                 "url": url,
                                                 "data": c
@@ -149,7 +153,10 @@ module.exports = {
                                             var newElement = element.value.replace(/(\r\n|\n|\r)/gm, "")
                                             newElement.replace(/\s+/g, ' ').trim();
                                             // console.log(newElement.replace(/\s+/g, ' ').trim())
-                                            c[id] = newElement.replace(/\s+/g, ' ').trim()
+                                            console.log(element.field)
+                                            c[id] = {}
+                                            c[id].element = newElement.replace(/\s+/g, ' ').trim()
+                                            c[id].chemin =  element.field,
                                             finaltab.push({
                                                 "url": url,
                                                 "data": c

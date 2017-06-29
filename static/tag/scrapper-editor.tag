@@ -9,7 +9,7 @@
     <label>chemin</label>
       <input type="text" onkeyup={cheminValueChange} value={fieldValue}></input>
     <label> attribut </label>
-      <input type="text" onkeyup={attributValueChange} value={attributField}></input>
+      <input type="text" onkeyup={attributValueChange} value={attributField} placeholder=" [WARNING] 'attribs.href' ou 'text' seulement pour le moment" ></input>
   </div>
      <zenTable style="flex:1" title="Chemin et attributs">
         <yield to="header">
