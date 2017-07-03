@@ -1,0 +1,77 @@
+{\rtf1\ansi\ansicpg1252\cocoartf1404\cocoasubrtf470
+{\fonttbl\f0\fswiss\fcharset0 Helvetica;}
+{\colortbl;\red255\green255\blue255;}
+\paperw11900\paperh16840\margl1440\margr1440\vieww14980\viewh20080\viewkind0
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+
+\f0\b\fs24 \cf0 formalisme du graphe\
+inspir\'e9 des data flows ( voir le dossier sur ce sujet )\
+quel est le standard pour les data analysts ?\
+\
+il y a ( liste tr\'e8s partielle: ) UML, BPMN, ISO 9001 (process)\'85\
+\
+\
+
+\b0 actuellement Simon a fait un formalisme tr\'e8s minimal et pas super coh\'e9rent\
+- conteneurs arrondis et actions carr\'e9es
+\b \
+\
+\
+\
+\
+\
+utiliser overflow visible sur le foreignObject superpos\'e9 aux nodes D3\
+=> voir \'ab\'a0ESSAI overflow visible\'a0\'bbfichier SVG_foreignObjects_STRUCTURE3.html
+\b0 \
+\
+le probl\'e8me avec D3 c\'92est que du coup il y a seulement la zone g\'e9n\'e9r\'e9e par D3 qui permet de faire glisser ( draggable ) l\'92\'e9l\'e9ment\
+donc on pourrait imaginer une poign\'e9e en haut pour le glisser, et il y aurait du coup d\'92autres ic\'f4nes pour d\'92autres actions\
+ou une barre de titre sur tout la largeur ? avec les actions dessus ?\
+\
+\
+avec largeur fixe ou non ?\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 {{\NeXTGraphic IMG_1613 - copie.jpg \width12800 \height9600
+}¬}\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+\
+comment positionner les ic\'f4nes qui permettent d\'92acc\'e9der aux actions ?\
+\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 {{\NeXTGraphic IMG_1612 - copie.jpg \width12800 \height9600
+}¬}\pard\tx566\tx1133\tx1700\tx2267\tx2834\tx3401\tx3968\tx4535\tx5102\tx5669\tx6236\tx6803\pardirnatural\partightenfactor0
+\cf0 \
+\
+\
+\
+
+\b utiliser bbox pour r\'e9cup\'e9rer la taille de l\'92\'e9l\'e9ment SVG\
+\
+
+\b0 ///\
+simon dit : tout faire le calcul avec D3 - tout avec bbox\
+et il ajoute que cela marche sur le texte \'97> \'e0 voir\
+stocker les informations dans le mod\'e8le ( D3 )
+\b \
+
+\i\b0 > c\'92est ce que l\'92on a fait le 18 juin 2017 au soir\
+	voir le fichier graph.tag \'e0 la date du 19
+\i0 \
+\
+\
+\
+\
+\
+
+\b utiliser des grandeurs relatives pour faire un graphe responsive
+\b0 \
+\
+\
+utiliser\
+vh\
+vw par contre cela n\'92apporte rien\
+\
+IDEM 
+\i > c\'92est ce que l\'92on a fait le 18 juin 2017 au soir\
+		voir le fichier graph.tag \'e0 la date du 19
+\i0 \
+}

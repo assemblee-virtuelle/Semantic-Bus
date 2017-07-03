@@ -1,0 +1,102 @@
+* {
+ box-sizing:border-box;
+ color:#e0e0e0;
+ font-family: sans-serif
+}
+body {
+ background-color:#424242;
+ margin:0;
+ overflow-y:hidden
+}
+footer {
+ bottom:0;
+ padding:10px;
+ position:absolute;
+ width:100%
+}
+footer a {
+ margin-right:20px;
+ text-decoration:none;
+ z-index:-1
+}
+footer a svg {
+ fill:#9e9e9e
+}
+footer a span {
+ color:#9e9e9e;
+ font-weight:700;
+ vertical-align:4px
+}
+.heart:hover svg {
+ fill:#ff3d00
+}
+.heart:hover span {
+ color:#ff3d00
+}
+.map:hover svg {
+ fill:#ff9100
+}
+.map:hover span {
+ color:#ff9100
+}
+.emoji-reference:hover {
+ cursor:pointer
+}
+.emoji-reference:hover svg {
+ fill:#eee
+}
+.emoji-reference:hover span {
+ color:#eee
+}
+.emoji-reference:hover+.emoji-reference-container {
+ display:block
+}
+.emoji-reference-container {
+ bottom:50px;
+ display:none;
+ left:3%;
+ position:absolute
+}
+.emoji-reference-table {
+ background-color:#212121;
+ border-radius:10px;
+ box-shadow:0 5px 10px 0 rgba(0,0,0,.1),5px 0 13px 0 rgba(0,0,0,.1),-5px 0 10px 0 rgba(0,0,0,.1);
+ padding:15px 10px
+}
+.emoji-reference-icon {
+ height:24px;
+ padding:2px;
+ width:24px
+}
+.emoji-reference-icon+span {
+ vertical-align:6px
+}
+.twitter:hover g {
+ fill:#1da1f3
+}
+.twitter:hover span {
+ color:#1da1f3
+}
+.emoji-reddit {
+ border-radius:50%
+}
+.mindmap-svg {
+ height:100vh
+}
+.mindmap-node p:hover {
+ background-color:#9e9e9e
+}
+.mindmap-node a,.mindmap-node p {
+ color:#212121;
+ text-decoration:none
+}
+@media (max-width:768px) {
+ body {
+  font-size:12px
+ }
+}
+@media (max-width:500px) {
+ footer {
+  display:none
+ }
+}
