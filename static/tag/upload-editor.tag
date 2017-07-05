@@ -61,7 +61,7 @@
       border-radius: 5px 5px 5px 5px;
       text-align:center;
       max-width: 25%;
-      margin-left: 35%; 
+      margin-left: 35%;
     }
 
     .upload-btn:hover,
@@ -120,6 +120,10 @@
     var regex = /\.([^.]+)/g;
     this.refuse = "";
     this.accept ="";
+<<<<<<< HEAD
+=======
+
+>>>>>>> 93731ea22c2039b0038f48970f82bb58b3928149
 
       Object.defineProperty(this, 'data', {
         set: function (data) {
@@ -212,8 +216,10 @@
                     workbook = XLSX.read(data, {type: 'binary'});
                   } else {
                     /* if array buffer, convert to base64 */
+                    console.log("xlsx ods csv");
                     var arr = fixdata(data);
                     workbook = XLSX.read(btoa(arr), {type: 'base64'});
+<<<<<<< HEAD
                   } -->
 
                    <!-- var regex = /\.([^.]+)/g;
@@ -231,3 +237,26 @@
             var ext = name.match(reg)[0];
             //console.log(reader)
              -->
+=======
+                  }
+                  console.log(workbook);
+                    RiotControl.trigger('item_current_upload', JSON.stringify({ext: "exel", data: workbook.Sheets}));
+                  /* DO SOMETHING WITH workbook HERE */
+                }
+              }.bind(this)
+              reader.readAsBinaryString(f);
+            }
+          }
+        }.bind(this))
+      }.bind(this)
+    this.on('mount', function () {
+      this.progress = "";
+      $('.progress-bar').width(0 + '%');
+      RiotControl.on('item_current_changed',function(data){
+          this.innerData=data;
+          this.update();
+        }.bind(this));
+    });
+  </script>
+</upload-editor>
+>>>>>>> 93731ea22c2039b0038f48970f82bb58b3928149
