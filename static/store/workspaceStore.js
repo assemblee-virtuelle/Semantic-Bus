@@ -92,8 +92,6 @@ function WorkspaceStore() {
         //this.trigger('workspace_current_persist_done', this.workspaceCurrent);
       }.bind(this, data));
       //this.workspaceCurrent.mode='edit';
-
-
     }.bind(this));
   };
 
@@ -127,6 +125,7 @@ this.updateUserListe = function (data) {
       if (data != false) {
         this.trigger('all_profil_by_workspace_loaded', data)
       } else {
+        this.trigger('all_profil_by_workspace_loaded', data)
         this.trigger('no_profil')
       }
 

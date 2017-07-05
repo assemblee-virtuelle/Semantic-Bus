@@ -177,7 +177,7 @@
     this.color2 = "blue"
     this.color1 = "white"
     this.color3 = "white"
-    console.log(this.workspace._id.$oid)
+    //console.log(this.workspace._id.$oid)
     //RiotControl.trigger('load_all_profil_by_workspace', {_id: this.workspace._id.$oid})
   }.bind(this)
 
@@ -225,7 +225,8 @@
 
   RiotControl.on('share_change',function(data){
       console.log('view',data);
-      this.tags.zentable[1].data.push(data);
+      console.log(data.workspaces[data.workspaces.length - 1].role)
+      this.tags.zentable[1].data.push({"email": data.email, "role": data.workspaces[data.workspaces.length - 1].role });
       this.update();
       data = null;
   }.bind(this));
@@ -237,8 +238,6 @@
   // }
 
   this.on('mount', function () {
-    //console.log('workspaceEditor mount');
-
     /// COMPONENT
 
     console.log(this.tags.zentable[0])
@@ -274,7 +273,7 @@
     RiotControl.on('all_profil_by_workspace_loaded',function(data){
       console.log('all_profil_by_workspace_loaded-WORKSPACE-EDITOR-TAG, change model : ',data);
       //this.innerDataUser = data;
-      this.tags.zentable[1].data=data;
+      this.tags.zentable[1].data = data;
       this.update();
     }.bind(this));
 
@@ -284,8 +283,6 @@
         this.DescriptionView = false;
         RiotControl.trigger('workspace_current_add_user',message);
     }.bind(this));
-
-    
 
     ///HEADER PAGE
     

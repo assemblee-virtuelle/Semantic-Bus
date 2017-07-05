@@ -26,6 +26,12 @@
       <h1 id="loaderText"> Sécurisation de l'application en cour </h1>
     </div>
   </div>
+  <div id="containerloaderDiv" if={saveBoolean}>
+    <div id="row">
+      <div id="loaderDiv"></div>
+      <h1 id="loaderText"> Sauvegarde en cours </h1>
+    </div>
+  </div>
   <div class="containerV" class="containerV" style="height: 100vh;flex-shrink:5">
     <div if={modeNavigation} class="containerV" style="flex-grow:1;flex-basis:50%">
       <div class="containerH" style="flex-grow:1;flex-wrap: nowrap;">
@@ -216,8 +222,7 @@ font-size: 22px;" if={showAdmin}>
     this.modeAdminNavigation = false;
     this.modeWorkspaceEdition = false;
     this.modeWorkspaceComponentEdition = false;
-
-
+    this.saveBoolean = false
     this.editorTitle = "";
     this.persistInProgress = false;
     this.itemCurrent; //TODO create a specific component for item with connections
@@ -412,12 +417,14 @@ font-size: 22px;" if={showAdmin}>
 
       RiotControl.on('persist_start', function (data) {
         //console.log('persist_start | ',this.saveButton)
+        this.saveBoolean = true
         this.persistInProgress = true;
         this.update();
       }.bind(this));
 
       RiotControl.on('persist_end', function (data) {
         this.persistInProgress = false;
+        this.saveBoolean = false
         this.update();
       }.bind(this));
 
@@ -512,6 +519,8 @@ font-size: 22px;" if={showAdmin}>
     background-color:rgba(200,200,200,0.8);
     width:100%;
     height:125vh;
+    position:absolute;
+    z-index:1;
     padding: 0;
     margin: 0;
     display: -webkit-box;
@@ -527,6 +536,7 @@ font-size: 22px;" if={showAdmin}>
 
   #row {
     width: auto;
+    margin-top: -15vh;
   }
 
   #loaderText {
@@ -542,7 +552,7 @@ font-size: 22px;" if={showAdmin}>
     width: 120px;
     height: 120px;
     animation: spin 2s linear infinite;
-    margin-left:13vw
+    margin-left:4vw
   }
 
   @keyframes spin {

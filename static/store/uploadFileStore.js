@@ -2,17 +2,18 @@ function UploadStore() {
   riot.observable(this) // Riot provides our event emitter.
 
   this.on('item_current_upload', function(data) {
-    console.log('item_current_upload |', data);
+    console.log('item_current_upload in ajax |', data);
     $.ajax({
       method: 'post',
-      // data: data,
       url: '../data/specific/upload/' + this.genericStore.itemCurrent._id.$oid ,
       headers: {
         "Authorization": "JTW" + " " + localStorage.token
       },
       // processData: false,
-      data:data,
-      contentType : 'application/json',
+      data: data,
+      // contentType : 'application/json',
+      processData: false,
+      contentType: false,
       xhr: function() {
             var xhr = new XMLHttpRequest();
             xhr.upload.addEventListener('progress', function(evt) {
@@ -28,6 +29,7 @@ function UploadStore() {
             return xhr;
           }.bind(this)
     }).done(function(data) {
+      console.log("data uplaod", data)
       this.trigger('item_is_upload');
     }.bind(this));
   });

@@ -1,11 +1,11 @@
 <login>
-  <!-- <div id="containerloaderDiv">
+  <div id="containerloaderDiv" if={is_login}>
       <div id="row">
         <div id="loaderDiv"></div>
-        <h1 id="loaderText"> Connection en cour </h1>
+        <h1 id="loaderText"> Connection en cours </h1>
       </div>
-    </div> -->
-  <div class="Aligner" show={boole}>
+    </div>
+  <div class="Aligner" if={boole && !is_login}>
     <form >
     <h1>Bienvenue sur le bus Semantic</h1>
       <div class="box">
@@ -25,7 +25,7 @@
     </form> 
   </div>
 
-<div class="Aligner" show = {!boole}>
+<div class="Aligner" if = {!is_login && !boole}>
   <form>
     <h1>Inscrivez vous</h1>
       <div class="box">
@@ -45,10 +45,22 @@
 
 <style scoped>
 
-#containerloaderDiv {
-    background-color:rgba(200,200,200,0.2);
+  /*LANDING CSS */
+
+  #landingTitle {
+    text-align:center;
+    margin-top: 15vh;
+  }
+
+  #landingText {
+    text-align:center;
+    margin-top: 15vh;
+  }
+
+    .containerflexlanding {
+    background-color:white;
     width:100%;
-    height:100%;
+    height:125vh;
     padding: 0;
     margin: 0;
     display: -webkit-box;
@@ -60,8 +72,36 @@
     justify-content: center;
   }
 
+  .containerlanding {
+    height:90vh!important;
+    background-color:white;
+    width:100%;
+    height:100%;
+    padding: 0;
+    margin: 0;
+  }
+
+  #containerloaderDiv {
+    background-color:rgba(200,200,200,0.8);
+    width:100%;
+    height:125vh;
+    padding: 0;
+    margin: 0;
+    display: -webkit-box;
+    display: -moz-box;
+    display: -ms-flexbox;
+    display: -webkit-flex;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+
+
   #row {
     width: auto;
+    margin-top: -35vh;
+
   }
 
   #loaderText {
@@ -71,19 +111,23 @@
     text-align:center;
   }
   #loaderDiv {
-    border: 16px solid #f3f3f3; /* Light grey */
-    border-top: 16px solid #3498db; /* Blue */
+    border: 16px solid #f3f3f3;
+    border-top: 16px solid #3498db;
     border-radius: 50%;
     width: 120px;
     height: 120px;
     animation: spin 2s linear infinite;
-    margin-left:20vw
+    margin-left:4vw
   }
 
   @keyframes spin {
     0% { transform: rotate(0deg); }
     100% { transform: rotate(360deg); }
   }
+    .persistInProgress {
+      color: red;
+    }
+
     .persistInProgress {
       color: red;
     }
@@ -238,7 +282,8 @@
   this.resultMdp = "";
   this.user = {};
   this.newUser = {}
-  this.boole = true;
+  this.is_login = false;
+  this.boole = true
   console.log(this.boole);
   Object.defineProperty(this, 'data', {
       set: function (data) {
@@ -250,6 +295,17 @@
       return this.user;
     }
   })
+
+  RiotControl.on("ajax_receipt_login", function(){
+      console.log("ajax-conexion")
+      this.is_login = false
+      this.update()
+    }.bind(this));
+
+    RiotControl.on("ajax_send_login", function(){
+      this.is_login = true
+      this.update()
+  }.bind(this));
 
 
   this.email.addEventListener('change',function(e){

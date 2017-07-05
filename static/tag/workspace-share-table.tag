@@ -13,7 +13,7 @@
  <script>
     //console.log('mount opts :',this.opts);
     this.refreshZenTableShare=function(data){
-      console.log('view',data);
+      console.log('view UPDATE',data);
       this.tags.zentable.data=data;
     }.bind(this);
     this.on('mount', function (args) {
@@ -29,7 +29,6 @@
      RiotControl.trigger('workspace_collection_share_load');
 
      //this.refresh();
-
    });
   </script>
   <style>
