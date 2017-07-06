@@ -296,8 +296,10 @@ this.updateUserListe = function (data) {
     //mlap depency (_id.$oid)
     //data.technicalComponentId=data._id.$oid;
     //data._id=undefined;
+    console.log("SELECT TECHNICAL")
     data._id = undefined;
     this.workspaceCurrent.components.push(data);
+    this.trigger('save_auto',this.workspaceCurrent)
     this.trigger('workspace_current_changed', this.workspaceCurrent);
     this.trigger('item_current_element_added', this.workspaceCurrent);
     //}
@@ -306,7 +308,7 @@ this.updateUserListe = function (data) {
 
 
   this.on('workspace_current_delete_component', function (record) {
-    console.log('workspace_current_delete_component', record);
+    // console.log('workspace_current_delete_component', record);
     //var components = [];
     // this.workspaceCurrent.components.forEach(function(component) {
     //   if (component._id.$oid != record._id.$oid) {

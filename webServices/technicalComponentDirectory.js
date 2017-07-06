@@ -17,6 +17,7 @@ module.exports = {
    upload: require('./workSpaceComponentDirectory/upload.js'),
    scrapper: require('./workSpaceComponentDirectory/scrapper.js'),
    httpGet: require('./workSpaceComponentDirectory/httpGet.js'),
+  //  sparqlRequest: require('./workSpaceComponentDirectory/sparqlRequest.js'),
 
 
    /* some other modules you want */

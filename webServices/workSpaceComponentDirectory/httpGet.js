@@ -5,7 +5,7 @@ module.exports = {
   url: require('url'),
   http: require('http'),
   https: require('follow-redirects').https,
-  dataTraitment: require("dataTraitment"),
+  dataTraitment: require("../dataTraitment/index.js"),
   makeRequest: function (methodRest, urlString, options) {
     var _self = this
     //Probleme de contexte avec les arrow function

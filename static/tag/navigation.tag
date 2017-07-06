@@ -430,7 +430,6 @@ font-size: 22px;" if={showAdmin}>
 
       RiotControl.on('workspace_current_changed',function(data){
         console.log('navigation | workspace_current_changed',data);
-        console.log("testttttttterr")
         this.workspaceComponents=data.components;
         this.update();
       }.bind(this));
