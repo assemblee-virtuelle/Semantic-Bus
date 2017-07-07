@@ -28,7 +28,6 @@ safe.use(function(req, res, next) {
 })
 
 
-
 var cors = require('cors');
 unSafeRouteur.use(cors());
 
@@ -52,10 +51,7 @@ server.listen(process.env.PORT || process.env.port || process.env.OPENSHIFT_NODE
 /// Nous Securisons desormais IHM par un appel AJAX
 /// à lentrée sur la page application.html
 
-//  app.all('/ihm/*', function(req, res, next) {
-//    jwtService.securityAPI(req, res, next)
-//  })
-
+server.on('error', function(err) { console.log(err) })
 
 ///OTHER APP COMPONENT
 ///SECURISATION DES REQUETES

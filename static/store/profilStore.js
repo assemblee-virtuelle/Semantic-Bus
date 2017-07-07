@@ -75,8 +75,8 @@ function profilStore() {
 
      ///GESTION DES DROIT DE USER
 
-    this.on('share-worksapce', function(data) {
-        console.log('share-worksapce');
+    this.on('share-workspace', function(data) {
+        console.log('share-workspace');
         console.log(data);
         $.ajax({
             method: 'put',
@@ -86,7 +86,6 @@ function profilStore() {
                 "Authorization": "JTW" + " " + localStorage.token
             },
             beforeSend: function(){
-                console.log("before send")
                 this.trigger('share_change_send');
             }.bind(this),
             contentType: 'application/json'

@@ -92,8 +92,6 @@ function WorkspaceStore() {
         //this.trigger('workspace_current_persist_done', this.workspaceCurrent);
       }.bind(this, data));
       //this.workspaceCurrent.mode='edit';
-
-
     }.bind(this));
   };
 
@@ -127,6 +125,7 @@ this.updateUserListe = function (data) {
       if (data != false) {
         this.trigger('all_profil_by_workspace_loaded', data)
       } else {
+        this.trigger('all_profil_by_workspace_loaded', data)
         this.trigger('no_profil')
       }
 
@@ -297,8 +296,10 @@ this.updateUserListe = function (data) {
     //mlap depency (_id.$oid)
     //data.technicalComponentId=data._id.$oid;
     //data._id=undefined;
+    console.log("SELECT TECHNICAL")
     data._id = undefined;
     this.workspaceCurrent.components.push(data);
+    this.trigger('save_auto',this.workspaceCurrent)
     this.trigger('workspace_current_changed', this.workspaceCurrent);
     this.trigger('item_current_element_added', this.workspaceCurrent);
     //}
@@ -307,7 +308,7 @@ this.updateUserListe = function (data) {
 
 
   this.on('workspace_current_delete_component', function (record) {
-    console.log('workspace_current_delete_component', record);
+    // console.log('workspace_current_delete_component', record);
     //var components = [];
     // this.workspaceCurrent.components.forEach(function(component) {
     //   if (component._id.$oid != record._id.$oid) {

@@ -35,7 +35,7 @@
 
         share(e){
             RiotControl.trigger('workspace_current_edit');
-            RiotControl.trigger('share-worksapce', {email:this.email, worksapce_id: this.workspace._id.$oid});
+            RiotControl.trigger('share-workspace', {email:this.email, worksapce_id: this.workspace._id.$oid});
         }
         
         this.on('mount', function () {
@@ -52,6 +52,7 @@
             })
             $('#users-list').on('change',function(e){
                 this.email =e.currentTarget.value;
+                
             }.bind(this));
         })
     </script>

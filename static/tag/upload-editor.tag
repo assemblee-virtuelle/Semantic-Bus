@@ -49,7 +49,6 @@
       color: #FA8900;
     }
 
-
     .row {
       margin-top: 80px;
     }
@@ -122,7 +121,6 @@
     this.refuse = "";
     this.accept ="";
 
-
       Object.defineProperty(this, 'data', {
         set: function (data) {
           this.innerData = data;
@@ -165,59 +163,25 @@
         $('#upload-input').unbind('change');
         $('#upload-input').click();
         $('#upload-input').on('change', function(e){
-          var regex = /\.([^.]+)/g;
-          var reg = new RegExp(regex, 'g');
-          var files = e.currentTarget.files;
-          //console.log(files)
-          var size = e.currentTarget.files.size;
-          /* fixdata and rABS are defined in the drag and drop example */
-          var files = e.currentTarget.files;
-          var i,f;
-          for (i = 0; i != files.length; ++i) {
-            f = files[i];
-            var reader = new FileReader();
-            var name = f.name;
-            var ext = name.match(reg)[0];
-            //console.log(reader)
-            if (ext != ".json" && ext != ".jsonld" && ext !=".csv" && ext != ".xlsx" && ext !=  ".ods") {
-                this.textloadclass = "no-text"
-                this.textload = "Le format" + ext +  "n'est pas encore pris en compte"
-                this.update()
-              }else {
-              reader.onload = function(e) {
-                //console.log("on load")
-                var data = e.target.result;
-                if(ext == ".json" || ext == ".jsonld"){
-                  RiotControl.trigger('item_current_upload',  data);
-                }else if(ext == ".xlsx" || ext ==  ".ods" || ext ==".csv") {
-                  var workbook;
-                  if(rABS) {
-                    //console.log("radbs");
-                    /* if binary string, read with type 'binary' */
-                    workbook = XLSX.read(data, {type: 'binary'});
-                  } else {
-                    /* if array buffer, convert to base64 */
-                    console.log("xlsx ods csv");
-                    var arr = fixdata(data);
-                    workbook = XLSX.read(btoa(arr), {type: 'base64'});
-                  }
-                  console.log(workbook);
-                    RiotControl.trigger('item_current_upload', JSON.stringify({ext: "exel", data: workbook.Sheets}));
-                  /* DO SOMETHING WITH workbook HERE */
-                }
-              }.bind(this)
-              reader.readAsBinaryString(f);
+          var files = $(this).get(0).files;
+
+          if (files.length > 0){
+            var formData = new FormData();
+            for (var i = 0; i < files.length; i++) {
+              var file = files[i];
+              formData.append('uploads[]', file, file.name);
             }
+             RiotControl.trigger('item_current_upload', formData);
           }
-        }.bind(this))
+        })
       }.bind(this)
-    this.on('mount', function () {
-      this.progress = "";
-      $('.progress-bar').width(0 + '%');
-      RiotControl.on('item_current_changed',function(data){
-          this.innerData=data;
-          this.update();
-        }.bind(this));
-    });
+      this.on('mount', function () {
+        this.progress = "";
+        $('.progress-bar').width(0 + '%');
+        RiotControl.on('item_current_changed',function(data){
+            this.innerData=data;
+            this.update();
+          }.bind(this));
+      });
   </script>
 </upload-editor>
