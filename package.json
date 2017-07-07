@@ -1,5 +1,5 @@
 {
-  "name": "SemanticBus",
+  "name": "SemanticBus ",
   "version": "0.1.1",
   "description": "ETL style data middlware transformation embended in an ESB for all kind of data",
   "private": true,
@@ -33,6 +33,10 @@
     "passport-google-oauth": "^1.0.0",
     "passport-jwt": "^2.2.1",
     "promise-waterfall": "latest",
+    "rdf-ext": "git://github.com/rdf-ext/rdf-ext.git",
+    "rdf-parser-n3": "^0.3.0",
+    "rdf-parser-rdfxml": "^0.3.1",
+    "rdf-serializer-jsonld": "^0.3.0",
     "rdf-serializer-jsonld-ext": "git://github.com/rdf-ext/rdf-serializer-jsonld-ext.git#c81a3dbbbe6b8c3134070ee305c7cb6317a36e90",
     "requirejs": "^2.3.3",
     "scraperjs": "^1.2.0",
@@ -41,10 +45,6 @@
     "slickgrid": "latest",
     "url-parse": "^1.1.9",
     "xlsx": "^0.10.5",
-    "xml2js": "latest",
-    "rdf-ext": "git://github.com/rdf-ext/rdf-ext.git",
-    "rdf-parser-n3": "^0.3.0",
-    "rdf-parser-rdfxml": "^0.3.1",
-    "rdf-serializer-jsonld": "^0.3.0"
+    "xml2js": "latest"
   }
 }
