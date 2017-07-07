@@ -98,7 +98,7 @@ module.exports = {
                     }
                   } else {
                     var recomposedFlow = [];
-                    console.log(primaryflow.data['features']);
+                    //console.log(primaryflow.data['features']);
                     recomposedFlow = recomposedFlow.concat([{
                       data: primaryflow.data['features'],
                       componentId: primaryflow.componentId
@@ -135,11 +135,11 @@ module.exports = {
           });
 
       } else {
-        console.log('resolveWebComponentPull | Last| ', component);
+        //console.log('resolveWebComponentPull | Last| ', component);
         if (module.test) {
           module.test(component).then(function(dataTest) {
             console.log('recursivPullResolvePromise | module end | ', module.type);
-            console.log('recursivPullResolvePromise | module end | dataTest', dataTest);
+            //console.log('recursivPullResolvePromise | module end | dataTest', dataTest);
             resolve({
               componentId: component._id.$oid,
               data: dataTest.data
