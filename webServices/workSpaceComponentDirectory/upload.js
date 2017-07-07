@@ -7,7 +7,7 @@ module.exports = {
   editor: 'upload-editor',
   busboy: require('busboy'),
   mLabPromise: require('../mLabPromise'),
-  dataTraitment: require("../dataTraitment/index.js"),
+  dataTraitment: require("../dataTraitmentLibrary/index.js"),
   readable: require('stream').Readable,
   stepNode: true,
   //recursivPullResolvePromise : require('../recursivPullResolvePromise'),
