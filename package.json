@@ -1,5 +1,5 @@
 {
-  "name": "SemanticBus ",
+  "name": "SemanticBus",
   "version": "0.1.1",
   "description": "ETL style data middlware transformation embended in an ESB for all kind of data",
   "private": true,
@@ -41,6 +41,10 @@
     "slickgrid": "latest",
     "url-parse": "^1.1.9",
     "xlsx": "^0.10.5",
-    "xml2js": "latest"
+    "xml2js": "latest",
+    "rdf-ext": "git://github.com/rdf-ext/rdf-ext.git",
+    "rdf-parser-n3": "^0.3.0",
+    "rdf-parser-rdfxml": "^0.3.1",
+    "rdf-serializer-jsonld": "^0.3.0"
   }
 }
