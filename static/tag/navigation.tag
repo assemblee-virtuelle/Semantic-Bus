@@ -534,8 +534,10 @@ font-size: 22px;" if={showAdmin}>
 
 
   #row {
-    width: auto;
-    margin-top: -15vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
   }
 
   #loaderText {
@@ -551,7 +553,6 @@ font-size: 22px;" if={showAdmin}>
     width: 120px;
     height: 120px;
     animation: spin 2s linear infinite;
-    margin-left:4vw
   }
 
   @keyframes spin {
