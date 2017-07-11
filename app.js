@@ -48,6 +48,17 @@ server.listen(process.env.PORT || process.env.port || process.env.OPENSHIFT_NODE
   console.log(this.address());
 })
 
+  // Lets encrypt response
+  var letsEncryptUrl = process.env.LETS_ENCRYPT;
+  var letsEncryptResponse = process.env.LETS_ENCRYPT_RESPONSE;
+
+  if( letsEncryptResponse != undefined && letsEncryptResponse != undefined) {
+    app.get('/.well-known/acme-challenge/' + letsEncryptUrl, function (req, res) {
+      res.send(letsEncryptResponse);
+      res.end();
+    });
+  }
+
 /// Nous Securisons desormais IHM par un appel AJAX
 /// à lentrée sur la page application.html
 
