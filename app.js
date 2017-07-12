@@ -52,8 +52,8 @@ server.listen(process.env.PORT || process.env.port || process.env.OPENSHIFT_NODE
 
   // if( letsEncryptResponse != undefined && letsEncryptResponse != undefined) {
     app.get('/.well-known/acme-challenge/:challengeHash', function (req, res) {
-      var hash = req.params.challengeHash;
-      res.send('fMC11Oy02nVs-cZtJsUWGt8aHhRZe87D1eKVsFa4JmQ.rCIAnB6OZN-jvB1XIOagkbUTKQQmQ1ogeb5DUVFNUko')
+      var hash = req.params.challengeHash + ".rCIAnB6OZN-jvB1XIOagkbUTKQQmQ1ogeb5DUVFNUko";
+      res.send(hash)
     });
   // }
 
