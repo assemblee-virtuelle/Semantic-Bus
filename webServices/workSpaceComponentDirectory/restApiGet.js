@@ -9,7 +9,7 @@ module.exports = new function() {
 
   this.initialise = function(router) {
     router.get('/:urlRequiered', function(req, res) {
-      console.log(req.query);
+      //console.log(req.query);
       var urlRequiered = req.params.urlRequiered;
       //this require is live because constructor require cause cyclic dependencies (recursivPullResolvePromise->restApiGet)
       this.recursivPullResolvePromise = require('../recursivPullResolvePromise')
@@ -23,8 +23,8 @@ module.exports = new function() {
           if (data.length > 0) {
             specificData = data[0].specificData;
             res.setHeader('content-type', data[0].specificData.contentType);
-            console.log(res.params);
-            return this.recursivPullResolvePromise.resolveComponentPull(data[0], false);
+            console.log(req.query);
+            return this.recursivPullResolvePromise.resolveComponentPull(data[0], false,req.query);
           } else {
             return new Promise((resolve, reject) => {
               reject({
@@ -43,7 +43,7 @@ module.exports = new function() {
             for (key in dataToSend.data) {
               out += convert(key, dataToSend.data[key]);
             }
-            console.log(out);
+            //console.log(out);
             res.send(out);
           } else if (specificData.contentType.search('json') != -1) {
             res.json(dataToSend.data);

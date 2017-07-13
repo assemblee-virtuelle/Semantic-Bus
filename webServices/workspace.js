@@ -1,4 +1,4 @@
-module.exports = function (router) {
+module.exports = function(router) {
   var mLabPromise = require('./mLabPromise');
   var workspaceComponentPromise = require('./workspaceComponentPromise.js');
   var workspaceBusiness = require('./workspaceBusiness.js');
@@ -7,7 +7,7 @@ module.exports = function (router) {
   //var https = require('https');
 
   ///TEST GESTION DES COMPTE EN MODIFIANT LES QUERY POUR AVOIR LES WORKSPACE DES USERS
-  router.get('/workspaceByUser/:userId', function (req, res) {
+  router.get('/workspaceByUser/:userId', function(req, res) {
     // console.log(req.params.userId);
     var userId = req.params.userId;
     //On recupere le user grace a l'id
@@ -16,35 +16,39 @@ module.exports = function (router) {
     var final_workspaces = [];
     var _completeWorkspaceByComponentsPromises = [];
     //console.log(requestPromise);
-    requestPromise.then(function (data) {
+    requestPromise.then(function(data) {
       // console.log(data);
       // console.log(data);
       // On recupere les id des workspace du user
       // On requete sur la table workspace pour avoir ses workspaces
       console.log(data.workspaces)
       for (id in data.workspaces) {
-        console.log(data.workspaces[id].role)
+        //console.log(data.workspaces[id].role)
         if (data.workspaces[id].role == "owner") {
           workspacePromises.push(mLabPromise.request('GET', 'workspace/' + data.workspaces[id]._id));
         }
       }
       // On recupere les informatiosn complementaire des workspace du user
-      Promise.all(workspacePromises).then(function (res) {
-        final_workspaces = res
+      Promise.all(workspacePromises).then(function(res) {
+        // = [];
         // console.log(final_workspaces);
-        for (workspace in final_workspaces) {
+        for (workspace in res) {
           // console.log('workspace', workspace)
-          _completeWorkspaceByComponentsPromises.push(
-            mLabPromise.request('GET', 'workspaceComponent', undefined, {
-              q: {
-                workspaceId: final_workspaces[workspace]._id.$oid
-              }
-            })
-          )
+          if (res[workspace]._id != undefined) {
+            final_workspaces.push(res[workspace]);
+            _completeWorkspaceByComponentsPromises.push(
+              mLabPromise.request('GET', 'workspaceComponent', undefined, {
+                q: {
+                  workspaceId: res[workspace]._id.$oid
+                }
+              })
+            )
+          }
         }
+        console.log('allComponentRequestReady');
         // console.log(_completeWorkspaceByComponentsPromises);
         return Promise.all(_completeWorkspaceByComponentsPromises);
-      }).then(function (responses) {
+      }).then(function(responses) {
         for (var responseKey in responses) {
           //   //console.log('Check response | ',workspaces[responseKey], ' | components | ',responses[responseKey]);
           //   //console.log('workspace', workspaces[responseKey]._id.$oid);
@@ -56,7 +60,7 @@ module.exports = function (router) {
     });
   });
 
-  router.get('/workspaces/share/:userId', function (req, res) {
+  router.get('/workspaces/share/:userId', function(req, res) {
     // console.log(req.params.userId);
     var userId = req.params.userId;
     //On recupere le user grace a l'id
@@ -65,7 +69,7 @@ module.exports = function (router) {
     var final_workspaces = [];
     var _completeWorkspaceByComponentsPromises = [];
     //console.log(requestPromise);
-    requestPromise.then(function (data) {
+    requestPromise.then(function(data) {
       // console.log(data);
       // console.log(data);
       // On recupere les id des workspace du user
@@ -78,7 +82,7 @@ module.exports = function (router) {
         }
       }
       // On recupere les informatiosn complementaire des workspace du user
-      Promise.all(workspacePromises).then(function (res) {
+      Promise.all(workspacePromises).then(function(res) {
         final_workspaces = res
         // console.log(final_workspaces);
         for (workspace in final_workspaces) {
@@ -93,7 +97,7 @@ module.exports = function (router) {
         }
         // console.log(_completeWorkspaceByComponentsPromises);
         return Promise.all(_completeWorkspaceByComponentsPromises);
-      }).then(function (responses) {
+      }).then(function(responses) {
         for (var responseKey in responses) {
           //   //console.log('Check response | ',workspaces[responseKey], ' | components | ',responses[responseKey]);
           //   //console.log('workspace', workspaces[responseKey]._id.$oid);
@@ -106,12 +110,12 @@ module.exports = function (router) {
 
 
   //TEST GESTION DES COPOSANT DES UTILISATEURS
-  router.get('/workspace/:id', function (req, res) {
+  router.get('/workspace/:id', function(req, res) {
     var id = req.params.id;
     var requestPromise = mLabPromise.request('GET', 'workspace/' + id);
     var workspace;
     //console.log(requestPromise);
-    requestPromise.then(function (data) {
+    requestPromise.then(function(data) {
       workspace = data;
       return mLabPromise.request('GET', 'workspaceComponent/' + '', undefined, {
         q: {
@@ -119,7 +123,7 @@ module.exports = function (router) {
         }
       });
 
-    }).then(function (components) {
+    }).then(function(components) {
       //console.log('Check response | ',workspaces[responseKey], ' | components | ',responses[responseKey]);
       //console.log('workspace',  workspaces[responseKey]._id.$oid);
       workspace.components = workspaceBusiness.checkWorkspaceComponentConsistency(components);
@@ -131,7 +135,7 @@ module.exports = function (router) {
   });
 
 
-  router.get('/workspaceOwnAll/:userId', function (req, res) {
+  router.get('/workspaceOwnAll/:userId', function(req, res) {
     console.log(req.params.userId);
     var userId = req.params.userId;
     //On recupere le user grace a l'id
@@ -141,7 +145,7 @@ module.exports = function (router) {
     //var _completeWorkspaceByComponentsPromises = [];
     //console.log(requestPromise);
     var promises = [userPromise, workspacePromise]
-    Promise.all(promises).then(function (res) {
+    Promise.all(promises).then(function(res) {
       var user = res[0];
       var workspaces = res[1];
       var workspacesTable = [];
@@ -154,7 +158,7 @@ module.exports = function (router) {
       user.workspaces = workspacesTable;
       console.log(user);
       return mLabPromise.request('PUT', 'users/' + user._id.$oid, user);
-    }).then(function (data) {
+    }).then(function(data) {
       //console.log(res);
       res.json(data);
     });
@@ -197,7 +201,7 @@ module.exports = function (router) {
     // });
   });
 
-  router.put('/workspace/', function (req, res) {
+  router.put('/workspace/', function(req, res) {
     // var id = req.body._id.$oid;
     var entityToUpdate = JSON.parse(JSON.stringify(req.body));
     entityToUpdate.components = undefined;
@@ -206,13 +210,13 @@ module.exports = function (router) {
       q: {
         workspaceId: entityToUpdate._id.$oid
       }
-    }).then(function (records) {
+    }).then(function(records) {
       const deletePromises = records.map(component => mLabPromise.request('DELETE', 'workspaceComponent/' + component._id.$oid));
       const updatePromise = mLabPromise.request('PUT', 'workspace/' + entityToUpdate._id.$oid, entityToUpdate)
       //const mergedPromises = [].concat.apply([], [deletePromises,insertPromises]);
       const mergedPromises = [].concat([updatePromise, deletePromises]);
       return Promise.all(mergedPromises);
-    }).then(function (records) {
+    }).then(function(records) {
       req.body.components.forEach(component => {
         component.workspaceId = entityToUpdate._id.$oid
       });
@@ -223,7 +227,7 @@ module.exports = function (router) {
       //entityToUpdate = records[0];
       //console.log(insertPromises);
       return Promise.all(insertPromises);
-    }).then(function (records) {
+    }).then(function(records) {
       entityToUpdate.components = records;
       res.json(entityToUpdate);
     });
@@ -234,7 +238,7 @@ module.exports = function (router) {
 
   });
 
-  router.post('/workspace/:userId', function (req, res) {
+  router.post('/workspace/:userId', function(req, res) {
     var entityToInsert = req.body;
     var userId = req.params.userId;
     //var firstComponentToInsert = entityToInsert.firstComponent;
@@ -247,10 +251,10 @@ module.exports = function (router) {
     // const mergedPromises = [].concat([requestPromise,requestUserPromise,  updatePromise]);
     // return Promise.all(mergedPromises);
     //console.log(requestPromise);
-    requestUserPromise.then(function (user) {
+    requestUserPromise.then(function(user) {
       // console.log(user)
       var userToInsert = user;
-      requestPromise.then(function (data) {
+      requestPromise.then(function(data) {
         entityToInsert = data;
         userToInsert.workspaces.push({
           _id: data._id.$oid,
@@ -265,7 +269,7 @@ module.exports = function (router) {
         //const promisesList = data.components.map(component => mLabPromise.request('POST', 'workspaceComponent', component));
         const mergedPromises = [].concat([updatePromise, promisesList]);
         return Promise.all(mergedPromises);
-      }).then(function (components) {
+      }).then(function(components) {
         // console.log(components[1])
         entityToInsert.components = components[1]
         //entityToInsert.components.push(componentData);
@@ -275,13 +279,13 @@ module.exports = function (router) {
     })
   });
 
-  router.delete('/workspace/:id/:userId', function (req, res) {
+  router.delete('/workspace/:id/:userId', function(req, res) {
     var id = req.params.id;
     var userId = req.params.userId;
     var newWorspaceUserStore = []
-    mLabPromise.request('GET', 'users/' + userId).then(function (user) {
+    mLabPromise.request('GET', 'users/' + userId).then(function(user) {
       var userToInsert = user;
-      new Promise(function (resolve, reject) {
+      new Promise(function(resolve, reject) {
         for (workspaceid in userToInsert.workspaces) {
           if (userToInsert.workspaces[workspaceid]._id != id) {
             newWorspaceUserStore.push({
@@ -292,8 +296,8 @@ module.exports = function (router) {
         }
         console.log("etape 1", newWorspaceUserStore)
         resolve(newWorspaceUserStore)
-      }).then(function (newWorspaceUser) {
-        new Promise(function (resolve, reject) {
+      }).then(function(newWorspaceUser) {
+        new Promise(function(resolve, reject) {
           userToInsert.workspaces = newWorspaceUser;
           var updateUserPromise = mLabPromise.request('PUT', 'users/' + userId, userToInsert);
           var WorspaceDelete = mLabPromise.request('GET', 'workspaceComponent', undefined, {
@@ -301,11 +305,14 @@ module.exports = function (router) {
               workspaceId: id
             }
           })
-           resolve({"updateUserPromise": updateUserPromise, "WorspaceDelete": WorspaceDelete })
-        }).then(function (dataRes) {
+          resolve({
+            "updateUserPromise": updateUserPromise,
+            "WorspaceDelete": WorspaceDelete
+          })
+        }).then(function(dataRes) {
           console.log(dataRes)
           const mergedPromises = [].concat([dataRes.updateUserPromise, dataRes.WorspaceDelete]);
-          Promise.all(mergedPromises).then(function (records) {
+          Promise.all(mergedPromises).then(function(records) {
             // console.log("In record");
             // console.log(records[1]);
             return promisesList = records[1].map(component => {
@@ -315,14 +322,14 @@ module.exports = function (router) {
               }
             })
             console.log("etape 3", component._id)
-          }).then(function () {
+          }).then(function() {
             // console.log(res)
             console.log("etape 6")
             return Promise.all(promisesList);
-          }).then(function () {
+          }).then(function() {
             console.log("etape 5", id)
             return mLabPromise.request('DELETE', 'workspace/' + id);
-          }).then(function (data) {
+          }).then(function(data) {
             console.log("Votre Workspace a été supprimé")
             res.json(data);
           });

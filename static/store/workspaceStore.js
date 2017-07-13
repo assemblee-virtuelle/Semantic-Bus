@@ -96,7 +96,7 @@ function WorkspaceStore() {
   };
 
   this.delete = function (record) {
-    //console.log('del Row :', record);
+    console.log('del Row :', record);
     $.ajax({
       method: 'delete',
       url: '../data/core/workspace/' + record._id.$oid + '/' + localStorage.user_id,
