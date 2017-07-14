@@ -6,7 +6,7 @@ module.exports = {
 
 
   test: function(data, flowData) {
-    //console.log('Flow Agregator | test : ',data,' | ',flowData);
+    console.log('Flow Agregator | test : ',data,' | ',flowData);
     return new Promise((resolve, reject) => {
       var resultFlow = [];
       //console.log(data);
@@ -14,20 +14,21 @@ module.exports = {
         for (record of flow.data) {
           var filter = {};
           var everExistingData = [];
-          if (data.specificData.unicityFields != undefined) {
+          if (data.specificData.unicityFields != undefined && data.specificData.unicityFields.length>0) {
             for (unicityField of data.specificData.unicityFields) {
-              //console.log(unicityField.field,record);
+              console.log(unicityField.field,record);
               if (record[unicityField.field] != undefined) {
                 filter[unicityField.field] = record[unicityField.field];
               }
             }
+            console.log(filter);
             everExistingData = this.sift(filter, resultFlow);
           }
 
           //console.log(filter);
           //console.log(everExistingData);
           if (everExistingData.length > 0) {
-            console.log('unicite |', everExistingData);
+            //console.log('unicite |', everExistingData);
             var oldRecord = everExistingData[0];
             //console.log(resultFlow.indexOf(everExistingData[0]));
             for (key in record) {
