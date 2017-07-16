@@ -23,11 +23,6 @@ module.exports = function(router) {
       // On requete sur la table workspace pour avoir ses workspaces
       console.log(data.workspaces)
       for (id in data.workspaces) {
-<<<<<<< HEAD
-        // console.log(data.workspaces[id].role)
-=======
-        //console.log(data.workspaces[id].role)
->>>>>>> 16bf241a2e8b28603d15c248b3ff7c682b0bbc66
         if (data.workspaces[id].role == "owner") {
           workspacePromises.push(mLabPromise.request('GET', 'workspace/' + data.workspaces[id]._id));
         }
@@ -139,13 +134,8 @@ module.exports = function(router) {
   });
 
 
-<<<<<<< HEAD
   router.get('/workspaceOwnAll/:userId', function (req, res) {
     // console.log(req.params.userId);
-=======
-  router.get('/workspaceOwnAll/:userId', function(req, res) {
-    console.log(req.params.userId);
->>>>>>> 16bf241a2e8b28603d15c248b3ff7c682b0bbc66
     var userId = req.params.userId;
     //On recupere le user grace a l'id
     var userPromise = mLabPromise.request('GET', 'users/' + userId);
@@ -171,43 +161,6 @@ module.exports = function(router) {
       //console.log(res);
       res.json(data);
     });
-
-
-    //
-    // requestPromise.then(function(data) {
-    //   console.log(data);
-    //   // console.log(data);
-    //   // On recupere les id des workspace du user
-    //   // On requete sur la table workspace pour avoir ses workspaces
-    //   for (id in data.workspaces) {
-    //     workspacePromises.push(mLabPromise.request('GET', 'workspace/' + data.workspaces[id]._id));
-    //   }
-    //   // On recupere les informatiosn complementaire des workspace du user
-    //   Promise.all(workspacePromises).then(function(res) {
-    //     final_workspaces = res
-    //     // console.log(final_workspaces);
-    //     for (workspace in final_workspaces) {
-    //       _completeWorkspaceByComponentsPromises.push(
-    //         mLabPromise.request('GET', 'workspaceComponent', undefined, {
-    //           q: {
-    //             workspaceId: final_workspaces[workspace]._id.$oid
-    //           }
-    //         })
-    //       )
-    //     }
-    //     // console.log(_completeWorkspaceByComponentsPromises);
-    //     return Promise.all(_completeWorkspaceByComponentsPromises);
-    //   }).then(function(responses) {
-    //     for (var responseKey in responses) {
-    //       //   //console.log('Check response | ',workspaces[responseKey], ' | components | ',responses[responseKey]);
-    //       //   //console.log('workspace', workspaces[responseKey]._id.$oid);
-    //       final_workspaces[responseKey].components = workspaceBusiness.checkWorkspaceComponentConsistency(responses[responseKey]);
-    //     }
-    //     // console.log(final_workspaces)
-    //     console.log(final_workspaces);
-    //     res.json(final_workspaces);
-    //   });
-    // });
   });
 
   router.put('/workspace/', function(req, res) {
