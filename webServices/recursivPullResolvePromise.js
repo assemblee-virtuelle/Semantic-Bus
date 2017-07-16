@@ -11,11 +11,12 @@ module.exports = {
   //restGetJson: require('./workSpaceComponentDirectory/restGetJson.js'),
   //mLabPromise: require('./mLabPromise'),
   workspaceComponentPromise: require('./workspaceComponentPromise'),
-  resolveComponentPull(component, notMainNode) {
-    return this._makeRequest(component, notMainNode);
+  resolveComponentPull(component, notMainNode,pullParams) {
+    //console.log(pullParams);
+    return this._makeRequest(component, notMainNode,pullParams);
   },
 
-  _makeRequest(component, notMainNode) {
+  _makeRequest(component, notMainNode,pullParams) {
 
     // create a new Promise
     return new Promise((resolve, reject) => {
@@ -43,7 +44,7 @@ module.exports = {
                   });
                 } else {
                   //console.log(workspaceComponent);
-                  return this.resolveComponentPull(workspaceComponent, true)
+                  return this.resolveComponentPull(workspaceComponent, true,pullParams)
                 }
               })
             )
@@ -84,7 +85,7 @@ module.exports = {
 
                         recomposedFlow = recomposedFlow.concat(secondaryFlow);
                         //console.log('recomposedFlow | ',recomposedFlow);
-                        return module.test(component, recomposedFlow)
+                        return module.test(component, recomposedFlow,pullParams)
                       });
                       Promise.all(testPromises).then(dataTestTab => {
                         for (var dataTestTabKey in dataTestTab) {
@@ -103,7 +104,7 @@ module.exports = {
                       data: primaryflow.data['features'],
                       componentId: primaryflow.componentId
                     }]);
-                    module.test(component, recomposedFlow).then(function(dataTest) {
+                    module.test(component, recomposedFlow,pullParams).then(function(dataTest) {
                         console.log('recursivPullResolvePromise | module end | ', module.type);
                         //console.log('recursivPullResolvePromise | dataTest | ',dataTest);
                         resolve({
@@ -118,7 +119,7 @@ module.exports = {
                 console.log('recursivPullResolvePromise | module start test | ', module.type);
                 //console.log('recursivPullResolvePromise |connectionsBeforeData | ', connectionsBeforeData);
 
-                module.test(component, connectionsBeforeData).then(function(dataTest) {
+                module.test(component, connectionsBeforeData,pullParams).then(function(dataTest) {
                   console.log('recursivPullResolvePromise | module end | ', module.type);
                   //console.log('recursivPullResolvePromise | dataTest | ',dataTest);
                   resolve({
@@ -137,7 +138,7 @@ module.exports = {
       } else {
         //console.log('resolveWebComponentPull | Last| ', component);
         if (module.test) {
-          module.test(component).then(function(dataTest) {
+          module.test(component,undefined,pullParams).then(function(dataTest) {
             console.log('recursivPullResolvePromise | module end | ', module.type);
             //console.log('recursivPullResolvePromise | module end | dataTest', dataTest);
             resolve({

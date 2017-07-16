@@ -1,6 +1,7 @@
 function WorkspaceBusiness() {
   this.connectWorkspaceComponent = function(workspaceComponentsList) {
     var workspaceComponentsListDictionnary = {};
+    workspaceComponentsList=workspaceComponentsList||[];
     for (var workspaceComponent of workspaceComponentsList) {
       workspaceComponentsListDictionnary[workspaceComponent._id.$oid] = workspaceComponent;
     }
