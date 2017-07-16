@@ -23,7 +23,7 @@ module.exports = function (router) {
       // On requete sur la table workspace pour avoir ses workspaces
       console.log(data.workspaces)
       for (id in data.workspaces) {
-        console.log(data.workspaces[id].role)
+        // console.log(data.workspaces[id].role)
         if (data.workspaces[id].role == "owner") {
           workspacePromises.push(mLabPromise.request('GET', 'workspace/' + data.workspaces[id]._id));
         }
@@ -70,9 +70,9 @@ module.exports = function (router) {
       // console.log(data);
       // On recupere les id des workspace du user
       // On requete sur la table workspace pour avoir ses workspaces
-      console.log(data.workspaces)
+      // console.log(data.workspaces)
       for (id in data.workspaces) {
-        console.log(data.workspaces[id].role)
+        // console.log(data.workspaces[id].role)
         if (data.workspaces[id].role == "editor" || data.workspaces[id].role == "viewer ") {
           workspacePromises.push(mLabPromise.request('GET', 'workspace/' + data.workspaces[id]._id));
         }
@@ -132,7 +132,7 @@ module.exports = function (router) {
 
 
   router.get('/workspaceOwnAll/:userId', function (req, res) {
-    console.log(req.params.userId);
+    // console.log(req.params.userId);
     var userId = req.params.userId;
     //On recupere le user grace a l'id
     var userPromise = mLabPromise.request('GET', 'users/' + userId);
@@ -152,7 +152,7 @@ module.exports = function (router) {
         });
       }
       user.workspaces = workspacesTable;
-      console.log(user);
+      // console.log(user);
       return mLabPromise.request('PUT', 'users/' + user._id.$oid, user);
     }).then(function (data) {
       //console.log(res);

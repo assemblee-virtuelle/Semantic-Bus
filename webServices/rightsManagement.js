@@ -73,7 +73,7 @@ module.exports = function (router) {
                 if (users) {
                     users.forEach(function(user){
                         if(user.workspaces != null){
-                             console.log(user._id)
+                            //  console.log(user._id)
                             if(user._id != userId){
                                 // console.log(user._id.$oid)
                                 user.workspaces.forEach(function(workspace){
@@ -90,8 +90,8 @@ module.exports = function (router) {
                 }
             })  
         }).then(function (user) {
-             console.log(userId)
-            console.log("Vos user ont été envoyé")
+            //  console.log(userId)
+            // console.log("Vos user ont été envoyé")
             res.json(user);
         });
     })

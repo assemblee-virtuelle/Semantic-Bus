@@ -8,7 +8,7 @@ module.exports = {
         var token = req.body.token || req.query.token || req.headers['authorization']
         // // decode Tokken
         if (token) {
-            console.log(token)
+            // console.log(token)
             token.split("");
             // verifies secret and checks exp
             jwt.verify(token.substring(4, token.length), config.secret, function (err, decoded) {

@@ -34,7 +34,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   ////ON TEST SI LE USER A UN TOKEN VALIDE A CHAQUE ENTRE SUR APPLICATION.HTML///
   // Rmq : Call ajax a deplacer dans le profil Store ou User Store ?
   this.on('is_token_valid?', function () {
-    console.log(localStorage.token)
+    console.log("trigger", localStorage.token)
     if (localStorage.token == null) {
       console.log("in null")
       this.trigger('login_redirect');

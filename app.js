@@ -22,10 +22,29 @@ app.use(bodyParser.urlencoded({limit: '5mb', extended: true}));
 safe.use(bodyParser.json()); // used to parse JSON object given in the request body
 var env = process.env;
 
+
+///htttps///
+
+// var  ensureSec  = function(req, res, next) {
+//     if (req.secure) { 
+//         console.log(req.secure, "https");
+//         return next(); 
+//     } else {
+//         console.log("in else")
+//         res.send({redirect: 'https' + req.headers['referer'].substr(4, req.headers['referer'].split("").length -1)})
+//     }
+// }
+
+
 //Sécurisation des route de data
 safe.use(function(req, res, next) {
-	jwtService.securityAPI(req, res, next)
+  // ensureSec(req,res,next)
+  jwtService.securityAPI(req, res, next);
 })
+
+// unSafeRouteur.use(function(req,res,next){
+//   // ensureSec(req,res,next) 
+// })
 
 
 var cors = require('cors');
@@ -47,6 +66,7 @@ server.listen(process.env.PORT || process.env.port || process.env.OPENSHIFT_NODE
 	//console.log(this.address().port);
   console.log(this.address());
 })
+
 
   // Lets encrypt response
 

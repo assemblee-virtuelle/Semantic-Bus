@@ -12,11 +12,11 @@ var schemaMlab = new Schema("mongoose", config.configMongo);
 // DEFINITION DES DATA STORE DANS MONGODB
 
 var User = schemaMlab.define('user', {
-    email:     { type: schemaMlab.String,  limit: 255 },
-    password:   { type: schemaMlab.Text },
+    email: { type: schemaMlab.String,  limit: 255 },
+    password: { type: schemaMlab.Text },
     googleid : {type: schemaMlab.Text, default: null},
     googleToken: {type: schemaMlab.Text, default: null},
-    workspaces:  {type: schemaMlab.JSON,  default: []},
+    workspaces: {type: schemaMlab.JSON,  default: []},
     admin: { type: schemaMlab.Boolean, default: false},
 });
 

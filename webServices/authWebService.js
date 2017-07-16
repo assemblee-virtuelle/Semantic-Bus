@@ -29,7 +29,7 @@ module.exports = function (authRouter) {
 
 	authRouter.post('/isTokenValid', function (req, res) {
 		console.log("req.body.token");
-		console.log(req.body.token);
+		// console.log(req.body.token);
 		if (req.body.token) {
 			// console.log(jwtService.require_token(req.body.token))
 			jwtService.require_token(req.body.token).then(function (token_result) {
