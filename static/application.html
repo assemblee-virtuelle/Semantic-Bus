@@ -91,10 +91,11 @@
     RiotControl.on('login_redirect', function() {
       window.open("../auth/login.html", "_self");
     })
-      console.log(window.location.href) 
+    console.log(window.location.href) 
     if(window.location.href.substr(0, 5) != "https"){
       if(window.location.href.indexOf('localhost') == -1){
-        // window.location.replace("https" + window.location.href.substr(4, window.location.href.split("").length -1))
+        window.location.replace("https" + window.location.href.substr(4, window.location.href.split("").length -1))
+        // window.location.replace("https" + window.location.href.substr(5, window.location.href.split("").length -1))
       }
     }
     riot.compile(function() {
