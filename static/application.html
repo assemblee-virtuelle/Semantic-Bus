@@ -91,14 +91,11 @@
     RiotControl.on('login_redirect', function() {
       window.open("../auth/login.html", "_self");
     })
-    if(window.location.href.substr(0, 4) != "https"){
+    if(window.location.href.substr(0, 5) != "https"){
       if(window.location.href.indexOf('localhost') == -1){
-        window.location.replace("https" + window.location.href.substr(4, window.location.href.split("").length -1))
+        window.location.replace("https" + window.location.href.substr(5, window.location.href.split("").length -1))
       }
     }
-    console.log("hreff", window.location.href)
-    // window.open("../auth/login.err", "_self");
-
     riot.compile(function() {
       // here tags are compiled and riot.mount works synchronously
       var tags = riot.mount('*');
