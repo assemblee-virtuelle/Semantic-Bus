@@ -7,6 +7,25 @@ function UserStore() {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
 
+  this.on('https_force?', function () {
+  console.log("https_force")
+    $.ajax({
+      method: 'get',
+      url: '/configuration/configurationhttps',
+      }).done(data => {
+        if(data == "force"){
+          if(window.location.href.substr(0, 5) != "https"){
+            console.log(window.location.href)
+            if(window.location.href.indexOf('localhost') == -1){
+              window.location.replace("https" + window.location.href.substr(4, window.location.href.split("").length -1))
+              // window.location.replace("https" + window.location.href.substr(5, window.location.href.split("").length -1))
+            }
+          }
+        }
+        return data
+      })
+  })
+
   this.on('user_connect', function (user) {
     console.log(user)
     $.ajax({

@@ -3,5 +3,6 @@ module.exports = {
    //mlabDB : 'sementic_bus_dev',
    mlabDB : 'semantic_bus',
    saveLock : false,
-   addLock : false
+   addLock : false,
+   https: 'force'
 }

@@ -23,18 +23,6 @@ safe.use(bodyParser.json()); // used to parse JSON object given in the request b
 var env = process.env;
 
 
-///htttps///
-
-// var  ensureSec  = function(req, res, next) {
-//     if (req.secure) { 
-//         console.log(req.secure, "https");
-//         return next(); 
-//     } else {
-//         console.log("in else")
-//         res.send({redirect: 'https' + req.headers['referer'].substr(4, req.headers['referer'].split("").length -1)})
-//     }
-// }
-
 
 //Sécurisation des route de data
 safe.use(function(req, res, next) {
@@ -50,6 +38,7 @@ safe.use(function(req, res, next) {
 var cors = require('cors');
 unSafeRouteur.use(cors());
 
+require('./webServices/initialise')(unSafeRouteur);
 require('./webServices/authWebService')(unSafeRouteur);
 require('./webServices/workspace')(safe);
 require('./webServices/workspaceComponent')(safe);
@@ -70,13 +59,11 @@ server.listen(process.env.PORT || process.env.port || process.env.OPENSHIFT_NODE
 
   // Lets encrypt response
 
-  // if( letsEncryptResponse != undefined && letsEncryptResponse != undefined) {
-    app.get('/.well-known/acme-challenge/:challengeHash', function (req, res) {
-      var params = req.params.challengeHash.substr(0, req.params.challengeHash.length - 1 )
-      var hash = params + ".rCIAnB6OZN-jvB1XIOagkbUTKQQmQ1ogeb5DUVFNUko";
-      res.send(hash)
-    });
-  // }
+app.get('/.well-known/acme-challenge/:challengeHash', function (req, res) {
+  var params = req.params.challengeHash.substr(0, req.params.challengeHash.length - 1 )
+  var hash = params + ".rCIAnB6OZN-jvB1XIOagkbUTKQQmQ1ogeb5DUVFNUko";
+  res.send(hash)
+});
 
 /// Nous Securisons desormais IHM par un appel AJAX
 /// à lentrée sur la page application.html
@@ -87,8 +74,10 @@ server.on('error', function(err) { console.log(err) })
 ///SECURISATION DES REQUETES
 //app.use(helmet());
 //app.disable('x-powered-by');
+
 app.use('/auth',  express.static('static'));
 app.use('/auth',  unSafeRouteur);
+app.use('/configuration', unSafeRouteur);
 app.use('/data/specific',  unSafeRouteur);
 app.use('/data/api',  unSafeRouteur);
 app.use('/data/core',  safe);
