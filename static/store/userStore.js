@@ -16,10 +16,8 @@ function UserStore() {
         if(data == "force"){
           if(window.location.href.substr(0, 5) != "https"){
             console.log(window.location.href)
-            if(window.location.href.indexOf('localhost') == -1){
-              window.location.replace("https" + window.location.href.substr(4, window.location.href.split("").length -1))
-              // window.location.replace("https" + window.location.href.substr(5, window.location.href.split("").length -1))
-            }
+            window.location.replace("https" + window.location.href.substr(4, window.location.href.split("").length -1))
+            // window.location.replace("https" + window.location.href.substr(5, window.location.href.split("").length -1))
           }
         }
         return data
