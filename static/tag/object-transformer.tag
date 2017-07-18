@@ -13,11 +13,11 @@
          if (transformObject==undefined){
            transformObject={};
          }*/
-         this.tags.jsonSchema.data=data.specificData.transformObject;
+         this.tags.jsonSchema.data= data.specificData.transformObject;
          this.update();
        }.bind(this),
        get: function () {
-         //TODO add listerner to jsonEditor
+        //TODO add listerner to jsonEditor
         this.innerData.specificData.transformObject = this.tags.jsonSchema.data;
         return this.innerData;
       },
