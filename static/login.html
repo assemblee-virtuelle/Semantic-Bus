@@ -37,12 +37,7 @@
     window.open("../ihm/application.html", "_self");
   })
   console.log(window.location.href)
-  if(window.location.href.substr(0, 5) != "https"){
-    if(window.location.href.indexOf('localhost') == -1){
-      window.location.replace("https" + window.location.href.substr(4, window.location.href.split("").length -1))
-      // window.location.replace("https" + window.location.href.substr(5, window.location.href.split("").length -1))
-    }
-  }
+  RiotControl.trigger('https_force?')
   riot.compile(function() {
     // here tags are compiled and riot.mount works synchronously
     var tags = riot.mount('*');
