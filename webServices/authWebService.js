@@ -31,12 +31,10 @@ module.exports = function (authRouter) {
 		console.log("req.body.token");
 		// console.log(req.body.token);
 		if (req.body.token) {
-			// console.log(jwtService.require_token(req.body.token))
 			jwtService.require_token(req.body.token).then(function (token_result) {
 				if (token_result != false) {
 					res.send(token_result);
 				} else {
-					// authRouter.get('localhost://300//auth/login.html');
 					res.send(false)
 				}
 			})

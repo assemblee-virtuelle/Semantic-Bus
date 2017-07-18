@@ -3,9 +3,26 @@ function UserStore() {
   ////LE USER STORE EST RELIE A LOGIN EST NON A APPLICATION
   this.userCurrrent;
 
-  function sleep(ms) {
+  this.sleep = function(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
   }
+
+  this.on('https_force?', function () {
+  console.log("https_force")
+    $.ajax({
+      method: 'get',
+      url: '/configuration/configurationhttps',
+      }).done(data => {
+        if(data == "force"){
+          if(window.location.href.substr(0, 5) != "https"){
+            console.log(window.location.href)
+            window.location.replace("https" + window.location.href.substr(4, window.location.href.split("").length -1))
+            // window.location.replace("https" + window.location.href.substr(5, window.location.href.split("").length -1))
+          }
+        }
+        return data
+      })
+  })
 
   this.on('user_connect', function (user) {
     console.log(user)
@@ -27,14 +44,14 @@ function UserStore() {
         localStorage.token = data.token
         // window.open("../ihm/application.html", "_self");
         this.trigger('application_redirect')
-        spleep(2000).then(function () {
+        this.spleep(2000).then(function () {
           this.trigger('ajax_receipt_login');
         }.bind(this))
 
       } else {
         console.log("data no");
         this.trigger('bad_auth')
-        sleep(2000).then(function () {
+        this.sleep(2000).then(function () {
           this.trigger('ajax_receipt_login');
         }.bind(this))
       }
@@ -61,7 +78,7 @@ function UserStore() {
         localStorage.token = data.token
         // window.open("../ihm/application.html", "_self");
         this.trigger('application_redirect')
-        sleep(2000).then(function () {
+        this.sleep(2000).then(function () {
           this.trigger('ajax_receipt_login');
         }.bind(this))
       } else {
@@ -92,12 +109,12 @@ function UserStore() {
         localStorage.token = data.token
         // window.open("../ihm/application.html", "_self");
         this.trigger('application_redirect')
-        sleep(2000).then(function () {
+        this.sleep(2000).then(function () {
           this.trigger('ajax_receipt_login');
         }.bind(this))
       } else {
         this.trigger('email_already_exist')
-        sleep(2000).then(function () {
+        this.sleep(2000).then(function () {
           this.trigger('ajax_receipt_login');
         }.bind(this))
       }

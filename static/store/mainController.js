@@ -33,6 +33,25 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   }.bind(this)
   ////ON TEST SI LE USER A UN TOKEN VALIDE A CHAQUE ENTRE SUR APPLICATION.HTML///
   // Rmq : Call ajax a deplacer dans le profil Store ou User Store ?
+  this.on('https_force?', function () {
+    console.log("https_force")
+     $.ajax({
+        method: 'get',
+        url: '/configuration/configurationhttps',
+        }).done(data => {
+          if(data == "force"){
+            console.log("TESTTTTTT");
+             console.log("TESTTTTTT 2")
+            if(window.location.href.substr(0, 5) != "https"){
+              console.log(window.location.href)
+              window.location.replace("https" + window.location.href.substr(4, window.location.href.split("").length -1))
+              // window.location.replace("https" + window.location.href.substr(5, window.location.href.split("").length -1))
+            }
+          }
+          return data
+        })
+    })
+
   this.on('is_token_valid?', function () {
     console.log("trigger", localStorage.token)
     if (localStorage.token == null) {

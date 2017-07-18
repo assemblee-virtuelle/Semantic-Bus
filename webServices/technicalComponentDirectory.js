@@ -24,9 +24,6 @@ module.exports = {
     initialise : function(router,unSafeRouteur, recursivPullResolvePromise){
       this.restApiGet.initialise(unSafeRouteur);//NO SECURE CHANGE ROUTER
       this.upload.initialise(unSafeRouteur);
-      this.sqlConnector.initialise(unSafeRouteur);
-      this.sqlConnector.createmodel(unSafeRouteur);
-      this.sqlConnector.request(unSafeRouteur);
       this.cacheNosql.initialise(unSafeRouteur,recursivPullResolvePromise); //NO SECURE CHANGE ROUTER
     }
 }
