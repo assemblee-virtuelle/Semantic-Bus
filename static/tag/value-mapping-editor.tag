@@ -34,7 +34,7 @@
     this.replacementdValue = "";
     this.data = {};
     this.currentRowId=undefined;
-
+    console.log('DUMMY');
 
 
     this.on('unmount', function () {
