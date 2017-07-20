@@ -41,7 +41,7 @@ module.exports = {
         response.on('end', function () {
           // console.log("RESPONSE BEFORE TRAITMENT", responseBody)
           _self.dataTraitment.type.type_file(response.headers['content-disposition'],responseBody, responseBodyExel).then(function(result){
-            console.log(result)
+            // console.log(result)
             resolve(result)
           })
           console.log('end');
