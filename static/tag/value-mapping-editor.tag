@@ -8,8 +8,6 @@
         </label>
         <input if="fieldEditing" type="text" value={flowValue} onkeyup={flowValueChange}>
       </div>
-    </div>
-    <div class="containerH">
       <div>
         <label>
           valeur de remplacement
@@ -34,7 +32,6 @@
     this.replacementdValue = "";
     this.data = {};
     this.currentRowId=undefined;
-    console.log('DUMMY');
 
 
     this.on('unmount', function () {
@@ -45,19 +42,19 @@
         console.log(data);
         this.currentRowId=data.rowid
         this.flowValue = data.flowValue;
-        this.replacementdValue = data.replacementdValue;
+        this.replacementdValue = data.replacementValue;
         this.update();
       }.bind(this));
 
       this.tags.zentable.on('addRow', function () {
         //console.log(this.data.specificData.unicityFields)
-        this.data.specificData.mappingTable.push({flowValue: this.flowValue,replacementdValue: this.replacementdValue});
-        this.tags.zentable.data = this.data.specificData.mappingTable.unicityFields;
-        console.log(this.tags.zentable.data)
+        this.data.specificData.mappingTable.push({flowValue: this.flowValue,replacementValue: this.replacementdValue});
+        this.tags.zentable.data = this.data.specificData.mappingTable;
+        //console.log(this.tags.zentable.data)
       }.bind(this));
 
       this.tags.zentable.on('delRow', function (row) {
-        console.log(row);
+        //console.log(row);
         this.data.specificData.mappingTable.splice(row.rowid, 1);
         this.tags.zentable.data = this.data.specificData.mappingTable;
       }.bind(this));
