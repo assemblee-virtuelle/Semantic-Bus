@@ -56,9 +56,11 @@
     //arrayChangeHandler.tag=this;
     Object.defineProperty(this, 'data', {
       set: function (data) {
+
         //this.innerData=new Proxy(data, arrayChangeHandler);
         this.innerData = data;
         this.update();
+
         //this.reportCss(); this.reportFlex(); console.log(this.items,data);
       }.bind(this),
       get: function () {
@@ -75,7 +77,7 @@
           record.opts=this.opts;
         }
         return this.innerData;
-      },
+      }.bind(this),
       configurable: true
     });
 
