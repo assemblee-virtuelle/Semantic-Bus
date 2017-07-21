@@ -1,17 +1,19 @@
-<sql-connecteur-editor>
+<mongo-connecteur-editor>
 <div style="display: flex;flex-direction: row;justify-content: space-around;">
     <div class="{color1}" style="margin-left: 7%;" onclick={goConnection}>Connexion(s)</div>
     <div class="{color2}" style="margin-left: 7%;" onclick={goModelDescription}>Edition model(s)</div>
     <div class="{color3}" style="margin-left: 7%;" onclick={goQuery}>Query</div>
 </div>
 <div if={connection}>
-    <div>description de quel type de base a interoger</div>
+    <div>description de quel type de base NOSQL à interoger(mongoose ou mongodb) </div>
     <label>driver</label>
     <input type="text" name="driver" value={data.specificData.driver}/>
-    <label>host</label>
+    <!--  <label>host</label>
     <input type="text" name="host" value={data.specificData.host}/>
-    <label>port</label>
-    <input type="text" name="port" value={data.specificData.port}/>
+    <label>port</label>  -->
+    <!--  <input type="text" name="port" value={data.specificData.port}/>  -->
+    <label>url</label>  -->
+    <input type="text" name="url" value={data.specificData.url}/> 
     <label>username</label>
     <input type="text" name="username" value={data.specificData.username}/>
     <label>password</label>
@@ -48,7 +50,7 @@
         </div>
         <div>
             <h3 style="margin-top:5%;"> Valeur </h3>
-            <h5 style="margin-top:2%;"> Documentation requetes: http://docs.sequelizejs.com/manual/installation/getting-started.html#your-first-query</h5>
+            <h5 style="margin-top:2%;"> Documentation requetes: http://www.camintejs.com/en/guide#common-api </h5>
             <textarea placeholder="Par defaut la requetete sort toute les donnés" style="width: 100%;height: 50%; background-color: white;color: rgb(56, 131, 250);padding: 5px;border-radius: 10px;border: 1px solid rgb(56, 131, 250);"
                 type="textarea" name="querySelect" value={data.specificData.querySelect}>
                 {data.specificData.querySelect}
@@ -217,6 +219,7 @@
 
     this.generateRequest = function(){
       var modelName = this.data.specificData.modelName;
+      console.log(modelName)
       var modelData = this.tags.jsonSchema.data;
       this.queryDatas = [];
       this.data.specificData.querySelect = [];
@@ -238,12 +241,10 @@
           } else if (queryTable.length == 1){
                 if(queryTable[0].query == "where"){
                   this.data.specificData.querySelect.push("{" + '"' + queryTable[0].query.toString() + '"' + ":" + "{" + key + ":" + value + "}" +"}");
-                }else if(queryTable[0].query == "group"){
+                }else if(queryTable[0].query == "order" || queryTable[0].query == "group"||queryTable[0].query ==  "asc" || queryTable[0].query == "desc"){
                   this.data.specificData.querySelect.push("{" +  '"' + queryTable[0].query.toString() +'"'  + ":" + value + "}");
                 }else if(queryTable[0].query == "skip" || queryTable[0].query == "limit"){
                   this.data.specificData.querySelect.push("{" +  '"' + queryTable[0].query.toString() + '"'  + ":" + "entrez votre valeur ici(Number)" + "}");
-                }else if(queryTable[0].query == "order" ){
-                  this.data.specificData.querySelect.push("{" +  '"' + queryTable[0].query.toString() + '"'  + ":" + "[" + "[" + key , value + "]" + "]" + "}");
                 }
                 console.log("request generate ||", this.data.specificData.querySelect)
                 this.update()
@@ -253,12 +254,10 @@
                   for(queryElement in queryTable){
                     if(queryTable[queryElement].query == "where"){
                       this.data.specificData.querySelect.push("{" + '"' + queryTable[queryElement].query +'"' +  ":" + "{" + key + ":" + value + "}");
-                    }else if(queryTable[queryElement].query == "group"){
-                      this.data.specificData.querySelect.push( '"' + queryTable[queryElement].query +'"' + ":" + key );
+                    }else if(queryTable[queryElement].query == "order" || queryTable[queryElement].query == "group"|| queryTable[queryElement].query ==  "asc" || queryTable[queryElement].query == "desc"){
+                      this.data.specificData.querySelect.push( '"' + queryTable[queryElement].query +'"' + ":" + key + "}");
                     }else if(queryTable[queryElement].query == "skip" || queryTable[queryElement].query == "limit"){
-                      this.data.specificData.querySelect.push( '"' +  queryTable[queryElement].query + '"' + ":" + "entrez votre valeur ici(Number)" );
-                    }else if(queryTable[queryElement].query == "order" ){
-                      this.data.specificData.querySelect.push('"' + queryTable[queryElement].query + '"'  + ":" + "[" + "[" + key , value + "]" + "]" );
+                      this.data.specificData.querySelect.push( '"' +  queryTable[queryElement].query + '"' + ":" + "entrez votre valeur ici(Number)" + "}");
                     }
                   }
               this.update()
@@ -287,7 +286,6 @@
         this.color3 = "blue"
         this.selectData = [];
         this.data.specificData.jsonSchema = this.tags.jsonSchema.data;
-        this.data.specificData.modelName = data.specificData.modelName;
         for (property in this.tags.jsonSchema.data){
           this.selectData.push({property : property, selected: false})
         }  
@@ -302,11 +300,11 @@
     Object.defineProperty(this, 'data', {
        set: function (data) {
          this.innerData = data;
-          //this.tags.jsonSchema.data = data.specificData.jsonSchema; 
+         //this.tags.jsonSchema.data = data.specificData.jsonSchema;
          this.update();
        }.bind(this),
        get: function () {
-        this.tags.jsonSchema.data = this.innerData.specificData.jsonSchema;
+        //this.tags.jsonSchema.data = this.innerData.specificData.jsonSchema;
         return this.innerData;
       },
       configurable: true
@@ -319,13 +317,13 @@
         this.innerData.specificData.driver=e.currentTarget.value;
       }.bind(this));
 
-      this.host.addEventListener('change',function(e){
-        this.innerData.specificData.host=e.currentTarget.value;
+      this.url.addEventListener('change',function(e){
+        this.innerData.specificData.url=e.currentTarget.value;
       }.bind(this));
 
-      this.port.addEventListener('change',function(e){
-        this.innerData.specificData.port=e.currentTarget.value;
-      }.bind(this));
+      //this.port.addEventListener('change',function(e){
+      // this.innerData.specificData.port=e.currentTarget.value;
+      //}.bind(this));
 
       this.username.addEventListener('change',function(e){
         this.innerData.specificData.username=e.currentTarget.value;
@@ -355,5 +353,4 @@
     });
   </script>
   
-
-</sql-connecteur-editor>
+</mongo-connecteur-editor>
