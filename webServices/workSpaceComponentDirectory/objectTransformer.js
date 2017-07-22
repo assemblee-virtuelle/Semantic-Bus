@@ -335,8 +335,8 @@ module.exports = {
     //console.log('unresolveProcess intermediate| ',nodeOut);
     return nodeOut;
   },
-  test: function(data, flowData) {
-    //console.log('Object Transformer | test : ',data,' | ',flowData[0].length);
+  pull: function(data, flowData) {
+    //console.log('Object Transformer | pull : ',data,' | ',flowData[0].length);
     return new Promise((resolve, reject) => {
       //console.log('XXXX |',flowData[0]);
       resolve({

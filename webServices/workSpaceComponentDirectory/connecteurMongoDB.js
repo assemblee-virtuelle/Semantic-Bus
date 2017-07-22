@@ -109,9 +109,9 @@ module.exports = {
 
         }.bind(this))
     },
-    test: function (data) {
+    pull: function (data) {
         ///creation du model
-        console.log("IN TEST")
+        console.log("IN pull")
         return new Promise((resolve, reject) => {
             this.mLabPromise.request('GET', 'workspaceComponent/' + data._id.$oid).then(function (data) {
                 this.initialise(data.specificData.url, data.specificData.host, data.specificData.port, data.specificData.username, data.specificData.password, data.specificData.database).then(function (url) {

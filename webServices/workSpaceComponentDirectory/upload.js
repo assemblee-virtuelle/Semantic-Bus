@@ -53,7 +53,7 @@ module.exports = {
             data: JSON.stringify(resultatTraite)
           }).then(function (data) {
             resolve(data);
-            console.log('cache | test| ',data);
+            console.log('cache | pull| ',data);
             //return recursivPullResolvePromise.resolveComponentPull(data);
           });
         })
@@ -63,8 +63,8 @@ module.exports = {
 
 
 
-  test: function (data, flowData) {
-    //console.log('Flow Agregator | test : ',data,' | ',flowData);
+  pull: function (data, flowData) {
+    //console.log('Flow Agregator | pull : ',data,' | ',flowData);
     return new Promise((resolve, reject) => {
       this.mLabPromise.request('GET', 'cache/' + data._id.$oid).then(function (cachedData) {
         resolve({

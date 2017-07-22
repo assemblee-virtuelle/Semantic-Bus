@@ -27,8 +27,8 @@ module.exports = {
     }.bind(this));
   },
 
-  test: function(data, flowData) {
-    //console.log('Flow Agregator | test : ',data,' | ',flowData);
+  pull: function(data, flowData) {
+    //console.log('Flow Agregator | pull : ',data,' | ',flowData);
     return new Promise((resolve, reject) => {
       if (flowData != undefined) {
         //console.log('cash data | ',flowData);
@@ -36,13 +36,13 @@ module.exports = {
           data: flowData[0].data
         }).then(function(data) {
           resolve(data);
-          //console.log('cache | test| ',data);
+          //console.log('cache | pull| ',data);
           //return recursivPullResolvePromise.resolveComponentPull(data);
         });
       } else {
         this.mLabPromise.request('GET', 'cache/' + data._id.$oid).then(function(cachedData) {
           resolve({data:cachedData.data});
-          //console.log('cache | test| ',data);
+          //console.log('cache | pull| ',data);
           //return recursivPullResolvePromise.resolveComponentPull(data);
         });
       }

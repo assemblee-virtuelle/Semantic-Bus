@@ -122,7 +122,7 @@ module.exports = {
             }
         }.bind(this))
     },
-    test: function (data) {
+    pull: function (data) {
         ///creation du model
         return new Promise((resolve, reject) => {
             this.mLabPromise.request('GET', 'workspaceComponent/' + data._id.$oid).then(function (data) {

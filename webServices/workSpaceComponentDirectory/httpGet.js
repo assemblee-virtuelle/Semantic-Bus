@@ -55,8 +55,8 @@ module.exports = {
       request.end();
     });
   },
-  test: function (data) {
-    //console.log('REST Get JSON | test : ',data);
+  pull: function (data) {
+    //console.log('REST Get JSON | pull : ',data);
     return this.makeRequest('GET', data.specificData.url);
   }
 };

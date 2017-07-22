@@ -14,6 +14,8 @@ module.exports = {
   resolveComponentPull(component, notMainNode, pullParams) {
     //console.log(pullParams);
     return this._makeRequest(component, notMainNode, pullParams);
+    var pathResolution = this.buildPathResolution(component, "pull");
+    console.log(pathResolution);
   },
 
   buildDfobFlow(currentFlow, dfobPathTab) {
@@ -43,7 +45,57 @@ module.exports = {
       }
     }
   },
+  buildPathResolution(component, requestDirection) {
+    //var pathResolution = currentPathResolution || [];
+    var out = [];
+    if (requestDirection = "pull") {
+      if (component.connectionsBefore.length > 0) {
+        for (beforeComponent of iterable) {
+          out.push({
+            source: component,
+            detination: beforeComponent,
+            requestDirection: "pull"
+          });
+          // out = out.concat(this.buildPathResolution(beforeComponent, "pull", pathResolution));
 
+        }
+      }
+      if (component.connectionsAfter.length > 0) {
+        for (afterComponent of iterable) {
+          out.push({
+            source: afterComponent,
+            detination: component,
+            requestDirection: "push"
+          });
+          out = out.concat(this.buildPathResolution(afterComponent, "push", pathResolution));
+        }
+      }
+    }
+
+    if (requestDirection = "push") {
+      if (component.connectionsAfter.length > 0) {
+        for (afterComponent of iterable) {
+          out.push({
+            source: afterComponent,
+            detination: component,
+            requestDirection: "push"
+          });
+          out = out.concat(this.buildPathResolution(afterComponent, "push", pathResolution));
+        }
+      }
+      if (component.connectionsBefore.length > 0) {
+        for (beforeComponent of iterable) {
+          out.push({
+            source: component,
+            detination: beforeComponent,
+            requestDirection: "pull"
+          });
+          out = out.concat(this.buildPathResolution(beforeComponent, "pull", pathResolution));
+        }
+      }
+    }
+    return out;
+  },
   _makeRequest(component, notMainNode, pullParams) {
 
     // create a new Promise
@@ -78,7 +130,7 @@ module.exports = {
           )
         ).then(connectionsBeforeData => {
           //connectionsBeforeData=connectionsBeforeData.map(connectionBeforeData=>{data:connectionBeforeData})
-          if (module.test) {
+          if (module.pull) {
             //console.log('connectionsBeforeData | ', connectionsBeforeData);
             var primaryflow;
             if (module.getPrimaryFlow != undefined) {
@@ -108,9 +160,8 @@ module.exports = {
                   componentId: primaryflow.componentId
                 }]);
                 recomposedFlow = recomposedFlow.concat(secondaryFlow);
-                return module.test(component, recomposedFlow, pullParams);
+                return module.pull(component, recomposedFlow, pullParams);
               })
-              console.log('ALLO');
 
               Promise.all(testPromises).then(dataTestTab => {
                 //console.log('AllDfobResult |', dataTestTab);
@@ -175,10 +226,10 @@ module.exports = {
 
 
             } else {
-              console.log('recursivPullResolvePromise | module start test | ', module.type);
+              console.log('recursivPullResolvePromise | module start pull | ', module.type);
               //console.log('recursivPullResolvePromise |connectionsBeforeData | ', connectionsBeforeData);
 
-              module.test(component, connectionsBeforeData, pullParams).then(function(dataTest) {
+              module.pull(component, connectionsBeforeData, pullParams).then(function(dataTest) {
                 console.log('recursivPullResolvePromise | module end | ', module.type);
                 //console.log('recursivPullResolvePromise | dataTest | ',dataTest);
                 resolve({
@@ -196,8 +247,8 @@ module.exports = {
 
       } else {
         //console.log('resolveWebComponentPull | Last| ', component);
-        if (module.test) {
-          module.test(component, undefined, pullParams).then(function(dataTest) {
+        if (module.pull) {
+          module.pull(component, undefined, pullParams).then(function(dataTest) {
             console.log('recursivPullResolvePromise | module end | ', module.type);
             //console.log('recursivPullResolvePromise | module end | dataTest', dataTest);
             resolve({

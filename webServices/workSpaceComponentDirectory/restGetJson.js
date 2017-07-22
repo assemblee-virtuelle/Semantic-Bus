@@ -71,8 +71,8 @@ module.exports = {
       request.end();
     });
   },
-  test: function(data,flowdata,pullParams) {
-    //console.log('REST Get JSON | test : ',data);
+  pull: function(data,flowdata,pullParams) {
+    //console.log('REST Get JSON | pull : ',data);
     return this.makeRequest('GET', data.specificData.url,pullParams);
     /*this.makeRequest('GET', data.specificData.url).then(data => {
       //console.log('ALLO', data);
