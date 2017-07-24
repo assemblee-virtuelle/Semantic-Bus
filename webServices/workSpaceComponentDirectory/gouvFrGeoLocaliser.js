@@ -8,26 +8,26 @@ module.exports = {
   initComponent: function(entity) {
     return entity;
   },
-  buildWaterFall: function(promisesTab) {
-    return new Promise((resolve, reject) => {
-      var currentPromise = promisesTab[promisesTab.lenth - 1];
-      //console.log(promisesTab.lenth);
-      if (promisesTab.lenth > 1) {
-        var previousPromises = promisesTab.slice(0, promisesTab - 2);
-        buildWaterFall(previousPromises).then(previousData => {
-          /*currentPromise.then(currentData => {
-            previousData.push(currentData);
-            resolve(previousData);
-          })*/
-          resolve(previousData);
-        })
-      } else {
-        currentPromise.then(currentData => {
-          resolve([currentData]);
-        })
-      }
-    });
-  },
+  // buildWaterFall: function(promisesTab) {
+  //   return new Promise((resolve, reject) => {
+  //     var currentPromise = promisesTab[promisesTab.lenth - 1];
+  //     //console.log(promisesTab.lenth);
+  //     if (promisesTab.lenth > 1) {
+  //       var previousPromises = promisesTab.slice(0, promisesTab - 2);
+  //       buildWaterFall(previousPromises).then(previousData => {
+  //         /*currentPromise.then(currentData => {
+  //           previousData.push(currentData);
+  //           resolve(previousData);
+  //         })*/
+  //         resolve(previousData);
+  //       })
+  //     } else {
+  //       currentPromise.then(currentData => {
+  //         resolve([currentData]);
+  //       })
+  //     }
+  //   });
+  // },
   geoLocalise: function(source, specificData) {
 
     return new Promise((resolve, reject) => {

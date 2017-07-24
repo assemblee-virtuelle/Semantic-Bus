@@ -22,10 +22,14 @@ module.exports = function(router) {
 
     var id = req.params.id;
     mLabPromise.request('GET', 'workspaceComponent/' + id).then(function(data) {
+<<<<<<< HEAD
       console.log('workspaceComponent | test| ' + data);
+=======
+      //console.log('workspaceComponent | test| ');
+>>>>>>> 78e4e7f44e4a4442f9d0942bd041d68743be780e
       return recursivPullResolvePromise.resolveComponentPull(data, false);
     }).then(function(data) {
-      console.log("IN WORKSPACE COMPONENT RETURN DATA |" , data)
+      //console.log("IN WORKSPACE COMPONENT RETURN DATA |" , data)
       res.json(data.data);
     })
 
