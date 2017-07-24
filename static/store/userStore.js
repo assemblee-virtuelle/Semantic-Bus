@@ -82,7 +82,7 @@ function UserStore() {
           this.trigger('ajax_receipt_login');
         }.bind(this))
       } else {
-        // console.log("data no");
+        console.log("data no");
         this.trigger('bad_auth')
       }
     });
