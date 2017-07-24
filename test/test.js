@@ -7,7 +7,7 @@ var server = supertest.agent("http://localhost:8080");
 
 // UNIT test begin
 
-describe("sample ds test",function(){
+describe("sample dsds test",function(){
 
   // #1 should return home page
   it("should return login page",function(done){
