@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="first_test_group" timestamp="2017-07-25T17:46:47" time="2.618" tests="1" failures="0" errors="0" skipped="0">
+    <properties>
+      <property name="specId" value="8deeceec6edf757f39c45c8adfa2e0cd"/>
+      <property name="suiteName" value="First Test Group"/>
+      <property name="capabilities" value="phantomjs"/>
+      <property name="file" value="./test/e2e/test.js"/>
+    </properties>
+    <testcase classname="phantomjs.first_test_group" name="gets_the_title_of_mdn_toppage" time="2.616">
+      <system-out>
+        <![CDATA[
+COMMAND: POST http://127.0.0.1:4444/wd/hub/session/773b3220-7150-11e7-9dc3-6d1e0027ff7b/url - {"url":"https://developer.mozilla.org/en-US/"}
+RESULT: {"sessionId":"773b3220-7150-11e7-9dc3-6d1e0027ff7b","status":0,"value":{}}
+COMMAND: GET http://127.0.0.1:4444/wd/hub/session/773b3220-7150-11e7-9dc3-6d1e0027ff7b/title - {}
+RESULT: {"sessionId":"773b3220-7150-11e7-9dc3-6d1e0027ff7b","status":0,"value":"Mozilla Developer Network"}
+COMMAND: DELETE http://127.0.0.1:4444/wd/hub/session/773b3220-7150-11e7-9dc3-6d1e0027ff7b - {}
+RESULT: {"sessionId":"773b3220-7150-11e7-9dc3-6d1e0027ff7b","status":0,"value":{}}
+]]>
+      </system-out>
+    </testcase>
+  </testsuite>
+</testsuites>
