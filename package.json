@@ -58,7 +58,6 @@
   },
   "devDependencies": {
     "mocha": "^3.1.2",
-    "wdio-cucumber-framework": "^0.3.1",
     "wdio-junit-reporter": "^0.3.0",
     "wdio-mocha-framework": "^0.5.10",
     "wdio-phantomjs-service": "^0.2.2",
