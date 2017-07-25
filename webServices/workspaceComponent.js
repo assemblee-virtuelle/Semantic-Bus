@@ -26,7 +26,6 @@ module.exports = function(router) {
       var recursivPullResolvePromiseDynamic = require('./recursivPullResolvePromise');
 
       return recursivPullResolvePromise.resolveComponentPull(data, false);
-
     }).then(function(data) {
       //console.log("IN WORKSPACE COMPONENT RETURN DATA |" , data)
       res.json(data.data);

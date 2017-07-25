@@ -143,7 +143,7 @@ module.exports = {
             }, this.pathResolution).forEach(link => {
               link.status = 'resolved'
             });
-            console.log(componentProcessing._id.$oid ,this.RequestOrigine._id.$oid)
+            //console.log(componentProcessing._id.$oid ,this.RequestOrigine._id.$oid)
             if (componentProcessing._id.$oid == this.RequestOrigine._id.$oid) {
               this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
             }

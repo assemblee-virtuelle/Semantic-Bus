@@ -5,21 +5,21 @@
     <div class="{color3}" style="margin-left: 7%;" onclick={goQuery}>Query</div>
 </div>
 <div if={connection}>
-    <div>description de quel type de base NOSQL à interoger(mongoose ou mongodb) </div>
-    <label>driver</label>
-    <input type="text" name="driver" value={data.specificData.driver}/>
+    <div>description de quel type de base NOSQL à interoger </div>
+    <!--  <label>driver</label>
+    <input type="text" name="driver" value={data.specificData.driver}/>  -->
     <!--  <label>host</label>
     <input type="text" name="host" value={data.specificData.host}/>
     <label>port</label>  -->
     <!--  <input type="text" name="port" value={data.specificData.port}/>  -->
-    <label>url</label>  -->
+    <label>URI CONNEXION</label>  -->
     <input type="text" name="url" value={data.specificData.url}/> 
-    <label>username</label>
+    <!--  <label>username</label>
     <input type="text" name="username" value={data.specificData.username}/>
     <label>password</label>
     <input type="text" name="password" value={data.specificData.password}/>
     <label>database</label>
-    <input type="text" name="database" value={data.specificData.database}/>
+    <input type="text" name="database" value={data.specificData.database}/>  -->
     <div style="display: flex;justify-content: space-around;margin-top: 5%;">
       <button class="sql-btn" onclick={ connectesql} type="button">Connexion</button>
     </div>
@@ -34,8 +34,8 @@
     </div>
 </div>
 <div if={queryMode}>
-    <div style="display:flex; flex-direction: column;">
-        <div>
+    <div style="display:flex; flex-direction: column;"> 
+        <!--  <div>
             <h3 style="margin-top:5%;"> Séléctionner votre/vos type(s) de query </h3>
             <div style="display: flex; padding: 5px;">
                 <div each={this.queryData} onclick={toggle}>
@@ -48,17 +48,16 @@
                 </div>
             </div>
         </div>
-        <div>
-            <h3 style="margin-top:5%;"> Valeur </h3>
-            <h5 style="margin-top:2%;"> Documentation requetes: http://www.camintejs.com/en/guide#common-api </h5>
-            <textarea placeholder="Par defaut la requetete sort toute les donnés" style="width: 100%;height: 50%; background-color: white;color: rgb(56, 131, 250);padding: 5px;border-radius: 10px;border: 1px solid rgb(56, 131, 250);"
+        <div>  -->
+            <h3 style="margin-top:5%;"> Valeur( ne mettez pas le model seulement la query) </h3>
+            <h5 style="margin-top:2%;"> Documentation requetes: http://mongoosejs.com/docs/queries.html</h5>
+            <div>
+            <textarea placeholder="exemple: findOne({ 'email': 'alexbocenty@hotmail.fr' });" style="width: 100%;height: 50%; background-color: white;color: rgb(56, 131, 250);padding: 5px;border-radius: 10px;border: 1px solid rgb(56, 131, 250);"
                 type="textarea" name="querySelect" value={data.specificData.querySelect}>
                 {data.specificData.querySelect}
             </textarea>
+            </div>
         </div>
-    </div>
-    <div style="display: flex;justify-content: space-around;margin-top: 5%;">
-      <button class="sql-btn" onclick={ generateRequest} type="button">Generer query</button>
     </div>
 </div>
 <style>
@@ -153,7 +152,6 @@
   this.queryMode = false;
   this.innerData={};
   this.queryData = [{selected: false, query: "where"}, {selected: false, query: "group"},{selected: false, query: "order"},{selected: false, query: "skip"},{selected: false, query: "limit"}  ]
-  
 
     goQuery(e){
         this.editionModel = false;
@@ -218,8 +216,7 @@
 
 
     this.generateRequest = function(){
-      var modelName = this.data.specificData.modelName;
-      console.log(modelName)
+      //  var modelName = this.data.specificData.modelName; 
       var modelData = this.tags.jsonSchema.data;
       this.queryDatas = [];
       this.data.specificData.querySelect = [];
@@ -313,9 +310,6 @@
     this.on('mount', function (){
       this.connected = false
       this.query = false
-      this.driver.addEventListener('change',function(e){
-        this.innerData.specificData.driver=e.currentTarget.value;
-      }.bind(this));
 
       this.url.addEventListener('change',function(e){
         this.innerData.specificData.url=e.currentTarget.value;
@@ -324,8 +318,28 @@
       //this.port.addEventListener('change',function(e){
       // this.innerData.specificData.port=e.currentTarget.value;
       //}.bind(this));
+ 
+      this.modelName.addEventListener('change',function(e){
+        this.innerData.specificData.modelName=e.currentTarget.value;
+      }.bind(this));
 
-      this.username.addEventListener('change',function(e){
+      this.querySelect.addEventListener('change',function(e){
+        this.innerData.specificData.querySelect=e.currentTarget.value;
+      }.bind(this));
+      
+      RiotControl.on('item_current_changed',function(data){
+        this.innerData=data;
+        this.update();
+      }.bind(this));
+    });
+  </script>
+  
+</mongo-connecteur-editor>
+      <!--  this.driver.addEventListener('change',function(e){
+        this.innerData.specificData.driver=e.currentTarget.value;
+      }.bind(this));  -->
+
+ <!--  this.username.addEventListener('change',function(e){
         this.innerData.specificData.username=e.currentTarget.value;
       }.bind(this));
 
@@ -335,22 +349,4 @@
 
       this.database.addEventListener('change',function(e){
         this.innerData.specificData.database=e.currentTarget.value;
-      }.bind(this));
-
-      this.modelName.addEventListener('change',function(e){
-        this.innerData.specificData.modelName=e.currentTarget.value;
-      }.bind(this));
-
-      this.querySelect.addEventListener('change',function(e){
-        this.innerData.specificData.querySelect=e.currentTarget.value;
-      }.bind(this));
-      
-
-      RiotControl.on('item_current_changed',function(data){
-        this.innerData=data;
-        this.update();
-      }.bind(this));
-    });
-  </script>
-  
-</mongo-connecteur-editor>
+      }.bind(this));   -->

@@ -9,14 +9,14 @@ module.exports = {
   mapValue :function(valueIn, specificData){
     var valueOut=valueIn;
     for (var atomicMapping of specificData.mappingTable){
-      if(valueIn.indexOf(atomicMapping.flowValue)!=-1){
+      if(valueIn.indexOf!=undefined && valueIn.indexOf(atomicMapping.flowValue)!=-1){
         //console.log('MAP',valueIn,atomicMapping.flowValue,atomicMapping.replacementValue);
         valueOut = valueIn.replace(atomicMapping.flowValue,atomicMapping.replacementValue);
       }
     }
     return valueOut;
   },
-  mapValuues: function(source, specificData) {
+  mapValues: function(source, specificData) {
 
     return new Promise((resolve, reject) => {
       var out;
@@ -33,6 +33,6 @@ module.exports = {
   },
   pull: function(data, flowData) {
     //console.log('Object Transformer | pull : ',data,' | ',flowData[0].length);
-    return this.mapValuues(flowData[0].data, data.specificData);
+    return this.mapValues(flowData[0].data, data.specificData);
   }
 }
