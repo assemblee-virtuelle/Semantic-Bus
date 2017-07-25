@@ -124,6 +124,9 @@ font-size: 22px;" if={showAdmin}>
           <div onclick={testPullClick} class="commandButton">
             tester un flux tiré
           </div>
+          <div onclick={workClick} class="commandButton">
+            tester le composant
+          </div>
           <div onclick={saveEditionContainerClick} class={ commandButton: true, persistInProgress: persistInProgress } name="saveButton">
             save
           </div>
@@ -294,6 +297,19 @@ font-size: 22px;" if={showAdmin}>
       }
     }
 
+    workClick(e) {
+      console.log('ALLO');
+      if (this.editionContainer.workClick == undefined) {
+        var data = this.editionContainer.data;
+        //console.log('saveEditionContainerClick : ', data );
+        RiotControl.trigger('item_current_work');
+
+      } else {
+        this.editionContainer.workClick();
+
+      }
+    }
+
     //TODO je pense que ca ne sert plus : tenter de commenter
     navigateWorkspaceComponentClick(e) {
       RiotControl.trigger('item_current_editById', e.item._id.$oid);
@@ -377,6 +393,13 @@ font-size: 22px;" if={showAdmin}>
         this.update();
       }.bind(this));
 
+      RiotControl.on('item_current_work_done', function (data) {
+        this.modeComponentTest = true;
+        console.log('item_current_work_done | data :',data);
+        this.tags.testPreviewer.data = data;
+        this.update();
+      }.bind(this));
+
       RiotControl.on('navigator_mount', function (webComponentName) {
         console.log('navigator_mount');
         this.cleanNavigation();
@@ -435,7 +458,7 @@ font-size: 22px;" if={showAdmin}>
       }.bind(this));
 
 
-      
+
 
       RiotControl.on('navigation_mode_changed', function (data) {
         console.log('navigation_mode_changed : ', data);
