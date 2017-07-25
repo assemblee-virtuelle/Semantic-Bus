@@ -60,6 +60,8 @@
     "mocha": "^3.1.2",
     "wdio-junit-reporter": "^0.3.0",
     "wdio-phantomjs-service": "^0.2.2",
+    "wdio-spec-reporter": "0.0.3",
+    "wdio-testingbot-service": "^0.1.7",
     "webdriverio": "^4.2.16"
   }
 }
