@@ -198,6 +198,7 @@ module.exports = {
         incConsole += "-";
       }
       console.log(incConsole, "buildPathResolution", component._id.$oid, requestDirection);
+      let module= this.technicalComponentDirectory[component.module];
 
       var out = [];
       //if (requestDirection == "pull") {
