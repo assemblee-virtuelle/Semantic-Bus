@@ -50,9 +50,17 @@ module.exports = {
 
         if (requestDirection == 'push') {
           // affecter le flux à tous les link dont la source est le composant
+          this.sift({'_id.$oid':component._id.$oid},this.componentsResolving)[0].dataResolution=pushData;
+          this.sift({
+            "source._id.$oid": component._id.$oid
+          }, this.pathResolution).forEach(link => {
+            link.status = 'processing'
+          });
+          this.processNextBuildPath();
         }
-        if (requestDirection == 'pull') {
-          this.sift({pullSource:true},this.componentsResolving).forEach(componentProcessing=>{
+
+        //if (requestDirection == 'pull') {
+          this.sift({pullSource:true,dataResolution:{$exists:false}},this.componentsResolving).forEach(componentProcessing=>{
             let module = this.technicalComponentDirectory[componentProcessing.module];
             //let componentProcessing = processingLink.source;
             module.pull(componentProcessing, undefined, undefined).then(componentFlow => {
@@ -67,7 +75,7 @@ module.exports = {
               this.processNextBuildPath();
             })
           });
-        }
+        //}
 
       })
     });

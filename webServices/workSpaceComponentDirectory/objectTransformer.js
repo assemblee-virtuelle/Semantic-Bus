@@ -26,7 +26,6 @@ module.exports = {
     }
 
     if (array == true) {
-
       var destArray = [];
       for (var propertyKey in source) {
         var record = source[propertyKey];
