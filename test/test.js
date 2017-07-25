@@ -9,7 +9,7 @@
 
 
 // googletesting.js
-casper.test.begin('Google search retrieves 10 or more results', 5, function suite(test) {
+casper.test.begin('GOogle search retrieves 10 or more results', 5, function suite(test) {
     casper.start("https://www.google.fr/", function() {
         test.assertTitle("Google", "google homepage title is the one expected");
         test.assertExists('form[action="/search"]', "main form is found");
