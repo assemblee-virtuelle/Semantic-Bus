@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="connexion_with_normal_compte" timestamp="2017-07-26T17:35:03" time="23.096" tests="1" failures="0" errors="0" skipped="0">
+    <properties>
+      <property name="specId" value="8deeceec6edf757f39c45c8adfa2e0cd"/>
+      <property name="suiteName" value="connexion with normal compte"/>
+      <property name="capabilities" value="chrome.latest.windows7"/>
+      <property name="file" value="./test/e2e/test.js"/>
+    </properties>
+    <testcase classname="chrome.latest.windows7.connexion_with_normal_compte" name="nous_devons_arriver_sur_application_html" time="23.094">
+      <system-out>
+        <![CDATA[
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/execute - {"script":"sauce:context=connexion with normal compte - Nous devons arriver sur application.html","args":[]}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":""}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/url - {"url":"http://semantic-bus.org/auth/login.html"}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":null}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/element - {"using":"css selector","value":"form"}
+RESULT: {"message":"no such element: Unable to locate element: {\"method\":\"css selector\",\"selector\":\"form\"}","type":"RuntimeError","seleniumStack":{"status":7,"type":"NoSuchElement","message":"An element could not be located on the page using the given search parameters.","orgStatusMessage":"no such element: Unable to locate element: {\"method\":\"css selector\",\"selector\":\"form\"}\n  (Session info: chrome=59.0.3071.86)\n  (Driver info: chromedriver=2.29.461591 (62ebf098771772160f391d75e589dc567915b233),platform=Windows NT 6.1.7601 SP1 x86_64)"}}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/elements - {"using":"css selector","value":"form"}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":[{"ELEMENT":"0.3325593142527097-1"}]}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/element/0.3325593142527097-1/displayed - {}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":true}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/elements - {"using":"css selector","value":"input[name=\"email\"]"}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":[{"ELEMENT":"0.3325593142527097-2"}]}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/element/0.3325593142527097-2/displayed - {}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":true}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/elements - {"using":"css selector","value":"input[name=\"email\"]"}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":[{"ELEMENT":"0.3325593142527097-2"}]}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/element/0.3325593142527097-2/clear - {}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":null}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/element/0.3325593142527097-2/value - {"value":["a","l","e","x","b","o","c","e","n","t","(12 more items)"],"text":"alexbocenty@hotmail.fr"}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":null}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/elements - {"using":"css selector","value":"input[name=\"password\"]"}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":[{"ELEMENT":"0.3325593142527097-3"}]}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/element/0.3325593142527097-3/clear - {}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":null}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/element/0.3325593142527097-3/value - {"value":["a","z","e","r","t","y"],"text":"azerty"}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":null}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/element - {"using":"id","value":"btn2"}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":{"ELEMENT":"0.3325593142527097-4"}}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/element/0.3325593142527097-4/click - {}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":null}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/url - {}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":"https://semantic-bus.org/ihm/application.html"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":[{"ELEMENT":"0.28947075820274626-1"}]}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/element/0.28947075820274626-1/displayed - {}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":true}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/elements - {"using":"css selector","value":"div[name=\"workspaceSelector\"]"}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":[{"ELEMENT":"0.28947075820274626-2"},{"ELEMENT":"0.28947075820274626-3"}]}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/element/0.28947075820274626-2/displayed - {}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/element/0.28947075820274626-3/displayed - {}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":true}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":true}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/element - {"using":"css selector","value":"div[name=\"workspaceSelector\"]"}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":{"ELEMENT":"0.28947075820274626-2"}}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/element/0.28947075820274626-2/click - {}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":null}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/elements - {"using":"css selector","value":"div.commandBar.containerH > div.commandButton"}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":[]}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/elements - {"using":"css selector","value":"div.commandBar.containerH > div.commandButton"}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":[{"ELEMENT":"0.28947075820274626-4"}]}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/element/0.28947075820274626-4/displayed - {}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":true}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/element - {"using":"css selector","value":"div.commandBar.containerH > div.commandButton"}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":{"ELEMENT":"0.28947075820274626-4"}}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f/element/0.28947075820274626-4/click - {}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":null}
+COMMAND: DELETE https://ondemand.saucelabs.com:443/wd/hub/session/a1db965fd67c4d829c53e1cf45963a7f - {}
+RESULT: {"status":0,"sessionId":"a1db965fd67c4d829c53e1cf45963a7f","value":""}
+]]>
+      </system-out>
+    </testcase>
+  </testsuite>
+</testsuites>

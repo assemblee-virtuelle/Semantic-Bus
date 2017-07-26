@@ -33,7 +33,9 @@ const fs = require('fs')
 
 describe('connexion with normal compte', () => {
   it('Nous devons arriver sur application.html', function () {
-      // receive screenshot as Buffer   
+      // receive screenshot as Buffer  
+      
+      ///CONNEXION 
       var url = browser.url('/auth/login.html')    
       browser.waitUntil(() => {
        return $('form').isVisible();
@@ -49,9 +51,13 @@ describe('connexion with normal compte', () => {
       browser.waitForVisible('navigation');
       let workSpaceSelector = 'div[name="workspaceSelector"]';
       browser.waitForVisible(workSpaceSelector,3000);
+
+      /// FIN DE CONNEXION ///
       $(workSpaceSelector).click();
       browser.waitForVisible('div.commandBar.containerH > div.commandButton',3000);
       // var buttonAddWorkspace = browser.selectByValue('div.commandBar.containerH > div.commandButton','+');
       $('div.commandBar.containerH > div.commandButton').click();
+      browser.waitForVisible('div.commandButton',3000);
+      browser.waitForVisible('div.commandBar.containerH > div.commandButton',3000);
   })
 })
