@@ -35,7 +35,7 @@ describe('connexion with normal compte', () => {
   it('Nous devons arriver sur application.html', function () {
       // receive screenshot as Buffer  
       
-      ///CONNEXION 
+      ///CONNEXION TEST
       var url = browser.url('/auth/login.html')    
       browser.waitUntil(() => {
        return $('form').isVisible();
