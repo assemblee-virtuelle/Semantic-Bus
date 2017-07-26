@@ -8,7 +8,7 @@ function GenericStore(specificStoreList) {
   this.connectMode;
 
   this.update = function() {
-    console.log('GenericStore | update',this.itemCurrent);
+    console.log('GenericStore || update',this.itemCurrent);
     $.ajax({
       method: 'put',
       url: '../data/core/workspaceComponent',
