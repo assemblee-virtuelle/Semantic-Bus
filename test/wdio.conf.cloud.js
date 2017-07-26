@@ -2,19 +2,13 @@
 const base = require('./wdio.conf.base')
 
 exports.config = Object.assign(base.config, {
-  capabilities: [
-    {
-      browserName: 'chrome',
-      platform: 'MACOS',
-      version: 'latest'
-    },
-    {
-      browserName: 'firefox',
-      platform: 'MACOS',
-      version: 'latest'
-    }
-  ],
-  services: ['testingbot'],
-  user: process.env.TESTINGBOT_KEY,
-  key: process.env.TESTINGBOT_SECRET
+    capabilities: [{
+        browserName: 'chrome',
+        platform: 'Windows 7',
+        version: 'latest'
+    }, ],
+    services: ['sauce'],
+    waitforTimeout:300000,
+    user: "semanticbusdev@gmail.com",
+    key: "882170ce-1971-4aa8-9b2d-0d7f89ec7b71",
 })
