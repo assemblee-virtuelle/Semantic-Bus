@@ -5,8 +5,8 @@ module.exports = {
   sift: require('sift'),
 
 
-  test: function(data, flowData) {
-    console.log('Flow Agregator | test : ',data,' | ',flowData);
+  pull: function(data, flowData) {
+    //console.log('Flow Agregator | pull : ',data,' | ',flowData);
     return new Promise((resolve, reject) => {
       var resultFlow = [];
       //console.log(data);
@@ -16,12 +16,12 @@ module.exports = {
           var everExistingData = [];
           if (data.specificData.unicityFields != undefined && data.specificData.unicityFields.length>0) {
             for (unicityField of data.specificData.unicityFields) {
-              console.log(unicityField.field,record);
+              //console.log(unicityField.field,record);
               if (record[unicityField.field] != undefined) {
                 filter[unicityField.field] = record[unicityField.field];
               }
             }
-            console.log(filter);
+            //console.log(filter);
             everExistingData = this.sift(filter, resultFlow);
           }
 

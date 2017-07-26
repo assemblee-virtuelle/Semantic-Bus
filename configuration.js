@@ -4,5 +4,5 @@ module.exports = {
    mlabDB : 'semantic_bus',
    saveLock : false,
    addLock : false,
-   https: false,
+
 }

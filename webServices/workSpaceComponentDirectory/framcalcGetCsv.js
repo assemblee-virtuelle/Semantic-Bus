@@ -71,8 +71,8 @@ module.exports = {
       request.end();
     });
   },
-  test: function(data) {
-    //console.log('GOOGLE Get JSON | test : ', data);
+  pull: function(data) {
+    //console.log('GOOGLE Get JSON | pull : ', data);
     return this.makeRequest(data.specificData.key, data.specificData.offset, data.specificData.provider);
     /*this.makeRequest('GET', data.specificData.url).then(data => {
       //console.log('ALLO', data);

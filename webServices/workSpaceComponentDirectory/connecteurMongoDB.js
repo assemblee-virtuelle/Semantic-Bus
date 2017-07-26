@@ -2,6 +2,7 @@ module.exports = {
     type: 'MongoDB connector',
     description: 'intéroger une base de donnée Mongo',
     editor: 'mongo-connecteur-editor',
+    mongoose: require('mongoose'),
     mLabPromise: require('../mLabPromise'),
     schema: null,
     modelShema: null,
@@ -9,7 +10,35 @@ module.exports = {
         // router.post('/sqlconnecte/:compid', function (req, res) {
             console.log(url)
         return new Promise(function (resolve, reject) {
+            // if (!url) {
+            //     var url = host || 'localhost';
+            //     if (port) url += ':' + port;
+            //     var auth = '';
+            //     if (username) {
+            //         auth = username;
+            //         if (password) {
+            //             auth += ':' + password;
+            //         }
+            //     }
+            //     if (auth) {
+            //         url = auth + '@' + url;
+            //     }
+            //     if (database) {
+            //         url += '/' + database;
+            //     } else {
+            //         url += '/';
+            //     }
+            //     url = 'mongodb://' + url;
+            //     url = url;
+            //      resolve(url)
+            // }else{
             resolve(url)
+            // }
+            // mongooseConnection = this.mongoose.connect(url);
+            // } else {
+            //     mongooseConnection = this.mongoose.connect(url);
+            // }
+            // resolve(this.schema)
         }.bind(this))
         // console.log("connected", this.schema)
         // }.bind(this))
@@ -39,6 +68,7 @@ module.exports = {
                 if (querysTable.length == 0) {
                     modelShema.model.find(
                         function (err, dataElements) {
+                            
                             resolve(dataElements)
                             // delete mongoose.models[modelName]
                             // modelShema.db.connection.close();
@@ -61,10 +91,12 @@ module.exports = {
                     }.bind(this)).catch(err => resolve("error"))
                 }
             }.bind(this));
+
         }.bind(this))
     },
-    test: function (data) {
-        console.log("IN TEST")
+    pull: function (data) {
+        ///creation du model
+        console.log("IN pull")
         return new Promise((resolve, reject) => {
             var mongoose = require('mongoose');
             this.mLabPromise.request('GET', 'workspaceComponent/' + data._id.$oid).then(function (data) {

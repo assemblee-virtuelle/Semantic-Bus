@@ -21,7 +21,6 @@ module.exports = {
    mongoConnector: require('./workSpaceComponentDirectory/connecteurMongoDB.js'),
    sparqlRequest: require('./workSpaceComponentDirectory/sparqlRequest.js'),
    valueMapping: require('./workSpaceComponentDirectory/valueMapping.js'),
-    //  sparqlRequest: require('./workSpaceComponentDirectory/sparqlRequest.js'),
     /* some other modules you want */
     initialise : function(router,unSafeRouteur, recursivPullResolvePromise){
       this.restApiGet.initialise(unSafeRouteur);//NO SECURE CHANGE ROUTER

@@ -20,8 +20,8 @@ module.exports = {
       });
     })
   },
-  test: function (data, flowData) {
-    //console.log('REST Get JSON | test : ',data);
+  pull: function (data, flowData) {
+    //console.log('REST Get JSON | pull : ',data);
     // console.log("flowDataAAAAAAAAA", flowData[0].data)
     return this.makeRequest(flowData[0].data, data.specificData.request);
   }
