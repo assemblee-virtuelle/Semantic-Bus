@@ -41,7 +41,7 @@ if (cluster.isMaster) {
   if (jenkins) {
     console.log("jenkins is true");
     http.get('http://bkz2jalw7c:3bdcf7bc40f582a4ae7ff52f77e90b24@tvcntysyea-jenkins.services.clever-cloud.com:4003/job/semanticbus-pic-3/build?token=semantic_bus_token', function (res) {
-      console.log("jenkins JOB 3 trigger")
+      console.log("jenkins JOB trigger")
     })
   }
 } else {
