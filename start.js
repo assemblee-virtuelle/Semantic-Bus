@@ -1,10 +1,12 @@
 "use strict";
+const http = require('http'),
 const cluster = require('cluster'),
       stopSignals = [
         'SIGHUP', 'SIGINT', 'SIGQUIT', 'SIGILL', 'SIGTRAP', 'SIGABRT',
         'SIGBUS', 'SIGFPE', 'SIGUSR1', 'SIGSEGV', 'SIGUSR2', 'SIGTERM'
       ],
       production = process.env.NODE_ENV == 'production';
+      const jenkins = process.env.JENKINS_DEPLOY || false;
 
 let stopping = false;
 
@@ -35,6 +37,12 @@ if (cluster.isMaster) {
         });
       });
     });
+  }
+  if(jenkins){
+    console.log("jenkins is true");
+    http.get('http://tvcntysyea-jenkins.services.clever-cloud.com:4003//me/my-views/view/All/job/semanticbus-pic-3/build?token=semantic_bus_token', function(res){
+      console.log("jenkins JOB 3 trigger")
+    })
   }
 } else {
   require('./app.js');

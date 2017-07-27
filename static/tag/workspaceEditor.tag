@@ -26,7 +26,7 @@
           <div class="{color3}" if= {DescriptionView} onclick={goDescription}>Déscription</div>
         </div>
         <div show={modeComponentList}>
-          <zenTable  style="flex:1"  css="background-color:white!important;color: #3883fa;" disallowcommand={innerData.mode=="read"} >
+          <zenTable  style="flex:1"  css="background-color:white!important;color: #3883fa;" disallowcommand={innerData.mode=="read"} id="composant">
               <yield to="header">
                 <div>nom</div>
                 <div>composant technique</div>
@@ -40,7 +40,7 @@
           </zenTable>
         </div>
         <div show={modeUserList}>
-          <zenTable title="" style="flex:1" disallownavigation="true"   css="background-color:white!important;color: #3883fa;"    disallowcommand={innerData.mode=="read"} >
+          <zenTable title="" style="flex:1" disallownavigation="true"   css="background-color:white!important;color: #3883fa;" id = "userliste" disallowcommand={innerData.mode=="read"} >
               <yield to="header" >
                 <div>email</div>
                 <div>role</div>
@@ -51,7 +51,7 @@
               </yield>
           </zenTable>
         </div>
-        <div show={modeUserDescription} class="description-worksapce">
+        <div show={modeUserDescription} class="description-worksapce" id = "description">
           <label style="padding-top:3vh">{labelInputName} </label>
           <input readonly={innerData.mode=="read"} class={readOnly : innerData.mode=="read", description-worksapce-input : innerData.mode=="edit"} name="workspaceNameInput" type="text" placeholder="nom du workspace" value="{innerData.name}"></input>
            <label style="padding-top:3vh" >{labelInputDesc} </label>
