@@ -37,8 +37,8 @@
       <div class="containerH" style="flex-grow:1;flex-wrap: nowrap;">
         <div class="containerV commandBar" style="flex-basis:10px" if={modeMenuHide}>
           <div></div>
-          <div class="commandGroup" class="containerH">
-            <div onclick={showMenu} class="commandButton">
+          <div class="commandGroup containerH">
+            <div onclick={showMenu} id = "backBar" class="commandButton">
               >
             </div>
           </div>
@@ -167,7 +167,7 @@ font-size: 22px;" if={showAdmin}>
           <div class="containerV commandBar" style="flex-basis:50px">
             <div></div>
             <div class="commandGroup containerH">
-              <div onclick={closeTest} id = "backBar" class="commandButton">
+              <div onclick={closeTest}  class="commandButton">
                 >
               </div>
             </div>
