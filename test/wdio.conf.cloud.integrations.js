@@ -12,7 +12,12 @@ exports.config = Object.assign(base.config, {
     user: "semanticbusdev@gmail.com",
     key: "882170ce-1971-4aa8-9b2d-0d7f89ec7b71",
     specs: [
-        './test/e2e/test_integrations/*.js'
-    ]
+        './test/test_integrations/*.js'
+    ],
+    reporterOptions: {
+        junit: {
+            outputDir: './test/test_result/integ_unit_result'
+        }
+    }
 })
 

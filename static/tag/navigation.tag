@@ -167,7 +167,7 @@ font-size: 22px;" if={showAdmin}>
           <div class="containerV commandBar" style="flex-basis:50px">
             <div></div>
             <div class="commandGroup" class="containerH">
-              <div onclick={closeTest} class="commandButton">
+              <div onclick={closeTest} id="backBar" class="commandButton">
                 >
               </div>
             </div>

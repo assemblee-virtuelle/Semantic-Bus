@@ -21,8 +21,8 @@
     </div>
     <div>
         <div class=" containerH" style="justify-content: flex-start!important">
-          <div class="{color1}" if= {componentView}  id="composant" onclick={goComponent}>Composant(s)</div>
-          <div class="{color2}" id="utilisateur" if= {userView} onclick={goUser}>Utilisateur(s)</div>
+          <div class="{color1}" if= {componentView}  id="component" onclick={goComponent}>Composant(s)</div>
+          <div class="{color2}" id="user" if= {userView} onclick={goUser}>Utilisateur(s)</div>
           <div class="{color3}" if= {DescriptionView} id="description" onclick={goDescription}>Déscription</div>
         </div>
         <div show={modeComponentList}>
