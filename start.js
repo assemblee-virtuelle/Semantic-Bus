@@ -1,16 +1,16 @@
 "use strict";
-const http = require('http'),
-const cluster = require('cluster'),
-      stopSignals = [
-        'SIGHUP', 'SIGINT', 'SIGQUIT', 'SIGILL', 'SIGTRAP', 'SIGABRT',
-        'SIGBUS', 'SIGFPE', 'SIGUSR1', 'SIGSEGV', 'SIGUSR2', 'SIGTERM'
-      ],
-      production = process.env.NODE_ENV == 'production';
-      const jenkins = process.env.JENKINS_DEPLOY || false;
+var http = require('http');
+var cluster = require('cluster');
+var stopSignals = [
+  'SIGHUP', 'SIGINT', 'SIGQUIT', 'SIGILL', 'SIGTRAP', 'SIGABRT',
+  'SIGBUS', 'SIGFPE', 'SIGUSR1', 'SIGSEGV', 'SIGUSR2', 'SIGTERM'
+];
+var production = process.env.NODE_ENV == 'production';
+var jenkins = process.env.JENKINS_DEPLOY || false;
 
 let stopping = false;
 
-cluster.on('disconnect', function(worker) {
+cluster.on('disconnect', function (worker) {
   if (production) {
     if (!stopping) {
       cluster.fork();
@@ -21,7 +21,7 @@ cluster.on('disconnect', function(worker) {
 });
 
 if (cluster.isMaster) {
-  const workerCount = process.env.NODE_CLUSTER_WORKERS || 4;
+  var workerCount = process.env.NODE_CLUSTER_WORKERS || 4;
   console.log(`Starting ${workerCount} workers...`);
   for (let i = 0; i < workerCount; i++) {
     cluster.fork();
@@ -38,9 +38,9 @@ if (cluster.isMaster) {
       });
     });
   }
-  if(jenkins){
+  if (jenkins) {
     console.log("jenkins is true");
-    http.get('http://tvcntysyea-jenkins.services.clever-cloud.com:4003//me/my-views/view/All/job/semanticbus-pic-3/build?token=semantic_bus_token', function(res){
+    http.get('http://tvcntysyea-jenkins.services.clever-cloud.com:4003//me/my-views/view/All/job/semanticbus-pic-3/build?token=semantic_bus_token', function (res) {
       console.log("jenkins JOB 3 trigger")
     })
   }
