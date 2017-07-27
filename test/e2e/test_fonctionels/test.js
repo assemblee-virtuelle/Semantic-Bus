@@ -52,7 +52,7 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
 
       // CLICK SUR PLUS //
       browser.waitForVisible('zentable');
-      $('#listuser').$('div.commandButton').click();
+      $('#userliste').$('div.commandButton').click();
       
       /// REMPLISSAGE LIST USER ///
       browser.waitForVisible('user-list');
@@ -60,7 +60,7 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
 
       /// PARTAGE DU WORKSPACE 
       $('user-list').$('.share-btn').click()
-      $('zentable').$('div.commandButton').click()
+      $('#cancel').click()
 
       //ADD DESCRIPTION
       $('workspace-editor').$('div.white').click()
@@ -91,3 +91,31 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
 //       browser.waitForVisible('workspace-table');   
 //   })
 // })
+
+
+
+
+// describe('Supression d\'un workspace', () => {
+//   it('on devrait arriver sur la listes des worksapces sans le workspace', function () {
+//       ///CONNEXION 
+//       var url = browser.url('/auth/login.html')    
+//       browser.waitUntil(() => {
+//        return $('form').isVisible();
+//       }, 5000)
+//       let email = 'input[name="email"]';
+//       browser.waitForVisible(email,3000);
+//       browser.setValue(email, 'alexbocenty@hotmail.fr')
+//       let password = 'input[name="password"]';
+//       browser.setValue(password, 'azerty')
+//       $('#btn2').click();
+//       expect(browser.getUrl()).to.be.equal('http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/ihm/application.html');
+//       browser.waitForVisible('navigation');
+//       let workSpaceSelector = 'div[name="workspaceSelector"]';
+//       browser.waitForVisible(workSpaceSelector,3000);
+
+//       // ACCES LISTE WORKSPACE
+//       $(workSpaceSelector).click();
+//       browser.waitForVisible('workspace-table');   
+//   })
+// })
+

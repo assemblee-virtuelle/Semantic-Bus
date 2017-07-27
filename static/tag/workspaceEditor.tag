@@ -5,25 +5,25 @@
       <div class="title-bar">{innerData.name}</div>
       <div></div>
       <div class="containerH commandGroup">
-          <div onclick={editClick}  class="commandButton" if={innerData.mode=="read"}>
+          <div onclick={editClick}  class="commandButton" id="edit" if={innerData.mode=="read"}>
             edit
           </div>
-          <div onclick={graphClick}  class="commandButton" if={innerData.mode=="read"}>
+          <div onclick={graphClick}  class="commandButton" id="graph" if={innerData.mode=="read"}>
             graph
           </div>
-          <div onclick={cancelClick}  class="commandButton" if={innerData.mode=="edit" || innerData.mode=="init"}>
+          <div onclick={cancelClick}  class="commandButton" id="cancel"  if={innerData.mode=="edit" || innerData.mode=="init"}>
             cancel
           </div>
-          <div onclick={persistClick}  class="commandButton" if={innerData.mode=="edit" || innerData.mode=="init"}>
+          <div onclick={persistClick}  class="commandButton" id="save" if={innerData.mode=="edit" || innerData.mode=="init"}>
             save
           </div>
       </div>
     </div>
     <div>
         <div class=" containerH" style="justify-content: flex-start!important">
-          <div class="{color1}" if= {componentView}  onclick={goComponent}>Composant(s)</div>
-          <div class="{color2}" if= {userView} onclick={goUser}>Utilisateur(s)</div>
-          <div class="{color3}" if= {DescriptionView} onclick={goDescription}>Déscription</div>
+          <div class="{color1}" if= {componentView}  id="composant" onclick={goComponent}>Composant(s)</div>
+          <div class="{color2}" id="utilisateur" if= {userView} onclick={goUser}>Utilisateur(s)</div>
+          <div class="{color3}" if= {DescriptionView} id="description" onclick={goDescription}>Déscription</div>
         </div>
         <div show={modeComponentList}>
           <zenTable  style="flex:1"  css="background-color:white!important;color: #3883fa;" disallowcommand={innerData.mode=="read"} id="composant">
