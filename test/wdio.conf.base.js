@@ -77,7 +77,7 @@ exports.config = {
     //
     // Set a base URL in order to shorten url command calls. If your url parameter starts
     // with "/", then the base url gets prepended.
-    baseUrl: 'http://semantic-bus.org/',
+    baseUrl: 'http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io',
     //    host: "semantic-bus.org",
     // Default timeout for all waitFor* commands.
     waitforTimeout: 30000,
@@ -135,7 +135,7 @@ exports.config = {
     // See the full list at http://mochajs.org/
     mochaOpts: {
         ui: 'bdd',
-        timeout: 30000
+        timeout: 1200000
     },
     //
     // =====

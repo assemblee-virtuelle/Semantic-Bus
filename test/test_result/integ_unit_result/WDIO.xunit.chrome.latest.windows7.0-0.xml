@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="connexion_with_normal_compte" timestamp="2017-07-26T22:24:33" time="27.182" tests="1" failures="0" errors="1" skipped="0">
+    <properties>
+      <property name="specId" value="391c52266f225ba496c830c5d6779bf5"/>
+      <property name="suiteName" value="connexion with normal compte"/>
+      <property name="capabilities" value="chrome.latest.windows7"/>
+      <property name="file" value="./test/e2e/test_fonctionels/test.js"/>
+    </properties>
+    <testcase classname="chrome.latest.windows7.connexion_with_normal_compte" name="nous_devons_arriver_sur_application_html" time="27.181">
+      <error message="selector needs to be typeof `string`"/>
+      <system-out>
+        <![CDATA[
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/execute - {"script":"sauce:context=connexion with normal compte - Nous devons arriver sur application.html","args":[]}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":""}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/url - {"url":"http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/auth/login.html"}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":null}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/element - {"using":"css selector","value":"form"}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":{"ELEMENT":"0.31861099377568114-1"}}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/element/0.31861099377568114-1/displayed - {}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":true}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/elements - {"using":"css selector","value":"input[name=\"email\"]"}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":[{"ELEMENT":"0.31861099377568114-2"}]}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/element/0.31861099377568114-2/displayed - {}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":true}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/elements - {"using":"css selector","value":"input[name=\"email\"]"}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":[{"ELEMENT":"0.31861099377568114-2"}]}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/element/0.31861099377568114-2/clear - {}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":null}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/element/0.31861099377568114-2/value - {"value":["a","l","e","x","b","o","c","e","n","t","(12 more items)"],"text":"alexbocenty@hotmail.fr"}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":null}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/elements - {"using":"css selector","value":"input[name=\"password\"]"}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":[{"ELEMENT":"0.31861099377568114-3"}]}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/element/0.31861099377568114-3/clear - {}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":null}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/element/0.31861099377568114-3/value - {"value":["a","z","e","r","t","y"],"text":"azerty"}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":null}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/element - {"using":"id","value":"btn2"}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":{"ELEMENT":"0.31861099377568114-4"}}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/element/0.31861099377568114-4/click - {}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":null}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/url - {}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":"http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/ihm/application.html"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":[{"ELEMENT":"0.8878542948018568-1"}]}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/element/0.8878542948018568-1/displayed - {}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":true}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/elements - {"using":"css selector","value":"div[name=\"workspaceSelector\"]"}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":[{"ELEMENT":"0.8878542948018568-2"},{"ELEMENT":"0.8878542948018568-3"}]}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/element/0.8878542948018568-2/displayed - {}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/element/0.8878542948018568-3/displayed - {}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":true}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":true}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/element - {"using":"css selector","value":"div[name=\"workspaceSelector\"]"}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":{"ELEMENT":"0.8878542948018568-2"}}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/element/0.8878542948018568-2/click - {}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":null}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/elements - {"using":"css selector","value":"div.commandBar.containerH > div.commandButton"}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":[]}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/elements - {"using":"css selector","value":"div.commandBar.containerH > div.commandButton"}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":[{"ELEMENT":"0.8878542948018568-4"}]}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/element/0.8878542948018568-4/displayed - {}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":true}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/element - {"using":"css selector","value":"div.commandButton"}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":{"ELEMENT":"0.8878542948018568-5"}}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/element/0.8878542948018568-5/click - {}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":null}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/elements - {"using":"css selector","value":"workspace-editor"}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":[{"ELEMENT":"0.8878542948018568-6"}]}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/element/0.8878542948018568-6/displayed - {}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":true}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/element - {"using":"css selector","value":"zentable"}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":{"ELEMENT":"0.8878542948018568-7"}}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/element/0.8878542948018568-7/elements - {"using":"css selector","value":"div.commandButton"}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":[{"ELEMENT":"0.8878542948018568-8"},{"ELEMENT":"0.8878542948018568-9"}]}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801/screenshot - {}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":"[base64] 16580 bytes"}
+COMMAND: DELETE https://ondemand.saucelabs.com:443/wd/hub/session/811a6cdf53914c84961f15eb99d96801 - {}
+RESULT: {"status":0,"sessionId":"811a6cdf53914c84961f15eb99d96801","value":""}
+]]>
+      </system-out>
+      <system-err>
+        <![CDATA[
+Error: selector needs to be typeof `string`
+    at element([object Object], [object Object]) - index.js:307:3
+]]>
+      </system-err>
+    </testcase>
+  </testsuite>
+</testsuites>

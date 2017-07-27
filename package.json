@@ -6,8 +6,10 @@
   "main": "start.js",
   "scripts": {
     "start": "node start.js",
-    "test": "npm run test-local && npm run test-cloud",
-    "test-cloud": "wdio test/wdio.conf.cloud.js",
+    "tests": "npm run test-unitaire && npm run test-integration",
+    "test-fonctionel": "wdio test/wdio.conf.cloud.fonctionels.js",
+    "test-integration": "wdio test/wdio.conf.cloud.integrations.js",
+    "test-unitaire": "wdio test/wdio.conf.cloud.unitaires.js",
     "test-local": "wdio test/wdio.conf.local.js"
   },
   "author": "Simon Louvet <simon.louvet.zen@gmail.com>",
