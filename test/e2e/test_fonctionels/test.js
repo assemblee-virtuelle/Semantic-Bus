@@ -95,7 +95,7 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
 
 
 
-// describe('Supression d\'un workspace', () => {
+// describe('', () => {
 //   it('on devrait arriver sur la listes des worksapces sans le workspace', function () {
 //       ///CONNEXION 
 //       var url = browser.url('/auth/login.html')    
