@@ -45,7 +45,7 @@
           <div></div>
         </div>
         <div class="containerV" style="flex-basis:20%" if={!modeMenuHide}>
-          <div class="commandBar containerH">
+          <div class="commandBar containerH" style="color:red!important">
             menu
           </div>
           <div onclick={workspaceSelectorClick} name="workspaceSelector" class="selector mainSelector" style="padding: 5vh; font-size:1.2em">
