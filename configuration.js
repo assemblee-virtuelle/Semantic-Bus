@@ -5,7 +5,7 @@ module.exports = {
     saveLock: false,
     addLock: false,
     secret: process.env.JWT_TOKEN,
-    hhtp: false,
+    https: false,
 	configMongo: {
 		'driver': "mongoose",
 		'database': "semantic_bus",
