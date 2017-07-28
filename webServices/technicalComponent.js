@@ -40,7 +40,7 @@ module.exports = function(router, unSafeRouteur) {
     var id = req.body._id.$oid;
     var options = {
       hostname: 'api.mlab.com',
-      path: '/api/1/databases/semantic_bus/collections/technicalComponent/' + id + '?apiKey=ue_eHVRDWSW0r2YZuTLCi1BxVB_zXnOI',
+      path: '/api/1/databases/semantic_bus/collections/technicalComponent/' + id + '?apiKey=' + process.env.MLAB_TOKEN,
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json'
@@ -64,7 +64,7 @@ module.exports = function(router, unSafeRouteur) {
     var bodyChunks;
     var options = {
       hostname: 'api.mlab.com',
-      path: '/api/1/databases/semantic_bus/collections/technicalComponent/?apiKey=ue_eHVRDWSW0r2YZuTLCi1BxVB_zXnOI',
+      path: '/api/1/databases/semantic_bus/collections/technicalComponent/?apiKey=' + process.env.MLAB_TOKEN,
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -89,7 +89,7 @@ module.exports = function(router, unSafeRouteur) {
     var id = req.body._id.$oid;
     var options = {
       hostname: 'api.mlab.com',
-      path: '/api/1/databases/semantic_bus/collections/technicalComponent/' + id + '?apiKey=ue_eHVRDWSW0r2YZuTLCi1BxVB_zXnOI',
+      path: '/api/1/databases/semantic_bus/collections/technicalComponent/' + id + '?apiKey=' + process.env.MLAB_TOKEN,
       method: 'DELETE',
       headers: {
         'Content-Type': 'application/json'

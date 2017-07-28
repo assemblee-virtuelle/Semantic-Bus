@@ -53,7 +53,7 @@ module.exports = {
 
     return {
       hostname: 'api.mlab.com',
-      path: '/api/1/databases/' + databaseName + '/collections/' + resource + '/?' + params + 'apiKey=ue_eHVRDWSW0r2YZuTLCi1BxVB_zXnOI',
+      path: '/api/1/databases/' + databaseName + '/collections/' + resource + '/?' + params + 'apiKey=' + process.env.MLAB_TOKEN,
       /*port: url.port,*/
       method: methodREST,
       headers: {
@@ -119,10 +119,6 @@ module.exports = {
           status: 'done'
         });
       });
-
     });
-
   }
-
-
 };
