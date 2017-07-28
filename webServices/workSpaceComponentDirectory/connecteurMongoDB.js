@@ -8,6 +8,7 @@ module.exports = {
     modelShema: null,
     initialise: function (url, host, port, username, password, database) {
         // router.post('/sqlconnecte/:compid', function (req, res) {
+            console.log(url)
         return new Promise(function (resolve, reject) {
             // if (!url) {
             //     var url = host || 'localhost';
@@ -42,81 +43,66 @@ module.exports = {
         // console.log("connected", this.schema)
         // }.bind(this))
     },
-    createmodel: function (modelName, data) {
+    createmodel: function (modelName, data, mongoose, url) {
         console.log("create model")
         console.log(modelName)
         return new Promise(function (resolve, reject) {
             dataModel = {}
             var name = modelName;
-            // for (property in data) {
-            //     dataModel[property] = {
-            //         type: eval("this.schema." + data[property])
-            //     };
+            var db =  mongoose.createConnection(url);
+            // if(modelShema != null){
+            //     modelShema.remove(data)
             // }
-            // console.log(data)
-            // console.log("model de données connecteur SQL |", dataModel)
-            var modelShema = this.mongoose.model(modelName, this.mongoose.Schema(
+            var modelShema = db.model(modelName, new mongoose.Schema(
                 data
             ));
-            resolve(modelShema)
+            resolve({db: db, model: modelShema})
         }.bind(this))
     },
-    request: function (querysTable, modelShema, modelName, url) {
+    request: function (querysTable, modelShema, modelName, mongoose) {
         console.log("request on model")
-        // console.log(schema.client.disconnect())
+        console.log(querysTable)
         return new Promise(function (resolve, reject) {
-            console.log(url)
-            // delete this.mongoose.connections[0].models[modelName]
-            var db  = this.mongoose.createConnection(url)
-            console.log(db)
-            // db.on('error', console.log('connection error:'));
-            // console.log(db)
-            db.once('connected', function () {
-                console.log("connecter")
-                //  delete this.mongoose.connections[0].models[modelName]
+            modelShema.db.once('connected', function () {
+                console.log("connecter db 2")
                 if (querysTable.length == 0) {
-                    modelShema.find(
+                    modelShema.model.find(
                         function (err, dataElements) {
-                            console.log(dataElements)
+                            
                             resolve(dataElements)
-                            delete this.mongoose.models[modelName]
-                            this.mongoose.connection.close();
-                            // schema.client.connection.close();
-                            // console.log(schema.client)
+                            // delete mongoose.models[modelName]
+                            // modelShema.db.connection.close();
                         }.bind(this))
                 } else {
                     console.log("in mutltiple")
-                    var query = modelShema.find({
-                        email: "alexbocenty@hotmail.fr"
-                    });
+                    var query = eval("modelShema.model" + "." + querysTable)
                     console.log(query)
                     query.exec(function (err, data) {
                         if (data) {
-                            console.log(data)
+                            // console.log(data)
                             resolve(data)
-                            delete this.mongoose.models[modelName]
-                            this.mongoose.connection.close();
+                            // modelShema.db.connection.close();
 
                         } else {
                             console.lgo(false)
                             resolve(false)
-                            this.mongoose.connection.close();
-
+                            // modelShema.db.connection.close();
                         }
-                    }.bind(this))
+                    }.bind(this)).catch(err => resolve("error"))
                 }
             }.bind(this));
 
         }.bind(this))
     },
-    test: function (data) {
+    pull: function (data) {
         ///creation du model
-        console.log("IN TEST")
+        console.log("IN pull")
         return new Promise((resolve, reject) => {
+            var mongoose = require('mongoose');
             this.mLabPromise.request('GET', 'workspaceComponent/' + data._id.$oid).then(function (data) {
                 this.initialise(data.specificData.url, data.specificData.host, data.specificData.port, data.specificData.username, data.specificData.password, data.specificData.database).then(function (url) {
-                    this.createmodel(data.specificData.modelName, data.specificData.jsonSchema).then(function (model) {
-                        this.request(data.specificData.querySelect, model, data.specificData.modelName, url).then(function (bddData) {
+                    this.createmodel(data.specificData.modelName, data.specificData.jsonSchema, mongoose, url).then(function (model) {
+                        this.request(data.specificData.querySelect, model, data.specificData.modelName, url, mongoose).then(function (bddData) {
                             console.log("final result", bddData)
                             resolve({
                                 data: bddData

@@ -5,13 +5,19 @@
   "private": true,
   "main": "start.js",
   "scripts": {
-    "start": "node start.js"
+    "start": "node start.js",
+    "tests": "npm run test-unitaire && npm run test-integration",
+    "test-fonctionel": "wdio test/wdio.conf.cloud.fonctionels.js",
+    "test-integration": "wdio test/wdio.conf.cloud.integrations.js",
+    "test-unitaire": "wdio test/wdio.conf.cloud.unitaires.js",
+    "test-local": "wdio test/wdio.conf.local.js"
   },
   "author": "Simon Louvet <simon.louvet.zen@gmail.com>",
   "license": "GNUV3",
   "dependencies": {
     "async": "^2.5.0",
     "bcrypt": "^1.0.2",
+    "bcryptjs": "^2.4.3",
     "body-parser": "latest",
     "busboy": "^0.2.14",
     "caminte": "^0.3.7",
@@ -46,9 +52,19 @@
     "sequelize": "^4.3.2",
     "sheetrock": "latest",
     "sift": "latest",
+    "simplecrypt": "^0.1.0",
     "slickgrid": "latest",
     "url-parse": "^1.1.9",
     "xlsx": "^0.10.5",
-    "xml2js": "latest"
+    "xml2js": "latest",
+    "chai": "^4.1.0",
+    "mocha": "^3.1.2",
+    "wdio-junit-reporter": "^0.3.0",
+    "wdio-mocha-framework": "^0.5.10",
+    "wdio-phantomjs-service": "^0.2.2",
+    "wdio-sauce-service": "^0.4.0",
+    "wdio-spec-reporter": "0.0.3",
+    "wdio-testingbot-service": "^0.1.7",
+    "webdriverio": "^4.2.16"
   }
 }

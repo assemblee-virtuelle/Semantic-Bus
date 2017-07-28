@@ -19,7 +19,8 @@ module.exports = {
    httpGet: require('./workSpaceComponentDirectory/httpGet.js'),
    sqlConnector: require('./workSpaceComponentDirectory/sqlConnecteur.js'),
    mongoConnector: require('./workSpaceComponentDirectory/connecteurMongoDB.js'),
-  sparqlRequest: require('./workSpaceComponentDirectory/sparqlRequest.js'),
+   sparqlRequest: require('./workSpaceComponentDirectory/sparqlRequest.js'),
+   valueMapping: require('./workSpaceComponentDirectory/valueMapping.js'),
     /* some other modules you want */
     initialise : function(router,unSafeRouteur, recursivPullResolvePromise){
       this.restApiGet.initialise(unSafeRouteur);//NO SECURE CHANGE ROUTER

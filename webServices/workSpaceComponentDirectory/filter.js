@@ -5,9 +5,9 @@ module.exports = {
   sift: require('sift'),
 
 
-  test: function(data, flowData) {
+  pull: function(data, flowData) {
 
-    console.log('Filter| test : ', data, ' | ', flowData);
+    console.log('Filter| pull : ', data, ' | ', flowData);
     return new Promise((resolve, reject) => {
       /*var secondaryFlowData = this.sift({
         componentId: data.specificData.secondaryComponentId

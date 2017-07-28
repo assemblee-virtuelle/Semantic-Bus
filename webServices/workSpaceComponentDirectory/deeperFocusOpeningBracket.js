@@ -4,10 +4,10 @@ module.exports = {
   editor:'deeper-focus-opening-bracket-editor',
 
 
-  test: function(data,flowData) {
+  pull: function(data,flowData) {
 
     return new Promise((resolve, reject) => {
-      //console.log('dfob | test : ',data,' | ',flowData);
+      //console.log('dfob | pull : ',data,' | ',flowData);
       var dfob = flowData[0].dfob==undefined?[]:flowData.dfob;
       dfob.push(data.specificData.dfobPath);
       //console.log('Deeper Focus Opening Bracket |  ',dfob);

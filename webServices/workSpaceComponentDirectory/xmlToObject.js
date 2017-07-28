@@ -27,8 +27,8 @@ module.exports = {
       });
     })
   },
-  test: function(data, flowData) {
-    //console.log('Object Transformer | test : ',data,' | ',flowData[0].length);
+  pull: function(data, flowData) {
+    //console.log('Object Transformer | pull : ',data,' | ',flowData[0].length);
     return this.xmlTransform(flowData[0].data, data.specificData);
 
   }

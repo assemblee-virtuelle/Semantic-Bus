@@ -8,7 +8,7 @@ function GenericStore(specificStoreList) {
   this.connectMode;
 
   this.update = function() {
-    console.log('GenericStore | update',this.itemCurrent);
+    console.log('GenericStore || update',this.itemCurrent);
     $.ajax({
       method: 'put',
       url: '../data/core/workspaceComponent',
@@ -76,6 +76,26 @@ function GenericStore(specificStoreList) {
       //this.trigger('workspace_current_create_done',this.workspaceCurrent);
       console.log(data);
       this.trigger('item_current_testPull_done', data);
+      //this.trigger('previewJSON', data);
+      //this.trigger('item_current_persist_done', this.itemCurrent);
+    }.bind(this));
+  });
+
+  this.on('item_current_work', function(message) {
+    console.log('item_current_testWork | itemCurrent:', this.itemCurrent);
+    var id = this.itemCurrent._id.$oid;
+    $.ajax({
+      method: 'get',
+      url: '../data/core/workspaceComponent/' + id + '/work',
+      contentType: 'application/json',
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      }
+    }).done(function(data) {
+      //this.workspaceCurrent.mode='edit';
+      //this.trigger('workspace_current_create_done',this.workspaceCurrent);
+      console.log(data);
+      this.trigger('item_current_work_done', data);
       //this.trigger('previewJSON', data);
       //this.trigger('item_current_persist_done', this.itemCurrent);
     }.bind(this));

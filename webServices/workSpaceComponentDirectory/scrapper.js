@@ -27,7 +27,7 @@ module.exports = {
             firstMatch: true
         });
 
-        //description du comportement du router de scrapperjs 
+        //description du comportement du router de scrapperjs
         scraperjsRouter
         .on("http*")
         .get()
@@ -97,7 +97,7 @@ module.exports = {
                                         } else {
                                             // console.log("no Point" ,element)
                                             var newElement = element.value.replace(/(\r\n|\n|\r)/gm, "")
-                                            // c[id] = 
+                                            // c[id] =
                                             finaltab.push(newElement.replace(/\s+/g, ' ').trim())
                                         }
                                         id++
@@ -179,8 +179,8 @@ module.exports = {
         }
     },
 
-    test: function (data, flowData) {
-        // console.log('scrapper | test : ', data.specificData.url, data.specificData.chemin, data.specificData.url_data, data.specificData.data, data.specificData.flow_before, data.specificData.fix_url);
+    pull: function (data, flowData) {
+        // console.log('scrapper | pull : ', data.specificData.url, data.specificData.chemin, data.specificData.url_data, data.specificData.data, data.specificData.flow_before, data.specificData.fix_url);
         return this.makeRequest(flowData, data.specificData.url, data.specificData.flow_before, data.specificData.fix_url, data.specificData.scrappe);
     }
 }

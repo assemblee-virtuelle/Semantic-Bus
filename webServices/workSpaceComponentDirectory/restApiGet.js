@@ -57,8 +57,8 @@ module.exports = new function() {
     }.bind(this));
   }
 
-  this.test = function(data, flowData) {
-    //console.log('Flow Agregator | test : ',data,' | ',flowData);
+  this.pull = function(data, flowData) {
+    //console.log('Flow Agregator | pull : ',data,' | ',flowData);
     return new Promise((resolve, reject) => {
       if (flowData != undefined) {
         //console.log('api data | ',flowData);

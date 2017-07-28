@@ -22,18 +22,37 @@ module.exports = function(router) {
 
     var id = req.params.id;
     mLabPromise.request('GET', 'workspaceComponent/' + id).then(function(data) {
-      console.log('workspaceComponent | test| ' + data);
+      //console.log('workspaceComponent | test| ');
+      var recursivPullResolvePromiseDynamic = require('./recursivPullResolvePromise');
+
       return recursivPullResolvePromise.resolveComponentPull(data, false);
     }).then(function(data) {
-      console.log("IN WORKSPACE COMPONENT RETURN DATA |" , data)
+      //console.log("IN WORKSPACE COMPONENT RETURN DATA |" , data)
       res.json(data.data);
     })
 
   });
 
+  router.get('/workspaceComponent/:id/work', function(req, res) {
+
+    var id = req.params.id;
+    mLabPromise.request('GET', 'workspaceComponent/' + id).then(function(data) {
+      //console.log('workspaceComponent | test| ');
+      var recursivPullResolvePromiseDynamic = require('./recursivPullResolvePromise');
+      return recursivPullResolvePromiseDynamic.resolveComponent(data, "pull");
+      //return recursivPullResolvePromise.resolveComponentPull(data, false);
+
+    }).then(function(data) {
+      //console.log("IN WORKSPACE COMPONENT RETURN DATA |" , data)
+      res.json(data.data);
+    })
+
+  });
+
+
   router.put('/workspaceComponent/', function(req, res) {
     var configuration = require('../configuration');
-    if (configuration.saveLock==false) {
+    if (configuration.saveLock == false) {
 
       var id = req.body._id.$oid;
       var componentToUpdate = req.body;
@@ -70,8 +89,10 @@ module.exports = function(router) {
         res.json(Components[0]);
         //return mLabPromise.request('PUT', 'workspaceComponent/' + id, componentToUpdate);
       });
-    }else{
-      res.json({message : 'save forbiden'})
+    } else {
+      res.json({
+        message: 'save forbiden'
+      })
     }
   });
 

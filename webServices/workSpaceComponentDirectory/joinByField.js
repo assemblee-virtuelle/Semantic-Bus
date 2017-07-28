@@ -10,9 +10,9 @@ module.exports = {
     }, flowData)[0];
     return primaryFlow;
   },
-  test: function(data, flowData) {
+  pull: function(data, flowData) {
     console.log('Join by Field');
-    //console.log('Join by Field | test : ', data, ' | ', flowData);
+    //console.log('Join by Field | pull : ', data, ' | ', flowData);
     return new Promise((resolve, reject) => {
       var secondaryFlowData = this.sift({
         componentId: data.specificData.secondaryComponentId
