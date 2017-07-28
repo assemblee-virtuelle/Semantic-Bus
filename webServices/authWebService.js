@@ -3,7 +3,7 @@ const bcrypt = require('bcryptjs');
 const moment = require('moment');
 var passport = require('passport');
 const User = require('./models/userModel');
-const config = require('./models/configuration');
+const config = require('../configuration');
 var jwtService = require('./jwtService');
 var path = require('path');
 
