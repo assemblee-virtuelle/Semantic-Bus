@@ -17,21 +17,21 @@ module.exports = function(passport) {
         return jwt.sign(payload, config.secret);
     }
 
-  var opts = {};
-  opts.jwtFromRequest = ExtractJwt.fromAuthHeader();
-  opts.secretOrKey = config.secret;
-  passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
-      User.findOne({where: {id: jwt_payload.id}},function(err, user) {
-      if (err) {
-        return done(err, false);
-      }
-      if (user) {
-        done(null, user);
-      } else {
-        done(null, false);
-      }
-    });
-  }));
+//   var opts = {};
+//   opts.jwtFromRequest = ExtractJwt.fromAuthHeader();
+//   opts.secretOrKey = config.secret;
+//   passport.use(new JwtStrategy(opts, function(jwt_payload, done) {
+//       User.findOne({where: {id: jwt_payload.id}},function(err, user) {
+//       if (err) {
+//         return done(err, false);
+//       }
+//       if (user) {
+//         done(null, user);
+//       } else {
+//         done(null, false);
+//       }
+//     });
+//   }));
 
   passport.use(new GoogleStrategy({
         clientID        : config.googleAuth.clientID,
@@ -68,6 +68,7 @@ module.exports = function(passport) {
                     newUser.googleid = profile.id;
                     newUser.email = profile.emails[0].value; // pull the first email
                     // save the user
+                    
                     newUser.save(function(err, res) {
                         if (err){
                             throw err;

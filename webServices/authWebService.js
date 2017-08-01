@@ -6,6 +6,8 @@ const User = require('./models/userModel');
 const config = require('./models/configuration');
 var jwtService = require('./jwtService');
 var path = require('path');
+var auth_lib_user = require('../core').inscription
+
 
 module.exports = function (authRouter) {
 	function generate_token(user) {
@@ -43,45 +45,54 @@ module.exports = function (authRouter) {
 
 
 	authRouter.post('/inscription', function (req, res) {
-		if (!req.body.emailInscription || !req.body.passwordInscription) {
-			res.send(false);
-		} else {
-			User.findOne({
-				where: {
-					email: req.body.emailInscription
-				}
-			}, function (err, user) {
-				console.log("firt user |", user);
-				if (user == null) {
-					console.log(" in firt user");
-					console.log("req.body.emailInscription |", req.body.emailInscription)
-					console.log("req.body.passwordInscription |", req.body.passwordInscription.split("").length )
-					var reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g;
-					console.log("regex |", req.body.emailInscription.match(reg));
-					if ((req.body.emailInscription.match(reg) != null) && (req.body.passwordInscription.split("").length > 5)) {
-						const newUser = new User();
-						newUser.email = req.body.emailInscription,
-						console.log("req.body.emailInscription |", req.body.emailInscription)
-						newUser.password = req.body.passwordInscription,
-						console.log("req.body.passwordInscription |", req.body.passwordInscription)
-						newUser.workspaces = []
-						console.log("new User |", newUser)
-						///ERREUR A CATCHER EN CAS DE DOUBLON (DOC A LIRE)
-						newUser.save(function() {
-							const token = generate_token(newUser);
-							res.send({
-								user: newUser,
-								token: token
-							});
-						})
-					} else {
-						res.send(false);
-					}
-				} else {
-					res.send(false);
-				}
-			})
-		}
+		auth_lib_user.create({user:{name: "Alex", email:req.body.emailInscription, passwordConfirm: req.body.confirmPasswordInscription, password: req.body.passwordInscription}}).then(function(data){
+			console.log(data)
+			res.send({
+				user: data.user,
+				token: data.token.token
+			});
+		}).catch(function(err){
+			res.send(err)
+		})
+		// if (!req.body.emailInscription || !req.body.passwordInscription) {
+		// 	res.send(false);
+		// } else {
+		// 	User.findOne({
+		// 		where: {
+		// 			email: req.body.emailInscription
+		// 		}
+		// 	}, function (err, user) {
+		// 		console.log("firt user |", user);
+		// 		if (user == null) {
+		// 			console.log(" in firt user");
+		// 			console.log("req.body.emailInscription |", req.body.emailInscription)
+		// 			console.log("req.body.passwordInscription |", req.body.passwordInscription.split("").length )
+		// 			var reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g;
+		// 			console.log("regex |", req.body.emailInscription.match(reg));
+		// 			if ((req.body.emailInscription.match(reg) != null) && (req.body.passwordInscription.split("").length > 5)) {
+		// 				const newUser = new User();
+		// 				newUser.email = req.body.emailInscription,
+		// 				console.log("req.body.emailInscription |", req.body.emailInscription)
+		// 				newUser.password = req.body.passwordInscription,
+		// 				console.log("req.body.passwordInscription |", req.body.passwordInscription)
+		// 				newUser.workspaces = []
+		// 				console.log("new User |", newUser)
+		// 				///ERREUR A CATCHER EN CAS DE DOUBLON (DOC A LIRE)
+		// 				newUser.save(function() {
+		// 					const token = generate_token(newUser);
+		// 					res.send({
+		// 						user: newUser,
+		// 						token: token
+		// 					});
+		// 				})
+		// 			} else {
+		// 				res.send(false);
+		// 			}
+		// 		} else {
+		// 			res.send(false);
+		// 		}
+		// 	})
+		// }
 	});
 
 

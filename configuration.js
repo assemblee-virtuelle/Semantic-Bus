@@ -4,7 +4,7 @@ module.exports = {
     mlabDB: 'semantic_bus',
     saveLock: false,
     addLock: false,
-    secret: process.env.JWT_TOKEN,
+    secret: process.env.JWT_TOKEN || 'test',
     https: false,
 	configMongo: {
 		'driver': "mongoose",
