@@ -1,7 +1,7 @@
 module.exports = {
     mlabDBToClone: 'semantic_bus',
     //mlabDB : 'sementic_bus_dev',
-    mlabDB: 'semantic_bus',
+    mlabDB: 'semantic_bus_dev',
     saveLock: false,
     addLock: false,
     secret: process.env.JWT_TOKEN,
