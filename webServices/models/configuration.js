@@ -2,8 +2,8 @@ module.exports = {
 	'secret': 'test',
 	'configMongo': {
 		'driver': "mongoose",
-		'database': "semantic_bus",
-		'url': 'mongodb://alex:alexfoot31@ds054118.mlab.com:54118/semantic_bus',
+		'database': "sementic_bus_dev",
+		'url': 'mongodb://alex:alexfoot31@ds054118.mlab.com:54118/sementic_bus_dev',
 		'password': "alexfoot31",
 		'username': "alex",
 	},
