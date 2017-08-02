@@ -1,15 +1,15 @@
 module.exports = {
     mlabDBToClone: 'semantic_bus',
     //mlabDB : 'sementic_bus_dev',
-    mlabDB: 'sementic_bus_dev',
+    mlabDB: 'semantic_bus_bakc_up',
     saveLock: false,
     addLock: false,
     secret: 'test',
     https: false,
 	configMongo: {
 		'driver': "mongoose",
-		'database': "sementic_bus_dev",
-        'url': 'mongodb://alex:alexfoot31@ds052629.mlab.com:52629/sementic_bus_dev',
+		'database': "semantic_bus_bakc_up",
+        'url': 'mongodb://alex:alexfoot31@ds129462.mlab.com:29462/semantic_bus_bakc_up',
 		'password': 'alexfoot31',
 		'username': 'alex'
 	},
