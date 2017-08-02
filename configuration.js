@@ -9,7 +9,7 @@ module.exports = {
 	configMongo: {
 		'driver': "mongoose",
 		'database': "sementic_bus_dev",
-		'url': 'mongodb://alex:alexfoot31@ds054118.mlab.com:54118/sementic_bus_dev',
+        'url': 'mongodb://alex:alexfoot31@ds052629.mlab.com:52629/sementic_bus_dev',
 		'password': process.env.MLAB_PASSWORD,
 		'username': process.env.MLAB_USERNAME
 	},
