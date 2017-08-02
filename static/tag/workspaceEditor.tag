@@ -225,6 +225,7 @@
   }
 
   RiotControl.on('share_change',function(data){
+    console.log(data)
       this.tags.zentable[1].data.push({"email": data.email, "role": data.workspaces[data.workspaces.length - 1].role });
       this.update();
       data = null;

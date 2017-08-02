@@ -2,61 +2,67 @@ module.exports = function(router) {
   var mLabPromise = require('./mLabPromise');
   var workspaceComponentPromise = require('./workspaceComponentPromise.js');
   var workspaceBusiness = require('./workspaceBusiness.js');
+  var workspace_lib = require('../lib/core').workspace
 
   //doc to promises : http://stackoverflow.com/questions/35182752/promises-with-http-get-node-js
   //var https = require('https');
 
   ///TEST GESTION DES COMPTE EN MODIFIANT LES QUERY POUR AVOIR LES WORKSPACE DES USERS
+  
   router.get('/workspaceByUser/:userId', function(req, res) {
+    console.log('workspaceByUser')
+    workspace_lib.getAllOwner(req.params.userId).then(function(workspaces){
+      res.json(workspaces)
+    })
     // console.log(req.params.userId);
-    var userId = req.params.userId;
-    //On recupere le user grace a l'id
-    var requestPromise = mLabPromise.request('GET', 'users/' + userId);
-    var workspacePromises = [];
-    var final_workspaces = [];
-    var _completeWorkspaceByComponentsPromises = [];
-    //console.log(requestPromise);
-    requestPromise.then(function(data) {
-      // console.log(data);
-      // console.log(data);
-      // On recupere les id des workspace du user
-      // On requete sur la table workspace pour avoir ses workspaces
-      console.log(data.workspaces)
-      for (id in data.workspaces) {
-        if (data.workspaces[id].role == "owner") {
-          workspacePromises.push(mLabPromise.request('GET', 'workspace/' + data.workspaces[id]._id));
-        }
-      }
-      // On recupere les informatiosn complementaire des workspace du user
-      Promise.all(workspacePromises).then(function(res) {
-        // = [];
-        // console.log(final_workspaces);
-        for (workspace in res) {
-          // console.log('workspace', workspace)
-          if (res[workspace]._id != undefined) {
-            final_workspaces.push(res[workspace]);
-            _completeWorkspaceByComponentsPromises.push(
-              mLabPromise.request('GET', 'workspaceComponent', undefined, {
-                q: {
-                  workspaceId: res[workspace]._id.$oid
-                }
-              })
-            )
-          }
-        }
-        console.log('allComponentRequestReady');
-        // console.log(_completeWorkspaceByComponentsPromises);
-        return Promise.all(_completeWorkspaceByComponentsPromises);
-      }).then(function(responses) {
-        for (var responseKey in responses) {
-          //   //console.log('Check response | ',workspaces[responseKey], ' | components | ',responses[responseKey]);
-          //   //console.log('workspace', workspaces[responseKey]._id.$oid);
-          final_workspaces[responseKey].components = workspaceBusiness.checkWorkspaceComponentConsistency(responses[responseKey]);
-        }
-        // console.log(final_workspaces)
-        res.json(final_workspaces);
-      });
-    });
+    // var userId = req.params.userId;
+    // //On recupere le user grace a l'id
+    // var requestPromise = mLabPromise.request('GET', 'users/' + userId);
+    // var workspacePromises = [];
+    // var final_workspaces = [];
+    // var _completeWorkspaceByComponentsPromises = [];
+    // //console.log(requestPromise);
+    // requestPromise.then(function(data) {
+    //   // console.log(data);
+    //   // console.log(data);
+    //   // On recupere les id des workspace du user
+    //   // On requete sur la table workspace pour avoir ses workspaces
+    //   console.log(data.workspaces)
+    //   for (id in data.workspaces) {
+    //     if (data.workspaces[id].role == "owner") {
+    //       workspacePromises.push(mLabPromise.request('GET', 'workspace/' + data.workspaces[id]._id));
+    //     }
+    //   }
+    //   // On recupere les informatiosn complementaire des workspace du user
+    //   Promise.all(workspacePromises).then(function(res) {
+    //     // = [];
+    //     // console.log(final_workspaces);
+    //     for (workspace in res) {
+    //       // console.log('workspace', workspace)
+    //       if (res[workspace]._id != undefined) {
+    //         final_workspaces.push(res[workspace]);
+    //         _completeWorkspaceByComponentsPromises.push(
+    //           mLabPromise.request('GET', 'workspaceComponent', undefined, {
+    //             q: {
+    //               workspaceId: res[workspace]._id.$oid
+    //             }
+    //           })
+    //         )
+    //       }
+    //     }
+    //     console.log('allComponentRequestReady');
+    //     // console.log(_completeWorkspaceByComponentsPromises);
+    //     return Promise.all(_completeWorkspaceByComponentsPromises);
+    //   }).then(function(responses) {
+    //     for (var responseKey in responses) {
+    //       //   //console.log('Check response | ',workspaces[responseKey], ' | components | ',responses[responseKey]);
+    //       //   //console.log('workspace', workspaces[responseKey]._id.$oid);
+    //       final_workspaces[responseKey].components = workspaceBusiness.checkWorkspaceComponentConsistency(responses[responseKey]);
+    //     }
+    //     // console.log(final_workspaces)
+    //     res.json(final_workspaces);
+    //   });
+    // });
   });
 
   router.get('/workspaces/share/:userId', function(req, res) {
@@ -196,8 +202,6 @@ module.exports = function(router) {
 
     //var requestFistComponentPromise = mLabPromise.request('POST', 'workspaceComponent', firstComponentToInsert);
     //return requestFistComponentPromise;
-
-
   });
 
   router.post('/workspace/:userId', function(req, res) {
@@ -214,7 +218,6 @@ module.exports = function(router) {
     // return Promise.all(mergedPromises);
     //console.log(requestPromise);
     requestUserPromise.then(function(user) {
-      // console.log(user)
       var userToInsert = user;
       requestPromise.then(function(data) {
         entityToInsert = data;

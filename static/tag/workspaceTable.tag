@@ -44,7 +44,7 @@
 
      RiotControl.on('workspace_collection_changed',this.refreshZenTable);
 
-     RiotControl.trigger('workspace_collection_load');
+      RiotControl.trigger('workspace_collection_load'); 
 
      //this.refresh();
 

@@ -39,7 +39,7 @@ function UserStore() {
       console.log(data)
       if (data == false) {
         this.trigger('google_auth')
-      } else if (data.user != null && data.token != null) {
+      } else if (data != null && data.token != null) {
         console.log("in application ajax triger");
         localStorage.token = data.token
         // window.open("../ihm/application.html", "_self");
@@ -67,23 +67,21 @@ function UserStore() {
       method: 'post',
       data: JSON.stringify(token),
       contentType: 'application/json',
-      url: '/auth/authenticate',
+      url: '/auth/google_auth_statefull_verification',
       beforeSend: function () {
-        console.log("before send")
         this.trigger('ajax_send_login');
       }.bind(this),
     }).done(data => {
       console.log(data)
-      if (data.user != null && data.token != null) {
+      if (data != null && data.token != null) {
         localStorage.token = data.token
-        // window.open("../ihm/application.html", "_self");
         this.trigger('application_redirect')
         this.sleep(2000).then(function () {
           this.trigger('ajax_receipt_login');
         }.bind(this))
       } else {
-        console.log("data no");
         this.trigger('bad_auth')
+        this.trigger('ajax_receipt_login');
       }
     });
   });
@@ -105,7 +103,7 @@ function UserStore() {
       }.bind(this),
     }).done(data => {
       console.log(data);
-      if (data.user != null && data.token != null) {
+      if (data != null && data.token != null) {
         localStorage.token = data.token
         // window.open("../ihm/application.html", "_self");
         this.trigger('application_redirect')
@@ -122,7 +120,6 @@ function UserStore() {
   });
 
   this.on('google_user_connect', function () {
-    console.log('google_user_connect');
     $.ajax({
       method: 'get',
       headers: {
@@ -131,17 +128,15 @@ function UserStore() {
         'Access-Control-Allow-Headers': 'Content-Type'
       },
       beforeSend: function () {
-        console.log("before send")
         this.trigger('ajax_send_login');
       }.bind(this),
       contentType: 'text/html',
       url: '/auth/google'
     }).done(data => {
-      console.log(data);
       sleep(2000).then(function () {
         this.trigger('ajax_receipt_login');
       }.bind(this))
-      // if(data.user != null && data.token != null){
+      // if(data != null && data.token != null){
       //   localStorage.token = data.token
       //   window.open("../ihm/application.html", "_self");
       // }else{

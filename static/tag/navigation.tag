@@ -381,7 +381,7 @@ font-size: 22px;" if={showAdmin}>
 
       RiotControl.on('profil_loaded', function (data) {
         console.log('profil_loaded',data);
-        this.showAdmin=data.user.admin;
+        this.showAdmin=data.admin;
         this.update();
       }.bind(this));
 

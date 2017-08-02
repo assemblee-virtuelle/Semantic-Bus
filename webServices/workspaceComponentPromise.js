@@ -3,6 +3,7 @@ module.exports = {
   mLabPromise: require('./mLabPromise'),
   getInsertPromise: function(entityToInsert) {
     var module = this.technicalComponentDirectory[entityToInsert.module];
+    console.log(module)
     //console.log(entityToInsert);
     if (entityToInsert.specificData == undefined) {
       entityToInsert.specificData = {};
@@ -10,6 +11,7 @@ module.exports = {
     if (module.initComponent != undefined) {
       entityToInsert = module.initComponent(entityToInsert);
     }
+
     //console.log('getInsertPromise | ',entityToInsert);
     entityToInsert.connectionsAfter = entityToInsert.connectionsAfter || [];
     entityToInsert.connectionsBefore = entityToInsert.connectionsBefore || [];

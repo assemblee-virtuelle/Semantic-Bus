@@ -363,6 +363,7 @@
         var reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g;
         if(this.newUser.emailInscription.match(reg) != null){
           //if(this.newUser.passwordInscription.split().length > 5){
+          this.newUser.name = "Simplet"
           if((this.newUser.passwordInscription == this.newUser.confirmPasswordInscription) && (this.newUser.passwordInscription.split("").length > 5)){
             RiotControl.trigger('user_inscription', this.newUser);
             RiotControl.on('email_already_exist', function(){

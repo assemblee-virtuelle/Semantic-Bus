@@ -51,9 +51,8 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     })
 
   this.on('is_token_valid?', function () {
-    console.log("trigger", localStorage.token)
-    if (localStorage.token == null) {
-      console.log("in null")
+    console.log(localStorage.token)
+    if (localStorage.token == 'null' ||localStorage.token == null) {
       this.trigger('login_redirect');
     } else {
       $.ajax({

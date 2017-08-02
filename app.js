@@ -4,8 +4,9 @@ var cors = require('cors')
 var app = express();
 var passport = require('passport');
 app.use(cors());
-app.use(passport.initialize());
-require('./webServices/passport')(passport);
+// app.use(passport.initialize());
+require('./lib/core/Oauth/google_auth_strategy')(passport);
+
 //var helmet = require('helmet');
 
 var server = require('http').Server(app);

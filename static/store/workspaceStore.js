@@ -156,13 +156,14 @@ this.updateUserListe = function (data) {
   this.on('workspace_collection_load', function (record) {
     if (this.cancelRequire == false) {
       console.log('LOAD');
-      this.load(function () {
-        for (workspace of this.workspaceCollection) {
-          workspace.components = this.workspaceBusiness.connectWorkspaceComponent(workspace.components);
-          //console.log('workspace_collection_load |',workspace.components);
-        }
-        this.trigger('workspace_collection_changed', this.workspaceCollection);
-      }.bind(this));
+      this.load()
+      // function () {
+      //   for (workspace of this.workspaceCollection) {
+      //     workspace.components = this.workspaceBusiness.connectWorkspaceComponent(workspace.components);
+      //     //console.log('workspace_collection_load |',workspace.components);
+      //   }
+      //   this.trigger('workspace_collection_changed', this.workspaceCollection);
+      // }.bind(this));
     } else {
       this.cancelRequire = false;
       this.select(this.workspaceCurrent);

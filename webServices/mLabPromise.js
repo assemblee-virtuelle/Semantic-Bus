@@ -1,6 +1,7 @@
 'use strict';
 
 const https = require('https');
+var mlab_token = require('../configuration').mlab_token
 
 //const url = require('url');
 //doc to promises : http://stackoverflow.com/questions/35182752/promises-with-http-get-node-js
@@ -53,7 +54,7 @@ module.exports = {
 
     return {
       hostname: 'api.mlab.com',
-      path: '/api/1/databases/' + databaseName + '/collections/' + resource + '/?' + params + 'apiKey=' + process.env.MLAB_TOKEN,
+      path: '/api/1/databases/' + databaseName + '/collections/' + resource + '/?' + params + 'apiKey=' + mlab_token,
       /*port: url.port,*/
       method: methodREST,
       headers: {
