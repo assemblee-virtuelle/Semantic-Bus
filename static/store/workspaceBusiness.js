@@ -36,35 +36,34 @@ function WorkspaceBusiness() {
     return out;
   };
 
+  
   this.serialiseWorkspaceComponent = function(workspaceComponentIn) {
     //build a deep copy
-    var workspaceComponent = {
-      _id: workspaceComponentIn._id,
-      module: workspaceComponentIn.module,
-      type: workspaceComponentIn.type,
-      name: workspaceComponentIn.name,
-      description: workspaceComponentIn.description,
-      editor: workspaceComponentIn.editor,
-      workspaceId: workspaceComponentIn.workspaceId,
-      specificData: workspaceComponentIn.specificData,
+    // var workspaceComponent = {
+    //   _id: workspaceComponentIn._id,
+    //   module: workspaceComponentIn.module,
+    //   type: workspaceComponentIn.type,
+    //   name: workspaceComponentIn.name,
+    //   description: workspaceComponentIn.description,
+    //   editor: workspaceComponentIn.editor,
+    //   workspaceId: workspaceComponentIn.workspaceId,
+    //   specificData: workspaceComponentIn.specificData,
 
-    }
-    var connectionsAfter = [];
-    if (workspaceComponentIn.connectionsAfter != undefined) {
-      workspaceComponentIn.connectionsAfter.forEach(ConnAfter => {
-        connectionsAfter.push(ConnAfter._id.$oid)
-      });
-    }
-    workspaceComponent.connectionsAfter = connectionsAfter;
+    // }
+    // var connectionsAfter = [];
+    // if (workspaceComponentIn.connectionsAfter != undefined) {
+    //   workspaceComponentIn.connectionsAfter.forEach(ConnAfter => {
+    //     connectionsAfter.push(ConnAfter._id.$oid)
+    //   });
+    // }
+    // workspaceComponent.connectionsAfter = connectionsAfter;
 
-    var connectionsBefore = [];
-    if (workspaceComponentIn.connectionsBefore != undefined) {
-      workspaceComponentIn.connectionsBefore.forEach(ConnBefore => {
-        connectionsBefore.push(ConnBefore._id.$oid)
-      });
+    // var connectionsBefore = [];
+    if(workspaceComponentIn._id){
+      workspaceComponentIn = workspaceComponentIn._id
+      return true;
     }
-    workspaceComponent.connectionsBefore = connectionsBefore;
-    return workspaceComponent;
+    // return workspaceComponentIn;
   }
 
   this.serialiseWorkspace = function(workspaceIn) {
@@ -74,14 +73,17 @@ function WorkspaceBusiness() {
       _id: workspaceIn._id,
       name: workspaceIn.name,
       description: workspaceIn.description,
+      average_consumption: workspaceIn.average_consumption,
+      flow_size: workspaceIn.flow_size
     }
     for (component of workspaceIn.components) {
-      components.push(this.serialiseWorkspaceComponent(component));
+      if(this.serialiseWorkspaceComponent(component)){
+        components.push(component._id);
+      }
     }
     out.components = components;
     console.log('serialiseWorkspace | out | ',out);
     return out;
 
   }
-
 }

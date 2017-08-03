@@ -451,11 +451,11 @@ font-size: 22px;" if={showAdmin}>
         this.update();
       }.bind(this));
 
-      RiotControl.on('workspace_current_changed',function(data){
+       RiotControl.on('workspace_current_changed',function(data){
         console.log('navigation | workspace_current_changed',data);
-        this.workspaceComponents=data.components;
+         //this.workspaceComponents = data.components; 
         this.update();
-      }.bind(this));
+      }.bind(this)); 
 
 
 

@@ -43,7 +43,7 @@ module.exports = {
       }
       out.push(workspaceComponentsListDictionnary[workspaceComponentKey]);
     }
-
+    console.log("out", out)
     return out;
   }
 }

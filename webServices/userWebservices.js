@@ -25,13 +25,12 @@ module.exports = function (router) {
   // --------------------------------------------------------------------------------
 
   router.get('/users/:id', function (req, res) {
+    console.log("LOADING USER",req.params.id)
     user_lib.get({
-      options: {
-        filter: {
           _id: req.params.id
         }
-      }
-    }).then(function (result) {
+    ).then(function (result) {
+      console.log("LOADING USER",result)
       res.send(result)
     })
   });

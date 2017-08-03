@@ -35,6 +35,11 @@ safe.use(function(req, res, next) {
 //   // ensureSec(req,res,next) 
 // })
 
+app.disable('etag');
+
+app.use(express.static(path.join(__dirname, 'public'), {
+        etag: false
+}));
 
 var cors = require('cors');
 unSafeRouteur.use(cors());

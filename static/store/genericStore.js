@@ -39,7 +39,7 @@ function GenericStore(specificStoreList) {
 
 
   this.on('item_current_updateField', function(message) {
-    //console.log('item_current_updateField :', message);
+    console.log('item_current_updateField :', message);
     this.itemCurrent[message.field] = message.data;
     //console.log(this.workspaceCurrent);
     this.trigger('item_current_changed', this.itemCurrent);

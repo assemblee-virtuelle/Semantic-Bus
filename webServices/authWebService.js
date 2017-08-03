@@ -57,6 +57,7 @@ module.exports = function (router) {
 				password: req.body.password
 			}
 		}).then(function (data) {
+			console.log(data)
 			res.send({
 				user: data.user,
 				token: data.token

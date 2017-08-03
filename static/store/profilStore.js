@@ -4,7 +4,7 @@ function profilStore() {
   this.userCurrrent;
 
     this.on('load_profil', function(message) {
-        console.log('show_profil');
+        console.log('show_profil', localStorage.user_id);
         // console.log(localStorage.user_id);
         $.ajax({
             method: 'get',

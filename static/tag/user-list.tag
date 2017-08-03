@@ -34,7 +34,7 @@
         }.bind(this)) 
 
         share(e){
-            RiotControl.trigger('workspace_current_edit');
+             //RiotControl.trigger('workspace_current_edit'); 
             RiotControl.trigger('share-workspace', {email:this.email, worksapce_id: this.workspace._id.$oid});
         }
         

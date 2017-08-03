@@ -204,7 +204,7 @@
 
   editClick(e){
     //console.log('EDIT');
-    RiotControl.trigger('workspace_current_edit');
+    RiotControl.trigger('workspace_current_edit'); 
     this.labelInputName = "Modifier le nom du workspace"
     this.labelInputDesc = "Modifier la déscription du workspace "
     console.log(this.innerData.mode)
@@ -238,28 +238,34 @@
   // }
 
   this.on('mount', function () {
+
+
     /// COMPONENT
-    RiotControl.on('save_auto', function(){
+
+    RiotControl.on('all_component_by_workspace_loaded',function(data){
+      console.log("IN TRIGGER", data)
+      //this.innerDataUser = data;
+      this.tags.zentable[0].data = data.components;
+      this.update();
+    }.bind(this));
+
+    RiotControl.on('save_auto', function(data){
       console.log("save auto data")
         this.componentView = true;
         this.userView = true;
         this.DescriptionView = true;
         RiotControl.trigger('workspace_current_updateField',{field:'name',data: this.innerData.name});
         RiotControl.trigger('workspace_current_updateField',{field:'description',data:this.innerData.description});
-        RiotControl.trigger('workspace_current_persist');
+        RiotControl.trigger('workspace_current_persist', data);
     }.bind(this))
     this.tags.zentable[0].on('addRow',function(message){
-      console.log("CLICK Addrow");
       this.componentView = true;
       this.userView = false;
        this.DescriptionView = false;
       RiotControl.trigger('workspace_current_add_component',message);
     }.bind(this));
 
-    
-    
     this.tags.zentable[0].on('delRow',function(message){
-      console.log("CLICK dellRow");
       RiotControl.trigger('workspace_current_delete_component',message);
       RiotControl.trigger('workspace_current_persist');
     }.bind(this));
@@ -269,10 +275,10 @@
     }.bind(this));
 
     RiotControl.on('workspace_current_changed',function(data){
-      console.log("CLICK worksapce change");
+      console.log("CLICK worksapce change", data);
       this.workspace = data
       this.innerData = data;
-      this.tags.zentable[0].data=data.components;
+      this.tags.zentable[0].data= data.components;
       this.update();
     }.bind(this));
 
@@ -291,6 +297,8 @@
         this.DescriptionView = false;
         RiotControl.trigger('workspace_current_add_user',message);
     }.bind(this));
+
+
     ///HEADER PAGE
     
     this.workspaceNameInput.addEventListener('change',function(e){
