@@ -76,7 +76,7 @@ function profilStore() {
         console.log(data);
         $.ajax({
             method: 'put',
-            url: '../data/core/share/workspace',
+            url: '../data/core/share/workspace/',
             data: JSON.stringify(data),
             headers: {
                 "Authorization": "JTW" + " " + localStorage.token

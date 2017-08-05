@@ -39,11 +39,7 @@ module.exports = function (router) {
         console.log("data |", data)
         // FIND BY EMAIL ///
         user_lib.get({
-            options: {
-                filters: {
-                    _id: req.body.email
-                }
-            }
+                    ['credentials.email']: req.body.email
         }).then(function (user) {
             if (user) {
                 newUser = user
@@ -52,13 +48,12 @@ module.exports = function (router) {
                 // console.log(newUser)
                 if (newUser.workspaces.length > 0) {
                     if (!contains(newUser.workspaces, {
-                            _id: req.body.worksapce_id
+                            _id: workspace_id
                         })) {
                         newUser.workspaces.push({
-                            _id: req.body.worksapce_id,
+                            _id: workspace_id,
                             role: "editor"
                         })
-                        
                         user_lib.update(userId, { user: {workspaces: newUser.workspaces}}).then(function (user) {
                             res.send(user)
                         })
@@ -67,7 +62,7 @@ module.exports = function (router) {
                     }
                 } else {
                     newUser.workspaces.push({
-                        _id: req.body.worksapce_id,
+                        _id: workspace_id,
                         role: "editor"
                     })
                    user_lib.update(userId, newUser).then(function (user) {
@@ -88,17 +83,16 @@ module.exports = function (router) {
         var userId = req.params.iduser
         var userTab = [];
         return new Promise(function (resolve, reject) {
-            user_lib.get_all({}).then(function (err, users) {
+            user_lib.get_all({}).then(function (users) {
+                console.log("all user", users)
                 if (users) {
                     users.forEach(function (user) {
                         if (user.workspaces != null) {
-                            //  console.log(user._id)
                             if (user._id != userId) {
-                                // console.log(user._id.$oid)
                                 user.workspaces.forEach(function (workspace) {
                                     if (workspace._id == workspace_id) {
                                         userTab.push({
-                                            email: user.credentials.data.workspacesemail,
+                                            email: user.credentials.email,
                                             role: workspace.role
                                         })
                                     }

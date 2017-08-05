@@ -65,10 +65,16 @@
 
     RiotControl.on('item_current_changed', function (data) {
       this.data = data;
-      if (this.data.specificData.unicityFields == undefined) {
-        this.data.specificData.unicityFields = [];
+      if(this.data.specificData){
+        if (this.data.specificData.unicityFields == undefined) {
+          this.data.specificData.unicityFields = [];
+        }
+      }else{
+        this.data.specificData = {}
+        if (this.data.specificData.unicityFields == undefined) {
+          this.data.specificData.unicityFields = [];
+        }
       }
-      console.log(this.data.specificData.unicityFields);
       if (this.tags.zentable != undefined) {
         this.tags.zentable.data = this.data.specificData.unicityFields;
       }

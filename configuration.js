@@ -6,6 +6,7 @@ module.exports = {
     addLock: false,
     secret: process.env.JWT_TOKEN || 'secret',
     https: false,
+    mlab_token: 'ue_eHVRDWSW0r2YZuTLCi1BxVB_zXnOI',
 	configMongo: {
 		'driver': "mongoose",
 		'database': "semantic_bus",

@@ -125,7 +125,7 @@ module.exports = {
     pull: function (data) {
         ///creation du model
         return new Promise((resolve, reject) => {
-            this.mLabPromise.request('GET', 'workspaceComponent/' + data._id.$oid).then(function (data) {
+            this.mLabPromise.request('GET', 'workspaceComponent/' + data._id).then(function (data) {
                 this.initialise(data.specificData.driver, data.specificData.host, data.specificData.port, data.specificData.username, data.specificData.password, data.specificData.database).then(function (schemaSeq) {
                     this.createmodel(data.specificData.modelName, data.specificData.jsonSchema, schemaSeq).then(function (model) {
                         this.request(data.specificData.querySelect, model, schemaSeq).then(function (bddData) {

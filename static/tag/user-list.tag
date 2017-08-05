@@ -34,15 +34,20 @@
         }.bind(this)) 
 
         share(e){
-             //RiotControl.trigger('workspace_current_edit'); 
-            RiotControl.trigger('share-workspace', {email:this.email, worksapce_id: this.workspace._id.$oid});
+            console.log("share")
+            if(this.workspace){
+                console.log("this.workspace in if", this.workspace)
+                RiotControl.trigger('share-workspace', {email:this.email, worksapce_id: this.workspace._id});
+            }
         }
+
+        RiotControl.on('workspace_current_changed',function(data){
+            console.log('load current worksapce : user module ||', data)
+            this.workspace = data
+        }.bind(this));
         
         this.on('mount', function () {
             this.email = "";   
-            RiotControl.on('workspace_current_changed',function(data){
-                this.workspace = data
-            }.bind(this));
             RiotControl.trigger('load_all_profil_by_email');
             RiotControl.on('all_profil_by_email_load',function(data){
                 console.log(data)
@@ -52,7 +57,6 @@
             })
             $('#users-list').on('change',function(e){
                 this.email =e.currentTarget.value;
-                
             }.bind(this));
         })
     </script>

@@ -20,7 +20,7 @@ module.exports = {
   resolveComponent(component, requestDirection, pushData) {
     //buildPathResolution component, requestDirection
     return new Promise((resolve, reject) => {
-      this.mLabPromise.request('GET', 'workspaceComponent/' + '', undefined, {
+      this.mLabPromise.request('GET', 'workspacecomponents/' + '', undefined, {
         q: {
           workspaceId: component.workspaceId
         }
@@ -36,6 +36,7 @@ module.exports = {
             name: component.name
           })
         }));
+        console.log('ONE')
         this.pathResolution = this.buildPathResolution(component, requestDirection, 0, components);
         this.pathResolution.forEach(link => {
           link.status = 'waiting'
@@ -50,21 +51,23 @@ module.exports = {
 
         if (requestDirection == 'push') {
           // affecter le flux à tous les link dont la source est le composant
-          this.sift({'_id.$oid':component._id.$oid},this.componentsResolving)[0].dataResolution=pushData;
+          this.sift({'_id':component._id},this.componentsResolving)[0].dataResolution=pushData;
           this.sift({
-            "source._id.$oid": component._id.$oid
+            "source._id": component._id
           }, this.pathResolution).forEach(link => {
             link.status = 'processing'
           });
           this.processNextBuildPath();
         }
 
-        //if (requestDirection == 'pull') {
+          //if (requestDirection == 'pull') {
+          console.log('before sift', this.sift({pullSource:true,dataResolution:{$exists:false}},this.componentsResolving))
           this.sift({pullSource:true,dataResolution:{$exists:false}},this.componentsResolving).forEach(componentProcessing=>{
+            console.log('SIFT')
             let module = this.technicalComponentDirectory[componentProcessing.module];
             //let componentProcessing = processingLink.source;
             module.pull(componentProcessing, undefined, undefined).then(componentFlow => {
-              //console.log('PULL END | ', componentProcessing._id.$oid);
+              console.log('PULL END | ', componentProcessing._id);
               componentProcessing.dataResolution = componentFlow;
               componentProcessing.status = 'resolved';
               this.sift({
@@ -76,7 +79,6 @@ module.exports = {
             })
           });
         //}
-
       })
     });
 
@@ -135,7 +137,7 @@ module.exports = {
           let module = this.technicalComponentDirectory[componentProcessing.module];
           //let componentProcessing = processingLink.source;
           module.pull(componentProcessing, dataFlow, undefined).then(componentFlow => {
-            //console.log('PULL END | ', componentProcessing._id.$oid);
+            console.log('PULL END | ', componentProcessing._id.$oid);
 
             componentProcessing.dataResolution = componentFlow;
             componentProcessing.status = 'resolved';
@@ -205,7 +207,7 @@ module.exports = {
       for (var i = 0; i < depth; i++) {
         incConsole += "-";
       }
-      console.log(incConsole, "buildPathResolution", component._id.$oid, requestDirection);
+      console.log(incConsole, "buildPathResolution", component, requestDirection);
       let module= this.technicalComponentDirectory[component.module];
 
       var out = [];
@@ -234,7 +236,7 @@ module.exports = {
 
         }
       }else{
-        component.pullSource=true;
+        component.pullSource = 'true';       
       }
       if (component.connectionsAfter != undefined && component.connectionsAfter.length > 0 && !(requestDirection == 'push' && module.stepNode == true)) {
         for (var afterComponent of component.connectionsAfter) {
@@ -257,7 +259,7 @@ module.exports = {
           }
         }
       }
-
+      console.log("OUT", out)
       return out;
     }
   },
@@ -271,14 +273,15 @@ module.exports = {
       console.log('recursivPullResolvePromise | module | ', module.type, module.name);
       //console.log('recursivPullResolvePromise | before | ',component.connectionsBefore.length,' | stepNode |',module.stepNode,' | notMainNode |',notMainNode);
       if (component.connectionsBefore.length > 0 && (module.stepNode != true || notMainNode != true)) {
-        console.log('resolveWebComponentPull | beforeId | ', component.connectionsBefore[0]);
+        // console.log('resolveWebComponentPull | beforeId | ', component.connectionsBefore[0]);
 
         Promise.all(
           component.connectionsBefore.map(connectionBeforeId => {
-            //console.log(connectionBeforeId);
+            console.log(connectionBeforeId);
             return this.workspaceComponentPromise.getReadPromiseById(connectionBeforeId)
           })
-        ).then(workspaceComponents =>
+        ).then(workspaceComponents =>{
+          console.log(workspaceComponents)
           Promise.all(
             workspaceComponents.map(workspaceComponent => {
               if (workspaceComponent.message == 'Document not found') {
@@ -289,18 +292,21 @@ module.exports = {
                 });
               } else {
                 //console.log(workspaceComponent);
-                return this.resolveComponentPull(workspaceComponent, true, pullParams)
+                resolve(this.resolveComponentPull(workspaceComponent, true, pullParams))
               }
             })
           )
+        }
         ).then(connectionsBeforeData => {
           //connectionsBeforeData=connectionsBeforeData.map(connectionBeforeData=>{data:connectionBeforeData})
           if (module.pull) {
             //console.log('connectionsBeforeData | ', connectionsBeforeData);
             var primaryflow;
             if (module.getPrimaryFlow != undefined) {
+               console.log("in if", connectionsBeforeData)
               primaryflow = module.getPrimaryFlow(component, connectionsBeforeData);
             } else {
+              console.log("in else", connectionsBeforeData)
               primaryflow = connectionsBeforeData[0];
             }
 

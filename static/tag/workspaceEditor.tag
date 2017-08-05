@@ -250,7 +250,7 @@
     }.bind(this));
 
     RiotControl.on('save_auto', function(data){
-      console.log("save auto data")
+      console.log("save auto data ||", data)
         this.componentView = true;
         this.userView = true;
         this.DescriptionView = true;
@@ -270,15 +270,14 @@
       RiotControl.trigger('workspace_current_persist');
     }.bind(this));
     this.tags.zentable[0].on('rowNavigation',function(data){
-      RiotControl.trigger('item_current_click',data);
+       RiotControl.trigger('item_current_click',data); 
       //this.trigger('selectWorkspace');
     }.bind(this));
 
     RiotControl.on('workspace_current_changed',function(data){
-      console.log("CLICK worksapce change", data);
       this.workspace = data
       this.innerData = data;
-      this.tags.zentable[0].data= data.components;
+      this.tags.zentable[0].data= data.components; 
       this.update();
     }.bind(this));
 

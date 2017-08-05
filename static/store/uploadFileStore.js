@@ -5,7 +5,7 @@ function UploadStore() {
     console.log('item_current_upload in ajax |', data);
     $.ajax({
       method: 'post',
-      url: '../data/specific/upload/' + this.genericStore.itemCurrent._id.$oid ,
+      url: '../data/specific/upload/' + this.genericStore.itemCurrent._id,
       headers: {
         "Authorization": "JTW" + " " + localStorage.token
       },

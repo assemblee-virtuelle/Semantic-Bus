@@ -19,7 +19,7 @@ function WorkspaceStore() {
   // --------------------------------------------------------------------------------
 
 
-   // ----------------------------------------- FUNCTION  -----------------------------------------
+  // ----------------------------------------- FUNCTION  -----------------------------------------
 
 
   this.load = function (callback) {
@@ -38,7 +38,10 @@ function WorkspaceStore() {
         callback();
       }
       this.trigger('workspace_collection_changed', this.workspaceCollection);
-
+      if (this.workspaceCurrent) {
+        console.log("Update current workspace")
+        this.updateComponentListe(this.workspaceCurrent)
+      }
     }.bind(this));
   }; //<= load_workspace
 
@@ -122,10 +125,10 @@ function WorkspaceStore() {
   // --------------------------------------------------------------------------------
 
   this.delete = function (record) {
-    console.log('delete row');
+    console.log('delete row', record);
     $.ajax({
       method: 'delete',
-      url: '../data/core/workspace/' + record._id.$oid + '/' + localStorage.user_id,
+      url: '../data/core/workspace/' + record._id + '/' + localStorage.user_id,
       contentType: 'application/json',
       headers: {
         "Authorization": "JTW" + " " + localStorage.token
@@ -140,7 +143,7 @@ function WorkspaceStore() {
   // --------------------------------------------------------------------------------
 
   this.updateUserListe = function (data) {
-    console.log('updateUserListe');
+    console.log('updateUserListe', data);
     $.ajax({
       method: 'get',
       url: '../data/core/workspaces/' + data._id + '/user/' + localStorage.user_id,
@@ -149,6 +152,7 @@ function WorkspaceStore() {
       },
       contentType: 'application/json'
     }).done(function (data) {
+      console.log('updateUserListeDone', data);
       if (data != false) {
         this.trigger('all_profil_by_workspace_loaded', data)
       } else {
@@ -163,7 +167,7 @@ function WorkspaceStore() {
 
 
   this.updateComponentListe = function (data) {
-    console.log('update Component Liste');
+    console.log('update Component Liste', data);
     $.ajax({
       method: 'get',
       url: '../data/core/workspace/' + data._id,
@@ -174,12 +178,13 @@ function WorkspaceStore() {
     }).done(function (data) {
       console.log("update Component Liste Done ||", data)
       if (data != false) {
-        this.workspaceCurrent = data
-        this.trigger('all_component_by_workspace_loaded', data)
-      } else {
-        this.trigger('no_profil')
+        if (this.workspaceCurrent) {
+          this.workspaceCurrent = data
+          this.workspaceCurrent.mode = "read"
+          this.trigger('all_component_by_workspace_loaded', data)
+          this.trigger('workspace_current_changed', data);
+        }
       }
-
     }.bind(this));
   }; // <= updateComponentList
 
@@ -188,26 +193,17 @@ function WorkspaceStore() {
 
   this.select = function (record) {
     console.log('select ||', record);
-    //record.mode = 'read';
     this.workspaceCurrent = record;
-    //this.workspaceCurrent.mode = 'read';
-    // for (listRecord of this.workspaceCollection) {
-    //   console.log(listRecord)
-    //   if (listRecord._id.$oid == record._id.$oid) {
-    //     listRecord.mainSelected = true;
-    //   }
-    // }
-    this.trigger('workspace_current_changed', this.workspaceCurrent);
     this.updateUserListe(this.workspaceCurrent)
     this.updateComponentListe(this.workspaceCurrent)
-  };// <= select
+  }; // <= select
 
   // ----------------------------------------- EVENT  -----------------------------------------
 
   this.on('workspace_delete', function (record) {
-     console.log('ON workspace_delete ||', record);
+    console.log('ON workspace_delete ||', record);
     this.delete(record);
-  });// <= workspace_delete
+  }); // <= workspace_delete
 
   // --------------------------------------------------------------------------------
 
@@ -219,24 +215,25 @@ function WorkspaceStore() {
       this.cancelRequire = false;
       this.select(this.workspaceCurrent);
     }
-  });// <= workspace_collection_load
+  }); // <= workspace_collection_load
 
- // --------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------
 
   this.on('workspace_collection_share_load', function (record) {
     console.log('ON workspace_collection_share_load ||', record);
     if (this.cancelRequire == false) {
       this.loadShareWorkspace(function () {
-        for (workspace of this.workspaceShareCollection) {
-          workspace.components = this.workspaceBusiness.connectWorkspaceComponent(workspace.components);
-        }
+        // for (workspace of this.workspaceShareCollection) {
+        //   workspace.components = this.workspaceBusiness.connectWorkspaceComponent(workspace.components);
+        //   console.log()
+        // }
         this.trigger('workspace_share_collection_changed', this.workspaceShareCollection);
       }.bind(this));
     } else {
       this.cancelRequire = false;
       this.select(this.workspaceCurrent);
     }
-  });// <= workspace_collection_share_load
+  }); // <= workspace_collection_share_load
 
 
   // -------------------------------------------------------------------------------- 
@@ -253,8 +250,8 @@ function WorkspaceStore() {
     }).done(function (data) {
       var synchronizedWorkspaceCollection = [];
       for (var workspace of this.workspaceCollection) {
-        if (workspace._id.$oid == data._id.$oid) {
-          data.components = this.workspaceBusiness.connectWorkspaceComponent(data.components);
+        if (workspace._id == data._id) {
+          // data.components = this.workspaceBusiness.connectWorkspaceComponent(data.components);
           synchronizedWorkspaceCollection.push(data);
           console.log('workspace_synchoniseFromServer_workspace_byId | workspaceCurrent | ', this.workspaceCurrent);
           console.log('workspace_synchoniseFromServer_workspace_byId | New workspaceCurrent | ', data);
@@ -267,12 +264,12 @@ function WorkspaceStore() {
       this.trigger('workspace_synchoniseFromServer_done', this.workspaceCollection);
       this.trigger('workspace_collection_changed', this.workspaceCollection);
     }.bind(this));
-  });// <= workspace_synchoniseFromServer_byId
+  }); // <= workspace_synchoniseFromServer_byId
 
   // -------------------------------------------------------------------------------- 
 
   this.on('workspace_current_updateField', function (message) {
-    console.log('workspace_current_updateField ||',message)
+    console.log('workspace_current_updateField ||', message)
     this.workspaceCurrent[message.field] = message.data;
     this.trigger('workspace_current_changed', this.workspaceCurrent);
   }); // <= workspace_current_updateField
@@ -280,33 +277,33 @@ function WorkspaceStore() {
   // -------------------------------------------------------------------------------- 
 
   this.on('workspace_current_select', function (record) {
-    console.log('workspace_current_select ||',record)
+    console.log('workspace_current_select ||', record)
     record.mode = 'read'
     this.select(record);
-  });// <= workspace_current_select
+  }); // <= workspace_current_select
 
   // -------------------------------------------------------------------------------- 
 
   this.on('workspace_current_share_select', function (record) {
-    console.log('workspace_current_share_select ||',record)
+    console.log('workspace_current_share_select ||', record)
     record.mode = 'read'
     this.select(record);
-  });// <= workspace_current_share_select
+  }); // <= workspace_current_share_select
 
   // -------------------------------------------------------------------------------- 
 
   this.on('workspace_current_cancel', function (record) {
-    console.log('workspace_current_cancel ||',record)
+    console.log('workspace_current_cancel ||', this.workspaceCurrent)
     this.workspaceCurrent.mode = 'read'
-  });// <= workspace_current_cancel
+    this.select(this.workspaceCurrent);
+  }); // <= workspace_current_cancel
 
   // -------------------------------------------------------------------------------- 
 
   this.on('workspace_current_edit', function (data) {
-    console.log("workspace_current_edit", data)
     this.workspaceCurrent.mode = 'edit';
     this.trigger('workspace_current_changed', this.workspaceCurrent);
-  });// <= workspace_current_edit
+  }); // <= workspace_current_edit
 
   // -------------------------------------------------------------------------------- 
 
@@ -319,15 +316,15 @@ function WorkspaceStore() {
     };
     this.workspaceCurrent.mode = 'init';
     this.trigger('workspace_current_changed', this.workspaceCurrent);
-  });// <= workspace_current_init
+  }); // <= workspace_current_init
 
   // -------------------------------------------------------------------------------- 
 
 
   this.on('workspace_current_refresh', function () {
     console.log('workspace_current_refresh || ', this.workspaceCurrent);
-    this.trigger('workspace_current_changed', this.workspaceCurrent);
-  });// <= workspace_current_refresh
+    this.trigger('item_current_edit', this.workspaceCurrent);
+  }); // <= workspace_current_refresh
 
   // -------------------------------------------------------------------------------- 
 
@@ -340,7 +337,7 @@ function WorkspaceStore() {
     } else if (mode == 'edit') {
       this.update(data);
     }
-  });// <= workspace_current_persist
+  }); // <= workspace_current_persist
 
   // -------------------------------------------------------------------------------- 
 
@@ -354,23 +351,23 @@ function WorkspaceStore() {
     })
   }); //<= technicalComponent_current_select
 
-// -------------------------------------------------------------------------------- 
+  // -------------------------------------------------------------------------------- 
 
   this.on('workspace_current_delete_component', function (record) {
-     console.log("workspace_current_delete_component ||", record)
+    console.log("workspace_current_delete_component ||", record)
     this.workspaceCurrent.components.splice(record.rowId, 1);
     this.trigger('workspace_current_changed', this.workspaceCurrent);
 
-  });//<= workspace_current_delete_component
-  
-// -------------------------------------------------------------------------------- 
+  }); //<= workspace_current_delete_component
+
+  // -------------------------------------------------------------------------------- 
 
 
   this.on('item_current_cancel', function (data) {
-    console.log('item_current_cancel ||',data);
+    console.log('item_current_cancel ||', data);
     this.workspaceCurrent.mode = 'read';
     this.cancelRequire = true;
-  });//<= item_current_cancel
+  }); //<= item_current_cancel
 
   // -------------------------------------------------------------------------------- 
 
@@ -387,10 +384,23 @@ function WorkspaceStore() {
       this.workspaceCollection = data;
       this.trigger('workspace_collection_changed', this.workspaceCollection);
     }.bind(this));
-  });//<= own_all_workspace
+  }); //<= own_all_workspace
 
-   // -------------------------------------------------------------------------------- 
+  // -------------------------------------------------------------------------------- 
 
-
+  this.on('workspace_current_graph', function (data) {
+    $.ajax({
+      method: 'get',
+      url: '../data/core/workspaceComponent/load_all_component/' + this.workspaceCurrent._id,
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
+      contentType: 'application/json',
+    }).done(function (data) {
+      this.workspaceCurrent = data
+      console.log("CURRENT GRAPH TRIGGER", this.workspaceCurrent)
+      this.trigger('workspace_current_graph_changed', this.workspaceCurrent);
+    }.bind(this));
+  }); //<= own_all_workspace
 
 }

@@ -37,20 +37,16 @@ safe.use(function(req, res, next) {
 
 app.disable('etag');
 
-app.use(express.static(path.join(__dirname, 'public'), {
-        etag: false
-}));
-
 var cors = require('cors');
 unSafeRouteur.use(cors());
 
-require('./webServices/initialise')(unSafeRouteur);
+require('./webServices/initialiseHTTPS')(unSafeRouteur);
 require('./webServices/authWebService')(unSafeRouteur);
-require('./webServices/workspace')(safe);
-require('./webServices/workspaceComponent')(safe);
-require('./webServices/technicalComponent')(safe, unSafeRouteur);
+require('./webServices/workspaceWebService')(safe);
+require('./webServices/workspaceComponentWebService')(safe);
+require('./webServices/technicalComponentWebService')(safe, unSafeRouteur);
 require('./webServices/userWebservices')(safe);
-require('./webServices/rightsManagement')(safe);
+require('./webServices/rightsManagementWebService')(safe);
 //require('./webServices/ldp')(router);
 
 var transform = require('jsonpath-object-transform');

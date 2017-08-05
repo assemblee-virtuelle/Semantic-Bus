@@ -4,10 +4,10 @@ function sqlStore() {
 
   this.on('connectesql', function(data) {
     console.log('connectesql in ajax |', data);
-    console.log(this.genericStore.itemCurrent._id.$oid)
+    console.log(this.genericStore.itemCurrent._id)
     $.ajax({
       method: 'post',
-      url: '../data/specific/sqlconnecte/' + this.genericStore.itemCurrent._id.$oid,
+      url: '../data/specific/sqlconnecte/' + this.genericStore.itemCurrent._id,
       // processData: false,
       data: data,
       // contentType : 'application/json',
@@ -22,7 +22,7 @@ function sqlStore() {
     console.log('validateModel in ajax |', data);
     $.ajax({
       method: 'post',
-      url: '../data/specific/createmodel/'  + this.genericStore.itemCurrent._id.$oid,
+      url: '../data/specific/createmodel/'  + this.genericStore.itemCurrent._id,
       // processData: false,
       data: data,
       // contentType : 'application/json',
@@ -36,7 +36,7 @@ function sqlStore() {
     console.log('request in ajax |', data);
     $.ajax({
       method: 'post',
-      url: '../data/specific/request/'  + this.genericStore.itemCurrent._id.$oid,
+      url: '../data/specific/request/'  + this.genericStore.itemCurrent._id,
       // processData: false,
       data: data,
       // contentType : 'application/json',
