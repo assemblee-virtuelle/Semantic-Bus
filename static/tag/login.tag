@@ -342,18 +342,6 @@
        RiotControl.trigger('google_connect', googleToken);
     }
   }
-  ///SPINNER
-  // RiotControl.on("ajax_receipt", function(){
-  //   console.log("in hide");
-  //   $("#containerloaderDiv").hide();
-  //   this.update()
-  // }.bind(this));
-
-  // RiotControl.on("ajax_send", function(){
-  //   console.log("in show");
-  //   $("#containerloaderDiv").show();
-  //   this.update()
-  // }.bind(this));
 
   this.isGoogleUser();
  
