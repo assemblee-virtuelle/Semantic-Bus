@@ -14,7 +14,8 @@
     "test_unit_user_lib": "node_modules/mocha/bin/mocha lib/core/test/lib/user/user_unit.js",
     "test_unit_auth_lib": "node_modules/mocha/bin/mocha lib/core/test/lib/auth/auth_unit.js",
     "test_unit_workspace_lib": "node_modules/mocha/bin/mocha lib/core/test/lib/workspaces/workspace_unit.js",
-    "test_unit_inscription_lib": "node_modules/mocha/bin/mocha lib/core/test/lib/inscription/inscription_unit.js"
+    "test_unit_inscription_lib": "node_modules/mocha/bin/mocha lib/core/test/lib/inscription/inscription_unit.js",
+    "migrationV1": "node migration_database/V1_V2.js"
   },
   "author": "Simon Louvet <simon.louvet.zen@gmail.com>",
   "license": "GNUV3",

@@ -274,10 +274,8 @@ module.exports = {
       //console.log('recursivPullResolvePromise | before | ',component.connectionsBefore.length,' | stepNode |',module.stepNode,' | notMainNode |',notMainNode);
       if (component.connectionsBefore.length > 0 && (module.stepNode != true || notMainNode != true)) {
         // console.log('resolveWebComponentPull | beforeId | ', component.connectionsBefore[0]);
-
         Promise.all(
           component.connectionsBefore.map(connectionBeforeId => {
-            console.log(connectionBeforeId);
             return this.workspaceComponentPromise.getReadPromiseById(connectionBeforeId)
           })
         ).then(workspaceComponents =>{
@@ -300,7 +298,7 @@ module.exports = {
         ).then(connectionsBeforeData => {
           //connectionsBeforeData=connectionsBeforeData.map(connectionBeforeData=>{data:connectionBeforeData})
           if (module.pull) {
-            //console.log('connectionsBeforeData | ', connectionsBeforeData);
+            console.log('connectionsBeforeData | ', connectionsBeforeData);
             var primaryflow;
             if (module.getPrimaryFlow != undefined) {
                console.log("in if", connectionsBeforeData)
