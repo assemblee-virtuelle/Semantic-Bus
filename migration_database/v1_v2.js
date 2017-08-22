@@ -17,11 +17,7 @@ var ObjectID = require('mongodb').ObjectID;
 
 // --------------------------------------------------------------------------------
 
-<<<<<<< HEAD
-var conStr = "mongodb://alex:alexfoot31@ds131362-a0.mlab.com:31362,ds131362-a1.mlab.com:31362/semantic_bus_prod?replicaSet=rs-ds131362";
-=======
 var conStr = config.mlab_migration
->>>>>>> d08f61b011cac535afb6faa6968484e718be32f5
 
 var connection = mongodb.connect(conStr);
 
