@@ -1,23 +1,24 @@
 module.exports = {
-    mlabDBToClone: process.env.Mongo_Base,
-    mlabDB: process.env.Mongo_Base,
-    mlab_migration: process.env.Mongo_Base,
+    mlabDBToClone: 'mongodb://alex:alexfoot31@ds052629.mlab.com:52629/sementic_bus_dev',
+    mlabDB: 'mongodb://alex:alexfoot31@ds052629.mlab.com:52629/sementic_bus_dev',
+    mlab_migration: 'mongodb://alex:alexfoot31@ds129462.mlab.com:29462/semantic_bus_bakc_up',
     saveLock: false,
     addLock: false,
-    secret: process.env.JWT_TOKEN,
-    https: "force",
-    mlab_token: process.env.mlab_token,
+    secret: process.env.JWT_TOKEN || 'secret',
+    https: false,
+    mlab_token: 'ue_eHVRDWSW0r2YZuTLCi1BxVB_zXnOI',
 	configMongo: {
 		'driver': "mongoose",
-		'database': "semantic_bus_prod",
-		'url': 'mongodb://alex:alexfoot31@ds131362-a0.mlab.com:31362,ds131362-a1.mlab.com:31362/semantic_bus_prod?replicaSet=rs-ds131362',
-		'password': process.env.MLAB_PASSWORD,
-		'username': process.env.MLAB_USERNAME
+        'database': "semantic_bus",
+		'url': 'mongodb://alex:alexfoot31@ds052629.mlab.com:52629/sementic_bus_dev',
+		'password': process.env.MLAB_PASSWORD || 'alexfoot31',
+		'username': process.env.MLAB_USERNAME || 'alex'
 	},
 	googleAuth : {
-        'clientID'      : process.env.clientID_GOOGLE ,
-        'clientSecret'  : process.env.client_GOOGLE_Secret,
+        'clientID'      : process.env.clientID_GOOGLE || '497545161510-jevr8h52tl51j5gsd208icp5bbbi9suq.apps.googleusercontent.com',
+        'clientSecret'  : process.env.client_GOOGLE_Secret || 'e-0uRyWiFqkbpCVWQGMh-EpW',
         'callbackURL'   : '/auth/'
     }
 }
+
 
