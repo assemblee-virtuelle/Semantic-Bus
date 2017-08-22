@@ -130,7 +130,7 @@ module.exports = {
             //console.log(sourceFlow);
             return sourceFlow[0].dataResolution;
           });
-          //console.log(dataFlow);
+          console.log(dataFlow);
           //let dataFlow = sourceWithData.map(reslovedLink => reslovedLink.data);
           let module = this.technicalComponentDirectory[componentProcessing.module];
           //let componentProcessing = processingLink.source;
