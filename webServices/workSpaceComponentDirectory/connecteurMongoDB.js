@@ -99,7 +99,7 @@ module.exports = {
         console.log("IN pull")
         return new Promise((resolve, reject) => {
             var mongoose = require('mongoose');
-            this.mLabPromise.request('GET', 'workspaceComponent/' + data._id.$oid).then(function (data) {
+            this.mLabPromise.request('GET', 'workspaceComponent/' + data._id).then(function (data) {
                 this.initialise(data.specificData.url, data.specificData.host, data.specificData.port, data.specificData.username, data.specificData.password, data.specificData.database).then(function (url) {
                     this.createmodel(data.specificData.modelName, data.specificData.jsonSchema, mongoose, url).then(function (model) {
                         this.request(data.specificData.querySelect, model, data.specificData.modelName, url, mongoose).then(function (bddData) {

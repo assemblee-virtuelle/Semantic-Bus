@@ -5,6 +5,8 @@
 //const url = require('url');
 //doc to promises : http://stackoverflow.com/questions/35182752/promises-with-http-get-node-js
 
+var workspace_component_lib = require('../lib/core').workspaceComponent;
+
 
 module.exports = {
   technicalComponentDirectory: require('./technicalComponentDirectory.js'),
@@ -19,11 +21,12 @@ module.exports = {
   },
   resolveComponent(component, requestDirection, pushData) {
     //buildPathResolution component, requestDirection
+
+    console.log(" ---------- resolveComponent -----------")
+
     return new Promise((resolve, reject) => {
-      this.mLabPromise.request('GET', 'workspaceComponent/' + '', undefined, {
-        q: {
-          workspaceId: component.workspaceId
-        }
+      workspace_component_lib.get_all({
+        workspaceId: component.workspaceId
       }).then(components => {
         this.componentsResolving = components;
         this.componentsResolving.forEach(component => {
@@ -47,20 +50,40 @@ module.exports = {
         this.RequestOrigineRejectMethode = reject;
         this.RequestOrigineResponse = undefined;
 
+        /// -------------- push case  -----------------------
 
         if (requestDirection == 'push') {
           // affecter le flux à tous les link dont la source est le composant
-          this.sift({'_id.$oid':component._id.$oid},this.componentsResolving)[0].dataResolution=pushData;
+          // console.log(" function : resolveComponent | variable : in push ")
           this.sift({
-            "source._id.$oid": component._id.$oid
+            '_id': component._id
+          }, this.componentsResolving)[0].dataResolution = pushData;
+          this.sift({
+            "source._id": component._id
           }, this.pathResolution).forEach(link => {
             link.status = 'processing'
           });
           this.processNextBuildPath();
         }
 
+        /// -------------- pull case  -----------------------
+
+
         //if (requestDirection == 'pull') {
-          this.sift({pullSource:true,dataResolution:{$exists:false}},this.componentsResolving).forEach(componentProcessing=>{
+          console.log("in pull")
+          var tableSift = []
+          this.componentsResolving.forEach(function (component) {
+            if (component.pullSource == "true") {
+              tableSift.push(component)
+            }
+          })
+          // this.sift({
+          //   pullSource: "true",
+          //   // dataResolution: {
+          //   //   $exists: false
+          //   // }
+          // }, this.componentsResolving)
+          tableSift.forEach(componentProcessing => {
             let module = this.technicalComponentDirectory[componentProcessing.module];
             //let componentProcessing = processingLink.source;
             module.pull(componentProcessing, undefined, undefined).then(componentFlow => {
@@ -68,7 +91,7 @@ module.exports = {
               componentProcessing.dataResolution = componentFlow;
               componentProcessing.status = 'resolved';
               this.sift({
-                "source._id.$oid": componentProcessing._id.$oid
+                "source._id": componentProcessing._id
               }, this.pathResolution).forEach(link => {
                 link.status = 'processing'
               });
@@ -82,7 +105,9 @@ module.exports = {
 
   },
   processNextBuildPath() {
-    console.log('pathResolution | ', this.pathResolution.map(link => {
+console.log(" ---------- processNextBuildPath -----------")
+    
+console.log('pathResolution | ', this.pathResolution.map(link => {
       return (link.source._id.$oid+' -> '+ link.destination._id.$oid+' : '+link.status);
     }));
     let linkNotResolved = this.sift({
@@ -90,76 +115,84 @@ module.exports = {
     }, this.pathResolution);
     if (linkNotResolved.length > 0) {
       for (var processingLink of linkNotResolved) {
-        // let sourcesToResolve = this.sift({
-        //   'destination._id.$oid': processingLink.source._id.$oid
-        // }, this.pathResolution).concat(this.sift({
-        //   'destination._id.$oid': processingLink.source._id.$oid
-        // }, this.linksProcessing));
+
+        //-------------- Source --------------
+
+        console.log("--------- processingLink-------------")
+
         let sourcesToResolve = this.sift({
-          '_id.$oid': processingLink.source._id.$oid,
+          '_id': processingLink.source._id,
           dataResolution: {
             $exists: false
           },
           //status: {$ne:'resolved'} // ==  dataResolution: { $exists: false }
         }, this.componentsResolving);
 
+        console.log("source to resolve ||", sourcesToResolve)
+
+        //-------------- Component processing -------------- 
+
         if (sourcesToResolve.length == 0) {
-          //this.linksProcessing.push(this.pathResolution.splice(this.pathResolution.indexOf(processingLink), 1));
-          //processingLink.status='processing';
-          let componentProcessing = this.sift({
-            "_id.$oid": processingLink.destination._id.$oid
+          console.log("string |", processingLink.destination)
+          var componentProcessing = this.sift({
+            "_id": processingLink.destination
           }, this.componentsResolving)[0];
-          componentProcessing.status = 'processing';
-          //console.log('sourcesToResolve.length',componentProcessing._id.$oid,sourcesToResolve.length);
-          // this.sift({
-          //   'source._id.$oid': componentProcessing._id.$oid
-          // }, this.componentsResolving).forEach(link => {
-          //   link.status = 'processing';
-          // });
+          // componentProcessing.status = 'processing';
+          console.log("componentProcessingDestination", componentProcessing)
+
+          // console.log("componentProcessingDestination", componentProcessing)
+
+
+          console.log("componentProcessing processing ||", componentProcessing.status)
+
+          //-------------- Data flow -------------- 
+
           let dataFlow = this.sift({
-            'destination._id.$oid': componentProcessing._id.$oid
+            'destination._id': componentProcessing._id
           }, this.pathResolution).map(sourceLink => {
             //sourceLink.status = 'resolved';
             //TODO vérifier que on y a pas directement acces par le link.source
-            var sourceFlow=this.sift(
-              {
-                "_id.$oid": sourceLink.source._id.$oid
+            var sourceFlow = this.sift({
+                "_id": sourceLink.source._id
               },
               this.componentsResolving
             );
             //console.log(sourceFlow);
             return sourceFlow[0].dataResolution;
           });
-          console.log(dataFlow);
-          //let dataFlow = sourceWithData.map(reslovedLink => reslovedLink.data);
+          console.log("dataflow ||", dataFlow.length);
+
+          //-------------- Pull méthode --------------
+
           let module = this.technicalComponentDirectory[componentProcessing.module];
           //let componentProcessing = processingLink.source;
           module.pull(componentProcessing, dataFlow, undefined).then(componentFlow => {
             //console.log('PULL END | ', componentProcessing._id.$oid);
 
-            componentProcessing.dataResolution = componentFlow;
-            componentProcessing.status = 'resolved';
+          // console.log("module ||", module)
 
-            this.sift({
-              "source._id.$oid": componentProcessing._id.$oid
-            }, this.pathResolution).forEach(link => {
-              link.status = 'processing'
-            });
+          module.pull(componentProcessing, dataFlow, undefined).then(componentFlow => {
+            console.log('PULL END | ', componentProcessing._id);
 
-            this.sift({
-              "destination._id.$oid": componentProcessing._id.$oid
-            }, this.pathResolution).forEach(link => {
-              link.status = 'resolved'
-            });
-            //console.log(componentProcessing._id.$oid ,this.RequestOrigine._id.$oid)
-            if (componentProcessing._id.$oid == this.RequestOrigine._id.$oid) {
-              this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
-            }
-            //
-            //
-            // this.linksProcessed.push(this.linksProcessing.splice(this.linksProcessing.indexOf(processingLink), 1));
+             componentProcessing.dataResolution = componentFlow;
+             componentProcessing.status = 'resolved';
+             console.log('componentProcessing resolved ||', componentProcessing.status)
+             this.sift({
+               "source._id": componentProcessing._id
+             }, this.pathResolution).forEach(link => {
+               console.log(link)
+               link.status = 'processing'
+             });
 
-            this.processNextBuildPath();
+             this.sift({
+               "destination._id": componentProcessing._id
+             }, this.pathResolution).forEach(link => {
+               link.status = 'resolved'
+             });
+             if (componentProcessing._id == this.RequestOrigine._id) {
+               this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
+             }
+             this.processNextBuildPath();
           })
 
         }
@@ -214,7 +247,7 @@ module.exports = {
         for (var beforeComponent of component.connectionsBefore) {
           //console.log(beforeComponent);
           var beforeComponentObject = this.sift({
-            "_id.$oid": beforeComponent
+            "_id": beforeComponent
           }, usableComponents)[0];
           var linkToProcess = {
             source: beforeComponentObject,
@@ -222,8 +255,8 @@ module.exports = {
             requestDirection: "pull"
           };
           var existingLink = this.sift({
-            "source._id.$oid": linkToProcess.source._id.$oid,
-            "destination._id.$oid": linkToProcess.destination._id.$oid,
+            "source._id": linkToProcess.source._id,
+            "destination._id": linkToProcess.destination._id,
           }, buildPath);
           if (existingLink.length == 0) {
             //linkToProcess.status='waiting';
@@ -239,7 +272,7 @@ module.exports = {
       if (component.connectionsAfter != undefined && component.connectionsAfter.length > 0 && !(requestDirection == 'push' && module.stepNode == true)) {
         for (var afterComponent of component.connectionsAfter) {
           var afterComponentObject = this.sift({
-            "_id.$oid": afterComponent
+            "_id": afterComponent
           }, usableComponents)[0];
           var linkToProcess = {
             source: component,
@@ -247,8 +280,8 @@ module.exports = {
             requestDirection: "push"
           };
           var existingLink = this.sift({
-            "source._id.$oid": linkToProcess.source._id.$oid,
-            "destination._id.$oid": linkToProcess.destination._id.$oid,
+            "source._id": linkToProcess.source._id,
+            "destination._id": linkToProcess.destination._id,
           }, buildPath);
           if (existingLink.length == 0) {
             out.push(linkToProcess);
@@ -257,7 +290,7 @@ module.exports = {
           }
         }
       }
-
+      console.log("function : buildPathResolution | RETURN")
       return out;
     }
   },

@@ -21,11 +21,22 @@
     });
     this.on('mount', function () {
       this.urlInput.addEventListener('change',function(e){
-        this.innerData.specificData.url=e.currentTarget.value;
+        if(this.innerData.specificData != null){
+          console.log("in if")
+          this.innerData.specificData.url=e.currentTarget.value;
+        }else{
+          console.log("in else")
+          this.innerData.specificData = {}
+          this.innerData.specificData.url = "init"
+          console.log(this.innerData.specificData.url)
+          this.innerData.specificData.url = e.currentTarget.value;
+        }
+         console.log("COMPONENT CHANGE URL", this.innerData.specificData)
       }.bind(this));
 
       RiotControl.on('item_current_changed',function(data){
         this.innerData=data;
+        console.log("COMPONENT CHANGE", this.innerData)
         this.update();
       }.bind(this));
     });

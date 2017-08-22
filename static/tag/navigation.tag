@@ -1,25 +1,6 @@
 <navigation >
 
   <div class="containerV" style="bottom:0;top:0;right:0;left:0;position:absolute;">
-  <!-- <div class="containerlanding" if={landingPage}>
-    <div id="row">
-      <h1 id="landingTitle"> Bienvenue sur le Bus Semantique </h1>
-  </div>
-    <div class="containerflexlanding">
-      <div onclick={workspaceSelectorClick} name="workspaceSelector" class="selector mainSelector" style="flex-basis:100px">
-        <div>Mes Workspaces</div>
-      </div>
-      <div onclick={technicalComponentSelectorClick} name="technicalComponentSelector" class="selector mainSelector" style="flex-basis:100px">
-        <div>Composant Technique</div>
-      </div>
-      <div onclick={profilSelectorClick} name="profilSelector" class="selector mainSelector" style="flex-basis:100px">
-        <div>Mon profil</div>
-      </div>
-      <div onclick={adminSelectorClick} name="adminSelector" class="selector mainSelector" style="flex-basis:100px">
-        <div>Admin</div>
-      </div>
-    </div>
-  </div> -->
   <div id="containerloaderDiv">
     <div id="row">
       <div id="loaderDiv"></div>
@@ -37,8 +18,8 @@
       <div class="containerH" style="flex-grow:1;flex-wrap: nowrap;">
         <div class="containerV commandBar" style="flex-basis:10px" if={modeMenuHide}>
           <div></div>
-          <div class="commandGroup" class="containerH">
-            <div onclick={showMenu} class="commandButton">
+          <div class="commandGroup containerH">
+            <div onclick={showMenu} id = "backBar" class="commandButton">
               >
             </div>
           </div>
@@ -54,9 +35,6 @@
            <div onclick={workspaceShareSelectorClick} name="workspaceSelector" class="selector mainSelector" style="padding: 5vh; font-size:1.2em">
             <div>Mes Workspaces partagés</div>
           </div>
-          <!--<div onclick={technicalComponentSelectorClick} name="technicalComponentSelector" class="selector mainSelector" style="flex-basis:100px">
-            <div>Composant Technique</div>
-          </div>-->
           <div class="containerH" style="flex-basis:20% overflow-y: initial;" if={!modeMenuHide}>
             <div onclick={profilSelectorClick} name="profilSelector" class="selector mainSelector" style="padding: 35px;
 font-size: 22px;">
@@ -141,7 +119,7 @@ font-size: 22px;" if={showAdmin}>
               </div>
             </div>
           </div>
-          <div onclick={componentClick} class="selector" each={workspaceComponents}>
+          <div onclick={componentClick} class="selector" each={workspaceDisplayComponents}>
             {type} : {name}
           </div>
         </div>
@@ -166,8 +144,8 @@ font-size: 22px;" if={showAdmin}>
         </jsonPreviewer>-->
           <div class="containerV commandBar" style="flex-basis:50px">
             <div></div>
-            <div class="commandGroup" class="containerH">
-              <div onclick={closeTest} class="commandButton">
+            <div class="commandGroup containerH">
+              <div onclick={closeTest}  class="commandButton">
                 >
               </div>
             </div>
@@ -197,7 +175,7 @@ font-size: 22px;" if={showAdmin}>
               </div>
             </div>
           </div>
-          <div onclick={componentClick} class="selector" each={workspaceComponents}>
+          <div onclick={componentClick} class="selector" each={workspaceDisplayComponents}>
             {type} : {name}
           </div>
         </div>
@@ -229,7 +207,7 @@ font-size: 22px;" if={showAdmin}>
     this.editorTitle = "";
     this.persistInProgress = false;
     this.itemCurrent; //TODO create a specific component for item with connections
-    this.workspaceComponents=[];
+    this.workspaceComponents = [];
 
     this.showAdmin=false;
 
@@ -252,20 +230,16 @@ font-size: 22px;" if={showAdmin}>
     //don't work if is placed in mount
     this.isGoodUser();
 
-    // this.cleanNavigation = function () {   if (this.profilNavigator) {     if (this.profilNavigator.ismounted) {       this.profilNavigator.unmount(true);     }   }   if (this.contentNavigator.ismounted) {     this.contentNavigator.unmount(true);   }
-    //  /*if(this.editionContainer.isMounted){   this.editionContainer.unmount(true); }*/   if (this.detailContainer.isMounted) {     this.detailContainer.unmount(true);   } }.bind(this);
-
     saveEditionContainerClick(e) {
-      if (this.editionContainer.persist == undefined) {
+      console.log('SAVEEEEEEEEEEEEEEEEEE : ', this.itemCurrent);
+       if (this.editionContainer.persist == undefined) {
         var data = this.editionContainer.data;
-        console.log('saveEditionContainerClick : ', data);
         for (var property in data) {
           RiotControl.trigger('item_current_updateField', {
             field: property,
             data: data[property]
           });
         }
-        console.log('saveEditionContainerClick | ', this);
         RiotControl.trigger('item_current_updateField', {
           field: 'name',
           data: this.itemCurrent.name
@@ -273,7 +247,7 @@ font-size: 22px;" if={showAdmin}>
         RiotControl.trigger('item_current_persist');
       } else {
         this.editionContainer.persist();
-      }
+      } 
     }
 
     nagivationClick(e) {
@@ -312,7 +286,7 @@ font-size: 22px;" if={showAdmin}>
 
     //TODO je pense que ca ne sert plus : tenter de commenter
     navigateWorkspaceComponentClick(e) {
-      RiotControl.trigger('item_current_editById', e.item._id.$oid);
+      RiotControl.trigger('item_current_editById', e.item._id);
     }
 
     connectBeforeClick(e) {
@@ -341,7 +315,7 @@ font-size: 22px;" if={showAdmin}>
       console.log('workspace_show')
       RiotControl.trigger('workspace_show');
     }
-    ////WORKSPACE SHARE ////
+
     workspaceShareSelectorClick(e) {
       console.log('workspace_share_show')
       RiotControl.trigger('workspace_share_show');
@@ -357,21 +331,13 @@ font-size: 22px;" if={showAdmin}>
       RiotControl.trigger('menu_show');
     }
 
-    // this.selectTechnicalComponentMode=function(){   //console.log('selectTechnicalComponentMode');   //this.cleanNavigation();   this.contentNavigator =riot.mount("#contentNavigator", 'technical-component-table')[0]; }.bind(this);
 
     this.mountEdition = function (componentName) {
-      //console.log('mountEdition | ', componentName,this.editionContainer);
       this.editionContainer = riot.mount('#editionContainer', componentName)[0];
       console.log('mountEdition | ', componentName,this.editionContainer);
       this.editorTitle = this.editionContainer.title;
-
-      //RiotControl.trigger('navigation_mode_edition_only');
-      //this.modeEdition=true; this.modeNavigation=false;
     };
 
-    // this.mountWorkspaceNavigator = function (syncFromServer) {   this.cleanNavigation();   this.contentNavigator = riot.mount('#contentNavigator', 'workspace-table')[0];   this.contentNavigator.on('newWorkspace', function (message) {
-    // this.mountEdition('workspace-editor');     this.modeComponentNetwork = false;     this.update();   }.bind(this));   this.contentNavigator.on('selectWorkspace', function (message) {     if (!this.detailContainer.isMounted) {
-    // this.detailContainer = riot.mount("#detailContainer", 'workspace-editor')[0];     }   }.bind(this)); }.bind(this);
 
     this.on('mount', function () {
       RiotControl.on('user_authentified', function (data) {
@@ -381,7 +347,7 @@ font-size: 22px;" if={showAdmin}>
 
       RiotControl.on('profil_loaded', function (data) {
         console.log('profil_loaded',data);
-        this.showAdmin=data.user.admin;
+        this.showAdmin=data.admin;
         this.update();
       }.bind(this));
 
@@ -411,7 +377,6 @@ font-size: 22px;" if={showAdmin}>
         var tagName;
         switch (itemType) {
           case 'generic':
-            //console.log('item_current_edit_mode generic :',item);
             if (item.editor != undefined) {
               tagName = item.editor;
             } else {
@@ -424,19 +389,16 @@ font-size: 22px;" if={showAdmin}>
             //this.modeComponentNetwork=false;
             break;
         }
-        //console.log('item_current_edit_mode | modeComponentNetwork :',this.modeComponentNetwork);
         this.mountEdition(tagName);
         this.update();
       }.bind(this));
 
       RiotControl.on('item_current_changed', function (item) {
+        console.log('item_current_changed', item)
         this.itemCurrent = item;
         this.update();
       }.bind(this));
 
-      // RiotControl.on('workspace_current_changed', function (item) {
-      //   //if (!this.detailContainer.isMounted) {  this.detailContainer = riot.mount("#detailContainer", 'workspace-editor')[0]; }
-      // }.bind(this));
 
       RiotControl.on('persist_start', function (data) {
         //console.log('persist_start | ',this.saveButton)
@@ -452,11 +414,21 @@ font-size: 22px;" if={showAdmin}>
       }.bind(this));
 
       RiotControl.on('workspace_current_changed',function(data){
-        console.log('navigation | workspace_current_changed',data);
-        this.workspaceComponents=data.components;
+        this.workspaceComponents = data.components;
+        console.log('navigation | workspace_current_changed', data);
         this.update();
-      }.bind(this));
+      }.bind(this)); 
 
+       RiotControl.on('workspace_current_click',function(data){
+          this.workspaceDisplayComponents = [];
+          console.log(data)
+          this.workspaceComponents.forEach(function(workspaceComponent){
+            if(workspaceComponent._id != data._id){
+               this.workspaceDisplayComponents.push(workspaceComponent) 
+            }
+          }.bind(this))
+          console.log('workspace_current_click_navigation', this.workspaceDisplayComponents)
+       }.bind(this))
 
 
 
@@ -478,20 +450,9 @@ font-size: 22px;" if={showAdmin}>
         this.modeConnectAfter = data.modeConnectAfter,
         this.modeMenuHide=data.modeMenuHide;
         this.modeGraph=data.modeGraph;
-        //console.log(this.modeNavigation);
         this.update();
       }.bind(this));
 
-      // this.workspaceSelector.addEventListener('click', function (e) {   this.modeProfilEdition = false;   //clean navigation not work if(this.profilNavigator){   console.log(this.profilNavigator);   this.profilNavigator.unmount(true); }   this.update();
-      // this.mountWorkspaceNavigator(); }.bind(this)); this.profilSelector.addEventListener('click', function (e) {   //  this.modeProfilEdition = true; this.profilNavigator = riot.mount("#detailContainer", 'profil-tag')[0];  this.update();
-      // RiotControl.trigger('profil_show'); }.bind(this));
-
-      // this.technicalComponentSelector.addEventListener('click', function (e) {
-      //   // this.modeProfilEdition = false; clean navigation not work if(this.profilNavigator){     console.log(this.profilNavigator);     this.profilNavigator.unmount(true);   } this.update(); this.contentNavigator = riot.mount("#contentNavigator",
-      //   // 'technical-component-table')[0];
-      //   RiotControl.trigger('technicalComponent_show');
-      // }.bind(this));
-      //
       this.nameComponentInput.addEventListener('change', function (e) {
         this.itemCurrent.name = e.currentTarget.value;
       }.bind(this));

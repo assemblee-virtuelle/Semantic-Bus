@@ -54,7 +54,7 @@ module.exports = {
     return new Promise((resolve, reject) => {
       if (flowData != undefined) {
         //console.log('cash data | ',flowData);
-        this.mLabPromise.request('PUT', 'cache/' + data._id.$oid, {
+        this.mLabPromise.request('PUT', 'cache/' + data._id, {
           data: flowData[0].data
         }).then(function(data) {
           resolve(data);
@@ -62,7 +62,7 @@ module.exports = {
           //return recursivPullResolvePromise.resolveComponentPull(data);
         });
       } else {
-        this.mLabPromise.request('GET', 'cache/' + data._id.$oid).then(function(cachedData) {
+        this.mLabPromise.request('GET', 'cache/' + data._id).then(function(cachedData) {
           resolve({data:cachedData.data});
           //console.log('cache | pull| ',data);
           //return recursivPullResolvePromise.resolveComponentPull(data);

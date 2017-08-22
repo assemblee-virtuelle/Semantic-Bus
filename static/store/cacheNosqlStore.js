@@ -6,7 +6,7 @@ function CacheNosqlStore() {
     console.log(this.genericStore);
     $.ajax({
       method: 'get',
-      url: '../data/specific/reloadcache/' + this.genericStore.itemCurrent._id.$oid ,
+      url: '../data/specific/reloadcache/' + this.genericStore.itemCurrent._id ,
       contentType: 'application/json',
       headers: {
         "Authorization": "JTW" + " " + localStorage.token
@@ -21,7 +21,7 @@ function CacheNosqlStore() {
     console.log(this.genericStore);
     $.ajax({
       method: 'get',
-      url: '../data/specific/getCache/' + this.genericStore.itemCurrent._id.$oid ,
+      url: '../data/specific/getCache/' + this.genericStore.itemCurrent._id,
       contentType: 'application/json',
       headers: {
         "Authorization": "JTW" + " " + localStorage.token

@@ -4,8 +4,9 @@ var cors = require('cors')
 var app = express();
 var passport = require('passport');
 app.use(cors());
-app.use(passport.initialize());
-require('./webServices/passport')(passport);
+// app.use(passport.initialize());
+require('./lib/core/Oauth/google_auth_strategy')(passport);
+
 //var helmet = require('helmet');
 
 var server = require('http').Server(app);
@@ -34,17 +35,18 @@ safe.use(function(req, res, next) {
 //   // ensureSec(req,res,next) 
 // })
 
+app.disable('etag');
 
 var cors = require('cors');
 unSafeRouteur.use(cors());
 
-require('./webServices/initialise')(unSafeRouteur);
+require('./webServices/initialiseHTTPS')(unSafeRouteur);
 require('./webServices/authWebService')(unSafeRouteur);
-require('./webServices/workspace')(safe);
-require('./webServices/workspaceComponent')(safe);
-require('./webServices/technicalComponent')(safe, unSafeRouteur);
+require('./webServices/workspaceWebService')(safe);
+require('./webServices/workspaceComponentWebService')(safe);
+require('./webServices/technicalComponentWebService')(safe, unSafeRouteur);
 require('./webServices/userWebservices')(safe);
-require('./webServices/rightsManagement')(safe);
+require('./webServices/rightsManagementWebService')(safe);
 //require('./webServices/ldp')(router);
 
 var transform = require('jsonpath-object-transform');
