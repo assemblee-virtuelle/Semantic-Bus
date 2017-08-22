@@ -6,6 +6,7 @@ module.exports = {
     addLock: false,
     secret: process.env.JWT_TOKEN,
     https: "force",
+    mlab_token: process.env.mlab_token,
 	configMongo: {
 		'driver': "mongoose",
 		'database': "semantic_bus_prod",
@@ -14,8 +15,9 @@ module.exports = {
 		'username': process.env.MLAB_USERNAME
 	},
 	googleAuth : {
-        'clientID'      : process.env.clientID_GOOGLE,
+        'clientID'      : process.env.clientID_GOOGLE ,
         'clientSecret'  : process.env.client_GOOGLE_Secret,
         'callbackURL'   : '/auth/'
     }
 }
+
