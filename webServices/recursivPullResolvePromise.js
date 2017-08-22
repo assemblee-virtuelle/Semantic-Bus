@@ -79,7 +79,7 @@ module.exports = {
         })
         // this.sift({
         //   pullSource: "true",
-        //   // dataResolution: {
+        //   // dataReslesiftolution: {
         //   //   $exists: false
         //   // }
         // }, this.componentsResolving)
@@ -108,7 +108,7 @@ module.exports = {
     console.log(" ---------- processNextBuildPath -----------")
 
     console.log('pathResolution | ', this.pathResolution.map(link => {
-      return (link.source._id.$oid + ' -> ' + link.destination._id.$oid + ' : ' + link.status);
+      return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
     }));
     let linkNotResolved = this.sift({
       status: 'processing'
@@ -166,7 +166,7 @@ module.exports = {
 
           let module = this.technicalComponentDirectory[componentProcessing.module];
           //let componentProcessing = processingLink.source;
-          
+
           module.pull(componentProcessing, dataFlow, undefined).then(componentFlow => {
             console.log('PULL END | ', componentProcessing._id);
 
