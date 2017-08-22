@@ -1,6 +1,6 @@
 var jwtService = require('./jwtService');
-var inscription_lib_user = require('../lib/core').inscription
-var auth_lib_user = require('../lib/core').authentification
+var inscription_lib_user = require('../lib/core/lib/inscription_lib')
+var auth_lib_user = require('../lib/core/lib/auth_lib')
 
 
 // --------------------------------------------------------------------------------

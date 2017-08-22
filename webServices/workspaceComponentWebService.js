@@ -3,7 +3,7 @@ module.exports = function (router) {
   var recursivPullResolvePromise = require('./recursivPullResolvePromise');
   var workspaceComponentPromise = require('./workspaceComponentPromise.js');
   var workspaceBusiness = require('./workspaceBusiness.js');
-  var workspace_component_lib = require('../lib/core').workspaceComponent
+  var workspace_component_lib = require('../lib/core/lib/workspace_component_lib')
 
 
 
