@@ -70,34 +70,34 @@ module.exports = {
 
 
         //if (requestDirection == 'pull') {
-          console.log("in pull")
-          var tableSift = []
-          this.componentsResolving.forEach(function (component) {
-            if (component.pullSource == "true") {
-              tableSift.push(component)
-            }
+        console.log("in pull")
+        var tableSift = []
+        this.componentsResolving.forEach(function(component) {
+          if (component.pullSource == "true") {
+            tableSift.push(component)
+          }
+        })
+        // this.sift({
+        //   pullSource: "true",
+        //   // dataResolution: {
+        //   //   $exists: false
+        //   // }
+        // }, this.componentsResolving)
+        tableSift.forEach(componentProcessing => {
+          let module = this.technicalComponentDirectory[componentProcessing.module];
+          //let componentProcessing = processingLink.source;
+          module.pull(componentProcessing, undefined, undefined).then(componentFlow => {
+            //console.log('PULL END | ', componentProcessing._id.$oid);
+            componentProcessing.dataResolution = componentFlow;
+            componentProcessing.status = 'resolved';
+            this.sift({
+              "source._id": componentProcessing._id
+            }, this.pathResolution).forEach(link => {
+              link.status = 'processing'
+            });
+            this.processNextBuildPath();
           })
-          // this.sift({
-          //   pullSource: "true",
-          //   // dataResolution: {
-          //   //   $exists: false
-          //   // }
-          // }, this.componentsResolving)
-          tableSift.forEach(componentProcessing => {
-            let module = this.technicalComponentDirectory[componentProcessing.module];
-            //let componentProcessing = processingLink.source;
-            module.pull(componentProcessing, undefined, undefined).then(componentFlow => {
-              //console.log('PULL END | ', componentProcessing._id.$oid);
-              componentProcessing.dataResolution = componentFlow;
-              componentProcessing.status = 'resolved';
-              this.sift({
-                "source._id": componentProcessing._id
-              }, this.pathResolution).forEach(link => {
-                link.status = 'processing'
-              });
-              this.processNextBuildPath();
-            })
-          });
+        });
         //}
 
       })
@@ -105,10 +105,10 @@ module.exports = {
 
   },
   processNextBuildPath() {
-console.log(" ---------- processNextBuildPath -----------")
-    
-console.log('pathResolution | ', this.pathResolution.map(link => {
-      return (link.source._id.$oid+' -> '+ link.destination._id.$oid+' : '+link.status);
+    console.log(" ---------- processNextBuildPath -----------")
+
+    console.log('pathResolution | ', this.pathResolution.map(link => {
+      return (link.source._id.$oid + ' -> ' + link.destination._id.$oid + ' : ' + link.status);
     }));
     let linkNotResolved = this.sift({
       status: 'processing'
@@ -130,7 +130,7 @@ console.log('pathResolution | ', this.pathResolution.map(link => {
 
         console.log("source to resolve ||", sourcesToResolve)
 
-        //-------------- Component processing -------------- 
+        //-------------- Component processing --------------
 
         if (sourcesToResolve.length == 0) {
           console.log("string |", processingLink.destination)
@@ -145,7 +145,7 @@ console.log('pathResolution | ', this.pathResolution.map(link => {
 
           console.log("componentProcessing processing ||", componentProcessing.status)
 
-          //-------------- Data flow -------------- 
+          //-------------- Data flow --------------
 
           let dataFlow = this.sift({
             'destination._id': componentProcessing._id
@@ -166,33 +166,29 @@ console.log('pathResolution | ', this.pathResolution.map(link => {
 
           let module = this.technicalComponentDirectory[componentProcessing.module];
           //let componentProcessing = processingLink.source;
-          module.pull(componentProcessing, dataFlow, undefined).then(componentFlow => {
-            //console.log('PULL END | ', componentProcessing._id.$oid);
-
-          // console.log("module ||", module)
-
+          
           module.pull(componentProcessing, dataFlow, undefined).then(componentFlow => {
             console.log('PULL END | ', componentProcessing._id);
 
-             componentProcessing.dataResolution = componentFlow;
-             componentProcessing.status = 'resolved';
-             console.log('componentProcessing resolved ||', componentProcessing.status)
-             this.sift({
-               "source._id": componentProcessing._id
-             }, this.pathResolution).forEach(link => {
-               console.log(link)
-               link.status = 'processing'
-             });
+            componentProcessing.dataResolution = componentFlow;
+            componentProcessing.status = 'resolved';
+            console.log('componentProcessing resolved ||', componentProcessing.status)
+            this.sift({
+              "source._id": componentProcessing._id
+            }, this.pathResolution).forEach(link => {
+              console.log(link)
+              link.status = 'processing'
+            });
 
-             this.sift({
-               "destination._id": componentProcessing._id
-             }, this.pathResolution).forEach(link => {
-               link.status = 'resolved'
-             });
-             if (componentProcessing._id == this.RequestOrigine._id) {
-               this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
-             }
-             this.processNextBuildPath();
+            this.sift({
+              "destination._id": componentProcessing._id
+            }, this.pathResolution).forEach(link => {
+              link.status = 'resolved'
+            });
+            if (componentProcessing._id == this.RequestOrigine._id) {
+              this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
+            }
+            this.processNextBuildPath();
           })
 
         }
@@ -231,7 +227,7 @@ console.log('pathResolution | ', this.pathResolution.map(link => {
   buildPathResolution(component, requestDirection, depth, usableComponents, buildPath) {
 
     buildPath = buildPath || [];
-//infinite depth protection. Could be remove if process is safe
+    //infinite depth protection. Could be remove if process is safe
     if (depth < 100) {
       //var pathResolution = currentPathResolution || [];
       var incConsole = "";
@@ -239,7 +235,7 @@ console.log('pathResolution | ', this.pathResolution.map(link => {
         incConsole += "-";
       }
       console.log(incConsole, "buildPathResolution", component._id.$oid, requestDirection);
-      let module= this.technicalComponentDirectory[component.module];
+      let module = this.technicalComponentDirectory[component.module];
 
       var out = [];
       //if (requestDirection == "pull") {
@@ -266,8 +262,8 @@ console.log('pathResolution | ', this.pathResolution.map(link => {
           }
 
         }
-      }else{
-        component.pullSource=true;
+      } else {
+        component.pullSource = true;
       }
       if (component.connectionsAfter != undefined && component.connectionsAfter.length > 0 && !(requestDirection == 'push' && module.stepNode == true)) {
         for (var afterComponent of component.connectionsAfter) {
