@@ -3,11 +3,11 @@
     <div class="center-top">
       <p> La partie profil est actuellement en cours de dev <p>
       <form>
-        <input class="change-mail"value="{profil.email}" name="email"/>
+        <input class="change-mail"value="{profil.credentials.email}" name="email"/>
         <div id={ result? 'good-result' : 'bad-result' }> {resultEmail}<div>
       </form>
       <div class="inligne-box">
-        <button class="mail-btn"  onclick = {changeEmail} type="button" if = {googleId == "null"}>Modifier</button>
+        <button class="mail-btn"  onclick = {changeEmail} type="button" if = {googleId == null || googleId == 'undefined'}>Modifier</button>
         <button class="dec-btn"  onclick = {deconnexion} type="button">Déconnexion</button>
       </div>
     </div>
@@ -75,7 +75,7 @@
     }
 
     this.email.addEventListener('change',function(e){
-        this.profil.email =e.currentTarget.value;
+        this.profil.email = e.currentTarget.value;
         console.log( this.profil.email);
     }.bind(this));
 
@@ -83,7 +83,7 @@
       var regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g
       if(this.profil.email.match(regex)){
         if(this.profil.email != this.email){
-          RiotControl.trigger('change_email',this.profil.email);
+          RiotControl.trigger('change_email', {id: this.profil._id, email: this.profil.email});
           RiotControl.on('email_already_exist', function(){
             this.result = false;
             this.resultEmail = "L'email choisi exsite déjà";
@@ -94,19 +94,19 @@
     }
 
     RiotControl.on('profil_loaded', function(data){
-      console.log("data profil |", data)
+      console.log("data profil |", data.credentials.email)
       this.resultEmail = "";
       this.result = true;
-      this.profil = data.user;
-      this.email =  data.user.email;
+      this.profil = data;
+      this.email =  data.credentials.email;
       this.update();
     }.bind(this))
 
     RiotControl.on('email_change', function(data){
       this.result = true;
       this.resultEmail = "L'email a bien été modifié";
-      this.profil = data.user;
-      this.email =  data.user.email;
+      this.profil = data;
+      this.email =  data.credentials.email;
       this.update();
     }.bind(this))
 
@@ -115,7 +115,8 @@
     this.on('mount', function () {
       RiotControl.trigger('show_profil');
       this.googleId = localStorage.googleid
-      console.log("this.googleid |", this.googleId)
+      console.log(this.googleId)
+      console.log(this.googleId == null || this.googleId == 'undefined')
     }.bind(this))
   </script>
 </profil>

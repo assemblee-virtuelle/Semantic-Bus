@@ -2,13 +2,13 @@
   <div>jointure entre un flux principale et un flux secondaire</div>
   <label>composant qui contient le flux principale</label>
   <select name="primaryComponentIdInput">
-    <option each={option in data.connectionsBefore} value={option._id.$oid} selected={parent.data.specificData.primaryComponentId ==option._id.$oid}>{option.type} : {option.name}</option>
+    <option each={option in data.connectionsBefore} value={option._id} selected={parent.data.specificData.primaryComponentId ==option._id}>{option.type} : {option.name}</option>
   </select>
   <label>champ du composant principale qui contient l'identifiant du flux secondaire</label>
   <input type="text" name="primaryFlowFKIdInput" value={data.specificData.primaryFlowFKId}></input>
   <label>composant qui contient le flux secondaire</label>
   <select name="secondaryComponentIdInput">
-    <option each={option in data.connectionsBefore} value={option._id.$oid} selected={parent.data.specificData.secondaryComponentId ==option._id.$oid}>{option.type} : {option.name}</option>
+    <option each={option in data.connectionsBefore} value={option._id} selected={parent.data.specificData.secondaryComponentId ==option._id}>{option.type} : {option.name}</option>
   </select>
   <label>champ du composant secondaire qui défini son identifiant</label>
   <input type="text" name="secondaryFlowIdInput" value={data.specificData.secondaryFlowId}></input>

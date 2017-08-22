@@ -1,8 +1,15 @@
+
+
 function WorkspaceBusiness() {
-  this.connectWorkspaceComponent = function(workspaceComponentsList) {
+
+  // --------------------------------------------------------------------------------
+ 
+  this.connectWorkspaceComponent = function (workspaceComponentsList) {
+    console.log("connectWorkspaceComponent", workspaceComponentsList)
     var workspaceComponentsListDictionnary = {};
-    workspaceComponentsList=workspaceComponentsList||[];
+    workspaceComponentsList = workspaceComponentsList || [];
     for (var workspaceComponent of workspaceComponentsList) {
+      console.log("connectWorkspaceComponent", workspaceComponent._id.$oid)
       workspaceComponentsListDictionnary[workspaceComponent._id.$oid] = workspaceComponent;
     }
 
@@ -34,54 +41,41 @@ function WorkspaceBusiness() {
       out.push(workspaceComponentsListDictionnary[workspaceComponentKey]);
     }
     return out;
-  };
+  }; //<= connectWorkspaceComponent
 
-  this.serialiseWorkspaceComponent = function(workspaceComponentIn) {
-    //build a deep copy
-    var workspaceComponent = {
-      _id: workspaceComponentIn._id,
-      module: workspaceComponentIn.module,
-      type: workspaceComponentIn.type,
-      name: workspaceComponentIn.name,
-      description: workspaceComponentIn.description,
-      editor: workspaceComponentIn.editor,
-      workspaceId: workspaceComponentIn.workspaceId,
-      specificData: workspaceComponentIn.specificData,
+  // --------------------------------------------------------------------------------
 
+
+  this.serialiseWorkspaceComponent = function (workspaceComponentIn) {
+    if (workspaceComponentIn._id) {
+      workspaceComponentIn = workspaceComponentIn._id
+      return true;
     }
-    var connectionsAfter = [];
-    if (workspaceComponentIn.connectionsAfter != undefined) {
-      workspaceComponentIn.connectionsAfter.forEach(ConnAfter => {
-        connectionsAfter.push(ConnAfter._id.$oid)
-      });
-    }
-    workspaceComponent.connectionsAfter = connectionsAfter;
+  } //<= serialiseWorkspaceComponent
 
-    var connectionsBefore = [];
-    if (workspaceComponentIn.connectionsBefore != undefined) {
-      workspaceComponentIn.connectionsBefore.forEach(ConnBefore => {
-        connectionsBefore.push(ConnBefore._id.$oid)
-      });
-    }
-    workspaceComponent.connectionsBefore = connectionsBefore;
-    return workspaceComponent;
-  }
+  // --------------------------------------------------------------------------------
 
-  this.serialiseWorkspace = function(workspaceIn) {
+
+  this.serialiseWorkspace = function (workspaceIn) {
     console.log('serialiseWorkspace | ', workspaceIn);
     var components = [];
     var out = {
       _id: workspaceIn._id,
       name: workspaceIn.name,
       description: workspaceIn.description,
+      average_consumption: workspaceIn.average_consumption,
+      flow_size: workspaceIn.flow_size
     }
     for (component of workspaceIn.components) {
-      components.push(this.serialiseWorkspaceComponent(component));
+      if (this.serialiseWorkspaceComponent(component)) {
+        components.push(component._id);
+      }
     }
     out.components = components;
-    console.log('serialiseWorkspace | out | ',out);
+    console.log('serialiseWorkspace | out | ', out);
     return out;
 
-  }
+  } //<= serialiseWorkspace
+  // --------------------------------------------------------------------------------
 
 }

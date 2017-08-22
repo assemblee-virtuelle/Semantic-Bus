@@ -4,7 +4,7 @@ function profilStore() {
   this.userCurrrent;
 
     this.on('load_profil', function(message) {
-        console.log('show_profil');
+        console.log('show_profil', localStorage.user_id);
         // console.log(localStorage.user_id);
         $.ajax({
             method: 'get',
@@ -15,15 +15,13 @@ function profilStore() {
             contentType: 'application/json'
         }).done(function(data) {
             this.userCurrrent = data
-            // console.log("load profil |",  this.userCurrrent)
+            console.log("load profil |",  this.userCurrrent)
             this.trigger('profil_loaded', this.userCurrrent)      
         }.bind(this));
     })
 
 
     this.on('load_all_profil_by_email', function(message) {
-        console.log('load_all_profil_by_email');
-        // console.log(localStorage.user_id);
         $.ajax({
             method: 'get',
             url: '../data/core/users',
@@ -33,23 +31,22 @@ function profilStore() {
             contentType: 'application/json'
         }).done(function(data) {
             console.log(data)
-            // console.log("load profil |",  this.userCurrrent)
-            var email = []
+            var emails = []
             data.forEach(function(user){
-                email.push(user.email)
+                emails.push(user.credentials.email)
             })
-            this.trigger('all_profil_by_email_load', email)      
+            this.trigger('all_profil_by_email_load', emails)      
         }.bind(this));
     })
 
    
-    this.on('change_email', function(email) {
+    this.on('change_email', function(data) {
         console.log('change_email');
-        console.log(email);
+        console.log(data);
         $.ajax({
             method: 'put',
             url: '../data/core/users/'+ localStorage.user_id,
-            data: JSON.stringify({email: email}),
+            data: JSON.stringify(data),
             headers: {
                 "Authorization": "JTW" + " " + localStorage.token
             },
@@ -76,11 +73,10 @@ function profilStore() {
      ///GESTION DES DROIT DE USER
 
     this.on('share-workspace', function(data) {
-        console.log('share-workspace');
         console.log(data);
         $.ajax({
             method: 'put',
-            url: '../data/core/share/workspace',
+            url: '../data/core/share/workspace/',
             data: JSON.stringify(data),
             headers: {
                 "Authorization": "JTW" + " " + localStorage.token
@@ -90,7 +86,7 @@ function profilStore() {
             }.bind(this),
             contentType: 'application/json'
         }).done(function(data) {
-            console.log(data)
+            console.log('in share data',user.userata)
             if(data == false){
                 this.trigger('share_change_no_valide') 
             }else if (data == "already"){

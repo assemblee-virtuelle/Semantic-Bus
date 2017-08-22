@@ -1,6 +1,12 @@
 function WorkspaceStore() {
-  riot.observable(this) // Riot provides our event emitter.
 
+
+  // --------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------
+
+
+  riot.observable(this)
   this.workspaceCollection = [];
   this.workspaceShareCollection = []
   this.workspaceCurrent;
@@ -8,10 +14,16 @@ function WorkspaceStore() {
   this.cancelRequire = false;
 
 
-  //TODO : Promise to replace callback
+  // --------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------
+  // --------------------------------------------------------------------------------
+
+
+  // ----------------------------------------- FUNCTION  -----------------------------------------
+
+
   this.load = function (callback) {
-    console.log('load GLF');
-    console.log(localStorage.user_id)
+    console.log('load workspace to ||', localStorage.user_id);
     $.ajax({
       method: 'get',
       url: '../data/core/workspaceByUser/' + localStorage.user_id,
@@ -20,20 +32,23 @@ function WorkspaceStore() {
       },
       contentType: 'application/json',
     }).done(function (data) {
-      console.log('store load', data);
+      console.log('load workspace', data);
       this.workspaceCollection = data;
       if (callback != undefined) {
         callback();
       }
       this.trigger('workspace_collection_changed', this.workspaceCollection);
-
+      if (this.workspaceCurrent) {
+        console.log("Update current workspace")
+        this.updateComponentListe(this.workspaceCurrent)
+      }
     }.bind(this));
-  };
+  }; //<= load_workspace
 
-    //TODO : Promise to replace callback
+  // --------------------------------------------------------------------------------
+
   this.loadShareWorkspace = function (callback) {
-    console.log('load GLF');
-    console.log(localStorage.user_id)
+    console.log('load share workspace');
     $.ajax({
       method: 'get',
       url: '../data/core/workspaces/share/' + localStorage.user_id,
@@ -47,59 +62,73 @@ function WorkspaceStore() {
       if (callback != undefined) {
         callback();
       }
-      this.trigger('workspace_share_collection_changed',this.workspaceShareCollection);
+      this.trigger('workspace_share_collection_changed', this.workspaceShareCollection);
     }.bind(this));
-  };
+  }; //<= load_share_workspace
+
+  // --------------------------------------------------------------------------------
 
   this.create = function () {
-    console.log(localStorage.user_id)
+    console.log('create');
     $.ajax({
       method: 'post',
       url: '../data/core/workspace/' + localStorage.user_id,
-      data: JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent)),
+      data: JSON.stringify(this.workspaceCurrent),
       contentType: 'application/json',
       headers: {
         "Authorization": "JTW" + " " + localStorage.token
       },
     }).done(function (data) {
-      //this.workspaceCurrent.mode='edit';
-      //this.trigger('workspace_current_create_done',this.workspaceCurrent);
-      console.log(data);
       this.load(function (data) {
         this.trigger('workspace_current_persist_done');
         data.mode = 'read';
         this.select(data);
-        //this.trigger('workspace_current_persist_done', this.workspaceCurrent);
       }.bind(this, data));
-      //this.trigger('workspace_collection_changed',this.workspaceCollection);
     }.bind(this));
-  };
+  }; //<= create
 
-  this.update = function () {
+  // --------------------------------------------------------------------------------
+
+  this.update = function (data) {
+    console.log('update');
+    if (data) {
+      if (data.component) {
+        var ajax_data = JSON.stringify({
+          workspace: this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent),
+          component: data.component
+        });
+        console.log(JSON.stringify(ajax_data))
+      } else {
+        var ajax_data = JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent))
+      }
+    } else {
+      var ajax_data = JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent))
+    }
     $.ajax({
       method: 'put',
       url: '../data/core/workspace',
-      data: JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent)),
+      data: ajax_data,
       contentType: 'application/json',
       headers: {
         "Authorization": "JTW" + " " + localStorage.token
       },
     }).done(function (data) {
-      this.load(function (data) {
+      console.log('update data ||', data);
+      this.load(function () {
         data.mode = 'read';
-        this.trigger('workspace_current_persist_done');
-        this.select(data);
-        //this.trigger('workspace_current_persist_done', this.workspaceCurrent);
-      }.bind(this, data));
-      //this.workspaceCurrent.mode='edit';
+        this.trigger('workspace_current_persist_done', data);
+      }.bind(this));
+      this.workspaceCurrent.mode = 'edit';
     }.bind(this));
-  };
+  }; //<= update
+
+  // --------------------------------------------------------------------------------
 
   this.delete = function (record) {
-    console.log('del Row :', record);
+    console.log('delete row', record);
     $.ajax({
       method: 'delete',
-      url: '../data/core/workspace/' + record._id.$oid + '/' + localStorage.user_id,
+      url: '../data/core/workspace/' + record._id + '/' + localStorage.user_id,
       contentType: 'application/json',
       headers: {
         "Authorization": "JTW" + " " + localStorage.token
@@ -109,84 +138,105 @@ function WorkspaceStore() {
         this.trigger('workspace_collection_changed', this.workspaceCollection);
       }.bind(this));
     }.bind(this));
-  };
+  }; //<= delete
 
-this.updateUserListe = function (data) {
-    console.log('load_all_profil_by_workspace - DEBUT - CALL-AJAX', data);
+  // --------------------------------------------------------------------------------
+
+  this.updateUserListe = function (data) {
+    console.log('updateUserListe', data);
     $.ajax({
       method: 'get',
-      url: '../data/core/workspaces/' + data._id.$oid + '/user/' + localStorage.user_id,
+      url: '../data/core/workspaces/' + data._id + '/user/' + localStorage.user_id,
       headers: {
         "Authorization": "JTW" + " " + localStorage.token
       },
       contentType: 'application/json'
     }).done(function (data) {
-      console.log('load_all_profil_by_workspace - FIN - CALL-AJAX', data);
+      console.log('updateUserListeDone', data);
       if (data != false) {
         this.trigger('all_profil_by_workspace_loaded', data)
       } else {
-        this.trigger('all_profil_by_workspace_loaded', data)
         this.trigger('no_profil')
       }
 
     }.bind(this));
-  };
+  }; // <= updateUserListe
 
+
+  // --------------------------------------------------------------------------------
+
+
+  this.updateComponentListe = function (data) {
+    console.log('update Component Liste', data);
+    $.ajax({
+      method: 'get',
+      url: '../data/core/workspace/' + data._id,
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
+      contentType: 'application/json'
+    }).done(function (data) {
+      console.log("update Component Liste Done ||", data)
+      if (data != false) {
+        if (this.workspaceCurrent) {
+          this.workspaceCurrent = data
+          this.workspaceCurrent.mode = "read"
+          this.trigger('all_component_by_workspace_loaded', data)
+          this.trigger('workspace_current_changed', data);
+        }
+      }
+    }.bind(this));
+  }; // <= updateComponentList
+
+
+  // --------------------------------------------------------------------------------
 
   this.select = function (record) {
-    console.log('store select :', record);
-    //record.mode = 'read';
+    console.log('select ||', record);
     this.workspaceCurrent = record;
-    console.log(this.workspaceCurrent);
-    //this.workspaceCurrent.mode = 'read';
-    for (listRecord of this.workspaceCollection) {
-      if (listRecord._id.$oid == record._id.$oid) {
-        listRecord.mainSelected = true;
-      }
-    }
-    this.trigger('workspace_current_changed', this.workspaceCurrent);
-    this.trigger('workspace_current_changed', this.workspaceCurrent);
     this.updateUserListe(this.workspaceCurrent)
-  };
+    this.updateComponentListe(this.workspaceCurrent)
+  }; // <= select
+
+  // ----------------------------------------- EVENT  -----------------------------------------
 
   this.on('workspace_delete', function (record) {
+    console.log('ON workspace_delete ||', record);
     this.delete(record);
-  });
+  }); // <= workspace_delete
+
+  // --------------------------------------------------------------------------------
 
   this.on('workspace_collection_load', function (record) {
+    console.log('ON workspace_collection_load ||', record);
     if (this.cancelRequire == false) {
-      console.log('LOAD');
-      this.load(function () {
-        for (workspace of this.workspaceCollection) {
-          workspace.components = this.workspaceBusiness.connectWorkspaceComponent(workspace.components);
-          //console.log('workspace_collection_load |',workspace.components);
-        }
-        this.trigger('workspace_collection_changed', this.workspaceCollection);
-      }.bind(this));
+      this.load()
     } else {
       this.cancelRequire = false;
       this.select(this.workspaceCurrent);
-      //this.trigger('workspace_collection_changed', this.workspaceCollection);
     }
-  });
+  }); // <= workspace_collection_load
 
+  // --------------------------------------------------------------------------------
 
   this.on('workspace_collection_share_load', function (record) {
+    console.log('ON workspace_collection_share_load ||', record);
     if (this.cancelRequire == false) {
-      console.log('LOAD');
       this.loadShareWorkspace(function () {
-        for (workspace of this.workspaceShareCollection) {
-          workspace.components = this.workspaceBusiness.connectWorkspaceComponent(workspace.components);
-          //console.log('workspace_collection_load |',workspace.components);
-        }
+        // for (workspace of this.workspaceShareCollection) {
+        //   workspace.components = this.workspaceBusiness.connectWorkspaceComponent(workspace.components);
+        //   console.log()
+        // }
         this.trigger('workspace_share_collection_changed', this.workspaceShareCollection);
       }.bind(this));
     } else {
       this.cancelRequire = false;
       this.select(this.workspaceCurrent);
-      //this.trigger('workspace_collection_changed', this.workspaceCollection);
     }
-  });
+  }); // <= workspace_collection_share_load
+
+
+  // -------------------------------------------------------------------------------- 
 
 
   this.on('workspace_synchoniseFromServer_byId', function (id) {
@@ -198,12 +248,10 @@ this.updateUserListe = function (data) {
         "Authorization": "JTW" + " " + localStorage.token
       }
     }).done(function (data) {
-      console.log('store load', data);
       var synchronizedWorkspaceCollection = [];
-      console.log(this.workspaceCollection);
       for (var workspace of this.workspaceCollection) {
-        if (workspace._id.$oid == data._id.$oid) {
-          data.components = this.workspaceBusiness.connectWorkspaceComponent(data.components);
+        if (workspace._id == data._id) {
+          // data.components = this.workspaceBusiness.connectWorkspaceComponent(data.components);
           synchronizedWorkspaceCollection.push(data);
           console.log('workspace_synchoniseFromServer_workspace_byId | workspaceCurrent | ', this.workspaceCurrent);
           console.log('workspace_synchoniseFromServer_workspace_byId | New workspaceCurrent | ', data);
@@ -215,49 +263,49 @@ this.updateUserListe = function (data) {
       this.workspaceCollection = synchronizedWorkspaceCollection;
       this.trigger('workspace_synchoniseFromServer_done', this.workspaceCollection);
       this.trigger('workspace_collection_changed', this.workspaceCollection);
-
     }.bind(this));
-    /*this.load(function() {
-      for (workspace of this.workspaceCollection) {
-        workspace.components = this.workspaceBusiness.connectWorkspaceComponent(workspace.components);
-        //console.log('workspace_collection_load |',workspace.components);
-      }
-      this.trigger('workspace_collection_changed', this.workspaceCollection);
-    }.bind(this));*/
+  }); // <= workspace_synchoniseFromServer_byId
 
-  });
+  // -------------------------------------------------------------------------------- 
 
   this.on('workspace_current_updateField', function (message) {
-    //console.log(message.data);
+    console.log('workspace_current_updateField ||', message)
     this.workspaceCurrent[message.field] = message.data;
-    //console.log(this.workspaceCurrent);
     this.trigger('workspace_current_changed', this.workspaceCurrent);
-  });
+  }); // <= workspace_current_updateField
+
+  // -------------------------------------------------------------------------------- 
 
   this.on('workspace_current_select', function (record) {
+    console.log('workspace_current_select ||', record)
     record.mode = 'read'
     this.select(record);
-  });
+  }); // <= workspace_current_select
+
+  // -------------------------------------------------------------------------------- 
 
   this.on('workspace_current_share_select', function (record) {
+    console.log('workspace_current_share_select ||', record)
     record.mode = 'read'
     this.select(record);
-  });
+  }); // <= workspace_current_share_select
+
+  // -------------------------------------------------------------------------------- 
 
   this.on('workspace_current_cancel', function (record) {
+    console.log('workspace_current_cancel ||', this.workspaceCurrent)
     this.workspaceCurrent.mode = 'read'
-  });
+    this.select(this.workspaceCurrent);
+  }); // <= workspace_current_cancel
+
+  // -------------------------------------------------------------------------------- 
 
   this.on('workspace_current_edit', function (data) {
-    //console.log('store edit',data||this.workspaceCurrent);
-    if (data != undefined) {
-      this.workspaceCurrent = data;
-    }
     this.workspaceCurrent.mode = 'edit';
-    //this.trigger('item_current_edit_mode', 'workspace');
     this.trigger('workspace_current_changed', this.workspaceCurrent);
+  }); // <= workspace_current_edit
 
-  });
+  // -------------------------------------------------------------------------------- 
 
   this.on('workspace_current_init', function () {
     console.log('model : workspace_current_init');
@@ -268,75 +316,61 @@ this.updateUserListe = function (data) {
     };
     this.workspaceCurrent.mode = 'init';
     this.trigger('workspace_current_changed', this.workspaceCurrent);
-  });
+  }); // <= workspace_current_init
+
+  // -------------------------------------------------------------------------------- 
+
 
   this.on('workspace_current_refresh', function () {
-    //console.log('model : workspace_current_refresh : ', this.workspaceCurrent);
-    this.trigger('workspace_current_changed', this.workspaceCurrent);
-  });
+    console.log('workspace_current_refresh || ', this.workspaceCurrent);
+    this.trigger('item_current_edit', this.workspaceCurrent);
+  }); // <= workspace_current_refresh
 
-  this.on('workspace_current_persist', function (message) {
-    console.log('workspace_current_persist | ', this.workspaceCurrent);
-    /*this.workspaceCurrent.selected = undefined;
-    this.workspaceCurrent.mainSelected = undefined;
-    this.workspaceCurrent.mode = undefined;*/
+  // -------------------------------------------------------------------------------- 
+
+
+  this.on('workspace_current_persist', function (data) {
+    console.log('workspace_current_persist ||', data);
     var mode = this.workspaceCurrent.mode;
     if (mode == 'init') {
       this.create();
     } else if (mode == 'edit') {
-      this.update();
+      this.update(data);
     }
-  });
+  }); // <= workspace_current_persist
 
+  // -------------------------------------------------------------------------------- 
 
   this.on('technicalComponent_current_select', function (data) {
-    //console.log('store select');
-    //if (this.workspaceCurrent.mode == 'edit' || this.workspaceCurrent.mode == 'init') {
-    //need to delete id because technical component is not a worksapceComponent
-    //mlap depency (_id.$oid)
-    //data.technicalComponentId=data._id.$oid;
-    //data._id=undefined;
-    console.log("SELECT TECHNICAL")
-    data._id = undefined;
+    console.log("technicalComponent_current_select ||", data)
+    data.workspaceId = this.workspaceCurrent._id
     this.workspaceCurrent.components.push(data);
-    this.trigger('save_auto',this.workspaceCurrent)
-    this.trigger('workspace_current_changed', this.workspaceCurrent);
-    this.trigger('item_current_element_added', this.workspaceCurrent);
-    //}
-  });
+    this.trigger('save_auto', {
+      workspace: this.workspaceCurrent,
+      component: data
+    })
+  }); //<= technicalComponent_current_select
 
-
+  // -------------------------------------------------------------------------------- 
 
   this.on('workspace_current_delete_component', function (record) {
-    // console.log('workspace_current_delete_component', record);
-    //var components = [];
-    // this.workspaceCurrent.components.forEach(function(component) {
-    //   if (component._id.$oid != record._id.$oid) {
-    //     components.push(component);
-    //   }
-    // })
+    console.log("workspace_current_delete_component ||", record)
     this.workspaceCurrent.components.splice(record.rowId, 1);
     this.trigger('workspace_current_changed', this.workspaceCurrent);
 
-  });
-  /*
-    this.on('workspace_current_update_component', function(record) {
-      //console.log('workspaceStore | workspace_current_update_component:',record);
-      for (workspaceComponentKey in this.workspaceCurrent.components) {
-        if (this.workspaceCurrent.components[workspaceComponentKey]._id.$oid == record._id.$oid) {
-          this.workspaceCurrent.components[workspaceComponentKey] = record;
-        }
-      }
-      this.trigger('workspace_current_changed', this.workspaceCurrent);
-    });*/
+  }); //<= workspace_current_delete_component
 
+  // -------------------------------------------------------------------------------- 
 
 
   this.on('item_current_cancel', function (data) {
-    //console.log('item_current_cancel :',this.workspaceComponentCurrent);
+    console.log('item_current_cancel ||', data);
     this.workspaceCurrent.mode = 'read';
     this.cancelRequire = true;
-  });
+  }); //<= item_current_cancel
+
+  // -------------------------------------------------------------------------------- 
+
 
   this.on('own_all_workspace', function (data) {
     $.ajax({
@@ -347,15 +381,26 @@ this.updateUserListe = function (data) {
       },
       contentType: 'application/json',
     }).done(function (data) {
-      // console.log('store load', data);
       this.workspaceCollection = data;
-      // if (callback != undefined) {
-      //   callback();
-      // }
       this.trigger('workspace_collection_changed', this.workspaceCollection);
-
     }.bind(this));
-  });
+  }); //<= own_all_workspace
 
+  // -------------------------------------------------------------------------------- 
+
+  this.on('workspace_current_graph', function (data) {
+    $.ajax({
+      method: 'get',
+      url: '../data/core/workspaceComponent/load_all_component/' + this.workspaceCurrent._id,
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
+      contentType: 'application/json',
+    }).done(function (data) {
+      this.workspaceCurrent = data
+      console.log("CURRENT GRAPH TRIGGER", this.workspaceCurrent)
+      this.trigger('workspace_current_graph_changed', this.workspaceCurrent);
+    }.bind(this));
+  }); //<= own_all_workspace
 
 }

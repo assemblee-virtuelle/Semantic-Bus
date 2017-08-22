@@ -51,9 +51,8 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     })
 
   this.on('is_token_valid?', function () {
-    console.log("trigger", localStorage.token)
-    if (localStorage.token == null) {
-      console.log("in null")
+    console.log(localStorage.token)
+    if (localStorage.token == 'null' ||localStorage.token == null) {
       this.trigger('login_redirect');
     } else {
       $.ajax({
@@ -119,14 +118,11 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   }.bind(this))
 
   genericStore.on('item_current_persist_done', function (message) {
-    if (message.workspaceId != undefined) {
-      workSpaceStore.trigger('workspace_synchoniseFromServer_byId', message.workspaceId);
-    } else {
-      this.trigger('workspace_synchoniseFromServer_done', this.workspaceCollection);
-    }
+      workSpaceStore.trigger('workspace_synchoniseFromServer_done', message);
   }.bind(this));
 
   workSpaceStore.on('workspace_synchoniseFromServer_done', function (message) {
+    this.workspaceCurrent = message
     console.log('SYNC DONE');
     this.trigger('persist_end');
   }.bind(this));
@@ -321,11 +317,11 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   });
 
   this.on('item_current_click', function (message) {
-    //console.log('MainController | item_current_click');
+    console.log('MainController | item_current_click');
     if (this.displayMode.modeNavigation && !this.displayMode.modeEdition) {
       this.genericStore.trigger('item_current_edit', message);
     } else if (this.displayMode.modeConnectBefore || this.displayMode.modeConnectAfter) {
-      //console.log('MainController | add Component');
+      console.log('MainController | add Component');
       this.genericStore.trigger('item_current_add_component', message);
     }
   });
@@ -377,7 +373,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   this.on('item_current_editById', function (id) {
     console.log('GenericStore edit byId | components |', this.workspaceStore.workspaceCurrent.components);
     for (var workspaceComponent of this.workspaceStore.workspaceCurrent.components) {
-      if (workspaceComponent._id.$oid == id) {
+      if (workspaceComponent._id == id) {
         console.log('GenericStore edit byId | component finded |', workspaceComponent);
         genericStore.trigger('item_current_edit', workspaceComponent);
         break;

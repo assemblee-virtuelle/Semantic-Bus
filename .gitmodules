@@ -1,0 +1,3 @@
+[submodule "lib/core"]
+	path = lib/core
+	url = https://github.com/alex3144/core_semantic_bus.git

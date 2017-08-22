@@ -204,7 +204,7 @@
 
   editClick(e){
     //console.log('EDIT');
-    RiotControl.trigger('workspace_current_edit');
+    RiotControl.trigger('workspace_current_edit'); 
     this.labelInputName = "Modifier le nom du workspace"
     this.labelInputDesc = "Modifier la déscription du workspace "
     console.log(this.innerData.mode)
@@ -225,6 +225,7 @@
   }
 
   RiotControl.on('share_change',function(data){
+    console.log(data)
       this.tags.zentable[1].data.push({"email": data.email, "role": data.workspaces[data.workspaces.length - 1].role });
       this.update();
       data = null;
@@ -237,41 +238,46 @@
   // }
 
   this.on('mount', function () {
+
+
     /// COMPONENT
-    RiotControl.on('save_auto', function(){
-      console.log("save auto data")
+
+    RiotControl.on('all_component_by_workspace_loaded',function(data){
+      console.log("IN TRIGGER", data)
+      //this.innerDataUser = data;
+      this.tags.zentable[0].data = data.components;
+      this.update();
+    }.bind(this));
+
+    RiotControl.on('save_auto', function(data){
+      console.log("save auto data ||", data)
         this.componentView = true;
         this.userView = true;
         this.DescriptionView = true;
         RiotControl.trigger('workspace_current_updateField',{field:'name',data: this.innerData.name});
         RiotControl.trigger('workspace_current_updateField',{field:'description',data:this.innerData.description});
-        RiotControl.trigger('workspace_current_persist');
+        RiotControl.trigger('workspace_current_persist', data);
     }.bind(this))
     this.tags.zentable[0].on('addRow',function(message){
-      console.log("CLICK Addrow");
       this.componentView = true;
       this.userView = false;
        this.DescriptionView = false;
       RiotControl.trigger('workspace_current_add_component',message);
     }.bind(this));
 
-    
-    
     this.tags.zentable[0].on('delRow',function(message){
-      console.log("CLICK dellRow");
       RiotControl.trigger('workspace_current_delete_component',message);
       RiotControl.trigger('workspace_current_persist');
     }.bind(this));
     this.tags.zentable[0].on('rowNavigation',function(data){
-      RiotControl.trigger('item_current_click',data);
+       RiotControl.trigger('item_current_click',data); 
       //this.trigger('selectWorkspace');
     }.bind(this));
 
     RiotControl.on('workspace_current_changed',function(data){
-      console.log("CLICK worksapce change");
       this.workspace = data
       this.innerData = data;
-      this.tags.zentable[0].data=data.components;
+      this.tags.zentable[0].data= data.components; 
       this.update();
     }.bind(this));
 
@@ -290,6 +296,8 @@
         this.DescriptionView = false;
         RiotControl.trigger('workspace_current_add_user',message);
     }.bind(this));
+
+
     ///HEADER PAGE
     
     this.workspaceNameInput.addEventListener('change',function(e){
