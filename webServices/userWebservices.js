@@ -1,6 +1,6 @@
 'use strict';
 
-var user_lib = require('../lib/core/user_lib')
+var user_lib = require('../lib/core/lib/user_lib')
 
 
 // --------------------------------------------------------------------------------

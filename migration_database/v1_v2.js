@@ -51,7 +51,7 @@ function _migration_workspace_workspace_component() {
                   workspaceId: workspaceComponent.workspaceId,
                   specificData: workspaceComponent.specificData
                 })
-                new_version_workspaceComponent.save(function (err, newWorkspaceComponent) {
+                new_version_workspaceComponent.update(function (err, newWorkspaceComponent) {
                   if (err) {
                     throw TypeError(err);
                   } else {
@@ -82,7 +82,7 @@ function _migration_workspace_workspace_component() {
             }
             console.log("WORKSPACE N°" + i)
             console.log(new_version_workspace)
-            new_version_workspace.save(function (err, new_version_workspace_save) {
+            new_version_workspace.update(function (err, new_version_workspace_save) {
               if (err) {
                 throw TypeError(err);
               } else {
@@ -121,7 +121,7 @@ function _migration_user() {
             updated_at: new Date()
           }
         })
-        new_version_user.save(function (err, userData) {
+        new_version_user.update(function (err, userData) {
           if (err) {
             throw TypeError(err);
           } else {
@@ -144,7 +144,7 @@ function _migration_cache() {
           _id: cache._id,
           data: cache.data
         })
-        new_version_cache_model.save(function (err, userData) {
+        new_version_cache_model.update(function (err, userData) {
           if (err) {
             throw TypeError(err);
           } else {
