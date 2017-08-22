@@ -1,7 +1,7 @@
 module.exports = {
-    mlabDBToClone: 'semantic_bus',
-    //mlabDB : 'sementic_bus_dev',
-    mlabDB: 'semantic_bus_prod',
+    mlabDBToClone: 'mongodb://alex:alexfoot31@ds052629.mlab.com:52629/sementic_bus_dev',
+    mlabDB: 'mongodb://alex:alexfoot31@ds052629.mlab.com:52629/sementic_bus_dev',
+    mlab_migration: 'mongodb://alex:alexfoot31@ds129462.mlab.com:29462/semantic_bus_bakc_up',
     saveLock: false,
     addLock: false,
     secret: process.env.JWT_TOKEN || 'secret',
@@ -9,8 +9,8 @@ module.exports = {
     mlab_token: 'ue_eHVRDWSW0r2YZuTLCi1BxVB_zXnOI',
 	configMongo: {
 		'driver': "mongoose",
-		'database': "semantic_bus",
-		'url': 'mongodb://alex:alexfoot31@ds127153.mlab.com:27153/semantic_bus_seed',
+        'database': "semantic_bus",
+		'url': 'mongodb://alex:alexfoot31@ds052629.mlab.com:52629/sementic_bus_dev',
 		'password': process.env.MLAB_PASSWORD || 'alexfoot31',
 		'username': process.env.MLAB_USERNAME || 'alex'
 	},
@@ -20,3 +20,5 @@ module.exports = {
         'callbackURL'   : '/auth/'
     }
 }
+
+
