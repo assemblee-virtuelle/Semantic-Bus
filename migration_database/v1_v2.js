@@ -3,6 +3,8 @@ var user_model = require('../lib/core/models').user
 var workspace_model = require('../lib/core/models').workspace
 var workspaceComponent_model = require('../lib/core/models').workspaceComponent
 var cache_model = require('../lib/core/models').cache
+var config = require('../configuration');
+
 // var mongoose = require('mongoose');
 
 // --------------------------------------------------------------------------------
@@ -15,10 +17,13 @@ var ObjectID = require('mongodb').ObjectID;
 
 // --------------------------------------------------------------------------------
 
+<<<<<<< HEAD
 var conStr = "mongodb://alex:alexfoot31@ds131362-a0.mlab.com:31362,ds131362-a1.mlab.com:31362/semantic_bus_prod?replicaSet=rs-ds131362";
+=======
+var conStr = config.mlab_migration
+>>>>>>> d08f61b011cac535afb6faa6968484e718be32f5
 
 var connection = mongodb.connect(conStr);
-
 
 
 // --------------------------------------------------------------------------------
@@ -158,5 +163,5 @@ function _migration_cache() {
 // --------------------------------------------------------------------------------
 
 // _migration_user();
-// _migration_cache();
+_migration_cache();
 _migration_workspace_workspace_component()
