@@ -72,9 +72,5 @@
     "webdriverio": "^4.2.16",
     "xlsx": "^0.10.5",
     "xml2js": "latest"
-  },
-  "devDependencies": {
-    "mocha": "^3.5.0",
-    "should": "^11.2.1"
   }
 }
