@@ -12,6 +12,7 @@ module.exports = {
     return entity;
   },
   jsonTransform: function(source, jsonTransformPattern) {
+    // console.log("source", source,'jsonTransformPattern', jsonTransformPattern )
     //console.log('Object Transformer | source',source,' | pattern | ',jsonTransformPattern);
     //console.log(source);
     //console.log(jsonTransformPattern);
@@ -337,7 +338,6 @@ module.exports = {
   pull: function(data, flowData) {
     //console.log('Object Transformer | pull : ',data,' | ',flowData[0].length);
     return new Promise((resolve, reject) => {
-      //console.log('XXXX |',flowData[0]);
       resolve({
         data: this.jsonTransform(flowData[0].data, data.specificData.transformObject)
       });

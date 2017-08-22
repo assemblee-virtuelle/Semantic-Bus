@@ -1,7 +1,5 @@
 module.exports = function (router) {
 
-
-  var mLabPromise = require('./mLabPromise');
   var recursivPullResolvePromise = require('./recursivPullResolvePromise');
   var workspaceComponentPromise = require('./workspaceComponentPromise.js');
   var workspaceBusiness = require('./workspaceBusiness.js');
