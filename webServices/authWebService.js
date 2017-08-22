@@ -11,7 +11,7 @@ var auth_lib_user = require('../lib/core').authentification
 
 module.exports = function (router) {
 
-	// --------------------------------------------------------------------------------
+	// -------------------------------------------------------------------------------
 
 	router.post('/isTokenValid', function (req, res) {
 		if (req.body.token) {
