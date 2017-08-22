@@ -5,7 +5,7 @@
 //const url = require('url');
 //doc to promises : http://stackoverflow.com/questions/35182752/promises-with-http-get-node-js
 
-var workspace_component_lib = require('../lib/core').workspaceComponent;
+var workspace_component_lib = require('../lib/core/lib/workspace_component_lib');
 
 
 module.exports = {
