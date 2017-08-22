@@ -1,15 +1,15 @@
 module.exports = {
-    mlabDBToClone: 'semantic_bus',
+    mlabDBToClone: 'mongodb://alex:alexfoot31@ds131362-a0.mlab.com:31362,ds131362-a1.mlab.com:31362/semantic_bus_prod?replicaSet=rs-ds131362',
     //mlabDB : 'sementic_bus_dev',
-    mlabDB: 'semantic_bus_dev',
+    mlabDB: 'mongodb://alex:alexfoot31@ds131362-a0.mlab.com:31362,ds131362-a1.mlab.com:31362/semantic_bus_prod?replicaSet=rs-ds131362',
     saveLock: false,
     addLock: false,
     secret: process.env.JWT_TOKEN,
     https: "force",
 	configMongo: {
 		'driver': "mongoose",
-		'database': "semantic_bus",
-		'url': 'mongodb://alex:alexfoot31@ds054118.mlab.com:54118/semantic_bus',
+		'database': "semantic_bus_prod",
+		'url': 'mongodb://alex:alexfoot31@ds131362-a0.mlab.com:31362,ds131362-a1.mlab.com:31362/semantic_bus_prod?replicaSet=rs-ds131362',
 		'password': process.env.MLAB_PASSWORD,
 		'username': process.env.MLAB_USERNAME
 	},

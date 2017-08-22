@@ -15,7 +15,7 @@ var ObjectID = require('mongodb').ObjectID;
 
 // --------------------------------------------------------------------------------
 
-var conStr = "mongodb://alex:alexfoot31@ds129462.mlab.com:29462/semantic_bus_bakc_up";
+var conStr = "mongodb://alex:alexfoot31@ds131362-a0.mlab.com:31362,ds131362-a1.mlab.com:31362/semantic_bus_prod?replicaSet=rs-ds131362";
 
 var connection = mongodb.connect(conStr);
 
