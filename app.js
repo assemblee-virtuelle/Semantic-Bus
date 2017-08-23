@@ -32,7 +32,7 @@ safe.use(function(req, res, next) {
 })
 
 // unSafeRouteur.use(function(req,res,next){
-//   // ensureSec(req,res,next) 
+//   // ensureSec(req,res,next)
 // })
 
 app.disable('etag');
@@ -54,7 +54,7 @@ var sheetrock = require('sheetrock');
 
 server.listen(process.env.PORT || process.env.port || process.env.OPENSHIFT_NODEJS_PORT || 8080, process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0', function() {
   console.log('Listening on port  ');
-	//console.log(this.address().port);
+	console.log(this.address().port);
   console.log(this.address());
 })
 
