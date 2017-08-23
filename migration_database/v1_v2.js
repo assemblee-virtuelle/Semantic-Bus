@@ -29,8 +29,8 @@ function _migration_workspace_workspace_component() {
   var i = 0
   connection.then(function (db) {
     console.log("Votre migration commence")
-    db.collection("workspace").find().toArray(function (err, workspaces) {
-      db.collection("workspaceComponent").find().toArray(function (err, workspaceComponents) {
+    db.collection("workspaces").find().toArray(function (err, workspaces) {
+      db.collection("workspacecomponents").find().toArray(function (err, workspaceComponents) {
         workspaces.forEach(function (workspace, index) {
           if (workspaces[index] == workspaces.length) {
             console.log("Migration terminé")
@@ -138,7 +138,7 @@ function _migration_user() {
 
 function _migration_cache() {
   connection.then(function (db) {
-    db.collection("cache").find().toArray(function (err, caches) {
+    db.collection("caches").find().toArray(function (err, caches) {
       caches.forEach(function (cache, index) {
         var new_version_cache_model = new cache_model({
           _id: cache._id,

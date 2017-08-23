@@ -1,7 +1,7 @@
 module.exports = {
     mlabDBToClone: 'mongodb://alex:alexfoot31@ds052629.mlab.com:52629/sementic_bus_dev',
     mlabDB: 'mongodb://alex:alexfoot31@ds052629.mlab.com:52629/sementic_bus_dev',
-    mlab_migration: 'mongodb://alex:alexfoot31@ds129462.mlab.com:29462/semantic_bus_bakc_up',
+    mlab_migration: 'mongodb://alex:alexfoot31@ds129462.mlab.com:29462/sementic_bus_dev',
     saveLock: false,
     addLock: false,
     secret: process.env.JWT_TOKEN || 'secret',
