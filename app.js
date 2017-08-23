@@ -8,7 +8,6 @@ app.use(cors());
 require('./lib/core/Oauth/google_auth_strategy')(passport);
 
 //var helmet = require('helmet');
-
 var server = require('http').Server(app);
 var https = require('https');
 var jwtService  = require('./webServices/jwtService')
