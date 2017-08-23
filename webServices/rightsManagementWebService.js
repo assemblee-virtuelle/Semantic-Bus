@@ -84,7 +84,7 @@ module.exports = function (router) {
         var userTab = [];
         return new Promise(function (resolve, reject) {
             user_lib.get_all({}).then(function (users) {
-                console.log("all user", users)
+                // console.log("all user", users)
                 if (users) {
                     users.forEach(function (user) {
                         if (user.workspaces != null) {
