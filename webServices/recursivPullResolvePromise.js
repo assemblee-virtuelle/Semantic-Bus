@@ -30,18 +30,18 @@ module.exports = {
       }).then(components => {
         this.componentsResolving = components;
         this.componentsResolving.forEach(component => {
-          component.status = 'waiting'
+          component.status = 'waiting';
         });
-        console.log('components | ', components.map(component => {
-          return ({
-            id: component._id.$oid,
-            type: component.type,
-            name: component.name
-          })
-        }));
-        this.pathResolution = this.buildPathResolution(component, requestDirection, 0, components);
+        // console.log('components | ', components.map(component => {
+        //   return ({
+        //     id: component._id.$oid,
+        //     type: component.type,
+        //     name: component.name
+        //   })
+        // }));
+        this.pathResolution = this.buildPathResolution(component, requestDirection, 0, this.componentsResolving);
         this.pathResolution.forEach(link => {
-          link.status = 'waiting'
+          link.status = 'waiting';
         });
         // this.linksProcessing = [];
         // this.linksProcessed = [];
@@ -70,10 +70,11 @@ module.exports = {
 
 
         //if (requestDirection == 'pull') {
-        console.log("in pull")
+
         var tableSift = []
-        this.componentsResolving.forEach(function(component) {
-          if (component.pullSource == "true") {
+        this.componentsResolving.forEach(component=> {
+          console.log('init pathResolution',component._id,component.status,component.pullSource);
+          if (component.pullSource == true) {
             tableSift.push(component)
           }
         })
@@ -234,7 +235,7 @@ module.exports = {
       for (var i = 0; i < depth; i++) {
         incConsole += "-";
       }
-      console.log(incConsole, "buildPathResolution", component._id.$oid, requestDirection);
+      console.log(incConsole, "buildPathResolution", component._id, requestDirection);
       let module = this.technicalComponentDirectory[component.module];
 
       var out = [];
@@ -263,7 +264,8 @@ module.exports = {
 
         }
       } else {
-        component.pullSource = true;
+        console.log("add pullSource",component._id)
+        component.pullSource = "true";
       }
       if (component.connectionsAfter != undefined && component.connectionsAfter.length > 0 && !(requestDirection == 'push' && module.stepNode == true)) {
         for (var afterComponent of component.connectionsAfter) {
@@ -286,7 +288,7 @@ module.exports = {
           }
         }
       }
-      console.log("function : buildPathResolution | RETURN")
+      //console.log("function : buildPathResolution | RETURN")
       return out;
     }
   },
