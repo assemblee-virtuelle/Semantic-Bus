@@ -10,9 +10,9 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
       var url = browser.url('/auth/login.html')    
       browser.waitUntil(() => {
        return $('form').isVisible();
-      }, 5000)
+      }, 10000)
       let email = 'input[name="email"]';
-      browser.waitForVisible(email,3000);
+      browser.waitForVisible(email,10000);
       browser.setValue(email, 'alexbocenty@hotmail.fr')
       let password = 'input[name="password"]';
       browser.setValue(password, 'azerty')
@@ -20,7 +20,7 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
       expect(browser.getUrl()).to.be.equal('http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/ihm/application.html');
       browser.waitForVisible('navigation');
       let workSpaceSelector = 'div[name="workspaceSelector"]';
-      browser.waitForVisible(workSpaceSelector,3000);
+      browser.waitForVisible(workSpaceSelector,10000);
 
       // ACCES LISTE WORKSPACE
       $(workSpaceSelector).click();

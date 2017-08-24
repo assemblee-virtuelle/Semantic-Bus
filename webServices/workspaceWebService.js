@@ -18,10 +18,10 @@ module.exports = function (router) {
     workspace_lib.getAll(req.params.userId, "owner").then(function (workspaces) {
       res.json(workspaces)
     })
-  }); //<= own workspace 
+  }); //<= own workspace
 
 
-  // --------------------------------------------------------------------------------
+  // ---------------------------------------------------------------------------------
 
   router.get('/workspaces/share/:userId', function (req, res) {
     workspace_lib.getAll(req.params.userId, "editor").then(function (workspaces) {
