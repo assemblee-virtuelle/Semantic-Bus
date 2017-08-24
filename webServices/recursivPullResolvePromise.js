@@ -39,13 +39,16 @@ module.exports = {
         //     name: component.name
         //   })
         // }));
-        this.pathResolution = this.buildPathResolution(component, requestDirection, 0, this.componentsResolving);
+        let originComponent = this.sift({
+          '_id': component._id
+        }, this.componentsResolving)[0];
+        this.pathResolution = this.buildPathResolution(originComponent, requestDirection, 0, this.componentsResolving);
         this.pathResolution.forEach(link => {
           link.status = 'waiting';
         });
         // this.linksProcessing = [];
         // this.linksProcessed = [];
-        this.RequestOrigine = component;
+        this.RequestOrigine = originComponent;
         this.RequestOrigineResolveMethode = resolve;
         this.RequestOrigineRejectMethode = reject;
         this.RequestOrigineResponse = undefined;
@@ -55,9 +58,11 @@ module.exports = {
         if (requestDirection == 'push') {
           // affecter le flux à tous les link dont la source est le composant
           // console.log(" function : resolveComponent | variable : in push ")
-          this.sift({
-            '_id': component._id
-          }, this.componentsResolving)[0].dataResolution = pushData;
+          // this.sift({
+          //   '_id': component._id
+          // }, this.componentsResolving)[0].dataResolution = pushData;
+          originComponent.dataResolution = pushData;
+
           this.sift({
             "source._id": component._id
           }, this.pathResolution).forEach(link => {
@@ -69,37 +74,39 @@ module.exports = {
         /// -------------- pull case  -----------------------
 
 
-        //if (requestDirection == 'pull') {
+        if (requestDirection == 'pull') {
 
-        var tableSift = []
-        this.componentsResolving.forEach(component=> {
-          console.log('init pathResolution',component._id,component.status,component.pullSource);
-          if (component.pullSource == true) {
-            tableSift.push(component)
-          }
-        })
-        // this.sift({
-        //   pullSource: "true",
-        //   // dataReslesiftolution: {
-        //   //   $exists: false
-        //   // }
-        // }, this.componentsResolving)
-        tableSift.forEach(componentProcessing => {
-          let module = this.technicalComponentDirectory[componentProcessing.module];
-          //let componentProcessing = processingLink.source;
-          module.pull(componentProcessing, undefined, undefined).then(componentFlow => {
-            //console.log('PULL END | ', componentProcessing._id.$oid);
-            componentProcessing.dataResolution = componentFlow;
-            componentProcessing.status = 'resolved';
-            this.sift({
-              "source._id": componentProcessing._id
-            }, this.pathResolution).forEach(link => {
-              link.status = 'processing'
-            });
-            this.processNextBuildPath();
+          var tableSift = []
+          this.componentsResolving.forEach(componentToInspect => {
+            //console.log('init pathResolution', componentToInspect._id, componentToInspect.status, componentToInspect.pullSource);
+            if (componentToInspect.pullSource == true) {
+              tableSift.push(componentToInspect)
+            }
           })
-        });
-        //}
+          // this.sift({
+          //   pullSource: "true",
+          //   // dataResolution: {
+          //   //   $exists: false
+          //   // }
+          // }, this.componentsResolving)
+
+          tableSift.forEach(componentProcessing => {
+            let module = this.technicalComponentDirectory[componentProcessing.module];
+            //let componentProcessing = processingLink.source;
+            //console.log('PULL start | ', componentProcessing._id);
+            module.pull(componentProcessing, undefined, undefined).then(componentFlow => {
+              console.log('PULL END | ', componentProcessing._id);
+              componentProcessing.dataResolution = componentFlow;
+              componentProcessing.status = 'resolved';
+              this.sift({
+                "source._id": componentProcessing._id
+              }, this.pathResolution).forEach(link => {
+                link.status = 'processing'
+              });
+              this.processNextBuildPath();
+            })
+          });
+        }
 
       })
     });
@@ -118,8 +125,8 @@ module.exports = {
       for (var processingLink of linkNotResolved) {
 
         //-------------- Source --------------
-                
-        console.log(" --------- processingLink ------------- ")
+
+        //console.log(" --------- processingLink ------------- ")
 
         let sourcesToResolve = this.sift({
           '_id': processingLink.source._id,
@@ -129,19 +136,19 @@ module.exports = {
           //status: {$ne:'resolved'} // ==  dataResolution: { $exists: false }
         }, this.componentsResolving);
 
-        console.log("source to resolve ||", sourcesToResolve)
+        //console.log("source to resolve ||", sourcesToResolve)
 
         //-------------- Component processing --------------
-
+        // source of link have to be Resolved (dataResolution :false) before processing
         if (sourcesToResolve.length == 0) {
-          console.log("string |", processingLink.destination)
+          //console.log("string |", processingLink.destination)
           var componentProcessing = this.sift({
-            "_id": processingLink.destination
+            "_id": processingLink.destination._id
           }, this.componentsResolving)[0];
 
-          console.log("componentProcessingDestination", componentProcessing)
+          //console.log("componentProcessingDestination", componentProcessing)
 
-          console.log("componentProcessing processing ||", componentProcessing.status)
+          //console.log("componentProcessing processing ||", componentProcessing.status)
 
           //-------------- Data flow --------------
 
@@ -158,7 +165,7 @@ module.exports = {
             //console.log(sourceFlow);
             return sourceFlow[0].dataResolution;
           });
-          console.log("dataflow ||", dataFlow.length);
+          //console.log("dataflow ||", dataFlow.length);
 
           //-------------- Pull méthode --------------
 
@@ -169,11 +176,11 @@ module.exports = {
             console.log('PULL END | ', componentProcessing._id);
             componentProcessing.dataResolution = componentFlow;
             componentProcessing.status = 'resolved';
-            console.log('componentProcessing resolved ||', componentProcessing.status)
+            //console.log('componentProcessing resolved ||', componentProcessing.status)
             this.sift({
               "source._id": componentProcessing._id
             }, this.pathResolution).forEach(link => {
-              console.log(link)
+              //console.log(link)
               link.status = 'processing'
             });
             this.sift({
@@ -181,7 +188,9 @@ module.exports = {
             }, this.pathResolution).forEach(link => {
               link.status = 'resolved'
             });
+              console.log('RESOLVING',componentProcessing._id,this.RequestOrigine._id);
             if (componentProcessing._id == this.RequestOrigine._id) {
+  console.log('XXX');
               this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
             }
             this.processNextBuildPath();
@@ -190,7 +199,7 @@ module.exports = {
         }
       }
     } else {
-      console.log('End of Worksapce processing')
+      console.log('--------------  End of Worksapce processing -------------- ')
     }
   },
   buildDfobFlow(currentFlow, dfobPathTab) {
@@ -259,8 +268,8 @@ module.exports = {
 
         }
       } else {
-        console.log("add pullSource",component._id)
-        component.pullSource = "true";
+        //console.log("add pullSource", component._id)
+        component.pullSource = true;
       }
       if (component.connectionsAfter != undefined && component.connectionsAfter.length > 0 && !(requestDirection == 'push' && module.stepNode == true)) {
         for (var afterComponent of component.connectionsAfter) {
