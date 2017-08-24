@@ -117,8 +117,8 @@ module.exports = {
       for (var processingLink of linkNotResolved) {
 
         //-------------- Source --------------
-
-        console.log("--------- processingLink-------------")
+                
+        console.log(" --------- processingLink ------------- ")
 
         let sourcesToResolve = this.sift({
           '_id': processingLink.source._id,
@@ -137,11 +137,8 @@ module.exports = {
           var componentProcessing = this.sift({
             "_id": processingLink.destination
           }, this.componentsResolving)[0];
-          // componentProcessing.status = 'processing';
+
           console.log("componentProcessingDestination", componentProcessing)
-
-          // console.log("componentProcessingDestination", componentProcessing)
-
 
           console.log("componentProcessing processing ||", componentProcessing.status)
 
@@ -169,7 +166,6 @@ module.exports = {
 
           module.pull(componentProcessing, dataFlow, undefined).then(componentFlow => {
             console.log('PULL END | ', componentProcessing._id);
-
             componentProcessing.dataResolution = componentFlow;
             componentProcessing.status = 'resolved';
             console.log('componentProcessing resolved ||', componentProcessing.status)
@@ -179,7 +175,6 @@ module.exports = {
               console.log(link)
               link.status = 'processing'
             });
-
             this.sift({
               "destination._id": componentProcessing._id
             }, this.pathResolution).forEach(link => {
@@ -234,7 +229,7 @@ module.exports = {
       for (var i = 0; i < depth; i++) {
         incConsole += "-";
       }
-      console.log(incConsole, "buildPathResolution", component._id.$oid, requestDirection);
+      console.log(incConsole, "buildPathResolution", component._id, requestDirection);
       let module = this.technicalComponentDirectory[component.module];
 
       var out = [];
