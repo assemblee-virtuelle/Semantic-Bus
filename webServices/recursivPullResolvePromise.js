@@ -103,6 +103,9 @@ module.exports = {
               }, this.pathResolution).forEach(link => {
                 link.status = 'processing'
               });
+              if (componentProcessing._id == this.RequestOrigine._id) {
+                this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
+              }
               this.processNextBuildPath();
             })
           });
@@ -188,9 +191,7 @@ module.exports = {
             }, this.pathResolution).forEach(link => {
               link.status = 'resolved'
             });
-              console.log('RESOLVING',componentProcessing._id,this.RequestOrigine._id);
             if (componentProcessing._id == this.RequestOrigine._id) {
-  console.log('XXX');
               this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
             }
             this.processNextBuildPath();
