@@ -40,6 +40,7 @@
     "jsonpath-object-transform": "latest",
     "jsonwebtoken": "^7.4.1",
     "jwt-simple": "^0.5.1",
+    "mocha": "^3.5.0",
     "moment": "^2.18.1",
     "mongoose": "^4.10.5",
     "mongoose-unique-validator": "^1.0.5",
