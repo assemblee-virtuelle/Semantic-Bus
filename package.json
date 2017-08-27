@@ -6,7 +6,7 @@
   "main": "start.js",
   "scripts": {
     "start": "node start.js",
-    "tests": "npm run test-unitaire && npm run test-integration",
+    "test-unitaires": "node test/test_unitaires/test.js",
     "test-fonctionel": "wdio test/wdio.conf.cloud.fonctionels.js",
     "test-local": "wdio test/wdio.conf.local.js",
     "test_int_user_lib": "node_modules/mocha/bin/mocha test/test_integrations/user/user_int.js",
