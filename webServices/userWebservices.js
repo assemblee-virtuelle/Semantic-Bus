@@ -1,6 +1,7 @@
 'use strict';
 
-var user_lib = require('../lib/core/lib/user_lib')
+var user_lib = require('../lib/core/lib/user_lib');
+
 
 
 // --------------------------------------------------------------------------------
@@ -9,6 +10,7 @@ var user_lib = require('../lib/core/lib/user_lib')
 
 
 module.exports = function (router) {
+
 
  // ---------------------------------------  ALL USERS  -----------------------------------------
 
@@ -49,6 +51,8 @@ module.exports = function (router) {
   // ---------------------------------------  ADMIN  -----------------------------------------
 
   router.get('/cloneDatabase', function (req, res) {
+    var mLabPromise = require('./mLabPromise');
+    //console.log('mLabPromise |',mLabPromise);
     mLabPromise.cloneDatabase().then(data => {
       res.json(data)
     });
