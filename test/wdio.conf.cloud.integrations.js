@@ -5,7 +5,7 @@ exports.config = Object.assign(base.config, {
     capabilities: [{
         browserName: 'Chrome',
         platform: 'Windows 7',
-        version: '54'
+        version: 'latest'
     }, ],
     services: ['sauce'],
     waitforTimeout:60000,
