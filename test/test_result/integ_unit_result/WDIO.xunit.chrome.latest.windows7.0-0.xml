@@ -1,19 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <testsuites>
-  <testsuite name="auth_test" timestamp="2017-08-27T04:24:55" time="1.338" tests="1" failures="0" errors="0" skipped="0">
+  <testsuite name="auth_test" timestamp="2017-08-27T20:26:02" time="1.084" tests="1" failures="0" errors="0" skipped="0">
     <properties>
-      <property name="specId" value="9920cf6d33687ebd2d83107278c3511d"/>
+      <property name="specId" value="3c2e3e1c7a812a3701e132c8fde6fb32"/>
       <property name="suiteName" value="Auth test"/>
       <property name="capabilities" value="chrome.latest.windows7"/>
       <property name="file" value="./test/test_integrations/auth/auth_unit.js"/>
     </properties>
-    <testcase classname="chrome.latest.windows7.auth_test" name="should_create_a_new_authentification" time="1.331">
+    <testcase classname="chrome.latest.windows7.auth_test" name="should_create_a_new_authentification" time="1.075">
       <system-out>
         <![CDATA[
-COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/248a4b6a4a734b5bba2a0fd8ec341c9d/execute - {"script":"sauce:context=Auth test - should create a new authentification","args":[]}
-RESULT: {"status":0,"sessionId":"248a4b6a4a734b5bba2a0fd8ec341c9d","value":""}
-COMMAND: DELETE https://ondemand.saucelabs.com:443/wd/hub/session/248a4b6a4a734b5bba2a0fd8ec341c9d - {}
-RESULT: {"status":0,"sessionId":"248a4b6a4a734b5bba2a0fd8ec341c9d","value":""}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a2356c8d631c4ec4a6b3ddca243acdc3/execute - {"script":"sauce:context=Auth test - should create a new authentification","args":[]}
+RESULT: {"status":0,"sessionId":"a2356c8d631c4ec4a6b3ddca243acdc3","value":""}
+COMMAND: DELETE https://ondemand.saucelabs.com:443/wd/hub/session/a2356c8d631c4ec4a6b3ddca243acdc3 - {}
+RESULT: {"status":0,"sessionId":"a2356c8d631c4ec4a6b3ddca243acdc3","value":""}
 ]]>
       </system-out>
     </testcase>

@@ -13,7 +13,7 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
       }, 10000)
       let email = 'input[name="email"]';
       browser.waitForVisible(email,10000);
-      browser.setValue(email, 'alexbocenty@hotmail.fr')
+      browser.setValue(email, 'alexfoot32@orange.fr')
       let password = 'input[name="password"]';
       browser.setValue(password, 'azerty')
       $('#btn2').click();
