@@ -9,9 +9,6 @@
   <script>
 
     this.innerData={};
-    this.test=function(){
-      consol.log('test');
-    }
 
     Object.defineProperty(this, 'data', {
        set: function (data) {
@@ -19,12 +16,14 @@
          this.update();
        }.bind(this),
        get: function () {
+         console.log('getInnerData |',this.innerData);
         return this.innerData;
       },
       configurable: true
     });
     this.on('mount', function () {
       this.keyInput.addEventListener('change',function(e){
+        console.log('keychange');
         this.innerData.specificData.key=e.currentTarget.value;
       }.bind(this));
 

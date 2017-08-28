@@ -65,8 +65,10 @@ function GenericStore(specificStoreList) {
       }
     }).done(function(data) {
       this.itemCurrent = data;
-      console.log(this.itemCurrent)
+
       this.itemCurrent.mode = 'edit';
+      this.itemCurrent.specificData=this.itemCurrent.specificData||{};
+      console.log('item_current_edit | ',this.itemCurrent);
       this.trigger('item_current_edit_mode', 'generic', this.itemCurrent);
       this.trigger('workspace_current_click', this.itemCurrent);
       this.trigger('item_current_changed', this.itemCurrent);
@@ -86,7 +88,7 @@ function GenericStore(specificStoreList) {
 
   // --------------------------------------------------------------------------------
 
-  
+
 
   this.on('item_current_persist', function(message) {
     console.log('item_current_persist',   this.workspaceBusiness.serialiseWorkspaceComponent(this.itemCurrent));
