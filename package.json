@@ -6,7 +6,7 @@
   "main": "start.js",
   "scripts": {
     "start": "node start.js",
-    "test-unitaires": "node test/test_unitaires/test.js",
+    "test-unitaires": "node_modules/mocha/bin/mocha test/test_unitaires/test.js --reporter mocha-junit-reporter --reporter-options mochaFile=./test/test_result/integ_unit_result/test-result.xml",
     "test-fonctionel": "wdio test/wdio.conf.cloud.fonctionels.js",
     "test-local": "wdio test/wdio.conf.local.js",
     "test_int_user_lib": "node_modules/mocha/bin/mocha test/test_integrations/user/user_int.js",
@@ -24,7 +24,7 @@
     "body-parser": "latest",
     "busboy": "^0.2.14",
     "caminte": "^0.3.7",
-    "chai": "^4.1.0",
+    "chai": "^4.1.1",
     "cheerio": "^1.0.0-rc.1",
     "cors": "latest",
     "csvtojson": "latest",
@@ -72,5 +72,8 @@
     "webdriverio": "^4.2.16",
     "xlsx": "^0.10.5",
     "xml2js": "latest"
+  },
+  "devDependencies": {
+    "mocha-junit-reporter": "^1.13.0"
   }
 }
