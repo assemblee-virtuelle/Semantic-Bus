@@ -31,6 +31,8 @@ module.exports = {
         this.componentsResolving = components;
         this.componentsResolving.forEach(component => {
           component.status = 'waiting';
+          //empty object are not persist by mongoose
+          component.specificData = component.specificData || {};
         });
         // console.log('components | ', components.map(component => {
         //   return ({
@@ -251,20 +253,23 @@ module.exports = {
           var beforeComponentObject = this.sift({
             "_id": beforeComponent
           }, usableComponents)[0];
-          var linkToProcess = {
-            source: beforeComponentObject,
-            destination: component,
-            requestDirection: "pull"
-          };
-          var existingLink = this.sift({
-            "source._id": linkToProcess.source._id,
-            "destination._id": linkToProcess.destination._id,
-          }, buildPath);
-          if (existingLink.length == 0) {
-            //linkToProcess.status='waiting';
-            out.push(linkToProcess);
-            buildPath.push(linkToProcess);
-            out = out.concat(this.buildPathResolution(beforeComponentObject, "pull", depth + 1, usableComponents, buildPath));
+          //protection against dead link
+          if (beforeComponentObject) {
+            var linkToProcess = {
+              source: beforeComponentObject,
+              destination: component,
+              requestDirection: "pull"
+            };
+            var existingLink = this.sift({
+              "source._id": linkToProcess.source._id,
+              "destination._id": linkToProcess.destination._id,
+            }, buildPath);
+            if (existingLink.length == 0) {
+              //linkToProcess.status='waiting';
+              out.push(linkToProcess);
+              buildPath.push(linkToProcess);
+              out = out.concat(this.buildPathResolution(beforeComponentObject, "pull", depth + 1, usableComponents, buildPath));
+            }
           }
 
         }
@@ -273,23 +278,26 @@ module.exports = {
         component.pullSource = true;
       }
       if (component.connectionsAfter != undefined && component.connectionsAfter.length > 0 && !(requestDirection == 'push' && module.stepNode == true)) {
-        for (var afterComponent of component.connectionsAfter) {
+        for (var afterComponentId of component.connectionsAfter) {
           var afterComponentObject = this.sift({
-            "_id": afterComponent
+            "_id": afterComponentId
           }, usableComponents)[0];
-          var linkToProcess = {
-            source: component,
-            destination: afterComponentObject,
-            requestDirection: "push"
-          };
-          var existingLink = this.sift({
-            "source._id": linkToProcess.source._id,
-            "destination._id": linkToProcess.destination._id,
-          }, buildPath);
-          if (existingLink.length == 0) {
-            out.push(linkToProcess);
-            buildPath.push(linkToProcess);
-            out = out.concat(this.buildPathResolution(afterComponentObject, "push", depth + 1, usableComponents, buildPath));
+          //protection against dead link
+          if (afterComponentObject) {
+            var linkToProcess = {
+              source: component,
+              destination: afterComponentObject,
+              requestDirection: "push"
+            };
+            var existingLink = this.sift({
+              "source._id": linkToProcess.source._id,
+              "destination._id": linkToProcess.destination._id,
+            }, buildPath);
+            if (existingLink.length == 0) {
+              out.push(linkToProcess);
+              buildPath.push(linkToProcess);
+              out = out.concat(this.buildPathResolution(afterComponentObject, "push", depth + 1, usableComponents, buildPath));
+            }
           }
         }
       }

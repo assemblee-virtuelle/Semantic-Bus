@@ -21,7 +21,7 @@ module.exports = function (router) {
       var recursivPullResolvePromiseDynamic = require('./recursivPullResolvePromise');
       return recursivPullResolvePromise.resolveComponentPull(data, false);
     }).then(function (data) {
-      console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
+      //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
       res.json(data.data);
     })
 
@@ -34,11 +34,11 @@ module.exports = function (router) {
     workspace_component_lib.get({
       _id: id
     }).then(function (data) {
-      console.log('workspaceComponent | test| ', data);
+      console.log('workspaceComponent | work| ', data);
       var recursivPullResolvePromiseDynamic = require('./recursivPullResolvePromise');
       return recursivPullResolvePromiseDynamic.resolveComponent(data, "pull");
     }).then(function (data) {
-      console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
+      //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
       res.json(data.data);
     })
   }); //<= resolveComponent
