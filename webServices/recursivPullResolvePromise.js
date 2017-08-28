@@ -76,7 +76,7 @@ module.exports = {
         /// -------------- pull case  -----------------------
 
 
-        if (requestDirection == 'pull') {
+        //if (requestDirection == 'pull') {
 
           var tableSift = []
           this.componentsResolving.forEach(componentToInspect => {
@@ -111,7 +111,7 @@ module.exports = {
               this.processNextBuildPath();
             })
           });
-        }
+        //}
 
       })
     });
@@ -242,9 +242,9 @@ module.exports = {
       for (var i = 0; i < depth; i++) {
         incConsole += "-";
       }
-      console.log(incConsole, "buildPathResolution", component._id, requestDirection);
-      let module = this.technicalComponentDirectory[component.module];
 
+      let module = this.technicalComponentDirectory[component.module];
+      console.log(incConsole, "buildPathResolution", component._id, requestDirection,module.type);
       var out = [];
       //if (requestDirection == "pull") {
       if (component.connectionsBefore != undefined && component.connectionsBefore.length > 0 && !(requestDirection == 'pull' && module.stepNode == true)) {
