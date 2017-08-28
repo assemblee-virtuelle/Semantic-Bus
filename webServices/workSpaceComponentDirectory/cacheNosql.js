@@ -3,6 +3,7 @@ module.exports = {
   description: 'sauvegarder un flux et le réutiliser sans avoir besoin de requeter la source',
   editor: 'cache-nosql-editor',
   mLabPromise: require('../mLabPromise'),
+  workspace_component_lib : require('../../lib/core/lib/workspace_component_lib'),
   stepNode: true,
   //recursivPullResolvePromise : require('../recursivPullResolvePromise'),
   initialise: function(router,recursivPullResolvePromise) {
@@ -11,16 +12,23 @@ module.exports = {
     router.get('/reloadcache/:compId', function(req, res) {
       var compId = req.params.compId;
       console.log(compId);
-      //this require is live because constructor require cause cyclic dependencies (recursivPullResolvePromise->restApiGet)
-      this.mLabPromise.request('GET', 'workspaceComponent/'+compId).then(function(data) {
-        console.log('Cache NoSql | reload |', data);
-        this.recursivPullResolvePromise.resolveComponentPull(data, false).then(data => {
+      this.workspace_component_lib.get({
+        _id: compId
+      }).then(component => {
+        console.log('Cache NoSql | reload |', component);
+        this.recursivPullResolvePromise.resolveComponent(component, 'pull').then(data => {
           console.log('CACHE LOADED');
-        })
+        });
+        // this.recursivPullResolvePromise.resolveComponentPull(component, false).then(data => {
+        //   console.log('CACHE LOADED');
+        // })
         res.json({
           message: 'in progress'
         });
-      }.bind(this));
+      });
+      // this.mLabPromise.request('GET', 'workspaceComponent/'+compId).then(function(data) {
+      //
+      // }.bind(this));
 
       //console.log('restApiGet webservice Request');
 

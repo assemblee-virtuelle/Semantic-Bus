@@ -99,9 +99,9 @@ font-size: 22px;" if={showAdmin}>
           <div onclick={nagivationClick} class="commandButton">
             back to navigation
           </div>
-          <div onclick={testPullClick} class="commandButton">
+          <!--<div onclick={testPullClick} class="commandButton">
             tester un flux tiré
-          </div>
+          </div>-->
           <div onclick={workClick} class="commandButton">
             tester le composant
           </div>
@@ -247,7 +247,7 @@ font-size: 22px;" if={showAdmin}>
         RiotControl.trigger('item_current_persist');
       } else {
         this.editionContainer.persist();
-      } 
+      }
     }
 
     nagivationClick(e) {
@@ -417,14 +417,14 @@ font-size: 22px;" if={showAdmin}>
         this.workspaceComponents = data.components;
         console.log('navigation | workspace_current_changed', data);
         this.update();
-      }.bind(this)); 
+      }.bind(this));
 
        RiotControl.on('workspace_current_click',function(data){
           this.workspaceDisplayComponents = [];
           console.log(data)
           this.workspaceComponents.forEach(function(workspaceComponent){
             if(workspaceComponent._id != data._id){
-               this.workspaceDisplayComponents.push(workspaceComponent) 
+               this.workspaceDisplayComponents.push(workspaceComponent)
             }
           }.bind(this))
           console.log('workspace_current_click_navigation', this.workspaceDisplayComponents)
