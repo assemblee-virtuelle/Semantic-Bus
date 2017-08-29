@@ -15,6 +15,7 @@ module.exports = {
   workspaceComponentPromise: require('./workspaceComponentPromise'),
   sift: require('sift'),
   mLabPromise: require('./mLabPromise'),
+  fackCounter: 0,
   resolveComponentPull(component, notMainNode, pullParams) {
     //console.log(pullParams);
     return this._makeRequest(component, notMainNode, pullParams);
@@ -78,39 +79,39 @@ module.exports = {
 
         //if (requestDirection == 'pull') {
 
-          var tableSift = []
-          this.componentsResolving.forEach(componentToInspect => {
-            //console.log('init pathResolution', componentToInspect._id, componentToInspect.status, componentToInspect.pullSource);
-            if (componentToInspect.pullSource == true) {
-              tableSift.push(componentToInspect)
-            }
-          })
-          // this.sift({
-          //   pullSource: "true",
-          //   // dataResolution: {
-          //   //   $exists: false
-          //   // }
-          // }, this.componentsResolving)
+        var tableSift = []
+        this.componentsResolving.forEach(componentToInspect => {
+          //console.log('init pathResolution', componentToInspect._id, componentToInspect.status, componentToInspect.pullSource);
+          if (componentToInspect.pullSource == true) {
+            tableSift.push(componentToInspect)
+          }
+        })
+        // this.sift({
+        //   pullSource: "true",
+        //   // dataResolution: {
+        //   //   $exists: false
+        //   // }
+        // }, this.componentsResolving)
 
-          tableSift.forEach(componentProcessing => {
-            let module = this.technicalComponentDirectory[componentProcessing.module];
-            //let componentProcessing = processingLink.source;
-            //console.log('PULL start | ', componentProcessing._id);
-            module.pull(componentProcessing, undefined, undefined).then(componentFlow => {
-              console.log('PULL END | ', componentProcessing._id);
-              componentProcessing.dataResolution = componentFlow;
-              componentProcessing.status = 'resolved';
-              this.sift({
-                "source._id": componentProcessing._id
-              }, this.pathResolution).forEach(link => {
-                link.status = 'processing'
-              });
-              if (componentProcessing._id == this.RequestOrigine._id) {
-                this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
-              }
-              this.processNextBuildPath();
-            })
-          });
+        tableSift.forEach(componentProcessing => {
+          let module = this.technicalComponentDirectory[componentProcessing.module];
+          //let componentProcessing = processingLink.source;
+          //console.log('PULL start | ', componentProcessing._id);
+          module.pull(componentProcessing, undefined, undefined).then(componentFlow => {
+            console.log('PULL END | ', componentProcessing._id);
+            componentProcessing.dataResolution = componentFlow;
+            componentProcessing.status = 'resolved';
+            this.sift({
+              "source._id": componentProcessing._id
+            }, this.pathResolution).forEach(link => {
+              link.status = 'processing'
+            });
+            if (componentProcessing._id == this.RequestOrigine._id) {
+              this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
+            }
+            this.processNextBuildPath();
+          })
+        });
         //}
 
       })
@@ -118,98 +119,151 @@ module.exports = {
 
   },
   processNextBuildPath() {
-    console.log(" ---------- processNextBuildPath -----------")
+    this.fackCounter++;
+    console.log(" ---------- processNextBuildPath -----------", this.fackCounter)
 
-    console.log('pathResolution | ', this.pathResolution.map(link => {
+    console.log(this.pathResolution.map(link => {
       return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
     }));
     let linkNotResolved = this.sift({
       status: 'processing'
     }, this.pathResolution);
     if (linkNotResolved.length > 0) {
-      for (var processingLink of linkNotResolved) {
+      //if (linkNotResolved.length > 0 && this.fackCounter < 10) {
+      // console.log(" --------- processingLinks ------------- ")
+      // console.log(linkNotResolved.map(link => {
+      //   return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
+      // }));
 
-        //-------------- Source --------------
+      for (var processingLinkCandidate of linkNotResolved) {
+        let linksNotReady = this.sift({
+          'destination._id': processingLinkCandidate.destination._id,
+          status: {
+            $ne: 'processing'
+          } // ==  dataResolution: { $exists: false }
+        }, this.pathResolution);
+        if (linksNotReady.length == 0) {
+          var processingLink = processingLinkCandidate;
+          break;
+        }
+      }
 
-        //console.log(" --------- processingLink ------------- ")
+      //-------------- Component processing --------------
+      if (processingLink != undefined) {
+        let linksProcessing = this.sift({
+          'destination._id': processingLink.destination._id,
+          status: 'processing'
+        }, this.pathResolution);
 
-        let sourcesToResolve = this.sift({
-          '_id': processingLink.source._id,
-          dataResolution: {
-            $exists: false
-          },
-          //status: {$ne:'resolved'} // ==  dataResolution: { $exists: false }
-        }, this.componentsResolving);
+        //console.log('linksProcessing | ',linksProcessing);
+        let module = this.technicalComponentDirectory[processingLink.destination.module];
+        let dataFlow = linksProcessing.map(sourceLink => sourceLink.source.dataResolution);
+        var primaryflow;
+        if (module.getPrimaryFlow != undefined) {
+          primaryflow = module.getPrimaryFlow(processingLink.destination, dataFlow);
+        } else {
+          primaryflow = dataFlow[0];
+        }
+        var secondaryFlow = [];
+        secondaryFlow = secondaryFlow.concat(dataFlow);
+        secondaryFlow.splice(secondaryFlow.indexOf(primaryflow), 1);
+        //console.log('secondaryFlow |' , secondaryFlow);
+        if (primaryflow.dfob != undefined) {
 
-        //console.log("source to resolve ||", sourcesToResolve)
 
-        //-------------- Component processing --------------
-        // source of link have to be Resolved (dataResolution :false) before processing
-        if (sourcesToResolve.length == 0) {
-          //console.log("string |", processingLink.destination)
-          var componentProcessing = this.sift({
-            "_id": processingLink.destination._id
-          }, this.componentsResolving)[0];
+          var dfobTab = primaryflow.dfob[0].split(".");
 
-          //console.log("componentProcessingDestination", componentProcessing)
+          //var currentInspectObject = primaryflow.data;
+          //console.log('primaryflow | ', primaryflow);
 
-          //console.log("componentProcessing processing ||", componentProcessing.status)
+          var dfobFinalFlow = this.buildDfobFlow(primaryflow.data, dfobTab);
 
-          //-------------- Data flow --------------
+          console.log('dfobFinalFlow | ', dfobFinalFlow);
+          var testPromises = dfobFinalFlow.map(finalItem => {
 
-          let dataFlow = this.sift({
-            'destination._id': componentProcessing._id
-          }, this.pathResolution).map(sourceLink => {
-            //sourceLink.status = 'resolved';
-            //TODO vérifier que on y a pas directement acces par le link.source
-            var sourceFlow = this.sift({
-                "_id": sourceLink.source._id
-              },
-              this.componentsResolving
-            );
-            //console.log(sourceFlow);
-            return sourceFlow[0].dataResolution;
-          });
-          //console.log("dataflow ||", dataFlow.length);
+            var recomposedFlow = [];
+            recomposedFlow = recomposedFlow.concat([{
+              data: finalItem.objectToProcess[finalItem.key],
+              componentId: primaryflow.componentId
+            }]);
+            recomposedFlow = recomposedFlow.concat(secondaryFlow);
+            return module.pull(processingLink.destination, recomposedFlow, undefined);
+          })
 
-          //-------------- Pull méthode --------------
-
-          let module = this.technicalComponentDirectory[componentProcessing.module];
-          //let componentProcessing = processingLink.source;
-
-          module.pull(componentProcessing, dataFlow, undefined).then(componentFlow => {
-            console.log('PULL END | ', componentProcessing._id);
-            componentProcessing.dataResolution = componentFlow;
-            componentProcessing.status = 'resolved';
-            //console.log('componentProcessing resolved ||', componentProcessing.status)
+          Promise.all(testPromises).then(componentFlowDfob => {
+            //console.log('PULL DFOB END | ', processingLink.destination._id);
+            //console.log('AllDfobResult |', dataTestTab);
+            for (var componentFlowDfobKey in componentFlowDfob) {
+              dfobFinalFlow[componentFlowDfobKey].objectToProcess[dfobFinalFlow[componentFlowDfobKey].key] = componentFlowDfob[componentFlowDfobKey].data;
+              //currentInspectObject[dataTestTabKey][currentDfob] = dataTestTab[dataTestTabKey].data;
+            }
+            // resolve({
+            //   componentId: component._id.$oid,
+            //   data: primaryflow.data
+            // });
+            processingLink.destination.dataResolution = {
+              componentId: processingLink.destination._id,
+              data: primaryflow.data
+            };
+            processingLink.destination.status = 'resolved';
             this.sift({
-              "source._id": componentProcessing._id
+              "source._id": processingLink.destination._id
             }, this.pathResolution).forEach(link => {
               //console.log(link)
               link.status = 'processing'
             });
+
+            linksProcessing.forEach(link => {
+              link.status = 'resolved';
+            })
+
+            if (processingLink.destination._id == this.RequestOrigine._id) {
+              this.RequestOrigineResolveMethode(processingLink.destination.dataResolution)
+            }
+            this.processNextBuildPath();
+
+          }).catch(e => {
+            console.log(e);
+          });
+        } else {
+
+          module.pull(processingLink.destination, dataFlow, undefined).then(componentFlow => {
+            console.log('PULL END | ', processingLink.destination._id);
+            processingLink.destination.dataResolution = componentFlow;
+            processingLink.destination.status = 'resolved';
+            //console.log('componentProcessing resolved ||', componentProcessing.status)
             this.sift({
-              "destination._id": componentProcessing._id
+              "source._id": processingLink.destination._id
             }, this.pathResolution).forEach(link => {
-              link.status = 'resolved'
+              //console.log(link)
+              link.status = 'processing'
             });
-            if (componentProcessing._id == this.RequestOrigine._id) {
-              this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
+
+            linksProcessing.forEach(link => {
+              link.status = 'resolved';
+            })
+
+            if (processingLink.destination._id == this.RequestOrigine._id) {
+              this.RequestOrigineResolveMethode(processingLink.destination.dataResolution)
             }
             this.processNextBuildPath();
           })
-
         }
+
+
       }
+
     } else {
       console.log('--------------  End of Worksapce processing -------------- ')
     }
   },
+  //TODO don't work if flow is array at fisrt depth
   buildDfobFlow(currentFlow, dfobPathTab) {
+    //console.log(currentFlow);
     let currentDfob = dfobPathTab.shift();
     let currentInspectFlow = currentFlow[currentDfob];
     //console.log('buildDfobFlow | ',dfobPathTab.length,currentDfob,currentInspectFlow);
-    if (dfobPathTab.length > 1) {
+    if (dfobPathTab.length > 0) {
       if (Array.isArray(currentInspectFlow)) {
         var deepArray = currentInspectFlow.map(currentInspectObject => this.buildDfobFlow(currentInspectObject, dfobPathTab.slice(0)));
         return [].concat.apply([], deepArray); // flatten array
@@ -217,19 +271,25 @@ module.exports = {
         return this.buildDfobFlow(currentInspectFlow, dfobPathTab.slice(0));
       }
     } else {
-      if (Array.isArray(currentInspectFlow)) {
-        return currentInspectFlow.map(currentInspectObject => {
-          return {
-            objectToProcess: currentInspectObject,
-            key: dfobPathTab[0]
-          }
-        });
-      } else {
-        return [{
-          ObjectToProcess: currentInspectFlow,
-          key: dfobPathTab[0]
+
+      return [{
+          objectToProcess: currentFlow,
+          key: currentDfob
         }];
-      }
+
+      // if (Array.isArray(currentInspectFlow)) {
+      //   return currentInspectFlow.map(currentInspectObject => {
+      //     return {
+      //       objectToProcess: currentInspectObject,
+      //       key: currentDfob
+      //     }
+      //   });
+      // } else {
+      //   return [{
+      //     ObjectToProcess: currentInspectFlow,
+      //     key: currentDfob
+      //   }];
+      // }
     }
   },
   buildPathResolution(component, requestDirection, depth, usableComponents, buildPath) {
@@ -244,59 +304,65 @@ module.exports = {
       }
 
       let module = this.technicalComponentDirectory[component.module];
-      console.log(incConsole, "buildPathResolution", component._id, requestDirection,module.type);
+      console.log(incConsole, "buildPathResolution", component._id, requestDirection, module.type);
       var out = [];
       //if (requestDirection == "pull") {
-      if (component.connectionsBefore != undefined && component.connectionsBefore.length > 0 && !(requestDirection == 'pull' && module.stepNode == true)) {
-        for (var beforeComponent of component.connectionsBefore) {
-          //console.log(beforeComponent);
-          var beforeComponentObject = this.sift({
-            "_id": beforeComponent
-          }, usableComponents)[0];
-          //protection against dead link
-          if (beforeComponentObject) {
-            var linkToProcess = {
-              source: beforeComponentObject,
-              destination: component,
-              requestDirection: "pull"
-            };
-            var existingLink = this.sift({
-              "source._id": linkToProcess.source._id,
-              "destination._id": linkToProcess.destination._id,
-            }, buildPath);
-            if (existingLink.length == 0) {
-              //linkToProcess.status='waiting';
-              out.push(linkToProcess);
-              buildPath.push(linkToProcess);
-              out = out.concat(this.buildPathResolution(beforeComponentObject, "pull", depth + 1, usableComponents, buildPath));
+      if (requestDirection != 'push') {
+        if (component.connectionsBefore != undefined && component.connectionsBefore.length > 0 && !(requestDirection == 'pull' && module.stepNode == true)) {
+          for (var beforeComponent of component.connectionsBefore) {
+            //console.log(beforeComponent);
+            var beforeComponentObject = this.sift({
+              "_id": beforeComponent
+            }, usableComponents)[0];
+            //protection against dead link
+            if (beforeComponentObject) {
+              var linkToProcess = {
+                source: beforeComponentObject,
+                destination: component,
+                requestDirection: "pull"
+              };
+              var existingLink = this.sift({
+                "source._id": linkToProcess.source._id,
+                "destination._id": linkToProcess.destination._id,
+              }, buildPath);
+              if (existingLink.length == 0) {
+                //linkToProcess.status='waiting';
+                out.push(linkToProcess);
+                //console.log(linkToProcess);
+                buildPath.push(linkToProcess);
+                out = out.concat(this.buildPathResolution(beforeComponentObject, "pull", depth + 1, usableComponents, buildPath));
+              }
             }
-          }
 
+          }
+        } else {
+          //console.log("add pullSource", component._id)
+          component.pullSource = true;
         }
-      } else {
-        //console.log("add pullSource", component._id)
-        component.pullSource = true;
       }
-      if (component.connectionsAfter != undefined && component.connectionsAfter.length > 0 && !(requestDirection == 'push' && module.stepNode == true)) {
-        for (var afterComponentId of component.connectionsAfter) {
-          var afterComponentObject = this.sift({
-            "_id": afterComponentId
-          }, usableComponents)[0];
-          //protection against dead link
-          if (afterComponentObject) {
-            var linkToProcess = {
-              source: component,
-              destination: afterComponentObject,
-              requestDirection: "push"
-            };
-            var existingLink = this.sift({
-              "source._id": linkToProcess.source._id,
-              "destination._id": linkToProcess.destination._id,
-            }, buildPath);
-            if (existingLink.length == 0) {
-              out.push(linkToProcess);
-              buildPath.push(linkToProcess);
-              out = out.concat(this.buildPathResolution(afterComponentObject, "push", depth + 1, usableComponents, buildPath));
+      if (requestDirection != 'pull') {
+        if (component.connectionsAfter != undefined && component.connectionsAfter.length > 0 && !(requestDirection == 'push' && module.stepNode == true)) {
+          for (var afterComponentId of component.connectionsAfter) {
+            var afterComponentObject = this.sift({
+              "_id": afterComponentId
+            }, usableComponents)[0];
+            //protection against dead link
+            if (afterComponentObject) {
+              var linkToProcess = {
+                source: component,
+                destination: afterComponentObject,
+                requestDirection: "push"
+              };
+              var existingLink = this.sift({
+                "source._id": linkToProcess.source._id,
+                "destination._id": linkToProcess.destination._id,
+              }, buildPath);
+              if (existingLink.length == 0) {
+                out.push(linkToProcess);
+                //console.log(linkToProcess);
+                buildPath.push(linkToProcess);
+                out = out.concat(this.buildPathResolution(afterComponentObject, "push", depth + 1, usableComponents, buildPath));
+              }
             }
           }
         }
