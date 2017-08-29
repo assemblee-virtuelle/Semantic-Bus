@@ -54,48 +54,6 @@ module.exports = new function() {
         }
       });
 
-      // this.mLabPromise.request('GET', 'workspacecomponents', undefined, {
-      //   q: {
-      //     "specificData.url": urlRequiered
-      //   }
-      // }).then(function(data) {
-
-      //console.log(data);
-      //   if (data.length > 0) {
-      //     specificData = data[0].specificData;
-      //     res.setHeader('content-type', data[0].specificData.contentType);
-      //     console.log(data[0], req.query);
-      //     return this.recursivPullResolvePromiseDynamic.resolveComponent(data[0], 'work', req.query);
-      //     //return this.recursivPullResolvePromise.resolveComponentPull(data[0], false,req.query);
-      //   } else {
-      //     return new Promise((resolve, reject) => {
-      //       reject({
-      //         code: 404,
-      //         message: "pas d'API pour cette url"
-      //       })
-      //     })
-      //   }
-      // }.bind(this)).catch(err => {
-      //   console.log('FAIL', err);
-      //   res.status(err.code).send(err.message)
-      // }).then(function(dataToSend) {
-      //   console.log('API data', dataToSend);
-      //   if (specificData.contentType.search('xml') != -1) {
-      //     var convert = this.data2xml();
-      //     var out = "";
-      //     for (key in dataToSend.data) {
-      //       out += convert(key, dataToSend.data[key]);
-      //     }
-      //     //console.log(out);
-      //     res.send(out);
-      //   } else if (specificData.contentType.search('json') != -1) {
-      //     res.json(dataToSend.data);
-      //   } else {
-      //     res.send('type mime non géré')
-      //   }
-      // }.bind(this));
-
-      //console.log('restApiGet webservice Request');
 
     }.bind(this));
   }
