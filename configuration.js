@@ -20,4 +20,5 @@ module.exports = {
     script: require('./migration_database/v1_v2'),
     desc: 'V1 -> V2 (add mongoose model)'
   }]
+  
 }
