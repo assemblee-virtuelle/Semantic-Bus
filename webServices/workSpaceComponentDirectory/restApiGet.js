@@ -24,7 +24,7 @@ module.exports = new function() {
           specificData = component.specificData;
 
           res.setHeader('content-type', component.specificData.contentType);
-          return this.recursivPullResolvePromiseDynamic.resolveComponent(component, 'work', req.query);
+          return this.recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(component, 'work', req.query);
           //return this.recursivPullResolvePromise.resolveComponentPull(data[0], false,req.query);
         } else {
           return new Promise((resolve, reject) => {

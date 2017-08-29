@@ -5,16 +5,17 @@
 //const url = require('url');
 //doc to promises : http://stackoverflow.com/questions/35182752/promises-with-http-get-node-js
 
-var workspace_component_lib = require('../lib/core/lib/workspace_component_lib');
 
 
-module.exports = {
+
+var proto = {
   technicalComponentDirectory: require('./technicalComponentDirectory.js'),
   //restGetJson: require('./workSpaceComponentDirectory/restGetJson.js'),
   //mLabPromise: require('./mLabPromise'),
   workspaceComponentPromise: require('./workspaceComponentPromise'),
   sift: require('sift'),
   mLabPromise: require('./mLabPromise'),
+  workspace_component_lib : require('../lib/core/lib/workspace_component_lib'),
   fackCounter: 0,
   resolveComponentPull(component, notMainNode, pullParams) {
     //console.log(pullParams);
@@ -26,7 +27,7 @@ module.exports = {
     console.log(" ---------- resolveComponent -----------")
 
     return new Promise((resolve, reject) => {
-      workspace_component_lib.get_all({
+      this.workspace_component_lib.get_all({
         workspaceId: component.workspaceId
       }).then(components => {
         this.componentsResolving = components;
@@ -493,3 +494,7 @@ module.exports = {
     });
   }
 };
+
+module.exports = {
+  getNewInstance(){return Object.create(proto)}
+}
