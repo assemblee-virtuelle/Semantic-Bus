@@ -63,6 +63,7 @@ server.listen(process.env.PORT || process.env.port || process.env.OPENSHIFT_NODE
 app.get('/.well-known/acme-challenge/:challengeHash', function (req, res) {
   var params = req.params.challengeHash.substr(0, req.params.challengeHash.length - 1 )
   var hash = params + ".rCIAnB6OZN-jvB1XIOagkbUTKQQmQ1ogeb5DUVFNUko";
+  var test ='allo';
   res.send(hash)
 });
 
