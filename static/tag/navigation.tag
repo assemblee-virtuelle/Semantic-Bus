@@ -4,7 +4,7 @@
   <div id="containerloaderDiv">
     <div id="row">
       <div id="loaderDiv"></div>
-      <h1 id="loaderText"> Sécurisation de l'application en cour </h1>
+      <h1 id="loaderText"> Sécurisation de l'application en cours </h1>
     </div>
   </div>
   <div id="containerloaderDiv" if={saveBoolean}>
