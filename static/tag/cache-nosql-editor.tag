@@ -9,7 +9,7 @@
         get cache
       </div>
     </div>
-  </div> - -->
+  </div> -->
   <div>mettre en cache les data et les réintéroger</div>
   <jsonEditor name="cachedData" mode="text" style="flex-grow:1">
   </jsonEditor>
