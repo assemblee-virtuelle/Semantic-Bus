@@ -38,6 +38,7 @@
         this.tags.cachedData.data = data;
         this.update();
       }.bind(this));
+      RiotControl.trigger('item_current_getCache');
     });
   </script>
 </cache-nosql-editor>
