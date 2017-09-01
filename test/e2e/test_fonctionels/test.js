@@ -19,52 +19,52 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
       $('#btn2').click();
       browser.waitForVisible('navigation');
       expect(browser.getUrl()).to.be.equal('http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/ihm/application.html');
-      let workSpaceSelector = 'div[name="workspaceSelector"]';
-      browser.waitForVisible(workSpaceSelector,10000);
+    //   let workSpaceSelector = 'div[name="workspaceSelector"]';
+    //   browser.waitForVisible(workSpaceSelector,10000);
 
-      // ACCES LISTE WORKSPACE
-      $(workSpaceSelector).click();
-      browser.waitForVisible('workspace-table');
+    //   // ACCES LISTE WORKSPACE
+    //   $(workSpaceSelector).click();
+    //   browser.waitForVisible('workspace-table');
   
-      // MODE AJOUT D'UN WORKSPACE //(edit mode de base quand on creer un workspace)
-      $('zentable').$('div.commandButton').click()
-      browser.waitForVisible('workspace-editor');
+    //   // MODE AJOUT D'UN WORKSPACE //(edit mode de base quand on creer un workspace)
+    //   $('zentable').$('div.commandButton').click()
+    //   browser.waitForVisible('workspace-editor');
    
-      // AJOUT D'UN  COMPONENT //
-      $('zentable').$('div.commandButton').click();
-      browser.waitForVisible('technical-component-table');
-      $('technical-component-table').$('zentable').$('div[name="tableBody"]').click();
-      browser.waitForVisible('workspace-editor');
-      // AJOUT D'UN USER
+    //   // AJOUT D'UN  COMPONENT //
+    //   $('zentable').$('div.commandButton').click();
+    //   browser.waitForVisible('technical-component-table');
+    //   $('technical-component-table').$('zentable').$('div[name="tableBody"]').click();
+    //   browser.waitForVisible('workspace-editor');
+    //   // AJOUT D'UN USER
 
-      //DEPLACEMENT SUR LE MENU USER
-      browser.waitUntil(() => {
-         if(browser.isVisible('#containerloaderDiv') == false){
-           return true
-          };
-      }, 50000, 'le loader doit avoir disparue')
+    //   //DEPLACEMENT SUR LE MENU USER
+    //   browser.waitUntil(() => {
+    //      if(browser.isVisible('#containerloaderDiv') == false){
+    //        return true
+    //       };
+    //   }, 50000, 'le loader doit avoir disparue')
       
-      $('workspace-editor').$('div.white').click()
+    //   $('workspace-editor').$('div.white').click()
 
-      // EDIT MODE //
-      $('workspace-editor').$('div.commandButton').click()
+    //   // EDIT MODE //
+    //   $('workspace-editor').$('div.commandButton').click()
 
-      // CLICK SUR PLUS //
-      browser.waitForVisible('zentable');
-      $('#userliste').$('div.commandButton').click();
+    //   // CLICK SUR PLUS //
+    //   browser.waitForVisible('zentable');
+    //   $('#userliste').$('div.commandButton').click();
       
-      /// REMPLISSAGE LIST USER ///
-      browser.waitForVisible('user-list');
-      browser.setValue('#users-list', 'semanticbusdev@gmail.com')
+    //   /// REMPLISSAGE LIST USER ///
+    //   browser.waitForVisible('user-list');
+    //   browser.setValue('#users-list', 'semanticbusdev@gmail.com')
 
-      /// PARTAGE DU WORKSPACE 
-      $('user-list').$('.share-btn').click()
-      $('#cancel').click()
+    //   /// PARTAGE DU WORKSPACE 
+    //   $('user-list').$('.share-btn').click()
+    //   $('#cancel').click()
 
-      //ADD DESCRIPTION
-      console.log("test et")
-      $('#backBar').click()
-    })  
+    //   //ADD DESCRIPTION
+    //   console.log("test et")
+    //   $('#backBar').click()
+    // })  
 })
 
 
