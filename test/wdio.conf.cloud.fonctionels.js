@@ -4,7 +4,7 @@ const base = require('./wdio.conf.base')
 exports.config = Object.assign(base.config, {
     capabilities: [{
         browserName: 'chrome',
-        platform: 'Windows 7',
+        platform: 'Windows 10',
         version: 'latest'
     }, ],
     services: ['sauce'],
