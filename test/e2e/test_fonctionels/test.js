@@ -64,7 +64,7 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
     //   //ADD DESCRIPTION
     //   console.log("test et")
     //   $('#backBar').click()
-    // })  
+    })  
 })
 
 
