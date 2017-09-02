@@ -127,6 +127,21 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     this.trigger('persist_end');
   }.bind(this));
 
+  workSpaceStore.on('workspace_current_select_done', function (message) {
+    this.workspaceCurrent = message;
+    this.updateMode({
+      modeComponentTest: false,
+      modeComponentNetwork: false,
+      modeNavigation: true,
+      modeWorkspaceNavigation: false,
+      modeWorkspaceEdition: true,
+      modeWorkspaceShareNavigation: false,
+      modeEdition: false,
+      modeMenuHide: true
+    });
+
+  }.bind(this));
+
   workSpaceStore.on('workspace_current_persist_done', function (message) {
     this.updateMode({
       modeTechnicalComponentNavigation: false,
@@ -293,20 +308,6 @@ function MainController(workSpaceStore, genericStore, profilStore) {
       modeTechnicalComponentNavigation: false,
       modeTechnicalUserNavigation: false
     });
-  });
-
-  this.on('workspace_current_select', function (record) {
-    this.updateMode({
-      modeComponentTest: false,
-      modeComponentNetwork: false,
-      modeNavigation: true,
-      modeWorkspaceNavigation: false,
-      modeWorkspaceEdition: true,
-      modeWorkspaceShareNavigation: false,
-      modeEdition: false,
-      modeMenuHide: true
-    });
-    this.workspaceStore.trigger('workspace_current_select', record)
   });
 
   this.on('item_current_cancel', function (message) {
