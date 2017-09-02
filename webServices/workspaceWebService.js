@@ -18,7 +18,7 @@ module.exports = function (router) {
     workspace_lib.getAll(req.params.userId, "owner").then(function (workspaces) {
       res.json(workspaces)
     })
-  }); //<= own workspace
+  }); //<= owned workspace
 
 
   // ---------------------------------------------------------------------------------
@@ -27,14 +27,15 @@ module.exports = function (router) {
     workspace_lib.getAll(req.params.userId, "editor").then(function (workspaces) {
       res.json(workspaces)
     })
-  }); //<= share workspace 
+  }); //<= shared workspace
 
   // --------------------------------------------------------------------------------
 
   router.get('/workspace/:id', function (req, res) {
-    workspace_lib.getWorkspace(req.params.id).then(function (workspaces) {
-      console.log("RENDER ", req.params.id)
-      res.json(workspaces);
+    workspace_lib.getWorkspace(req.params.id).then(function (workspace) {
+      //console.log("RENDER ", req.params.id)
+      console.log('workspace | getWorkspace',workspace.users);
+      res.json(workspace);
     });
   }); // <= get one workspace
 
@@ -105,7 +106,7 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  
+
 
   // ---------------------------------------  ADMIN  -----------------------------------------
 
@@ -131,7 +132,3 @@ module.exports = function (router) {
     });
   });
 }
-
-
-
-

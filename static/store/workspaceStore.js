@@ -192,10 +192,24 @@ function WorkspaceStore() {
   // --------------------------------------------------------------------------------
 
   this.select = function (record) {
-    console.log('select ||', record);
-    this.workspaceCurrent = record;
-    this.updateUserListe(this.workspaceCurrent)
-    this.updateComponentListe(this.workspaceCurrent)
+    return new Promise((resolve,reject)=>{
+      console.log('select ||', record);
+      this.workspaceCurrent = record;
+      $.ajax({
+        method: 'get',
+        url: '../data/core/workspace/' + record._id,
+        headers: {
+          "Authorization": "JTW" + " " + localStorage.token
+        },
+        contentType: 'application/json'
+      }).done(data=>{
+          this.workspaceCurrent = data;
+          this.workspaceCurrent.mode = 'edit';
+          this.workspaceCurrent.synchronized =true;
+          resolve(data);
+      });
+    });
+
   }; // <= select
 
   // ----------------------------------------- EVENT  -----------------------------------------
@@ -271,24 +285,20 @@ function WorkspaceStore() {
   this.on('workspace_current_updateField', function (message) {
     console.log('workspace_current_updateField ||', message)
     this.workspaceCurrent[message.field] = message.data;
+    this.workspaceCurrent.synchronized=false;
     this.trigger('workspace_current_changed', this.workspaceCurrent);
   }); // <= workspace_current_updateField
 
   // --------------------------------------------------------------------------------
 
   this.on('workspace_current_select', function (record) {
-    console.log('workspace_current_select ||', record)
-    record.mode = 'read'
-    this.select(record);
+
+    this.select(record).then(workspace=>{
+      console.log('workspace_current_select ||', record.users)
+      this.trigger('workspace_current_select_done');
+      this.trigger('workspace_current_changed', workspace);
+    })
   }); // <= workspace_current_select
-
-  // --------------------------------------------------------------------------------
-
-  this.on('workspace_current_share_select', function (record) {
-    console.log('workspace_current_share_select ||', record)
-    record.mode = 'read'
-    this.select(record);
-  }); // <= workspace_current_share_select
 
   // --------------------------------------------------------------------------------
 
