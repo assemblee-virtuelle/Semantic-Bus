@@ -180,7 +180,7 @@ function WorkspaceStore() {
       if (data != false) {
         if (this.workspaceCurrent) {
           this.workspaceCurrent = data
-          this.workspaceCurrent.mode = "read"
+          this.workspaceCurrent.mode = "edit"
           this.trigger('all_component_by_workspace_loaded', data)
           this.trigger('workspace_current_changed', data);
         }

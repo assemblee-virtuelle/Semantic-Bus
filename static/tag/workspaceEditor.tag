@@ -1,9 +1,7 @@
 <workspace-editor>
   <!--<div class="containerV" style="flex-grow:1">-->
-  <div class="commandBar2 containerHWorkspace">
-    <div></div>
-    <div class="title-bar">{innerData.name}</div>
-    <div></div>
+  <div class="commandBar containerH">
+    <div>{innerData.name}</div>
     <div class="containerH commandGroup">
       <div onclick={editClick} class="commandButton" id="edit" if={innerData.mode=="read" }>
         edit
@@ -26,7 +24,7 @@
       <div class="{color3}" if={DescriptionView} id="description" onclick={goDescription}>Déscription</div>
     </div>
     <div show={modeComponentList}>
-      <zenTable style="flex:1" css="background-color:white!important;color: #3883fa;" disallowcommand={innerData.mode=="read" } id="composant">
+      <zenTable style="flex:1" css="background-color:white!important;color: #3883fa;" disallowcommand={innerData.mode=='read' } allowcancelcommand={false} id="composant">
         <yield to="header">
           <div>nom</div>
           <div>composant technique</div>
@@ -173,9 +171,9 @@
       border-radius: 0;
     }
 
-    .notSynchronized{
-      background-color: orange;
-      color : white;
+    .notSynchronized {
+      background-color: orange !important; 
+      color: white;
     }
 
   </style>
@@ -288,72 +286,86 @@
       data = null;
     }.bind(this));
 
-    // componentClick(e){   //console.log(e.item);   RiotControl.trigger('item_current_click',e.item); }
+    // componentClick(e){   //console.log(e.item);   RiotControl.trigger('item_current_click',e.item); } / COMPONENT
+
+    RiotControl.on('all_component_by_workspace_loaded', function (data) {
+      console.log("IN TRIGGER", data)
+      //this.innerDataUser = data;
+      this.tags.zentable[0].data = data.components;
+      this.update();
+    }.bind(this));
+
+    RiotControl.on('workspace_current_add_component_cancel', function (data) {
+      this.componentView = true;
+      this.userView = true;
+      this.DescriptionView = true;
+      this.update();
+    }.bind(this));
+
+    RiotControl.on('workspace_current_add_user_cancel', function (data) {
+      this.componentView = true;
+      this.userView = true;
+      this.DescriptionView = true;
+      this.update();
+    }.bind(this));
+
+
+    RiotControl.on('save_auto', function (data) {
+      console.log("save auto data ||", data)
+      this.componentView = true;
+      this.userView = true;
+      this.DescriptionView = true;
+      RiotControl.trigger('workspace_current_updateField', {
+        field: 'name',
+        data: this.innerData.name
+      });
+      RiotControl.trigger('workspace_current_updateField', {
+        field: 'description',
+        data: this.innerData.description
+      });
+      RiotControl.trigger('workspace_current_persist', data);
+    }.bind(this))
+
+
+    this.tags.zentable[0].on('delRow', function (message) {
+      RiotControl.trigger('workspace_current_delete_component', message);
+      RiotControl.trigger('workspace_current_persist');
+    }.bind(this));
+    this.tags.zentable[0].on('rowNavigation', function (data) {
+      RiotControl.trigger('item_current_click', data);
+      //this.trigger('selectWorkspace');
+    }.bind(this));
+
+    RiotControl.on('workspace_current_changed', function (data) {
+      //console.log('workspaceEditor | workspace_current_changed', data); this.workspace = data
+      this.innerData = data;
+      this.tags.zentable[0].data = data.components;
+      this.tags.zentable[1].data = data.users;
+      this.update();
+    }.bind(this));
+
+    ////USER
+
+    RiotControl.on('all_profil_by_workspace_loaded', function (data) {
+      //this.innerDataUser = data;
+      this.tags.zentable[1].data = data;
+      this.update();
+    }.bind(this));
 
     this.on('mount', function () {
-
-      /// COMPONENT
-
-      RiotControl.on('all_component_by_workspace_loaded', function (data) {
-        console.log("IN TRIGGER", data)
-        //this.innerDataUser = data;
-        this.tags.zentable[0].data = data.components;
-        this.update();
-      }.bind(this));
-
-      RiotControl.on('save_auto', function (data) {
-        console.log("save auto data ||", data)
-        this.componentView = true;
-        this.userView = true;
-        this.DescriptionView = true;
-        RiotControl.trigger('workspace_current_updateField', {
-          field: 'name',
-          data: this.innerData.name
-        });
-        RiotControl.trigger('workspace_current_updateField', {
-          field: 'description',
-          data: this.innerData.description
-        });
-        RiotControl.trigger('workspace_current_persist', data);
-      }.bind(this))
-      this.tags.zentable[0].on('addRow', function (message) {
-        this.componentView = true;
-        this.userView = false;
-        this.DescriptionView = false;
-        RiotControl.trigger('workspace_current_add_component', message);
-      }.bind(this));
-
-      this.tags.zentable[0].on('delRow', function (message) {
-        RiotControl.trigger('workspace_current_delete_component', message);
-        RiotControl.trigger('workspace_current_persist');
-      }.bind(this));
-      this.tags.zentable[0].on('rowNavigation', function (data) {
-        RiotControl.trigger('item_current_click', data);
-        //this.trigger('selectWorkspace');
-      }.bind(this));
-
-      RiotControl.on('workspace_current_changed', function (data) {
-        console.log('workspaceEditor | workspace_current_changed', data);
-        //this.workspace = data
-        this.innerData = data;
-        this.tags.zentable[0].data = data.components;
-        this.tags.zentable[1].data = data.users;
-        this.update();
-      }.bind(this));
-
-      ////USER
-
-      RiotControl.on('all_profil_by_workspace_loaded', function (data) {
-        //this.innerDataUser = data;
-        this.tags.zentable[1].data = data;
-        this.update();
-      }.bind(this));
 
       this.tags.zentable[1].on('addRow', function (message) {
         this.componentView = false;
         this.userView = true;
         this.DescriptionView = false;
         RiotControl.trigger('workspace_current_add_user', message);
+      }.bind(this));
+
+      this.tags.zentable[0].on('addRow', function (message) {
+        this.componentView = true;
+        this.userView = false;
+        this.DescriptionView = false;
+        RiotControl.trigger('workspace_current_add_component', message);
       }.bind(this));
 
       ///HEADER PAGE
