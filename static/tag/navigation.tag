@@ -48,7 +48,7 @@
             </div>
           </civ>
         </div>
-        <div class="containerV commandBar commandButton" onclick={back} style="flex-basis:10px;align-self:stretch;justify-content:center"  if={isScrennHide()}>
+        <div class="containerV commandBar commandButton" onclick={back} style="flex-basis:10px;align-self:stretch;justify-content:center" if={isScrennHide()}>
           <div>
             <img src="./image/Super-Mono-png/PNG/basic/blue/arrow-left.png">
           </div>
@@ -67,11 +67,125 @@
         <div class="containerV" style="flex-grow:1" if={isScrennToShow('workspaceEditor')}>
           <workspace-editor></workspace-editor>
         </div>
-        <div class="containerV" style="flex-grow:1" if={modeTechnicalComponentNavigation}>
+
+        <div class="containerV" style="flex-grow:1" if={isScrennToShow('workspaceAddComponent')}>
           <technical-component-table></technical-component-table>
         </div>
-        <div class="containerV" style="flex-grow:1" if={modeTechnicalUserNavigation}>
+        <div class="containerV" style="flex-grow:1" if={isScrennToShow('workspaceAddUser')}>
           <user-list></user-list>
+        </div>
+        <div class="containerV" style="flex-grow:1" if={isScrennToShow('graph')}>
+          <graph></graph>
+        </div>
+        <div class="containerV" style="flex-grow:1" if={isScrennToShow('componentEditor')}>
+          <div class="containerH commandBar" style="flex-basis:50px" if={modeGraph}>
+            <div class="commandGroup" class="containerH"></div>
+            <div class="commandTitle">
+              {editorTitle}
+            </div>
+            <div class="commandGroup containerH">
+              <div onclick={nagivationClick} class="commandButton">
+                back to navigation
+              </div>
+            </div>
+          </div>
+
+          <div class="containerH commandBar" style="flex-basis:50px" if={!modeGraph}>
+            <div class="commandGroup" class="containerH"></div>
+            <div class="commandTitle">
+              {editorTitle}
+            </div>
+            <div class="commandGroup containerH">
+              <!--<div onclick={nagivationClick} class="commandButton">
+                back to navigation
+              </div>-->
+              <!--<div onclick={testPullClick} class="commandButton">
+                tester un flux tiré
+              </div>-->
+              <div onclick={workClick} class="commandButton">
+                run this component
+              </div>
+              <div onclick={saveEditionContainerClick} class={ commandButton: true, persistInProgress: persistInProgress } name="saveButton">
+                save
+              </div>
+            </div>
+          </div>
+          <div style="flex-grow:1;flex-wrap: nowrap" class="containerH" if={!modeGraph}>
+            <div style="flex-basis:200px" class="containerV" if={modeComponentNetwork && modeConnectBefore}>
+              <div class="containerH commandBar" style="flex-basis:50px">
+                <div class="commandGroup containerH">
+                  <div onclick={cancelConnectBeforeClick} class="commandButton">
+                    cancel
+                  </div>
+                </div>
+              </div>
+              <div onclick={componentClick} class="selector" each={workspaceDisplayComponents}>
+                {type} : {name}
+              </div>
+            </div>
+            <div style="flex-basis:200px" class="containerV" if={modeComponentNetwork && !modeConnectBefore}>
+              <div class="containerH commandBar" style="flex-basis:50px">
+                <div class="commandGroup containerH">
+                  <div onclick={connectBeforeClick} class="commandButton">
+                    connect before
+                  </div>
+                </div>
+              </div>
+              <div onclick={navigateWorkspaceComponentClick} class="selector" each={itemCurrent.connectionsBefore}>
+                {type} : {name}
+              </div>
+            </div>
+            <div id="editionContainer" style="flex-grow:1" class="containerV">
+              <!--<workspace-editor if={modeWorkspaceEdition}></workspace-editor>-->
+
+            </div>
+            <div show={modeComponentTest} style="flex-grow:2;flex-wrap: nowrap;" class="containerH">
+              <!--<jsonPreviewer name="testPreviewer" style="flex-grow:1">
+            </jsonPreviewer>-->
+              <div class="containerV commandBar" style="flex-basis:50px">
+                <div></div>
+                <div class="commandGroup containerH">
+                  <div onclick={closeTest} class="commandButton">
+                    >
+                  </div>
+                </div>
+                <div></div>
+              </div>
+
+              <jsonEditor name="testPreviewer" mode="text" style="flex-grow:1"></jsonEditor>
+
+            </div>
+            <div style="flex-basis:200px" class="containerV" show={modeComponentNetwork && !modeConnectAfter}>
+              <div class="containerH commandBar" style="flex-basis:50px">
+                <div class="commandGroup containerH">
+                  <div onclick={connectAfterClick} class="commandButton">
+                    connect after
+                  </div>
+                </div>
+              </div>
+              <div onclick={navigateWorkspaceComponentClick} class="selector" each={itemCurrent.connectionsAfter}>
+                {type} : {name}
+              </div>
+            </div>
+            <div style="flex-basis:200px" class="containerV" if={modeComponentNetwork && modeConnectAfter}>
+              <div class="containerH commandBar" style="flex-basis:50px">
+                <div class="commandGroup containerH">
+                  <div onclick={cancelConnectAfterClick} class="commandButton">
+                    cancel
+                  </div>
+                </div>
+              </div>
+              <div onclick={componentClick} class="selector" each={workspaceDisplayComponents}>
+                {type} : {name}
+              </div>
+            </div>
+          </div>
+          <div style="flex-basis:200px" class="containerH" show={modeComponentNetwork}>
+            <div style="flex-grow:1">
+              <label>nom du composant</label>
+              <input type="text" name="nameComponentInput" value={itemCurrent.name}></input>
+            </div>
+          </div>
         </div>
         <div class="containerV" style="flex-grow:1" id="detailContainer" if={isScrennToShow('profil')}>
           <profil></profil>
@@ -81,120 +195,6 @@
         </div>
 
       </div>
-    </div>
-
-    <div style="flex-grow:1; flex-basis:50%" class="containerV" if={modeEdition}>
-      <div class="containerH commandBar" style="flex-basis:50px" if={modeGraph}>
-        <div class="commandGroup" class="containerH"></div>
-        <div class="commandTitle">
-          {editorTitle}
-        </div>
-        <div class="commandGroup containerH">
-          <div onclick={nagivationClick} class="commandButton">
-            back to navigation
-          </div>
-        </div>
-      </div>
-      <div style="flex-grow:1" if={modeGraph}>
-        <graph></graph>
-      </div>
-      <div class="containerH commandBar" style="flex-basis:50px" if={!modeGraph}>
-        <div class="commandGroup" class="containerH"></div>
-        <div class="commandTitle">
-          {editorTitle}
-        </div>
-        <div class="commandGroup containerH">
-          <div onclick={nagivationClick} class="commandButton">
-            back to navigation
-          </div>
-          <!--<div onclick={testPullClick} class="commandButton">
-            tester un flux tiré
-          </div>-->
-          <div onclick={workClick} class="commandButton">
-            tester le composant
-          </div>
-          <div onclick={saveEditionContainerClick} class={ commandButton: true, persistInProgress: persistInProgress } name="saveButton">
-            save
-          </div>
-        </div>
-      </div>
-      <div style="flex-grow:1;flex-wrap: nowrap" class="containerH" if={!modeGraph}>
-        <div style="flex-basis:200px" class="containerV" if={modeComponentNetwork && modeConnectBefore}>
-          <div class="containerH commandBar" style="flex-basis:50px">
-            <div class="commandGroup containerH">
-              <div onclick={cancelConnectBeforeClick} class="commandButton">
-                cancel
-              </div>
-            </div>
-          </div>
-          <div onclick={componentClick} class="selector" each={workspaceDisplayComponents}>
-            {type} : {name}
-          </div>
-        </div>
-        <div style="flex-basis:200px" class="containerV" if={modeComponentNetwork && !modeConnectBefore}>
-          <div class="containerH commandBar" style="flex-basis:50px">
-            <div class="commandGroup containerH">
-              <div onclick={connectBeforeClick} class="commandButton">
-                connect before
-              </div>
-            </div>
-          </div>
-          <div onclick={navigateWorkspaceComponentClick} class="selector" each={itemCurrent.connectionsBefore}>
-            {type} : {name}
-          </div>
-        </div>
-        <div id="editionContainer" style="flex-grow:1" class="containerV">
-          <!--<workspace-editor if={modeWorkspaceEdition}></workspace-editor>-->
-
-        </div>
-        <div show={modeComponentTest} style="flex-grow:2;flex-wrap: nowrap;" class="containerH">
-          <!--<jsonPreviewer name="testPreviewer" style="flex-grow:1">
-        </jsonPreviewer>-->
-          <div class="containerV commandBar" style="flex-basis:50px">
-            <div></div>
-            <div class="commandGroup containerH">
-              <div onclick={closeTest} class="commandButton">
-                >
-              </div>
-            </div>
-            <div></div>
-          </div>
-
-          <jsonEditor name="testPreviewer" mode="text" style="flex-grow:1"></jsonEditor>
-
-        </div>
-        <div style="flex-basis:200px" class="containerV" show={modeComponentNetwork && !modeConnectAfter}>
-          <div class="containerH commandBar" style="flex-basis:50px">
-            <div class="commandGroup containerH">
-              <div onclick={connectAfterClick} class="commandButton">
-                connect after
-              </div>
-            </div>
-          </div>
-          <div onclick={navigateWorkspaceComponentClick} class="selector" each={itemCurrent.connectionsAfter}>
-            {type} : {name}
-          </div>
-        </div>
-        <div style="flex-basis:200px" class="containerV" if={modeComponentNetwork && modeConnectAfter}>
-          <div class="containerH commandBar" style="flex-basis:50px">
-            <div class="commandGroup containerH">
-              <div onclick={cancelConnectAfterClick} class="commandButton">
-                cancel
-              </div>
-            </div>
-          </div>
-          <div onclick={componentClick} class="selector" each={workspaceDisplayComponents}>
-            {type} : {name}
-          </div>
-        </div>
-      </div>
-      <div style="flex-basis:200px" class="containerH" show={modeComponentNetwork}>
-        <div style="flex-grow:1">
-          <label>nom du composant</label>
-          <input type="text" name="nameComponentInput" value={itemCurrent.name}></input>
-        </div>
-      </div>
-    </div>
   </div>
 
   <script>
@@ -346,24 +346,23 @@
       this.editorTitle = this.editionContainer.title;
     };
 
-    this.isScrennToShow = function (screnn) {
+    this.isScrennToShow = function (screenToTest) {
       return sift({
-        screen: screnn,
+        screen: screenToTest,
         show: true
       }, this.screenHistory).length > 0;
     }
 
-    this.isScrennHide = function (screnn) {
+    this.isScrennHide = function () {
       return sift({
         show: false
       }, this.screenHistory).length > 0;
     }
 
-
-
     RiotControl.on('newScreenHistory', function (newScreenHistory) {
       console.log('newScreenHistory', newScreenHistory);
       this.screenHistory = newScreenHistory;
+      this.update();
     }.bind(this));
 
     this.on('mount', function () {
