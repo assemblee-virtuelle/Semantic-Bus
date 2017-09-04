@@ -50,7 +50,7 @@ module.exports = {
 
         var recursivPullResolvePromiseDynamic = require('../recursivPullResolvePromise');
         this.mLabPromise.request('GET', 'workspaceComponent/' + compId, undefined, undefined).then(data => {
-          recursivPullResolvePromiseDynamic.resolveComponent(data, 'push', resultatTraite);
+          recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(data, 'push', resultatTraite);
         });
 
         // return new Promise((resolve, reject) => {

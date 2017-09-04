@@ -30,7 +30,10 @@ module.exports = {
                 var cell = record.c[cellKey];
                 var column = response.raw.table.cols[cellKey].id || cellKey;
                 //  console.log('column',column);
-                cleanRecord[column] = cell == null ? undefined : cell.v;
+                if(cell!=undefined && cell!=null){
+                  cleanRecord[column] = cell.v;
+                }
+
 
               }
               cleanData.push(cleanRecord);

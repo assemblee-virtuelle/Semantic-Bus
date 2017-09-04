@@ -22,7 +22,7 @@
         this.update();
       }.bind(this),
       get: function () {
-        console.log('JSONEditorData | ', this.tags.filterObjectInput.data);
+        //console.log('JSONEditorData | ', this.tags.filterObjectInput.data);
         this.innerData.specificData.filterString = JSON.stringify(this.tags.filterObjectInput.data);
         return this.innerData;
       },

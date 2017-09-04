@@ -19,7 +19,7 @@ module.exports = function (router) {
     }).then(function (data) {
       console.log('workspaceComponent | test| ', data);
       var recursivPullResolvePromiseDynamic = require('./recursivPullResolvePromise');
-      return recursivPullResolvePromise.resolveComponentPull(data, false);
+      return recursivPullResolvePromise.getNewInstance().resolveComponentPull(data, false);
     }).then(function (data) {
       //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
       res.json(data.data);
@@ -36,7 +36,7 @@ module.exports = function (router) {
     }).then(function (data) {
       console.log('workspaceComponent | work| ', data);
       var recursivPullResolvePromiseDynamic = require('./recursivPullResolvePromise');
-      return recursivPullResolvePromiseDynamic.resolveComponent(data, "pull");
+      return recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(data, 'work');
     }).then(function (data) {
       //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
       res.json(data.data);
