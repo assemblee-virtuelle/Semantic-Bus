@@ -3,8 +3,9 @@
     <div></div>
     <div>{opts.title}</div>
     <div class="containerH commandGroup">
-      <div onclick={addRowClick} class="commandButton" if={!opts.disallowcommand==true}>+</div>
-      <div onclick={delRowClick} class="commandButton" if={!opts.disallowcommand==true}>-</div>
+
+      <div onclick={addRowClick} class="commandButtonImage" if={!opts.disallowcommand==true}><img src="./image/Super-Mono-png/PNG/basic/blue/toggle-expand-alt.png" height="40px"></div>
+      <div onclick={delRowClick} class="commandButtonImage" if={!opts.disallowcommand==true}><img src="./image/Super-Mono-png/PNG/basic/blue/toggle-collapse-alt.png" height="40px"></div>
       <div onclick={cancelClick} class="commandButton" if={opts.allowcancelcommand==true}>cancel</div>
       <div onclick={actionClick} class="commandButton" if={opts.actiontext!=undefined}>{opts.actiontext}</div>
     </div>
@@ -20,7 +21,7 @@
           <div class="containerH commandBar">
             <div class="commandGroup containerH">
               <div onclick={navigationClick} class="commandButton" data-rowid={rowid}>
-                <img src="./image/Super-Mono-png/PNG/basic/blue/arrow-right.png" height="20px">
+                <img src="./image/Super-Mono-png/PNG/basic/blue/arrow-right.png" height="25px">
               </div>
             </div>
           </div>
