@@ -203,6 +203,7 @@ function WorkspaceStore() {
         },
         contentType: 'application/json'
       }).done(data=>{
+          this.workspaceBusiness.connectWorkspaceComponent(data.components);
           this.workspaceCurrent = data;
           this.workspaceCurrent.mode = 'edit';
           this.workspaceCurrent.synchronized =true;
