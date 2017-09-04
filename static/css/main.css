@@ -42,10 +42,24 @@ body{
   border-color: #3883fa;
   background-color: white;
 }
+
 .commandButton:hover{
   /*color:#1a1a1a;*/
   background-color:#649DF9;
   border-color: #cce2ff;
+}
+
+.commandButtonImage{
+  cursor: pointer;
+  align-self: flex-end;
+  background-color: white;
+  border-style: none;
+  padding: 0px;
+  margin: 2px;
+}
+
+.commandButtonImage:hover{
+  background-color:#649DF9;
 }
 
 .selector{
