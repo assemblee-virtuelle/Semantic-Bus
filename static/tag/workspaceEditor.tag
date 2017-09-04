@@ -172,7 +172,7 @@
     }
 
     .notSynchronized {
-      background-color: orange !important; 
+      background-color: orange !important;
       color: white;
     }
 
@@ -241,11 +241,7 @@
     }
 
     editClick(e) {
-      //console.log('EDIT');
-      RiotControl.trigger('workspace_current_edit');
-      this.labelInputName = "Modifier le nom du workspace"
-      this.labelInputDesc = "Modifier la déscription du workspace "
-      console.log(this.innerData.mode)
+      //console.log('EDIT'); RiotControl.trigger('workspace_current_edit'); this.labelInputName = "Modifier le nom du workspace" this.labelInputDesc = "Modifier la déscription du workspace " console.log(this.innerData.mode)
     }
 
     graphClick(e) {
@@ -254,12 +250,7 @@
     }
 
     cancelClick(e) {
-      this.componentView = true;
-      this.userView = true;
-      this.DescriptionView = true;
-      RiotControl.trigger('workspace_current_cancel');
-      this.labelInputName = "Nom"
-      this.labelInputDesc = "Description"
+      // this.componentView = true; this.userView = true; this.DescriptionView = true; RiotControl.trigger('workspace_current_cancel'); this.labelInputName = "Nom" this.labelInputDesc = "Description"
     }
 
     nameFieldChange(e) {
@@ -289,26 +280,16 @@
     // componentClick(e){   //console.log(e.item);   RiotControl.trigger('item_current_click',e.item); } / COMPONENT
 
     RiotControl.on('all_component_by_workspace_loaded', function (data) {
-      console.log("IN TRIGGER", data)
-      //this.innerDataUser = data;
-      this.tags.zentable[0].data = data.components;
-      this.update();
+      // console.log("IN TRIGGER", data) //this.innerDataUser = data; this.tags.zentable[0].data = data.components; this.update();
     }.bind(this));
 
     RiotControl.on('workspace_current_add_component_cancel', function (data) {
-      this.componentView = true;
-      this.userView = true;
-      this.DescriptionView = true;
-      this.update();
+      // this.componentView = true; this.userView = true; this.DescriptionView = true; this.update();
     }.bind(this));
 
     RiotControl.on('workspace_current_add_user_cancel', function (data) {
-      this.componentView = true;
-      this.userView = true;
-      this.DescriptionView = true;
-      this.update();
+      // this.componentView = true; this.userView = true; this.DescriptionView = true; this.update();
     }.bind(this));
-
 
     RiotControl.on('save_auto', function (data) {
       console.log("save auto data ||", data)
@@ -326,13 +307,12 @@
       RiotControl.trigger('workspace_current_persist', data);
     }.bind(this))
 
-
     this.tags.zentable[0].on('delRow', function (message) {
       RiotControl.trigger('workspace_current_delete_component', message);
       RiotControl.trigger('workspace_current_persist');
     }.bind(this));
     this.tags.zentable[0].on('rowNavigation', function (data) {
-      RiotControl.trigger('item_current_click', data);
+      RiotControl.trigger('component_current_select', data);
       //this.trigger('selectWorkspace');
     }.bind(this));
 
@@ -347,8 +327,33 @@
     ////USER
 
     RiotControl.on('all_profil_by_workspace_loaded', function (data) {
-      //this.innerDataUser = data;
-      this.tags.zentable[1].data = data;
+      //this.innerDataUser = data; this.tags.zentable[1].data = data; this.update();
+    }.bind(this));
+
+    RiotControl.on('newScreenHistory', function (newScreenHistory) {
+
+      let lastScreen = newScreenHistory[newScreenHistory.length - 1].screen;
+      if (lastScreen != 'workspaceEditor') {
+        switch (lastScreen) {
+          case 'workspaceAddComponent':
+            this.componentView = true;
+            this.userView = false;
+            this.DescriptionView = false;
+            break;
+          case 'workspaceAddUser':
+            this.componentView = false;
+            this.userView = true;
+            this.DescriptionView = false;
+            break;
+          default:
+
+        }
+      } else {
+        this.componentView = true;
+        this.userView = true;
+        this.DescriptionView = true;
+      }
+      this.screenHistory = newScreenHistory;
       this.update();
     }.bind(this));
 

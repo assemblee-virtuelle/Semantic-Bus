@@ -167,8 +167,7 @@ function GenericStore(specificStoreList) {
 
   // --------------------------------------------------------------------------------
 
-
-  this.on('item_current_select',function(data){
+  this.on('component_current_select',function(data){
     this.itemCurrent=data;
     this.trigger('item_current_edit_mode','generic', this.itemCurrent);
     this.trigger('item_current_changed', this.itemCurrent);

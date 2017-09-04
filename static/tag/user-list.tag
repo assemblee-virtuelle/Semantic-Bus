@@ -1,11 +1,10 @@
 <user-list>
   <div class="commandBar containerH">
-    <div></div>
     <div>share workspace</div>
     <div class="containerH commandGroup">
-      <div onclick={cancelClick} class="commandButton">
+      <!--<div onclick={cancelClick} class="commandButton">
         cancel
-      </div>
+      </div>-->
       <div if={actionReady} onclick={share} class="commandButton notSynchronized">
         share
       </div>

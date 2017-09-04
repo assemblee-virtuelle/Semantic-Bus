@@ -1,5 +1,16 @@
 <technical-component-table class="containerV">
-    <zenTable style="flex:1" title="Composant technique" disallowcommand={true} disallownavigation={true} allowcancelcommand={true} actiontext="add to Workspace">
+  <div class="commandBar containerH">
+    <div>add Component</div>
+    <div class="containerH commandGroup">
+      <!--<div onclick={cancelClick} class="commandButton">
+        cancel
+      </div>-->
+      <div if={actionReady} onclick={share} class="commandButton notSynchronized">
+        share
+      </div>
+    </div>
+  </div>
+    <zenTable style="flex:1"  disallowcommand={true} disallownavigation={true}>
       <yield to="header">
         <div>type</div>
         <div>description</div>
@@ -12,7 +23,11 @@
 
  <script>
 
-
+    this.actionReady=false;
+    this.on('unmount', function () {
+      console.log('unmount');
+      RiotControl.trigger('workspace_current_add_component_cancel');
+    });
 
     this.on('mount', function () {
       //console.log(this.tags);
@@ -22,6 +37,11 @@
          RiotControl.trigger('technicalComponent_current_select',record);
        });
 
+     }.bind(this));
+     this.tags.zentable.on('rowSelect',function(){
+
+        this.actionReady=true;
+        this.update();
      }.bind(this));
      this.tags.zentable.on('addRow',function(){
        //console.log(data);
