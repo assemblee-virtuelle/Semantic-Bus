@@ -110,8 +110,14 @@
               </div>
             </div>
           </div>
+          <div style="flex-basis:200px" class="containerH">
+            <div style="flex-grow:1">
+              <label>nom du composant</label>
+              <input type="text" name="nameComponentInput" value={itemCurrent.name}></input>
+            </div>
+          </div>
           <div style="flex-grow:1;flex-wrap: nowrap" class="containerH" if={!modeGraph}>
-            <div style="flex-basis:200px" class="containerV" if={modeComponentNetwork && modeConnectBefore}>
+            <div style="flex-basis:200px" class="containerV" if={modeConnectBefore}>
               <div class="containerH commandBar" style="flex-basis:50px">
                 <div class="commandGroup containerH">
                   <div onclick={cancelConnectBeforeClick} class="commandButton">
@@ -123,7 +129,7 @@
                 {type} : {name}
               </div>
             </div>
-            <div style="flex-basis:200px" class="containerV" if={modeComponentNetwork && !modeConnectBefore}>
+            <div style="flex-basis:200px" class="containerV" if={!modeConnectBefore}>
               <div class="containerH commandBar" style="flex-basis:50px">
                 <div class="commandGroup containerH">
                   <div onclick={connectBeforeClick} class="commandButton">
@@ -155,7 +161,7 @@
               <jsonEditor name="testPreviewer" mode="text" style="flex-grow:1"></jsonEditor>
 
             </div>
-            <div style="flex-basis:200px" class="containerV" show={modeComponentNetwork && !modeConnectAfter}>
+            <div style="flex-basis:200px" class="containerV" show={!modeConnectAfter}>
               <div class="containerH commandBar" style="flex-basis:50px">
                 <div class="commandGroup containerH">
                   <div onclick={connectAfterClick} class="commandButton">
@@ -167,7 +173,7 @@
                 {type} : {name}
               </div>
             </div>
-            <div style="flex-basis:200px" class="containerV" if={modeComponentNetwork && modeConnectAfter}>
+            <div style="flex-basis:200px" class="containerV" if={modeConnectAfter}>
               <div class="containerH commandBar" style="flex-basis:50px">
                 <div class="commandGroup containerH">
                   <div onclick={cancelConnectAfterClick} class="commandButton">
@@ -180,12 +186,7 @@
               </div>
             </div>
           </div>
-          <div style="flex-basis:200px" class="containerH" show={modeComponentNetwork}>
-            <div style="flex-grow:1">
-              <label>nom du composant</label>
-              <input type="text" name="nameComponentInput" value={itemCurrent.name}></input>
-            </div>
-          </div>
+
         </div>
         <div class="containerV" style="flex-grow:1" id="detailContainer" if={isScrennToShow('profil')}>
           <profil></profil>
