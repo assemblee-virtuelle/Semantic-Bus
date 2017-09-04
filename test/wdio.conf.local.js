@@ -2,10 +2,15 @@
 const base = require('./wdio.conf.base')
 
 exports.config = Object.assign(base.config, {
-  capabilities: [
-    { browserName: 'phantomjs' }
+  capabilities: [{
+      browserName: 'phantomjs'
+    }
     // If you want to use other browsers,
     // you may need local Selenium standalone server.
   ],
-  services: ['phantomjs']
+  services: ['phantomjs'],
+  specs: [
+    './test/e2e/test_fonctionels/*.js'
+  ],
+  waitforTimeout: 300000,
 })

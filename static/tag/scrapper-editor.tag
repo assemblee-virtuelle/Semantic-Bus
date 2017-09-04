@@ -6,18 +6,22 @@
   <label> url venant du flux precedent </label>
     <input type="checkbox"  name="choix4" value= {input4} onclick= {check4} ></input>
   <div>
-    <label>chemin</label>
+    <label>Path</label>
       <input type="text" onkeyup={cheminValueChange} value={fieldValue}></input>
+    <label>Group</label>
+      <input type="text" onkeyup={groupValueChange} placeholder="group your data for next treatment" value={groupValue}></input>
     <label> attribut </label>
       <input type="text" onkeyup={attributValueChange} value={attributField} placeholder=" [WARNING] 'attribs.href' ou 'text' seulement pour le moment" ></input>
   </div>
      <zenTable style="flex:1" title="Chemin et attributs">
         <yield to="header">
-          <div>chemin</div>
+          <div>path</div>
+          <div>group</div>
           <div>attribut</div>
         </yield>
         <yield to="row">
           <div>{field}</div>
+           <div>{group}</div>
           <div>{attribut}</div>
         </yield>
     </zenTable>
@@ -68,11 +72,12 @@
         this.currentRowId=data.rowid
         this.fieldValue = data.field;
         this.attributField = data.attribut
+        this.groupValue = data.group
         this.update();
       }.bind(this));
       this.tags.zentable.on('addRow', function () {
         //console.log(this.data.specificData.scrappe)
-        this.data.specificData.scrappe.push({field: this.fieldValue, attribut: this.attributField});
+        this.data.specificData.scrappe.push({field: this.fieldValue, group: this.groupValue, attribut: this.attributField});
         this.tags.zentable.data = this.data.specificData.scrappe;
         console.log(this.tags.zentable.data)
       }.bind(this));
@@ -113,7 +118,15 @@
       //console.log(e.target.value);
       console.log("cheminValueChange");
       this.fieldValue = e.target.value;
-      this.data.specificData.scrappe[this.currentRowId]={field:this.fieldValue, attribut:this.attributField};
+      this.data.specificData.scrappe[this.currentRowId]={field:this.fieldValue, group: this.groupValue , attribut:this.attributField};
+      this.tags.zentable.data = this.data.specificData.scrappe;
+    }.bind(this);
+
+    this.groupValueChange = function (e) {
+      //console.log(e.target.value);
+      console.log("groupValueChange");
+      this.groupValue = e.target.value;
+      this.data.specificData.scrappe[this.currentRowId]={field:this.fieldValue, group: this.groupValue , attribut:this.attributField};
       this.tags.zentable.data = this.data.specificData.scrappe;
     }.bind(this);
 
@@ -121,7 +134,7 @@
      this.attributValueChange = function (e) {
       console.log("attributValueChange");
       this.attributField = e.target.value;
-      this.data.specificData.scrappe[this.currentRowId]={attribut:this.attributField};
+      this.data.specificData.scrappe[this.currentRowId]={attribut:this.attributField, field:this.fieldValue, group: this.groupValue};
       this.tags.zentable.data = this.data.specificData.scrappe;
     }.bind(this);
 

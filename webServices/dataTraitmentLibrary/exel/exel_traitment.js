@@ -4,7 +4,8 @@ var XLSX = require('xlsx')
 
 module.exports = {
 	exel_traitment_server: _exel_traitment_server,
-	exel_traitment_client: _exel_traitment_client
+	exel_traitment_client: _exel_traitment_client,
+	json_to_exel : _json_to_exel
 };
 
 
@@ -21,6 +22,11 @@ function _exel_traitment_client(urlEXEL, callback) {
 			data: exel.Sheets
 		})
 	})
+}
+
+function _json_to_exel(jsonData, header){
+	console.log(XLSX.utils.json_to_sheet(jsonData, {header: header}));
+	return XLSX.utils.json_to_sheet(jsonData, {header: header});	
 }
 
 function decode_utf8(s) {
