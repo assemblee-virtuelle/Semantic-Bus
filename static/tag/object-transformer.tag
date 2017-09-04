@@ -1,5 +1,5 @@
 <object-transformer>
-  <div>configuration d'un objet de trasformation</div>
+  <div>configuration d'un objet de transformation</div>
   <jsonEditor name="jsonSchema" title="Transform Schema" style="flex:1" modes="['tree','text']"></jsonEditor>
   <script>
     this.innerData={};
