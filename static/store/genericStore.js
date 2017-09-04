@@ -28,7 +28,7 @@ function GenericStore(specificStoreList) {
     $.ajax({
       method: 'put',
       url: '../data/core/workspaceComponent',
-      data: JSON.stringify(this.itemCurrent),
+      data: JSON.stringify(  this.workspaceBusiness.serialiseWorkspaceComponent(this.itemCurrent)),
       contentType: 'application/json',
       headers: {
         "Authorization": "JTW" + " " + localStorage.token
@@ -44,12 +44,13 @@ function GenericStore(specificStoreList) {
 
    this.persist = function() {
     console.log('GenericStore || persist',this.itemCurrent);
-    var mode = this.itemCurrent.mode;
-    if (mode == 'init') {
-      this.create();
-    } else if (mode == 'edit') {
-      this.update();
-    }
+    // var mode = this.itemCurrent.mode;
+    // if (mode == 'init') {
+    //   this.create();
+    // } else if (mode == 'edit') {
+    //   this.update();
+    // }
+    this.update();
   }//<= persist
 
   // ----------------------------------------- EVENT  -----------------------------------------
