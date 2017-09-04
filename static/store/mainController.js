@@ -23,7 +23,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     modeUserList: false,
     modeTechnicalUserNavigation: false
   }
-  this.updateMode = function (changedValueMode) {
+  this.updateMode = function(changedValueMode) {
     for (displayKey in this.displayMode) {
       if (changedValueMode[displayKey] != undefined) {
         this.displayMode[displayKey] = changedValueMode[displayKey];
@@ -33,26 +33,26 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   }.bind(this)
   ////ON TEST SI LE USER A UN TOKEN VALIDE A CHAQUE ENTRE SUR APPLICATION.HTML///
   // Rmq : Call ajax a deplacer dans le profil Store ou User Store ?
-  this.on('https_force?', function () {
+  this.on('https_force?', function() {
     console.log("https_force")
-     $.ajax({
-        method: 'get',
-        url: '/configuration/configurationhttps',
-        }).done(data => {
-          if(data == "force"){
-            if(window.location.href.substr(0, 5) != "https"){
-              console.log(window.location.href)
-              window.location.replace("https" + window.location.href.substr(4, window.location.href.split("").length -1))
-              // window.location.replace("https" + window.location.href.substr(5, window.location.href.split("").length -1))
-            }
-          }
-          return data
-        })
+    $.ajax({
+      method: 'get',
+      url: '/configuration/configurationhttps',
+    }).done(data => {
+      if (data == "force") {
+        if (window.location.href.substr(0, 5) != "https") {
+          console.log(window.location.href)
+          window.location.replace("https" + window.location.href.substr(4, window.location.href.split("").length - 1))
+          // window.location.replace("https" + window.location.href.substr(5, window.location.href.split("").length -1))
+        }
+      }
+      return data
     })
+  })
 
-  this.on('is_token_valid?', function () {
+  this.on('is_token_valid?', function() {
     console.log(localStorage.token)
-    if (localStorage.token == 'null' ||localStorage.token == null) {
+    if (localStorage.token == 'null' || localStorage.token == null) {
       this.trigger('login_redirect');
     } else {
       $.ajax({
@@ -62,11 +62,11 @@ function MainController(workSpaceStore, genericStore, profilStore) {
         }),
         contentType: 'application/json',
         url: '/auth/isTokenValid',
-        beforeSend: function () {
+        beforeSend: function() {
           console.log("before send")
           this.trigger('ajax_send');
         }.bind(this),
-        success: function (data) {
+        success: function(data) {
           console.log("after send")
           // this.trigger('ajax_receipt');
         }.bind(this)
@@ -88,61 +88,120 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     }
   })
 
-  this.on('item_current_persist', function () {
+  this.navigateNext = function(newScreen, hidePrevious, baseScreen) {
+    var baseScreenDepth;
+    console.log(this);
+    if (baseScreen != undefined) {
+      baseScreenDepth = sift({
+        screen: baseScreen
+      }, this.screenHistory[this.screenHistory.length - 1])[0].depth;
+    } else {
+      let lastStep = this.screenHistory[this.screenHistory.length - 1];
+      baseScreenDepth = lastStep[lastStep.length - 1].depth;
+    }
+    var newScreenHistory = JSON.parse(JSON.stringify(sift({
+      depth: {
+        $lte: baseScreenDepth
+      }
+    }, this.screenHistory[this.screenHistory.length - 1])));
+    if (hidePrevious) {
+      newScreenHistory.forEach(step => {
+        step.show = false
+      });
+    }
+    newScreenHistory.push({
+      screen: newScreen,
+      depth: baseScreenDepth + 1,
+      show: true
+    })
+    this.screenHistory.push(newScreenHistory);
+    console.log('screenHistory', this.screenHistory);
+    this.trigger('newScreenHistory', newScreenHistory);
+  }
+  this.navigatePrevious = function() {
+    this.screenHistory.pop();
+    console.log(this.screenHistory);
+    this.trigger('newScreenHistory', this.screenHistory[this.screenHistory.length - 1]);
+  }
+
+  this.on('back', function() {
+    this.navigatePrevious();
+  });
+
+  this.on('screenHistoryInit', function() {
+    this.screenHistory = [
+      [{
+        screen: 'menu',
+        depth: 0,
+        show: true
+      }, {
+        screen: 'landing',
+        depth: 1,
+        show: true
+      }]
+    ];
+    this.trigger('newScreenHistory', this.screenHistory[this.screenHistory.length - 1]);
+  });
+
+
+  this.on('item_current_persist', function() {
     this.trigger('persist_start');
   });
 
   //PROFIL STORE
-  this.on('profil_show', function (message) {
+  this.on('profil_show', function(message) {
     console.log("profil_show")
+    this.navigateNext('profil', false, 'menu');
     profilStore.trigger('load_profil');
-    this.updateMode({
-      modeProfilEdition: true,
-      modeTechnicalComponentNavigation: false,
-      modeWorkspaceNavigation: false,
-      modeWorkspaceShareNavigation: false,
-      modeWorkspaceEdition: false,
-      modeAdminNavigation: false
-    });
+    // this.updateMode({
+    //   modeProfilEdition: true,
+    //   modeTechnicalComponentNavigation: false,
+    //   modeWorkspaceNavigation: false,
+    //   modeWorkspaceShareNavigation: false,
+    //   modeWorkspaceEdition: false,
+    //   modeAdminNavigation: false
+    // });
   }.bind(this))
 
-  this.on('admin_show', function (message) {
-    this.updateMode({
-      modeProfilEdition: false,
-      modeTechnicalComponentNavigation: false,
-      modeWorkspaceNavigation: false,
-      modeWorkspaceEdition: false,
-      modeWorkspaceShareNavigation: false,
-      modeAdminNavigation: true
-    });
+  this.on('admin_show', function(message) {
+    this.navigateNext('admin', false, 'menu');
+    // this.updateMode({
+    //   modeProfilEdition: false,
+    //   modeTechnicalComponentNavigation: false,
+    //   modeWorkspaceNavigation: false,
+    //   modeWorkspaceEdition: false,
+    //   modeWorkspaceShareNavigation: false,
+    //   modeAdminNavigation: true
+    // });
   }.bind(this))
 
-  genericStore.on('item_current_persist_done', function (message) {
-      workSpaceStore.trigger('workspace_synchoniseFromServer_done', message);
+  genericStore.on('item_current_persist_done', function(message) {
+    workSpaceStore.trigger('workspace_synchoniseFromServer_done', message);
   }.bind(this));
 
-  workSpaceStore.on('workspace_synchoniseFromServer_done', function (message) {
+  workSpaceStore.on('workspace_synchoniseFromServer_done', function(message) {
     this.workspaceCurrent = message
     console.log('SYNC DONE');
     this.trigger('persist_end');
   }.bind(this));
 
-  workSpaceStore.on('workspace_current_select_done', function (message) {
+  workSpaceStore.on('workspace_current_select_done', function(message) {
     this.workspaceCurrent = message;
-    this.updateMode({
-      modeComponentTest: false,
-      modeComponentNetwork: false,
-      modeNavigation: true,
-      modeWorkspaceNavigation: false,
-      modeWorkspaceEdition: true,
-      modeWorkspaceShareNavigation: false,
-      modeEdition: false,
-      modeMenuHide: true
-    });
+    this.navigateNext('workspaceEditor', true);
+    // this.updateMode({
+    //   modeComponentTest: false,
+    //   modeComponentNetwork: false,
+    //   modeNavigation: true,
+    //   modeWorkspaceNavigation: false,
+    //   modeWorkspaceEdition: true,
+    //   modeWorkspaceShareNavigation: false,
+    //   modeEdition: false,
+    //   modeMenuHide: true
+    // });
 
   }.bind(this));
 
-  workSpaceStore.on('workspace_current_persist_done', function (message) {
+  workSpaceStore.on('workspace_current_persist_done', function(message) {
     this.updateMode({
       modeTechnicalComponentNavigation: false,
       modeTechnicalUserNavigation: false
@@ -150,17 +209,17 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     });
     this.trigger('persist_end');
   }.bind(this));
-  this.on('workspace_current_persist', function () {
+  this.on('workspace_current_persist', function() {
     this.trigger('persist_start');
   });
 
-  workSpaceStore.on('item_current_element_added', function (message) {
+  workSpaceStore.on('item_current_element_added', function(message) {
     this.updateMode({
       modeTechnicalComponentNavigation: false,
     });
   }.bind(this));
 
-  genericStore.on('item_current_element_added', function (message) {
+  genericStore.on('item_current_element_added', function(message) {
     this.updateMode({
       modeNavigation: false,
       modeEdition: true,
@@ -176,7 +235,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   //   this.currentEditStore.addComponent(message);
   // });
 
-  this.on('technicalComponent_show', function (message) {
+  this.on('technicalComponent_show', function(message) {
     this.updateMode({
       modeTechnicalComponentNavigation: true,
       modeProfilEdition: false,
@@ -187,13 +246,13 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     });
   });
 
-  this.on('navigation_mode_edition_only', function (message) {
+  this.on('navigation_mode_edition_only', function(message) {
     this.updateMode({
       modeNavigation: false,
       modeEdition: true
     });
   });
-  this.on('navigation_mode_edition_and_navigation', function (message) {
+  this.on('navigation_mode_edition_and_navigation', function(message) {
     this.updateMode({
       modeProfilEdition: true,
       modeNavigation: true,
@@ -201,40 +260,44 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     });
   });
 
-  this.on('navigation_mode_user_list', function (message) {
+  this.on('navigation_mode_user_list', function(message) {
     this.updateMode({
       modeUserList: true,
     });
   });
 
-  this.on('navigation_mode_composant_list', function (message) {
+  this.on('navigation_mode_composant_list', function(message) {
     this.updateMode({
       modeUserList: false,
     });
   });
 
-  this.on('workspace_show', function (message) {
-    this.updateMode({
-      modeTechnicalComponentNavigation: false,
-      modeProfilEdition: false,
-      modeWorkspaceNavigation: true,
-      modeAdminNavigation: false,
-      modeWorkspaceEdition: false,
-      modeWorkspaceShareNavigation: false
-    });
+  this.on('workspace_show', function(message) {
+    this.navigateNext('myWorkspaces', false, 'menu');
+    // this.updateMode({
+    //   modeTechnicalComponentNavigation: false,
+    //   modeProfilEdition: false,
+    //   modeWorkspaceNavigation: true,
+    //   modeAdminNavigation: false,
+    //   modeWorkspaceEdition: false,
+    //   modeWorkspaceShareNavigation: false
+    // });
   });
 
-  this.on('workspace_share_show', function (message) {
-    this.updateMode({
-      modeTechnicalComponentNavigation: false,
-      modeProfilEdition: false,
-      modeWorkspaceNavigation: false,
-      modeAdminNavigation: false,
-      modeWorkspaceEdition: false,
-      modeWorkspaceShareNavigation: true
-    });
+  this.on('workspace_share_show', function(message) {
+    this.navigateNext('sharedWorkspaces', false, 'menu');
+    // this.updateMode({
+    //   modeTechnicalComponentNavigation: false,
+    //   modeProfilEdition: false,
+    //   modeWorkspaceNavigation: false,
+    //   modeAdminNavigation: false,
+    //   modeWorkspaceEdition: false,
+    //   modeWorkspaceShareNavigation: true
+    // });
   });
-  this.on('workspace_current_add_component', function (record) {
+
+
+  this.on('workspace_current_add_component', function(record) {
     this.updateMode({
       modeNavigation: true,
       modeEdition: false,
@@ -247,7 +310,15 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     // this.trigger('navigator_mount', 'technical-component-table');
   });
 
-  this.on('workspace_current_add_user', function (record) {
+  this.on('workspace_current_add_component_cancel', function(record) {
+    this.updateMode({
+      modeTechnicalComponentNavigation: false
+    });
+    // this.trigger('navigator_mount', 'technical-component-table');
+  });
+
+
+  this.on('workspace_current_add_user', function(record) {
     this.updateMode({
       modeNavigation: true,
       modeEdition: false,
@@ -259,7 +330,14 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     });
   });
 
-  this.on('workspace_current_edit', function (message) {
+  this.on('workspace_current_add_user_cancel', function(record) {
+    this.updateMode({
+      modeTechnicalUserNavigation: false,
+    });
+  });
+
+
+  this.on('workspace_current_edit', function(message) {
     this.updateMode({
       modeComponentTest: false,
       modeComponentNetwork: false,
@@ -272,7 +350,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     });
   });
 
-  this.on('workspace_current_graph', function (message) {
+  this.on('workspace_current_graph', function(message) {
     this.updateMode({
       modeComponentTest: false,
       modeComponentNetwork: false,
@@ -287,7 +365,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     });
   });
 
-  this.on('workspace_current_init', function (message) {
+  this.on('workspace_current_init', function(message) {
     this.updateMode({
       modeComponentTest: false,
       modeComponentNetwork: false,
@@ -301,7 +379,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     this.workspaceStore.trigger('workspace_current_init', message);
   });
 
-  this.on('workspace_current_cancel', function (message) {
+  this.on('workspace_current_cancel', function(message) {
     this.updateMode({
       modeWorkspaceEdition: true,
       modeWorkspaceNavigation: false,
@@ -310,14 +388,14 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     });
   });
 
-  this.on('item_current_cancel', function (message) {
+  this.on('item_current_cancel', function(message) {
     this.updateMode({
       modeNavigation: true,
       modeEdition: false
     });
   });
 
-  this.on('item_current_click', function (message) {
+  this.on('item_current_click', function(message) {
     console.log('MainController | item_current_click');
     if (this.displayMode.modeNavigation && !this.displayMode.modeEdition) {
       this.genericStore.trigger('item_current_edit', message);
@@ -327,7 +405,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     }
   });
 
-  genericStore.on('item_current_edit_mode', function (message) {
+  genericStore.on('item_current_edit_mode', function(message) {
     //console.log('currentItemType  Before:',this.currentItemType);
     this.currentEditStore = genericStore;
     this.updateMode({
@@ -340,38 +418,38 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   }.bind(this));
 
 
-  workSpaceStore.on('item_current_edit_mode', function (message) {
+  workSpaceStore.on('item_current_edit_mode', function(message) {
     //console.log('currentItemType  Before:',this.currentItemType);
     this.currentEditStore = workSpaceStore;
     //console.log('currentItemType  :',this.currentItemType);
   }.bind(this));
 
-  this.on('item_current_connect_before', function (data) {
+  this.on('item_current_connect_before', function(data) {
     this.updateMode({
       modeConnectBefore: true,
     });
   });
 
-  this.on('item_current_cancel_connect_before', function (data) {
+  this.on('item_current_cancel_connect_before', function(data) {
     //console.log('item_current_cancel_connect_before');
     this.updateMode({
       modeConnectBefore: false
     });
   });
 
-  this.on('item_current_connect_after', function (data) {
+  this.on('item_current_connect_after', function(data) {
     this.updateMode({
       modeConnectAfter: true
     });
   });
 
-  this.on('item_current_cancel_connect_after', function (data) {
+  this.on('item_current_cancel_connect_after', function(data) {
     this.updateMode({
       modeConnectAfter: false,
     });
   });
 
-  this.on('item_current_editById', function (id) {
+  this.on('item_current_editById', function(id) {
     console.log('GenericStore edit byId | components |', this.workspaceStore.workspaceCurrent.components);
     for (var workspaceComponent of this.workspaceStore.workspaceCurrent.components) {
       if (workspaceComponent._id == id) {
@@ -382,13 +460,13 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     }
   });
 
-  this.on('menu_show', function (data) {
+  this.on('menu_show', function(data) {
     this.updateMode({
       modeMenuHide: false
     });
   });
 
-  this.on('clone_database', function (data) {
+  this.on('clone_database', function(data) {
     $.ajax({
       method: 'get',
       url: '../data/core/cloneDatabase',
@@ -396,7 +474,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
         "Authorization": "JTW" + " " + localStorage.token
       },
       contentType: 'application/json',
-    }).done(function (data) {
+    }).done(function(data) {
       //console.log('store load', data);
       //this.workspaceCollection = data;
       //if (callback != undefined) {
