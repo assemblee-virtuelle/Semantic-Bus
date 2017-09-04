@@ -1,6 +1,6 @@
 function profilStore() {
   riot.observable(this) // Riot provides our event emitter.
-  ////LE USER STORE EST RELIE A LOGIN EST NON A APPLICATION 
+  ////LE USER STORE EST RELIE A LOGIN EST NON A APPLICATION
   this.userCurrrent;
 
     this.on('load_profil', function(message) {
@@ -16,7 +16,7 @@ function profilStore() {
         }).done(function(data) {
             this.userCurrrent = data
             console.log("load profil |",  this.userCurrrent)
-            this.trigger('profil_loaded', this.userCurrrent)      
+            this.trigger('profil_loaded', this.userCurrrent)
         }.bind(this));
     })
 
@@ -33,13 +33,17 @@ function profilStore() {
             console.log(data)
             var emails = []
             data.forEach(function(user){
-                emails.push(user.credentials.email)
+                if(user.credentials){
+                  emails.push(user.credentials.email)
+                }else{
+                  console.log('WARNING user without credention : ',user);
+                }
             })
-            this.trigger('all_profil_by_email_load', emails)      
+            this.trigger('all_profil_by_email_load', emails)
         }.bind(this));
     })
 
-   
+
     this.on('change_email', function(data) {
         console.log('change_email');
         console.log(data);
@@ -57,8 +61,8 @@ function profilStore() {
                 this.userCurrrent = data
                 this.trigger('email_change', this.userCurrrent)
             }else{
-                this.trigger('email_already_exist') 
-            }             
+                this.trigger('email_already_exist')
+            }
         }.bind(this));
     })
 
@@ -88,13 +92,13 @@ function profilStore() {
         }).done(function(data) {
             console.log('in share data',user.userata)
             if(data == false){
-                this.trigger('share_change_no_valide') 
+                this.trigger('share_change_no_valide')
             }else if (data == "already"){
-                this.trigger('share_change_already') 
+                this.trigger('share_change_already')
             }else{
                 this.userCurrrent = data
-                this.trigger('share_change', this.userCurrrent) 
-            }             
+                this.trigger('share_change', this.userCurrrent)
+            }
         }.bind(this));
     })
 }

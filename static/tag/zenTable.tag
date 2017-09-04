@@ -1,10 +1,12 @@
 <zenTable class="containerV" style="align-items:stretch">
-  <div class="commandBar containerH" style = {opts.css}>
+  <div class="commandBar containerH commandBarTable" style={opts.css}>
     <div></div>
-    <div onclick={goComponent}>{opts.title}</div>
-    <div class="containerH commandGroup" >
-      <div onclick={addRowClic} class="commandButton" if={!opts.disallowcommand==true}>+</div>
-      <div onclick={delRowClic} class="commandButton" if={!opts.disallowcommand==true}>-</div>
+    <div>{opts.title}</div>
+    <div class="containerH commandGroup">
+      <div onclick={addRowClick} class="commandButton" if={!opts.disallowcommand==true}>+</div>
+      <div onclick={delRowClick} class="commandButton" if={!opts.disallowcommand==true}>-</div>
+      <div onclick={cancelClick} class="commandButton" if={opts.allowcancelcommand==true}>cancel</div>
+      <div onclick={actionClick} class="commandButton" if={opts.actiontext!=undefined}>{opts.actiontext}</div>
     </div>
   </div>
   <div name="tableHeader" class="tableHeader">
@@ -15,9 +17,11 @@
       <div class="tableRow {selected:selected} {mainSelected:mainSelected}" name="tableRow" onclick={rowClic} data-rowid={rowid} each={indexedData}>
         <yield from="row"/>
         <div style="width:10px" if={!opts.disallownavigation==true}>
-          <div class="containerH commandBar" >
-            <div onclick={navigationClick} class="commandButton" data-rowid={rowid}>
-              >
+          <div class="containerH commandBar">
+            <div class="commandGroup containerH">
+              <div onclick={navigationClick} class="commandButton" data-rowid={rowid}>
+                <img src="./image/Super-Mono-png/PNG/basic/blue/arrow-right.png" height="20px">
+              </div>
             </div>
           </div>
         </div>
@@ -74,7 +78,7 @@
         var recordId = 0;
         for (record of this.innerData) {
           record.rowid = recordId++;
-          record.opts=this.opts;
+          record.opts = this.opts;
         }
         return this.innerData;
       }.bind(this),
@@ -104,12 +108,12 @@
       this.trigger('rowNavigation', dataWithRowId)
     }
 
-    addRowClic(e) {
+    addRowClick(e) {
       //var index=parseInt(e.currentTarget.dataset.rowid) console.log(index);
       this.trigger('addRow')
     }
 
-    delRowClic(e) {
+    delRowClick(e) {
       let i = 0;
       for (data of this.innerData) {
         if (data.selected) {
@@ -119,6 +123,27 @@
         }
         i++
       }
+    }
+
+    cancelClick(e) {
+      for (data of this.innerData) {
+        data.selected = false;
+      }
+      this.trigger('cancel');
+    }
+    actionClick(e) {
+      let i = 0;
+      let selectedData = [];
+
+      for (data of this.innerData) {
+        if (data.selected) {
+          let dataWithRowId = data;
+          dataWithRowId.rowId = i;
+          selectedData.push(data);
+        }
+        i++
+      }
+      this.trigger('action', selectedData);
     }
 
     recalculateHeader() {
@@ -154,9 +179,9 @@
   </script>
   <style>
 
-    .commandBar {
-      border-bottom-style: solid;
-      border-width: 1px;
+    .commandBarTable {
+      color: #3883fa;
+      background-color: white;
     }
     .table {
       display: table;
