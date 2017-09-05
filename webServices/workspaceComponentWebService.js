@@ -46,10 +46,12 @@ module.exports = function (router) {
   // --------------------------------------------------------------------------------
 
   router.put('/workspaceComponent/', function (req, res) {
+
     var configuration = require('../configuration');
     if (configuration.saveLock == false) {
       var id = req.body._id;
       var componentToUpdate = req.body;
+      console.log('workspaceComponent',componentToUpdate);
       workspace_component_lib.update(id, req.body).then(function (compoupdate) {
         res.json(compoupdate)
       })
