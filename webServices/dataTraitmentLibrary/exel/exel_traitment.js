@@ -25,7 +25,6 @@ function _exel_traitment_client(urlEXEL, callback) {
 }
 
 function _json_to_exel(jsonData, header){
-	console.log(XLSX.utils.json_to_sheet(jsonData, {header: header}));
 	return XLSX.utils.json_to_sheet(jsonData, {header: header});	
 }
 
