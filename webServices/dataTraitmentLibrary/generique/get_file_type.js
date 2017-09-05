@@ -28,13 +28,14 @@ function _extension(filename, contentType) {
 }
 
 function _type_file(filename, dataString, dataBuffer, out, api) {
-  console.log("in aggregate function", out)
+  console.log("in aggregate function", dataString)
   return _extension(filename).then(function (extension) {
     console.log("extension |", extension)
     return new Promise(function (resolve, reject) {
       if (out == true || out == 'true') {
+				console.log(out)
         resolve({
-          data: exel.json_to_exel(dataString)
+          data: exel.json_to_exel(dataString.data )
         })
       } else {
         switch (extension) {

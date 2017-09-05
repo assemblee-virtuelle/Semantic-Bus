@@ -40,15 +40,13 @@
           console.log('FAIL', err);
           res.status(err.code).send(err.message)
         }).then(dataToSend => {
-          console.log('API data', dataToSend);
+          console.log('API data', specificData);
           if (specificData.contentType.search('application/vnd.ms-excel') != -1) {
             var responseBodyExel = []
-            console.log('data.contentType XLS', data.specificData)
-            this.dataTraitment.type.type_file(data.specificData.contentType, flowData, responseBodyExel, data.specificData.xls, true).then(function (result) {
+            console.log('data.contentType XLS', specificData)
+            this.dataTraitment.type.type_file(specificData.contentType, dataToSend, responseBodyExel, specificData.xls, true).then(function (result) {
               console.log(result)
-              // resolve({
-              //   data: result
-              // })
+              res.send(result)
             })
           }
           else if (specificData.contentType.search('xml') != -1) {
