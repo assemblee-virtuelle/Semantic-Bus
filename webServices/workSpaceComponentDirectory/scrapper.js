@@ -46,7 +46,7 @@ module.exports = {
     };
     //description du comportement du router de scrapperjs
     return new Promise(function (resolve, reject) {
-      this.phantom.create(['--ignore-ssl-errors=yes', '--web-security=false']).then(ph => {
+      this.phantom.create(['--ignore-ssl-errors=yes', '--web-security=no']).then(ph => {
         _ph = ph;
         return _ph.createPage();
       }).then(page => {
