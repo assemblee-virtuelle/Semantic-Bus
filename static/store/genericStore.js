@@ -24,11 +24,11 @@ function GenericStore(specificStoreList) {
 
 
   this.update = function() {
-    console.log('GenericStore || update',this.itemCurrent);
+    console.log('GenericStore || update',this.workspaceBusiness.serialiseWorkspaceComponent(this.itemCurrent));
     $.ajax({
       method: 'put',
       url: '../data/core/workspaceComponent',
-      data: JSON.stringify(  this.workspaceBusiness.serialiseWorkspaceComponent(this.itemCurrent)),
+      data: JSON.stringify( this.workspaceBusiness.serialiseWorkspaceComponent(this.itemCurrent)),
       contentType: 'application/json',
       headers: {
         "Authorization": "JTW" + " " + localStorage.token

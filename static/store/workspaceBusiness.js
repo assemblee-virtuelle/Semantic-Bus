@@ -61,10 +61,16 @@ function WorkspaceBusiness() {
 
 
   this.serialiseWorkspaceComponent = function (workspaceComponentIn) {
-    if (workspaceComponentIn._id) {
-      workspaceComponentIn = workspaceComponentIn._id
-      return true;
+    var out = {
+      _id: workspaceComponentIn._id,
+      specificData: workspaceComponentIn.specificData,
+      name: workspaceComponentIn.name,
+      average_consumption: workspaceComponentIn.average_consumption,
+      flow_size: workspaceComponentIn.flow_size,
+      connectionsBefore:workspaceComponentIn.connectionsBefore.map(conn=>conn._id),
+      connectionsAfter:workspaceComponentIn.connectionsAfter.map(conn=>conn._id)
     }
+    return out;
   } //<= serialiseWorkspaceComponent
 
   // --------------------------------------------------------------------------------
@@ -81,9 +87,7 @@ function WorkspaceBusiness() {
       flow_size: workspaceIn.flow_size
     }
     for (component of workspaceIn.components) {
-      if (this.serialiseWorkspaceComponent(component)) {
-        components.push(component._id);
-      }
+      components.push(this.serialiseWorkspaceComponent(component));
     }
     out.components = components;
     console.log('serialiseWorkspace | out | ', out);

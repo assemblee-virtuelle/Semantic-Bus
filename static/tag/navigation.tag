@@ -105,7 +105,7 @@
               <div onclick={workClick} class="commandButton">
                 run this component
               </div>
-              <div onclick={saveEditionContainerClick} class={ commandButton: true, persistInProgress: persistInProgress } name="saveButton">
+              <div onclick={saveWorkspaceComponent} class={ commandButton: true, persistInProgress: persistInProgress } name="saveButton">
                 save
               </div>
             </div>
@@ -239,7 +239,7 @@
     //don't work if is placed in mount
     this.isGoodUser();
 
-    saveEditionContainerClick(e) {
+    saveWorkspaceComponent(e) {
       if (this.editionContainer.persist == undefined) {
         var data = this.editionContainer.data;
         for (var property in data) {

@@ -5,8 +5,8 @@
       <!--<div onclick={cancelClick} class="commandButton">
         cancel
       </div>-->
-      <div if={actionReady} onclick={share} class="commandButton notSynchronized">
-        share
+      <div if={actionReady} onclick={addComponent} class="commandButton notSynchronized">
+        add
       </div>
     </div>
   </div>
@@ -24,20 +24,24 @@
  <script>
 
     this.actionReady=false;
-    this.on('unmount', function () {
-      console.log('unmount');
-      RiotControl.trigger('workspace_current_add_component_cancel');
-    });
+    addComponent(e) {
+      this.tags.zentable.data.forEach(record=>{
+        if(record.selected){
+          RiotControl.trigger('technicalComponent_current_select',record);
+        }
+
+      });
+    }
 
     this.on('mount', function () {
       //console.log(this.tags);
-     this.tags.zentable.on('action',function(data){
-       //console.log(data);
-       data.forEach(record=>{
-         RiotControl.trigger('technicalComponent_current_select',record);
-       });
-
-     }.bind(this));
+    //  this.tags.zentable.on('action',function(data){
+    //    //console.log(data);
+    //    data.forEach(record=>{
+    //      RiotControl.trigger('technicalComponent_current_select',record);
+    //    });
+     //
+    //  }.bind(this));
      this.tags.zentable.on('rowSelect',function(){
 
         this.actionReady=true;
