@@ -13,7 +13,7 @@
     <label> attribut </label>
       <input type="text" onkeyup={attributValueChange} value={attributField} placeholder=" [WARNING] 'attribs.href' ou 'text' seulement pour le moment" ></input>
   </div>
-     <zenTable style="flex:1" title="Chemin et attributs">
+     <zenTable style="flex:1" title="path, attributs and group">
         <yield to="header">
           <div>path</div>
           <div>group</div>

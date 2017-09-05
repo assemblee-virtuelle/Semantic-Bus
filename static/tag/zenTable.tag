@@ -156,10 +156,10 @@
             //console.log(row.children[numkey].getBoundingClientRect().width);
             var width = row.children[numkey].getBoundingClientRect().width;
             var cssWidth = width + 'px';
-            headers[headerkey].style.width = cssWidth;
-            headers[headerkey].style.maxWidth = cssWidth;
-            headers[headerkey].style.minWidth = cssWidth;
-            headers[headerkey].style.flexBasis = cssWidth;
+            headers[headerkey].style.width = cssWidth ;
+            headers[headerkey].style.maxWidth = cssWidth ;
+            headers[headerkey].style.minWidth = cssWidth ;
+            headers[headerkey].style.flexBasis = cssWidth ;
             //console.log(headers[headerkey].style);
           }
         }
