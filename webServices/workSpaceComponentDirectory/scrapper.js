@@ -15,6 +15,8 @@ module.exports = {
     //
     var _ph, _page, _outObj;
 
+
+    // wait for apparation of special element 
     function waitFor(testFx, onReady, timeOutMillis) {
       return new Promise(function (resolve, reject) {
         var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 3000, //< Default Max Timout is 3s
@@ -44,6 +46,34 @@ module.exports = {
           }, 250); //< repeat check every 250ms
       })
     };
+
+
+    // Include JQUERY 
+    function includJS(page, cb) {
+      page.includeJs("http://ajax.googleapis.com/ajax/libs/jquery/1.6.1/jquery.min.js", function () {
+        cb
+      })
+    };
+
+    function addCookie(phantom, cookie) {
+      phantom.addCookie({
+        cookie
+      })
+    };
+
+    function deleteCookie(phantom, cookie) {
+      phantom.deleteCookie({
+        cookie
+      })
+    };
+
+    function clearCookies(phantom, cookie) {
+      phantom.clearCookies({
+        cookie
+      })
+    };
+
+
     //description du comportement du router de scrapperjs
     return new Promise(function (resolve, reject) {
       this.phantom.create(['--ignore-ssl-errors=yes', '--web-security=no']).then(ph => {
@@ -88,7 +118,7 @@ module.exports = {
               })
             })
           })
-        }else{
+        } else {
           resolve({
             data: "error with url"
           })
@@ -97,7 +127,7 @@ module.exports = {
     }.bind(this))
   },
 
-  
+
 
   pull: function (data, flowData) {
     // console.log('scrapper | pull : ', data.specificData.url, data.specificData.chemin, data.specificData.url_data, data.specificData.data, data.specificData.flow_before, data.specificData.fix_url);
