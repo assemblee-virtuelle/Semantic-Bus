@@ -27,7 +27,7 @@
     addComponent(e) {
       this.tags.zentable.data.forEach(record=>{
         if(record.selected){
-          RiotControl.trigger('technicalComponent_current_select',record);
+          RiotControl.trigger('workspace_current_add_component',record);
         }
 
       });

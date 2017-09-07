@@ -297,7 +297,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   });
 
 
-  this.on('workspace_current_add_component', function(record) {
+  this.on('workspace_current_add_component_show', function(record) {
     this.navigateNext('workspaceAddComponent', false);
     // this.updateMode({
     //   modeNavigation: true,
@@ -320,7 +320,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   });
 
 
-  this.on('workspace_current_add_user', function(record) {
+  this.on('workspace_current_add_user_show', function(record) {
     this.navigateNext('workspaceAddUser', false);
     // this.updateMode({
     //   modeNavigation: true,

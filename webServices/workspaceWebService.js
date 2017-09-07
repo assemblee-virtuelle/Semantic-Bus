@@ -44,19 +44,25 @@ module.exports = function (router) {
   router.put('/workspace/', function (req, res) {
     console.log('req.body', req.body)
     if (req.body != null) {
-      if (req.body.component) {
-        workspace_component_lib.create(req.body.component).then(function (workspaceComponent) {
-          workspace_lib.update(req.body.workspace, workspaceComponent._id).then(function (workspaceUpdate) {
-            res.send(workspaceUpdate)
-          })
-        })
-      } else {
-        workspace_lib.update(req.body).then(function (workspaceUpdate) {
-          res.send(workspaceUpdate)
-        })
-      }
+      workspace_lib.update(req.body).then(workspaceUpdate=>{
+          res.send(workspaceUpdate);
+      }).catch(e=>{
+        console.log('FAIL',e);
+          res.status(500).send(e);
+      });
+      // if (req.body.component) {
+      //   workspace_component_lib.create(req.body.component).then(function (workspaceComponent) {
+      //     workspace_lib.update(req.body.workspace, workspaceComponent._id).then(function (workspaceUpdate) {
+      //       res.send(workspaceUpdate)
+      //     })
+      //   })
+      // } else {
+      //   workspace_lib.update(req.body).then(function (workspaceUpdate) {
+      //     res.send(workspaceUpdate)
+      //   })
+      // }
     } else {
-      res.send("error")
+        res.status(500).send('empty body');
     }
   }) //<= update_workspace;
 
@@ -64,6 +70,7 @@ module.exports = function (router) {
 
   router.post('/workspace/:userId', function (req, res) {
     if (req.body.components) {
+      // dans le cas ou il n'y a pas de save à la création : save du WS et des comp
       if (req.body.components.length > 0) {
         workspace_component_lib.create(req.body.components).then(function (workspaceComponent) {
           req.body.components = []

@@ -91,19 +91,19 @@ function WorkspaceStore() {
 
   this.update = function (data) {
     console.log('update');
-    if (data) {
-      if (data.component) {
-        var ajax_data = JSON.stringify({
-          workspace: this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent),
-          component: data.component
-        });
-        console.log(JSON.stringify(ajax_data))
-      } else {
-        var ajax_data = JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent))
-      }
-    } else {
+    // if (data) {
+    //   if (data.component) {
+    //     var ajax_data = JSON.stringify({
+    //       workspace: this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent),
+    //       component: data.component
+    //     });
+    //     console.log(JSON.stringify(ajax_data))
+    //   } else {
+    //     var ajax_data = JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent))
+    //   }
+    // } else {
       var ajax_data = JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent))
-    }
+    // }
     $.ajax({
       method: 'put',
       url: '../data/core/workspace',
@@ -115,10 +115,11 @@ function WorkspaceStore() {
     }).done(function (data) {
       console.log('update data ||', data);
       this.load(function () {
-        data.mode = 'read';
+        data.mode = 'edit';
+        this.workspaceCurrent=data;
         this.trigger('workspace_current_persist_done', data);
       }.bind(this));
-      this.workspaceCurrent.mode = 'edit';
+      //this.workspaceCurrent.mode = 'edit';
     }.bind(this));
   }; //<= update
 
@@ -352,15 +353,16 @@ function WorkspaceStore() {
 
   // --------------------------------------------------------------------------------
 
-  this.on('technicalComponent_current_select', function (data) {
-    console.log("technicalComponent_current_select ||", data)
+  this.on('workspace_current_add_component', function (data) {
+    console.log("workspace_current_add_component ||", data)
     data.workspaceId = this.workspaceCurrent._id;
     data.specificData={};
     this.workspaceCurrent.components.push(data);
-    this.trigger('save_auto', {
-      workspace: this.workspaceCurrent,
-      component: data
-    })
+    // this.trigger('save_auto', {
+    //   compoenent:data,
+    //   workspace: this.workspaceCurrent,
+    // })
+    this.trigger('save_auto')
   }); //<= technicalComponent_current_select
 
   // --------------------------------------------------------------------------------

@@ -1,20 +1,24 @@
-
-
 function WorkspaceBusiness() {
 
   // --------------------------------------------------------------------------------
 
-  this.connectWorkspaceComponent = function (workspaceComponentsList) {
-    console.log('connectWorkspaceComponent',workspaceComponentsList);
-    workspaceComponentsList.forEach(component=>{
+  this.connectWorkspaceComponent = function(workspaceComponentsList) {
+    console.log('connectWorkspaceComponent', workspaceComponentsList);
+    workspaceComponentsList.forEach(component => {
 
-      component.connectionsAfter=component.connectionsAfter.map(componentId=>{
-        return(sift({_id:componentId},workspaceComponentsList))[0];
-      });
+      if (component != null) {
+        component.connectionsAfter = component.connectionsAfter.map(componentId => {
+          return (sift({
+            _id: componentId
+          }, workspaceComponentsList))[0];
+        });
 
-      component.connectionsBefore=component.connectionsBefore.map(componentId=>{
-        return(sift({_id:componentId},workspaceComponentsList))[0];
-      });
+        component.connectionsBefore = component.connectionsBefore.map(componentId => {
+          return (sift({
+            _id: componentId
+          }, workspaceComponentsList))[0];
+        });
+      }
     });
 
 
@@ -60,11 +64,11 @@ function WorkspaceBusiness() {
   // --------------------------------------------------------------------------------
 
 
-  this.serialiseWorkspaceComponent = function (workspaceComponentIn) {
-    if(!workspaceComponentIn.connectionsBefore ){
+  this.serialiseWorkspaceComponent = function(workspaceComponentIn) {
+    if (!workspaceComponentIn.connectionsBefore) {
       workspaceComponentIn.connectionsBefore = []
     }
-    if(!workspaceComponentIn.connectionsAfter ){
+    if (!workspaceComponentIn.connectionsAfter) {
       workspaceComponentIn.connectionsAfter = []
     }
     var out = {
@@ -73,17 +77,31 @@ function WorkspaceBusiness() {
       name: workspaceComponentIn.name,
       average_consumption: workspaceComponentIn.average_consumption,
       flow_size: workspaceComponentIn.flow_size,
-      connectionsBefore:workspaceComponentIn.connectionsBefore.map(conn=> {return {_id: conn._id}}),
-      connectionsAfter:workspaceComponentIn.connectionsAfter.map(conn=> {return {_id: conn._id}})
+      connectionsBefore: workspaceComponentIn.connectionsBefore.map(conn => {
+        return {
+          _id: conn._id
+        }
+      }),
+      connectionsAfter: workspaceComponentIn.connectionsAfter.map(conn => {
+        return {
+          _id: conn._id
+        }
+      }),
+      module: workspaceComponentIn.module,
+      type: workspaceComponentIn.type,
+      description: workspaceComponentIn.description,
+      editor: workspaceComponentIn.editor,
+      workspaceId: workspaceComponentIn.workspaceId
     }
     console.log(out)
     return out;
+
   } //<= serialiseWorkspaceComponent
 
   // --------------------------------------------------------------------------------
 
 
-  this.serialiseWorkspace = function (workspaceIn) {
+  this.serialiseWorkspace = function(workspaceIn) {
     console.log('serialiseWorkspace | ', workspaceIn);
     var components = [];
     var out = {
