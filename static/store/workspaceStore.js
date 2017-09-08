@@ -417,4 +417,32 @@ function WorkspaceStore() {
     }.bind(this));
   }); //<= own_all_workspace
 
+  ///GESTION DES DROIT DE USER
+
+ this.on('share-workspace', function(data) {
+     console.log(data);
+     $.ajax({
+         method: 'put',
+         url: '../data/core/share/workspace/',
+         data: JSON.stringify(data),
+         headers: {
+             "Authorization": "JTW" + " " + localStorage.token
+         },
+         beforeSend: function(){
+             this.trigger('share_change_send');
+         }.bind(this),
+         contentType: 'application/json'
+     }).done(function(data) {
+         console.log('in share data',user.userata)
+         if(data == false){
+             this.trigger('share_change_no_valide')
+         }else if (data == "already"){
+             this.trigger('share_change_already')
+         }else{
+             this.userCurrrent = data
+             this.trigger('share_change', {user:data.user,workspace:data.workspace})
+         }
+     }.bind(this));
+ })
+
 }

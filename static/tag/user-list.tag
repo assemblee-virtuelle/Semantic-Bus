@@ -61,7 +61,7 @@
     share(e) {
       console.log("share")
       if (this.workspace) {
-        console.log("this.workspace in if", this.workspace)
+        console.log("this.workspace", this.workspace)
         RiotControl.trigger('share-workspace', {
           email: this.email,
           worksapce_id: this.workspace._id

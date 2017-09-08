@@ -269,10 +269,7 @@
 
     RiotControl.on('share_change', function (data) {
       console.log(data)
-      this.tags.zentable[1].data.push({
-        "email": data.email,
-        "role": data.workspaces[data.workspaces.length - 1].role
-      });
+      this.tags.zentable[1].data= data.workspace.users;
       this.update();
       data = null;
     }.bind(this));
