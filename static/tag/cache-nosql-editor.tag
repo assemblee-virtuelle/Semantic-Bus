@@ -25,20 +25,24 @@
     getCacheClick(e) {
       RiotControl.trigger('item_current_getCache');
     }
+    this.updateData=function(dataToUpdate){
+      this.innerData=dataToUpdate;
+      this.update();
+    }.bind(this);
+
 
     this.on('mount', function () {
 
-      RiotControl.on('item_current_changed', function (data) {
-        this.innerData = data;
-
-        this.update();
-      }.bind(this));
+      RiotControl.on('item_current_changed',this.updateData);
       RiotControl.on('item_current_getCache_done', function (data) {
         //this.cahedData = data;
         this.tags.cachedData.data = data;
         this.update();
       }.bind(this));
       RiotControl.trigger('item_current_getCache');
+    });
+    this.on('unmount', function () {
+      RiotControl.off('item_current_changed',this.updateData);
     });
   </script>
 </cache-nosql-editor>

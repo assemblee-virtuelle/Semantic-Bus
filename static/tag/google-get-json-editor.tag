@@ -16,11 +16,16 @@
          this.update();
        }.bind(this),
        get: function () {
-         console.log('getInnerData |',this.innerData);
+        //console.log('getInnerData |',this.innerData);
         return this.innerData;
       },
       configurable: true
     });
+    this.updateData=function(dataToUpdate){
+      this.innerData=dataToUpdate;
+      this.update();
+    }.bind(this);
+
     this.on('mount', function () {
       this.keyInput.addEventListener('change',function(e){
         console.log('keychange');
@@ -34,11 +39,13 @@
         this.innerData.specificData.offset=e.currentTarget.value;
       }.bind(this));
 
-      RiotControl.on('item_current_changed',function(data){
-        this.innerData=data;
-
-        this.update();
-      }.bind(this));
+      RiotControl.on('item_current_changed',this.updateData);
+    });
+    this.on('unmount', function () {
+      RiotControl.off('item_current_changed',this.updateData);
+    });
+    this.on('unmount', function () {
+      RiotControl.off('item_current_changed',this.updateData);
     });
 
   </script>

@@ -6,7 +6,7 @@
     this.title="";
     Object.defineProperty(this, "data", {
        set: function (data) {
-         console.log(this.editor);
+         console.log('JsonEditor set data|',data);
          this.editor.set(data);
          if(this.editor.options.mode!='text'){
            this.editor.expandAll();

@@ -2,25 +2,25 @@
   <div>configuration d'un objet de transformation</div>
   <jsonEditor name="jsonSchema" title="Transform Schema" style="flex:1" modes="['tree','text']"></jsonEditor>
   <script>
-    this.innerData={};
-    this.test=function(){
+    this.innerData = {};
+    this.test = function () {
       consol.log('test');
     }
     Object.defineProperty(this, 'data', {
-       set: function (data) {
-         this.innerData=data;
-         if(data.specificData){
-          this.tags.jsonSchema.data= data.specificData.transformObject;
+      set: function (data) {
+        this.innerData = data;
+        if (data.specificData) {
+          this.tags.jsonSchema.data = data.specificData.transformObject;
           data.specificData
-         }
-         this.update();
-       }.bind(this),
-       get: function () {
+        }
+        this.update();
+      }.bind(this),
+      get: function () {
         //TODO add listerner to jsonEditor
-        if(this.innerData.specificData){
+        if (this.innerData.specificData) {
           this.innerData.specificData.transformObject = this.tags.jsonSchema.data;
           return this.innerData;
-        }else{
+        } else {
           this.innerData.specificData = {}
           this.innerData.specificData.transformObject = this.tags.jsonSchema.data;
           return this.innerData;
@@ -28,12 +28,15 @@
       },
       configurable: true
     });
+    this.updateData = function (dataToUpdate) {
+      this.data = dataToUpdate;
+      this.update();
+    }.bind(this);
     this.on('mount', function () {
-      RiotControl.on('item_current_changed',function(data){
-        console.log('item_current_changed OBJECT TRANSFORMER', data)
-        this.data=data;
-      }.bind(this));
+      RiotControl.on('item_current_changed', this.updateData);
     });
-
+    this.on('unmount', function () {
+      RiotControl.off('item_current_changed', this.updateData);
+    });
   </script>
 </object-transformer>

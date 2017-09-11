@@ -3,7 +3,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   this.workspaceStore = workSpaceStore;
   this.genericStore = genericStore;
   this.profilStore = profilStore;
-  this.currentEditStore;
+  //this.currentEditStore;
   this.displayMode = {
     modeNavigation: true,
     modeEdition: false,
@@ -90,33 +90,36 @@ function MainController(workSpaceStore, genericStore, profilStore) {
 
   this.navigateNext = function(newScreen, hidePrevious, baseScreen) {
     var baseScreenDepth;
-    console.log(this);
-    if (baseScreen != undefined) {
-      baseScreenDepth = sift({
-        screen: baseScreen
-      }, this.screenHistory[this.screenHistory.length - 1])[0].depth;
-    } else {
-      let lastStep = this.screenHistory[this.screenHistory.length - 1];
-      baseScreenDepth = lastStep[lastStep.length - 1].depth;
-    }
-    var newScreenHistory = JSON.parse(JSON.stringify(sift({
-      depth: {
-        $lte: baseScreenDepth
+    //console.log(this.screenHistory[this.screenHistory.length- 1],newScreen);
+    if(sift({screen: newScreen},this.screenHistory[this.screenHistory.length - 1]).length==0){
+      if (baseScreen != undefined) {
+        baseScreenDepth = sift({
+          screen: baseScreen
+        }, this.screenHistory[this.screenHistory.length - 1])[0].depth;
+      } else {
+        let lastStep = this.screenHistory[this.screenHistory.length - 1];
+        baseScreenDepth = lastStep[lastStep.length - 1].depth;
       }
-    }, this.screenHistory[this.screenHistory.length - 1])));
-    if (hidePrevious) {
-      newScreenHistory.forEach(step => {
-        step.show = false
-      });
+      var newScreenHistory = JSON.parse(JSON.stringify(sift({
+        depth: {
+          $lte: baseScreenDepth
+        }
+      }, this.screenHistory[this.screenHistory.length - 1])));
+      if (hidePrevious) {
+        newScreenHistory.forEach(step => {
+          step.show = false
+        });
+      }
+      newScreenHistory.push({
+        screen: newScreen,
+        depth: baseScreenDepth + 1,
+        show: true
+      })
+      this.screenHistory.push(newScreenHistory);
+      console.log('screenHistory', this.screenHistory);
+      this.trigger('newScreenHistory', newScreenHistory);
     }
-    newScreenHistory.push({
-      screen: newScreen,
-      depth: baseScreenDepth + 1,
-      show: true
-    })
-    this.screenHistory.push(newScreenHistory);
-    console.log('screenHistory', this.screenHistory);
-    this.trigger('newScreenHistory', newScreenHistory);
+
   }
   this.navigatePrevious = function() {
     this.screenHistory.pop();
@@ -411,32 +414,29 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   //   }
   // });
 
-  this.on('component_current_select', function(message) {
 
-  });
-
-  genericStore.on('item_current_edit_mode', function(message) {
+  genericStore.on('component_current_show', function() {
     this.navigateNext('componentEditor', true);
   }.bind(this));
+  //
+  // genericStore.on('item_current_edit_mode', function(message) {
+  //   //console.log('currentItemType  Before:',this.currentItemType);
+  //   // this.currentEditStore = genericStore;
+  //   // this.updateMode({
+  //   //   modeComponentNetwork: true,
+  //   //   modeEdition: true,
+  //   //   modeGraph: false,
+  //   //   modeNavigation: false,
+  //   // });
+  //   //console.log('currentItemType  :',this.currentItemType);
+  // }.bind(this));
 
-  genericStore.on('item_current_edit_mode', function(message) {
-    //console.log('currentItemType  Before:',this.currentItemType);
-    // this.currentEditStore = genericStore;
-    // this.updateMode({
-    //   modeComponentNetwork: true,
-    //   modeEdition: true,
-    //   modeGraph: false,
-    //   modeNavigation: false,
-    // });
-    //console.log('currentItemType  :',this.currentItemType);
-  }.bind(this));
-
-
-  workSpaceStore.on('item_current_edit_mode', function(message) {
-    //console.log('currentItemType  Before:',this.currentItemType);
-    this.currentEditStore = workSpaceStore;
-    //console.log('currentItemType  :',this.currentItemType);
-  }.bind(this));
+  //
+  // workSpaceStore.on('item_current_edit_mode', function(message) {
+  //   //console.log('currentItemType  Before:',this.currentItemType);
+  //   this.currentEditStore = workSpaceStore;
+  //   //console.log('currentItemType  :',this.currentItemType);
+  // }.bind(this));
 
   this.on('item_current_connect_before', function(data) {
     this.updateMode({

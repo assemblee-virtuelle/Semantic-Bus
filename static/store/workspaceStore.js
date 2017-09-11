@@ -333,10 +333,10 @@ function WorkspaceStore() {
   // --------------------------------------------------------------------------------
 
 
-  this.on('workspace_current_refresh', function () {
-    console.log('workspace_current_refresh || ', this.workspaceCurrent);
-    this.trigger('item_current_edit', this.workspaceCurrent);
-  }); // <= workspace_current_refresh
+  // this.on('workspace_current_refresh', function () {
+  //   console.log('workspace_current_refresh || ', this.workspaceCurrent);
+  //   this.trigger('item_current_edit', this.workspaceCurrent);
+  // }); // <= workspace_current_refresh
 
   // --------------------------------------------------------------------------------
 

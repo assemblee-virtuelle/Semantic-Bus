@@ -302,13 +302,14 @@
         data: this.innerData.description
       });
       RiotControl.trigger('workspace_current_persist');
-    }.bind(this))
+    }.bind(this));
 
     this.tags.zentable[0].on('delRow', function (message) {
       RiotControl.trigger('workspace_current_delete_component', message);
       RiotControl.trigger('workspace_current_persist');
     }.bind(this));
     this.tags.zentable[0].on('rowNavigation', function (data) {
+      RiotControl.trigger('component_current_show');
       RiotControl.trigger('component_current_select', data);
       //this.trigger('selectWorkspace');
     }.bind(this));

@@ -34,10 +34,22 @@
       this.test=function(){
         console.log('test');
       }
+      this.updateData=function(dataToUpdate){
+        this.data = dataToUpdate;
+        if (this.data.specificData.scrappe == undefined) {
+          this.data.specificData.scrappe = [];
+        }
+        console.log(this.data.specificData.scrappe);
+        if (this.tags.zentable != undefined) {
+          this.tags.zentable.data = this.data.specificData.scrappe;
+        }
+        this.update();
+      }.bind(this);
+
 
       check3(e){
         if( this.input3 == false){
-            this.input3 = true  
+            this.input3 = true
         }
         else{
           this.input3 = false
@@ -47,7 +59,7 @@
 
       check4(e){
         if( this.input4 == false){
-            this.input4 = true  
+            this.input4 = true
         }
         else{
           this.input4 = false
@@ -99,20 +111,13 @@
       this.choix4.addEventListener('change',function(e){
         this.data.specificData.flow_before = this.input4
       }.bind(this));
+      RiotControl.on('item_current_changed',this.updateData);
 
     });
+    this.on('unmount', function () {
+      RiotControl.off('item_current_changed',this.updateData);
+    });
 
-    RiotControl.on('item_current_changed', function (data) {
-      this.data = data;
-      if (this.data.specificData.scrappe == undefined) {
-        this.data.specificData.scrappe = [];
-      }
-      console.log(this.data.specificData.scrappe);
-      if (this.tags.zentable != undefined) {
-        this.tags.zentable.data = this.data.specificData.scrappe;
-      }
-      this.update();
-    }.bind(this));
 
     this.cheminValueChange = function (e) {
       //console.log(e.target.value);
@@ -138,9 +143,9 @@
       this.tags.zentable.data = this.data.specificData.scrappe;
     }.bind(this);
 
-      
+
   </script>
-  <style> 
+  <style>
 
     .hide {
       display:none;
@@ -168,4 +173,3 @@
 
 </style>
 </scrapper-editor>
-    

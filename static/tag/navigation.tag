@@ -18,7 +18,7 @@
       </div>
     </div>
     <div class="containerV" class="containerV" style="height: 100vh;flex-shrink:5">
-      <div if={modeNavigation} class="containerV" style="flex-grow:1;flex-basis:50%">
+      <div class="containerV" style="flex-grow:1;flex-basis:50%">
         <div class="containerH" style="flex-grow:1;flex-wrap: nowrap;">
           <div class="containerV" style="flex-basis:20%" if={isScrennToShow('menu')}>
             <div class="commandBar containerH">
@@ -78,120 +78,12 @@
           <graph></graph>
         </div>
         <div class="containerV" style="flex-grow:1" if={isScrennToShow('componentEditor')}>
-          <div class="containerH commandBar" style="flex-basis:50px" if={modeGraph}>
-            <div class="commandGroup" class="containerH"></div>
-            <div class="commandTitle">
-              {editorTitle}
-            </div>
-            <div class="commandGroup containerH">
-              <div onclick={nagivationClick} class="commandButton">
-                back to navigation
-              </div>
-            </div>
-          </div>
-
-          <div class="containerH commandBar" style="flex-basis:50px" if={!modeGraph}>
-            <div class="commandGroup" class="containerH"></div>
-            <div class="commandTitle">
-              {editorTitle}
-            </div>
-            <div class="commandGroup containerH">
-              <!--<div onclick={nagivationClick} class="commandButton">
-                back to navigation
-              </div>-->
-              <!--<div onclick={testPullClick} class="commandButton">
-                tester un flux tiré
-              </div>-->
-              <div onclick={workClick} class="commandButton">
-                run this component
-              </div>
-              <div onclick={saveWorkspaceComponent} class={ commandButton: true, persistInProgress: persistInProgress } name="saveButton">
-                save
-              </div>
-            </div>
-          </div>
-          <div style="flex-basis:200px" class="containerH">
-            <div style="flex-grow:1">
-              <label>nom du composant</label>
-              <input type="text" name="nameComponentInput" value={itemCurrent.name}></input>
-            </div>
-          </div>
-          <div style="flex-grow:1;flex-wrap: nowrap" class="containerH" if={!modeGraph}>
-            <div style="flex-basis:200px" class="containerV" if={modeConnectBefore}>
-              <div class="containerH commandBar" style="flex-basis:50px">
-                <div class="commandGroup containerH">
-                  <div onclick={cancelConnectBeforeClick} class="commandButton">
-                    cancel
-                  </div>
-                </div>
-              </div>
-              <div onclick={componentClick} class="selector" each={workspaceDisplayComponents}>
-                {type} : {name}
-              </div>
-            </div>
-            <div style="flex-basis:200px" class="containerV" if={!modeConnectBefore}>
-              <div class="containerH commandBar" style="flex-basis:50px">
-                <div class="commandGroup containerH">
-                  <div onclick={connectBeforeClick} class="commandButton">
-                    connect before
-                  </div>
-                </div>
-              </div>
-              <div onclick={navigateWorkspaceComponentClick} class="selector" each={itemCurrent.connectionsBefore}>
-                {type} : {name}
-              </div>
-            </div>
-            <div id="editionContainer" style="flex-grow:1" class="containerV">
-              <!--<workspace-editor if={modeWorkspaceEdition}></workspace-editor>-->
-
-            </div>
-            <div show={modeComponentTest} style="flex-grow:2;flex-wrap: nowrap;" class="containerH">
-              <!--<jsonPreviewer name="testPreviewer" style="flex-grow:1">
-            </jsonPreviewer>-->
-              <div class="containerV commandBar" style="flex-basis:50px">
-                <div></div>
-                <div class="commandGroup containerH">
-                  <div onclick={closeTest} class="commandButton">
-                    >
-                  </div>
-                </div>
-                <div></div>
-              </div>
-
-              <jsonEditor name="testPreviewer" mode="text" style="flex-grow:1"></jsonEditor>
-
-            </div>
-            <div style="flex-basis:200px" class="containerV" show={!modeConnectAfter}>
-              <div class="containerH commandBar" style="flex-basis:50px">
-                <div class="commandGroup containerH">
-                  <div onclick={connectAfterClick} class="commandButton">
-                    connect after
-                  </div>
-                </div>
-              </div>
-              <div onclick={navigateWorkspaceComponentClick} class="selector" each={itemCurrent.connectionsAfter}>
-                {type} : {name}
-              </div>
-            </div>
-            <div style="flex-basis:200px" class="containerV" if={modeConnectAfter}>
-              <div class="containerH commandBar" style="flex-basis:50px">
-                <div class="commandGroup containerH">
-                  <div onclick={cancelConnectAfterClick} class="commandButton">
-                    cancel
-                  </div>
-                </div>
-              </div>
-              <div onclick={componentClick} class="selector" each={workspaceDisplayComponents}>
-                {type} : {name}
-              </div>
-            </div>
-          </div>
-
+            <workspace-component-editor></workspace-component-editor>
         </div>
-        <div class="containerV" style="flex-grow:1" id="detailContainer" if={isScrennToShow('profil')}>
+        <div class="containerV" style="flex-grow:1" if={isScrennToShow('profil')}>
           <profil></profil>
         </div>
-        <div class="containerV" style="flex-grow:1" id="detailContainer" if={isScrennToShow('admin')}>
+        <div class="containerV" style="flex-grow:1"  if={isScrennToShow('admin')}>
           <admin></admin>
         </div>
 
@@ -199,26 +91,10 @@
   </div>
 
   <script>
-    this.modeNavigation = true;
-    this.modeEdition = false;
-    this.landingPage = true;
-    this.modeComponentNetwork = false;
-    this.modeComponentTest = false;
-    this.modeProfilEdition = false;
-    this.modeWorkspaceNavigation = false;
-    this.modeWorkspaceShareNavigation = false;
-    this.modeTechnicalComponentNavigation = false;
-    this.modeTechnicalUserNavigation = false;
-    this.modeAdminNavigation = false;
-    this.modeWorkspaceEdition = false;
-    this.modeWorkspaceComponentEdition = false;
-    this.saveBoolean = false
-    this.editorTitle = "";
-    this.persistInProgress = false;
-    this.itemCurrent; //TODO create a specific component for item with connections
-    this.workspaceComponents = [];
 
-    this.showAdmin = false;
+    this.saveBoolean = false
+    this.persistInProgress = false;
+//    this.workspaceComponents = [];
 
     RiotControl.on("ajax_receipt", function () {
       console.log("in hide");
@@ -239,82 +115,7 @@
     //don't work if is placed in mount
     this.isGoodUser();
 
-    saveWorkspaceComponent(e) {
-      if (this.editionContainer.persist == undefined) {
-        var data = this.editionContainer.data;
-        for (var property in data) {
-          RiotControl.trigger('item_current_updateField', {
-            field: property,
-            data: data[property]
-          });
-        }
-        RiotControl.trigger('item_current_updateField', {
-          field: 'name',
-          data: this.itemCurrent.name
-        });
-        RiotControl.trigger('item_current_persist');
-      } else {
-        this.editionContainer.persist();
-      }
-    }
 
-    nagivationClick(e) {
-      RiotControl.trigger('item_current_cancel');
-      //this.mountWorkspaceNavigator(false);
-    }
-
-    closeTest(e) {
-      this.modeComponentTest = false;
-      this.update();
-    }
-    testPullClick(e) {
-      if (this.editionContainer.testPullClick == undefined) {
-        var data = this.editionContainer.data;
-        //console.log('saveEditionContainerClick : ', data );
-        RiotControl.trigger('item_current_testPull');
-
-      } else {
-        this.editionContainer.testPullClick();
-
-      }
-    }
-
-    workClick(e) {
-      console.log('ALLO');
-      if (this.editionContainer.workClick == undefined) {
-        var data = this.editionContainer.data;
-        //console.log('saveEditionContainerClick : ', data );
-        RiotControl.trigger('item_current_work');
-
-      } else {
-        this.editionContainer.workClick();
-
-      }
-    }
-
-    //TODO je pense que ca ne sert plus : tenter de commenter
-    navigateWorkspaceComponentClick(e) {
-      RiotControl.trigger('item_current_editById', e.item._id);
-    }
-
-    connectBeforeClick(e) {
-      RiotControl.trigger('item_current_connect_before');
-    }
-    cancelConnectBeforeClick(e) {
-      //console.log('cancelConnectBeforeClick');
-      RiotControl.trigger('item_current_cancel_connect_before');
-    }
-    connectAfterClick(e) {
-      RiotControl.trigger('item_current_connect_after');
-    }
-
-    cancelConnectAfterClick(e) {
-      RiotControl.trigger('item_current_cancel_connect_after');
-    }
-    componentClick(e) {
-      //console.log("componentClick",e.item);
-      RiotControl.trigger('item_current_click', e.item);
-    }
 
     profilSelectorClick(e) {
       RiotControl.trigger('profil_show');
@@ -341,11 +142,7 @@
       RiotControl.trigger('back');
     }
 
-    this.mountEdition = function (componentName) {
-      this.editionContainer = riot.mount('#editionContainer', componentName)[0];
-      console.log('mountEdition | ', componentName, this.editionContainer);
-      this.editorTitle = this.editionContainer.title;
-    };
+
 
     this.isScrennToShow = function (screenToTest) {
       return sift({
@@ -378,52 +175,52 @@
         this.update();
       }.bind(this));
 
-      RiotControl.on('item_current_testPull_done', function (data) {
-        this.modeComponentTest = true;
-        console.log('item_current_testPull_done | data :', data);
-        this.tags.testPreviewer.data = data;
-        this.update();
-      }.bind(this));
+      // RiotControl.on('item_current_testPull_done', function (data) {
+      //   this.modeComponentTest = true;
+      //   console.log('item_current_testPull_done | data :', data);
+      //   this.tags.testPreviewer.data = data;
+      //   this.update();
+      // }.bind(this));
+      //
+      // RiotControl.on('item_current_work_done', function (data) {
+      //   this.modeComponentTest = true;
+      //   console.log('item_current_work_done | data :', data);
+      //   this.tags.testPreviewer.data = data;
+      //   this.update();
+      // }.bind(this));
 
-      RiotControl.on('item_current_work_done', function (data) {
-        this.modeComponentTest = true;
-        console.log('item_current_work_done | data :', data);
-        this.tags.testPreviewer.data = data;
-        this.update();
-      }.bind(this));
+      // RiotControl.on('navigator_mount', function (webComponentName) {
+      //   console.log('navigator_mount');
+      //   this.cleanNavigation();
+      //   this.contentNavigator = riot.mount('#contentNavigator', webComponentName)[0];
+      // }.bind(this));
 
-      RiotControl.on('navigator_mount', function (webComponentName) {
-        console.log('navigator_mount');
-        this.cleanNavigation();
-        this.contentNavigator = riot.mount('#contentNavigator', webComponentName)[0];
-      }.bind(this));
+      // RiotControl.on('item_current_edit_mode', function (itemType, item) {
+      //   console.log('item_current_edit_mode');
+      //   var tagName;
+      //   switch (itemType) {
+      //     case 'generic':
+      //       if (item.editor != undefined) {
+      //         tagName = item.editor;
+      //       } else {
+      //         tagName = 'no-editor';
+      //       }
+      //       //this.modeComponentNetwork=true;
+      //       break;
+      //     default:
+      //       tagName = 'no-editor'
+      //       //this.modeComponentNetwork=false;
+      //       break;
+      //   }
+      //   this.mountEdition(tagName);
+      //   this.update();
+      // }.bind(this));
 
-      RiotControl.on('item_current_edit_mode', function (itemType, item) {
-        console.log('item_current_edit_mode');
-        var tagName;
-        switch (itemType) {
-          case 'generic':
-            if (item.editor != undefined) {
-              tagName = item.editor;
-            } else {
-              tagName = 'no-editor';
-            }
-            //this.modeComponentNetwork=true;
-            break;
-          default:
-            tagName = 'no-editor'
-            //this.modeComponentNetwork=false;
-            break;
-        }
-        this.mountEdition(tagName);
-        this.update();
-      }.bind(this));
-
-      RiotControl.on('item_current_changed', function (item) {
-        console.log('item_current_changed', item)
-        this.itemCurrent = item;
-        this.update();
-      }.bind(this));
+      // RiotControl.on('item_current_changed', function (item) {
+      //   console.log('item_current_changed', item)
+      //   this.itemCurrent = item;
+      //   this.update();
+      // }.bind(this));
 
       RiotControl.on('persist_start', function (data) {
         //console.log('persist_start | ',this.saveButton)
@@ -438,47 +235,47 @@
         this.update();
       }.bind(this));
 
-      RiotControl.on('workspace_current_changed', function (data) {
-        this.workspaceComponents = data.components;
-        console.log('navigation | workspace_current_changed', data);
-        this.update();
-      }.bind(this));
+      // RiotControl.on('workspace_current_changed', function (data) {
+      //   this.workspaceComponents = data.components;
+      //   console.log('navigation | workspace_current_changed', data);
+      //   this.update();
+      // }.bind(this));
 
-      RiotControl.on('workspace_current_click', function (data) {
-        this.workspaceDisplayComponents = [];
-        console.log(data)
-        this.workspaceComponents.forEach(function (workspaceComponent) {
-          if (workspaceComponent._id != data._id) {
-            this.workspaceDisplayComponents.push(workspaceComponent)
-          }
-        }.bind(this))
-        console.log('workspace_current_click_navigation', this.workspaceDisplayComponents)
-      }.bind(this))
+      // RiotControl.on('workspace_current_click', function (data) {
+      //   this.workspaceDisplayComponents = [];
+      //   console.log(data)
+      //   this.workspaceComponents.forEach(function (workspaceComponent) {
+      //     if (workspaceComponent._id != data._id) {
+      //       this.workspaceDisplayComponents.push(workspaceComponent)
+      //     }
+      //   }.bind(this))
+      //   console.log('workspace_current_click_navigation', this.workspaceDisplayComponents)
+      // }.bind(this))
 
-      RiotControl.on('navigation_mode_changed', function (data) {
-        console.log('navigation_mode_changed : ', data);
-        this.modeNavigation = data.modeNavigation;
-        this.modeEdition = data.modeEdition;
-        this.modeComponentNetwork = data.modeComponentNetwork;
-        this.modeComponentTest = data.modeComponentTest;
-        this.modeProfilEdition = data.modeProfilEdition;
-        this.modeWorkspaceNavigation = data.modeWorkspaceNavigation;
-        this.modeWorkspaceShareNavigation = data.modeWorkspaceShareNavigation;
-        this.modeTechnicalComponentNavigation = data.modeTechnicalComponentNavigation;
-        this.modeTechnicalUserNavigation = data.modeTechnicalUserNavigation;
-        this.modeAdminNavigation = data.modeAdminNavigation;
-        this.modeWorkspaceEdition = data.modeWorkspaceEdition;
-        this.modeWorkspaceComponentEdition = data.modeWorkspaceComponentEdition;
-        this.modeConnectBefore = data.modeConnectBefore,
-        this.modeConnectAfter = data.modeConnectAfter,
-        this.modeMenuHide = data.modeMenuHide;
-        this.modeGraph = data.modeGraph;
-        this.update();
-      }.bind(this));
+      // RiotControl.on('navigation_mode_changed', function (data) {
+      //   console.log('navigation_mode_changed : ', data);
+      //   this.modeNavigation = data.modeNavigation;
+      //   this.modeEdition = data.modeEdition;
+      //   this.modeComponentNetwork = data.modeComponentNetwork;
+      //   this.modeComponentTest = data.modeComponentTest;
+      //   this.modeProfilEdition = data.modeProfilEdition;
+      //   this.modeWorkspaceNavigation = data.modeWorkspaceNavigation;
+      //   this.modeWorkspaceShareNavigation = data.modeWorkspaceShareNavigation;
+      //   this.modeTechnicalComponentNavigation = data.modeTechnicalComponentNavigation;
+      //   this.modeTechnicalUserNavigation = data.modeTechnicalUserNavigation;
+      //   this.modeAdminNavigation = data.modeAdminNavigation;
+      //   this.modeWorkspaceEdition = data.modeWorkspaceEdition;
+      //   this.modeWorkspaceComponentEdition = data.modeWorkspaceComponentEdition;
+      //   this.modeConnectBefore = data.modeConnectBefore,
+      //   this.modeConnectAfter = data.modeConnectAfter,
+      //   this.modeMenuHide = data.modeMenuHide;
+      //   this.modeGraph = data.modeGraph;
+      //   this.update();
+      // }.bind(this));
 
-      this.nameComponentInput.addEventListener('change', function (e) {
-        this.itemCurrent.name = e.currentTarget.value;
-      }.bind(this));
+      // this.nameComponentInput.addEventListener('change', function (e) {
+      //   this.itemCurrent.name = e.currentTarget.value;
+      // }.bind(this));
 
       RiotControl.trigger('screenHistoryInit');
 

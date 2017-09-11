@@ -23,6 +23,11 @@
       },
       configurable: true
     });
+    this.updateData=function(dataToUpdate){
+      this.innerData=dataToUpdate;
+      this.update();
+    }.bind(this);
+
     this.on('mount', function () {
       this.urlInput.addEventListener('change',function(e){
         this.innerData.specificData.url=e.currentTarget.value;
@@ -36,11 +41,10 @@
         this.innerData.specificData.xls =e .currentTarget.value;
       }.bind(this));
 
-      RiotControl.on('item_current_changed',function(data){
-        this.innerData=data;
-
-        this.update();
-      }.bind(this));
+      RiotControl.on('item_current_changed',this.updateData);
+    });
+    this.on('unmount', function () {
+      RiotControl.off('item_current_changed',this.updateData);
     });
 
   </script>
