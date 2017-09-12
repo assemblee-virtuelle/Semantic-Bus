@@ -3,6 +3,7 @@ module.exports = {
   type: 'Scrapper ',
   description: 'Scrapper page html',
   editor: 'scrapper-editor',
+  graphIcon:'default.svg',
   phantom: require('phantom'),
   sift: require('sift'),
 
@@ -45,7 +46,7 @@ module.exports = {
     //click natif js
 
     function simulateClick(action, _page, outObj) {
-      // switch case for name class category 
+      // switch case for name class category
       console.log(outObj)
       return new Promise(function (resolve, reject) {
         _page.evaluate(function (action) {
@@ -148,7 +149,7 @@ module.exports = {
 
 
     function _aggregateAction(actions, page, deeth, data, outObj) {
-      /// do a structuration data function qui prend en parametre l'action et la deeth 
+      /// do a structuration data function qui prend en parametre l'action et la deeth
       console.log("recursive deeth |" + deeth);
       console.log("incremente data", data);
       console.log('tour restant |', (actions.length) - deeth);
@@ -230,7 +231,7 @@ module.exports = {
         return _ph.createPage();
       }).then(page => {
         _page = page;
-        
+
         return _page.open(url)
       }).then(status => {
         var outObj = _ph.createOutObject();

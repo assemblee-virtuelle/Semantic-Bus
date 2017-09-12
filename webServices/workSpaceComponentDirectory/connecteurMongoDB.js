@@ -4,6 +4,7 @@ module.exports = {
     editor: 'mongo-connecteur-editor',
     mongoose: require('mongoose'),
     mLabPromise: require('../mLabPromise'),
+    graphIcon:'default.svg',
     schema: null,
     modelShema: null,
     initialise: function (url, host, port, username, password, database) {
@@ -68,7 +69,7 @@ module.exports = {
                 if (querysTable.length == 0) {
                     modelShema.model.find(
                         function (err, dataElements) {
-                            
+
                             resolve(dataElements)
                             // delete mongoose.models[modelName]
                             // modelShema.db.connection.close();
