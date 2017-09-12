@@ -196,7 +196,6 @@
       height: 100vh;
       width: 100vw;
       background-color: lightgray;
-      font-family: sans-serif;
     }
     line {
       stroke: #000;

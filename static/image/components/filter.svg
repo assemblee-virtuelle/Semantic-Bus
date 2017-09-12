@@ -2,9 +2,7 @@
 <!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
 <svg version="1.1" id="Calque_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
 	 width="880px" height="280px" viewBox="0 0 880 280" enable-background="new 0 0 880 280" xml:space="preserve">
-<path fill="#FFFFFF" d="M875,224c0,22.092-17.908,40-40,40H50c-22.091,0-40-17.908-40-40V41C10,18.909,27.909,1,50,1h785
-	c22.092,0,40,17.909,40,40V224z"/>
-<image overflow="visible" width="880" height="280" xlink:href="elements/base-label-vide_t4.png" >
+<image overflow="visible" width="880" height="280" xlink:href="image/components/elements/base-label-vide_t4.png" >
 </image>
 <polygon fill="#FFEC00" points="143.348,53.607 167.095,101.725 220.195,109.44 181.771,146.895 190.842,199.78 143.348,174.811
 	95.854,199.78 104.924,146.895 66.5,109.44 119.601,101.725 "/>
