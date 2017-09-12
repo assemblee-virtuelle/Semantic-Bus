@@ -2,6 +2,7 @@
     this.type = 'REST API GET';
     this.description = 'exposition du flux de donnée sur une API http uniquement en GET';
     this.editor = 'rest-api-get-editor';
+    this.graphIcon ='default.svg';
     this.stepNode = false;
     this.mLabPromise = require('../mLabPromise');
     this.workspace_component_lib = require('../../lib/core/lib/workspace_component_lib');
@@ -82,12 +83,3 @@
       })
     }
   };
-
-
-
-
-
-
-
-
- 

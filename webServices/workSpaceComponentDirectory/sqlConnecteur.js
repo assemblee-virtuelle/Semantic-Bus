@@ -2,6 +2,7 @@ module.exports = {
     type: 'SQL connector',
     description: 'intéroger une base de donnée SQL',
     editor: 'sql-connecteur-editor',
+    graphIcon:'default.svg',
     Sequelize: require('sequelize'),
     mLabPromise: require('../mLabPromise'),
     initialise: function (driver, host, port, username, password, database) {

@@ -2,6 +2,7 @@ module.exports = {
   type: 'REST Get JSON',
   description: 'intéroger une API REST avec une requete Get qui fourni un flux JSON',
   editor: 'rest-get-json-editor',
+  graphIcon:'default.svg',
   url: require('url'),
   http: require('http'),
   https: require('https'),
