@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!DOCTYPE svg PUBLIC "-//W3C//DTD SVG 1.1//EN" "http://www.w3.org/Graphics/SVG/1.1/DTD/svg11.dtd">
+<svg version="1.1" id="Calque_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 width="880px" height="280px" viewBox="0 0 880 280" enable-background="new 0 0 880 280" xml:space="preserve">
+<image overflow="visible" width="880" height="280" xlink:href="elements/base-label-vide_t4.png" >
+</image>
+<polygon fill="#FFEC00" points="143.348,53.607 167.095,101.725 220.195,109.44 181.771,146.895 190.842,199.78 143.348,174.811
+	95.854,199.78 104.924,146.895 66.5,109.44 119.601,101.725 "/>
+<text transform="matrix(1 0 0 1 348 165)" fill="#414042" font-family="'Lato-Semibold'" font-size="96">Default</text>
+</svg>
