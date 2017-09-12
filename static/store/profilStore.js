@@ -1,10 +1,10 @@
 function profilStore() {
   riot.observable(this) // Riot provides our event emitter.
-  ////LE USER STORE EST RELIE A LOGIN EST NON A APPLICATION 
+  ////LE USER STORE EST RELIE A LOGIN EST NON A APPLICATION
   this.userCurrrent;
 
     this.on('load_profil', function(message) {
-        console.log('show_profil');
+        console.log('show_profil', localStorage.user_id);
         // console.log(localStorage.user_id);
         $.ajax({
             method: 'get',
@@ -15,15 +15,13 @@ function profilStore() {
             contentType: 'application/json'
         }).done(function(data) {
             this.userCurrrent = data
-            // console.log("load profil |",  this.userCurrrent)
-            this.trigger('profil_loaded', this.userCurrrent)      
+            console.log("load profil |",  this.userCurrrent)
+            this.trigger('profil_loaded', this.userCurrrent)
         }.bind(this));
     })
 
 
     this.on('load_all_profil_by_email', function(message) {
-        console.log('load_all_profil_by_email');
-        // console.log(localStorage.user_id);
         $.ajax({
             method: 'get',
             url: '../data/core/users',
@@ -33,23 +31,26 @@ function profilStore() {
             contentType: 'application/json'
         }).done(function(data) {
             console.log(data)
-            // console.log("load profil |",  this.userCurrrent)
-            var email = []
+            var emails = []
             data.forEach(function(user){
-                email.push(user.email)
+                if(user.credentials){
+                  emails.push(user.credentials.email)
+                }else{
+                  console.log('WARNING user without credention : ',user);
+                }
             })
-            this.trigger('all_profil_by_email_load', email)      
+            this.trigger('all_profil_by_email_load', emails)
         }.bind(this));
     })
 
-   
-    this.on('change_email', function(email) {
+
+    this.on('change_email', function(data) {
         console.log('change_email');
-        console.log(email);
+        console.log(data);
         $.ajax({
             method: 'put',
             url: '../data/core/users/'+ localStorage.user_id,
-            data: JSON.stringify({email: email}),
+            data: JSON.stringify(data),
             headers: {
                 "Authorization": "JTW" + " " + localStorage.token
             },
@@ -60,8 +61,8 @@ function profilStore() {
                 this.userCurrrent = data
                 this.trigger('email_change', this.userCurrrent)
             }else{
-                this.trigger('email_already_exist') 
-            }             
+                this.trigger('email_already_exist')
+            }
         }.bind(this));
     })
 
@@ -73,33 +74,5 @@ function profilStore() {
          window.open("../auth/login.html", "_self");
     }.bind(this))
 
-     ///GESTION DES DROIT DE USER
-
-    this.on('share-worksapce', function(data) {
-        console.log('share-worksapce');
-        console.log(data);
-        $.ajax({
-            method: 'put',
-            url: '../data/core/share/workspace',
-            data: JSON.stringify(data),
-            headers: {
-                "Authorization": "JTW" + " " + localStorage.token
-            },
-            beforeSend: function(){
-                console.log("before send")
-                this.trigger('share_change_send');
-            }.bind(this),
-            contentType: 'application/json'
-        }).done(function(data) {
-            console.log(data)
-            if(data == false){
-                this.trigger('share_change_no_valide') 
-            }else if (data == "already"){
-                this.trigger('share_change_already') 
-            }else{
-                this.userCurrrent = data
-                this.trigger('share_change', this.userCurrrent) 
-            }             
-        }.bind(this));
-    })
+  
 }

@@ -36,6 +36,8 @@
     console.log("trigger");
     window.open("../ihm/application.html", "_self");
   })
+  console.log(window.location.href)
+  RiotControl.trigger('https_force?')
   riot.compile(function() {
     // here tags are compiled and riot.mount works synchronously
     var tags = riot.mount('*');

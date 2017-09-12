@@ -5,127 +5,82 @@ module.exports = {
   type: 'Upload',
   description: 'Uploader un fichier',
   editor: 'upload-editor',
-  formidable: require('formidable'),
+  busboy: require('busboy'),
   mLabPromise: require('../mLabPromise'),
-  stepNode: true,
+  dataTraitment: require("../dataTraitmentLibrary/index.js"),
+  readable: require('stream').Readable,
+  stepNode: false,
   //recursivPullResolvePromise : require('../recursivPullResolvePromise'),
-  initialise: function (router, recursivPullResolvePromise) {
+  initialise: function(router, recursivPullResolvePromise) {
     // this.recursivPullResolvePromise = recursivPullResolvePromise;
-    router.post('/upload/:compId', function (req, res) {
-      console.log("//// UPLOAD  TRAITMENT ////")
+    router.post('/upload/:compId', function(req, res) {
       var compId = req.params.compId;
-      var final_tab = []
-      var count_table = []
-      var regnumero = /[0-9].*/g
-      var regLettre = /.*[a-zA-Z]/g
-      var i = 0
-
-      if (req.body.ext == 'exel') {
-        new Promise((resolve, reject) => {
-          for (var sheets in req.body.data) {
-            var cellContent = [];
-            for (var sheet in req.body.data[sheets]) {
-              var cell = {
-                [sheet]: req.body.data[sheets][sheet].v,
-                feuille: sheets
-              }
-
-              cellContent.push(cell)
-            }
-            final_tab.push({
-              feuille: {
-                name: sheets,
-                content: cellContent
-              }
-            })
-          }
-          resolve(
-            final_tab
-          )
-        }).then(function (feuilles) {
-          var result = []
-          feuilles.forEach(function (feuille) {
-            // console.log(feuille.feuille.name);
-            var exel_table_to_json = [];
-            var cell = {};
-            feuille.feuille.content.forEach(function (content, index) {
-              if (content.feuille == feuille.feuille.name) {
-                if (feuille.feuille.content[index + 1]) {
-                  if (Object.keys(content)[0].match(regnumero) != null && Object.keys(feuille.feuille.content[index + 1])[0].match(regnumero) != null) {
-                    // console.log(Object.keys(content)[0].match(regnumero)[0],  Object.keys(feuille.feuille.content[index + 1])[0].match(regnumero)[0])
-                    // console.log(parseInt(Object.keys(content)[0].match(regnumero)[0]) <  parseInt(Object.keys(feuille.feuille.content[index + 1])[0].match(regnumero)[0]))
-                    var val = Object.keys(content).map(function(key) {
-                        return content[key];
-                    });
-                    if (Object.keys(content)[0].match(regnumero)[0] < Object.keys(feuille.feuille.content[index + 1])[0].match(regnumero)[0]) {
-                      var c = {}
-                      console.log(val[0]);
-                      // console.log(Object.values(content)[0])
-                      c[Object.keys(content)[0].match(regLettre)[0]] = val[0]
-                      Object.assign(cell, c);
-                      // console.log(cell)
-                      exel_table_to_json.push(cell)
-                      cell = {}
-                    } else {
-                      var c = {}
-                      c[Object.keys(content)[0].match(regLettre)[0]] = val[0]
-                      Object.assign(cell, c);
-                    }
-                  } else {
-                    var val = Object.keys(content).map(function(key) {
-                        return content[key];
-                    });
-                    // console.log("cas unicité 1")
-                    // console.log(content)
-                    var c = {}
-                    c[Object.keys(content)[0].match(regLettre)[0]] = val[0]
-                    Object.assign(cell, c);
-                    exel_table_to_json.push(cell)
-                  }
-                }
-              }
-            })
-            result.push({sheet:  feuille.feuille.name, data: exel_table_to_json})
-          })
-          console.log(result)
-          return new Promise((resolve, reject) => {
-            console.log("from mlab");
-            mLabPromise.request('PUT', 'cache/' + compId, {
-              data: result
-            }).then(function (data) {
-              console.log('cache | testEXEL| ', data);
-              resolve(data);
-              res.send(data)
-          })
+      const isexel = false
+      new Promise(function(resolve, reject) {
+        console.log("//// UPLOAD  TRAITMENT ////");
+        console.log(req.headers)
+        // Create an Busyboy instance passing the HTTP Request headers.
+        var busboy = new this.busboy({
+          headers: req.headers
         });
-        })
-      } else if (req.body.ext == null) {
-        console.log(req.body)
-        return new Promise((resolve, reject) => {
-          console.log("from mlab");
-          mLabPromise.request('PUT', 'cache/' + compId, {
-            data: req.body
-          }).then(function (data) {
-            console.log('cache | testJSONLD| ', data);
-            resolve(data);
-            res.send(data)
-          })
+
+        var buffer = []
+        var string = ""
+        var fileName = null
+        // Listen for event when Busboy finds a file to stream.
+        busboy.on('file', function(fieldname, file, filename, encoding, mimetype) {
+          fileName = filename
+          // We are streaming! Handle chunks
+          file.on('data', function(data) {
+            // Here we can act on the data chunks streamed.
+            buffer.push(data)
+            string += data
+          });
         });
-      }
-    }.bind(this));
+        busboy.on('finish', function() {
+          res.statusCode = 200;
+          this.dataTraitment.type.type_file(fileName, string, buffer).then(function(result) {
+            console.log(result)
+            resolve(result)
+          })
+        }.bind(this));
+        req.pipe(busboy);
+      }.bind(this)).then(function(resultatTraite) {
+        console.log("DATA TRAITÉE |", resultatTraite)
+
+        var recursivPullResolvePromiseDynamic = require('../recursivPullResolvePromise');
+        this.mLabPromise.request('GET', 'workspaceComponent/' + compId, undefined, undefined).then(data => {
+          recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(data, 'push', resultatTraite);
+        });
+
+        // return new Promise((resolve, reject) => {
+        //
+        //
+        //   console.log('cash data | ',flowData);
+        //   this.mLabPromise.request('PUT', 'cache/' + compId, {
+        //     data: JSON.stringify(resultatTraite)
+        //   }).then(function (data) {
+        //     resolve(data);
+        //     console.log('cache | pull| ',data);
+        //     //return recursivPullResolvePromise.resolveComponentPull(data);
+        //   });
+        //
+        // })
+      }.bind(this))
+    }.bind(this))
   },
 
 
 
-  test: function (data, flowData) {
-    //console.log('Flow Agregator | test : ',data,' | ',flowData);
+  pull: function(data, flowData) {
+    //console.log('Flow Agregator | pull : ',data,' | ',flowData);
     return new Promise((resolve, reject) => {
-      this.mLabPromise.request('GET', 'cache/' + data._id.$oid).then(function (cachedData) {
-        resolve({
-          data: cachedData.data
-        });
-      });
+      // this.mLabPromise.request('GET', 'cache/' + data._id.$oid).then(function (cachedData) {
+      //   resolve({
+      //     data: JSON.parse(cachedData.data)
+      //   });
+      // });
+      resolve({});
     })
   }
 }
-

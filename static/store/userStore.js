@@ -3,30 +3,62 @@ function UserStore() {
   ////LE USER STORE EST RELIE A LOGIN EST NON A APPLICATION
   this.userCurrrent;
 
-  this.on('user_connect', function(user) {
+  this.sleep = function(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+  this.on('https_force?', function () {
+  console.log("https_force")
+    $.ajax({
+      method: 'get',
+      url: '/configuration/configurationhttps',
+      }).done(data => {
+        if(data == "force"){
+          if(window.location.href.substr(0, 5) != "https"){
+            console.log(window.location.href)
+            window.location.replace("https" + window.location.href.substr(4, window.location.href.split("").length -1))
+            // window.location.replace("https" + window.location.href.substr(5, window.location.href.split("").length -1))
+          }
+        }
+        return data
+      })
+  })
+
+  this.on('user_connect', function (user) {
     console.log(user)
     $.ajax({
       method: 'post',
       data: JSON.stringify(user),
       contentType: 'application/json',
       url: '/auth/authenticate',
+      beforeSend: function () {
+        console.log("before send")
+        this.trigger('ajax_send_login');
+      }.bind(this),
     }).done(data => {
       console.log(data)
       if (data == false) {
         this.trigger('google_auth')
-      } else if (data.user != null && data.token != null) {
-        console.log("in application ajax triiger");
+      } else if (data != null && data.token != null) {
+        console.log("in application ajax triger");
         localStorage.token = data.token
         // window.open("../ihm/application.html", "_self");
         this.trigger('application_redirect')
+        this.spleep(2000).then(function () {
+          this.trigger('ajax_receipt_login');
+        }.bind(this))
+
       } else {
         console.log("data no");
         this.trigger('bad_auth')
+        this.sleep(2000).then(function () {
+          this.trigger('ajax_receipt_login');
+        }.bind(this))
       }
     });
   });
 
-  this.on('google_connect', function(token) {
+  this.on('google_connect', function (token) {
     var token = {
       token: token
     }
@@ -35,22 +67,21 @@ function UserStore() {
       method: 'post',
       data: JSON.stringify(token),
       contentType: 'application/json',
-      url: '/auth/authenticate',
-      beforeSend: function() {
-        console.log("before send")
-        this.trigger('ajax_send');
+      url: '/auth/google_auth_statefull_verification',
+      beforeSend: function () {
+        this.trigger('ajax_send_login');
       }.bind(this),
     }).done(data => {
       console.log(data)
-      if (data.user != null && data.token != null) {
+      if (data != null && data.token != null) {
         localStorage.token = data.token
-        // window.open("../ihm/application.html", "_self");
-        this.trigger('ajax_receipt');
         this.trigger('application_redirect')
+        this.sleep(2000).then(function () {
+          this.trigger('ajax_receipt_login');
+        }.bind(this))
       } else {
-        this.trigger('ajax_receipt');
-        // console.log("data no");
         this.trigger('bad_auth')
+        this.trigger('ajax_receipt_login');
       }
     });
   });
@@ -59,27 +90,36 @@ function UserStore() {
 
 
 
-  this.on('user_inscription', function(user) {
+  this.on('user_inscription', function (user) {
     // console.log(user);
     $.ajax({
       method: 'post',
       data: JSON.stringify(user),
       contentType: 'application/json',
       url: '/auth/inscription',
+      beforeSend: function () {
+        console.log("before send")
+        this.trigger('ajax_send_login');
+      }.bind(this),
     }).done(data => {
       console.log(data);
-      if (data.user != null && data.token != null) {
+      if (data != null && data.token != null) {
         localStorage.token = data.token
         // window.open("../ihm/application.html", "_self");
         this.trigger('application_redirect')
+        this.sleep(2000).then(function () {
+          this.trigger('ajax_receipt_login');
+        }.bind(this))
       } else {
         this.trigger('email_already_exist')
+        this.sleep(2000).then(function () {
+          this.trigger('ajax_receipt_login');
+        }.bind(this))
       }
     });
   });
 
-  this.on('google_user_connect', function() {
-    console.log('google_user_connect');
+  this.on('google_user_connect', function () {
     $.ajax({
       method: 'get',
       headers: {
@@ -87,11 +127,16 @@ function UserStore() {
         'Access-Control-Allow-Methods': 'GET, POST, PUT',
         'Access-Control-Allow-Headers': 'Content-Type'
       },
+      beforeSend: function () {
+        this.trigger('ajax_send_login');
+      }.bind(this),
       contentType: 'text/html',
       url: '/auth/google'
     }).done(data => {
-      console.log(data);
-      // if(data.user != null && data.token != null){
+      sleep(2000).then(function () {
+        this.trigger('ajax_receipt_login');
+      }.bind(this))
+      // if(data != null && data.token != null){
       //   localStorage.token = data.token
       //   window.open("../ihm/application.html", "_self");
       // }else{

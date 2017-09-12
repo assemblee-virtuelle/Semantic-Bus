@@ -1,5 +1,8 @@
 <workspace-table class="containerV">
-    <zenTable style="flex:1" title="Workspace">
+  <div class="commandBar containerH">
+    My Workspaces
+  </div>
+    <zenTable style="flex:1">
       <yield to="header">
         <div>nom</div>
         <div>description</div>
@@ -44,7 +47,7 @@
 
      RiotControl.on('workspace_collection_changed',this.refreshZenTable);
 
-     RiotControl.trigger('workspace_collection_load');
+    RiotControl.trigger('workspace_collection_load');
 
      //this.refresh();
 

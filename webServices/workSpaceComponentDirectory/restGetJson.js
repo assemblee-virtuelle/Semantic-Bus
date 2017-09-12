@@ -5,10 +5,16 @@ module.exports = {
   url: require('url'),
   http: require('http'),
   https: require('https'),
-  makeRequest: function(methodRest, urlString, options) {
-    //console.log(urlString);
+  makeRequest: function(methodRest, urlString, pullParams) {
+
     // create a new Promise
     return new Promise((resolve, reject) => {
+      console.log(pullParams,urlString);
+      for (param in pullParams){
+        console.log(param);
+        urlString=urlString.replace('<%'+param+'%>',pullParams[param]);
+      }
+      console.log(urlString);
       const parsedUrl = this.url.parse(urlString);
       //console.log('REST Get JSON | makerequest | port',parsedUrl.port);
       //  console.log('REST Get JSON | makerequest | host',parsedUrl.hostname);
@@ -65,9 +71,9 @@ module.exports = {
       request.end();
     });
   },
-  test: function(data) {
-    //console.log('REST Get JSON | test : ',data);
-    return this.makeRequest('GET', data.specificData.url);
+  pull: function(data,flowdata,pullParams) {
+    //console.log('REST Get JSON | pull : ',data);
+    return this.makeRequest('GET', data.specificData.url,pullParams);
     /*this.makeRequest('GET', data.specificData.url).then(data => {
       //console.log('ALLO', data);
       res.json(data);

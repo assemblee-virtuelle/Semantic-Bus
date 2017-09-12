@@ -4,6 +4,8 @@
   <input type="text" name="urlInput" value={data.specificData.url}></input>
   <label>content-type</label>
   <input type="text" name="contentTypeInput" value={data.specificData.contentType}></input>
+  <label>Sortie en xls (Boolean)</label>
+  <input type="text" name="xlsInput" value={data.specificData.xls}></input>
   <script>
 
     this.innerData={};
@@ -21,6 +23,11 @@
       },
       configurable: true
     });
+    this.updateData=function(dataToUpdate){
+      this.innerData=dataToUpdate;
+      this.update();
+    }.bind(this);
+
     this.on('mount', function () {
       this.urlInput.addEventListener('change',function(e){
         this.innerData.specificData.url=e.currentTarget.value;
@@ -30,11 +37,14 @@
         this.innerData.specificData.contentType=e.currentTarget.value;
       }.bind(this));
 
-      RiotControl.on('item_current_changed',function(data){
-        this.innerData=data;
-
-        this.update();
+      this.xlsInput.addEventListener('change',function(e){
+        this.innerData.specificData.xls =e .currentTarget.value;
       }.bind(this));
+
+      RiotControl.on('item_current_changed',this.updateData);
+    });
+    this.on('unmount', function () {
+      RiotControl.off('item_current_changed',this.updateData);
     });
 
   </script>

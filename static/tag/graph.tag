@@ -49,118 +49,118 @@
 
   // evenement appele par riot
     this.on('mount', function () { // mount du composant riot
-
       this.svg = d3.select("svg");
+      RiotControl.on('workspace_current_graph_changed', function (data) {   // controller MVC central, les views sont les tags .tag 
+          console.log('GRAPH | workspace_current_changed ', data); 
+          this.graph = {};
+          this.graph.nodes = [];
+          this.graph.links = [];
 
-      RiotControl.on('workspace_current_changed', function (data) {   // controller MVC central, les views sont les tags .tag
-      //  console.log('GRAPH | workspace_current_changed ', data);
-        this.graph = {};
-        this.graph.nodes = [];
-        this.graph.links = [];
+          var inputs = 0;
+          var outputs = 0;
 
-        var inputs = 0;
-        var outputs = 0;
-
-        // determine le nombre d inputs et d outputs
-        for (record of data.components) {
-          if (record.connectionsBefore.length == 0) {
-            inputs++;
+          // determine le nombre d inputs et d outputs
+          for (record of data.components) {
+            if (record.connectionsBefore.length == 0) {
+              inputs++;
+            }
+            if (record.connectionsAfter.length == 0) {
+              outputs++;
+            }
           }
-          if (record.connectionsAfter.length == 0) {
-            outputs++;
+
+          // console.log(inputs, outputs);
+
+          // calcule une distance type pour positionner les inputs et outputs du graphe
+          var inputsOffset = height / (inputs + 1);
+          var outputsOffset = height / (outputs + 1);
+
+          var inputCurrentOffset = inputsOffset;
+          var outputCurrentOffset = outputsOffset;
+
+          //console.log(inputsOffset, outputsOffset);
+
+          for (record of data.components) {
+            if (record.connectionsBefore.length == 0) { // si rien n est connecte avant
+              this.graph.nodes.push({
+                text: record.type,
+                id: record._id,
+                fx: 10,
+                fy: inputCurrentOffset
+              });
+              inputCurrentOffset += inputsOffset;
+            } else if (record.connectionsAfter.length == 0) {
+              this.graph.nodes.push({
+                text: record.type,
+                id: record._id,
+                fx: width - 10 - record.type.length * 10, // positionne l'element en largeur par rapport au bord droit du graphe
+                fy: outputCurrentOffset
+              });
+              outputCurrentOffset += outputsOffset;
+            } else { // tous ceux du milieu
+              this.graph.nodes.push({
+                text: record.type,
+                id: record._id,
+                x: width / 2,
+                y: height / 2 // on laisse a la force le soin de les repartir
+              });
+            }
+            for (connection of record.connectionsAfter) {
+              // console.log('connection (After)', connection._id);
+              this.graph.links.push({source: record._id, target: connection._id}) // creation de tous les links
+            }
           }
-        }
 
-        // console.log(inputs, outputs);
+          // lancement de la simulation
+          console.log("simulation start", this.graph.nodes)
+          console.log("simulation start", this.graph.links)
+          this.simulation = d3.forceSimulation(this.graph.nodes).velocityDecay(0.9).force('link', d3.forceLink(this.graph.links).id(function (d) {
+            return d.id // ( ne pas toujours chercher a comprendre comment d3 marche, mais c est necessaire )
+          }))
+          //.force('center', d3.forceCenter(width / 2, height / 2)) .force("x", d3.forceX().strength(0.002)) .force("y", d3.forceY().strength(0.002))
+            .force("collide", d3.forceCollide().radius(30).iterations(2));
+          // .on("tick", ticked); var simulation = d3.forceSimulation(graph.nodes)     .force('charge', d3.forceManyBody()) //.distanceMax(500).strength(-0.8)) // .distanceMax(220))     .force('link', d3.forceLink(graph.links).strength(2))     //
+          // .distance(20).strength(1)     .force('center', d3.forceCenter(width / 2, height / 2));
+           console.log("fin simulation")
+          // les texts
+          this.texts = this.svg.select("#textLayer").selectAll("text").data(this.graph.nodes);
+          this.texts.exit().remove();
+          //this.texts = this.texts.enter().append("text").merge(this.texts) //  utiliser tspan ???
+          this.texts = this.texts.enter().append("text")
+          // .attr("r",20) .attr("cx",function(d){return d.x;}) .attr("cy",function(d){return d.y;})
+            .attr("fill", "#000") //.attr("opacity",0.5)
+          // .attr("width", "20") .attr("height","20")
+            .text(function (d) {
+            return d.text;
+          }).each(function (d) {
+            d.width = this.getBBox().width;
+            d.height = this.getBBox().height;
+          }); //;
+          // desactive pour l instant
+          // call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
 
-        // calcule une distance type pour positionner les inputs et outputs du graphe
-        var inputsOffset = height / (inputs + 1);
-        var outputsOffset = height / (outputs + 1);
+          // les links
+          this.links = this.svg.select("#shapeLayer").selectAll('line').data(this.graph.links);
+          this.links.exit().remove();
+          //this.links = this.links.enter().append('line').merge(this.links)
+          this.links = this.links.enter().append('line');
 
-        var inputCurrentOffset = inputsOffset;
-        var outputCurrentOffset = outputsOffset;
+          // les nodes
+          this.nodes = this.svg.select("#shapeLayer").selectAll("rect").data(this.graph.nodes);
+          this.nodes.exit().remove();
+          //this.nodes = this.nodes.enter().append("rect").merge(this.nodes). //  utiliser tspan ???
+          this.nodes = this.nodes.enter().append("rect").attr("width", function (d) { // width et height definis plus haut par bbox
+            return d.width + 10;
+          }).attr("height", function(d){
+            return d.height + 10;
+          })
+          //  .attr("x",function(d){return d.x;})  .attr("y",function(d){return d.y;})
+            // .attr("fill", "#e5e5ff") //.attr("opacity",0.5)
+          // .text(function(d){return d.text;})
+            .call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
 
-        //console.log(inputsOffset, outputsOffset);
-
-        for (record of data.components) {
-          if (record.connectionsBefore.length == 0) { // si rien n est connecte avant
-            this.graph.nodes.push({
-              text: record.type,
-              id: record._id.$oid,
-              fx: 10,
-              fy: inputCurrentOffset
-            });
-            inputCurrentOffset += inputsOffset;
-          } else if (record.connectionsAfter.length == 0) {
-            this.graph.nodes.push({
-              text: record.type,
-              id: record._id.$oid,
-              fx: width - 10 - record.type.length * 10, // positionne l'element en largeur par rapport au bord droit du graphe
-              fy: outputCurrentOffset
-            });
-            outputCurrentOffset += outputsOffset;
-          } else { // tous ceux du milieu
-            this.graph.nodes.push({
-              text: record.type,
-              id: record._id.$oid,
-              x: width / 2,
-              y: height / 2 // on laisse a la force le soin de les repartir
-            });
-          }
-          for (connection of record.connectionsAfter) {
-            // console.log('connection (After)', connection._id.$oid);
-            this.graph.links.push({source: record._id.$oid, target: connection._id.$oid}) // creation de tous les links
-          }
-        }
-
-        // lancement de la simulation
-        this.simulation = d3.forceSimulation(this.graph.nodes).velocityDecay(0.9).force('link', d3.forceLink(this.graph.links).id(function (d) {
-          return d.id // ( ne pas toujours chercher a comprendre comment d3 marche, mais c est necessaire )
-        }))
-        //.force('center', d3.forceCenter(width / 2, height / 2)) .force("x", d3.forceX().strength(0.002)) .force("y", d3.forceY().strength(0.002))
-          .force("collide", d3.forceCollide().radius(30).iterations(2));
-        // .on("tick", ticked); var simulation = d3.forceSimulation(graph.nodes)     .force('charge', d3.forceManyBody()) //.distanceMax(500).strength(-0.8)) // .distanceMax(220))     .force('link', d3.forceLink(graph.links).strength(2))     //
-        // .distance(20).strength(1)     .force('center', d3.forceCenter(width / 2, height / 2));
-
-        // les texts
-        this.texts = this.svg.select("#textLayer").selectAll("text").data(this.graph.nodes);
-        this.texts.exit().remove();
-        //this.texts = this.texts.enter().append("text").merge(this.texts) //  utiliser tspan ???
-        this.texts = this.texts.enter().append("text")
-        // .attr("r",20) .attr("cx",function(d){return d.x;}) .attr("cy",function(d){return d.y;})
-          .attr("fill", "#000") //.attr("opacity",0.5)
-        // .attr("width", "20") .attr("height","20")
-          .text(function (d) {
-          return d.text;
-        }).each(function (d) {
-          d.width = this.getBBox().width;
-          d.height = this.getBBox().height;
-        }); //;
-        // desactive pour l instant
-        // call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
-
-        // les links
-        this.links = this.svg.select("#shapeLayer").selectAll('line').data(this.graph.links);
-        this.links.exit().remove();
-        //this.links = this.links.enter().append('line').merge(this.links)
-        this.links = this.links.enter().append('line');
-
-        // les nodes
-        this.nodes = this.svg.select("#shapeLayer").selectAll("rect").data(this.graph.nodes);
-        this.nodes.exit().remove();
-        //this.nodes = this.nodes.enter().append("rect").merge(this.nodes). //  utiliser tspan ???
-        this.nodes = this.nodes.enter().append("rect").attr("width", function (d) { // width et height definis plus haut par bbox
-          return d.width + 10;
-        }).attr("height", function(d){
-          return d.height + 10;
-        })
-        //  .attr("x",function(d){return d.x;})  .attr("y",function(d){return d.y;})
-          // .attr("fill", "#e5e5ff") //.attr("opacity",0.5)
-        // .text(function(d){return d.text;})
-          .call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
-
-        // attache l evenement
-        this.simulation.on('tick', this.ticked);
+          // attache l evenement
+          this.simulation.on('tick', this.ticked);
       }.bind(this));
 
 

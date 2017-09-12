@@ -16,6 +16,11 @@
       },
       configurable: true
     });
+    this.updateData=function(dataToUpdate){
+      this.innerData=dataToUpdate;
+      this.update();
+    }.bind(this);
+
 
 
     this.on('mount', function () {
@@ -24,10 +29,10 @@
         this.innerData.specificData.dfobPath = e.currentTarget.value;
       }.bind(this));
 
-      RiotControl.on('item_current_changed', function (data) {
-        this.innerData = data;
-        this.update();
-      }.bind(this));
+      RiotControl.on('item_current_changed',this.updateData);
+    });
+    this.on('unmount', function () {
+      RiotControl.off('item_current_changed',this.updateData);
     });
   </script>
 </deeper-focus-opening-bracket-editor>

@@ -25,3 +25,8 @@
   overflow-y: auto;
 
 }
+
+.containerV>.containerV
+{
+  flex-grow: 1;
+}

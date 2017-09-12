@@ -1,10 +1,13 @@
 <zenTable class="containerV" style="align-items:stretch">
-  <div class="commandBar containerH" style = {opts.css}>
+  <div class="commandBar containerH commandBarTable" style={opts.css}>
     <div></div>
-    <div onclick={goComponent}>{opts.title}</div>
-    <div class="containerH commandGroup" >
-      <div onclick={addRowClic} class="commandButton" if={!opts.disallowcommand==true}>+</div>
-      <div onclick={delRowClic} class="commandButton" if={!opts.disallowcommand==true}>-</div>
+    <div>{opts.title}</div>
+    <div class="containerH commandGroup">
+
+      <div onclick={addRowClick} class="commandButtonImage" if={!opts.disallowcommand==true}><img src="./image/Super-Mono-png/PNG/basic/blue/toggle-expand-alt.png" height="40px"></div>
+      <div onclick={delRowClick} class="commandButtonImage" if={!opts.disallowcommand==true}><img src="./image/Super-Mono-png/PNG/basic/blue/toggle-collapse-alt.png" height="40px"></div>
+      <div onclick={cancelClick} class="commandButton" if={opts.allowcancelcommand==true}>cancel</div>
+      <div onclick={actionClick} class="commandButton" if={opts.actiontext!=undefined}>{opts.actiontext}</div>
     </div>
   </div>
   <div name="tableHeader" class="tableHeader">
@@ -15,9 +18,11 @@
       <div class="tableRow {selected:selected} {mainSelected:mainSelected}" name="tableRow" onclick={rowClic} data-rowid={rowid} each={indexedData}>
         <yield from="row"/>
         <div style="width:10px" if={!opts.disallownavigation==true}>
-          <div class="containerH commandBar" >
-            <div onclick={navigationClick} class="commandButton" data-rowid={rowid}>
-              >
+          <div class="containerH commandBar">
+            <div class="commandGroup containerH">
+              <div onclick={navigationClick} class="commandButton" data-rowid={rowid}>
+                <img src="./image/Super-Mono-png/PNG/basic/blue/arrow-right.png" height="25px">
+              </div>
             </div>
           </div>
         </div>
@@ -56,9 +61,11 @@
     //arrayChangeHandler.tag=this;
     Object.defineProperty(this, 'data', {
       set: function (data) {
+
         //this.innerData=new Proxy(data, arrayChangeHandler);
         this.innerData = data;
         this.update();
+
         //this.reportCss(); this.reportFlex(); console.log(this.items,data);
       }.bind(this),
       get: function () {
@@ -72,10 +79,10 @@
         var recordId = 0;
         for (record of this.innerData) {
           record.rowid = recordId++;
-          record.opts=this.opts;
+          record.opts = this.opts;
         }
         return this.innerData;
-      },
+      }.bind(this),
       configurable: true
     });
 
@@ -102,12 +109,12 @@
       this.trigger('rowNavigation', dataWithRowId)
     }
 
-    addRowClic(e) {
+    addRowClick(e) {
       //var index=parseInt(e.currentTarget.dataset.rowid) console.log(index);
       this.trigger('addRow')
     }
 
-    delRowClic(e) {
+    delRowClick(e) {
       let i = 0;
       for (data of this.innerData) {
         if (data.selected) {
@@ -119,6 +126,27 @@
       }
     }
 
+    cancelClick(e) {
+      for (data of this.innerData) {
+        data.selected = false;
+      }
+      this.trigger('cancel');
+    }
+    actionClick(e) {
+      let i = 0;
+      let selectedData = [];
+
+      for (data of this.innerData) {
+        if (data.selected) {
+          let dataWithRowId = data;
+          dataWithRowId.rowId = i;
+          selectedData.push(data);
+        }
+        i++
+      }
+      this.trigger('action', selectedData);
+    }
+
     recalculateHeader() {
       var headers = this.tableHeader.children;
       for (var row of this.root.querySelectorAll('.tableRow')) {
@@ -128,10 +156,10 @@
             //console.log(row.children[numkey].getBoundingClientRect().width);
             var width = row.children[numkey].getBoundingClientRect().width;
             var cssWidth = width + 'px';
-            headers[headerkey].style.width = cssWidth;
-            headers[headerkey].style.maxWidth = cssWidth;
-            headers[headerkey].style.minWidth = cssWidth;
-            headers[headerkey].style.flexBasis = cssWidth;
+            headers[headerkey].style.width = cssWidth ;
+            headers[headerkey].style.maxWidth = cssWidth ;
+            headers[headerkey].style.minWidth = cssWidth ;
+            headers[headerkey].style.flexBasis = cssWidth ;
             //console.log(headers[headerkey].style);
           }
         }
@@ -152,9 +180,9 @@
   </script>
   <style>
 
-    .commandBar {
-      border-bottom-style: solid;
-      border-width: 1px;
+    .commandBarTable {
+      color: #3883fa;
+      background-color: white;
     }
     .table {
       display: table;

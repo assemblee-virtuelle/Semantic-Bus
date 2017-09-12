@@ -14,11 +14,13 @@ body{
 
 .commandBar{
   /*justify-content: flex-end;*/
-  background-color: #3883fa;
-  color: #cce2ff;
+  /*background-color: #3883fa;
+  color: #cce2ff;*/
   justify-content: space-between;
   padding: 2px;
   overflow-y :visible;
+  color: #3883fa;
+  /*background-color: white;*/
 }
 
 
@@ -27,23 +29,37 @@ body{
   margin:0px;
 
 }
-.commandBar .commandGroup{
+.commandGroup{
   padding: 0px;
 }
-.commandBar .commandTitle{
-}
-.commandBar .commandButton{
+.commandButton{
   padding-left:10px;
   padding-right:10px;
   padding-top:2px;
   padding-bottom:2px;
   cursor: pointer;
   align-self: flex-end;
+  border-color: #3883fa;
+  background-color: white;
 }
-.commandBar .commandButton:hover{
+
+.commandButton:hover{
   /*color:#1a1a1a;*/
   background-color:#649DF9;
   border-color: #cce2ff;
+}
+
+.commandButtonImage{
+  cursor: pointer;
+  align-self: flex-end;
+  background-color: white;
+  border-style: none;
+  padding: 0px;
+  margin: 2px;
+}
+
+.commandButtonImage:hover{
+  background-color:#649DF9;
 }
 
 .selector{
@@ -52,7 +68,7 @@ body{
   margin:5px;
   padding-left:10px;
   padding-right:10px;
-  padding-top:20px;
+  padding-top:2px;
   padding-bottom:2px;
   background-color: #cce2ff;
 }
@@ -60,5 +76,5 @@ body{
 .mainSelector{
   font-size: 30px;
   text-align: center;
-  flex-basis:35px;
+  /*flex-basis:35px;*/
 }

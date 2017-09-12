@@ -30,7 +30,10 @@ module.exports = {
                 var cell = record.c[cellKey];
                 var column = response.raw.table.cols[cellKey].id || cellKey;
                 //  console.log('column',column);
-                cleanRecord[column] = cell == null ? undefined : cell.v;
+                if(cell!=undefined && cell!=null){
+                  cleanRecord[column] = cell.v;
+                }
+
 
               }
               cleanData.push(cleanRecord);
@@ -48,8 +51,8 @@ module.exports = {
       });
     });
   },
-  test: function(data) {
-    //console.log('GOOGLE Get JSON | test : ', data);
+  pull: function(data) {
+    //console.log('GOOGLE Get JSON | pull : ', data);
     return this.makeRequest(data.specificData.key, data.specificData.select, data.specificData.offset, data.specificData.provider);
     /*this.makeRequest('GET', data.specificData.url).then(data => {
       //console.log('ALLO', data);

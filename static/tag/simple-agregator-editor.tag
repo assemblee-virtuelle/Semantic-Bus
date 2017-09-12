@@ -37,10 +37,25 @@
       },
       configurable: true
     });
+    this.updateData=function(dataToUpdate){
+      this.data = dataToUpdate;
+      if(this.data.specificData){
+        if (this.data.specificData.unicityFields == undefined) {
+          this.data.specificData.unicityFields = [];
+        }
+      }else{
+        this.data.specificData = {}
+        if (this.data.specificData.unicityFields == undefined) {
+          this.data.specificData.unicityFields = [];
+        }
+      }
+      if (this.tags.zentable != undefined) {
+        this.tags.zentable.data = this.data.specificData.unicityFields;
+      }
+      this.update();
+    }.bind(this);
 
-    this.on('unmount', function () {
-      //RiotControl.off('item_current_changed');
-    });
+
     this.on('mount', function () {
       this.tags.zentable.on('rowSelect', function (data) {
         console.log(data);
@@ -60,20 +75,13 @@
         this.data.specificData.unicityFields.splice(row.rowid, 1);
         this.tags.zentable.data = this.data.specificData.unicityFields;
       }.bind(this));
+      RiotControl.on('item_current_changed',this.updateData);
 
     });
+    this.on('unmount', function () {
+      RiotControl.off('item_current_changed',this.updateData);
+    });
 
-    RiotControl.on('item_current_changed', function (data) {
-      this.data = data;
-      if (this.data.specificData.unicityFields == undefined) {
-        this.data.specificData.unicityFields = [];
-      }
-      console.log(this.data.specificData.unicityFields);
-      if (this.tags.zentable != undefined) {
-        this.tags.zentable.data = this.data.specificData.unicityFields;
-      }
-      this.update();
-    }.bind(this));
 
     this.fieldValueChange = function (e) {
       //console.log(e.target.value);
