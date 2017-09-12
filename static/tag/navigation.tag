@@ -9,7 +9,7 @@
         </h1>
       </div>
     </div>
-    <div id="containerloaderDiv" if={saveBoolean}>
+    <div id="containerloaderDiv" if={persistInProgress}>
       <div id="row">
         <div id="loaderDiv"></div>
         <h1 id="loaderText">
@@ -92,7 +92,6 @@
 
   <script>
 
-    this.saveBoolean = false
     this.persistInProgress = false;
 //    this.workspaceComponents = [];
 
@@ -224,14 +223,12 @@
 
       RiotControl.on('persist_start', function (data) {
         //console.log('persist_start | ',this.saveButton)
-        this.saveBoolean = true
         this.persistInProgress = true;
         this.update();
       }.bind(this));
 
       RiotControl.on('persist_end', function (data) {
         this.persistInProgress = false;
-        this.saveBoolean = false
         this.update();
       }.bind(this));
 

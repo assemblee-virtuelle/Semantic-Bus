@@ -4,25 +4,25 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   this.genericStore = genericStore;
   this.profilStore = profilStore;
   //this.currentEditStore;
-  this.displayMode = {
-    modeNavigation: true,
-    modeEdition: false,
-    modeComponentNetwork: false,
-    modeComponentTest: false,
-    modeProfilEdition: false,
-    modeWorkspaceNavigation: false,
-    modeWorkspaceShareNavigation: false,
-    modeTechnicalComponentNavigation: false,
-    modeAdminNavigation: false,
-    modeWorkspaceEdition: false,
-    modeWorksapceComponentEdition: false,
-    modeConnectBefore: false,
-    modeConnectAfter: false,
-    modeMenuHide: false,
-    modeGraph: false,
-    modeUserList: false,
-    modeTechnicalUserNavigation: false
-  }
+  // this.displayMode = {
+  //   modeNavigation: true,
+  //   modeEdition: false,
+  //   modeComponentNetwork: false,
+  //   modeComponentTest: false,
+  //   modeProfilEdition: false,
+  //   modeWorkspaceNavigation: false,
+  //   modeWorkspaceShareNavigation: false,
+  //   modeTechnicalComponentNavigation: false,
+  //   modeAdminNavigation: false,
+  //   modeWorkspaceEdition: false,
+  //   modeWorksapceComponentEdition: false,
+  //   modeConnectBefore: false,
+  //   modeConnectAfter: false,
+  //   modeMenuHide: false,
+  //   modeGraph: false,
+  //   modeUserList: false,
+  //   modeTechnicalUserNavigation: false
+  // }
   this.updateMode = function(changedValueMode) {
     for (displayKey in this.displayMode) {
       if (changedValueMode[displayKey] != undefined) {
@@ -91,7 +91,9 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   this.navigateNext = function(newScreen, hidePrevious, baseScreen) {
     var baseScreenDepth;
     //console.log(this.screenHistory[this.screenHistory.length- 1],newScreen);
-    if(sift({screen: newScreen},this.screenHistory[this.screenHistory.length - 1]).length==0){
+    if (sift({
+        screen: newScreen
+      }, this.screenHistory[this.screenHistory.length - 1]).length == 0) {
       if (baseScreen != undefined) {
         baseScreenDepth = sift({
           screen: baseScreen
@@ -188,8 +190,10 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     this.trigger('persist_end');
   }.bind(this));
 
-  workSpaceStore.on('workspace_current_select_done', function(message) {
+  workSpaceStore.on('workspace_current_changed', function(message) {
+    console.log('workspace_current_changed', this, message);
     this.workspaceCurrent = message;
+    this.genericStore.workspaceCurrent = message;
     this.navigateNext('workspaceEditor', true);
     // this.updateMode({
     //   modeComponentTest: false,
@@ -210,26 +214,31 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     //   modeTechnicalUserNavigation: false
     //   //modeWorkspaceNavigation : false,
     // });
-    this.trigger('persist_end');
+    //this.trigger('persist_end');
+    if (this.genericStore.itemCurrent != undefined) {
+      this.genericStore.trigger('component_current_select', sift({
+        _id: this.genericStore.itemCurrent._id
+      }, message.components)[0]);
+    }
   }.bind(this));
   this.on('workspace_current_persist', function() {
-    this.trigger('persist_start');
+    //this.trigger('persist_start');
   });
 
-  workSpaceStore.on('item_current_element_added', function(message) {
-    // this.updateMode({
-    //   modeTechnicalComponentNavigation: false,
-    // });
-  }.bind(this));
+  // workSpaceStore.on('item_current_element_added', function(message) {
+  //   // this.updateMode({
+  //   //   modeTechnicalComponentNavigation: false,
+  //   // });
+  // }.bind(this));
 
-  genericStore.on('item_current_element_added', function(message) {
-    // this.updateMode({
-    //   modeNavigation: false,
-    //   modeEdition: true,
-    //   modeConnectBefore: false,
-    //   modeConnectAfter: false
-    // });
-  }.bind(this));
+  // genericStore.on('item_current_element_added', function(message) {
+  //   // this.updateMode({
+  //   //   modeNavigation: false,
+  //   //   modeEdition: true,
+  //   //   modeConnectBefore: false,
+  //   //   modeConnectAfter: false
+  //   // });
+  // }.bind(this));
 
 
 
@@ -238,42 +247,42 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   //   this.currentEditStore.addComponent(message);
   // });
 
-  this.on('technicalComponent_show', function(message) {
-    // this.updateMode({
-    //   modeTechnicalComponentNavigation: true,
-    //   modeProfilEdition: false,
-    //   modeWorkspaceNavigation: false,
-    //   modeAdminNavigation: false,
-    //   modeWorkspaceEdition: false,
-    //   modeWorkspaceShareNavigation: false
-    // });
-  });
+  // this.on('technicalComponent_show', function(message) {
+  //   // this.updateMode({
+  //   //   modeTechnicalComponentNavigation: true,
+  //   //   modeProfilEdition: false,
+  //   //   modeWorkspaceNavigation: false,
+  //   //   modeAdminNavigation: false,
+  //   //   modeWorkspaceEdition: false,
+  //   //   modeWorkspaceShareNavigation: false
+  //   // });
+  // });
 
-  this.on('navigation_mode_edition_only', function(message) {
-    // this.updateMode({
-    //   modeNavigation: false,
-    //   modeEdition: true
-    // });
-  });
-  this.on('navigation_mode_edition_and_navigation', function(message) {
-    // this.updateMode({
-    //   modeProfilEdition: true,
-    //   modeNavigation: true,
-    //   modeEdition: true
-    // });
-  });
-
-  this.on('navigation_mode_user_list', function(message) {
-    // this.updateMode({
-    //   modeUserList: true,
-    // });
-  });
-
-  this.on('navigation_mode_composant_list', function(message) {
-    // this.updateMode({
-    //   modeUserList: false,
-    // });
-  });
+  // this.on('navigation_mode_edition_only', function(message) {
+  //   // this.updateMode({
+  //   //   modeNavigation: false,
+  //   //   modeEdition: true
+  //   // });
+  // });
+  // this.on('navigation_mode_edition_and_navigation', function(message) {
+  //   // this.updateMode({
+  //   //   modeProfilEdition: true,
+  //   //   modeNavigation: true,
+  //   //   modeEdition: true
+  //   // });
+  // });
+  //
+  // this.on('navigation_mode_user_list', function(message) {
+  //   // this.updateMode({
+  //   //   modeUserList: true,
+  //   // });
+  // });
+  //
+  // this.on('navigation_mode_composant_list', function(message) {
+  //   // this.updateMode({
+  //   //   modeUserList: false,
+  //   // });
+  // });
 
   this.on('workspace_show', function(message) {
     this.navigateNext('myWorkspaces', false, 'menu');
@@ -344,18 +353,18 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   });
 
 
-  this.on('workspace_current_edit', function(message) {
-    // this.updateMode({
-    //   modeComponentTest: false,
-    //   modeComponentNetwork: false,
-    //   modeNavigation: true,
-    //   modeEdition: false,
-    //   modeWorkspaceNavigation: false,
-    //   modeWorksapceEdition: true,
-    //   modeWorkspaceShareNavigation: false,
-    //   modeMenuHide: true
-    // });
-  });
+  // this.on('workspace_current_edit', function(message) {
+  //   // this.updateMode({
+  //   //   modeComponentTest: false,
+  //   //   modeComponentNetwork: false,
+  //   //   modeNavigation: true,
+  //   //   modeEdition: false,
+  //   //   modeWorkspaceNavigation: false,
+  //   //   modeWorksapceEdition: true,
+  //   //   modeWorkspaceShareNavigation: false,
+  //   //   modeMenuHide: true
+  //   // });
+  // });
 
   this.on('workspace_current_graph', function(message) {
     this.navigateNext('graph', true);
@@ -388,21 +397,21 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     this.workspaceStore.trigger('workspace_current_init', message);
   });
 
-  this.on('workspace_current_cancel', function(message) {
-    // this.updateMode({
-    //   modeWorkspaceEdition: true,
-    //   modeWorkspaceNavigation: false,
-    //   modeTechnicalComponentNavigation: false,
-    //   modeTechnicalUserNavigation: false
-    // });
-  });
+  // this.on('workspace_current_cancel', function(message) {
+  //   // this.updateMode({
+  //   //   modeWorkspaceEdition: true,
+  //   //   modeWorkspaceNavigation: false,
+  //   //   modeTechnicalComponentNavigation: false,
+  //   //   modeTechnicalUserNavigation: false
+  //   // });
+  // });
 
-  this.on('item_current_cancel', function(message) {
-    // this.updateMode({
-    //   modeNavigation: true,
-    //   modeEdition: false
-    // });
-  });
+  // this.on('item_current_cancel', function(message) {
+  //   // this.updateMode({
+  //   //   modeNavigation: true,
+  //   //   modeEdition: false
+  //   // });
+  // });
 
   // this.on('item_current_click', function(message) {
   //   console.log('MainController | item_current_click');
@@ -418,6 +427,8 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   genericStore.on('component_current_show', function() {
     this.navigateNext('componentEditor', true);
   }.bind(this));
+
+
   //
   // genericStore.on('item_current_edit_mode', function(message) {
   //   //console.log('currentItemType  Before:',this.currentItemType);
@@ -438,41 +449,18 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   //   //console.log('currentItemType  :',this.currentItemType);
   // }.bind(this));
 
-  this.on('item_current_connect_before', function(data) {
-    this.updateMode({
-      modeConnectBefore: true,
-    });
-  });
 
-  this.on('item_current_cancel_connect_before', function(data) {
-    //console.log('item_current_cancel_connect_before');
-    this.updateMode({
-      modeConnectBefore: false
-    });
-  });
 
-  this.on('item_current_connect_after', function(data) {
-    this.updateMode({
-      modeConnectAfter: true
-    });
-  });
-
-  this.on('item_current_cancel_connect_after', function(data) {
-    this.updateMode({
-      modeConnectAfter: false,
-    });
-  });
-
-  this.on('item_current_editById', function(id) {
-    console.log('GenericStore edit byId | components |', this.workspaceStore.workspaceCurrent.components);
-    for (var workspaceComponent of this.workspaceStore.workspaceCurrent.components) {
-      if (workspaceComponent._id == id) {
-        console.log('GenericStore edit byId | component finded |', workspaceComponent);
-        genericStore.trigger('item_current_edit', workspaceComponent);
-        break;
-      }
-    }
-  });
+  // this.on('item_current_editById', function(id) {
+  //   console.log('GenericStore edit byId | components |', this.workspaceStore.workspaceCurrent.components);
+  //   for (var workspaceComponent of this.workspaceStore.workspaceCurrent.components) {
+  //     if (workspaceComponent._id == id) {
+  //       console.log('GenericStore edit byId | component finded |', workspaceComponent);
+  //       genericStore.trigger('item_current_edit', workspaceComponent);
+  //       break;
+  //     }
+  //   }
+  // });
 
   this.on('menu_show', function(data) {
     this.updateMode({

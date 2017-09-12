@@ -26,27 +26,27 @@
     </div>
   </div>
   <div style="flex-grow:1;flex-wrap: nowrap" class="containerH">
-    <div style="flex-basis:200px" class="containerV" if={modeConnectBefore}>
+
+    <div style="flex-basis:250px" class="containerV">
+
       <div class="containerH commandBar" style="flex-basis:50px">
+        <div>
+          Before
+        </div>
         <div class="commandGroup containerH">
-          <div onclick={cancelConnectBeforeClick} class="commandButton">
-            cancel
-          </div>
+          <div onclick={connectBeforeClick} class="commandButtonImage" if={!modeConnectBefore}><img src="./image/Super-Mono-png/PNG/basic/blue/toggle-expand-alt.png" height="40px"></div>
+          <div onclick={cancelConnectBeforeClick} class="commandButtonImage" if={modeConnectBefore}><img src="./image/Super-Mono-png/PNG/basic/yellow/button-cross.png" height="40px"></div>
         </div>
       </div>
-      <div onclick={componentClickToConnect} class="selector" each={workspaceDisplayComponents}>
-        {type} : {name}
-      </div>
-    </div>
-    <div style="flex-basis:200px" class="containerV" if={!modeConnectBefore}>
-      <div class="containerH commandBar" style="flex-basis:50px">
-        <div class="commandGroup containerH">
-          <div onclick={connectBeforeClick} class="commandButton">
-            connect before
-          </div>
+
+      <div each={itemCurrent.connectionsBefore} class="containerH" style="flex-wrap: nowrap;justify-content: space-between;align-items:flex-start;">
+        <div onclick={ComponentClickToNavigate} class="selector" style="flex-grow:1;">
+          {type} : {name}
         </div>
+        <div onclick={deleteConnectionBefore} class="commandButtonImage" style="align-self:flex-start;flex-basis:25px;" ><img src="./image/Super-Mono-png/PNG/basic/red/button-cross.png" height="20px"></div>
       </div>
-      <div onclick={ComponentClickToNavigate} class="selector" each={itemCurrent.connectionsBefore}>
+
+      <div onclick={componentClickToConnectBefore} class="selector" each={beforeConnectionsAvaible} style="background-color:green" if={modeConnectBefore}>
         {type} : {name}
       </div>
     </div>
@@ -70,27 +70,28 @@
       <jsonEditor name="testPreviewer" mode="text" style="flex-grow:1"></jsonEditor>
 
     </div>
-    <div style="flex-basis:200px" class="containerV" show={!modeConnectAfter}>
+    <div style="flex-basis:250px" class="containerV" >
       <div class="containerH commandBar" style="flex-basis:50px">
+        <div>
+          After
+        </div>
         <div class="commandGroup containerH">
-          <div onclick={connectAfterClick} class="commandButton">
-            connect after
-          </div>
+          <div onclick={connectAfterClick} class="commandButtonImage" if={!modeConnectAfter}><img src="./image/Super-Mono-png/PNG/basic/blue/toggle-expand-alt.png" height="40px"></div>
+
+          <div onclick={cancelConnectBeforeClick} class="commandButtonImage" if={modeConnectAfter}><img src="./image/Super-Mono-png/PNG/basic/yellow/button-cross.png" height="40px"></div>
+
         </div>
       </div>
-      <div onclick={ComponentClickToNavigate} class="selector" each={itemCurrent.connectionsAfter}>
-        {type} : {name}
+      <div each={itemCurrent.connectionsAfter} class="containerH" style="flex-wrap: nowrap;justify-content: space-between;">
+        <div onclick={ComponentClickToNavigate} class="selector"  style="flex-grow:1;">
+          {type} : {name}
+        </div>
+        <div onclick={deleteConnectionAfter} class="commandButtonImage"  style="align-self:flex-start;flex-basis:25px;"><img src="./image/Super-Mono-png/PNG/basic/red/button-cross.png" height="20px"></div>
       </div>
-    </div>
+      <!-- </div>
     <div style="flex-basis:200px" class="containerV" if={modeConnectAfter}>
-      <div class="containerH commandBar" style="flex-basis:50px">
-        <div class="commandGroup containerH">
-          <div onclick={cancelConnectAfterClick} class="commandButton">
-            cancel
-          </div>
-        </div>
-      </div>
-      <div onclick={componentClickToConnect} class="selector" each={workspaceDisplayComponents}>
+       -->
+      <div onclick={componentClickToConnectAfter} class="selector" each={afterConnectionsAvaible} style="background-color:green" if={modeConnectAfter}>
         {type} : {name}
       </div>
     </div>
@@ -146,31 +147,48 @@
     }
 
     connectBeforeClick(e) {
-      RiotControl.trigger('item_current_connect_before');
+      RiotControl.trigger('item_current_connect_before_show');
     }
     cancelConnectBeforeClick(e) {
       //console.log('cancelConnectBeforeClick');
-      RiotControl.trigger('item_current_cancel_connect_before');
+      RiotControl.trigger('item_current_connect_cancel_show');
     }
     connectAfterClick(e) {
-      RiotControl.trigger('item_current_connect_after');
+      RiotControl.trigger('item_current_connect_after_show');
     }
 
     cancelConnectAfterClick(e) {
-      RiotControl.trigger('item_current_cancel_connect_after');
+      RiotControl.trigger('item_current_connect_cancel_show');
     }
-    componentClickToConnect(e) {
+    componentClickToConnectBefore(e) {
+      console.log("componentClick", e.item);
+      //RiotControl.trigger('item_current_connect_before', e.item);
+      RiotControl.trigger('connect_components', e.item,this.itemCurrent);
+    }
+    componentClickToConnectAfter(e) {
+      console.log("componentClick", e.item);
       //console.log("componentClick",e.item);
-      RiotControl.trigger('item_current_click', e.item);
-
+      //RiotControl.trigger('item_current_connect_after', e.item);
+        RiotControl.trigger('connect_components',this.itemCurrent,e.item);
     }
 
     ComponentClickToNavigate(e) {
-      console.log('ComponentClickToNavigate',e.item);
+      console.log('ComponentClickToNavigate', e.item);
       //RiotControl.trigger('item_current_editById', e.item._id);
       RiotControl.trigger('component_current_select', e.item);
     }
 
+    deleteConnectionAfter(e) {
+      //console.log('ComponentClickToNavigate', e.item);
+      //RiotControl.trigger('item_current_editById', e.item._id);
+      RiotControl.trigger('disconnect_components', this.itemCurrent,e.item);
+    }
+
+    deleteConnectionBefore(e) {
+      //console.log('ComponentClickToNavigate', e.item);
+      //RiotControl.trigger('item_current_editById', e.item._id);
+        RiotControl.trigger('disconnect_components',e.item,this.itemCurrent);
+    }
 
     onNameChange(e) {
       this.itemCurrent.name = e.currentTarget.value;
@@ -179,9 +197,7 @@
     this.mountEdition = function (editor) {
       //console.log('mountEdition', this);
       this.editionContainer = riot.mount('#editionContainer', editor)[0];
-      //this.editionContainer.data=item;
-      //console.log('mountEdition | ', componentName, this.editionContainer);
-      //this.editorTitle = this.editionContainer.title;
+      //this.editionContainer.data=item; console.log('mountEdition | ', componentName, this.editionContainer); this.editorTitle = this.editionContainer.title;
     };
 
     // RiotControl.on('item_current_testPull_done', function (data) {   this.modeComponentTest = true;   console.log('item_current_testPull_done | data :', data);   this.tags.testPreviewer.data = data;   this.update(); }.bind(this));
@@ -194,21 +210,24 @@
     }.bind(this));
 
     // RiotControl.on('navigator_mount', function (webComponentName) {   console.log('navigator_mount');   this.cleanNavigation();   this.contentNavigator = riot.mount('#contentNavigator', webComponentName)[0]; }.bind(this));
+    // RiotControl.on('item_current_edit_mode', function (item) {   console.log('item_current_edit_mode', item);   var tagName;
+    //
+    //   if (item.editor != undefined) {     tagName = item.editor;   } else {     tagName = 'no-editor';   }   //this.modeComponentNetwork=true;
+    //
+    //   this.mountEdition(tagName);   this.update(); }.bind(this));
 
-    // RiotControl.on('item_current_edit_mode', function (item) {
-    //   console.log('item_current_edit_mode', item);
-    //   var tagName;
-    //
-    //   if (item.editor != undefined) {
-    //     tagName = item.editor;
-    //   } else {
-    //     tagName = 'no-editor';
-    //   }
-    //   //this.modeComponentNetwork=true;
-    //
-    //   this.mountEdition(tagName);
-    //   this.update();
-    // }.bind(this));
+    RiotControl.on('item_curent_connect_show_changed', function (modes) {
+      console.log('item_curent_connect_show_changed', modes);
+      this.modeConnectAfter = modes.after;
+      this.modeConnectBefore = modes.before;
+      this.update();
+    }.bind(this));
+    RiotControl.on('item_curent_available_connections', function (connections) {
+      console.log('item_curent_available_connections', connections);
+      this.beforeConnectionsAvaible = connections.before;
+      this.afterConnectionsAvaible = connections.after;
+      this.update();
+    }.bind(this));
 
     RiotControl.on('item_current_editor_changed', function (editor) {
       console.log('item_current_editor_changed', editor)

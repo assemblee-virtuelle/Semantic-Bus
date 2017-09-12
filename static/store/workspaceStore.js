@@ -38,10 +38,10 @@ function WorkspaceStore() {
         callback();
       }
       this.trigger('workspace_collection_changed', this.workspaceCollection);
-      if (this.workspaceCurrent) {
-        console.log("Update current workspace")
-        this.updateComponentListe(this.workspaceCurrent)
-      }
+      // if (this.workspaceCurrent) {
+      //   console.log("Update current workspace")
+      //   this.updateComponentListe(this.workspaceCurrent)
+      // }
     }.bind(this));
   }; //<= load_workspace
 
@@ -90,7 +90,7 @@ function WorkspaceStore() {
   // --------------------------------------------------------------------------------
 
   this.update = function (data) {
-    console.log('update');
+    //console.log('update');
     // if (data) {
     //   if (data.component) {
     //     var ajax_data = JSON.stringify({
@@ -104,6 +104,7 @@ function WorkspaceStore() {
     // } else {
       var ajax_data = JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent))
     // }
+    this.trigger('persist_start');
     $.ajax({
       method: 'put',
       url: '../data/core/workspace',
@@ -113,12 +114,18 @@ function WorkspaceStore() {
         "Authorization": "JTW" + " " + localStorage.token
       },
     }).done(function (data) {
-      console.log('update data ||', data);
-      this.load(function () {
-        data.mode = 'edit';
-        this.workspaceCurrent=data;
-        this.trigger('workspace_current_persist_done', data);
-      }.bind(this));
+      this.trigger('persist_end');
+      this.workspaceBusiness.connectWorkspaceComponent(data.components);
+      this.workspaceCurrent=data;
+      data.mode = 'edit';
+      //console.log('update data ||', data);
+      this.trigger('workspace_current_persist_done', data);
+
+      // this.load(function () {
+      //   data.mode = 'edit';
+      //   this.workspaceCurrent=data;
+      //   this.trigger('workspace_current_persist_done', data);
+      // }.bind(this));
       //this.workspaceCurrent.mode = 'edit';
     }.bind(this));
   }; //<= update
@@ -207,7 +214,7 @@ function WorkspaceStore() {
           this.workspaceBusiness.connectWorkspaceComponent(data.components);
           this.workspaceCurrent = data;
           this.workspaceCurrent.mode = 'edit';
-          this.workspaceCurrent.synchronized =true;
+          //this.workspaceCurrent.synchronized =true;
           resolve(data);
       });
     });
@@ -297,7 +304,7 @@ function WorkspaceStore() {
 
     this.select(record).then(workspace=>{
       console.log('workspace_current_select ||', record.users)
-      this.trigger('workspace_current_select_done');
+      this.trigger('workspace_current_select_done', workspace);
       this.trigger('workspace_current_changed', workspace);
     })
   }); // <= workspace_current_select
@@ -324,7 +331,8 @@ function WorkspaceStore() {
     this.workspaceCurrent = {
       name: "",
       description: "",
-      components: []
+      components: [],
+      users:[]
     };
     this.workspaceCurrent.mode = 'init';
     this.trigger('workspace_current_changed', this.workspaceCurrent);
@@ -443,6 +451,33 @@ function WorkspaceStore() {
              this.trigger('share_change', {user:data.user,workspace:data.workspace})
          }
      }.bind(this));
- })
+ });
+
+ this.on('connect_components', function(source,destination) {
+   source.connectionsAfter.push(destination);
+   destination.connectionsBefore.push(source);
+   this.update(this.workspaceCurrent);
+ });
+
+ this.on('disconnect_components', function(source,destination) {
+   source.connectionsAfter.splice(source.connectionsAfter.indexOf(destination),1);
+   destination.connectionsBefore.splice(destination.connectionsBefore.indexOf(source),1);
+   this.update(this.workspaceCurrent);
+ });
+
+ this.on('item_current_connect_before', function(data) {
+   console.log('item_current_add_component', this.connectMode);
+   this.itemCurrent.connectionsBefore = this.itemCurrent.connectionsBefore || [];
+   this.itemCurrent.connectionsBefore.push(data);
+   this.update().then((record) => {
+     this.modeConnectBefore = false;
+     this.trigger('item_curent_connect_show_changed', {
+       before: this.modeConnectBefore,
+       after: this.modeConnectAfter
+     });
+     this.trigger('item_curent_available_connections', this.computeAvailableConnetions());
+     this.trigger('item_current_changed', this.itemCurrent);
+   });
+ });
 
 }

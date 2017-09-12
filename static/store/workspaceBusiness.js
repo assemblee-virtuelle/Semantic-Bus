@@ -61,6 +61,11 @@ function WorkspaceBusiness() {
     // return out;
   }; //<= connectWorkspaceComponent
 
+  this.unserializeWorkspace = function(workspace) {
+    console.log('connectWorkspaceComponent', workspaceComponentsList);
+    this.connectWorkspaceComponent(workspace.components);
+  }; //<= connectWorkspaceComponent
+
   // --------------------------------------------------------------------------------
 
 
