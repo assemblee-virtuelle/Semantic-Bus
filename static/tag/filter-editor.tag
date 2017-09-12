@@ -5,8 +5,11 @@
 
   <script>
     this.innerData = {};
-    
-    //PROXY
+    this.test = function () {
+      consol.log('test');
+    }
+
+
     Object.defineProperty(this, 'data', {
       set: function (data) {
         this.innerData = data;
@@ -21,9 +24,18 @@
       },
       configurable: true
     });
-    //update data
-    RiotControl.on('item_current_changed', function (data) {
-      this.data = data;
-    }.bind(this));
+    this.updateData=function(dataToUpdate){
+      this.innerData=dataToUpdate;
+      this.update();
+    }.bind(this);
+
+
+    this.on('mount', function () {
+      RiotControl.on('item_current_changed',this.updateData);
+    });
+    this.on('unmount', function () {
+      RiotControl.off('item_current_changed',this.updateData);
+    });
+
   </script>
 </filter-editor>

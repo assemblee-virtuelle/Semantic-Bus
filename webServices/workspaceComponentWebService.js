@@ -52,7 +52,7 @@ module.exports = function (router) {
       var id = req.body._id;
       var componentToUpdate = req.body;
       console.log('workspaceComponent',componentToUpdate);
-      workspace_component_lib.update(id, req.body).then(function (compoupdate) {
+      workspace_component_lib.update(req.body).then(function (compoupdate) {
         res.json(compoupdate)
       })
     } else {

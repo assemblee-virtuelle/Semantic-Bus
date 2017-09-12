@@ -31,16 +31,24 @@
     this.flowValue = "";
     this.replacementdValue = "";
     this.data = {};
-    this.currentRowId=undefined;
+    this.currentRowId = undefined;
 
+    this.updateData = function (dataToUpdate) {
+      this.data = dataToUpdate;
+      if (this.data.specificData.mappingTable == undefined) {
+        this.data.specificData.mappingTable = [];
+      }
+      console.log(this.data.specificData.unicityFields);
+      if (this.tags.zentable != undefined) {
+        this.tags.zentable.data = this.data.specificData.mappingTable;
+      }
+      this.update();
+    }.bind(this);
 
-    this.on('unmount', function () {
-      //RiotControl.off('item_current_changed');
-    });
     this.on('mount', function () {
       this.tags.zentable.on('rowSelect', function (data) {
         console.log(data);
-        this.currentRowId=data.rowid
+        this.currentRowId = data.rowid
         this.flowValue = data.flowValue;
         this.replacementdValue = data.replacementValue;
         this.update();
@@ -48,7 +56,7 @@
 
       this.tags.zentable.on('addRow', function () {
         //console.log(this.data.specificData.unicityFields)
-        this.data.specificData.mappingTable.push({flowValue: this.flowValue,replacementValue: this.replacementdValue});
+        this.data.specificData.mappingTable.push({flowValue: this.flowValue, replacementValue: this.replacementdValue});
         this.tags.zentable.data = this.data.specificData.mappingTable;
         //console.log(this.tags.zentable.data)
       }.bind(this));
@@ -58,26 +66,15 @@
         this.data.specificData.mappingTable.splice(row.rowid, 1);
         this.tags.zentable.data = this.data.specificData.mappingTable;
       }.bind(this));
+      RiotControl.on('item_current_changed', this.updateData);
 
     });
-
-    RiotControl.on('item_current_changed', function (data) {
-      this.data = data;
-      if (this.data.specificData.mappingTable == undefined) {
-        this.data.specificData.mappingTable = [];
-      }
-      console.log(this.data.specificData.unicityFields);
-      if (this.tags.zentable != undefined) {
-        this.tags.zentable.data = this.data.specificData.mappingTable;
-      }
-      this.update();
-    }.bind(this));
 
     this.flowValueChange = function (e) {
       //console.log(e.target.value);
       this.flowValue = e.target.value;
       //console.log(this.currentRowId)
-      this.data.specificData.mappingTable[this.currentRowId].flowValue=this.flowValue;
+      this.data.specificData.mappingTable[this.currentRowId].flowValue = this.flowValue;
       //console.log("value change", this.data.specificData.unicityFields)
       this.tags.zentable.data = this.data.specificData.mappingTable;
     }.bind(this);
@@ -85,11 +82,13 @@
       //console.log(e.target.value);
       this.replacementValue = e.target.value;
       //console.log(this.currentRowId)
-      this.data.specificData.mappingTable[this.currentRowId].replacementValue=this.replacementValue;
+      this.data.specificData.mappingTable[this.currentRowId].replacementValue = this.replacementValue;
       //console.log("value change", this.data.specificData.unicityFields)
       this.tags.zentable.data = this.data.specificData.mappingTable;
     }.bind(this);
-
+    this.on('unmount', function () {
+      RiotControl.off('item_current_changed', this.updateData);
+    });
   </script>
   <style scoped></style>
 </value-mapping-editor>

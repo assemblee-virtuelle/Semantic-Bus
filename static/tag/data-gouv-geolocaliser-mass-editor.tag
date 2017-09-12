@@ -23,6 +23,11 @@
     this.test=function(){
       consol.log('test');
     }
+    this.updateData=function(dataToUpdate){
+      this.innerData=dataToUpdate;
+      this.update();
+    }.bind(this);
+
 
     Object.defineProperty(this, 'data', {
        set: function (data) {
@@ -56,10 +61,10 @@
         this.innerData.specificData.longitudePath=e.currentTarget.value;
       }.bind(this));
 
-      RiotControl.on('item_current_changed',function(data){
-        this.innerData=data;
-        this.update();
-      }.bind(this));
+      RiotControl.on('item_current_changed',this.updateData);
+    });
+    this.on('unmount', function () {
+      RiotControl.off('item_current_changed',this.updateData);
     });
 
   </script>

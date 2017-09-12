@@ -38,10 +38,10 @@ function WorkspaceStore() {
         callback();
       }
       this.trigger('workspace_collection_changed', this.workspaceCollection);
-      if (this.workspaceCurrent) {
-        console.log("Update current workspace")
-        this.updateComponentListe(this.workspaceCurrent)
-      }
+      // if (this.workspaceCurrent) {
+      //   console.log("Update current workspace")
+      //   this.updateComponentListe(this.workspaceCurrent)
+      // }
     }.bind(this));
   }; //<= load_workspace
 
@@ -90,20 +90,21 @@ function WorkspaceStore() {
   // --------------------------------------------------------------------------------
 
   this.update = function (data) {
-    console.log('update');
-    if (data) {
-      if (data.component) {
-        var ajax_data = JSON.stringify({
-          workspace: this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent),
-          component: data.component
-        });
-        console.log(JSON.stringify(ajax_data))
-      } else {
-        var ajax_data = JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent))
-      }
-    } else {
+    //console.log('update');
+    // if (data) {
+    //   if (data.component) {
+    //     var ajax_data = JSON.stringify({
+    //       workspace: this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent),
+    //       component: data.component
+    //     });
+    //     console.log(JSON.stringify(ajax_data))
+    //   } else {
+    //     var ajax_data = JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent))
+    //   }
+    // } else {
       var ajax_data = JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent))
-    }
+    // }
+    this.trigger('persist_start');
     $.ajax({
       method: 'put',
       url: '../data/core/workspace',
@@ -113,12 +114,19 @@ function WorkspaceStore() {
         "Authorization": "JTW" + " " + localStorage.token
       },
     }).done(function (data) {
-      console.log('update data ||', data);
-      this.load(function () {
-        data.mode = 'read';
-        this.trigger('workspace_current_persist_done', data);
-      }.bind(this));
-      this.workspaceCurrent.mode = 'edit';
+      this.trigger('persist_end');
+      this.workspaceBusiness.connectWorkspaceComponent(data.components);
+      this.workspaceCurrent=data;
+      data.mode = 'edit';
+      //console.log('update data ||', data);
+      this.trigger('workspace_current_persist_done', data);
+
+      // this.load(function () {
+      //   data.mode = 'edit';
+      //   this.workspaceCurrent=data;
+      //   this.trigger('workspace_current_persist_done', data);
+      // }.bind(this));
+      //this.workspaceCurrent.mode = 'edit';
     }.bind(this));
   }; //<= update
 
@@ -206,7 +214,7 @@ function WorkspaceStore() {
           this.workspaceBusiness.connectWorkspaceComponent(data.components);
           this.workspaceCurrent = data;
           this.workspaceCurrent.mode = 'edit';
-          this.workspaceCurrent.synchronized =true;
+          //this.workspaceCurrent.synchronized =true;
           resolve(data);
       });
     });
@@ -296,7 +304,7 @@ function WorkspaceStore() {
 
     this.select(record).then(workspace=>{
       console.log('workspace_current_select ||', record.users)
-      this.trigger('workspace_current_select_done');
+      this.trigger('workspace_current_select_done', workspace);
       this.trigger('workspace_current_changed', workspace);
     })
   }); // <= workspace_current_select
@@ -323,7 +331,8 @@ function WorkspaceStore() {
     this.workspaceCurrent = {
       name: "",
       description: "",
-      components: []
+      components: [],
+      users:[]
     };
     this.workspaceCurrent.mode = 'init';
     this.trigger('workspace_current_changed', this.workspaceCurrent);
@@ -332,10 +341,10 @@ function WorkspaceStore() {
   // --------------------------------------------------------------------------------
 
 
-  this.on('workspace_current_refresh', function () {
-    console.log('workspace_current_refresh || ', this.workspaceCurrent);
-    this.trigger('item_current_edit', this.workspaceCurrent);
-  }); // <= workspace_current_refresh
+  // this.on('workspace_current_refresh', function () {
+  //   console.log('workspace_current_refresh || ', this.workspaceCurrent);
+  //   this.trigger('item_current_edit', this.workspaceCurrent);
+  // }); // <= workspace_current_refresh
 
   // --------------------------------------------------------------------------------
 
@@ -352,15 +361,16 @@ function WorkspaceStore() {
 
   // --------------------------------------------------------------------------------
 
-  this.on('technicalComponent_current_select', function (data) {
-    console.log("technicalComponent_current_select ||", data)
+  this.on('workspace_current_add_component', function (data) {
+    console.log("workspace_current_add_component ||", data)
     data.workspaceId = this.workspaceCurrent._id;
     data.specificData={};
     this.workspaceCurrent.components.push(data);
-    this.trigger('save_auto', {
-      workspace: this.workspaceCurrent,
-      component: data
-    })
+    // this.trigger('save_auto', {
+    //   compoenent:data,
+    //   workspace: this.workspaceCurrent,
+    // })
+    this.trigger('save_auto')
   }); //<= technicalComponent_current_select
 
   // --------------------------------------------------------------------------------
@@ -414,5 +424,60 @@ function WorkspaceStore() {
       this.trigger('workspace_current_graph_changed', this.workspaceCurrent);
     }.bind(this));
   }); //<= own_all_workspace
+
+  ///GESTION DES DROIT DE USER
+
+ this.on('share-workspace', function(data) {
+     console.log(data);
+     $.ajax({
+         method: 'put',
+         url: '../data/core/share/workspace/',
+         data: JSON.stringify(data),
+         headers: {
+             "Authorization": "JTW" + " " + localStorage.token
+         },
+         beforeSend: function(){
+             this.trigger('share_change_send');
+         }.bind(this),
+         contentType: 'application/json'
+     }).done(function(data) {
+         console.log('in share data',user.userata)
+         if(data == false){
+             this.trigger('share_change_no_valide')
+         }else if (data == "already"){
+             this.trigger('share_change_already')
+         }else{
+             this.userCurrrent = data
+             this.trigger('share_change', {user:data.user,workspace:data.workspace})
+         }
+     }.bind(this));
+ });
+
+ this.on('connect_components', function(source,destination) {
+   source.connectionsAfter.push(destination);
+   destination.connectionsBefore.push(source);
+   this.update(this.workspaceCurrent);
+ });
+
+ this.on('disconnect_components', function(source,destination) {
+   source.connectionsAfter.splice(source.connectionsAfter.indexOf(destination),1);
+   destination.connectionsBefore.splice(destination.connectionsBefore.indexOf(source),1);
+   this.update(this.workspaceCurrent);
+ });
+
+ this.on('item_current_connect_before', function(data) {
+   console.log('item_current_add_component', this.connectMode);
+   this.itemCurrent.connectionsBefore = this.itemCurrent.connectionsBefore || [];
+   this.itemCurrent.connectionsBefore.push(data);
+   this.update().then((record) => {
+     this.modeConnectBefore = false;
+     this.trigger('item_curent_connect_show_changed', {
+       before: this.modeConnectBefore,
+       after: this.modeConnectAfter
+     });
+     this.trigger('item_curent_available_connections', this.computeAvailableConnetions());
+     this.trigger('item_current_changed', this.itemCurrent);
+   });
+ });
 
 }

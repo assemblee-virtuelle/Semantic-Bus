@@ -70,30 +70,40 @@
       } else {
         this.input3 = false
       }
-      console.log(this.input3)
-    }
+      this.updateData=function(dataToUpdate){
+        this.data = dataToUpdate;
+        if (this.data.specificData.scrappe == undefined) {
+          this.data.specificData.scrappe = [];
+        }
+        console.log(this.data.specificData.scrappe);
+        if (this.tags.zentable != undefined) {
+          this.tags.zentable.data = this.data.specificData.scrappe;
+        }
+        this.update();
+      }.bind(this);
 
-    check4(e) {
-      if (this.input4 == false) {
-        this.input4 = true
-      } else {
-        this.input4 = false
+
+      check3(e){
+        if( this.input3 == false){
+            this.input3 = true
+        }
+        else{
+          this.input3 = false
+        }
+        console.log(this.input3)
       }
       console.log(this.input4)
     }
 
-    Object.defineProperty(this, 'data', {
-      set: function (data) {
-        this.innerData = data;
-        this.update();
-      }.bind(this),
-      get: function () {
-        return this.innerData;
-      },
-      configurable: true
-    });
-
-    this.on('mount', function () {
+      check4(e){
+        if( this.input4 == false){
+            this.input4 = true
+        }
+        else{
+          this.input4 = false
+        }
+        console.log(this.input4)
+      }
 
       this.tags.zentable.on('rowSelect', function (data) {
         this.currentRowId = data.rowid
@@ -136,20 +146,13 @@
       this.choix4.addEventListener('change', function (e) {
         this.data.specificData.flow_before = this.input4
       }.bind(this));
+      RiotControl.on('item_current_changed',this.updateData);
 
     });
+    this.on('unmount', function () {
+      RiotControl.off('item_current_changed',this.updateData);
+    });
 
-    RiotControl.on('item_current_changed', function (data) {
-      this.data = data;
-      if (this.data.specificData.scrappe == undefined) {
-        this.data.specificData.scrappe = [];
-      }
-      console.log(this.data.specificData.scrappe);
-      if (this.tags.zentable != undefined) {
-        this.tags.zentable.data = this.data.specificData.scrappe;
-      }
-      this.update();
-    }.bind(this));
 
     this.selectorValueChange = function (e) {
       //console.log(e.target.value);
@@ -259,6 +262,7 @@
     }.bind(this);
 
 
+<<<<<<< HEAD
 
     this.actionType.addEventListener('change', function (e) {
       //console.log(e.target.value);
@@ -303,6 +307,13 @@
       -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
       transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
       transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
+=======
+  </script>
+  <style>
+
+    .hide {
+      display:none;
+>>>>>>> 131814a51c7070d9715379fe088c8e4e3c297a94
     }
 
       .hide {
@@ -330,4 +341,3 @@
     }
   </style>
 </scrapper-editor>
-    

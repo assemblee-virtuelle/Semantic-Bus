@@ -1,6 +1,7 @@
 
 const mLabPromise = require('./mLabPromise');
 var user_lib = require('../lib/core').user
+var workspace_lib = require('../lib/core').workspace
 
 
 
@@ -65,8 +66,10 @@ module.exports = function (router) {
                         _id: workspace_id,
                         role: "editor"
                     })
-                   user_lib.update(userId, newUser).then(function (user) {
-                        res.send(user)
+                   user_lib.update(newUser).then(updatedUser=>{
+                        workspace_lib.getWorkspace(workspace_id).then(updatedWS=>{
+                            res.send({user:updatedUser,workspace:updatedWS});
+                        })
                     })
                 }
             } else {

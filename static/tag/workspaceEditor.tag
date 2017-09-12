@@ -269,10 +269,7 @@
 
     RiotControl.on('share_change', function (data) {
       console.log(data)
-      this.tags.zentable[1].data.push({
-        "email": data.email,
-        "role": data.workspaces[data.workspaces.length - 1].role
-      });
+      this.tags.zentable[1].data= data.workspace.users;
       this.update();
       data = null;
     }.bind(this));
@@ -291,8 +288,8 @@
       // this.componentView = true; this.userView = true; this.DescriptionView = true; this.update();
     }.bind(this));
 
-    RiotControl.on('save_auto', function (data) {
-      console.log("save auto data ||", data)
+    RiotControl.on('save_auto', function () {
+      //console.log("save auto data ||")
       this.componentView = true;
       this.userView = true;
       this.DescriptionView = true;
@@ -304,14 +301,15 @@
         field: 'description',
         data: this.innerData.description
       });
-      RiotControl.trigger('workspace_current_persist', data);
-    }.bind(this))
+      RiotControl.trigger('workspace_current_persist');
+    }.bind(this));
 
     this.tags.zentable[0].on('delRow', function (message) {
       RiotControl.trigger('workspace_current_delete_component', message);
       RiotControl.trigger('workspace_current_persist');
     }.bind(this));
     this.tags.zentable[0].on('rowNavigation', function (data) {
+      RiotControl.trigger('component_current_show');
       RiotControl.trigger('component_current_select', data);
       //this.trigger('selectWorkspace');
     }.bind(this));
@@ -363,14 +361,14 @@
         this.componentView = false;
         this.userView = true;
         this.DescriptionView = false;
-        RiotControl.trigger('workspace_current_add_user', message);
+        RiotControl.trigger('workspace_current_add_user_show', message);
       }.bind(this));
 
       this.tags.zentable[0].on('addRow', function (message) {
         this.componentView = true;
         this.userView = false;
         this.DescriptionView = false;
-        RiotControl.trigger('workspace_current_add_component', message);
+        RiotControl.trigger('workspace_current_add_component_show', message);
       }.bind(this));
 
       ///HEADER PAGE

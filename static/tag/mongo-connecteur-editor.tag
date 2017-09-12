@@ -13,7 +13,7 @@
     <label>port</label>  -->
     <!--  <input type="text" name="port" value={data.specificData.port}/>  -->
     <label>URI CONNEXION</label>  -->
-    <input type="text" name="url" value={data.specificData.url}/> 
+    <input type="text" name="url" value={data.specificData.url}/>
     <!--  <label>username</label>
     <input type="text" name="username" value={data.specificData.username}/>
     <label>password</label>
@@ -34,7 +34,7 @@
     </div>
 </div>
 <div if={queryMode}>
-    <div style="display:flex; flex-direction: column;"> 
+    <div style="display:flex; flex-direction: column;">
         <!--  <div>
             <h3 style="margin-top:5%;"> Séléctionner votre/vos type(s) de query </h3>
             <div style="display: flex; padding: 5px;">
@@ -108,7 +108,7 @@
 			display: none;
 		}
 
-	
+
 
 		.cb i{
 			min-width: 30px;
@@ -143,7 +143,7 @@
 <script>
 
 
-  //front animation 
+  //front animation
   this.color1 = "blue";
   this.color2 = "white";
   this.color3 = "white";
@@ -151,6 +151,11 @@
   this.editionModel = false;
   this.queryMode = false;
   this.innerData={};
+  this.updateData=function(dataToUpdate){
+    this.innerData=dataToUpdate;
+    this.update();
+  }.bind(this);
+
   this.queryData = [{selected: false, query: "where"}, {selected: false, query: "group"},{selected: false, query: "order"},{selected: false, query: "skip"},{selected: false, query: "limit"}  ]
 
     goQuery(e){
@@ -163,7 +168,7 @@
         this.update()
     }.bind(this)
 
-    goModelDescription(e){ 
+    goModelDescription(e){
       this.editionModel = true;
       this.connection = false;
       this.queryMode = false;
@@ -216,7 +221,7 @@
 
 
     this.generateRequest = function(){
-      //  var modelName = this.data.specificData.modelName; 
+      //  var modelName = this.data.specificData.modelName;
       var modelData = this.tags.jsonSchema.data;
       this.queryDatas = [];
       this.data.specificData.querySelect = [];
@@ -258,10 +263,10 @@
                     }
                   }
               this.update()
-          }  
+          }
         }.bind(this))
     }
-    
+
 
     this.connectesql = function(){
         console.log(this.data.specificData)
@@ -285,7 +290,7 @@
         this.data.specificData.jsonSchema = this.tags.jsonSchema.data;
         for (property in this.tags.jsonSchema.data){
           this.selectData.push({property : property, selected: false})
-        }  
+        }
     }
 
     this.request = function(){
@@ -318,7 +323,7 @@
       //this.port.addEventListener('change',function(e){
       // this.innerData.specificData.port=e.currentTarget.value;
       //}.bind(this));
- 
+
       this.modelName.addEventListener('change',function(e){
         this.innerData.specificData.modelName=e.currentTarget.value;
       }.bind(this));
@@ -326,14 +331,14 @@
       this.querySelect.addEventListener('change',function(e){
         this.innerData.specificData.querySelect=e.currentTarget.value;
       }.bind(this));
-      
-      RiotControl.on('item_current_changed',function(data){
-        this.innerData=data;
-        this.update();
-      }.bind(this));
+
+      RiotControl.on('item_current_changed',this.updateData);
+    });
+    this.on('unmount', function () {
+      RiotControl.off('item_current_changed',this.updateData);
     });
   </script>
-  
+
 </mongo-connecteur-editor>
       <!--  this.driver.addEventListener('change',function(e){
         this.innerData.specificData.driver=e.currentTarget.value;
