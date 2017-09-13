@@ -53,7 +53,7 @@
     // evenement appele par riot
     this.on('mount', function () { // mount du composant riot
       this.svg = d3.select("svg");
-      RiotControl.on('workspace_current_graph_changed', function (data) { // controller MVC central, les views sont les tags .tag
+      RiotControl.on('workspace_current_changed', function (data) { // controller MVC central, les views sont les tags .tag
         console.log('GRAPH | workspace_current_changed ', data);
         this.graph = {};
         this.graph.nodes = [];
@@ -89,6 +89,7 @@
             this.graph.nodes.push({
               text: record.type,
               id: record._id,
+              graphIcon:record.graphIcon,
               fx: width - 10 - record.type.length * 10, // positionne l'element en largeur par rapport au bord droit du graphe
               fy: outputCurrentOffset
             });
@@ -144,7 +145,9 @@
         // this.nodes = this.nodes.enter().append("rect").merge(this.nodes). //  utiliser tspan ??? this.nodes = this.nodes.enter().append("rect").attr("width", function (d) { // width et height definis plus haut par bbox   return d.width + 10;
         // }).attr("height", function(d){   return d.height + 10; })
         this.nodes = this.nodes.enter().append("image")
-        .attr("xlink:href", "image/components/filter.svg")
+        .attr("xlink:href",function (d) { // width et height definis plus haut par bbox
+          return 'image/components/'+d.graphIcon;
+        })
         .attr("width", function (d) { // width et height definis plus haut par bbox
           return 220;
         })
@@ -186,7 +189,7 @@
 
       }.bind(this); // jusque la on est dans le workspace changed
 
-          RiotControl.trigger('workspace_current_refresh'); // et ici on est dans le mount
+      RiotControl.trigger('workspace_current_refresh'); // et ici on est dans le mount
 
     }); // fin mount
   </script>

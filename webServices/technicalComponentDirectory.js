@@ -29,7 +29,22 @@ module.exports = {
   /* some other modules you want */
 
   // --------------------------------------------------------------------------------
-
+  buildDictionnaryArray:function(){
+    var directory = [];
+    //console.log(technicalComponentDirectory)
+    for (var technicalComponent in this) {
+      if (technicalComponent != 'initialise' && technicalComponent != 'buildDictionnaryArray') {
+        directory.push({
+          module: technicalComponent,
+          type: this[technicalComponent].type,
+          description: this[technicalComponent].description,
+          editor: this[technicalComponent].editor,
+          graphIcon: this[technicalComponent].graphIcon
+        });
+      }
+    }
+    return directory;
+  },
   initialise: function (router, unSafeRouteur, recursivPullResolvePromise) {
     this.restApiGet.initialise(unSafeRouteur); //NO SECURE CHANGE ROUTER
     this.upload.initialise(unSafeRouteur);
