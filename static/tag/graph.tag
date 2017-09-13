@@ -144,12 +144,12 @@
         // this.nodes = this.nodes.enter().append("rect").merge(this.nodes). //  utiliser tspan ??? this.nodes = this.nodes.enter().append("rect").attr("width", function (d) { // width et height definis plus haut par bbox   return d.width + 10;
         // }).attr("height", function(d){   return d.height + 10; })
         this.nodes = this.nodes.enter().append("image")
-        .attr("xlink:href", "image/components/filter.svg")
+        .attr("xlink:href", "image/components/filter.png")
         .attr("width", function (d) { // width et height definis plus haut par bbox
           return 220;
         })
         .attr("height", function (d) {
-          return 80;
+          return 70;
         })
         //  .attr("x",function(d){return d.x;})  .attr("y",function(d){return d.y;}) .attr("fill", "#e5e5ff") //.attr("opacity",0.5) .text(function(d){return d.text;})
         .call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
