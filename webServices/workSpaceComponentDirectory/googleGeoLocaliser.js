@@ -4,7 +4,7 @@ module.exports = {
   editor: 'google-geolocaliser-editor',
   url: require('url'),
   https: require('https'),
-  graphIcon:'default.svg',
+  graphIcon:'default.png',
   initComponent: function(entity) {
     //console.log('Object Transformer | initComponent : ',entity);
 

@@ -2,7 +2,7 @@ module.exports = {
   type: 'Value Mapping',
   description: 'remplacer les valeurs d une propriété par une autre',
   editor: 'value-mapping-editor',
-  graphIcon:'default.svg',
+  graphIcon:'default.png',
   //url: require('url'),
   //http: require('http'),
   //waterfall: require('promise-waterfall'),

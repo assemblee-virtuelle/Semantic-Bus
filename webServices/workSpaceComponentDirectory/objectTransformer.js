@@ -2,7 +2,7 @@ module.exports = {
   type: 'Object Transformer',
   description: 'transformer un objet par mapping grâce à un objet transformation',
   editor: 'object-transformer',
-  graphIcon:'default.svg',
+  graphIcon:'default.png',
   transform: require('jsonpath-object-transform'),
   initComponent: function(entity) {
     //console.log('Object Transformer | initComponent : ',entity);
