@@ -3,7 +3,7 @@ module.exports = {
   type: 'Scrapper ',
   description: 'Scrapper page html',
   editor: 'scrapper-editor',
-  graphIcon:'default.png',
+  graphIcon:'scrapper.png',
   phantom: require('phantom'),
   sift: require('sift'),
 

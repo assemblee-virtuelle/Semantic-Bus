@@ -2,7 +2,7 @@ module.exports = {
   type: 'Deeper Focus Opening Bracket',
   description: 'début de traitement d\'un niveau de profondeur du flux ',
   editor:'deeper-focus-opening-bracket-editor',
-  graphIcon:'default.png',
+  graphIcon:'deeperBrackets.png',
 
 
   pull: function(data,flowData) {

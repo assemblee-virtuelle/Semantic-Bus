@@ -2,7 +2,7 @@ module.exports = {
   type: 'adresse.data.gouv.fr geolocaliser',
   description: 'interroger l api adresse.data.gouv pour transo une adresse en latitude et longitude',
   editor: 'data-gouv-geolocaliser-editor',
-  graphIcon:'DataGouvFrGeolocaliser.png',
+  graphIcon:'dataGouvFrGeolocaliser.png',
   url: require('url'),
   http: require('http'),
   //waterfall: require('promise-waterfall'),

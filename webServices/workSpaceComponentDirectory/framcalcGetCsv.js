@@ -4,7 +4,7 @@ module.exports = {
   editor: 'framacalc-get-csv-editor',
   //  url: require('url'),
   //  http: require('http'),
-  graphIcon:'default.png',
+  graphIcon:'framacalcCsv.png',
   url: require('url'),
   http: require('http'),
   https: require('https'),

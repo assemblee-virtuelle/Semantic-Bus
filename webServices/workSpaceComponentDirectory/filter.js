@@ -3,7 +3,7 @@ module.exports = {
   description: 'filter le flux',
   editor: 'filter-editor',
   sift: require('sift'),
-  graphIcon:'default.png',
+  graphIcon:'filter.png',
 
 
   pull: function(data, flowData) {

@@ -2,7 +2,7 @@ module.exports = {
   type: 'Join By Field',
   description: 'completer un flux par un second en se basant sur un champ du 1er et un identifiant du 2nd',
   editor: 'join-by-field-editor',
-  graphIcon:'default.png',
+  graphIcon:'joinByField.png',
   sift: require('sift'),
 
   getPrimaryFlow: function(data, flowData) {
