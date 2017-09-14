@@ -4,7 +4,7 @@ module.exports = {
     editor: 'mongo-connecteur-editor',
     mongoose: require('mongoose'),
     mLabPromise: require('../mLabPromise'),
-    graphIcon:'default.svg',
+    graphIcon:'default.png',
     schema: null,
     modelShema: null,
     initialise: function (url, host, port, username, password, database) {

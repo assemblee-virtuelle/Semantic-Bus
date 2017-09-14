@@ -5,7 +5,7 @@ module.exports = {
   type: 'Upload',
   description: 'Uploader un fichier',
   editor: 'upload-editor',
-  graphIcon:'default.svg',
+  graphIcon:'default.png',
   busboy: require('busboy'),
   mLabPromise: require('../mLabPromise'),
   dataTraitment: require("../dataTraitmentLibrary/index.js"),

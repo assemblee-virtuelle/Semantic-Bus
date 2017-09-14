@@ -12,12 +12,14 @@ function WorkspaceBusiness() {
             _id: componentId
           }, workspaceComponentsList))[0];
         });
+        component.connectionsAfter=sift({$ne:undefined},component.connectionsAfter);
 
         component.connectionsBefore = component.connectionsBefore.map(componentId => {
           return (sift({
             _id: componentId
           }, workspaceComponentsList))[0];
         });
+        component.connectionsBefore=sift({$ne:undefined},component.connectionsBefore);
       }
     });
 

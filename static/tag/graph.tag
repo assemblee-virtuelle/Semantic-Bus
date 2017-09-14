@@ -53,7 +53,7 @@
     // evenement appele par riot
     this.on('mount', function () { // mount du composant riot
       this.svg = d3.select("svg");
-      RiotControl.on('workspace_current_graph_changed', function (data) { // controller MVC central, les views sont les tags .tag
+      RiotControl.on('workspace_current_changed', function (data) { // controller MVC central, les views sont les tags .tag
         console.log('GRAPH | workspace_current_changed ', data);
         this.graph = {};
         this.graph.nodes = [];
@@ -83,12 +83,13 @@
 
         for (record of data.components) {
           if (record.connectionsBefore.length == 0) { // si rien n est connecte avant
-            this.graph.nodes.push({text: record.type, id: record._id, fx: 10, fy: inputCurrentOffset});
+            this.graph.nodes.push({text: record.type, id: record._id,graphIcon:record.graphIcon, fx: 10, fy: inputCurrentOffset});
             inputCurrentOffset += inputsOffset;
           } else if (record.connectionsAfter.length == 0) {
             this.graph.nodes.push({
               text: record.type,
               id: record._id,
+              graphIcon: record.graphIcon,
               fx: width - 10 - record.type.length * 10, // positionne l'element en largeur par rapport au bord droit du graphe
               fy: outputCurrentOffset
             });
@@ -97,6 +98,7 @@
             this.graph.nodes.push({
               text: record.type,
               id: record._id,
+              graphIcon: record.graphIcon,
               x: width / 2,
               y: height / 2 // on laisse a la force le soin de les repartir
             });
@@ -118,21 +120,10 @@
         // .on("tick", ticked); var simulation = d3.forceSimulation(graph.nodes)     .force('charge', d3.forceManyBody()) //.distanceMax(500).strength(-0.8)) // .distanceMax(220))     .force('link', d3.forceLink(graph.links).strength(2))     //
         // .distance(20).strength(1)     .force('center', d3.forceCenter(width / 2, height / 2));
         console.log("fin simulation")
-        // les texts
-        // this.texts = this.svg.select("#textLayer").selectAll("text").data(this.graph.nodes);
-        // this.texts.exit().remove();
-        // //this.texts = this.texts.enter().append("text").merge(this.texts) //  utiliser tspan ???
-        // this.texts = this.texts.enter().append("text")
-        // // .attr("r",20) .attr("cx",function(d){return d.x;}) .attr("cy",function(d){return d.y;})
-        //   .attr("fill", "#000") //.attr("opacity",0.5)
-        // // .attr("width", "20") .attr("height","20")
-        //   .text(function (d) {
-        //   return d.text;
-        // }).each(function (d) {
-        //   d.width = this.getBBox().width;
-        //   d.height = this.getBBox().height;
-        // }); //;
-        // desactive pour l instant call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended)); les links
+        // les texts this.texts = this.svg.select("#textLayer").selectAll("text").data(this.graph.nodes); this.texts.exit().remove(); //this.texts = this.texts.enter().append("text").merge(this.texts) //  utiliser tspan ??? this.texts =
+        // this.texts.enter().append("text") // .attr("r",20) .attr("cx",function(d){return d.x;}) .attr("cy",function(d){return d.y;})   .attr("fill", "#000") //.attr("opacity",0.5) // .attr("width", "20") .attr("height","20")   .text(function (d) {
+        // return d.text; }).each(function (d) {   d.width = this.getBBox().width;   d.height = this.getBBox().height; }); //; desactive pour l instant call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended)); les
+        // links
         this.links = this.svg.select("#shapeLayer").selectAll('line').data(this.graph.links);
         this.links.exit().remove();
         //this.links = this.links.enter().append('line').merge(this.links)
@@ -143,16 +134,15 @@
         this.nodes.exit().remove();
         // this.nodes = this.nodes.enter().append("rect").merge(this.nodes). //  utiliser tspan ??? this.nodes = this.nodes.enter().append("rect").attr("width", function (d) { // width et height definis plus haut par bbox   return d.width + 10;
         // }).attr("height", function(d){   return d.height + 10; })
-        this.nodes = this.nodes.enter().append("image")
-        .attr("xlink:href", "image/components/filter.png")
-        .attr("width", function (d) { // width et height definis plus haut par bbox
+        this.nodes = this.nodes.enter().append("image").attr("xlink:href", function (d) {
+          return 'image/components/' + d.graphIcon;
+        }).attr("width", function (d) { // width et height definis plus haut par bbox
           return 220;
-        })
-        .attr("height", function (d) {
+        }).attr("height", function (d) {
           return 70;
         })
         //  .attr("x",function(d){return d.x;})  .attr("y",function(d){return d.y;}) .attr("fill", "#e5e5ff") //.attr("opacity",0.5) .text(function(d){return d.text;})
-        .call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
+          .call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
 
         // attache l evenement
         this.simulation.on('tick', this.ticked);
@@ -177,16 +167,11 @@
           return d.y - 5;
         });
 
-        // this.texts.attr('x', function (d) {
-        //   return d.x;
-        // }).attr('y', function (d) {
-        //   return d.y + d.height;
-        // });
-        // tickCount++; if (tickCount>10) {   simulation.stop(); }
+        // this.texts.attr('x', function (d) {   return d.x; }).attr('y', function (d) {   return d.y + d.height; }); tickCount++; if (tickCount>10) {   simulation.stop(); }
 
       }.bind(this); // jusque la on est dans le workspace changed
 
-          RiotControl.trigger('workspace_current_refresh'); // et ici on est dans le mount
+      RiotControl.trigger('workspace_current_refresh'); // et ici on est dans le mount
 
     }); // fin mount
   </script>

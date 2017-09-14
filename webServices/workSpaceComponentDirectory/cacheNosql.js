@@ -3,7 +3,7 @@ module.exports = {
   description: 'sauvegarder un flux et le réutiliser sans avoir besoin de requeter la source',
   editor: 'cache-nosql-editor',
   mLabPromise: require('../mLabPromise'),
-  graphIcon:'default.svg',
+  graphIcon:'default.png',
   workspace_component_lib : require('../../lib/core/lib/workspace_component_lib'),
   cache_lib : require('../../lib/core/lib/cache_lib'),
   stepNode: true,

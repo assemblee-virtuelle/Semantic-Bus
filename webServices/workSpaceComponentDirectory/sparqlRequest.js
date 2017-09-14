@@ -2,7 +2,7 @@ module.exports = {
   type: 'Sparql request',
   description: 'Requeter en sparql sur un fichier json ld',
   editor: 'sparql-request-editor',
-  graphIcon:'default.svg',
+  graphIcon:'default.png',
   rdfstore: require('rdfstore'),
   makeRequest: function (flowData, request) {
   return new Promise((resolve, reject) => {
