@@ -2,7 +2,7 @@ module.exports = {
   type: 'GOOGLE calc Get JSON',
   description: 'intéroger une feuille de calcule GOOGLE calc qui fourni un flux JSON',
   editor: 'google-get-json-editor',
-  graphIcon:'default.svg',
+  graphIcon:'googleSheetsGetJson.png',
   //  url: require('url'),
   //  http: require('http'),
   sheetrock: require('sheetrock'),

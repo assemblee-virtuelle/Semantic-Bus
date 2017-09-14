@@ -16,8 +16,8 @@
    id="svg2"
    version="1.1"
    inkscape:version="0.91 r13725"
-   sodipodi:docname="dataGouvFrGeolocaliser.svg"
-   inkscape:export-filename="/Users/benoit/COPIES_REPOS_GIT/Semantic-Bus/static/image/components/dataGouFrGeolocaliser.png"
+   sodipodi:docname="dataGouvFrInvGEo.svg"
+   inkscape:export-filename="/Users/benoit/COPIES_REPOS_GIT/Semantic-Bus/static/image/components/dataGouvFrInvGeo.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -30,8 +30,8 @@
      inkscape:pageopacity="0"
      inkscape:pageshadow="2"
      inkscape:zoom="1.8101934"
-     inkscape:cx="-41.445262"
-     inkscape:cy="84.277654"
+     inkscape:cx="112.68192"
+     inkscape:cy="40.083481"
      inkscape:document-units="px"
      inkscape:current-layer="layer1"
      showgrid="false"
@@ -82,19 +82,19 @@
     <text
        xml:space="preserve"
        style="font-style:normal;font-weight:normal;font-size:40px;line-height:100%;font-family:Sans;letter-spacing:0px;word-spacing:0px;fill:#000000;fill-opacity:1;stroke:none;stroke-width:1px;stroke-linecap:butt;stroke-linejoin:miter;stroke-opacity:1"
-       x="82.311638"
-       y="1013.1398"
+       x="78.787376"
+       y="1012.5875"
        id="text3339"
        sodipodi:linespacing="100%"><tspan
          sodipodi:role="line"
          id="tspan3341"
-         x="82.311638"
-         y="1013.1398"
-         style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:22.5px;line-height:100%;font-family:Lato;-inkscape-font-specification:'Lato Semi-Bold';fill:#414042;fill-opacity:1">data.gouv.fr</tspan><tspan
+         x="78.787376"
+         y="1012.5875"
+         style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:22.5px;line-height:100%;font-family:Lato;-inkscape-font-specification:'Lato Medium';fill:#414042;fill-opacity:1">data.gouv.fr</tspan><tspan
          sodipodi:role="line"
-         x="82.311638"
-         y="1035.6398"
+         x="78.787376"
+         y="1035.0875"
          id="tspan3343"
-         style="font-style:normal;font-variant:normal;font-weight:600;font-stretch:normal;font-size:22.5px;line-height:100%;font-family:Lato;-inkscape-font-specification:'Lato Semi-Bold';fill:#414042;fill-opacity:1">Geolocaliser</tspan></text>
+         style="font-style:normal;font-variant:normal;font-weight:500;font-stretch:normal;font-size:22.5px;line-height:100%;font-family:Lato;-inkscape-font-specification:'Lato Medium';fill:#414042;fill-opacity:1">Inv. Geolocal.</tspan></text>
   </g>
 </svg>
