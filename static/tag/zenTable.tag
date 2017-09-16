@@ -10,11 +10,11 @@
       <div onclick={actionClick} class="commandButton" if={opts.actiontext!=undefined}>{opts.actiontext}</div>
     </div>
   </div>
-  <div name="tableHeader" class="tableHeader">
+  <div name="tableHeader" class="tableHeader" ref="tableHeader">
     <yield from="header"/>
   </div>
-  <div class="containerV" style="flex:1" name="tableBodyContainer">
-    <div class="table" name="tableBody">
+  <div class="containerV" style="flex:1" name="tableBodyContainer" ref="tableBodyContainer">
+    <div class="table" name="tableBody" ref="tableBody">
       <div class="tableRow {selected:selected} {mainSelected:mainSelected}" name="tableRow" onclick={rowClic} data-rowid={rowid} each={indexedData}>
         <yield from="row"/>
         <div style="width:10px" if={!opts.disallownavigation==true}>
@@ -148,7 +148,7 @@
     }
 
     recalculateHeader() {
-      var headers = this.tableHeader.children;
+      var headers = this.refs.tableHeader.children;
       for (var row of this.root.querySelectorAll('.tableRow')) {
         for (var headerkey in headers) {
           var numkey = parseInt(headerkey);
@@ -169,12 +169,12 @@
 
     this.on('mount', function () {
       //this.reportCss();
-      addResizeListener(this.tableBody, function () {
+      addResizeListener(this.refs.tableBody, function () {
         this.recalculateHeader()
       }.bind(this));
-      this.tableBodyContainer.addEventListener('scroll', function (e) {
+      this.refs.tableBodyContainer.addEventListener('scroll', function (e) {
         //console.log(this.tableBodyContainer.scrollLeft);
-        this.tableHeader.scrollLeft = this.tableBodyContainer.scrollLeft;
+        this.refs.tableHeader.scrollLeft = this.refs.tableBodyContainer.scrollLeft;
       }.bind(this));
     });
   </script>

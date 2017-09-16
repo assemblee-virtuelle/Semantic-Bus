@@ -3,7 +3,7 @@
     <div class="center-top">
       <p> La partie profil est actuellement en cours de dev <p>
       <form>
-        <input class="change-mail"value="{profil.credentials.email}" name="email"/>
+        <input class="change-mail" value="{profil.credentials.email}" name="email" onchange={changeEmailInput}/>
         <div id={ result? 'good-result' : 'bad-result' }> {resultEmail}<div>
       </form>
       <div class="inligne-box">
@@ -74,10 +74,11 @@
       RiotControl.trigger('deconnexion');
     }
 
-    this.email.addEventListener('change',function(e){
+
+    changeEmailInput(e){
         this.profil.email = e.currentTarget.value;
         console.log( this.profil.email);
-    }.bind(this));
+    }
 
     changeEmail(e){
       var regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g
@@ -110,7 +111,7 @@
       this.update();
     }.bind(this))
 
-    
+
 
     this.on('mount', function () {
       RiotControl.trigger('show_profil');

@@ -2,20 +2,20 @@
   <div>
     <div>champ de l'objet permettant de définir la position géographique</div>
     <label>street</label>
-    <input type="text" name="streetInput" value={data.specificData.streetPath}></input>
+    <input type="text" ref="streetInput" value={data.specificData.streetPath}></input>
     <label>town</label>
-    <input type="text" name="townInput" value={data.specificData.townPath}></input>
+    <input type="text" ref="townInput" value={data.specificData.townPath}></input>
     <label>postalCode</label>
-    <input type="text" name="postalCodeInput" value={data.specificData.postalCodePath}></input>
+    <input type="text" ref="postalCodeInput" value={data.specificData.postalCodePath}></input>
     <label>country</label>
-    <input type="text" name="countryInput" value={data.specificData.countryPath}></input>
+    <input type="text" ref="countryInput" value={data.specificData.countryPath}></input>
   </div>
   <div>
     <div>champ de l'objet qui recevront les informations de géolocalisation</div>
     <label>latitude</label>
-    <input type="text" name="latitudeInput" value={data.specificData.latitudePath}></input>
+    <input type="text" ref="latitudeInput" value={data.specificData.latitudePath}></input>
     <label>longitude</label>
-    <input type="text" name="longitudeInput" value={data.specificData.longitudePath}></input>
+    <input type="text" ref="longitudeInput" value={data.specificData.longitudePath}></input>
   </div>
   <script>
 
@@ -24,41 +24,42 @@
       consol.log('test');
     }
     this.updateData=function(dataToUpdate){
-      this.innerData=dataToUpdate;
+      console.log('UPDATE');
+      this.data=dataToUpdate;
       this.update();
     }.bind(this);
 
 
-    Object.defineProperty(this, 'data', {
-       set: function (data) {
-         this.innerData=data;
-         this.update();
-       }.bind(this),
-       get: function () {
-        return this.innerData;
-      },
-      configurable: true
-    });
+    // Object.defineProperty(this, 'data', {
+    //    set: function (data) {
+    //      this.innerData=data;
+    //      this.update();
+    //    }.bind(this),
+    //    get: function () {
+    //     return this.innerData;
+    //   },
+    //   configurable: true
+    // });
     this.on('mount', function () {
-      this.streetInput.addEventListener('change',function(e){
-        this.innerData.specificData.streetPath=e.currentTarget.value;
+      this.refs.streetInput.addEventListener('change',function(e){
+        this.data.specificData.streetPath=e.currentTarget.value;
       }.bind(this));
 
-      this.townInput.addEventListener('change',function(e){
-        this.innerData.specificData.townPath=e.currentTarget.value;
+      this.refs.townInput.addEventListener('change',function(e){
+        this.data.specificData.townPath=e.currentTarget.value;
       }.bind(this));
-      this.postalCodeInput.addEventListener('change',function(e){
-        this.innerData.specificData.postalCodePath=e.currentTarget.value;
+      this.refs.postalCodeInput.addEventListener('change',function(e){
+        this.data.specificData.postalCodePath=e.currentTarget.value;
       }.bind(this));
 
-      this.countryInput.addEventListener('change',function(e){
-        this.innerData.specificData.countryPath=e.currentTarget.value;
+      this.refs.countryInput.addEventListener('change',function(e){
+        this.data.specificData.countryPath=e.currentTarget.value;
       }.bind(this));
-      this.latitudeInput.addEventListener('change',function(e){
-        this.innerData.specificData.latitudePath=e.currentTarget.value;
+      this.refs.latitudeInput.addEventListener('change',function(e){
+        this.data.specificData.latitudePath=e.currentTarget.value;
       }.bind(this));
-      this.longitudeInput.addEventListener('change',function(e){
-        this.innerData.specificData.longitudePath=e.currentTarget.value;
+      this.refs.longitudeInput.addEventListener('change',function(e){
+        this.data.specificData.longitudePath=e.currentTarget.value;
       }.bind(this));
 
       RiotControl.on('item_current_changed',this.updateData);

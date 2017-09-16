@@ -98,7 +98,9 @@ function WorkspaceBusiness() {
       type: workspaceComponentIn.type,
       description: workspaceComponentIn.description,
       editor: workspaceComponentIn.editor,
-      workspaceId: workspaceComponentIn.workspaceId
+      workspaceId: workspaceComponentIn.workspaceId,
+      graphPositionX : workspaceComponentIn.graphPositionX,
+      graphPositionY : workspaceComponentIn.graphPositionY
     }
     console.log(out)
     return out;

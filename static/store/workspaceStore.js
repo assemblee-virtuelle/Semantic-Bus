@@ -303,9 +303,9 @@ function WorkspaceStore() {
   this.on('workspace_current_select', function(record) {
 
     this.select(record).then(workspace => {
-      console.log('workspace_current_select ||', record.users)
+      console.log('workspace_current_select ||', record)
       this.trigger('workspace_current_select_done', workspace);
-      this.trigger('workspace_current_changed', workspace);
+      //this.trigger('workspace_current_changed', workspace);
     })
   }); // <= workspace_current_select
 
@@ -322,6 +322,7 @@ function WorkspaceStore() {
   this.on('workspace_current_edit', function(data) {
     this.workspaceCurrent.mode = 'edit';
     this.trigger('workspace_current_changed', this.workspaceCurrent);
+
   }); // <= workspace_current_edit
 
   // --------------------------------------------------------------------------------
@@ -469,19 +470,12 @@ function WorkspaceStore() {
     this.update(this.workspaceCurrent);
   });
 
-  this.on('item_current_connect_before', function(data) {
-    console.log('item_current_add_component', this.connectMode);
-    this.itemCurrent.connectionsBefore = this.itemCurrent.connectionsBefore || [];
-    this.itemCurrent.connectionsBefore.push(data);
-    this.update().then((record) => {
-      this.modeConnectBefore = false;
-      this.trigger('item_curent_connect_show_changed', {
-        before: this.modeConnectBefore,
-        after: this.modeConnectAfter
-      });
-      this.trigger('item_curent_available_connections', this.computeAvailableConnetions());
-      this.trigger('item_current_changed', this.itemCurrent);
-    });
-  });
+  this.on('item_updateField', function(message) {
+    console.log('item_current_updateField ', message);
+    let item= sift({_id:message.id},this.workspaceCurrent.components)[0];
+    item[message.field] = message.data;
+    this.trigger('workspace_current_changed', this.workspaceCurrent);
+  }); //<= item_current_updateField
+
 
 }

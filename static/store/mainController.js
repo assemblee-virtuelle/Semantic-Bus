@@ -1,8 +1,11 @@
 function MainController(workSpaceStore, genericStore, profilStore) {
   riot.observable(this) // Riot provides our event emitter.
   this.workspaceStore = workSpaceStore;
+  this.workspaceStore.mainController=this;
   this.genericStore = genericStore;
+  this.genericStore.mainController=this;
   this.profilStore = profilStore;
+  this.profilStore.mainController=this;
   //this.currentEditStore;
   // this.displayMode = {
   //   modeNavigation: true,
@@ -178,6 +181,10 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     //   modeWorkspaceShareNavigation: false,
     //   modeAdminNavigation: true
     // });
+  }.bind(this));
+
+  this.on('workspaceEditorShow', function(message) {
+    this.navigateNext('workspaceEditor', true);
   }.bind(this))
 
   genericStore.on('item_current_persist_done', function(message) {
@@ -194,7 +201,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     console.log('workspace_current_changed', this, message);
     this.workspaceCurrent = message;
     this.genericStore.workspaceCurrent = message;
-    this.navigateNext('workspaceEditor', true);
+    //this.navigateNext('workspaceEditor', true);
     // this.updateMode({
     //   modeComponentTest: false,
     //   modeComponentNetwork: false,
@@ -206,6 +213,10 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     //   modeMenuHide: true
     // });
 
+  }.bind(this));
+
+  workSpaceStore.on('workspace_current_select_done',function(message){
+    this.navigateNext('workspaceEditor', true);
   }.bind(this));
 
   workSpaceStore.on('workspace_current_persist_done', function(message) {

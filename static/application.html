@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>Bus Sémantique</title>
+  <title>Semantic Bus</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <link href='https://fonts.googleapis.com/css?family=Ubuntu|Ubuntu+Mono' rel='stylesheet' type='text/css'>
   <link href='https://cdn.jsdelivr.net/semantic-ui/2.1.8/semantic.min.css' rel='stylesheet' type='text/css'>
@@ -15,7 +15,9 @@
 
 <body>
   <navigation></navigation>
-  <script src="https://cdn.jsdelivr.net/riot/2.6.2/riot+compiler.min.js"></script>
+  <!--<script src="https://cdn.jsdelivr.net/riot/2.6.2/riot+compiler.min.js"></script>-->
+  <!--<script src="https://cdn.jsdelivr.net/riot/2.6.2/riot+compiler.js"></script>-->
+  <script src="https://cdn.jsdelivr.net/npm/riot@3.7.0/riot+compiler.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-detect-element-resize/0.5.3/detect-element-resize.js"></script>
   <script src="./js/jsonEditor/dist/jsoneditor.min.js"></script>
@@ -26,6 +28,7 @@
   <script src="./js/spin.min.js"></script>
   <script src="./js/RiotControl/riotcontrol.js"></script>
   <script src="https://d3js.org/d3.v4.min.js"></script>
+
   <script src="./store/workspaceBusiness.js"></script>
   <script src="./store/workspaceStore.js"></script>
   <script src="./store/technicalComponentStore.js"></script>
@@ -35,17 +38,23 @@
   <script src="./store/profilStore.js"></script>
   <script src="./store/mainController.js"></script>
   <script src="./store/sqlStore.js"></script>
+
   <script type="riot/tag" src="tag/zenTable.tag"></script>
-  <script type="riot/tag" src="tag/scrapper-editor.tag"></script>
   <script type="riot/tag" src="tag/navigation.tag"></script>
   <script type="riot/tag" src="tag/workspaceTable.tag"></script>
   <script type="riot/tag" src="tag/workspaceEditor.tag"></script>
   <script type="riot/tag" src="tag/technicalComponentTable.tag"></script>
   <script type="riot/tag" src="tag/admin.tag"></script>
   <script type="riot/tag" src="tag/jsonEditor.tag"></script>
-  <script type="riot/tag" src="tag/jsonTransformer.tag"></script>
+  <script type="riot/tag" src="tag/user-list.tag"></script>
+  <script type="riot/tag" src="tag/login.tag"></script>
+  <script type="riot/tag" src="tag/profil.tag"></script>
+  <script type="riot/tag" src="tag/landing.tag"></script>
+  <script type="riot/tag" src="tag/graph.tag"></script>
+
   <script type="riot/tag" src="tag/jsonPreviewer.tag"></script>
   <script type="riot/tag" src="tag/no-editor.tag"></script>
+  <script type="riot/tag" src="tag/scrapper-editor.tag"></script><!--WARNING exception when riot mount-->
   <script type="riot/tag" src="tag/rest-get-json-editor.tag"></script>
   <script type="riot/tag" src="tag/rest-get-editor.tag"></script>
   <script type="riot/tag" src="tag/workspace-share-table.tag"></script>
@@ -59,17 +68,13 @@
   <script type="riot/tag" src="tag/xml-property-to-object-editor.tag"></script>
   <script type="riot/tag" src="tag/framacalc-get-csv-editor.tag"></script>
   <script type="riot/tag" src="tag/data-gouv-geolocaliser-editor.tag"></script>
-  <script type="riot/tag" src="tag/user-list.tag"></script>
+  <script type="riot/tag" src="tag/jsonTransformer.tag"></script>
   <script type="riot/tag" src="tag/data-gouv-geolocaliser-mass-editor.tag"></script>
   <script type="riot/tag" src="tag/join-by-field-editor.tag"></script>
   <script type="riot/tag" src="tag/deeper-focus-opening-bracket-editor.tag"></script>
   <script type="riot/tag" src="tag/sparql-request-editor.tag"></script>
   <script type="riot/tag" src="tag/filter-editor.tag"></script>
   <script type="riot/tag" src="tag/upload-editor.tag"></script>
-  <script type="riot/tag" src="tag/login.tag"></script>
-  <script type="riot/tag" src="tag/profil.tag"></script>
-  <script type="riot/tag" src="tag/landing.tag"></script>
-  <script type="riot/tag" src="tag/graph.tag"></script>
   <script type="riot/tag" src="tag/sql-connecteur-editor.tag"></script>
   <script type="riot/tag" src="tag/mongo-connecteur-editor.tag"></script>
   <script type="riot/tag" src="tag/value-mapping-editor.tag"></script>

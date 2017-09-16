@@ -26,6 +26,8 @@ function GenericStore(specificStoreList) {
   // ----------------------------------------- FUNCTION  -----------------------------------------
 
 
+
+
   this.update = function() {
     return new Promise((resolve, reject) => {
       this.trigger('persist_start');
@@ -297,6 +299,7 @@ function GenericStore(specificStoreList) {
       after: this.modeConnectAfter
     });
     this.trigger('item_curent_available_connections', this.computeAvailableConnetions());
+    console.log('genericStore | component_current_select |',this.itemCurrent);
     this.trigger('item_current_changed', this.itemCurrent);
   }); //<= item_current_select
 

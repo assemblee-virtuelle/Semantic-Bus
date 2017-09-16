@@ -21,7 +21,8 @@
        }.bind(this),
        get: function () {
         return this.editor.get();
-      }.bind(this)
+      }.bind(this),
+      configurable: true
     });
 
     /*this.jsonEditorReadyPromise=new Promise(function(resolve, reject) {
