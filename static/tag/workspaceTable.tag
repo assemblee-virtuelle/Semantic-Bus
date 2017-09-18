@@ -1,59 +1,56 @@
 <workspace-table class="containerV">
-  <div class="commandBar containerH">
+  <div class="commandBar containerH" ref="test">
     My Workspaces
   </div>
-    <zenTable style="flex:1">
-      <yield to="header">
-        <div>nom</div>
-        <div>description</div>
-      </yield>
-      <yield to="row">
-        <div style="width:30%">{name}</div>
-        <div style="width:70%">{description}</div>
-      </yield>
-    </zenTable>
+  <zenTable style="flex:1" ref="workspaceZenTable">
+    <yield to="header">
+      <div>nom</div>
+      <div>description</div>
+    </yield>
+    <yield to="row">
+      <div style="width:30%">{name}</div>
+      <div style="width:70%">{description}</div>
+    </yield>
+  </zenTable>
 
- <script>
+  <script>
     //console.log('mount opts :',this.opts);
 
-    this.refreshZenTable=function(data){
-      console.log('view',data);
-      this.tags.zentable.data=data;
+    this.refreshZenTable = function (data) {
+      console.log('view', data);
+      this.tags.zentable.data = data;
     }.bind(this);
 
     this.on('unmount', function () {
-      RiotControl.off('workspace_collection_changed',this.refreshZenTable);
+      RiotControl.off('workspace_collection_changed', this.refreshZenTable);
     });
 
     this.on('mount', function (args) {
-      //console.log('mount argr :',opts);
-     this.tags.zentable.on('rowNavigation',function(data){
-       //console.log(data);
-       RiotControl.trigger('workspace_current_select',data);
-       //this.trigger('selectWorkspace');
-     }.bind(this));
 
-     this.tags.zentable.on('addRow',function(){
-       //console.log(data);
+      this.tags.zentable.on('rowNavigation', function (data) {
+        console.log(data);
+        RiotControl.trigger('workspace_current_select', data);
+      }.bind(this));
 
-       RiotControl.trigger('workspace_current_init');
-       //this.trigger('newWorkspace');
-     }.bind(this));
+      this.tags.zentable.on('addRow', function () {
+        //console.log(data);
 
-     this.tags.zentable.on('delRow',function(data){
-       RiotControl.trigger('workspace_delete',data);
+        RiotControl.trigger('workspace_current_init');
+        //this.trigger('newWorkspace');
+      }.bind(this));
 
-     }.bind(this));
+      this.tags.zentable.on('delRow', function (data) {
+        RiotControl.trigger('workspace_delete', data);
 
-     RiotControl.on('workspace_collection_changed',this.refreshZenTable);
+      }.bind(this));
 
-    RiotControl.trigger('workspace_collection_load');
+      RiotControl.on('workspace_collection_changed', this.refreshZenTable);
 
-     //this.refresh();
+      RiotControl.trigger('workspace_collection_load');
 
-   });
+      //this.refresh();
+
+    });
   </script>
-  <style>
-
-  </style>
+  <style></style>
 </workspace-table>

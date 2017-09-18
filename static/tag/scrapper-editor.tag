@@ -1,143 +1,122 @@
 <scrapper-editor>
-  <div>Information à propos du scrappeur</div>
-  <label>url fixe </label>
-  <input type="checkbox" name="choix3" value={ input3} onclick={ check3}></input>
-  <input type="text" class={!input3? 'hide' : 'display'} name="url" value={data.specificData.url}></input>
-  <label> url venant du flux precedent </label>
-  <input type="checkbox" name="choix4" value={ input4} onclick={ check4}></input>
-  <div>
+   
+   <h4 style="text-align:center">Choice base URL</h4>
+
+  <label>URL </label>
+  <input type="text" ref="url" class="form-controle" value={url}></input>
+
   <h4 style="text-align:center">Create Action</h4>
 
-  <label>Action Name</label>
-
-  <input type="text" class="form-controle" onkeyup={actionValueChange} value={action}></input>
 
   <label>Choice your Action Type</label>
 
-  <select class="form-controle" name="actionType">
-  <option each={actionType in options} value={actionType}>{actionType}</option>
+  <select class="form-controle" ref="actionType" >
+    <option each={actionType in options}>{actionType}</option>
   </select>
 
+  <label>Action Name</label>
+
+  <input type="text" class="form-controle" ref="action" ></input>
+
+
   <label>Selector CSS</label>
+  <input type="text" class="form-controle" ref="selector" ></input>
 
-  <input type="text" class="form-controle" onkeyup={selectorValueChange} value={selector}></input>
-
-  <label>Property name</label>
-
-  <input type="text" class="form-controle" onkeyup={propertyNameValueChange} value={propertyName}></input>
-
-  <label>Attribut</label>
-
-  <input type="text" class="form-controle" onkeyup={attributValueChange} value={attribut}></input>
-
-  <label>Value(Set)</label>
-  
-  <input type="text" class="form-controle" onkeyup={setValueChange} value={setValue}></input>
+  <div show = {getAttr} >
+    <label>Attribut</label>
+    <input type="text" class="form-controle" ref="attribut" ></input>
+  </div>
+  <div>
+  <div show = {setValue} >
+    <label>Value(Set)</label>
+    <input type="text" class="form-controle" ref="setValue"></input>
+  </div>
 
 
   <zenTable style="flex:1" title="Your scenario">
     <yield to="header">
-      <div>ActionType</div>
-      <div>ActionType</div>
-      <div>SelectorCSS</div>
-      <div>Propertyname</div>
+      <div>Name</div>
+      <div>Type</div>
+      <div>Selector</div>
       <div>Attribut</div>
       <div>Value</div>
     </yield>
     <yield to="row">
       <div>{action}</div>
+      <div>{actionType}</div>
       <div>{selector}</div>
-      <div>{propertyName}</div>
       <div>{attribut}</div>
-      <div>{value}</div>
+      <div>{setValue}</div>
     </yield>
   </zenTable>
 
 
   <script>
-    this.options = ["getValue", "getHtml", "getAttr", "setValue", "setHtml", "setAttr", "waitSelector", "click"]
-    this.input3 = false;
-    this.input4 = false;
-    this.currentRowId = undefined;
-    this.innerData = {};
-    this.test = function () {
-      console.log('test');
-    }
-
-    check3(e) {
-      if (this.input3 == false) {
-        this.input3 = true
-      } else {
-        this.input3 = false
-      }
-<<<<<<< HEAD
-      console.log(this.input3)
-    }
-
-    check4(e) {
-      if (this.input4 == false) {
-        this.input4 = true
-      } else {
-        this.input4 = false
-=======
-      this.updateData=function(dataToUpdate){
+      this.options = ["getValue", "getHtml", "getAttr", "setValue", "click"]
+      this.currentRowId = undefined;
+      this.data = {};
+      this.data.specificData = {}
+      this.data.specificData.scrappe = []
+      this.getAttr = false
+      this.setValue = false
+      this.updateData = function (dataToUpdate) {
         this.data = dataToUpdate;
+        console.log(dataToUpdate)
         if (this.data.specificData.scrappe == undefined) {
           this.data.specificData.scrappe = [];
         }
-        console.log(this.data.specificData.scrappe);
+
+        if (this.data.specificData.url != undefined) {
+          this.refs.url.value = this.data.specificData.url;
+        }
+
         if (this.tags.zentable != undefined) {
           this.tags.zentable.data = this.data.specificData.scrappe;
         }
-        this.update();
+      this.update();
       }.bind(this);
 
+    this.on('mount', function () {
+      RiotControl.on('item_current_changed', this.updateData);
+      this.on('unmount', function () {
+        RiotControl.off('item_current_changed', this.updateData);
+      });
 
-      check3(e){
-        if( this.input3 == false){
-            this.input3 = true
-        }
-        else{
-          this.input3 = false
-        }
-        console.log(this.input3)
->>>>>>> 131814a51c7070d9715379fe088c8e4e3c297a94
-      }
-      console.log(this.input4)
-    }
-
-      check4(e){
-        if( this.input4 == false){
-            this.input4 = true
-        }
-        else{
-          this.input4 = false
-        }
-        console.log(this.input4)
-      }
 
       this.tags.zentable.on('rowSelect', function (data) {
         this.currentRowId = data.rowid
-        this.actionType = data.actionType
-        this.action = data.action;
-        this.selector = data.selector
-        this.attribut = data.attribut
-        this.propertyName = data.propertyName
+        this.refs.actionType.value = data.actionType
+        this.refs.action.value = data.action;
+        this.refs.selector.value = data.selector
+        this.refs.attribut.value = data.attribut
         this.update();
       }.bind(this));
 
       this.tags.zentable.on('addRow', function () {
-        this.data.specificData.scrappe.push({
-          selector: this.selector,
-          action: this.action,
-          actioneName: this.actionType ,propertyName: this.propertyName,
-          attribut: this.attribut,
-          setValue:this.setValue
-        });
-
-        console.log(this.data.specificData.scrappe)
-        this.tags.zentable.data = this.data.specificData.scrappe;
-
+        console.log(this.refs.action);
+        console.log(this.refs.actionType.value);
+        if(this.refs.actionType.value == "getValue" || this.refs.actionType.value == "getHtml" ||  this.refs.actionType.value == "click"){
+           console.log("in set le reste")
+          this.refs.attribut = null;
+          this.refs.setValue = null
+        }
+        else if(this.refs.actionType.value == "setValue"){
+          console.log("in set value")
+          this.refs.attribut = null;
+        }
+        else if(this.refs.actionType.value == "getAttr"){
+          console.log("in set value")
+          this.refs.setValue = null
+        }
+          this.data.specificData.scrappe.push({
+            selector: this.refs.selector,
+            action: this.refs.action,
+            actionType: this.refs.actionType.value,
+            attribut: this.refs.attribut,
+            setValue: this.refs.setValue
+          });
+          this.tags.zentable.data = this.data.specificData.scrappe;
+          this.update()        
       }.bind(this));
 
       this.tags.zentable.on('delRow', function (row) {
@@ -146,159 +125,65 @@
         this.tags.zentable.data = this.data.specificData.scrappe;
       }.bind(this));
 
-      this.choix3.addEventListener('change', function (e) {
-        this.data.specificData.fix_url = this.input3
-      }.bind(this));
 
-      this.url.addEventListener('change', function (e) {
+      this.refs.url.addEventListener('change', function (e) {
+        console.log(e.currentTarget.value);
+        this.refs.url = e.currentTarget.value;
         this.data.specificData.url = e.currentTarget.value;
       }.bind(this));
 
-      this.choix4.addEventListener('change', function (e) {
-        this.data.specificData.flow_before = this.input4
+    
+      this.refs.selector.addEventListener('change', function (e) {
+        //console.log(e.target.value);
+        this.refs.selector = e.target.value;
+
       }.bind(this));
-      RiotControl.on('item_current_changed',this.updateData);
-
-    });
-    this.on('unmount', function () {
-      RiotControl.off('item_current_changed',this.updateData);
-    });
 
 
-    this.selectorValueChange = function (e) {
-      //console.log(e.target.value);
-      this.selector = e.target.value;
-      console.log(this.selector);
-      this.data.specificData.scrappe[this.currentRowId] = {
-        selector: this.selector,
-        actioneName: this.actionType,
-        action: this.action,
-        propertyName: this.propertyName,
-        attribut: this.attribut,
-        setValue:this.setValue,
-      };
-      var c = {}
-        c[this.actionType] = {
-          selector: this.selector,
-          action: this.action,
-          propertyName: this.propertyName,
-          attribut: this.attribut,
-          setValue:this.setValue
+     
+      this.refs.action.addEventListener('change', function (e) {
+
+        this.refs.action = e.target.value;
+
+      }.bind(this));
+
+
+      this.refs.attribut.addEventListener('change', function (e) {
+        //console.log(e.target.value);
+        this.refs.attribut = e.target.value;
+
+      }.bind(this));
+
+      this.refs.setValue.addEventListener('change', function (e) {
+        //console.log(e.target.value);
+        this.refs.setValue = e.target.value;
+
+      }.bind(this));
+
+      this.action_type = function(){
+        console.log("function")
+       
+      }
+
+      this.refs.actionType.addEventListener('change', function (e) {
+        console.log(e.target.value);
+        this.refs.actionType = e.target.value;
+        if(e.target.value == "getAttr"){
+          console.log("in true")
+          this.getAttr = true
+          this.setValue = false
+        }else if(e.target.value == "setValue"){
+          this.setValue = true
+          this.getAttr = false
+        }else{
+          this.setValue = false
+          this.getAttr = false
         }
-        console.log(c)
-      this.tags.zentable.data = this.data.specificData.scrappe;
-    }.bind(this);
-
-
-    this.actionValueChange = function (e) {
-      //console.log(e.target.value);
-      this.action = e.target.value;
-      console.log(this.action);
-      this.data.specificData.scrappe[this.currentRowId] = {
-        selector: this.selector,
-        actioneName: this.actionType,
-        action: this.action,
-        propertyName: this.propertyName,
-        attribut: this.attribut,
-        setValue:this.setValue
-      };
-      var c = {}
-        c[this.actionType] = {
-          selector: this.selector,
-          action: this.action,
-          propertyName: this.propertyName,
-          attribut: this.attribut,
-          setValue:this.setValue
-        }
-        console.log(c)
-
-      this.tags.zentable.data = this.data.specificData.scrappe;
-    }.bind(this);
-
-
-    this.propertyNameValueChange = function (e) {
-      //console.log(e.target.value);
-      this.propertyName = e.target.value;
-      console.log(this.propertyName);
-      this.data.specificData.scrappe[this.currentRowId] = {
-        selector: this.selector,
-        actioneName: this.actionType,
-        action: this.action,
-        propertyName: this.propertyName,
-        attribut: this.attribut,
-        setValue:this.setValue
-      };
-            var c = {}
-        c[this.actionType] = {
-          selector: this.selector,
-          action: this.action,
-          propertyName: this.propertyName,
-          attribut: this.attribut,
-          setValue:this.setValue
-        }
-        console.log(c)
-      this.tags.zentable.data = this.data.specificData.scrappe;
-    }.bind(this);
-
-    this.attributValueChange = function (e) {
-      //console.log(e.target.value);
-      this.attribut = e.target.value;
-      console.log(this.attribut);
-      this.data.specificData.scrappe[this.currentRowId] = {
-        selector: this.selector,
-        actioneName: this.actionType,
-        action: this.action,
-        propertyName: this.propertyName,
-        attribut: this.attribut,
-        setValue:this.setValue
-      };
-
-      this.tags.zentable.data = this.data.specificData.scrappe;
-    }.bind(this);
-
-    this.setValueChange = function (e) {
-      //console.log(e.target.value);
-      this.setValue = e.target.value;
-      console.log(this.setValue);
-      this.data.specificData.scrappe[this.currentRowId] = {
-        selector: this.selector,
-        actioneName: this.actionType,
-        action: this.action,
-        propertyName: this.propertyName,
-        attribut: this.attribut,
-        setValue:this.setValue
-      };
-
-      this.tags.zentable.data = this.data.specificData.scrappe;
-    }.bind(this);
-
-
-<<<<<<< HEAD
-
-    this.actionType.addEventListener('change', function (e) {
-      //console.log(e.target.value);
-      this.actionType = e.target.value;
-      console.log(this.actionType);
-      this.data.specificData.scrappe[this.currentRowId] = {
-        selector: this.selector,
-        actioneName: this.actionType,
-        action: this.action,
-        propertyName: this.propertyName,
-        attribut: this.attribut,
-        setValue:this.setValue
-      };
-            var c = {}
-        c[this.actionType] = {
-          selector: this.selector,
-          action: this.action,
-          propertyName: this.propertyName,
-          attribut: this.attribut,
-          setValue:this.setValue
-        }
-        console.log(c)
-      this.tags.zentable.data = this.data.specificData.scrappe;
-    }.bind(this))
+        this.update()
+      }.bind(this))
+    })
   </script>
+  
   <style> 
     .form-controle {
       display: block;
@@ -318,13 +203,6 @@
       -o-transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
       transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s;
       transition: border-color ease-in-out .15s,box-shadow ease-in-out .15s,-webkit-box-shadow ease-in-out .15s;
-=======
-  </script>
-  <style>
-
-    .hide {
-      display:none;
->>>>>>> 131814a51c7070d9715379fe088c8e4e3c297a94
     }
 
       .hide {

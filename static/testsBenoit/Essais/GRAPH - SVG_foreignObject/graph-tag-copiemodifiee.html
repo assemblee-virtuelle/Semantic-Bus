@@ -1,0 +1,89 @@
+<div id="graph">
+  <div id="graphContainer">
+    <!-- draggable="true" retiré mais les éléments enfants sont-ils dans ce cas draggable ?-->
+    <!-- viewBox => min-x, min-y, width and height -->
+    <!-- plus la taille est grande plus les éléments sont petits à cause de la hauteur de vh -->
+    <svg viewBox="0 0 1000 1000" class="mindmap-svg" tabindex="1">
+      <foreignObject class="mindmap-node" transform="translate(200, 50)" width="300" height="70"><p><a href="https://www.wikiwand.com/en/Mathematics" rel="nofollow">Maths </a><a href="https://www.wikiwand.com/en/Mathematics" rel="nofollow"><img class="mindmap-emoji" src="https://assets-cdn.github.com/images/icons/emoji/unicode/1f310.png"></a></p></foreignObject>
+
+
+
+    </svg>
+  </div>
+
+
+</div>
+<style>
+  /* STYLES
+  .link {
+    stroke: #000;
+    stroke-width: 1.5px;
+    stroke-opacity: 0.6;
+  }
+  .node {
+    cursor: move;
+    fill: #fff;
+    stroke: #000;
+    stroke-width: 1.5px;
+  }
+  .node.fixed {
+    fill: #f00;
+  }
+
+  */
+#graph {
+background-color: lightgray;
+}
+
+/* le svg est responsive  */
+.mindmap-svg {
+ height:100vh;
+}
+
+.mindmap-node a, .mindmap-node p {
+  color: #212121;
+  text-decoration: none;
+}
+.mindmap-node > p {
+  background: #fff;
+  border-radius: 10px;
+  box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.14), 0 3px 1px -2px rgba(0, 0, 0, 0.2), 0 1px 5px 0 rgba(0, 0, 0, 0.12);
+  display: inline-block;
+  font-family: sans-serif;
+  font-size: 22px;
+  margin: 0 auto;
+  padding: 15px;
+}
+.mindmap-node {
+  text-align: center;
+}
+
+.mindmap-emoji {
+  height: 24px;
+  vertical-align: bottom;
+  width: 24px;
+}
+</style>
+
+<script>
+  //Constants for the SVG
+  var width = 1000,
+    height = 600;
+</script>
+
+
+
+
+
+
+
+<script>
+  /* SCRIPTS
+
+
+  this.on('mount', function () {
+        this.svg = d3.select("#graphContainer").append("svg").attr("width", width).attr("height", height);
+        ETC
+
+  */
+</script>

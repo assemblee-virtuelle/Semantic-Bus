@@ -144,10 +144,16 @@
 
 
     this.isScrennToShow = function (screenToTest) {
-      return sift({
-        screen: screenToTest,
-        show: true
-      }, this.screenHistory).length > 0;
+      let out=false;
+      if(this.screenHistory!=undefined){
+        out= sift({
+          screen: screenToTest,
+          show: true
+        }, this.screenHistory).length > 0;
+      }
+
+      //console.log('isScrennToShow',screenToTest,out, this.screenHistory);
+      return out;
     }
 
     this.isScrennHide = function () {
@@ -174,52 +180,6 @@
         this.update();
       }.bind(this));
 
-      // RiotControl.on('item_current_testPull_done', function (data) {
-      //   this.modeComponentTest = true;
-      //   console.log('item_current_testPull_done | data :', data);
-      //   this.tags.testPreviewer.data = data;
-      //   this.update();
-      // }.bind(this));
-      //
-      // RiotControl.on('item_current_work_done', function (data) {
-      //   this.modeComponentTest = true;
-      //   console.log('item_current_work_done | data :', data);
-      //   this.tags.testPreviewer.data = data;
-      //   this.update();
-      // }.bind(this));
-
-      // RiotControl.on('navigator_mount', function (webComponentName) {
-      //   console.log('navigator_mount');
-      //   this.cleanNavigation();
-      //   this.contentNavigator = riot.mount('#contentNavigator', webComponentName)[0];
-      // }.bind(this));
-
-      // RiotControl.on('item_current_edit_mode', function (itemType, item) {
-      //   console.log('item_current_edit_mode');
-      //   var tagName;
-      //   switch (itemType) {
-      //     case 'generic':
-      //       if (item.editor != undefined) {
-      //         tagName = item.editor;
-      //       } else {
-      //         tagName = 'no-editor';
-      //       }
-      //       //this.modeComponentNetwork=true;
-      //       break;
-      //     default:
-      //       tagName = 'no-editor'
-      //       //this.modeComponentNetwork=false;
-      //       break;
-      //   }
-      //   this.mountEdition(tagName);
-      //   this.update();
-      // }.bind(this));
-
-      // RiotControl.on('item_current_changed', function (item) {
-      //   console.log('item_current_changed', item)
-      //   this.itemCurrent = item;
-      //   this.update();
-      // }.bind(this));
 
       RiotControl.on('persist_start', function (data) {
         //console.log('persist_start | ',this.saveButton)
@@ -231,48 +191,6 @@
         this.persistInProgress = false;
         this.update();
       }.bind(this));
-
-      // RiotControl.on('workspace_current_changed', function (data) {
-      //   this.workspaceComponents = data.components;
-      //   console.log('navigation | workspace_current_changed', data);
-      //   this.update();
-      // }.bind(this));
-
-      // RiotControl.on('workspace_current_click', function (data) {
-      //   this.workspaceDisplayComponents = [];
-      //   console.log(data)
-      //   this.workspaceComponents.forEach(function (workspaceComponent) {
-      //     if (workspaceComponent._id != data._id) {
-      //       this.workspaceDisplayComponents.push(workspaceComponent)
-      //     }
-      //   }.bind(this))
-      //   console.log('workspace_current_click_navigation', this.workspaceDisplayComponents)
-      // }.bind(this))
-
-      // RiotControl.on('navigation_mode_changed', function (data) {
-      //   console.log('navigation_mode_changed : ', data);
-      //   this.modeNavigation = data.modeNavigation;
-      //   this.modeEdition = data.modeEdition;
-      //   this.modeComponentNetwork = data.modeComponentNetwork;
-      //   this.modeComponentTest = data.modeComponentTest;
-      //   this.modeProfilEdition = data.modeProfilEdition;
-      //   this.modeWorkspaceNavigation = data.modeWorkspaceNavigation;
-      //   this.modeWorkspaceShareNavigation = data.modeWorkspaceShareNavigation;
-      //   this.modeTechnicalComponentNavigation = data.modeTechnicalComponentNavigation;
-      //   this.modeTechnicalUserNavigation = data.modeTechnicalUserNavigation;
-      //   this.modeAdminNavigation = data.modeAdminNavigation;
-      //   this.modeWorkspaceEdition = data.modeWorkspaceEdition;
-      //   this.modeWorkspaceComponentEdition = data.modeWorkspaceComponentEdition;
-      //   this.modeConnectBefore = data.modeConnectBefore,
-      //   this.modeConnectAfter = data.modeConnectAfter,
-      //   this.modeMenuHide = data.modeMenuHide;
-      //   this.modeGraph = data.modeGraph;
-      //   this.update();
-      // }.bind(this));
-
-      // this.nameComponentInput.addEventListener('change', function (e) {
-      //   this.itemCurrent.name = e.currentTarget.value;
-      // }.bind(this));
 
       RiotControl.trigger('screenHistoryInit');
 

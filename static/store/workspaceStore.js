@@ -22,7 +22,7 @@ function WorkspaceStore() {
   // ----------------------------------------- FUNCTION  -----------------------------------------
 
 
-  this.load = function (callback) {
+  this.load = function(callback) {
     console.log('load workspace to ||', localStorage.user_id);
     $.ajax({
       method: 'get',
@@ -31,7 +31,7 @@ function WorkspaceStore() {
         "Authorization": "JTW" + " " + localStorage.token
       },
       contentType: 'application/json',
-    }).done(function (data) {
+    }).done(function(data) {
       console.log('load workspace', data);
       this.workspaceCollection = data;
       if (callback != undefined) {
@@ -47,7 +47,7 @@ function WorkspaceStore() {
 
   // --------------------------------------------------------------------------------
 
-  this.loadShareWorkspace = function (callback) {
+  this.loadShareWorkspace = function(callback) {
     console.log('load share workspace');
     $.ajax({
       method: 'get',
@@ -56,7 +56,7 @@ function WorkspaceStore() {
         "Authorization": "JTW" + " " + localStorage.token
       },
       contentType: 'application/json',
-    }).done(function (data) {
+    }).done(function(data) {
       console.log('ShareWorkspace load', data);
       this.workspaceShareCollection = data;
       if (callback != undefined) {
@@ -68,7 +68,7 @@ function WorkspaceStore() {
 
   // --------------------------------------------------------------------------------
 
-  this.create = function () {
+  this.create = function() {
     console.log('create');
     $.ajax({
       method: 'post',
@@ -78,8 +78,8 @@ function WorkspaceStore() {
       headers: {
         "Authorization": "JTW" + " " + localStorage.token
       },
-    }).done(function (data) {
-      this.load(function (data) {
+    }).done(function(data) {
+      this.load(function(data) {
         this.trigger('workspace_current_persist_done');
         data.mode = 'read';
         this.select(data);
@@ -89,7 +89,7 @@ function WorkspaceStore() {
 
   // --------------------------------------------------------------------------------
 
-  this.update = function (data) {
+  this.update = function(data) {
     //console.log('update');
     // if (data) {
     //   if (data.component) {
@@ -102,7 +102,7 @@ function WorkspaceStore() {
     //     var ajax_data = JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent))
     //   }
     // } else {
-      var ajax_data = JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent))
+    var ajax_data = JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent))
     // }
     this.trigger('persist_start');
     $.ajax({
@@ -113,10 +113,10 @@ function WorkspaceStore() {
       headers: {
         "Authorization": "JTW" + " " + localStorage.token
       },
-    }).done(function (data) {
+    }).done(function(data) {
       this.trigger('persist_end');
       this.workspaceBusiness.connectWorkspaceComponent(data.components);
-      this.workspaceCurrent=data;
+      this.workspaceCurrent = data;
       data.mode = 'edit';
       //console.log('update data ||', data);
       this.trigger('workspace_current_persist_done', data);
@@ -132,7 +132,7 @@ function WorkspaceStore() {
 
   // --------------------------------------------------------------------------------
 
-  this.delete = function (record) {
+  this.delete = function(record) {
     console.log('delete row', record);
     $.ajax({
       method: 'delete',
@@ -141,8 +141,8 @@ function WorkspaceStore() {
       headers: {
         "Authorization": "JTW" + " " + localStorage.token
       },
-    }).done(function (data) {
-      this.load(function () {
+    }).done(function(data) {
+      this.load(function() {
         this.trigger('workspace_collection_changed', this.workspaceCollection);
       }.bind(this));
     }.bind(this));
@@ -150,7 +150,7 @@ function WorkspaceStore() {
 
   // --------------------------------------------------------------------------------
 
-  this.updateUserListe = function (data) {
+  this.updateUserListe = function(data) {
     console.log('updateUserListe', data);
     $.ajax({
       method: 'get',
@@ -159,7 +159,7 @@ function WorkspaceStore() {
         "Authorization": "JTW" + " " + localStorage.token
       },
       contentType: 'application/json'
-    }).done(function (data) {
+    }).done(function(data) {
       console.log('updateUserListeDone', data);
       if (data != false) {
         this.trigger('all_profil_by_workspace_loaded', data)
@@ -174,7 +174,7 @@ function WorkspaceStore() {
   // --------------------------------------------------------------------------------
 
 
-  this.updateComponentListe = function (data) {
+  this.updateComponentListe = function(data) {
     console.log('update Component Liste', data);
     $.ajax({
       method: 'get',
@@ -183,7 +183,7 @@ function WorkspaceStore() {
         "Authorization": "JTW" + " " + localStorage.token
       },
       contentType: 'application/json'
-    }).done(function (data) {
+    }).done(function(data) {
       console.log("update Component Liste Done ||", data)
       if (data != false) {
         if (this.workspaceCurrent) {
@@ -199,8 +199,8 @@ function WorkspaceStore() {
 
   // --------------------------------------------------------------------------------
 
-  this.select = function (record) {
-    return new Promise((resolve,reject)=>{
+  this.select = function(record) {
+    return new Promise((resolve, reject) => {
       console.log('select ||', record);
       this.workspaceCurrent = record;
       $.ajax({
@@ -210,12 +210,12 @@ function WorkspaceStore() {
           "Authorization": "JTW" + " " + localStorage.token
         },
         contentType: 'application/json'
-      }).done(data=>{
-          this.workspaceBusiness.connectWorkspaceComponent(data.components);
-          this.workspaceCurrent = data;
-          this.workspaceCurrent.mode = 'edit';
-          //this.workspaceCurrent.synchronized =true;
-          resolve(data);
+      }).done(data => {
+        this.workspaceBusiness.connectWorkspaceComponent(data.components);
+        this.workspaceCurrent = data;
+        this.workspaceCurrent.mode = 'edit';
+        //this.workspaceCurrent.synchronized =true;
+        resolve(data);
       });
     });
 
@@ -223,14 +223,14 @@ function WorkspaceStore() {
 
   // ----------------------------------------- EVENT  -----------------------------------------
 
-  this.on('workspace_delete', function (record) {
+  this.on('workspace_delete', function(record) {
     console.log('ON workspace_delete ||', record);
     this.delete(record);
   }); // <= workspace_delete
 
   // --------------------------------------------------------------------------------
 
-  this.on('workspace_collection_load', function (record) {
+  this.on('workspace_collection_load', function(record) {
     console.log('ON workspace_collection_load ||', record);
     if (this.cancelRequire == false) {
       this.load()
@@ -242,10 +242,10 @@ function WorkspaceStore() {
 
   // --------------------------------------------------------------------------------
 
-  this.on('workspace_collection_share_load', function (record) {
+  this.on('workspace_collection_share_load', function(record) {
     console.log('ON workspace_collection_share_load ||', record);
     if (this.cancelRequire == false) {
-      this.loadShareWorkspace(function () {
+      this.loadShareWorkspace(function() {
         // for (workspace of this.workspaceShareCollection) {
         //   workspace.components = this.workspaceBusiness.connectWorkspaceComponent(workspace.components);
         //   console.log()
@@ -262,7 +262,7 @@ function WorkspaceStore() {
   // --------------------------------------------------------------------------------
 
 
-  this.on('workspace_synchoniseFromServer_byId', function (id) {
+  this.on('workspace_synchoniseFromServer_byId', function(id) {
     console.log('workspace_synchoniseFromServer_workspace_byId', id);
     $.ajax({
       method: 'get',
@@ -270,7 +270,7 @@ function WorkspaceStore() {
       headers: {
         "Authorization": "JTW" + " " + localStorage.token
       }
-    }).done(function (data) {
+    }).done(function(data) {
       var synchronizedWorkspaceCollection = [];
       for (var workspace of this.workspaceCollection) {
         if (workspace._id == data._id) {
@@ -291,27 +291,27 @@ function WorkspaceStore() {
 
   // --------------------------------------------------------------------------------
 
-  this.on('workspace_current_updateField', function (message) {
+  this.on('workspace_current_updateField', function(message) {
     console.log('workspace_current_updateField ||', message)
     this.workspaceCurrent[message.field] = message.data;
-    this.workspaceCurrent.synchronized=false;
+    this.workspaceCurrent.synchronized = false;
     this.trigger('workspace_current_changed', this.workspaceCurrent);
   }); // <= workspace_current_updateField
 
   // --------------------------------------------------------------------------------
 
-  this.on('workspace_current_select', function (record) {
+  this.on('workspace_current_select', function(record) {
 
-    this.select(record).then(workspace=>{
-      console.log('workspace_current_select ||', record.users)
+    this.select(record).then(workspace => {
+      console.log('workspace_current_select ||', record)
       this.trigger('workspace_current_select_done', workspace);
-      this.trigger('workspace_current_changed', workspace);
+      //this.trigger('workspace_current_changed', workspace);
     })
   }); // <= workspace_current_select
 
   // --------------------------------------------------------------------------------
 
-  this.on('workspace_current_cancel', function (record) {
+  this.on('workspace_current_cancel', function(record) {
     console.log('workspace_current_cancel ||', this.workspaceCurrent)
     this.workspaceCurrent.mode = 'read'
     this.select(this.workspaceCurrent);
@@ -319,20 +319,21 @@ function WorkspaceStore() {
 
   // --------------------------------------------------------------------------------
 
-  this.on('workspace_current_edit', function (data) {
+  this.on('workspace_current_edit', function(data) {
     this.workspaceCurrent.mode = 'edit';
     this.trigger('workspace_current_changed', this.workspaceCurrent);
+
   }); // <= workspace_current_edit
 
   // --------------------------------------------------------------------------------
 
-  this.on('workspace_current_init', function () {
+  this.on('workspace_current_init', function() {
     console.log('model : workspace_current_init');
     this.workspaceCurrent = {
       name: "",
       description: "",
       components: [],
-      users:[]
+      users: []
     };
     this.workspaceCurrent.mode = 'init';
     this.trigger('workspace_current_changed', this.workspaceCurrent);
@@ -341,15 +342,15 @@ function WorkspaceStore() {
   // --------------------------------------------------------------------------------
 
 
-  // this.on('workspace_current_refresh', function () {
-  //   console.log('workspace_current_refresh || ', this.workspaceCurrent);
-  //   this.trigger('item_current_edit', this.workspaceCurrent);
-  // }); // <= workspace_current_refresh
+  this.on('workspace_current_refresh', function () {
+    console.log('workspace_current_refresh || ', this.workspaceCurrent);
+    this.trigger('workspace_current_changed', this.workspaceCurrent);
+  }); // <= workspace_current_refresh
 
   // --------------------------------------------------------------------------------
 
 
-  this.on('workspace_current_persist', function (data) {
+  this.on('workspace_current_persist', function(data) {
     console.log('workspace_current_persist ||', data);
     var mode = this.workspaceCurrent.mode;
     if (mode == 'init') {
@@ -361,10 +362,10 @@ function WorkspaceStore() {
 
   // --------------------------------------------------------------------------------
 
-  this.on('workspace_current_add_component', function (data) {
+  this.on('workspace_current_add_component', function(data) {
     console.log("workspace_current_add_component ||", data)
     data.workspaceId = this.workspaceCurrent._id;
-    data.specificData={};
+    data.specificData = {};
     this.workspaceCurrent.components.push(data);
     // this.trigger('save_auto', {
     //   compoenent:data,
@@ -375,7 +376,7 @@ function WorkspaceStore() {
 
   // --------------------------------------------------------------------------------
 
-  this.on('workspace_current_delete_component', function (record) {
+  this.on('workspace_current_delete_component', function(record) {
     console.log("workspace_current_delete_component ||", record)
     this.workspaceCurrent.components.splice(record.rowId, 1);
     this.trigger('workspace_current_changed', this.workspaceCurrent);
@@ -385,7 +386,7 @@ function WorkspaceStore() {
   // --------------------------------------------------------------------------------
 
 
-  this.on('item_current_cancel', function (data) {
+  this.on('item_current_cancel', function(data) {
     console.log('item_current_cancel ||', data);
     this.workspaceCurrent.mode = 'read';
     this.cancelRequire = true;
@@ -394,7 +395,7 @@ function WorkspaceStore() {
   // --------------------------------------------------------------------------------
 
 
-  this.on('own_all_workspace', function (data) {
+  this.on('own_all_workspace', function(data) {
     $.ajax({
       method: 'get',
       url: '../data/core/workspaceOwnAll/' + localStorage.user_id,
@@ -402,7 +403,7 @@ function WorkspaceStore() {
         "Authorization": "JTW" + " " + localStorage.token
       },
       contentType: 'application/json',
-    }).done(function (data) {
+    }).done(function(data) {
       this.workspaceCollection = data;
       this.trigger('workspace_collection_changed', this.workspaceCollection);
     }.bind(this));
@@ -410,74 +411,71 @@ function WorkspaceStore() {
 
   // --------------------------------------------------------------------------------
 
-  this.on('workspace_current_graph', function (data) {
-    $.ajax({
-      method: 'get',
-      url: '../data/core/workspaceComponent/load_all_component/' + this.workspaceCurrent._id,
-      headers: {
-        "Authorization": "JTW" + " " + localStorage.token
-      },
-      contentType: 'application/json',
-    }).done(function (data) {
-      this.workspaceCurrent = data
-      console.log("CURRENT GRAPH TRIGGER", this.workspaceCurrent)
-      this.trigger('workspace_current_graph_changed', this.workspaceCurrent);
-    }.bind(this));
-  }); //<= own_all_workspace
+  // this.on('workspace_current_graph', function(data) {
+  //   this.trigger('workspace_current_graph_changed', this.workspaceCurrent);
+  //   // $.ajax({
+  //   //   method: 'get',
+  //   //   url: '../data/core/workspaceComponent/load_all_component/' + this.workspaceCurrent._id,
+  //   //   headers: {
+  //   //     "Authorization": "JTW" + " " + localStorage.token
+  //   //   },
+  //   //   contentType: 'application/json',
+  //   // }).done(function (data) {
+  //   //   this.workspaceCurrent = data
+  //   //   console.log("CURRENT GRAPH TRIGGER", this.workspaceCurrent)
+  //   //   this.trigger('workspace_current_graph_changed', this.workspaceCurrent);
+  //   // }.bind(this));
+  // }); //<= own_all_workspace
 
   ///GESTION DES DROIT DE USER
 
- this.on('share-workspace', function(data) {
-     console.log(data);
-     $.ajax({
-         method: 'put',
-         url: '../data/core/share/workspace/',
-         data: JSON.stringify(data),
-         headers: {
-             "Authorization": "JTW" + " " + localStorage.token
-         },
-         beforeSend: function(){
-             this.trigger('share_change_send');
-         }.bind(this),
-         contentType: 'application/json'
-     }).done(function(data) {
-         console.log('in share data',user.userata)
-         if(data == false){
-             this.trigger('share_change_no_valide')
-         }else if (data == "already"){
-             this.trigger('share_change_already')
-         }else{
-             this.userCurrrent = data
-             this.trigger('share_change', {user:data.user,workspace:data.workspace})
-         }
-     }.bind(this));
- });
+  this.on('share-workspace', function(data) {
+    console.log(data);
+    $.ajax({
+      method: 'put',
+      url: '../data/core/share/workspace/',
+      data: JSON.stringify(data),
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
+      beforeSend: function() {
+        this.trigger('share_change_send');
+      }.bind(this),
+      contentType: 'application/json'
+    }).done(function(data) {
+      console.log('in share data', user.userata)
+      if (data == false) {
+        this.trigger('share_change_no_valide')
+      } else if (data == "already") {
+        this.trigger('share_change_already')
+      } else {
+        this.userCurrrent = data
+        this.trigger('share_change', {
+          user: data.user,
+          workspace: data.workspace
+        })
+      }
+    }.bind(this));
+  });
 
- this.on('connect_components', function(source,destination) {
-   source.connectionsAfter.push(destination);
-   destination.connectionsBefore.push(source);
-   this.update(this.workspaceCurrent);
- });
+  this.on('connect_components', function(source, destination) {
+    source.connectionsAfter.push(destination);
+    destination.connectionsBefore.push(source);
+    this.update(this.workspaceCurrent);
+  });
 
- this.on('disconnect_components', function(source,destination) {
-   source.connectionsAfter.splice(source.connectionsAfter.indexOf(destination),1);
-   destination.connectionsBefore.splice(destination.connectionsBefore.indexOf(source),1);
-   this.update(this.workspaceCurrent);
- });
+  this.on('disconnect_components', function(source, destination) {
+    source.connectionsAfter.splice(source.connectionsAfter.indexOf(destination), 1);
+    destination.connectionsBefore.splice(destination.connectionsBefore.indexOf(source), 1);
+    this.update(this.workspaceCurrent);
+  });
 
- this.on('item_current_connect_before', function(data) {
-   console.log('item_current_add_component', this.connectMode);
-   this.itemCurrent.connectionsBefore = this.itemCurrent.connectionsBefore || [];
-   this.itemCurrent.connectionsBefore.push(data);
-   this.update().then((record) => {
-     this.modeConnectBefore = false;
-     this.trigger('item_curent_connect_show_changed', {
-       before: this.modeConnectBefore,
-       after: this.modeConnectAfter
-     });
-     this.trigger('item_curent_available_connections', this.computeAvailableConnetions());
-     this.trigger('item_current_changed', this.itemCurrent);
-   });
- });
+  this.on('item_updateField', function(message) {
+    console.log('item_current_updateField ', message);
+    let item= sift({_id:message.id},this.workspaceCurrent.components)[0];
+    item[message.field] = message.data;
+    this.trigger('workspace_current_changed', this.workspaceCurrent);
+  }); //<= item_current_updateField
+
 
 }

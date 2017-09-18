@@ -67,7 +67,7 @@
         <div></div>
       </div>
 
-      <jsonEditor name="testPreviewer" mode="text" style="flex-grow:1"></jsonEditor>
+      <!--<jsonEditor name="testPreviewer" mode="text" style="flex-grow:1"></jsonEditor>-->
 
     </div>
     <div style="flex-basis:250px" class="containerV" >
@@ -97,7 +97,7 @@
     </div>
   </div>
   <script>
-    this.itemCurrent;
+    this.itemCurrent={};
 
     saveWorkspaceComponent(e) {
       if (this.editionContainer.persist == undefined) {

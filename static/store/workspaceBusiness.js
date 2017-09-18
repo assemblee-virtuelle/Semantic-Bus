@@ -12,12 +12,14 @@ function WorkspaceBusiness() {
             _id: componentId
           }, workspaceComponentsList))[0];
         });
+        component.connectionsAfter=sift({$ne:undefined},component.connectionsAfter);
 
         component.connectionsBefore = component.connectionsBefore.map(componentId => {
           return (sift({
             _id: componentId
           }, workspaceComponentsList))[0];
         });
+        component.connectionsBefore=sift({$ne:undefined},component.connectionsBefore);
       }
     });
 
@@ -96,7 +98,9 @@ function WorkspaceBusiness() {
       type: workspaceComponentIn.type,
       description: workspaceComponentIn.description,
       editor: workspaceComponentIn.editor,
-      workspaceId: workspaceComponentIn.workspaceId
+      workspaceId: workspaceComponentIn.workspaceId,
+      graphPositionX : workspaceComponentIn.graphPositionX,
+      graphPositionY : workspaceComponentIn.graphPositionY
     }
     console.log(out)
     return out;

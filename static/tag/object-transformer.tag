@@ -10,7 +10,7 @@
       set: function (data) {
         this.innerData = data;
         if (data.specificData) {
-          this.tags.jsonSchema.data = data.specificData.transformObject;
+          this.tags.jsonEditor.data = data.specificData.transformObject;
           data.specificData
         }
         this.update();
@@ -18,11 +18,11 @@
       get: function () {
         //TODO add listerner to jsonEditor
         if (this.innerData.specificData) {
-          this.innerData.specificData.transformObject = this.tags.jsonSchema.data;
+          this.innerData.specificData.transformObject = this.tags.jsonEditor.data;
           return this.innerData;
         } else {
           this.innerData.specificData = {}
-          this.innerData.specificData.transformObject = this.tags.jsonSchema.data;
+          this.innerData.specificData.transformObject = this.tags.jsonEditor.data;
           return this.innerData;
         }
       },

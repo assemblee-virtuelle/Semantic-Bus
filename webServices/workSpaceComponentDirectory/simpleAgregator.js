@@ -2,6 +2,7 @@ module.exports = {
   type: 'Flow Agregator',
   description: 'agréger plusieurs flux pour n en former qu un',
   editor: 'simple-agregator-editor',
+  graphIcon:'flowAggregator.png',
   sift: require('sift'),
 
 

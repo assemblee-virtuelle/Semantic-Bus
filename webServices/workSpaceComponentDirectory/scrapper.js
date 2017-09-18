@@ -3,11 +3,13 @@ module.exports = {
   type: 'Scrapper ',
   description: 'Scrapper page html',
   editor: 'scrapper-editor',
+  graphIcon: 'scrapper.png',
   phantom: require('phantom'),
   sift: require('sift'),
 
   makeRequest: function (actions, url, flowData, flow_before, fix_url) {
     console.log("scrapper start")
+    
     var _ph, _page, _outObj
 
 
@@ -135,15 +137,14 @@ module.exports = {
 
 
     function _aggregateAction(actions, page, deeth, data, outObj, _ph) {
-      console.log(" ------  deeth  ------- " ,  deeth);
+      console.log(" ------  deeth  ------- ", deeth);
       console.log('------   tour restant -------- ', (actions.length) - deeth);
-
       if (deeth == actions.length) {
         console.log("terminé", data)
         page.close();
         _ph.exit();
       } else {
-        switch (actions[deeth].actionName) {
+        switch (actions[deeth].actionType) {
           case ("getValue"):
             _waitFor(page, function () {
               var selector = actions[deeth].selector
@@ -234,50 +235,6 @@ module.exports = {
               })
             })
             break;
-          case ("setHtml"):
-            _waitFor(page, function () {
-              var selector = actions[deeth].selector
-              return page.evaluate(function (selector) {
-                if (document.querySelector(selector) === null) {
-                  console.log(document.querySelector(selector))
-                  return false
-                } else {
-                  console.log(document.querySelector(selector))
-                  return true
-                }
-              }, selector)
-            }, function () {
-              console.log("The sign-in dialog should be visible now.");
-            }).then(function (res) {
-              _setHtml(actions[deeth], page).then(function (res) {
-                data[actions[deeth].action] = res
-                deeth += 1
-                _aggregateAction(actions, page, deeth, data, outObj, _ph)
-              })
-            })
-            break;
-          case ("setAttr"):
-            _waitFor(page, function () {
-              var selector = actions[deeth].selector
-              return page.evaluate(function (selector) {
-                if (document.querySelector(selector) === null) {
-                  console.log(document.querySelector(selector))
-                  return false
-                } else {
-                  console.log(document.querySelector(selector))
-                  return true
-                }
-              }, selector)
-            }, function () {
-              console.log("The sign-in dialog should be visible now.");
-            }).then(function (res) {
-              _setAttr(actions[deeth], page).then(function (res) {
-                data[actions[deeth].action] = res
-                deeth += 1
-                _aggregateAction(actions, page, deeth, data, outObj, _ph)
-              })
-            })
-            break;
           case ("click"):
             _waitFor(page, function () {
               var selector = actions[deeth].selector
@@ -335,61 +292,68 @@ module.exports = {
   },
 
 
-  pull: function () {
-    // pull: function (data, flowData) {
-    var data = {}
-    data['specificData'] = {}
-    data.specificData.url = 'https://www.voyages-sncf.com/'
-    data.specificData.actions = [{
-        action: "test2",
-        attribut: 'class',
-        actionName: 'getAttr',
-        selector: '.ico-train',
-        name_number: null
-      },
-      {
-        action: "test3",
-        actionName: 'click',
-        selector: '.ico-train-vol-hotel',
-        name_number: null
-      },
-      {
-        action: "test90",
-        attribut: 'class',
-        actionName: 'getAttr',
-        selector: '#new-homepage-search-wizard',
-        name_number: null
-      },
-      {
-        action: "test33",
-        actionName: 'click',
-        selector: '#ccl-label',
-        name_number: null
-      },
-      {
-        action: "test33",
-        value: 'test',
-        actionName: 'setValue',
-        selector: '#signin-loginid',
-        name_number: null
-      },
-      {
-        action: "test43",
-        value: 'test',
-        actionName: 'setValue',
-        selector: '#signin-password',
-        name_number: null
-      },
-      {
-        action: "test73",
-        attribut: 'class',
-        actionName: 'getAttr',
-        selector: '.secondary',
-        name_number: null
-      },
-    ]
+  // pull: function () {
+    pull: function (data, flowData) {
+      // console.log(data.specificData.scrappe[0])
+    // var data = {}
+    // data['specificData'] = {}
+    // data.specificData.url = 'https://www.voyages-sncf.com/'
+    // data.specificData.actions = [{
+    //     action: "test2",
+    //     attribut: 'class',
+    //     actionName: 'getAttr',
+    //     selector: '.ico-train',
+    //     name_number: null
+    //   },
+    //   {
+    //     action: "test3",
+    //     actionName: 'click',
+    //     selector: '.ico-train-vol-hotel',
+    //     name_number: null
+    //   },
+    //   {
+    //     action: "test90",
+    //     attribut: 'class',
+    //     actionName: 'getAttr',
+    //     selector: '#new-homepage-search-wizard',
+    //     name_number: null
+    //   },
+    //   {
+    //     action: "test33",
+    //     actionName: 'click',
+    //     selector: '#ccl-label',
+    //     name_number: null
+    //   },
+    //   {
+    //     action: "test33",
+    //     value: 'test',
+    //     actionName: 'setValue',
+    //     selector: '#signin-loginid',
+    //     name_number: null
+    //   },
+    //   {
+    //     action: "test43",
+    //     value: 'test',
+    //     actionName: 'setValue',
+    //     selector: '#signin-password',
+    //     name_number: null
+    //   },
+    //   {
+    //     action: "test73",
+    //     attribut: 'class',
+    //     actionName: 'getAttr',
+    //     selector: '.secondary',
+    //     name_number: null
+    //   },
+    // ]
+
     console.log(data)
-    return this.makeRequest(data.specificData.actions, data.specificData.url)
+    return this.makeRequest(data.specificData.scrappe, data.specificData.url)
     // return this.makeRequest(flowData, data.specificData.url, data.specificData.flow_before, data.specificData.fix_url, data.specificData.scrappe);
   },
 }
+
+
+
+
+

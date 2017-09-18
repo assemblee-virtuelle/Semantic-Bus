@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>ESSAI avec BBox</title>
+  <style media="screen">
+    #graph {
+      background-color: lightgray;
+      font-family: sans-serif;
+    }
+    #graph a {
+      color: #212121;
+      text-decoration: none;
+    }
+    #graph-svg {
+     height:100vh;
+    }
+    .graphNode {
+      text-align: center;
+    }
+    .graphNode p {
+      font-size: 24px;
+      display: inline-block;
+      border-radius: 10px;
+      margin: 0 auto;
+      padding: 15px 15px 10px;
+      background: #fff;
+      box-shadow: 0 2px 2px 0 rgba(0, 0, 0, 0.15), 0 4px 1px -2px rgba(0, 0, 0, 0.2), 0 2px 2px 0 rgba(0, 0, 0, 0.1);
+    }
+    .graphNode-icon {
+      height: 24px;
+      width: 24px;
+      vertical-align: bottom;
+      margin-bottom: 4px;
+    }
+  </style>
+</head>
+
+
+
+
+<body>
+  <h1>Essai avec BBox</h1>
+  <div id="graph">
+    <div id="graphContainer">
+      <svg viewBox="0 0 1000 1000" id="graph-svg" tabindex="1">
+
+
+
+        <g>
+          <foreignObject class="graphNode" transform="translate(200, 50)" width="100" height="70" style="overflow:visible;">
+            <!-- avec 2 div ça ne marche pas ?
+            <div style="width:300px;height:300px;background-color:red;">
+            </div> -->
+            <div>
+
+              <p>
+                <a href="#" rel="nofollow">
+                  <img class="graphNode-icon" src="https://assets-cdn.github.com/images/icons/emoji/unicode/1f310.png">
+                </a>
+                <a href="#" rel="nofollow">Vhfhf Maths guyfeugyefyugfoeuyg</a>
+              </p>
+
+            </div>
+          </foreignObject>
+        </g>
+
+        <!-- repris du BusS : il y a 2 éléments superposés un rectange et un texte -->
+        <!--
+            <text fill="#000" x="10" y="300">GOOGLE calc Get JSON</text>
+            <rect width="200" height="25" fill="#e5e5ff" x="5" y="283"></rect>
+        -->
+
+      </svg>
+    </div>
+  </div>
+</body>
+<script>
+  //Constants for the SVG
+  var width = 1000,
+    height = 600;
+  /* SCRIPTS
+
+  this.on('mount', function () {
+        this.svg = d3.select("#graphContainer").append("svg").attr("width", width).attr("height", height);
+        ETC
+
+  */
+</script>
+</html>
