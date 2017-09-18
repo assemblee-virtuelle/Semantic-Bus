@@ -70,6 +70,16 @@
       } else {
         this.input3 = false
       }
+<<<<<<< HEAD
+      console.log(this.input3)
+    }
+
+    check4(e) {
+      if (this.input4 == false) {
+        this.input4 = true
+      } else {
+        this.input4 = false
+=======
       this.updateData=function(dataToUpdate){
         this.data = dataToUpdate;
         if (this.data.specificData.scrappe == undefined) {
@@ -91,6 +101,7 @@
           this.input3 = false
         }
         console.log(this.input3)
+>>>>>>> 131814a51c7070d9715379fe088c8e4e3c297a94
       }
       console.log(this.input4)
     }

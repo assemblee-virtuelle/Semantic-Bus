@@ -70,8 +70,7 @@ function profilStore() {
         localStorage.token = null;
         localStorage.user_id = null;
         localStorage.googleid = null;
-        console.log(localStorage)
-         window.open("../auth/login.html", "_self");
+        window.open("../auth/login.html", "_self");
     }.bind(this))
 
   
