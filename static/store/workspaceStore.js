@@ -356,7 +356,7 @@ function WorkspaceStore() {
     if (mode == 'init') {
       this.create();
     } else if (mode == 'edit') {
-      this.update(data);
+      this.update(data||this.workspaceCurrent);
     }
   }); // <= workspace_current_persist
 
