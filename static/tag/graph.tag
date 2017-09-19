@@ -36,6 +36,8 @@
       // if (!d3.event.active) {   this.simulation.alphaTarget(1.0).restart(); }
       d.fx = d.x;
       d.fy = d.y;
+      d.xOrigin = d.x;
+      d.yOrigin = d.y;
     }.bind(this); // permet de conserver this pour la prochaine execution de la fonction
 
     this.dragged = function (d) {
@@ -45,20 +47,25 @@
     }.bind(this);
 
     this.dragended = function (d) {
-      console.log('dragended');
-      RiotControl.trigger('item_updateField', {
-        id: d.id,
-        field: "graphPositionX",
-        data: d.fx
-      });
-      RiotControl.trigger('item_updateField', {
-        id: d.id,
-        field: "graphPositionY",
-        data: d.fy
-      });
-      RiotControl.trigger('workspace_current_persist');
-      if (!d3.event.active) {
-        this.simulation.alphaTarget(0.1);
+
+      if (d.fx == d.xOrigin && d.fy == d.yOrigin) {
+        console.log('CLICK');
+      } else {
+        console.log('dragended');
+        RiotControl.trigger('item_updateField', {
+          id: d.id,
+          field: "graphPositionX",
+          data: d.fx
+        });
+        RiotControl.trigger('item_updateField', {
+          id: d.id,
+          field: "graphPositionY",
+          data: d.fy
+        });
+        RiotControl.trigger('workspace_current_persist');
+        if (!d3.event.active) {
+          this.simulation.alphaTarget(0.1);
+        }
       }
     }.bind(this);
 
@@ -112,7 +119,7 @@
           });
           outputCurrentOffset += outputsOffset;
         } else { // tous ceux du milieu
-          var node={
+          var node = {
             text: record.type,
             id: record._id,
             graphIcon: record.graphIcon,
@@ -120,18 +127,17 @@
             y: record.graphPositionY || height / 2 // on laisse a la force le soin de les repartir
           }
 
-          if(record.graphPositionX!=undefined){
-            node.fx=record.graphPositionX;
-          }else {
-            node.x= width / 2;
+          if (record.graphPositionX != undefined) {
+            node.fx = record.graphPositionX;
+          } else {
+            node.x = width / 2;
           }
 
-          if(record.graphPositionY!=undefined){
-            node.fy=record.graphPositionY;
-          }else {
-            node.y= height / 2;
+          if (record.graphPositionY != undefined) {
+            node.fy = record.graphPositionY;
+          } else {
+            node.y = height / 2;
           }
-
 
           this.graph.nodes.push(node);
         }
