@@ -106,19 +106,19 @@ var proto = {
             componentProcessing.dataResolution = componentFlow;
             componentProcessing.status = 'resolved';
             ///update first component her
-            componentProcessing.consumption_history.push({
-              traitement_id: traitement_id,
-              flow_size: this.objectSizeOf(componentFlow) / 1000000,
-              price: (this.objectSizeOf(componentFlow) / 400000000),
-              dates: {
-                created_at: new Date()
-              }
-            })
-            this.workspace_component_lib.update(
+            // componentProcessing.consumption_history.push({
+            //   traitement_id: traitement_id,
+            //   flow_size: this.objectSizeOf(componentFlow) / 1000000,
+            //   price: (this.objectSizeOf(componentFlow) / 400000000),
+            //   dates: {
+            //     created_at: new Date()
+            //   }
+            // })
+            // this.workspace_component_lib.update(
               componentProcessing
-            ).then(function(res){
-              global_flow += this.objectSizeOf(componentFlow) / 1000000
-              console.log("traitement_update =====>", res.consumption_history)
+            // ).then(function(res){
+              global_flow += this.objectSizeOf(componentFlow)
+              // console.log("traitement_update =====>", res.consumption_history)
               this.sift({
                 "source._id": componentProcessing._id
               }, this.pathResolution).forEach(link => {
@@ -128,7 +128,7 @@ var proto = {
                 this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
               }
               this.processNextBuildPath(traitement_id, component.workspaceId, global_flow);
-            }.bind(this))
+            // }.bind(this))
           })
         });
         //}
@@ -195,16 +195,19 @@ var proto = {
           global_flow += this.objectSizeOf(dataFlow)
           var primaryflow;
           if (module.getPrimaryFlow != undefined) {
+            console.log("DATA ----FLOW --------------", processingLink.destination)
             primaryflow = module.getPrimaryFlow(processingLink.destination, dataFlow);
           } else {
             primaryflow = dataFlow[0];
           }
+          
           var secondaryFlow = [];
           secondaryFlow = secondaryFlow.concat(dataFlow);
           secondaryFlow.splice(secondaryFlow.indexOf(primaryflow), 1);
           //console.log('secondaryFlow |' , secondaryFlow);
           if (primaryflow.dfob != undefined) {
-
+            console.log("after ---- primary flow")
+            
 
             var dfobTab = primaryflow.dfob[0].split(".");
 
@@ -287,16 +290,24 @@ var proto = {
       }
 
     } else {
-
-      // workspace_lib._get_workspace(component_workspaceId).then(function(res){
-      //   res.consumption_history.push({
-      //     traitement_id: traitement_id,
-      //     flow_size: this.objectSizeOf(dataFlow) / 1000000,
-      //     price: (this.objectSizeOf(dataFlow) / 400000000)
-      //   })
-       
-      // })
       console.log('--------------  End of Worksapce processing -------------- ', global_flow)
+      this.workspace_lib.getWorkspace(component_workspaceId).then(function(res){
+        res.consumption_history.push({
+          traitement_id: traitement_id,
+          flow_size: global_flow / 1000000,
+          price: (global_flow / 400000000),
+          dates: {
+            created_at: new Date()
+          }
+        })
+        console.log('--------------  Before save workspace -------------- ')
+        console.log(res.components.length)
+        
+        this.workspace_lib.updateSimple(res).then(function(res){
+          console.log(res.components.length)
+          console.log('--------------  End of Worksapce processing -------------- ', res._id)
+        })
+      }.bind(this))
     }
   },
   //TODO don't work if flow is array at fisrt depth

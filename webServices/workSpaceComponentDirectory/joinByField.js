@@ -9,6 +9,7 @@ module.exports = {
     var primaryFlow = this.sift({
       componentId: data.specificData.primaryComponentId
     }, flowData)[0];
+    console.log("---------PRIMARY FLOW--------", primaryFlow)
     return primaryFlow;
   },
   pull: function(data, flowData) {

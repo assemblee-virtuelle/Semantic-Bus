@@ -22,6 +22,7 @@
       <div class="{color1}" if={componentView} id="component" onclick={goComponent}>Composant(s)</div>
       <div class="{color2}" id="user" if={userView} onclick={goUser}>Utilisateur(s)</div>
       <div class="{color3}" if={DescriptionView} id="description" onclick={goDescription}>Déscription</div>
+      <div class="{color4}" if={DescriptionView} id="description" onclick={goUtilisation}>Utilisation</div>
     </div>
     <div show={modeComponentList}>
       <zenTable style="flex:1" css="background-color:white!important;color: #3883fa;" disallowcommand={innerData.mode=='read' } allowcancelcommand={false} id="composant" ref="componentZenTable">
@@ -185,9 +186,11 @@
     this.componentView = true;
     this.userView = true;
     this.DescriptionView = true;
+    this.utilisationView = true;
     this.color1 = "blue";
     this.color2 = "white";
     this.color3 = "white";
+    this.color4 = "white";
     this.innerData = {}
     this.modeUserList = false;
     this.modeComponentList = true;
@@ -204,6 +207,7 @@
       this.color2 = "white"
       this.color1 = "white"
       this.color3 = "blue"
+       this.color4 = "white"
       this.update()
     }.bind(this)
 
@@ -214,6 +218,7 @@
       this.color2 = "blue"
       this.color1 = "white"
       this.color3 = "white"
+       this.color4 = "white"
       //console.log(this.workspace._id.$oid) RiotControl.trigger('load_all_profil_by_workspace', {_id: this.workspace._id.$oid})
     }.bind(this)
 
@@ -224,6 +229,17 @@
       this.color2 = "white"
       this.color1 = "blue"
       this.color3 = "white"
+      this.color4 = "white"
+    }.bind(this)
+
+    goUtilisation(e) {
+      this.modeUserList = false;
+      this.modeComponentList = true;
+      this.modeUserDescription = false;
+      this.color2 = "white"
+      this.color1 = "white"
+      this.color3 = "white"
+      this.color4 = "blue"
     }.bind(this)
 
     this.persistClick = function (e) {
@@ -367,6 +383,7 @@
         this.componentView = false;
         this.userView = true;
         this.DescriptionView = false;
+        this.utilisationView = false;
         RiotControl.trigger('workspace_current_add_user_show', message);
       }.bind(this));
 
@@ -374,6 +391,7 @@
         this.componentView = true;
         this.userView = false;
         this.DescriptionView = false;
+        this.utilisationView = false;
         RiotControl.trigger('workspace_current_add_component_show', message);
       }.bind(this));
 
