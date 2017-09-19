@@ -9,6 +9,7 @@
   <script>
 
     this.data={};
+    this.data.specificData = {}
     //
     // Object.defineProperty(this, 'data', {
     //    set: function (data) {
@@ -21,22 +22,23 @@
     //   },
     //   configurable: true
     // });
-    this.updateData=function(dataToUpdate){
-      this.data=dataToUpdate;
-      this.update();
-    }.bind(this);
+
 
     this.on('mount', function () {
+      this.updateData=function(dataToUpdate){
+        this.data = dataToUpdate;
+        this.update();
+      }.bind(this);
       this.refs.keyInput.addEventListener('change',function(e){
         console.log('keychange');
-        this.data.specificData.key=e.currentTarget.value;
+        this.data.specificData.key = e.currentTarget.value;
       }.bind(this));
 
       this.refs.selectInput.addEventListener('change',function(e){
-        this.data.specificData.select=e.currentTarget.value;
+        this.data.specificData.select= e.currentTarget.value;
       }.bind(this));
       this.refs.offsetInput.addEventListener('change',function(e){
-        this.data.specificData.offset=e.currentTarget.value;
+        this.data.specificData.offset = e.currentTarget.value;
       }.bind(this));
 
       RiotControl.on('item_current_changed',this.updateData);

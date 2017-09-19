@@ -2,7 +2,7 @@
 
 
   <div>mettre en cache les data et les réintéroger</div>
-  <jsonEditor name="cachedData" mode="text" style="flex-grow:1">
+  <jsonEditor ref="cachedData" mode="text" style="flex-grow:1">
   </jsonEditor>
   <script>
 
@@ -26,7 +26,7 @@
       RiotControl.trigger('item_current_getCache');
     }
     this.updateData=function(dataToUpdate){
-      this.innerData=dataToUpdate;
+      this.innerData = dataToUpdate;
       this.update();
     }.bind(this);
 
@@ -36,7 +36,7 @@
       RiotControl.on('item_current_changed',this.updateData);
       RiotControl.on('item_current_getCache_done', function (data) {
         //this.cahedData = data;
-        this.tags.cachedData.data = data;
+        this.refs.cachedData.data = data;
         this.update();
       }.bind(this));
       RiotControl.trigger('item_current_getCache');

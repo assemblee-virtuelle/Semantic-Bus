@@ -9,7 +9,7 @@ module.exports = {
 
   makeRequest: function (actions, url, flowData, flow_before, fix_url) {
     console.log("scrapper start")
-    
+
     var _ph, _page, _outObj
 
 
@@ -136,133 +136,147 @@ module.exports = {
     // };
 
 
-    function _aggregateAction(actions, page, deeth, data, outObj, _ph) {
-      console.log(" ------  deeth  ------- ", deeth);
-      console.log('------   tour restant -------- ', (actions.length) - deeth);
-      if (deeth == actions.length) {
-        console.log("terminé", data)
-        page.close();
-        _ph.exit();
-      } else {
-        switch (actions[deeth].actionType) {
-          case ("getValue"):
-            _waitFor(page, function () {
-              var selector = actions[deeth].selector
-              return page.evaluate(function (selector) {
-                if (document.querySelector(selector) === null) {
-                  console.log(document.querySelector(selector))
-                  return false
-                } else {
-                  console.log(document.querySelector(selector))
-                  return true
-                }
-              }, selector)
-            }, function () {
-              console.log("The sign-in dialog should be visible now.");
-            }).then(function (res) {
-              _getText(actions[deeth], page, deeth).then(function (res) {
-                data[actions[deeth].action] = res
-                deeth += 1
-                _aggregateAction(actions, page, deeth, data, outObj, _ph)
+    function _aggregateAction(actions, page, deeth, data, outObj, _ph, cb) {
+      // return new Promise(function (resolve, reject) {
+        console.log(" ------  deeth  ------- ", deeth);
+        console.log('------   tour restant -------- ', (actions.length) - deeth);
+        if (deeth == actions.length) {
+          console.log("terminé", data)
+          page.close();
+          return cb(data)
+        } else {
+          switch (actions[deeth].actionType) {
+            case ("getValue"):
+              _waitFor(page, function () {
+                var selector = actions[deeth].selector
+                return page.evaluate(function (selector) {
+                  if (document.querySelector(selector) === null) {
+                    console.log(document.querySelector(selector))
+                    return false
+                  } else {
+                    console.log(document.querySelector(selector))
+                    return true
+                  }
+                }, selector)
+              }, function () {
+                console.log("The sign-in dialog should be visible now.");
+              }).then(function (res) {
+                _getText(actions[deeth], page, deeth).then(function (res) {
+                  data[actions[deeth].action] = res
+                  deeth += 1
+                  
+                  _aggregateAction(actions, page, deeth, data, outObj, _ph, cb)
+                })
               })
-            })
-            break;
-          case ("getHtml"):
-            _waitFor(page, function () {
-              var selector = actions[deeth].selector
-              return page.evaluate(function (selector) {
-                if (document.querySelector(selector) === null) {
-                  console.log(document.querySelector(selector))
-                  return false
-                } else {
-                  console.log(document.querySelector(selector))
-                  return true
-                }
-              }, selector)
-            }, function () {
-              console.log("The sign-in dialog should be visible now.");
-            }).then(function (res) {
-              _getHtml(actions[deeth], page, deeth).then(function (res) {
-                data[actions[deeth].action] = res
-                deeth += 1
-                _aggregateAction(actions, page, deeth, data, outObj, _ph)
+              break;
+            case ("getHtml"):
+              _waitFor(page, function () {
+                var selector = actions[deeth].selector
+                return page.evaluate(function (selector) {
+                  if (document.querySelector(selector) === null) {
+                    console.log(document.querySelector(selector))
+                    return false
+                  } else {
+                    console.log(document.querySelector(selector))
+                    return true
+                  }
+                }, selector)
+              }, function () {
+                console.log("The sign-in dialog should be visible now.");
+              }).then(function (res) {
+                _getHtml(actions[deeth], page, deeth).then(function (res) {
+                  data[actions[deeth].action] = res
+                  deeth += 1
+                  
+                  _aggregateAction(actions, page, deeth, data, outObj, _ph, cb)
+                })
               })
-            })
-            break;
-          case ("getAttr"):
-            _waitFor(page, function () {
-              var selector = actions[deeth].selector
-              return page.evaluate(function (selector) {
-                if (document.querySelector(selector) === null) {
-                  console.log(document.querySelector(selector))
-                  return false
-                } else {
-                  console.log(document.querySelector(selector))
-                  return true
-                }
-              }, selector)
-            }, function () {
-              console.log("The sign-in dialog should be visible now.");
-            }).then(function (res) {
-              _getAttr(actions[deeth], page).then(function (res) {
-                console.log(res)
-                data[actions[deeth].action] = res
-                deeth += 1
-                _aggregateAction(actions, page, deeth, data, outObj, _ph)
+              break;
+            case ("getAttr"):
+              _waitFor(page, function () {
+                var selector = actions[deeth].selector
+                return page.evaluate(function (selector) {
+                  if (document.querySelector(selector) === null) {
+                    console.log(document.querySelector(selector))
+                    return false
+                  } else {
+                    console.log(document.querySelector(selector))
+                    return true
+                  }
+                }, selector)
+              }, function () {
+                console.log("The sign-in dialog should be visible now.");
+              }).then(function (res) {
+                _getAttr(actions[deeth], page).then(function (res) {
+                  console.log(res)
+                  data[actions[deeth].action] = res
+                  deeth += 1
+                  
+                  _aggregateAction(actions, page, deeth, data, outObj, _ph, cb)
+                })
               })
-            })
-            break;
-          case ("setValue"):
-            _waitFor(page, function () {
-              var selector = actions[deeth].selector
-              return page.evaluate(function (selector) {
-                if (document.querySelector(selector) === null) {
-                  console.log(document.querySelector(selector))
-                  return false
-                } else {
-                  console.log(document.querySelector(selector))
-                  return true
-                }
-              }, selector)
-            }, function () {
-              console.log("The sign-in dialog should be visible now.");
-            }).then(function (res) {
-              _setValue(actions[deeth], page).then(function (res) {
-                console.log(res)
-                data[actions[deeth].action] = res
-                deeth += 1
-                _aggregateAction(actions, page, deeth, data, outObj, _ph)
+              break;
+            case ("setValue"):
+              _waitFor(page, function () {
+                var selector = actions[deeth].selector
+                return page.evaluate(function (selector) {
+                  if (document.querySelector(selector) === null) {
+                    console.log(document.querySelector(selector))
+                    return false
+                  } else {
+                    console.log(document.querySelector(selector))
+                    return true
+                  }
+                }, selector)
+              }, function () {
+                console.log("The sign-in dialog should be visible now.");
+              }).then(function (res) {
+                _setValue(actions[deeth], page).then(function (res) {
+                  console.log(res)
+                  data[actions[deeth].action] = res
+                  deeth += 1
+                  
+                  _aggregateAction(actions, page, deeth, data, outObj, _ph, cb)
+                })
               })
-            })
-            break;
-          case ("click"):
-            _waitFor(page, function () {
-              var selector = actions[deeth].selector
-              return page.evaluate(function (selector) {
-                if (document.querySelector(selector) === null) {
-                  console.log(document.querySelector(selector))
-                  return false
-                } else {
-                  console.log(document.querySelector(selector))
-                  return true
-                }
-              }, selector)
-            }, function () {
-              console.log("The sign-in dialog should be visible now.");
-            }).then(function (res) {
-              console.log(" IN click");
-              simulateClick(actions[deeth], page, outObj).then(function (res) {
-                console.log("res click test", res)
-                deeth += 1
-                page.open(res)
-                _aggregateAction(actions, page, deeth, data, outObj, _ph)
+              break;
+            case ("click"):
+              _waitFor(page, function () {
+                var selector = actions[deeth].selector
+                return page.evaluate(function (selector) {
+                  if (document.querySelector(selector) === null) {
+                    console.log(document.querySelector(selector))
+                    return false
+                  } else {
+                    console.log(document.querySelector(selector))
+                    return true
+                  }
+                }, selector)
+              }, function () {
+                console.log("The sign-in dialog should be visible now.");
+              }).then(function (res) {
+                console.log(" IN click");
+                simulateClick(actions[deeth], page, outObj).then(function (res) {
+                  console.log("res click test", res)
+                  deeth += 1
+                  page.open(res)
+                  _aggregateAction(actions, page, deeth, data, outObj, _ph, cb)
+                })
               })
-            })
-            break;
+              break;
+          }
         }
-      }
+      // })
     }
 
+    function callBackScrapping(data){
+      console.log("in callback final ===", data)
+      return new Promise(function(resolve,reject){
+        resolve({data: data})
+      })
+    }
+
+    
     return new Promise(function (resolve, reject) {
       this.phantom.create(['--ignore-ssl-errors=yes', '--web-security=false']).then(ph => {
         _ph = ph;
@@ -282,10 +296,10 @@ module.exports = {
         return _page.open(url)
       }).then(status => {
         if (status) {
-          let data = {}
-          let deeth = 0
-          console.log("---- before recursive ------ ")
-          _aggregateAction(actions, _page, deeth, data, _outObj, _ph)
+            let data = {}
+            let deeth = 0
+            console.log("----  before recursive ------ ")
+            _aggregateAction(actions, _page, deeth, data, _outObj, _ph, callBackScrapping)
         }
       })
     }.bind(this))
@@ -293,8 +307,8 @@ module.exports = {
 
 
   // pull: function () {
-    pull: function (data, flowData) {
-      // console.log(data.specificData.scrappe[0])
+  pull: function (data, flowData) {
+    // console.log(data.specificData.scrappe[0])
     // var data = {}
     // data['specificData'] = {}
     // data.specificData.url = 'https://www.voyages-sncf.com/'
@@ -347,13 +361,7 @@ module.exports = {
     //   },
     // ]
 
-    console.log(data)
     return this.makeRequest(data.specificData.scrappe, data.specificData.url)
     // return this.makeRequest(flowData, data.specificData.url, data.specificData.flow_before, data.specificData.fix_url, data.specificData.scrappe);
   },
 }
-
-
-
-
-

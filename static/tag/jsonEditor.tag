@@ -85,7 +85,7 @@
   </script>
   <style>
     /*@import 'js/jsonEditor/dist/jsoneditor.min.css';*/
-    .jsoneditor{
+    .jsoneditor {
       height : 100%;
     }
   </style>

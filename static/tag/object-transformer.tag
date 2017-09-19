@@ -1,6 +1,6 @@
 <object-transformer>
   <div>configuration d'un objet de transformation</div>
-  <jsonEditor name="jsonSchema" title="Transform Schema" style="flex:1" modes="['tree','text']"></jsonEditor>
+  <jsonEditor ref="jsonSchema" title="Transform Schema" style="flex:1" modes="['tree','text']"></jsonEditor>
   <script>
     this.innerData = {};
     this.test = function () {
@@ -10,7 +10,7 @@
       set: function (data) {
         this.innerData = data;
         if (data.specificData) {
-          this.tags.jsonEditor.data = data.specificData.transformObject;
+          this.refs.jsonSchema.data = data.specificData.transformObject;
           data.specificData
         }
         this.update();
@@ -18,11 +18,11 @@
       get: function () {
         //TODO add listerner to jsonEditor
         if (this.innerData.specificData) {
-          this.innerData.specificData.transformObject = this.tags.jsonEditor.data;
+          this.innerData.specificData.transformObject = this.refs.jsonSchema.data;
           return this.innerData;
         } else {
           this.innerData.specificData = {}
-          this.innerData.specificData.transformObject = this.tags.jsonEditor.data;
+          this.innerData.specificData.transformObject = this.refs.jsonSchema.data;
           return this.innerData;
         }
       },
