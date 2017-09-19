@@ -291,7 +291,7 @@ module.exports = {
           function (requestData, networkRequest, out) {
             out.urls.push(requestData.url);
           },
-          _outObj,
+          _outObj
         );
         return _page.open(url)
       }).then(status => {

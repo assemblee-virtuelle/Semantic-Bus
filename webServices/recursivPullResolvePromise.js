@@ -14,8 +14,10 @@ var proto = {
   //mLabPromise: require('./mLabPromise'),
   workspaceComponentPromise: require('./workspaceComponentPromise'),
   sift: require('sift'),
+  objectSizeOf: require('object-sizeof'),
   mLabPromise: require('./mLabPromise'),
-  workspace_component_lib : require('../lib/core/lib/workspace_component_lib'),
+  workspace_component_lib: require('../lib/core/lib/workspace_component_lib'),
+  workspace_lib: require('../lib/core/lib/workspace_lib'),
   fackCounter: 0,
   resolveComponentPull(component, notMainNode, pullParams) {
     //console.log(pullParams);
@@ -93,7 +95,8 @@ var proto = {
         //   //   $exists: false
         //   // }
         // }, this.componentsResolving)
-
+        var traitement_id = Date.now()
+        var global_flow = 0
         tableSift.forEach(componentProcessing => {
           let module = this.technicalComponentDirectory[componentProcessing.module];
           //let componentProcessing = processingLink.source;
@@ -102,15 +105,30 @@ var proto = {
             console.log('PULL END | ', componentProcessing._id);
             componentProcessing.dataResolution = componentFlow;
             componentProcessing.status = 'resolved';
-            this.sift({
-              "source._id": componentProcessing._id
-            }, this.pathResolution).forEach(link => {
-              link.status = 'processing'
-            });
-            if (componentProcessing._id == this.RequestOrigine._id) {
-              this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
-            }
-            this.processNextBuildPath();
+            ///update first component her
+            componentProcessing.consumption_history.push({
+              traitement_id: traitement_id,
+              flow_size: this.objectSizeOf(componentFlow) / 1000000,
+              price: (this.objectSizeOf(componentFlow) / 400000000),
+              dates: {
+                created_at: new Date()
+              }
+            })
+            this.workspace_component_lib.update(
+              componentProcessing
+            ).then(function(res){
+              global_flow += this.objectSizeOf(componentFlow) / 1000000
+              console.log("traitement_update =====>", res.consumption_history)
+              this.sift({
+                "source._id": componentProcessing._id
+              }, this.pathResolution).forEach(link => {
+                link.status = 'processing'
+              });
+              if (componentProcessing._id == this.RequestOrigine._id) {
+                this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
+              }
+              this.processNextBuildPath(traitement_id, component.workspaceId, global_flow);
+            }.bind(this))
           })
         });
         //}
@@ -119,10 +137,10 @@ var proto = {
     });
 
   },
-  processNextBuildPath() {
+  processNextBuildPath(traitement_id,component_workspaceId, global_flow) {
     this.fackCounter++;
     console.log(" ---------- processNextBuildPath -----------", this.fackCounter)
-
+    console.log("--------- glovbal flow ------------" , global_flow)
     console.log(this.pathResolution.map(link => {
       return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
     }));
@@ -159,103 +177,126 @@ var proto = {
         //console.log('linksProcessing | ',linksProcessing);
         let module = this.technicalComponentDirectory[processingLink.destination.module];
         let dataFlow = linksProcessing.map(sourceLink => sourceLink.source.dataResolution);
-        var primaryflow;
-        if (module.getPrimaryFlow != undefined) {
-          primaryflow = module.getPrimaryFlow(processingLink.destination, dataFlow);
-        } else {
-          primaryflow = dataFlow[0];
-        }
-        var secondaryFlow = [];
-        secondaryFlow = secondaryFlow.concat(dataFlow);
-        secondaryFlow.splice(secondaryFlow.indexOf(primaryflow), 1);
-        //console.log('secondaryFlow |' , secondaryFlow);
-        if (primaryflow.dfob != undefined) {
+
+        /// Update procecing link 
+        processingLink.destination.consumption_history.push({
+          traitement_id: traitement_id,
+          flow_size: this.objectSizeOf(dataFlow) / 1000000,
+          price: (this.objectSizeOf(dataFlow) / 400000000),
+          dates: {
+            created_at: new Date()
+          }
+        })
+       
+        this.workspace_component_lib.update(
+          processingLink.destination
+        ).then(function(res){
+          // console.log("res update =======>",res)
+          global_flow += this.objectSizeOf(dataFlow)
+          var primaryflow;
+          if (module.getPrimaryFlow != undefined) {
+            primaryflow = module.getPrimaryFlow(processingLink.destination, dataFlow);
+          } else {
+            primaryflow = dataFlow[0];
+          }
+          var secondaryFlow = [];
+          secondaryFlow = secondaryFlow.concat(dataFlow);
+          secondaryFlow.splice(secondaryFlow.indexOf(primaryflow), 1);
+          //console.log('secondaryFlow |' , secondaryFlow);
+          if (primaryflow.dfob != undefined) {
 
 
-          var dfobTab = primaryflow.dfob[0].split(".");
+            var dfobTab = primaryflow.dfob[0].split(".");
 
-          //var currentInspectObject = primaryflow.data;
-          //console.log('primaryflow | ', primaryflow);
+            //var currentInspectObject = primaryflow.data;
+            //console.log('primaryflow | ', primaryflow);
 
-          var dfobFinalFlow = this.buildDfobFlow(primaryflow.data, dfobTab);
+            var dfobFinalFlow = this.buildDfobFlow(primaryflow.data, dfobTab);
 
-          console.log('dfobFinalFlow | ', dfobFinalFlow);
-          var testPromises = dfobFinalFlow.map(finalItem => {
+            // console.log('dfobFinalFlow | ', dfobFinalFlow);
+            var testPromises = dfobFinalFlow.map(finalItem => {
 
-            var recomposedFlow = [];
-            recomposedFlow = recomposedFlow.concat([{
-              data: finalItem.objectToProcess[finalItem.key],
-              componentId: primaryflow.componentId
-            }]);
-            recomposedFlow = recomposedFlow.concat(secondaryFlow);
-            return module.pull(processingLink.destination, recomposedFlow, undefined);
-          })
-
-          Promise.all(testPromises).then(componentFlowDfob => {
-            //console.log('PULL DFOB END | ', processingLink.destination._id);
-            //console.log('AllDfobResult |', dataTestTab);
-            for (var componentFlowDfobKey in componentFlowDfob) {
-              dfobFinalFlow[componentFlowDfobKey].objectToProcess[dfobFinalFlow[componentFlowDfobKey].key] = componentFlowDfob[componentFlowDfobKey].data;
-              //currentInspectObject[dataTestTabKey][currentDfob] = dataTestTab[dataTestTabKey].data;
-            }
-            // resolve({
-            //   componentId: component._id.$oid,
-            //   data: primaryflow.data
-            // });
-            processingLink.destination.dataResolution = {
-              componentId: processingLink.destination._id,
-              data: primaryflow.data
-            };
-            processingLink.destination.status = 'resolved';
-            this.sift({
-              "source._id": processingLink.destination._id
-            }, this.pathResolution).forEach(link => {
-              //console.log(link)
-              link.status = 'processing'
-            });
-
-            linksProcessing.forEach(link => {
-              link.status = 'resolved';
+              var recomposedFlow = [];
+              recomposedFlow = recomposedFlow.concat([{
+                data: finalItem.objectToProcess[finalItem.key],
+                componentId: primaryflow.componentId
+              }]);
+              recomposedFlow = recomposedFlow.concat(secondaryFlow);
+              return module.pull(processingLink.destination, recomposedFlow, undefined);
             })
 
-            if (processingLink.destination._id == this.RequestOrigine._id) {
-              this.RequestOrigineResolveMethode(processingLink.destination.dataResolution)
-            }
-            this.processNextBuildPath();
+            Promise.all(testPromises).then(componentFlowDfob => {
+              //console.log('PULL DFOB END | ', processingLink.destination._id);
+              //console.log('AllDfobResult |', dataTestTab);
+              for (var componentFlowDfobKey in componentFlowDfob) {
+                dfobFinalFlow[componentFlowDfobKey].objectToProcess[dfobFinalFlow[componentFlowDfobKey].key] = componentFlowDfob[componentFlowDfobKey].data;
+                //currentInspectObject[dataTestTabKey][currentDfob] = dataTestTab[dataTestTabKey].data;
+              }
+              // resolve({
+              //   componentId: component._id.$oid,
+              //   data: primaryflow.data
+              // });
+              processingLink.destination.dataResolution = {
+                componentId: processingLink.destination._id,
+                data: primaryflow.data
+              };
+              processingLink.destination.status = 'resolved';
+              this.sift({
+                "source._id": processingLink.destination._id
+              }, this.pathResolution).forEach(link => {
+                //console.log(link)
+                link.status = 'processing'
+              });
 
-          }).catch(e => {
-            console.log(e);
-          });
-        } else {
+              linksProcessing.forEach(link => {
+                link.status = 'resolved';
+              })
 
-          module.pull(processingLink.destination, dataFlow, undefined).then(componentFlow => {
-            console.log('PULL END | ', processingLink.destination._id);
-            processingLink.destination.dataResolution = componentFlow;
-            processingLink.destination.status = 'resolved';
-            //console.log('componentProcessing resolved ||', componentProcessing.status)
-            this.sift({
-              "source._id": processingLink.destination._id
-            }, this.pathResolution).forEach(link => {
-              //console.log(link)
-              link.status = 'processing'
+              if (processingLink.destination._id == this.RequestOrigine._id) {
+                this.RequestOrigineResolveMethode(processingLink.destination.dataResolution)
+              }
+              this.processNextBuildPath(traitement_id, component_workspaceId, global_flow);
+
+            }).catch(e => {
+              console.log(e);
             });
+          } else {
+            module.pull(processingLink.destination, dataFlow, undefined).then(componentFlow => {
+              console.log('PULL END | ', processingLink.destination._id);
+              processingLink.destination.dataResolution = componentFlow;
+              processingLink.destination.status = 'resolved';
+              //console.log('componentProcessing resolved ||', componentProcessing.status)
+              this.sift({
+                "source._id": processingLink.destination._id
+              }, this.pathResolution).forEach(link => {
+                //console.log(link)
+                link.status = 'processing'
+              });
 
-            linksProcessing.forEach(link => {
-              link.status = 'resolved';
+              linksProcessing.forEach(link => {
+                link.status = 'resolved';
+              })
+
+              if (processingLink.destination._id == this.RequestOrigine._id) {
+                this.RequestOrigineResolveMethode(processingLink.destination.dataResolution)
+              }
+              this.processNextBuildPath(traitement_id, component_workspaceId, global_flow);
             })
-
-            if (processingLink.destination._id == this.RequestOrigine._id) {
-              this.RequestOrigineResolveMethode(processingLink.destination.dataResolution)
-            }
-            this.processNextBuildPath();
-          })
-        }
-
-
+          }
+        }.bind(this))
       }
 
     } else {
-      console.log('--------------  End of Worksapce processing -------------- ')
+
+      // workspace_lib._get_workspace(component_workspaceId).then(function(res){
+      //   res.consumption_history.push({
+      //     traitement_id: traitement_id,
+      //     flow_size: this.objectSizeOf(dataFlow) / 1000000,
+      //     price: (this.objectSizeOf(dataFlow) / 400000000)
+      //   })
+       
+      // })
+      console.log('--------------  End of Worksapce processing -------------- ', global_flow)
     }
   },
   //TODO don't work if flow is array at fisrt depth
@@ -274,9 +315,9 @@ var proto = {
     } else {
 
       return [{
-          objectToProcess: currentFlow,
-          key: currentDfob
-        }];
+        objectToProcess: currentFlow,
+        key: currentDfob
+      }];
 
       // if (Array.isArray(currentInspectFlow)) {
       //   return currentInspectFlow.map(currentInspectObject => {
@@ -459,7 +500,7 @@ var proto = {
               console.log('recursivPullResolvePromise | module start pull | ', module.type);
               //console.log('recursivPullResolvePromise |connectionsBeforeData | ', connectionsBeforeData);
 
-              module.pull(component, connectionsBeforeData, pullParams).then(function(dataTest) {
+              module.pull(component, connectionsBeforeData, pullParams).then(function (dataTest) {
                 console.log('recursivPullResolvePromise | module end | ', module.type);
                 //console.log('recursivPullResolvePromise | dataTest | ',dataTest);
                 resolve({
@@ -478,7 +519,7 @@ var proto = {
       } else {
         //console.log('resolveWebComponentPull | Last| ', component);
         if (module.pull) {
-          module.pull(component, undefined, pullParams).then(function(dataTest) {
+          module.pull(component, undefined, pullParams).then(function (dataTest) {
             console.log('recursivPullResolvePromise | module end | ', module.type);
             //console.log('recursivPullResolvePromise | module end | dataTest', dataTest);
             resolve({
@@ -496,5 +537,7 @@ var proto = {
 };
 
 module.exports = {
-  getNewInstance(){return Object.create(proto)}
+  getNewInstance() {
+    return Object.create(proto)
+  }
 }
