@@ -50,6 +50,8 @@
 
       if (d.fx == d.xOrigin && d.fy == d.yOrigin) {
         console.log('CLICK');
+        RiotControl.trigger('component_current_show');
+        RiotControl.trigger('component_current_select', d.component);
       } else {
         console.log('dragended');
         RiotControl.trigger('item_updateField', {
@@ -106,7 +108,8 @@
             id: record._id,
             graphIcon: record.graphIcon,
             fx: record.graphPositionX || 10, //positionne l'élémént sur le bord gauche
-            fy: record.graphPositionY || inputCurrentOffset
+            fy: record.graphPositionY || inputCurrentOffset,
+            component:record
           });
           inputCurrentOffset += inputsOffset;
         } else if (record.connectionsAfter.length == 0) {
@@ -115,7 +118,8 @@
             id: record._id,
             graphIcon: record.graphIcon,
             fx: record.graphPositionX || width - 10 - record.type.length * 10, // positionne l'element en largeur par rapport au bord droit du graphe
-            fy: record.graphPositionY || outputCurrentOffset
+            fy: record.graphPositionY || outputCurrentOffset,
+            component:record
           });
           outputCurrentOffset += outputsOffset;
         } else { // tous ceux du milieu
@@ -124,7 +128,8 @@
             id: record._id,
             graphIcon: record.graphIcon,
             x: record.graphPositionX || width / 2,
-            y: record.graphPositionY || height / 2 // on laisse a la force le soin de les repartir
+            y: record.graphPositionY || height / 2, // on laisse a la force le soin de les repartir
+            component:record
           }
 
           if (record.graphPositionX != undefined) {
