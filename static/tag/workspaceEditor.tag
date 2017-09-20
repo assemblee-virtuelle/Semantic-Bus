@@ -1,8 +1,7 @@
 <workspace-editor>
-  <!--<div class="containerV" style="flex-grow:1">-->
   <div class="commandBar containerH">
-    <div>{innerData.name}</div>
-    <div class="containerH commandGroup">
+      <div>{innerData.name}</div>
+      <div class="containerH commandGroup">
       <div onclick={editClick} class="commandButton" id="edit" if={innerData.mode=="read" }>
         edit
       </div>
@@ -10,107 +9,67 @@
         graph
       </div>
       <!--<div onclick={cancelClick}  class="commandButton" id="cancel"  if={innerData.mode=="edit" || innerData.mode=="init"}>
-            cancel
-          </div>-->
-      <div onclick={persistClick} class="{commandButton:true,notSynchronized:innerData.synchronized==false}" id="save" if={innerData.mode=="edit" || innerData.mode=="init" }>
+              cancel
+            </div>-->
+      <div onclick={persistClick} class="{commandButton:true,notSynchronized:innerData.synchronized==false}" id="save" if={innerData.mode=="edit"
+        || innerData.mode=="init" }>
         save
       </div>
     </div>
   </div>
-  <div>
-    <div class=" containerH" style="justify-content: flex-start!important">
-      <div class="{color1}" if={componentView} id="component" onclick={goComponent}>Composant(s)</div>
-      <div class="{color2}" id="user" if={userView} onclick={goUser}>Utilisateur(s)</div>
-      <div class="{color3}" if={DescriptionView} id="description" onclick={goDescription}>Déscription</div>
-      <div class="{color4}" if={DescriptionView} id="description" onclick={goUtilisation}>Utilisation</div>
-    </div>
-    <div show={modeComponentList}>
-      <zenTable style="flex:1" css="background-color:white!important;color: #3883fa;" disallowcommand={innerData.mode=='read' } allowcancelcommand={false} id="composant" ref="componentZenTable">
-        <yield to="header">
-          <div>nom</div>
-          <div>composant technique</div>
-          <div>fonction</div>
-        </yield>
-        <yield to="row">
-          <div style="width:20%">{name}</div>
-          <div style="width:20%">{type}</div>
-          <div style="width:60%">{description}</div>
-        </yield>
-      </zenTable>
-    </div>
-    <div show={modeUserList}>
-      <zenTable title="" style="flex:1" disallownavigation="true" css="background-color:white!important;color: #3883fa;" id="userliste" disallowcommand={innerData.mode=="read"} ref="userZenTable">
-        <yield to="header">
-          <div>email</div>
-          <div>role</div>
-        </yield>
-        <yield to="row">
-          <div style="width:70%">{email}</div>
-          <div style="width:30%">{role}</div>
-        </yield>
-      </zenTable>
-    </div>
-    <div show={modeUserDescription} class="description-worksapce" id="description">
-      <label style="padding-top:3vh">{labelInputName}
-      </label>
-      <input
-        readonly={innerData.mode=="read"
-        }
-        class={readOnly
-        :
-        innerData.mode=="read"
-        ,
-        description-worksapce-input
-        :
-        innerData.mode=="edit"
-        }
-        name="workspaceNameInput"
-        type="text"
-        ref="workspaceNameInput"
-        placeholder="nom du workspace"
-        value="{innerData.name}"
-        onkeyup="{nameFieldChange}"></input>
-      <label style="padding-top:3vh">{labelInputDesc}
-      </label>
-      <input
-        readonly={innerData.mode=="read"
-        }
-        class={readOnly
-        :
-        innerData.mode=="read"
-        ,
-        description-worksapce-input
-        :
-        innerData.mode=="edit"
-        }
-        name="workspaceDescriptionInput"
-        ref="workspaceDescriptionInput"
-        type="text"
-        placeholder="description du workspace"
-        value="{innerData.description}"
-        onkeyup="{descriptionFieldChange}"></input>
-    </div>
-    <!--<span>composant d'initialisation : </span>
-      <span>{innerData.firstComponent.type} : {innerData.firstComponent.desription}</span>-->
-
-    <!-- <div class="containerH" show={innerData.mode=="read"}>
-        <div class="containerV" style="flex-grow:1">
-          <div class="commandBar containerH">
-            <div class="commandTitle">
-              composants
-            </div>
-          </div>
-          <div class="containerV" style="flex-grow:1">
-            <div class="selector" each={innerData.components} onclick={componentClick}>
-              {type} : {name}
-            </div>
-          </div>
-        </div>
-      </div> -->
+  <div class=" containerH" style="justify-content: flex-start!important">
+    <div class="{color1}" if={componentView} id="component" onclick={goComponent}>Composant(s)</div>
+    <div class="{color2}" id="user" if={userView} onclick={goUser}>Utilisateur(s)</div>
+    <div class="{color3}" if={DescriptionView} id="description" onclick={goDescription}>Déscription</div>
+    <div class="{color4}" if={DescriptionView} id="description" onclick={goUtilisation}>Utilisation</div>
   </div>
-  <!--</div>-->
-  <style>
+  <div show={modeComponentList}>
+    <zenTable style="flex:1" css="background-color:white!important;color: #3883fa;" disallowcommand={innerData.mode=='read' }
+      allowcancelcommand={false} id="composant" ref="componentZenTable">
+      <yield to="header">
+        <div>nom</div>
+        <div>composant technique</div>
+        <div>fonction</div>
+      </yield>
+      <yield to="row">
+        <div style="width:20%">{name}</div>
+        <div style="width:20%">{type}</div>
+        <div style="width:60%">{description}</div>
+      </yield>
+    </zenTable>
+  </div>
+  <div show={modeUserList}>
+    <zenTable title="" style="flex:1" disallownavigation="true" css="background-color:white!important;color: #3883fa;" id="userliste"
+      disallowcommand={innerData.mode=="read" } ref="userZenTable">
+      <yield to="header">
+        <div>email</div>
+        <div>role</div>
+      </yield>
+      <yield to="row">
+        <div style="width:70%">{email}</div>
+        <div style="width:30%">{role}</div>
+      </yield>
+    </zenTable>
+  </div>
+  <div show={modeUserDescription} class="description-worksapce" id="description">
+    <label style="padding-top:3vh">{labelInputName}
+        </label>
+    <input readonly={innerData.mode=="read" } class={readOnly : innerData.mode=="read" , description-worksapce-input : innerData.mode=="edit"
+      } name="workspaceNameInput" type="text" ref="workspaceNameInput" placeholder="nom du workspace" value="{innerData.name}"
+      onkeyup="{nameFieldChange}"></input>
+    <label style="padding-top:3vh">{labelInputDesc}
+        </label>
+    <input readonly={innerData.mode=="read" } class={readOnly : innerData.mode=="read" , description-worksapce-input : innerData.mode=="edit"
+      } name="workspaceDescriptionInput" ref="workspaceDescriptionInput" type="text" placeholder="description du workspace" value="{innerData.description}"
+      onkeyup="{descriptionFieldChange}"></input>
+  </div>
+  <div show={modeUtilisation} class="description-worksapce" >
+    <graph-of-use>
+    </graph-of-use>
+  </div>
 
+
+  <style>
     .description-worksapce-input {
       text-align: left;
       border-bottom: 1px solid #3883fa !important;
@@ -195,6 +154,7 @@
     this.modeUserList = false;
     this.modeComponentList = true;
     this.modeUserDescription = false;
+    this.modeUtilisation = false;
     this.title = "Workspace"
     this.persist = function () {
       this.persistClick();
@@ -204,6 +164,7 @@
       this.modeUserList = false;
       this.modeComponentList = false;
       this.modeUserDescription = true;
+      this.modeUtilisation = false;
       this.color2 = "white"
       this.color1 = "white"
       this.color3 = "blue"
@@ -215,6 +176,7 @@
       this.modeUserList = true;
       this.modeComponentList = false;
       this.modeUserDescription = false;
+      this.modeUtilisation = false;
       this.color2 = "blue"
       this.color1 = "white"
       this.color3 = "white"
@@ -226,6 +188,7 @@
       this.modeUserList = false;
       this.modeComponentList = true;
       this.modeUserDescription = false;
+      this.modeUtilisation = false;
       this.color2 = "white"
       this.color1 = "blue"
       this.color3 = "white"
@@ -234,8 +197,9 @@
 
     goUtilisation(e) {
       this.modeUserList = false;
-      this.modeComponentList = true;
+      this.modeComponentList = false;
       this.modeUserDescription = false;
+      this.modeUtilisation = true;
       this.color2 = "white"
       this.color1 = "white"
       this.color3 = "white"
@@ -330,7 +294,8 @@
       this.innerData = data;
       this.tags.zentable[0].data = data.components;
       this.tags.zentable[1].data = data.users;
-
+      this.tags['graph-of-use'].data = data
+      console.log("graph tag =======>",this.tags['graph-of-use'].data)
       this.update();
     }.bind(this);
 
