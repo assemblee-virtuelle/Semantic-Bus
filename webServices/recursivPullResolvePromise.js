@@ -115,7 +115,7 @@ var proto = {
             //   }
             // })
             // this.workspace_component_lib.update(
-              componentProcessing
+            //  componentProcessing
             // ).then(function(res){
               global_flow += this.objectSizeOf(componentFlow)
               // console.log("traitement_update =====>", res.consumption_history)
@@ -124,7 +124,9 @@ var proto = {
               }, this.pathResolution).forEach(link => {
                 link.status = 'processing'
               });
+              //console.log('compare',this.RequestOrigine._id);
               if (componentProcessing._id == this.RequestOrigine._id) {
+                console.log('ALLO');
                 this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
               }
               this.processNextBuildPath(traitement_id, component.workspaceId, global_flow);
@@ -199,7 +201,7 @@ var proto = {
           global_flow += this.objectSizeOf(dataFlow)
           var primaryflow;
           if (module.getPrimaryFlow != undefined) {
-            console.log("DATA ----FLOW --------------", processingLink.destination)
+            //console.log("DATA ----FLOW --------------", processingLink.destination)
             primaryflow = module.getPrimaryFlow(processingLink.destination, dataFlow);
           } else {
             primaryflow = dataFlow[0];
@@ -210,7 +212,7 @@ var proto = {
           secondaryFlow.splice(secondaryFlow.indexOf(primaryflow), 1);
           //console.log('secondaryFlow |' , secondaryFlow);
           if (primaryflow.dfob != undefined) {
-            console.log("after ---- primary flow")
+            //console.log("after ---- primary flow")
 
 
             var dfobTab = primaryflow.dfob[0].split(".");
@@ -304,14 +306,14 @@ var proto = {
             created_at: new Date()
           }
         })
-        console.log('--------------  Before save workspace -------------- ')
+        //console.log('--------------  Before save workspace -------------- ')
         //console.log(res.components.length);
-        console.log('length before',res.components.length);
-        console.log('components_id',res.components.map(m=>m._id));
+        //console.log('length before',res.components.length);
+        //console.log('components_id',res.components.map(m=>m._id));
 
         this.workspace_lib.update(res).then(function(res){
-          console.log('length after',res.components.length)
-          console.log('--------------  End of Worksapce processing -------------- ', res._id)
+          //console.log('length after',res.components.length)
+          console.log('--------------  End of cost processing -------------- ', res._id)
         })
       }.bind(this))
     }
