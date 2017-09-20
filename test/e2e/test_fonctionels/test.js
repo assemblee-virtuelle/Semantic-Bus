@@ -17,8 +17,11 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
       let password = 'input[name="password"]';
       browser.setValue(password, 'azerty')
       $('#btn2').click();
-      browser.waitForVisible('navigation');
-      expect(browser.getUrl()).to.be.equal('http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/ihm/application.html');
+      // browser.waitForVisible('navigation');
+      browser.waitUntil(() => {
+        return expect(browser.getUrl()).to.be.equal('http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/ihm/application.html');
+      }, 10000)
+      
       // browser.waitForVisible('navigation');
       // let workSpaceSelector = 'div[name="workspaceSelector"]';
       // browser.waitForVisible(workSpaceSelector,10000);
