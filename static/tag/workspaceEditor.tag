@@ -288,7 +288,6 @@
 
 
 
-
     this.workspaceCurrentChanged=function(data){
       console.log('workspaceEditor | workspaceCurrentChanged | ',data);
       this.innerData = data;
