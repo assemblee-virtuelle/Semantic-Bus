@@ -1,18 +1,12 @@
 <graph>
-  <div class="containerH">
-
-  <div class="commandBar containerV" style="flex-grow:1">
-    <div class="containerH commandGroup" >
-    </div>
+  <div class="commandBar containerH">
     <div>
     </div>
     <div class="containerH commandGroup" >
-      <div onclick={addClick} class="commandButton">
-        add
+      <div onclick={addComponentClick} class="commandButtonImage" if={!opts.disallowcommand==true}>
+        <img src="./image/Super-Mono-png/PNG/basic/blue/toggle-expand-alt.png" height="40px">
       </div>
-      <div onclick={configClick} class="commandButton">
-        config
-      </div>
+
     </div>
   </div>
   <div id="graphContainer containerV">
@@ -31,12 +25,11 @@
           <feMergeNode in="SourceGraphic"/>
         </feMerge>
       </filter>
-      <g id=shapeLayer></g>
+      <g id="shapeLayer"></g>
       <g id="textLayer"></g>
     </svg>
   </div>
   <!--graphContainer-->
-  </div>
   <script>
     //source urile : https://bl.ocks.org/mbostock/1095795 Constants for the SVG
     var width = 1000,
@@ -267,9 +260,7 @@
 
   <style scoped>
     svg {
-      height: 100vh;
-      width: 100vw;
-      background-color: lightgray;
+      background-color: #EFEFEF;
     }
     line {
       stroke: #000;
