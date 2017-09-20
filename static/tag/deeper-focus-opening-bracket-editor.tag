@@ -1,7 +1,7 @@
 <deeper-focus-opening-bracket-editor>
 
   <label>chemin à inspecter pour les traitements qui suivent</label>
-  <input type="text" name="dfobPathInput" value={data.specificData.dfobPath}></input>
+  <input type="text" name="dfobPathInput" ref="dfobPathInput" value={data.specificData.dfobPath}></input>
   <script>
 
     this.innerData = {};
@@ -25,7 +25,7 @@
 
     this.on('mount', function () {
 
-      this.dfobPathInput.addEventListener('change', function (e) {
+      this.refs.dfobPathInput.addEventListener('change', function (e) {
         this.innerData.specificData.dfobPath = e.currentTarget.value;
       }.bind(this));
 

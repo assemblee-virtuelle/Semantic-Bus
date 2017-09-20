@@ -176,9 +176,13 @@ var proto = {
 
         //console.log('linksProcessing | ',linksProcessing);
         let module = this.technicalComponentDirectory[processingLink.destination.module];
-        let dataFlow = linksProcessing.map(sourceLink => sourceLink.source.dataResolution);
+        let dataFlow = linksProcessing.map(sourceLink => {
+          let d=sourceLink.source.dataResolution;
+          d.componentId=sourceLink.source._id;
+          return d;
+        });
 
-        /// Update procecing link 
+        /// Update procecing link
         processingLink.destination.consumption_history.push({
           traitement_id: traitement_id,
           flow_size: this.objectSizeOf(dataFlow) / 1000000,
@@ -187,7 +191,7 @@ var proto = {
             created_at: new Date()
           }
         })
-       
+
         this.workspace_component_lib.update(
           processingLink.destination
         ).then(function(res){
@@ -200,14 +204,14 @@ var proto = {
           } else {
             primaryflow = dataFlow[0];
           }
-          
+
           var secondaryFlow = [];
           secondaryFlow = secondaryFlow.concat(dataFlow);
           secondaryFlow.splice(secondaryFlow.indexOf(primaryflow), 1);
           //console.log('secondaryFlow |' , secondaryFlow);
           if (primaryflow.dfob != undefined) {
             console.log("after ---- primary flow")
-            
+
 
             var dfobTab = primaryflow.dfob[0].split(".");
 
@@ -301,10 +305,12 @@ var proto = {
           }
         })
         console.log('--------------  Before save workspace -------------- ')
-        console.log(res.components.length)
-        
-        this.workspace_lib.updateSimple(res).then(function(res){
-          console.log(res.components.length)
+        //console.log(res.components.length);
+        console.log('length before',res.components.length);
+        console.log('components_id',res.components.map(m=>m._id));
+
+        this.workspace_lib.update(res).then(function(res){
+          console.log('length after',res.components.length)
           console.log('--------------  End of Worksapce processing -------------- ', res._id)
         })
       }.bind(this))

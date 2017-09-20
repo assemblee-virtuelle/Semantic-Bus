@@ -45,9 +45,9 @@ module.exports = function(router) {
       // })
 
       for (var c of   workspace.components){
-        console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
+        //console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
         c.graphIcon = technicalComponentDirectory[c.module].graphIcon;
-        console.log('-->',c);
+        //console.log('-->',c);
       }
       console.log(workspace);
       res.json(workspace);
@@ -60,6 +60,9 @@ module.exports = function(router) {
     console.log('req.body', req.body)
     if (req.body != null) {
       workspace_lib.update(req.body).then(workspaceUpdate => {
+        for (var c of   workspaceUpdate.components){
+          c.graphIcon = technicalComponentDirectory[c.module].graphIcon;
+        }
         res.send(workspaceUpdate);
       }).catch(e => {
         console.log('FAIL', e);

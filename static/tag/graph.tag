@@ -1,6 +1,21 @@
 <graph>
+  <div class="containerH">
 
-  <div id="graphContainer">
+  <div class="commandBar containerV" style="flex-grow:1">
+    <div class="containerH commandGroup" >
+    </div>
+    <div>
+    </div>
+    <div class="containerH commandGroup" >
+      <div onclick={addClick} class="commandButton">
+        add
+      </div>
+      <div onclick={configClick} class="commandButton">
+        config
+      </div>
+    </div>
+  </div>
+  <div id="graphContainer containerV">
     <svg viewBox="0 0 1000 600">
       <!--width="1000" height="600"-->
       <filter id="dropshadow" x="1%" y="1%" width="110%" height="110%">
@@ -21,7 +36,7 @@
     </svg>
   </div>
   <!--graphContainer-->
-
+  </div>
   <script>
     //source urile : https://bl.ocks.org/mbostock/1095795 Constants for the SVG
     var width = 1000,

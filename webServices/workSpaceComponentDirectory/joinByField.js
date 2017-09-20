@@ -6,6 +6,8 @@ module.exports = {
   sift: require('sift'),
 
   getPrimaryFlow: function(data, flowData) {
+    console.log(data,flowData.map(f=>f.componentId));
+    console.log(data.specificData.primaryComponentId);
     var primaryFlow = this.sift({
       componentId: data.specificData.primaryComponentId
     }, flowData)[0];

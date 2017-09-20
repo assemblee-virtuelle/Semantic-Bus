@@ -1,9 +1,9 @@
 <framacalc-get-csv-editor>
   <div>information de connection à framacalc</div>
   <label>key</label>
-  <input type="text" name="keyInput" value={data.specificData.key}></input>
+  <input type="text" name="keyInput" ref="keyInput" value={data.specificData.key}></input>
   <label>offset</label>
-  <input type="text" name="offsetInput" value={data.specificData.offset}></input>
+  <input type="text" name="offsetInput" ref="offsetInput"  value={data.specificData.offset}></input>
   <script>
 
     this.innerData={};
@@ -27,12 +27,12 @@
     }.bind(this);
 
     this.on('mount', function () {
-      this.keyInput.addEventListener('change',function(e){
+      this.refs.keyInput.addEventListener('change',function(e){
         this.innerData.specificData.key=e.currentTarget.value;
       }.bind(this));
 
 
-      this.offsetInput.addEventListener('change',function(e){
+      this.refs.offsetInput.addEventListener('change',function(e){
         this.innerData.specificData.offset=e.currentTarget.value;
       }.bind(this));
 
