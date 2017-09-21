@@ -58,39 +58,56 @@ this.on('mount', function () {
   ///traitement en fonction du jour 
   this.innerData.components.forEach(function(component){
       if(component.consumption_history.length > 0 ){
-          compteurCompoflow[component.editor] = 0
+          compteurCompoflow[component.module] = 0
           component.consumption_history.forEach(function(consumption_history){
               var d = new Date(consumption_history.dates.created_at);
-                  if(barChartData.labels.indexOf(d.getDate()) == -1 ){
-                      barChartData.labels.push(d.getDate())
-                      consumption_by_day[d.getDate()] = []
-                      consumption_by_day[d.getDate()].push({data: consumption_history.flow_size, label:component.editor, date: consumption_history.dates.created_at})
-                  }
-                  else{
-                      consumption_by_day[d.getDate()].push({data: consumption_history.flow_size, label:component.editor, date: consumption_history.dates.created_at})
-                  }    
+              
+                if(component.name){
+                    var name = component.name
+                }
+                else{
+                    var name = "no name"
+                }
+                console.log(name)
+                if(barChartData.labels.indexOf(d.getDate()) == -1 ){
+                    barChartData.labels.push(d.getDate())
+                    consumption_by_day[d.getDate()] = []
+                    consumption_by_day[d.getDate()].push({data: consumption_history.flow_size, id:component._id, label:component.module,name:name, date: consumption_history.dates.created_at})
+                
+                }
+                else{
+                    consumption_by_day[d.getDate()].push({data: consumption_history.flow_size,id:component._id, label:component.module,name:name, date: consumption_history.dates.created_at})
+                }    
           })  
       }            
   })
 
+console.log(consumption_by_day)
+  
 // aggregation des flux 
   var lasttab = {}
   for(var conso in consumption_by_day){
         lasttab[conso] = {}
         consumption_by_day[conso].forEach(function(compo){
             if(lasttab[conso][compo.label] == null){
-                lasttab[conso][compo.label] = compo.data
+                lasttab[conso][compo.label] = {}
+                lasttab[conso][compo.label].data = compo.data
+                lasttab[conso][compo.label].id = compo.id
+                lasttab[conso][compo.label].name = compo.name
             }
-            lasttab[conso][compo.label] += compo.data
-            
+            lasttab[conso][compo.label].data += compo.data
+            lasttab[conso][compo.label].id = compo.id
+            lasttab[conso][compo.label].name = compo.name
         })
   }
+
+console.log(lasttab)
 
 /// mis des data dans un meme tableau 
 var test = []
   for(var conso in lasttab){
         for(var consoFinal in lasttab[conso]){
-            test.push({datasize:  lasttab[conso][consoFinal] , name:consoFinal})//console.log(Object.keys(lasttab[conso],lasttab[conso][consoFinal]))
+            test.push({datasize:  lasttab[conso][consoFinal].data , module:consoFinal, name: lasttab[conso][consoFinal].name, id: lasttab[conso][consoFinal].id})//console.log(Object.keys(lasttab[conso],lasttab[conso][consoFinal]))
         }       
   }
 
@@ -98,24 +115,26 @@ var test = []
 // qui prend en params l'element 1 et 2)
 var groupBy = function(xs, key) {
   return xs.reduce(function(rv, x) {
-    (rv[x[key]] = rv[x[key]] || []).push(x.datasize);
+    (rv[x[key]] = rv[x[key]] || []).push({size: x.datasize, name: x.name, module: x.module});
     return rv;
   }, {});
 };
 
 
-var lastObject = groupBy(test,'name')
+var lastObject = groupBy(test,'id')
 
 /// reconstruction de l'object attendu 
 for(var lastObj in lastObject){ 
-    barChartData.datasets.push({label: lastObj, data: lastObject[lastObj], backgroundColor: "rgba(" + r + "," + g + "," + b + "," + "0.7)"});
+    console.log(lastObj)
+    console.log(lastObject[lastObj][0])
+    barChartData.datasets.push({label: lastObject[lastObj][0].module + "(" + lastObject[lastObj][0].name + ")" , data: lastObject[lastObj][0].size, backgroundColor: "rgba(" + r + "," + g + "," + b + "," + "0.7)"});
     r += 95;
     g += 30
     b += 20
 }
 
 
-  
+  console.log(barChartData.datasets)
   var canvas = document.getElementById("myChart");
   var ctx = canvas.getContext("2d");
   var chart = new Chart(ctx, {
@@ -160,9 +179,10 @@ for(var lastObj in lastObject){
     var value = data.datasets[datasetIndex].data[activePoint._index];
     var compoObject = {}
     for(var conso in consumption_by_day){
-        console.log("=======>", consumption_by_day[lab])
+       
         if(conso == lab){
             compoObject[lab] = {}
+            console.log("======>", consumption_by_day[lab])
             consumption_by_day[lab].forEach(function(compo){
                 console.log(compo.label)
                 if(compo.label == label){
@@ -170,14 +190,12 @@ for(var lastObj in lastObject){
                 }
                 if(compoObject[lab][label] == null){
                     compoObject[lab][label] = []
-                    console.log(compoObject[lab][label].length , "in first")
                     if(compo.label == label){
                         compoObject[lab][label].push(compo)
                     }
                 }else{
                     if(compo.label == label){
                         compoObject[lab][label].push(compo)
-                        console.log(compoObject[lab][label].length, "in second") 
                     }
                 }
             })
