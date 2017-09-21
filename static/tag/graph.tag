@@ -1,22 +1,31 @@
 <graph>
-  <div class="containerH">
-
-  <div class="commandBar containerV" style="flex-grow:1">
-    <div class="containerH commandGroup" >
-    </div>
-    <div>
-    </div>
-    <div class="containerH commandGroup" >
-      <div onclick={addClick} class="commandButton">
-        add
+  <div class="commandBar containerH">
+    <div class="containerH commandGroup" if={currentComponent!=undefined}>
+      <div onclick={editClick} class="commandButton" }>
+        edit
       </div>
-      <div onclick={configClick} class="commandButton">
-        config
+      <div class="commandButton" }>
+        connect Before
+      </div>
+      <div class="commandButton" }>
+        connect After
+      </div>
+      <div class="commandButton" }>
+        remove
+      </div>
+      <div class="commandButton" }>
+        run this component
+      </div>
+    </div>
+    <div></div>
+    <div class="containerH commandGroup">
+      <div onclick={addComponentClick} class="commandButtonImage" if={!opts.disallowcommand==true}>
+        <img src="./image/Super-Mono-png/PNG/basic/blue/toggle-expand-alt.png" height="40px">
       </div>
     </div>
   </div>
   <div id="graphContainer containerV">
-    <svg viewBox="0 0 1000 600">
+    <svg viewBox="0 0 1500 900">
       <!--width="1000" height="600"-->
       <filter id="dropshadow" x="1%" y="1%" width="110%" height="110%">
         <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
@@ -31,16 +40,25 @@
           <feMergeNode in="SourceGraphic"/>
         </feMerge>
       </filter>
-      <g id=shapeLayer></g>
+      <g id="shapeLayer"></g>
       <g id="textLayer"></g>
     </svg>
   </div>
   <!--graphContainer-->
-  </div>
   <script>
-    //source urile : https://bl.ocks.org/mbostock/1095795 Constants for the SVG
-    var width = 1000,
-      height = 600; // utilisé dans le script en bas
+
+    addComponentClick(e) {
+      RiotControl.trigger('workspace_current_add_component_show', e);
+    }
+
+    editClick(e) {
+      RiotControl.trigger('component_current_show');
+      RiotControl.trigger('component_current_select', this.currentComponent);
+    }
+
+    //this.currentComponent={}; source urile : https://bl.ocks.org/mbostock/1095795 Constants for the SVG
+    var width = 1500,
+      height = 900; // utilisé dans le script en bas
 
     /*
     Fonctions
@@ -65,8 +83,9 @@
 
       if (d.fx == d.xOrigin && d.fy == d.yOrigin) {
         console.log('CLICK');
-        RiotControl.trigger('component_current_show');
-        RiotControl.trigger('component_current_select', d.component);
+        this.currentComponent = d.component;
+        this.update();
+        //RiotControl.trigger('component_current_show'); RiotControl.trigger('component_current_select', d.component);
       } else {
         console.log('dragended');
         RiotControl.trigger('item_updateField', {
@@ -124,7 +143,7 @@
             graphIcon: record.graphIcon,
             fx: record.graphPositionX || 10, //positionne l'élémént sur le bord gauche
             fy: record.graphPositionY || inputCurrentOffset,
-            component:record
+            component: record
           });
           inputCurrentOffset += inputsOffset;
         } else if (record.connectionsAfter.length == 0) {
@@ -134,7 +153,7 @@
             graphIcon: record.graphIcon,
             fx: record.graphPositionX || width - 10 - record.type.length * 10, // positionne l'element en largeur par rapport au bord droit du graphe
             fy: record.graphPositionY || outputCurrentOffset,
-            component:record
+            component: record
           });
           outputCurrentOffset += outputsOffset;
         } else { // tous ceux du milieu
@@ -144,7 +163,7 @@
             graphIcon: record.graphIcon,
             x: record.graphPositionX || width / 2,
             y: record.graphPositionY || height / 2, // on laisse a la force le soin de les repartir
-            component:record
+            component: record
           }
 
           if (record.graphPositionX != undefined) {
@@ -267,9 +286,7 @@
 
   <style scoped>
     svg {
-      height: 100vh;
-      width: 100vw;
-      background-color: lightgray;
+      background-color: #EFEFEF;
     }
     line {
       stroke: #000;

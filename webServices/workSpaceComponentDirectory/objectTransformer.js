@@ -2,7 +2,7 @@ module.exports = {
   type: 'Object Transformer',
   description: 'transformer un objet par mapping grâce à un objet transformation',
   editor: 'object-transformer',
-  graphIcon:'objectTransformer.png',
+  graphIcon: 'objectTransformer.png',
   transform: require('jsonpath-object-transform'),
   initComponent: function(entity) {
     //console.log('Object Transformer | initComponent : ',entity);
@@ -64,7 +64,7 @@ module.exports = {
     }
     //console.log('jsonTransform | resultBeforUnresolved |', JSON.stringify(transformResult));
     var destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable)
-      //console.log('jsonTransform | afterUnresolved |', destResult);
+    //console.log('jsonTransform | afterUnresolved |', destResult);
     var postProcessResult;
     if (dissociatePatternPostProcess == undefined) {
       postProcessResult = destResult;
@@ -135,9 +135,9 @@ module.exports = {
           if (nodeOut[key] == null) {
             nodeOut[key] = nodeIn[key];
           }
-        } else if(typeof nodeIn[key] == 'number'){
-          nodeOut[key] = 'N~'+nodeIn[key].toString();
-        } else{
+        } else if (typeof nodeIn[key] == 'number') {
+          nodeOut[key] = 'N~' + nodeIn[key].toString();
+        } else {
           nodeOut[key] = nodeIn[key];
         }
       }
@@ -203,7 +203,7 @@ module.exports = {
               processData: execResult[1]
             };
           }
-        }else if(typeof nodeIn[key] == 'number'){
+        } else if (typeof nodeIn[key] == 'number') {
           nodeOut[key] = {
             process: 'numericHack'
           };
@@ -229,7 +229,7 @@ module.exports = {
 
     if (Array.isArray(nodeInData)) {
       nodeOut = [];
-      if ( nodeInPostProcess!=undefined && nodeInPostProcess[0] != undefined) {
+      if (nodeInPostProcess != undefined && nodeInPostProcess[0] != undefined) {
         for (recordData of nodeInData) {
           nodeOut.push(this.postProcess(recordData, nodeInPostProcess[0]));
         }
@@ -274,14 +274,14 @@ module.exports = {
           } else if (nodeInPostProcess[nodeInDataProperty].process == 'arrayHack') {
             //console.log('arrayHack',nodeInDataProperty);
             var objectToTransform = this.postProcess(nodeInData[nodeInDataProperty], nodeInPostProcess[nodeInDataProperty]);
-            var arrayTransform=[];
-            for(key in objectToTransform){
+            var arrayTransform = [];
+            for (key in objectToTransform) {
               arrayTransform.push(objectToTransform[key])
             }
             nodeOut[nodeInDataProperty] = arrayTransform;
           } else if (nodeInPostProcess[nodeInDataProperty].process == 'numericHack') {
             //console.log('numericHack');
-            nodeOut[nodeInDataProperty] = Number(nodeInData[nodeInDataProperty].substr(2, nodeInData[nodeInDataProperty].length-2));
+            nodeOut[nodeInDataProperty] = Number(nodeInData[nodeInDataProperty].substr(2, nodeInData[nodeInDataProperty].length - 2));
           } else {
             nodeOut[nodeInDataProperty] = this.postProcess(nodeInData[nodeInDataProperty], nodeInPostProcess[nodeInDataProperty]);
           }
@@ -339,9 +339,13 @@ module.exports = {
   pull: function(data, flowData) {
     //console.log('Object Transformer | pull : ',data,' | ',flowData[0].length);
     return new Promise((resolve, reject) => {
-      resolve({
-        data: this.jsonTransform(flowData[0].data, data.specificData.transformObject)
-      });
+      if (flowData != undefined) {
+        resolve({
+          data: this.jsonTransform(flowData[0].data, data.specificData.transformObject)
+        });
+      } else {
+        resolve({data:{}});
+      }
     })
   }
 }

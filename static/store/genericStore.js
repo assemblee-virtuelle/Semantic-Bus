@@ -140,6 +140,7 @@ function GenericStore(specificStoreList) {
         "Authorization": "JTW" + " " + localStorage.token
       }
     }).done(function(data) {
+      console.log('ALLO');
       this.trigger('item_current_work_done', data);
     }.bind(this));
   }); //<= item_current_work

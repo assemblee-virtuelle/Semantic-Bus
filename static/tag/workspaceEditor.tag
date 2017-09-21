@@ -24,7 +24,8 @@
     <div class="{color4}" if={DescriptionView} id="description" onclick={goUtilisation}>Utilisation</div>
   </div>
   <div show={modeComponentList}>
-    <zenTable style="flex:1" css="background-color:white!important;color: #3883fa;" disallowcommand={innerData.mode=='read' }
+    <graph></graph>
+    <!--<zenTable style="flex:1" css="background-color:white!important;color: #3883fa;" disallowcommand={innerData.mode=='read' }
       allowcancelcommand={false} id="composant" ref="componentZenTable">
       <yield to="header">
         <div>nom</div>
@@ -36,7 +37,7 @@
         <div style="width:20%">{type}</div>
         <div style="width:60%">{description}</div>
       </yield>
-    </zenTable>
+    </zenTable>-->
   </div>
   <div show={modeUserList}>
     <zenTable title="" style="flex:1" disallownavigation="true" css="background-color:white!important;color: #3883fa;" id="userliste"
@@ -251,7 +252,7 @@
 
     RiotControl.on('share_change', function (data) {
       console.log(data)
-      this.tags.zentable[1].data= data.workspace.users;
+      this.refs.userZenTable.data= data.workspace.users;
       this.update();
       data = null;
     }.bind(this));
@@ -291,8 +292,8 @@
     this.workspaceCurrentChanged=function(data){
       console.log('workspaceEditor | workspaceCurrentChanged | ',data);
       this.innerData = data;
-      this.tags.zentable[0].data = data.components;
-      this.tags.zentable[1].data = data.users;
+      //this.tags.zentable[0].data = data.components;
+      this.refs.userZenTable.data = data.users;
       this.tags['graph-of-use'].data = data
       console.log("graph tag =======>",this.tags['graph-of-use'].data)
       this.update();
@@ -333,17 +334,25 @@
     this.on('mount', function () {
       console.log('wokspaceEditor | Mount |',this);
 
-      this.tags.zentable[0].on('delRow', function (message) {
-        RiotControl.trigger('workspace_current_delete_component', message);
-        RiotControl.trigger('workspace_current_persist');
-      }.bind(this));
-      this.tags.zentable[0].on('rowNavigation', function (data) {
+      // this.tags.zentable[0].on('delRow', function (message) {
+      //   RiotControl.trigger('workspace_current_delete_component', message);
+      //   RiotControl.trigger('workspace_current_persist');
+      // }.bind(this));
+      // this.tags.zentable[0].on('addRow', function (message) {
+      //   this.componentView = true;
+      //   this.userView = false;
+      //   this.DescriptionView = false;
+      //   this.utilisationView = false;
+      //   RiotControl.trigger('workspace_current_add_component_show', message);
+      // }.bind(this));
+      
+      this.refs.userZenTable.on('rowNavigation', function (data) {
         RiotControl.trigger('component_current_show');
         RiotControl.trigger('component_current_select', data);
         //this.trigger('selectWorkspace');
       }.bind(this));
 
-      this.tags.zentable[1].on('addRow', function (message) {
+      this.refs.userZenTable.on('addRow', function (message) {
         this.componentView = false;
         this.userView = true;
         this.DescriptionView = false;
@@ -351,13 +360,7 @@
         RiotControl.trigger('workspace_current_add_user_show', message);
       }.bind(this));
 
-      this.tags.zentable[0].on('addRow', function (message) {
-        this.componentView = true;
-        this.userView = false;
-        this.DescriptionView = false;
-        this.utilisationView = false;
-        RiotControl.trigger('workspace_current_add_component_show', message);
-      }.bind(this));
+
 
 
       RiotControl.on('workspace_current_changed', this.workspaceCurrentChanged);
