@@ -167,14 +167,6 @@
       this.screenHistory = newScreenHistory;
       this.update();
     }.bind(this));
-    window.addEventListener('beforeunload', function (event) {
-      console.log('beforeunload', event);
-      event.cancelBubble=true;
-event.stopPropagation();
-      event.preventDefault();
-
-      return 'qsdfqd';
-    });
 
     this.on('mount', function () {
       RiotControl.on('user_authentified', function (data) {
