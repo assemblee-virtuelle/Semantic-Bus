@@ -121,10 +121,12 @@ var groupBy = function(xs, key) {
 
 
 var lastObject = groupBy(test,'id')
+
 /// reconstruction de l'object attendu 
 for(var lastObj in lastObject){ 
+    console.log(lastObj)
     console.log(lastObject[lastObj][0])
-    barChartData.datasets.push({label: lastObject[lastObj][0].module + "(" + lastObject[lastObj][0].name + ")" , data: [lastObject[lastObj][0].size], backgroundColor: "rgba(" + r + "," + g + "," + b + "," + "0.7)"});
+    barChartData.datasets.push({label: lastObject[lastObj][0].module + "(" + lastObject[lastObj][0].name + ")" , data: lastObject[lastObj][0].size, backgroundColor: "rgba(" + r + "," + g + "," + b + "," + "0.7)"});
     r += 95;
     g += 30
     b += 20
@@ -168,7 +170,7 @@ for(var lastObj in lastObject){
                 
   canvas.onclick = function (evt) {
     var activePoint = chart.getElementAtEvent(evt)[0];
-    var data = activePoint._chart.controller.chart.config.data;
+    var data = activePoint._chart.data;
     var datasetIndex = activePoint._datasetIndex;
     var labelsIndex = activePoint._index;
     var lab =  data.labels[labelsIndex]
@@ -179,10 +181,11 @@ for(var lastObj in lastObject){
        
         if(conso == lab){
             compoObject[lab] = {}
-            console.log(data.datasets[labelsIndex])
+            console.log("======>", consumption_by_day[lab])
             consumption_by_day[lab].forEach(function(compo){
-                //console.log(compo.label)
-                if(compo.label == label.split("(")[0]){
+                console.log(compo.label)
+                if(compo.label == label){
+                    //console.log(label)
                 }
                 if(compoObject[lab][label] == null){
                     compoObject[lab][label] = []
@@ -197,6 +200,7 @@ for(var lastObj in lastObject){
             })
         }
     }
+    console.log(compoObject)
   }
 })
 
