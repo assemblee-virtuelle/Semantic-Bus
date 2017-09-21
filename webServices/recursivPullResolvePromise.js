@@ -309,7 +309,7 @@ var proto = {
         console.log('length before',res.components.length);
         console.log('components_id',res.components.map(m=>m._id));
 
-        this.workspace_lib.update(res).then(function(res){
+        this.workspace_lib.updateSimple(res).then(function(res){
           console.log('length after',res.components.length)
           console.log('--------------  End of Worksapce processing -------------- ', res._id)
         })
