@@ -118,10 +118,10 @@
 
       // determine le nombre d inputs et d outputs
       for (record of data.components) {
-        if (record.connectionsBefore.length == 0) {
+        if (record.connectionsBefore.length == 0 && record.graphPositionX==undefined && record.graphPositionY ==undefined) {
           inputs++;
         }
-        if (record.connectionsAfter.length == 0) {
+        if (record.connectionsAfter.length == 0 && record.graphPositionX==undefined && record.graphPositionY ==undefined) {
           outputs++;
         }
       }
@@ -136,7 +136,7 @@
       //console.log(inputsOffset, outputsOffset);
 
       for (record of data.components) {
-        if (record.connectionsBefore.length == 0) { // si rien n est connecte avant
+        if (record.connectionsBefore.length == 0 && record.graphPositionX==undefined && record.graphPositionY ==undefined ) { // si rien n est connecte avant
           this.graph.nodes.push({
             text: record.type, //-
             id: record._id,
@@ -146,7 +146,7 @@
             component: record
           });
           inputCurrentOffset += inputsOffset;
-        } else if (record.connectionsAfter.length == 0) {
+        } else if (record.connectionsAfter.length == 0 && record.graphPositionX==undefined && record.graphPositionY ==undefined) {
           this.graph.nodes.push({
             text: record.type,
             id: record._id,

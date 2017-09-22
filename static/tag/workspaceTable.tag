@@ -4,7 +4,7 @@
   </div>
   <zenTable style="flex:1" ref="workspaceZenTable">
     <yield to="header">
-      <div>nom</div>
+      <div>name</div>
       <div>description</div>
     </yield>
     <yield to="row">

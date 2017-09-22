@@ -114,7 +114,7 @@ function WorkspaceStore() {
         "Authorization": "JTW" + " " + localStorage.token
       },
     }).done(function(data) {
-      this.trigger('persist_end');
+      this.trigger('persist_end',data);
       this.workspaceBusiness.connectWorkspaceComponent(data.components);
       this.workspaceCurrent = data;
       data.mode = 'edit';
@@ -372,7 +372,17 @@ function WorkspaceStore() {
     //   workspace: this.workspaceCurrent,
     // })
     this.trigger('save_auto')
-  }); //<= technicalComponent_current_select
+  });
+
+  this.on('workspace_current_add_components', function(data) {
+    console.log("workspace_current_add_components ||", data);
+    data.forEach(c=>{
+      c.workspaceId = this.workspaceCurrent._id;
+      c.specificData = {};
+      this.workspaceCurrent.components.push(c);
+    })
+    this.update(this.workspaceCurrent);
+  });
 
   // --------------------------------------------------------------------------------
 
@@ -479,10 +489,3 @@ function WorkspaceStore() {
 
 
 }
-
-
-
-
-
-
-

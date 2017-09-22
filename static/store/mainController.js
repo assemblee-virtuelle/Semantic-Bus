@@ -92,6 +92,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   })
 
   this.navigateNext = function(newScreen, hidePrevious, baseScreen) {
+    //all screen after baseScreen will be removed
     var baseScreenDepth;
     //console.log(this.screenHistory[this.screenHistory.length- 1],newScreen);
     if (sift({
@@ -321,7 +322,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
 
 
   this.on('workspace_current_add_component_show', function(record) {
-    this.navigateNext('workspaceAddComponent', false);
+    this.navigateNext('workspaceAddComponent', true);
     // this.updateMode({
     //   modeNavigation: true,
     //   modeEdition: false,
@@ -344,7 +345,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
 
 
   this.on('workspace_current_add_user_show', function(record) {
-    this.navigateNext('workspaceAddUser', false);
+    this.navigateNext('workspaceAddUser', true);
     // this.updateMode({
     //   modeNavigation: true,
     //   modeEdition: false,
