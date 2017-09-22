@@ -388,8 +388,10 @@ function WorkspaceStore() {
 
   this.on('workspace_current_delete_component', function(record) {
     console.log("workspace_current_delete_component ||", record)
-    this.workspaceCurrent.components.splice(record.rowId, 1);
-    this.trigger('workspace_current_changed', this.workspaceCurrent);
+    this.workspaceCurrent.components.splice(this.workspaceCurrent.components.indexOf(record), 1);
+    console.log('workspace_current_delete_component_before_update',this.workspaceCurrent);
+    this.update(this.workspaceCurrent);
+    //this.trigger('workspace_current_changed', this.workspaceCurrent);
 
   }); //<= workspace_current_delete_component
 

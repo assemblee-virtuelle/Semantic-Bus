@@ -10,7 +10,7 @@
       <div class="commandButton" }>
         connect After
       </div>
-      <div class="commandButton" }>
+      <div onclick={removeClick} class="commandButton" }>
         remove
       </div>
       <div class="commandButton" }>
@@ -54,6 +54,12 @@
     editClick(e) {
       RiotControl.trigger('component_current_show');
       RiotControl.trigger('component_current_select', this.currentComponent);
+    }
+
+    removeClick(e) {
+      RiotControl.trigger('workspace_current_delete_component', this.currentComponent);
+      //   RiotControl.trigger('workspace_current_persist');
+      // RiotControl.trigger('component_current_select', this.currentComponent);
     }
 
     //this.currentComponent={}; source urile : https://bl.ocks.org/mbostock/1095795 Constants for the SVG
