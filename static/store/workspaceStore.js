@@ -114,7 +114,7 @@ function WorkspaceStore() {
         "Authorization": "JTW" + " " + localStorage.token
       },
     }).done(function(data) {
-      this.trigger('persist_end');
+      this.trigger('persist_end',data);
       this.workspaceBusiness.connectWorkspaceComponent(data.components);
       this.workspaceCurrent = data;
       data.mode = 'edit';
@@ -372,14 +372,26 @@ function WorkspaceStore() {
     //   workspace: this.workspaceCurrent,
     // })
     this.trigger('save_auto')
-  }); //<= technicalComponent_current_select
+  });
+
+  this.on('workspace_current_add_components', function(data) {
+    console.log("workspace_current_add_components ||", data);
+    data.forEach(c=>{
+      c.workspaceId = this.workspaceCurrent._id;
+      c.specificData = {};
+      this.workspaceCurrent.components.push(c);
+    })
+    this.update(this.workspaceCurrent);
+  });
 
   // --------------------------------------------------------------------------------
 
   this.on('workspace_current_delete_component', function(record) {
     console.log("workspace_current_delete_component ||", record)
-    this.workspaceCurrent.components.splice(record.rowId, 1);
-    this.trigger('workspace_current_changed', this.workspaceCurrent);
+    this.workspaceCurrent.components.splice(this.workspaceCurrent.components.indexOf(record), 1);
+    console.log('workspace_current_delete_component_before_update',this.workspaceCurrent);
+    this.update(this.workspaceCurrent);
+    //this.trigger('workspace_current_changed', this.workspaceCurrent);
 
   }); //<= workspace_current_delete_component
 
@@ -479,10 +491,3 @@ function WorkspaceStore() {
 
 
 }
-
-
-
-
-
-
-

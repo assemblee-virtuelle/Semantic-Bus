@@ -10,7 +10,7 @@
       <div class="commandButton" }>
         connect After
       </div>
-      <div class="commandButton" }>
+      <div onclick={removeClick} class="commandButton" }>
         remove
       </div>
       <div class="commandButton" }>
@@ -54,6 +54,12 @@
     editClick(e) {
       RiotControl.trigger('component_current_show');
       RiotControl.trigger('component_current_select', this.currentComponent);
+    }
+
+    removeClick(e) {
+      RiotControl.trigger('workspace_current_delete_component', this.currentComponent);
+      //   RiotControl.trigger('workspace_current_persist');
+      // RiotControl.trigger('component_current_select', this.currentComponent);
     }
 
     //this.currentComponent={}; source urile : https://bl.ocks.org/mbostock/1095795 Constants for the SVG
@@ -118,10 +124,10 @@
 
       // determine le nombre d inputs et d outputs
       for (record of data.components) {
-        if (record.connectionsBefore.length == 0) {
+        if (record.connectionsBefore.length == 0 && record.graphPositionX==undefined && record.graphPositionY ==undefined) {
           inputs++;
         }
-        if (record.connectionsAfter.length == 0) {
+        if (record.connectionsAfter.length == 0 && record.graphPositionX==undefined && record.graphPositionY ==undefined) {
           outputs++;
         }
       }
@@ -136,7 +142,7 @@
       //console.log(inputsOffset, outputsOffset);
 
       for (record of data.components) {
-        if (record.connectionsBefore.length == 0) { // si rien n est connecte avant
+        if (record.connectionsBefore.length == 0 && record.graphPositionX==undefined && record.graphPositionY ==undefined ) { // si rien n est connecte avant
           this.graph.nodes.push({
             text: record.type, //-
             id: record._id,
@@ -146,7 +152,7 @@
             component: record
           });
           inputCurrentOffset += inputsOffset;
-        } else if (record.connectionsAfter.length == 0) {
+        } else if (record.connectionsAfter.length == 0 && record.graphPositionX==undefined && record.graphPositionY ==undefined) {
           this.graph.nodes.push({
             text: record.type,
             id: record._id,

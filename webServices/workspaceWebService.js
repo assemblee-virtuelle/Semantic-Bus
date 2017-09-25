@@ -60,9 +60,11 @@ module.exports = function(router) {
     console.log('req.body', req.body)
     if (req.body != null) {
       workspace_lib.update(req.body).then(workspaceUpdate => {
-        for (var c of   workspaceUpdate.components){
+
+        for (var c of  workspaceUpdate.components){
           c.graphIcon = technicalComponentDirectory[c.module].graphIcon;
         }
+        console.log('update workspace WebService result',workspaceUpdate);
         res.send(workspaceUpdate);
       }).catch(e => {
         console.log('FAIL', e);
@@ -138,12 +140,13 @@ module.exports = function(router) {
   router.get('/workspaceOwnAll/:userId', function(req, res) {
     var userId = req.params.userId;
     var userPromise = mLabPromise.request('GET', 'users/' + userId);
-    var workspacePromise = mLabPromise.request('GET', 'workspace');
+    var workspacePromise = mLabPromise.request('GET', 'workspaces');
     var promises = [userPromise, workspacePromise]
     Promise.all(promises).then(function(res) {
       var user = res[0];
       var workspaces = res[1];
       var workspacesTable = [];
+      //console.log(workspaces);
       for (workspace of workspaces) {
         workspacesTable.push({
           _id: workspace._id.$oid,
@@ -151,6 +154,8 @@ module.exports = function(router) {
         });
       }
       user.workspaces = workspacesTable;
+      //console.log(user);
+      //return new Promise((resolve,reject)=>{resolve({})});
       return mLabPromise.request('PUT', 'users/' + user._id.$oid, user);
     }).then(function(data) {
       res.json(data);

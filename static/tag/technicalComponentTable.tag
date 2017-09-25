@@ -8,6 +8,7 @@
       <div if={actionReady} onclick={addComponent} class="commandButton notSynchronized">
         add
       </div>
+      {actionReady}
     </div>
   </div>
     <zenTable style="flex:1"  disallowcommand={true} disallownavigation={true}>
@@ -25,12 +26,13 @@
 
     this.actionReady=false;
     addComponent(e) {
-      this.tags.zentable.data.forEach(record=>{
-        if(record.selected){
-          RiotControl.trigger('workspace_current_add_component',record);
-        }
-
-      });
+      //this.tags.zentable.data.forEach(record=>{
+      //  if(record.selected){
+      RiotControl.trigger('workspace_current_add_components',sift({selected:{$eq:true}},this.tags.zentable.data));
+  
+      RiotControl.trigger('back');
+        //  }
+      //});
     }
 
     this.on('mount', function () {
@@ -43,7 +45,7 @@
      //
     //  }.bind(this));
      this.tags.zentable.on('rowSelect',function(){
-
+        console.log('ROWSELECTD');
         this.actionReady=true;
         this.update();
      }.bind(this));
@@ -77,6 +79,9 @@
    });
   </script>
   <style>
-
+  .notSynchronized {
+    background-color: orange !important;
+    color: white;
+  }
   </style>
 </technical-component-table>

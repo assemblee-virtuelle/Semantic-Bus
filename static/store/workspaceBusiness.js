@@ -102,7 +102,7 @@ function WorkspaceBusiness() {
       graphPositionX : workspaceComponentIn.graphPositionX,
       graphPositionY : workspaceComponentIn.graphPositionY
     }
-    console.log(out)
+    //console.log(out)
     return out;
 
   } //<= serialiseWorkspaceComponent
