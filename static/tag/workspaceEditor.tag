@@ -64,7 +64,7 @@
       } name="workspaceDescriptionInput" ref="workspaceDescriptionInput" type="text" placeholder="description du workspace" value="{innerData.description}"
       onkeyup="{descriptionFieldChange}"></input>
   </div>
-  <div show={modeUtilisation} class="description-worksapce" >
+  <div show={modeUtilisation} style="padding: 5%;" >
     <graph-of-use>
     </graph-of-use>
   </div>
