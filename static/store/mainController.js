@@ -233,6 +233,8 @@ function MainController(workSpaceStore, genericStore, profilStore) {
       }, message.components)[0]);
     }
   }.bind(this));
+
+  
   this.on('workspace_current_persist', function() {
     //this.trigger('persist_start');
   });

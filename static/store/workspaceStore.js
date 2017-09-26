@@ -90,20 +90,8 @@ function WorkspaceStore() {
   // --------------------------------------------------------------------------------
 
   this.update = function(data) {
-    //console.log('update');
-    // if (data) {
-    //   if (data.component) {
-    //     var ajax_data = JSON.stringify({
-    //       workspace: this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent),
-    //       component: data.component
-    //     });
-    //     console.log(JSON.stringify(ajax_data))
-    //   } else {
-    //     var ajax_data = JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent))
-    //   }
-    // } else {
+
     var ajax_data = JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent))
-    // }
     this.trigger('persist_start');
     $.ajax({
       method: 'put',
@@ -115,18 +103,13 @@ function WorkspaceStore() {
       },
     }).done(function(data) {
       this.trigger('persist_end',data);
+      data.mode = 'edit';
       this.workspaceBusiness.connectWorkspaceComponent(data.components);
       this.workspaceCurrent = data;
-      data.mode = 'edit';
       //console.log('update data ||', data);
       this.trigger('workspace_current_persist_done', data);
+      this.trigger('workspace_current_changed', this.workspaceCurrent);
 
-      // this.load(function () {
-      //   data.mode = 'edit';
-      //   this.workspaceCurrent=data;
-      //   this.trigger('workspace_current_persist_done', data);
-      // }.bind(this));
-      //this.workspaceCurrent.mode = 'edit';
     }.bind(this));
   }; //<= update
 
