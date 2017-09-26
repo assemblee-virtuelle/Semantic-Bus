@@ -213,7 +213,7 @@ div.tooltip {
         top: 20,
         right: 150,
         bottom: 30,
-        left: 40
+        left: 50
         },
         widthStackChart = 1200 - marginStackChart.left - marginStackChart.right,
         heightStackChart = 500 - marginStackChart.top - marginStackChart.bottom;
@@ -252,8 +252,7 @@ div.tooltip {
                 var y0 = 0;
                 for(var prop in d ){
                     if(prop != "Day" && prop != "ages"){
-                        console.log("if", prop)
-                        
+                        console.log("if", prop)  
                         d.ages.push(
                             {
                             name: prop,
@@ -283,6 +282,7 @@ div.tooltip {
         return d.Day;
         }));
         yStackChart.domain([0, d3.max(data, function (d) {
+            console.log(d.total)
         return d.total;
         })]);
 
@@ -299,7 +299,6 @@ div.tooltip {
         .attr("y", 6)
         .attr("dy", ".71em")
         .style("text-anchor", "end")
-        .text("No Of Buildings");
 
         var state = canvasStackChart.selectAll(".Day")
         .data(data)
@@ -308,7 +307,6 @@ div.tooltip {
         .attr("transform", function (d) {
             return "translate(" + xStackChart(d.Day) + ",0)";
         })
-
 
         state.selectAll("rect")
         .data(function (d) {
