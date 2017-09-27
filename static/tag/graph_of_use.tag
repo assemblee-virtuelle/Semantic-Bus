@@ -1,20 +1,50 @@
    
 <graph-of-use>
     <div class="containerV" style="flex-grow:1">
+        <div style="display: flex;">
+            <div class="card">
+                <h4>Credits consumed yesterday</h4></br>
+                <span class="second-title-card">{yesterdayCredit} €</span>
+            </div>
+            <div class="card">
+                <h4>Credits consumed last 30 days</h4></br>
+                <span class="second-title-card">{totalConsume} €</span>
+            </div>
+            <div class="card">
+                <h4> Running Components </h4></br>
+                <span class="second-title-card">{runningComponent} </span>
+            </div>
+        </div>
         <div style="text-align: center; padding: 5%;" >
             <div>
                 Consomation sur vos 30 jours 
             </div>
         </div>
-    </div>
     <div style="display: flex" >
         <div class="item-flex">
             <svg id="stacked"></svg></div>
         </div>
     </div>
+    </div>
     
 
 <style>
+
+.card {
+    background: #fff;
+    border-radius: 5px;
+    box-shadow: rgba(0, 0, 0, .2) 2px 4px 5px 3px;
+    font-family: "adelle-sans", sans-serif;
+    font-weight: 100;
+    margin: 48px auto;
+    width: 20rem;
+    padding: 20px;
+    text-align: center;
+}
+
+.second-title-card {
+    
+}
 
 form {
   font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
@@ -48,7 +78,9 @@ div.tooltip {
 
 </style>
 <script>
-
+    this.yesterdayCredit =  0
+    this.totalConsume = 0
+    this.runningComponent = 0
     Object.defineProperty(this, 'data', {
     set: function (data) {
 
@@ -83,7 +115,8 @@ div.tooltip {
     Allday = []
     AllDayObject = {}
     for (var i = 0 ; i < new Date().getUTCDate(); i ++){
-        Allday.push(moment().subtract(i, 'days')._d.getUTCDate())
+        console.log()
+        Allday.push(moment().subtract(i, 'days')._d.getUTCDate() + moment().subtract(i, 'days')._d.getUTCMonth() + 1)
         AllDayObject[moment().subtract(i, 'days')._d.getUTCDate()] = []
     }
     this.innerData.components.forEach(function (component) {
@@ -91,7 +124,7 @@ div.tooltip {
             compteurCompoflow[component.module] = 0
                 component.consumption_history.forEach(function (consumption_history) {
                     var d = new Date(consumption_history.dates.created_at);
-                    if(Allday.indexOf(d.getUTCDate()) != -1){
+                    if(Allday.indexOf(d.getUTCDate() + d.getUTCMonth() + 1) != -1){
                         var c = {}
                         if (component.name) {
                             var name = component.name
@@ -198,7 +231,7 @@ div.tooltip {
     }
     // Si la valeur est négative
     if (value < 0) {
-      return -decimalAdjust(type, -value, exp);
+      return decimalAdjust(type, -value, exp);
     }
     // Décalage
     value = value.toString().split('e');
@@ -209,13 +242,15 @@ div.tooltip {
   }
 
 
+/// D3 JS INITIALIZE
+
     var marginStackChart = {
         top: 20,
-        right: 150,
+        right: 200,
         bottom: 30,
-        left: 50
+        left: 20
         },
-        widthStackChart = 1200 - marginStackChart.left - marginStackChart.right,
+        widthStackChart = 1000 - marginStackChart.left - marginStackChart.right,
         heightStackChart = 500 - marginStackChart.top - marginStackChart.bottom;
 
     var xStackChart = d3.scaleBand()
@@ -225,22 +260,56 @@ div.tooltip {
         .range([heightStackChart, 0]);
 
 
-    var colorStackChart = d3.scaleOrdinal(["#98abc5", "#8a89a6", "#7b6888", "#6b486b", "#a05d56", "#d0743c", "#ff8c00"])
+    var colorStackChart = d3.scaleOrdinal(["rgb(53, 122, 183)", "rgb(15, 157, 232)","rgb(38, 196, 236)","rgb(0, 149, 182)", "rgb(84, 114, 174)", "rgb(104, 111, 140)", "rgb(58, 142, 186)", "rgb(169, 234, 254)", "rgb(116, 208, 241)", "rgb(30, 127, 203)", "rgb(0, 127, 255)", "rgb(121, 248, 248)"])
 
 
     var canvasStackChart = d3.select("#stacked")
         .attr("width", widthStackChart + marginStackChart.left + marginStackChart.right)
         .attr("height", heightStackChart + marginStackChart.top + marginStackChart.bottom)
         .append("g")
-
-
+        .attr("transform", "translate(" + marginStackChart.left + "," + marginStackChart.top + ")");
 
 
     var div = d3.select(".item-flex").append("div")
     .attr("class", "tooltip")
     .style("opacity", 0);
 
-    
+
+//// UPDATE CARD VALUE
+    var table = []
+    data.forEach(function (d) {  
+        var y0 = 0
+        for(var prop in d ){
+            if(Object.keys(d).length > 1){
+                if(table.indexOf(d[prop].id) == -1 && d[prop].id != undefined ){
+                    table.push(d[prop].id)
+                    this.runningComponent += 1
+                }
+            }
+                if(prop != "Day" && prop != "ages"){
+                    table.push(
+                        {
+                        price: d[prop].price,
+                        y1: y0 += +d[prop].datasize
+                        }
+                    );
+                    
+                }
+            if(d[prop].price != undefined){
+                console.log(d[prop].price)
+                this.totalConsume += decimalAdjust('round',d[prop].price, -4)
+            }
+        }
+        
+        if(d["Day"] == new Date().getUTCDate()){
+            this.yesterdayCredit = decimalAdjust('round', d[prop].price, -4); 
+        }
+        
+        this.update()
+    }.bind(this));
+
+
+//// d3JS DRAW FUNCTION
 
     function drawStackChart() {
         colorStackChart.domain(d3.keys(data[0]).filter(function (key) {;
@@ -263,8 +332,15 @@ div.tooltip {
                         );
                     }
                 }
+                if(d["Day"] == new Date().getUTCDate()){
+                this.yesterdayCredit = d.ages[d.ages.length - 1].y1
+                }
+                this.totalConsume +=  d.ages[d.ages.length - 1].y1
                 d.total = d.ages[d.ages.length - 1].y1;
             }else{
+                if(d["Day"] == new Date().getUTCDate()){
+                    this.yesterdayCredit = 0 
+                }
                 d.ages = []
                 var y0 = 0;
                 d.ages.push({
@@ -307,6 +383,7 @@ div.tooltip {
         .attr("transform", function (d) {
             return "translate(" + xStackChart(d.Day) + ",0)";
         })
+        
 
         state.selectAll("rect")
         .data(function (d) {
@@ -352,13 +429,14 @@ div.tooltip {
 
         legend.append("rect")
         .attr("x", widthStackChart + 170)
-        .attr("width", 18)
-        .attr("height", 18)
+        .attr("width", 16)
+        .attr("height", 16)
         .style("fill",colorStackChart)
 
         legend.append("text")
         .attr("x", widthStackChart + 160)
         .attr("y", 9)
+        .attr("font-size", "12px")
         .attr("dy", ".35em")
         .style("text-anchor", "end")
         .text(function (d) {
@@ -376,3 +454,44 @@ div.tooltip {
 </graph-of-use>
 
 
+
+<!--  
+function t
+    data.forEach(function (d) {
+        if(Object.keys(d).length > 1){
+            d.compt = []
+            var y0 = 0;
+            for(var prop in d ){
+                if(prop != "Day" && prop != "ages"){
+                    console.log("if", prop)  
+                    d.compt.push(
+                        {
+                        name: prop,
+                        price: d[prop].price,
+                        y0: +y0,
+                        y1: y0 += +d[prop].datasize
+                        }
+                    );
+                }
+            }
+
+            d.totalcompt = d.compt[d.compt.length - 1].y1;
+            if(d["Day"] == new Date().getUTCDate()){
+                this.yesterdayCredit = d.compt[d.compt.length - 1].y1
+            }
+            this.totalConsume +=  d.compt[d.compt.length - 1].y1
+            this.update()
+        }else{
+            if(d["Day"] == new Date().getUTCDate()){
+                this.yesterdayCredit = 0 
+            }
+            d.compt = []
+            var y0 = 0;
+            d.compt.push({
+                name: "name",
+                y0: y0,
+                y1: y0
+            });
+            d.totalcompt = 0;
+        }
+    }.bind(this));  -->
