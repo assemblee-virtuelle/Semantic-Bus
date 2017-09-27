@@ -185,10 +185,11 @@ var proto = {
         });
 
         /// Update procecing link
+        console.log("DATA FLOWWWW======>", this.objectSizeOf(dataFlow))
         processingLink.destination.consumption_history.push({
           traitement_id: traitement_id,
           flow_size: this.objectSizeOf(dataFlow) / 1000000,
-          price: (this.objectSizeOf(dataFlow) / 400000000),
+          price: (this.objectSizeOf(dataFlow) / 1000000) * 0.04,
           dates: {
             created_at: new Date()
           }

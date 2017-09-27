@@ -121,6 +121,7 @@ div.tooltip {
     }
     this.innerData.components.forEach(function (component) {
         if (component.consumption_history.length > 0) {
+             console.log(component)
             compteurCompoflow[component.module] = 0
                 component.consumption_history.forEach(function (consumption_history) {
                     var d = new Date(consumption_history.dates.created_at);
@@ -134,6 +135,7 @@ div.tooltip {
                         AllDayObject[d.getDate()].push(c[component.module] = {
                             day: d.getDate(),
                             fullDate: d,
+                            pricing: component.pricing,
                             price: consumption_history.price,
                             data: consumption_history.flow_size,
                             id: component._id,
@@ -146,30 +148,34 @@ div.tooltip {
             }
     })
 
+     console.log("AllDayObject", AllDayObject)
+
+
    
-
-
     // aggregation des flux 
     var lasttab = {}
     for (var conso in AllDayObject) {
         lasttab[conso] = {}
         if(AllDayObject[conso].length > 0){
             AllDayObject[conso].forEach(function (compo) {
-                if (lasttab[conso][compo.label] == null) {
-                    lasttab[conso][compo.label] = {}
-                    lasttab[conso][compo.label].data = compo.data
-                    lasttab[conso][compo.label].id = compo.id
-                    lasttab[conso][compo.label].name = compo.name
-                    lasttab[conso][compo.label].day = compo.day
-                    lasttab[conso][compo.label].fullDate = compo.fullDate
-                    lasttab[conso][compo.label].price = compo.price
+                console.log(compo.id, compo.price, compo.label, compo.day)
+                if (lasttab[conso][compo.id] == null) {
+                    lasttab[conso][compo.id] = {}
+                    lasttab[conso][compo.id].data = compo.data
+                    lasttab[conso][compo.id].label = compo.label
+                    lasttab[conso][compo.id].name = compo.name
+                    lasttab[conso][compo.id].day = compo.day
+                    lasttab[conso][compo.id].fullDate = compo.fullDate
+                    lasttab[conso][compo.id].price = compo.price
+                    lasttab[conso][compo.id].pricing = compo.pricing
                 }else{
-                    lasttab[conso][compo.label].data += compo.data
-                    lasttab[conso][compo.label].price += compo.price
-                    lasttab[conso][compo.label].id = compo.id
-                    lasttab[conso][compo.label].name = compo.name
-                    lasttab[conso][compo.label].day = compo.day
-                    lasttab[conso][compo.label].fullDate = compo.fullDate
+                    lasttab[conso][compo.id].data += compo.data
+                    lasttab[conso][compo.id].price += compo.price
+                    lasttab[conso][compo.id].id = compo.id
+                    lasttab[conso][compo.id].name = compo.name
+                    lasttab[conso][compo.id].day = compo.day
+                    lasttab[conso][compo.id].fullDate = compo.fullDate
+                    lasttab[conso][compo.id].pricing = compo.pricing
                 }
             })
         }else{
@@ -177,7 +183,7 @@ div.tooltip {
         }
     };
 
-
+    console.log(lasttab)
 
     /// mis des data dans un meme tableau
     var data = []
@@ -186,6 +192,8 @@ div.tooltip {
         c["Day"] = conso
         for (var consoFinal in lasttab[conso]) {
             c[consoFinal] = {
+                pricing: lasttab[conso][consoFinal].pricing,
+                label: lasttab[conso][consoFinal].label,
                 price: lasttab[conso][consoFinal].price,
                 datasize: lasttab[conso][consoFinal].data,
                 name: lasttab[conso][consoFinal].name,
@@ -197,48 +205,30 @@ div.tooltip {
     }
 
     console.log(data)
-    //Month is 1 based
-    function daysInMonth(month, year) {
-        return new Date(year, month, 0).getDate();
-    }
 
-
-    /// groupe by des component ( reduce traite de en ligne de gauche a droite les data du table et applique un callback
-    // qui prend en params l'element 1 et 2)
-    var groupBy = function (xs, key) {
-        return xs.reduce(function (rv, x) {
-        (rv[x[key]] = rv[x[key]] || []).push({
-            size: x.datasize,
-            name: x.name,
-            module: x.module,
-            id: x.id
-        });
-        return rv;
-        }, {});
-    };
 
     function decimalAdjust(type, value, exp) {
-    // Si la valeur de exp n'est pas définie ou vaut zéro...
-    if (typeof exp === 'undefined' || +exp === 0) {
-      return Math[type](value);
-    }
-    value = +value;
-    exp = +exp;
-    // Si la valeur n'est pas un nombre 
-    // ou si exp n'est pas un entier...
-    if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
-      return NaN;
-    }
-    // Si la valeur est négative
-    if (value < 0) {
-      return decimalAdjust(type, -value, exp);
-    }
-    // Décalage
-    value = value.toString().split('e');
-    value = Math[type](+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
-    // Décalage inversé
-    value = value.toString().split('e');
-    return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
+        // Si la valeur de exp n'est pas définie ou vaut zéro...
+        if (typeof exp === 'undefined' || +exp === 0) {
+        return Math[type](value);
+        }
+        value = +value;
+        exp = +exp;
+        // Si la valeur n'est pas un nombre 
+        // ou si exp n'est pas un entier...
+        if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
+        return NaN;
+        }
+        // Si la valeur est négative
+        if (value < 0) {
+        return decimalAdjust(type, -value, exp);
+        }
+        // Décalage
+        value = value.toString().split('e');
+        value = Math[type](+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
+        // Décalage inversé
+        value = value.toString().split('e');
+        return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
   }
 
 
@@ -248,7 +238,7 @@ div.tooltip {
         top: 20,
         right: 200,
         bottom: 30,
-        left: 20
+        left: 30
         },
         widthStackChart = 1000 - marginStackChart.left - marginStackChart.right,
         heightStackChart = 500 - marginStackChart.top - marginStackChart.bottom;
@@ -275,6 +265,7 @@ div.tooltip {
     .style("opacity", 0);
 
 
+
 //// UPDATE CARD VALUE
     var table = []
     data.forEach(function (d) {  
@@ -296,8 +287,7 @@ div.tooltip {
                     
                 }
             if(d[prop].price != undefined){
-                console.log(d[prop].price)
-                this.totalConsume += decimalAdjust('round',d[prop].price, -4)
+                this.totalConsume += decimalAdjust('round', d[prop].price , -4)
             }
         }
         
@@ -308,7 +298,6 @@ div.tooltip {
         }else{
             this.yesterdayCredit = 0
         }
-        
         this.update()
     }.bind(this));
 
@@ -325,18 +314,21 @@ div.tooltip {
                 var y0 = 0;
                 for(var prop in d ){
                     if(prop != "Day" && prop != "ages"){
-                        console.log("if", prop)  
+                        console.log("if",prop,  d[prop].price)  
                         d.ages.push(
                             {
-                            name: prop,
-                            price: d[prop].price,
-                            y0: +y0,
-                            y1: y0 += +d[prop].datasize
+                                pricing: d[prop].pricing,
+                                name: d[prop].label,
+                                module: d[prop].name,
+                                datasize: d[prop].datasize,
+                                y0: +y0,
+                                y1: y0 += d[prop].price
                             }
                         );
                     }
                 }
                 d.total = d.ages[d.ages.length - 1].y1;
+                console.log("total", d.total)
             }else{
                 d.ages = []
                 var y0 = 0;
@@ -349,20 +341,27 @@ div.tooltip {
             }
         });
 
-        console.log(data)
+        console.log("last data", data)
 
         xStackChart.domain(data.map(function (d) {;
-        return d.Day;
+            return d.Day;
         }));
         yStackChart.domain([0, d3.max(data, function (d) {
-            console.log(d.total)
-        return d.total;
+            return d.total;
         })]);
 
         canvasStackChart.append("g")
         .attr("class", "x axis")
         .attr("transform", "translate(0," + heightStackChart + ")")
         .call(d3.axisBottom(xStackChart));
+
+        canvasStackChart.append("text")
+        .attr("class", "x label")
+        .attr("text-anchor", "end")
+        .attr("x", widthStackChart + 5)
+        .attr("y", heightStackChart + 30)
+        .attr("font-size", "12px")
+        .text("jours");
 
         canvasStackChart.append("g")
         .attr("class", "y axis")
@@ -372,6 +371,17 @@ div.tooltip {
         .attr("y", 6)
         .attr("dy", ".71em")
         .style("text-anchor", "end")
+
+
+        canvasStackChart.append("text")
+        .attr("class", "y label")
+        .attr("text-anchor", "end")
+        .attr("y", 6)
+        .attr("dy", ".75em")
+        .attr("transform", "rotate(-90)")
+        .attr("font-size", "12px")
+        .text("Consomation( € )");
+
 
         var state = canvasStackChart.selectAll(".Day")
         .data(data)
@@ -398,13 +408,13 @@ div.tooltip {
             return colorStackChart(d.name);
         })
         .on("mouseover", function(d) {
-            var conso =  decimalAdjust('round', (d.y1 - d.y0), -4); 
-            var price =  decimalAdjust('round', d.price, -4);
+            var conso =  decimalAdjust('round', (d.datasize), -4); 
+            var price =  decimalAdjust('round', d.y1 - d.y0, -4 );
             d3.select(this).style("opacity", .6)  
             div.transition()
                 .duration(200)
                 .style("opacity", .9);
-            div.html("name:" + d.name + "<br/>" + "conso(Mo) : " + conso + "<br/>" + "price(€) : " + price)
+            div.html("module:" + d.name + "<br/>" + "name:" + d.module + "<br/>" + "conso : " + d.datasize + "Mo" + "<br/>" + "pricing : " + d.pricing + "€ / 100 Mo" +  "<br/>" +  "price : " + price + "€" )
                 .style("left", d3.event.pageX  + "px")
                 .style("top", d3.event.pageY - 28 +  "px");
         })

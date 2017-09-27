@@ -266,7 +266,7 @@ module.exports = {
             }
             //console.log('javascriptEvalString | ',javascriptEvalString);
             try {
-              nodeOut[nodeInDataProperty] = eval(javascriptEvalString);
+              nodeOut[nodeInDataProperty] = eval(javascriptEvalString)
               //console.log('eval done');
             } catch (e) {
               console.log(e);
