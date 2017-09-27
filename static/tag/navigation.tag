@@ -86,6 +86,9 @@
         <div class="containerV" style="flex-grow:1"  if={isScrennToShow('admin')}>
           <admin></admin>
         </div>
+        <div class="containerV" style="flex-grow:1"  if={isScrennToShow('workPreview')}>
+          <jsonPreviewer></jsonPreviewer>
+        </div>
 
       </div>
   </div>

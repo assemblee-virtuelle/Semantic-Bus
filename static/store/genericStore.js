@@ -141,9 +141,17 @@ function GenericStore(specificStoreList) {
       }
     }).done(function(data) {
       console.log('ALLO');
+      this.currentPreview=data;
       this.trigger('item_current_work_done', data);
     }.bind(this));
   }); //<= item_current_work
+
+
+
+  this.on('previewJSON_refresh', function () {
+    //console.log('workspace_current_refresh || ', this.workspaceCurrent);
+    this.trigger('previewJSON', this.currentPreview);
+  }); // <= workspace_current_refresh
 
   // --------------------------------------------------------------------------------
 
@@ -160,7 +168,7 @@ function GenericStore(specificStoreList) {
   //   this.connectMode = 'after';
   // });
   this.on('item_current_connect_before_show', function(data) {
-    this.modeConnectBefore = true;
+    this.modeConnectBefore = !this.modeConnectBefore;
     this.modeConnectAfter = false;
     this.trigger('item_curent_connect_show_changed', {
       before: this.modeConnectBefore,
@@ -170,7 +178,7 @@ function GenericStore(specificStoreList) {
 
   this.on('item_current_connect_after_show', function(data) {
     this.modeConnectBefore = false;
-    this.modeConnectAfter = true;
+    this.modeConnectAfter = !this.modeConnectAfter;
     this.trigger('item_curent_connect_show_changed', {
       before: this.modeConnectBefore,
       after: this.modeConnectAfter
@@ -288,6 +296,10 @@ function GenericStore(specificStoreList) {
 
     return out;
   }
+  this.on('component_current_set', function(data) {
+    this.itemCurrent = data;
+  });
+
   this.on('component_current_select', function(data) {
     //console.log('WARNING');
     this.itemCurrent = data;

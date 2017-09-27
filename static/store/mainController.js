@@ -234,7 +234,12 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     }
   }.bind(this));
 
-  
+  genericStore.on('item_current_work_done',function(message){
+    this.navigateNext('workPreview', true);
+  }.bind(this));
+
+
+
   this.on('workspace_current_persist', function() {
     //this.trigger('persist_start');
   });

@@ -345,7 +345,7 @@
       //   this.utilisationView = false;
       //   RiotControl.trigger('workspace_current_add_component_show', message);
       // }.bind(this));
-      
+
       this.refs.userZenTable.on('rowNavigation', function (data) {
         RiotControl.trigger('component_current_show');
         RiotControl.trigger('component_current_select', data);
