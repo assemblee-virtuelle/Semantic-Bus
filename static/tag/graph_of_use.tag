@@ -78,7 +78,7 @@ div.tooltip {
 
 </style>
 <script>
-    this.yesterdayCredit =  0
+    this.yesterdayCredit = 0
     this.totalConsume = 0
     this.runningComponent = 0
     Object.defineProperty(this, 'data', {
@@ -302,7 +302,11 @@ div.tooltip {
         }
         
         if(d["Day"] == new Date().getUTCDate()){
-            this.yesterdayCredit = decimalAdjust('round', d[prop].price, -4); 
+            if( d[prop].price){
+                this.yesterdayCredit = decimalAdjust('round', d[prop].price, -4); 
+            }
+        }else{
+            this.yesterdayCredit = 0
         }
         
         this.update()
@@ -332,15 +336,8 @@ div.tooltip {
                         );
                     }
                 }
-                if(d["Day"] == new Date().getUTCDate()){
-                this.yesterdayCredit = d.ages[d.ages.length - 1].y1
-                }
-                this.totalConsume +=  d.ages[d.ages.length - 1].y1
                 d.total = d.ages[d.ages.length - 1].y1;
             }else{
-                if(d["Day"] == new Date().getUTCDate()){
-                    this.yesterdayCredit = 0 
-                }
                 d.ages = []
                 var y0 = 0;
                 d.ages.push({
