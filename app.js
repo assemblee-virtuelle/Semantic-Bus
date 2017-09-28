@@ -78,7 +78,7 @@ httpGet.makeRequest('GET', configUrl).then(result => {
         console.log('~~ server started at port ',this.address().port)
         // console.log('Listening on port  ');
         // console.log(this.address().port);
-        //console.log('new message from master 16');
+        console.log('new message from master 17');
         //console.log(this.address());
       })
 
