@@ -1,73 +1,91 @@
-<workspace-editor>
-  <div class="commandBar containerH">
-      <div>{innerData.name}</div>
-      <div class="containerH commandGroup">
-      <div onclick={editClick} class="commandButton" id="edit" if={innerData.mode=="read" }>
-        edit
+<workspace-editor class="containerV">
+  <div class="containerH" style="flex-wrap:nowrap;flex-grow:1;">
+    <div class=" containerV" style="flex-basis:80px;">
+      <!--<div class="{color1}" if={componentView} id="component" onclick={goComponent}>Composant(s)</div>
+      <div class="{color2}" id="user" if={userView} onclick={goUser}>Utilisateur(s)</div>
+      <div class="{color3}" if={DescriptionView} id="description" onclick={goDescription}>Déscription</div>
+      <div class="{color4}" if={DescriptionView} id="description" onclick={goUtilisation}>Utilisation</div>-->
+      <div onclick={goComponent} class="commandButtonImage">
+        <img src="./image/Flow-Chart-256.png" height="60px">
       </div>
-      <div onclick={graphClick} class="commandButton" id="graph">
-        graph
+      <div onclick={goUser} class="commandButtonImage">
+        <img src="./image/Sharepoint-256.png" height="60px">
       </div>
-      <!--<div onclick={cancelClick}  class="commandButton" id="cancel"  if={innerData.mode=="edit" || innerData.mode=="init"}>
-              cancel
-            </div>-->
-      <div onclick={persistClick} class="{commandButton:true,notSynchronized:innerData.synchronized==false}" id="save" if={innerData.mode=="edit"
-        || innerData.mode=="init" }>
-        save
+      <div onclick={goDescription} class="commandButtonImage">
+        <img src="./image/doc.png" height="60px">
+      </div>
+      <div onclick={goUtilisation} class="commandButtonImage">
+        <img src="./image/Pie-Chart-Graph-32.png" height="60px">
+      </div>
+    </div>
+    <div class=" containerV"  style="flex-grow:1;">
+      <div class="commandBar containerH">
+          <div>{innerData.name}</div>
+          <div class="containerH commandGroup">
+          <div onclick={editClick} class="commandButton" id="edit" if={innerData.mode=="read" }>
+            edit
+          </div>
+          <div onclick={graphClick} class="commandButton" id="graph">
+            full size
+          </div>
+          <!--<div onclick={cancelClick}  class="commandButton" id="cancel"  if={innerData.mode=="edit" || innerData.mode=="init"}>
+                  cancel
+                </div>-->
+          <div onclick={persistClick} class="{commandButton:true,notSynchronized:innerData.synchronized==false}" id="save" if={innerData.mode=="edit"
+            || innerData.mode=="init" }>
+            save
+          </div>
+        </div>
+      </div>
+
+      <div show={modeComponentList}>
+        <graph></graph>
+        <!--<zenTable style="flex:1" css="background-color:white!important;color: #3883fa;" disallowcommand={innerData.mode=='read' }
+          allowcancelcommand={false} id="composant" ref="componentZenTable">
+          <yield to="header">
+            <div>nom</div>
+            <div>composant technique</div>
+            <div>fonction</div>
+          </yield>
+          <yield to="row">
+            <div style="width:20%">{name}</div>
+            <div style="width:20%">{type}</div>
+            <div style="width:60%">{description}</div>
+          </yield>
+        </zenTable>-->
+      </div>
+      <div show={modeUserList}>
+        <zenTable title="" style="flex:1" disallownavigation="true" css="background-color:white!important;color: #3883fa;" id="userliste"
+          disallowcommand={innerData.mode=="read" } ref="userZenTable">
+          <yield to="header">
+            <div>email</div>
+            <div>role</div>
+          </yield>
+          <yield to="row">
+            <div style="width:70%">{email}</div>
+            <div style="width:30%">{role}</div>
+          </yield>
+        </zenTable>
+      </div>
+      <div show={modeUserDescription} class="description-worksapce" id="description">
+        <label style="padding-top:3vh">{labelInputName}
+            </label>
+        <input readonly={innerData.mode=="read" } class={readOnly : innerData.mode=="read" , description-worksapce-input : innerData.mode=="edit"
+          } name="workspaceNameInput" type="text" ref="workspaceNameInput" placeholder="nom du workspace" value="{innerData.name}"
+          onkeyup="{nameFieldChange}"></input>
+        <label style="padding-top:3vh">{labelInputDesc}
+            </label>
+        <input readonly={innerData.mode=="read" } class={readOnly : innerData.mode=="read" , description-worksapce-input : innerData.mode=="edit"
+          } name="workspaceDescriptionInput" ref="workspaceDescriptionInput" type="text" placeholder="description du workspace" value="{innerData.description}"
+          onkeyup="{descriptionFieldChange}"></input>
+      </div>
+      <div show={modeUtilisation} style="padding: 5%;" >
+        <graph-of-use>
+        </graph-of-use>
       </div>
     </div>
   </div>
-  <div class=" containerH" style="justify-content: flex-start!important">
-    <div class="{color1}" if={componentView} id="component" onclick={goComponent}>Composant(s)</div>
-    <div class="{color2}" id="user" if={userView} onclick={goUser}>Utilisateur(s)</div>
-    <div class="{color3}" if={DescriptionView} id="description" onclick={goDescription}>Déscription</div>
-    <div class="{color4}" if={DescriptionView} id="description" onclick={goUtilisation}>Utilisation</div>
-  </div>
-  <div show={modeComponentList}>
-    <graph></graph>
-    <!--<zenTable style="flex:1" css="background-color:white!important;color: #3883fa;" disallowcommand={innerData.mode=='read' }
-      allowcancelcommand={false} id="composant" ref="componentZenTable">
-      <yield to="header">
-        <div>nom</div>
-        <div>composant technique</div>
-        <div>fonction</div>
-      </yield>
-      <yield to="row">
-        <div style="width:20%">{name}</div>
-        <div style="width:20%">{type}</div>
-        <div style="width:60%">{description}</div>
-      </yield>
-    </zenTable>-->
-  </div>
-  <div show={modeUserList}>
-    <zenTable title="" style="flex:1" disallownavigation="true" css="background-color:white!important;color: #3883fa;" id="userliste"
-      disallowcommand={innerData.mode=="read" } ref="userZenTable">
-      <yield to="header">
-        <div>email</div>
-        <div>role</div>
-      </yield>
-      <yield to="row">
-        <div style="width:70%">{email}</div>
-        <div style="width:30%">{role}</div>
-      </yield>
-    </zenTable>
-  </div>
-  <div show={modeUserDescription} class="description-worksapce" id="description">
-    <label style="padding-top:3vh">{labelInputName}
-        </label>
-    <input readonly={innerData.mode=="read" } class={readOnly : innerData.mode=="read" , description-worksapce-input : innerData.mode=="edit"
-      } name="workspaceNameInput" type="text" ref="workspaceNameInput" placeholder="nom du workspace" value="{innerData.name}"
-      onkeyup="{nameFieldChange}"></input>
-    <label style="padding-top:3vh">{labelInputDesc}
-        </label>
-    <input readonly={innerData.mode=="read" } class={readOnly : innerData.mode=="read" , description-worksapce-input : innerData.mode=="edit"
-      } name="workspaceDescriptionInput" ref="workspaceDescriptionInput" type="text" placeholder="description du workspace" value="{innerData.description}"
-      onkeyup="{descriptionFieldChange}"></input>
-  </div>
-  <div show={modeUtilisation} style="padding: 5%;" >
-    <graph-of-use>
-    </graph-of-use>
-  </div>
+
 
 
   <style>
