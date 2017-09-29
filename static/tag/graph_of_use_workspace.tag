@@ -174,12 +174,14 @@
                 } else {
                     var name = "no name"
                 }
-                AllDayObject[d.getDate()].push({
-                  flow : cons.flow_size,
-                  pricing : cons.price,
-                  id: workspace._id,
-                  name: workspace.name
-                })
+                if(d != undefined && d.getDate() != undefined){
+                    AllDayObject[d.getDate()].push({
+                    flow : cons.flow_size,
+                    pricing : cons.price,
+                    id: workspace._id,
+                    name: workspace.name
+                    })
+                }
               }
             }.bind(this))
           }
