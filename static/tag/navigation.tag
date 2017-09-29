@@ -192,7 +192,7 @@
 
     RiotControl.on('profil_loaded', function (data) {
       console.log('profil_loaded', data);
-      this.showAdmin = data.admin;
+      this.showAdmin = data.user.admin;
       this.update();
     }.bind(this));
 

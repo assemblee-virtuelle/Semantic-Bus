@@ -29,6 +29,10 @@
   <form>
     <h1>Inscrivez vous</h1>
       <div class="box">
+       <input  name="nameInscription"  placeholder="saisir name"  class="email" />
+        <div id="result">{resultName}</div> 
+       <input  name="societe"  placeholder="saisir societe"  class="email" />
+        <div id="result">{resultSociete}</div> 
         <input type="email" name="emailInscription"  placeholder="saisir email"  class="email" />
         <div id="result">{resultEmail}</div> 
         <input type="password" required name="passwordInscription" placeholder="saisir mot de passe"  class="email" />
@@ -279,6 +283,8 @@
   <script>
   this.resultConnexion = "";
   this.resultEmail = "";
+  this.resultSociete = "";
+  this.resultName = "";
   this.resultMdp = "";
   this.user = {};
   this.newUser = {}
@@ -325,6 +331,18 @@
      this.update();
   }.bind(this));
 
+  this.societe.addEventListener('change',function(e){
+    this.resultSociete = ""
+    this.newUser.societe = e.currentTarget.value;
+     this.update();
+  }.bind(this));
+
+  this.nameInscription.addEventListener('change',function(e){
+    this.resultName = ""
+    this.newUser.name = e.currentTarget.value;
+     this.update();
+  }.bind(this));
+
   this.passwordInscription.addEventListener('change',function(e){
     this.newUser.passwordInscription = e.currentTarget.value;
      this.update();
@@ -351,9 +369,11 @@
         var reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g;
         if(this.newUser.emailInscription.match(reg) != null){
           //if(this.newUser.passwordInscription.split().length > 5){
-          this.newUser.name = "Simplet"
           if((this.newUser.passwordInscription == this.newUser.confirmPasswordInscription) && (this.newUser.passwordInscription.split("").length > 5)){
             RiotControl.trigger('user_inscription', this.newUser);
+            RiotControl.on('google_user', function(){
+              this.resultEmail = "Votre compte est déja relier a un compte google"
+            }.bind(this));
             RiotControl.on('email_already_exist', function(){
               this.resultEmail = "L'email choisi exsite déjà"
             }.bind(this));
@@ -382,7 +402,7 @@
   login(e) {
     if((this.user.password != "") && (this.user.email != "")){
       RiotControl.trigger('user_connect', this.user);
-      RiotControl.on('google_auth', function(){
+      RiotControl.on('google_user', function(){
         console.log("Connectez vous avec Google")
         this.resultConnexion = "Connectez vous avec Google";
         this.update();

@@ -46,7 +46,7 @@ function profilStore() {
 
     this.on('change_email', function(data) {
         console.log('change_email');
-        console.log(data);
+        console.log(JSON.stringify(data));
         $.ajax({
             method: 'put',
             url: '../data/core/users/'+ localStorage.user_id,
@@ -57,19 +57,18 @@ function profilStore() {
             contentType: 'application/json'
         }).done(function(data) {
             console.log(data)
-            if(data != false){
-                this.userCurrrent = data
-                this.trigger('email_change', this.userCurrrent)
-            }else{
-                this.trigger('email_already_exist')
-            }
+            // if(data != false){
+            //     this.userCurrrent = data
+            //     this.trigger('email_change', this.userCurrrent)
+            // }else{
+            //     this.trigger('email_already_exist')
+            // }
         }.bind(this));
     })
 
     this.on('deconnexion', function(message) {
         localStorage.token = null;
         localStorage.user_id = null;
-        localStorage.googleid = null;
         window.open("../auth/login.html", "_self");
     }.bind(this))
 

@@ -27,9 +27,8 @@ module.exports = function (router) {
 
   router.get('/users/:id', function (req, res) {
     console.log("LOADING USER",req.params.id)
-    user_lib.get({
-          _id: req.params.id
-        }
+    user_lib.getWithWorkspace(
+          req.params.id, "owner"
     ).then(function (result) {
       console.log("LOADING USER",result)
       res.send(result)
@@ -39,10 +38,7 @@ module.exports = function (router) {
 // --------------------------------------------------------------------------------
 
   router.put('/users/:id', function (req, res) {
-    console.log(req.params.id)
-      user_lib.update(req.params.id, {user : {
-        email: req.body.email
-      }}).then(function (result) {
+      user_lib.update(req.body.user).then(function (result) {
         console.log(result)
         res.send(result)
       })

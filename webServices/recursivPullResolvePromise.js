@@ -302,7 +302,7 @@ var proto = {
         res.consumption_history.push({
           traitement_id: traitement_id,
           flow_size: global_flow / 1000000,
-          price: (global_flow / 400000000),
+          price: (global_flow / 1000000) * 0.04,
           dates: {
             created_at: new Date()
           }
