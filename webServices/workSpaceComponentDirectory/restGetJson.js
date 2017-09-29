@@ -35,8 +35,8 @@ module.exports = {
 
       const request = lib.request(requestOptions, response => {
         const hasResponseFailed = response.statusCode >= 400;
-        console.log('REST Get JSON | header |',response.headers);
-        console.log('REST Get JSON | statusCode: |',response.statusCode);
+        //console.log('REST Get JSON | header |',response.headers);
+        //console.log('REST Get JSON | statusCode: |',response.statusCode);
         var responseBody = '';
 
         if (hasResponseFailed) {
