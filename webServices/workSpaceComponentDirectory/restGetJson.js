@@ -18,7 +18,7 @@ module.exports = {
       //console.log(urlString);
       const parsedUrl = this.url.parse(urlString);
       //console.log('REST Get JSON | makerequest | port',parsedUrl.port);
-      //  console.log('REST Get JSON | makerequest | host',parsedUrl.hostname);
+      //console.log('REST Get JSON | makerequest | host',parsedUrl.hostname);
       const requestOptions = {
           hostname: parsedUrl.hostname,
           path: parsedUrl.path,
@@ -35,8 +35,8 @@ module.exports = {
 
       const request = lib.request(requestOptions, response => {
         const hasResponseFailed = response.statusCode >= 400;
-        //console.log('REST Get JSON | header |',response.headers);
-        //console.log('REST Get JSON | statusCode: |',response.statusCode);
+        console.log('REST Get JSON | header |',response.headers);
+        console.log('REST Get JSON | statusCode: |',response.statusCode);
         var responseBody = '';
 
         if (hasResponseFailed) {
