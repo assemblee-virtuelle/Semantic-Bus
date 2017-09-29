@@ -132,6 +132,7 @@ function GenericStore(specificStoreList) {
   this.on('item_current_work', function(message) {
     console.log('item_current_testWork | itemCurrent:', this.itemCurrent);
     var id = this.itemCurrent._id;
+    this.trigger('item_current_work_start');
     $.ajax({
       method: 'get',
       url: '../data/core/workspaceComponent/' + id + '/work',

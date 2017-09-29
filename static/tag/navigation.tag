@@ -51,27 +51,29 @@
           </civ>
         </div>
       -->
-    <div class="containerV commandBar">
-      <div class="containerV commandGroup">
+    <div class="containerV commandBar" style="justify-content: space-between;">
+      <div class="containerV commandGroup" style="flex-grow:0;justify-content:flex-start;">
         <div class="commandButtonImage" onclick={workspaceSelectorClick}>
-          <img src="./image/User-256.png" height="60px">
+          <img src="./image/User-256.png" width="60px">
         </div>
         <div class="commandButtonImage" onclick={workspaceShareSelectorClick}>
-          <img src="./image/Group-256.png" height="60px">
+          <img src="./image/Group-256.png" width="60px">
         </div>
         <div class="commandButtonImage" onclick={profilSelectorClick}>
-          <img src="./image/user.png" height="60px">
+          <img src="./image/user.png" width="60px">
         </div>
         <div class="commandButtonImage" onclick={adminSelectorClick}>
-          <img src="./image/Administrative-Tools-256.png" height="60px">
+          <img src="./image/Administrative-Tools-256.png" width="60px">
         </div>
       </div>
-      <div class="containerV commandGroup">
-        <div onclick={back} if={isScrennHide()}>
-          <img src="./image/Super-Mono-png/PNG/basic/blue/arrow-left.png">
+      <div class="containerV commandGroup" style="flex-grow:1;justify-content:center;">
+        <div onclick={back} if={isScrennHide()} class="commandButtonImage">
+          <img src="./image/Super-Mono-png/PNG/basic/blue/arrow-left.png" width="60px">
         </div>
       </div>
-      <div class="containerV commandGroup"></div>
+      <div class="containerV commandGroup" style="flex-grow:0;justify-content:flex-end;">
+        <img src="./image/working.gif" width="60px" if={workInProgress}>
+      </div>
     </div>
     <div class="containerV" style="flex-grow:1" if={isScrennToShow('landing')}>
       <landing></landing>
@@ -113,6 +115,7 @@
 <script>
 
   this.persistInProgress = false;
+  this.workInProgress = false;
   //    this.workspaceComponents = [];
 
   RiotControl.on("ajax_receipt", function () {
@@ -184,28 +187,40 @@
     this.update();
   }.bind(this));
 
+  RiotControl.on('user_authentified', function (data) {
+    console.log('user_authentified', localStorage.user_id);
+    RiotControl.trigger('load_profil');
+  }.bind(this));
+
+  RiotControl.on('profil_loaded', function (data) {
+    console.log('profil_loaded', data);
+    this.showAdmin = data.admin;
+    this.update();
+  }.bind(this));
+
+  RiotControl.on('persist_start', function (data) {
+    //console.log('persist_start | ',this.saveButton)
+    this.persistInProgress = true;
+    this.update();
+  }.bind(this));
+
+  RiotControl.on('persist_end', function (data) {
+    this.persistInProgress = false;
+    this.update();
+  }.bind(this));
+
+  RiotControl.on('item_current_work_start', function (data) {
+    this.workInProgress = true;
+    this.update();
+  }.bind(this));
+
+  RiotControl.on('item_current_work_done', function (data) {
+    this.workInProgress = false;
+    this.update();
+  }.bind(this));
+
   this.on('mount', function () {
-    RiotControl.on('user_authentified', function (data) {
-      console.log('user_authentified', localStorage.user_id);
-      RiotControl.trigger('load_profil');
-    }.bind(this));
 
-    RiotControl.on('profil_loaded', function (data) {
-      console.log('profil_loaded', data);
-      this.showAdmin = data.user.admin;
-      this.update();
-    }.bind(this));
-
-    RiotControl.on('persist_start', function (data) {
-      //console.log('persist_start | ',this.saveButton)
-      this.persistInProgress = true;
-      this.update();
-    }.bind(this));
-
-    RiotControl.on('persist_end', function (data) {
-      this.persistInProgress = false;
-      this.update();
-    }.bind(this));
 
     RiotControl.trigger('screenHistoryInit');
 
