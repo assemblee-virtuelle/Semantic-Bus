@@ -29,6 +29,7 @@ var env = process.env;
 var httpGet = require('./webServices/workSpaceComponentDirectory/restGetJson.js');
 var fs = require('fs');
 const configUrl=env.CONFIG_URL||'http://app-30be695d-93b7-4c25-9078-8d2006c44aff.cleverapps.io/file/master';
+console.log("before http config",configUrl);
 httpGet.makeRequest('GET', configUrl).then(result => {
   console.log('~~ remote config | ', result);
 
@@ -78,7 +79,7 @@ httpGet.makeRequest('GET', configUrl).then(result => {
         console.log('~~ server started at port ',this.address().port)
         // console.log('Listening on port  ');
         // console.log(this.address().port);
-        //console.log('new message from master 16');
+        console.log('new message from master 18');
         //console.log(this.address());
       })
 

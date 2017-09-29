@@ -40,9 +40,12 @@
           <feMergeNode in="SourceGraphic"/>
         </feMerge>
       </filter>
-      <g id="shapeSelector"></g>
+      <g id="background" >
+        <rect width="1500" height="900" class="background"></rect>
+      </g>
       <g id="lineLayer"></g>
       <g id="shapeLayer"></g>
+      <g id="shapeSelector"></g>
       <g id="textLayer"></g>
     </svg>
   </div>
@@ -93,18 +96,20 @@
       });
       this.selectors.exit().remove();
       this.selectors = this.selectors.enter().append("rect").attr("width", function (d) { // width et height definis plus haut par bbox
-        return 250;
+        return 240;
       }).attr("height", function (d) {
         return 90;
       }).attr("rx", function (d) {
-        return 20;
+        return 10;
       }).attr("ry", function (d) {
-        return 20;
+        return 10;
       }).attr('x', function (d) {
         return d.x - 10;
       }).attr('y', function (d) {
         return d.y - 10;
-      });;
+      }).attr('class', function (d) {
+        return 'selector';
+      }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
     }
 
     // fonctions déplacements ( glissé )
@@ -262,6 +267,14 @@
         this.svg = d3.select("svg");
       }
 
+      d3.select("#background").on("click",function(d){
+        //console.log('CLICK ON main',d3.select(this));
+        this.selectedNodes = [];
+        RiotControl.trigger('component_current_set',undefined);
+        this.drawSelected();
+        this.update();
+      }.bind(this));
+
       // if (this.simulation == undefined) {   /*   this.simulation = d3.forceSimulation(this.graph.nodes).force("charge", d3.forceManyBody().strength(-1000)).force("link", d3.forceLink([]).id(function (d) {     return d.id // cela semble désigner l'id des
       // noeud (comment les liens retrouvent la propriété id des noeud) ne pas toujours chercher a comprendre comment d3 marche, mais c est necessaire )   }).distance(200)).force("x", d3.forceX()).force("y", d3.forceY()).alphaTarget(1).on("tick",
       // this.ticked);   */
@@ -367,16 +380,24 @@
 
   <style scoped>
     svg {
-      background-color: #EFEFEF;
+      //background-color: #EFEFEF;
     }
     line {
       stroke: #000;
       stroke-width: 1;
     }
 
-    rect {
-      filter:url(#dropshadow);
-      fill: #fff;
+    .selector {
+      //filter:url(#dropshadow);
+      fill: #649DF9;
+      fill-opacity : 0.4
+    }
+
+    .background {
+      fill: white;
+      fill-opacity : 1;
+      stroke: #000;
+      stroke-width: 1;
     }
     text {
       cursor: default;
