@@ -37,23 +37,31 @@ function UserStore() {
       }.bind(this),
     }).done(data => {
       console.log(data)
-      if (data == false) {
-        this.trigger('google_auth')
-      } else if (data != null && data.token != null) {
+      if (data != null && data.token != null) {
         console.log("in application ajax triger");
         localStorage.token = data.token
         // window.open("../ihm/application.html", "_self");
         this.trigger('application_redirect')
         this.spleep(2000).then(function () {
           this.trigger('ajax_receipt_login');
-        }.bind(this))
-
-      } else {
-        console.log("data no");
-        this.trigger('bad_auth')
+        }.bind(this))     
+      } else if(data.data == true) {
+        this.trigger('google_user')
         this.sleep(2000).then(function () {
           this.trigger('ajax_receipt_login');
         }.bind(this))
+      }else if(data.data == false) {
+          console.log("data no");
+          this.trigger('bad_auth')
+          this.sleep(2000).then(function () {
+            this.trigger('ajax_receipt_login');
+          }.bind(this))
+      // }else {
+      //   console.log("data no");
+      //   this.trigger('bad_auth')
+      //   this.sleep(2000).then(function () {
+      //     this.trigger('ajax_receipt_login');
+      //   }.bind(this))
       }
     });
   });
@@ -91,7 +99,7 @@ function UserStore() {
 
 
   this.on('user_inscription', function (user) {
-    // console.log(user);
+    console.log(user);
     $.ajax({
       method: 'post',
       data: JSON.stringify(user),
@@ -110,7 +118,12 @@ function UserStore() {
         this.sleep(2000).then(function () {
           this.trigger('ajax_receipt_login');
         }.bind(this))
-      } else {
+      } else if(data.data == true) {
+        this.trigger('google_user')
+        this.sleep(2000).then(function () {
+          this.trigger('ajax_receipt_login');
+        }.bind(this))
+      }else{
         this.trigger('email_already_exist')
         this.sleep(2000).then(function () {
           this.trigger('ajax_receipt_login');

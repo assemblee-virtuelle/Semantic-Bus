@@ -132,7 +132,7 @@ div.tooltip {
                         } else {
                             var name = "no name"
                         }
-                        AllDayObject[d.getDate()].push(c[component.module] = {
+                        AllDayObject[d.getDate()].push({
                             day: d.getDate(),
                             fullDate: d,
                             pricing: component.pricing,
@@ -270,6 +270,7 @@ div.tooltip {
     var table = []
     data.forEach(function (d) {  
         var y0 = 0
+        var y2 = 0
         for(var prop in d ){
             if(Object.keys(d).length > 1){
                 if(table.indexOf(d[prop].id) == -1 && d[prop].id != undefined ){
@@ -277,28 +278,28 @@ div.tooltip {
                     this.runningComponent += 1
                 }
             }
-                if(prop != "Day" && prop != "ages"){
-                    table.push(
-                        {
-                        price: d[prop].price,
-                        y1: y0 += +d[prop].datasize
-                        }
-                    );
-                    
-                }
+            if(prop != "Day" && prop != "ages"){
+                table.push(
+                    {
+                    price: y2 +=  +d[prop].price,
+                    y1: y0 += +d[prop].datasize
+                    }
+                );
+                
+            }
             if(d[prop].price != undefined){
+                console.log("price ====>", table )
                 this.totalConsume += decimalAdjust('round', d[prop].price , -4)
             }
-        }
-        
-        if(d["Day"] == new Date().getUTCDate()){
-            if( d[prop].price){
-                this.yesterdayCredit = decimalAdjust('round', d[prop].price, -4); 
+            if(d["Day"] == new Date().getUTCDate() && table.length > 0){
+                if( d[prop].price){
+                    this.yesterdayCredit = decimalAdjust('round', table[table.length - 1].price, -4); 
+                }
+            }else{
+                this.yesterdayCredit = 0
             }
-        }else{
-            this.yesterdayCredit = 0
+            this.update()
         }
-        this.update()
     }.bind(this));
 
 
