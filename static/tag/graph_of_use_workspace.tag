@@ -146,9 +146,15 @@
         var AllDayObject = {}
         new Date()
         //if()
-        for (var i = 0 ; i < new Date().getUTCDate(); i ++){
-          Allday.push(moment().subtract(i, 'days')._d.getUTCDate() + moment().subtract(i, 'days')._d.getUTCMonth() + 1)
-          AllDayObject[moment().subtract(i, 'days')._d.getUTCDate()] = []
+        for (var i = 30; i >= 0; i --){
+            console.log(new Date(moment().subtract(i, 'days')))
+            if( AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] == null){
+                AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] = {}
+                AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCDate()] = []
+            }else{
+                Allday.push(moment().subtract(i, 'days')._d.getUTCDate() + moment().subtract(i, 'days')._d.getUTCMonth() + 1)
+                AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCDate()] = []
+            }
         }
         
         /// INIT DATA PROFIL
@@ -166,66 +172,80 @@
             workspace.pricing = 0
             if(workspace.consumption_history.length > 0){
                 workspace.consumption_history.forEach(function(cons){
+                    this.golbalConsumption += cons.flow_size
+                    this.golbalConsumption = decimalAdjust('round', (this.golbalConsumption), -2); 
                     var d = new Date(cons.dates.created_at);
-                    if(Allday.indexOf(d.getUTCDate() + d.getUTCMonth() + 1) != -1){
-                        this.golbalConsumption += cons.flow_size
-                        this.golbalConsumption = decimalAdjust('round',this.golbalConsumption , -2 );
-                        var c = {}
-                    if (workspace.name) {
-                        var name = workspace.name
-                    } else {
-                        var name = "no name"
-                }
-                if(d != undefined && AllDayObject[d.getDate()]!= undefined){
-                    AllDayObject[d.getDate()].push({
-                        flow : cons.flow_size,
-                        pricing : cons.price,
-                        id: workspace._id,
-                        name: workspace.name
-                    })
-                }
-              }
-            }.bind(this))
-          }
+                    for (month in AllDayObject){
+                        for (b in AllDayObject[month]){
+                            if((d.getUTCMonth() + 1) == month && d.getUTCDate() == b){
+                                var c = {}
+                                if (workspace.name) {
+                                    var name = workspace.name
+                                } else {
+                                    var name = "no name"
+                                }
+                                AllDayObject[month][d.getDate()].push({
+                                    flow : cons.flow_size,
+                                    pricing : cons.price,
+                                    id: workspace._id,
+                                    name: workspace.name
+                                })
+                            }
+                        }
+                    }
+                }.bind(this))
+                this.update()
+            }
         }.bind(this))
 
+
+        
+    console.log(AllDayObject)
+
          // aggregation des flux 
-        var lasttab = {}
-        for (var conso in AllDayObject) {
-            lasttab[conso] = {}
-            if(AllDayObject[conso].length > 0){
-                AllDayObject[conso].forEach(function (compo) {
-                    console.log(compo.id, compo.price)
-                    if (lasttab[conso][compo.id] == null) {
-                        lasttab[conso][compo.id] = {}
-                        lasttab[conso][compo.id].flow = compo.flow
-                        lasttab[conso][compo.id].name = compo.name
-                        lasttab[conso][compo.id].price = compo.pricing
+    var lasttab = {}
+    for (var month in AllDayObject) {
+        lasttab[month] = {}
+        for (var conso in AllDayObject[month]) {
+            lasttab[month][conso] = {}
+            if(AllDayObject[month][conso].length > 0){
+                AllDayObject[month][conso].forEach(function (compo) {
+                    if (lasttab[month][conso][compo.id] == null) {
+                        lasttab[month][conso][compo.id] = {}
+                        lasttab[month][conso][compo.id].flow = compo.flow
+                        lasttab[month][conso][compo.id].name = compo.name
+                        lasttab[month][conso][compo.id].price = compo.pricing
                     }else{
-                        lasttab[conso][compo.id].flow += compo.flow
-                        lasttab[conso][compo.id].name = compo.name
-                        lasttab[conso][compo.id].price += compo.pricing
+                        lasttab[month][conso][compo.id].flow += compo.flow
+                        lasttab[month][conso][compo.id].name = compo.name
+                        lasttab[month][conso][compo.id].price += compo.pricing
                     }
                 })
             }else{
                 console.log("no data")
             }
         };
+    }
 
+    console.log(lasttab)
 
         /// mis des data dans un meme tableau
         var dataT = []
-        for (var conso in lasttab) {
-            var c = {}
-            c["Day"] = conso
-            for (var consoFinal in lasttab[conso]) {
-                c[consoFinal] = {
-                    name: lasttab[conso][consoFinal].name,
-                    flow: lasttab[conso][consoFinal].flow,
-                    price: lasttab[conso][consoFinal].price,
+        for (var month in lasttab) {
+            for (var conso in lasttab[month]) {
+                var c = {}
+                c["Day"] = conso
+                for (var consoFinal in lasttab[month][conso]) {
+                    c[consoFinal] = {
+                        name: lasttab[month][conso][consoFinal].name,
+                        flow: lasttab[month][conso][consoFinal].flow,
+                        price: lasttab[month][conso][consoFinal].price,
+                    }
+                    
                 }
+                dataT.push(c)
+                
             }
-            dataT.push(c)
         }
 
 

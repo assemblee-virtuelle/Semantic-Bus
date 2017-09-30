@@ -33,7 +33,7 @@
 .card {
     background: #fff;
     border-radius: 5px;
-    border: 1px solid #3883fa;
+     1px solid #3883fa;
     font-family: "adelle-sans", sans-serif;
     font-weight: 100;
     margin: 48px auto;
