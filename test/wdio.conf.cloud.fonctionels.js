@@ -6,7 +6,11 @@ exports.config = Object.assign(base.config, {
         browserName: 'chrome',
         platform: 'Windows 10',
         version: 'latest'
-    }, ],
+    },{
+        browserName: 'firefox',
+        platform: 'Windows 10',
+        version: 'latest'
+    } ],
     services: ['sauce'],
     waitforTimeout:300000,
     user: "semanticbusdev@gmail.com",
