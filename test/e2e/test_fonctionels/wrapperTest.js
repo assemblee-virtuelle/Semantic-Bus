@@ -9,5 +9,5 @@ mLabPromise.cloneDatabaseMigration().then(data => {
       if (error !== null) {
         console.log('exec error: ' + error);
       }
-    });
+    }.bind(this));
 })
