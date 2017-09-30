@@ -113,7 +113,8 @@ module.exports = {
 
         insertComponentData=data[0];
 
-        
+        console.log(insertWorkspaceData.length)
+        console.log(insertComponentData.length)
         PromisesExecution.push(this.request('PUT', 'workspacecomponents', [], undefined));
         
         
@@ -123,14 +124,14 @@ module.exports = {
       }).then(data => {
         let PromisesExecution = [];
           
-        PromisesExecution.push(this.request('POST', 'workspacecomponents', insertWorkspaceData, undefined));
+        PromisesExecution.push(this.request('POST', 'workspacecomponents', insertComponentData, undefined));
 
         
-        PromisesExecution.push(this.request('POST', 'workspaces', insertComponentData, undefined));
+        PromisesExecution.push(this.request('POST', 'workspaces', insertWorkspaceData, undefined));
 
         return Promise.all(PromisesExecution);
       }).then(data => {
-        console.log('CLONE DONE');
+        console.log('CLONE DONE', data.length);
         resolve({
           status: 'done'
         });

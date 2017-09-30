@@ -177,7 +177,6 @@
                         var name = "no name"
                 }
                 if(d != undefined && AllDayObject[d.getDate()]!= undefined){
-                    console.log("AllDayObject[d.getDate()]", d.getDate(), AllDayObject[d.getDate()])
                     AllDayObject[d.getDate()].push({
                         flow : cons.flow_size,
                         pricing : cons.price,
@@ -190,7 +189,6 @@
           }
         }.bind(this))
 
-        console.log("allday" , AllDayObject)
          // aggregation des flux 
         var lasttab = {}
         for (var conso in AllDayObject) {
@@ -230,7 +228,6 @@
             dataT.push(c)
         }
 
-        console.log(dataT)
 
         this.update();
       
@@ -272,14 +269,12 @@
           colorStackChart.domain(d3.keys(data[0]).filter(function (key) {;
           return key !== "Day";
           }));
-          console.log(dataT)
           dataT.forEach(function (d) {
             if(Object.keys(d).length > 1){
                 d.ages = []
                 var y0 = 0;
                 for(var prop in d ){
-                    if(prop != "Day" && prop != "ages"){
-                        console.log("if",prop,  d[prop])  
+                    if(prop != "Day" && prop != "ages"){ 
                         d.ages.push(
                             {
                                 pricing: d[prop].price,
@@ -292,7 +287,6 @@
                     }
                 }
                 d.total = d.ages[d.ages.length - 1].y1;
-                console.log("total", d.total)
             }else{
                 d.ages = []
                 var y0 = 0;
