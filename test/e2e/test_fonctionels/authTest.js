@@ -3,11 +3,11 @@
 const assert = require('assert');
 
 ///WS1 SCENARIO DE TEST ////
-
+var token;
 describe('Parcour complet creation d\'un workspace et ajout d\'un composant', () => {
-  it('on devrait arriver sur la listes des worksapces avec notre workspace crée', function () {   
-      ///CONNEXION 
-      var url = browser.url('/auth/login.html')    
+  it('connexion', function () {
+      ///CONNEXION
+      var url = browser.url('/auth/login.html')
       browser.waitUntil(() => {
        return $('form').isVisible();
       }, 10000)
@@ -19,61 +19,75 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
       $('#btn2').click();
       browser.waitForVisible('navigation');
       expect(browser.getUrl()).to.be.equal('http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/ihm/application.html');
-      // browser.waitForVisible('navigation');
-      // let workSpaceSelector = 'div[name="workspaceSelector"]';
-      // browser.waitForVisible(workSpaceSelector,10000);
+      token = browser.localStorage('GET', 'token').value;
 
-      // // ACCES LISTE WORKSPACE
-      // $(workSpaceSelector).click();
-      // browser.waitForVisible('workspace-table');
-  
-      // // MODE AJOUT D'UN WORKSPACE //(edit mode de base quand on creer un workspace)
-      // $('zentable').$('div.commandButton').click()
-      // browser.waitForVisible('workspace-editor');
-   
-      // // AJOUT D'UN  COMPONENT //
-      // $('zentable').$('div.commandButton').click();
-      // browser.waitForVisible('technical-component-table');
-      // $('technical-component-table').$('zentable').$('div[name="tableBody"]').click();
-      // browser.waitForVisible('workspace-editor');
-      // // AJOUT D'UN USER
+    })
+    it('affichages wokspaces', function () {
 
-      // //DEPLACEMENT SUR LE MENU USER
-      // browser.waitUntil(() => {
-      //    if(browser.isVisible('#containerloaderDiv') == false){
-      //      return true
-      //     };
-      // }, 50000, 'le loader doit avoir disparue')
-      
-      // $('workspace-editor').$('div.white').click()
 
-      // // EDIT MODE //
-      // $('workspace-editor').$('div.commandButton').click()
+        browser.waitForVisible('navigation');
+        let workSpaceSelector = 'div[name="workspaceSelector"]';
+        browser.waitForVisible(workSpaceSelector,10000);
 
-      // // CLICK SUR PLUS //
-      // browser.waitForVisible('zentable');
-      // $('#userliste').$('div.commandButton').click();
-      
-      // /// REMPLISSAGE LIST USER ///
-      // browser.waitForVisible('user-list');
-      // browser.setValue('#users-list', 'semanticbusdev@gmail.com')
+        // ACCES LISTE WORKSPACE
+        $(workSpaceSelector).click();
+        browser.waitForVisible('workspace-table');
 
-      // /// PARTAGE DU WORKSPACE 
-      // $('user-list').$('.share-btn').click()
-      // $('#cancel').click()
+        // // MODE AJOUT D'UN WORKSPACE //(edit mode de base quand on creer un workspace)
+        // $('zentable').$('div.commandButton').click()
+        // browser.waitForVisible('workspace-editor');
 
-      // //ADD DESCRIPTION
-      // console.log("test et")
-      // $('#backBar').click()
-    })  
+        // // AJOUT D'UN  COMPONENT //
+        // $('zentable').$('div.commandButton').click();
+        // browser.waitForVisible('technical-component-table');
+        // $('technical-component-table').$('zentable').$('div[name="tableBody"]').click();
+        // browser.waitForVisible('workspace-editor');
+        // // AJOUT D'UN USER
+
+        // //DEPLACEMENT SUR LE MENU USER
+        // browser.waitUntil(() => {
+        //    if(browser.isVisible('#containerloaderDiv') == false){
+        //      return true
+        //     };
+        // }, 50000, 'le loader doit avoir disparue')
+
+        // $('workspace-editor').$('div.white').click()
+
+        // // EDIT MODE //
+        // $('workspace-editor').$('div.commandButton').click()
+
+        // // CLICK SUR PLUS //
+        // browser.waitForVisible('zentable');
+        // $('#userliste').$('div.commandButton').click();
+
+        // /// REMPLISSAGE LIST USER ///
+        // browser.waitForVisible('user-list');
+        // browser.setValue('#users-list', 'semanticbusdev@gmail.com')
+
+        // /// PARTAGE DU WORKSPACE
+        // $('user-list').$('.share-btn').click()
+        // $('#cancel').click()
+
+        // //ADD DESCRIPTION
+        // console.log("test et")
+        // $('#backBar').click()
+      })
+})
+
+describe('test storage', () => {
+  it('set storage', function () {
+      console.log('set',token);
+      expect(browser.getUrl()).to.be.equal('http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/ihm/application.html');
+
+  })
 })
 
 
 
 // describe('connexion et supression d\'un wrkspace', () => {
-//   it('on devrait arriver sur la listes des worksapces avec notre workspace selectionné suprrimé', function () {   
-//       ///CONNEXION 
-//       var url = browser.url('/auth/login.html')    
+//   it('on devrait arriver sur la listes des worksapces avec notre workspace selectionné suprrimé', function () {
+//       ///CONNEXION
+//       var url = browser.url('/auth/login.html')
 //       browser.waitUntil(() => {
 //        return $('form').isVisible();
 //       }, 5000)
@@ -91,21 +105,21 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
 //       // ACCES LISTE WORKSPACE
 //       $(workSpaceSelector).click();
 //       browser.waitForVisible('workspace-table');
-  
+
 //       // SELECTION D'UN WORKSPACE DANS LA LISTE ET SUPRESSION //
 
 
-   
-//     })  
+
+//     })
 // })
 
 
 
 
 // describe('inscription', () => {
-//   it('on devrait arriver sur application.html', function () {   
-//       ///CONNEXION 
-//       var url = browser.url('/auth/login.html')    
+//   it('on devrait arriver sur application.html', function () {
+//       ///CONNEXION
+//       var url = browser.url('/auth/login.html')
 //       browser.waitUntil(() => {
 //        return $('form').isVisible();
 //       }, 5000)
@@ -123,19 +137,19 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
 //       // ACCES LISTE WORKSPACE
 //       $(workSpaceSelector).click();
 //       browser.waitForVisible('workspace-table');
-  
+
 //       // SELECTION D'UN WORKSPACE DANS LA LISTE ET SUPRESSION //
- 
-//     })  
+
+//     })
 // })
 
 
 
 
 // describe('deconnexion', () => {
-//   it('on devrait arriver sur login.html, function () {   
-//       ///CONNEXION 
-//       var url = browser.url('/auth/login.html')    
+//   it('on devrait arriver sur login.html, function () {
+//       ///CONNEXION
+//       var url = browser.url('/auth/login.html')
 //       browser.waitUntil(() => {
 //        return $('form').isVisible();
 //       }, 5000)
@@ -153,17 +167,17 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
 //       // ACCES LISTE WORKSPACE
 //       $(workSpaceSelector).click();
 //       browser.waitForVisible('workspace-table');
-  
+
 //       // SELECTION D'UN WORKSPACE DANS LA LISTE ET SUPRESSION //
- 
-//     })  
+
+//     })
 // })
 
 
 // describe('modification email', () => {
-//   it('on devrait voir son email modifier, function () {   
-//       ///CONNEXION 
-//       var url = browser.url('/auth/login.html')    
+//   it('on devrait voir son email modifier, function () {
+//       ///CONNEXION
+//       var url = browser.url('/auth/login.html')
 //       browser.waitUntil(() => {
 //        return $('form').isVisible();
 //       }, 5000)
@@ -180,17 +194,17 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
 //       // ACCES LISTE WORKSPACE
 //       $(workSpaceSelector).click();
 //       browser.waitForVisible('workspace-table');
-  
+
 //       // SELECTION D'UN WORKSPACE DANS LA LISTE ET SUPRESSION //
- 
-//     })  
+
+//     })
 // })
 
 
 // describe('tester un workspace', () => {
-//   it('on devrait voir le flux tiré, function () {   
-//       ///CONNEXION 
-//       var url = browser.url('/auth/login.html')    
+//   it('on devrait voir le flux tiré, function () {
+//       ///CONNEXION
+//       var url = browser.url('/auth/login.html')
 //       browser.waitUntil(() => {
 //        return $('form').isVisible();
 //       }, 5000)
@@ -208,24 +222,20 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
 //       // ACCES LISTE WORKSPACE
 //       $(workSpaceSelector).click();
 //       browser.waitForVisible('workspace-table');
-  
+
 //       // SELECTION D'UN WORKSPACE DANS LA LISTE ET SUPRESSION //
- 
-//     })  
+
+//     })
 // })
 
 
 
 // describe('Securité', () => {
-//   it('rediriger vers login.html', function () {   
-//       ///HTTPS 
-//       var url = browser.url('/auth/application.html')    
+//   it('rediriger vers login.html', function () {
+//       ///HTTPS
+//       var url = browser.url('/auth/application.html')
 //       browser.waitUntil(() => {
 //        return $('form').isVisible();
 //       }, 5000)
-//     })  
+//     })
 // })
-
-
-
-

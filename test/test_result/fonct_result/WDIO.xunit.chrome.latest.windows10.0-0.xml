@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="parcour_complet_creation_d_un_workspace_et_ajout_d_un_composant" timestamp="2017-09-30T02:41:26" time="23.452" tests="1" failures="0" errors="0" skipped="0">
+    <properties>
+      <property name="specId" value="4befa63ea6eb336aa0153f246fac3038"/>
+      <property name="suiteName" value="Parcour complet creation d'un workspace et ajout d'un composant"/>
+      <property name="capabilities" value="chrome.latest.windows10"/>
+      <property name="file" value="./test/e2e/test_fonctionels/authTest.js"/>
+    </properties>
+    <testcase classname="chrome.latest.windows10.parcour_complet_creation_d_un_workspace_et_ajout_d_un_composant" name="on_devrait_arriver_sur_la_listes_des_worksapces_avec_notre_workspace_cr_e" time="23.451">
+      <system-out>
+        <![CDATA[
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/execute - {"script":"sauce:context=Parcour complet creation d'un workspace et ajout d'un composant - on devrait arriver sur la listes des worksapces avec notre workspace crée","args":[]}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":""}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/url - {"url":"http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/auth/login.html"}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":null}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/element - {"using":"css selector","value":"form"}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":{"ELEMENT":"0.7344843418639542-1"}}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/element/0.7344843418639542-1/displayed - {}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":true}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/elements - {"using":"css selector","value":"input[name=\"email\"]"}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":[{"ELEMENT":"0.7344843418639542-2"}]}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/element/0.7344843418639542-2/displayed - {}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":true}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/elements - {"using":"css selector","value":"input[name=\"email\"]"}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":[{"ELEMENT":"0.7344843418639542-2"}]}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/element/0.7344843418639542-2/clear - {}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":null}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/element/0.7344843418639542-2/value - {"value":["a","l","e","x","f","o","o","t","3","2","(10 more items)"],"text":"alexfoot32@orange.fr"}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":null}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/elements - {"using":"css selector","value":"input[name=\"password\"]"}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":[{"ELEMENT":"0.7344843418639542-3"}]}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/element/0.7344843418639542-3/clear - {}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":null}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/element/0.7344843418639542-3/value - {"value":["a","z","e","r","t","y"],"text":"azerty"}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":null}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/element - {"using":"id","value":"btn2"}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":{"ELEMENT":"0.7344843418639542-4"}}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/element/0.7344843418639542-4/click - {}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":null}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":[{"ELEMENT":"0.15721456723561333-1"}]}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/element/0.15721456723561333-1/displayed - {}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":false}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":[{"ELEMENT":"0.15721456723561333-1"}]}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/element/0.15721456723561333-1/displayed - {}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":true}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/url - {}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":"http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/ihm/application.html"}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/local_storage/key/token - {}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":"eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1MDc5NDE3MDIsImlhdCI6MTUwNjczMjEwMiwiaXNzIjoiNTlhM2RlM2ZiMjJiNjk4OTRmNDJlODFhIn0.g0r5VHqTAkWpVp-qsTa6HGKy17ZcCxXR3w1NcMHFQb4"}
+]]>
+      </system-out>
+    </testcase>
+  </testsuite>
+  <testsuite name="test_storage" timestamp="2017-09-30T02:41:49" time="2.92" tests="1" failures="0" errors="0" skipped="0">
+    <properties>
+      <property name="specId" value="4befa63ea6eb336aa0153f246fac3038"/>
+      <property name="suiteName" value="test storage"/>
+      <property name="capabilities" value="chrome.latest.windows10"/>
+      <property name="file" value="./test/e2e/test_fonctionels/authTest.js"/>
+    </properties>
+    <testcase classname="chrome.latest.windows10.test_storage" name="set_storage" time="2.918">
+      <system-out>
+        <![CDATA[
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/execute - {"script":"sauce:context=test storage - set storage","args":[]}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":""}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0/url - {}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":"http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/ihm/application.html"}
+COMMAND: DELETE https://ondemand.saucelabs.com:443/wd/hub/session/6e8abfb7dd484a23827ca7805d2ebbb0 - {}
+RESULT: {"status":0,"sessionId":"6e8abfb7dd484a23827ca7805d2ebbb0","value":""}
+]]>
+      </system-out>
+    </testcase>
+  </testsuite>
+</testsuites>

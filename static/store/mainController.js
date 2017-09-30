@@ -488,6 +488,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   });
 
   this.on('clone_database', function(data) {
+    console.log('clone');
     $.ajax({
       method: 'get',
       url: '../data/core/cloneDatabase',
