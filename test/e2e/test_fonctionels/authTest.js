@@ -33,9 +33,9 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
         $(workSpaceSelector).click();
         browser.waitForVisible('workspace-table');
 
-        // // MODE AJOUT D'UN WORKSPACE //(edit mode de base quand on creer un workspace)
-        // $('zentable').$('div.commandButton').click()
-        // browser.waitForVisible('workspace-editor');
+        // MODE AJOUT D'UN WORKSPACE //(edit mode de base quand on creer un workspace)
+        $('zentable').$('.test-addRow').click()
+        browser.waitForVisible('workspace-editor');
 
         // // AJOUT D'UN  COMPONENT //
         // $('zentable').$('div.commandButton').click();
