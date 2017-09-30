@@ -53,7 +53,7 @@
       -->
     <div class="containerV commandBar" style="justify-content: space-between;">
       <div class="containerV commandGroup" style="flex-grow:0;justify-content:flex-start;">
-        <div class="commandButtonImage" onclick={workspaceSelectorClick}>
+        <div class="commandButtonImage" onclick={workspaceSelectorClick} id="workspaceSelector">
           <img src="./image/User-256.png" width="60px">
         </div>
         <div class="commandButtonImage" onclick={workspaceShareSelectorClick}>
