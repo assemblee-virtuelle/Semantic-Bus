@@ -1,0 +1,277 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="parcour_complet_creation_d_un_workspace_et_ajout_d_un_composant" timestamp="2017-09-30T03:49:28" time="615.883" tests="2" failures="0" errors="2" skipped="0">
+    <properties>
+      <property name="specId" value="4befa63ea6eb336aa0153f246fac3038"/>
+      <property name="suiteName" value="Parcour complet creation d'un workspace et ajout d'un composant"/>
+      <property name="capabilities" value="firefox.latest.windows10"/>
+      <property name="file" value="./test/e2e/test_fonctionels/authTest.js"/>
+    </properties>
+    <testcase classname="firefox.latest.windows10.parcour_complet_creation_d_un_workspace_et_ajout_d_un_composant" name="connexion" time="315.852">
+      <error message="Promise was rejected with the following reason: A session id is required for this command but wasn't found in the response payload"/>
+      <system-out>
+        <![CDATA[
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/execute - {"script":"sauce:context=Parcour complet creation d'un workspace et ajout d'un composant - connexion","args":[]}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":""}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/url - {"url":"http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/auth/login.html"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":null,"state":"success","hCode":20245948,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/element - {"using":"css selector","value":"form"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":{"ELEMENT":"0"},"state":"success","hCode":7528449,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/element/0/displayed - {}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":true,"state":"success","hCode":25366358,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"input[name=\"email\"]"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[{"ELEMENT":"1"}],"state":"success","hCode":33312830,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/element/1/displayed - {}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":true,"state":"success","hCode":3788565,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"input[name=\"email\"]"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[{"ELEMENT":"1"}],"state":"success","hCode":2823015,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/element/1/clear - {}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":null,"state":"success","hCode":32188221,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/element/1/value - {"value":["a","l","e","x","f","o","o","t","3","2","(10 more items)"],"text":"alexfoot32@orange.fr"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":null,"state":"success","hCode":7269216,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"input[name=\"password\"]"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[{"ELEMENT":"2"}],"state":"success","hCode":20667318,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/element/2/clear - {}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":null,"state":"success","hCode":30586633,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/element/2/value - {"value":["a","z","e","r","t","y"],"text":"azerty"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":null,"state":"success","hCode":32302902,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/element - {"using":"id","value":"btn2"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":{"ELEMENT":"3"},"state":"success","hCode":12300019,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/element/3/click - {}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":null,"state":"success","hCode":21943427,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":29491261,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":14354773,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":24784195,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":13695160,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":20716563,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":3847670,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":17119936,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":7113735,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":4895397,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":25065453,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":9642546,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":32329510,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":22329019,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":12352916,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":21530301,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":5263010,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":26280762,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":2329287,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":32486832,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":23484751,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":2029850,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":23241215,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":31641329,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":26942177,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":19583513,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":2658889,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":7903778,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":10839828,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":6090017,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":23703230,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":5324290,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":26970075,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":7830594,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":8324687,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":13375046,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":490668,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":32098218,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":9086998,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":20413384,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":18460068,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":21878132,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":20532469,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":24375763,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":14080469,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":26240111,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":10511482,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":20174061,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":1152262,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":7013687,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":18654337,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":6374644,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":18927899,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":5370883,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":27015861,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":7829732,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":12777480,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":28304694,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":32013025,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":21846314,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":23714377,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":1762931,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":5456589,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":16578056,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":9311267,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":11332766,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":19620896,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":28142019,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":5944135,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":16765379,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":10237192,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":12339091,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":26775152,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":6804352,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":31544967,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":9674361,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":10613183,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":305389,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":26287615,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":29151175,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":14169825,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":19526563,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":10057921,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":18369525,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":19965654,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":10019022,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":2572766,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":3463542,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":28301934,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":28974200,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":3670577,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":14021177,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":26785334,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":9402223,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":7441705,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":12665751,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":16996839,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":33131018,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":28416416,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"status":0,"sessionId":"ff8128b7aa034d62ab4707843c65b636","value":[],"state":"success","hCode":14314751,"class":"org.openqa.selenium.remote.Response"}
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/ff8128b7aa034d62ab4707843c65b636/elements - {"using":"css selector","value":"navigation"}
+]]>
+      </system-out>
+      <system-err>
+        <![CDATA[
+Error
+    unknown error line
+]]>
+      </system-err>
+    </testcase>
+    <testcase classname="firefox.latest.windows10.parcour_complet_creation_d_un_workspace_et_ajout_d_un_composant" name="affichages_wokspaces" time="300.025">
+      <error message="Promise was rejected with the following reason: A session id is required for this command but wasn't found in the response payload"/>
+      <system-err>
+        <![CDATA[
+Error
+    unknown error line
+]]>
+      </system-err>
+    </testcase>
+  </testsuite>
+  <testsuite name="test_storage" timestamp="2017-09-30T03:59:44" time="0" tests="1" failures="0" errors="1" skipped="0">
+    <properties>
+      <property name="specId" value="4befa63ea6eb336aa0153f246fac3038"/>
+      <property name="suiteName" value="test storage"/>
+      <property name="capabilities" value="firefox.latest.windows10"/>
+      <property name="file" value="./test/e2e/test_fonctionels/authTest.js"/>
+    </properties>
+    <testcase classname="firefox.latest.windows10.test_storage" name="set_storage" time="0">
+      <error message="A session id is required for this command but wasn't found in the response payload"/>
+      <system-err>
+        <![CDATA[
+Error
+    unknown error line
+]]>
+      </system-err>
+    </testcase>
+  </testsuite>
+</testsuites>

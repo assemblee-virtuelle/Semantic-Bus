@@ -26,7 +26,7 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
 
 
         browser.waitForVisible('navigation');
-        let workSpaceSelector = 'div[name="workspaceSelector"]';
+        let workSpaceSelector = '#workspaceSelector';
         browser.waitForVisible(workSpaceSelector,10000);
 
         // ACCES LISTE WORKSPACE
