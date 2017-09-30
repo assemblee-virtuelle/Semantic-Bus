@@ -160,8 +160,6 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
 // })
 
 
-
-
 // describe('modification email', () => {
 //   it('on devrait voir son email modifier, function () {   
 //       ///CONNEXION 
@@ -179,7 +177,6 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
 //       browser.waitForVisible('navigation');
 //       let workSpaceSelector = 'div[name="workspaceSelector"]';
 //       browser.waitForVisible(workSpaceSelector,3000);
-
 //       // ACCES LISTE WORKSPACE
 //       $(workSpaceSelector).click();
 //       browser.waitForVisible('workspace-table');

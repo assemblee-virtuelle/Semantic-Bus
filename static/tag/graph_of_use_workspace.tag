@@ -144,6 +144,8 @@
 
         var Allday = []
         var AllDayObject = {}
+        new Date()
+        //if()
         for (var i = 0 ; i < new Date().getUTCDate(); i ++){
           Allday.push(moment().subtract(i, 'days')._d.getUTCDate() + moment().subtract(i, 'days')._d.getUTCMonth() + 1)
           AllDayObject[moment().subtract(i, 'days')._d.getUTCDate()] = []
@@ -160,26 +162,27 @@
         this.name =  data.user.name;
         this.numberWorkspace = data.workspaces.length
         data.workspaces.forEach(function(workspace){
-          workspace.flow = 0
-          workspace.pricing = 0
-          if(workspace.consumption_history.length > 0){
-            workspace.consumption_history.forEach(function(cons){
-              var d = new Date(cons.dates.created_at);
-              if(Allday.indexOf(d.getUTCDate() + d.getUTCMonth() + 1) != -1){
-                this.golbalConsumption += cons.flow_size
-                this.golbalConsumption = decimalAdjust('round',this.golbalConsumption , -2 );
-                var c = {}
-                if (workspace.name) {
-                    var name = workspace.name
-                } else {
-                    var name = "no name"
+            workspace.flow = 0
+            workspace.pricing = 0
+            if(workspace.consumption_history.length > 0){
+                workspace.consumption_history.forEach(function(cons){
+                    var d = new Date(cons.dates.created_at);
+                    if(Allday.indexOf(d.getUTCDate() + d.getUTCMonth() + 1) != -1){
+                        this.golbalConsumption += cons.flow_size
+                        this.golbalConsumption = decimalAdjust('round',this.golbalConsumption , -2 );
+                        var c = {}
+                    if (workspace.name) {
+                        var name = workspace.name
+                    } else {
+                        var name = "no name"
                 }
-                if(d != undefined && d.getDate() != undefined){
+                if(d != undefined && AllDayObject[d.getDate()]!= undefined){
+                    console.log("AllDayObject[d.getDate()]", d.getDate(), AllDayObject[d.getDate()])
                     AllDayObject[d.getDate()].push({
-                    flow : cons.flow_size,
-                    pricing : cons.price,
-                    id: workspace._id,
-                    name: workspace.name
+                        flow : cons.flow_size,
+                        pricing : cons.price,
+                        id: workspace._id,
+                        name: workspace.name
                     })
                 }
               }
@@ -375,7 +378,7 @@
                 div.transition()
                     .duration(200)
                     .style("opacity", .9);
-                div.html("name:" + d.name + "<br/>" + "conso : " + d.datasize + "Mo" + "<br/>" + "pricing : " + d.pricing + "€" +  "<br/>" )
+                div.html("name:" + d.name + "<br/>" + "conso : " + decimalAdjust('round', (d.datasize), -4) + "Mo" + "<br/>" + "price : " +  decimalAdjust('round', d.pricing, -4) + "€" +  "<br/>" )
                     .style("left", d3.event.pageX  + "px")
                     .style("top", d3.event.pageY - 28 +  "px");
             })
