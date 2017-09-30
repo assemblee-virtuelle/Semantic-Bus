@@ -138,6 +138,7 @@ module.exports = function(router) {
   // ---------------------------------------  ADMIN  -----------------------------------------
 
   router.get('/workspaceOwnAll/:userId', function(req, res) {
+    console.log('ownAll');
     var userId = req.params.userId;
     var userPromise = mLabPromise.request('GET', 'users/' + userId);
     var workspacePromise = mLabPromise.request('GET', 'workspaces');
