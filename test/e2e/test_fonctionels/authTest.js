@@ -10,25 +10,19 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
       var url = browser.url('/auth/login.html')
       browser.waitUntil(() => {
        return $('form').isVisible();
-      }, 10000)
-      let email = 'input[name="email"]';
-      browser.waitForVisible(email,10000);
+      })
+      let email = '#email';
+      browser.waitForVisible(email);
       browser.setValue(email, 'alexfoot32@orange.fr')
-      let password = 'input[name="password"]';
+      let password = '#password';
       browser.setValue(password, 'azerty')
       $('#btn2').click();
-      browser.waitForVisible('navigation');
-      expect(browser.getUrl()).to.be.equal('http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/ihm/application.html');
-      token = browser.localStorage('GET', 'token').value;
+      browser.waitForVisible('navigation',10000);
+      //expect(browser.getUrl()).to.be.equal('http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/ihm/application.html');
+      //token = browser.localStorage('GET', 'token').value;
 
     })
 })
-    // it('affichages wokspaces', function () {
-
-
-        browser.waitForVisible('navigation');
-        let workSpaceSelector = '#workspaceSelector';
-        browser.waitForVisible(workSpaceSelector,10000);
 
     //     // ACCES LISTE WORKSPACE
     //     $(workSpaceSelector).click();
@@ -73,11 +67,11 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
     //     // console.log("test et")
     //     // $('#backBar').click()
     //   })
-})
+
 
         // MODE AJOUT D'UN WORKSPACE //(edit mode de base quand on creer un workspace)
-        $('zentable').$('.test-addRow').click()
-        browser.waitForVisible('workspace-editor');
+        // $('zentable').$('.test-addRow').click()
+        // browser.waitForVisible('workspace-editor');
 
         // // AJOUT D'UN  COMPONENT //
         // $('zentable').$('div.commandButton').click();

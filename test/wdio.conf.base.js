@@ -76,12 +76,12 @@ exports.config = {
     //
     // Set a base URL in order to shorten url command calls. If your url parameter starts
     // with "/", then the base url gets prepended.
-    //baseUrl: 'http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io',
+    baseUrl: 'http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io',
     //baseUrl: require('../configuration.js').testBaseUrl,
 
     //    host: "semantic-bus.org",
     // Default timeout for all waitFor* commands.
-    waitforTimeout: 30000,
+    waitforTimeout: 5000,
     //
     // Default timeout in milliseconds for request
     // if Selenium Grid doesn't send response

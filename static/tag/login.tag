@@ -9,7 +9,7 @@
     <form >
     <h1>Bienvenue sur le bus Semantic</h1>
       <div class="box">
-        <input type="email" ref="email"  placeholder="saisir email" class="email" />
+        <input id="email" type="email" ref="email" placeholder="saisir email" class="email" />
         <input type="password" ref="password" id="password" placeholder="saisir mot de passe" class="email" required />
         <div id="result">{resultConnexion}</div>
         <div class="flex-container">
