@@ -33,7 +33,7 @@
 .card {
     background: #fff;
     border-radius: 5px;
-     1px solid #3883fa;
+    border: 1px solid #3883fa;
     font-family: "adelle-sans", sans-serif;
     font-weight: 100;
     margin: 48px auto;
@@ -116,13 +116,11 @@ div.tooltip {
     AllDayObject = {}
 
     for (var i = 30; i >= 0; i --){
-        console.log(new Date(moment().subtract(i, 'days')))
         if( AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] == null){
-             AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] = {}
-             AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCDate()] = []
+            AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] = {}
+            AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCMonth() + 1 + "-" + moment().subtract(i, 'days')._d.getUTCDate() + "-" + moment().subtract(i, 'days')._d.getFullYear()] = []
         }else{
-            Allday.push(moment().subtract(i, 'days')._d.getUTCDate() + moment().subtract(i, 'days')._d.getUTCMonth() + 1)
-            AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCDate()] = []
+            AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCMonth() + 1 + "-" + moment().subtract(i, 'days')._d.getUTCDate() + "-" + moment().subtract(i, 'days')._d.getFullYear()] = []
         }
     }
 
@@ -138,7 +136,7 @@ div.tooltip {
                     var d = new Date(consumption_history.dates.created_at);
                     for (month in AllDayObject){
                         for (b in AllDayObject[month]){
-                            if((d.getUTCMonth() + 1) == month && d.getUTCDate() == b){
+                            if((d.getUTCMonth() + 1) == month && d.getUTCDate() == b.split("-")[1]){
                             //  if(Allday.indexOf(d.getUTCDate() + d.getUTCMonth() + 1) != -1){
                                 var c = {}
                                 if (component.name) {
@@ -146,7 +144,7 @@ div.tooltip {
                                 } else {
                                     var name = "no name"
                                 }
-                                    AllDayObject[month][d.getDate()].push({
+                                    AllDayObject[month][b].push({
                                         day: d.getDate(),
                                         fullDate: d,
                                         pricing: component.pricing,
@@ -365,7 +363,7 @@ console.log(lasttab)
         console.log("last data", data)
 
         xStackChart.domain(data.map(function (d) {;
-            return d.Day;
+            return d.Day.split("-")[0] + "-" + d.Day.split("-")[1];
         }));
         yStackChart.domain([0, d3.max(data, function (d) {
             return d.total;
@@ -409,7 +407,7 @@ console.log(lasttab)
         .enter().append("g")
         .attr("class", "g")
         .attr("transform", function (d) {
-            return "translate(" + xStackChart(d.Day) + ",0)";
+            return "translate(" + xStackChart(d.Day.split("-")[0] + "-" + d.Day.split("-")[1]) + ",0)";
         })
         
 

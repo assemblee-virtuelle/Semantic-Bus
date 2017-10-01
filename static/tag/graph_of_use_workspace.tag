@@ -147,13 +147,11 @@
         new Date()
         //if()
         for (var i = 30; i >= 0; i --){
-            console.log(new Date(moment().subtract(i, 'days')))
             if( AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] == null){
                 AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] = {}
-                AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCDate()] = []
+                AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCMonth() + 1 + "-" + moment().subtract(i, 'days')._d.getUTCDate() + "-" + moment().subtract(i, 'days')._d.getFullYear()] = []
             }else{
-                Allday.push(moment().subtract(i, 'days')._d.getUTCDate() + moment().subtract(i, 'days')._d.getUTCMonth() + 1)
-                AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCDate()] = []
+                AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCMonth() + 1 + "-" + moment().subtract(i, 'days')._d.getUTCDate() + "-" + moment().subtract(i, 'days')._d.getFullYear()] = []
             }
         }
         
@@ -177,18 +175,19 @@
                     var d = new Date(cons.dates.created_at);
                     for (month in AllDayObject){
                         for (b in AllDayObject[month]){
-                            if((d.getUTCMonth() + 1) == month && d.getUTCDate() == b){
+                            if((d.getUTCMonth() + 1) == month && d.getUTCDate() == b.split("-")[1]){
                                 var c = {}
                                 if (workspace.name) {
                                     var name = workspace.name
                                 } else {
                                     var name = "no name"
                                 }
-                                AllDayObject[month][d.getDate()].push({
+                                AllDayObject[month][b].push({
                                     flow : cons.flow_size,
                                     pricing : cons.price,
                                     id: workspace._id,
-                                    name: workspace.name
+                                    name: workspace.name,
+                                    date: new Date(cons.dates.created_at)
                                 })
                             }
                         }
@@ -215,10 +214,12 @@
                         lasttab[month][conso][compo.id].flow = compo.flow
                         lasttab[month][conso][compo.id].name = compo.name
                         lasttab[month][conso][compo.id].price = compo.pricing
+                        lasttab[month][conso][compo.id].date = compo.date
                     }else{
                         lasttab[month][conso][compo.id].flow += compo.flow
                         lasttab[month][conso][compo.id].name = compo.name
                         lasttab[month][conso][compo.id].price += compo.pricing
+                        lasttab[month][conso][compo.id].date = compo.date
                     }
                 })
             }else{
@@ -240,6 +241,7 @@
                         name: lasttab[month][conso][consoFinal].name,
                         flow: lasttab[month][conso][consoFinal].flow,
                         price: lasttab[month][conso][consoFinal].price,
+                        date:  lasttab[month][conso][consoFinal].date
                     }
                     
                 }
@@ -267,7 +269,9 @@
             .padding(0.1);
         var yStackChart = d3.scaleLinear()
             .range([heightStackChart, 0]);
+        
 
+        var parser =  d3.timeFormat("%d-%b-%y").parse;
 
         var colorStackChart = d3.scaleOrdinal(["#581845", "#900C3F","#C70039","#FF5733", "#FFC30F"])
 
@@ -319,10 +323,10 @@
             }
         });
 
-            console.log("last data", dataT)
+            console.log("last data ----------->", dataT)
 
             xStackChart.domain(dataT.map(function (d) {;
-                return d.Day;
+                return d.Day.split("-")[0] + "-" + d.Day.split("-")[1];
             }));
             yStackChart.domain([0, d3.max(dataT, function (d) {
                 return d.total;
@@ -366,7 +370,7 @@
             .enter().append("g")
             .attr("class", "g")
             .attr("transform", function (d) {
-                return "translate(" + xStackChart(d.Day) + ",0)";
+                return "translate(" + xStackChart(d.Day.split("-")[0] + "-" + d.Day.split("-")[1]) + ",0)";
             })
             
 
