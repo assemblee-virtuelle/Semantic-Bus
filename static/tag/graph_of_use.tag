@@ -26,8 +26,6 @@
         </div>
     </div>
     </div>
-    
-
 <style>
 
 .card {
