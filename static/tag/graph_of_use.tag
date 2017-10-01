@@ -26,14 +26,12 @@
         </div>
     </div>
     </div>
-    
-
 <style>
 
 .card {
     background: #fff;
     border-radius: 5px;
-    box-shadow: rgba(0, 0, 0, .2) 2px 4px 5px 3px;
+    border: 1px solid #3883fa;
     font-family: "adelle-sans", sans-serif;
     font-weight: 100;
     margin: 48px auto;
@@ -114,94 +112,115 @@ div.tooltip {
     //var year = dateObj.getUTCFullYear();
     Allday = []
     AllDayObject = {}
-    for (var i = 0 ; i < new Date().getUTCDate(); i ++){
-        console.log()
-        Allday.push(moment().subtract(i, 'days')._d.getUTCDate() + moment().subtract(i, 'days')._d.getUTCMonth() + 1)
-        AllDayObject[moment().subtract(i, 'days')._d.getUTCDate()] = []
+
+    for (var i = 30; i >= 0; i --){
+        if( AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] == null){
+            AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] = {}
+            AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCMonth() + 1 + "-" + moment().subtract(i, 'days')._d.getUTCDate() + "-" + moment().subtract(i, 'days')._d.getFullYear()] = []
+        }else{
+            AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCMonth() + 1 + "-" + moment().subtract(i, 'days')._d.getUTCDate() + "-" + moment().subtract(i, 'days')._d.getFullYear()] = []
+        }
     }
+
+    //console.log(new Date(moment().subtract(34, 'days')))
+
+    console.log(AllDayObject)
+
+    
     this.innerData.components.forEach(function (component) {
         if (component.consumption_history.length > 0) {
-             console.log(component)
             compteurCompoflow[component.module] = 0
                 component.consumption_history.forEach(function (consumption_history) {
                     var d = new Date(consumption_history.dates.created_at);
-                    if(Allday.indexOf(d.getUTCDate() + d.getUTCMonth() + 1) != -1){
-                        var c = {}
-                        if (component.name) {
-                            var name = component.name
-                        } else {
-                            var name = "no name"
+                    for (month in AllDayObject){
+                        for (b in AllDayObject[month]){
+                            if((d.getUTCMonth() + 1) == month && d.getUTCDate() == b.split("-")[1]){
+                            //  if(Allday.indexOf(d.getUTCDate() + d.getUTCMonth() + 1) != -1){
+                                var c = {}
+                                if (component.name) {
+                                    var name = component.name
+                                } else {
+                                    var name = "no name"
+                                }
+                                    AllDayObject[month][b].push({
+                                        day: d.getDate(),
+                                        fullDate: d,
+                                        pricing: component.pricing,
+                                        price: consumption_history.price,
+                                        data: consumption_history.flow_size,
+                                        id: component._id,
+                                        label: component.module,
+                                        name: name,
+                                        date: consumption_history.dates.created_at
+                                    }) 
+                                
+                            }
                         }
-                        AllDayObject[d.getDate()].push({
-                            day: d.getDate(),
-                            fullDate: d,
-                            pricing: component.pricing,
-                            price: consumption_history.price,
-                            data: consumption_history.flow_size,
-                            id: component._id,
-                            label: component.module,
-                            name: name,
-                            date: consumption_history.dates.created_at
-                        }) 
                     }
                 })
             }
     })
 
-     console.log("AllDayObject", AllDayObject)
+    console.log(AllDayObject)
 
 
    
     // aggregation des flux 
     var lasttab = {}
-    for (var conso in AllDayObject) {
-        lasttab[conso] = {}
-        if(AllDayObject[conso].length > 0){
-            AllDayObject[conso].forEach(function (compo) {
-                console.log(compo.id, compo.price, compo.label, compo.day)
-                if (lasttab[conso][compo.id] == null) {
-                    lasttab[conso][compo.id] = {}
-                    lasttab[conso][compo.id].data = compo.data
-                    lasttab[conso][compo.id].label = compo.label
-                    lasttab[conso][compo.id].name = compo.name
-                    lasttab[conso][compo.id].day = compo.day
-                    lasttab[conso][compo.id].fullDate = compo.fullDate
-                    lasttab[conso][compo.id].price = compo.price
-                    lasttab[conso][compo.id].pricing = compo.pricing
-                }else{
-                    lasttab[conso][compo.id].data += compo.data
-                    lasttab[conso][compo.id].price += compo.price
-                    lasttab[conso][compo.id].id = compo.id
-                    lasttab[conso][compo.id].name = compo.name
-                    lasttab[conso][compo.id].day = compo.day
-                    lasttab[conso][compo.id].fullDate = compo.fullDate
-                    lasttab[conso][compo.id].pricing = compo.pricing
-                }
-            })
-        }else{
-            console.log("no data")
-        }
-    };
+    for (var month in AllDayObject) {
+        lasttab[month] = {}
+        console.log("month")
+        for (var conso in AllDayObject[month]) {
+            lasttab[month][conso] = {}
+            if(AllDayObject[month][conso].length > 0){
+                AllDayObject[month][conso].forEach(function (compo) {
+                    if (lasttab[month][conso][compo.id] == null) {
+                        lasttab[month][conso][compo.id] = {}
+                        lasttab[month][conso][compo.id].data = compo.data
+                        lasttab[month][conso][compo.id].label = compo.label
+                        lasttab[month][conso][compo.id].name = compo.name
+                        lasttab[month][conso][compo.id].day = compo.day
+                        lasttab[month][conso][compo.id].fullDate = compo.fullDate
+                        lasttab[month][conso][compo.id].price = compo.price
+                        lasttab[month][conso][compo.id].pricing = compo.pricing
+                    }else{
+                        lasttab[month][conso][compo.id].data += compo.data
+                        lasttab[month][conso][compo.id].price += compo.price
+                        lasttab[month][conso][compo.id].id = compo.id
+                        lasttab[month][conso][compo.id].name = compo.name
+                        lasttab[month][conso][compo.id].day = compo.day
+                        lasttab[month][conso][compo.id].fullDate = compo.fullDate
+                        lasttab[month][conso][compo.id].pricing = compo.pricing
+                    }
+                })
+            }else{
+                console.log("no data")
+            }
+    }
+};
 
-    console.log(lasttab)
+console.log(lasttab)
+
 
     /// mis des data dans un meme tableau
     var data = []
-    for (var conso in lasttab) {
-        var c = {}
-        c["Day"] = conso
-        for (var consoFinal in lasttab[conso]) {
-            c[consoFinal] = {
-                pricing: lasttab[conso][consoFinal].pricing,
-                label: lasttab[conso][consoFinal].label,
-                price: lasttab[conso][consoFinal].price,
-                datasize: lasttab[conso][consoFinal].data,
-                name: lasttab[conso][consoFinal].name,
-                id: lasttab[conso][consoFinal].id,
-                fullDate: lasttab[conso][consoFinal].fullDate
+    for (var month in lasttab) {
+        for (var conso in lasttab[month]) {
+            var c = {}
+            c["Day"] = conso
+            for (var consoFinal in lasttab[month][conso]) {
+                c[consoFinal] = {
+                    pricing: lasttab[month][conso][consoFinal].pricing,
+                    label: lasttab[month][conso][consoFinal].label,
+                    price: lasttab[month][conso][consoFinal].price,
+                    datasize: lasttab[month][conso][consoFinal].data,
+                    name: lasttab[month][conso][consoFinal].name,
+                    id: lasttab[month][conso][consoFinal].id,
+                    fullDate: lasttab[month][conso][consoFinal].fullDate
+                }
             }
+            data.push(c)
         }
-        data.push(c)
     }
 
     console.log(data)
@@ -288,7 +307,6 @@ div.tooltip {
                 
             }
             if(d[prop].price != undefined){
-                console.log("price ====>", table )
                 this.totalConsume += decimalAdjust('round', d[prop].price , -4)
             }
             if(d["Day"] == new Date().getUTCDate() && table.length > 0){
@@ -314,8 +332,7 @@ div.tooltip {
                 d.ages = []
                 var y0 = 0;
                 for(var prop in d ){
-                    if(prop != "Day" && prop != "ages"){
-                        console.log("if",prop,  d[prop].price)  
+                    if(prop != "Day" && prop != "ages"){ 
                         d.ages.push(
                             {
                                 pricing: d[prop].pricing,
@@ -329,7 +346,6 @@ div.tooltip {
                     }
                 }
                 d.total = d.ages[d.ages.length - 1].y1;
-                console.log("total", d.total)
             }else{
                 d.ages = []
                 var y0 = 0;
@@ -345,7 +361,7 @@ div.tooltip {
         console.log("last data", data)
 
         xStackChart.domain(data.map(function (d) {;
-            return d.Day;
+            return d.Day.split("-")[0] + "-" + d.Day.split("-")[1];
         }));
         yStackChart.domain([0, d3.max(data, function (d) {
             return d.total;
@@ -389,7 +405,7 @@ div.tooltip {
         .enter().append("g")
         .attr("class", "g")
         .attr("transform", function (d) {
-            return "translate(" + xStackChart(d.Day) + ",0)";
+            return "translate(" + xStackChart(d.Day.split("-")[0] + "-" + d.Day.split("-")[1]) + ",0)";
         })
         
 

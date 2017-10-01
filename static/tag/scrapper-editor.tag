@@ -54,14 +54,15 @@
   <script>
       this.options = ["getValue", "getHtml", "getAttr", "setValue", "click"]
       this.currentRowId = undefined;
-      this.data = {};
-      this.data.specificData = {}
-      this.data.specificData.scrappe = []
       this.getAttr = false
       this.setValue = false
+
       this.updateData = function (dataToUpdate) {
         this.data = dataToUpdate;
         console.log(dataToUpdate)
+        if (this.data.specificData == undefined){
+          this.data.specificData = {}
+        }
         if (this.data.specificData.scrappe == undefined) {
           this.data.specificData.scrappe = [];
         }
@@ -77,12 +78,14 @@
       }.bind(this);
 
     this.on('mount', function () {
+      this.data = {};
+      this.data.specificData = {}
+      this.data.specificData.scrappe = []
       RiotControl.on('item_current_changed', this.updateData);
       this.on('unmount', function () {
         RiotControl.off('item_current_changed', this.updateData);
       });
-
-
+      
       this.tags.zentable.on('rowSelect', function (data) {
         this.currentRowId = data.rowid
         this.refs.actionType.value = data.actionType
@@ -108,15 +111,15 @@
           console.log("in set value")
           this.refs.setValue = null
         }
-          this.data.specificData.scrappe.push({
-            selector: this.refs.selector,
-            action: this.refs.action,
-            actionType: this.refs.actionType.value,
-            attribut: this.refs.attribut,
-            setValue: this.refs.setValue
-          });
-          this.tags.zentable.data = this.data.specificData.scrappe;
-          this.update()        
+        this.data.specificData.scrappe.push({
+          selector: this.refs.selector,
+          action: this.refs.action,
+          actionType: this.refs.actionType.value,
+          attribut: this.refs.attribut,
+          setValue: this.refs.setValue
+        });
+        this.tags.zentable.data = this.data.specificData.scrappe;
+        this.update()        
       }.bind(this));
 
       this.tags.zentable.on('delRow', function (row) {

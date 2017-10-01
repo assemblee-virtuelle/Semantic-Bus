@@ -40,8 +40,6 @@ module.exports = {
       })
     };
 
-
-
     function simulateClick(action, _page, outObj) {
       return new Promise(function (resolve, reject) {
         return _page.evaluate(function (action) {
@@ -64,7 +62,6 @@ module.exports = {
           })
       })
     };
-
 
     function _getAttr(action, _page) {
       return new Promise(function (resolve, reject) {
@@ -134,8 +131,7 @@ module.exports = {
     //     cookie
     //   })
     // };
-
-
+    
     function _aggregateAction(actions, page, deeth, data, outObj, _ph, cb) {
       // return new Promise(function (resolve, reject) {
         console.log(" ------  deeth  ------- ", deeth);

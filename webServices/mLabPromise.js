@@ -3,12 +3,14 @@
 const https = require('https');
 var mlab_token = require('../configuration').mlab_token
 
+
 //const url = require('url');
 //doc to promises : http://stackoverflow.com/questions/35182752/promises-with-http-get-node-js
 
 
 module.exports = {
   configuration: require('../configuration'),
+
   request(method, resource, dataToSend, options, databaseName) {
     return this._makeRequest(method, resource, dataToSend, options, databaseName);
   },
@@ -23,8 +25,8 @@ module.exports = {
        * our request for http.get */
       //const parsedUrl = url.parse(urlString);
       const requestOptions = this._createMLabOptions(method, resource, options, databaseName);
-      //console.log('path :',requestOptions.path);
-      //console.log('REQUEST :',requestOptions,dataToSend);
+      console.log('path :',requestOptions.path);
+      // console.log('REQUEST :',requestOptions,dataToSend);
       const request = https.request(requestOptions, res => this._onResponse(res, resolve, reject));
 
       /* if there's an error, then reject the Promise
@@ -93,67 +95,102 @@ module.exports = {
     console.log('configuration :',this.configuration);
     return new Promise((resolve, reject) => {
       console.log('clone start');
-      var workspaceComponentToDeletePromise = this.request('GET', 'workspacecomponents');
+
       var workspaceComponentToInsertPromise = this.request('GET', 'workspacecomponents', undefined, undefined, this.configuration.DBToClone);
-      var workspaceToDeletePromise = this.request('GET', 'workspaces');
       var workspaceToInsertPromise = this.request('GET', 'workspaces', undefined, undefined, this.configuration.DBToClone);
-      //ne pas cloner les user mais approprier les workspaces au user connecté
-      // var userToDeletePromise = this.request('GET', 'users');
-      // var userToInsertPromise = this.request('GET', 'users', undefined, undefined, this.configuration.DBToClone);
 
-      var readPromises = Promise.all([workspaceComponentToDeletePromise, workspaceComponentToInsertPromise, workspaceToDeletePromise, workspaceToInsertPromise]);
+      var readPromises = Promise.all([workspaceComponentToInsertPromise, workspaceToInsertPromise]);
 
-      //var workspaceComponentPromises = Promise.all([workspaceComponentToDeletePromise,workspaceComponentToInsertPromise]);
       var insertWorkspaceData;
       var insertComponentData;
 
       readPromises.then(data => {
 
-        //console.log(data[0]);
         let PromisesExecution = [];
-        console.log('remove ',data[0].length,' workspaceComponents');
-        for (var record of data[0]) {
-          PromisesExecution.push(this.request('DELETE', 'workspacecomponents/' + record._id.$oid))
-        }
+
 
         insertWorkspaceData=data[1];
 
-        console.log('remove ',data[2].length,' workspaces');
-        for (var record of data[2]) {
-          PromisesExecution.push(this.request('DELETE', 'workspaces/' + record._id.$oid))
-        }
-        insertComponentData=data[3];
+        insertComponentData=data[0];
 
-        // for (var record of data[4]) {
-        //   PromisesExecution.push(this.request('DELETE', 'users/' + record._id.$oid))
-        // }
-        // for (var record of data[5]) {
-        //   PromisesExecution.push(this.request('POST', 'users', record))
-        // }
+        console.log(insertWorkspaceData.length)
+        console.log(insertComponentData.length)
+        PromisesExecution.push(this.request('PUT', 'workspacecomponents', [], undefined));
+        
+        
+        PromisesExecution.push(this.request('PUT', 'workspaces', [], undefined));
 
         return Promise.all(PromisesExecution);
       }).then(data => {
-
-        console.log(data);
         let PromisesExecution = [];
-        console.log('add ',insertWorkspaceData.length,' workspaceComponents');
-        for (var record of insertWorkspaceData) {
-          PromisesExecution.push(this.request('POST', 'workspacecomponents', record))
-        }
-        console.log('add ',insertComponentData.length,' workspaces');
-        for (var record of insertComponentData) {
-          PromisesExecution.push(this.request('POST', 'workspaces', record))
-        }
-        // for (var record of data[4]) {
-        //   PromisesExecution.push(this.request('DELETE', 'users/' + record._id.$oid))
-        // }
-        // for (var record of data[5]) {
-        //   PromisesExecution.push(this.request('POST', 'users', record))
-        // }
+          
+        PromisesExecution.push(this.request('POST', 'workspacecomponents', insertComponentData, undefined));
+
+        
+        PromisesExecution.push(this.request('POST', 'workspaces', insertWorkspaceData, undefined));
 
         return Promise.all(PromisesExecution);
       }).then(data => {
-        console.log('CLONE DONE');
+        console.log('CLONE DONE', data.length);
+        resolve({
+          status: 'done'
+        });
+      });
+
+    });
+
+  },
+
+  cloneDatabaseMigration() {
+    return new Promise((resolve, reject) => {
+      console.log('clone start');
+      var DbToClone = "semantic_bus_seed"
+      var DBcible = "semantic_bus_integration"
+      var workspaceComponentToInsertPromise = this.request('GET', 'workspacecomponents', undefined, undefined, DbToClone);
+      var workspaceToInsertPromise = this.request('GET', 'workspaces', undefined, undefined, DbToClone);
+      var userToInsertPromise = this.request('GET', 'users', undefined, undefined, DbToClone);
+
+      var readPromises = Promise.all([workspaceComponentToInsertPromise, workspaceToInsertPromise, userToInsertPromise]);
+
+      var insertWorkspaceData;
+      var insertComponentData;
+      var insertUserData;
+
+      readPromises.then(data => {
+
+        let PromisesExecution = [];
+
+
+        insertWorkspaceData=data[1];
+
+        insertComponentData=data[0];
+
+        insertUserData = data[2]
+        
+        PromisesExecution.push(this.request('PUT', 'workspacecomponents', [], undefined, DBcible));
+        
+        
+        PromisesExecution.push(this.request('PUT', 'workspaces', [], undefined, DBcible));
+
+
+        PromisesExecution.push(this.request('PUT', 'users', [], undefined, DBcible));
+
+
+        return Promise.all(PromisesExecution);
+      }).then(data => {
+        let PromisesExecution = [];
+          
+        PromisesExecution.push(this.request('POST', 'workspacecomponents', insertWorkspaceData, undefined, DBcible));
+        
+        
+        PromisesExecution.push(this.request('POST', 'workspaces', insertComponentData, undefined, DBcible));
+
+
+        PromisesExecution.push(this.request('POST', 'users', insertUserData, undefined, DBcible));
+
+        return Promise.all(PromisesExecution);
+      }).then(data => {
+        console.log('CLONE DONE', data);
         resolve({
           status: 'done'
         });

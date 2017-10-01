@@ -15,9 +15,14 @@
       <div if ={modeUserResume}>
         <graph-of-use-workspace></graph-of-use-workspace>
       </div>
-      <div if={modeUserEdition} style="height: 85vh; display: flex; flex-direction: column;justify-content: center; align-items: center;">
-        <h4>Modification de votre profil</h4>
-          <form style="height: 50vh;width: 50%; background-color: rgb(250,250,250); padding: 2%; border-radius: 5px;">
+      <div if={modeUserEdition} style="height: 95vh;
+width: 100%;
+display: flex;
+flex-direction: column;
+justify-content: center;
+align-items: center;">
+        <h4 style="font-size:20px">Modification de votre profil</h4>
+          <form style="height: 61vh;width: 60%; background-color: rgb(250,250,250); padding: 2%; border-radius: 5px;">
             <label class="label-form">Email</label>
             <input class="change-mail" value="{profil.credentials.email}"    name="email" onchange={changeEmailInput}/>
             <!--  <div id={ result? 'good-result' : 'bad-result' }>{resultEmail}</div>  -->
@@ -42,16 +47,13 @@
     </div>
   </div> 
   <style scoped>
+  
   .label-form{
     width: 17%;
     display: block;
-    text-align: center;
     margin-bottom: 1em;
     margin-top: 1em;
-    background-color: #3498db;
-    color: white;
-    border-radius: 5px;
-}
+    color: black;
   }
   .title-number {
     font-size: 30px;
@@ -84,10 +86,11 @@
       margin-top: 0%;
     }
   .change-mail {
-    background-color: inherit !important;
-    border: none;
-    text-align: center;
     min-width: 80%;
+    border-radius: 9px;
+    box-shadow: none;
+    border: 1px solid white;
+    padding: 5px;
   }
     .mail-btn {
       padding: 10px;

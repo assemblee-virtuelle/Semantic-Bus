@@ -31,4 +31,24 @@ AssertionError [ERR_ASSERTION]: '' == 'Bus Sémantique'
       </system-err>
     </testcase>
   </testsuite>
+  <testsuite name="test_storage" timestamp="2017-09-30T05:21:54" time="2.125" tests="1" failures="0" errors="0" skipped="0">
+    <properties>
+      <property name="specId" value="4befa63ea6eb336aa0153f246fac3038"/>
+      <property name="suiteName" value="test storage"/>
+      <property name="capabilities" value="chrome.latest.windows10"/>
+      <property name="file" value="./test/e2e/test_fonctionels/authTest.js"/>
+    </properties>
+    <testcase classname="chrome.latest.windows10.test_storage" name="set_storage" time="2.124">
+      <system-out>
+        <![CDATA[
+COMMAND: POST https://ondemand.saucelabs.com:443/wd/hub/session/a96f5cdc65f849f282ec4f5eff945979/execute - {"script":"sauce:context=test storage - set storage","args":[]}
+RESULT: {"status":0,"sessionId":"a96f5cdc65f849f282ec4f5eff945979","value":""}
+COMMAND: GET https://ondemand.saucelabs.com:443/wd/hub/session/a96f5cdc65f849f282ec4f5eff945979/url - {}
+RESULT: {"status":0,"sessionId":"a96f5cdc65f849f282ec4f5eff945979","value":"http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/ihm/application.html"}
+COMMAND: DELETE https://ondemand.saucelabs.com:443/wd/hub/session/a96f5cdc65f849f282ec4f5eff945979 - {}
+RESULT: {"status":0,"sessionId":"a96f5cdc65f849f282ec4f5eff945979","value":""}
+]]>
+      </system-out>
+    </testcase>
+  </testsuite>
 </testsuites>

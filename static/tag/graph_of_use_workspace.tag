@@ -144,9 +144,15 @@
 
         var Allday = []
         var AllDayObject = {}
-        for (var i = 0 ; i < new Date().getUTCDate(); i ++){
-          Allday.push(moment().subtract(i, 'days')._d.getUTCDate() + moment().subtract(i, 'days')._d.getUTCMonth() + 1)
-          AllDayObject[moment().subtract(i, 'days')._d.getUTCDate()] = []
+        new Date()
+        //if()
+        for (var i = 30; i >= 0; i --){
+            if( AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] == null){
+                AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] = {}
+                AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCMonth() + 1 + "-" + moment().subtract(i, 'days')._d.getUTCDate() + "-" + moment().subtract(i, 'days')._d.getFullYear()] = []
+            }else{
+                AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCMonth() + 1 + "-" + moment().subtract(i, 'days')._d.getUTCDate() + "-" + moment().subtract(i, 'days')._d.getFullYear()] = []
+            }
         }
         
         /// INIT DATA PROFIL
@@ -160,74 +166,90 @@
         this.name =  data.user.name;
         this.numberWorkspace = data.workspaces.length
         data.workspaces.forEach(function(workspace){
-          workspace.flow = 0
-          workspace.pricing = 0
-          if(workspace.consumption_history.length > 0){
-            workspace.consumption_history.forEach(function(cons){
-              var d = new Date(cons.dates.created_at);
-              if(Allday.indexOf(d.getUTCDate() + d.getUTCMonth() + 1) != -1){
-                this.golbalConsumption += cons.flow_size
-                this.golbalConsumption = decimalAdjust('round',this.golbalConsumption , -2 );
-                var c = {}
-                if (workspace.name) {
-                    var name = workspace.name
-                } else {
-                    var name = "no name"
-                }
-                if(d != undefined && d.getDate() != undefined){
-                    AllDayObject[d.getDate()].push({
-                    flow : cons.flow_size,
-                    pricing : cons.price,
-                    id: workspace._id,
-                    name: workspace.name
-                    })
-                }
-              }
-            }.bind(this))
-          }
+            workspace.flow = 0
+            workspace.pricing = 0
+            if(workspace.consumption_history.length > 0){
+                workspace.consumption_history.forEach(function(cons){
+                    this.golbalConsumption += cons.flow_size
+                    this.golbalConsumption = decimalAdjust('round', (this.golbalConsumption), -2); 
+                    var d = new Date(cons.dates.created_at);
+                    for (month in AllDayObject){
+                        for (b in AllDayObject[month]){
+                            if((d.getUTCMonth() + 1) == month && d.getUTCDate() == b.split("-")[1]){
+                                var c = {}
+                                if (workspace.name) {
+                                    var name = workspace.name
+                                } else {
+                                    var name = "no name"
+                                }
+                                AllDayObject[month][b].push({
+                                    flow : cons.flow_size,
+                                    pricing : cons.price,
+                                    id: workspace._id,
+                                    name: workspace.name,
+                                    date: new Date(cons.dates.created_at)
+                                })
+                            }
+                        }
+                    }
+                }.bind(this))
+                this.update()
+            }
         }.bind(this))
 
-        console.log("allday" , AllDayObject)
+
+        
+    console.log(AllDayObject)
+
          // aggregation des flux 
-        var lasttab = {}
-        for (var conso in AllDayObject) {
-            lasttab[conso] = {}
-            if(AllDayObject[conso].length > 0){
-                AllDayObject[conso].forEach(function (compo) {
-                    console.log(compo.id, compo.price)
-                    if (lasttab[conso][compo.id] == null) {
-                        lasttab[conso][compo.id] = {}
-                        lasttab[conso][compo.id].flow = compo.flow
-                        lasttab[conso][compo.id].name = compo.name
-                        lasttab[conso][compo.id].price = compo.pricing
+    var lasttab = {}
+    for (var month in AllDayObject) {
+        lasttab[month] = {}
+        for (var conso in AllDayObject[month]) {
+            lasttab[month][conso] = {}
+            if(AllDayObject[month][conso].length > 0){
+                AllDayObject[month][conso].forEach(function (compo) {
+                    if (lasttab[month][conso][compo.id] == null) {
+                        lasttab[month][conso][compo.id] = {}
+                        lasttab[month][conso][compo.id].flow = compo.flow
+                        lasttab[month][conso][compo.id].name = compo.name
+                        lasttab[month][conso][compo.id].price = compo.pricing
+                        lasttab[month][conso][compo.id].date = compo.date
                     }else{
-                        lasttab[conso][compo.id].flow += compo.flow
-                        lasttab[conso][compo.id].name = compo.name
-                        lasttab[conso][compo.id].price += compo.pricing
+                        lasttab[month][conso][compo.id].flow += compo.flow
+                        lasttab[month][conso][compo.id].name = compo.name
+                        lasttab[month][conso][compo.id].price += compo.pricing
+                        lasttab[month][conso][compo.id].date = compo.date
                     }
                 })
             }else{
                 console.log("no data")
             }
         };
+    }
 
+    console.log(lasttab)
 
         /// mis des data dans un meme tableau
         var dataT = []
-        for (var conso in lasttab) {
-            var c = {}
-            c["Day"] = conso
-            for (var consoFinal in lasttab[conso]) {
-                c[consoFinal] = {
-                    name: lasttab[conso][consoFinal].name,
-                    flow: lasttab[conso][consoFinal].flow,
-                    price: lasttab[conso][consoFinal].price,
+        for (var month in lasttab) {
+            for (var conso in lasttab[month]) {
+                var c = {}
+                c["Day"] = conso
+                for (var consoFinal in lasttab[month][conso]) {
+                    c[consoFinal] = {
+                        name: lasttab[month][conso][consoFinal].name,
+                        flow: lasttab[month][conso][consoFinal].flow,
+                        price: lasttab[month][conso][consoFinal].price,
+                        date:  lasttab[month][conso][consoFinal].date
+                    }
+                    
                 }
+                dataT.push(c)
+                
             }
-            dataT.push(c)
         }
 
-        console.log(dataT)
 
         this.update();
       
@@ -247,7 +269,9 @@
             .padding(0.1);
         var yStackChart = d3.scaleLinear()
             .range([heightStackChart, 0]);
+        
 
+        var parser =  d3.timeFormat("%d-%b-%y").parse;
 
         var colorStackChart = d3.scaleOrdinal(["#581845", "#900C3F","#C70039","#FF5733", "#FFC30F"])
 
@@ -269,14 +293,12 @@
           colorStackChart.domain(d3.keys(data[0]).filter(function (key) {;
           return key !== "Day";
           }));
-          console.log(dataT)
           dataT.forEach(function (d) {
             if(Object.keys(d).length > 1){
                 d.ages = []
                 var y0 = 0;
                 for(var prop in d ){
-                    if(prop != "Day" && prop != "ages"){
-                        console.log("if",prop,  d[prop])  
+                    if(prop != "Day" && prop != "ages"){ 
                         d.ages.push(
                             {
                                 pricing: d[prop].price,
@@ -289,7 +311,6 @@
                     }
                 }
                 d.total = d.ages[d.ages.length - 1].y1;
-                console.log("total", d.total)
             }else{
                 d.ages = []
                 var y0 = 0;
@@ -302,10 +323,10 @@
             }
         });
 
-            console.log("last data", dataT)
+            console.log("last data ----------->", dataT)
 
             xStackChart.domain(dataT.map(function (d) {;
-                return d.Day;
+                return d.Day.split("-")[0] + "-" + d.Day.split("-")[1];
             }));
             yStackChart.domain([0, d3.max(dataT, function (d) {
                 return d.total;
@@ -349,7 +370,7 @@
             .enter().append("g")
             .attr("class", "g")
             .attr("transform", function (d) {
-                return "translate(" + xStackChart(d.Day) + ",0)";
+                return "translate(" + xStackChart(d.Day.split("-")[0] + "-" + d.Day.split("-")[1]) + ",0)";
             })
             
 
@@ -375,7 +396,7 @@
                 div.transition()
                     .duration(200)
                     .style("opacity", .9);
-                div.html("name:" + d.name + "<br/>" + "conso : " + d.datasize + "Mo" + "<br/>" + "pricing : " + d.pricing + "€" +  "<br/>" )
+                div.html("name:" + d.name + "<br/>" + "conso : " + decimalAdjust('round', (d.datasize), -4) + "Mo" + "<br/>" + "price : " +  decimalAdjust('round', d.pricing, -4) + "€" +  "<br/>" )
                     .style("left", d3.event.pageX  + "px")
                     .style("top", d3.event.pageY - 28 +  "px");
             })
