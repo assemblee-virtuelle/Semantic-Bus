@@ -33,6 +33,47 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
     //     // ACCES LISTE WORKSPACE
     //     $(workSpaceSelector).click();
     //     browser.waitForVisible('workspace-table');
+    //
+    //     // MODE AJOUT D'UN WORKSPACE //(edit mode de base quand on creer un workspace)
+    //     $('zentable').$('.test-addRow').click()
+    //     browser.waitForVisible('workspace-editor');
+    //
+    //     // // AJOUT D'UN  COMPONENT //
+    //     // $('zentable').$('div.commandButton').click();
+    //     // browser.waitForVisible('technical-component-table');
+    //     // $('technical-component-table').$('zentable').$('div[name="tableBody"]').click();
+    //     // browser.waitForVisible('workspace-editor');
+    //     // // AJOUT D'UN USER
+    //
+    //     // //DEPLACEMENT SUR LE MENU USER
+    //     // browser.waitUntil(() => {
+    //     //    if(browser.isVisible('#containerloaderDiv') == false){
+    //     //      return true
+    //     //     };
+    //     // }, 50000, 'le loader doit avoir disparue')
+    //
+    //     // $('workspace-editor').$('div.white').click()
+    //
+    //     // // EDIT MODE //
+    //     // $('workspace-editor').$('div.commandButton').click()
+    //
+    //     // // CLICK SUR PLUS //
+    //     // browser.waitForVisible('zentable');
+    //     // $('#userliste').$('div.commandButton').click();
+    //
+    //     // /// REMPLISSAGE LIST USER ///
+    //     // browser.waitForVisible('user-list');
+    //     // browser.setValue('#users-list', 'semanticbusdev@gmail.com')
+    //
+    //     // /// PARTAGE DU WORKSPACE
+    //     // $('user-list').$('.share-btn').click()
+    //     // $('#cancel').click()
+    //
+    //     // //ADD DESCRIPTION
+    //     // console.log("test et")
+    //     // $('#backBar').click()
+    //   })
+})
 
         // MODE AJOUT D'UN WORKSPACE //(edit mode de base quand on creer un workspace)
         $('zentable').$('.test-addRow').click()
@@ -175,6 +216,8 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
 // })
 
 
+
+
 // describe('modification email', () => {
 //   it('on devrait voir son email modifier, function () {
 //       ///CONNEXION
@@ -192,6 +235,7 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
 //       browser.waitForVisible('navigation');
 //       let workSpaceSelector = 'div[name="workspaceSelector"]';
 //       browser.waitForVisible(workSpaceSelector,3000);
+
 //       // ACCES LISTE WORKSPACE
 //       $(workSpaceSelector).click();
 //       browser.waitForVisible('workspace-table');

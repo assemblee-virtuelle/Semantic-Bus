@@ -1,49 +1,49 @@
 <login>
-  <div id="containerloaderDiv" if={is_login}>
+  <div id="containerloaderDiv" show={is_login}>
       <div id="row">
         <div id="loaderDiv"></div>
         <h1 id="loaderText"> Connection en cours </h1>
       </div>
     </div>
-  <div class="Aligner" if={boole && !is_login}>
+  <div class="Aligner" show={boole && !is_login}>
     <form >
     <h1>Bienvenue sur le bus Semantic</h1>
       <div class="box">
-        <input type="email" name="email"  placeholder="saisir email" class="email" />
-        <input type="password" name="password" id="password" placeholder="saisir mot de passe" class="email" required />
+        <input type="email" ref="email"  placeholder="saisir email" class="email" />
+        <input type="password" ref="password" id="password" placeholder="saisir mot de passe" class="email" required />
         <div id="result">{resultConnexion}</div>
         <div class="flex-container">
-          <a onclick = {hidePage} class="btn">Inscription</a> 
+          <a onclick = {hidePage} class="btn">Inscription</a>
           <a onclick = {login} id="btn2">Connexion</a> <!-- End Btn2 -->
           <div class="google">
             <a href="/auth/google" id="btn-google"><img src="../ihm/image/google-plus.png" alt="" id="googleP">  Connexion</a>
-            <!-- End Btn2 --> 
+            <!-- End Btn2 -->
           </div>
         </div>
-      </div> <!-- End Box -->  
+      </div> <!-- End Box -->
       <p>mot de passe oublié? <u style="color:#f1c40f;">Clicker pas ici!</u></p>
-    </form> 
+    </form>
   </div>
 
-<div class="Aligner" if = {!is_login && !boole}>
+<div class="Aligner" show = {!is_login && !boole}>
   <form>
     <h1>Inscrivez vous</h1>
       <div class="box">
-       <input  name="nameInscription"  placeholder="saisir name"  class="email" />
-        <div id="result">{resultName}</div> 
-       <input  name="societe"  placeholder="saisir societe"  class="email" />
-        <div id="result">{resultSociete}</div> 
-        <input type="email" name="emailInscription"  placeholder="saisir email"  class="email" />
-        <div id="result">{resultEmail}</div> 
-        <input type="password" required name="passwordInscription" placeholder="saisir mot de passe"  class="email" />
-        <input type="password" required name="confirmPasswordInscription" placeholder="confirmer mot de passe"  class="email" />
-        <div id="result">{resultMdp}</div> 
-         
+       <input  ref="nameInscription"  placeholder="saisir name"  class="email" />
+        <div id="result">{resultName}</div>
+       <input  ref="societe"  placeholder="saisir societe"  class="email" />
+        <div id="result">{resultSociete}</div>
+        <input type="email" ref="emailInscription"  placeholder="saisir email"  class="email" />
+        <div id="result">{resultEmail}</div>
+        <input type="password" required ref="passwordInscription" placeholder="saisir mot de passe"  class="email" />
+        <input type="password" required ref="confirmPasswordInscription" placeholder="confirmer mot de passe"  class="email" />
+        <div id="result">{resultMdp}</div>
+
          <div class="flex-container">
-          <button onclick={showPage} id="btn3">Retour</button> 
-          <a onclick = {inscription} id="btn3">Inscription</a> 
+          <button onclick={showPage} id="btn3">Retour</button>
+          <a onclick = {inscription} id="btn3">Inscription</a>
           <div>
-      </div> 
+      </div>
   </form>
 </div>
 
@@ -219,7 +219,7 @@
     width: 30px;
     position: absolute;
     margin-top: -0.6vh;
-    margin-left: 2vw; 
+    margin-left: 2vw;
   }
 
   #btn-google {
@@ -249,7 +249,7 @@
     color:white;
     border-radius:4px;
     border: #2980b9 1px solid;
-    
+
     margin-top:20px;
     margin-bottom:20px;
     margin-left:50px;
@@ -266,7 +266,7 @@
     color:white;
     border-radius:4px;
     border: #2980b9 1px solid;
-    
+
     margin-top:20px;
     margin-bottom:20px;
     margin-left:10px;
@@ -314,44 +314,10 @@
   }.bind(this));
 
 
-  this.email.addEventListener('change',function(e){
-    this.user.email = e.currentTarget.value;
-    this.update();
-  }.bind(this));
-
-  this.password.addEventListener('change',function(e){
-    this.user.password = e.currentTarget.value;
-     this.update();
-  }.bind(this));
 
 
-  this.emailInscription.addEventListener('change',function(e){
-    this.resultEmail = ""
-    this.newUser.emailInscription = e.currentTarget.value;
-     this.update();
-  }.bind(this));
 
-  this.societe.addEventListener('change',function(e){
-    this.resultSociete = ""
-    this.newUser.societe = e.currentTarget.value;
-     this.update();
-  }.bind(this));
 
-  this.nameInscription.addEventListener('change',function(e){
-    this.resultName = ""
-    this.newUser.name = e.currentTarget.value;
-     this.update();
-  }.bind(this));
-
-  this.passwordInscription.addEventListener('change',function(e){
-    this.newUser.passwordInscription = e.currentTarget.value;
-     this.update();
-  }.bind(this));
-
-   this.confirmPasswordInscription.addEventListener('change',function(e){
-    this.newUser.confirmPasswordInscription = e.currentTarget.value;
-     this.update();
-  }.bind(this));
 
   this.isGoogleUser = function () {
      if(location.search.split('google_token=')[1] != null){
@@ -362,7 +328,7 @@
   }
 
   this.isGoogleUser();
- 
+
 
   inscription(e){
     if((this.newUser.passwordInscription != "") && (this.newUser.confirmPasswordInscription != "") && (this.newUser.emailInscription != "")){
@@ -418,15 +384,56 @@
       RiotControl.trigger('google_user_connect', this.user);
     }
 
-  
+
   $(document).ready(function(){
       $('.box').hide().fadeIn(1000);
         ///password
   });
 
-  
+
   $('a').click(function(event){
-      event.preventDefault(); 
+      event.preventDefault();
   });
+
+  this.on('mount', function () {
+    this.refs.email.addEventListener('change',function(e){
+      this.user.email = e.currentTarget.value;
+      this.update();
+    }.bind(this));
+
+    this.refs.password.addEventListener('change',function(e){
+      this.user.password = e.currentTarget.value;
+       this.update();
+    }.bind(this));
+    console.log(this.refs);
+    this.refs.emailInscription.addEventListener('change',function(e){
+      this.resultEmail = ""
+      this.newUser.emailInscription = e.currentTarget.value;
+       this.update();
+    }.bind(this));
+
+    this.refs.societe.addEventListener('change',function(e){
+      this.resultSociete = ""
+      this.newUser.societe = e.currentTarget.value;
+       this.update();
+    }.bind(this));
+
+    this.refs.nameInscription.addEventListener('change',function(e){
+      this.resultName = ""
+      this.newUser.name = e.currentTarget.value;
+       this.update();
+    }.bind(this));
+
+    this.refs.passwordInscription.addEventListener('change',function(e){
+      this.newUser.passwordInscription = e.currentTarget.value;
+       this.update();
+    }.bind(this));
+
+     this.refs.confirmPasswordInscription.addEventListener('change',function(e){
+      this.newUser.confirmPasswordInscription = e.currentTarget.value;
+       this.update();
+    }.bind(this));
+  }.bind(this));
+
 </script>
 </login>

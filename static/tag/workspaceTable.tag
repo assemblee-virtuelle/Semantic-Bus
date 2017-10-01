@@ -26,7 +26,6 @@
     });
 
     this.on('mount', function (args) {
-
       this.tags.zentable.on('rowNavigation', function (data) {
         console.log(data);
         RiotControl.trigger('workspace_current_select', data);
@@ -34,7 +33,6 @@
 
       this.tags.zentable.on('addRow', function () {
         //console.log(data);
-
         RiotControl.trigger('workspace_current_init');
         //this.trigger('newWorkspace');
       }.bind(this));

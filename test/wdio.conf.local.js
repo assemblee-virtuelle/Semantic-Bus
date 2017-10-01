@@ -12,5 +12,5 @@ exports.config = Object.assign(base.config, {
   specs: [
     './test/e2e/test_fonctionels/*.js'
   ],
-  waitforTimeout: 300000,
+  waitforTimeout: 5000,
 })

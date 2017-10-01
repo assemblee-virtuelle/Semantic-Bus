@@ -80,6 +80,8 @@
   },
   "devDependencies": {
     "mocha-junit-reporter": "^1.13.0",
-    "wdio-phantomjs-service": "^0.2.2"
+    "wdio-phantomjs-service": "^0.2.2",
+    "phantomjs-prebuilt": "^2.1.7",
+    "riot": "^3.7.0"
   }
 }

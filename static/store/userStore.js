@@ -1,4 +1,5 @@
-function UserStore() {
+console.log("contructeur UserStore");
+var UserStore = function() {
   riot.observable(this) // Riot provides our event emitter.
   ////LE USER STORE EST RELIE A LOGIN EST NON A APPLICATION
   this.userCurrrent;
@@ -42,9 +43,9 @@ function UserStore() {
         localStorage.token = data.token
         // window.open("../ihm/application.html", "_self");
         this.trigger('application_redirect')
-        this.spleep(2000).then(function () {
+        this.sleep(2000).then(function () {
           this.trigger('ajax_receipt_login');
-        }.bind(this))     
+        }.bind(this))
       } else if(data.data == true) {
         this.trigger('google_user')
         this.sleep(2000).then(function () {
