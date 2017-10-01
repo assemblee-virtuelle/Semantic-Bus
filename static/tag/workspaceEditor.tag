@@ -67,7 +67,13 @@
           </yield>
         </zenTable>
       </div>
-      <div show={modeUserDescription} class="description-worksapce" id="description">
+      <div show={modeUserDescription} class="description-worksapce" id="description" style="height: 95vh; width: 100%;display: flex;flex-direction: column;justify-content: center;align-items: center;">
+        <h4 style="font-size:20px">Information sur votre workspace</h4>
+        <div style="height: 30vh;
+width: 60%;
+background-color: rgb(250,250,250);
+padding: 2%;
+border-radius: 5px;">
         <label style="padding-top:3vh">{labelInputName}
             </label>
         <input readonly={innerData.mode=="read" } class={readOnly : innerData.mode=="read" , description-worksapce-input : innerData.mode=="edit"
@@ -91,8 +97,6 @@
   <style>
     .description-worksapce-input {
       text-align: left;
-      border-bottom: 1px solid #3883fa !important;
-      margin-top:;
       border: none;
       padding: 10px;
       font-size: 20px;
