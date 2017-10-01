@@ -1,112 +1,127 @@
-
 'use strict'
 const assert = require('assert');
 
 ///WS1 SCENARIO DE TEST ////
 var token;
 describe('Parcour complet creation d\'un workspace et ajout d\'un composant', () => {
-  it('connexion', function () {
-      ///CONNEXION
-      var url = browser.url('/auth/login.html')
-      browser.waitUntil(() => {
-       return $('form').isVisible();
-      })
-      let email = '#email';
-      browser.waitForVisible(email);
-      browser.setValue(email, 'alexfoot32@orange.fr')
-      let password = '#password';
-      browser.setValue(password, 'azerty')
-      $('#btn2').click();
-      browser.waitForVisible('navigation',10000);
-      //expect(browser.getUrl()).to.be.equal('http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/ihm/application.html');
-      //token = browser.localStorage('GET', 'token').value;
+  it('connexion', function() {
+    ///CONNEXION
+    var url = browser.url('/auth/login.html')
+    // browser.waitUntil(() => {
+    //   return $('form').isVisible();
+    // })
+    //browser.waitForVisible('form');
+    let email = '#email';
+    browser.waitForVisible(email);
+    browser.setValue(email, 'alexfoot32@orange.fr')
+    let password = '#password';
+    browser.setValue(password, 'azerty')
+    //$('#btn2').click();
+    browser.click('#btn2');
+    browser.waitForVisible('navigation', 10000);
+    //expect(browser.getUrl()).to.be.equal('http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/ihm/application.html');
+    //token = browser.localStorage('GET', 'token').value;
+  })
+  it('workspace add', function() {
+    browser.click('#workspaceSelector');
+    browser.waitForVisible('.test-addRow');
+    browser.click('.test-addRow');
+    browser.waitForVisible('workspace-editor');
+    browser.waitForVisible('#workspaceNameInput');//on doit pouvoir directement saisir le nom du WS
+  })
 
-    })
+  it('workspace set Information', function() {
+    browser.setValue('#workspaceNameInput', 'workspace de test');
+    browser.setValue('#workspaceDescriptionInput', 'description du workspace de test');
+    browser.click('#save');
+  })
+
+
 })
 
-    //     // ACCES LISTE WORKSPACE
-    //     $(workSpaceSelector).click();
-    //     browser.waitForVisible('workspace-table');
-    //
-    //     // MODE AJOUT D'UN WORKSPACE //(edit mode de base quand on creer un workspace)
-    //     $('zentable').$('.test-addRow').click()
-    //     browser.waitForVisible('workspace-editor');
-    //
-    //     // // AJOUT D'UN  COMPONENT //
-    //     // $('zentable').$('div.commandButton').click();
-    //     // browser.waitForVisible('technical-component-table');
-    //     // $('technical-component-table').$('zentable').$('div[name="tableBody"]').click();
-    //     // browser.waitForVisible('workspace-editor');
-    //     // // AJOUT D'UN USER
-    //
-    //     // //DEPLACEMENT SUR LE MENU USER
-    //     // browser.waitUntil(() => {
-    //     //    if(browser.isVisible('#containerloaderDiv') == false){
-    //     //      return true
-    //     //     };
-    //     // }, 50000, 'le loader doit avoir disparue')
-    //
-    //     // $('workspace-editor').$('div.white').click()
-    //
-    //     // // EDIT MODE //
-    //     // $('workspace-editor').$('div.commandButton').click()
-    //
-    //     // // CLICK SUR PLUS //
-    //     // browser.waitForVisible('zentable');
-    //     // $('#userliste').$('div.commandButton').click();
-    //
-    //     // /// REMPLISSAGE LIST USER ///
-    //     // browser.waitForVisible('user-list');
-    //     // browser.setValue('#users-list', 'semanticbusdev@gmail.com')
-    //
-    //     // /// PARTAGE DU WORKSPACE
-    //     // $('user-list').$('.share-btn').click()
-    //     // $('#cancel').click()
-    //
-    //     // //ADD DESCRIPTION
-    //     // console.log("test et")
-    //     // $('#backBar').click()
-    //   })
+//     // ACCES LISTE WORKSPACE
+//     $(workSpaceSelector).click();
+//     browser.waitForVisible('workspace-table');
+//
+//     // MODE AJOUT D'UN WORKSPACE //(edit mode de base quand on creer un workspace)
+//     $('zentable').$('.test-addRow').click()
+//     browser.waitForVisible('workspace-editor');
+//
+//     // // AJOUT D'UN  COMPONENT //
+//     // $('zentable').$('div.commandButton').click();
+//     // browser.waitForVisible('technical-component-table');
+//     // $('technical-component-table').$('zentable').$('div[name="tableBody"]').click();
+//     // browser.waitForVisible('workspace-editor');
+//     // // AJOUT D'UN USER
+//
+//     // //DEPLACEMENT SUR LE MENU USER
+//     // browser.waitUntil(() => {
+//     //    if(browser.isVisible('#containerloaderDiv') == false){
+//     //      return true
+//     //     };
+//     // }, 50000, 'le loader doit avoir disparue')
+//
+//     // $('workspace-editor').$('div.white').click()
+//
+//     // // EDIT MODE //
+//     // $('workspace-editor').$('div.commandButton').click()
+//
+//     // // CLICK SUR PLUS //
+//     // browser.waitForVisible('zentable');
+//     // $('#userliste').$('div.commandButton').click();
+//
+//     // /// REMPLISSAGE LIST USER ///
+//     // browser.waitForVisible('user-list');
+//     // browser.setValue('#users-list', 'semanticbusdev@gmail.com')
+//
+//     // /// PARTAGE DU WORKSPACE
+//     // $('user-list').$('.share-btn').click()
+//     // $('#cancel').click()
+//
+//     // //ADD DESCRIPTION
+//     // console.log("test et")
+//     // $('#backBar').click()
+//   })
 
 
-        // MODE AJOUT D'UN WORKSPACE //(edit mode de base quand on creer un workspace)
-        // $('zentable').$('.test-addRow').click()
-        // browser.waitForVisible('workspace-editor');
+// MODE AJOUT D'UN WORKSPACE //(edit mode de base quand on creer un workspace)
+// $('zentable').$('.test-addRow').click()
+// browser.waitForVisible('workspace-editor');
 
-        // // AJOUT D'UN  COMPONENT //
-        // $('zentable').$('div.commandButton').click();
-        // browser.waitForVisible('technical-component-table');
-        // $('technical-component-table').$('zentable').$('div[name="tableBody"]').click();
-        // browser.waitForVisible('workspace-editor');
-        // // AJOUT D'UN USER
+// // AJOUT D'UN  COMPONENT //
+// $('zentable').$('div.commandButton').click();
+// browser.waitForVisible('technical-component-table');
+// $('technical-component-table').$('zentable').$('div[name="tableBody"]').click();
+// browser.waitForVisible('workspace-editor');
+// // AJOUT D'UN USER
 
-        // //DEPLACEMENT SUR LE MENU USER
-        // browser.waitUntil(() => {
-        //    if(browser.isVisible('#containerloaderDiv') == false){
-        //      return true
-        //     };
-        // }, 50000, 'le loader doit avoir disparue')
+// //DEPLACEMENT SUR LE MENU USER
+// browser.waitUntil(() => {
+//    if(browser.isVisible('#containerloaderDiv') == false){
+//      return true
+//     };
+// }, 50000, 'le loader doit avoir disparue')
 
-        // $('workspace-editor').$('div.white').click()
+// $('workspace-editor').$('div.white').click()
 
-        // // EDIT MODE //
-        // $('workspace-editor').$('div.commandButton').click()
+// // EDIT MODE //
+// $('workspace-editor').$('div.commandButton').click()
 
-        // // CLICK SUR PLUS //
-        // browser.waitForVisible('zentable');
-        // $('#userliste').$('div.commandButton').click();
+// // CLICK SUR PLUS //
+// browser.waitForVisible('zentable');
+// $('#userliste').$('div.commandButton').click();
 
-        // /// REMPLISSAGE LIST USER ///
-        // browser.waitForVisible('user-list');
-        // browser.setValue('#users-list', 'semanticbusdev@gmail.com')
+// /// REMPLISSAGE LIST USER ///
+// browser.waitForVisible('user-list');
+// browser.setValue('#users-list', 'semanticbusdev@gmail.com')
 
-        // /// PARTAGE DU WORKSPACE
-        // $('user-list').$('.share-btn').click()
-        // $('#cancel').click()
+// /// PARTAGE DU WORKSPACE
+// $('user-list').$('.share-btn').click()
+// $('#cancel').click()
 
-        // //ADD DESCRIPTION
-        // console.log("test et")
-        // $('#backBar').click()
+// //ADD DESCRIPTION
+// console.log("test et")
+// $('#backBar').click()
 //       })
 // })
 
