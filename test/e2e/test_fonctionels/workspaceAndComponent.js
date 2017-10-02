@@ -43,9 +43,12 @@ describe('workspaces and components ', () => {
   it('check new workspace in my workspaces', function() {
     browser.click('#workspaceSelector');
     browser.waitForVisible('workspace-table');
-    browser.waitUntil(() => {
-      return browser.getAttribute('div','data-id')!=workspaceId;
-    });
+    browser.waitForVisible('div[data-id="'+workspaceId+'"]');
+  })
+  it('show existing workspace', function() {
+    browser.element('div[data-id="'+workspaceId+'"]').click('.commandButton');
+    browser.waitForVisible('workspace-editor');
+    browser.waitForVisible('graph');
   })
 })
 
