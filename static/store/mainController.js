@@ -94,10 +94,10 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   this.navigateNext = function(newScreen, hidePrevious, baseScreen) {
     //all screen after baseScreen will be removed
     var baseScreenDepth;
-    //console.log(this.screenHistory[this.screenHistory.length- 1],newScreen);
-    if (sift({
-        screen: newScreen
-      }, this.screenHistory[this.screenHistory.length - 1]).length == 0) {
+    console.log(this.screenHistory[this.screenHistory.length- 1],newScreen);
+    // if (sift({
+    //     screen: newScreen
+    //   }, this.screenHistory[this.screenHistory.length - 1]).length == 0) {
       if (baseScreen != undefined) {
         baseScreenDepth = sift({
           screen: baseScreen
@@ -124,7 +124,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
       this.screenHistory.push(newScreenHistory);
       console.log('screenHistory', this.screenHistory);
       this.trigger('newScreenHistory', newScreenHistory);
-    }
+    // }
 
   }
   this.navigatePrevious = function() {

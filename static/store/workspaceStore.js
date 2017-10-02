@@ -70,6 +70,7 @@ function WorkspaceStore() {
 
   this.create = function() {
     console.log('create');
+    this.trigger('persist_start');
     $.ajax({
       method: 'post',
       url: '../data/core/workspace/' + localStorage.user_id,
@@ -79,11 +80,13 @@ function WorkspaceStore() {
         "Authorization": "JTW" + " " + localStorage.token
       },
     }).done(function(data) {
-      this.load(function(data) {
-        this.trigger('workspace_current_persist_done');
-        data.mode = 'read';
-        this.select(data);
-      }.bind(this, data));
+      this.trigger('persist_end',data);
+      data.mode = 'edit';
+      this.workspaceBusiness.connectWorkspaceComponent(data.components);
+      this.workspaceCurrent = data;
+      //console.log('update data ||', data);
+      this.trigger('workspace_current_persist_done', data);
+      this.trigger('workspace_current_changed', this.workspaceCurrent);
     }.bind(this));
   }; //<= create
 

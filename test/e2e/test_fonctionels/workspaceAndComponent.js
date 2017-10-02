@@ -3,7 +3,8 @@ const assert = require('assert');
 
 ///WS1 SCENARIO DE TEST ////
 var token;
-describe('Parcour complet creation d\'un workspace et ajout d\'un composant', () => {
+var workspaceId;
+describe('workspaces and components ', () => {
   it('connexion', function() {
     ///CONNEXION
     var url = browser.url('/auth/login.html')
@@ -30,13 +31,22 @@ describe('Parcour complet creation d\'un workspace et ajout d\'un composant', ()
     browser.waitForVisible('#workspaceNameInput');//on doit pouvoir directement saisir le nom du WS
   })
 
-  it('workspace set Information', function() {
+  it('workspace set information and save', function() {
     browser.setValue('#workspaceNameInput', 'workspace de test');
     browser.setValue('#workspaceDescriptionInput', 'description du workspace de test');
     browser.click('#save');
+    browser.waitUntil(() => {
+      return browser.getAttribute('workspace-editor','data-id')!=undefined;
+    });
+    workspaceId=browser.getAttribute('workspace-editor','data-id');
   })
-
-
+  it('check new workspace in my workspaces', function() {
+    browser.click('#workspaceSelector');
+    browser.waitForVisible('workspace-table');
+    browser.waitUntil(() => {
+      return browser.getAttribute('div','data-id')!=workspaceId;
+    });
+  })
 })
 
 //     // ACCES LISTE WORKSPACE

@@ -8,7 +8,6 @@
       <div if={actionReady} onclick={addComponent} class="commandButton notSynchronized">
         add
       </div>
-      {actionReady}
     </div>
   </div>
     <zenTable style="flex:1" ref="technicalComponentTable" disallowcommand={true} disallownavigation={true}>

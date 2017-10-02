@@ -17,6 +17,6 @@ exports.config = Object.assign(base.config, {
   ],
   port: '9515',
   path: '/',
-  waitforTimeout: 5000,
+  waitforTimeout: 10000,
   baseUrl:'http://localhost:8080/'
 })

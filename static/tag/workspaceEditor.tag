@@ -1,4 +1,4 @@
-<workspace-editor class="containerV">
+<workspace-editor class="containerV" data-id={innerData._id}>
   <div class="containerH" style="flex-wrap:nowrap;flex-grow:1;">
     <div class=" containerV" style="flex-basis:80px;">
       <!--<div class="{color1}" if={componentView} id="component" onclick={goComponent}>Composant(s)</div>
