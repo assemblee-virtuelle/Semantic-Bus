@@ -81,7 +81,8 @@ function WorkspaceStore() {
       },
     }).done(function(data) {
       this.trigger('persist_end',data);
-      data.mode = 'edit';
+      //data.mode = 'init';
+      //his.menu='information'
       this.workspaceBusiness.connectWorkspaceComponent(data.components);
       this.workspaceCurrent = data;
       //console.log('update data ||', data);
@@ -199,7 +200,8 @@ function WorkspaceStore() {
       }).done(data => {
         this.workspaceBusiness.connectWorkspaceComponent(data.components);
         this.workspaceCurrent = data;
-        this.workspaceCurrent.mode = 'edit';
+        //this.workspaceCurrent.mode = 'edit';
+        this.menu='component'
         //this.workspaceCurrent.synchronized =true;
         resolve(data);
       });
@@ -322,14 +324,18 @@ function WorkspaceStore() {
       users: []
     };
     this.workspaceCurrent.mode = 'init';
-    this.trigger('workspace_current_changed', this.workspaceCurrent);
+    this.menu='information';
+    this.trigger('workspace_current_select_done', this.workspaceCurrent);
+    //this.trigger('workspace_editor_menu_changed', this.menu);
+    //this.trigger('workspace_current_changed', this.workspaceCurrent);
   }); // <= workspace_current_init
 
   // --------------------------------------------------------------------------------
 
 
   this.on('workspace_current_refresh', function () {
-    console.log('workspace_current_refresh || ', this.workspaceCurrent);
+    console.log('workspace_current_refresh || ', this.workspaceCurrent,this.menu);
+    this.trigger('workspace_editor_menu_changed', this.menu);
     this.trigger('workspace_current_changed', this.workspaceCurrent);
   }); // <= workspace_current_refresh
 
@@ -474,6 +480,11 @@ function WorkspaceStore() {
     item[message.field] = message.data;
     this.trigger('workspace_current_changed', this.workspaceCurrent);
   }); //<= item_current_updateField
+
+  this.on('workspace_editor_change_menu', function(menu) {
+    this.menu=menu;
+    this.trigger('workspace_editor_menu_changed', this.menu);
+  });
 
 
 }

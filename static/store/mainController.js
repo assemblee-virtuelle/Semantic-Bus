@@ -26,14 +26,14 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   //   modeUserList: false,
   //   modeTechnicalUserNavigation: false
   // }
-  this.updateMode = function(changedValueMode) {
-    for (displayKey in this.displayMode) {
-      if (changedValueMode[displayKey] != undefined) {
-        this.displayMode[displayKey] = changedValueMode[displayKey];
-      }
-    }
-    this.trigger('navigation_mode_changed', this.displayMode);
-  }.bind(this)
+  // this.updateMode = function(changedValueMode) {
+  //   for (displayKey in this.displayMode) {
+  //     if (changedValueMode[displayKey] != undefined) {
+  //       this.displayMode[displayKey] = changedValueMode[displayKey];
+  //     }
+  //   }
+  //   this.trigger('navigation_mode_changed', this.displayMode);
+  // }.bind(this)
   ////ON TEST SI LE USER A UN TOKEN VALIDE A CHAQUE ENTRE SUR APPLICATION.HTML///
   // Rmq : Call ajax a deplacer dans le profil Store ou User Store ?
   this.on('https_force?', function() {

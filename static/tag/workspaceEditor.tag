@@ -5,7 +5,7 @@
       <div class="{color2}" id="user" if={userView} onclick={goUser}>Utilisateur(s)</div>
       <div class="{color3}" if={DescriptionView} id="description" onclick={goDescription}>Déscription</div>
       <div class="{color4}" if={DescriptionView} id="description" onclick={goUtilisation}>Utilisation</div>-->
-      <div onclick={goComponent} class="commandButtonImage" class={commandButtonImage:true,menuSelected:menu=='component'}>
+      <div onclick={goComponent} class={commandButtonImage:true,menuSelected:menu=='component'}>
         <img src="./image/Flow-Chart-256.png" height="60px">
       </div>
       <div onclick={goUser} class={commandButtonImage:true,menuSelected:menu=='user'}>
@@ -198,7 +198,7 @@
     // this.color3 = "white";
     // this.color4 = "white";
     this.innerData = {};
-    this.menu = "information"
+    //this.menu = "information"
     // this.modeUserList = false; this.modeComponentList = true; this.modeUserDescription = false; this.modeUtilisation = false;
     this.title = "Workspace"
     this.persist = function () {
@@ -207,12 +207,14 @@
 
     goInformation(e) {
       // this.modeUserList = false; this.modeComponentList = false; this.modeUserDescription = true; this.modeUtilisation = false; this.color2 = "white" this.color1 = "white" this.color3 = "blue"  this.color4 = "white"
-      this.menu = 'information'
+      //this.menu = 'information';
+      RiotControl.trigger('workspace_editor_change_menu','information')
       // this.update()
     }.bind(this)
 
     goUser(e) {
-      this.menu = 'user'
+      //this.menu = 'user'
+      RiotControl.trigger('workspace_editor_change_menu','user')
       // this.modeUserList = true;
       // this.modeComponentList = false;
       // this.modeUserDescription = false;
@@ -233,7 +235,8 @@
       // this.color1 = "blue"
       // this.color3 = "white"
       // this.color4 = "white"
-      this.menu = 'component'
+      //this.menu = 'component'
+      RiotControl.trigger('workspace_editor_change_menu','component')
     }.bind(this)
 
     goUtilisation(e) {
@@ -245,7 +248,8 @@
       // this.color1 = "white"
       // this.color3 = "white"
       // this.color4 = "blue"
-      this.menu = 'utilisation'
+      //this.menu = 'utilisation'
+      RiotControl.trigger('workspace_editor_change_menu','utilisation')
     }.bind(this)
 
     this.persistClick = function (e) {
@@ -327,6 +331,12 @@
       });
       RiotControl.trigger('workspace_current_persist');
     }.bind(this));
+
+    RiotControl.on('workspace_editor_menu_changed', function (menu) {
+      this.menu=menu;
+      this.update();
+    }.bind(this));
+
 
     this.workspaceCurrentChanged = function (data) {
       console.log('workspaceEditor | workspaceCurrentChanged | ', data);
