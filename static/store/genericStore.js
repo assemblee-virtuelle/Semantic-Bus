@@ -305,6 +305,12 @@ function GenericStore(specificStoreList) {
     //console.log('WARNING');
     this.itemCurrent = data;
     //this.trigger('item_current_edit_mode','generic', this.itemCurrent);
+    this.trigger('component_current_select_done', this.itemCurrent.editor);
+  }); //<= item_current_select
+
+  this.on('component_current_refresh', function() {
+    //console.log('WARNING');
+    //this.trigger('item_current_edit_mode','generic', this.itemCurrent);
     this.trigger('item_current_editor_changed', this.itemCurrent.editor);
     this.modeConnectBefore = false;
     this.modeConnectAfter = false;
@@ -316,6 +322,7 @@ function GenericStore(specificStoreList) {
     console.log('genericStore | component_current_select |',this.itemCurrent);
     this.trigger('item_current_changed', this.itemCurrent);
   }); //<= item_current_select
+
 
   // --------------------------------------------------------------------------------
 }

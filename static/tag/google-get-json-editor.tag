@@ -23,14 +23,15 @@
     //   configurable: true
     // });
 
+    this.updateData=function(dataToUpdate){
+      this.data = dataToUpdate;
+      this.update();
+    }.bind(this);
 
     this.on('mount', function () {
-      this.updateData=function(dataToUpdate){
-        this.data = dataToUpdate;
-        this.update();
-      }.bind(this);
+
       this.refs.keyInput.addEventListener('change',function(e){
-        console.log('keychange');
+        console.log('keychange',this.data);
         this.data.specificData.key = e.currentTarget.value;
       }.bind(this));
 
