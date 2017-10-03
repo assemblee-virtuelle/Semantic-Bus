@@ -24,20 +24,21 @@ align-items: center;">
         <h4 style="font-size:20px">Modification de votre profil</h4>
           <form style="height: 61vh;width: 60%; background-color: rgb(250,250,250); padding: 2%; border-radius: 5px;">
             <label class="label-form">Email</label>
-            <input class="change-mail" value="{profil.credentials.email}"    name="email" onchange={changeEmailInput}/>
-            <!--  <div id={ result? 'good-result' : 'bad-result' }>{resultEmail}</div>  -->
+            <input class="change-mail" value="{profil.credentials.email}"  ref="email" onchange={changeEmailInput}/>
+            <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultEmail}</div>
             <label class="label-form">Name</label>
             <input class="change-mail" value="{profil.name}" name="name" onchange={changeNameInput}/>
-            <!--  <div id={ result? 'good-result' : 'bad-result' }>{resultEmail}</div>  -->
+            <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultName}</div>
             <label class="label-form" >Job</label>
             <input class="change-mail" value="{profil.society}" placeholder="ajouter votre societé" name="society" onchange={changeSocietyInput}/>
-            <!--  <div id={ result? 'good-result' : 'bad-result' }>{resultEmail}</div>  -->
+            <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultJob}</div>
             <label class="label-form">Society</label>
             <input class="change-mail" value="{profil.job}" placeholder="ajouter votre job"  name="job" onchange={changeJobInput}/>
-            <!--  <div id={ result? 'good-result' : 'bad-result' }>{resultEmail} </div>  -->
+            <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultSociety} </div>
         </form> 
+          <div id={result? 'good-result-global' : 'bad-result-global' }>{resultGlobal} </div>
           <div style="text-align: center;">
-            <button class="mail-btn"  onclick = {changeEmail} type="button" if = {googleId == null || googleId == 'undefined'}>Valider modification</button>  
+            <button class="mail-btn"  onclick = {updateUser} type="button" if = {googleId == null || googleId == 'undefined'}>Valider modification</button>  
           </div>
       </div>
       <div if={modeSetting} style="height: 95vh;">
@@ -65,26 +66,45 @@ align-items: center;">
     background-color: rgb(250,250,250);
   }
 
-     .center-left-top{
-        text-align:left;
-        width: 30%;
-     }
-    .center-right-top{
-      display: flex;
-      justify-content: space-around;
-      width: 60%;
+    .center-left-top{
+      text-align:left;
+      width: 30%;
     }
-    #good-result{
-      color: green;
-      font-size: 18px;
-      font-family: 'Raleway', sans-serif;
-      padding-top: 4%;
-    }
+  .center-right-top{
+    display: flex;
+    justify-content: space-around;
+    width: 60%;
+  }
+  #good-result{
+    color: green;
+    font-size: 18px;
+    font-family: 'Raleway', sans-serif;
+    padding-top: 4%;
+  }
+  #good-result-global{
+    color: green;
+    font-size: 18px;
+    font-family: 'Raleway', sans-serif;
+    padding-top: 1%;
+  }
 
-    .sub-title {
-      text-align:center ;
-      margin-top: 0%;
-    }
+  #bad-result{
+    color: red;
+    font-size: 18px;
+    font-family: 'Raleway', sans-serif;
+    padding-top: 4%;
+  }
+
+  #bad-result-global{
+    display: none
+  }
+
+ 
+
+  .sub-title {
+    text-align:center ;
+    margin-top: 0%;
+  }
   .change-mail {
     min-width: 80%;
     border-radius: 9px;
@@ -168,7 +188,7 @@ align-items: center;">
 
     changeEmailInput(e){
         this.profil.credentials.email = e.currentTarget.value;
-        console.log( this.profil.credentials.email);
+        console.log(this.profil.credentials.email);
     }
 
     changeJobInput(e){
@@ -184,33 +204,68 @@ align-items: center;">
         console.log(this.profil.name);
     }
 
-    changeEmail(e){
+    updateUser(e){
+      console.log(this.refs.email.value, this.profil.credentials.email)
       var regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g
       if(this.profil.credentials.email.match(regex)){
-        if(this.profil.credentials.email != this.email){
-          RiotControl.trigger('change_email', {user: this.profil});
-          RiotControl.on('email_already_exist', function(){
-            this.result = false;
-            this.resultEmail = "L'email choisi exsite déjà";
-            this.update();
-          }.bind(this));
+        if(this.profil.credentials.email != this.refs.email.value){
+          RiotControl.trigger('update_user', {user: this.profil, mailChange: true});
+        }else{
+          RiotControl.trigger('update_user', {user: this.profil, mailChange: false});
         }
+      }else{
+        this.result = false;
+        this.resultEmail = "L'email n'est pas au bond format";
       }
     }
 
+    RiotControl.on('email_already_use', function(){
+          this.result = false;
+          this.resultEmail = "L'email choisi exsite déjà";
+          this.update();
+    }.bind(this));
 
-    RiotControl.on('email_change', function(data){
+     RiotControl.on('bad_format_email', function(){
+          this.result = false;
+          this.resultEmail = "L'email n'est pas au bond format";
+          this.update();
+    }.bind(this));
+
+    RiotControl.on('google_user', function(){
+          this.result = false;
+          this.resultEmail = "vous ne pouvez pas modifier votre email en tant q'utilisateur google";
+          this.update();
+    }.bind(this));
+
+    RiotControl.on('bad_format_job', function(){
+          this.result = false;
+          this.resultJob = "Le job n'est pas au bon format";
+          this.update();
+    }.bind(this));
+
+    RiotControl.on('bad_format_name', function(){
+          this.result = false;
+          this.resultName= "Le job n'est pas au bon format";
+          this.update();
+    }.bind(this));
+
+    RiotControl.on('bad_format_society', function(){
+          this.result = false;
+          this.resultSociety= "La societe n'est pas au bon format";
+          this.update();
+    }.bind(this));
+
+    RiotControl.on('update_profil_done', function(){
       this.result = true;
-      this.resultEmail = "L'email a bien été modifié";
-      this.profil = data.user;
+      this.resultGlobal = "le profil à était mis à jour";
       this.update();
     }.bind(this))
 
-      RiotControl.on('profil_loaded', function(data){
-        console.log("profil loaded", data)
-        this.profil = data.user;
-        this.update()
-      }.bind(this))
+    RiotControl.on('profil_loaded', function(data){
+      console.log("profil loaded", data)
+      this.profil = data.user;
+      this.update()
+    }.bind(this))
 
     this.on('mount', function () {
       RiotControl.trigger('load_profil'); 

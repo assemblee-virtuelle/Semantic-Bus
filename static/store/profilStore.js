@@ -44,8 +44,8 @@ function profilStore() {
     })
 
 
-    this.on('change_email', function(data) {
-        console.log('change_email');
+    this.on('update_user', function(data) {
+        console.log('update_user', data);
         console.log(JSON.stringify(data));
         $.ajax({
             method: 'put',
@@ -57,12 +57,24 @@ function profilStore() {
             contentType: 'application/json'
         }).done(function(data) {
             console.log(data)
-            // if(data != false){
-            //     this.userCurrrent = data
-            //     this.trigger('email_change', this.userCurrrent)
-            // }else{
-            //     this.trigger('email_already_exist')
-            // }
+            if(data.err == "google_user"){
+                this.trigger('google_user_update')
+            }
+            if(data.err == "email_already_use"){
+                this.trigger('email_already_use')
+            }
+            if(data.err == "bad_format_email"){
+                this.trigger('bad_format_email')
+            }
+            if(data.err == "bad_format_job"){
+                this.trigger('bad_format_job')              
+            }
+            if(data.err == "bad_format_society"){
+                this.trigger('bad_format_society')     
+            }
+            if(data.err == null){
+                this.trigger('update_profil_done', data)
+            }
         }.bind(this));
     })
 

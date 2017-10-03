@@ -29,19 +29,19 @@
   <form>
     <h1>Inscrivez vous</h1>
       <div class="box">
-       <input  ref="nameInscription"  placeholder="saisir name"  class="email" />
+       <input  ref="nameInscription" id="test-nameInscription" placeholder="saisir name"  class="email" />
         <div id="result">{resultName}</div>
-       <input  ref="societe"  placeholder="saisir societe"  class="email" />
+       <input  ref="societe"  id="test-societeInscription" placeholder="saisir societe"  class="email" />
         <div id="result">{resultSociete}</div>
-        <input type="email" ref="emailInscription"  placeholder="saisir email"  class="email" />
+        <input type="email" id ="test-emailInscription"ref="emailInscription"  placeholder="saisir email"  class="email" />
         <div id="result">{resultEmail}</div>
-        <input type="password" required ref="passwordInscription" placeholder="saisir mot de passe"  class="email" />
-        <input type="password" required ref="confirmPasswordInscription" placeholder="confirmer mot de passe"  class="email" />
+        <input type="password" id="test-passwordInscription" required ref="passwordInscription" placeholder="saisir mot de passe"  class="email" />
+        <input type="password"id="test-confirmepasswordInscription" required ref="confirmPasswordInscription" placeholder="confirmer mot de passe"  class="email" />
         <div id="result">{resultMdp}</div>
 
          <div class="flex-container">
           <button onclick={showPage} id="btn3">Retour</button>
-          <a onclick = {inscription} id="btn3">Inscription</a>
+          <a onclick = {inscription} id="btn4">Inscription</a>
           <div>
       </div>
   </form>
@@ -258,6 +258,23 @@
     cursor: pointer;
   }
 
+   #btn4{
+    float:left;
+    background:#3498db;
+    width:125px;  padding-top:5px;
+    padding-bottom:5px;
+    color:white;
+    border-radius:4px;
+    border: #2980b9 1px solid;
+
+    margin-top:20px;
+    margin-bottom:20px;
+    margin-left:50px;
+    font-weight:800;
+    font-size:0.8em;
+    cursor: pointer;
+  }
+
   #btn2{
     float:left;
     background:#3498db;
@@ -343,6 +360,12 @@
             RiotControl.on('email_already_exist', function(){
               this.resultEmail = "L'email choisi exsite déjà"
             }.bind(this));
+            RiotControl.on('society_bad_format', function(){
+              this.resultSociete = "Entrez un format de sociéte valide"
+            }.bind(this));
+            RiotControl.on('bad_email', function(){
+              this.resultSociete = "Entrez un format d'email valide"
+            }.bind(this));
           }else{
             this.resultMdp = "mot de passe invalide"
           }
@@ -350,7 +373,7 @@
           this.resultEmail = "Veuillez entrez un email Valide"
         }
       }else{
-        this.resultEmail = "Veuillez entrez un email Valide"
+        this.resultEmail = "Il semble que un des champs requis soit vide"
       }
   }
 
@@ -375,6 +398,10 @@
       }.bind(this))
       RiotControl.on('bad_auth', function(){
         this.resultConnexion = "Mauvais mot de passe ou email"
+        this.update();
+      }.bind(this));
+      RiotControl.on('err_processus', function(){
+        this.resultConnexion = "erreur processus (vous etes peut etre un utilisateur google)"
         this.update();
       }.bind(this));
     }

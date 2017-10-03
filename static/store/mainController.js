@@ -77,11 +77,9 @@ function MainController(workSpaceStore, genericStore, profilStore) {
         console.log('is_token_valid | ', data);
         if (data.iss != null) {
           this.trigger('ajax_receipt');
-          console.log(data);
           ///HERE HERE
           localStorage.googleid = data.subject;
           localStorage.user_id = data.iss;
-          console.log(localStorage);
           this.trigger('user_authentified');
         } else {
           this.trigger('login_redirect');

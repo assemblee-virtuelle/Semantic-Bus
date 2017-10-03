@@ -38,9 +38,27 @@ module.exports = function (router) {
 // --------------------------------------------------------------------------------
 
   router.put('/users/:id', function (req, res) {
-      user_lib.update(req.body.user).then(function (result) {
-        console.log(result)
+    console.log("req body -----------------", req.body.mailChange)
+      user_lib.update(req.body.user, req.body.mailChange).then(function (result) {
+        console.log("update done")
         res.send(result)
+      }).catch(function(err){
+        console.log("update error", err)
+        if(err == "google_user"){
+          res.send({err: "google_user"})
+        }
+        if(err == "email_already_use"){
+          res.send({err: "email_already_use"})
+        }
+        if(err = "bad_format_email"){
+          res.send({err: "bad_format_email"})
+        }
+        if(err == "bad_format_job"){
+          res.send({err: "bad_format_job"})
+        }
+        if(err == "bad_format_society"){
+          res.send({err: "bad_format_society"})
+        }
       })
     });
 

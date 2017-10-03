@@ -13,7 +13,7 @@ exports.config = Object.assign(base.config, {
   ],
   services: ['chromedriver'],
   specs: [
-    './test/e2e/test_fonctionels/*.js'
+    './test/e2e/test_fonctionels/connexionInscription.js'
   ],
   port: '9515',
   path: '/',

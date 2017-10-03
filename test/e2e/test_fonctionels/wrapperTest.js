@@ -2,7 +2,7 @@ var mLabPromise = require('../../../webServices/mLabPromise.js');
 var exec = require("child_process").exec;
 
 mLabPromise.cloneDatabaseMigration().then(data => {
-    exec('wdio test/wdio.conf.cloud.fonctionels.js',
+    exec('wdio test/wdio.conf.local.js',
     function (error, stdout, stderr) {
       console.log('stdout: ' + stdout);
       console.log('stderr: ' + stderr);

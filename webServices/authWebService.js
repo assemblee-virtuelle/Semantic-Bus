@@ -28,59 +28,76 @@ module.exports = function (router) {
   // --------------------------------------------------------------------------------
 
   router.post('/inscription', function (req, res) {
+    console.log(req.body)
     inscription_lib_user.create({
       user: {
         name: req.body.name,
         job: req.body.job,
-        society: req.body.society,
+        society: req.body.societe,
         email: req.body.emailInscription,
         passwordConfirm: req.body.confirmPasswordInscription,
         password: req.body.passwordInscription
       }
     }).then(function (data) {
-      if (data.google != null) {
-        res.send({
-          data: true
-        })
-      } else {
-        res.send({
-          user: data.user,
-          token: data.token.token
-        });
-      }
+      console.log("inscription data ====>", data)
+      res.send({
+        user: data.user,
+        token: data.token.token
+      });
     }).catch(function (err) {
-      res.send(err)
+      console.log(err)
+      console.log(" ----- error during connexion -----")
+      if (err == 'name_bad_format') {
+        res.send({
+          err: "name_bad_format"
+        })
+      }
+      if (err == 'job_bad_format') {
+        res.send({
+          err: "job_bad_format"
+        })
+      }
+      if (err == 'bad_email') {
+        res.send({
+          err: "bad_email"
+        })
+      }
+      if (err == "user_exist") {
+        res.send({
+          err: "user_exist"
+        })
+      }
     })
   }); // <= inscription
 
   // --------------------------------------------------------------------------------
 
   router.post('/authenticate', function (req, res) {
-	console.log("authenticate --")
     auth_lib_user.create({
       authentication: {
         email: req.body.email,
         password: req.body.password
       }
     }).then(function (data) {
-	  console.log("authenticate =====>" ,data)
-	  if(data == "no_account_found"){
-		res.send({
-			data: false
-		  })
-	  }
-	  if (data.google != null) {
-        res.send({
-          data: true
-        })
-      } else {
-		res.send({
-			user: data.user,
-			token: data.token
-		});
-		}
+      console.log("authenticate =====>", data)
+      res.send({
+        user: data.user,
+        token: data.token
+      });
     }).catch(function (err) {
-      res.send(err)
+      if (err == "google_user") {
+        res.send({
+          err: "google_user"
+        })
+      } else if (err == "no_account_found") {
+        res.send({
+          err: "no_account_found"
+        })
+      }else if (err = "compare_bcrypt"){
+        res.send({
+          err: "probleme_procesus"
+        })
+      }
     })
   }); // <= authentification
 
