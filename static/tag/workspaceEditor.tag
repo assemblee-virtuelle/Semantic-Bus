@@ -318,9 +318,9 @@
 
     RiotControl.on('save_auto', function () {
       console.log("save auto data ||")
-      this.componentView = true;
-      this.userView = true;
-      this.DescriptionView = true;
+      // this.componentView = true;
+      // this.userView = true;
+      // this.DescriptionView = true;
       RiotControl.trigger('workspace_current_updateField', {
         field: 'name',
         data: this.innerData.name

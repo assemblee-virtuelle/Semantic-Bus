@@ -153,9 +153,9 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   });
 
 
-  this.on('item_current_persist', function() {
-    this.trigger('persist_start');
-  });
+  // this.on('item_current_persist', function() {
+  //   this.trigger('persist_start');
+  // });
 
   //PROFIL STORE
   this.on('profil_show', function(message) {
@@ -188,49 +188,37 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     this.navigateNext('workspaceEditor', true);
   }.bind(this))
 
-  genericStore.on('item_current_persist_done', function(message) {
-    workSpaceStore.trigger('workspace_synchoniseFromServer_done', message);
-  }.bind(this));
+  // genericStore.on('item_current_persist_done', function(message) {
+  //   workSpaceStore.trigger('workspace_synchoniseFromServer_done', message);
+  // }.bind(this));
 
-  workSpaceStore.on('workspace_synchoniseFromServer_done', function(message) {
-    this.workspaceCurrent = message
-    console.log('SYNC DONE');
-    this.trigger('persist_end');
-  }.bind(this));
+  // workSpaceStore.on('workspace_synchoniseFromServer_done', function(message) {
+  //   this.workspaceCurrent = message
+  //   console.log('SYNC DONE');
+  //   this.trigger('persist_end');
+  // }.bind(this));
 
   workSpaceStore.on('workspace_current_changed', function(message) {
     console.log('workspace_current_changed', this, message);
     this.workspaceCurrent = message;
     this.genericStore.workspaceCurrent = message;
-    //this.navigateNext('workspaceEditor', true);
-    // this.updateMode({
-    //   modeComponentTest: false,
-    //   modeComponentNetwork: false,
-    //   modeNavigation: true,
-    //   modeWorkspaceNavigation: false,
-    //   modeWorkspaceEdition: true,
-    //   modeWorkspaceShareNavigation: false,
-    //   modeEdition: false,
-    //   modeMenuHide: true
-    // });
-
   }.bind(this));
 
   workSpaceStore.on('workspace_current_select_done',function(message){
     this.navigateNext('workspaceEditor', true);
   }.bind(this));
 
+  workSpaceStore.on('workspace_current_add_components_done',function(message){
+    this.navigatePrevious();
+  }.bind(this));
+
+//update current component because it can be change after wokspace persist
   workSpaceStore.on('workspace_current_persist_done', function(message) {
-    // this.updateMode({
-    //   modeTechnicalComponentNavigation: false,
-    //   modeTechnicalUserNavigation: false
-    //   //modeWorkspaceNavigation : false,
-    // });
-    //this.trigger('persist_end');
     if (this.genericStore.itemCurrent != undefined) {
-      this.genericStore.trigger('component_current_select', sift({
+      this.genericStore.itemCurrent=sift({
         _id: this.genericStore.itemCurrent._id
-      }, message.components)[0]);
+      }, message.components)[0];
+      //this.genericStore.trigger('component_current_select', );
     }
   }.bind(this));
 
@@ -238,11 +226,15 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     this.navigateNext('workPreview', true);
   }.bind(this));
 
+  genericStore.on('component_current_select_done',function(message){
+    this.navigateNext('componentEditor', true);
+  }.bind(this));
 
 
-  this.on('workspace_current_persist', function() {
-    //this.trigger('persist_start');
-  });
+
+  // this.on('workspace_current_persist', function() {
+  //   //this.trigger('persist_start');
+  // });
 
   // workSpaceStore.on('item_current_element_added', function(message) {
   //   // this.updateMode({

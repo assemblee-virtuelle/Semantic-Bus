@@ -61,7 +61,8 @@
     }
 
     editClick(e) {
-      RiotControl.trigger('component_current_show');
+      console.log('graph edit Component | ',this.selectedNodes[0].component);
+      //RiotControl.trigger('component_current_show');
       RiotControl.trigger('component_current_select', this.selectedNodes[0].component);
     }
 

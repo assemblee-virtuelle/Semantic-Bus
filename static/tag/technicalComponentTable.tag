@@ -29,7 +29,7 @@
       //  if(record.selected){
       RiotControl.trigger('workspace_current_add_components',sift({selected:{$eq:true}},this.tags.zentable.data));
 
-      RiotControl.trigger('back');
+      //RiotControl.trigger('back');
         //  }
       //});
     }

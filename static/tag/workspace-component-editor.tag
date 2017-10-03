@@ -241,6 +241,8 @@
       this.update();
     }.bind(this));
 
-    this.on('mount', function () {});
+    this.on('mount', function () {
+      RiotControl.trigger('component_current_refresh');
+    });
   </script>
 </workspace-component-editor>
