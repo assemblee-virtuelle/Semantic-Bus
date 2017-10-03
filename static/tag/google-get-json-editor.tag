@@ -1,11 +1,11 @@
 <google-get-json-editor>
   <div>information de connection à google calc</div>
   <label>key</label>
-  <input type="text" name="keyInput" ref="keyInput" value={data.specificData.key}></input>
+  <input type="text" id="keyInput" ref="keyInput" value={data.specificData.key}></input>
   <label>select</label>
-  <input type="text" name="selectInput" ref="selectInput" value={data.specificData.select}></input>
+  <input type="text" id="selectInput" ref="selectInput" value={data.specificData.select}></input>
   <label>offset</label>
-  <input type="text" name="offsetInput" ref="offsetInput" value={data.specificData.offset}></input>
+  <input type="text" id="offsetInput" ref="offsetInput" value={data.specificData.offset}></input>
   <script>
 
     this.data={};

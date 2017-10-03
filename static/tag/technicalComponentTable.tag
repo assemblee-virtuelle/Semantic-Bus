@@ -5,7 +5,7 @@
       <!--<div onclick={cancelClick} class="commandButton">
         cancel
       </div>-->
-      <div if={actionReady} onclick={addComponent} class="commandButton notSynchronized">
+      <div id="addComponent" if={actionReady} onclick={addComponent} class="commandButton notSynchronized">
         add
       </div>
     </div>

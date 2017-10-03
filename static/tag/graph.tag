@@ -1,7 +1,7 @@
 <graph>
   <div class="commandBar containerH">
     <div class="containerH commandGroup" if={selectedNodes.length==1}>
-      <div onclick={editClick} class="commandButton" }>
+      <div id="editButton" onclick={editClick} class="commandButton" }>
         edit
       </div>
       <div onclick={connectBeforeClick} class="{commandButton:true,activConnection:modeConnectBefore}">
@@ -13,13 +13,13 @@
       <div onclick={removeClick} class="commandButton" }>
         remove
       </div>
-      <div onclick={workComponentClick} class="commandButton" }>
+      <div id="workButton" onclick={workComponentClick} class="commandButton" }>
         run this component
       </div>
     </div>
     <div></div>
     <div class="containerH commandGroup">
-      <div onclick={addComponentClick} class="commandButtonImage" if={!opts.disallowcommand==true}>
+      <div id="addComponent" onclick={addComponentClick} class="commandButtonImage" if={!opts.disallowcommand==true}>
         <img src="./image/Super-Mono-png/PNG/basic/blue/toggle-expand-alt.png" height="40px">
       </div>
     </div>
@@ -312,6 +312,8 @@
         return d.x;
       }).attr('y', function (d) {
         return d.y;
+      }).attr('data-id', function (d) {
+        return d.id;
       }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended)).merge(this.nodes);
 
       if (this.selectedNodes.length>0){

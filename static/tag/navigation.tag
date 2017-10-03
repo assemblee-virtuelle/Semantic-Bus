@@ -67,7 +67,7 @@
         </div>
       </div>
       <div class="containerV commandGroup" style="flex-grow:1;justify-content:center;">
-        <div onclick={back} if={isScrennHide()} class="commandButtonImage">
+        <div id="backButton" onclick={back} if={isScrennHide()} class="commandButtonImage">
           <img src="./image/Super-Mono-png/PNG/basic/blue/arrow-left.png" width="60px">
         </div>
       </div>

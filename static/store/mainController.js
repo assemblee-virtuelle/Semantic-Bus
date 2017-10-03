@@ -401,20 +401,20 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     // });
   });
 
-  this.on('workspace_current_init', function(message) {
-    this.navigateNext('workspaceEditor', true);
-    // this.updateMode({
-    //   modeComponentTest: false,
-    //   modeComponentNetwork: false,
-    //   modeNavigation: true,
-    //   modeWorkspaceNavigation: false,
-    //   modeWorkspaceEdition: true,
-    //   modeWorkspaceShareNavigation: false,
-    //   modeEdition: false,
-    //   modeMenuHide: true
-    // });
-    this.workspaceStore.trigger('workspace_current_init', message);
-  });
+  // this.on('workspace_current_init', function(message) {
+  //   this.navigateNext('workspaceEditor', true);
+  //   // this.updateMode({
+  //   //   modeComponentTest: false,
+  //   //   modeComponentNetwork: false,
+  //   //   modeNavigation: true,
+  //   //   modeWorkspaceNavigation: false,
+  //   //   modeWorkspaceEdition: true,
+  //   //   modeWorkspaceShareNavigation: false,
+  //   //   modeEdition: false,
+  //   //   modeMenuHide: true
+  //   // });
+  //   this.workspaceStore.trigger('workspace_current_init', message);
+  // });
 
   // this.on('workspace_current_cancel', function(message) {
   //   // this.updateMode({

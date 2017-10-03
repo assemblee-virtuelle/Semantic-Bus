@@ -50,6 +50,52 @@ describe('workspaces and components ', () => {
     browser.waitForVisible('workspace-editor');
     browser.waitForVisible('graph');
   })
+  it('add a component', function() {
+    browser.waitForVisible('#addComponent');
+    browser.click('#addComponent');
+    browser.waitForVisible('technical-component-table');
+    //browser.waitForVisible('div=GOOGLE calc Get JSON');
+    browser.click('div=GOOGLE calc Get JSON');
+    browser.click('#addComponent');
+    browser.waitUntil(() => {
+      return !browser.isVisible('#containerloaderDiv');
+    });
+    browser.waitForVisible('graph');
+  })
+  it('add a second component', function() {
+    browser.waitForVisible('#addComponent');
+    browser.click('#addComponent');
+    browser.waitForVisible('technical-component-table');
+    //browser.waitForVisible('div=GOOGLE calc Get JSON');
+    browser.click('div=Object Transformer');
+    browser.click('#addComponent');
+    browser.waitUntil(() => {
+      return !browser.isVisible('#containerloaderDiv');
+    });
+    browser.waitForVisible('graph');
+  })
+  it('edit first component', function() {
+    let elmts = browser.elements('graph image');
+    (elmts.value)[0].click();
+    browser.click('#editButton');
+    browser.waitForVisible('workspace-component-editor');
+    browser.setValue('#keyInput', '1v-jNViOm8dEnCPYErX-TkbpMSroTA4TzUePhxSleAYo/edit#gid=0');
+    browser.setValue('#selectInput', 'select A,B');
+    browser.setValue('#offsetInput', '1');
+    browser.setValue('#nameComponentInput', 'requetage d\'un google sheet simple');
+    browser.click('#saveButton');
+    browser.waitUntil(() => {
+      return !browser.isVisible('#containerloaderDiv');
+    });
+    browser.click('#backButton');
+    browser.waitForVisible('graph');
+  })
+  it('work first component', function() {
+    let elmts = browser.elements('graph image');
+    (elmts.value)[0].click();
+    browser.click('#workButton');
+    browser.waitForVisible('jsonPreviewer');
+  })
 })
 
 //     // ACCES LISTE WORKSPACE

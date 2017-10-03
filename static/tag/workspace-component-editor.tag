@@ -14,7 +14,7 @@
       <div onclick={workClick} class="commandButton">
         run this component
       </div>
-      <div onclick={saveWorkspaceComponent} class={ commandButton: true, persistInProgress: persistInProgress } name="saveButton">
+      <div onclick={saveWorkspaceComponent} class={commandButton: true, persistInProgress: persistInProgress } id="saveButton">
         save
       </div>
     </div>
@@ -22,7 +22,7 @@
   <div style="flex-basis:100px" class="containerH">
     <div style="flex-grow:1">
       <label>nom du composant</label>
-      <input type="text" name="nameComponentInput" onchange={onNameChange} value={itemCurrent.name}></input>
+      <input type="text" id="nameComponentInput" onchange={onNameChange} value={itemCurrent.name}></input>
     </div>
   </div>
   <div style="flex-grow:1;flex-wrap: nowrap" class="containerH">
