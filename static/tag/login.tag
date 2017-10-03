@@ -29,11 +29,13 @@
   <form>
     <h1>Inscrivez vous</h1>
       <div class="box">
-       <input  ref="nameInscription" id="test-nameInscription" placeholder="saisir name"  class="email" />
+       <input  ref="nameInscription" id="test-nameInscription" placeholder="saisir name (*)"  class="email" />
         <div id="result">{resultName}</div>
+        <input  ref="jobInscription"  id="test-jobInscription" placeholder="saisir job"  class="email" />
+        <div id="result">{resultJob}</div>
        <input  ref="societe"  id="test-societeInscription" placeholder="saisir societe"  class="email" />
         <div id="result">{resultSociete}</div>
-        <input type="email" id ="test-emailInscription"ref="emailInscription"  placeholder="saisir email"  class="email" />
+        <input type="email" id ="test-emailInscription"ref="emailInscription"  placeholder="saisir email (*)"  class="email" />
         <div id="result">{resultEmail}</div>
         <input type="password" id="test-passwordInscription" required ref="passwordInscription" placeholder="saisir mot de passe"  class="email" />
         <input type="password"id="test-confirmepasswordInscription" required ref="confirmPasswordInscription" placeholder="confirmer mot de passe"  class="email" />
@@ -302,6 +304,7 @@
   this.resultEmail = "";
   this.resultSociete = "";
   this.resultName = "";
+  this.resultJob = "";
   this.resultMdp = "";
   this.user = {};
   this.newUser = {}
@@ -330,12 +333,6 @@
       this.update()
   }.bind(this));
 
-
-
-
-
-
-
   this.isGoogleUser = function () {
      if(location.search.split('google_token=')[1] != null){
        var googleToken = location.search.split('google_token=')[1]
@@ -358,13 +355,16 @@
               this.resultEmail = "Votre compte est déja relier a un compte google"
             }.bind(this));
             RiotControl.on('email_already_exist', function(){
-              this.resultEmail = "L'email choisi exsite déjà"
+              this.resultEmail = "L'email choisi existe déjà"
             }.bind(this));
             RiotControl.on('society_bad_format', function(){
               this.resultSociete = "Entrez un format de sociéte valide"
             }.bind(this));
             RiotControl.on('bad_email', function(){
-              this.resultSociete = "Entrez un format d'email valide"
+              this.resultEmail = "Entrez un format d'email valide"
+            }.bind(this));
+            RiotControl.on('name_bad_format', function(){
+              this.resultName = "Entrez un format de nom valide"
             }.bind(this));
           }else{
             this.resultMdp = "mot de passe invalide"
@@ -374,7 +374,7 @@
         }
       }else{
         this.resultEmail = "Il semble que un des champs requis soit vide"
-      }
+    }
   }
 
   showPage(e){
@@ -448,6 +448,12 @@
     this.refs.nameInscription.addEventListener('change',function(e){
       this.resultName = ""
       this.newUser.name = e.currentTarget.value;
+       this.update();
+    }.bind(this));
+
+    this.refs.jobInscription.addEventListener('change',function(e){
+      this.resultJob = ""
+      this.newUser.job = e.currentTarget.value;
        this.update();
     }.bind(this));
 

@@ -1,4 +1,6 @@
 
+
+
 describe('workspaces and components ', () => {
     it('connexion', function() {
         var url = browser.url('/auth/login.html')
@@ -20,11 +22,13 @@ describe('workspaces and components ', () => {
         browser.click(inscriptionBtn);
         let emailInscription = '#test-emailInscription';
         browser.waitForVisible(emailInscription);
-        browser.setValue(emailInscription, 'alexfoot30956@orange.fr')
+        browser.setValue(emailInscription, 'alexfoot9@orange.fr')
         let confirmePasswordInscription= '#test-confirmepasswordInscription';
         browser.setValue(confirmePasswordInscription, 'azerty')
         let passwordInscription = '#test-passwordInscription';
         browser.setValue(passwordInscription, 'azerty')
+        let job = '#test-jobInscription'
+        browser.setValue(job, 'developpeur')
         let societe = '#test-societeInscription'
         browser.setValue(societe, 'data players')
         let name = '#test-nameInscription'

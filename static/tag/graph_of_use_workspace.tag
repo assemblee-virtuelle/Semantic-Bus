@@ -2,9 +2,9 @@
         <div class="container-top">
             <div class="center-left-top">
             <h4 style="font-size: 1.5em;"> {this.name} </h4>
-            <p> {this.job || null} </p>
-            <p> {this.societe || null} </p>
-            <p> {this.email} </p>
+            <p> job : {this.job || null} </p>
+            <p> societe : {this.societe || null} </p>
+            <p> email : {this.email} </p>
             </div>
             <div class="center-right-top">
             <div class="workspace">
@@ -162,7 +162,7 @@
         this.profil = data;
         this.email =  data.user.credentials.email;
         this.job =  data.user.job;
-        this.societe =  data.user.societe;
+        this.societe =  data.user.society;
         this.name =  data.user.name;
         this.numberWorkspace = data.workspaces.length
         data.workspaces.forEach(function(workspace){

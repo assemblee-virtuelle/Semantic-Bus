@@ -15,12 +15,7 @@
       <div if ={modeUserResume}>
         <graph-of-use-workspace></graph-of-use-workspace>
       </div>
-      <div if={modeUserEdition} style="height: 95vh;
-width: 100%;
-display: flex;
-flex-direction: column;
-justify-content: center;
-align-items: center;">
+      <div if={modeUserEdition} style="height: 95vh; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
         <h4 style="font-size:20px">Modification de votre profil</h4>
           <form style="height: 61vh;width: 60%; background-color: rgb(250,250,250); padding: 2%; border-radius: 5px;">
             <label class="label-form">Email</label>
