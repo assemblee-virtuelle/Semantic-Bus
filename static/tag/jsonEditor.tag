@@ -1,5 +1,5 @@
 <jsonEditor class="containerV">
-  <div id="jsoneditor" ref="jsoneditor" style="flex-grow:1">
+  <div id="jsoneditor" ref="jsoneditor" class="containerV">
   </div>
   <script>
     //var tag = this
@@ -58,7 +58,31 @@
   <style>
     /*@import 'js/jsonEditor/dist/jsoneditor.min.css';*/
     .jsoneditor {
-      height : 100%;
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      height : auto;
+      flex-shrink :1;
+    }
+    .jsoneditor-outer {
+      flex-grow: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+      height : auto;
+      flex-shrink :1;
+    }
+
+    .jsoneditor-tree {
+      flex-grow: 1;
+      height : auto;
+      flex-shrink :1;
+    }
+    .jsoneditor-text {
+      flex-grow: 1;
+      height : auto;
+      flex-shrink :1;
     }
   </style>
 
