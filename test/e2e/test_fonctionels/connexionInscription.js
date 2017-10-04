@@ -11,7 +11,7 @@ describe('workspaces and components ', () => {
         browser.setValue(password, 'azerty')
         //$('#btn2').click();
         browser.click('#btn2');
-        browser.waitForVisible('navigation', 10000);
+        browser.waitForVisible('.containerV', 10000);
         //expect(browser.getUrl()).to.be.equal('http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/ihm/application.html');
         //token = browser.localStorage('GET', 'token').value;
     })
@@ -22,7 +22,7 @@ describe('workspaces and components ', () => {
         browser.click(inscriptionBtn);
         let emailInscription = '#test-emailInscription';
         browser.waitForVisible(emailInscription);
-        browser.setValue(emailInscription, 'alexfoot9@orange.fr')
+        browser.setValue(emailInscription, 'alextesteur@orange.fr')
         let confirmePasswordInscription= '#test-confirmepasswordInscription';
         browser.setValue(confirmePasswordInscription, 'azerty')
         let passwordInscription = '#test-passwordInscription';
@@ -35,7 +35,7 @@ describe('workspaces and components ', () => {
         browser.setValue(name, 'dataPlayersTesteur')
         //$('#btn2').click();
         browser.click('#btn4');
-        browser.waitForVisible('navigation', 10000);
+        browser.waitForVisible('.containerV', 10000);
         //expect(browser.getUrl()).to.be.equal('http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/ihm/application.html');
         //token = browser.localStorage('GET', 'token').value;
     })
@@ -53,6 +53,20 @@ describe('workspaces and components ', () => {
         browser.waitForVisible(passwordGoogle, 10000);
         browser.setValue(passwordGoogle, 'semanticbus')
         browser.click('.RveJvd.snByac');
-        browser.waitForVisible('navigation', 15000);
+        browser.waitForVisible('.containerV', 15000);
+    })
+
+    it('local storage test', function(){
+        browser.localStorage('POST', {key: "token", value: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJleHAiOjE1MDU3MDg5NDksImlhdCI6MTUwNDQ5OTM0OSwiaXNzIjoiNTk0NDY0OWExMDQxYzEwMDIxZjk3NzIyIn0.-Lb1hUSM1PIrH12BM53uysPtn5Vu2IR1Lvnq7EsNTjg"});
+        var url = browser.url('/ihm/application.html')
+        // browser.waitForVisible('navigation', 10000);
+        let email = '#email';
+        browser.waitForVisible(email);
+        browser.setValue(email, 'alexfoot32@orange.fr')
+        let password = '#password';
+        browser.setValue(password, 'azerty')
+        //$('#btn2').click();
+        browser.click('#btn2');
+        browser.waitForVisible('.containerV', 10000);
     })
 })
