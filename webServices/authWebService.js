@@ -18,9 +18,11 @@ module.exports = function (router) {
       jwtService.require_token(req.body.token).then(function (token_result) {
         if (token_result != false) {
           res.send(token_result);
-        } else {
-          res.send(false)
         }
+      }).catch((err) => {
+        console.log("error is token validde web service")
+        if(err)
+          res.send(false)
       })
     }
   }); // <= isTokenValid

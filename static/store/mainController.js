@@ -82,6 +82,9 @@ function MainController(workSpaceStore, genericStore, profilStore) {
           localStorage.user_id = data.iss;
           this.trigger('user_authentified');
         } else {
+          localStorage.token = null
+          localStorage.googleid = null
+          localStorage.user_id = null
           this.trigger('login_redirect');
           // window.open("../auth/login.html", "_self");
         }
