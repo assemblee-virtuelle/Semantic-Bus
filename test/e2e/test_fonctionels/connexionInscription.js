@@ -22,7 +22,7 @@ describe('workspaces and components ', () => {
         browser.click(inscriptionBtn);
         let emailInscription = '#test-emailInscription';
         browser.waitForVisible(emailInscription);
-        browser.setValue(emailInscription, 'alextesteur@orange.fr')
+        browser.setValue(emailInscription, 'alextesteur2@orange.fr')
         let confirmePasswordInscription= '#test-confirmepasswordInscription';
         browser.setValue(confirmePasswordInscription, 'azerty')
         let passwordInscription = '#test-passwordInscription';

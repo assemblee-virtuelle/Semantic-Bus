@@ -5,7 +5,7 @@ exec('wdio test/wdio.conf.local.js',
         console.log('stdout: ' + stdout);
         console.log('stderr: ' + stderr);
         userModel.remove({
-            'credentials.email': "alexfoot9@orange.fr"
+            'credentials.email': "alextesteur2@orange.fr"
         })
         .exec(function (err, userData) {
             console.log("user delete")
