@@ -13,6 +13,9 @@ module.exports = {
         return new Promise(function (resolve, reject) {
             auth_lib_jwt.require_token(token).then(function (res) {
                 resolve(res)
+            }).catch((err) => {
+                console.log(" ----- error jwt service ----")
+                reject(err)
             })
         })
     }
