@@ -7,7 +7,10 @@ var proc = child_process.exec('wdio test/wdio.conf.local.js',
         userModel.remove({
             'credentials.email': "alexfoot9@orange.fr"
         })
-        .exec();
+        .exec(function (err, userData) {
+            console.log("user delete");
+            proc.kill('SIGINT');//try to kill process after async but fail
+        });
         if (error !== null) {
           console.log('exec error: ' + error);
         };
