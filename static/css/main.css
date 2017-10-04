@@ -13,14 +13,11 @@ body{
 }
 
 .commandBar{
-  /*justify-content: flex-end;*/
-  /*background-color: #3883fa;
-  color: #cce2ff;*/
   justify-content: space-between;
   padding: 2px;
   overflow-y :visible;
   color: #3883fa;
-  /*background-color: white;*/
+
 }
 
 

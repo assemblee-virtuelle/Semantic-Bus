@@ -1,6 +1,6 @@
 <object-transformer>
   <div>configuration d'un objet de transformation</div>
-  <jsonEditor ref="jsonSchema" title="Transform Schema" style="flex:1" modes="['tree','text']"></jsonEditor>
+  <jsonEditor ref="jsonSchema" title="Transform Schema" class="containerV" modes="['tree','text']"></jsonEditor>
   <script>
     this.innerData = {};
     this.test = function () {
