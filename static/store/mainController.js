@@ -1,11 +1,11 @@
 function MainController(workSpaceStore, genericStore, profilStore) {
   riot.observable(this) // Riot provides our event emitter.
   this.workspaceStore = workSpaceStore;
-  this.workspaceStore.mainController=this;
+  this.workspaceStore.mainController = this;
   this.genericStore = genericStore;
-  this.genericStore.mainController=this;
+  this.genericStore.mainController = this;
   this.profilStore = profilStore;
-  this.profilStore.mainController=this;
+  this.profilStore.mainController = this;
   //this.currentEditStore;
   // this.displayMode = {
   //   modeNavigation: true,
@@ -95,36 +95,36 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   this.navigateNext = function(newScreen, hidePrevious, baseScreen) {
     //all screen after baseScreen will be removed
     var baseScreenDepth;
-    console.log(this.screenHistory[this.screenHistory.length- 1],newScreen);
+    console.log(this.screenHistory[this.screenHistory.length - 1], newScreen);
     // if (sift({
     //     screen: newScreen
     //   }, this.screenHistory[this.screenHistory.length - 1]).length == 0) {
-      if (baseScreen != undefined) {
-        baseScreenDepth = sift({
-          screen: baseScreen
-        }, this.screenHistory[this.screenHistory.length - 1])[0].depth;
-      } else {
-        let lastStep = this.screenHistory[this.screenHistory.length - 1];
-        baseScreenDepth = lastStep[lastStep.length - 1].depth;
+    if (baseScreen != undefined) {
+      baseScreenDepth = sift({
+        screen: baseScreen
+      }, this.screenHistory[this.screenHistory.length - 1])[0].depth;
+    } else {
+      let lastStep = this.screenHistory[this.screenHistory.length - 1];
+      baseScreenDepth = lastStep[lastStep.length - 1].depth;
+    }
+    var newScreenHistory = JSON.parse(JSON.stringify(sift({
+      depth: {
+        $lte: baseScreenDepth
       }
-      var newScreenHistory = JSON.parse(JSON.stringify(sift({
-        depth: {
-          $lte: baseScreenDepth
-        }
-      }, this.screenHistory[this.screenHistory.length - 1])));
-      if (hidePrevious) {
-        newScreenHistory.forEach(step => {
-          step.show = false
-        });
-      }
-      newScreenHistory.push({
-        screen: newScreen,
-        depth: baseScreenDepth + 1,
-        show: true
-      })
-      this.screenHistory.push(newScreenHistory);
-      console.log('screenHistory', this.screenHistory);
-      this.trigger('newScreenHistory', newScreenHistory);
+    }, this.screenHistory[this.screenHistory.length - 1])));
+    if (hidePrevious) {
+      newScreenHistory.forEach(step => {
+        step.show = false
+      });
+    }
+    newScreenHistory.push({
+      screen: newScreen,
+      depth: baseScreenDepth + 1,
+      show: true
+    })
+    this.screenHistory.push(newScreenHistory);
+    console.log('screenHistory', this.screenHistory);
+    this.trigger('newScreenHistory', newScreenHistory);
     // }
 
   }
@@ -205,30 +205,38 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     this.genericStore.workspaceCurrent = message;
   }.bind(this));
 
-  workSpaceStore.on('workspace_current_select_done',function(message){
+  workSpaceStore.on('workspace_current_select_done', function(message) {
     this.navigateNext('workspaceEditor', true);
   }.bind(this));
 
-  workSpaceStore.on('workspace_current_add_components_done',function(message){
+  workSpaceStore.on('workspace_current_add_components_done', function(message) {
     this.navigatePrevious();
   }.bind(this));
 
-//update current component because it can be change after wokspace persist
+  //update current component because it can be change after wokspace persist
   workSpaceStore.on('workspace_current_persist_done', function(message) {
     if (this.genericStore.itemCurrent != undefined) {
-      this.genericStore.itemCurrent=sift({
+      this.genericStore.itemCurrent = sift({
         _id: this.genericStore.itemCurrent._id
       }, message.components)[0];
       //this.genericStore.trigger('component_current_select', );
     }
   }.bind(this));
 
-  genericStore.on('item_current_work_done',function(message){
+  genericStore.on('item_current_work_done', function(message) {
     this.navigateNext('workPreview', true);
   }.bind(this));
 
-  genericStore.on('component_current_select_done',function(message){
-    this.navigateNext('componentEditor', true);
+  genericStore.on('component_current_select_done', function(message) {
+
+    if (sift({
+        screen: 'componentEditor',
+        show: true
+      }, this.screenHistory[this.screenHistory.length - 1]).length > 0) {
+      genericStore.refresh();
+    } else {
+      this.navigateNext('componentEditor', true);
+    }
   }.bind(this));
 
 
