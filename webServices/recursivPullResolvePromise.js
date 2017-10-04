@@ -366,7 +366,7 @@ var proto = {
       }
 
       let module = this.technicalComponentDirectory[component.module];
-      console.log(incConsole, "buildPathResolution", component._id, requestDirection, module.type);
+      // console.log(incConsole, "buildPathResolution", component._id, requestDirection, module.type);
       var out = [];
       //if (requestDirection == "pull") {
       if (requestDirection != 'push') {
@@ -437,7 +437,7 @@ var proto = {
 
     // create a new Promise
     return new Promise((resolve, reject) => {
-      //console.log('recursivPullResolvePromise | ',component,' | connectionsBefore |',component.connectionsBefore);
+      // console.log('recursivPullResolvePromise | ',component,' | connectionsBefore |',component.connectionsBefore);
       var module = this.technicalComponentDirectory[component.module];
       //console.log('recursivPullResolvePromise | technicalComponentDirectory | ',this.technicalComponentDirectory,this.workspaceComponentPromise);
       console.log('recursivPullResolvePromise | module | ', module.type, module.name);

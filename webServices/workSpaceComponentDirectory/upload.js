@@ -1,7 +1,7 @@
 var mLabPromise = require('../mLabPromise');
+var workspace_component_lib = require('../../lib/core/lib/workspace_component_lib');
 
 module.exports = {
-
   type: 'Upload',
   description: 'Uploader un fichier',
   editor: 'upload-editor',
@@ -47,26 +47,12 @@ module.exports = {
         }.bind(this));
         req.pipe(busboy);
       }.bind(this)).then(function(resultatTraite) {
-        console.log("DATA TRAITÉE |", resultatTraite)
-
+        console.log("DATA TRAITÉE UPLOAD |", resultatTraite)
         var recursivPullResolvePromiseDynamic = require('../recursivPullResolvePromise');
-        this.mLabPromise.request('GET', 'workspaceComponent/' + compId, undefined, undefined).then(data => {
+        workspace_component_lib.get({_id: compId}).then(data => {
+          console.log(data)
           recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(data, 'push', resultatTraite);
         });
-
-        // return new Promise((resolve, reject) => {
-        //
-        //
-        //   console.log('cash data | ',flowData);
-        //   this.mLabPromise.request('PUT', 'cache/' + compId, {
-        //     data: JSON.stringify(resultatTraite)
-        //   }).then(function (data) {
-        //     resolve(data);
-        //     console.log('cache | pull| ',data);
-        //     //return recursivPullResolvePromise.resolveComponentPull(data);
-        //   });
-        //
-        // })
       }.bind(this))
     }.bind(this))
   },
