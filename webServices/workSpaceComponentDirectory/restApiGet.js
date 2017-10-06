@@ -64,7 +64,7 @@
             //console.log(out);
             res.send(out);
           } else if (specificData.contentType.search('yaml') != -1) {
-res.send(this.json2yaml.stringify(dataToSend.data));
+              res.send(this.json2yaml.stringify(dataToSend.data));
 
           }else if (specificData.contentType.search('json') != -1) {
                         res.json(dataToSend.data);
