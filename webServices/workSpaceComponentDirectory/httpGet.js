@@ -7,8 +7,9 @@ module.exports = {
   http: require('http'),
   https: require('follow-redirects').https,
   dataTraitment: require("../dataTraitmentLibrary/index.js"),
-  makeRequest: function (methodRest, urlString, options) {
+  makeRequest: function (methodRest, urlString, contentType) {
     var _self = this
+    console.log(contentType)
     //Probleme de contexte avec les arrow function
     return new Promise((resolve, reject) => {
       const parsedUrl = this.url.parse(urlString);
@@ -41,7 +42,7 @@ module.exports = {
 
         response.on('end', function () {
           // console.log("RESPONSE BEFORE TRAITMENT", responseBody)
-          _self.dataTraitment.type.type_file(response.headers['content-disposition'],responseBody, responseBodyExel).then(function(result){
+          _self.dataTraitment.type.type_file(response.headers['content-disposition'],responseBody, responseBodyExel, undefined,  contentType).then(function(result){
             // console.log(result)
             resolve(result)
           })
@@ -58,6 +59,6 @@ module.exports = {
   },
   pull: function (data) {
     console.log('REST Get JSON | pull : ',data);
-    return this.makeRequest('GET', data.specificData.url);
+    return this.makeRequest('GET', data.specificData.url, data.specificData.contentType);
   }
 };

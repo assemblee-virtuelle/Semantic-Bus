@@ -9,7 +9,6 @@ exec('wdio test/wdio.conf.local.js',
         })
         .exec(function (err, userData) {
             console.log("user delete")
-            return 
         });
         if (error !== null) {
         console.log('exec error: ' + error);

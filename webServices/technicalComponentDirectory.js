@@ -26,6 +26,8 @@ module.exports = {
   mongoConnector: require('./workSpaceComponentDirectory/connecteurMongoDB.js'),
   sparqlRequest: require('./workSpaceComponentDirectory/sparqlRequest.js'),
   valueMapping: require('./workSpaceComponentDirectory/valueMapping.js'),
+  jsonToYaml: require('./workSpaceComponentDirectory/jsonToYaml.js'),
+
   /* some other modules you want */
 
   // --------------------------------------------------------------------------------

@@ -26,12 +26,13 @@ var proto = {
   resolveComponent(component, requestDirection, pushData) {
     //buildPathResolution component, requestDirection
 
-    console.log(" ---------- resolveComponent -----------")
+    console.log(" ---------- resolveComponent -----------", component)
 
     return new Promise((resolve, reject) => {
       this.workspace_component_lib.get_all({
         workspaceId: component.workspaceId
       }).then(components => {
+        // GOOD ==> console.log(" ---------- resolveComponentInner -----------" , components)
         this.componentsResolving = components;
         this.componentsResolving.forEach(component => {
           component.status = 'waiting';
@@ -50,6 +51,7 @@ var proto = {
         }, this.componentsResolving)[0];
         this.pathResolution = this.buildPathResolution(originComponent, requestDirection, 0, this.componentsResolving);
         this.pathResolution.forEach(link => {
+          //GOOD ==> console.log("link", link)
           link.status = 'waiting';
         });
         // this.linksProcessing = [];
@@ -60,21 +62,23 @@ var proto = {
         this.RequestOrigineResponse = undefined;
 
         /// -------------- push case  -----------------------
-
+        var traitement_id = Date.now()
         if (requestDirection == 'push') {
           // affecter le flux à tous les link dont la source est le composant
           // console.log(" function : resolveComponent | variable : in push ")
           // this.sift({
           //   '_id': component._id
           // }, this.componentsResolving)[0].dataResolution = pushData;
+          
           originComponent.dataResolution = pushData;
-
+          // GOOD ==> console.log("----- PUSH -----", pushData)
+          // GOOD ==> console.log("----- PUSH Component--=---", pushData)
           this.sift({
             "source._id": component._id
           }, this.pathResolution).forEach(link => {
             link.status = 'processing'
           });
-          this.processNextBuildPath();
+          this.processNextBuildPath(traitement_id, component.workspaceId, global_flow);
         }
 
         /// -------------- pull case  -----------------------
@@ -95,16 +99,16 @@ var proto = {
         //   //   $exists: false
         //   // }
         // }, this.componentsResolving)
-        var traitement_id = Date.now()
         var global_flow = 0
         tableSift.forEach(componentProcessing => {
           let module = this.technicalComponentDirectory[componentProcessing.module];
           //let componentProcessing = processingLink.source;
           //console.log('PULL start | ', componentProcessing._id);
           module.pull(componentProcessing, undefined, undefined).then(componentFlow => {
-            console.log('PULL END | ', componentProcessing._id);
+            console.log('PULL END | -------', componentProcessing._id);
             componentProcessing.dataResolution = componentFlow;
             componentProcessing.status = 'resolved';
+            console.log("componentFlow ----------", componentFlow)
             ///update first component her
             // componentProcessing.consumption_history.push({
             //   traitement_id: traitement_id,
@@ -181,11 +185,12 @@ var proto = {
         let dataFlow = linksProcessing.map(sourceLink => {
           let d=sourceLink.source.dataResolution;
           d.componentId=sourceLink.source._id;
+          console.log("in dataflow constitution", d)
           return d;
         });
 
         /// Update procecing link
-        console.log("DATA FLOWWWW======>", this.objectSizeOf(dataFlow))
+        console.log("DATA FLOWWWW==>", this.objectSizeOf(dataFlow))
         processingLink.destination.consumption_history.push({
           traitement_id: traitement_id,
           flow_size: this.objectSizeOf(dataFlow) / 1000000,
@@ -272,6 +277,7 @@ var proto = {
             });
           } else {
             module.pull(processingLink.destination, dataFlow, undefined).then(componentFlow => {
+              console.log("componentFlow", this.objectSizeOf(componentFlow))
               console.log('PULL END | ', processingLink.destination._id);
               processingLink.destination.dataResolution = componentFlow;
               processingLink.destination.status = 'resolved';
