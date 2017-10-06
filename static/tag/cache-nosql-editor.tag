@@ -30,15 +30,14 @@
       this.update();
     }.bind(this);
 
+    RiotControl.on('item_current_getCache_done', function (data) {
+      //this.cahedData = data;
+      this.refs.cachedData.data = data;
+      this.update();
+    }.bind(this));
 
     this.on('mount', function () {
-
       RiotControl.on('item_current_changed',this.updateData);
-      RiotControl.on('item_current_getCache_done', function (data) {
-        //this.cahedData = data;
-        this.refs.cachedData.data = data;
-        this.update();
-      }.bind(this));
       RiotControl.trigger('item_current_getCache');
     });
     this.on('unmount', function () {
