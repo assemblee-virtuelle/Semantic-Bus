@@ -4,10 +4,10 @@
     this.editor = 'rest-api-get-editor';
     this.graphIcon ='restApiGet.png';
     this.stepNode = false;
-    this.mLabPromise = require('../mLabPromise');
     this.workspace_component_lib = require('../../lib/core/lib/workspace_component_lib');
     this.data2xml = require('data2xml');
     this.dataTraitment = require("../dataTraitmentLibrary/index.js");
+    this.json2yaml= require('json2yaml');
 
 
     this.initialise = function (router) {
@@ -39,7 +39,12 @@
           }
         }).catch(err => {
           console.log('FAIL', err);
-          res.status(err.code).send(err.message)
+          if(err.code){
+            res.status(err.code).send(err.message);
+          }else {
+            res.status(500).send("serveur error");
+          }
+
         }).then(dataToSend => {
           console.log('API data', specificData);
           if (specificData.contentType.search('application/vnd.ms-excel') != -1) {
@@ -58,8 +63,11 @@
             }
             //console.log(out);
             res.send(out);
-          } else if (specificData.contentType.search('json') != -1) {
-            res.json(dataToSend.data);
+          } else if (specificData.contentType.search('yaml') != -1) {
+res.send(this.json2yaml.stringify(dataToSend.data));
+
+          }else if (specificData.contentType.search('json') != -1) {
+                        res.json(dataToSend.data);
           } else {
             res.send('type mime non géré')
           }

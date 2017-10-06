@@ -9,7 +9,9 @@
     Object.defineProperty(this, 'data', {
       set: function (data) {
         this.innerData = data;
+        console.log('transformer |',data);
         if (data.specificData) {
+
           this.refs.jsonSchema.data = data.specificData.transformObject;
           data.specificData
         }

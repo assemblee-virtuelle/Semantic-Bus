@@ -10,6 +10,7 @@ module.exports = {
 
 
 function _extension(filename, contentType) {
+  console.log("contentType", contentType, "filename", filename)
   return new Promise(function (resolve, reject) {
     var regex = /\.([^.]+)/g;
     var reg = new RegExp(regex, 'g');
@@ -27,9 +28,9 @@ function _extension(filename, contentType) {
   })
 }
 
-function _type_file(filename, dataString, dataBuffer, out, api) {
-  console.log("in aggregate function", dataString)
-  return _extension(filename).then(function (extension) {
+function _type_file(filename, dataString, dataBuffer, out, contentType) {
+  console.log("in aggregate function")
+  return _extension(filename, contentType).then(function (extension) {
     console.log("extension |", extension)
     return new Promise(function (resolve, reject) {
       if (out == true || out == 'true') {
@@ -41,6 +42,7 @@ function _type_file(filename, dataString, dataBuffer, out, api) {
         switch (extension) {
           // JSONLD ///JSON //DONE
           case (".json" || ".json-ld"):
+            console.log()
             resolve({
               data: JSON.parse(dataString)
             })

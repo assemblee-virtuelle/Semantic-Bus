@@ -21,7 +21,7 @@
           </div>
         </div>
       </div> <!-- End Box -->
-      <p>mot de passe oublié? <u style="color:#f1c40f;">Clicker pas ici!</u></p>
+      <!--  <p>mot de passe oublié? <u style="color:#f1c40f;">Clicker pas ici!</u></p>  -->
     </form>
   </div>
 

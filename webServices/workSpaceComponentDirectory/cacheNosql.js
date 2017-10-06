@@ -74,11 +74,11 @@ module.exports = {
 
   },
 
-  pull: function(data, flowData) {
-    //console.log('Flow Agregator | pull : ',data,' | ',flowData);
+  pull: function(data, flowData, undefined) {
+    console.log('--------- cash data START --------  : ', flowData,' | ');
     return new Promise((resolve, reject) => {
-      if (flowData != undefined) {
-        console.log('cash data | ',flowData[0]);
+      if (flowData[0].data != undefined) {
+        console.log('cash data inner component| ',data, flowData[0].data);
         this.cache_lib.create(data,flowData[0]).then(cachedData=>{
           resolve(cachedData);
         });
@@ -91,6 +91,7 @@ module.exports = {
         // });
       } else {
         this.cache_lib.get(data).then(cachedData=>{
+          console.log("in else", cachedData)
           resolve(cachedData);
         })
         // this.mLabPromise.request('GET', 'cache/' + data._id).then(function(cachedData) {
