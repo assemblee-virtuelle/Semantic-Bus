@@ -90,11 +90,22 @@ describe('workspaces and components ', () => {
     browser.click('#backButton');
     browser.waitForVisible('graph');
   })
-  it('work first component', function() {
+  it('work first component by graph', function() {
     let elmts = browser.elements('graph image');
     (elmts.value)[0].click();
     browser.click('#workButton');
     browser.waitForVisible('jsonPreviewer');
+    browser.click('#backButton');
+    browser.waitForVisible('graph');
+  })
+  it('work first component by editor', function() {
+    let elmts = browser.elements('graph image');
+    (elmts.value)[0].click();
+    browser.click('#editButton');
+    browser.click('#workButton');
+    browser.waitForVisible('jsonPreviewer');
+    browser.click('#backButton');
+    browser.waitForVisible('graph');
   })
 })
 

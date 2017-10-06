@@ -1,6 +1,6 @@
 var userModel = require('../../../lib/core/models').user
-var exec = require("child_process").exec;
-exec('wdio test/wdio.conf.local.js',
+var child_process = require("child_process");
+var proc = child_process.exec('wdio test/wdio.conf.local.js',
     function (error, stdout, stderr) {
         console.log('stdout: ' + stdout);
         console.log('stderr: ' + stderr);
@@ -8,9 +8,11 @@ exec('wdio test/wdio.conf.local.js',
             'credentials.email': "alextesteur2@orange.fr"
         })
         .exec(function (err, userData) {
-            console.log("user delete")
+            console.log("user delete");
+            proc.kill('SIGINT');//try to kill process after async but fail
         });
         if (error !== null) {
-        console.log('exec error: ' + error);
-        }
+          console.log('exec error: ' + error);
+        };
+
 }.bind(this));

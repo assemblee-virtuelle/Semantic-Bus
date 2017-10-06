@@ -1,7 +1,7 @@
 <rest-get-editor>
   <div>description du web service à intéroger</div>
   <label>url</label>
-  <input type="text" ref="urlInput" onChange={changeUrl} value={data.specificData? data.specificData.url : "test"} ></input>
+  <input type="text" ref="urlInput" onChange={changeUrl} value={data.specificData? data.specificData.url : ""} ></input>
    <label>content-type</label>
   <input type="text"  ref="contentTypeInput"  onChange={changeContentType} value={data.specificData? data.specificData.contentType : "test"}></input>
 

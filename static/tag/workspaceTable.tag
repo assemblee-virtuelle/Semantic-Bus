@@ -1,5 +1,5 @@
 <workspace-table class="containerV">
-  <div class="commandBar containerH" ref="test">
+  <div class="commandBar containerH">
     My Workspaces
   </div>
   <zenTable style="flex:1" ref="workspaceZenTable">
