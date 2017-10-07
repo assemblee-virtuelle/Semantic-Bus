@@ -460,7 +460,8 @@ function WorkspaceStore() {
       } else if (data == "already") {
         this.trigger('share_change_already')
       } else {
-        this.userCurrrent = data
+        this.userCurrrent = data,
+        console.log('share-workspace',data);
         this.trigger('share_change', {
           user: data.user,
           workspace: data.workspace
