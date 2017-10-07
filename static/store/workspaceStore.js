@@ -203,7 +203,7 @@ function WorkspaceStore() {
       }).done(data => {
         this.workspaceBusiness.connectWorkspaceComponent(data.components);
         this.workspaceCurrent = data;
-        //this.workspaceCurrent.mode = 'edit';
+        this.workspaceCurrent.mode = 'edit';
         this.menu='component'
         //this.workspaceCurrent.synchronized =true;
         resolve(data);
@@ -346,7 +346,7 @@ function WorkspaceStore() {
 
 
   this.on('workspace_current_persist', function() {
-    console.log('workspace_current_persist');
+    console.log('workspace_current_persist',this.workspaceCurrent);
     var mode = this.workspaceCurrent.mode;
     if (mode == 'init') {
       this.create();
