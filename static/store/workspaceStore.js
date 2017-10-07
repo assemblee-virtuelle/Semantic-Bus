@@ -441,7 +441,7 @@ function WorkspaceStore() {
   ///GESTION DES DROIT DE USER
 
   this.on('share-workspace', function(data) {
-    console.log(data);
+    console.log('share-workspace |',data,localStorage.token);
     $.ajax({
       method: 'put',
       url: '../data/core/share/workspace/',
@@ -449,12 +449,12 @@ function WorkspaceStore() {
       headers: {
         "Authorization": "JTW" + " " + localStorage.token
       },
-      beforeSend: function() {
-        this.trigger('share_change_send');
-      }.bind(this),
+      // beforeSend: function() {
+      //   this.trigger('share_change_send');
+      // }.bind(this),
       contentType: 'application/json'
     }).done(function(data) {
-      console.log('in share data', user.userata)
+      console.log('in share data', data)
       if (data == false) {
         this.trigger('share_change_no_valide')
       } else if (data == "already") {

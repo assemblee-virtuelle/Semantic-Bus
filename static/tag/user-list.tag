@@ -12,7 +12,7 @@
   </div>
   <div class="flex-container">
     <h3 class="title-user-list">Membres</h3>
-    <input id="users-list" class="awesomplete" placeholder="entrez un email..." value="{email}">
+    <input id="users-list" class="awesomplete"  placeholder="entrez un email..." value="{email}">
     <!--<a class="share-btn" onclick={share}>Partager</a>-->
     <p class="text-user-list">{resultShare}</p>
     <p class="text-user-list">Saisissez une adresse e-mail pour partager votre Workspace</p>
@@ -43,7 +43,7 @@
     }.bind(this));
 
     RiotControl.on('workspace_current_changed', function (data) {
-      console.log('load current worksapce : user module ||', data)
+      //console.log('load current worksapce : user module ||', data)
       this.workspace = data
     }.bind(this));
 
@@ -53,13 +53,17 @@
       var awesomplete = new Awesomplete(input);
       awesomplete.list = data;
       input.addEventListener('awesomplete-selectcomplete', function (evt) {
+        console.log('awesomplete-selectcomplete',evt.target.value);
         this.actionReady=true;
+        this.email = evt.target.value;
         this.update();
       }.bind(this));
     }.bind(this));
 
     share(e) {
-      console.log("share")
+      console.log("share");
+      console.log(this.workspace);
+      console.log(this.email);
       if (this.workspace) {
         console.log("this.workspace", this.workspace)
         RiotControl.trigger('share-workspace', {
@@ -73,13 +77,23 @@
       this.actionReady=false;
     }
 
+    changeEmailValue(e){
+      console.log('ALLO');
+      this.email = e.currentTarget.value;
+
+    }
+
     this.on('mount', function () {
       this.email = "";
+// console.log($('#users-list'));
+// $('#users-list').on('change', function (e) {
+//   console.log('value changed',e);
+//   this.email = e.currentTarget.value;
+// }.bind(this));
       RiotControl.trigger('load_all_profil_by_email');
 
-      $('#users-list').on('change', function (e) {
-        this.email = e.currentTarget.value;
-      }.bind(this));
+
+      RiotControl.trigger('workspace_current_refresh');
     })
   </script>
   <style scoped>

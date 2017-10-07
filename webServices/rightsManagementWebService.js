@@ -48,17 +48,21 @@ module.exports = function (router) {
                 console.log("update", user)
                 // console.log(newUser)
                 if (newUser.workspaces.length > 0) {
+                    console.log('XXXXXX   newUser.workspaces.length > 0 ');
                     if (!contains(newUser.workspaces, {
                             _id: workspace_id
                         })) {
+                          console.log('XXXXXX   already ',newUser.workspaces);
                         newUser.workspaces.push({
                             _id: workspace_id,
                             role: "editor"
                         })
-                        user_lib.update(userId, { user: {workspaces: newUser.workspaces}}).then(function (user) {
+                        console.log('XXXXXX   already ',newUser.workspaces);
+                        user_lib.update(newUser).then(function (user) {
                             res.send(user)
                         })
                     } else {
+                      console.log('XXXXXX   NOT already ');
                         res.send("already")
                     }
                 } else {
