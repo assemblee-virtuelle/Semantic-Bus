@@ -22,26 +22,29 @@
     reloadCacheClick(e) {
       RiotControl.trigger('item_current_reloadCache');
     }
-    getCacheClick(e) {
-      RiotControl.trigger('item_current_getCache');
-    }
+    // getCacheClick(e) {
+    //   RiotControl.trigger('item_current_getCache');
+    // }
     this.updateData=function(dataToUpdate){
       this.innerData = dataToUpdate;
       this.update();
     }.bind(this);
 
-    RiotControl.on('item_current_getCache_done', function (data) {
-      //this.cahedData = data;
-      this.refs.cachedData.data = data;
+    this.refreshCashe=function(casheData){
+      this.refs.cachedData.data = casheData;
       this.update();
-    }.bind(this));
+    }.bind(this);
+
+
 
     this.on('mount', function () {
       RiotControl.on('item_current_changed',this.updateData);
+      RiotControl.on('item_current_getCache_done', this.refreshCashe);
       RiotControl.trigger('item_current_getCache');
     });
     this.on('unmount', function () {
       RiotControl.off('item_current_changed',this.updateData);
+      RiotControl.off('item_current_getCache_done', this.refreshCashe);
     });
   </script>
 </cache-nosql-editor>

@@ -77,7 +77,7 @@ module.exports = {
   pull: function(data, flowData, undefined) {
     console.log('--------- cash data START --------  : ', flowData,' | ');
     return new Promise((resolve, reject) => {
-      if (flowData[0].data != undefined) {
+      if (flowData!=undefined && flowData[0].data != undefined) {
         console.log('cash data inner component| ',data, flowData[0].data);
         this.cache_lib.create(data,flowData[0]).then(cachedData=>{
           resolve(cachedData);
