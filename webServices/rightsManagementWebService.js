@@ -55,8 +55,10 @@ module.exports = function (router) {
                             _id: workspace_id,
                             role: "editor"
                         })
-                        user_lib.update(userId, { user: {workspaces: newUser.workspaces}}).then(function (user) {
-                            res.send(user)
+                        user_lib.update(newUser).then(function (updateUser) {
+                          workspace_lib.getWorkspace(workspace_id).then(updatedWS=>{
+                              res.send({user:updatedUser,workspace:updatedWS});
+                          })
                         })
                     } else {
                         res.send("already")

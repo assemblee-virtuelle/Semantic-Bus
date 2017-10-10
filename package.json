@@ -39,6 +39,7 @@
     "http": "latest",
     "jquery": "latest",
     "jsonpath-object-transform": "latest",
+    "json2yaml":"^1.1.0",
     "jsonwebtoken": "^7.4.1",
     "jwt-simple": "^0.5.1",
     "mocha": "^3.5.0",

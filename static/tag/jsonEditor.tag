@@ -14,7 +14,7 @@
              editor.expandAll();
            }
          });
-         //this.editor.set(data);
+        //  this.editor.set(data);
         //  if(this.editor.options.mode!='text'){
         //    this.editor.expandAll();
         //  }

@@ -202,12 +202,12 @@
 
     // RiotControl.on('item_current_testPull_done', function (data) {   this.modeComponentTest = true;   console.log('item_current_testPull_done | data :', data);   this.tags.testPreviewer.data = data;   this.update(); }.bind(this));
 
-    RiotControl.on('item_current_work_done', function (data) {
-      this.modeComponentTest = true;
-      console.log('item_current_work_done | data :', data);
-      this.refs.testPreviewer.data = data;
-      this.update();
-    }.bind(this));
+    // RiotControl.on('item_current_work_done', function (data) {
+    //   this.modeComponentTest = true;
+    //   console.log('item_current_work_done | data :', data);
+    //   this.refs.testPreviewer.data = data;
+    //   this.update();
+    // }.bind(this));
 
     // RiotControl.on('navigator_mount', function (webComponentName) {   console.log('navigator_mount');   this.cleanNavigation();   this.contentNavigator = riot.mount('#contentNavigator', webComponentName)[0]; }.bind(this));
     // RiotControl.on('item_current_edit_mode', function (item) {   console.log('item_current_edit_mode', item);   var tagName;

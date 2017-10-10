@@ -343,8 +343,8 @@
       this.innerData = data;
       //this.tags.zentable[0].data = data.components;
       this.refs.userZenTable.data = data.users;
-      this.tags['graph-of-use'].data = data
-      console.log("graph tag =======>", this.tags['graph-of-use'].data)
+      //this.tags['graph-of-use'].data = data
+      //console.log("graph tag =======>", this.tags['graph-of-use'].data)
       this.update();
     }.bind(this);
 
