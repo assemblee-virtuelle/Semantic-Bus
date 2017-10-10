@@ -99,8 +99,10 @@ Object.defineProperty(this, 'data', {
   configurable: true
 });
 
+
 this.on('mount', function () {
 
+  console.log("innerData", this.innerData)
   var barChartData = {}
   barChartData.datasets = [];
   barChartData.labels = [];
@@ -128,7 +130,7 @@ this.on('mount', function () {
 
   console.log(AllDayObject)
 
-  this.innerData.components.forEach(function (component) {
+   this.innerData.components.forEach(function (component) {
     if (component.consumption_history.length > 0) {
       compteurCompoflow[component.module] = 0
       component.consumption_history.forEach(function (consumption_history) {
