@@ -371,9 +371,8 @@
     // evenement appele par riot
     this.on('mount', function () { // mount du composant riot
 
-      RiotControl.on('workspace_current_changed', this.refreshGraph);
+    RiotControl.on('workspace_current_changed', this.refreshGraph);
       RiotControl.trigger('workspace_current_refresh'); // et ici on est dans le mount
-
     }); // fin mount
 
     this.on('unmount', function () { // mount du composant riot
