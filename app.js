@@ -86,7 +86,7 @@ httpGet.makeRequest('GET', configUrl).then(result => {
       // Lets encrypt response
 
       app.get('/.well-known/acme-challenge/:challengeHash', function(req, res) {
-        var params = req.params.challengeHash.substr(0, req.params.challengeHash.length - 1)
+        var params = req.params.challengeHash.substr(0, req.params.challengeHash.length)
         var hash = params + ".rCIAnB6OZN-jvB1XIOagkbUTKQQmQ1ogeb5DUVFNUko";
         res.send(hash)
       });
