@@ -128,6 +128,7 @@ describe('workspaces and components ', () => {
     browser.click('#workspaceSelector');
     browser.waitForVisible('workspace-table');
     browser.waitForVisible('div[data-id="' + workspaceId + '"]');
+    browser.click('div[data-id="' + workspaceId + '"]');
     browser.click('.test-delRow');
     browser.waitForVisible('#containerloaderDiv');
     browser.waitUntil(() => {

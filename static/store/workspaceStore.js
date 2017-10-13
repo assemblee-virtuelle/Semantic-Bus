@@ -124,6 +124,7 @@ function WorkspaceStore() {
 
   this.delete = function(record) {
     console.log('delete row', record);
+    this.trigger('persist_start');
     $.ajax({
       method: 'delete',
       url: '../data/core/workspace/' + record._id + '/' + localStorage.user_id,
@@ -133,6 +134,7 @@ function WorkspaceStore() {
       },
     }).done(function(data) {
       this.load(function() {
+        this.trigger('persist_end',data);
         this.trigger('workspace_collection_changed', this.workspaceCollection);
       }.bind(this));
     }.bind(this));
