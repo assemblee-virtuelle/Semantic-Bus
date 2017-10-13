@@ -57,7 +57,7 @@ describe('workspaces and components ', () => {
     //browser.waitForVisible('div=GOOGLE calc Get JSON');
     browser.click('div=GOOGLE calc Get JSON');
     browser.click('#addComponent');
-    browser.waitForVisible('#containerloaderDiv');
+    //browser.waitForVisible('#containerloaderDiv');
     browser.waitUntil(() => {
       return !browser.isVisible('#containerloaderDiv');
     });
@@ -70,7 +70,7 @@ describe('workspaces and components ', () => {
     //browser.waitForVisible('div=GOOGLE calc Get JSON');
     browser.click('div=Object Transformer');
     browser.click('#addComponent');
-    browser.waitForVisible('#containerloaderDiv');
+    //browser.waitForVisible('#containerloaderDiv');
     browser.waitUntil(() => {
       return !browser.isVisible('#containerloaderDiv');
     });
@@ -86,7 +86,7 @@ describe('workspaces and components ', () => {
     browser.setValue('#offsetInput', '1');
     browser.setValue('#nameComponentInput', 'requetage d\'un google sheet simple');
     browser.click('#saveButton');
-    browser.waitForVisible('#containerloaderDiv');
+    //browser.waitForVisible('#containerloaderDiv');
     browser.waitUntil(() => {
       return !browser.isVisible('#containerloaderDiv');
     });
@@ -117,7 +117,7 @@ describe('workspaces and components ', () => {
     (elmts.value)[0].click();
     browser.click('#connectAfterButton');
     (elmts.value)[1].click();
-    browser.waitForVisible('#containerloaderDiv');
+    //browser.waitForVisible('#containerloaderDiv');
     browser.waitUntil(() => {
       return !browser.isVisible('#containerloaderDiv');
     });
@@ -131,7 +131,7 @@ describe('workspaces and components ', () => {
     browser.waitForVisible('div[data-id="' + workspaceId + '"]');
     browser.click('div[data-id="' + workspaceId + '"]');
     browser.click('.test-delRow');
-    browser.waitForVisible('#containerloaderDiv');
+    //browser.waitForVisible('#containerloaderDiv');
     browser.waitUntil(() => {
       return !browser.isVisible('#containerloaderDiv');
     });
