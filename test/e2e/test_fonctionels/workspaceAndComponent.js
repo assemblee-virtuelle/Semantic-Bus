@@ -5,7 +5,7 @@ const assert = require('assert');
 var token;
 var workspaceId;
 describe('workspaces and components ', () => {
-  it('connexion', function() {
+  it('01 connexion', function() {
     ///CONNEXION
     var url = browser.url('/auth/login.html')
     // browser.waitUntil(() => {
@@ -23,7 +23,7 @@ describe('workspaces and components ', () => {
     //expect(browser.getUrl()).to.be.equal('http://app-9cd7b697-3708-49fe-a478-7ed223d0aa11.cleverapps.io/ihm/application.html');
     //token = browser.localStorage('GET', 'token').value;
   })
-  it('workspace add', function() {
+  it('02 workspace add', function() {
     browser.click('#workspaceSelector');
     browser.waitForVisible('.test-addRow');
     browser.click('.test-addRow');
@@ -31,7 +31,7 @@ describe('workspaces and components ', () => {
     browser.waitForVisible('#workspaceNameInput'); //on doit pouvoir directement saisir le nom du WS
   })
 
-  it('workspace set information and save', function() {
+  it('03 workspace set information and save', function() {
     browser.setValue('#workspaceNameInput', 'workspace de test');
     browser.setValue('#workspaceDescriptionInput', 'description du workspace de test');
     browser.click('#save');
@@ -40,17 +40,17 @@ describe('workspaces and components ', () => {
     });
     workspaceId = browser.getAttribute('workspace-editor', 'data-id');
   })
-  it('check new workspace in my workspaces', function() {
+  it('04 check new workspace in my workspaces', function() {
     browser.click('#workspaceSelector');
     browser.waitForVisible('workspace-table');
     browser.waitForVisible('div[data-id="' + workspaceId + '"]');
   })
-  it('show existing workspace', function() {
+  it('05 show existing workspace', function() {
     browser.element('div[data-id="' + workspaceId + '"]').click('.commandButton');
     browser.waitForVisible('workspace-editor');
     browser.waitForVisible('graph');
   })
-  it('add a component', function() {
+  it('06 add a component', function() {
     browser.waitForVisible('#addComponent');
     browser.click('#addComponent');
     browser.waitForVisible('technical-component-table');
@@ -63,7 +63,7 @@ describe('workspaces and components ', () => {
     });
     browser.waitForVisible('graph');
   })
-  it('add a second component', function() {
+  it('07 add a second component', function() {
     browser.waitForVisible('#addComponent');
     browser.click('#addComponent');
     browser.waitForVisible('technical-component-table');
@@ -76,7 +76,7 @@ describe('workspaces and components ', () => {
     });
     browser.waitForVisible('graph');
   })
-  it('edit first component', function() {
+  it('08 edit first component', function() {
     let elmts = browser.elements('graph image');
     (elmts.value)[0].click();
     browser.click('#editButton');
@@ -93,7 +93,7 @@ describe('workspaces and components ', () => {
     browser.click('#backButton');
     browser.waitForVisible('graph');
   })
-  it('work first component by graph', function() {
+  it('09 work first component by graph', function() {
     let elmts = browser.elements('graph image');
     (elmts.value)[0].click();
     browser.click('#workButton');
@@ -101,7 +101,7 @@ describe('workspaces and components ', () => {
     browser.click('#backButton');
     browser.waitForVisible('graph');
   })
-  it('work first component by editor', function() {
+  it('10 work first component by editor', function() {
     let elmts = browser.elements('graph image');
     (elmts.value)[0].click();
     browser.click('#editButton');
@@ -112,7 +112,7 @@ describe('workspaces and components ', () => {
     browser.click('#backButton');
     browser.waitForVisible('graph');
   })
-  it('connect 2 components and work second', function() {
+  it('11 connect 2 components and work second', function() {
     let elmts = browser.elements('graph image');
     (elmts.value)[0].click();
     browser.click('#connectAfterButton');
@@ -121,10 +121,11 @@ describe('workspaces and components ', () => {
     browser.waitUntil(() => {
       return !browser.isVisible('#containerloaderDiv');
     });
+    (elmts.value)[1].click();
     browser.click('#workButton');
     browser.waitForVisible('jsonPreviewer');
   })
-  it('delete worksapce', function() {
+  it('12 delete worksapce', function() {
     browser.click('#workspaceSelector');
     browser.waitForVisible('workspace-table');
     browser.waitForVisible('div[data-id="' + workspaceId + '"]');
