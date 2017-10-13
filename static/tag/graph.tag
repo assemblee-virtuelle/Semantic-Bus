@@ -4,10 +4,10 @@
       <div id="editButton" onclick={editClick} class="commandButton" }>
         edit
       </div>
-      <div onclick={connectBeforeClick} class="{commandButton:true,activConnection:modeConnectBefore}">
+      <div id="connectBeforeButton" onclick={connectBeforeClick} class="{commandButton:true,activConnection:modeConnectBefore}">
         connect Before
       </div>
-      <div onclick={connectAfterClick} class="{commandButton:true,activConnection:modeConnectAfter}" }>
+      <div id="connectAfterButton" onclick={connectAfterClick} class="{commandButton:true,activConnection:modeConnectAfter}" }>
         connect After
       </div>
       <div onclick={removeClick} class="commandButton" }>

@@ -109,6 +109,17 @@ describe('workspaces and components ', () => {
     browser.click('#backButton');
     browser.waitForVisible('graph');
   })
+  it('connect 2 components and work second', function() {
+    let elmts = browser.elements('graph image');
+    (elmts.value)[0].click();
+    browser.click('#connectAfterButton');
+    (elmts.value)[1].click();
+    browser.waitUntil(() => {
+      return !browser.isVisible('#containerloaderDiv');
+    });
+    browser.click('#workButton');
+    browser.waitForVisible('jsonPreviewer');
+  })
 })
 //
 //     // ACCES LISTE WORKSPACE
