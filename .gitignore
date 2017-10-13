@@ -61,4 +61,4 @@ typings/
 *.orig
 
 # test result
-# test/test_result/
+test/test_result/
