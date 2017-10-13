@@ -28,7 +28,7 @@ describe('workspaces and components ', () => {
     browser.waitForVisible('.test-addRow');
     browser.click('.test-addRow');
     browser.waitForVisible('workspace-editor');
-    browser.waitForVisible('#workspaceNameInput');//on doit pouvoir directement saisir le nom du WS
+    browser.waitForVisible('#workspaceNameInput'); //on doit pouvoir directement saisir le nom du WS
   })
 
   it('workspace set information and save', function() {
@@ -36,17 +36,17 @@ describe('workspaces and components ', () => {
     browser.setValue('#workspaceDescriptionInput', 'description du workspace de test');
     browser.click('#save');
     browser.waitUntil(() => {
-      return browser.getAttribute('workspace-editor','data-id')!=undefined;
+      return browser.getAttribute('workspace-editor', 'data-id') != undefined;
     });
-    workspaceId=browser.getAttribute('workspace-editor','data-id');
+    workspaceId = browser.getAttribute('workspace-editor', 'data-id');
   })
   it('check new workspace in my workspaces', function() {
     browser.click('#workspaceSelector');
     browser.waitForVisible('workspace-table');
-    browser.waitForVisible('div[data-id="'+workspaceId+'"]');
+    browser.waitForVisible('div[data-id="' + workspaceId + '"]');
   })
   it('show existing workspace', function() {
-    browser.element('div[data-id="'+workspaceId+'"]').click('.commandButton');
+    browser.element('div[data-id="' + workspaceId + '"]').click('.commandButton');
     browser.waitForVisible('workspace-editor');
     browser.waitForVisible('graph');
   })
@@ -102,8 +102,10 @@ describe('workspaces and components ', () => {
     let elmts = browser.elements('graph image');
     (elmts.value)[0].click();
     browser.click('#editButton');
+    browser.waitForVisible('workspace-component-editor');
     browser.click('#workButton');
     browser.waitForVisible('jsonPreviewer');
+    browser.click('#backButton');
     browser.click('#backButton');
     browser.waitForVisible('graph');
   })

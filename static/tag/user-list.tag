@@ -77,12 +77,6 @@
       this.actionReady=false;
     }
 
-    changeEmailValue(e){
-      console.log('ALLO');
-      this.email = e.currentTarget.value;
-
-    }
-
     this.on('mount', function () {
       this.email = "";
 // console.log($('#users-list'));
