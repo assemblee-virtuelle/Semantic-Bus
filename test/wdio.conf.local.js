@@ -23,7 +23,7 @@ exports.config = Object.assign(base.config, {
   baseUrl:'http://localhost:8080/',
   reporterOptions: {
       junit: {
-          outputDir: './test/test_result/fonct_result'
+          outputDir: './test/test_result/fonct_result_local'
       }
   }
 })

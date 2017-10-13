@@ -1,7 +1,7 @@
 
 
 
-describe('workspaces and components ', () => {
+describe('connection and inscription', () => {
     it('connexion', function() {
         var url = browser.url('/auth/login.html')
         let email = '#email';

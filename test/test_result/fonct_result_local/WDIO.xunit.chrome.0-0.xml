@@ -1,0 +1,384 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites>
+  <testsuite name="workspaces_and_components" timestamp="2017-10-13T03:48:24" time="18.388" tests="10" failures="0" errors="1" skipped="0">
+    <properties>
+      <property name="specId" value="3278757ebbdb26a58c2660f1458f2ba2"/>
+      <property name="suiteName" value="workspaces and components "/>
+      <property name="capabilities" value="chrome"/>
+      <property name="file" value="./test/e2e/test_fonctionels/workspaceAndComponent.js"/>
+    </properties>
+    <testcase classname="chrome.workspaces_and_components" name="connexion" time="4.379">
+      <system-out>
+        <![CDATA[
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/url - {"url":"http://localhost:8080/auth/login.html"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"id","value":"email"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.989409553910434-1"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.989409553910434-1/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"id","value":"email"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.989409553910434-1"}]}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.989409553910434-1/clear - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.989409553910434-1/value - {"value":["a","l","e","x","f","o","o","t","3","2","(10 more items)"],"text":"alexfoot32@orange.fr"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"id","value":"password"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.989409553910434-2"}]}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.989409553910434-2/clear - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.989409553910434-2/value - {"value":["a","z","e","r","t","y"],"text":"azerty"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element - {"using":"id","value":"btn2"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":{"ELEMENT":"0.989409553910434-3"}}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.989409553910434-3/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[]}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[]}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[]}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-1"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-1/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":false}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-1"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-1/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":false}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"navigation"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-1"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-1/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+]]>
+      </system-out>
+    </testcase>
+    <testcase classname="chrome.workspaces_and_components" name="workspace_add" time="0.59">
+      <system-out>
+        <![CDATA[
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element - {"using":"id","value":"workspaceSelector"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":{"ELEMENT":"0.889115193846012-2"}}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-2/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":".test-addRow"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-3"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-3/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element - {"using":"css selector","value":".test-addRow"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":{"ELEMENT":"0.889115193846012-3"}}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-3/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"workspace-editor"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-4"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-4/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"id","value":"workspaceNameInput"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-5"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-5/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+]]>
+      </system-out>
+    </testcase>
+    <testcase classname="chrome.workspaces_and_components" name="workspace_set_information_and_save" time="3.407">
+      <system-out>
+        <![CDATA[
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"id","value":"workspaceNameInput"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-5"}]}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-5/clear - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-5/value - {"value":["w","o","r","k","s","p","a","c","e"," ","(7 more items)"],"text":"workspace de test"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"id","value":"workspaceDescriptionInput"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-6"}]}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-6/clear - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-6/value - {"value":["d","e","s","c","r","i","p","t","i","o","(22 more items)"],"text":"description du workspace de test"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element - {"using":"id","value":"save"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":{"ELEMENT":"0.889115193846012-7"}}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-7/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"workspace-editor"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-4"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-4/attribute/data-id - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"workspace-editor"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-4"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-4/attribute/data-id - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"workspace-editor"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-4"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-4/attribute/data-id - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"workspace-editor"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-4"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-4/attribute/data-id - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"workspace-editor"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-4"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-4/attribute/data-id - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":"59e01b6e6d51870a2fbf13d3"}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"workspace-editor"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-4"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-4/attribute/data-id - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":"59e01b6e6d51870a2fbf13d3"}
+]]>
+      </system-out>
+    </testcase>
+    <testcase classname="chrome.workspaces_and_components" name="check_new_workspace_in_my_workspaces" time="1.288">
+      <system-out>
+        <![CDATA[
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element - {"using":"id","value":"workspaceSelector"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":{"ELEMENT":"0.889115193846012-2"}}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-2/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"workspace-table"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-8"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-8/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"div[data-id=\"59e01b6e6d51870a2fbf13d3\"]"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[]}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"div[data-id=\"59e01b6e6d51870a2fbf13d3\"]"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[]}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"div[data-id=\"59e01b6e6d51870a2fbf13d3\"]"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-9"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-9/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+]]>
+      </system-out>
+    </testcase>
+    <testcase classname="chrome.workspaces_and_components" name="show_existing_workspace" time="0.748">
+      <system-out>
+        <![CDATA[
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element - {"using":"css selector","value":"div[data-id=\"59e01b6e6d51870a2fbf13d3\"]"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":{"ELEMENT":"0.889115193846012-9"}}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-9/element - {"using":"css selector","value":".commandButton"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":{"ELEMENT":"0.889115193846012-10"}}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-10/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"workspace-editor"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[]}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"workspace-editor"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-11"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-11/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"graph"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-12"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-12/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+]]>
+      </system-out>
+    </testcase>
+    <testcase classname="chrome.workspaces_and_components" name="add_a_component" time="1.6">
+      <system-out>
+        <![CDATA[
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"id","value":"addComponent"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-13"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-13/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element - {"using":"id","value":"addComponent"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":{"ELEMENT":"0.889115193846012-13"}}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-13/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"technical-component-table"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-14"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-14/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element - {"using":"xpath","value":"//div[normalize-space() = \"GOOGLE calc Get JSON\"]"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":{"ELEMENT":"0.889115193846012-15"}}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-15/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element - {"using":"id","value":"addComponent"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":{"ELEMENT":"0.889115193846012-16"}}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-16/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"id","value":"containerloaderDiv"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-17"},{"ELEMENT":"0.889115193846012-18"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-17/displayed - {}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-18/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":false}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"id","value":"containerloaderDiv"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-17"},{"ELEMENT":"0.889115193846012-18"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-17/displayed - {}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-18/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":false}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"id","value":"containerloaderDiv"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-17"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-17/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":false}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"graph"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-19"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-19/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+]]>
+      </system-out>
+    </testcase>
+    <testcase classname="chrome.workspaces_and_components" name="add_a_second_component" time="1.506">
+      <system-out>
+        <![CDATA[
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"id","value":"addComponent"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-20"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-20/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element - {"using":"id","value":"addComponent"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":{"ELEMENT":"0.889115193846012-20"}}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-20/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"technical-component-table"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-21"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-21/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element - {"using":"xpath","value":"//div[normalize-space() = \"Object Transformer\"]"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":{"ELEMENT":"0.889115193846012-22"}}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-22/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element - {"using":"id","value":"addComponent"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":{"ELEMENT":"0.889115193846012-23"}}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-23/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"id","value":"containerloaderDiv"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-17"},{"ELEMENT":"0.889115193846012-24"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-17/displayed - {}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-24/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":false}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"id","value":"containerloaderDiv"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-17"},{"ELEMENT":"0.889115193846012-24"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-17/displayed - {}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-24/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":false}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"id","value":"containerloaderDiv"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-17"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-17/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":false}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"graph"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-25"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-25/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+]]>
+      </system-out>
+    </testcase>
+    <testcase classname="chrome.workspaces_and_components" name="edit_first_component" time="2.907">
+      <system-out>
+        <![CDATA[
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"graph image"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-26"},{"ELEMENT":"0.889115193846012-27"}]}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-26/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element - {"using":"id","value":"editButton"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":{"ELEMENT":"0.889115193846012-28"}}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-28/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"workspace-component-editor"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-29"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-29/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"id","value":"keyInput"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-30"}]}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-30/clear - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-30/value - {"value":["1","v","-","j","N","V","i","O","m","8","(45 more items)"],"text":"1v-jNViOm8dEnCPYErX-TkbpMSroTA4TzUePhxSleAYo/edit#gid=0"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"id","value":"selectInput"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-31"}]}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-31/clear - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-31/value - {"value":["s","e","l","e","c","t"," ","A",",","B"],"text":"select A,B"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"id","value":"offsetInput"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-32"}]}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-32/clear - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-32/value - {"value":["1"],"text":"1"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"id","value":"nameComponentInput"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-33"}]}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-33/clear - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-33/value - {"value":["r","e","q","u","e","t","a","g","e"," ","(24 more items)"],"text":"requetage d'un google sheet simple"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element - {"using":"id","value":"saveButton"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":{"ELEMENT":"0.889115193846012-34"}}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-34/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"id","value":"containerloaderDiv"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-17"},{"ELEMENT":"0.889115193846012-35"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-17/displayed - {}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-35/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":false}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"id","value":"containerloaderDiv"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-17"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-17/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":false}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element - {"using":"id","value":"backButton"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":{"ELEMENT":"0.889115193846012-36"}}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-36/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"graph"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-37"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-37/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+]]>
+      </system-out>
+    </testcase>
+    <testcase classname="chrome.workspaces_and_components" name="work_first_component_by_graph" time="1.565">
+      <system-out>
+        <![CDATA[
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"graph image"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-38"},{"ELEMENT":"0.889115193846012-39"}]}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-38/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element - {"using":"id","value":"workButton"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":{"ELEMENT":"0.889115193846012-40"}}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-40/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"jsonPreviewer"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[]}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"jsonPreviewer"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[]}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"jsonPreviewer"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-41"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-41/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element - {"using":"id","value":"backButton"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":{"ELEMENT":"0.889115193846012-36"}}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-36/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"graph"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-42"}]}
+COMMAND: GET http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-42/displayed - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":true}
+]]>
+      </system-out>
+    </testcase>
+    <testcase classname="chrome.workspaces_and_components" name="work_first_component_by_editor" time="0.383">
+      <error message="An element could not be located on the page using the given search parameters."/>
+      <system-out>
+        <![CDATA[
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/elements - {"using":"css selector","value":"graph image"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":[{"ELEMENT":"0.889115193846012-43"},{"ELEMENT":"0.889115193846012-44"}]}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-43/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element - {"using":"id","value":"editButton"}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":{"ELEMENT":"0.889115193846012-45"}}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element/0.889115193846012-45/click - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+COMMAND: POST http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f/element - {"using":"id","value":"workButton"}
+RESULT: {"message":"no such element: Unable to locate element: {\"method\":\"id\",\"selector\":\"workButton\"}","type":"RuntimeError","seleniumStack":{"status":7,"type":"NoSuchElement","message":"An element could not be located on the page using the given search parameters.","orgStatusMessage":"no such element: Unable to locate element: {\"method\":\"id\",\"selector\":\"workButton\"}\n  (Session info: chrome=61.0.3163.100)\n  (Driver info: chromedriver=2.32.498513 (2c63aa53b2c658de596ed550eb5267ec5967b351),platform=Linux 4.10.0-37-generic x86_64)"}}
+COMMAND: DELETE http://127.0.0.1:9515/session/fb67923875ec63c807580c0304d9536f - {}
+RESULT: {"sessionId":"fb67923875ec63c807580c0304d9536f","status":0,"value":null}
+]]>
+      </system-out>
+      <system-err>
+        <![CDATA[
+Error: An element could not be located on the page using the given search parameters.
+    at click("#workButton") - at element("#workButton") - click.js:12:17
+]]>
+      </system-err>
+    </testcase>
+  </testsuite>
+</testsuites>
