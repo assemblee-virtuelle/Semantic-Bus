@@ -51,7 +51,7 @@
       //this.container = this.root.querySelector('#jsoneditor');
 
 
-
+      this.mountEditor();
 
     }.bind(this));
   </script>
