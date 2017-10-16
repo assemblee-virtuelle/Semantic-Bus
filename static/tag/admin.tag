@@ -10,10 +10,32 @@
       <div>m'affecter tous les workspaces</div>
     </div>
   </div>
+  <zenTable style="flex:1" ref="errorsTable" disallowcommand={true} disallownavigation={true}>
+    <yield to="header">
+      <div>message</div>
+      <div>first stack</div>
+    </yield>
+    <yield to="row">
+      <div style="width:30%">{message}</div>
+      <div style="width:70%">{stackArray[0]}</div>
+    </yield>
+  </zenTable>
 
   <script>
-    this.on('mount', function () {
 
+    this.refreshErrorsTable = function (data) {
+      //console.log('view', data);
+      this.refs.errorsTable.data = data;
+    }.bind(this);
+
+    this.on('mount', function () {
+      console.log('ALLO');
+      RiotControl.trigger('error_load');
+      RiotControl.on('error_loaded',this.refreshErrorsTable);
+    });
+
+    this.on('unmount', function () {
+      RiotControl.off('error_loaded',this.refreshErrorsTable);
     });
 
     cloneDatabaseClick(e) {

@@ -33,7 +33,7 @@ module.exports = function (router) {
     // --------------------------------------------------------------------------------
 
 
-    router.put('/share/workspace', function (req, res) {
+    router.put('/share/workspace', function (req, res,next) {
         var data = req.body;
         var workspace_id = req.body.worksapce_id
         var newUser = null
@@ -77,13 +77,15 @@ module.exports = function (router) {
             } else {
                 res.send(false)
             }
+        }).catch(e => {
+          next(e);
         })
     }) // <= share/workspace
 
 
     // --------------------------------------------------------------------------------
 
-    router.get('/workspaces/:idworksapce/user/:iduser', function (req, res) {
+    router.get('/workspaces/:idworksapce/user/:iduser', function (req, res,next) {
         var workspace_id = req.params.idworksapce
         var userId = req.params.iduser
         var userTab = [];
@@ -112,6 +114,8 @@ module.exports = function (router) {
             })
         }).then(function (user) {
             res.json(user);
+        }).catch(e => {
+          next(e);
         });
     }) // <= get_workspace
 

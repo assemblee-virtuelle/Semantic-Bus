@@ -15,24 +15,28 @@ module.exports = function (router) {
  // ---------------------------------------  ALL USERS  -----------------------------------------
 
 
-  router.get('/users', function (req, res) {
+  router.get('/users', function (req, res,next) {
     user_lib.get_all({}).then(function (users) {
       console.log(users)
       res.send(users)
-    })
+    }).catch(e => {
+      next(e);
+    });
   });
 
 
   // ---------------------------------------------------------------------------------
 
-  router.get('/users/:id', function (req, res) {
-    console.log("LOADING USER",req.params.id)
+  router.get('/users/:id', function (req, res,next) {
+  //  console.log("LOADING USER",req.params.id)
     user_lib.getWithWorkspace(
           req.params.id, "owner"
     ).then(function (result) {
-      console.log("LOADING USER",result)
+      //console.log("LOADING USER",result)
       res.send(result)
-    })
+    }).catch(e => {
+      next(e);
+    });
   });
 
 // --------------------------------------------------------------------------------
@@ -64,11 +68,13 @@ module.exports = function (router) {
 
   // ---------------------------------------  ADMIN  -----------------------------------------
 
-  router.get('/cloneDatabase', function (req, res) {
+  router.get('/cloneDatabase', function (req, res,next) {
     var mLabPromise = require('./mLabPromise');
     //console.log('mLabPromise |',mLabPromise);
     mLabPromise.cloneDatabase().then(data => {
       res.json(data)
+    }).catch(e => {
+      next(e);
     });
   });
 }

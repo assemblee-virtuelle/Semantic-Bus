@@ -503,8 +503,22 @@ function MainController(workSpaceStore, genericStore, profilStore) {
       //if (callback != undefined) {
       //  callback();
       //}
-      this.trigger('dataBase_cloned', this.workspaceCollection);
+      this.trigger('dataBase_cloned',data);
 
+    }.bind(this));
+  });
+
+  this.on('error_load', function(data) {
+    console.log('ERRORS LOAD');
+    $.ajax({
+      method: 'get',
+      url: '../data/core/errors',
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
+      contentType: 'application/json',
+    }).done(function(data) {
+      this.trigger('error_loaded',data);
     }.bind(this));
   });
 

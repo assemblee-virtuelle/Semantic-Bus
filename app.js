@@ -44,13 +44,16 @@ httpGet.makeRequest('GET', configUrl).then(result => {
 
       var jwtService = require('./webServices/jwtService')
 
+
       //Sécurisation des route de data
       safe.use(function(req, res, next) {
         // ensureSec(req,res,next)
         jwtService.securityAPI(req, res, next);
       })
 
-      app.disable('etag'); //what is that?
+
+
+      app.disable('etag'); //what is that? cashe desactivation in HTTP Header
 
       unSafeRouteur.use(cors());
 
@@ -61,6 +64,7 @@ httpGet.makeRequest('GET', configUrl).then(result => {
       require('./webServices/technicalComponentWebService')(safe, unSafeRouteur);
       require('./webServices/userWebservices')(safe);
       require('./webServices/rightsManagementWebService')(safe);
+      require('./webServices/adminWebService')(safe);
 
       ///OTHER APP COMPONENT
       ///SECURISATION DES REQUETES
@@ -74,6 +78,12 @@ httpGet.makeRequest('GET', configUrl).then(result => {
       app.use('/ihm', express.static('static'));
       app.use('/browserify', express.static('browserify'));
       app.use('/npm', express.static('node_modules'));
+
+      let errorLib= require('./lib/core/lib/error_lib')
+      app.use(function(err, req, res, next) {
+        errorLib.create(err)
+        res.status(500).send(err.stack);
+      });
 
       server.listen(process.env.PORT || process.env.port || process.env.OPENSHIFT_NODEJS_PORT || 8080, process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0', function() {
         console.log('~~ server started at ',this.address().address,':',this.address().port)
