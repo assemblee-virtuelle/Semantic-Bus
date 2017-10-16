@@ -17,8 +17,8 @@ module.exports = {
       }
       //console.log(urlString);
       const parsedUrl = this.url.parse(urlString);
-      //console.log('REST Get JSON | makerequest | port',parsedUrl.port);
-      //console.log('REST Get JSON | makerequest | host',parsedUrl.hostname);
+      console.log('REST Get JSON | makerequest | port',parsedUrl.port);
+      console.log('REST Get JSON | makerequest | host',parsedUrl.hostname);
       const requestOptions = {
           hostname: parsedUrl.hostname,
           path: parsedUrl.path,
@@ -31,7 +31,7 @@ module.exports = {
         };
         //console.log(requestOptions);
 
-      var lib = urlString.indexOf('htts') != -1 ? this.http : this.https;
+      var lib = urlString.indexOf('https') != -1 ? this.http : this.https;
 
       const request = lib.request(requestOptions, response => {
         const hasResponseFailed = response.statusCode >= 400;
@@ -55,8 +55,8 @@ module.exports = {
 
         // once all the data has been read, resolve the Promise
         response.on('end', () => {
-          //console.log('end');
-          //console.log(responseBody);
+          console.log('end response');
+          console.log(responseBody);
           resolve({
             data: JSON.parse(responseBody)
           });
@@ -66,7 +66,7 @@ module.exports = {
       /* if there's an error, then reject the Promise
        * (can be handled with Promise.prototype.catch) */
       request.on('error', function(e){
-        console.log('error :', e);
+        console.log('error request:', e);
         reject();
       });
       request.end();

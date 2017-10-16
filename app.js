@@ -85,7 +85,7 @@ httpGet.makeRequest('GET', configUrl).then(result => {
         res.status(500).send(err.stack);
       });
 
-      server.listen(process.env.PORT || process.env.port || process.env.OPENSHIFT_NODEJS_PORT || 8080, process.env.OPENSHIFT_NODEJS_IP || '0.0.0.0', function() {
+      server.listen(process.env.PORT ||  8080, function() {
         console.log('~~ server started at ',this.address().address,':',this.address().port)
         // console.log('Listening on port  ');
         // console.log(this.address().port);
