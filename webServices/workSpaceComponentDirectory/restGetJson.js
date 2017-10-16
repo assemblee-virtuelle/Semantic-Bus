@@ -31,7 +31,7 @@ module.exports = {
         };
         //console.log(requestOptions);
 
-      var lib = urlString.indexOf('htts') != -1 ? this.http : this.https;
+      var lib = urlString.indexOf('https') != -1 ? this.http : this.https;
 
       const request = lib.request(requestOptions, response => {
         const hasResponseFailed = response.statusCode >= 400;
@@ -55,8 +55,8 @@ module.exports = {
 
         // once all the data has been read, resolve the Promise
         response.on('end', () => {
-          //console.log('end');
-          //console.log(responseBody);
+          console.log('end response');
+          console.log(responseBody);
           resolve({
             data: JSON.parse(responseBody)
           });
