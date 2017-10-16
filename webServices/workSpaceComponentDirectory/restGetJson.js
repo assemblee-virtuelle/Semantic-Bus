@@ -17,8 +17,8 @@ module.exports = {
       }
       //console.log(urlString);
       const parsedUrl = this.url.parse(urlString);
-      //console.log('REST Get JSON | makerequest | port',parsedUrl.port);
-      //console.log('REST Get JSON | makerequest | host',parsedUrl.hostname);
+      console.log('REST Get JSON | makerequest | port',parsedUrl.port);
+      console.log('REST Get JSON | makerequest | host',parsedUrl.hostname);
       const requestOptions = {
           hostname: parsedUrl.hostname,
           path: parsedUrl.path,
