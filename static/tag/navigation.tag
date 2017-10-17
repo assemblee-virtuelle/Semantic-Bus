@@ -62,7 +62,7 @@
         <div class="commandButtonImage" onclick={profilSelectorClick}>
           <img src="./image/user.png" width="60px">
         </div>
-        <div class="commandButtonImage" onclick={adminSelectorClick}>
+        <div class="commandButtonImage" onclick={adminSelectorClick} if={showAdmin}>
           <img src="./image/Administrative-Tools-256.png" width="60px">
         </div>
       </div>

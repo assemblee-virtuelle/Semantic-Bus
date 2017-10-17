@@ -21,19 +21,10 @@ module.exports = {
         this.recursivPullResolvePromise.resolveComponent(component, 'work').then(data => {
           console.log('CACHE LOADED');
         });
-        // this.recursivPullResolvePromise.resolveComponentPull(component, false).then(data => {
-        //   console.log('CACHE LOADED');
-        // })
         res.json({
           message: 'in progress'
         });
       });
-      // this.mLabPromise.request('GET', 'workspaceComponent/'+compId).then(function(data) {
-      //
-      // }.bind(this));
-
-      //console.log('restApiGet webservice Request');
-
     }.bind(this));
 
     router.get('/getCache/:compId', function(req, res) {
@@ -47,58 +38,23 @@ module.exports = {
         this.pull(component,undefined).then(cachedData=>{
             res.json(cachedData);
         });
-        // this.recursivPullResolvePromise.resolveComponentPull(component, false).then(data => {
-        //   console.log('CACHE LOADED');
-        // })
       });
-
-
-
-      //this require is live because constructor require cause cyclic dependencies (recursivPullResolvePromise->restApiGet)
-      // this.mLabPromise.request('GET', 'workspaceComponent/'+compId).then(function(data) {
-      //   //console.log('Cache NoSql | reload |', data);
-      //   // this.recursivPullResolvePromise.resolveComponentPull(data, false).then(data => {
-      //   //   console.log('CACHE LOADED');
-      //   // })
-      //   this.pull(data,undefined).then(cachedData=>{
-      //       res.json(cachedData);
-      //   });
-      //   // res.json({
-      //   //   message: 'in progress'
-      //   // });
-      // }.bind(this));
-
-      //console.log('restApiGet webservice Request');
-
     }.bind(this));
-
   },
 
   pull: function(data, flowData, undefined) {
-    console.log('--------- cash data START --------  : ', flowData,' | ');
+    console.log('--------- cash data START --------  : ');
     return new Promise((resolve, reject) => {
       if (flowData!=undefined && flowData[0].data != undefined) {
-        console.log('cash data inner component| ',data, flowData[0].data);
+        console.log("----- cache data stock ----")
         this.cache_lib.create(data,flowData[0]).then(cachedData=>{
           resolve(cachedData);
         });
-        // this.mLabPromise.request('PUT', 'cache/' + data._id, {
-        //   data: flowData[0].data
-        // }).then(function(data) {
-        //   resolve(data);
-        //   //console.log('cache | pull| ',data);
-        //   //return recursivPullResolvePromise.resolveComponentPull(data);
-        // });
       } else {
         this.cache_lib.get(data).then(cachedData=>{
-          console.log("in else", cachedData)
+          console.log("----- cache data get ----")
           resolve(cachedData);
         })
-        // this.mLabPromise.request('GET', 'cache/' + data._id).then(function(cachedData) {
-        //   resolve({data:cachedData.data});
-        //   //console.log('cache | pull| ',data);
-        //   //return recursivPullResolvePromise.resolveComponentPull(data);
-        // });
       }
     })
   }
