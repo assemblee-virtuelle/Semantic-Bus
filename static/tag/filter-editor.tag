@@ -1,7 +1,7 @@
 <filter-editor>
   <div>description de l'api</div>
   <label>filtre</label>
-  <jsonEditor name="filterObjectInput" title="Filter Schema" style="flex:1" modes="['tree','text']"></jsonEditor>
+  <jsonEditor ref="filterObjectInput" title="Filter Schema" style="flex:1" modes="['tree','text']"></jsonEditor>
 
   <script>
     this.innerData = {};
@@ -14,18 +14,19 @@
       set: function (data) {
         this.innerData = data;
         if (data.specificData.filterString != undefined) {
-          this.tags.filterObjectInput.data = JSON.parse(data.specificData.filterString);
+          this.refs.filterObjectInput.data = JSON.parse(data.specificData.filterString);
         }
         this.update();
       }.bind(this),
       get: function () {
-        this.innerData.specificData.filterString = JSON.stringify(this.tags.filterObjectInput.data);
+
+        this.innerData.specificData.filterString = JSON.stringify(this.refs.filterObjectInput.data);
         return this.innerData;
       },
       configurable: true
     });
     this.updateData=function(dataToUpdate){
-      this.innerData=dataToUpdate;
+      this.data=dataToUpdate;
       this.update();
     }.bind(this);
 
