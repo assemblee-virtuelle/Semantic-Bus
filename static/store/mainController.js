@@ -43,6 +43,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
       url: '/configuration/configurationhttps',
     }).done(data => {
       console.log("in return HTTPS", data)
+      console.log(window.location.href)
       if (data == "force") {
         if (window.location.href.substr(0, 5) != "https") {
           console.log(window.location.href)

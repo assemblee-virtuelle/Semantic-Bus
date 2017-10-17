@@ -86,13 +86,13 @@ var UserStore = function() {
       if (data != null && data.token != null) {
         localStorage.token = data.token
         console.log("----- token data -----", localStorage.token)
-        // this.trigger('application_redirect')
-        // this.sleep(2000).then(function () {
-        //   this.trigger('ajax_receipt_login');
-        // }.bind(this))
+        this.trigger('application_redirect')
+        this.sleep(2000).then(function () {
+          this.trigger('ajax_receipt_login');
+        }.bind(this))
       } else {
-        // this.trigger('bad_auth')
-        // this.trigger('ajax_receipt_login');
+        this.trigger('bad_auth')
+        this.trigger('ajax_receipt_login');
       }
     });
   });
