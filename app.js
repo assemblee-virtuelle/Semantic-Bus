@@ -53,7 +53,7 @@ httpGet.makeRequest('GET', configUrl).then(result => {
 
 
 
-      app.disable('etag'); //what is that? cashe desactivation in HTTP Header
+      app.disable('etag'); //what is that? cache desactivation in HTTP Header
 
       unSafeRouteur.use(cors());
 

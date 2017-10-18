@@ -44,9 +44,8 @@ module.exports = {
 
           } else {
             console.log('Google query rejected | ', error);
-            reject({
-              "error": error
-            });
+            error .message='google request failed, check your parameters : '+error.message;
+            reject(new Error(error));
           }
         }.bind(this)
       });

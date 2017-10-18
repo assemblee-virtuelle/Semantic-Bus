@@ -69,7 +69,7 @@ var proto = {
           // this.sift({
           //   '_id': component._id
           // }, this.componentsResolving)[0].dataResolution = pushData;
-          
+
           originComponent.dataResolution = pushData;
           // GOOD ==> console.log("----- PUSH -----", pushData)
           // GOOD ==> console.log("----- PUSH Component--=---", pushData)
@@ -108,7 +108,7 @@ var proto = {
             console.log('PULL END | -------', componentProcessing._id);
             componentProcessing.dataResolution = componentFlow;
             componentProcessing.status = 'resolved';
-            console.log("componentFlow ----------", componentFlow)
+            //console.log("componentFlow ----------", componentFlow)
             ///update first component her
             // componentProcessing.consumption_history.push({
             //   traitement_id: traitement_id,
@@ -130,12 +130,15 @@ var proto = {
               });
               //console.log('compare',this.RequestOrigine._id);
               if (componentProcessing._id == this.RequestOrigine._id) {
-                console.log('ALLO');
                 this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
               }
               this.processNextBuildPath(traitement_id, component.workspaceId, global_flow);
             // }.bind(this))
           })
+          .catch(e=>{
+            // console.log('WORK ERROR',e);
+            reject(e);
+          });
         });
         //}
 
@@ -185,7 +188,7 @@ var proto = {
         let dataFlow = linksProcessing.map(sourceLink => {
           let d=sourceLink.source.dataResolution;
           d.componentId=sourceLink.source._id;
-          console.log("in dataflow constitution", d)
+          //console.log("in dataflow constitution", d)
           return d;
         });
 
@@ -273,12 +276,13 @@ var proto = {
               this.processNextBuildPath(traitement_id, component_workspaceId, global_flow);
 
             }).catch(e => {
-              console.log(e);
+              //console.log(e);
+                this.RequestOrigineRejectMethode(e);
             });
           } else {
             module.pull(processingLink.destination, dataFlow, undefined).then(componentFlow => {
-              console.log("componentFlow", this.objectSizeOf(componentFlow))
-              console.log('PULL END | ', processingLink.destination._id);
+              //console.log("componentFlow", this.objectSizeOf(componentFlow))
+              //console.log('PULL END | ', processingLink.destination._id);
               processingLink.destination.dataResolution = componentFlow;
               processingLink.destination.status = 'resolved';
               //console.log('componentProcessing resolved ||', componentProcessing.status)
@@ -297,6 +301,9 @@ var proto = {
                 this.RequestOrigineResolveMethode(processingLink.destination.dataResolution)
               }
               this.processNextBuildPath(traitement_id, component_workspaceId, global_flow);
+            }).catch(e=>{
+              this.RequestOrigineRejectMethode(e);
+              //reject(e);
             })
           }
         }.bind(this))
@@ -517,7 +524,8 @@ var proto = {
                   data: primaryflow.data
                 });
               }).catch(e => {
-                console.log(e);
+                this.RequestOrigineRejectMethode(e);
+                //console.log(e);
               });
 
 

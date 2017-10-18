@@ -14,10 +14,12 @@
     <yield to="header">
       <div>message</div>
       <div>first stack</div>
+      <div>date</div>
     </yield>
     <yield to="row">
-      <div style="width:30%">{message}</div>
-      <div style="width:70%">{stackArray[0]}</div>
+      <div style="width:20%">{message}</div>
+      <div style="width:60%">{stackArray[0]}</div>
+      <div style="width:20%">{date}</div>
     </yield>
   </zenTable>
 
