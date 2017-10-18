@@ -62,3 +62,6 @@ typings/
 
 # test result
 test/test_result/
+
+#config
+configuration.js
