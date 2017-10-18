@@ -28,11 +28,11 @@ var env = process.env;
 
 var httpGet = require('./webServices/workSpaceComponentDirectory/restGetJson.js');
 var fs = require('fs');
-const configUrl=env.CONFIG_URL||'http://app-cee3fd62-a81e-48b2-a766-a8be305d5fa9.cleverapps.io/file/master';
+const configUrl = env.CONFIG_URL || 'http://app-cee3fd62-a81e-48b2-a766-a8be305d5fa9.cleverapps.io/file/master';
 //console.log("before http config",configUrl);
 httpGet.makeRequest('GET', configUrl).then(result => {
   console.log('~~ remote config | ', result);
-
+  const configJson= result.data;
   const content = 'module.exports = ' + JSON.stringify(result.data);
 
   fs.writeFile("configuration.js", content, 'utf8', function(err) {
@@ -79,14 +79,29 @@ httpGet.makeRequest('GET', configUrl).then(result => {
       app.use('/browserify', express.static('browserify'));
       app.use('/npm', express.static('node_modules'));
 
-      let errorLib= require('./lib/core/lib/error_lib')
+      let errorLib = require('./lib/core/lib/error_lib');
+      let jwtSimple = require('jwt-simple');
+      let errorParser = require('error-stack-parser');
       app.use(function(err, req, res, next) {
-        errorLib.create(err)
-        res.status(500).send(err.stack);
+        if (err) {
+          var token = req.body.token || req.query.token || req.headers['authorization'];
+          //console.log('token |',token);
+          let user;
+          if (token != undefined) {
+            token.split("");
+            let decodedToken = jwtSimple.decode(token.substring(4, token.length), configJson.secret);
+            user = decodedToken.iss;
+            //console.log('user |',user);
+          }
+          errorLib.create(err, user);
+          //console.log(err);
+          res.status(500).send({message:err.message,stack: errorParser.parse(err),displayMessage:err.displayMessage});
+        }
+        //able to centralise response using res.data ans res.send(res.data)
       });
 
-      server.listen(process.env.PORT ||  8080, function() {
-        console.log('~~ server started at ',this.address().address,':',this.address().port)
+      server.listen(process.env.PORT || 8080, function() {
+        console.log('~~ server started at ', this.address().address, ':', this.address().port)
         // console.log('Listening on port  ');
         // console.log(this.address().port);
         //console.log('new message from master 18');

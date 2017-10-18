@@ -16,9 +16,15 @@
       </h1>
     </div>
   </div>
-  <div class="containerH" style="bottom:0;top:0;right:0;left:0;position:absolute;flex-wrap:nowrap;">
+  <div class="containerV" style="flex-grow:1">
+    <div class="containerH commandBar errorMessage" if={errorMessage}>
+      <div>{errorMessage}</div>
+      <div onclick={closeError} class="commandButtonImage" ><img src="./image/Super-Mono-png/PNG/basic/red/button-cross.png" height="20px"></div>
 
-    <!--
+    </div>
+    <div class="containerH" style="bottom:0;top:0;right:0;left:0;position:absolute;flex-wrap:nowrap;">
+
+      <!--
     <div class="containerV" class="containerV" style="height: 100vh;flex-shrink:5">
       <div class="containerV" style="flex-grow:1;flex-basis:50%">
         <div class="containerH" style="flex-grow:1;flex-wrap: nowrap;">
@@ -51,64 +57,67 @@
           </civ>
         </div>
       -->
-    <div class="containerV commandBar" style="justify-content: space-between;">
-      <div class="containerV commandGroup" style="flex-grow:0;justify-content:flex-start;">
-        <div class="commandButtonImage" onclick={workspaceSelectorClick} id="workspaceSelector">
-          <img src="./image/User-256.png" width="60px">
-        </div>
-        <div class="commandButtonImage" onclick={workspaceShareSelectorClick}>
-          <img src="./image/Group-256.png" width="60px">
-        </div>
-        <div class="commandButtonImage" onclick={profilSelectorClick}>
-          <img src="./image/user.png" width="60px">
-        </div>
-        <div class="commandButtonImage" onclick={adminSelectorClick} if={showAdmin}>
-          <img src="./image/Administrative-Tools-256.png" width="60px">
-        </div>
-      </div>
-      <div class="containerV commandGroup" style="flex-grow:1;justify-content:center;">
-        <div id="backButton" onclick={back} if={isScrennHide()} class="commandButtonImage">
-          <img src="./image/Super-Mono-png/PNG/basic/blue/arrow-left.png" width="60px">
-        </div>
-      </div>
-      <div class="containerV commandGroup" style="flex-grow:0;justify-content:flex-end;">
-        <img src="./image/working.gif" width="60px" if={workInProgress}>
-      </div>
-    </div>
-    <div class="containerV" style="flex-grow:1" if={isScrennToShow('landing')}>
-      <landing></landing>
-    </div>
-    <div class="containerV" style="flex-grow:1" if={isScrennToShow('myWorkspaces')}>
-      <workspace-table></workspace-table>
-    </div>
-    <div class="containerV" style="flex-grow:1" if={isScrennToShow('sharedWorkspaces')}>
-      <workspace-share-table></workspace-share-table>
-    </div>
 
-    <div class="containerV" style="flex-grow:1" if={isScrennToShow('workspaceEditor')}>
-      <workspace-editor></workspace-editor>
-    </div>
+      <div class="containerV commandBar" style="justify-content: space-between;">
+        <div class="containerV commandGroup" style="flex-grow:0;justify-content:flex-start;">
+          <div class="commandButtonImage" onclick={workspaceSelectorClick} id="workspaceSelector">
+            <img src="./image/User-256.png" width="60px">
+          </div>
+          <div class="commandButtonImage" onclick={workspaceShareSelectorClick}>
+            <img src="./image/Group-256.png" width="60px">
+          </div>
+          <div class="commandButtonImage" onclick={profilSelectorClick}>
+            <img src="./image/user.png" width="60px">
+          </div>
+          <div class="commandButtonImage" onclick={adminSelectorClick} if={showAdmin}>
+            <img src="./image/Administrative-Tools-256.png" width="60px">
+          </div>
+        </div>
+        <div class="containerV commandGroup" style="flex-grow:1;justify-content:center;">
+          <div id="backButton" onclick={back} if={isScrennHide()} class="commandButtonImage">
+            <img src="./image/Super-Mono-png/PNG/basic/blue/arrow-left.png" width="60px">
+          </div>
+        </div>
+        <div class="containerV commandGroup" style="flex-grow:0;justify-content:flex-end;">
+          <img src="./image/working.gif" width="60px" if={workInProgress}>
+        </div>
+      </div>
 
-    <div class="containerV" style="flex-grow:1" if={isScrennToShow('workspaceAddComponent')}>
-      <technical-component-table></technical-component-table>
-    </div>
-    <div class="containerV" style="flex-grow:1" if={isScrennToShow('workspaceAddUser')}>
-      <user-list></user-list>
-    </div>
-    <div class="containerV" style="flex-grow:1" if={isScrennToShow('graph')}>
-      <graph></graph>
-    </div>
-    <div class="containerV" style="flex-grow:1" if={isScrennToShow('componentEditor')}>
-      <workspace-component-editor></workspace-component-editor>
-    </div>
-    <div class="containerV" style="flex-grow:1" if={isScrennToShow('profil')}>
-      <profil></profil>
-    </div>
-    <div class="containerV" style="flex-grow:1" if={isScrennToShow('admin')}>
-      <admin></admin>
-    </div>
-    <div class="containerV" style="flex-grow:1" if={isScrennToShow('workPreview')}>
-      <jsonPreviewer></jsonPreviewer>
+      <div class="containerV" style="flex-grow:1" if={isScrennToShow('landing')}>
+        <landing></landing>
+      </div>
+      <div class="containerV" style="flex-grow:1" if={isScrennToShow('myWorkspaces')}>
+        <workspace-table></workspace-table>
+      </div>
+      <div class="containerV" style="flex-grow:1" if={isScrennToShow('sharedWorkspaces')}>
+        <workspace-share-table></workspace-share-table>
+      </div>
+
+      <div class="containerV" style="flex-grow:1" if={isScrennToShow('workspaceEditor')}>
+        <workspace-editor></workspace-editor>
+      </div>
+
+      <div class="containerV" style="flex-grow:1" if={isScrennToShow('workspaceAddComponent')}>
+        <technical-component-table></technical-component-table>
+      </div>
+      <div class="containerV" style="flex-grow:1" if={isScrennToShow('workspaceAddUser')}>
+        <user-list></user-list>
+      </div>
+      <div class="containerV" style="flex-grow:1" if={isScrennToShow('graph')}>
+        <graph></graph>
+      </div>
+      <div class="containerV" style="flex-grow:1" if={isScrennToShow('componentEditor')}>
+        <workspace-component-editor></workspace-component-editor>
+      </div>
+      <div class="containerV" style="flex-grow:1" if={isScrennToShow('profil')}>
+        <profil></profil>
+      </div>
+      <div class="containerV" style="flex-grow:1" if={isScrennToShow('admin')}>
+        <admin></admin>
+      </div>
+      <div class="containerV" style="flex-grow:1" if={isScrennToShow('workPreview')}>
+        <jsonPreviewer></jsonPreviewer>
+      </div>
     </div>
   </div>
 </div>
@@ -160,6 +169,10 @@
 
   back(e) {
     RiotControl.trigger('back');
+  }
+
+  closeError(e){
+    this.errorMessage=undefined;
   }
 
   this.isScrennToShow = function (screenToTest) {
@@ -219,8 +232,19 @@
     this.update();
   }.bind(this));
 
-  this.on('mount', function () {
+  RiotControl.on('item_current_work_fail', function () {
+    this.workInProgress = false;
+    this.update();
+  }.bind(this));
 
+  RiotControl.on('ajax_fail', function (message) {
+    this.errorMessage = message;
+    this.update();
+  }.bind(this));
+
+
+
+  this.on('mount', function () {
 
     RiotControl.trigger('screenHistoryInit');
 
@@ -312,6 +336,12 @@
   }
   .persistInProgress {
     color: red;
+  }
+
+  .errorMessage{
+    background-color: orange !important;
+    color: white;
+    z-index: 999;
   }
 
 </style>

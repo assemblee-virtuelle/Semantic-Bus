@@ -15,11 +15,13 @@
       <div>message</div>
       <div>first stack</div>
       <div>date</div>
+      <div>userId</div>
     </yield>
     <yield to="row">
       <div style="width:20%">{message}</div>
       <div style="width:60%">{stackArray[0]}</div>
-      <div style="width:20%">{date}</div>
+      <div style="width:10%">{date}</div>
+      <div style="width:10%">{userId}</div>
     </yield>
   </zenTable>
 

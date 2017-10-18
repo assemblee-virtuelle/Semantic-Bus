@@ -43,9 +43,11 @@ module.exports = {
             resolve({data:cleanData});
 
           } else {
-            console.log('Google query rejected | ', error);
-            error .message='google request failed, check your parameters : '+error.message;
-            reject(new Error(error));
+            //console.log('Google query rejected | ', error);
+            let fullError=new Error(error);
+            //error.message='google request failed, check your parameters : '+error.message;
+            fullError.displayMessage='google request failed, check your parameters';
+            reject(fullError);
           }
         }.bind(this)
       });

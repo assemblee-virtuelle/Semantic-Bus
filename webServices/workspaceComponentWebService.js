@@ -36,14 +36,14 @@ module.exports = function (router) {
     workspace_component_lib.get({
       _id: id
     }).then(function (data) {
-      console.log('workspaceComponent | work| ', data);
+      //console.log('workspaceComponent | work| ', data);
       var recursivPullResolvePromiseDynamic = require('./recursivPullResolvePromise');
       return recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(data, 'work');
     }).then(function (data) {
-      console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
+      //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
       res.json(data.data);
     }).catch(e => {
-      console.log('WEB Service Run Error');
+      console.log('WEB Service Run Error',e.displayMessage);
       next(e);
     });
   }); //<= resolveComponent

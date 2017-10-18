@@ -129,27 +129,51 @@ function GenericStore(specificStoreList) {
   // --------------------------------------------------------------------------------
 
 
+  this.ajaxCall=function(param,persistTrigger){
+    return new Promise((resolve,reject)=>{
+      if(persistTrigger){
+          this.trigger('persist_start');
+      }
+      param.headers= {
+        "Authorization": "JTW" + " " + localStorage.token
+      };
+      param.contentType= 'application/json';
+
+      $.ajax(param).done(function(data) {
+        if(persistTrigger){
+            this.trigger('persist_end');
+        }
+        resolve(data);
+      }.bind(this)).fail(function(error) {
+        if(persistTrigger){
+            this.trigger('persist_end');
+        }
+        if(error.status==500){
+          this.trigger('ajax_fail',error.responseJSON.displayMessage||error.responseJSON.message);
+        }
+        reject(error);
+      }.bind(this));
+    })
+  }
+
   this.on('item_current_work', function(message) {
     console.log('item_current_testWork | itemCurrent:', this.itemCurrent);
     var id = this.itemCurrent._id;
     this.trigger('item_current_work_start');
-    $.ajax({
+    this.ajaxCall({
       method: 'get',
-      url: '../data/core/workspaceComponent/' + id + '/work',
-      contentType: 'application/json',
-      headers: {
-        "Authorization": "JTW" + " " + localStorage.token
-      }
-    }).done(function(data) {
-      console.log('ALLO');
-      this.currentPreview=data;
+      url: '../data/core/workspaceComponent/' + id + '/work'},false
+    ).then(data=>{
+      this.currentPreview = data;
       this.trigger('item_current_work_done', data);
-    }.bind(this));
+    }).catch(error=>{
+      this.trigger('item_current_work_fail');
+    });
   }); //<= item_current_work
 
 
 
-  this.on('previewJSON_refresh', function () {
+  this.on('previewJSON_refresh', function() {
     //console.log('workspace_current_refresh || ', this.workspaceCurrent);
     this.trigger('previewJSON', this.currentPreview);
   }); // <= workspace_current_refresh
@@ -215,7 +239,7 @@ function GenericStore(specificStoreList) {
 
   this.on('item_current_disconnect_after', function(data) {
     this.itemCurrent.connectionsAfter = this.itemCurrent.connectionsAfter || [];
-    this.itemCurrent.connectionsAfter.splice(this.itemCurrent.connectionsAfter.indexOf(data),1);
+    this.itemCurrent.connectionsAfter.splice(this.itemCurrent.connectionsAfter.indexOf(data), 1);
     this.update().then((record) => {
       this.modeConnectAfter = false;
       this.trigger('item_curent_connect_show_changed', {
@@ -230,7 +254,7 @@ function GenericStore(specificStoreList) {
   this.on('item_current_disconnect_before', function(data) {
     console.log('item_current_add_component', this.connectMode);
     this.itemCurrent.connectionsBefore = this.itemCurrent.connectionsBefore || [];
-    this.itemCurrent.connectionsBefore.splice(this.itemCurrent.connectionsBefore.indexOf(data),1);
+    this.itemCurrent.connectionsBefore.splice(this.itemCurrent.connectionsBefore.indexOf(data), 1);
     this.update().then((record) => {
       this.modeConnectBefore = false;
       this.trigger('item_curent_connect_show_changed', {
@@ -275,7 +299,7 @@ function GenericStore(specificStoreList) {
           $ne: this.itemCurrent._id
         }
       }]
-    //workspace of component should filled but is'nt (should be filled in workspace load/deserialized)
+      //workspace of component should filled but is'nt (should be filled in workspace load/deserialized)
     }, this.workspaceCurrent.components);
 
     let afterConnectionAvailable = sift({
@@ -308,7 +332,7 @@ function GenericStore(specificStoreList) {
     this.trigger('component_current_select_done');
   }); //<= item_current_select
 
-  this.refresh=function(){
+  this.refresh = function() {
     this.trigger('item_current_editor_changed', this.itemCurrent.editor);
     this.modeConnectBefore = false;
     this.modeConnectAfter = false;
@@ -317,7 +341,7 @@ function GenericStore(specificStoreList) {
       after: this.modeConnectAfter
     });
     this.trigger('item_curent_available_connections', this.computeAvailableConnetions());
-    console.log('genericStore | component_current_select |',this.itemCurrent);
+    console.log('genericStore | component_current_select |', this.itemCurrent);
     this.trigger('item_current_changed', this.itemCurrent);
   }
 
