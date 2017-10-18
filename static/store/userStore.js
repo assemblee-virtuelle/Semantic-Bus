@@ -82,9 +82,10 @@ var UserStore = function() {
         this.trigger('ajax_send_login');
       }.bind(this),
     }).done(data => {
-      console.log(data)
+      console.log("----- google data -----", data)
       if (data != null && data.token != null) {
         localStorage.token = data.token
+        console.log("----- token data -----", localStorage.token)
         this.trigger('application_redirect')
         this.sleep(2000).then(function () {
           this.trigger('ajax_receipt_login');

@@ -1,8 +1,9 @@
 var jwtService = require('./jwtService');
 var inscription_lib_user = require('../lib/core/lib/inscription_lib')
 var auth_lib_user = require('../lib/core/lib/auth_lib')
-
-
+var configuration = require('../configuration')
+var url = !configuration.https ? './login.html?google_token=' : 'https://semantic-bus.org/auth/login.html?google_token='
+console.log(url)
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -110,7 +111,7 @@ module.exports = function (router) {
   // --------------------------------------------------------------------------------
 
 
-  auth_lib_user.google_auth_callbackURL(router, './login.html?google_token=')
+  auth_lib_user.google_auth_callbackURL(router, url)
 
   // --------------------------------------------------------------------------------
 
