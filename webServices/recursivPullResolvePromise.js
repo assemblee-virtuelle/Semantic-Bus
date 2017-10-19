@@ -568,7 +568,7 @@ var proto = {
 //       }
 //     });
 //   }
-// };
+};
 
 module.exports = {
   getNewInstance() {
