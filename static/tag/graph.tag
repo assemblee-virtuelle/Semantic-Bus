@@ -17,6 +17,11 @@
         run this component
       </div>
     </div>
+    <div class="containerH commandGroup" if={selectedLines.length==1}>
+      <div id="removeLinkButton" onclick={removeLinkClick} class="commandButton" }>
+        remove
+      </div>
+    </div>
     <div></div>
     <div class="containerH commandGroup">
       <div id="addComponent" onclick={addComponentClick} class="commandButtonImage" if={!opts.disallowcommand==true}>
@@ -40,19 +45,23 @@
           <feMergeNode in="SourceGraphic"/>
         </feMerge>
       </filter>
-      <g id="background" >
+      <g id="background">
         <rect width="1500" height="900" class="background"></rect>
       </g>
+      <g id="lineSelector"></g>
       <g id="lineLayer"></g>
-      <g id="shapeLayer"></g>
       <g id="shapeSelector"></g>
+      <g id="shapeLayer"></g>
+
       <g id="textLayer"></g>
     </svg>
   </div>
   <!--graphContainer-->
   <script>
     this.selectedNodes = [];
-    this.selectors = [];
+    this.selectorsNodes = [];
+    this.selectedLines = [];
+    this.selectorsLines = [];
     this.modeConnectAfter = false;
     this.modeConnectBefore = false;
 
@@ -61,7 +70,7 @@
     }
 
     editClick(e) {
-      console.log('graph edit Component | ',this.selectedNodes[0].component);
+      console.log('graph edit Component | ', this.selectedNodes[0].component);
       //RiotControl.trigger('component_current_show');
       RiotControl.trigger('component_current_select', this.selectedNodes[0].component);
     }
@@ -79,8 +88,13 @@
       RiotControl.trigger('item_current_connect_after_show');
     }
 
-    workComponentClick(e){
-        RiotControl.trigger('item_current_work');
+    workComponentClick(e) {
+      RiotControl.trigger('item_current_work');
+    }
+
+    removeLinkClick(e) {
+      console.log('removeLink |', this.selectedLines[0].source.component, this.selectedLines[0].target.component);
+      RiotControl.trigger('disconnect_components', this.selectedLines[0].source.component, this.selectedLines[0].target.component);
     }
 
     //this.selectedNodes={}; source urile : https://bl.ocks.org/mbostock/1095795 Constants for the SVG
@@ -91,12 +105,12 @@
     Fonctions
   */
     this.drawSelected = function () {
-      console.log(this.selectedNodes);
-      this.selectors = this.svg.select("#shapeSelector").selectAll("rect").data(this.selectedNodes, function (d) {
+      //console.log(this.selectedNodes);
+      this.selectorsNodes = this.svg.select("#shapeSelector").selectAll("rect").data(this.selectedNodes, function (d) {
         return d.id + 'selected';
       });
-      this.selectors.exit().remove();
-      this.selectors = this.selectors.enter().append("rect").attr("width", function (d) { // width et height definis plus haut par bbox
+      this.selectorsNodes.exit().remove();
+      this.selectorsNodes = this.selectorsNodes.enter().append("rect").merge(this.selectorsNodes).attr("width", function (d) { // width et height definis plus haut par bbox
         return 240;
       }).attr("height", function (d) {
         return 90;
@@ -108,9 +122,25 @@
         return d.x - 10;
       }).attr('y', function (d) {
         return d.y - 10;
-      }).attr('class', function (d) {
-        return 'selector';
       }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
+    }
+
+    this.drawSelectedLines = function () {
+
+      //console.log(this.selectedNodes);
+      this.selectorsLines = this.svg.select("#lineSelector").selectAll("line").data(this.selectedLines, function (d) {
+        return d.id + 'selected';
+      });
+      this.selectorsLines.exit().remove();
+      this.selectorsLines = this.selectorsLines.enter().append("line").merge(this.selectorsLines).attr('x1', function (d) {
+        return d.source.x + 165;
+      }).attr('y1', function (d) {
+        return d.source.y + 35;
+      }).attr('x2', function (d) {
+        return d.target.x + 55;
+      }).attr('y2', function (d) {
+        return d.target.y + 35;
+      });
     }
 
     // fonctions déplacements ( glissé )
@@ -126,21 +156,36 @@
       this.nodes = this.svg.select("#shapeLayer").selectAll("image").data([dragged], function (d) {
         return d.id;
       }).attr("x", dragged.x).attr("y", dragged.y);
-      this.selectors = this.svg.select("#shapeSelector").selectAll("rect").data([dragged], function (d) {
+      this.selectorsNodes = this.svg.select("#shapeSelector").selectAll("rect").data([dragged], function (d) {
         return d.id;
       }).attr("x", dragged.x - 10).attr("y", dragged.y - 10);
+
       let beforeLinks = sift({
         "target.id": dragged.id
       }, this.graph.links);
       this.links = this.svg.select("#lineLayer").selectAll("line").data(beforeLinks, function (d) {
         return d.id;
       }).attr("x2", dragged.x + 55).attr("y2", dragged.y + 35);
+      let beforeLinksSelected = sift({
+        "target.id": dragged.id
+      }, this.selectedLines);
+      this.selectorsLines = this.svg.select("#lineSelector").selectAll("line").data(beforeLinksSelected, function (d) {
+        return d.id;
+      }).attr("x2", dragged.x + 55).attr("y2", dragged.y + 35);
+
       let afterLinks = sift({
         "source.id": dragged.id
       }, this.graph.links);
       this.links = this.svg.select("#lineLayer").selectAll("line").data(afterLinks, function (d) {
         return d.id;
       }).attr("x1", dragged.x + 165).attr("y1", dragged.y + 35);
+      let afterLinksSelected = sift({
+        "source.id": dragged.id
+      }, this.selectedLines);
+      this.selectorsLines = this.svg.select("#lineSelector").selectAll("line").data(afterLinksSelected, function (d) {
+        return d.id;
+      }).attr("x1", dragged.x + 165).attr("y1", dragged.y + 35);
+
     }.bind(this);
 
     this.dragended = function (d) {
@@ -148,17 +193,19 @@
       if (d.x == d.xOrigin && d.y == d.yOrigin) {
         //console.log('CLICK'); let selectedNode = d; selectedNode.mainObjectId = d.id;
         if (this.modeConnectBefore || this.modeConnectAfter) {
-          if(this.modeConnectBefore){
+          if (this.modeConnectBefore) {
             //console.log(d.component,this.selectedNodes[0].component);
-            RiotControl.trigger('connect_components', d.component,this.selectedNodes[0].component);
+            RiotControl.trigger('connect_components', d.component, this.selectedNodes[0].component);
           }
-          if(this.modeConnectAfter){
-            console.log(d.component,this.selectedNodes[0].component);
-            RiotControl.trigger('connect_components',this.selectedNodes[0].component, d.component);
+          if (this.modeConnectAfter) {
+            console.log(d.component, this.selectedNodes[0].component);
+            RiotControl.trigger('connect_components', this.selectedNodes[0].component, d.component);
           }
         } else {
+          this.selectedLines = [];
+          this.drawSelectedLines();
           this.selectedNodes = [d];
-          RiotControl.trigger('component_current_set',d.component);
+          RiotControl.trigger('component_current_set', d.component);
           this.drawSelected();
           this.update();
         }
@@ -190,23 +237,30 @@
 
       var inputs = 0;
       var outputs = 0;
+      var middles = 0;
 
       // determine le nombre d inputs et d outputs
+      console.log(data.components);
       for (record of data.components) {
         if (record.connectionsBefore.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) {
           inputs++;
-        }
-        if (record.connectionsAfter.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) {
+        }else if (record.connectionsAfter.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) {
           outputs++;
+        }else if (record.graphPositionX == undefined && record.graphPositionY == undefined) {
+          middles++;
         }
       }
 
       // console.log(inputs, outputs); calcule une distance type pour positionner les inputs et outputs du graphe
       var inputsOffset = height / (inputs + 1);
       var outputsOffset = height / (outputs + 1);
+      var middlesOffset = height / (middles + 1);
 
       var inputCurrentOffset = inputsOffset;
       var outputCurrentOffset = outputsOffset;
+      var middleCurrentOffset = middlesOffset;
+
+      console.log("automatic repartition",inputs,inputsOffset,middles,middlesOffset,outputs,outputsOffset);
 
       //console.log(inputsOffset, outputsOffset);
 
@@ -218,8 +272,8 @@
             id: record._id,
             graphIcon: record.graphIcon,
             // fx: record.graphPositionX || 10, //positionne l'élémént sur le bord gauche fy: record.graphPositionY || inputCurrentOffset,
-            x: record.graphPositionX || 10, //positionne l'élémént sur le bord gauche
-            y: record.graphPositionY || inputCurrentOffset,
+            x: 10, //positionne l'élémént sur le bord gauche
+            y: inputCurrentOffset,
             component: record
           }
           inputCurrentOffset += inputsOffset;
@@ -229,8 +283,8 @@
             id: record._id,
             graphIcon: record.graphIcon,
             // fx: record.graphPositionX || width - 10 - record.type.length * 10, // positionne l'element en largeur par rapport au bord droit du graphe fy: record.graphPositionY || outputCurrentOffset,
-            x: record.graphPositionX || width - 10 - record.type.length * 10, // positionne l'element en largeur par rapport au bord droit du graphe
-            y: record.graphPositionY || outputCurrentOffset,
+            x: width - 230, // positionne l'element en largeur par rapport au bord droit du graphe
+            y: outputCurrentOffset,
             component: record
           }
           outputCurrentOffset += outputsOffset;
@@ -240,8 +294,11 @@
             id: record._id,
             graphIcon: record.graphIcon,
             x: record.graphPositionX || width / 2,
-            y: record.graphPositionY || height / 2,
+            y: record.graphPositionY || middleCurrentOffset,
             component: record
+          }
+          if (record.graphPositionY == undefined) {
+            middleCurrentOffset += middlesOffset;
           }
 
         }
@@ -268,11 +325,13 @@
         this.svg = d3.select("svg");
       }
 
-      d3.select("#background").on("click",function(d){
+      d3.select("#background").on("click", function (d) {
         //console.log('CLICK ON main',d3.select(this));
         this.selectedNodes = [];
-        RiotControl.trigger('component_current_set',undefined);
+        this.selectedLines = [];
+        //RiotControl.trigger('component_current_set', undefined);
         this.drawSelected();
+        this.drawSelectedLines();
         this.update();
       }.bind(this));
 
@@ -289,7 +348,7 @@
         return d.id;
       });
       this.links.exit().remove();
-      this.links = this.links.enter().append('line').attr('x1', function (d) {
+      this.links = this.links.enter().append('line').merge(this.links).attr('x1', function (d) {
         return d.source.x + 165;
       }).attr('y1', function (d) {
         return d.source.y + 35;
@@ -297,13 +356,20 @@
         return d.target.x + 55;
       }).attr('y2', function (d) {
         return d.target.y + 35;
-      }).merge(this.links)
+      }).on("click", function (d) {
+        //console.log('click line |', d);
+        this.selectedNodes = [];
+        this.drawSelected();
+        this.selectedLines = [d];
+        this.drawSelectedLines();
+        this.update();
+      }.bind(this));
 
       this.nodes = this.svg.select("#shapeLayer").selectAll("image").data(this.graph.nodes, function (d) {
         return d.id;
       });
       this.nodes.exit().remove();
-      this.nodes = this.nodes.enter().append("image").attr("xlink:href", function (d) {
+      this.nodes = this.nodes.enter().append("image").merge(this.nodes).attr("xlink:href", function (d) {
         return 'image/components/' + d.graphIcon;
       }).attr("width", function (d) {
         return 220;
@@ -315,11 +381,24 @@
         return d.y;
       }).attr('data-id', function (d) {
         return d.id;
-      }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended)).merge(this.nodes);
+      }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
 
-      if (this.selectedNodes.length>0){
-        this.selectedNodes=sift({id:{$in:this.selectedNodes.map(s=>s.id)}},this.graph.nodes);
+      if (this.selectedNodes.length > 0) {
+        this.selectedNodes = sift({
+          id: {
+            $in: this.selectedNodes.map(s => s.id)
+          }
+        }, this.graph.nodes);
         this.drawSelected();
+      }
+
+      if (this.selectedLines.length > 0) {
+        this.selectedLines = sift({
+          id: {
+            $in: this.selectedLines.map(s => s.id)
+          }
+        }, this.graph.links);
+        this.drawSelectedLines();
       }
 
       // this.simulation.nodes(this.graph.nodes); this.simulation.force("link").links(this.graph.links); this.simulation.alpha(1).restart();
@@ -331,31 +410,11 @@
       RiotControl.off('workspace_current_changed', this.refreshGraph);
     });
 
-
-    // this.ticked = function () {
-    //   console.log("ticked");
-    //   this.links.attr('x1', function (d) {
-    //     return d.source.x + 165;
-    //   }).attr('y1', function (d) {
-    //     return d.source.y + 35;
-    //   }).attr('x2', function (d) {
-    //     return d.target.x + 55;
-    //   }).attr('y2', function (d) {
-    //     return d.target.y + 35;
-    //   });
+    // this.ticked = function () {   console.log("ticked");   this.links.attr('x1', function (d) {     return d.source.x + 165;   }).attr('y1', function (d) {     return d.source.y + 35;   }).attr('x2', function (d) {     return d.target.x + 55;
+    // }).attr('y2', function (d) {     return d.target.y + 35;   });
     //
-    //   this.nodes.attr('x', function (d) {
-    //     return d.x - 5;
-    //   }).attr('y', function (d) {
-    //     return d.y - 5;
-    //   });
-    //   if (this.selectors.length > 0) {
-    //     this.selectors.attr('x', function (d) {
-    //       return d.x - 5;
-    //     }).attr('y', function (d) {
-    //       return d.y - 5;
-    //     });
-    //   }
+    //   this.nodes.attr('x', function (d) {     return d.x - 5;   }).attr('y', function (d) {     return d.y - 5;   });   if (this.selectorsNodes.length > 0) {     this.selectorsNodes.attr('x', function (d) {       return d.x - 5;     }).attr('y',
+    // function (d) {     return d.y - 5;     });   }
     //
     //   // this.texts.attr('x', function (d) {   return d.x; }).attr('y', function (d) {   return d.y + d.height; }); tickCount++; if (tickCount>10) {   simulation.stop(); }
     //
@@ -371,7 +430,7 @@
     // evenement appele par riot
     this.on('mount', function () { // mount du composant riot
 
-    RiotControl.on('workspace_current_changed', this.refreshGraph);
+      RiotControl.on('workspace_current_changed', this.refreshGraph);
       RiotControl.trigger('workspace_current_refresh'); // et ici on est dans le mount
     }); // fin mount
 
@@ -384,20 +443,32 @@
     svg {
       //background-color: #EFEFEF;
     }
-    line {
-      stroke: #000;
-      stroke-width: 1;
+
+    #shapeLayer image {
+      cursor: pointer;
     }
 
-    .selector {
+    #lineLayer line {
+      stroke: #555;
+      stroke-width: 12;
+      cursor: pointer;
+    }
+
+    #shapeSelector rect {
       //filter:url(#dropshadow);
       fill: #649DF9;
-      fill-opacity : 0.4
+      fill-opacity: 0.4;
+    }
+
+    #lineSelector line {
+      stroke-width: 36;
+      stroke: #649DF9;
+      stroke-opacity: 0.4;
     }
 
     .background {
       fill: white;
-      fill-opacity : 1;
+      fill-opacity: 1;
       stroke: #000;
       stroke-width: 1;
     }

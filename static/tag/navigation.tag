@@ -238,6 +238,7 @@
   }.bind(this));
 
   RiotControl.on('ajax_fail', function (message) {
+    console.log('navigation.tag | ajax_fail');
     this.errorMessage = message;
     this.update();
   }.bind(this));

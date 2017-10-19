@@ -26,7 +26,7 @@
     </div>
   </div>
   <div style="flex-grow:1;flex-wrap: nowrap" class="containerH">
-
+<!--
     <div style="flex-basis:250px" class="containerV">
 
       <div class="containerH commandBar" style="flex-basis:50px">
@@ -49,14 +49,13 @@
       <div onclick={componentClickToConnectBefore} class="selector" each={beforeConnectionsAvaible} style="background-color:green" if={modeConnectBefore}>
         {type} : {name}
       </div>
-    </div>
+    </div>-->
     <div id="editionContainer" style="flex-grow:1" class="containerV">
       <!--<workspace-editor if={modeWorkspaceEdition}></workspace-editor>-->
 
     </div>
+<!--
     <div show={modeComponentTest} style="flex-grow:2;flex-wrap: nowrap;" class="containerH">
-      <!--<jsonPreviewer name="testPreviewer" style="flex-grow:1">
-    </jsonPreviewer>-->
       <div class="containerV commandBar" style="flex-basis:50px">
         <div></div>
         <div class="commandGroup containerH">
@@ -69,7 +68,8 @@
 
       <jsonEditor name="testPreviewer" ref="testPreviewer" mode="text" style="flex-grow:1"></jsonEditor>
 
-    </div>
+    </div>-->
+    <!--
     <div style="flex-basis:250px" class="containerV" >
       <div class="containerH commandBar" style="flex-basis:50px">
         <div>
@@ -88,13 +88,11 @@
         </div>
         <div onclick={deleteConnectionAfter} class="commandButtonImage"  style="align-self:flex-start;flex-basis:25px;"><img src="./image/Super-Mono-png/PNG/basic/red/button-cross.png" height="20px"></div>
       </div>
-      <!-- </div>
-    <div style="flex-basis:200px" class="containerV" if={modeConnectAfter}>
-       -->
+
       <div onclick={componentClickToConnectAfter} class="selector" each={afterConnectionsAvaible} style="background-color:green" if={modeConnectAfter}>
         {type} : {name}
       </div>
-    </div>
+    </div>-->
   </div>
   <script>
     this.itemCurrent={};

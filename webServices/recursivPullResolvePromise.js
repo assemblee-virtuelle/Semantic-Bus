@@ -446,129 +446,129 @@ var proto = {
       return out;
     }
   },
-  _makeRequest(component, notMainNode, pullParams) {
-
-    // create a new Promise
-    return new Promise((resolve, reject) => {
-      // console.log('recursivPullResolvePromise | ',component,' | connectionsBefore |',component.connectionsBefore);
-      var module = this.technicalComponentDirectory[component.module];
-      //console.log('recursivPullResolvePromise | technicalComponentDirectory | ',this.technicalComponentDirectory,this.workspaceComponentPromise);
-      console.log('recursivPullResolvePromise | module | ', module.type, module.name);
-      //console.log('recursivPullResolvePromise | before | ',component.connectionsBefore.length,' | stepNode |',module.stepNode,' | notMainNode |',notMainNode);
-      if (component.connectionsBefore.length > 0 && (module.stepNode != true || notMainNode != true)) {
-        console.log('resolveWebComponentPull | beforeId | ', component.connectionsBefore[0]);
-
-        Promise.all(
-          component.connectionsBefore.map(connectionBeforeId => {
-            //console.log(connectionBeforeId);
-            return this.workspaceComponentPromise.getReadPromiseById(connectionBeforeId)
-          })
-        ).then(workspaceComponents =>
-          Promise.all(
-            workspaceComponents.map(workspaceComponent => {
-              if (workspaceComponent.message == 'Document not found') {
-                return new Promise((resolve, reject) => {
-                  resolve({
-                    data: []
-                  })
-                });
-              } else {
-                //console.log(workspaceComponent);
-                return this.resolveComponentPull(workspaceComponent, true, pullParams)
-              }
-            })
-          )
-        ).then(connectionsBeforeData => {
-          //connectionsBeforeData=connectionsBeforeData.map(connectionBeforeData=>{data:connectionBeforeData})
-          if (module.pull) {
-            //console.log('connectionsBeforeData | ', connectionsBeforeData);
-            var primaryflow;
-            if (module.getPrimaryFlow != undefined) {
-              primaryflow = module.getPrimaryFlow(component, connectionsBeforeData);
-            } else {
-              primaryflow = connectionsBeforeData[0];
-            }
-
-            //primary flow extraction
-            var secondaryFlow = [];
-            secondaryFlow = secondaryFlow.concat(connectionsBeforeData);
-            secondaryFlow.splice(secondaryFlow.indexOf(primaryflow), 1);
-            //console.log('secondaryFlow |' , secondaryFlow);
-            if (primaryflow.dfob != undefined) {
-
-
-              var dfobTab = primaryflow.dfob[0].split(".");
-              //var currentInspectObject = primaryflow.data;
-
-              var dfobFinalFlow = this.buildDfobFlow(primaryflow.data, dfobTab)
-
-              //console.log('dfobFinalFlow | ', dfobFinalFlow);
-              var testPromises = dfobFinalFlow.map(finalItem => {
-                var recomposedFlow = [];
-                recomposedFlow = recomposedFlow.concat([{
-                  data: finalItem.objectToProcess[finalItem.key],
-                  componentId: primaryflow.componentId
-                }]);
-                recomposedFlow = recomposedFlow.concat(secondaryFlow);
-                return module.pull(component, recomposedFlow, pullParams);
-              })
-
-              Promise.all(testPromises).then(dataTestTab => {
-                //console.log('AllDfobResult |', dataTestTab);
-                for (var dataTestTabKey in dataTestTab) {
-                  dfobFinalFlow[dataTestTabKey].objectToProcess[dfobFinalFlow[dataTestTabKey].key] = dataTestTab[dataTestTabKey].data;
-                  //currentInspectObject[dataTestTabKey][currentDfob] = dataTestTab[dataTestTabKey].data;
-                }
-                resolve({
-                  componentId: component._id.$oid,
-                  data: primaryflow.data
-                });
-              }).catch(e => {
-                this.RequestOrigineRejectMethode(e);
-                //console.log(e);
-              });
-
-
-
-            } else {
-              console.log('recursivPullResolvePromise | module start pull | ', module.type);
-              //console.log('recursivPullResolvePromise |connectionsBeforeData | ', connectionsBeforeData);
-
-              module.pull(component, connectionsBeforeData, pullParams).then(function (dataTest) {
-                console.log('recursivPullResolvePromise | module end | ', module.type);
-                //console.log('recursivPullResolvePromise | dataTest | ',dataTest);
-                resolve({
-                  componentId: component._id.$oid,
-                  data: dataTest.data,
-                  dfob: dataTest.dfob
-                });
-              });
-            }
-          } else {
-            console.log('NO MODULE');
-            resolve(null);
-          }
-        });
-
-      } else {
-        //console.log('resolveWebComponentPull | Last| ', component);
-        if (module.pull) {
-          module.pull(component, undefined, pullParams).then(function (dataTest) {
-            console.log('recursivPullResolvePromise | module end | ', module.type);
-            //console.log('recursivPullResolvePromise | module end | dataTest', dataTest);
-            resolve({
-              componentId: component._id.$oid,
-              data: dataTest.data
-            });
-          });
-        } else {
-          console.log('NO MODULE');
-          resolve(null);
-        }
-      }
-    });
-  }
-};
+//   _makeRequest(component, notMainNode, pullParams) {
+//
+//     // create a new Promise
+//     return new Promise((resolve, reject) => {
+//       // console.log('recursivPullResolvePromise | ',component,' | connectionsBefore |',component.connectionsBefore);
+//       var module = this.technicalComponentDirectory[component.module];
+//       //console.log('recursivPullResolvePromise | technicalComponentDirectory | ',this.technicalComponentDirectory,this.workspaceComponentPromise);
+//       console.log('recursivPullResolvePromise | module | ', module.type, module.name);
+//       //console.log('recursivPullResolvePromise | before | ',component.connectionsBefore.length,' | stepNode |',module.stepNode,' | notMainNode |',notMainNode);
+//       if (component.connectionsBefore.length > 0 && (module.stepNode != true || notMainNode != true)) {
+//         console.log('resolveWebComponentPull | beforeId | ', component.connectionsBefore[0]);
+//
+//         Promise.all(
+//           component.connectionsBefore.map(connectionBeforeId => {
+//             //console.log(connectionBeforeId);
+//             return this.workspaceComponentPromise.getReadPromiseById(connectionBeforeId)
+//           })
+//         ).then(workspaceComponents =>
+//           Promise.all(
+//             workspaceComponents.map(workspaceComponent => {
+//               if (workspaceComponent.message == 'Document not found') {
+//                 return new Promise((resolve, reject) => {
+//                   resolve({
+//                     data: []
+//                   })
+//                 });
+//               } else {
+//                 //console.log(workspaceComponent);
+//                 return this.resolveComponentPull(workspaceComponent, true, pullParams)
+//               }
+//             })
+//           )
+//         ).then(connectionsBeforeData => {
+//           //connectionsBeforeData=connectionsBeforeData.map(connectionBeforeData=>{data:connectionBeforeData})
+//           if (module.pull) {
+//             //console.log('connectionsBeforeData | ', connectionsBeforeData);
+//             var primaryflow;
+//             if (module.getPrimaryFlow != undefined) {
+//               primaryflow = module.getPrimaryFlow(component, connectionsBeforeData);
+//             } else {
+//               primaryflow = connectionsBeforeData[0];
+//             }
+//
+//             //primary flow extraction
+//             var secondaryFlow = [];
+//             secondaryFlow = secondaryFlow.concat(connectionsBeforeData);
+//             secondaryFlow.splice(secondaryFlow.indexOf(primaryflow), 1);
+//             //console.log('secondaryFlow |' , secondaryFlow);
+//             if (primaryflow.dfob != undefined) {
+//
+//
+//               var dfobTab = primaryflow.dfob[0].split(".");
+//               //var currentInspectObject = primaryflow.data;
+//
+//               var dfobFinalFlow = this.buildDfobFlow(primaryflow.data, dfobTab)
+//
+//               //console.log('dfobFinalFlow | ', dfobFinalFlow);
+//               var testPromises = dfobFinalFlow.map(finalItem => {
+//                 var recomposedFlow = [];
+//                 recomposedFlow = recomposedFlow.concat([{
+//                   data: finalItem.objectToProcess[finalItem.key],
+//                   componentId: primaryflow.componentId
+//                 }]);
+//                 recomposedFlow = recomposedFlow.concat(secondaryFlow);
+//                 return module.pull(component, recomposedFlow, pullParams);
+//               })
+//
+//               Promise.all(testPromises).then(dataTestTab => {
+//                 //console.log('AllDfobResult |', dataTestTab);
+//                 for (var dataTestTabKey in dataTestTab) {
+//                   dfobFinalFlow[dataTestTabKey].objectToProcess[dfobFinalFlow[dataTestTabKey].key] = dataTestTab[dataTestTabKey].data;
+//                   //currentInspectObject[dataTestTabKey][currentDfob] = dataTestTab[dataTestTabKey].data;
+//                 }
+//                 resolve({
+//                   componentId: component._id.$oid,
+//                   data: primaryflow.data
+//                 });
+//               }).catch(e => {
+//                 this.RequestOrigineRejectMethode(e);
+//                 //console.log(e);
+//               });
+//
+//
+//
+//             } else {
+//               console.log('recursivPullResolvePromise | module start pull | ', module.type);
+//               //console.log('recursivPullResolvePromise |connectionsBeforeData | ', connectionsBeforeData);
+//
+//               module.pull(component, connectionsBeforeData, pullParams).then(function (dataTest) {
+//                 console.log('recursivPullResolvePromise | module end | ', module.type);
+//                 //console.log('recursivPullResolvePromise | dataTest | ',dataTest);
+//                 resolve({
+//                   componentId: component._id.$oid,
+//                   data: dataTest.data,
+//                   dfob: dataTest.dfob
+//                 });
+//               });
+//             }
+//           } else {
+//             console.log('NO MODULE');
+//             resolve(null);
+//           }
+//         });
+//
+//       } else {
+//         //console.log('resolveWebComponentPull | Last| ', component);
+//         if (module.pull) {
+//           module.pull(component, undefined, pullParams).then(function (dataTest) {
+//             console.log('recursivPullResolvePromise | module end | ', module.type);
+//             //console.log('recursivPullResolvePromise | module end | dataTest', dataTest);
+//             resolve({
+//               componentId: component._id.$oid,
+//               data: dataTest.data
+//             });
+//           });
+//         } else {
+//           console.log('NO MODULE');
+//           resolve(null);
+//         }
+//       }
+//     });
+//   }
+// };
 
 module.exports = {
   getNewInstance() {
