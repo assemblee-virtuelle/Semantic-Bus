@@ -9,6 +9,7 @@ var passport = require('passport');
 
 var server = require('http').Server(app);
 var https = require('https');
+var http = require('http');
 
 
 var safe = express.Router();
