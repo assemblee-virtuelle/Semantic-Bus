@@ -52,8 +52,6 @@
     "passport": "^0.3.2",
     "passport-google-oauth": "^1.0.0",
     "passport-jwt": "^2.2.1",
-    "pg": "^6.4.0",
-    "pg-native": "^2.2.0",
     "phantom": "^4.0.5",
     "phantomjs": "^2.1.7",
     "promise-waterfall": "latest",
