@@ -26,7 +26,9 @@ var proto = {
   resolveComponent(component, requestDirection, pushData) {
     //buildPathResolution component, requestDirection
 
-    console.log(" ---------- resolveComponent -----------", component)
+    //console.log(" ---------- resolveComponent -----------", component)
+    console.log(" ---------- resolveComponent -----------")
+
 
     return new Promise((resolve, reject) => {
       this.workspace_component_lib.get_all({
@@ -105,7 +107,7 @@ var proto = {
           //let componentProcessing = processingLink.source;
           //console.log('PULL start | ', componentProcessing._id);
           module.pull(componentProcessing, undefined, undefined).then(componentFlow => {
-            console.log('PULL END | -------', componentProcessing._id);
+            console.log('PULL END | ', componentProcessing._id);
             componentProcessing.dataResolution = componentFlow;
             componentProcessing.status = 'resolved';
             //console.log("componentFlow ----------", componentFlow)
@@ -149,7 +151,7 @@ var proto = {
   processNextBuildPath(traitement_id,component_workspaceId, global_flow) {
     this.fackCounter++;
     console.log(" ---------- processNextBuildPath -----------", this.fackCounter)
-    console.log("--------- glovbal flow ------------" , global_flow)
+    //console.log("--------- glovbal flow ------------" , global_flow)
     console.log(this.pathResolution.map(link => {
       return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
     }));
@@ -193,7 +195,7 @@ var proto = {
         });
 
         /// Update procecing link
-        console.log("DATA FLOWWWW==>", this.objectSizeOf(dataFlow))
+        //console.log("DATA FLOWWWW==>", this.objectSizeOf(dataFlow))
         processingLink.destination.consumption_history.push({
           traitement_id: traitement_id,
           flow_size: this.objectSizeOf(dataFlow) / 1000000,

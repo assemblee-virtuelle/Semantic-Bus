@@ -136,7 +136,7 @@ module.exports = {
 
 
                 request.on('error', function(e) {
-                  console.log('request fail');
+                  console.log('request fail :',e);
                   resolve({
                     error: e
                   });
@@ -159,7 +159,7 @@ module.exports = {
           sourceKey++;
         }
 
-      }.bind(this), 200);
+      }.bind(this), 400);
 
       /*for (record of source) {
         var address = {
