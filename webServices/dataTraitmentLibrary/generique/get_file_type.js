@@ -34,9 +34,9 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
     console.log("extension |", extension)
     return new Promise(function (resolve, reject) {
       if (out == true || out == 'true') {
-				console.log(out)
+        console.log(out)
         resolve({
-          data: exel.json_to_exel(dataString.data )
+          data: exel.json_to_exel(dataString.data)
         })
       } else {
         switch (extension) {
@@ -56,7 +56,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
                 data: reusltat
               })
             }, function (err) {
-              return "votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien une String"
+              reject("votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
             })
             break;
 
@@ -69,7 +69,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
                 data: reusltat
               })
             }, function (err) {
-              return "votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien une String"
+              reject("votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
             })
             break;
 
@@ -86,7 +86,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
                 })
               })
             }, function (err) {
-              return "votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien un buffer"
+              reject("votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
             })
             break;
 
@@ -99,7 +99,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
                 data: reusltat
               })
             }, function (err) {
-              return "votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien une String"
+              reject("votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
             })
             break;
         }

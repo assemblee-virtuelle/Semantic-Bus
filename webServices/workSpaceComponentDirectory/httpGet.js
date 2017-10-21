@@ -9,8 +9,6 @@ module.exports = {
   dataTraitment: require("../dataTraitmentLibrary/index.js"),
   makeRequest: function (methodRest, urlString, contentType) {
     var _self = this
-    console.log(contentType)
-    //Probleme de contexte avec les arrow function
     return new Promise((resolve, reject) => {
       const parsedUrl = this.url.parse(urlString);
       const requestOptions = {
@@ -28,11 +26,12 @@ module.exports = {
       var lib = urlString.indexOf('https') != -1 ? this.https : this.http;
       const request = lib.request(requestOptions, response => {
         const hasResponseFailed = response.statusCode >= 400;
-        // console.log('REST Get  | header |', response.headers['content-disposition']);
         var responseBody = '';
         var responseBodyExel = [];
         if (hasResponseFailed) {
-          reject(`Request to ${response.url} failed with HTTP ${response.status}`);
+          let fullError = new Error("http get hasResponseFailed");
+          fullError.displayMessage = "`Request to " + urlString + " failed with HTTP "+  response.statusCode;
+          reject(fullError)
         }
 
         response.on('data', chunk => {
@@ -41,10 +40,12 @@ module.exports = {
         });
 
         response.on('end', function () {
-          // console.log("RESPONSE BEFORE TRAITMENT", responseBody)
           _self.dataTraitment.type.type_file(response.headers['content-disposition'],responseBody, responseBodyExel, undefined,  contentType).then(function(result){
-            // console.log(result)
             resolve(result)
+          }, function(err){
+            let fullError = new Error(err);
+            fullError.displayMessage = "HTTP GET : Erreur lors du traitement de votre fichier";
+            reject(fullError)
           })
           console.log('end');
         }.bind(this));
@@ -52,11 +53,14 @@ module.exports = {
 
       request.on('error', function (e) {
         console.log('error :', e);
-        reject();
+        let fullError = new Error(e);
+        fullError.displayMessage = "HTTP GET : Erreur lors de la requete";
+        reject(fullError)
       });
       request.end();
     });
   },
+  
   pull: function (data) {
     console.log('REST Get JSON | pull : ',data);
     return this.makeRequest('GET', data.specificData.url, data.specificData.contentType);

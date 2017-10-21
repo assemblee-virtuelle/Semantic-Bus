@@ -17,10 +17,8 @@
       this.data = {}
       this.data.specificData = {}
       this.data.specificData.url = e.currentTarget.value;
-      console.log("else if", this.data.specificData.url)
     }else{
       this.data.specificData.url = e.currentTarget.value;
-      console.log("else", this.data.specificData.url)
     }
   };
 
