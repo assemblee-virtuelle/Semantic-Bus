@@ -70,44 +70,40 @@ function _exel_traitment_server(data, uploadBoolean) {
 			feuilles.forEach(function (feuille) {
 				var exel_table_to_json = [];
 				var cell = {};
-				feuille.feuille.content.forEach(function (content, index) {
-					if (content.feuille == feuille.feuille.name) {
-						// console.log(content)
-						if (feuille.feuille.content[index + 1]) {
-							if (Object.keys(content)[0].match(regnumero) != null && Object.keys(feuille.feuille.content[index + 1])[0].match(regnumero) != null) {
-								// console.log(Object.keys(content)[0].match(regnumero)[0],  Object.keys(feuille.feuille.content[index + 1])[0].match(regnumero)[0])
-								// console.log(parseInt(Object.keys(content)[0].match(regnumero)[0]) <  parseInt(Object.keys(feuille.feuille.content[index + 1])[0].match(regnumero)[0]))
-								var val = Object.keys(content).map(function (key) {
-									return content[key];
-								});
-								if (Object.keys(content)[0].match(regnumero)[0] < Object.keys(feuille.feuille.content[index + 1])[0].match(regnumero)[0]) {
-									var c = {}
-									console.log(val[0]);
-									// console.log(Object.values(content)[0])
-									c[Object.keys(content)[0].match(regLettre)[0]] = val[0]
-									Object.assign(cell, c);
-									// console.log(cell)
-									exel_table_to_json.push(cell)
-									cell = {}
+				if(feuille){
+					feuille.feuille.content.forEach(function (content, index) {
+						if (content.feuille == feuille.feuille.name) {
+							
+							if (feuille.feuille.content[index + 1]) {
+								if (Object.keys(content)[0].match(regnumero) != null && Object.keys(feuille.feuille.content[index + 1])[0].match(regnumero) != null) {
+									var val = Object.keys(content).map(function (key) {
+										return content[key];
+									});
+									if (Object.keys(content)[0].match(regnumero)[0] < Object.keys(feuille.feuille.content[index + 1])[0].match(regnumero)[0]) {
+										var c = {}
+										console.log(val[0]);
+										c[Object.keys(content)[0].match(regLettre)[0]] = val[0]
+										Object.assign(cell, c);
+										exel_table_to_json.push(cell)
+										cell = {}
+									} else {
+										var c = {}
+										c[Object.keys(content)[0].match(regLettre)[0]] = val[0]
+										Object.assign(cell, c);
+									}
 								} else {
+									var val = Object.keys(content).map(function (key) {
+										return content[key];
+									});
 									var c = {}
 									c[Object.keys(content)[0].match(regLettre)[0]] = val[0]
 									Object.assign(cell, c);
+									exel_table_to_json.push(cell)
 								}
-							} else {
-								var val = Object.keys(content).map(function (key) {
-									return content[key];
-								});
-								// console.log("cas unicité 1")
-								// console.log(content)
-								var c = {}
-								c[Object.keys(content)[0].match(regLettre)[0]] = val[0]
-								Object.assign(cell, c);
-								exel_table_to_json.push(cell)
 							}
 						}
-					}
-				})
+					})
+				}
 				result.push({
 					sheet: feuille.feuille.name,
 					data: exel_table_to_json

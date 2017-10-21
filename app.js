@@ -3,11 +3,13 @@ var express = require('express')
 var cors = require('cors')
 var app = express();
 app.use(cors());
+var jenkins = process.env.JENKINS_DEPLOY || false;
 
 var passport = require('passport');
 
 var server = require('http').Server(app);
 var https = require('https');
+var http = require('http');
 
 
 var safe = express.Router();
@@ -32,10 +34,17 @@ const configUrl = env.CONFIG_URL || 'http://app-cee3fd62-a81e-48b2-a766-a8be305d
 //console.log("before http config",configUrl);
 httpGet.makeRequest('GET', configUrl).then(result => {
   console.log('~~ remote config | ', result);
-  const configJson= result.data;
+  const configJson = result.data;
   const content = 'module.exports = ' + JSON.stringify(result.data);
 
-  fs.writeFile("configuration.js", content, 'utf8', function(err) {
+  if (jenkins) {
+    console.log("jenkins is true");
+    http.get('http://bkz2jalw7c:3bdcf7bc40f582a4ae7ff52f77e90b24@tvcntysyea-jenkins.services.clever-cloud.com:4003/job/semanticbus-pic-3/build?token=semantic_bus_token', function (res) {
+      console.log("jenkins JOB 3 is trigger")
+    })
+  }
+  
+  fs.writeFile("configuration.js", content, 'utf8', function (err) {
     if (err) {
       return console.log(err);
     } else {
@@ -46,7 +55,7 @@ httpGet.makeRequest('GET', configUrl).then(result => {
 
 
       //Sécurisation des route de data
-      safe.use(function(req, res, next) {
+      safe.use(function (req, res, next) {
         // ensureSec(req,res,next)
         jwtService.securityAPI(req, res, next);
       })
@@ -82,7 +91,7 @@ httpGet.makeRequest('GET', configUrl).then(result => {
       let errorLib = require('./lib/core/lib/error_lib');
       let jwtSimple = require('jwt-simple');
       let errorParser = require('error-stack-parser');
-      app.use(function(err, req, res, next) {
+      app.use(function (err, req, res, next) {
         if (err) {
           var token = req.body.token || req.query.token || req.headers['authorization'];
           //console.log('token |',token);
@@ -95,12 +104,16 @@ httpGet.makeRequest('GET', configUrl).then(result => {
           }
           errorLib.create(err, user);
           //console.log(err);
-          res.status(500).send({message:err.message,stack: errorParser.parse(err),displayMessage:err.displayMessage});
+          res.status(500).send({
+            message: err.message,
+            stack: errorParser.parse(err),
+            displayMessage: err.displayMessage
+          });
         }
         //able to centralise response using res.data ans res.send(res.data)
       });
 
-      server.listen(process.env.PORT || 8080, function() {
+      server.listen(process.env.PORT || 8080, function () {
         console.log('~~ server started at ', this.address().address, ':', this.address().port)
         // console.log('Listening on port  ');
         // console.log(this.address().port);
@@ -110,7 +123,7 @@ httpGet.makeRequest('GET', configUrl).then(result => {
 
       // Lets encrypt response
 
-      app.get('/.well-known/acme-challenge/:challengeHash', function(req, res) {
+      app.get('/.well-known/acme-challenge/:challengeHash', function (req, res) {
         var params = req.params.challengeHash.substr(0, req.params.challengeHash.length)
         var hash = params + ".rCIAnB6OZN-jvB1XIOagkbUTKQQmQ1ogeb5DUVFNUko";
         res.send(hash)
@@ -119,7 +132,7 @@ httpGet.makeRequest('GET', configUrl).then(result => {
       /// Nous Securisons desormais IHM par un appel AJAX
       /// à lentrée sur la page application.html
 
-      server.on('error', function(err) {
+      server.on('error', function (err) {
         console.log(err)
       })
     }

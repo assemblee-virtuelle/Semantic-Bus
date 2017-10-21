@@ -12,22 +12,22 @@ module.exports = {
 
     var _ph, _page, _outObj
 
-
     function _waitFor(_page, testFx, onReady, timeOutMillis) {
       return new Promise(function (resolve, reject) {
-        var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 15000,
+        var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 10000,
           start = new Date().getTime(),
           condition = false,
           interval = setInterval(function () {
             if ((new Date().getTime() - start < maxtimeOutMillis) && !condition) {
               testFx().then(function (res) {
-                console.log(res)
                 condition = res
               })
             } else {
               if (!condition) {
-                console.log("'waitFor()' timeout");
-                reject("this.phantom.exit(1)")
+                console.log("----- CONDITION ERROR-------")
+                let fullError = new Error("'waitFor()' timeout");
+                fullError.displayMessage = "Scrapper : Selecteur introuvable";
+                reject(fullError)
                 _page.close()
               } else {
                 console.log("'waitFor()' finished in " + (new Date().getTime() - start) + "ms.");
@@ -56,8 +56,6 @@ module.exports = {
           })
           .then(urls => {
             console.log("URL FLOW");
-            console.log(urls.indexOf('https://agence.voyages-sncf.com/user/signin?ckoflag=0'))
-            // mettre index of pour recuper url rensigner dans le front 
             resolve(urls[urls.length - 1])
           })
       })
@@ -99,7 +97,7 @@ module.exports = {
       })
     }
 
-    // //Setter
+    //Setter
 
     function _setValue(action, _page) {
       return new Promise(function (resolve, reject) {
@@ -137,14 +135,15 @@ module.exports = {
         console.log(" ------  deeth  ------- ", deeth);
         console.log('------   tour restant -------- ', (actions.length) - deeth);
         if (deeth == actions.length) {
-          console.log("terminé", data)
           page.close();
           return cb(data)
         } else {
           switch (actions[deeth].actionType) {
             case ("getValue"):
               _waitFor(page, function () {
+                console.log("getValue")
                 var selector = actions[deeth].selector
+                console.log(selector)
                 return page.evaluate(function (selector) {
                   if (document.querySelector(selector) === null) {
                     console.log(document.querySelector(selector))
@@ -155,14 +154,15 @@ module.exports = {
                   }
                 }, selector)
               }, function () {
-                console.log("The sign-in dialog should be visible now.");
+                console.log("The sign-in dialog should be visible now");
               }).then(function (res) {
                 _getText(actions[deeth], page, deeth).then(function (res) {
                   data[actions[deeth].action] = res
                   deeth += 1
-                  
                   _aggregateAction(actions, page, deeth, data, outObj, _ph, cb)
                 })
+              },function(err){
+                reject(err)
               })
               break;
             case ("getHtml"):
@@ -231,7 +231,6 @@ module.exports = {
                   console.log(res)
                   data[actions[deeth].action] = res
                   deeth += 1
-                  
                   _aggregateAction(actions, page, deeth, data, outObj, _ph, cb)
                 })
               })
@@ -301,63 +300,7 @@ module.exports = {
     }.bind(this))
   },
 
-
-  // pull: function () {
   pull: function (data, flowData) {
-    // console.log(data.specificData.scrappe[0])
-    // var data = {}
-    // data['specificData'] = {}
-    // data.specificData.url = 'https://www.voyages-sncf.com/'
-    // data.specificData.actions = [{
-    //     action: "test2",
-    //     attribut: 'class',
-    //     actionName: 'getAttr',
-    //     selector: '.ico-train',
-    //     name_number: null
-    //   },
-    //   {
-    //     action: "test3",
-    //     actionName: 'click',
-    //     selector: '.ico-train-vol-hotel',
-    //     name_number: null
-    //   },
-    //   {
-    //     action: "test90",
-    //     attribut: 'class',
-    //     actionName: 'getAttr',
-    //     selector: '#new-homepage-search-wizard',
-    //     name_number: null
-    //   },
-    //   {
-    //     action: "test33",
-    //     actionName: 'click',
-    //     selector: '#ccl-label',
-    //     name_number: null
-    //   },
-    //   {
-    //     action: "test33",
-    //     value: 'test',
-    //     actionName: 'setValue',
-    //     selector: '#signin-loginid',
-    //     name_number: null
-    //   },
-    //   {
-    //     action: "test43",
-    //     value: 'test',
-    //     actionName: 'setValue',
-    //     selector: '#signin-password',
-    //     name_number: null
-    //   },
-    //   {
-    //     action: "test73",
-    //     attribut: 'class',
-    //     actionName: 'getAttr',
-    //     selector: '.secondary',
-    //     name_number: null
-    //   },
-    // ]
-
     return this.makeRequest(data.specificData.scrappe, data.specificData.url)
-    // return this.makeRequest(flowData, data.specificData.url, data.specificData.flow_before, data.specificData.fix_url, data.specificData.scrappe);
   },
 }
