@@ -159,7 +159,7 @@ module.exports = {
           sourceKey++;
         }
 
-      }.bind(this), 400);
+      }.bind(this), 200);
 
       /*for (record of source) {
         var address = {
