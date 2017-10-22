@@ -6,11 +6,14 @@ module.exports = {
   sift: require('sift'),
 
   getPrimaryFlow: function(data, flowData) {
-    console.log(data,flowData.map(f=>f.componentId));
-    console.log(data.specificData.primaryComponentId);
+    //console.log('joinByField | getPrimaryFlow');
+
+    // console.log(JSON.stringify(flowData));
+    // console.log(flowData.map(f=>f.componentId));
+    // console.log(data.specificData.primaryComponentId);
     var primaryFlow = this.sift({
       componentId: data.specificData.primaryComponentId
-    }, flowData)[0];
+    }, flowData);
     console.log("---------PRIMARY FLOW--------", primaryFlow)
     return primaryFlow;
   },
@@ -24,6 +27,7 @@ module.exports = {
       var primaryFlowData = this.sift({
         componentId: data.specificData.primaryComponentId
       }, flowData)[0].data;
+      var secondaryFlowData=JSON.parse(JSON.stringify(secondaryFlowData))//in case primary and secandary is the same source
 
       console.log('joinByField | primaryFlowData :', primaryFlowData);
       console.log('joinByField | secondaryFlowData :',secondaryFlowData);

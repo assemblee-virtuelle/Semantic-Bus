@@ -294,6 +294,7 @@ function GenericStore(utilStore, specificStoreList) {
     return out;
   }
   this.on('component_current_set', function(data) {
+    //console.log('component_current_set 1');
     this.itemCurrent = data;
   });
 

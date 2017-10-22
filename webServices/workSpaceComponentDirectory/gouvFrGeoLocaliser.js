@@ -136,7 +136,7 @@ module.exports = {
 
 
                 request.on('error', function(e) {
-                  console.log('request fail');
+                  console.log('request fail :',e);
                   resolve({
                     error: e
                   });

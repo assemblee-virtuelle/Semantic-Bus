@@ -1,6 +1,6 @@
 <graph>
   <div class="commandBar containerH">
-    <div class="containerH commandGroup" if={selectedNodes.length==1}>
+    <div class="containerH commandGroup" if={selectedNodes.length>0}>
       <div id="editButton" onclick={editClick} class="commandButton" }>
         edit
       </div>
@@ -17,7 +17,7 @@
         run this component
       </div>
     </div>
-    <div class="containerH commandGroup" if={selectedLines.length==1}>
+    <div class="containerH commandGroup" if={selectedLines.length>0}>
       <div id="removeLinkButton" onclick={removeLinkClick} class="commandButton" }>
         remove
       </div>
@@ -30,7 +30,7 @@
     </div>
   </div>
   <div id="graphContainer containerV">
-    <svg viewBox="0 0 1500 900">
+    <svg viewBox="0 0 1500 900" ref="graphSvgCanvas">
       <!--width="1000" height="600"-->
       <filter id="dropshadow" x="1%" y="1%" width="110%" height="110%">
         <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
@@ -105,6 +105,9 @@
     Fonctions
   */
     this.drawSelected = function () {
+      this.selectedNodes = sift({
+        'selected': true
+      }, this.graph.nodes); //
       //console.log(this.selectedNodes);
       this.selectorsNodes = this.svg.select("#shapeSelector").selectAll("rect").data(this.selectedNodes, function (d) {
         return d.id + 'selected';
@@ -123,10 +126,12 @@
       }).attr('y', function (d) {
         return d.y - 10;
       }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
-    }
-
-    this.drawSelectedLines = function () {
-
+      // }
+      //
+      // this.drawSelectedLines = function (selectedLines) {
+      this.selectedLines = sift({
+        'selected': true
+      }, this.graph.links);
       //console.log(this.selectedNodes);
       this.selectorsLines = this.svg.select("#lineSelector").selectAll("line").data(this.selectedLines, function (d) {
         return d.id + 'selected';
@@ -141,7 +146,9 @@
       }).attr('y2', function (d) {
         return d.target.y + 35;
       });
-    }
+
+      this.update();
+    }.bind(this);
 
     // fonctions déplacements ( glissé )
     this.dragstarted = function (d) { // d le est le noeud, this est le composant riot js graph
@@ -202,12 +209,9 @@
             RiotControl.trigger('connect_components', this.selectedNodes[0].component, d.component);
           }
         } else {
-          this.selectedLines = [];
-          this.drawSelectedLines();
-          this.selectedNodes = [d];
+          //this.selectedLines = []; this.drawSelectedLines(); this.selectedNodes = [d];
           RiotControl.trigger('component_current_set', d.component);
-          this.drawSelected();
-          this.update();
+          //this.drawSelected(); this.update();
         }
         //RiotControl.trigger('component_current_show'); RiotControl.trigger('component_current_select', d.component);
       } else {
@@ -227,113 +231,19 @@
       }
     }.bind(this);
 
-    this.refreshGraph = function (data) {
-
-      //this.svg.selectAll("*").remove();
-      console.log('GRAPH | workspace_current_changed ', data);
-      this.graph = {};
-      this.graph.nodes = [];
-      this.graph.links = [];
-
-      var inputs = 0;
-      var outputs = 0;
-      var middles = 0;
-
-      // determine le nombre d inputs et d outputs
-      console.log(data.components);
-      for (record of data.components) {
-        if (record.connectionsBefore.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) {
-          inputs++;
-        }else if (record.connectionsAfter.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) {
-          outputs++;
-        }else if (record.graphPositionX == undefined && record.graphPositionY == undefined) {
-          middles++;
-        }
-      }
-
-      // console.log(inputs, outputs); calcule une distance type pour positionner les inputs et outputs du graphe
-      var inputsOffset = height / (inputs + 1);
-      var outputsOffset = height / (outputs + 1);
-      var middlesOffset = height / (middles + 1);
-
-      var inputCurrentOffset = inputsOffset;
-      var outputCurrentOffset = outputsOffset;
-      var middleCurrentOffset = middlesOffset;
-
-      console.log("automatic repartition",inputs,inputsOffset,middles,middlesOffset,outputs,outputsOffset);
-
-      //console.log(inputsOffset, outputsOffset);
-
-      for (record of data.components) {
-        var node = {};
-        if (record.connectionsBefore.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) { // si rien n est connecte avant
-          node = {
-            text: record.type, //-
-            id: record._id,
-            graphIcon: record.graphIcon,
-            // fx: record.graphPositionX || 10, //positionne l'élémént sur le bord gauche fy: record.graphPositionY || inputCurrentOffset,
-            x: 10, //positionne l'élémént sur le bord gauche
-            y: inputCurrentOffset,
-            component: record
-          }
-          inputCurrentOffset += inputsOffset;
-        } else if (record.connectionsAfter.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) {
-          node = {
-            text: record.type,
-            id: record._id,
-            graphIcon: record.graphIcon,
-            // fx: record.graphPositionX || width - 10 - record.type.length * 10, // positionne l'element en largeur par rapport au bord droit du graphe fy: record.graphPositionY || outputCurrentOffset,
-            x: width - 230, // positionne l'element en largeur par rapport au bord droit du graphe
-            y: outputCurrentOffset,
-            component: record
-          }
-          outputCurrentOffset += outputsOffset;
-        } else { // tous ceux du milieu
-          node = {
-            text: record.type,
-            id: record._id,
-            graphIcon: record.graphIcon,
-            x: record.graphPositionX || width / 2,
-            y: record.graphPositionY || middleCurrentOffset,
-            component: record
-          }
-          if (record.graphPositionY == undefined) {
-            middleCurrentOffset += middlesOffset;
-          }
-
-        }
-        this.graph.nodes.push(node);
-      }
-
-      for (record of data.components) {
-        for (connection of record.connectionsAfter) {
-          this.graph.links.push({
-            source: sift({
-              id: record._id
-            }, this.graph.nodes)[0],
-            target: sift({
-              id: connection._id
-            }, this.graph.nodes)[0],
-            id: record._id + '-' + connection._id
-          }) // creation de tous les links
-        }
-      }
-
-      console.log(this.graph);
-
+    this.drawGraph = function (graph) {
+      this.graph = graph;
       if (this.svg == undefined) {
         this.svg = d3.select("svg");
-      }
 
-      d3.select("#background").on("click", function (d) {
-        //console.log('CLICK ON main',d3.select(this));
-        this.selectedNodes = [];
-        this.selectedLines = [];
-        //RiotControl.trigger('component_current_set', undefined);
-        this.drawSelected();
-        this.drawSelectedLines();
-        this.update();
-      }.bind(this));
+        d3.select("#background").on("click", function (d) {
+          //console.log('CLICK ON main',d3.select(this));
+          // RiotControl.trigger('connection_current_set');
+          RiotControl.trigger('selection_reset');
+
+          // this.selectedNodes = []; this.selectedLines = []; //RiotControl.trigger('component_current_set', undefined); this.drawSelected(); this.drawSelectedLines(); this.update();
+        }.bind(this));
+      }
 
       // if (this.simulation == undefined) {   /*   this.simulation = d3.forceSimulation(this.graph.nodes).force("charge", d3.forceManyBody().strength(-1000)).force("link", d3.forceLink([]).id(function (d) {     return d.id // cela semble désigner l'id des
       // noeud (comment les liens retrouvent la propriété id des noeud) ne pas toujours chercher a comprendre comment d3 marche, mais c est necessaire )   }).distance(200)).force("x", d3.forceX()).force("y", d3.forceY()).alphaTarget(1).on("tick",
@@ -344,7 +254,7 @@
       //
       // }
 
-      this.links = this.svg.select("#lineLayer").selectAll('line').data(this.graph.links, function (d) {
+      this.links = this.svg.select("#lineLayer").selectAll('line').data(graph.links, function (d) {
         return d.id;
       });
       this.links.exit().remove();
@@ -357,15 +267,11 @@
       }).attr('y2', function (d) {
         return d.target.y + 35;
       }).on("click", function (d) {
-        //console.log('click line |', d);
-        this.selectedNodes = [];
-        this.drawSelected();
-        this.selectedLines = [d];
-        this.drawSelectedLines();
-        this.update();
+        //console.log('click line |', d); this.selectedNodes = []; this.drawSelected(); this.selectedLines = [d]; this.drawSelectedLines(); this.update();
+        RiotControl.trigger('connection_current_set', d.source.component, d.target.component);
       }.bind(this));
 
-      this.nodes = this.svg.select("#shapeLayer").selectAll("image").data(this.graph.nodes, function (d) {
+      this.nodes = this.svg.select("#shapeLayer").selectAll("image").data(graph.nodes, function (d) {
         return d.id;
       });
       this.nodes.exit().remove();
@@ -383,35 +289,66 @@
         return d.id;
       }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
 
-      if (this.selectedNodes.length > 0) {
-        this.selectedNodes = sift({
-          id: {
-            $in: this.selectedNodes.map(s => s.id)
-          }
-        }, this.graph.nodes);
-        this.drawSelected();
-      }
+      this.drawSelected();
 
-      if (this.selectedLines.length > 0) {
-        this.selectedLines = sift({
-          id: {
-            $in: this.selectedLines.map(s => s.id)
-          }
-        }, this.graph.links);
-        this.drawSelectedLines();
-      }
+    }.bind(this)
 
-      // this.simulation.nodes(this.graph.nodes); this.simulation.force("link").links(this.graph.links); this.simulation.alpha(1).restart();
+    // this.refreshGraph = function (data) {
+    //
+    //   //this.svg.selectAll("*").remove();   console.log('GRAPH | workspace_current_changed ', data);   var graph = {};   graph.nodes = [];   graph.links = [];
+    //
+    //   var inputs = 0;   var outputs = 0;   var middles = 0;
+    //
+    //   // determine le nombre d inputs et d outputs   console.log(data.components);   for (record of data.components) {     if (record.connectionsBefore.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) {
+    // inputs++;     } else if (record.connectionsAfter.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) {       outputs++;     } else if (record.graphPositionX == undefined && record.graphPositionY == undefined) {
+    //       middles++;     }   }
+    //
+    //   // console.log(inputs, outputs); calcule une distance type pour positionner les inputs et outputs du graphe   var inputsOffset = height / (inputs + 1);   var outputsOffset = height / (outputs + 1);   var middlesOffset = height / (middles + 1);
+    //
+    //   var inputCurrentOffset = inputsOffset;   var outputCurrentOffset = outputsOffset;   var middleCurrentOffset = middlesOffset;
+    //
+    //   console.log("automatic repartition", inputs, inputsOffset, middles, middlesOffset, outputs, outputsOffset);
+    //
+    //   //console.log(inputsOffset, outputsOffset);
+    //
+    //   for (record of data.components) {     var node = {};     if (record.connectionsBefore.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) { // si rien n est connecte avant       node = {         text:
+    // record.type, //-         id: record._id,         graphIcon: record.graphIcon,         // fx: record.graphPositionX || 10, //positionne l'élémént sur le bord gauche fy: record.graphPositionY || inputCurrentOffset,         x: 10, //positionne
+    // l'élémént sur le bord gauche         y: inputCurrentOffset,         component: record       }       inputCurrentOffset += inputsOffset;     } else if (record.connectionsAfter.length == 0 && record.graphPositionX == undefined &&
+    // record.graphPositionY == undefined) {       node = {         text: record.type,         id: record._id,         graphIcon: record.graphIcon,         // fx: record.graphPositionX || width - 10 - record.type.length * 10, // positionne l'element en
+    // largeur par rapport au bord droit du graphe fy: record.graphPositionY || outputCurrentOffset,         x: width - 230, // positionne l'element en largeur par rapport au bord droit du graphe         y: outputCurrentOffset,         component: record
+    //      }       outputCurrentOffset += outputsOffset;     } else { // tous ceux du milieu       node = {         text: record.type,         id: record._id,         graphIcon: record.graphIcon,         x: record.graphPositionX || width / 2,         y:
+    // record.graphPositionY || middleCurrentOffset,         component: record       }       if (record.graphPositionY == undefined) {         middleCurrentOffset += middlesOffset;       }
+    //
+    //     }     graph.nodes.push(node);   }
+    //
+    //   for (record of data.components) {     for (connection of record.connectionsAfter) {       graph.links.push({         source: sift({           id: record._id         }, graph.nodes)[0],         target: sift({           id: connection._id
+    // }, graph.nodes)[0],         id: record._id + '-' + connection._id       }) // creation de tous les links     }   }
+    //
+    //   console.log(graph);
+    //
+    //   this.drawGraph(graph);   // if (this.selectedNodes.length > 0) {   this.selectedNodes = sift({     id: {       $in: this.selectedNodes.map(s => s.id)     }   }, this.graph.nodes);   this.drawSelected(); }   //   // if (this.selectedLines.length
+    // > 0) {   this.selectedLines = sift({     id: {       $in: this.selectedLines.map(s => s.id)     }   }, this.graph.links);   this.drawSelectedLines(); } this.simulation.nodes(this.graph.nodes);   //
+    // this.simulation.force("link").links(this.graph.links); this.simulation.alpha(1).restart();
+    //
+    // }.bind(this);
 
-    }.bind(this);
+    // this.refreshSelection = function (selectedNodes, selectedLines) {
+    //   //console.log('refreshSelection',selectedNodes, selectedLines);
+    //   this.drawSelected(selectedNodes);
+    //   this.drawSelectedLines(selectedLines);
+    //   this.update();
+    //   // this.selectedNodes = selectedNodes;
+    //   //
+    //   // if (this.selectedNodes.length > 0) {   this.selectedNodes = sift({     id: {       $in: this.selectedNodes.map(s => s.id)     }   }, this.graph.nodes);   this.drawSelected(); }
+    //   //
+    //   // this.selectedLines = selectedLines;
+    //   //
+    //   // if (this.selectedLines.length > 0) {   this.selectedLines = sift({     id: {       $in: this.selectedLines.map(s => s.id)     }   }, this.graph.links);   this.drawSelectedLines(); }
+    //
+    // }.bind(this);
 
-    this.on('unmount', function () {
-      //this.simulation.stop();
-      RiotControl.off('workspace_current_changed', this.refreshGraph);
-    });
-
-    // this.ticked = function () {   console.log("ticked");   this.links.attr('x1', function (d) {     return d.source.x + 165;   }).attr('y1', function (d) {     return d.source.y + 35;   }).attr('x2', function (d) {     return d.target.x + 55;
-    // }).attr('y2', function (d) {     return d.target.y + 35;   });
+    // this.on('unmount', function () {   //this.simulation.stop();   RiotControl.off('workspace_current_changed', this.refreshGraph); }); this.ticked = function () {   console.log("ticked");   this.links.attr('x1', function (d) {     return d.source.x +
+    // 165;   }).attr('y1', function (d) {     return d.source.y + 35;   }).attr('x2', function (d) {     return d.target.x + 55; }).attr('y2', function (d) {     return d.target.y + 35;   });
     //
     //   this.nodes.attr('x', function (d) {     return d.x - 5;   }).attr('y', function (d) {     return d.y - 5;   });   if (this.selectorsNodes.length > 0) {     this.selectorsNodes.attr('x', function (d) {       return d.x - 5;     }).attr('y',
     // function (d) {     return d.y - 5;     });   }
@@ -429,13 +366,18 @@
 
     // evenement appele par riot
     this.on('mount', function () { // mount du composant riot
+      //RiotControl.on('workspace_current_changed', this.refreshGraph);
+      RiotControl.on('workspace_graph_selection_changed', this.drawSelected);
+      RiotControl.on('workspace_graph_compute_done', this.drawGraph);
+      //RiotControl.trigger('workspace_current_refresh'); console.log(this.refs.graphSvgCanvas.viewBox.baseVal);
+      RiotControl.trigger('workspace_graph_compute', this.refs.graphSvgCanvas.viewBox.baseVal);
 
-      RiotControl.on('workspace_current_changed', this.refreshGraph);
-      RiotControl.trigger('workspace_current_refresh'); // et ici on est dans le mount
     }); // fin mount
 
-    this.on('unmount', function () { // mount du composant riot
-      RiotControl.off('workspace_current_changed', this.refreshGraph);
+    this.on('unmount', function () {
+      //RiotControl.off('workspace_current_changed', this.refreshGraph);
+      RiotControl.off('workspace_graph_selection_changed', this.drawSelected);
+      RiotControl.off('workspace_graph_compute_done', this.drawGraph);
     });
   </script>
 

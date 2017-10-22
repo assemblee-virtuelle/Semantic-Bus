@@ -11,9 +11,9 @@
       <!--<div onclick={testPullClick} class="commandButton">
         tester un flux tiré
       </div>-->
-      <div id="workButton" onclick={workClick} class="commandButton">
+      <!--<div id="workButton" onclick={workClick} class="commandButton">
         run this component
-      </div>
+      </div>-->
       <div onclick={saveWorkspaceComponent} class={commandButton: true, persistInProgress: persistInProgress } id="saveButton">
         save
       </div>

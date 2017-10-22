@@ -113,8 +113,11 @@ function WorkspaceStore() {
         this.workspaceBusiness.connectWorkspaceComponent(data.components);
         this.workspaceCurrent = data;
         //console.log('update data ||', data);
-        this.trigger('workspace_current_persist_done', data);
+        this.trigger('workspace_current_persist_done', this.workspaceCurrent);
         this.trigger('workspace_current_changed', this.workspaceCurrent);
+        if (this.viewBox) {
+          this.computeGraph();
+        }
         resolve(data);
       }.bind(this));
     })
@@ -215,6 +218,162 @@ function WorkspaceStore() {
     });
 
   }; // <= select
+
+  this.computeGraph = function(viewBox) {
+    if (viewBox) {
+      this.viewBox = viewBox;
+    }
+
+    this.graph = {};
+    this.graph.nodes = [];
+    this.graph.links = [];
+
+    var inputs = 0;
+    var outputs = 0;
+    var middles = 0;
+
+    // determine le nombre d inputs et d outputs
+    console.log(this.workspaceCurrent.components);
+    for (record of this.workspaceCurrent.components) {
+      if (record.connectionsBefore.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) {
+        inputs++;
+      } else if (record.connectionsAfter.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) {
+        outputs++;
+      } else if (record.graphPositionX == undefined && record.graphPositionY == undefined) {
+        middles++;
+      }
+    }
+
+    // console.log(inputs, outputs); calcule une distance type pour positionner les inputs et outputs du graphe
+    var inputsOffset = this.viewBox.height / (inputs + 1);
+    var outputsOffset = this.viewBox.height / (outputs + 1);
+    var middlesOffset = this.viewBox.height / (middles + 1);
+
+    var inputCurrentOffset = inputsOffset;
+    var outputCurrentOffset = outputsOffset;
+    var middleCurrentOffset = middlesOffset;
+
+    //console.log("automatic repartition", inputs, inputsOffset, middles, middlesOffset, outputs, outputsOffset);
+
+    //console.log(inputsOffset, outputsOffset);
+
+    for (record of this.workspaceCurrent.components) {
+      var node = {};
+      if (record.connectionsBefore.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) { // si rien n est connecte avant
+        node = {
+          text: record.type, //-
+          id: record._id,
+          graphIcon: record.graphIcon,
+          // fx: record.graphPositionX || 10, //positionne l'élémént sur le bord gauche fy: record.graphPositionY || inputCurrentOffset,
+          x: 10, //positionne l'élémént sur le bord gauche
+          y: inputCurrentOffset,
+          component: record
+        }
+        inputCurrentOffset += inputsOffset;
+      } else if (record.connectionsAfter.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) {
+        node = {
+          text: record.type,
+          id: record._id,
+          graphIcon: record.graphIcon,
+          // fx: record.graphPositionX || width - 10 - record.type.length * 10, // positionne l'element en largeur par rapport au bord droit du graphe fy: record.graphPositionY || outputCurrentOffset,
+          x: this.viewBox.width - 230, // positionne l'element en largeur par rapport au bord droit du graphe
+          y: outputCurrentOffset,
+          component: record
+        }
+        outputCurrentOffset += outputsOffset;
+      } else { // tous ceux du milieu
+        node = {
+          text: record.type,
+          id: record._id,
+          graphIcon: record.graphIcon,
+          x: record.graphPositionX || this.viewBox.width / 2,
+          y: record.graphPositionY || middleCurrentOffset,
+          component: record
+        }
+        if (record.graphPositionY == undefined) {
+          middleCurrentOffset += middlesOffset;
+        }
+
+      }
+      this.graph.nodes.push(node);
+    }
+
+    for (record of this.workspaceCurrent.components) {
+      for (connection of record.connectionsAfter) {
+        this.graph.links.push({
+          source: sift({
+            id: record._id
+          }, this.graph.nodes)[0],
+          target: sift({
+            id: connection._id
+          }, this.graph.nodes)[0],
+          id: record._id + '-' + connection._id
+        }) // creation de tous les links
+      }
+    }
+
+    console.log(this.graph);
+    this.trigger('workspace_graph_compute_done', this.graph);
+
+  }
+
+  this.on('workspace_graph_compute', function(viewBox) {
+    this.computeGraph(viewBox);
+  });
+
+  this.on('component_current_set', function(data) {
+    this.graph.nodes.forEach(n => {
+      n.selected = false;
+    });
+
+    this.graph.links.forEach(l => {
+      l.selected = false;
+    });
+    sift({
+      'component._id': data._id
+    }, this.graph.nodes).forEach(n => {
+      n.selected = true;
+    });
+    //this.trigger('workspace_graph_compute_done', this.graph)
+    this.trigger('workspace_graph_selection_changed', this.graph);
+
+  });
+
+  this.on('selection_reset', function() {
+
+    this.graph.links.forEach(l => {
+      l.selected = false;
+    });
+    this.graph.nodes.forEach(n => {
+      n.selected = false;
+    });
+    this.trigger('workspace_graph_selection_changed', this.graph);
+
+
+  });
+
+  this.on('connection_current_set', function(source, target) {
+
+    this.graph.nodes.forEach(n => {
+      n.selected = false
+    });
+
+    this.graph.links.forEach(l => {
+      l.selected = false;
+    });
+
+    sift({
+      $and: [{
+        'source.component._id': source._id
+      }, {
+        'target.component._id': target._id
+      }]
+    }, this.graph.links).forEach(l => {
+      l.selected = true
+    });
+    this.trigger('workspace_graph_selection_changed', this.graph);
+  });
+
 
   // ----------------------------------------- EVENT  -----------------------------------------
 
