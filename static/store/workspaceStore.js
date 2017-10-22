@@ -286,7 +286,7 @@ function WorkspaceStore() {
           text: record.type,
           id: record._id,
           graphIcon: record.graphIcon,
-          x: record.graphPositionX || width / 2,
+          x: record.graphPositionX || this.viewBox.width / 2,
           y: record.graphPositionY || middleCurrentOffset,
           component: record
         }
