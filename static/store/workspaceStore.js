@@ -224,9 +224,26 @@ function WorkspaceStore() {
       this.viewBox = viewBox;
     }
 
+    var selectedNodes=[];
+    if (this.graph!=undefined) {
+
+      console.log("selectedNodes |", this.graph.nodes);
+      console.log("selectedNodes |", sift({
+        selected: true
+      }, this.graph.nodes));
+      //console.log("selectedNodes |", selectedNodes);
+
+      selectedNodes = sift({
+        selected: true
+      }, this.graph.nodes).map(n => n.id);
+    }
+
+
+
     this.graph = {};
     this.graph.nodes = [];
     this.graph.links = [];
+
 
     var inputs = 0;
     var outputs = 0;
@@ -294,6 +311,9 @@ function WorkspaceStore() {
           middleCurrentOffset += middlesOffset;
         }
 
+      }
+      if (selectedNodes.indexOf(node.id) != -1) {
+        node.selected = true;
       }
       this.graph.nodes.push(node);
     }

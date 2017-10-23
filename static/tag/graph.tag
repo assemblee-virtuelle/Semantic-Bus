@@ -409,10 +409,10 @@
     }
 
     .background {
-      fill: white;
+      fill: #EFEFEF;;
       fill-opacity: 1;
       stroke: #000;
-      stroke-width: 1;
+      stroke-width: 0;
     }
     text {
       cursor: default;
