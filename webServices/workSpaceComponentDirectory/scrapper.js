@@ -14,7 +14,7 @@ module.exports = {
 
     function _waitFor(_page, testFx, onReady, timeOutMillis) {
       return new Promise(function (resolve, reject) {
-        var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 10000,
+        var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 15000,
           start = new Date().getTime(),
           condition = false,
           interval = setInterval(function () {
@@ -24,10 +24,11 @@ module.exports = {
               })
             } else {
               if (!condition) {
-                console.log("----- CONDITION ERROR-------")
+                console.log(" ----- CONDITION ERROR ------- ")
                 let fullError = new Error("'waitFor()' timeout");
                 fullError.displayMessage = "Scrapper : Selecteur introuvable";
                 reject(fullError)
+                clearInterval(interval);
                 _page.close()
               } else {
                 console.log("'waitFor()' finished in " + (new Date().getTime() - start) + "ms.");
@@ -45,6 +46,7 @@ module.exports = {
         return _page.evaluate(function (action) {
             var evt;
             var selector = action.selector
+            console.log("---- selector click -----", selector)
             var elt = document.querySelector(selector);
             if (document.createEvent) {
               evt = document.createEvent("MouseEvents");
@@ -129,149 +131,198 @@ module.exports = {
     //     cookie
     //   })
     // };
-    
-    function _aggregateAction(actions, page, deeth, data, outObj, _ph, cb) {
-      // return new Promise(function (resolve, reject) {
+
+    function _aggregateAction(actions, page, deeth, data, outObj, _ph) {
+      console.log('------   action restante -------- ', actions[deeth]);
+      return new Promise(function (resolve, reject) {
         console.log(" ------  deeth  ------- ", deeth);
         console.log('------   tour restant -------- ', (actions.length) - deeth);
         if (deeth == actions.length) {
+          console.log("---- _aggregateAction finish ---- ", data)
+          resolve(data)
           page.close();
-          return cb(data)
         } else {
-          switch (actions[deeth].actionType) {
-            case ("getValue"):
-              _waitFor(page, function () {
-                console.log("getValue")
-                var selector = actions[deeth].selector
-                console.log(selector)
-                return page.evaluate(function (selector) {
-                  if (document.querySelector(selector) === null) {
-                    console.log(document.querySelector(selector))
-                    return false
-                  } else {
-                    console.log(document.querySelector(selector))
-                    return true
-                  }
-                }, selector)
-              }, function () {
-                console.log("The sign-in dialog should be visible now");
-              }).then(function (res) {
-                _getText(actions[deeth], page, deeth).then(function (res) {
-                  data[actions[deeth].action] = res
-                  deeth += 1
-                  _aggregateAction(actions, page, deeth, data, outObj, _ph, cb)
+          if (actions[deeth].actionType) {
+            switch (actions[deeth].actionType) {
+              case ("getValue"):
+                _waitFor(page, function () {
+                  console.log("getValue")
+                  var selector = actions[deeth].selector
+                  console.log(selector)
+                  return page.evaluate(function (selector) {
+                    if (document.querySelector(selector) === null) {
+                      console.log(document.querySelector(selector))
+                      return false
+                    } else {
+                      console.log(document.querySelector(selector))
+                      return true
+                    }
+                  }, selector)
+                }, function () {
+                  console.log("The sign-in dialog should be visible now");
+                }).then(function (res) {
+                  _getText(actions[deeth], page, deeth).then(function (res) {
+                    data[actions[deeth].action] = res
+                    deeth += 1
+                    _aggregateAction(actions, page, deeth, data, outObj, _ph).then(function (res) {
+                      resolve(res)
+                    }, function (err) {
+                      reject(err)
+                    })
+                  })
+                }, function (err) {
+                  console.log(" ------ IN ERRRRORRRR ---- ")
+                  let fullError = new Error(err);
+                  fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement 1 de  page : " + actions[deeth].action;
+                  reject(fullError)
                 })
-              },function(err){
-                reject(err)
-              })
-              break;
-            case ("getHtml"):
-              _waitFor(page, function () {
-                var selector = actions[deeth].selector
-                return page.evaluate(function (selector) {
-                  if (document.querySelector(selector) === null) {
-                    console.log(document.querySelector(selector))
-                    return false
-                  } else {
-                    console.log(document.querySelector(selector))
-                    return true
-                  }
-                }, selector)
-              }, function () {
-                console.log("The sign-in dialog should be visible now.");
-              }).then(function (res) {
-                _getHtml(actions[deeth], page, deeth).then(function (res) {
-                  data[actions[deeth].action] = res
-                  deeth += 1
-                  
-                  _aggregateAction(actions, page, deeth, data, outObj, _ph, cb)
+                break;
+              case ("getHtml"):
+                _waitFor(page, function () {
+                  var selector = actions[deeth].selector
+                  return page.evaluate(function (selector) {
+                    if (document.querySelector(selector) === null) {
+                      console.log(document.querySelector(selector))
+                      return false
+                    } else {
+                      console.log(document.querySelector(selector))
+                      return true
+                    }
+                  }, selector)
+                }, function () {
+                  console.log("The sign-in dialog should be visible now.");
+                }).then(function (res) {
+                  _getHtml(actions[deeth], page, deeth).then(function (res) {
+                    data[actions[deeth].action] = res
+                    deeth += 1
+                    _aggregateAction(actions, page, deeth, data, outObj, _ph).then(function (res) {
+                      resolve(res)
+                    }, function (err) {
+                      let fullError = new Error(err);
+                      fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement 2 de  page : " + actions[deeth].action;
+                      reject(fullError)
+                    })
+                  })
+                }, function (err) {
+                  console.log(" ------ IN ERRRRORRRR ---- ")
+                  let fullError = new Error(err);
+                  fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement 3 de  page : " + actions[deeth].action;
+                  reject(fullError)
                 })
-              })
-              break;
-            case ("getAttr"):
-              _waitFor(page, function () {
-                var selector = actions[deeth].selector
-                return page.evaluate(function (selector) {
-                  if (document.querySelector(selector) === null) {
-                    console.log(document.querySelector(selector))
-                    return false
-                  } else {
-                    console.log(document.querySelector(selector))
-                    return true
-                  }
-                }, selector)
-              }, function () {
-                console.log("The sign-in dialog should be visible now.");
-              }).then(function (res) {
-                _getAttr(actions[deeth], page).then(function (res) {
-                  console.log(res)
-                  data[actions[deeth].action] = res
-                  deeth += 1
-                  
-                  _aggregateAction(actions, page, deeth, data, outObj, _ph, cb)
+                break;
+              case ("getAttr"):
+                _waitFor(page, function () {
+                  var selector = actions[deeth].selector
+                  return page.evaluate(function (selector) {
+                    if (document.querySelector(selector) === null) {
+                      console.log(document.querySelector(selector))
+                      return false
+                    } else {
+                      console.log(document.querySelector(selector))
+                      return true
+                    }
+                  }, selector)
+                }, function () {
+                  console.log("The sign-in dialog should be visible now.");
+                }).then(function (res) {
+                  _getAttr(actions[deeth], page).then(function (res) {
+                    console.log(res)
+                    data[actions[deeth].action] = res
+                    deeth += 1
+                    _aggregateAction(actions, page, deeth, data, outObj, _ph).then(function (res) {
+                      resolve(res)
+                    }, function (err) {
+                      let fullError = new Error(err);
+                      fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement 4 de  page : " + actions[deeth].action;
+                      reject(fullError)
+                    })
+                  })
+                }, function (err) {
+                  console.log(" ------ IN ERRRRORRRR ---- ")
+                  let fullError = new Error(err);
+                  fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement 5 de page : " + actions[deeth].action;
+                  reject(fullError)
                 })
-              })
-              break;
-            case ("setValue"):
-              _waitFor(page, function () {
-                var selector = actions[deeth].selector
-                return page.evaluate(function (selector) {
-                  if (document.querySelector(selector) === null) {
-                    console.log(document.querySelector(selector))
-                    return false
-                  } else {
-                    console.log(document.querySelector(selector))
-                    return true
-                  }
-                }, selector)
-              }, function () {
-                console.log("The sign-in dialog should be visible now.");
-              }).then(function (res) {
-                _setValue(actions[deeth], page).then(function (res) {
-                  console.log(res)
-                  data[actions[deeth].action] = res
-                  deeth += 1
-                  _aggregateAction(actions, page, deeth, data, outObj, _ph, cb)
+                break;
+              case ("setValue"):
+                _waitFor(page, function () {
+                  var selector = actions[deeth].selector
+                  return page.evaluate(function (selector) {
+                    if (document.querySelector(selector) === null) {
+                      console.log(document.querySelector(selector))
+                      return false
+                    } else {
+                      console.log(document.querySelector(selector))
+                      return true
+                    }
+                  }, selector)
+                }, function () {
+                  console.log("The sign-in dialog should be visible now.");
+                }).then(function (res) {
+                  _setValue(actions[deeth], page).then(function (res) {
+                    console.log(res)
+                    data[actions[deeth].action] = res
+                    deeth += 1
+                    _aggregateAction(actions, page, deeth, data, outObj, _ph).then(function (res) {
+                      resolve(res)
+                    }, function (err) {
+                      let fullError = new Error(err);
+                      fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement 6 de page : " + actions[deeth + 1].action;
+                      reject(fullError)
+                    })
+                  })
+                }, function (err) {
+                  console.log(" ------ IN ERRRRORRRR ---- ")
+                  let fullError = new Error(err);
+                  fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement 7 de page : " + actions[deeth].action;
+                  reject(fullError)
                 })
-              })
-              break;
-            case ("click"):
-              _waitFor(page, function () {
-                var selector = actions[deeth].selector
-                return page.evaluate(function (selector) {
-                  if (document.querySelector(selector) === null) {
-                    console.log(document.querySelector(selector))
-                    return false
-                  } else {
-                    console.log(document.querySelector(selector))
-                    return true
-                  }
-                }, selector)
-              }, function () {
-                console.log("The sign-in dialog should be visible now.");
-              }).then(function (res) {
-                console.log(" IN click");
-                simulateClick(actions[deeth], page, outObj).then(function (res) {
-                  console.log("res click test", res)
-                  deeth += 1
-                  page.open(res)
-                  _aggregateAction(actions, page, deeth, data, outObj, _ph, cb)
+                break;
+              case ("click"):
+                _waitFor(page, function () {
+                  var selector = actions[deeth].selector
+                  return page.evaluate(function (selector) {
+                    console.log(document.querySelector(selector), selector)
+                    if (document.querySelector(selector) === null) {
+                      console.log("------- url --------", document.URL)
+                      return false
+                    } else {
+                      console.log(document.querySelector(selector))
+                      return true
+                    }
+                  }, selector)
+                }, function () {
+                  console.log("The sign-in dialog should be visible now.");
+                }).then(function (res) {
+                  console.log("In click");
+                  simulateClick(actions[deeth], page, outObj).then(function (resultat) {
+                    console.log("res click test", resultat)
+                    deeth += 1
+                    page.open(res)
+                    _aggregateAction(actions, page, deeth, data, outObj, _ph).then(function (res) {
+                      resolve(res)
+                    }, function (err) {
+                      let fullError = new Error(err);
+                      fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement 8 de page : " + actions[deeth].action;
+                      reject(fullError)
+                    })
+                  })
+                }, function (err) {
+                  console.log(" ------ IN ERRRRORRRR ---- ")
+                  let fullError = new Error(err);
+                  fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement 9 de page : " + actions[deeth].action;
+                  reject(fullError)
                 })
-              })
-              break;
+            }
+          }else{
+            let fullError = new Error("Pas d'attribut selectionné");
+            fullError.displayMessage = "Scrappeur : Pas d'attribut selectionné";
+            reject(fullError)
           }
         }
-      // })
-    }
-
-    function callBackScrapping(data){
-      console.log("in callback final ===", data)
-      return new Promise(function(resolve,reject){
-        resolve({data: data})
       })
     }
 
-    
     return new Promise(function (resolve, reject) {
       this.phantom.create(['--ignore-ssl-errors=yes', '--web-security=false']).then(ph => {
         _ph = ph;
@@ -291,10 +342,17 @@ module.exports = {
         return _page.open(url)
       }).then(status => {
         if (status) {
-            let data = {}
-            let deeth = 0
-            console.log("----  before recursive ------ ")
-            _aggregateAction(actions, _page, deeth, data, _outObj, _ph, callBackScrapping)
+          let data = {}
+          let deeth = 0
+          console.log("----  before recursive ------ ")
+          _aggregateAction(actions, _page, deeth, data, _outObj, _ph).then(function (res) {
+            console.log("--traitmeent terminé final ----")
+            resolve({
+              data: res
+            })
+          }, function (err) {
+            reject(err)
+          })
         }
       })
     }.bind(this))
