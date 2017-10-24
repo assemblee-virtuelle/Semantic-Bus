@@ -101,17 +101,17 @@ describe('workspaces and components ', () => {
     browser.click('#backButton');
     browser.waitForVisible('graph');
   })
-  it('10 work first component by editor', function() {
-    let elmts = browser.elements('graph image');
-    (elmts.value)[0].click();
-    browser.click('#editButton');
-    browser.waitForVisible('workspace-component-editor');
-    browser.click('#workButton');
-    browser.waitForVisible('jsonPreviewer');
-    browser.click('#backButton');
-    browser.click('#backButton');
-    browser.waitForVisible('graph');
-  })
+  // it('10 work first component by editor', function() {
+  //   // let elmts = browser.elements('graph image');
+  //   // (elmts.value)[0].click();
+  //   // browser.click('#editButton');
+  //   // browser.waitForVisible('workspace-component-editor');
+  //   browser.click('#workButton');
+  //   browser.waitForVisible('jsonPreviewer');
+  //   browser.click('#backButton');
+  //   browser.click('#backButton');
+  //   browser.waitForVisible('graph');
+  // })
   it('11 connect 2 components and work second', function() {
     let elmts = browser.elements('graph image');
     (elmts.value)[0].click();

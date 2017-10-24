@@ -24,9 +24,9 @@
     </div>
     <div></div>
     <div class="containerH commandGroup">
-      <!--<div id="addComponent" onclick={addComponentClick} class="commandButtonImage">
+      <div id="addComponent" onclick={addComponentClick} class="commandButtonImage">
         <img src="./image/Super-Mono-png/PNG/basic/blue/toggle-expand-alt.png" height="40px">
-      </div>-->
+      </div>
     </div>
   </div>
   <div id="graphContainer containerV">
