@@ -32,6 +32,13 @@
     <input type="text" class="form-controle" ref="setValue" value={setValue}></input>
   </div>
 
+  <div show = {scroll} >
+    <label>scroll x </label>
+    <input type="text" class="form-controle" ref="scrollX" value={scrollX}></input>
+     <label>scroll y </label>
+    <input type="text" class="form-controle" ref="scrollY" value={scrollY}></input>
+  </div>
+
 
   <zenTable style="flex:1" title="Your scenario">
     <yield to="header">
@@ -47,6 +54,8 @@
       <div>{selector}</div>
       <div>{attribut}</div>
       <div>{setValue}</div>
+      <div>{scrollX}</div>
+      <div>{scrollY}</div>
     </yield>
   </zenTable>
 
@@ -95,10 +104,11 @@
   </style>
 
   <script>
-    this.options = ["getValue", "getHtml", "getAttr", "setValue", "click"]
+    this.options = ["getValue", "getHtml", "getAttr", "setValue", "click", "scroll"]
     this.currentRowId = undefined;
     this.getAttr = false
     this.setValue = false
+    this.scroll = false
 
 
     //initialize
@@ -145,17 +155,23 @@
         else if(this.refs.actionType.value == "getAttr"){
           this.refs.setValue = "";
         }
+
+        else if(this.refs.actionType.value == "scroll"){
+          this.refs.setValue = "";
+        }
         
         if(this.data.specificData.scrappe == null){
            this.data.specificData.scrappe  = []
         }
-
+        console.log()
         this.data.specificData.scrappe.push({
           selector: this.selector,
           action: this.action,
           actionType: this.actionType,
           attribut: this.attribut,
-          setValue: this.setValue
+          setValue: this.setValue,
+          scrollX: this.scrollX,
+          scrollY: this.scrollY
         });
         this.update()
       }.bind(this));
@@ -181,6 +197,16 @@
      
       this.refs.action.addEventListener('change', function (e) {
         this.action = e.target.value;
+      }.bind(this));
+
+
+     
+      this.refs.scrollX.addEventListener('change', function (e) {
+        this.scrollX = e.target.value;
+      }.bind(this));
+
+      this.refs.scrollY.addEventListener('change', function (e) {
+        this.scrollY = e.target.value;
       }.bind(this));
 
 
