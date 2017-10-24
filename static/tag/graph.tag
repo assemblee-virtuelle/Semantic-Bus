@@ -24,9 +24,9 @@
     </div>
     <div></div>
     <div class="containerH commandGroup">
-      <div id="addComponent" onclick={addComponentClick} class="commandButtonImage" if={!opts.disallowcommand==true}>
+      <!--<div id="addComponent" onclick={addComponentClick} class="commandButtonImage">
         <img src="./image/Super-Mono-png/PNG/basic/blue/toggle-expand-alt.png" height="40px">
-      </div>
+      </div>-->
     </div>
   </div>
   <div id="graphContainer containerV">
@@ -52,8 +52,9 @@
       <g id="lineLayer"></g>
       <g id="shapeSelector"></g>
       <g id="shapeLayer"></g>
-
       <g id="textLayer"></g>
+      <g id="commandLayer"></g>
+      <image xlink:href="./image/Super-Mono-png/PNG/basic/blue/toggle-expand-alt.png" class="commandButtonImage" x="1400" y="20" width="80" height="80" onclick={addComponentClick}></image>
     </svg>
   </div>
   <!--graphContainer-->
@@ -110,22 +111,106 @@
       }, this.graph.nodes); //
       //console.log(this.selectedNodes);
       this.selectorsNodes = this.svg.select("#shapeSelector").selectAll("rect").data(this.selectedNodes, function (d) {
-        return d.id + 'selected';
+        return d.id + '-selected';
       });
       this.selectorsNodes.exit().remove();
       this.selectorsNodes = this.selectorsNodes.enter().append("rect").merge(this.selectorsNodes).attr("width", function (d) { // width et height definis plus haut par bbox
-        return 240;
+        return 280;
       }).attr("height", function (d) {
-        return 90;
+        return 130;
       }).attr("rx", function (d) {
         return 10;
       }).attr("ry", function (d) {
         return 10;
       }).attr('x', function (d) {
-        return d.x - 10;
+        return d.x - 30;
       }).attr('y', function (d) {
-        return d.y - 10;
+        return d.y - 30;
       }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
+      //
+      // var cloneString = d3.select("#componentCommandBarModel").node().cloneNode(true).outerHTML; console.log(cloneString);
+
+      this.selectorsCommandeBar = this.svg.select("#commandLayer").selectAll("svg").data(this.selectedNodes, function (d) {
+        return d.id + '-commandBarComponent';
+      });
+      this.selectorsCommandeBar.exit().remove();
+      this.selectorsCommandeBar = this.selectorsCommandeBar.enter().append("svg").merge(this.selectorsCommandeBar).attr('x', function (d) {
+
+        return d.x - 30;
+      }).attr('y', function (d) {
+        return d.y - 30;
+      }).each(function (d) {
+        d3.select(this).append("image").attr("xlink:href", function (d) {
+          return "./image/Super-Mono-png/PNG/basic/green/toggle-expand-alt.png";
+        }).attr("width", function (d) {
+          return 30;
+        }).attr("height", function (d) {
+          return 30;
+        }).attr("x", function (d) {
+          return 0;
+        }).attr("y", function (d) {
+          return 50;
+        }).on("click", function (d) {
+          RiotControl.trigger('item_current_connect_before_show');
+        });
+
+        d3.select(this).append("image").attr("xlink:href", function (d) {
+          return "./image/Super-Mono-png/PNG/basic/blue/document-edit.png";
+        }).attr("width", function (d) {
+          return 30;
+        }).attr("height", function (d) {
+          return 30;
+        }).attr("x", function (d) {
+          return 60;
+        }).attr("y", function (d) {
+          return 100;
+        }).on("click", function (d) {
+          RiotControl.trigger('component_current_select', d.component);
+        });
+
+        d3.select(this).append("image").attr("xlink:href", function (d) {
+          return "./image/Super-Mono-png/PNG/basic/blue/button-play.png";
+        }).attr("width", function (d) {
+          return 30;
+        }).attr("height", function (d) {
+          return 30;
+        }).attr("x", function (d) {
+          return 120;
+        }).attr("y", function (d) {
+          return 100;
+        }).on("click", function (d) {
+          RiotControl.trigger('item_current_work');
+        });
+
+        d3.select(this).append("image").attr("xlink:href", function (d) {
+          return "./image/Super-Mono-png/PNG/basic/red/bin.png";
+        }).attr("width", function (d) {
+          return 30;
+        }).attr("height", function (d) {
+          return 30;
+        }).attr("x", function (d) {
+          return 180;
+        }).attr("y", function (d) {
+          return 100;
+        }).on("click", function (d) {
+          RiotControl.trigger('workspace_current_delete_component', d.component);
+        });
+
+        d3.select(this).append("image").attr("xlink:href", function (d) {
+          return "./image/Super-Mono-png/PNG/basic/green/toggle-expand-alt.png";
+        }).attr("width", function (d) {
+          return 30;
+        }).attr("height", function (d) {
+          return 30;
+        }).attr("x", function (d) {
+          return 250;
+        }).attr("y", function (d) {
+          return 50;
+        }).on("click", function (d) {
+          RiotControl.trigger('item_current_connect_after_show');
+        });
+      });
+
       // }
       //
       // this.drawSelectedLines = function (selectedLines) {
@@ -138,12 +223,16 @@
       });
       this.selectorsLines.exit().remove();
       this.selectorsLines = this.selectorsLines.enter().append("line").merge(this.selectorsLines).attr('x1', function (d) {
-        return d.source.x + 165;
+        //return d.source.x + 165;
+        return d.source.x + 110;
       }).attr('y1', function (d) {
+        //return d.source.y + 35;
         return d.source.y + 35;
       }).attr('x2', function (d) {
-        return d.target.x + 55;
+        // return d.target.x + 55;
+        return d.target.x + 110;
       }).attr('y2', function (d) {
+        //return d.target.y + 35;
         return d.target.y + 35;
       });
 
@@ -165,33 +254,37 @@
       }).attr("x", dragged.x).attr("y", dragged.y);
       this.selectorsNodes = this.svg.select("#shapeSelector").selectAll("rect").data([dragged], function (d) {
         return d.id;
-      }).attr("x", dragged.x - 10).attr("y", dragged.y - 10);
+      }).attr("x", dragged.x - 30).attr("y", dragged.y - 30);
+
+      this.selectorsCommandeBar = this.svg.select("#commandLayer").selectAll("svg").data([dragged], function (d) {
+        return d.id;
+      }).attr("x", dragged.x - 30).attr("y", dragged.y - 30);
 
       let beforeLinks = sift({
         "target.id": dragged.id
       }, this.graph.links);
       this.links = this.svg.select("#lineLayer").selectAll("line").data(beforeLinks, function (d) {
         return d.id;
-      }).attr("x2", dragged.x + 55).attr("y2", dragged.y + 35);
+      }).attr("x2", dragged.x + 110).attr("y2", dragged.y + 35);
       let beforeLinksSelected = sift({
         "target.id": dragged.id
       }, this.selectedLines);
       this.selectorsLines = this.svg.select("#lineSelector").selectAll("line").data(beforeLinksSelected, function (d) {
         return d.id;
-      }).attr("x2", dragged.x + 55).attr("y2", dragged.y + 35);
+      }).attr("x2", dragged.x + 110).attr("y2", dragged.y + 35);
 
       let afterLinks = sift({
         "source.id": dragged.id
       }, this.graph.links);
       this.links = this.svg.select("#lineLayer").selectAll("line").data(afterLinks, function (d) {
         return d.id;
-      }).attr("x1", dragged.x + 165).attr("y1", dragged.y + 35);
+      }).attr("x1", dragged.x + 110).attr("y1", dragged.y + 35);
       let afterLinksSelected = sift({
         "source.id": dragged.id
       }, this.selectedLines);
       this.selectorsLines = this.svg.select("#lineSelector").selectAll("line").data(afterLinksSelected, function (d) {
         return d.id;
-      }).attr("x1", dragged.x + 165).attr("y1", dragged.y + 35);
+      }).attr("x1", dragged.x + 110).attr("y1", dragged.y + 35);
 
     }.bind(this);
 
@@ -237,8 +330,7 @@
         this.svg = d3.select("svg");
 
         d3.select("#background").on("click", function (d) {
-          //console.log('CLICK ON main',d3.select(this));
-          // RiotControl.trigger('connection_current_set');
+          //console.log('CLICK ON main',d3.select(this)); RiotControl.trigger('connection_current_set');
           RiotControl.trigger('selection_reset');
 
           // this.selectedNodes = []; this.selectedLines = []; //RiotControl.trigger('component_current_set', undefined); this.drawSelected(); this.drawSelectedLines(); this.update();
@@ -259,12 +351,16 @@
       });
       this.links.exit().remove();
       this.links = this.links.enter().append('line').merge(this.links).attr('x1', function (d) {
-        return d.source.x + 165;
+        //return d.source.x + 165;
+        return d.source.x + 110;
       }).attr('y1', function (d) {
+        //return d.source.y + 35;
         return d.source.y + 35;
       }).attr('x2', function (d) {
-        return d.target.x + 55;
+        // return d.target.x + 55;
+        return d.target.x + 110;
       }).attr('y2', function (d) {
+        //return d.target.y + 35;
         return d.target.y + 35;
       }).on("click", function (d) {
         //console.log('click line |', d); this.selectedNodes = []; this.drawSelected(); this.selectedLines = [d]; this.drawSelectedLines(); this.update();
@@ -316,13 +412,13 @@
     // l'élémént sur le bord gauche         y: inputCurrentOffset,         component: record       }       inputCurrentOffset += inputsOffset;     } else if (record.connectionsAfter.length == 0 && record.graphPositionX == undefined &&
     // record.graphPositionY == undefined) {       node = {         text: record.type,         id: record._id,         graphIcon: record.graphIcon,         // fx: record.graphPositionX || width - 10 - record.type.length * 10, // positionne l'element en
     // largeur par rapport au bord droit du graphe fy: record.graphPositionY || outputCurrentOffset,         x: width - 230, // positionne l'element en largeur par rapport au bord droit du graphe         y: outputCurrentOffset,         component: record
-    //      }       outputCurrentOffset += outputsOffset;     } else { // tous ceux du milieu       node = {         text: record.type,         id: record._id,         graphIcon: record.graphIcon,         x: record.graphPositionX || width / 2,         y:
+    //   }       outputCurrentOffset += outputsOffset;     } else { // tous ceux du milieu       node = {         text: record.type,         id: record._id,         graphIcon: record.graphIcon,         x: record.graphPositionX || width / 2,         y:
     // record.graphPositionY || middleCurrentOffset,         component: record       }       if (record.graphPositionY == undefined) {         middleCurrentOffset += middlesOffset;       }
     //
     //     }     graph.nodes.push(node);   }
     //
-    //   for (record of data.components) {     for (connection of record.connectionsAfter) {       graph.links.push({         source: sift({           id: record._id         }, graph.nodes)[0],         target: sift({           id: connection._id
-    // }, graph.nodes)[0],         id: record._id + '-' + connection._id       }) // creation de tous les links     }   }
+    //   for (record of data.components) {     for (connection of record.connectionsAfter) {       graph.links.push({         source: sift({           id: record._id         }, graph.nodes)[0],         target: sift({           id: connection._id },
+    // graph.nodes)[0],         id: record._id + '-' + connection._id       }) // creation de tous les links     }   }
     //
     //   console.log(graph);
     //
@@ -330,25 +426,12 @@
     // > 0) {   this.selectedLines = sift({     id: {       $in: this.selectedLines.map(s => s.id)     }   }, this.graph.links);   this.drawSelectedLines(); } this.simulation.nodes(this.graph.nodes);   //
     // this.simulation.force("link").links(this.graph.links); this.simulation.alpha(1).restart();
     //
-    // }.bind(this);
-
-    // this.refreshSelection = function (selectedNodes, selectedLines) {
-    //   //console.log('refreshSelection',selectedNodes, selectedLines);
-    //   this.drawSelected(selectedNodes);
-    //   this.drawSelectedLines(selectedLines);
-    //   this.update();
-    //   // this.selectedNodes = selectedNodes;
-    //   //
-    //   // if (this.selectedNodes.length > 0) {   this.selectedNodes = sift({     id: {       $in: this.selectedNodes.map(s => s.id)     }   }, this.graph.nodes);   this.drawSelected(); }
-    //   //
-    //   // this.selectedLines = selectedLines;
-    //   //
-    //   // if (this.selectedLines.length > 0) {   this.selectedLines = sift({     id: {       $in: this.selectedLines.map(s => s.id)     }   }, this.graph.links);   this.drawSelectedLines(); }
+    // }.bind(this); this.refreshSelection = function (selectedNodes, selectedLines) {   //console.log('refreshSelection',selectedNodes, selectedLines);   this.drawSelected(selectedNodes);   this.drawSelectedLines(selectedLines);   this.update();   //
+    // this.selectedNodes = selectedNodes;   //   // if (this.selectedNodes.length > 0) {   this.selectedNodes = sift({     id: {       $in: this.selectedNodes.map(s => s.id)     }   }, this.graph.nodes);   this.drawSelected(); }   //   //
+    // this.selectedLines = selectedLines;   //   // if (this.selectedLines.length > 0) {   this.selectedLines = sift({     id: {       $in: this.selectedLines.map(s => s.id)     }   }, this.graph.links);   this.drawSelectedLines(); }
     //
-    // }.bind(this);
-
-    // this.on('unmount', function () {   //this.simulation.stop();   RiotControl.off('workspace_current_changed', this.refreshGraph); }); this.ticked = function () {   console.log("ticked");   this.links.attr('x1', function (d) {     return d.source.x +
-    // 165;   }).attr('y1', function (d) {     return d.source.y + 35;   }).attr('x2', function (d) {     return d.target.x + 55; }).attr('y2', function (d) {     return d.target.y + 35;   });
+    // }.bind(this); this.on('unmount', function () {   //this.simulation.stop();   RiotControl.off('workspace_current_changed', this.refreshGraph); }); this.ticked = function () {   console.log("ticked");   this.links.attr('x1', function (d) { return
+    // d.source.x + 165;   }).attr('y1', function (d) {     return d.source.y + 35;   }).attr('x2', function (d) {     return d.target.x + 55; }).attr('y2', function (d) {     return d.target.y + 35;   });
     //
     //   this.nodes.attr('x', function (d) {     return d.x - 5;   }).attr('y', function (d) {     return d.y - 5;   });   if (this.selectorsNodes.length > 0) {     this.selectorsNodes.attr('x', function (d) {       return d.x - 5;     }).attr('y',
     // function (d) {     return d.y - 5;     });   }
@@ -394,22 +477,31 @@
       stroke: #555;
       stroke-width: 12;
       cursor: pointer;
+      stroke-dasharray: 20;
+      animation: dash 2s linear;
+      animation-iteration-count: infinite;
+    }
+    @keyframes dash {
+      to {
+        stroke-dashoffset: -40;
+      }
     }
 
     #shapeSelector rect {
       //filter:url(#dropshadow);
       fill: #649DF9;
-      fill-opacity: 0.4;
+      //fill: white;
+      fill-opacity: 0.2;
     }
 
     #lineSelector line {
       stroke-width: 36;
       stroke: #649DF9;
-      stroke-opacity: 0.4;
+      stroke-opacity: 0.2;
     }
 
     .background {
-      fill: #EFEFEF;;
+      fill: #EFEFEF;
       fill-opacity: 1;
       stroke: #000;
       stroke-width: 0;

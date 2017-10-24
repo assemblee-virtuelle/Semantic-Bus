@@ -53,7 +53,11 @@ module.exports = {
       } else {
         this.cache_lib.get(data).then(cachedData=>{
           //console.log("----- cache data get ----")
+          if (cachedData!=undefined){
           resolve({data:cachedData.data});
+        }else{
+          reject(new Error('empty cache'))
+        }
         })
       }
     })
