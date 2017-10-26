@@ -53,7 +53,8 @@
       <g id="shapeSelector"></g>
       <g id="shapeLayer"></g>
       <g id="textLayer"></g>
-      <g id="commandLayer"></g>
+      <g id="lineCommandLayer"></g>
+      <g id="shapeCommandLayer"></g>
       <image xlink:href="./image/Super-Mono-png/PNG/basic/blue/toggle-expand-alt.png" class="commandButtonImage" x="1400" y="20" width="80" height="80" onclick={addComponentClick}></image>
     </svg>
   </div>
@@ -94,7 +95,7 @@
     }
 
     removeLinkClick(e) {
-      console.log('removeLink |', this.selectedLines[0].source.component, this.selectedLines[0].target.component);
+      //console.log('removeLink |', this.selectedLines[0].source.component, this.selectedLines[0].target.component);
       RiotControl.trigger('disconnect_components', this.selectedLines[0].source.component, this.selectedLines[0].target.component);
     }
 
@@ -130,11 +131,11 @@
       //
       // var cloneString = d3.select("#componentCommandBarModel").node().cloneNode(true).outerHTML; console.log(cloneString);
 
-      this.selectorsCommandeBar = this.svg.select("#commandLayer").selectAll("svg").data(this.selectedNodes, function (d) {
-        return d.id + '-commandBarComponent';
+      this.selectorsShapeCommandeBar = this.svg.select("#shapeCommandLayer").selectAll("svg").data(this.selectedNodes, function (d) {
+        return d.id + '-shapeCommandBarComponent';
       });
-      this.selectorsCommandeBar.exit().remove();
-      this.selectorsCommandeBar = this.selectorsCommandeBar.enter().append("svg").merge(this.selectorsCommandeBar).attr('x', function (d) {
+      this.selectorsShapeCommandeBar.exit().remove();
+      this.selectorsShapeCommandeBar = this.selectorsShapeCommandeBar.enter().append("svg").merge(this.selectorsShapeCommandeBar).attr('x', function (d) {
 
         return d.x - 30;
       }).attr('y', function (d) {
@@ -236,6 +237,31 @@
         return d.target.y + 35;
       });
 
+      this.selectorsLineCommandeBar = this.svg.select("#lineCommandLayer").selectAll("svg").data(this.selectedLines, function (d) {
+        return d.id + '-lineCommandBarComponent';
+      });
+      this.selectorsLineCommandeBar.exit().remove();
+      this.selectorsLineCommandeBar = this.selectorsLineCommandeBar.enter().append("svg").merge(this.selectorsLineCommandeBar).attr('x', function (d) {
+        return ((d.source.x + d.target.x)/2)+95;
+      }).attr('y', function (d) {
+        return ((d.source.y + d.target.y)/2)+10;
+      }).each(function (d) {
+        d3.select(this).append("image").attr("xlink:href", function (d) {
+          return "./image/Super-Mono-png/PNG/basic/red/bin.png";
+        }).attr("width", function (d) {
+          return 30;
+        }).attr("height", function (d) {
+          return 30;
+        }).attr("x", function (d) {
+          return 0;
+        }).attr("y", function (d) {
+          return 0;
+        }).on("click", function (d) {
+          RiotControl.trigger('disconnect_components', d.source.component, d.target.component);
+
+        });
+      });
+
       this.update();
     }.bind(this);
 
@@ -256,9 +282,10 @@
         return d.id;
       }).attr("x", dragged.x - 30).attr("y", dragged.y - 30);
 
-      this.selectorsCommandeBar = this.svg.select("#commandLayer").selectAll("svg").data([dragged], function (d) {
+      this.selectorsShapeCommandeBar = this.svg.select("#shapeCommandLayer").selectAll("svg").data([dragged], function (d) {
         return d.id;
       }).attr("x", dragged.x - 30).attr("y", dragged.y - 30);
+
 
       let beforeLinks = sift({
         "target.id": dragged.id
@@ -272,6 +299,16 @@
       this.selectorsLines = this.svg.select("#lineSelector").selectAll("line").data(beforeLinksSelected, function (d) {
         return d.id;
       }).attr("x2", dragged.x + 110).attr("y2", dragged.y + 35);
+      this.selectorsLineCommandeBar = this.svg.select("#lineCommandLayer").selectAll("svg").data(beforeLinksSelected, function (d) {
+        return d.id;
+      }).attr('x', function (d) {
+        return ((d.source.x + dragged.x)/2)+95;
+      }).attr('y', function (d) {
+        return ((d.source.y + dragged.y)/2)+10;
+      });
+
+
+
 
       let afterLinks = sift({
         "source.id": dragged.id
@@ -285,6 +322,13 @@
       this.selectorsLines = this.svg.select("#lineSelector").selectAll("line").data(afterLinksSelected, function (d) {
         return d.id;
       }).attr("x1", dragged.x + 110).attr("y1", dragged.y + 35);
+      this.selectorsLineCommandeBar = this.svg.select("#lineCommandLayer").selectAll("svg").data(afterLinksSelected, function (d) {
+        return d.id;
+      }).attr('x', function (d) {
+        return ((dragged.x + d.target.x)/2)+95;
+      }).attr('y', function (d) {
+        return ((dragged.y + d.target.y)/2)+10;
+      });
 
     }.bind(this);
 
@@ -475,15 +519,15 @@
 
     #lineLayer line {
       stroke: #555;
-      stroke-width: 12;
+      stroke-width: 6;
       cursor: pointer;
-      stroke-dasharray: 20;
-      animation: dash 2s linear;
+      stroke-dasharray: 500 2;
+      animation: dash 1s linear;
       animation-iteration-count: infinite;
     }
     @keyframes dash {
       to {
-        stroke-dashoffset: -40;
+        stroke-dashoffset: -502;
       }
     }
 

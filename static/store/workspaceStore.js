@@ -225,17 +225,22 @@ function WorkspaceStore() {
     }
 
     var selectedNodes=[];
+    var selectedLinks=[];
+
     if (this.graph!=undefined) {
 
-      console.log("selectedNodes |", this.graph.nodes);
-      console.log("selectedNodes |", sift({
-        selected: true
-      }, this.graph.nodes));
-      //console.log("selectedNodes |", selectedNodes);
+      // console.log("selectedNodes |", this.graph.nodes);
+      // console.log("selectedNodes |", sift({
+      //   selected: true
+      // }, this.graph.nodes));
+      // //console.log("selectedNodes |", selectedNodes);
 
       selectedNodes = sift({
         selected: true
       }, this.graph.nodes).map(n => n.id);
+      selectedLinks = sift({
+        selected: true
+      }, this.graph.links).map(n => n.id);
     }
 
 
@@ -320,6 +325,7 @@ function WorkspaceStore() {
 
     for (record of this.workspaceCurrent.components) {
       for (connection of record.connectionsAfter) {
+        let id= record._id + '-' + connection._id;
         this.graph.links.push({
           source: sift({
             id: record._id
@@ -327,7 +333,8 @@ function WorkspaceStore() {
           target: sift({
             id: connection._id
           }, this.graph.nodes)[0],
-          id: record._id + '-' + connection._id
+          id: id,
+          selected : selectedLinks.indexOf(id) != -1
         }) // creation de tous les links
       }
     }
