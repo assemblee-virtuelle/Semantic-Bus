@@ -109,7 +109,15 @@
     this.drawSelected = function () {
       this.selectedNodes = sift({
         'selected': true
-      }, this.graph.nodes); //
+      }, this.graph.nodes);
+
+      this.modeConnectAfter = sift({
+        'connectAfterMode': true
+      }, this.graph.nodes).length>0;
+      this.modeConnectBefore = sift({
+        'connectBeforeMode': true
+      }, this.graph.nodes).length>0;
+
       //console.log(this.selectedNodes);
       this.selectorsNodes = this.svg.select("#shapeSelector").selectAll("rect").data(this.selectedNodes, function (d) {
         return d.id + '-selected';
@@ -142,7 +150,13 @@
         return d.y - 30;
       }).each(function (d) {
         d3.select(this).append("image").attr("xlink:href", function (d) {
-          return "./image/Super-Mono-png/PNG/basic/green/toggle-expand-alt.png";
+          let image = "";
+          if (d.connectBeforeMode == true) {
+            image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand.png";
+          } else {
+            image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand-alt.png";
+          }
+          return image;
         }).attr("width", function (d) {
           return 30;
         }).attr("height", function (d) {
@@ -198,7 +212,13 @@
         });
 
         d3.select(this).append("image").attr("xlink:href", function (d) {
-          return "./image/Super-Mono-png/PNG/basic/green/toggle-expand-alt.png";
+          let image = "";
+          if (d.connectAfterMode == true) {
+            image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand.png";
+          } else {
+            image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand-alt.png";
+          }
+          return image;
         }).attr("width", function (d) {
           return 30;
         }).attr("height", function (d) {
@@ -242,9 +262,9 @@
       });
       this.selectorsLineCommandeBar.exit().remove();
       this.selectorsLineCommandeBar = this.selectorsLineCommandeBar.enter().append("svg").merge(this.selectorsLineCommandeBar).attr('x', function (d) {
-        return ((d.source.x + d.target.x)/2)+95;
+        return ((d.source.x + d.target.x) / 2) + 95;
       }).attr('y', function (d) {
-        return ((d.source.y + d.target.y)/2)+10;
+        return ((d.source.y + d.target.y) / 2) + 10;
       }).each(function (d) {
         d3.select(this).append("image").attr("xlink:href", function (d) {
           return "./image/Super-Mono-png/PNG/basic/red/bin.png";
@@ -286,7 +306,6 @@
         return d.id;
       }).attr("x", dragged.x - 30).attr("y", dragged.y - 30);
 
-
       let beforeLinks = sift({
         "target.id": dragged.id
       }, this.graph.links);
@@ -302,13 +321,10 @@
       this.selectorsLineCommandeBar = this.svg.select("#lineCommandLayer").selectAll("svg").data(beforeLinksSelected, function (d) {
         return d.id;
       }).attr('x', function (d) {
-        return ((d.source.x + dragged.x)/2)+95;
+        return ((d.source.x + dragged.x) / 2) + 95;
       }).attr('y', function (d) {
-        return ((d.source.y + dragged.y)/2)+10;
+        return ((d.source.y + dragged.y) / 2) + 10;
       });
-
-
-
 
       let afterLinks = sift({
         "source.id": dragged.id
@@ -325,9 +341,9 @@
       this.selectorsLineCommandeBar = this.svg.select("#lineCommandLayer").selectAll("svg").data(afterLinksSelected, function (d) {
         return d.id;
       }).attr('x', function (d) {
-        return ((dragged.x + d.target.x)/2)+95;
+        return ((dragged.x + d.target.x) / 2) + 95;
       }).attr('y', function (d) {
-        return ((dragged.y + d.target.y)/2)+10;
+        return ((dragged.y + d.target.y) / 2) + 10;
       });
 
     }.bind(this);
@@ -456,7 +472,7 @@
     // l'élémént sur le bord gauche         y: inputCurrentOffset,         component: record       }       inputCurrentOffset += inputsOffset;     } else if (record.connectionsAfter.length == 0 && record.graphPositionX == undefined &&
     // record.graphPositionY == undefined) {       node = {         text: record.type,         id: record._id,         graphIcon: record.graphIcon,         // fx: record.graphPositionX || width - 10 - record.type.length * 10, // positionne l'element en
     // largeur par rapport au bord droit du graphe fy: record.graphPositionY || outputCurrentOffset,         x: width - 230, // positionne l'element en largeur par rapport au bord droit du graphe         y: outputCurrentOffset,         component: record
-    //   }       outputCurrentOffset += outputsOffset;     } else { // tous ceux du milieu       node = {         text: record.type,         id: record._id,         graphIcon: record.graphIcon,         x: record.graphPositionX || width / 2,         y:
+    //  }       outputCurrentOffset += outputsOffset;     } else { // tous ceux du milieu       node = {         text: record.type,         id: record._id,         graphIcon: record.graphIcon,         x: record.graphPositionX || width / 2,         y:
     // record.graphPositionY || middleCurrentOffset,         component: record       }       if (record.graphPositionY == undefined) {         middleCurrentOffset += middlesOffset;       }
     //
     //     }     graph.nodes.push(node);   }
@@ -482,16 +498,8 @@
     //
     //   // this.texts.attr('x', function (d) {   return d.x; }).attr('y', function (d) {   return d.y + d.height; }); tickCount++; if (tickCount>10) {   simulation.stop(); }
     //
-    // }.bind(this); // jusque la on est dans le workspace changed
-
-    RiotControl.on('item_curent_connect_show_changed', function (modes) {
-      console.log('item_curent_connect_show_changed', modes);
-      this.modeConnectAfter = modes.after;
-      this.modeConnectBefore = modes.before;
-      this.update();
-    }.bind(this));
-
-    // evenement appele par riot
+    // }.bind(this); // jusque la on est dans le workspace changed RiotControl.on('item_curent_connect_show_changed', function (modes) {   console.log('item_curent_connect_show_changed', modes);   this.modeConnectAfter = modes.after;
+    // this.modeConnectBefore = modes.before;   this.update(); }.bind(this)); evenement appele par riot
     this.on('mount', function () { // mount du composant riot
       //RiotControl.on('workspace_current_changed', this.refreshGraph);
       RiotControl.on('workspace_graph_selection_changed', this.drawSelected);

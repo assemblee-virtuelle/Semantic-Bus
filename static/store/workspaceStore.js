@@ -224,10 +224,10 @@ function WorkspaceStore() {
       this.viewBox = viewBox;
     }
 
-    var selectedNodes=[];
-    var selectedLinks=[];
+    var selectedNodes = [];
+    var selectedLinks = [];
 
-    if (this.graph!=undefined) {
+    if (this.graph != undefined) {
 
       // console.log("selectedNodes |", this.graph.nodes);
       // console.log("selectedNodes |", sift({
@@ -325,7 +325,7 @@ function WorkspaceStore() {
 
     for (record of this.workspaceCurrent.components) {
       for (connection of record.connectionsAfter) {
-        let id= record._id + '-' + connection._id;
+        let id = record._id + '-' + connection._id;
         this.graph.links.push({
           source: sift({
             id: record._id
@@ -334,7 +334,7 @@ function WorkspaceStore() {
             id: connection._id
           }, this.graph.nodes)[0],
           id: id,
-          selected : selectedLinks.indexOf(id) != -1
+          selected: selectedLinks.indexOf(id) != -1
         }) // creation de tous les links
       }
     }
@@ -370,9 +370,13 @@ function WorkspaceStore() {
 
     this.graph.links.forEach(l => {
       l.selected = false;
+      l.connectAfterMode=false;
+      l.connectBeforeMode=false;
     });
     this.graph.nodes.forEach(n => {
       n.selected = false;
+      n.connectAfterMode=false;
+      n.connectBeforeMode=false;
     });
     this.trigger('workspace_graph_selection_changed', this.graph);
 
@@ -669,6 +673,13 @@ function WorkspaceStore() {
       before: this.modeConnectBefore,
       after: this.modeConnectAfter
     });
+
+    sift({
+      selected: true
+    }, this.graph.nodes).forEach(n => {
+      n.connectBeforeMode = true;
+    });
+    this.trigger('workspace_graph_selection_changed', this.graph);
   });
 
   this.on('item_current_connect_after_show', function(data) {
@@ -678,6 +689,13 @@ function WorkspaceStore() {
       before: this.modeConnectBefore,
       after: this.modeConnectAfter
     });
+
+    sift({
+      selected: true
+    }, this.graph.nodes).forEach(n => {
+      n.connectAfterMode = true;
+    });
+    this.trigger('workspace_graph_selection_changed', this.graph);
   });
 
 
@@ -691,6 +709,15 @@ function WorkspaceStore() {
       before: this.modeConnectBefore,
       after: this.modeConnectAfter
     });
+
+    sift({
+      selected: true
+    }, this.graph.nodes).forEach(n => {
+      n.connectAfterMode = false;
+      n.connectBeforeMode = false;
+    });
+    this.trigger('workspace_graph_selection_changed', this.graph);
+
   });
 
   this.on('disconnect_components', function(source, destination) {
