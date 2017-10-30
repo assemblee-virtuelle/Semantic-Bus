@@ -18,9 +18,9 @@ exports.config = Object.assign(base.config, {
     specs: [
         './test/e2e/test_fonctionels/*.js'
     ],
-    reporterOptions: {
-        junit: {
-            outputDir: './test/test_result/fonct_result'
-        }
-    },
+    // reporterOptions: {
+    //     junit: {
+    //         outputDir: './test/test_result/fonct_result'
+    //     }
+    // },
 })

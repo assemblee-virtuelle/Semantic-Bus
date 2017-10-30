@@ -28,7 +28,7 @@
   </div>
   <div>
   <div show = {setValue} >
-    <label>Value(Set)</label>
+    <label>Value</label>
     <input type="text" class="form-controle" ref="setValue" value={setValue}></input>
   </div>
 
@@ -47,6 +47,8 @@
       <div>Selector</div>
       <div>Attribut</div>
       <div>Value</div>
+      <div>ScrollX</div>
+      <div>ScrollY</div>
     </yield>
     <yield to="row">
       <div>{action}</div>
@@ -104,7 +106,7 @@
   </style>
 
   <script>
-    this.options = ["getValue", "getHtml", "getAttr", "setValue", "click", "scroll"]
+    this.options = ["getValue", "getHtml", "getAttr", "setValue", "click", "scroll","selectByValue"]
     this.currentRowId = undefined;
     this.getAttr = false
     this.setValue = false
@@ -227,9 +229,18 @@
         }else if(e.target.value == "setValue"){
           this.setValue = true
           this.getAttr = false
+        }else if(e.target.value == "scroll"){
+          this.scroll = true
+          this.getAttr = false
+          this.setValue = false
+        }else if(e.target.value == "selectByValue"){
+          this.setValue = true
+          this.getAttr = false
+          this.scroll = false
         }else{
           this.setValue = false
           this.getAttr = false
+          this.scroll = false
         }
         this.update()
       }.bind(this))
