@@ -55,7 +55,7 @@
       <g id="textLayer"></g>
       <g id="lineCommandLayer"></g>
       <g id="shapeCommandLayer"></g>
-      <image xlink:href="./image/Super-Mono-png/PNG/basic/blue/toggle-expand-alt.png" class="commandButtonImage" x="1400" y="20" width="80" height="80" onclick={addComponentClick}></image>
+      <image id="addComponentGraph" xlink:href="./image/Super-Mono-png/PNG/basic/blue/toggle-expand-alt.png" class="commandButtonImage" x="1400" y="20" width="80" height="80" onclick={addComponentClick}></image>
     </svg>
   </div>
   <!--graphContainer-->
@@ -179,6 +179,10 @@
           return 60;
         }).attr("y", function (d) {
           return 100;
+        }).attr("class", function (d) {
+          return 'editButtonGraph';
+        }).attr("data-id", function (d) {
+          return d.id;
         }).on("click", function (d) {
           RiotControl.trigger('component_current_select', d.component);
         });
@@ -193,6 +197,10 @@
           return 120;
         }).attr("y", function (d) {
           return 100;
+        }).attr("class", function (d) {
+          return 'workButtonGraph';
+        }).attr("data-id", function (d) {
+          return d.id;
         }).on("click", function (d) {
           RiotControl.trigger('item_current_work');
         });

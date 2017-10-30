@@ -51,8 +51,8 @@ describe('workspaces and components ', () => {
     browser.waitForVisible('graph');
   })
   it('06 add a component', function() {
-    browser.waitForVisible('#addComponent');
-    browser.click('#addComponent');
+    browser.waitForVisible('#addComponentGraph');
+    browser.click('#addComponentGraph');
     browser.waitForVisible('technical-component-table');
     //browser.waitForVisible('div=GOOGLE calc Get JSON');
     browser.click('div=GOOGLE calc Get JSON');
@@ -64,8 +64,8 @@ describe('workspaces and components ', () => {
     browser.waitForVisible('graph');
   })
   it('07 add a second component', function() {
-    browser.waitForVisible('#addComponent');
-    browser.click('#addComponent');
+    browser.waitForVisible('#addComponentGraph');
+    browser.click('#addComponentGraph');
     browser.waitForVisible('technical-component-table');
     //browser.waitForVisible('div=GOOGLE calc Get JSON');
     browser.click('div=Object Transformer');
@@ -77,9 +77,11 @@ describe('workspaces and components ', () => {
     browser.waitForVisible('graph');
   })
   it('08 edit first component', function() {
-    let elmts = browser.elements('graph image');
-    (elmts.value)[0].click();
-    browser.click('#editButton');
+    let elmts = browser.elements('#shapeLayer image');
+    let firstId = (elmts.value)[0].getAttribute('data-id');
+    browser.element('#shapeLayer image[data-id="' + firstId + '"]').click();
+    browser.click('#shapeCommandLayer .editButtonGraph[data-id="' + firstId + '"]');
+    //browser.click('#editButton');
     browser.waitForVisible('workspace-component-editor');
     browser.setValue('#keyInput', '1v-jNViOm8dEnCPYErX-TkbpMSroTA4TzUePhxSleAYo/edit#gid=0');
     browser.setValue('#selectInput', 'select A,B');
@@ -95,8 +97,10 @@ describe('workspaces and components ', () => {
   })
   it('09 work first component by graph', function() {
     let elmts = browser.elements('graph image');
-    (elmts.value)[0].click();
-    browser.click('#workButton');
+    let firstId = (elmts.value)[0].getAttribute('data-id');
+    browser.element('#shapeLayer image[data-id="' + firstId + '"]').click();
+    browser.waitForVisible('#shapeCommandLayer .workButtonGraph[data-id="' + firstId + '"]');
+    browser.element('#shapeCommandLayer .workButtonGraph[data-id="' + firstId + '"]').click();
     browser.waitForVisible('jsonPreviewer');
     browser.click('#backButton');
     browser.waitForVisible('graph');
