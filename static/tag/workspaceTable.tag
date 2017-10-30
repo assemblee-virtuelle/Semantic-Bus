@@ -8,7 +8,7 @@
       <div>description</div>
     </yield>
     <yield to="row">
-      <div style="width:30%">{name}</div>
+      <div style="width:30%" >{name}</div>
       <div style="width:70%">{description}</div>
     </yield>
   </zenTable>

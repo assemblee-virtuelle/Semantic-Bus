@@ -1,8 +1,15 @@
 <scrapper-editor>
-   
-   <h4 style="text-align:center">Choice base URL</h4>
+
+  <label>User ( Sauce Lab )</label>
+
+  <input type="text" ref="user" class="form-controle" value={data.specificData.user}></input>
+
+  <label>Key ( Sauce Lab ) </h4>
+
+  <input type="text" ref="key" class="form-controle" value={data.specificData.key}></input>
 
   <label>URL </label>
+
   <input type="text" ref="url" class="form-controle" value={data.specificData.url}></input>
 
   <h4 style="text-align:center">Create Action</h4>
@@ -40,7 +47,7 @@
   </div>
 
 
-  <zenTable style="flex:1" title="Your scenario">
+  <zenTable style="flex:1" title="Your scenario" disallownavigation=false>
     <yield to="header">
       <div>Name</div>
       <div>Type</div>
@@ -51,13 +58,13 @@
       <div>ScrollY</div>
     </yield>
     <yield to="row">
-      <div>{action}</div>
-      <div>{actionType}</div>
-      <div>{selector}</div>
-      <div>{attribut}</div>
-      <div>{setValue}</div>
-      <div>{scrollX}</div>
-      <div>{scrollY}</div>
+      <div style="width:15%">{action}</div>
+      <div style="width:15%">{actionType}</div>
+      <div style="width:15%">{selector}</div>
+      <div style="width:15%" >{attribut}</div>
+      <div style="width:15%">{setValue}</div>
+      <div style="width:5%">{scrollX}</div>
+      <div style="width:5%">{scrollY}</div>
     </yield>
   </zenTable>
 
@@ -147,15 +154,21 @@
 
         if(this.refs.actionType.value == "getValue" || this.refs.actionType.value == "getHtml" ||  this.refs.actionType.value == "click"){
           this.refs.attribut = "";
-          this.refs.setValue = ""
+          this.refs.setValue = "";
+          this.refs.scrollX = "";
+          this.refs.scrollY = ""
         }
 
         else if(this.refs.actionType.value == "setValue"){
           this.refs.attribut = "";
+           this.refs.scrollX = "";
+          this.refs.scrollY = "";
         }
 
         else if(this.refs.actionType.value == "getAttr"){
           this.refs.setValue = "";
+           this.refs.scrollX = "";
+          this.refs.scrollY = "";
         }
 
         else if(this.refs.actionType.value == "scroll"){
@@ -165,7 +178,6 @@
         if(this.data.specificData.scrappe == null){
            this.data.specificData.scrappe  = []
         }
-        console.log()
         this.data.specificData.scrappe.push({
           selector: this.selector,
           action: this.action,
@@ -195,6 +207,15 @@
         this.selector = e.target.value;
       }.bind(this));
 
+      this.refs.user.addEventListener('change', function (e) {
+        this.user = e.target.value;
+        this.data.specificData.user = e.currentTarget.value;
+      }.bind(this));
+
+      this.refs.key.addEventListener('change', function (e) {
+        this.key = e.target.value;
+        this.data.specificData.key = e.currentTarget.value;
+      }.bind(this));
 
      
       this.refs.action.addEventListener('change', function (e) {

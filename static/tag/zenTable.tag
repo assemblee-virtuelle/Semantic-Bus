@@ -14,8 +14,8 @@
     <yield from="header"/>
   </div>
   <div class="containerV" style="flex:1" name="tableBodyContainer" ref="tableBodyContainer">
-    <div class="table" name="tableBody" ref="tableBody">
-      <div class="tableRow {selected:selected} {mainSelected:mainSelected}" name="tableRow" onclick={rowClic} data-rowid={rowid} data-id={_id} each={indexedData}>
+    <div class="table" name="tableBody" ref="tableBody" ondrop={on_drop} ondragover={on_drag_over} >
+      <div class="tableRow {selected:selected} {mainSelected:mainSelected}"  name="tableRow" ondragstart={dragEnd} ondragstart={dragStart} draggable="true" onclick={rowClic} data-rowid={rowid} data-id={_id} each={indexedData}>
         <yield from="row"/>
         <div style="width:10px" if={!opts.disallownavigation==true}>
           <div class="containerH commandBar">
@@ -73,6 +73,21 @@
       },
       configurable: true
     });
+
+    on_drag_over(event) {
+        event.preventDefault();
+    }
+
+    on_drop(event) {
+        event.preventDefault();
+        console.log("drop");
+    }
+    dragStart(event) {
+      console.log("drag start", event)
+    }
+    dragEnd(event){
+      console.log("dragEnd")
+    }
 
     Object.defineProperty(this, 'indexedData', {
       get: function () {
@@ -168,6 +183,8 @@
     }
 
     this.on('mount', function () {
+      this.placeholder=document.createElement("div");
+      this.placeholder.className = "placeholder";
       //this.reportCss();
       addResizeListener(this.refs.tableBody, function () {
         this.recalculateHeader()

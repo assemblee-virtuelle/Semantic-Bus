@@ -8,7 +8,7 @@ module.exports = {
   sift: require('sift'),
   webdriverio: require('webdriverio'),
   base: require('../../test/wdio.conf.base'),
-  makeRequest: function (actions, url, flowData, flow_before, fix_url) {
+  makeRequest: function (user, key, actions, url, flowData, flow_before, fix_url) {
     console.log("scrapper start")
 
 
@@ -23,6 +23,9 @@ module.exports = {
     //     user: "semanticbusdev@gmail.com",
     //     key: "882170ce-1971-4aa8-9b2d-0d7f89ec7b71",
     // })
+
+
+
     var client = this.webdriverio.remote(Object.assign(this.base.config, {
       desiredCapabilities: {
         browserName: 'chrome',
@@ -41,11 +44,13 @@ module.exports = {
       },
       services: ['sauce'],
       // waitforTimeout:5000,
-      user: "semanticbusdev@gmail.com",
-      key: "882170ce-1971-4aa8-9b2d-0d7f89ec7b71",
+      // "semanticbusdev@gmail.com"
+      // "882170ce-1971-4aa8-9b2d-0d7f89ec7b71"
+      user: user,
+      key: key,
       host: 'ondemand.saucelabs.com',
       port: 80
-    })).init();
+    }))
 
     // var options = {
     //   capabilities: [{
@@ -314,12 +319,12 @@ module.exports = {
                     client.end();
                   });
                 break;
-                case ("selectByValue"):
+              case ("selectByValue"):
                 client.waitForVisible(actions[deeth].selector, 15000)
                   .then(function (visible) {
                     console.log("visible", visible)
                     // setTimeout(function () {
-                      _selectByValue(actions[deeth], client).then(function (res) {
+                    _selectByValue(actions[deeth], client).then(function (res) {
                       console.log("---- get selectByValue return promise -----", res)
                       data[actions[deeth].action] = res
                       deeth += 1
@@ -421,7 +426,15 @@ module.exports = {
       let data = {}
       let deeth = 0
       console.log("----  before recursive ------ ")
-      client.url(url)
+      if (user == null || key == null) {
+        reject("Scrapper: no connection data")
+      }
+      client
+      .init()
+      .url(url)
+      .catch((err) => {
+        reject(err)
+      });
       _aggregateAction(actions, client, deeth, data).then(function (res) {
         console.log("--traitmeent terminé final ----")
         resolve({
@@ -434,6 +447,6 @@ module.exports = {
   },
 
   pull: function (data, flowData) {
-    return this.makeRequest(data.specificData.scrappe, data.specificData.url)
+    return this.makeRequest(data.specificData.user, data.specificData.key, data.specificData.scrappe, data.specificData.url)
   },
 }
