@@ -15,7 +15,7 @@
   </div>
   <div class="containerV" style="flex:1" name="tableBodyContainer" ref="tableBodyContainer">
     <div class="table" name="tableBody" ref="tableBody" ondrop={on_drop} ondragover={on_drag_over} >
-      <div class="tableRow {selected:selected} {mainSelected:mainSelected}"  name="tableRow" ondragstart={dragEnd} ondragstart={dragStart} draggable="true" onclick={rowClic} data-rowid={rowid} data-id={_id} each={indexedData}>
+      <div class="tableRow {selected:selected} {mainSelected:mainSelected}"  name="tableRow" ondragend={dragEnd} ondragstart={dragStart} draggable="true" onclick={rowClic} data-rowid={rowid} data-id={_id} each={indexedData}>
         <yield from="row"/>
         <div style="width:10px" if={!opts.disallownavigation==true}>
           <div class="containerH commandBar">
