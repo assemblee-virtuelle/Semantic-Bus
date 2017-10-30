@@ -98,7 +98,7 @@ describe('workspaces and components ', () => {
   it('09 work first component by graph', function() {
     let elmts = browser.elements('graph image');
     let firstId = (elmts.value)[0].getAttribute('data-id');
-    browser.element('#shapeLayer image[data-id="' + firstId + '"]').click();
+    //browser.element('#shapeLayer image[data-id="' + firstId + '"]').click();
     browser.waitForVisible('#shapeCommandLayer .workButtonGraph[data-id="' + firstId + '"]');
     browser.element('#shapeCommandLayer .workButtonGraph[data-id="' + firstId + '"]').click();
     browser.waitForVisible('jsonPreviewer');
