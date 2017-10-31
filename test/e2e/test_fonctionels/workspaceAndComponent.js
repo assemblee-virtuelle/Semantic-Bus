@@ -99,7 +99,7 @@ describe('workspaces and components ', () => {
     let elmts = browser.elements('graph image');
     let firstId = (elmts.value)[0].getAttribute('data-id');
     //browser.element('#shapeLayer image[data-id="' + firstId + '"]').click();
-    browser.waitForVisible('#shapeCommandLayer .workButtonGraph[data-id="' + firstId + '"]');
+    //browser.waitForVisible('#shapeCommandLayer .workButtonGraph[data-id="' + firstId + '"]');
     browser.element('#shapeCommandLayer .workButtonGraph[data-id="' + firstId + '"]').click();
     browser.waitForVisible('jsonPreviewer');
     browser.click('#backButton');
@@ -118,15 +118,20 @@ describe('workspaces and components ', () => {
   // })
   it('11 connect 2 components and work second', function() {
     let elmts = browser.elements('graph image');
-    (elmts.value)[0].click();
-    browser.click('#connectAfterButton');
-    (elmts.value)[1].click();
-    //browser.waitForVisible('#containerloaderDiv');
+    let firstId = (elmts.value)[0].getAttribute('data-id');
+    browser.element('#shapeCommandLayer .connectAfterButtonGraph[data-id="' + firstId + '"]').click();
+    //browser.click('#connectAfterButton');
+    let secondId = (elmts.value)[1].getAttribute('data-id');
+    browser.element('#shapeLayer image[data-id="' + secondId + '"]').click();
+
     browser.waitUntil(() => {
       return !browser.isVisible('#containerloaderDiv');
-    });
-    (elmts.value)[1].click();
-    browser.click('#workButton');
+    })
+    browser.element('#shapeLayer image[data-id="' + secondId + '"]').click();
+
+    browser.element('#shapeCommandLayer .workButtonGraph[data-id="' + secondId + '"]').click();
+
+
     browser.waitForVisible('jsonPreviewer');
   })
   it('12 delete worksapce', function() {

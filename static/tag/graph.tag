@@ -1,4 +1,5 @@
 <graph>
+  <!--
   <div class="commandBar containerH">
     <div class="containerH commandGroup" if={selectedNodes.length>0}>
       <div id="editButton" onclick={editClick} class="commandButton" }>
@@ -29,6 +30,7 @@
       </div>
     </div>
   </div>
+-->
   <div id="graphContainer containerV">
     <svg viewBox="0 0 1500 900" ref="graphSvgCanvas">
       <!--width="1000" height="600"-->
@@ -135,6 +137,10 @@
         return d.x - 30;
       }).attr('y', function (d) {
         return d.y - 30;
+      }).attr("class", function (d) {
+        return 'connectBeforeButtonGraph';
+      }).attr("data-id", function (d) {
+        return d.id;
       }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
       //
       // var cloneString = d3.select("#componentCommandBarModel").node().cloneNode(true).outerHTML; console.log(cloneString);
@@ -215,6 +221,10 @@
           return 180;
         }).attr("y", function (d) {
           return 100;
+        }).attr("class", function (d) {
+          return 'deleteButtonGraph';
+        }).attr("data-id", function (d) {
+          return d.id;
         }).on("click", function (d) {
           RiotControl.trigger('workspace_current_delete_component', d.component);
         });
@@ -235,6 +245,10 @@
           return 250;
         }).attr("y", function (d) {
           return 50;
+        }).attr("class", function (d) {
+          return 'connectAfterButtonGraph';
+        }).attr("data-id", function (d) {
+          return d.id;
         }).on("click", function (d) {
           RiotControl.trigger('item_current_connect_after_show');
         });

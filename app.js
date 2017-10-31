@@ -43,11 +43,12 @@ httpGet.makeRequest('GET', configUrl).then(result => {
       console.log("jenkins JOB 3 is trigger")
     })
   }
-  
+
   fs.writeFile("configuration.js", content, 'utf8', function (err) {
     if (err) {
       return console.log(err);
     } else {
+
       //console.log("~~ remote configuration saved");
       require('./lib/core/Oauth/google_auth_strategy')(passport);
 
@@ -115,6 +116,7 @@ httpGet.makeRequest('GET', configUrl).then(result => {
 
       server.listen(process.env.PORT || 8080, function () {
         console.log('~~ server started at ', this.address().address, ':', this.address().port)
+        require('./timerScheduler').run(this.address());
         // console.log('Listening on port  ');
         // console.log(this.address().port);
         //console.log('new message from master 18');
