@@ -9,7 +9,6 @@ module.exports = {
       components.forEach(c => {
         //let workUrl=('http://'+this.adress.address+':'this.adress.port+'/data/core/')
         console.log(c._id, c.specificData.interval, this.adress);
-
         var recursivPullResolvePromiseDynamic = require('./webServices/recursivPullResolvePromise');
         recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(c, 'work').then(function(data) {
           console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)

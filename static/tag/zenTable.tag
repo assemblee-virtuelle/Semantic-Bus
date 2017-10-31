@@ -15,11 +15,10 @@
   </div>
   <div class="containerV" style="flex:1" name="tableBodyContainer" ref="tableBodyContainer">
     <div class="table" name="tableBody" ref="tableBody"  ondragover={on_drag_over} ondrop={on_drop}>
-      <div class="tableRow {selected:selected} {mainSelected:mainSelected}"  name="tableRow" draggable={true} onclick={rowClic} data-rowid={rowid} data-id={_id} each={i in indexedData}  ondragend={parent.drag_end}
+      <div class="tableRow {selected:selected} {mainSelected:mainSelected}"  name="tableRow" draggable={true} onclick={rowClic} data-rowid={rowid} data-id={_id} each={indexedData}  ondragend={parent.drag_end}
       	ondragstart={parent.drag_start} >
-        <!--  <yield from="row"/>  -->
-        {i.name}
-        <!--  <div style="width:10px" if={!opts.disallownavigation==true}>
+        <yield from="row"/>
+        <div style="width:10px" if={!opts.disallownavigation==true}>
           <div class="containerH commandBar">
             <div class="commandGroup containerH">
               <div onclick={navigationClick} class="commandButton" data-rowid={rowid} >
@@ -27,7 +26,7 @@
               </div>
             </div>
           </div>
-        </div>  -->
+        </div>
       </div>
     </div>
   </div>
@@ -39,7 +38,7 @@
     console.log("---- drop ----- ")
   	var pos = 0;
     var children= this.placeholder.parentNode.children;
-
+    console.log(children)
 		for(var i=0;i<children.length;i++){
     	if(children[i]==this.placeholder) break;
     	if(children[i]!= this.dragged && children[i].classList.contains("tableRow"))
@@ -50,42 +49,32 @@
   }
   
   on_drag_over(e){
-  console.log("on drag over", e.target == "tableRow  ", e.target.className)
     // return true; para no aceptar
-  	if(this.dragged.style.display != "none"){
-      console.log(this.dragged.style)
-    	this.dragged.style.display = "none";
-      this.dragged.parentNode.insertBefore(this.placeholder, this.dragged);
-    }
     
-    if(e.target.className != "tableRow  ")
+    if(e.target.parentElement.className != "tableRow  ")
     	return;
   
     /// PAGE ///
-    if(e.target.className == "tableRow  "){
-      console.log("in if")
-      this.over = e.target;
+    if(e.target.parentElement.className == "tableRow  "){
+      this.over = e.target.parentElement;
       // Inside the dragOver method
       var relY = e.clientY - this.over.offsetTop;
       var height = this.over.offsetHeight / 2;
-      var parent = e.target.parentNode;
-      console.log(relY, height, parent)
+      var parent = e.target.parentElement.parentNode;
       if(relY > height) {
         this.nodePlacement = "after";
-        console.log("after")
-        parent.insertBefore(this.placeholder, e.target.nextElementSibling);
+        parent.insertBefore(this.placeholder, e.target.parentElement.nextElementSibling);
       }
       else if(relY < height) {
         this.nodePlacement = "before"
-        console.log("before")
-        parent.insertBefore(this.placeholder, e.target);
+        parent.insertBefore(this.placeholder, e.target.parentElement);
       }
     }
     this.update()
   }
   
   drag_end(event){
-    console.log("----dragend-----") 
+    console.log("----dragend-----", event) 
     var pos = 0;
     var children= this.placeholder.parentNode.children;
     console.log(children)
@@ -94,38 +83,40 @@
     	if(children[i]!= this.dragged && children[i].classList.contains("tableRow"))
       	pos++;
     }
-
-    console.log(this.innerData, event.item.i._id ,this.Id, pos)
-  	this.movePage(this.innerData, event.item.name ,this.Id,pos);
-    this.update();
-  	event.preventUpdate= true;
-    this.dragged.style.display = "block";
+    console.log(event.item._id, pos)
+  	this.movePage(this.innerData, event.item._id, pos);
+    event.preventUpdate= true;
     if(this.placeholder.parentNode){
     	this.placeholder.parentNode.removeChild(this.placeholder);
     }
-    
+    this.update();
   }
   
 	drag_start(event){
-    console.log("----drag start-----", event)
+    console.log("----drag start-----")
     this.dragged = event.target;
-    this.Id = event.item.i._id;
+    this.Id = event.item._id;
     console.log("----- drag end -----", this.Id)
     return true;
   }
   
-  removePage(worspaces,curentId){
-    for(var j=0;worspaces && j < worspaces.length;j++){
-      var workspace = worspaces[j];
-      if(workspace._id == curentId){
-        worspaces.splice(j,1);
+  removePage(workspaces,idWorkspace){
+    for(var j=0;workspaces && j < workspaces.length;j++){
+      var workspace = workspaces[j];
+      if(workspace._id == idWorkspace){
+        workspaces.splice(j,1);
         return workspace;
       }
     }       
   }
    
-   movePage(worspaces,idWorkspace,curentId,pos){
-   		var pageObj=this.removePage(worspaces,curentId);
+   movePage(workspaces,idWorkspace,pos){
+   		var workspaceObj = this.removePage(workspaces,idWorkspace);
+      if(workspaceObj){
+        console.log("------- in if move page ------ ")
+        //console.log(workspaces, workspaceObj, pos);
+        workspaces.splice(pos, 0, workspaceObj);
+      }
    }
     var arrayChangeHandler = {
       tag: this,
@@ -342,9 +333,9 @@
       margin:4px;
       margin-left:10px;
       border-width:2px;
-      border-style:dashed;
+      border-style:solid;
       border-radius:4px;
-      border-color:#aaa;
+      border-color:#3883fa;
   }
 
     .tableRow {
