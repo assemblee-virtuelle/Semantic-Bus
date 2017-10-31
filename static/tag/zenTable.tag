@@ -14,22 +14,119 @@
     <yield from="header"/>
   </div>
   <div class="containerV" style="flex:1" name="tableBodyContainer" ref="tableBodyContainer">
-    <div class="table" name="tableBody" ref="tableBody" ondrop={on_drop} ondragover={on_drag_over} >
-      <div class="tableRow {selected:selected} {mainSelected:mainSelected}"  name="tableRow" ondragend={dragEnd} ondragstart={dragStart} draggable="true" onclick={rowClic} data-rowid={rowid} data-id={_id} each={indexedData}>
-        <yield from="row"/>
-        <div style="width:10px" if={!opts.disallownavigation==true}>
+    <div class="table" name="tableBody" ref="tableBody"  ondragover={on_drag_over} ondrop={on_drop}>
+      <div class="tableRow {selected:selected} {mainSelected:mainSelected}"  name="tableRow" draggable={true} onclick={rowClic} data-rowid={rowid} data-id={_id} each={i in indexedData}  ondragend={parent.drag_end}
+      	ondragstart={parent.drag_start} >
+        <!--  <yield from="row"/>  -->
+        {i.name}
+        <!--  <div style="width:10px" if={!opts.disallownavigation==true}>
           <div class="containerH commandBar">
             <div class="commandGroup containerH">
-              <div onclick={navigationClick} class="commandButton" data-rowid={rowid}>
-                <img src="./image/Super-Mono-png/PNG/basic/blue/arrow-right.png" height="25px">
+              <div onclick={navigationClick} class="commandButton" data-rowid={rowid} >
+                <img src="./image/Super-Mono-png/PNG/basic/blue/arrow-right.png" height="25px" draggable={false}>
               </div>
             </div>
           </div>
-        </div>
+        </div>  -->
       </div>
     </div>
   </div>
   <script>
+
+ this.Id = null
+
+  on_drop(event){ 
+    console.log("---- drop ----- ")
+  	var pos = 0;
+    var children= this.placeholder.parentNode.children;
+
+		for(var i=0;i<children.length;i++){
+    	if(children[i]==this.placeholder) break;
+    	if(children[i]!= this.dragged && children[i].classList.contains("tableRow"))
+      	pos++;
+    }
+  	//this.movePage(this.lists,event.item.list.name,this.pageId,pos);
+    this.update();
+  }
+  
+  on_drag_over(e){
+  console.log("on drag over", e.target == "tableRow  ", e.target.className)
+    // return true; para no aceptar
+  	if(this.dragged.style.display != "none"){
+      console.log(this.dragged.style)
+    	this.dragged.style.display = "none";
+      this.dragged.parentNode.insertBefore(this.placeholder, this.dragged);
+    }
+    
+    if(e.target.className != "tableRow  ")
+    	return;
+  
+    /// PAGE ///
+    if(e.target.className == "tableRow  "){
+      console.log("in if")
+      this.over = e.target;
+      // Inside the dragOver method
+      var relY = e.clientY - this.over.offsetTop;
+      var height = this.over.offsetHeight / 2;
+      var parent = e.target.parentNode;
+      console.log(relY, height, parent)
+      if(relY > height) {
+        this.nodePlacement = "after";
+        console.log("after")
+        parent.insertBefore(this.placeholder, e.target.nextElementSibling);
+      }
+      else if(relY < height) {
+        this.nodePlacement = "before"
+        console.log("before")
+        parent.insertBefore(this.placeholder, e.target);
+      }
+    }
+    this.update()
+  }
+  
+  drag_end(event){
+    console.log("----dragend-----") 
+    var pos = 0;
+    var children= this.placeholder.parentNode.children;
+    console.log(children)
+		for(var i=0;i<children.length;i++){
+    	if(children[i]== this.placeholder) break;
+    	if(children[i]!= this.dragged && children[i].classList.contains("tableRow"))
+      	pos++;
+    }
+
+    console.log(this.innerData, event.item.i._id ,this.Id, pos)
+  	this.movePage(this.innerData, event.item.name ,this.Id,pos);
+    this.update();
+  	event.preventUpdate= true;
+    this.dragged.style.display = "block";
+    if(this.placeholder.parentNode){
+    	this.placeholder.parentNode.removeChild(this.placeholder);
+    }
+    
+  }
+  
+	drag_start(event){
+    console.log("----drag start-----", event)
+    this.dragged = event.target;
+    this.Id = event.item.i._id;
+    console.log("----- drag end -----", this.Id)
+    return true;
+  }
+  
+  removePage(worspaces,curentId){
+    for(var j=0;worspaces && j < worspaces.length;j++){
+      var workspace = worspaces[j];
+      if(workspace._id == curentId){
+        worspaces.splice(j,1);
+        return workspace;
+      }
+    }       
+  }
+   
+   movePage(worspaces,idWorkspace,curentId,pos){
+   		var pageObj=this.removePage(worspaces,curentId);
+   }
     var arrayChangeHandler = {
       tag: this,
       get: function (target, property, third, fourth) {
@@ -74,20 +171,6 @@
       configurable: true
     });
 
-    on_drag_over(event) {
-        event.preventDefault();
-    }
-
-    on_drop(event) {
-        event.preventDefault();
-        console.log("drop");
-    }
-    dragStart(event) {
-      console.log("drag start", event)
-    }
-    dragEnd(event){
-      console.log("dragEnd")
-    }
 
     Object.defineProperty(this, 'indexedData', {
       get: function () {
@@ -186,9 +269,9 @@
       this.placeholder=document.createElement("div");
       this.placeholder.className = "placeholder";
       //this.reportCss();
-      addResizeListener(this.refs.tableBody, function () {
-        this.recalculateHeader()
-      }.bind(this));
+     // addResizeListener(this.refs.tableBody, function () {
+        //this.recalculateHeader()
+      //}.bind(this));
       this.refs.tableBodyContainer.addEventListener('scroll', function (e) {
         //console.log(this.tableBodyContainer.scrollLeft);
         this.refs.tableHeader.scrollLeft = this.refs.tableBodyContainer.scrollLeft;
@@ -254,6 +337,15 @@
       border-right-width: 3px;
       padding-right: 2px;
     }
+
+    .placeholder{
+      margin:4px;
+      margin-left:10px;
+      border-width:2px;
+      border-style:dashed;
+      border-radius:4px;
+      border-color:#aaa;
+  }
 
     .tableRow {
       cursor: pointer;
