@@ -12,10 +12,10 @@ module.exports = {
   cacheNosql: require('./workSpaceComponentDirectory/cacheNosql.js'),
   gouvFrInverseGeo: require('./workSpaceComponentDirectory/gouvFrInverseGeo.js'),
   restApiGet: require('./workSpaceComponentDirectory/restApiGet.js'),
-  xmlToObject: require('./workSpaceComponentDirectory/xmlToObject.js'),
+  //xmlToObject: require('./workSpaceComponentDirectory/xmlToObject.js'),
   framcalcGetCsv: require('./workSpaceComponentDirectory/framcalcGetCsv.js'),
   gouvFrGeoLocaliser: require('./workSpaceComponentDirectory/gouvFrGeoLocaliser.js'),
-  gouvFrGeoLocaliserMass: require('./workSpaceComponentDirectory/gouvFrGeoLocaliserMass.js'),
+  //gouvFrGeoLocaliserMass: require('./workSpaceComponentDirectory/gouvFrGeoLocaliserMass.js'),
   joinByField: require('./workSpaceComponentDirectory/joinByField.js'),
   deeperFocusOpeningBracket: require('./workSpaceComponentDirectory/deeperFocusOpeningBracket.js'),
   filter: require('./workSpaceComponentDirectory/filter.js'),
@@ -26,6 +26,7 @@ module.exports = {
   mongoConnector: require('./workSpaceComponentDirectory/connecteurMongoDB.js'),
   sparqlRequest: require('./workSpaceComponentDirectory/sparqlRequest.js'),
   valueMapping: require('./workSpaceComponentDirectory/valueMapping.js'),
+  timer: require('./workSpaceComponentDirectory/timer.js'),
 
   /* some other modules you want */
 
