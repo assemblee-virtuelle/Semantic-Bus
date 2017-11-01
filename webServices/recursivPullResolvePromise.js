@@ -224,8 +224,7 @@ var proto = {
           //console.log('secondaryFlow |' , secondaryFlow);
           if (primaryflow.dfob != undefined) {
             //console.log("after ---- primary flow")
-
-
+            //console.log('DFOB |',primaryflow.dfob);
             var dfobTab = primaryflow.dfob[0].split(".");
 
             //var currentInspectObject = primaryflow.data;
@@ -233,7 +232,7 @@ var proto = {
 
             var dfobFinalFlow = this.buildDfobFlow(primaryflow.data, dfobTab);
 
-            // console.log('dfobFinalFlow | ', dfobFinalFlow);
+            console.log('dfobFinalFlow | ', dfobFinalFlow);
             var testPromises = dfobFinalFlow.map(finalItem => {
 
               var recomposedFlow = [];
@@ -336,22 +335,23 @@ var proto = {
   },
   //TODO don't work if flow is array at fisrt depth
   buildDfobFlow(currentFlow, dfobPathTab) {
-    //console.log(currentFlow);
-    let currentDfob = dfobPathTab.shift();
-    let currentInspectFlow = currentFlow[currentDfob];
+
+
     //console.log('buildDfobFlow | ',dfobPathTab.length,currentDfob,currentInspectFlow);
     if (dfobPathTab.length > 0) {
-      if (Array.isArray(currentInspectFlow)) {
-        var deepArray = currentInspectFlow.map(currentInspectObject => this.buildDfobFlow(currentInspectObject, dfobPathTab.slice(0)));
+
+      if (Array.isArray(currentFlow)) {
+        var deepArray = currentFlow.map(currentInspectObject => this.buildDfobFlow(currentInspectObject, dfobPathTab.slice(0)));
         return [].concat.apply([], deepArray); // flatten array
       } else {
-        return this.buildDfobFlow(currentInspectFlow, dfobPathTab.slice(0));
+        var currentDfob = dfobPathTab.shift();
+        return this.buildDfobFlow(currentFlow[currentDfob], dfobPathTab.slice(0));
       }
     } else {
 
       return [{
         objectToProcess: currentFlow,
-        key: currentDfob
+        key: dfobPathTab.shift()
       }];
 
       // if (Array.isArray(currentInspectFlow)) {

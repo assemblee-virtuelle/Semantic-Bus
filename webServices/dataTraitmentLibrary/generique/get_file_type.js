@@ -74,6 +74,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
             break;
 
             // EXEL/CSV/XLSX DONE
+          case (".xls"):
           case (".xlsx"):
           case (".csv"):
           case (".ods"):
