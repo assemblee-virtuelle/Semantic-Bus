@@ -2,34 +2,34 @@ module.exports = {
   type: 'REST Get JSON',
   description: 'intéroger une API REST avec une requete Get qui fourni un flux JSON',
   editor: 'rest-get-json-editor',
-  graphIcon:'restGetJson.png',
+  graphIcon: 'restGetJson.png',
   url: require('url'),
   http: require('http'),
   https: require('https'),
-  makeRequest: function(methodRest, urlString, pullParams) {
+  makeRequest: function(methodRest, urlString, pullParams, options) {
 
     // create a new Promise
     return new Promise((resolve, reject) => {
       //console.log(pullParams,urlString);
-      for (param in pullParams){
+      for (param in pullParams) {
         console.log(param);
-        urlString=urlString.replace('<%'+param+'%>',pullParams[param]);
+        urlString = urlString.replace('<%' + param + '%>', pullParams[param]);
       }
       //console.log(urlString);
       const parsedUrl = this.url.parse(urlString);
-      console.log('REST Get JSON | makerequest | port',parsedUrl.port);
-      console.log('REST Get JSON | makerequest | host',parsedUrl.hostname);
-      const requestOptions = {
-          hostname: parsedUrl.hostname,
-          path: parsedUrl.path,
-          port: parsedUrl.port,
-          method: methodRest,
-          headers: {
-            Accept: 'application/json',
-            'user-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0'
-          }
-        };
-        //console.log(requestOptions);
+      // console.log('REST Get JSON | makerequest | port', parsedUrl.port);
+      // console.log('REST Get JSON | makerequest | host', parsedUrl.hostname);
+      var requestOptions = options || {};
+      requestOptions.hostname = parsedUrl.hostname;
+      requestOptions.path = parsedUrl.path;
+      requestOptions.port = parsedUrl.port;
+      requestOptions.method = methodRest;
+      requestOptions.headers=requestOptions.headers||{};
+      requestOptions.headers.Accept= 'application/json';
+      requestOptions.headers['user-agent']='Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0';
+
+
+      console.log(requestOptions);
 
       var lib = urlString.indexOf('https') != -1 ? this.http : this.https;
 
@@ -45,7 +45,7 @@ module.exports = {
 
         /* the response stream's (an instance of Stream) current data. See:
          * https://nodejs.org/api/stream.html#stream_event_data */
-         var i=0;
+        var i = 0;
         response.on('data', chunk => {
           //console.log(chunk.toString());
           //console.log('chunk ',i);
@@ -65,16 +65,16 @@ module.exports = {
 
       /* if there's an error, then reject the Promise
        * (can be handled with Promise.prototype.catch) */
-      request.on('error', function(e){
+      request.on('error', function(e) {
         console.log('error request:', e);
         reject();
       });
       request.end();
     });
   },
-  pull: function(data,flowdata,pullParams) {
+  pull: function(data, flowdata, pullParams) {
     //console.log('REST Get JSON | pull : ',data);
-    return this.makeRequest('GET', data.specificData.url,pullParams);
+    return this.makeRequest('GET', data.specificData.url, pullParams);
     /*this.makeRequest('GET', data.specificData.url).then(data => {
       //console.log('ALLO', data);
       res.json(data);

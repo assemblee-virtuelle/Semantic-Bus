@@ -37,12 +37,7 @@ httpGet.makeRequest('GET', configUrl).then(result => {
   const configJson = result.data;
   const content = 'module.exports = ' + JSON.stringify(result.data);
 
-  if (jenkins) {
-    console.log("jenkins is true");
-    http.get('http://bkz2jalw7c:3bdcf7bc40f582a4ae7ff52f77e90b24@tvcntysyea-jenkins.services.clever-cloud.com:4003/job/semanticbus-pic-3/build?token=semantic_bus_token', function (res) {
-      console.log("jenkins JOB 3 is trigger")
-    })
-  }
+
 
   fs.writeFile("configuration.js", content, 'utf8', function (err) {
     if (err) {
@@ -117,6 +112,13 @@ httpGet.makeRequest('GET', configUrl).then(result => {
       server.listen(process.env.PORT || 8080, function () {
         console.log('~~ server started at ', this.address().address, ':', this.address().port)
         require('./timerScheduler').run(this.address());
+
+        if (jenkins) {
+          console.log("jenkins is true");
+          http.get('http://bkz2jalw7c:3bdcf7bc40f582a4ae7ff52f77e90b24@tvcntysyea-jenkins.services.clever-cloud.com:4003/job/semanticbus-pic-3/build?token=semantic_bus_token', function (res) {
+            console.log("jenkins JOB 3 is trigger")
+          })
+        }
         // console.log('Listening on port  ');
         // console.log(this.address().port);
         //console.log('new message from master 18');

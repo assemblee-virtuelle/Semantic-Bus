@@ -32,6 +32,7 @@ module.exports = function (router) {
   // --------------------------------------------------------------------------------
 
   router.get('/workspaceComponent/:id/work', function (req, res,next) {
+    //console.log('WORK');
     var id = req.params.id;
     workspace_component_lib.get({
       _id: id
