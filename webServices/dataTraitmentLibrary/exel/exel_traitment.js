@@ -13,6 +13,7 @@ module.exports = {
 
 
 function _exel_traitment_client(urlEXEL, callback) {
+	console.log("urlEXEL", urlEXEL)
 	return new Promise(function (resolve, reject) {
 		var buffer = Buffer.concat(urlEXEL);
 		var exel = XLSX.read(buffer, {
@@ -29,7 +30,12 @@ function _json_to_exel(jsonData, header){
 }
 
 function decode_utf8(s) {
-	return decodeURIComponent(escape(s));
+	console.log("in decode",s)
+	try{
+		return decodeURIComponent(escape(s))
+	}catch (e) {c
+		return s 
+	 }
 }
 
 function _exel_traitment_server(data, uploadBoolean) {
@@ -44,7 +50,7 @@ function _exel_traitment_server(data, uploadBoolean) {
 			var cellContent = [];
 			for (var sheet in data[sheets]) {
 				for (var st in data[sheets][sheet]) {
-					console.log(data[sheets][sheet][st].v)
+					console.log("in data", data[sheets][sheet][st].v)
 					var cell = {
 						[st]: decode_utf8(data[sheets][sheet][st].v),
 						feuille: Object.keys(data[sheets])[0]

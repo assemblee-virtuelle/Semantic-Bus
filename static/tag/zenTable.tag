@@ -58,6 +58,7 @@
     if(e.target.parentElement.className == "tableRow  "){
       this.over = e.target.parentElement;
       // Inside the dragOver method
+      console.log(e)
       var relY = e.clientY - this.over.offsetTop;
       var height = this.over.offsetHeight / 2;
       var parent = e.target.parentElement.parentNode;

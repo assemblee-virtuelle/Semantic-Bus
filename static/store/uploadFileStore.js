@@ -31,6 +31,9 @@ function UploadStore() {
     }).done(function(data) {
       console.log("data uplaod", data)
       this.trigger('item_is_upload');
+    }.bind(this)).fail(function(error) {
+      console.log("in fail ajax")
+      this.trigger('ajax_fail',error.responseJSON.displayMessage||error.responseJSON.message);
     }.bind(this));
   });
 }
