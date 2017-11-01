@@ -101,7 +101,7 @@
     RiotControl.addStore(technicalComponentStore);
     var specificStoreList = [];
     specificStoreList.push(new CacheNosqlStore());
-    specificStoreList.push(new UploadStore());
+    specificStoreList.push(new UploadStore(utilStore));
     specificStoreList.push(new sqlStore());
     for (specificStore of specificStoreList) {
       RiotControl.addStore(specificStore);

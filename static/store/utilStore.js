@@ -23,7 +23,7 @@ function UtilStore(specificStoreList) {
         if(persistTrigger){
             this.trigger('persist_end');
         }
-        if(error.status==500){
+        if(error.status == 500){
           console.log('FAIL');
           this.trigger('ajax_fail',error.responseJSON.displayMessage||error.responseJSON.message);
         }

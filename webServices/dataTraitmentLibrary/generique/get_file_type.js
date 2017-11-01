@@ -21,8 +21,6 @@ function _extension(filename, contentType) {
       if (contentType) {
         console.log(contentType)
         resolve(contentType)
-      } else {
-        resolve(false)
       }
     }
   })
@@ -102,6 +100,10 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
             }, function (err) {
               reject("votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
             })
+          default:
+            console.log("in defualt")
+            reject("erreur, votre fichier n'est pas au bon format")
+
             break;
         }
       }

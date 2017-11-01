@@ -142,8 +142,6 @@ this.updateData = function (dataToUpdate) {
 }.bind(this);
 
 RiotControl.on('loading', function (pourcent) {
-  console.log('on load')
-  console.log(pourcent)
   this.progress = pourcent + '%';
   $('.progress-bar').width((pourcent / 2) + '%');
   this.update();
@@ -175,7 +173,6 @@ uploadClick() {
   $('#upload-input').click();
   $('#upload-input').on('change', function (e) {
     var files = $(this).get(0).files;
-
     if (files.length > 0) {
       var formData = new FormData();
       for (var i = 0; i < files.length; i++) {
