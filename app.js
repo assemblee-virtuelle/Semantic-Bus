@@ -100,6 +100,7 @@ httpGet.makeRequest('GET', configUrl).then(result => {
           }
           errorLib.create(err, user);
           //console.log(err);
+          console.log('XXXXXXXXXXX',res);
           res.status(500).send({
             message: err.message,
             stack: errorParser.parse(err),

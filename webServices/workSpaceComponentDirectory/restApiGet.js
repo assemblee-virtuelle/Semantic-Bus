@@ -29,11 +29,10 @@
 
             if (component.specificData.contentType == undefined) {
               return new Promise((resolve, reject) => {
-                reject(new Error("API sans content-type"));
+                reject(new Error("API without content-type"));
               })
             } else {
               specificData = component.specificData;
-              res.setHeader('content-type', component.specificData.contentType);
               return this.recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(component, 'work', req.query);
               //return this.recursivPullResolvePromise.resolveComponentPull(data[0], false,req.query);
             }
@@ -43,7 +42,7 @@
             return new Promise((resolve, reject) => {
               reject({
                 code: 404,
-                message: "pas d'API pour cette url"
+                message: "no API for this url"
               })
             })
           }
@@ -60,6 +59,7 @@
           //console.log('API data', specificData);
           if (specificData != undefined) { // exception in previous promise
             if (specificData.contentType.search('application/vnd.ms-excel') != -1) {
+              res.setHeader('content-type', component.specificData.contentType);
               var responseBodyExel = []
               console.log('data.contentType XLS', specificData)
               this.dataTraitment.type.type_file(specificData.contentType, dataToSend, responseBodyExel, specificData.xls, true).then(function(result) {
@@ -67,6 +67,7 @@
                 res.send(result)
               })
             } else if (specificData.contentType.search('xml') != -1) {
+              res.setHeader('content-type', component.specificData.contentType);
               var convert = this.data2xml();
               var out = "";
               for (key in dataToSend.data) {
@@ -75,16 +76,19 @@
               //console.log(out);
               res.send(out);
             } else if (specificData.contentType.search('yaml') != -1) {
+              res.setHeader('content-type', component.specificData.contentType);
               res.send(this.json2yaml.stringify(dataToSend.data));
 
             } else if (specificData.contentType.search('json') != -1) {
+              res.setHeader('content-type', component.specificData.contentType);
               res.json(dataToSend.data);
             } else {
-              res.send('type mime non géré')
+              next(new Error('no supported madiatype'));
+              //res.send('type mime non géré')
             }
           }
         }).catch(err => {
-          //console.log('FAIL', err);
+          console.log('FAIL', err);
           if (err.code) {
             res.status(err.code).send(err.message);
           } else {
