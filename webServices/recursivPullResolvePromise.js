@@ -107,22 +107,22 @@ var proto = {
           //let componentProcessing = processingLink.source;
           //console.log('PULL start | ', componentProcessing._id);
           module.pull(componentProcessing, undefined, undefined).then(componentFlow => {
-            console.log('PULL END | ', componentProcessing._id);
-            componentProcessing.dataResolution = componentFlow;
-            componentProcessing.status = 'resolved';
-            //console.log("componentFlow ----------", componentFlow)
-            ///update first component her
-            // componentProcessing.consumption_history.push({
-            //   traitement_id: traitement_id,
-            //   flow_size: this.objectSizeOf(componentFlow) / 1000000,
-            //   price: (this.objectSizeOf(componentFlow) / 400000000),
-            //   dates: {
-            //     created_at: new Date()
-            //   }
-            // })
-            // this.workspace_component_lib.update(
-            //  componentProcessing
-            // ).then(function(res){
+              console.log('PULL END | ', componentProcessing._id);
+              componentProcessing.dataResolution = componentFlow;
+              componentProcessing.status = 'resolved';
+              //console.log("componentFlow ----------", componentFlow)
+              ///update first component her
+              // componentProcessing.consumption_history.push({
+              //   traitement_id: traitement_id,
+              //   flow_size: this.objectSizeOf(componentFlow) / 1000000,
+              //   price: (this.objectSizeOf(componentFlow) / 400000000),
+              //   dates: {
+              //     created_at: new Date()
+              //   }
+              // })
+              // this.workspace_component_lib.update(
+              //  componentProcessing
+              // ).then(function(res){
               global_flow += this.objectSizeOf(componentFlow)
               // console.log("traitement_update =====>", res.consumption_history)
               this.sift({
@@ -135,12 +135,12 @@ var proto = {
                 this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
               }
               this.processNextBuildPath(traitement_id, component.workspaceId, global_flow);
-            // }.bind(this))
-          })
-          .catch(e=>{
-            // console.log('WORK ERROR',e);
-            reject(e);
-          });
+              // }.bind(this))
+            })
+            .catch(e => {
+              // console.log('WORK ERROR',e);
+              reject(e);
+            });
         });
         //}
 
@@ -148,7 +148,7 @@ var proto = {
     });
 
   },
-  processNextBuildPath(traitement_id,component_workspaceId, global_flow) {
+  processNextBuildPath(traitement_id, component_workspaceId, global_flow) {
     this.fackCounter++;
     console.log(" ---------- processNextBuildPath -----------", this.fackCounter)
     //console.log("--------- glovbal flow ------------" , global_flow)
@@ -188,8 +188,8 @@ var proto = {
         //console.log('linksProcessing | ',linksProcessing);
         let module = this.technicalComponentDirectory[processingLink.destination.module];
         let dataFlow = linksProcessing.map(sourceLink => {
-          let d=sourceLink.source.dataResolution;
-          d.componentId=sourceLink.source._id;
+          let d = sourceLink.source.dataResolution;
+          d.componentId = sourceLink.source._id;
           //console.log("in dataflow constitution", d)
           return d;
         });
@@ -207,7 +207,7 @@ var proto = {
 
         this.workspace_component_lib.update(
           processingLink.destination
-        ).then(function(res){
+        ).then(function(res) {
           // console.log("res update =======>",res)
           global_flow += this.objectSizeOf(dataFlow)
           var primaryflow;
@@ -224,8 +224,7 @@ var proto = {
           //console.log('secondaryFlow |' , secondaryFlow);
           if (primaryflow.dfob != undefined) {
             //console.log("after ---- primary flow")
-
-
+            //console.log('DFOB |',primaryflow.dfob);
             var dfobTab = primaryflow.dfob[0].split(".");
 
             //var currentInspectObject = primaryflow.data;
@@ -233,7 +232,7 @@ var proto = {
 
             var dfobFinalFlow = this.buildDfobFlow(primaryflow.data, dfobTab);
 
-            // console.log('dfobFinalFlow | ', dfobFinalFlow);
+            console.log('dfobFinalFlow | ', dfobFinalFlow);
             var testPromises = dfobFinalFlow.map(finalItem => {
 
               var recomposedFlow = [];
@@ -279,7 +278,7 @@ var proto = {
 
             }).catch(e => {
               //console.log(e);
-                this.RequestOrigineRejectMethode(e);
+              this.RequestOrigineRejectMethode(e);
             });
           } else {
             module.pull(processingLink.destination, dataFlow, undefined).then(componentFlow => {
@@ -303,7 +302,7 @@ var proto = {
                 this.RequestOrigineResolveMethode(processingLink.destination.dataResolution)
               }
               this.processNextBuildPath(traitement_id, component_workspaceId, global_flow);
-            }).catch(e=>{
+            }).catch(e => {
               this.RequestOrigineRejectMethode(e);
               //reject(e);
             })
@@ -313,7 +312,7 @@ var proto = {
 
     } else {
       console.log('--------------  End of Worksapce processing -------------- ', global_flow)
-      this.workspace_lib.getWorkspace(component_workspaceId).then(function(res){
+      this.workspace_lib.getWorkspace(component_workspaceId).then(function(res) {
         res.consumption_history.push({
           traitement_id: traitement_id,
           flow_size: global_flow / 1000000,
@@ -327,8 +326,8 @@ var proto = {
         //console.log('length before',res.components.length);
         //console.log('components_id',res.components.map(m=>m._id));
 
-        this.workspace_lib.updateSimple(res).then(function(res){
-          console.log('length after',res.components.length)
+        this.workspace_lib.updateSimple(res).then(function(res) {
+          console.log('length after', res.components.length)
           console.log('--------------  End of Worksapce processing -------------- ', res._id)
         })
       }.bind(this))
@@ -336,23 +335,36 @@ var proto = {
   },
   //TODO don't work if flow is array at fisrt depth
   buildDfobFlow(currentFlow, dfobPathTab) {
-    //console.log(currentFlow);
-    let currentDfob = dfobPathTab.shift();
-    let currentInspectFlow = currentFlow[currentDfob];
+
+
     //console.log('buildDfobFlow | ',dfobPathTab.length,currentDfob,currentInspectFlow);
+    var currentDfob = dfobPathTab.shift();
     if (dfobPathTab.length > 0) {
-      if (Array.isArray(currentInspectFlow)) {
-        var deepArray = currentInspectFlow.map(currentInspectObject => this.buildDfobFlow(currentInspectObject, dfobPathTab.slice(0)));
+
+      if (Array.isArray(currentFlow)) {
+        var deepArray = currentFlow.map(currentInspectObject => this.buildDfobFlow(currentInspectObject[currentDfob], dfobPathTab.slice(0)));
         return [].concat.apply([], deepArray); // flatten array
       } else {
-        return this.buildDfobFlow(currentInspectFlow, dfobPathTab.slice(0));
+        return this.buildDfobFlow(currentFlow[currentDfob], dfobPathTab.slice(0));
       }
     } else {
 
-      return [{
-        objectToProcess: currentFlow,
-        key: currentDfob
-      }];
+      var out = [];
+      if (Array.isArray(currentFlow)) {
+        out = out.concat(currentFlow.map(o => {
+          return {
+            objectToProcess: o,
+            key: currentDfob
+          }
+        }))
+      } else {
+        out = out.concat({
+          objectToProcess: currentFlow,
+          key: currentDfob
+        });
+      }
+
+      return out;
 
       // if (Array.isArray(currentInspectFlow)) {
       //   return currentInspectFlow.map(currentInspectObject => {
@@ -448,128 +460,128 @@ var proto = {
       return out;
     }
   },
-//   _makeRequest(component, notMainNode, pullParams) {
-//
-//     // create a new Promise
-//     return new Promise((resolve, reject) => {
-//       // console.log('recursivPullResolvePromise | ',component,' | connectionsBefore |',component.connectionsBefore);
-//       var module = this.technicalComponentDirectory[component.module];
-//       //console.log('recursivPullResolvePromise | technicalComponentDirectory | ',this.technicalComponentDirectory,this.workspaceComponentPromise);
-//       console.log('recursivPullResolvePromise | module | ', module.type, module.name);
-//       //console.log('recursivPullResolvePromise | before | ',component.connectionsBefore.length,' | stepNode |',module.stepNode,' | notMainNode |',notMainNode);
-//       if (component.connectionsBefore.length > 0 && (module.stepNode != true || notMainNode != true)) {
-//         console.log('resolveWebComponentPull | beforeId | ', component.connectionsBefore[0]);
-//
-//         Promise.all(
-//           component.connectionsBefore.map(connectionBeforeId => {
-//             //console.log(connectionBeforeId);
-//             return this.workspaceComponentPromise.getReadPromiseById(connectionBeforeId)
-//           })
-//         ).then(workspaceComponents =>
-//           Promise.all(
-//             workspaceComponents.map(workspaceComponent => {
-//               if (workspaceComponent.message == 'Document not found') {
-//                 return new Promise((resolve, reject) => {
-//                   resolve({
-//                     data: []
-//                   })
-//                 });
-//               } else {
-//                 //console.log(workspaceComponent);
-//                 return this.resolveComponentPull(workspaceComponent, true, pullParams)
-//               }
-//             })
-//           )
-//         ).then(connectionsBeforeData => {
-//           //connectionsBeforeData=connectionsBeforeData.map(connectionBeforeData=>{data:connectionBeforeData})
-//           if (module.pull) {
-//             //console.log('connectionsBeforeData | ', connectionsBeforeData);
-//             var primaryflow;
-//             if (module.getPrimaryFlow != undefined) {
-//               primaryflow = module.getPrimaryFlow(component, connectionsBeforeData);
-//             } else {
-//               primaryflow = connectionsBeforeData[0];
-//             }
-//
-//             //primary flow extraction
-//             var secondaryFlow = [];
-//             secondaryFlow = secondaryFlow.concat(connectionsBeforeData);
-//             secondaryFlow.splice(secondaryFlow.indexOf(primaryflow), 1);
-//             //console.log('secondaryFlow |' , secondaryFlow);
-//             if (primaryflow.dfob != undefined) {
-//
-//
-//               var dfobTab = primaryflow.dfob[0].split(".");
-//               //var currentInspectObject = primaryflow.data;
-//
-//               var dfobFinalFlow = this.buildDfobFlow(primaryflow.data, dfobTab)
-//
-//               //console.log('dfobFinalFlow | ', dfobFinalFlow);
-//               var testPromises = dfobFinalFlow.map(finalItem => {
-//                 var recomposedFlow = [];
-//                 recomposedFlow = recomposedFlow.concat([{
-//                   data: finalItem.objectToProcess[finalItem.key],
-//                   componentId: primaryflow.componentId
-//                 }]);
-//                 recomposedFlow = recomposedFlow.concat(secondaryFlow);
-//                 return module.pull(component, recomposedFlow, pullParams);
-//               })
-//
-//               Promise.all(testPromises).then(dataTestTab => {
-//                 //console.log('AllDfobResult |', dataTestTab);
-//                 for (var dataTestTabKey in dataTestTab) {
-//                   dfobFinalFlow[dataTestTabKey].objectToProcess[dfobFinalFlow[dataTestTabKey].key] = dataTestTab[dataTestTabKey].data;
-//                   //currentInspectObject[dataTestTabKey][currentDfob] = dataTestTab[dataTestTabKey].data;
-//                 }
-//                 resolve({
-//                   componentId: component._id.$oid,
-//                   data: primaryflow.data
-//                 });
-//               }).catch(e => {
-//                 this.RequestOrigineRejectMethode(e);
-//                 //console.log(e);
-//               });
-//
-//
-//
-//             } else {
-//               console.log('recursivPullResolvePromise | module start pull | ', module.type);
-//               //console.log('recursivPullResolvePromise |connectionsBeforeData | ', connectionsBeforeData);
-//
-//               module.pull(component, connectionsBeforeData, pullParams).then(function (dataTest) {
-//                 console.log('recursivPullResolvePromise | module end | ', module.type);
-//                 //console.log('recursivPullResolvePromise | dataTest | ',dataTest);
-//                 resolve({
-//                   componentId: component._id.$oid,
-//                   data: dataTest.data,
-//                   dfob: dataTest.dfob
-//                 });
-//               });
-//             }
-//           } else {
-//             console.log('NO MODULE');
-//             resolve(null);
-//           }
-//         });
-//
-//       } else {
-//         //console.log('resolveWebComponentPull | Last| ', component);
-//         if (module.pull) {
-//           module.pull(component, undefined, pullParams).then(function (dataTest) {
-//             console.log('recursivPullResolvePromise | module end | ', module.type);
-//             //console.log('recursivPullResolvePromise | module end | dataTest', dataTest);
-//             resolve({
-//               componentId: component._id.$oid,
-//               data: dataTest.data
-//             });
-//           });
-//         } else {
-//           console.log('NO MODULE');
-//           resolve(null);
-//         }
-//       }
-//     });
-//   }
+  //   _makeRequest(component, notMainNode, pullParams) {
+  //
+  //     // create a new Promise
+  //     return new Promise((resolve, reject) => {
+  //       // console.log('recursivPullResolvePromise | ',component,' | connectionsBefore |',component.connectionsBefore);
+  //       var module = this.technicalComponentDirectory[component.module];
+  //       //console.log('recursivPullResolvePromise | technicalComponentDirectory | ',this.technicalComponentDirectory,this.workspaceComponentPromise);
+  //       console.log('recursivPullResolvePromise | module | ', module.type, module.name);
+  //       //console.log('recursivPullResolvePromise | before | ',component.connectionsBefore.length,' | stepNode |',module.stepNode,' | notMainNode |',notMainNode);
+  //       if (component.connectionsBefore.length > 0 && (module.stepNode != true || notMainNode != true)) {
+  //         console.log('resolveWebComponentPull | beforeId | ', component.connectionsBefore[0]);
+  //
+  //         Promise.all(
+  //           component.connectionsBefore.map(connectionBeforeId => {
+  //             //console.log(connectionBeforeId);
+  //             return this.workspaceComponentPromise.getReadPromiseById(connectionBeforeId)
+  //           })
+  //         ).then(workspaceComponents =>
+  //           Promise.all(
+  //             workspaceComponents.map(workspaceComponent => {
+  //               if (workspaceComponent.message == 'Document not found') {
+  //                 return new Promise((resolve, reject) => {
+  //                   resolve({
+  //                     data: []
+  //                   })
+  //                 });
+  //               } else {
+  //                 //console.log(workspaceComponent);
+  //                 return this.resolveComponentPull(workspaceComponent, true, pullParams)
+  //               }
+  //             })
+  //           )
+  //         ).then(connectionsBeforeData => {
+  //           //connectionsBeforeData=connectionsBeforeData.map(connectionBeforeData=>{data:connectionBeforeData})
+  //           if (module.pull) {
+  //             //console.log('connectionsBeforeData | ', connectionsBeforeData);
+  //             var primaryflow;
+  //             if (module.getPrimaryFlow != undefined) {
+  //               primaryflow = module.getPrimaryFlow(component, connectionsBeforeData);
+  //             } else {
+  //               primaryflow = connectionsBeforeData[0];
+  //             }
+  //
+  //             //primary flow extraction
+  //             var secondaryFlow = [];
+  //             secondaryFlow = secondaryFlow.concat(connectionsBeforeData);
+  //             secondaryFlow.splice(secondaryFlow.indexOf(primaryflow), 1);
+  //             //console.log('secondaryFlow |' , secondaryFlow);
+  //             if (primaryflow.dfob != undefined) {
+  //
+  //
+  //               var dfobTab = primaryflow.dfob[0].split(".");
+  //               //var currentInspectObject = primaryflow.data;
+  //
+  //               var dfobFinalFlow = this.buildDfobFlow(primaryflow.data, dfobTab)
+  //
+  //               //console.log('dfobFinalFlow | ', dfobFinalFlow);
+  //               var testPromises = dfobFinalFlow.map(finalItem => {
+  //                 var recomposedFlow = [];
+  //                 recomposedFlow = recomposedFlow.concat([{
+  //                   data: finalItem.objectToProcess[finalItem.key],
+  //                   componentId: primaryflow.componentId
+  //                 }]);
+  //                 recomposedFlow = recomposedFlow.concat(secondaryFlow);
+  //                 return module.pull(component, recomposedFlow, pullParams);
+  //               })
+  //
+  //               Promise.all(testPromises).then(dataTestTab => {
+  //                 //console.log('AllDfobResult |', dataTestTab);
+  //                 for (var dataTestTabKey in dataTestTab) {
+  //                   dfobFinalFlow[dataTestTabKey].objectToProcess[dfobFinalFlow[dataTestTabKey].key] = dataTestTab[dataTestTabKey].data;
+  //                   //currentInspectObject[dataTestTabKey][currentDfob] = dataTestTab[dataTestTabKey].data;
+  //                 }
+  //                 resolve({
+  //                   componentId: component._id.$oid,
+  //                   data: primaryflow.data
+  //                 });
+  //               }).catch(e => {
+  //                 this.RequestOrigineRejectMethode(e);
+  //                 //console.log(e);
+  //               });
+  //
+  //
+  //
+  //             } else {
+  //               console.log('recursivPullResolvePromise | module start pull | ', module.type);
+  //               //console.log('recursivPullResolvePromise |connectionsBeforeData | ', connectionsBeforeData);
+  //
+  //               module.pull(component, connectionsBeforeData, pullParams).then(function (dataTest) {
+  //                 console.log('recursivPullResolvePromise | module end | ', module.type);
+  //                 //console.log('recursivPullResolvePromise | dataTest | ',dataTest);
+  //                 resolve({
+  //                   componentId: component._id.$oid,
+  //                   data: dataTest.data,
+  //                   dfob: dataTest.dfob
+  //                 });
+  //               });
+  //             }
+  //           } else {
+  //             console.log('NO MODULE');
+  //             resolve(null);
+  //           }
+  //         });
+  //
+  //       } else {
+  //         //console.log('resolveWebComponentPull | Last| ', component);
+  //         if (module.pull) {
+  //           module.pull(component, undefined, pullParams).then(function (dataTest) {
+  //             console.log('recursivPullResolvePromise | module end | ', module.type);
+  //             //console.log('recursivPullResolvePromise | module end | dataTest', dataTest);
+  //             resolve({
+  //               componentId: component._id.$oid,
+  //               data: dataTest.data
+  //             });
+  //           });
+  //         } else {
+  //           console.log('NO MODULE');
+  //           resolve(null);
+  //         }
+  //       }
+  //     });
+  //   }
 };
 
 module.exports = {

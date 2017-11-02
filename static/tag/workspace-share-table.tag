@@ -33,6 +33,11 @@
 
       //this.refresh();
     });
+    this.on('unmount', function (args) {
+
+      RiotControl.off('workspace_share_collection_changed', this.refreshZenTableShare);
+
+    });
   </script>
   <style></style>
 </workspace-share-table>
