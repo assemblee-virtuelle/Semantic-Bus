@@ -40,6 +40,20 @@
   console.log("initial", this.dragged.item.rowid)
   this.Id = e.item
  }
+
+  on_drop(event){ 
+    console.log("on_drop")
+  	var pos = 0;
+    var children= this.placeholder.parentNode.children;
+    console.log(children)
+		for(var i=0;i<children.length;i++){
+    	if(children[i]==this.placeholder) break;
+    	if(children[i]!= this.dragged && children[i].classList.contains("tableRow"))
+      	pos++;
+    }
+  	//this.movePage(this.lists,event.item.list.name,this.pageId,pos);
+    this.update();
+  }
   
   on_drag_over(e){
     // return true; para no aceptar
@@ -48,9 +62,9 @@
   
   drag_end(event){
     console.log("----dragend-----", this.Id, this.dragged.item.rowid ) 
-    var b = this.innerData[this.Id.rowid];
-    this.innerData[this.Id.rowid] = this.innerData[this.dragged.item.rowid];
-    this.innerData[this.dragged.item.rowid] = b;
+    this.innerData.splice(this.dragged.item.rowid,1);
+    this.innerData.splice(this.Id.rowid, 0, this.dragged.item);
+    this.dragged.item = this.Id.rowid
     //this.innerData.splice(this.dragged.item.rowid, 0, this.Id);
     this.update();
   }
