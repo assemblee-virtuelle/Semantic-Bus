@@ -67,7 +67,7 @@ module.exports = {
        * (can be handled with Promise.prototype.catch) */
       request.on('error', function(e) {
         console.log('error request:', e);
-        reject();
+        reject(e);
       });
       request.end();
     });
