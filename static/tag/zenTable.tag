@@ -15,7 +15,7 @@
   </div>
   <div class="containerV" style="flex:1" name="tableBodyContainer" ref="tableBodyContainer">
     <div class="table" name="tableBody" ref="tableBody"  ondragover={on_drag_over} ondrop={on_drop}>
-      <div class="tableRow {selected:selected} {mainSelected:mainSelected}"  name="tableRow" draggable={true} onclick={rowClic} data-rowid={rowid} data-id={_id} each={indexedData}  ondragend={parent.drag_end}
+      <div class="tableRow {selected:selected} {mainSelected:mainSelected}"  name="tableRow" dragleave={drag_leave} draggable={true} onclick={rowClic} data-rowid={rowid} data-id={_id} each={indexedData}  ondragend={parent.drag_end}
       	ondragstart={parent.drag_start} >
         <yield from="row"/>
         <div style="width:10px" if={!opts.disallownavigation==true}>
@@ -34,8 +34,15 @@
 
  this.Id = null
 
+ drag_leave(e){
+  console.log("drag leave");
+  console.log("destination", this.Id)
+  console.log("initial", this.dragged.item.rowid)
+  this.Id = e.item
+ }
+
   on_drop(event){ 
-    console.log("---- drop ----- ")
+    console.log("on_drop")
   	var pos = 0;
     var children= this.placeholder.parentNode.children;
     console.log(children)
@@ -50,54 +57,21 @@
   
   on_drag_over(e){
     // return true; para no aceptar
-    
-    if(e.target.parentElement.className != "tableRow  ")
-    	return;
-  
-    /// PAGE ///
-    if(e.target.parentElement.className == "tableRow  "){
-      this.over = e.target.parentElement;
-      // Inside the dragOver method
-      console.log(e)
-      var relY = e.clientY - this.over.offsetTop;
-      var height = this.over.offsetHeight / 2;
-      var parent = e.target.parentElement.parentNode;
-      if(relY > height) {
-        this.nodePlacement = "after";
-        parent.insertBefore(this.placeholder, e.target.parentElement.nextElementSibling);
-      }
-      else if(relY < height) {
-        this.nodePlacement = "before"
-        parent.insertBefore(this.placeholder, e.target.parentElement);
-      }
-    }
-    this.update()
+
   }
   
   drag_end(event){
-    console.log("----dragend-----", event) 
-    var pos = 0;
-    var children= this.placeholder.parentNode.children;
-    console.log(children)
-		for(var i=0;i<children.length;i++){
-    	if(children[i]== this.placeholder) break;
-    	if(children[i]!= this.dragged && children[i].classList.contains("tableRow"))
-      	pos++;
-    }
-    console.log(event.item._id, pos)
-  	this.movePage(this.innerData, event.item._id, pos);
-    event.preventUpdate= true;
-    if(this.placeholder.parentNode){
-    	this.placeholder.parentNode.removeChild(this.placeholder);
-    }
+    console.log("----dragend-----", this.Id, this.dragged.item.rowid ) 
+    this.innerData.splice(this.dragged.item.rowid,1);
+    this.innerData.splice(this.Id.rowid, 0, this.dragged.item);
+    this.dragged.item = this.Id.rowid
+    //this.innerData.splice(this.dragged.item.rowid, 0, this.Id);
     this.update();
   }
   
 	drag_start(event){
-    console.log("----drag start-----")
-    this.dragged = event.target;
-    this.Id = event.item._id;
-    console.log("----- drag end -----", this.Id)
+    console.log("----drag start -----")
+    this.dragged = event;
     return true;
   }
   
@@ -271,7 +245,15 @@
     });
   </script>
   <style>
-
+    [draggable] {
+    -moz-user-select: none;
+    -khtml-user-select: none;
+    -webkit-user-select: none;
+    user-select: none;
+    /* Required to make elements draggable in old WebKit */
+    -khtml-user-drag: element;
+    -webkit-user-drag: element;
+    }
     .commandBarTable {
       color: #3883fa;
       background-color: white;

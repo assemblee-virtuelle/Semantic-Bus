@@ -33,7 +33,7 @@ function UploadStore() {
       this.trigger('item_is_upload');
     }.bind(this)).fail(function(error) {
       console.log("in fail ajax")
-      this.trigger('ajax_fail',error.responseJSON.displayMessage||error.responseJSON.message);
+      this.trigger('ajax_fail',error.displayMessage||error.message);
     }.bind(this));
   });
 }

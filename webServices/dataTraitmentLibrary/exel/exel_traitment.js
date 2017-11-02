@@ -33,7 +33,7 @@ function decode_utf8(s) {
 	console.log("in decode",s)
 	try{
 		return decodeURIComponent(escape(s))
-	}catch (e) {c
+	}catch (e) {
 		return s 
 	 }
 }
