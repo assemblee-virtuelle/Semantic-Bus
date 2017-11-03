@@ -18,11 +18,12 @@
         //TODO require use cache object  : need to build one engine per request
         this.recursivPullResolvePromiseDynamic = require('../recursivPullResolvePromise')
         var specificData;
+
         console.log('urlRequiered', urlRequiered)
         this.workspace_component_lib.get({
           "specificData.url": urlRequiered
         }).then(component => {
-          console.log(component);
+
           if (component != undefined) {
 
 
@@ -46,20 +47,14 @@
               })
             })
           }
-        }).catch(err => {
-          //console.log('FAIL', err);
-          if (err.code) {
-            res.status(err.code).send(err.message);
-          } else {
-            next(err)
-            //res.status(500).send("serveur error");
-          }
-
         }).then(dataToSend => {
-          //console.log('API data', specificData);
+          console.log('API data', specificData);
+          console.log('ALLO');
+          console.log('API component');
+          console.log('ALLO2');
           if (specificData != undefined) { // exception in previous promise
             if (specificData.contentType.search('application/vnd.ms-excel') != -1) {
-              res.setHeader('content-type', component.specificData.contentType);
+              res.setHeader('content-type', specificData.contentType);
               var responseBodyExel = []
               console.log('data.contentType XLS', specificData)
               this.dataTraitment.type.type_file(specificData.contentType, dataToSend, responseBodyExel, specificData.xls, true).then(function(result) {
@@ -67,7 +62,7 @@
                 res.send(result)
               })
             } else if (specificData.contentType.search('xml') != -1) {
-              res.setHeader('content-type', component.specificData.contentType);
+              res.setHeader('content-type', specificData.contentType);
               var convert = this.data2xml();
               var out = "";
               for (key in dataToSend.data) {
@@ -76,11 +71,11 @@
               //console.log(out);
               res.send(out);
             } else if (specificData.contentType.search('yaml') != -1) {
-              res.setHeader('content-type', component.specificData.contentType);
+              res.setHeader('content-type', specificData.contentType);
               res.send(this.json2yaml.stringify(dataToSend.data));
 
             } else if (specificData.contentType.search('json') != -1) {
-              res.setHeader('content-type', component.specificData.contentType);
+              res.setHeader('content-type', specificData.contentType);
               res.json(dataToSend.data);
             } else {
               next(new Error('no supported madiatype'));

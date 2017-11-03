@@ -1,6 +1,6 @@
 module.exports = {
   type: 'REST Get JSON',
-  description: 'intéroger une API REST avec une requete Get qui fourni un flux JSON',
+  description: 'OBSOLETE, utiliser HTTP GET; intéroger une API REST avec une requete Get qui fourni un flux JSON',
   editor: 'rest-get-json-editor',
   graphIcon: 'restGetJson.png',
   url: require('url'),
@@ -24,9 +24,9 @@ module.exports = {
       requestOptions.path = parsedUrl.path;
       requestOptions.port = parsedUrl.port;
       requestOptions.method = methodRest;
-      requestOptions.headers=requestOptions.headers||{};
-      requestOptions.headers.Accept= 'application/json';
-      requestOptions.headers['user-agent']='Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0';
+      requestOptions.headers = requestOptions.headers || {};
+      requestOptions.headers.Accept = 'application/json';
+      requestOptions.headers['user-agent'] = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0';
 
 
       console.log(requestOptions);
@@ -40,27 +40,28 @@ module.exports = {
         var responseBody = '';
 
         if (hasResponseFailed) {
-          reject(`Request to ${response.url} failed with HTTP ${response.status}`);
-        }
-
-        /* the response stream's (an instance of Stream) current data. See:
-         * https://nodejs.org/api/stream.html#stream_event_data */
-        var i = 0;
-        response.on('data', chunk => {
-          //console.log(chunk.toString());
-          //console.log('chunk ',i);
-          i++;
-          responseBody += chunk.toString()
-        });
-
-        // once all the data has been read, resolve the Promise
-        response.on('end', () => {
-          console.log('end response');
-          console.log(responseBody);
-          resolve({
-            data: JSON.parse(responseBody)
+          reject(new Error('Requestfailed with status '+ response.statusCode));
+        } else {
+          /* the response stream's (an instance of Stream) current data. See:
+           * https://nodejs.org/api/stream.html#stream_event_data */
+          var i = 0;
+          response.on('data', chunk => {
+            //console.log(chunk.toString());
+            //console.log('chunk ',i);
+            i++;
+            responseBody += chunk.toString()
           });
-        });
+
+          // once all the data has been read, resolve the Promise
+          response.on('end', () => {
+            //console.log('end response');
+            //console.log(responseBody);
+            resolve({
+              data: JSON.parse(responseBody)
+            });
+          });
+
+        }
       });
 
       /* if there's an error, then reject the Promise

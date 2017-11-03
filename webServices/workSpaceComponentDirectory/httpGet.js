@@ -60,7 +60,7 @@ module.exports = {
       request.end();
     });
   },
-  
+
   pull: function (data) {
     console.log('REST Get JSON | pull : ',data);
     return this.makeRequest('GET', data.specificData.url, data.specificData.contentType);
