@@ -9,7 +9,7 @@ module.exports = {
 
   mapValue :function(valueIn, specificData){
     var valueOut=valueIn;
-    for (var atomicMapping of specificData.mappingTable){
+    for (var atomicMapping of specificData.mappingTable||[]){
       if(valueIn.indexOf!=undefined && valueIn.indexOf(atomicMapping.flowValue)!=-1){
         //console.log('MAP',valueIn,atomicMapping.flowValue,atomicMapping.replacementValue);
         valueOut = valueIn.replace(atomicMapping.flowValue,atomicMapping.replacementValue);
