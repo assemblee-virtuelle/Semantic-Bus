@@ -1,6 +1,6 @@
 module.exports = {
   type: 'REST Get JSON',
-  description: 'OBSOLETE, utiliser HTTP GET; intéroger une API REST avec une requete Get qui fourni un flux JSON',
+  description: 'intéroger une API REST avec une requete Get qui fourni un flux JSON',
   editor: 'rest-get-json-editor',
   graphIcon: 'restGetJson.png',
   url: require('url'),

@@ -1,6 +1,6 @@
 module.exports = {
   type: 'REST Get HTPP',
-  description: 'intéroger une API REST avec une requete Get qui fourni un flux',
+  description: 'intéroger un fichier mis à disposition sur une API REST avec une requete Get',
   editor: 'rest-get-editor',
   graphIcon:'restGetHttp.png',
   url: require('url'),
@@ -40,7 +40,7 @@ module.exports = {
         });
 
         response.on('end', function () {
-          _self.dataTraitment.type.type_file(response.headers['content-disposition'],responseBody, responseBodyExel, undefined,  contentType).then(function(result){
+          this.dataTraitment.type.type_file(response.headers['content-disposition'],responseBody, responseBodyExel, undefined,  contentType).then(function(result){
             resolve(result)
           }, function(err){
             let fullError = new Error(err);
