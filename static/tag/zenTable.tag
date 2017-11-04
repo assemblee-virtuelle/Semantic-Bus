@@ -36,9 +36,10 @@
 
  drag_leave(e){
   console.log("drag leave");
-  console.log("destination", this.Id)
+  console.log("destination", e)
   console.log("initial", this.dragged.item.rowid)
   this.Id = e.item
+  e.target.parentNode.insertBefore(this.placeholder, e.target);
  }
 
   on_drop(event){ 
