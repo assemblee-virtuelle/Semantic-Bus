@@ -73,7 +73,9 @@ httpGet.makeRequest('GET', configUrl).then(result => {
 
       ///OTHER APP COMPONENT
       ///SECURISATION DES REQUETES
-
+      app.get('/',function(req, res, next){
+        res.redirect('/ihm/application.html');
+      });
       app.use('/auth', express.static('static'));
       app.use('/auth', unSafeRouteur);
       app.use('/configuration', unSafeRouteur);
