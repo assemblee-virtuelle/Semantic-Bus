@@ -18,13 +18,13 @@ module.exports = {
     this.componentLib.get_all({
       module: 'timer'
     }).then(components => {
-      //console.log(components.length + ' timers');
+      console.log(components.length + ' timers');
       components.forEach(c => {
 
         let now = new Date();
-        let lastExec = new Date(c.specificData.last);
+        let lastExec = c.specificData.last==undefined?undefined:new Date(c.specificData.last);
         let interval =c.specificData.interval;
-        //console.log( now-(interval*1000*60),lastExec);
+        console.log( now-(interval*1000*60),lastExec);
         if(lastExec==undefined ||(interval!=undefined && now-(interval*1000*60)>=lastExec)){
           this.http.get( { host: 'localhost', port: '8080', path: '/data/core//workspaceComponent/'+c._id+'/work',headers:{"Authorization": "JTW" + " " + token}  } , function (res) {
               if(res.statusCode==200){

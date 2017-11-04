@@ -5,7 +5,7 @@
   <label>interval (minutes)</label>
   <input type="text" id="intervalInput" onChange={changeIntervalInput} ref="keyInput" value={data.specificData?data.specificData.interval: null }></input>
   <label>last execution</label>
-  <input type="text" id="lastInput" onChange={changLastInput} ref="lastInput" value={data.specificData?data.specificData.last: null }></input>
+  <div>{data.specificData?data.specificData.last: null }</div>
 
 
   <script>
