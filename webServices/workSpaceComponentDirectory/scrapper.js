@@ -8,8 +8,8 @@ module.exports = {
   sift: require('sift'),
   webdriverio: require('webdriverio'),
   base: require('../../test/wdio.conf.base'),
-  makeRequest: function (user, key, actions, url, flowData, flow_before, fix_url) {
-    console.log("scrapper start")
+  makeRequest: function (user, key, actions, url,  saucelabname, flowData, flow_before, fix_url) {
+    console.log("scrapper start saucelabname", saucelabname)
 
 
     // var config = Object.assign(this.base.config, {
@@ -32,7 +32,7 @@ module.exports = {
         version: '56',
         platform: 'windows 10',
         tags: ['examples'],
-        name: 'This is an example test',
+        name: saucelabname || 'Example Test',
 
         // If using Open Sauce (https://saucelabs.com/opensauce/),
         // capabilities must be tagged as "public" for the jobs's status
@@ -90,7 +90,14 @@ module.exports = {
     };
 
     function _getAttr(action, client) {
-      return new Promise(function (resolve, reject) {})
+      console.log("in action", action)
+      return new Promise(function (resolve, reject) {
+        console.log("BEFOREEEEEE action", action)
+        client.getAttribute(action.selector, action.attribut).then(function (elem) {
+          console.log("in return promise ", elem)
+          resolve(elem)
+        })
+      })
     }
 
     function _getHtml(action, client) {
@@ -252,43 +259,35 @@ module.exports = {
                   })
                 break;
               case ("getAttr"):
-                _waitFor(page, function () {
-                  var selector = actions[deeth].selector
-                  return page.evaluate(function (selector) {
-                    if (document.querySelector(selector) === null) {
-                      console.log(document.querySelector(selector))
-                      return false
-                    } else {
-                      console.log(document.querySelector(selector))
-                      return true
-                    }
-                  }, selector)
-                }, function () {
-                  console.log("The sign-in dialog should be visible now.");
-                }).then(function (res) {
-                  // setTimeout(function () {
-                  _getAttr(actions[deeth], page).then(function (res) {
-                    console.log("in resykt", res)
-                    data[actions[deeth].action] = res
-                    deeth += 1
-                    _aggregateAction(actions, client, deeth, data).then(function (res) {
-                      resolve(res)
-                    }, function (err) {
+                client.waitForVisible(actions[deeth].selector, 25000)
+                .then(function (visible) {
+                  console.log("visible", visible)
+                  setTimeout(function () {
+                    _getAttr(actions[deeth], client).then(function (res) {
+                      console.log("---- get text return promise -----", res)
+                      data[actions[deeth].action] = res
+                      deeth += 1
+                      _aggregateAction(actions, client, deeth, data).then(function (res) {
+                        resolve(res)
+                      }, function (err) {
+                        reject(err)
+                        client.end();
+                      })
+                    }).catch(err => {
                       let fullError = new Error(err);
-                      fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement 4 de  page : " + actions[deeth].action;
+                      fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement 1 de page : " + actions[deeth].action;
                       reject(fullError)
                       client.end();
                     })
-                  }, function (err) {
-                    console.log(" ------ IN ERRRRORRRR ---- ")
-                    let fullError = new Error(err);
-                    fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement 5 de page : " + actions[deeth].action;
-                    reject(fullError)
-                    client.end();
                   })
-                  // })
+                }, (err) => {
+                  console.log("not visible", err)
+                  let fullError = new Error(err);
+                  fullError.displayMessage = "Scrappeur : Element pas visible : " + actions[deeth].action;
+                  reject(fullError)
+                  client.end();
                 })
-                break;
+              break;
               case ("setValue"):
                 client.waitForVisible(actions[deeth].selector, 25000)
                   .then(function (visible) {
@@ -447,6 +446,7 @@ module.exports = {
   },
 
   pull: function (data, flowData) {
-    return this.makeRequest(data.specificData.user, data.specificData.key, data.specificData.scrappe, data.specificData.url)
+    console.log("before scrapping start", data.specificData.saucelabname)
+    return this.makeRequest(data.specificData.user, data.specificData.key, data.specificData.scrappe, data.specificData.url, data.specificData.saucelabname)
   },
 }

@@ -50,8 +50,13 @@ module.exports = function(router) {
       // })
 
       for (var c of workspace.components) {
-        //console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
-        c.graphIcon = technicalComponentDirectory[c.module].graphIcon;
+        console.log(c, "ccccc")
+        if(technicalComponentDirectory[c.module] != null){
+          //console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
+          c.graphIcon = technicalComponentDirectory[c.module].graphIcon;
+        }else{
+          c.graphIcon = "default"
+        }
         //console.log('-->',c);
       }
       console.log(workspace);
@@ -62,6 +67,14 @@ module.exports = function(router) {
   }); // <= get one workspace
 
   // --------------------------------------------------------------------------------
+  router.put('/workspacerowId/', function(req, res,next) {
+    if (req.body != null) {
+      workspace_lib.updateSimple(req.body).then(workspaceUpdate => {
+        console.log("UPDATE DONE", workspaceUpdate)        
+        res.send(workspaceUpdate);
+      })
+    }
+  })
 
   router.put('/workspace/', function(req, res,next) {
     console.log('req.body', req.body)
@@ -69,7 +82,11 @@ module.exports = function(router) {
       workspace_lib.update(req.body).then(workspaceUpdate => {
 
         for (var c of workspaceUpdate.components) {
-          c.graphIcon = technicalComponentDirectory[c.module].graphIcon;
+          if(technicalComponentDirectory[c.module] != null){
+            c.graphIcon = technicalComponentDirectory[c.module].graphIcon;
+          }else{
+            c.graphIcon = "default"
+          }
         }
         console.log('update workspace WebService result', workspaceUpdate);
         res.send(workspaceUpdate);

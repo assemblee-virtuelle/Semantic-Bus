@@ -96,6 +96,7 @@ function WorkspaceStore() {
   // --------------------------------------------------------------------------------
 
   this.update = function(data) {
+    console.log("data update", data)
     return new Promise((resolve, reject) => {
       var ajax_data = JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent))
       this.trigger('persist_start');
@@ -121,9 +122,32 @@ function WorkspaceStore() {
         resolve(data);
       }.bind(this));
     })
-
-
   }; //<= update
+
+  this.updateList = function(data) {
+    console.log("data update", data)
+    return new Promise((resolve, reject) => {
+      var ajax_data = JSON.stringify(data)
+      $.ajax({
+        method: 'put',
+        url: '../data/core/workspacerowId',
+        data: ajax_data,
+        contentType: 'application/json',
+        headers: {
+          "Authorization": "JTW" + " " + localStorage.token
+        },
+      }).done(function(data) {
+        console.log("update done", data)
+      }.bind(this));
+    })
+  }; //<= updateList
+
+
+  this.on('workspace_list_persist', function(workspaceCurrent) {
+      // this.updateList(workspaceCurrent).then(data => {
+      //   console.log("UPDATE DONE")
+      // }); // <= workspace_current_persist
+  })
 
   // --------------------------------------------------------------------------------
 

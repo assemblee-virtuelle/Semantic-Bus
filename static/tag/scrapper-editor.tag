@@ -8,6 +8,10 @@
 
   <input type="text" ref="key" class="form-controle" value={data.specificData.key}></input>
 
+  <label>Name of Sauce Labs JOB </label>
+
+  <input type="text" ref="saucelabname" class="form-controle" value={data.specificData.saucelabname}></input>
+
   <label>URL </label>
 
   <input type="text" ref="url" class="form-controle" value={data.specificData.url}></input>
@@ -47,7 +51,7 @@
   </div>
 
 
-  <zenTable style="flex:1" title="Your scenario" disallownavigation=false>
+  <zenTable style="flex:1" drag={true} title="Your scenario" disallownavigation=false>
     <yield to="header">
       <div>Name</div>
       <div>Type</div>
@@ -141,7 +145,6 @@
    
     this.on('mount', function () {
       RiotControl.on('item_current_changed', this.updateData);
-
       this.tags.zentable.on('rowSelect', function (data) {
         console.log(data)
         this.selector = data.selector
@@ -217,7 +220,12 @@
         this.data.specificData.key = e.currentTarget.value;
       }.bind(this));
 
-     
+      this.refs.saucelabname.addEventListener('change', function (e) {
+        this.key = e.target.value;
+        this.data.specificData.saucelabname = e.currentTarget.value;
+      }.bind(this));
+
+
       this.refs.action.addEventListener('change', function (e) {
         this.action = e.target.value;
       }.bind(this));

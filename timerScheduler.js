@@ -25,15 +25,15 @@ module.exports = {
         let lastExec = new Date(c.specificData.last);
         let interval =c.specificData.interval;
         //console.log( now-(interval*1000*60),lastExec);
-        if(lastExec==undefined ||(interval!=undefined && now-(interval*1000*60)>=lastExec)){
-          this.http.get( { host: 'localhost', port: '8080', path: '/data/core//workspaceComponent/'+c._id+'/work',headers:{"Authorization": "JTW" + " " + token}  } , function (res) {
-              if(res.statusCode==200){
-                c.specificData.last=now;
-                console.log(c);
-                this.componentLib.update(c);
-              }
-          }.bind(this));
-        }
+        // if(lastExec==undefined ||(interval!=undefined && now-(interval*1000000*60)>=lastExec)){
+        //   this.http.get( { host: 'localhost', port: '8080', path: '/data/core//workspaceComponent/'+c._id+'/work',headers:{"Authorization": "JTW" + " " + token}  } , function (res) {
+        //       if(res.statusCode==200){
+        //         c.specificData.last=now;
+        //         console.log(c);
+        //         this.componentLib.update(c);
+        //       }
+        //   }.bind(this));
+        // }
 
 
         // this.httpGet.makeRequest('GET', workUrl,undefined,{headers:{"Authorization": "JTW" + " " + token}}).then(result => {

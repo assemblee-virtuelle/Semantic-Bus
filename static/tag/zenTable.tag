@@ -15,7 +15,7 @@
   </div>
   <div class="containerV" style="flex:1" name="tableBodyContainer" ref="tableBodyContainer">
     <div class="table" name="tableBody" ref="tableBody"  ondragover={on_drag_over} ondrop={on_drop}>
-      <div class="tableRow {selected:selected} {mainSelected:mainSelected}"  name="tableRow" dragleave={drag_leave} draggable={true} onclick={rowClic} data-rowid={rowid} data-id={_id} each={indexedData}  ondragend={parent.drag_end}
+      <div class="tableRow {selected:selected} {mainSelected:mainSelected}"  name="tableRow" dragenter={drag_enter} dragleave={drag_leave} draggable={opts.drag} onclick={rowClic} data-rowid={rowid} data-id={_id} each={indexedData}  ondragend={parent.drag_end}
       	ondragstart={parent.drag_start} >
         <yield from="row"/>
         <div style="width:10px" if={!opts.disallownavigation==true}>
@@ -35,26 +35,13 @@
  this.Id = null
 
  drag_leave(e){
-  console.log("drag leave");
-  console.log("destination", e)
-  console.log("initial", this.dragged.item.rowid)
   this.Id = e.item
-  e.target.parentNode.insertBefore(this.placeholder, e.target);
  }
 
-  on_drop(event){ 
-    console.log("on_drop")
-  	var pos = 0;
-    var children= this.placeholder.parentNode.children;
-    console.log(children)
-		for(var i=0;i<children.length;i++){
-    	if(children[i]==this.placeholder) break;
-    	if(children[i]!= this.dragged && children[i].classList.contains("tableRow"))
-      	pos++;
-    }
-  	//this.movePage(this.lists,event.item.list.name,this.pageId,pos);
-    this.update();
-  }
+ drag_enter(e){
+   e.target.parentNode.parentNode.insertBefore(this.placeholder, e.target.parentNode);
+ }
+
   
   on_drag_over(e){
     // return true; para no aceptar
@@ -62,38 +49,18 @@
   }
   
   drag_end(event){
-    console.log("----dragend-----", this.Id, this.dragged.item.rowid ) 
+    this.placeholder.remove();
     this.innerData.splice(this.dragged.item.rowid,1);
     this.innerData.splice(this.Id.rowid, 0, this.dragged.item);
-    this.dragged.item = this.Id.rowid
-    //this.innerData.splice(this.dragged.item.rowid, 0, this.Id);
+    RiotControl.trigger('workspace_list_persist', this.dragged.item)
     this.update();
   }
   
 	drag_start(event){
-    console.log("----drag start -----")
     this.dragged = event;
     return true;
   }
-  
-  removePage(workspaces,idWorkspace){
-    for(var j=0;workspaces && j < workspaces.length;j++){
-      var workspace = workspaces[j];
-      if(workspace._id == idWorkspace){
-        workspaces.splice(j,1);
-        return workspace;
-      }
-    }       
-  }
-   
-   movePage(workspaces,idWorkspace,pos){
-   		var workspaceObj = this.removePage(workspaces,idWorkspace);
-      if(workspaceObj){
-        console.log("------- in if move page ------ ")
-        //console.log(workspaces, workspaceObj, pos);
-        workspaces.splice(pos, 0, workspaceObj);
-      }
-   }
+
     var arrayChangeHandler = {
       tag: this,
       get: function (target, property, third, fourth) {
@@ -125,11 +92,9 @@
     //arrayChangeHandler.tag=this;
     Object.defineProperty(this, 'data', {
       set: function (data) {
-
         //this.innerData=new Proxy(data, arrayChangeHandler);
         this.innerData = data;
         this.update();
-
         //this.reportCss(); this.reportFlex(); console.log(this.items,data);
       }.bind(this),
       get: function () {
@@ -143,8 +108,8 @@
       get: function () {
         var recordId = 0;
         for (record of this.innerData) {
-          record.rowid = recordId++;
-          record.opts = this.opts;
+            record.rowid = recordId++;
+            record.opts = this.opts;
         }
         return this.innerData;
       }.bind(this),
@@ -168,9 +133,11 @@
     }
 
     navigationClick(e) {
+      console.log(e.item)
       var index = parseInt(e.currentTarget.dataset.rowid);
       let dataWithRowId = this.innerData[index];
       dataWithRowId.rowId = index;
+      console.log(dataWithRowId)
       this.trigger('rowNavigation', dataWithRowId)
     }
 
@@ -213,6 +180,7 @@
     }
 
     recalculateHeader() {
+      console.log(this.refs.tableHeader)
       var headers = this.refs.tableHeader.children;
       for (var row of this.root.querySelectorAll('.tableRow')) {
         for (var headerkey in headers) {
@@ -236,9 +204,9 @@
       this.placeholder=document.createElement("div");
       this.placeholder.className = "placeholder";
       //this.reportCss();
-     // addResizeListener(this.refs.tableBody, function () {
-        //this.recalculateHeader()
-      //}.bind(this));
+      addResizeListener(this.refs.tableBody, function () {
+        this.recalculateHeader()
+      }.bind(this));
       this.refs.tableBodyContainer.addEventListener('scroll', function (e) {
         //console.log(this.tableBodyContainer.scrollLeft);
         this.refs.tableHeader.scrollLeft = this.refs.tableBodyContainer.scrollLeft;
