@@ -270,7 +270,7 @@ module.exports = {
               nodeOut[nodeInDataProperty] = eval(javascriptEvalString);
               //console.log('eval done');
             } catch (e) {
-              console.log(e);
+              console.log('Javascript Eval failed ',javascriptEvalString,e);
             }
           } else if (nodeInPostProcess[nodeInDataProperty].process == 'arrayHack') {
             //console.log('arrayHack',nodeInDataProperty);

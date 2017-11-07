@@ -2,7 +2,7 @@ module.exports = {
   type: 'adresse.data.gouv.fr geolocaliser',
   description: 'interroger l api adresse.data.gouv pour transo une adresse en latitude et longitude',
   editor: 'data-gouv-geolocaliser-editor',
-  graphIcon:'dataGouvFrGeolocaliser.png',
+  graphIcon: 'dataGouvFrGeolocaliser.png',
   url: require('url'),
   http: require('http'),
   //waterfall: require('promise-waterfall'),
@@ -30,7 +30,7 @@ module.exports = {
   //   });
   // },
   geoLocalise: function(source, specificData) {
-
+    console.log('adress.data.gouv geoLocalise',specificData.countryPath);
     return new Promise((resolve, reject) => {
 
       var goePromises = [];
@@ -55,7 +55,9 @@ module.exports = {
               }
             }
 
-            resolve({data:result});
+            resolve({
+              data: result
+            });
           });
         } else {
 
@@ -67,16 +69,16 @@ module.exports = {
             country: record[specificData.countryPath],
           }
 
-          var postalCodeString = address.postalCode+'';
-          if (postalCodeString.length==4){
-            address.postalCode = '0'+postalCodeString;
+          var postalCodeString = address.postalCode + '';
+          if (postalCodeString.length == 4) {
+            address.postalCode = '0' + postalCodeString;
           }
 
           var addressGouvFrFormated = ''
           addressGouvFrFormated = addressGouvFrFormated + (address.street ? address.street + ' ' : '');
           addressGouvFrFormated = addressGouvFrFormated + (address.town ? address.town + ' ' : '');
           addressGouvFrFormated = addressGouvFrFormated + (address.postalCode ? address.postalCode + ' ' : '');
-          addressGouvFrFormated = addressGouvFrFormated + (address.country ? address.country + ' ' : '');
+          //addressGouvFrFormated = addressGouvFrFormated + (address.country ? address.country + ' ' : '');
           if (addressGouvFrFormated.length > 0) {
             goePromises.push(
               new Promise((resolve, reject) => {
@@ -93,57 +95,69 @@ module.exports = {
                 //console.log('REST Get JSON | makerequest | port',parsedUrl.port);
                 //  console.log('REST Get JSON | makerequest | host',parsedUrl.hostname);
                 const requestOptions = {
-                    hostname: parsedUrl.hostname,
-                    path: parsedUrl.path,
-                    port: parsedUrl.port,
-                    method: 'GET'
-                  }
-                  //          console.log(requestOptions);
-                const request = this.http.request(requestOptions, response => {
-                  const hasResponseFailed = response.status >= 400;
-                  var responseBody = '';
+                  hostname: parsedUrl.hostname,
+                  path: parsedUrl.path,
+                  port: parsedUrl.port,
+                  method: 'GET',
+                  agent: new this.http.Agent()
+                }
+                //          console.log(requestOptions);
+                // console.log('JUST before adresse.data.gouv request', specificData.countryPath);
+                try {
+                  const request = this.http.request(requestOptions, response => {
+                      // console.log('JUST after adresse.data.gouv request', specificData.countryPath);
+                    const hasResponseFailed = response.status >= 400;
+                    var responseBody = '';
 
-                  if (hasResponseFailed) {
-                    console.log({
-                      error: 'request status fail'
-                    });
-                    resolve({
-                      error: 'Request to ${response.url} failed with HTTP ${response.status}'
-                    });
-                  }
+                    if (hasResponseFailed) {
+                      console.log({
+                        error: 'request status fail'
+                      });
+                      resolve({
+                        error: 'Request to ${response.url} failed with HTTP ${response.status}'
+                      });
+                    }
 
-                  response.on('data', chunk => {
-                    //console.log(chunk.toString());
-                    responseBody += chunk.toString()
+                    response.on('data', chunk => {
+                      //console.log(chunk.toString());
+                      responseBody += chunk.toString()
+                    });
+
+                    // once all the data has been read, resolve the Promise
+                    response.on('end', function() {
+                      try {
+                        //console.log(responseBody);
+                        //console.log('try');
+                        resolve(JSON.parse(responseBody));
+                        //console.log('ok',sourceKey);
+                      } catch (e) {
+                        console.log('parse fail');
+                        resolve({
+                          error: e
+                        });
+                        //throw e;
+                      }
+                    }.bind(this));
+
                   });
 
-                  // once all the data has been read, resolve the Promise
-                  response.on('end', function() {
-                    try {
-                      //console.log(responseBody);
-                      //console.log('try');
-                      resolve(JSON.parse(responseBody));
-                      //console.log('ok',sourceKey);
-                    } catch (e) {
-                      console.log('parse fail');
-                      resolve({
-                        error: e
-                      });
-                      //throw e;
-                    }
-                  }.bind(this));
-                });
 
 
-                request.on('error', function(e) {
-                  console.log('request fail :',e);
+
+                  request.on('error', function(e) {
+                    console.log('request fail :', e);
+                    resolve({
+                      error: e
+                    });
+                  });
+                  //console.log('start');
+                  request.end();
+                } catch (e) {
+                  console.log('global socket adress.data.gouv fail', e);
                   resolve({
                     error: e
                   });
-                });
-                //console.log('start');
-                request.end();
-
+                }
               })
             );
           } else {

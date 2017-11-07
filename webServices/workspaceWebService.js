@@ -173,31 +173,5 @@ module.exports = function(router) {
 
   // ---------------------------------------  ADMIN  -----------------------------------------
 
-  router.get('/workspaceOwnAll/:userId', function(req, res,next) {
-    console.log('ownAll');
-    var userId = req.params.userId;
-    var userPromise = mLabPromise.request('GET', 'users/' + userId);
-    var workspacePromise = mLabPromise.request('GET', 'workspaces');
-    var promises = [userPromise, workspacePromise]
-    Promise.all(promises).then(function(res) {
-      var user = res[0];
-      var workspaces = res[1];
-      var workspacesTable = [];
-      //console.log(workspaces);
-      for (workspace of workspaces) {
-        workspacesTable.push({
-          _id: workspace._id.$oid,
-          role: "owner"
-        });
-      }
-      user.workspaces = workspacesTable;
-      //console.log(user);
-      //return new Promise((resolve,reject)=>{resolve({})});
-      return mLabPromise.request('PUT', 'users/' + user._id.$oid, user);
-    }).then(function(data) {
-      res.json(data);
-    }).catch(e => {
-      next(e);
-    });
-  });
+
 }
