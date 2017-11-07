@@ -68,13 +68,5 @@ module.exports = function (router) {
 
   // ---------------------------------------  ADMIN  -----------------------------------------
 
-  router.get('/cloneDatabase', function (req, res,next) {
-    var mLabPromise = require('./mLabPromise');
-    //console.log('mLabPromise |',mLabPromise);
-    mLabPromise.cloneDatabase().then(data => {
-      res.json(data)
-    }).catch(e => {
-      next(e);
-    });
-  });
+
 }

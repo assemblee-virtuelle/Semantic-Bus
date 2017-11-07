@@ -204,11 +204,12 @@ var proto = {
             created_at: new Date()
           }
         })
-
+        console.log('BEFORE lib Update');
         this.workspace_component_lib.update(
           processingLink.destination
         ).then(function(res) {
-          // console.log("res update =======>",res)
+          console.log('AFTER lib Update');
+          //console.log("res update =======>",res)
           global_flow += this.objectSizeOf(dataFlow)
           var primaryflow;
           if (module.getPrimaryFlow != undefined) {
@@ -281,6 +282,7 @@ var proto = {
               this.RequestOrigineRejectMethode(e);
             });
           } else {
+
             module.pull(processingLink.destination, dataFlow, undefined).then(componentFlow => {
               //console.log("componentFlow", this.objectSizeOf(componentFlow))
               //console.log('PULL END | ', processingLink.destination._id);
