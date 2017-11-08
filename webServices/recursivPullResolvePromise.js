@@ -53,7 +53,7 @@ var proto = {
         }, this.componentsResolving)[0];
         this.pathResolution = this.buildPathResolution(originComponent, requestDirection, 0, this.componentsResolving);
         this.pathResolution.forEach(link => {
-          //GOOD ==> console.log("link", link)
+          //console.log("link", link)
           link.status = 'waiting';
         });
         // this.linksProcessing = [];

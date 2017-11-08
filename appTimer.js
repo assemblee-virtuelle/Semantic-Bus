@@ -7,11 +7,9 @@ var jenkins = process.env.JENKINS_DEPLOY || false;
 
 var passport = require('passport');
 
-var http = require('http');
-http.globalAgent.maxSockets = 1000000000;
-var server = http.Server(app);
+var server = require('http').Server(app);
 var https = require('https');
-
+var http = require('http');
 
 
 var safe = express.Router();
@@ -92,9 +90,7 @@ httpGet.makeRequest('GET', configUrl).then(result => {
       let jwtSimple = require('jwt-simple');
       let errorParser = require('error-stack-parser');
       app.use(function (err, req, res, next) {
-        console.log('PROXY');
         if (err) {
-          console.log('ERROR MANAGEMENT');
           var token = req.body.token || req.query.token || req.headers['authorization'];
           //console.log('token |',token);
           let user;
@@ -116,9 +112,9 @@ httpGet.makeRequest('GET', configUrl).then(result => {
         //able to centralise response using res.data ans res.send(res.data)
       });
 
-      server.listen(process.env.PORT || 8080, function () {
+      server.listen(process.env.PORT || 8081, function () {
         console.log('~~ server started at ', this.address().address, ':', this.address().port)
-        require('./timerScheduler').run();
+        require('./timerScheduler').run(true);
 
         if (jenkins) {
           console.log("jenkins is true");
