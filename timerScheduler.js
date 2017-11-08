@@ -51,7 +51,7 @@ module.exports = {
                 });
               }.bind(this)).on('error', (e) => {
                 console.error('timer work request fail', e);
-                throw new Error(e)
+                //throw new Error(e)
               });
             }
           }
