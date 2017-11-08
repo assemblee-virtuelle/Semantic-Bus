@@ -2,7 +2,7 @@
   <div class="commandBar containerH">
     Shared Workspaces
   </div>
-  <zenTable style="flex:1" disallowcommand="true">
+  <zenTable  drag={false} style="flex:1" disallowcommand="true">
     <yield to="header">
       <div>name</div>
       <div>description</div>

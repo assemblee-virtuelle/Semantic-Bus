@@ -2,7 +2,7 @@
   <div class="commandBar containerH">
     My Workspaces
   </div>
-  <zenTable style="flex:1" ref="workspaceZenTable">
+  <zenTable style="flex:1" drag={false} ref="workspaceZenTable">
     <yield to="header">
       <div>name</div>
       <div>description</div>
@@ -17,7 +17,7 @@
     //console.log('mount opts :',this.opts);
 
     this.refreshZenTable = function (data) {
-      console.log('view', data);
+      console.log("refreshZenTable")
       this.tags.zentable.data = data;
     }.bind(this);
 

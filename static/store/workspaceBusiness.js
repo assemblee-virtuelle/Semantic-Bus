@@ -118,9 +118,11 @@ function WorkspaceBusiness() {
       name: workspaceIn.name,
       description: workspaceIn.description,
       average_consumption: workspaceIn.average_consumption,
-      flow_size: workspaceIn.flow_size
+      flow_size: workspaceIn.flow_size,
+      rowid: workspaceIn.rowid
     }
     for (component of workspaceIn.components) {
+      console.log(component)
       components.push(this.serialiseWorkspaceComponent(component));
     }
     out.components = components;

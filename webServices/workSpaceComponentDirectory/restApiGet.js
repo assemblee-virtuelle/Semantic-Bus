@@ -90,10 +90,7 @@
             next(err)
             //res.status(500).send("serveur error");
           }
-
         });
-
-
       }.bind(this));
     }
 

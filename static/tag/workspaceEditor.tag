@@ -54,7 +54,7 @@
         </zenTable>-->
       </div>
       <div show={menu=='user'}>
-        <zenTable title="" style="flex:1" disallownavigation="true" css="background-color:white!important;color: #3883fa;" id="userliste" disallowcommand={innerData.mode=="read" } ref="userZenTable">
+        <zenTable title="" drag={false} style="flex:1" disallownavigation="true" css="background-color:white!important;color: #3883fa;" id="userliste" disallowcommand={innerData.mode=="read" } ref="userZenTable">
           <yield to="header">
             <div>email</div>
             <div>role</div>
