@@ -37,7 +37,7 @@ module.exports = {
               this.http.get({
                 host: 'localhost',
                 port: '8080',
-                path: '/data/core//workspaceComponent/' + c._id + '/work',
+                path: '/data/core/workspaceComponent/' + c._id + '/work',
                 headers: {
                   "Authorization": "JTW" + " " + token
                 },
@@ -51,7 +51,7 @@ module.exports = {
                 });
               }.bind(this)).on('error', (e) => {
                 console.error('timer work request fail', e);
-                //throw new Error(e)
+                throw new Error(e)
               });
             }
           }
