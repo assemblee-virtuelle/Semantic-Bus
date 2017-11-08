@@ -7,7 +7,7 @@ module.exports = {
   httpGet: require('./webServices/workSpaceComponentDirectory/restGetJson.js'),
   http: require('http'),
   runTimers: function(dedicaded) {
-    if (!dedicaded) {
+    if (dedicaded) {
       const payload = {
         exp: this.moment().add(14, 'days').unix(),
         iat: this.moment().unix(),
