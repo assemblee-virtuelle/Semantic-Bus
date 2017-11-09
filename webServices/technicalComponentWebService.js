@@ -1,5 +1,6 @@
 
 var mlab_token = require('../configuration').mlab_token
+var componentsCategoriesTree = require('./componentsCategoriesTree')
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -19,5 +20,9 @@ module.exports = function(router, unSafeRouteur) {
 
     res.json(technicalComponentDirectory.buildDictionnaryArray());
   });//<= get_technicalComponent
+
+  router.get('/technicalComponent/componentsCategoriesTree', function (req, res,next) {
+    res.json(componentsCategoriesTree);
+  });
 
 }
