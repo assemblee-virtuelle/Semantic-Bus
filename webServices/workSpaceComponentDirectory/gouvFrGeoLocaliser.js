@@ -31,7 +31,7 @@ module.exports = {
   //   });
   // },
   geoLocalise: function(source, specificData) {
-    console.log('adress.data.gouv geoLocalise',specificData.countryPath);
+    //console.log('adress.data.gouv geoLocalise',specificData.countryPath);
     return new Promise((resolve, reject) => {
 
       var goePromises = [];
@@ -179,7 +179,7 @@ module.exports = {
           sourceKey++;
         }
 
-      }.bind(this), 2000);
+      }.bind(this), 200);
       //200
 
       /*for (record of source) {
