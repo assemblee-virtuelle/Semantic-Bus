@@ -12,10 +12,17 @@
   </div>
   <div class="commandBar containerH">
     <div class="containerH commandGroup">
-    <div each={item in  firstLevelCriteria} class="commandButton">
-      {item['skos:prefLabel']}
+      <div each={item in firstLevelCriteria} class="commandButton" onclick={firstLevelCriterieClick}>
+        {item['skos:prefLabel']}
+      </div>
     </div>
   </div>
+  <div class="commandBar containerH">
+    <div class="containerH commandGroup">
+      <div each={item in secondLevelCriteria} class="commandButton">
+        {item['skos:prefLabel']}
+      </div>
+    </div>
   </div>
   <zenTable style="flex:1" ref="technicalComponentTable" disallowcommand={true} disallownavigation={true}>
     <yield to="header">
@@ -45,6 +52,14 @@
       //RiotControl.trigger('back');  } });
     }
 
+    firstLevelCriterieClick(e){
+      console.log(e);
+      console.log(e.item.item['@id']);
+      this.secondLevelCriteria = sift({
+        broader:e.item.item['@id']
+      }, this.ComponentsCategoriesTree['@graph']);
+    }
+
     refreshTechnicalComponents(data) {
       console.log('technicalCompoents | this.refs |', this.refs);
       this.tags.zentable.data = data;
@@ -56,10 +71,7 @@
     }.bind(this);
 
     this.updateComponentsCategoriesTree = function (tree) {
-      console.log('tree', tree);
-      broader : {
-        $exists: false
-      }
+      this.ComponentsCategoriesTree=tree;
       this.firstLevelCriteria = sift({
         broader: {
           $exists: false

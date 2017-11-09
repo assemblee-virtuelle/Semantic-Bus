@@ -8,9 +8,9 @@ module.exports = {
   },
   "@graph": [
     {
-    "@type": "skos:Concept",
-    "@id": "http://semantic-bus.org/data/tags/inComponents",
-    "skos:prefLabel": "Entrées"
+      "@type": "skos:Concept",
+      "@id": "http://semantic-bus.org/data/tags/inComponents",
+      "skos:prefLabel": "Entrées"
     },{
       "@type": "skos:Concept",
       "@id": "http://semantic-bus.org/data/tags/inComponentsBDD",
@@ -28,25 +28,6 @@ module.exports = {
       "skos:prefLabel": "Fichier"
     },{
       "@type": "skos:Concept",
-      "@id": "http://semantic-bus.org/data/tags/outComponents",
-      "skos:prefLabel": "Sorties"
-    }, {
-      "@type": "skos:Concept",
-      "@id": "http://semantic-bus.org/data/tags/outComponentsBDD",
-      "broader": "http://semantic-bus.org/data/tags/outComponents",
-      "skos:prefLabel": "Base de données"
-    },{
-      "@type": "skos:Concept",
-      "@id": "http://semantic-bus.org/data/tags/outComponentsAPI",
-      "broader": "http://semantic-bus.org/data/tags/inComponents",
-      "skos:prefLabel": "Flux de données"
-    },{
-      "@type": "skos:Concept",
-      "@id": "http://semantic-bus.org/data/tags/outComponentsFile",
-      "broader": "http://semantic-bus.org/data/tags/outComponents",
-      "skos:prefLabel": "Fichier"
-    },{
-      "@type": "skos:Concept",
       "@id": "http://semantic-bus.org/data/tags/middleComponents",
       "skos:prefLabel": "Traitements"
     }, {
@@ -58,7 +39,26 @@ module.exports = {
       "@type": "skos:Concept",
       "@id": "http://semantic-bus.org/data/tags/middleQuerying",
       "broader": "http://semantic-bus.org/data/tags/middleComponents",
-      "skos:prefLabel": "TRansformation"
+      "skos:prefLabel": "Transformation"
+    },{
+      "@type": "skos:Concept",
+      "@id": "http://semantic-bus.org/data/tags/outComponents",
+      "skos:prefLabel": "Sorties"
+    }, {
+      "@type": "skos:Concept",
+      "@id": "http://semantic-bus.org/data/tags/outComponentsBDD",
+      "broader": "http://semantic-bus.org/data/tags/outComponents",
+      "skos:prefLabel": "Base de données"
+    },{
+      "@type": "skos:Concept",
+      "@id": "http://semantic-bus.org/data/tags/outComponentsAPI",
+      "broader": "http://semantic-bus.org/data/tags/outComponents",
+      "skos:prefLabel": "Flux de données"
+    },{
+      "@type": "skos:Concept",
+      "@id": "http://semantic-bus.org/data/tags/outComponentsFile",
+      "broader": "http://semantic-bus.org/data/tags/outComponents",
+      "skos:prefLabel": "Fichier"
     }
   ]
 }

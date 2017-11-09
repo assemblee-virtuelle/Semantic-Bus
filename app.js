@@ -43,7 +43,7 @@ httpGet.makeRequest('GET', configUrl).then(result => {
 
   fs.writeFile("configuration.js", content, 'utf8', function (err) {
     if (err) {
-      return console.log(err);
+      throw err;
     } else {
 
       //console.log("~~ remote configuration saved");
@@ -92,9 +92,9 @@ httpGet.makeRequest('GET', configUrl).then(result => {
       let jwtSimple = require('jwt-simple');
       let errorParser = require('error-stack-parser');
       app.use(function (err, req, res, next) {
-        console.log('PROXY');
+        //console.log('PROXY');
         if (err) {
-          console.log('ERROR MANAGEMENT');
+          //console.log('ERROR MANAGEMENT');
           var token = req.body.token || req.query.token || req.headers['authorization'];
           //console.log('token |',token);
           let user;
@@ -121,9 +121,9 @@ httpGet.makeRequest('GET', configUrl).then(result => {
         require('./lib/core/timerScheduler').run();
 
         if (jenkins) {
-          console.log("jenkins is true");
+          //console.log("jenkins is true");
           http.get('http://bkz2jalw7c:3bdcf7bc40f582a4ae7ff52f77e90b24@tvcntysyea-jenkins.services.clever-cloud.com:4003/job/semanticbus-pic-3/build?token=semantic_bus_token', function (res) {
-            console.log("jenkins JOB 3 is trigger")
+            console.log("jenkins JOB production triggered")
           })
         }
         // console.log('Listening on port  ');

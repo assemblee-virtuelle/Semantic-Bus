@@ -18,6 +18,7 @@ var proto = {
   mLabPromise: require('./mLabPromise'),
   workspace_component_lib: require('../lib/core/lib/workspace_component_lib'),
   workspace_lib: require('../lib/core/lib/workspace_lib'),
+  config: require('../configuration.js'),
   fackCounter: 0,
   resolveComponentPull(component, notMainNode, pullParams) {
     //console.log(pullParams);
@@ -27,8 +28,9 @@ var proto = {
     //buildPathResolution component, requestDirection
 
     //console.log(" ---------- resolveComponent -----------", component)
-    console.log(" ---------- resolveComponent -----------")
-
+    if (this.config.quietLog != true) {
+      console.log(" ---------- resolveComponent -----------")
+    }
 
     return new Promise((resolve, reject) => {
       this.workspace_component_lib.get_all({
@@ -107,7 +109,9 @@ var proto = {
           //let componentProcessing = processingLink.source;
           //console.log('PULL start | ', componentProcessing._id);
           module.pull(componentProcessing, undefined, undefined).then(componentFlow => {
-              console.log('PULL END | ', componentProcessing._id);
+              if (this.config.quietLog != true) {
+                console.log('PULL END | ', componentProcessing._id);
+              }
               componentProcessing.dataResolution = componentFlow;
               componentProcessing.status = 'resolved';
               //console.log("componentFlow ----------", componentFlow)
@@ -150,11 +154,13 @@ var proto = {
   },
   processNextBuildPath(traitement_id, component_workspaceId, global_flow) {
     this.fackCounter++;
-    console.log(" ---------- processNextBuildPath -----------", this.fackCounter)
-    //console.log("--------- glovbal flow ------------" , global_flow)
-    console.log(this.pathResolution.map(link => {
-      return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
-    }));
+    if (this.config.quietLog != true) {
+      console.log(" ---------- processNextBuildPath -----------", this.fackCounter)
+      //console.log("--------- glovbal flow ------------" , global_flow)
+      console.log(this.pathResolution.map(link => {
+        return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
+      }));
+    }
     let linkNotResolved = this.sift({
       status: 'processing'
     }, this.pathResolution);
@@ -204,11 +210,15 @@ var proto = {
             created_at: new Date()
           }
         })
-        console.log('BEFORE lib Update');
+        if (this.config.quietLog != true) {
+          console.log('BEFORE lib Update');
+        }
         this.workspace_component_lib.update(
           processingLink.destination
         ).then(function(res) {
-          console.log('AFTER lib Update');
+          if (this.config.quietLog != true) {
+            console.log('AFTER lib Update');
+          }
           //console.log("res update =======>",res)
           global_flow += this.objectSizeOf(dataFlow)
           var primaryflow;
@@ -232,8 +242,9 @@ var proto = {
             //console.log('primaryflow | ', primaryflow);
 
             var dfobFinalFlow = this.buildDfobFlow(primaryflow.data, dfobTab);
-
-            console.log('dfobFinalFlow | ', dfobFinalFlow);
+            if (this.config.quietLog != true) {
+              console.log('dfobFinalFlow | ', dfobFinalFlow);
+            }
             var testPromises = dfobFinalFlow.map(finalItem => {
 
               var recomposedFlow = [];
@@ -313,7 +324,9 @@ var proto = {
       }
 
     } else {
-      console.log('--------------  End of Worksapce processing -------------- ', global_flow)
+      if (this.config.quietLog != true) {
+        console.log('--------------  End of Worksapce processing -------------- ', global_flow);
+      }
       this.workspace_lib.getWorkspace(component_workspaceId).then(function(res) {
         res.consumption_history.push({
           traitement_id: traitement_id,
@@ -329,8 +342,10 @@ var proto = {
         //console.log('components_id',res.components.map(m=>m._id));
 
         this.workspace_lib.updateSimple(res).then(function(res) {
-          console.log('length after', res.components.length)
-          console.log('--------------  End of Worksapce processing -------------- ', res._id)
+          if (this.config.quietLog != true) {
+            console.log('length after', res.components.length)
+            console.log('--------------  End of Worksapce processing -------------- ', res._id)
+          }
         })
       }.bind(this))
     }
