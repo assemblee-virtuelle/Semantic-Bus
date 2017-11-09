@@ -12,17 +12,22 @@
   </div>
   <div class="commandBar containerH">
     <div class="containerH commandGroup">
-      <div each={item in firstLevelCriteria} class="commandButton" onclick={firstLevelCriterieClick}>
+      <div each={item in firstLevelCriteria} class="commandButton" onclick={firstLevelCriteriaClick}>
         {item['skos:prefLabel']}
       </div>
     </div>
   </div>
   <div class="commandBar containerH">
     <div class="containerH commandGroup">
-      <div each={item in secondLevelCriteria} class="commandButton">
+      <div each={item in secondLevelCriteria} class="commandButton" onclick={secondLevelCriteriaClick}>
         {item['skos:prefLabel']}
       </div>
     </div>
+  </div>
+  <div class="containerH">
+      <div each={item in selectedTags}>
+        {item['skos:prefLabel']}
+      </div>
   </div>
   <zenTable style="flex:1" ref="technicalComponentTable" disallowcommand={true} disallownavigation={true}>
     <yield to="header">
@@ -40,6 +45,7 @@
     this.actionReady = false;
     this.firstLevelCriteria = [];
     this.secondLevelCriteria = [];
+    this.selectedTags=[];
 
     addComponent(e) {
       //this.tags.zentable.data.forEach(record=>{  if(record.selected){
@@ -52,12 +58,24 @@
       //RiotControl.trigger('back');  } });
     }
 
-    firstLevelCriterieClick(e){
-      console.log(e);
-      console.log(e.item.item['@id']);
+    firstLevelCriteriaClick(e){
+      //console.log(e);
+      //console.log(e.item.item['@id']);
       this.secondLevelCriteria = sift({
         broader:e.item.item['@id']
       }, this.ComponentsCategoriesTree['@graph']);
+      this.selectedTags=[];
+      this.selectedTags.push(e.item.item);
+    }
+
+    secondLevelCriteriaClick(e){
+      //console.log(e);
+      //console.log(e.item.item['@id']);
+      // this.secondLevelCriteria = sift({
+      //   broader:e.item.item['@id']
+      // }, this.ComponentsCategoriesTree['@graph']);
+      this.selectedTags=sift({broader:{$exists:false}},this.selectedTags)
+      this.selectedTags.push(e.item.item);
     }
 
     refreshTechnicalComponents(data) {
