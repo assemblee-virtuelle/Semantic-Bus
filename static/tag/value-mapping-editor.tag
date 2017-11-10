@@ -15,7 +15,9 @@
         <input if="fieldEditing" type="text" value={replacementdValue} onkeyup={replacementValueChange}>
       </div>
     </div>
-    <zenTable style="flex:1" title="mapping des valeurs">
+   <image  style="margin-left: -1px; margin-left: 88vw;  cursor: pointer;" src="./image/ajout_composant.svg" width="50" height="50" onclick={addRowClick}>
+  </image>
+  <zenTable style="flex:1" drag={true} title="Your scenario" disallownavigation={false} disallowdelete={true} >
       <yield to="header">
         <div>flux</div>
         <div>remplacement</div>
@@ -45,6 +47,35 @@
       this.update();
     }.bind(this);
 
+    addRowClick(e) {
+      console.log("add row",e)
+      //var index=parseInt(e.currentTarget.dataset.rowid) console.log(index);
+      this.recalculateHeader()
+      this.trigger('addRow')
+    }
+
+    recalculateHeader() {
+      console.log(this.tags.zentable.refs.tableHeader.children)
+      var headers = this.tags.zentable.refs.tableHeader.children;
+      for (var row of this.root.querySelectorAll('.tableRow')) {
+        for (var headerkey in headers) {
+          var numkey = parseInt(headerkey);
+          if (!isNaN(numkey)) {
+            //console.log(row.children[numkey].getBoundingClientRect().width);
+            var width = row.children[numkey].getBoundingClientRect().width;
+            var cssWidth = width + 'px';
+            headers[headerkey].style.width = cssWidth ;
+            headers[headerkey].style.maxWidth = cssWidth ;
+            headers[headerkey].style.minWidth = cssWidth ;
+            headers[headerkey].style.flexBasis = cssWidth ;
+            //console.log(headers[headerkey].style);
+          }
+        }
+        break;
+      }
+    }
+
+
     this.on('mount', function () {
       this.tags.zentable.on('rowSelect', function (data) {
         console.log(data);
@@ -54,7 +85,7 @@
         this.update();
       }.bind(this));
 
-      this.tags.zentable.on('addRow', function () {
+      this.on('addRow', function () {
         //console.log(this.data.specificData.unicityFields)
         this.data.specificData.mappingTable.push({flowValue: this.flowValue, replacementValue: this.replacementdValue});
         this.tags.zentable.data = this.data.specificData.mappingTable;

@@ -3,10 +3,11 @@
     /* text-align: center; */
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-between;
     background-color: rgb(33,150,243);
     color:white">
-    <div style="border: 3px solid white; padding: 10px; border-radius: 20pt;">Edit Componnent</div>
+    <div></div>
+    <div>Edit Componnent</div>
       <!--<div onclick={nagivationClick} class="commandButton">
         back to navigation
       </div>-->
@@ -23,9 +24,8 @@
           border-radius: 15pt;
           border: 3px solid white;
           color: white;
-          position: absolute;
           padding-right: 19pt;
-          margin-left: 35vw;  cursor: pointer;" id="saveButton" > 
+          cursor: pointer;" id="saveButton" > 
           save 
       </div>
     </div>

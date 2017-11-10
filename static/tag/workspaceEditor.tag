@@ -26,7 +26,7 @@
     justify-content: center;
     background-color: rgb(33,150,243);
     color:white">
-        <div style="border: 3px solid white; padding: 10px; border-radius: 20pt;">{innerData.name}</div>
+        <div>{innerData.name}</div>
         <div class="containerH commandGroup" style="width: 100%;">
           <div onclick={persistClick} class="{notSynchronized:innerData.synchronized==false}" style="margin-left: -1px;
           height: 38px;

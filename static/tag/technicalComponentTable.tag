@@ -6,7 +6,7 @@
     justify-content: center;
     background-color: rgb(33,150,243);
     color:white">
-    <div style="border: 3px solid white; padding: 10px; border-radius: 20pt;">Add Componnent</div>
+    <div>Add Componnent</div>
     <div class="containerH commandGroup"  if={actionReady}>
           <image  style="margin-left: -1px;
           margin-top: 7vh;
@@ -34,7 +34,7 @@
         {item['skos:prefLabel']}
       </div>
   </div>
-  <zenTable style="flex:1" ref="technicalComponentTable" disallowcommand={true} disallownavigation={true}>
+  <zenTable style="flex:1" ref="technicalComponentTable" disallowcommand={true} disallowdelete={true} disallownavigation={true}>
     <yield to="header">
       <div>type</div>
       <div>description</div>

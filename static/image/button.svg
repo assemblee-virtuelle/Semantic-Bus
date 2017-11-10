@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="157px" height="52px" viewBox="0 0 157 52" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 46.2 (44496) - http://www.bohemiancoding.com/sketch -->
+    <title>button</title>
+    <desc>Created with Sketch.</desc>
+    <defs>
+        <filter x="-4.7%" y="-11.4%" width="109.4%" height="134.1%" filterUnits="objectBoundingBox" id="filter-1">
+            <feOffset dx="0" dy="2" in="SourceAlpha" result="shadowOffsetOuter1"></feOffset>
+            <feGaussianBlur stdDeviation="2" in="shadowOffsetOuter1" result="shadowBlurOuter1"></feGaussianBlur>
+            <feColorMatrix values="0 0 0 0 0   0 0 0 0 0   0 0 0 0 0  0 0 0 0.5 0" type="matrix" in="shadowBlurOuter1" result="shadowMatrixOuter1"></feColorMatrix>
+            <feMerge>
+                <feMergeNode in="shadowMatrixOuter1"></feMergeNode>
+                <feMergeNode in="SourceGraphic"></feMergeNode>
+            </feMerge>
+        </filter>
+    </defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Graphe_choix_conect" transform="translate(-606.000000, -947.000000)">
+            <g id="button" filter="url(#filter-1)" transform="translate(610.000000, 949.000000)">
+                <rect id="Rectangle-10" fill="#2196F3" x="0" y="0" width="149" height="44" rx="10"></rect>
+                <text id="Full-screen" font-family="Avenir-Black, Avenir" font-size="16" font-weight="700" letter-spacing="-0.0307692327" fill="#FFFFFF">
+                    <tspan x="34.3572308" y="27">Full screen</tspan>
+                </text>
+            </g>
+        </g>
+    </g>
+</svg>
