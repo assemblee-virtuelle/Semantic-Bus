@@ -3,6 +3,10 @@ module.exports = {
   description: 'début de traitement d\'un niveau de profondeur du flux ',
   editor:'deeper-focus-opening-bracket-editor',
   graphIcon:'deeperBrackets.png',
+  tags:[
+    'http://semantic-bus.org/data/tags/middleComponents',
+    'http://semantic-bus.org/data/tags/middleUtilitiesComponents'
+  ],
 
 
   pull: function(data,flowData) {

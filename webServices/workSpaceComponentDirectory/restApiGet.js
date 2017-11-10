@@ -3,6 +3,10 @@
     this.description = 'exposition du flux de donnée sur une API http uniquement en GET';
     this.editor = 'rest-api-get-editor';
     this.graphIcon = 'restApiGet.png';
+    this.tags = [
+      'http://semantic-bus.org/data/tags/outComponents',
+      'http://semantic-bus.org/data/tags/APIComponents'
+    ],
     this.stepNode = false;
     this.workspace_component_lib = require('../../lib/core/lib/workspace_component_lib');
     this.data2xml = require('data2xml');

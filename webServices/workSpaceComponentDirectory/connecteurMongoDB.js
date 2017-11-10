@@ -5,6 +5,10 @@ module.exports = {
   mongoose: require('mongoose'),
   mLabPromise: require('../mLabPromise'),
   graphIcon: 'mongoDbConnector.png',
+  tags:[
+    'http://semantic-bus.org/data/tags/inComponents',
+    'http://semantic-bus.org/data/tags/BDDComponents'
+  ],
   schema: null,
   modelShema: null,
 

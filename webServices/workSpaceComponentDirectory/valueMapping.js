@@ -3,6 +3,10 @@ module.exports = {
   description: 'remplacer les valeurs d une propriété par une autre',
   editor: 'value-mapping-editor',
   graphIcon:'valueMapping.png',
+  tags:[
+    'http://semantic-bus.org/data/tags/middleComponents',
+    'http://semantic-bus.org/data/tags/middleQueryingComponents'
+  ],
   //url: require('url'),
   //http: require('http'),
   //waterfall: require('promise-waterfall'),

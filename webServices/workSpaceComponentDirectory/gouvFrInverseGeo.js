@@ -3,6 +3,10 @@ module.exports = {
   description: 'interoge l api adresse .data.gouv pour retrouver une adresse + CP + Insee depuis latitude et longitude',
   editor: 'data-gouv-inverse-geolocaliser-editor',
   graphIcon:'dataGouvFrInvGeo.png',
+  tags:[
+    'http://semantic-bus.org/data/tags/middleComponents',
+    'http://semantic-bus.org/data/tags/middleGeocodeComponents'
+  ],
   url: require('url'),
   http: require('http'),
   initComponent: function(entity) {

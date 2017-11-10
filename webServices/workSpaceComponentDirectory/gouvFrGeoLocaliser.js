@@ -3,6 +3,10 @@ module.exports = {
   description: 'interroger l api adresse.data.gouv pour transo une adresse en latitude et longitude',
   editor: 'data-gouv-geolocaliser-editor',
   graphIcon: 'dataGouvFrGeolocaliser.png',
+  tags:[
+    'http://semantic-bus.org/data/tags/middleComponents',
+    'http://semantic-bus.org/data/tags/middleGeocodeComponents'
+  ],
   url: require('url'),
   http: require('http'),
   RequestCount :0,

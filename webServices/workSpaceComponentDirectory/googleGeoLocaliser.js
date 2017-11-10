@@ -5,6 +5,10 @@ module.exports = {
   url: require('url'),
   https: require('https'),
   graphIcon:'googleGeolocaliser.png',
+  tags:[
+    'http://semantic-bus.org/data/tags/middleComponents',
+    'http://semantic-bus.org/data/tags/middleGeocodeComponents'
+  ],
   initComponent: function(entity) {
     //console.log('Object Transformer | initComponent : ',entity);
 

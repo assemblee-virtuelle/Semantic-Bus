@@ -41,7 +41,8 @@ module.exports = {
           type: this[technicalComponent].type,
           description: this[technicalComponent].description,
           editor: this[technicalComponent].editor,
-          graphIcon: this[technicalComponent].graphIcon
+          graphIcon: this[technicalComponent].graphIcon,
+          tags : this[technicalComponent].tags
         });
       }
     }

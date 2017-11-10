@@ -5,6 +5,10 @@ module.exports = {
   graphIcon: 'sqlConnector.png',
   Sequelize: require('sequelize'),
   mLabPromise: require('../mLabPromise'),
+  tags:[
+    'http://semantic-bus.org/data/tags/inComponents',
+    'http://semantic-bus.org/data/tags/BDDComponents'
+  ],
 
   initialise: function (driver, host, port, username, password, database) {
     console.log("----- initialize sql -----")

@@ -13,52 +13,62 @@ module.exports = {
       "skos:prefLabel": "Entrées"
     },{
       "@type": "skos:Concept",
-      "@id": "http://semantic-bus.org/data/tags/inComponentsBDD",
-      "broader": "http://semantic-bus.org/data/tags/inComponents",
-      "skos:prefLabel": "Base de données"
-    },{
-      "@type": "skos:Concept",
-      "@id": "http://semantic-bus.org/data/tags/inComponentsAPI",
-      "broader": "http://semantic-bus.org/data/tags/inComponents",
-      "skos:prefLabel": "Flux de données"
-    },{
-      "@type": "skos:Concept",
-      "@id": "http://semantic-bus.org/data/tags/inComponentsFile",
-      "broader": "http://semantic-bus.org/data/tags/inComponents",
-      "skos:prefLabel": "Fichier"
-    },{
-      "@type": "skos:Concept",
       "@id": "http://semantic-bus.org/data/tags/middleComponents",
-      "skos:prefLabel": "Traitements"
-    }, {
-      "@type": "skos:Concept",
-      "@id": "http://semantic-bus.org/data/tags/middleComponentsAgregation",
-      "broader": "http://semantic-bus.org/data/tags/middleComponents",
-      "skos:prefLabel": "Agrégation"
+      "skos:prefLabel": "Flux"
     },{
       "@type": "skos:Concept",
-      "@id": "http://semantic-bus.org/data/tags/middleQuerying",
-      "broader": "http://semantic-bus.org/data/tags/middleComponents",
-      "skos:prefLabel": "Transformation"
+      "@id": "http://semantic-bus.org/data/tags/persistComponents",
+      "skos:prefLabel": "stockage"
     },{
       "@type": "skos:Concept",
       "@id": "http://semantic-bus.org/data/tags/outComponents",
       "skos:prefLabel": "Sorties"
-    }, {
+    },{
       "@type": "skos:Concept",
-      "@id": "http://semantic-bus.org/data/tags/outComponentsBDD",
-      "broader": "http://semantic-bus.org/data/tags/outComponents",
+      "@id": "http://semantic-bus.org/data/tags/BDDComponents",
+      "broader": ["http://semantic-bus.org/data/tags/inComponents","http://semantic-bus.org/data/tags/outComponents"],
       "skos:prefLabel": "Base de données"
     },{
       "@type": "skos:Concept",
-      "@id": "http://semantic-bus.org/data/tags/outComponentsAPI",
-      "broader": "http://semantic-bus.org/data/tags/outComponents",
+      "@id": "http://semantic-bus.org/data/tags/APIComponents",
+      "broader": ["http://semantic-bus.org/data/tags/inComponents","http://semantic-bus.org/data/tags/outComponents"],
       "skos:prefLabel": "Flux de données"
     },{
       "@type": "skos:Concept",
-      "@id": "http://semantic-bus.org/data/tags/outComponentsFile",
-      "broader": "http://semantic-bus.org/data/tags/outComponents",
+      "@id": "http://semantic-bus.org/data/tags/fileComponents",
+      "broader": ["http://semantic-bus.org/data/tags/inComponents","http://semantic-bus.org/data/tags/outComponents"],
       "skos:prefLabel": "Fichier"
+    },{
+      "@type": "skos:Concept",
+      "@id": "http://semantic-bus.org/data/tags/scrapperComponents",
+      "broader": ["http://semantic-bus.org/data/tags/inComponents"],
+      "skos:prefLabel": "Scrapper"
+    },{
+      "@type": "skos:Concept",
+      "@id": "http://semantic-bus.org/data/tags/middleComponentsAgregation",
+      "broader": ["http://semantic-bus.org/data/tags/middleComponents"],
+      "skos:prefLabel": "Agrégation"
+    },{
+      "@type": "skos:Concept",
+      "@id": "http://semantic-bus.org/data/tags/middleQueryingComponents",
+      "broader": ["http://semantic-bus.org/data/tags/middleComponents"],
+      "skos:prefLabel": "Transformation"
+    },{
+      "@type": "skos:Concept",
+      "@id": "http://semantic-bus.org/data/tags/persistCacheComponents",
+      "broader": ["http://semantic-bus.org/data/tags/persistComponents"],
+      "skos:prefLabel": "Cache"
+    },{
+      "@type": "skos:Concept",
+      "@id": "http://semantic-bus.org/data/tags/middleUtilitiesComponents",
+      "broader": ["http://semantic-bus.org/data/tags/middleComponents"],
+      "skos:prefLabel": "Utilitaire"
+    },{
+      "@type": "skos:Concept",
+      "@id": "http://semantic-bus.org/data/tags/middleGeocodeComponents",
+      "broader": ["http://semantic-bus.org/data/tags/middleComponents"],
+      "skos:prefLabel": "Geocodage"
     }
+
   ]
 }

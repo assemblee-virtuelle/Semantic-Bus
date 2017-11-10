@@ -3,6 +3,10 @@ module.exports = {
   description: 'intéroger une API REST avec une requete Get qui fourni un flux JSON',
   editor: 'rest-get-json-editor',
   graphIcon: 'restGetJson.png',
+  tags:[
+    'http://semantic-bus.org/data/tags/inComponents',
+    'http://semantic-bus.org/data/tags/APIComponents'
+  ],
   url: require('url'),
   http: require('http'),
   https: require('https'),

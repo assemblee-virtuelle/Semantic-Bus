@@ -4,6 +4,10 @@ module.exports = {
   editor: 'simple-agregator-editor',
   graphIcon:'flowAggregator.png',
   sift: require('sift'),
+  tags:[
+    'http://semantic-bus.org/data/tags/middleComponents',
+    'http://semantic-bus.org/data/tags/middleComponentsAgregation'
+  ],
 
 
   pull: function(data, flowData) {
