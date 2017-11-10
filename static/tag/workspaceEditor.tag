@@ -57,6 +57,10 @@
         </zenTable>-->
       </div>
       <div show={menu=='user'}>
+        <div style="display:flex; justify-content:flex-end">
+          <image  style="margin-left: -1px;
+              color: white; cursor: pointer;" src="./image/ajout_composant.svg" class="commandButtonImage" width="50" height="50" onclick={addUser}></image>
+        </div>
         <zenTable title="" drag={false} style="flex:1" disallownavigation="true" css="background-color:white!important;color: #3883fa;" id="userliste" disallowcommand={innerData.mode=="read" } ref="userZenTable">
           <yield to="header">
             <div>email</div>
@@ -351,6 +355,15 @@
       this.update();
     }.bind(this);
 
+    addUser(e){
+      console.log("add user")
+        this.componentView = false;
+        this.userView = true;
+        this.DescriptionView = false;
+        this.utilisationView = false;
+        RiotControl.trigger('workspace_current_add_user_show');
+    }
+
     // RiotControl.on('newScreenHistory', function (newScreenHistory) {
     //
     //   let lastScreen = newScreenHistory[newScreenHistory.length - 1].screen;   if (lastScreen != 'workspaceEditor') {     switch (lastScreen) {       case 'workspaceAddComponent':         this.componentView = true;         this.userView = false;
@@ -375,7 +388,7 @@
         this.userView = true;
         this.DescriptionView = false;
         this.utilisationView = false;
-        RiotControl.trigger('workspace_current_add_user_show', message);
+        //RiotControl.trigger('workspace_current_add_user_show', message);
       }.bind(this));
 
       RiotControl.on('workspace_current_changed', this.workspaceCurrentChanged);

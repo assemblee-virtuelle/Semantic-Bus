@@ -57,7 +57,7 @@ module.exports = function (router) {
                         })
                         user_lib.update(newUser).then(function (updateUser) {
                           workspace_lib.getWorkspace(workspace_id).then(updatedWS=>{
-                              res.send({user:updatedUser,workspace:updatedWS});
+                              res.send({user:updateUser,workspace:updatedWS});
                           })
                         })
                     } else {
@@ -68,9 +68,9 @@ module.exports = function (router) {
                         _id: workspace_id,
                         role: "editor"
                     })
-                   user_lib.update(newUser).then(updatedUser=>{
+                   user_lib.update(newUser).then(updateUser=>{
                         workspace_lib.getWorkspace(workspace_id).then(updatedWS=>{
-                            res.send({user:updatedUser,workspace:updatedWS});
+                            res.send({user:updateUser,workspace:updatedWS});
                         })
                     })
                 }

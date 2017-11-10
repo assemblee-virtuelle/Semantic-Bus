@@ -1,17 +1,11 @@
 <user-list>
   <div class="commandBar containerH">
-    <div>share workspace</div>
-    <div class="containerH commandGroup">
-      <!--<div onclick={cancelClick} class="commandButton">
-        cancel
-      </div>-->
-      <div if={actionReady} onclick={share} class="commandButton notSynchronized">
-        share
-      </div>
-    </div>
   </div>
   <div class="flex-container">
     <h3 class="title-user-list">Membres</h3>
+    <div if={actionReady} onclick={share} class="commandButton notSynchronized">
+        share
+    </div>
     <input id="users-list" class="awesomplete"  placeholder="entrez un email..." value="{email}">
     <!--<a class="share-btn" onclick={share}>Partager</a>-->
     <p class="text-user-list">{resultShare}</p>
