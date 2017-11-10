@@ -56,9 +56,16 @@ module.exports = {
           response.on('end', () => {
             //console.log('end response');
             //console.log(responseBody);
-            resolve({
-              data: JSON.parse(responseBody)
-            });
+
+            try{
+              let responseObject=JSON.parse(responseBody);
+              resolve({
+                data: JSON.parse(responseBody)
+              });
+            }catch(e){
+              reject(new Error('Data Flow is unparsable'));
+            }
+
           });
 
         }

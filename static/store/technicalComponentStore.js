@@ -113,4 +113,16 @@ function TechnicalComponentStore() {
     }
   });
 
+  this.on('componentsCategoriesTree_refresh', function() {
+      console.log('componentsCategoriesTree_refresh');
+      utilStore.ajaxCall({
+        method: 'get',
+        url: '../data/core/technicalComponent/componentsCategoriesTree'
+      }, false).then(data => {
+        this.trigger('componentsCategoriesTree_changed', data);
+      }).catch(error => {
+        this.trigger('componentsCategoriesTree_fail');
+      });
+  });
+
 }

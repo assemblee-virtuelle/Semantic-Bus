@@ -5,6 +5,7 @@ module.exports = {
   graphIcon: 'dataGouvFrGeolocaliser.png',
   url: require('url'),
   http: require('http'),
+  RequestCount :0,
   //waterfall: require('promise-waterfall'),
   initComponent: function(entity) {
     return entity;
@@ -30,7 +31,7 @@ module.exports = {
   //   });
   // },
   geoLocalise: function(source, specificData) {
-    console.log('adress.data.gouv geoLocalise',specificData.countryPath);
+    //console.log('adress.data.gouv geoLocalise',specificData.countryPath);
     return new Promise((resolve, reject) => {
 
       var goePromises = [];
@@ -60,7 +61,8 @@ module.exports = {
             });
           });
         } else {
-
+          this.RequestCount++;
+          //console.log('RequestCount',this.RequestCount);
           var record = source[sourceKey];
           var address = {
             street: record[specificData.streetPath],
@@ -94,16 +96,20 @@ module.exports = {
                 //console.log('geoLocalise | parsedUrl |', parsedUrl);
                 //console.log('REST Get JSON | makerequest | port',parsedUrl.port);
                 //  console.log('REST Get JSON | makerequest | host',parsedUrl.hostname);
+                let keepAliveAgent = new this.http.Agent({
+                  keepAlive: true
+                });
                 const requestOptions = {
                   hostname: parsedUrl.hostname,
                   path: parsedUrl.path,
                   port: parsedUrl.port,
                   method: 'GET',
-                  agent: new this.http.Agent()
+                  agent: keepAliveAgent
                 }
                 //          console.log(requestOptions);
                 // console.log('JUST before adresse.data.gouv request', specificData.countryPath);
                 try {
+                  //resolve({error:'dummy'})
                   const request = this.http.request(requestOptions, response => {
                       // console.log('JUST after adresse.data.gouv request', specificData.countryPath);
                     const hasResponseFailed = response.status >= 400;
@@ -174,6 +180,7 @@ module.exports = {
         }
 
       }.bind(this), 200);
+      //200
 
       /*for (record of source) {
         var address = {
