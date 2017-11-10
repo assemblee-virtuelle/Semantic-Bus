@@ -1,10 +1,12 @@
 <workspace-component-editor class="containerV">
-  <div class="containerH commandBar" style="flex-basis:50px">
-    <div class="commandGroup" class="containerH"></div>
-    <div class="commandTitle">
-      {editorTitle}
-    </div>
-    <div class="commandGroup containerH">
+  <div class="commandBar containerH" style="height: 100pt;
+    /* text-align: center; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(33,150,243);
+    color:white">
+    <div style="border: 3px solid white; padding: 10px; border-radius: 20pt;">Edit Componnent</div>
       <!--<div onclick={nagivationClick} class="commandButton">
         back to navigation
       </div>-->
@@ -14,12 +16,21 @@
       <!--<div id="workButton" onclick={workClick} class="commandButton">
         run this component
       </div>-->
-      <div onclick={saveWorkspaceComponent} class={commandButton: true, persistInProgress: persistInProgress } id="saveButton">
-        save
+      <div onclick={saveWorkspaceComponent} class={persistInProgress: persistInProgress }
+          style="margin-left: -1px;
+          height: 38px;
+          padding-left: 19pt;
+          border-radius: 15pt;
+          border: 3px solid white;
+          color: white;
+          position: absolute;
+          padding-right: 19pt;
+          margin-left: 35vw;  cursor: pointer;" id="saveButton" > 
+          save 
       </div>
     </div>
   </div>
-  <div style="flex-basis:100px" class="containerH">
+  <div style="flex-basis:100px; padding:5pt" class="containerH">
     <div style="flex-grow:1">
       <label>nom du composant</label>
       <input type="text" id="nameComponentInput" onchange={onNameChange} value={itemCurrent.name}></input>
@@ -50,7 +61,7 @@
         {type} : {name}
       </div>
     </div>-->
-    <div id="editionContainer" style="flex-grow:1" class="containerV">
+    <div id="editionContainer" style="flex-grow:1; padding:5pt" class="containerV">
       <!--<workspace-editor if={modeWorkspaceEdition}></workspace-editor>-->
 
     </div>

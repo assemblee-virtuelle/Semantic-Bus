@@ -58,24 +58,29 @@
         </div>
       -->
 
-      <div class="containerV commandBar" style="justify-content: space-between;">
-        <div class="containerV commandGroup" style="flex-grow:0;justify-content:flex-start;">
+      <div class="containerV commandBar" style="justify-content: space-between;background-color: rgb(33,150,243);" >
+        <div class="containerV commandGroup" style="flex-grow:0;justify-content:flex-start;padding:6pt">
           <div class="commandButtonImage" onclick={workspaceSelectorClick} id="workspaceSelector">
-            <img src="./image/User-256.png" width="60px">
+            <img src="./image/dossier.svg" style="    background-color: rgb(33,150,243);
+    margin-top: 10pt;" width="40px">
           </div>
           <div class="commandButtonImage" onclick={workspaceShareSelectorClick}>
-            <img src="./image/Group-256.png" width="60px">
+            <img src="./image/double_dossier.svg" style="    background-color: rgb(33,150,243);
+    margin-top: 10pt;"  width="40px">
           </div>
           <div class="commandButtonImage" onclick={profilSelectorClick}>
-            <img src="./image/user.png" width="60px">
+            <img src="./image/photo.svg" style="    background-color: rgb(33,150,243);
+    margin-top: 10pt;"  width="40px">
           </div>
           <div class="commandButtonImage" onclick={adminSelectorClick} if={showAdmin}>
-            <img src="./image/Administrative-Tools-256.png" width="60px">
+            <img src="./image/Roulette_bus.svg" style="    background-color: rgb(33,150,243);
+    margin-top: 10pt;"  width="40px">
           </div>
         </div>
         <div class="containerV commandGroup" style="flex-grow:1;justify-content:center;">
           <div id="backButton" onclick={back} if={isScrennHide()} class="commandButtonImage">
-            <img src="./image/Super-Mono-png/PNG/basic/blue/arrow-left.png" width="60px">
+            <img src="./image/Super-Mono-png/PNG/basic/blue/arrow-left.png" style="    background-color: rgb(33,150,243);
+    margin-top: 10pt;"  width="40px">
           </div>
         </div>
         <div class="containerV commandGroup" style="flex-grow:0;justify-content:flex-end;">

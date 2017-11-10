@@ -36,8 +36,10 @@
   }
 
   .container-top{
-    display:flex;
-    background-color: rgb(250,250,250);
+    display: flex;
+    background-color: rgb(33,150,243);
+    color: white;
+    padding: 15pt;
   }
     #bad-result{
       color: red;

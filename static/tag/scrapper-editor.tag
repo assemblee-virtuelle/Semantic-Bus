@@ -49,9 +49,9 @@
      <label>scroll y </label>
     <input type="text" class="form-controle" ref="scrollY" value={scrollY}></input>
   </div>
-
-
-  <zenTable style="flex:1" drag={true} title="Your scenario" disallownavigation=false>
+   <image  style="margin-left: -1px; margin-left: 88vw;  cursor: pointer;" src="./image/ajout_composant.svg" width="50" height="50" onclick={addRowClick}>
+  </image>
+  <zenTable style="flex:1" drag={true} title="Your scenario" disallownavigation={false} disallowdelete={true} >
     <yield to="header">
       <div>Name</div>
       <div>Type</div>
@@ -62,13 +62,13 @@
       <div>ScrollY</div>
     </yield>
     <yield to="row">
-      <div style="width:15%">{action}</div>
-      <div style="width:15%">{actionType}</div>
-      <div style="width:15%">{selector}</div>
-      <div style="width:15%" >{attribut}</div>
-      <div style="width:15%">{setValue}</div>
-      <div style="width:5%">{scrollX}</div>
-      <div style="width:5%">{scrollY}</div>
+      <div style="width:14.25%">{action}</div>
+      <div style="width:14.25%">{actionType}</div>
+      <div style="width:14.25%">{selector}</div>
+      <div style="width:14.25%" >{attribut}</div>
+      <div style="width:14.25%">{setValue}</div>
+      <div style="width:14.25%">{scrollX}</div>
+      <div style="width:14.25%">{scrollY}</div>
     </yield>
   </zenTable>
 
@@ -123,6 +123,33 @@
     this.setValue = false
     this.scroll = false
 
+    addRowClick(e) {
+      console.log("add row",e)
+      //var index=parseInt(e.currentTarget.dataset.rowid) console.log(index);
+      this.recalculateHeader()
+      this.trigger('addRow')
+    }
+
+    recalculateHeader() {
+      console.log(this.tags.zentable.refs.tableHeader.children)
+      var headers = this.tags.zentable.refs.tableHeader.children;
+      for (var row of this.root.querySelectorAll('.tableRow')) {
+        for (var headerkey in headers) {
+          var numkey = parseInt(headerkey);
+          if (!isNaN(numkey)) {
+            //console.log(row.children[numkey].getBoundingClientRect().width);
+            var width = row.children[numkey].getBoundingClientRect().width;
+            var cssWidth = width + 'px';
+            headers[headerkey].style.width = cssWidth ;
+            headers[headerkey].style.maxWidth = cssWidth ;
+            headers[headerkey].style.minWidth = cssWidth ;
+            headers[headerkey].style.flexBasis = cssWidth ;
+            //console.log(headers[headerkey].style);
+          }
+        }
+        break;
+      }
+    }
 
     //initialize
     this.data = {}
@@ -139,6 +166,8 @@
       this.update();
     }.bind(this);
 
+    
+
     this.on('unmount', function () {
       RiotControl.off('item_current_changed', this.updateData);
     });
@@ -152,7 +181,7 @@
         this.update()
       }.bind(this));
 
-      this.tags.zentable.on('addRow', function () {
+      this.on('addRow', function () {
         console.log("add row")
 
         if(this.refs.actionType.value == "getValue" || this.refs.actionType.value == "getHtml" ||  this.refs.actionType.value == "click"){
@@ -190,10 +219,12 @@
           scrollX: this.scrollX,
           scrollY: this.scrollY
         });
+        console.log(this.data.specificData.scrappe)
         this.update()
       }.bind(this));
 
       this.tags.zentable.on('delRow', function (row) {
+        console.log("in delete", row)
         this.data.specificData.scrappe.splice(row.rowid, 1);
         this.tags.zentable.data = this.data.specificData.scrappe;
       }.bind(this));

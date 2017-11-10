@@ -1,14 +1,15 @@
-<profil>
-  <div class="containerH" style="flex-wrap:nowrap;flex-grow:1;">
-    <div class="containerV" style="flex-basis:95px;">
-        <div onclick={goUtilisation} class="commandButtonImage">
-          <img src="./image/Pie-Chart-Graph-32.png" height="60px">
+<profil class="containerV">
+   <div class="containerH" style="flex-wrap:nowrap;flex-grow:1;">
+    <div class="containerV" style="flex-basis: 65px;
+    background-color: rgb(9,245,185); padding:6pt">
+        <div onclick={goUtilisation} class="commandButtonImage"  style="margin-top: 20pt;">
+          <img src="./image/Graphe_2.svg" height="40px" width="40px">
         </div>
-        <div onclick={goUserEdition} class="commandButtonImage">
-          <img src="./image/user-profile-edition.png" height="60px">
+        <div onclick={goUserEdition} class="commandButtonImage"  style="margin-top: 20pt;">
+          <img src="./image/Autres.svg" height="40px"  width="40px">
         </div>
-        <div onclick={goSetting} class="commandButtonImage">
-          <img src="./image/setting.png" height="60px">
+        <div onclick={goSetting} class="commandButtonImage"  style="margin-top: 20pt;">
+           <img src="./image/Roulette_bus.svg" height="40px"  width="40px">
         </div>
     </div>
     <div class="containerV"  style="flex-grow:1;">

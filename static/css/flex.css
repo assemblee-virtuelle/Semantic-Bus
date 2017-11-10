@@ -1,9 +1,9 @@
 .containerH>*{
-  border-style: solid;
+  /* border-style: solid;
   border-width: 1px;
   border-radius:5px;
   padding: 5px;
-  margin: 5px;
+  margin: 5px; */
 }
 
 .noBorder{

@@ -1,8 +1,16 @@
 <workspace-share-table class="containerV">
-  <div class="commandBar containerH">
-    Shared Workspaces
+  <div class="commandBar containerH" style="height: 100pt;
+    /* text-align: center; */
+    display: flex;
+    align-items: center;
+    flex-direction:column;
+    justify-content: center;
+    background-color: rgb(33,150,243);
+    color:white">
+    <div style="margin-bottom: 15pt;"> <strong>My Work</strong>spaces    <strong>Share</strong></div>
+      <input class="champ"  type="text" name="inputSearch" ref="inputSearch" placeholder="Search" onkeyup={ filterCards }>
   </div>
-  <zenTable  drag={false} style="flex:1" disallowcommand="true">
+  <zenTable  drag={false}  disallownavigation={true} disallowdelete={true} style="flex:1" disallowcommand="true">
     <yield to="header">
       <div>name</div>
       <div>description</div>
@@ -14,6 +22,27 @@
   </zenTable>
 
   <script>
+
+
+    filterCards(e){
+      if(e.code == "Backspace"){
+        this.tags.zentable.data = this.data
+        this.tags.zentable.data = sift({name: {$regex: re}  }, this.tags.zentable.data);
+      }
+      let test = $(".champ")[0].value
+      var re = new RegExp(test, 'gi');
+      this.tags.zentable.data = sift({name: {$regex: re}  }, this.tags.zentable.data);
+      this.update()
+    }.bind(this)
+
+    navigationClick(e) {
+      console.log("test", e.item.rowid)
+      var index = parseInt(e.item.rowid);
+      let dataWithRowId =  this.tags.zentable.data[index];
+      console.log("dataWithRowId", dataWithRowId, dataWithRowId.rowid)
+      this.trigger('rowNavigation', dataWithRowId)
+    }
+
     //console.log('mount opts :',this.opts);
     this.refreshZenTableShare = function (data) {
       console.log('view UPDATE', data);
@@ -21,7 +50,7 @@
     }.bind(this);
     this.on('mount', function (args) {
       //console.log('mount argr :',opts);
-      this.tags.zentable.on('rowNavigation', function (data) {
+      this.on('rowNavigation', function (data) {
         //console.log(data);
         RiotControl.trigger('workspace_current_select', data);
         //this.trigger('selectWorkspace');
@@ -39,5 +68,15 @@
 
     });
   </script>
-  <style></style>
+  <style>
+  .champ {    
+      color: rgb(220,220,220);
+      padding: 20px;
+      width: 50vw;
+      height: 38px;
+      border-radius: 20pt;
+      border-width: 0;
+      font-size: 1em
+    }
+   </style>
 </workspace-share-table>

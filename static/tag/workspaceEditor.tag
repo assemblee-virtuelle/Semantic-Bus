@@ -1,37 +1,41 @@
 <workspace-editor class="containerV" data-id={innerData._id}>
   <div class="containerH" style="flex-wrap:nowrap;flex-grow:1;">
-    <div class=" containerV" style="flex-basis:80px;">
+    <div class=" containerV" style="flex-basis:65px; background-color: rgb(9,245,185);padding:6pt">
       <!--<div class="{color1}" if={componentView} id="component" onclick={goComponent}>Composant(s)</div>
       <div class="{color2}" id="user" if={userView} onclick={goUser}>Utilisateur(s)</div>
       <div class="{color3}" if={DescriptionView} id="description" onclick={goDescription}>Déscription</div>
       <div class="{color4}" if={DescriptionView} id="description" onclick={goUtilisation}>Utilisation</div>-->
-      <div onclick={goComponent} class={commandButtonImage:true,menuSelected:menu=='component'}>
-        <img src="./image/Flow-Chart-256.png" height="60px">
+      <div onclick={goComponent} class={commandButtonImage:true,} style="margin-top: 20pt;">
+        <img src="./image/Graphe_2.svg" height="40px" width="40px">
       </div>
-      <div onclick={goUser} class={commandButtonImage:true,menuSelected:menu=='user'}>
-        <img src="./image/Sharepoint-256.png" height="60px">
+      <div onclick={goUser} class={commandButtonImage:true,}>
+        <img src="./image/En_groupe.svg" height="40px"  width="40px">
       </div>
-      <div onclick={goInformation} class={commandButtonImage:true,menuSelected:menu=='information'}>
-        <img src="./image/doc.png" height="60px">
+      <div onclick={goInformation} class={commandButtonImage:true,} style="margin-top: 20pt;">
+        <img src="./image/Autres.svg" height="40px"  width="40px">
       </div>
-      <div onclick={goUtilisation} class={commandButtonImage:true,menuSelected:menu=='utilisation'}>
-        <img src="./image/Pie-Chart-Graph-32.png" height="60px">
+      <div onclick={goUtilisation} class={commandButtonImage:true,} style="margin-top: 20pt;">
+        <img src="./image/Stats.svg" height="40px"  width="40px">
       </div>
     </div>
-    <div class=" containerV" style="flex-grow:1;">
-      <div class="commandBar containerH">
-        <div>{innerData.name}</div>
-        <div class="containerH commandGroup">
-          <div onclick={editClick} class="commandButton" id="edit" if={innerData.mode=="read" }>
-            edit
-          </div>
-          <div onclick={graphClick} class="commandButton" id="graph">
-            full size
-          </div>
-          <!--<div onclick={cancelClick}  class="commandButton" id="cancel"  if={innerData.mode=="edit" || innerData.mode=="init"}>
-                  cancel
-                </div>-->
-          <div onclick={persistClick} class="{commandButton:true,notSynchronized:innerData.synchronized==false}" id="save" if={innerData.mode=="edit" || innerData.mode=="init" }>
+    <div class=" containerV" style="flex-grow:1; background-color:rgb(238,242,249)">
+      <div class="commandBar containerH" style="height: 100pt;
+    /* text-align: center; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(33,150,243);
+    color:white">
+        <div style="border: 3px solid white; padding: 10px; border-radius: 20pt;">{innerData.name}</div>
+        <div class="containerH commandGroup" style="width: 100%;">
+          <div onclick={persistClick} class="{notSynchronized:innerData.synchronized==false}" style="margin-left: -1px;
+          height: 38px;
+          padding-left: 19pt;
+          border-radius: 15pt;
+          border: 3px solid white;
+          color: white;
+          padding-right: 19pt;
+          margin-left: 80vw;  cursor: pointer;" id="save" if={innerData.mode=="edit" || innerData.mode=="init" }>
             save
           </div>
         </div>

@@ -1,16 +1,21 @@
 <technical-component-table class="containerV">
-  <div class="commandBar containerH">
-    <div>add Component</div>
-    <div class="containerH commandGroup">
-      <!--<div onclick={cancelClick} class="commandButton">
-        cancel
-      </div>-->
-      <div id="addComponent" if={actionReady} onclick={addComponent} class="commandButton notSynchronized">
-        add
-      </div>
+  <div class="commandBar containerH" style="height: 100pt;
+    /* text-align: center; */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgb(33,150,243);
+    color:white">
+    <div style="border: 3px solid white; padding: 10px; border-radius: 20pt;">Add Componnent</div>
+    <div class="containerH commandGroup"  if={actionReady}>
+          <image  style="margin-left: -1px;
+          margin-top: 7vh;
+          color: white;
+          position: absolute;
+          margin-left: 35vw;  cursor: pointer;" src="./image/ajout_composant.svg" class="commandButtonImage" width="50" height="50" onclick={addComponent}></image>
     </div>
   </div>
-    <zenTable style="flex:1" ref="technicalComponentTable" disallowcommand={true} disallownavigation={true}>
+    <zenTable style="flex:1" clickitem={rowClic} ref="technicalComponentTable" disallowcommand={true} disallownavigation={true}>
       <yield to="header">
         <div>type</div>
         <div>description</div>
@@ -23,8 +28,8 @@
 
  <script>
 
-    this.actionReady=false;
     addComponent(e) {
+      console.log("addComponent");
       //this.tags.zentable.data.forEach(record=>{
       //  if(record.selected){
       RiotControl.trigger('workspace_current_add_components',sift({selected:{$eq:true}},this.tags.zentable.data));
@@ -33,6 +38,7 @@
         //  }
       //});
     }
+
 
     refreshTechnicalComponents(data){
       console.log('technicalCompoents | this.refs |',this.refs);
@@ -45,9 +51,9 @@
 
 
     this.on('mount', function () {
-
-     this.tags.zentable.on('rowSelect',function(){
-        console.log('ROWSELECTD');
+      this.actionReady=false;
+      this.tags.zentable.on('rowSelect',function(){
+        console.log('ROWSELECTD',  this.actionReady);
         this.actionReady=true;
         this.update();
      }.bind(this));
@@ -80,6 +86,10 @@
   .notSynchronized {
     background-color: orange !important;
     color: white;
+  }
+
+  .selected {
+    border:2px solid rgb(33,150,243);
   }
   </style>
 </technical-component-table>

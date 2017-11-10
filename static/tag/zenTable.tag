@@ -1,31 +1,20 @@
-<zenTable class="containerV" style="align-items:stretch">
-  <div class="commandBar containerH commandBarTable" style={opts.css}>
-    <div></div>
-    <div>{opts.title}</div>
-    <div class="containerH commandGroup">
-
-      <div onclick={addRowClick} class="commandButtonImage test-addRow" if={!opts.disallowcommand==true}><img src="./image/Super-Mono-png/PNG/basic/blue/toggle-expand-alt.png" height="40px"></div>
-      <div onclick={delRowClick} class="commandButtonImage test-delRow" if={!opts.disallowcommand==true}><img src="./image/Super-Mono-png/PNG/basic/blue/toggle-collapse-alt.png" height="40px"></div>
-      <div onclick={cancelClick} class="commandButton" if={opts.allowcancelcommand==true}>cancel</div>
-      <div onclick={actionClick} class="commandButton" if={opts.actiontext!=undefined}>{opts.actiontext}</div>
-    </div>
-  </div>
+<zenTable class="containerV" style="align-items:stretch;background-color: rgb(240,240,240);
+    padding: 10pt;">
   <div name="tableHeader" class="tableHeader" ref="tableHeader">
     <yield from="header"/>
   </div>
   <div class="containerV" style="flex:1" name="tableBodyContainer" ref="tableBodyContainer">
     <div class="table" name="tableBody" ref="tableBody"  ondragover={on_drag_over} ondrop={on_drop}>
-      <div class="tableRow {selected:selected} {mainSelected:mainSelected}"  name="tableRow" dragenter={drag_enter} dragleave={drag_leave} draggable={opts.drag} onclick={rowClic} data-rowid={rowid} data-id={_id} each={indexedData}  ondragend={parent.drag_end}
-      	ondragstart={parent.drag_start} >
+      <div  class="tableRow {selected:selected} {mainSelected:mainSelected}"  name="tableRow" dragenter={drag_enter} dragleave={drag_leave} draggable={opts.drag}  data-rowid={rowid} data-id={_id} each={indexedData}  ondragend={parent.drag_end}
+      	ondragstart={parent.drag_start} onclick={rowClic}>
         <yield from="row"/>
-        <div style="width:10px" if={!opts.disallownavigation==true}>
-          <div class="containerH commandBar">
-            <div class="commandGroup containerH">
-              <div onclick={navigationClick} class="commandButton" data-rowid={rowid} >
-                <img src="./image/Super-Mono-png/PNG/basic/blue/arrow-right.png" height="25px" draggable={false}>
+        <div style="width:10px">
+              <div onclick={delRowClick} data-rowid={rowid} if={opts.disallowdelete==true} >
+                <img src="./image/poubelle.png" height="15px" draggable={false}>
               </div>
-            </div>
-          </div>
+              <div onclick={navigationClick} if={opts.disallownavigation==true} data-rowid={rowid} >
+                <img src="./image/edit.png" height="15px" draggable={false}>
+              </div>
         </div>
       </div>
     </div>
@@ -37,6 +26,8 @@
  drag_leave(e){
   this.Id = e.item
  }
+
+
 
  drag_enter(e){
    e.target.parentNode.parentNode.insertBefore(this.placeholder, e.target.parentNode);
@@ -56,6 +47,25 @@
     this.update();
   }
   
+  rowClic(e) {
+    console.log("in row click", this.innerData)
+    var index = parseInt(e.item.rowid)
+    if(this.innerData.length > 0){
+      if (!e.ctrlKey) {
+          for (data of this.innerData) {
+            data.selected = false;
+            data.mainSelected = false;
+          }
+        this.innerData[index].mainSelected = true;
+        let dataWithRowId = this.innerData[index];
+        dataWithRowId.rowId = index;
+        this.trigger('rowSelect', dataWithRowId)
+      }
+      var selected = this.innerData[index].selected || false;
+      this.innerData[index].selected = !selected;
+    }
+  }
+    
 	drag_start(event){
     this.dragged = event;
     return true;
@@ -116,25 +126,9 @@
       configurable: true
     });
 
-    rowClic(e) {
-      var index = parseInt(e.currentTarget.dataset.rowid)
-      if (!e.ctrlKey) {
-        for (data of this.innerData) {
-          data.selected = false;
-          data.mainSelected = false;
-        }
-        this.innerData[index].mainSelected = true;
-        let dataWithRowId = this.innerData[index];
-        dataWithRowId.rowId = index;
-        this.trigger('rowSelect', dataWithRowId)
-      }
-      var selected = this.innerData[index].selected || false;
-      this.innerData[index].selected = !selected;
-    }
-
     navigationClick(e) {
-      console.log(e.item)
-      var index = parseInt(e.currentTarget.dataset.rowid);
+      console.log("test", e.item)
+      var index = parseInt(e.item.rowid);
       let dataWithRowId = this.innerData[index];
       dataWithRowId.rowId = index;
       console.log(dataWithRowId)
@@ -150,6 +144,7 @@
       let i = 0;
       for (data of this.innerData) {
         if (data.selected) {
+          console.log("in del row scrapper", data)
           let dataWithRowId = data;
           dataWithRowId.rowId = i;
           this.trigger('delRow', data)
@@ -231,55 +226,20 @@
       display: table;
       /*display: flex;
       flex-direction: column;*/
-      border-style: solid;
-      border-width: 1px;
-      border-color: #3883fa;
       width: 100%;
     }
     .tableHeader {
       display: flex;
       overflow-x: hidden;
+      color: rgb(110,110,110);
 
     }
 
-    .tableRow {
-      display: table-row;
-      /*display: flex;*/
-    }
-    .tableRow:nth-child(odd) {
-      background-color: #cce2ff;
-    }
-    .tableRow.mainSelected > *,
-    .tableRow.selected > *,
-    .tableRow:hover > * {
-      /*background-color: #3883fa;*/
-      border-top-style: solid;
-      border-bottom-style: solid;
-      border-top-width: 3px;
-      border-bottom-width: 3px;
-      padding-top: 2px;
-      padding-bottom: 2px;
+
+    .tableRow{
+      background-color: white;
     }
 
-    .tableRow.selected > * {
-      border-color: grey;
-    }
-    .tableRow.mainSelected > *,
-    .tableRow:hover > * {
-      border-color: #3883fa;
-    }
-    .tableRow.selected > *:first-child,
-    .tableRow:hover > *:first-child {
-      border-left-style: solid;
-      border-left-width: 3px;
-      padding-left: 2px;
-    }
-    .tableRow.selected > *:last-child,
-    .tableRow:hover > *:last-child {
-      border-right-style: solid;
-      border-right-width: 3px;
-      padding-right: 2px;
-    }
 
     .placeholder{
       margin:4px;
@@ -292,13 +252,17 @@
 
     .tableRow {
       cursor: pointer;
+      background-color: white;
+      margin-top: 9pt;
+      border-radius: 10px;
+      padding: 8pt;
+      color: rgb(110,110,110);
     }
 
     .tableHeader > * {
       /*display: inline-block;*/
       overflow: hidden;
-      padding: 5px;
-      border-right-style: solid;
+      padding: 10px;
       border-width: 1px;
     }
     .tableHeader > *:last-child {
@@ -307,18 +271,12 @@
 
     .tableRow > * {
       display: table-cell;
-      padding: 5px;
-      border-right-style: solid;
-      border-width: 1px;
-      border-color: grey;
     }
     .tableRow > *:last-child {
       border-right-style: none;
     }
 
     .tableHeader {
-      color: #cce2ff;
-      background-color: #3883fa;
     }
 
   </style>
