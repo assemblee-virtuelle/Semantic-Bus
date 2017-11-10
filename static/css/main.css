@@ -30,19 +30,23 @@ body{
   padding: 0px;
 }
 .commandButton{
+  margin-left: 5pt;
   padding-left:10px;
   padding-right:10px;
   padding-top:2px;
   padding-bottom:2px;
   cursor: pointer;
   align-self: flex-end;
-  border-color: #3883fa;
-  background-color: white;
+  border: 3px solid rgb(240,240,240);
+  color: rgb(210,210,210);
+  border-radius: 20px;
 }
 
 .commandButton:hover{
   /*color:#1a1a1a;*/
-  background-color:#649DF9;
+  border: 3px solid rgb(9,245,185)!important;
+  background-color: rgb(9,245,185);
+  color:white;
 }
 
 .commandButtonImage{

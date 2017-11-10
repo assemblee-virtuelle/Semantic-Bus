@@ -4,6 +4,10 @@ module.exports = {
   editor: 'cache-nosql-editor',
   mLabPromise: require('../mLabPromise'),
   graphIcon:'cacheNosql.png',
+  tags:[
+    'http://semantic-bus.org/data/tags/persistComponents',
+    'http://semantic-bus.org/data/tags/persistCacheComponents'
+  ],
   workspace_component_lib : require('../../lib/core/lib/workspace_component_lib'),
   cache_lib : require('../../lib/core/lib/cache_lib'),
   stepNode: true,

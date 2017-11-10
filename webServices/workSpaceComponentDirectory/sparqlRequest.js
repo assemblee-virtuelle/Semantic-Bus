@@ -3,6 +3,10 @@ module.exports = {
   description: 'Requeter en sparql sur un fichier json ld',
   editor: 'sparql-request-editor',
   graphIcon:'sparqlRequest.png',
+  tags:[
+    'http://semantic-bus.org/data/tags/middleComponents',
+    'http://semantic-bus.org/data/tags/middleQueryingComponents'
+  ],
   rdfstore: require('rdfstore'),
   makeRequest: function (flowData, request) {
   return new Promise((resolve, reject) => {

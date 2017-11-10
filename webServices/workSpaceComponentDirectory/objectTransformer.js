@@ -4,6 +4,10 @@ module.exports = {
   editor: 'object-transformer',
   graphIcon: 'objectTransformer.png',
   transform: require('jsonpath-object-transform'),
+  tags:[
+    'http://semantic-bus.org/data/tags/middleComponents',
+    'http://semantic-bus.org/data/tags/middleQueryingComponents'
+  ],
   initComponent: function(entity) {
     //console.log('Object Transformer | initComponent : ',entity);
 

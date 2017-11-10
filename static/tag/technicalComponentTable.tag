@@ -16,25 +16,21 @@
     </div>
   </div>
   <div class="commandBar containerH">
-    <div class="containerH commandGroup">
-      <div each={item in firstLevelCriteria} class="commandButton" onclick={firstLevelCriteriaClick}>
+    <div class="containerH commandGroup" style="flex-grow:1">
+      <div each={item in firstLevelCriteria} class={commandButton:true,tagSelected:isTagInSelectedTags(item)} onclick={firstLevelCriteriaClick}>
         {item['skos:prefLabel']}
       </div>
     </div>
   </div>
   <div class="commandBar containerH">
-    <div class="containerH commandGroup">
-      <div each={item in secondLevelCriteria} class="commandButton" onclick={secondLevelCriteriaClick}>
+    <div class="containerH commandGroup" style="flex-grow:1">
+      <div each={item in secondLevelCriteria} class={commandButton:true,tagSelected:isTagInSelectedTags(item)} onclick={secondLevelCriteriaClick}>
         {item['skos:prefLabel']}
       </div>
     </div>
   </div>
-  <div class="containerH">
-      <div each={item in selectedTags}>
-        {item['skos:prefLabel']}
-      </div>
-  </div>
-  <zenTable style="flex:1" ref="technicalComponentTable" disallowcommand={true} disallowdelete={true} disallownavigation={true}>
+
+  <zenTable style="flex:1" ref="technicalComponentTable" disallowdelete={false} disallownavigation={false}>
     <yield to="header">
       <div>type</div>
       <div>description</div>
@@ -50,7 +46,19 @@
     this.actionReady = false;
     this.firstLevelCriteria = [];
     this.secondLevelCriteria = [];
-    this.selectedTags=[];
+    this.selectedTags = [];
+    this.rawData = [];
+
+    this.isTagInSelectedTags = function (item) {
+      let out = false;
+
+      out = sift({
+        '@id': item['@id']
+      }, this.selectedTags).length > 0;
+
+      //console.log('isScrennToShow',screenToTest,out, this.screenHistory);
+      return out;
+    }
 
     addComponent(e) {
       //this.tags.zentable.data.forEach(record=>{  if(record.selected){
@@ -63,39 +71,62 @@
       //RiotControl.trigger('back');  } });
     }
 
-    firstLevelCriteriaClick(e){
-      //console.log(e);
-      //console.log(e.item.item['@id']);
-      this.secondLevelCriteria = sift({
-        broader:e.item.item['@id']
-      }, this.ComponentsCategoriesTree['@graph']);
-      this.selectedTags=[];
-      this.selectedTags.push(e.item.item);
+    firstLevelCriteriaClick(e) {
+      //console.log(e); console.log(e.item.item['@id']);
+
+      let everSelected = this.isTagInSelectedTags(e.item.item);
+      this.selectedTags = [];
+      this.secondLevelCriteria = [];
+      if (!everSelected) {
+        this.secondLevelCriteria = sift({
+          broader: e.item.item['@id']
+        }, this.ComponentsCategoriesTree['@graph']);
+        this.selectedTags.push(e.item.item);
+      }
+      this.updateComponentsByTags();
     }
 
-    secondLevelCriteriaClick(e){
-      //console.log(e);
-      //console.log(e.item.item['@id']);
-      // this.secondLevelCriteria = sift({
-      //   broader:e.item.item['@id']
-      // }, this.ComponentsCategoriesTree['@graph']);
-      this.selectedTags=sift({broader:{$exists:false}},this.selectedTags)
-      this.selectedTags.push(e.item.item);
+    secondLevelCriteriaClick(e) {
+      //console.log(e); console.log(e.item.item['@id']); this.secondLevelCriteria = sift({   broader:e.item.item['@id'] }, this.ComponentsCategoriesTree['@graph']);
+      let everSelected = this.isTagInSelectedTags(e.item.item);
+      this.selectedTags = sift({
+        broader: {
+          $exists: false
+        }
+      }, this.selectedTags)
+      if (!everSelected) {
+        this.selectedTags.push(e.item.item);
+      }
+      this.updateComponentsByTags();
     }
 
+    // refreshTechnicalComponents(data) {   console.log('technicalCompoents | this.refs |', this.refs);   this.tags.zentable.data = data;
+    //
+    // }
 
-    refreshTechnicalComponents(data){
-      console.log('technicalCompoents | this.refs |',this.refs);
-      this.tags.zentable.data=data;
+    this.updateComponentsByTags = function () {
+      console.log(this.rawData);
+      console.log(this.selectedTags.map(t => t['@id']));
+      if (this.selectedTags.length > 0) {
+        this.tags.zentable.data = sift({
+          'tags': {
+            $all: this.selectedTags.map(t => t['@id'])
+          }
+        }, this.rawData);
+
+      } else {
+        this.tags.zentable.data = this.rawData;
+
+      }
     }
 
     this.updateData = function (dataToUpdate) {
       this.tags.zentable.data = dataToUpdate;
-
+      this.rawData = dataToUpdate;
     }.bind(this);
 
     this.updateComponentsCategoriesTree = function (tree) {
-      this.ComponentsCategoriesTree=tree;
+      this.ComponentsCategoriesTree = tree;
       this.firstLevelCriteria = sift({
         broader: {
           $exists: false
@@ -140,13 +171,16 @@
     });
   </script>
   <style>
-  .notSynchronized {
-    background-color: orange !important;
-    color: white;
-  }
+    .notSynchronized {
+      background-color: orange !important;
+      color: white;
+    }
 
-  .selected {
-    border:2px solid rgb(33,150,243);
-  }
+    .tagSelected {
+      border: 3px solid rgb(9,245,185)!important;
+      background-color: rgb(9,245,185);
+      color:white;
+    }
+
   </style>
 </technical-component-table>

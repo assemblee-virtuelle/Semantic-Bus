@@ -59,9 +59,7 @@
       <g id="shapeCommandLayer"></g>
       <image id="addComponentGraph" xlink:href="./image/ajout_composant.svg" class="commandButtonImage" x="1400" y="20" width="60" height="60" onclick={addComponentClick}></image>
       <text x="1290" y="60" 
-font-size="25"  fill="rgb(33,150,243)" id="mytext" onclick={graphClick}>full size </text>
-     <text x="1190" y="60" 
-font-size="25"  fill="rgb(33,150,243)" >{fullscreen}</text>
+font-size="25"  fill="rgb(33,150,243)" id="mytext" if={fullscreen == true} onclick={graphClick}>full size </text>
     </svg>
   </div>
   <!--graphContainer-->
@@ -80,9 +78,7 @@ font-size="25"  fill="rgb(33,150,243)" >{fullscreen}</text>
 
     graphClick(e) {
       console.log('EDIT');
-      this.fullscreen = false
       RiotControl.trigger('workspace_current_graph');
-      this.svg.select("#mytext").remove();
       this.update()
     }
     
@@ -538,9 +534,13 @@ font-size="25"  fill="rgb(33,150,243)" >{fullscreen}</text>
     // this.modeConnectBefore = modes.before;   this.update(); }.bind(this)); evenement appele par riot
     this.on('mount', function () { // mount du composant riot
       //RiotControl.on('workspace_current_changed', this.refreshGraph);
+      if(this.parent != undefined  && this.parent.title == "Workspace"){
+        this.fullscreen = true
+      }else{
+        this.fullscreen = false
+      }
       RiotControl.on('workspace_graph_selection_changed', this.drawSelected);
       RiotControl.on('workspace_graph_compute_done', this.drawGraph);
-      RiotControl.on('fullsizetrue', () => {this.fullscreen = true;this.update()});
       //RiotControl.trigger('workspace_current_refresh'); console.log(this.refs.graphSvgCanvas.viewBox.baseVal);
       RiotControl.trigger('workspace_graph_compute', this.refs.graphSvgCanvas.viewBox.baseVal);
 

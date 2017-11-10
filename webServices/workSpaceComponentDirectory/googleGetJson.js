@@ -3,6 +3,10 @@ module.exports = {
   description: 'intéroger une feuille de calcule GOOGLE calc qui fourni un flux JSON',
   editor: 'google-get-json-editor',
   graphIcon:'googleSheetsGetJson.png',
+  tags:[
+    'http://semantic-bus.org/data/tags/inComponents',
+    'http://semantic-bus.org/data/tags/APIComponents'
+  ],
   //  url: require('url'),
   //  http: require('http'),
   sheetrock: require('sheetrock'),

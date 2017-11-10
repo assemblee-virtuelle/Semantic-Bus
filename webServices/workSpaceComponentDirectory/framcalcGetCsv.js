@@ -5,6 +5,10 @@ module.exports = {
   //  url: require('url'),
   //  http: require('http'),
   graphIcon:'framacalcCsv.png',
+  tags:[
+    'http://semantic-bus.org/data/tags/inComponents',
+    'http://semantic-bus.org/data/tags/APIComponents'
+  ],
   url: require('url'),
   http: require('http'),
   https: require('https'),

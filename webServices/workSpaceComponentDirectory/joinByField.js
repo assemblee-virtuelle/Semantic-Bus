@@ -3,6 +3,11 @@ module.exports = {
   description: 'completer un flux par un second en se basant sur un champ du 1er et un identifiant du 2nd',
   editor: 'join-by-field-editor',
   graphIcon:'joinByField.png',
+  tags:[
+    'http://semantic-bus.org/data/tags/middleComponents',
+    'http://semantic-bus.org/data/tags/middleComponentsAgregation'
+  ],
+
   sift: require('sift'),
 
   getPrimaryFlow: function(data, flowData) {

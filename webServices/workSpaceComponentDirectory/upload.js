@@ -6,6 +6,10 @@ module.exports = {
   description: 'Uploader un fichier',
   editor: 'upload-editor',
   graphIcon: 'default.png',
+  tags:[
+    'http://semantic-bus.org/data/tags/inComponents',
+    'http://semantic-bus.org/data/tags/fileComponents'
+  ],
   busboy: require('busboy'),
   mLabPromise: require('../mLabPromise'),
   dataTraitment: require("../dataTraitmentLibrary/index.js"),

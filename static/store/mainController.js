@@ -127,7 +127,6 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     this.screenHistory.push(newScreenHistory);
     console.log('screenHistory', this.screenHistory);
     this.trigger('newScreenHistory', newScreenHistory);
-    this.trigger('fullsizetrue', newScreenHistory);
     // }
 
   }

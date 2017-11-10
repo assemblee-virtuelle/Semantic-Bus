@@ -3,6 +3,10 @@ module.exports = {
   description: 'intéroger un fichier mis à disposition sur une API REST avec une requete Get',
   editor: 'rest-get-editor',
   graphIcon:'restGetHttp.png',
+  tags:[
+    'http://semantic-bus.org/data/tags/inComponents',
+    'http://semantic-bus.org/data/tags/fileComponents'
+  ],
   url: require('url'),
   http: require('http'),
   https: require('follow-redirects').https,

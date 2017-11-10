@@ -4,6 +4,10 @@ module.exports = {
   description: 'Scrapper page html',
   editor: 'scrapper-editor',
   graphIcon: 'scrapper.png',
+  tags:[
+    'http://semantic-bus.org/data/tags/inComponents',
+    'http://semantic-bus.org/data/tags/scrapperComponents'
+  ],
   phantom: require('phantom'),
   sift: require('sift'),
   webdriverio: require('webdriverio'),

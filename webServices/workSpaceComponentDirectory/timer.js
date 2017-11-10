@@ -6,6 +6,10 @@ module.exports = {
   // workspace_component_lib : require('../../lib/core/lib/workspace_component_lib'),
   // cache_lib : require('../../lib/core/lib/cache_lib'),
   stepNode: false,
+  tags:[
+    'http://semantic-bus.org/data/tags/middleComponents',
+    'http://semantic-bus.org/data/tags/middleUtilitiesComponents'
+  ],
 
   pull: function(data, flowData, undefined) {
     //console.log('--------- cash data START --------  : ');

@@ -23,11 +23,11 @@
     /* text-align: center; */
     display: flex;
     align-items: center;
-    justify-content: center;
+    justify-content: space-betweens;
     background-color: rgb(33,150,243);
     color:white">
+        <div></div>
         <div>{innerData.name}</div>
-        <div class="containerH commandGroup" style="width: 100%;">
           <div onclick={persistClick} class="{notSynchronized:innerData.synchronized==false}" style="margin-left: -1px;
           height: 38px;
           padding-left: 19pt;
@@ -35,9 +35,8 @@
           border: 3px solid white;
           color: white;
           padding-right: 19pt;
-          margin-left: 80vw;  cursor: pointer;" id="save" if={innerData.mode=="edit" || innerData.mode=="init" }>
+          cursor: pointer;" id="save" if={innerData.mode=="edit" || innerData.mode=="init" }>
             save
-          </div>
         </div>
       </div>
 
