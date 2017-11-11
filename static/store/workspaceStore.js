@@ -69,32 +69,37 @@ function WorkspaceStore() {
   }; //<= load_share_workspace
 
   // --------------------------------------------------------------------------------
-
+//TODO passer par le proxy client
   this.create = function() {
     console.log('create');
-    this.trigger('persist_start');
-    $.ajax({
-      method: 'post',
-      url: '../data/core/workspace/' + localStorage.user_id,
-      data: JSON.stringify(this.workspaceCurrent),
-      contentType: 'application/json',
-      headers: {
-        "Authorization": "JTW" + " " + localStorage.token
-      },
-    }).done(function(data) {
-      this.trigger('persist_end', data);
-      //data.mode = 'init';
-      //his.menu='information'
-      this.workspaceBusiness.connectWorkspaceComponent(data.components);
-      this.workspaceCurrent = data;
-      //console.log('update data ||', data);
-      this.trigger('workspace_current_persist_done', data);
-      this.trigger('workspace_current_changed', this.workspaceCurrent);
-    }.bind(this));
+    return new Promise((resolve, reject) => {
+      this.trigger('persist_start');
+      $.ajax({
+        method: 'post',
+        url: '../data/core/workspace/' + localStorage.user_id,
+        data: JSON.stringify(this.workspaceCurrent),
+        contentType: 'application/json',
+        headers: {
+          "Authorization": "JTW" + " " + localStorage.token
+        },
+      }).done(function(data) {
+        this.trigger('persist_end', data);
+        //data.mode = 'init';
+        //his.menu='information'
+        this.workspaceBusiness.connectWorkspaceComponent(data.components);
+        this.workspaceCurrent = data;
+        //console.log('update data ||', data);
+        this.trigger('workspace_current_persist_done', data);
+        this.trigger('workspace_current_changed', this.workspaceCurrent);
+        this.menu='component';
+        this.trigger('workspace_editor_menu_changed', 'component');
+        resolve(data);
+      }.bind(this));
+    });
   }; //<= create
 
   // --------------------------------------------------------------------------------
-
+//TODO passer par le proxy client
   this.update = function(data) {
     console.log("data update", data)
     return new Promise((resolve, reject) => {
@@ -144,9 +149,9 @@ function WorkspaceStore() {
 
 
   this.on('workspace_list_persist', function(workspaceCurrent) {
-      // this.updateList(workspaceCurrent).then(data => {
-      //   console.log("UPDATE DONE")
-      // }); // <= workspace_current_persist
+    // this.updateList(workspaceCurrent).then(data => {
+    //   console.log("UPDATE DONE")
+    // }); // <= workspace_current_persist
   })
 
   // --------------------------------------------------------------------------------
@@ -394,13 +399,13 @@ function WorkspaceStore() {
 
     this.graph.links.forEach(l => {
       l.selected = false;
-      l.connectAfterMode=false;
-      l.connectBeforeMode=false;
+      l.connectAfterMode = false;
+      l.connectBeforeMode = false;
     });
     this.graph.nodes.forEach(n => {
       n.selected = false;
-      n.connectAfterMode=false;
-      n.connectBeforeMode=false;
+      n.connectAfterMode = false;
+      n.connectBeforeMode = false;
     });
     this.trigger('workspace_graph_selection_changed', this.graph);
 

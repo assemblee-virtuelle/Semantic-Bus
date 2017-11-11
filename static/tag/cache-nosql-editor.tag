@@ -2,35 +2,53 @@
 
 
   <div>mettre en cache les data et les réintéroger</div>
+  <label>Historisation</label>
+  <input ref="historyInput" type="checkbox" onchange={historyInputChanged} value={data.specificData.history}></input>
+  <label>Sortie avec historique</label>
+  <input ref="historyOutInput" type="checkbox" onchange={historyOutInputChanged} value={data.specificData.historyOut}></input>
   <jsonEditor ref="cachedData" mode="text" style="flex-grow:1">
   </jsonEditor>
   <script>
 
-    this.innerData = {};
+    this.data={};
+    // this.innerData = {};
+    //
+    // Object.defineProperty(this, 'data', {
+    //   set: function (data) {
+    //     this.innerData = data;
+    //     this.update();
+    //   }.bind(this),
+    //   get: function () {
+    //     return this.innerData;
+    //   },
+    //   configurable: true
+    // });
 
-    Object.defineProperty(this, 'data', {
-      set: function (data) {
-        this.innerData = data;
-        this.update();
-      }.bind(this),
-      get: function () {
-        return this.innerData;
-      },
-      configurable: true
-    });
-
-    reloadCacheClick(e) {
-      RiotControl.trigger('item_current_reloadCache');
-    }
+    // reloadCacheClick(e) {
+    //   RiotControl.trigger('item_current_reloadCache');
+    // }
     // getCacheClick(e) {
     //   RiotControl.trigger('item_current_getCache');
     // }
+
+    historyInputChanged(e){
+      if(this.data != null && this.data.specificData != null ){
+        this.data.specificData.history = e.currentTarget.value;
+      }
+    }
+
+    historyOutInputChanged(e){
+      if(this.data != null && this.data.specificData != null ){
+        this.data.specificData.historyOut = e.currentTarget.value;
+      }
+    }
+
     this.updateData=function(dataToUpdate){
-      this.innerData = dataToUpdate;
+      this.data = dataToUpdate;
       this.update();
     }.bind(this);
 
-    this.refreshCashe=function(casheData){
+    this.refreshCache=function(casheData){
       this.refs.cachedData.data = casheData;
       this.update();
     }.bind(this);
@@ -39,7 +57,7 @@
 
     this.on('mount', function () {
       RiotControl.on('item_current_changed',this.updateData);
-      RiotControl.on('item_current_getCache_done', this.refreshCashe);
+      RiotControl.on('item_current_getCache_done', this.refreshCache);
       RiotControl.trigger('item_current_getCache');
     });
     this.on('unmount', function () {
