@@ -50,15 +50,19 @@ module.exports = {
     //console.log('--------- cash data START --------  : ');
     return new Promise((resolve, reject) => {
       if (flowData != undefined && flowData[0].data != undefined) {
-        //console.log("----- cache data stock ----")
+        //console.log("----- cache data stock ----",flowData[0])
         this.cache_lib.get(data).then(cachedData => {
+
           cachedData=cachedData||{};
-          cachedData.data=inflowData[0];
+          cachedData.data=flowData[0].data;
+          cachedData.date=new Date();
+
           if (data.specificData.history==true){
             cachedData.history=cachedData.history||[];
-            cachedData.history.push({date:new Date(),data:inflowData[0]});
+            cachedData.history.push({data:flowData[0].data});
           }
-          this.cache_lib.persist(cachedData)
+          //console.log('PERSIST CACHE',cachedData);
+          this.cache_lib.persist(data,cachedData)
         });
       } else {
         this.cache_lib.get(data).then(cachedData => {

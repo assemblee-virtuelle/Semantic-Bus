@@ -3,9 +3,9 @@
 
   <div>mettre en cache les data et les réintéroger</div>
   <label>Historisation</label>
-  <input ref="historyInput" type="checkbox" onchange={historyInputChanged} value={data.specificData.history}></input>
+  <input ref="historyInput" type="checkbox" onchange={historyInputChanged} checked={data.specificData.history}></input>
   <label>Sortie avec historique</label>
-  <input ref="historyOutInput" type="checkbox" onchange={historyOutInputChanged} value={data.specificData.historyOut}></input>
+  <input ref="historyOutInput" type="checkbox" onchange={historyOutInputChanged} checked={data.specificData.historyOut}></input>
   <jsonEditor ref="cachedData" mode="text" style="flex-grow:1">
   </jsonEditor>
   <script>
@@ -32,14 +32,15 @@
     // }
 
     historyInputChanged(e){
+      console.log(e);
       if(this.data != null && this.data.specificData != null ){
-        this.data.specificData.history = e.currentTarget.value;
+        this.data.specificData.history = e.target.checked;
       }
     }
 
     historyOutInputChanged(e){
       if(this.data != null && this.data.specificData != null ){
-        this.data.specificData.historyOut = e.currentTarget.value;
+        this.data.specificData.historyOut = e.target.checked;
       }
     }
 
@@ -48,8 +49,8 @@
       this.update();
     }.bind(this);
 
-    this.refreshCache=function(casheData){
-      this.refs.cachedData.data = casheData;
+    this.refreshCache=function(cachedData){
+      this.refs.cachedData.data = cachedData;
       this.update();
     }.bind(this);
 

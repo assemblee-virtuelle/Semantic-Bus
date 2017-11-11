@@ -25,8 +25,8 @@
           border: 3px solid white;
           color: white;
           padding-right: 19pt;
-          cursor: pointer;" id="saveButton" > 
-          save 
+          cursor: pointer;" id="saveButton" >
+          save
       </div>
     </div>
   </div>
@@ -112,6 +112,7 @@
     saveWorkspaceComponent(e) {
       if (this.editionContainer.persist == undefined) {
         var data = this.editionContainer.data;
+        //console.log('ALLO',data);
         for (var property in data) {
           RiotControl.trigger('item_current_updateField', {
             field: property,
