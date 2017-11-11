@@ -31,7 +31,7 @@
     </div>
   </div>
 -->
-  <div id="graphContainer containerV">
+  <div id="graphContainer containerV" style="background-color: rgb(238,242,249); height: 100%;">
     <svg viewBox="0 0 1500 900" ref="graphSvgCanvas">
       <!--width="1000" height="600"-->
       <filter id="dropshadow" x="1%" y="1%" width="110%" height="110%">

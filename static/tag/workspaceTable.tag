@@ -1,30 +1,17 @@
 <workspace-table class="containerV">
-  <div class="commandBar containerH" style="height: 100pt;
-    /* text-align: center; */
-    display: flex;
-    flex-direction:column;
-    align-items: center;
-    justify-content: center;
-    background-color: rgb(33,150,243);
-    color:white">
-    <div style="margin-bottom: 15pt;"> <strong>My Work</strong>spaces</div>
-      <div style="display:flex"> 
-       <input class="champ"  type="text" name="inputSearch" ref="inputSearch" placeholder="Search" onkeyup={ filterCards }>
-        <div onclick={addRowClick} 
-          style="margin-left: -1px;
-          height: 38px;
-          padding-left: 19pt;
-          border-radius: 15pt;
-          border: 3px solid white;
-          color: white;
-          position: absolute;
-          padding-right: 19pt;
-          margin-left: 60vw;  cursor: pointer;"> 
+  <div  class="header">
+    <div class="containerH commandBar" style="margin-bottom: 15pt;justify-content:center"> 
+      <div><strong>My Work</strong>spaces</div>
+    </div>
+      <div class="containerH commandBar"> 
+        <div></div>
+        <div><input class="champ"  type="text" name="inputSearch" ref="inputSearch" placeholder="Search" onkeyup={ filterCards }></div>
+        <div onclick={addRowClick} class="buttonBus"> 
           Add 
         </div>
       </div>
-    </div>
-  <zenTable style="flex:1" drag={false}  disallownavigation={true} disallowdelete={true} ref="workspaceZenTable">
+  </div>
+  <zenTable style="flex:1" drag={false}  clickClass={false} disallownavigation={true} disallowdelete={true} ref="workspaceZenTable">
     <yield to="header">
       <div>Name</div>
       <div>Description</div>
@@ -90,7 +77,7 @@
     });
   </script>
   <style>
-  .champ {    
+    .champ {    
       color: rgb(220,220,220);
       padding: 20px;
       width: 50vw;

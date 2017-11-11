@@ -678,18 +678,16 @@ function WorkspaceStore() {
       // }.bind(this),
       contentType: 'application/json'
     }).done(function(data) {
-      console.log('in share data', data)
       if (data == false) {
         this.trigger('share_change_no_valide')
       } else if (data == "already") {
         this.trigger('share_change_already')
       } else {
-        this.userCurrrent = data,
-          console.log('share-workspace', data);
-        this.trigger('share_change', {
-          user: data.user,
-          workspace: data.workspace
-        })
+        this.workspaceCurrent = data.workspace
+        if (this.viewBox) {
+          this.computeGraph();
+        }
+        this.trigger('share_change');
       }
     }.bind(this));
   });

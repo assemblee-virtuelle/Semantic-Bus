@@ -30,7 +30,7 @@
     </div>
   </div>
 
-  <zenTable style="flex:1" ref="technicalComponentTable" disallowdelete={false} disallownavigation={false}>
+  <zenTable style="flex:1" ref="technicalComponentTable" disallowdelete={false} disallowclick={true}  clickClass={true} disallownavigation={false}>
     <yield to="header">
       <div>type</div>
       <div>description</div>
@@ -176,11 +176,9 @@
       color: white;
     }
 
-    .tagSelected {
-      border: 3px solid rgb(9,245,185)!important;
-      background-color: rgb(9,245,185);
-      color:white;
-    }
+    
+
+
 
   </style>
 </technical-component-table>

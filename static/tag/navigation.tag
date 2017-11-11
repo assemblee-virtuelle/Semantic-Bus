@@ -106,7 +106,7 @@
         <technical-component-table></technical-component-table>
       </div>
       <div class="containerV" style="flex-grow:1" if={isScrennToShow('workspaceAddUser')}>
-        <user-list></user-list>
+        <user-list style="height:100%"></user-list>
       </div>
       <div class="containerV" style="flex-grow:1" if={isScrennToShow('graph')}>
         <graph></graph>

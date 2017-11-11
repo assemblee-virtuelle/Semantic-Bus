@@ -30,7 +30,7 @@
       </div>
     </div>
   </div>
-  <div style="flex-basis:100px; padding:5pt" class="containerH">
+  <div style="flex-basis:100px; padding:5pt; background-color: rgb(238,242,249);" class="containerH">
     <div style="flex-grow:1">
       <label>nom du composant</label>
       <input type="text" id="nameComponentInput" onchange={onNameChange} value={itemCurrent.name}></input>
@@ -61,7 +61,8 @@
         {type} : {name}
       </div>
     </div>-->
-    <div id="editionContainer" style="flex-grow:1; padding:5pt" class="containerV">
+    <div id="editionContainer" style="flex-grow:1; padding: 15pt;
+    background-color: rgb(238,242,249);" class="containerV">
       <!--<workspace-editor if={modeWorkspaceEdition}></workspace-editor>-->
 
     </div>

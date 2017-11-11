@@ -12,20 +12,84 @@ body{
   font-size: 1.2em;
 }
 
+input {
+  color: rgb(220,220,220);
+  padding: 20px;
+  width: 50vw;
+  height: 38px;
+  border-radius: 20pt;
+  border-width: 0;
+  font-size: 1em
+}
+
+.champ {    
+  color: rgb(220,220,220);
+  padding: 20px;
+  width: 50vw;
+  height: 38px;
+  border-radius: 20pt;
+  border-width: 0;
+  font-size: 1em
+}
+
 .commandBar{
   justify-content: space-between;
   padding: 2px;
   overflow-y :visible;
-  color: #3883fa;
+}
 
+.header {height: 100pt;
+/* text-align: center; */
+display: flex;
+flex-direction:column;
+justify-content: center;
+background-color: rgb(33,150,243);
+color:white
 }
 
 
-.commandBar>*{
-  border-style: none;
-  margin:0px;
-
+.headerComponent {height: 15%;
+  /* text-align: center; */
+  display: flex;
+  flex-direction:column;
+  justify-content: center;
+  background-color: rgb(33,150,243);
+  color:white
 }
+
+.tagSelected {
+  border: 3px solid rgb(9,245,185)!important;
+  background-color: rgb(9,245,185);
+  color:white;
+}
+
+.selected {
+  cursor:pointer;
+  border: 3px solid rgb(33,150,243)!important;
+}
+
+.zentableWorkspace{
+  padding: 10pt;
+  align-items:stretch;
+  background-color: rgb(240,240,240)
+}
+
+.zentableUser{
+  padding: 10pt;
+  align-items:stretch;
+}
+
+.buttonBus {
+  margin-left: -1px;
+  height: 38px;
+  padding-left: 19pt;
+  border-radius: 15pt;
+  border: 3px solid white;
+  color: white;
+  padding-right: 19pt;
+  cursor: pointer;
+}
+
 .commandGroup{
   padding: 0px;
 }

@@ -1,22 +1,20 @@
 <user-list>
-  <div class="commandBar containerH">
-    <div>share workspace</div>
-    <div class="containerH commandGroup">
-      <!--<div onclick={cancelClick} class="commandButton">
-        cancel
-      </div>-->
-      <div if={actionReady} onclick={share} class="commandButton notSynchronized">
-        share
-      </div>
+    <div  class="headerComponent">
+        <div class="containerH commandBar"> 
+          <div></div>
+          <div>Ajouter un utilisateur</div>
+          <div  onclick={share} class="{buttonBusNotAvailable:!actionReady} {buttonBus:actionReady} {notSynchronized:actionReady}">
+            share
+          </div>
+        </div>
     </div>
-  </div>
-  <div class="flex-container">
-    <h3 class="title-user-list">Membres</h3>
-    <input id="users-list" class="awesomplete"  placeholder="entrez un email..." value="{email}">
-    <!--<a class="share-btn" onclick={share}>Partager</a>-->
-    <p class="text-user-list">{resultShare}</p>
-    <p class="text-user-list">Saisissez une adresse e-mail pour partager votre Workspace</p>
-  </div>
+    <div class="containerV" style="height: 85%;background-color:rgb(238,242,249);justify-content: center;
+    align-items: center;">
+      <input id="users-list" class="awesomplete champ"  placeholder="entrez un email..." value="{email}">
+      <!--<a class="share-btn" onclick={share}>Partager</a>-->
+      <p class="text-user-list">{resultShare}</p>
+      <p class="text-user-list">Saisissez une adresse e-mail pour partager votre Workspace</p>
+    </div>
   <script>
     this.resultShare = ""
     this.actionReady=false;
@@ -48,12 +46,11 @@
     }.bind(this));
 
     RiotControl.on('all_profil_by_email_load', function (data) {
-      //console.log(data)
+      console.log("all_profil_by_email_load")
       var input = document.getElementById("users-list");
       var awesomplete = new Awesomplete(input);
       awesomplete.list = data;
       input.addEventListener('awesomplete-selectcomplete', function (evt) {
-        console.log('awesomplete-selectcomplete',evt.target.value);
         this.actionReady=true;
         this.email = evt.target.value;
         this.update();
@@ -61,11 +58,7 @@
     }.bind(this));
 
     share(e) {
-      console.log("share");
-      console.log(this.workspace);
-      console.log(this.email);
       if (this.workspace) {
-        console.log("this.workspace", this.workspace)
         RiotControl.trigger('share-workspace', {
           email: this.email,
           worksapce_id: this.workspace._id
@@ -120,7 +113,7 @@
       padding: 5vh;
     }
     .ui-menu .ui-menu-item a {
-      color: #3883fa;
+      color: rgb(238,242,249);
       border-radius: 5px;
       text-align: center;
       margin-left: 5%;
@@ -143,7 +136,10 @@
     }
 
     .awesomplete mark {
-      background: #3883fa;
+      color:rgb(9,245,185);
+      background: rgb(238,242,249);;
+      border:1px solid rgb(238,242,249);
+      border-radius:5px
     }
     mark {
       background: #3883fa;
@@ -166,20 +162,22 @@
       display: inline!important;
       position: relative;
     }
-    #users-list {
-      color: #3883fa;
-      border-radius: 5px;
-      padding: 5px;
-      text-align: center;
-      flex: 2;
-      width: 60%;
-      border: 1px solid #3883fa;
-      margin-top: 10vh;
-    }
+
 
     .notSynchronized {
-      background-color: orange !important;
+      opacity:1
       color: white;
+    }
+
+    buttonBusNotAvailable {
+      margin-left: -1px;
+      height: 38px;
+      padding-left: 19pt;
+      border-radius: 15pt;
+      border: 3px solid white;
+      color: white;
+      padding-right: 19pt;
+      opacity:0.3
     }
 
   </style>
