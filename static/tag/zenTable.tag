@@ -1,19 +1,18 @@
-<zenTable class="containerV" style="align-items:stretch;background-color: rgb(240,240,240);
-    padding: 10pt;">
+<zenTable class="containerV" class={opts.zentableClass || "zentableWorkspace"} >
   <div name="tableHeader" class="tableHeader" ref="tableHeader">
     <yield from="header"/>
   </div>
   <div class="containerV" style="flex:1" name="tableBodyContainer" ref="tableBodyContainer">
     <div class="table" name="tableBody" ref="tableBody"  ondragover={on_drag_over} ondrop={on_drop}>
-      <div  class="tableRow {selected:selected} {mainSelected:mainSelected}"  name="tableRow" dragenter={drag_enter} dragleave={drag_leave} draggable={opts.drag}  data-rowid={rowid} data-id={_id} each={indexedData}  ondragend={parent.drag_end}
+      <div  class="tableRow {selected:selected== true && opts.clickclass} {mainSelected:mainSelected}"  name="tableRow" dragenter={drag_enter} dragleave={drag_leave} draggable={opts.drag}  data-rowid={rowid} data-id={_id} each={indexedData}  ondragend={parent.drag_end}
       	ondragstart={parent.drag_start} onclick={rowClic}>
         <yield from="row"/>
         <div style="width:10px">
               <div onclick={delRowClick} data-rowid={rowid} if={opts.disallowdelete==true} >
-                <img src="./image/poubelle.png" height="15px" draggable={false}>
+                <img  class="commandButtonImage" src="./image/poubelle.png" height="15px" draggable={false}>
               </div>
               <div onclick={navigationClick} if={opts.disallownavigation==true} data-rowid={rowid} >
-                <img src="./image/edit.png" height="15px" draggable={false}>
+                <img class="commandButtonImage" src="./image/edit.png" height="15px" draggable={false}>
               </div>
         </div>
       </div>
@@ -251,7 +250,7 @@
   }
 
     .tableRow {
-      cursor: pointer;
+
       background-color: white;
       margin-top: 9pt;
       border-radius: 10px;

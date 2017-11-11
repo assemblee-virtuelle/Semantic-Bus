@@ -353,6 +353,14 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     // this.trigger('navigator_mount', 'technical-component-table');
   });
 
+  this.workspaceStore.on('share_change', function(record) {
+    this.navigatePrevious();
+    // this.updateMode({
+    //   modeTechnicalComponentNavigation: false
+    // });
+    // this.trigger('navigator_mount', 'technical-component-table');
+  }.bind(this));
+
 
   this.on('workspace_current_add_user_show', function(record) {
     this.navigateNext('workspaceAddUser', true);

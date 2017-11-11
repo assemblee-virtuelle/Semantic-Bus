@@ -3,7 +3,7 @@
     <div class="containerV" style="flex-basis: 65px;
     background-color: rgb(9,245,185); padding:6pt">
         <div onclick={goUtilisation} class="commandButtonImage"  style="margin-top: 20pt;">
-          <img src="./image/Graphe_2.svg" height="40px" width="40px">
+          <img src="./image/Stats.svg" height="40px"  width="40px">
         </div>
         <div onclick={goUserEdition} class="commandButtonImage"  style="margin-top: 20pt;">
           <img src="./image/Autres.svg" height="40px"  width="40px">

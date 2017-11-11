@@ -19,24 +19,13 @@
       </div>
     </div>
     <div class=" containerV" style="flex-grow:1; background-color:rgb(238,242,249)">
-      <div class="commandBar containerH" style="height: 100pt;
-    /* text-align: center; */
-    display: flex;
-    align-items: center;
-    justify-content: space-betweens;
-    background-color: rgb(33,150,243);
-    color:white">
-        <div></div>
-        <div>{innerData.name}</div>
-          <div onclick={persistClick} class="{notSynchronized:innerData.synchronized==false}" style="margin-left: -1px;
-          height: 38px;
-          padding-left: 19pt;
-          border-radius: 15pt;
-          border: 3px solid white;
-          color: white;
-          padding-right: 19pt;
-          cursor: pointer;" id="save" if={innerData.mode=="edit" || innerData.mode=="init" }>
-            save
+      <div class="header">
+        <div class="commandBar containerH">
+          <div></div>
+          <div>{innerData.name}</div>
+            <div onclick={persistClick} class="buttonBus {notSynchronized:innerData.synchronized==false}" id="save" if={innerData.mode=="edit" || innerData.mode=="init" }>
+              save
+          </div>
         </div>
       </div>
 
@@ -57,20 +46,22 @@
         </zenTable>-->
       </div>
       <div show={menu=='user'}>
-        <div style="display:flex; justify-content:flex-end">
-          <image  style="margin-left: -1px;
-              color: white; cursor: pointer;" src="./image/ajout_composant.svg" class="commandButtonImage" width="50" height="50" onclick={addUser}></image>
+        <div style="padding: 15pt;">
+          <div style="display:flex; justify-content:flex-end;">
+            <image  style="margin-left: -1px;
+                color: white; cursor: pointer;" src="./image/ajout_composant.svg" class="commandButtonImage" width="50" height="50" onclick={addUser}></image>
+          </div>
+          <zenTable title="" drag={false} zentableClass="zentableUser" style="flex:1; background-color:inherit!important" disallownavigation="true" id="userliste" disallowcommand={innerData.mode=="read" } ref="userZenTable">
+            <yield to="header">
+              <div>email</div>
+              <div>role</div>
+            </yield>
+            <yield to="row">
+              <div style="width:70%">{email}</div>
+              <div style="width:30%">{role}</div>
+            </yield>
+          </zenTable>
         </div>
-        <zenTable title="" drag={false} style="flex:1" disallownavigation="true" css="background-color:white!important;color: #3883fa;" id="userliste" disallowcommand={innerData.mode=="read" } ref="userZenTable">
-          <yield to="header">
-            <div>email</div>
-            <div>role</div>
-          </yield>
-          <yield to="row">
-            <div style="width:70%">{email}</div>
-            <div style="width:30%">{role}</div>
-          </yield>
-        </zenTable>
       </div>
       <div show={menu=='information'} class="description-worksapce" id="description" style="height: 95vh; width: 100%;display: flex;flex-direction: column;justify-content: center;align-items: center;">
         <h4 style="font-size:20px">Information sur votre workspace</h4>
@@ -302,12 +293,7 @@
       });
     }
 
-    RiotControl.on('share_change', function (data) {
-      console.log(data)
-      this.refs.userZenTable.data = data.workspace.users;
-      this.update();
-      data = null;
-    }.bind(this));
+
 
     // componentClick(e){   //console.log(e.item);   RiotControl.trigger('item_current_click',e.item); } / COMPONENT
 
@@ -340,6 +326,7 @@
     }.bind(this));
 
     RiotControl.on('workspace_editor_menu_changed', function (menu) {
+      console.log("workspace_editor_menu_changed")
       this.menu=menu;
       this.update();
     }.bind(this));
@@ -371,12 +358,14 @@
     //
     //     }   } else {     this.componentView = true;     this.userView = true;     this.DescriptionView = true;   }   this.screenHistory = newScreenHistory;   this.update(); }.bind(this));
 
+    this.shareChange = function(data){
+      console.log("ALERT ALLO share_change", data)
+      this.refs.userZenTable.data = data.workspace.users;
+      this.update();
+    }.bind(this)
+
     this.on('mount', function () {
       console.log('wokspaceEditor | Mount |', this);
-
-      // this.tags.zentable[0].on('delRow', function (message) {   RiotControl.trigger('workspace_current_delete_component', message);   RiotControl.trigger('workspace_current_persist'); }.bind(this)); this.tags.zentable[0].on('addRow', function (message)
-      // {   this.componentView = true;   this.userView = false;   this.DescriptionView = false;   this.utilisationView = false;   RiotControl.trigger('workspace_current_add_component_show', message); }.bind(this));
-
       this.refs.userZenTable.on('rowNavigation', function (data) {
         RiotControl.trigger('component_current_show');
         RiotControl.trigger('component_current_select', data);
@@ -402,12 +391,15 @@
         this.innerData.description = e.currentTarget.value;
       }.bind(this));
 
+      RiotControl.on('share_change', this.shareChange);
+
       RiotControl.trigger('workspace_current_refresh');
     });
 
     this.on('unmount', function () {
       console.log('UNMOUNT');
       RiotControl.off('workspace_current_changed', this.workspaceCurrentChanged);
+      RiotControl.off('share_change',this.shareChange)
     });
   </script>
 
