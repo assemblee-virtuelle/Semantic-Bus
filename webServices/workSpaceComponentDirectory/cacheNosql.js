@@ -50,13 +50,13 @@ module.exports = {
     //console.log('--------- cash data START --------  : ');
     return new Promise((resolve, reject) => {
       if (flowData!=undefined && flowData[0].data != undefined) {
-        //console.log("----- cache data stock ----")
+        console.log("----- cache data stock ----")
         this.cache_lib.create(data,flowData[0]).then(cachedData=>{
           resolve(cachedData);
         });
       } else {
         this.cache_lib.get(data).then(cachedData=>{
-          //console.log("----- cache data get ----")
+          console.log("----- cache data get ----")
           if (cachedData!=undefined){
           resolve({data:cachedData.data});
         }else{
