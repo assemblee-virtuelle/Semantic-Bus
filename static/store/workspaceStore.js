@@ -684,9 +684,6 @@ function WorkspaceStore() {
         this.trigger('share_change_already')
       } else {
         this.workspaceCurrent = data.workspace
-        if (this.viewBox) {
-          this.computeGraph();
-        }
         this.trigger('share_change');
       }
     }.bind(this));

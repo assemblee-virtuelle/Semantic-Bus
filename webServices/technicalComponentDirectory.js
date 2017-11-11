@@ -12,6 +12,7 @@ module.exports = {
   cacheNosql: require('./workSpaceComponentDirectory/cacheNosql.js'),
   gouvFrInverseGeo: require('./workSpaceComponentDirectory/gouvFrInverseGeo.js'),
   restApiGet: require('./workSpaceComponentDirectory/restApiGet.js'),
+  restApiPost: require('./workSpaceComponentDirectory/restApiPost.js'),
   //xmlToObject: require('./workSpaceComponentDirectory/xmlToObject.js'),
   framcalcGetCsv: require('./workSpaceComponentDirectory/framcalcGetCsv.js'),
   gouvFrGeoLocaliser: require('./workSpaceComponentDirectory/gouvFrGeoLocaliser.js'),
@@ -49,6 +50,7 @@ module.exports = {
     return directory;
   },
   initialise: function (router, unSafeRouteur, recursivPullResolvePromise) {
+    this.restApiPost.initialise(unSafeRouteur); //NO SECURE CHANGE ROUTER
     this.restApiGet.initialise(unSafeRouteur); //NO SECURE CHANGE ROUTER
     this.upload.initialise(unSafeRouteur);
     this.cacheNosql.initialise(unSafeRouteur, recursivPullResolvePromise); //NO SECURE CHANGE ROUTER

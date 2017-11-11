@@ -26,7 +26,7 @@ var proto = {
   },
   resolveComponent(component, requestDirection, pushData) {
     //buildPathResolution component, requestDirection
-
+    console.log("---- push data 1",pushData)
     //console.log(" ---------- resolveComponent -----------", component)
     if (this.config.quietLog != true) {
       console.log(" ---------- resolveComponent -----------")
@@ -68,12 +68,13 @@ var proto = {
         /// -------------- push case  -----------------------
         var traitement_id = Date.now()
         if (requestDirection == 'push') {
+          console.log("push data",pushData)
           // affecter le flux à tous les link dont la source est le composant
           // console.log(" function : resolveComponent | variable : in push ")
           // this.sift({
           //   '_id': component._id
           // }, this.componentsResolving)[0].dataResolution = pushData;
-
+          
           originComponent.dataResolution = pushData;
           // GOOD ==> console.log("----- PUSH -----", pushData)
           // GOOD ==> console.log("----- PUSH Component--=---", pushData)
@@ -82,7 +83,9 @@ var proto = {
           }, this.pathResolution).forEach(link => {
             link.status = 'processing'
           });
+          console.log('compare',this.RequestOrigine._id);
           this.processNextBuildPath(traitement_id, component.workspaceId, global_flow);
+          resolve(pushData)
         }
 
         /// -------------- pull case  -----------------------
@@ -134,7 +137,7 @@ var proto = {
               }, this.pathResolution).forEach(link => {
                 link.status = 'processing'
               });
-              //console.log('compare',this.RequestOrigine._id);
+              // console.log('compare',this.RequestOrigine._id, componentProcessing._id);
               if (componentProcessing._id == this.RequestOrigine._id) {
                 this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
               }
@@ -156,7 +159,7 @@ var proto = {
     this.fackCounter++;
     if (this.config.quietLog != true) {
       console.log(" ---------- processNextBuildPath -----------", this.fackCounter)
-      //console.log("--------- glovbal flow ------------" , global_flow)
+      console.log("--------- glovbal flow ------------" , global_flow)
       console.log(this.pathResolution.map(link => {
         return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
       }));
@@ -327,26 +330,26 @@ var proto = {
       if (this.config.quietLog != true) {
         console.log('--------------  End of Worksapce processing -------------- ', global_flow);
       }
-      this.workspace_lib.getWorkspace(component_workspaceId).then(function(res) {
-        res.consumption_history.push({
-          traitement_id: traitement_id,
-          flow_size: global_flow / 1000000,
-          price: (global_flow / 1000000) * 0.04,
-          dates: {
-            created_at: new Date()
-          }
-        })
-        //console.log('--------------  Before save workspace -------------- ')
-        //console.log(res.components.length);
-        //console.log('length before',res.components.length);
-        //console.log('components_id',res.components.map(m=>m._id));
+        this.workspace_lib.getWorkspace(component_workspaceId).then(function(res) {
+          res.consumption_history.push({
+            traitement_id: traitement_id,
+            flow_size: global_flow / 1000000,
+            price: (global_flow / 1000000) * 0.04,
+            dates: {
+              created_at: new Date()
+            }
+          })
+          //console.log('--------------  Before save workspace -------------- ')
+          //console.log(res.components.length);
+          //console.log('length before',res.components.length);
+          //console.log('components_id',res.components.map(m=>m._id));
 
-        this.workspace_lib.updateSimple(res).then(function(res) {
-          if (this.config.quietLog != true) {
-            console.log('length after', res.components.length)
-            console.log('--------------  End of Worksapce processing -------------- ', res._id)
-          }
-        })
+          this.workspace_lib.updateSimple(res).then(function(res) {
+            if (this.config.quietLog != true) {
+              console.log('length after', res.components.length)
+              console.log('--------------  End of Worksapce processing -------------- ', res._id)
+            }
+        }.bind(this))
       }.bind(this))
     }
   },

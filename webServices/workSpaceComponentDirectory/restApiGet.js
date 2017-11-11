@@ -17,6 +17,7 @@
     this.initialise = function(router) {
       router.get('/:urlRequiered', function(req, res, next) {
         //console.log(req.query);
+        console.log("in get")
         var urlRequiered = req.params.urlRequiered;
         //this require is live because constructor require cause cyclic dependencies (recursivPullResolvePromise->restApiGet)
         //TODO require use cache object  : need to build one engine per request
