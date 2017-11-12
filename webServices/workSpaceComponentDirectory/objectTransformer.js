@@ -17,7 +17,7 @@ module.exports = {
     return entity;
   },
   jsonTransform: function(source, jsonTransformPattern) {
-    // console.log("source", source,'jsonTransformPattern', jsonTransformPattern )
+    console.log("source", source,'jsonTransformPattern', jsonTransformPattern )
     //console.log('Object Transformer | source',source,' | pattern | ',jsonTransformPattern);
     //console.log(source);
     //console.log(jsonTransformPattern);
@@ -61,22 +61,24 @@ module.exports = {
     var dissociatePatternPostProcess = this.dissociatePatternPostProcess(jsonTransformPattern);
     console.log('resolvable | ', JSON.stringify(dissociatePatternResolvable));
     console.log('postProcess | ', JSON.stringify(dissociatePatternPostProcess));
+    //console.log('source | ', JSON.stringify(source));
     var transformResult = this.transform(source, dissociatePatternResolvable);
     //console.log('jsonTransform | resultBeforUnresolved |', transformResult);
     if (Object.keys(transformResult)[0] == 'undefined') {
       transformResult = transformResult['undefined'];
     }
-    //console.log('jsonTransform | resultBeforUnresolved |', JSON.stringify(transformResult));
+    console.log('jsonTransform | resultBeforUnresolved |', JSON.stringify(transformResult));
     var destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable)
-    //console.log('jsonTransform | afterUnresolved |', destResult);
+    console.log('jsonTransform | afterUnresolved |', destResult);
     var postProcessResult;
     if (dissociatePatternPostProcess == undefined) {
+      console.log('ALLO');
       postProcessResult = destResult;
     } else {
       postProcessResult = this.postProcess(destResult, dissociatePatternPostProcess)
     }
 
-    //console.log(postProcessResult);
+    console.log(postProcessResult);
     return postProcessResult;
   },
   dissociatePatternResolvable: function(nodeIn, depth, everArrayPath) {
@@ -333,10 +335,12 @@ module.exports = {
 
           }
         } else {
+
           nodeOut[key] = nodeIn[key];
         }
 
       }
+      console.log('ALLO',nodeOut);
     }
     //console.log('unresolveProcess intermediate| ',nodeOut);
     return nodeOut;

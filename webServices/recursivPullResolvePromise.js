@@ -74,7 +74,7 @@ var proto = {
           // this.sift({
           //   '_id': component._id
           // }, this.componentsResolving)[0].dataResolution = pushData;
-          
+
           originComponent.dataResolution = pushData;
           // GOOD ==> console.log("----- PUSH -----", pushData)
           // GOOD ==> console.log("----- PUSH Component--=---", pushData)
@@ -113,7 +113,7 @@ var proto = {
           //console.log('PULL start | ', componentProcessing._id);
           module.pull(componentProcessing, undefined, undefined).then(componentFlow => {
               if (this.config.quietLog != true) {
-                console.log('PULL END | ', componentProcessing._id);
+                console.log('PULL END | ', componentProcessing._id,componentFlow);
               }
               componentProcessing.dataResolution = componentFlow;
               componentProcessing.status = 'resolved';
@@ -130,17 +130,20 @@ var proto = {
               // this.workspace_component_lib.update(
               //  componentProcessing
               // ).then(function(res){
-              global_flow += this.objectSizeOf(componentFlow)
+              //TODO reactivate global_flow computing
+              //global_flow += this.objectSizeOf(componentFlow)
               // console.log("traitement_update =====>", res.consumption_history)
               this.sift({
                 "source._id": componentProcessing._id
               }, this.pathResolution).forEach(link => {
                 link.status = 'processing'
               });
+
               // console.log('compare',this.RequestOrigine._id, componentProcessing._id);
               if (componentProcessing._id == this.RequestOrigine._id) {
                 this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
               }
+
               this.processNextBuildPath(traitement_id, component.workspaceId, global_flow);
               // }.bind(this))
             })
@@ -205,14 +208,14 @@ var proto = {
 
         /// Update procecing link
         //console.log("DATA FLOWWWW==>", this.objectSizeOf(dataFlow))
-        processingLink.destination.consumption_history.push({
-          traitement_id: traitement_id,
-          flow_size: this.objectSizeOf(dataFlow) / 1000000,
-          price: (this.objectSizeOf(dataFlow) / 1000000) * 0.04,
-          dates: {
-            created_at: new Date()
-          }
-        })
+        // processingLink.destination.consumption_history.push({
+        //   traitement_id: traitement_id,
+        //   flow_size: this.objectSizeOf(dataFlow) / 1000000,
+        //   price: (this.objectSizeOf(dataFlow) / 1000000) * 0.04,
+        //   dates: {
+        //     created_at: new Date()
+        //   }
+        // })
         if (this.config.quietLog != true) {
           console.log('BEFORE lib Update');
         }
@@ -223,7 +226,7 @@ var proto = {
             console.log('AFTER lib Update');
           }
           //console.log("res update =======>",res)
-          global_flow += this.objectSizeOf(dataFlow)
+          // global_flow += this.objectSizeOf(dataFlow)
           var primaryflow;
           if (module.getPrimaryFlow != undefined) {
             //console.log("DATA ----FLOW --------------", processingLink.destination)

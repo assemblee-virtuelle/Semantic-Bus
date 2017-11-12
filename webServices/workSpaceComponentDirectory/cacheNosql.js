@@ -69,13 +69,15 @@ module.exports = {
           //console.log("----- cache data get ----")
           if (cachedData != undefined) {
             if (data.specificData.historyOut==true){
+              //console.log('RETURN CACHE',cachedData);
               resolve({
-                data: cachedData
+                data : JSON.parse(JSON.stringify(cachedData))
+                //data: {data:cachedData.data,history:cachedData.history}
               });
             }
             else{
               resolve({
-                data: cachedData.data
+                data: JSON.parse(JSON.stringify(cachedData.data))
               });
             }
 
