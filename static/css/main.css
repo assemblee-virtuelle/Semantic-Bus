@@ -14,7 +14,7 @@ body{
 
 input {
   color: rgb(220,220,220);
-  padding: 20px;
+  padding-left:10pt;
   width: 50vw;
   height: 38px;
   border-radius: 20pt;

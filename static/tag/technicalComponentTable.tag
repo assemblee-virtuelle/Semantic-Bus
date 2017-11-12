@@ -1,19 +1,9 @@
 <technical-component-table class="containerV">
-  <div class="commandBar containerH" style="height: 100pt;
-    /* text-align: center; */
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    background-color: rgb(33,150,243);
-    color:white">
+  <div class="commandBar containerH header" style="align-items: center;">
+    <div></div>
     <div>Add Componnent</div>
-    <div class="containerH commandGroup"  if={actionReady}>
-          <image  style="margin-left: -1px;
-          margin-top: 7vh;
-          color: white;
-          position: absolute;
-          margin-left: 35vw;  cursor: pointer;" src="./image/ajout_composant.svg" class="commandButtonImage" width="50" height="50" onclick={addComponent}></image>
-    </div>
+    <image if={actionReady} style="margin-left: -1px;
+    color: white; cursor: pointer;" src="./image/ajout_composant.svg" class="commandButtonImage" width="50" height="50" onclick={addComponent}></image>
   </div>
   <div class="commandBar containerH">
     <div class="containerH commandGroup" style="flex-grow:1">

@@ -1,0 +1,24 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 21.0.2, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1"
+	 id="Calque_1" inkscape:export-filename="/Users/benoit/COPIES_REPOS_GIT/Semantic-Bus/static/image/components/default2.png" inkscape:export-xdpi="90" inkscape:export-ydpi="90" inkscape:version="0.91 r13725" sodipodi:docname="default.svg" xmlns:cc="http://creativecommons.org/ns#" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape" xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#" xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd" xmlns:svg="http://www.w3.org/2000/svg"
+	 xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px" viewBox="0 0 220 70"
+	 style="enable-background:new 0 0 220 70;" xml:space="preserve">
+<style type="text/css">
+	.st0{fill:#FFFF00;stroke:#000000;stroke-width:0.4342;stroke-opacity:0;}
+	.st1{fill:#414042;}
+	.st2{font-family:'Lato-Regular';}
+	.st3{font-size:24px;}
+</style>
+<sodipodi:namedview  bordercolor="#666666" borderopacity="1" gridtolerance="10" guidetolerance="10" id="namedview28" inkscape:current-layer="base-label-vide_x5F_t4.psd" inkscape:cx="37.908623" inkscape:cy="113.16796" inkscape:pageopacity="0" inkscape:pageshadow="2" inkscape:window-height="723" inkscape:window-maximized="0" inkscape:window-width="1362" inkscape:window-x="2" inkscape:window-y="0" inkscape:zoom="1.7" objecttolerance="10" pagecolor="#ffffff" showgrid="false">
+	</sodipodi:namedview>
+<g id="base-label-vide_x5F_t4.psd">
+	
+		<image style="overflow:visible;enable-background:new    ;" width="880" height="280" id="image3422" xlink:href="4B47127F3E8B4380.png"  transform="matrix(0.25 0 0 0.25 0 0)">
+	</image>
+	
+		<path id="path3448" inkscape:flatsided="false" inkscape:randomized="0" inkscape:rounded="0" inkscape:transform-center-x="-0.10067578" inkscape:transform-center-y="-2.3538445" sodipodi:arg1="0.95517644" sodipodi:arg2="1.583495" sodipodi:cx="35.00088" sodipodi:cy="35.047526" sodipodi:r1="25.654448" sodipodi:r2="12.827222" sodipodi:sides="5" sodipodi:type="star" class="st0" d="
+		M49.8,56l-15-8.1l-15.2,7.7l3.1-16.8l-12-12l16.9-2.2l7.7-15.2l7.3,15.4l16.8,2.7L47.1,39.2L49.8,56z"/>
+</g>
+<text id="text26" transform="matrix(1 0 0 1 89 43)" class="st1 st2 st3">API POST</text>
+</svg>

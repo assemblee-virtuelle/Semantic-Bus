@@ -2,7 +2,7 @@ module.exports = new function() {
     this.type = 'REST API POST';
     this.description = 'exposition du flux de donnée sur une API http uniquement en POST';
     this.editor = 'rest-api-post-editor';
-    this.graphIcon = 'restApiGet.png';
+    this.graphIcon = 'apiPostInput.png';
     this.tags = [
       'http://semantic-bus.org/data/tags/inComponents',
       'http://semantic-bus.org/data/tags/APIComponents'
