@@ -53,10 +53,10 @@ module.exports = new function() {
         //     })
         //   }
         }).then(dataToSend => {
-          console.log('API data', specificData);
-          console.log('ALLO');
-          console.log('API component');
-          console.log('ALLO2');
+          // console.log('API data', specificData);
+          // console.log('ALLO');
+          // console.log('API component');
+          // console.log('ALLO2');
           res.send({data: dataToSend.data});
         //   if (specificData != undefined) { // exception in previous promise
         //     if (specificData.contentType.search('application/vnd.ms-excel') != -1) {

@@ -59,8 +59,8 @@ module.exports = {
 
     var dissociatePatternResolvable = this.dissociatePatternResolvable(jsonTransformPattern);
     var dissociatePatternPostProcess = this.dissociatePatternPostProcess(jsonTransformPattern);
-    //console.log('resolvable | ', JSON.stringify(dissociatePatternResolvable));
-    //console.log('postProcess | ', JSON.stringify(dissociatePatternPostProcess));
+    console.log('resolvable | ', JSON.stringify(dissociatePatternResolvable));
+    console.log('postProcess | ', JSON.stringify(dissociatePatternPostProcess));
     var transformResult = this.transform(source, dissociatePatternResolvable);
     //console.log('jsonTransform | resultBeforUnresolved |', transformResult);
     if (Object.keys(transformResult)[0] == 'undefined') {
@@ -349,7 +349,7 @@ module.exports = {
           data: this.jsonTransform(flowData[0].data, data.specificData.transformObject)
         });
       } else {
-        resolve({data:{}});
+        resolve({data:data.specificData.transformObject});
       }
     })
   }
