@@ -10,7 +10,7 @@
     <div style="margin-bottom: 15pt;"> <strong>My Work</strong>spaces    <strong>Share</strong></div>
       <input class="champ"  type="text" name="inputSearch" ref="inputSearch" placeholder="Search" onkeyup={ filterCards }>
   </div>
-  <zenTable  drag={false}  disallownavigation={true} disallowdelete={true} style="flex:1" disallowcommand="true">
+  <zenTable  drag={false}  disallownavigation={true} disallowdelete={false}  clickClass={false} style="flex:1;background-color: rgb(240,240,240);" disallowcommand="true">
     <yield to="header">
       <div>name</div>
       <div>description</div>
@@ -49,11 +49,9 @@
       this.tags.zentable.data = data;
     }.bind(this);
     this.on('mount', function (args) {
-      //console.log('mount argr :',opts);
-      this.on('rowNavigation', function (data) {
-        //console.log(data);
+      this.tags.zentable.on('rowNavigation', function (data) {
+        console.log("rowNavigation", data);
         RiotControl.trigger('workspace_current_select', data);
-        //this.trigger('selectWorkspace');
       }.bind(this));
 
       RiotControl.on('workspace_share_collection_changed', this.refreshZenTableShare);
@@ -71,7 +69,6 @@
   <style>
   .champ {    
       color: rgb(220,220,220);
-      padding: 20px;
       width: 50vw;
       height: 38px;
       border-radius: 20pt;

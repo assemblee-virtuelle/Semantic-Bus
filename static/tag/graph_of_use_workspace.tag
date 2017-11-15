@@ -1,34 +1,48 @@
 <graph-of-use-workspace> 
-        <div class="container-top">
-            <div class="center-left-top">
-            <h4 style="font-size: 1.5em;"> {this.name} </h4>
-            <p> job : {this.job || null} </p>
-            <p> societe : {this.societe || null} </p>
-            <p> email : {this.email} </p>
-            </div>
-            <div class="center-right-top">
-            <div class="workspace">
-                <h4 class="title-number"><strong>{this.numberWorkspace}</strong> </h4>
-                <p class="sub-title">workspaces total</p>
-            </div>
-            <div class="workspace">
-                <h4 class="title-number"> <strong>{this.golbalConsumption} Mo</strong>  </h4>
-                <p class="sub-title">Consomé sur 30 jours</p>
-            </div>
-            </div>
+        <!--  <div class="container-top">  -->
+            <!--  <div class="center-left-top">
+                <h4 style="font-size: 1.5em;"> {this.name} </h4>
+                <p> job : {this.job || null} </p>
+                <p> societe : {this.societe || null} </p>
+                <p> email : {this.email} </p>
+            </div>  -->
+    <div class="containerV" style="flex-grow:1">
+        <div style="display: flex;">
+        <div class="card">
+            <h4>workspaces total</h4>
+        </br>
+        <span class="second-title-card">{this.numberWorkspace}</span>
         </div>
-        <div style="text-align: center; padding: 5%; width:100%" >
-            <div>
-              Consomation par workspace sur 30 jours 
-            </div>
+        <div class="card">
+        <h4>Consomé sur 30 jours</h4>
+            </br>
+            <span class="second-title-card">{this.golbalConsumption} Mo</span>
         </div>
-        <div style="display: flex; justify-content: center" >
-            <div class="item-flex">
-                <svg id="stacked"></svg></div>
-            </div>
+    </div>
+        <!--  </div>  -->
+            <!--  <div style="text-align: center; padding: 5%; width:100%" >
+                <div>
+                Consomation par workspace sur 30 jours 
+                </div>
+            </div>  -->
+    <div style="display: flex; justify-content: center" >
+        <div class="item-flex">
+            <svg viewBox="0 0 1000 600" id="stacked"  ></svg></div>
         </div>
+    </div>
 
 <style scoped>
+
+    .card {
+        background: #fff;
+        border-radius: 5px;
+        font-family: "adelle-sans", sans-serif;
+        font-weight: 100;
+        margin: 48px auto;
+        width: 20rem;
+        padding: 20px;
+        text-align: center;
+    }
 
   .title-number {
     font-size: 30px;
@@ -113,7 +127,21 @@
         border: 0px;
         border-radius: 8px;
         pointer-events: none;
-    } 
+    }
+
+    .x.axis path {
+        display: none;
+    }
+    .axis {
+        font: 10px sans-serif;
+    }
+
+    .axis path,
+    .axis line {
+        fill: none;
+        stroke: #000;
+        shape-rendering: crispEdges;
+    }
 </style>
     <script>
     this.on('mount', function () {
@@ -263,15 +291,17 @@
             bottom: 30,
             left: 30
             },
-            widthStackChart = 1000 - marginStackChart.left - marginStackChart.right,
-            heightStackChart = 500 - marginStackChart.top - marginStackChart.bottom;
+            widthStackChart = 1000,
+            heightStackChart = 600 - marginStackChart.top - marginStackChart.bottom;
 
         var xStackChart = d3.scaleBand()
             .range([0, widthStackChart])
-            .padding(0.1);
+            .padding(.4);
+
         var yStackChart = d3.scaleLinear()
             .range([heightStackChart, 0]);
-        
+
+        var xAxis  = d3.axisBottom().scale(xStackChart)
 
         var parser =  d3.timeFormat("%d-%b-%y").parse;
 
@@ -336,8 +366,8 @@
 
             canvasStackChart.append("g")
             .attr("class", "x axis")
-            .attr("transform", "translate(0," + heightStackChart + ")")
-            .call(d3.axisBottom(xStackChart));
+            .attr("transform", "translate(0," + heightStackChart+ ")")
+            .call(xAxis);
 
             canvasStackChart.append("text")
             .attr("class", "x label")
@@ -410,7 +440,18 @@
             })
 
 
-            var legend = canvasStackChart.selectAll(".legend")
+     
+
+
+        };
+        drawStackChart();
+        }.bind(this))
+    })
+    </script>
+</graph-of-use-workspace>
+
+
+       <!--  var legend = canvasStackChart.selectAll(".legend")
             .data(colorStackChart.domain().slice().reverse())
             .enter().append("g")
             .attr("class", "legend")
@@ -435,12 +476,4 @@
                 if(d != "name"){
                     return d;
                 }
-            });
-
-
-        };
-        drawStackChart();
-        }.bind(this))
-    })
-    </script>
-</graph-of-use-workspace>
+            });  -->

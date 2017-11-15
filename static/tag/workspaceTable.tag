@@ -79,7 +79,6 @@
   <style>
     .champ {    
       color: rgb(220,220,220);
-      padding: 20px;
       width: 50vw;
       height: 38px;
       border-radius: 20pt;

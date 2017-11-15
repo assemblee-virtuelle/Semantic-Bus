@@ -12,6 +12,13 @@
            <img src="./image/Roulette_bus.svg" height="40px"  width="40px">
         </div>
     </div>
+    <div class=" containerV" style="flex-grow:1; background-color:rgb(238,242,249)">
+      <div class="header"  style="align-items:center">
+        <div class="commandBar containerH">
+          <div></div>
+          <div>Consomation de votre compte</div>
+        </div>
+    </div>
     <div class="containerV"  style="flex-grow:1;">
       <div if ={modeUserResume}>
         <graph-of-use-workspace></graph-of-use-workspace>
