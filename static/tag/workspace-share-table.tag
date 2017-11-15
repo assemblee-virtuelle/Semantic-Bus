@@ -73,7 +73,7 @@
       height: 38px;
       border-radius: 20pt;
       border-width: 0;
-      font-size: 1em
+      font-size: 1em;
     }
    </style>
 </workspace-share-table>
