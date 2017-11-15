@@ -8,10 +8,9 @@
   <div class="header" style="align-items: center;height: 15%;"> 
   <h1> Bienvenue sur le bus Semantic</h1>
   </div>
-  
-  <div class="containerV" style="flex-direction: column;"show={boole && !is_login}>
+<div class="containerH"show={boole && !is_login}>
+  <div class="containerV" style="flex-direction: column;">
   <h1 style="color:rgb(119,119,119)"></h1>
-    <form >
       <div class="box">
         <div class="google-block">
           <h2 style="color:rgb(117,117,117)"> 
@@ -45,11 +44,10 @@ border: 0.2px solid rgb(228,228,228);">
       <div class="inscription-link">
         <p>Vous n'avez pas encore de compte ? <a onclick = {hidePage} style="cursor: pointer;">Inscription</a></p>
       </div>  
-    </form>
   </div>
-
-<div class="containerV" show = {!is_login && !boole}>
-  <form>
+</div>
+<div class="containerH" show = {!is_login && !boole}>
+<div class="containerV">
       <div class="box">
         <div class="title-insc-block">
             <h2 style="color:rgb(117,117,117)"> 
@@ -92,7 +90,7 @@ border: 0.2px solid rgb(228,228,228);">
       <div class="inscription-link">
         <p>Vous avez deja un compte avec nous? <a onclick = {showPage} style="cursor: pointer;">Connectez vous</a></p>
       </div> 
-  </form>
+    </div>
 </div>
 
 <style scoped>
@@ -272,7 +270,8 @@ border: 0.2px solid rgb(228,228,228);">
   .box{
     background:white;
     width:500px;
-    margin: 0 auto 0 auto;
+    margin-top:5vh;
+    border: 1px solid rgba(133,133,133,0.38);
     padding:10px 10px 10px 10px;
     box-shadow: 0px 0px 5px 0px rgba(133,133,133,0.38);
   }
