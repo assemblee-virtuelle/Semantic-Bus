@@ -101,7 +101,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
               reject("votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
             })
           default:
-            console.log("in defualt")
+            console.log("in default")
             reject("erreur, votre fichier n'est pas au bon format")
 
             break;
