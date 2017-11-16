@@ -1,7 +1,7 @@
-<profil class="containerH" style="flex-grow:1">
+<profil class="containerH" style="flex-grow:1,flex-wrap:nowrap;">
 
 
-    <div class="containerV" style="flex-basis: 30px; background-color: rgb(9,245,185);">
+    <div class="containerV" style="flex-basis: 60px; background-color: rgb(9,245,185);">
         <div onclick={goUtilisation} class="commandButtonImage">
           <img src="./image/Graphe_2.svg" height="40px" width="40px">
         </div>
@@ -14,8 +14,8 @@
     </div>
 
 
-    <div class="containerH"  if ={modeUserResume} style="flex-grow: 1;">
-        <!--  <graph-of-use-workspace></graph-of-use-workspace>  -->
+    <div class="containerV"  if ={modeUserResume} style="flex-grow: 1;">
+        <graph-of-use-workspace></graph-of-use-workspace>
     </div>
 
       <div if={modeUserEdition} class="containerV" style="flex-grow: 1;justify-content: center; align-items: center;">
