@@ -1,4 +1,4 @@
-<graph>
+<graph class="containerV">
   <!--
   <div class="commandBar containerH">
     <div class="containerH commandGroup" if={selectedNodes.length>0}>
@@ -31,8 +31,8 @@
     </div>
   </div>
 -->
-  <div id="graphContainer" style="background-color: rgb(238,242,249); height: 100%;">
-    <svg viewBox="0 0 1500 900" ref="graphSvgCanvas">
+  <div id="graphContainer" style="background-color: rgb(238,242,249); flex-grow:1;" class="containerH">
+    <svg viewBox="0 0 1500 900" ref="graphSvgCanvas" style="flex-grow:1;">
       <!--width="1000" height="600"-->
       <filter id="dropshadow" x="1%" y="1%" width="110%" height="110%">
         <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>

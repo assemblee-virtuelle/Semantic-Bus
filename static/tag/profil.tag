@@ -1,4 +1,4 @@
-<profil class="containerH" style="flex-grow:1,flex-wrap:nowrap;">
+<profil class="containerH" style="flex-grow:1;flex-wrap:nowrap;">
 
 
     <div class="containerV" style="flex-basis: 60px; background-color: rgb(9,245,185);">

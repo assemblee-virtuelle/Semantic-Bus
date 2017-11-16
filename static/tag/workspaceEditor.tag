@@ -1,20 +1,20 @@
 <workspace-editor class="containerV" data-id={innerData._id}>
   <div class="containerH" style="flex-wrap:nowrap;flex-grow:1;">
-    <div class=" containerV" style="flex-basis:65px; background-color: rgb(9,245,185);padding:6pt">
+    <div class=" containerV" style="flex-basis:65px; background-color: rgb(9,245,185);">
       <!--<div class="{color1}" if={componentView} id="component" onclick={goComponent}>Composant(s)</div>
       <div class="{color2}" id="user" if={userView} onclick={goUser}>Utilisateur(s)</div>
       <div class="{color3}" if={DescriptionView} id="description" onclick={goDescription}>Déscription</div>
       <div class="{color4}" if={DescriptionView} id="description" onclick={goUtilisation}>Utilisation</div>-->
-      <div onclick={goComponent} class={commandButtonImage:true,} style="margin-top: 20pt;">
+      <div onclick={goComponent} class={commandButtonImage:true} style="flex-basis:40px">
         <img src="./image/Graphe_2.svg" height="40px" width="40px">
       </div>
-      <div onclick={goUser} class={commandButtonImage:true,}>
+      <div onclick={goUser} class={commandButtonImage:true} style="flex-basis:40px">
         <img src="./image/En_groupe.svg" height="40px"  width="40px">
       </div>
-      <div onclick={goInformation} class={commandButtonImage:true,} style="margin-top: 20pt;">
+      <div onclick={goInformation} class={commandButtonImage:true} style="flex-basis:40px">
         <img src="./image/Autres.svg" height="40px"  width="40px">
       </div>
-      <div onclick={goUtilisation} class={commandButtonImage:true,} style="margin-top: 20pt;">
+      <div onclick={goUtilisation} class={commandButtonImage:true} style="flex-basis:40px">
         <img src="./image/Stats.svg" height="40px"  width="40px">
       </div>
     </div>
@@ -29,7 +29,7 @@
         </div>
       </div>
 
-      <div show={menu=='component'}>
+      <div show={menu=='component'} class="containerV">
         <graph></graph>
         <!--<zenTable style="flex:1" css="background-color:white!important;color: #3883fa;" disallowcommand={innerData.mode=='read' }
           allowcancelcommand={false} id="composant" ref="componentZenTable">
