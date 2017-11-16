@@ -106,7 +106,7 @@
 
       <!--  CONTENT   -->
 
-      <div class="containerV" style="flex-groselectedMenuw:1">
+      <div class="containerV" style="flex-grow:1">
 
         <div class="containerV" style="flex-grow:1" if={isScrennToShow('landing')}>
           <landing></landing>
