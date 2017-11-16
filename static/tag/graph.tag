@@ -31,7 +31,7 @@
     </div>
   </div>
 -->
-  <div id="graphContainer containerV" style="background-color: rgb(238,242,249); height: 100%;">
+  <div id="graphContainer" style="background-color: rgb(238,242,249); height: 100%;">
     <svg viewBox="0 0 1500 900" ref="graphSvgCanvas">
       <!--width="1000" height="600"-->
       <filter id="dropshadow" x="1%" y="1%" width="110%" height="110%">
@@ -58,7 +58,7 @@
       <g id="lineCommandLayer"></g>
       <g id="shapeCommandLayer"></g>
       <image id="addComponentGraph" xlink:href="./image/ajout_composant.svg" class="commandButtonImage" x="1400" y="20" width="60" height="60" onclick={addComponentClick}></image>
-      <text x="1290" y="60" 
+      <text x="1290" y="60"
 font-size="25"  fill="rgb(33,150,243)" id="mytext" if={fullscreen == true} onclick={graphClick}>full size </text>
     </svg>
   </div>
@@ -81,7 +81,7 @@ font-size="25"  fill="rgb(33,150,243)" id="mytext" if={fullscreen == true} oncli
       RiotControl.trigger('workspace_current_graph');
       this.update()
     }
-    
+
 
     editClick(e) {
       console.log('graph edit Component | ', this.selectedNodes[0].component);
@@ -112,8 +112,8 @@ font-size="25"  fill="rgb(33,150,243)" id="mytext" if={fullscreen == true} oncli
     }
 
     //this.selectedNodes={}; source urile : https://bl.ocks.org/mbostock/1095795 Constants for the SVG
-    var width = 1500,
-      height = 900; // utilisé dans le script en bas
+    // var width = 1500,
+    //   height = 900; // utilisé dans le script en bas
 
     /*
     Fonctions
