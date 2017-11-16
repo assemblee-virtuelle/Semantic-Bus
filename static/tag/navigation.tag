@@ -23,8 +23,9 @@
     </div>
 
     <!--  CONTAINER GENERAL  -->
-    <div class="containerV" style="bottom:0;top:0;right:0;left:0;position:absolute;flex-wrap:nowrap;">
-      <div class="containerH" style="background-color: rgb(33,150,243);">
+    <div class="containerV" style="bottom:0;top:0;right:0;left:0;position:absolute;">
+      <div class="containerH" style="background-color: rgb(33,150,243);flex-wrap:nowrap;">
+
         <!--  HEADER WORKSPACE  -->
         <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('myWorkspaces')}>
           <div  class="header" >
@@ -75,7 +76,7 @@
       <div class="containerH" style="justify-content:center;justify-content: inherit; flex-basis:100%">
 
       <!--  NAVBAR   -->
-        <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-basis:5%">
+        <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-basis:60px">
           <div class="containerV" style="flex-grow:1">
             <div class="commandButtonImage" onclick={workspaceSelectorClick} id="workspaceSelector">
               <img src="./image/dossier.svg" style="    background-color: rgb(33,150,243);" width="40px">
@@ -100,7 +101,7 @@
 
       <!--  CONTENT   -->
 
-      <div class="containerV" style="flex-basis:95%">
+      <div class="containerV" style="flex-grow:1">
 
         <div class="containerV" style="flex-grow:1" if={isScrennToShow('landing')}>
           <landing></landing>

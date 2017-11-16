@@ -13,7 +13,7 @@
 .containerH{
   display: flex;
   justify-content: center;
-  flex-wrap: wrap;
+  /*flex-wrap: wrap;*/
   align-items : stretch;
   overflow-y: hidden;
 }
@@ -37,7 +37,7 @@
 }
 
 .flex-basis {
-  display: flex; 
+  display: flex;
   flex-basis:100%;
 }
 
@@ -46,4 +46,4 @@
 {
   flex-grow: 1;
   flex-shrink : 1;
-}               
+}
