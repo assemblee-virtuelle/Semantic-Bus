@@ -1,6 +1,6 @@
-<profil class="containerV" style="flex-grow:1">
+<profil class="containerH" style="flex-grow:1">
 
-    <div class="containerV" style="flex-basis: 5%; background-color: rgb(9,245,185);">
+    <div class="containerV" style="flex-basis: 30px; background-color: rgb(9,245,185);">
         <div onclick={goUtilisation} class="commandButtonImage">
           <img src="./image/Graphe_2.svg" height="40px" width="40px">
         </div>
@@ -10,14 +10,14 @@
         <div onclick={goSetting} class="commandButtonImage">
           <img src="./image/Roulette_bus.svg" height="40px"  width="40px">
         </div>
-      </div>
-    </div>
-   
-    <div class="containerH"  if ={modeUserResume} style="flex-basis: 95%;">
-        <!--  <graph-of-use-workspace></graph-of-use-workspace>  -->
     </div>
 
-      <div if={modeUserEdition} class="containerV" style="flex-basis: 95%;justify-content: center; align-items: center;">
+
+    <div class="containerV"  if ={modeUserResume} style="flex-grow: 1;">
+        <graph-of-use-workspace></graph-of-use-workspace>
+    </div>
+
+      <div if={modeUserEdition} class="containerV" style="flex-grow: 1;justify-content: center; align-items: center;">
         <h4 style="font-size:20px">Modification de votre profil</h4>
           <form style="height: 61vh;width: 60%; background-color: rgb(250,250,250); padding: 2%; border-radius: 5px;">
             <label class="label-form">Email</label>
@@ -32,22 +32,22 @@
             <label class="label-form">Society</label>
             <input class="change-mail" value="{profil.job}" placeholder="ajouter votre job"  name="job" onchange={changeJobInput}/>
             <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultSociety} </div>
-          </form> 
+          </form>
           <div id={result? 'good-result-global' : 'bad-result-global' }>{resultGlobal} </div>
           <div style="text-align: center;">
-            <button class="mail-btn"  onclick = {updateUser} type="button" if = {googleId == null || googleId == 'undefined'}>Valider modification</button>  
+            <button class="mail-btn"  onclick = {updateUser} type="button" if = {googleId == null || googleId == 'undefined'}>Valider modification</button>
           </div>
       </div>
 
-      <div if={modeSetting} style="height: 95vh;">
+      <div if={modeSetting} style="flex-grow: 1;">
         <h4>Paramètres</h4>
         <button class="dec-btn"  onclick = {deconnexion} type="button">Déconnexion</button>
       </div>
 
     </div>
-  </div> 
+  </div>
   <style scoped>
-  
+
   .label-form{
     width: 17%;
     display: block;
@@ -94,7 +94,7 @@
     display: none
   }
 
- 
+
 
   .sub-title {
     text-align:center ;
@@ -155,7 +155,7 @@
     this.modeUserResume =  true
     this.modeUserEdition = false
     this.modeSetting = false
-    
+
     goUtilisation(e) {
       this.modeUserResume =  true
       this.modeUserEdition = false
@@ -263,8 +263,8 @@
     }.bind(this))
 
     this.on('mount', function () {
-      RiotControl.trigger('load_profil'); 
-      
+      RiotControl.trigger('load_profil');
+
       this.googleId = localStorage.googleid
     })
   </script>

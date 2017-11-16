@@ -34,7 +34,7 @@ input {
   overflow-y :visible;
 }
 
-.header {height: 100pt;
+.header {height: 90pt;
 /* text-align: center; */
 display: flex;
 flex-direction:column;
