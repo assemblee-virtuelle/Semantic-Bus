@@ -73,30 +73,36 @@
 
 
 
-      <div class="containerH" style="justify-content:center;justify-content: inherit; flex-basis:100%">
+      <div class="containerH" style="justify-content:center;justify-content: inherit; flex-grow:1">
 
       <!--  NAVBAR   -->
         <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-basis:60px">
-          <div class="containerV" style="flex-grow:1">
-            <div class="commandButtonImage" onclick={workspaceSelectorClick} id="workspaceSelector">
+          <!--<div class="containerV" style="flex-grow:1">-->
+          <div class="containerV" style="flex-basis:300px;flex-grow:0;">
+            <div class="commandButtonImage" onclick={workspaceSelectorClick} id="workspaceSelector" style="flex-basis:40px">
               <img src="./image/dossier.svg" style="    background-color: rgb(33,150,243);" width="40px">
             </div>
-            <div class="commandButtonImage" onclick={workspaceShareSelectorClick}>
+            <div class="commandButtonImage" onclick={workspaceShareSelectorClick} style="flex-basis:40px">
               <img src="./image/double_dossier.svg" style="    background-color: rgb(33,150,243);" width="40px">
             </div>
-            <div class="commandButtonImage" onclick={profilSelectorClick}>
+            <div class="commandButtonImage" onclick={profilSelectorClick} style="flex-basis:40px">
               <img src="./image/photo.svg" style="    background-color: rgb(33,150,243);" width="40px">
             </div>
-            <div class="commandButtonImage" onclick={adminSelectorClick} if={showAdmin}>
+            <div class="commandButtonImage" onclick={adminSelectorClick} if={showAdmin} style="flex-basis:40px">
               <img src="./image/Roulette_bus.svg" style="    background-color: rgb(33,150,243);" width="40px">
             </div>
-            <div id="backButton" onclick={back} if={isScrennHide()} class="commandButtonImage">
+          </div>
+          <div class="containerV" style="flex-grow:1;justify-content: center">
+            <div id="backButton" onclick={back} if={isScrennHide()} class="commandButtonImage" style="flex-basis:40px">
               <img src="./image/Super-Mono-png/PNG/basic/blue/arrow-left.png" style="    background-color: rgb(33,150,243);" width="40px">
             </div>
-            <div class="commandButtonImage" >
-              <img src="./image/working.gif" width="60px" if={workInProgress}>
+          </div>
+          <div class="containerV" style="flex-basis:40px;flex-grow:0;">
+            <div class="commandButtonImage" style="flex-basis:40px">
+              <img src="./image/working.gif" width="40px" if={workInProgress}>
             </div>
           </div>
+          <!--</div>-->
         </div>
 
       <!--  CONTENT   -->
