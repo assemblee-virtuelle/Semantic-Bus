@@ -79,17 +79,17 @@
         <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-basis:60px">
           <!--<div class="containerV" style="flex-grow:1">-->
           <div class="containerV" style="flex-basis:300px;flex-grow:0;">
-            <div class="commandButtonImage" onclick={workspaceSelectorClick} id="workspaceSelector" style="flex-basis:40px">
-              <img src="./image/dossier.svg" style="    background-color: rgb(33,150,243);" width="40px">
+            <div class={commandButtonImage:true,selectedMenu:isScrennInHistory('myWorkspaces')} onclick={workspaceSelectorClick} id="workspaceSelector" style="flex-basis:40px">
+              <img src="./image/dossier.svg" width="40px">
             </div>
-            <div class="commandButtonImage" onclick={workspaceShareSelectorClick} style="flex-basis:40px">
-              <img src="./image/double_dossier.svg" style="    background-color: rgb(33,150,243);" width="40px">
+            <div class={commandButtonImage:true,selectedMenu:isScrennInHistory('sharedWorkspaces')} onclick={workspaceShareSelectorClick} style="flex-basis:40px">
+              <img src="./image/double_dossier.svg"  width="40px">
             </div>
-            <div class="commandButtonImage" onclick={profilSelectorClick} style="flex-basis:40px">
-              <img src="./image/photo.svg" style="    background-color: rgb(33,150,243);" width="40px">
+            <div class={commandButtonImage:true,selectedMenu:isScrennInHistory('profil')} onclick={profilSelectorClick} style="flex-basis:40px">
+              <img src="./image/photo.svg"  width="40px">
             </div>
-            <div class="commandButtonImage" onclick={adminSelectorClick} if={showAdmin} style="flex-basis:40px">
-              <img src="./image/Roulette_bus.svg" style="    background-color: rgb(33,150,243);" width="40px">
+            <div class={commandButtonImage:true,selectedMenu:isScrennInHistory('admin')} onclick={adminSelectorClick} if={showAdmin} style="flex-basis:40px">
+              <img src="./image/Roulette_bus.svg"  width="40px">
             </div>
           </div>
           <div class="containerV" style="flex-grow:1;justify-content: center">
@@ -222,6 +222,16 @@
       out = sift({
         screen: screenToTest,
         show: true
+      }, this.screenHistory).length > 0;
+    }
+    return out;
+  }
+
+  this.isScrennInHistory = function (screenToTest) {
+    let out = false;
+    if (this.screenHistory != undefined) {
+      out = sift({
+        screen: screenToTest
       }, this.screenHistory).length > 0;
     }
     return out;
@@ -394,6 +404,10 @@
     background-color: orange !important;
     color: white;
     z-index: 999;
+  }
+
+  .selectedMenu{
+      background-color: rgb(9,245,185);
   }
 
 </style>
