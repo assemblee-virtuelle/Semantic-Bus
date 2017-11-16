@@ -1,11 +1,4 @@
 <graph-of-use-workspace> 
-        <!--  <div class="container-top">  -->
-            <!--  <div class="center-left-top">
-                <h4 style="font-size: 1.5em;"> {this.name} </h4>
-                <p> job : {this.job || null} </p>
-                <p> societe : {this.societe || null} </p>
-                <p> email : {this.email} </p>
-            </div>  -->
     <div class="containerV" style="flex-grow:1">
         <div style="display: flex;">
         <div class="card">
@@ -19,16 +12,10 @@
             <span class="second-title-card">{this.golbalConsumption} Mo</span>
         </div>
     </div>
-        <!--  </div>  -->
-            <!--  <div style="text-align: center; padding: 5%; width:100%" >
-                <div>
-                Consomation par workspace sur 30 jours 
-                </div>
-            </div>  -->
-    <div style="display: flex; justify-content: center" >
-        <div class="item-flex">
+    <div class="containerV" style="height:100%">
+        <!--  <div class="item-flex">  -->
             <svg viewBox="0 0 1000 600" id="stacked"  ></svg></div>
-        </div>
+        <!--  </div>  -->
     </div>
 
 <style scoped>

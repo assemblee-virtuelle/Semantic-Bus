@@ -1,16 +1,4 @@
-<workspace-table class="containerV">
-  <div  class="header">
-    <div class="containerH commandBar" style="margin-bottom: 15pt;justify-content:center"> 
-      <div><strong>My Work</strong>spaces</div>
-    </div>
-      <div class="containerH commandBar"> 
-        <div></div>
-        <div><input class="champ"  type="text" name="inputSearch" ref="inputSearch" placeholder="Search" onkeyup={ filterCards }></div>
-        <div onclick={addRowClick} class="buttonBus"> 
-          Add 
-        </div>
-      </div>
-  </div>
+<workspace-table class="containerV containerV-scrollale">
   <zenTable style="flex:1" drag={false}  clickClass={false} disallownavigation={true} disallowdelete={true} ref="workspaceZenTable">
     <yield to="header">
       <div>Name</div>
@@ -23,24 +11,6 @@
   </zenTable>
 
   <script>
-    //console.log('mount opts :',this.opts);
-    addRowClick(e) {
-      console.log("add row",e)
-      //var index=parseInt(e.currentTarget.dataset.rowid) console.log(index);
-      this.trigger('addRow')
-    }
-
-    filterCards(e){
-      if(e.code == "Backspace"){
-        this.tags.zentable.data = this.data
-        this.tags.zentable.data = sift({name: {$regex: re}  }, this.tags.zentable.data);
-      }
-      let test = $(".champ")[0].value
-      var re = new RegExp(test, 'gi');
-      this.tags.zentable.data = sift({name: {$regex: re}  }, this.tags.zentable.data);
-      this.update()
-    }.bind(this)
-
 
     this.refreshZenTable = function (data) {
       console.log("refreshZenTable")
@@ -58,10 +28,20 @@
         RiotControl.trigger('workspace_current_select', data);
       }.bind(this));
 
-      this.on('addRow', function () {
-        //console.log(data);
+      RiotControl.on("filterCards", function(e){
+        console.log("in filtercard trigger")
+        if(e.code == "Backspace"){
+          this.tags.zentable.data = this.data
+          this.tags.zentable.data = sift({name: {$regex: re}  }, this.tags.zentable.data);
+        }
+        let test = $(".champ")[0].value
+        var re = new RegExp(test, 'gi');
+        this.tags.zentable.data = sift({name: {$regex: re}  }, this.tags.zentable.data);
+        this.update()
+      }.bind(this))
+
+      RiotControl.on('addRowWorkspace', function () {
         RiotControl.trigger('workspace_current_init');
-        //this.trigger('newWorkspace');
       }.bind(this));
 
       this.tags.zentable.on('delRow', function (data) {
@@ -80,7 +60,7 @@
     .champ {    
       color: rgb(220,220,220);
       width: 50vw;
-      height: 38px;
+      height: 60px;
       border-radius: 20pt;
       border-width: 0;
       font-size: 1em

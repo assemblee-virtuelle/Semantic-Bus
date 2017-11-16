@@ -1,6 +1,4 @@
 input[type="text"] {
-  font-size: 1.5em;
-  width:100%;
   box-sizing: border-box;
 }
 
@@ -15,7 +13,6 @@ body{
 input {
   color: rgb(220,220,220);
   padding-left:10pt;
-  width: 50vw;
   height: 38px;
   border-radius: 20pt;
   border-width: 0;
@@ -114,8 +111,11 @@ color:white
 
 .commandButtonImage{
   cursor: pointer;
-  align-self: flex-end;
-  margin-top:10pt;
+  /* align-self: flex-end; */
+  justify-content: center;
+  align-items: center;
+  display: flex;
+  flex: 0.05;
 }
 
 .commandButtonImage:hover{

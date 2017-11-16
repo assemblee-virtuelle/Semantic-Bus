@@ -1,0 +1,30 @@
+{
+  "name": "W",
+  "description": "Responsive viewport management tool",
+  "main": "lib/W.js",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/pyrsmk/W.git"
+  },
+  "keywords": [
+    "width",
+    "height",
+    "viewport",
+    "screen",
+    "responsive"
+  ],
+  "authors": ["Aurélien Delogu"],
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/pyrsmk/W/issues"
+  },
+  "homepage": "http://dreamysource.io/project/w",
+  "ignore": [
+    ".git/",
+    ".gitignore",
+    "nodes_modules/",
+    "tests/",
+    "gulpfile.js",
+    "package.json"
+  ]
+}

@@ -18,16 +18,27 @@
   overflow-y: hidden;
 }
 
+
+
 .containerV
 {
   display: flex;
   flex-direction: column;
-  overflow-y: auto;
-
+  overflow-y: hidden;
 }
 .containerV>*
 {
   flex-shrink : 0;
+}
+.containerV-scrollale
+{
+  overflow-y: auto;
+  height: 0px;
+}
+
+.flex-basis {
+  display: flex; 
+  flex-basis:100%;
 }
 
 
@@ -35,4 +46,4 @@
 {
   flex-grow: 1;
   flex-shrink : 1;
-}
+}               

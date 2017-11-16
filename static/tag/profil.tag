@@ -1,29 +1,25 @@
-<profil class="containerV">
-   <div class="containerH" style="flex-wrap:nowrap;flex-grow:1;">
-    <div class="containerV" style="flex-basis: 65px;
-    background-color: rgb(9,245,185); padding:6pt">
-        <div onclick={goUtilisation} class="commandButtonImage"  style="margin-top: 20pt;">
-          <img src="./image/Graphe_2.svg" height="40px" width="40px">
-        </div>
-        <div onclick={goUserEdition} class="commandButtonImage"  style="margin-top: 20pt;">
-          <img src="./image/Autres.svg" height="40px"  width="40px">
-        </div>
-        <div onclick={goSetting} class="commandButtonImage"  style="margin-top: 20pt;">
-           <img src="./image/Roulette_bus.svg" height="40px"  width="40px">
-        </div>
-    </div>
-    <div class=" containerV" style="flex-grow:1; background-color:rgb(238,242,249)">
-      <div class="header"  style="align-items:center">
-        <div class="commandBar containerH">
-          <div></div>
-          <div>Consomation de votre compte</div>
-        </div>
-    </div>
-    <div class="containerV"  style="flex-grow:1;">
-      <div if ={modeUserResume}>
-        <graph-of-use-workspace></graph-of-use-workspace>
+<profil class="containerV containerV-scrollale" style="flex-grow:1">
+   <div class="containerH" style="justify-content:left;flex-basis: 100%;">
+
+    <div class="containerV" style="flex-basis: 5%; background-color: rgb(9,245,185);">
+          <div class="containerV" style="flex-grow:1">
+          <div onclick={goUtilisation} class="commandButtonImage">
+            <img src="./image/Graphe_2.svg" height="40px" width="40px">
+          </div>
+          <div onclick={goUserEdition} class="commandButtonImage">
+            <img src="./image/Autres.svg" height="40px"  width="40px">
+          </div>
+          <div onclick={goSetting} class="commandButtonImage">
+            <img src="./image/Roulette_bus.svg" height="40px"  width="40px">
+          </div>
       </div>
-      <div if={modeUserEdition} style="height: 95vh; width: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center;">
+    </div>
+   
+    <div class="containerV"  if ={modeUserResume} style="flex-basis: 95%;">
+        <!--  <graph-of-use-workspace></graph-of-use-workspace>  -->
+    </div>
+
+      <div if={modeUserEdition} class="containerV" style="flex-basis: 95%;justify-content: center; align-items: center;">
         <h4 style="font-size:20px">Modification de votre profil</h4>
           <form style="height: 61vh;width: 60%; background-color: rgb(250,250,250); padding: 2%; border-radius: 5px;">
             <label class="label-form">Email</label>
@@ -38,16 +34,18 @@
             <label class="label-form">Society</label>
             <input class="change-mail" value="{profil.job}" placeholder="ajouter votre job"  name="job" onchange={changeJobInput}/>
             <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultSociety} </div>
-        </form> 
+          </form> 
           <div id={result? 'good-result-global' : 'bad-result-global' }>{resultGlobal} </div>
           <div style="text-align: center;">
             <button class="mail-btn"  onclick = {updateUser} type="button" if = {googleId == null || googleId == 'undefined'}>Valider modification</button>  
           </div>
       </div>
+
       <div if={modeSetting} style="height: 95vh;">
         <h4>Paramètres</h4>
         <button class="dec-btn"  onclick = {deconnexion} type="button">Déconnexion</button>
       </div>
+
     </div>
   </div> 
   <style scoped>

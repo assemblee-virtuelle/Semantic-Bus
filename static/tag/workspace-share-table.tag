@@ -1,15 +1,4 @@
 <workspace-share-table class="containerV">
-  <div class="commandBar containerH" style="height: 100pt;
-    /* text-align: center; */
-    display: flex;
-    align-items: center;
-    flex-direction:column;
-    justify-content: center;
-    background-color: rgb(33,150,243);
-    color:white">
-    <div style="margin-bottom: 15pt;"> <strong>My Work</strong>spaces    <strong>Share</strong></div>
-      <input class="champ"  type="text" name="inputSearch" ref="inputSearch" placeholder="Search" onkeyup={ filterCards }>
-  </div>
   <zenTable  drag={false}  disallownavigation={true} disallowdelete={false}  clickClass={false} style="flex:1;background-color: rgb(240,240,240);" disallowcommand="true">
     <yield to="header">
       <div>name</div>
@@ -20,20 +9,8 @@
       <div style="width:70%">{description}</div>
     </yield>
   </zenTable>
-
   <script>
 
-
-    filterCards(e){
-      if(e.code == "Backspace"){
-        this.tags.zentable.data = this.data
-        this.tags.zentable.data = sift({name: {$regex: re}  }, this.tags.zentable.data);
-      }
-      let test = $(".champ")[0].value
-      var re = new RegExp(test, 'gi');
-      this.tags.zentable.data = sift({name: {$regex: re}  }, this.tags.zentable.data);
-      this.update()
-    }.bind(this)
 
     navigationClick(e) {
       console.log("test", e.item.rowid)
@@ -48,7 +25,22 @@
       console.log('view UPDATE', data);
       this.tags.zentable.data = data;
     }.bind(this);
+
+
     this.on('mount', function (args) {
+
+      RiotControl.on("filterCards", function(e){
+        console.log("in filtercard trigger")
+        if(e.code == "Backspace"){
+          this.tags.zentable.data = this.data
+          this.tags.zentable.data = sift({name: {$regex: re}  }, this.tags.zentable.data);
+        }
+        let test = $(".champ")[0].value
+        var re = new RegExp(test, 'gi');
+        this.tags.zentable.data = sift({name: {$regex: re}  }, this.tags.zentable.data);
+        this.update()
+      }.bind(this))
+
       this.tags.zentable.on('rowNavigation', function (data) {
         console.log("rowNavigation", data);
         RiotControl.trigger('workspace_current_select', data);
