@@ -23,7 +23,7 @@
     </div>
     <!--  CONTAINER GENERAL  -->
 
-    <div class="containerH" style="bottom:0;top:0;right:0;left:0;position:absolute;flex-wrap:nowrap;justify-content:center;background-color: rgb(33,150,243);">
+    <div class="containerH" style="justify-content:center;background-color: rgb(33,150,243);">
 
       <!--  HEADER WORKSPACE  -->
       <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('myWorkspaces')}>
