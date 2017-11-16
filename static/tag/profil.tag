@@ -1,18 +1,15 @@
-<profil class="containerH containerV-scrollale" style="flex-grow:1">
-
-   <div class="containerH" style="justify-content:left;flex-basis: 100%;">
+<profil class="containerV" style="flex-grow:1">
 
     <div class="containerV" style="flex-basis: 5%; background-color: rgb(9,245,185);">
-          <div class="containerV" style="flex-grow:1">
-          <div onclick={goUtilisation} class="commandButtonImage">
-            <img src="./image/Graphe_2.svg" height="40px" width="40px">
-          </div>
-          <div onclick={goUserEdition} class="commandButtonImage">
-            <img src="./image/Autres.svg" height="40px"  width="40px">
-          </div>
-          <div onclick={goSetting} class="commandButtonImage">
-            <img src="./image/Roulette_bus.svg" height="40px"  width="40px">
-          </div>
+        <div onclick={goUtilisation} class="commandButtonImage">
+          <img src="./image/Graphe_2.svg" height="40px" width="40px">
+        </div>
+        <div onclick={goUserEdition} class="commandButtonImage">
+          <img src="./image/Autres.svg" height="40px"  width="40px">
+        </div>
+        <div onclick={goSetting} class="commandButtonImage">
+          <img src="./image/Roulette_bus.svg" height="40px"  width="40px">
+        </div>
       </div>
     </div>
    
