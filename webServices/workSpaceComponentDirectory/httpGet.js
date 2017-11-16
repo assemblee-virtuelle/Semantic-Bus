@@ -47,6 +47,7 @@ module.exports = {
           this.dataTraitment.type.type_file(response.headers['content-disposition'],responseBody, responseBodyExel, undefined,  contentType).then(function(result){
             resolve(result)
           }, function(err){
+            //console.log('FILE ERROR',err);
             let fullError = new Error(err);
             fullError.displayMessage = "HTTP GET : Erreur lors du traitement de votre fichier";
             reject(fullError)

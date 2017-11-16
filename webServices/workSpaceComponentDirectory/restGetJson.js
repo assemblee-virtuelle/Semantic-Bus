@@ -1,6 +1,6 @@
 module.exports = {
   type: 'REST Get JSON',
-  description: 'intéroger une API REST avec une requete Get qui fourni un flux JSON',
+  description: 'intéroger une API REST avec une requete Get qui fourni un flux JSON, XML',
   editor: 'rest-get-json-editor',
   graphIcon: 'restGetJson.png',
   tags:[
@@ -10,6 +10,7 @@ module.exports = {
   url: require('url'),
   http: require('http'),
   https: require('https'),
+  xml2js:  require('xml2js'),
   makeRequest: function(methodRest, urlString, pullParams, options) {
 
     // create a new Promise
@@ -62,10 +63,21 @@ module.exports = {
             //console.log(responseBody);
 
             try{
-              let responseObject=JSON.parse(responseBody);
-              resolve({
-                data: JSON.parse(responseBody)
-              });
+              console.log('CONTENT-TYPE',response.headers['content-type']);
+              if (response.headers['content-type'].search('xml') != -1) {
+                this.xml2js.parseString(responseBody,{attrkey: "attr", "trim": true}, function(err, result) {
+                  resolve({
+                    data: result
+                  });
+                });
+              }else if (response.headers['content-type'].search('json') != -1) {
+                let responseObject=JSON.parse(responseBody);
+                resolve({
+                  data: JSON.parse(responseBody)
+                });
+              }
+
+
             }catch(e){
               reject(new Error('Data Flow is unparsable'));
             }
