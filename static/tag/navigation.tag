@@ -21,6 +21,7 @@
       <div>{errorMessage}</div>
       <div onclick={closeError} class="commandButtonImage" ><img src="./image/Super-Mono-png/PNG/basic/red/button-cross.png" height="20px"></div>
     </div>
+
     <!--  CONTAINER GENERAL  -->
 
     <div class="containerH" style="justify-content:center;background-color: rgb(33,150,243);">
