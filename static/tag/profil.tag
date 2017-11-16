@@ -15,7 +15,7 @@
       </div>
     </div>
    
-    <div class="containerV"  if ={modeUserResume} style="flex-basis: 95%;">
+    <div class="containerH"  if ={modeUserResume} style="flex-basis: 95%;">
         <!--  <graph-of-use-workspace></graph-of-use-workspace>  -->
     </div>
 
