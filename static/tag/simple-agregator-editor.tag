@@ -9,6 +9,11 @@
         <input if="fieldEditing" type="text" value={fieldValue} onkeyup={fieldValueChange}>
       </div>
     </div>
+    <div class="containerH commandBar">
+      <div class="commandGroup">
+        <image src="./image/ajout_composant.svg" class="commandButtonImage" width="50" height="50" onclick={addRow}></image>
+      </div>
+    </div>
     <zenTable style="flex:1" title="champs qui determinent l'unicité">
       <yield to="header">
         <div>champ</div>
@@ -55,6 +60,11 @@
       this.update();
     }.bind(this);
 
+    addRow(e){
+      this.data.specificData.unicityFields.push({field: this.fieldValue});
+      this.tags.zentable.data = this.data.specificData.unicityFields;
+      console.log(this.tags.zentable.data)
+    }
 
     this.on('mount', function () {
       this.tags.zentable.on('rowSelect', function (data) {
@@ -62,12 +72,6 @@
         this.currentRowId=data.rowid
         this.fieldValue = data.field;
         this.update();
-      }.bind(this));
-      this.tags.zentable.on('addRow', function () {
-        //console.log(this.data.specificData.unicityFields)
-        this.data.specificData.unicityFields.push({field: this.fieldValue});
-        this.tags.zentable.data = this.data.specificData.unicityFields;
-        console.log(this.tags.zentable.data)
       }.bind(this));
 
       this.tags.zentable.on('delRow', function (row) {
