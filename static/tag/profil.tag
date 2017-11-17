@@ -2,13 +2,13 @@
 
 
     <div class="containerV" style="flex-basis: 60px; background-color: rgb(9,245,185);">
-        <div onclick={goUtilisation} class="commandButtonImage">
+        <div onclick={goUtilisation} class="commandButtonImage" style="flex-basis:40px">
           <img src="./image/Graphe_2.svg" height="40px" width="40px">
         </div>
-        <div onclick={goUserEdition} class="commandButtonImage">
+        <div onclick={goUserEdition} class="commandButtonImage" style="flex-basis:40px">
           <img src="./image/Autres.svg" height="40px"  width="40px">
         </div>
-        <div onclick={goSetting} class="commandButtonImage">
+        <div onclick={goSetting} class="commandButtonImage" style="flex-basis:40px">
           <img src="./image/Roulette_bus.svg" height="40px"  width="40px">
         </div>
     </div>
