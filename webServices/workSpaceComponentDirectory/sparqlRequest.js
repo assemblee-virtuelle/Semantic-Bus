@@ -10,32 +10,39 @@ module.exports = {
   rdfstore: require('rdfstore'),
   makeRequest: function(flowData, request) {
     return new Promise((resolve, reject) => {
-      var query = request;
-      new this.rdfstore.Store(function(err, store) {
-        //console.log('flowData', flowData);
-        try {
-          store.load("application/ld+json", flowData, function(err, results) {
+      //var query = request;
+      if (request == undefined) {
+        reject(new Error("empty request"))
+      } else {
+        new this.rdfstore.Store(function(err, store) {
+          //console.log('store', store);
+          try {
+            store.load("application/ld+json", flowData, function(err, results) {
 
-            console.log(results);
-            try {
-              store.execute(query, function(err, graph) {
-                if (err) {
-                  reject(err);
-                } else {
-                  resolve({
-                    data: graph
-                  })
-                }
-              })
-            } catch (e) {
-              reject(e);
-            }
-          })
 
-        } catch (e) {
-          reject(e);
-        }
-      });
+              //console.log(JSON.stringify(results));
+              //console.log(query);
+              try {
+                store.execute(request, function(err, graph) {
+                  if (err) {
+                    reject(err);
+                  } else {
+                    resolve({
+                      data: graph
+                    })
+                  }
+                })
+              } catch (e) {
+                reject(e);
+              }
+            })
+
+          } catch (e) {
+            reject(e);
+          }
+        });
+      }
+
     })
   },
   pull: function(data, flowData) {

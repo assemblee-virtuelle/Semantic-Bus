@@ -1,7 +1,7 @@
 <sparql-request-editor>
   <div>description de la requete SPARQL</div>
   <label>requete</label>
-  <input type="text" name="requeteInput" value={data.specificData.request}></input>
+  <input type="text" ref="requeteInput" value={data.specificData.request} onchange={requeteInputChanged}></input>
   <script>
 
     this.innerData={};
@@ -12,6 +12,10 @@
       this.innerData=dataToUpdate;
       this.update();
     }.bind(this);
+
+    requeteInputChanged(e){
+      this.data.specificData.request=e.target.value;
+    }
 
 
     Object.defineProperty(this, 'data', {
@@ -25,9 +29,9 @@
       configurable: true
     });
     this.on('mount', function () {
-      this.requeteInput.addEventListener('change',function(e){
-        this.innerData.specificData.request=e.currentTarget.value;
-      }.bind(this));
+      // this.requeteInput.addEventListener('change',function(e){
+      //   this.innerData.specificData.request=e.currentTarget.value;
+      // }.bind(this));
 
       RiotControl.on('item_current_changed',this.updateData);
     });
