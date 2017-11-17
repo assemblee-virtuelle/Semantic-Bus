@@ -1,7 +1,11 @@
-<sparql-request-editor>
-  <div>description de la requete SPARQL</div>
-  <label>requete</label>
-  <input type="text" ref="requeteInput" value={data.specificData.request} onchange={requeteInputChanged}></input>
+<sparql-request-editor class="containerV">
+  <div>
+    <div>description de la requete SPARQL</div>
+    <label>requete</label>
+  </div>
+  <div class="containerV">
+    <textArea type="text" ref="requeteInput" style="flex-grow:1" onchange={requeteInputChanged}>{data.specificData.request}</textArea>
+  </div>
   <script>
 
     this.innerData={};
