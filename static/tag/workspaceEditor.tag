@@ -69,49 +69,30 @@
           </zenTable>
         </div>
       </div>
-      <div show={menu=='information'} class="description-worksapce containerV" id="description" style="background-color: rgb(238,242,249);flex-grow: 1;display: flex;flex-direction: column;justify-content: center;align-items: center;">
-        <h4 style="font-size:20px">Information sur votre workspace</h4>
-        <div class="containerV" style="height: 30vh; width: 60%; background-color: rgb(250,250,250); padding: 2%;border-radius: 5px;">
-          <label style="padding-top:3vh">{labelInputName}
-          </label>
-          <input
-            id="workspaceNameInput"
-            readonly={innerData.mode=="read"
-            }
-            class={readOnly
-            :
-            innerData.mode=="read"
-            ,
-            description-worksapce-input
-            :
-            innerData.mode=="edit"
-            }
-            type="text"
-            ref="workspaceNameInput"
-            placeholder="nom du workspace"
-            value="{innerData.name}"
-            onkeyup="{nameFieldChange}"></input>
-          <label style="padding-top:3vh">{labelInputDesc}
-          </label>
-          <input
-            readonly={innerData.mode=="read"
-            }
-            class={readOnly
-            :
-            innerData.mode=="read"
-            ,
-            description-worksapce-input
-            :
-            innerData.mode=="edit"
-            }
-            ref="workspaceDescriptionInput"
-            id="workspaceDescriptionInput"
-            type="text"
-            placeholder="description du workspace"
-            value="{innerData.description}"
-            onkeyup="{descriptionFieldChange}"></input>
+      <div show={menu=='information'} class="containerH" id="description" style="flex-basis: 600pt;background-color: rgb(238,242,249);flex-grow: 1;display: flex;justify-content: center;align-items: center;">
+          <div class="containerV" style="box-shadow: 0px 0px 5px rgba(134,134,134,0.5);flex-grow: 0.5;background-color: rgb(250,250,250); padding: 2%;border-radius: 5px;">
+            <div class="containerV" style="flex-basis: 100pt;">
+              <label class="label-form" style="padding-top:3vh">{labelInputName} </label>
+              <input id="workspaceNameInput"readonly={innerData.mode=="read"} class={readOnly:innerData.mode=="read",description-worksapce-input:innerData.mode=="edit"}
+                type="text"
+                ref="workspaceNameInput"
+                placeholder="nom du workspace"
+                value="{innerData.name}"
+                onkeyup="{nameFieldChange}"></input>
+            </div>
+            <div class="containerV" style="flex-basis: 100pt;">
+              <label class="label-form" style="padding-top:3vh">{labelInputDesc}</label>
+              <input readonly={innerData.mode=="read"}
+                class={readOnly: innerData.mode=="read",description-worksapce-input:innerData.mode=="edit"}
+                ref="workspaceDescriptionInput"
+                id="workspaceDescriptionInput"
+                type="text"
+                placeholder="description du workspace"
+                value="{innerData.description}"
+                onkeyup="{descriptionFieldChange}"></input>
+            </div>
+          </div>
         </div>
-      </div>
       <div show={menu=='utilisation'} style="padding: 5%;overflow: scroll;flex-grow: 1;background-color: rgb(238,242,249)">
         <graph-of-use></graph-of-use>
       </div>
@@ -119,6 +100,14 @@
   </div>
 
   <style>
+
+   .label-form{
+    display: flex;
+    margin-bottom: 1em;
+    margin-top: 1em;
+    color: rgb(120,120,120);
+    align-self: center;
+  }
     .description-worksapce-input {
       text-align: left;
       border: none;
@@ -191,8 +180,8 @@
 
   </style>
   <script>
-    this.labelInputName = "Nom"
-    this.labelInputDesc = "Description"
+    this.labelInputName = "Nom de votre Workspace"
+    this.labelInputDesc = "Description de votre Workspace"
     // this.componentView = true;
     // this.userView = true;
     // this.DescriptionView = true;

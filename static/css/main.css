@@ -34,6 +34,14 @@ input {
   overflow-y :visible;
 }
 
+button:focus {
+  outline:none!important;
+}
+
+input:focus {
+  outline:none!important;
+}
+
 .header {height: 90pt;
 /* text-align: center; */
 display: flex;

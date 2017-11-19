@@ -5,15 +5,15 @@
       <div class=" containerV" style="flex-basis:400px; background-color: rgb(9,245,185);flex-grow:0;">
         <div onclick={goUtilisation} class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
           <img src="./image/Graphe_2.svg" style="margin-bottom: 10px;" height="40px" width="40px">
-          <p style="color:white;font-size:12px">Graphique</p>
+          <p style="color:white;font-size:12px">Conso</p>
         </div>
         <div onclick={goUserEdition} class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
           <img src="./image/Autres.svg"  style="margin-bottom: 10px;"  height="40px"  width="40px">
-          <p style="color:white;font-size:12px">Graphique</p>
+          <p style="color:white;font-size:12px">Edition</p>
         </div>
         <div onclick={goSetting} class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
           <img src="./image/Roulette_bus.svg"  style="margin-bottom: 10px;"  height="40px"  width="40px">
-          <p style="color:white;font-size:12px">Graphique</p>
+          <p style="color:white;font-size:12px">Paramêtres</p>
         </div>
       </div>
     </div>
@@ -25,30 +25,41 @@
         <graph-of-use-workspace></graph-of-use-workspace>
     </div>
 
-      <div if={modeUserEdition} class="containerV" style="background-color:rgb(238, 242, 249);flex-grow: 1;justify-content: center; align-items: center;">
-        <h4 style="font-size:20px">Modification de votre profil</h4>
-          <form style="height: 61vh;width: 60%; background-color: rgb(250,250,250); padding: 2%; border-radius: 5px;">
-            <label class="label-form">Email</label>
-            <input class="change-mail" value="{profil.credentials.email}"  ref="email" onchange={changeEmailInput}/>
-            <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultEmail}</div>
-            <label class="label-form">Name</label>
-            <input class="change-mail" value="{profil.name}" name="name" onchange={changeNameInput}/>
-            <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultName}</div>
-            <label class="label-form" >Job</label>
-            <input class="change-mail" value="{profil.society}" placeholder="ajouter votre societé" name="society" onchange={changeSocietyInput}/>
-            <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultJob}</div>
-            <label class="label-form">Society</label>
-            <input class="change-mail" value="{profil.job}" placeholder="ajouter votre job"  name="job" onchange={changeJobInput}/>
-            <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultSociety} </div>
-          </form>
-          <div id={result? 'good-result-global' : 'bad-result-global' }>{resultGlobal} </div>
-          <div style="text-align: center;">
-            <button class="mail-btn"  onclick = {updateUser} type="button" if = {googleId == null || googleId == 'undefined'}>Valider modification</button>
+      <div if={modeUserEdition} class="containerH" style="background-color:rgb(238, 242, 249);flex-grow: 1;justify-content: center; align-items: center;">
+          <div class="containerV" style="justify-content:center;flex-basis: 600pt;">
+            <div style="flex-basis:300pt;box-shadow: 0px 0px 5px rgba(134,134,134,0.5); background-color: rgb(250,250,250); padding: 5%;  border-radius: 5px;">
+              <div class="containerV" style="flex-grow: 1;padding: 3%;">
+                <h3 style="color:rgb(120,120,120)">{profil.name}</h3>
+              </div>
+              <div class="containerV">
+                <label class="label-form">Mon email</label>
+                <input class="change-mail" value="{profil.credentials.email}"  ref="email" onchange={changeEmailInput}/>
+                <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultEmail}</div>
+              </div>
+              <!--  <label class="label-form">Name</label>
+              <input class="change-mail" value="{profil.name}" name="name" onchange={changeNameInput}/>  -->
+              <!--  <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultName}</div>  -->
+              <div class="containerV">
+                <label class="label-form" >Mon post actuel</label>
+                <input class="change-mail" value="{profil.society}" placeholder="ajouter votre societé" name="society" onchange={changeSocietyInput}/>
+                <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultJob}</div>
+              </div>
+              <div class="containerV">
+                <label class="label-form">Ma société</label>
+                <input class="change-mail" value="{profil.job}" placeholder="ajouter votre job"  name="job" onchange={changeJobInput}/>
+                <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultSociety} </div>
+              </div>
+            </div>
+            <div class="containerV" style=" justify-content: center; align-items: center;/* flex-grow: 1; */flex-basis: 105pt;">
+              <div id={result? 'good-result-global' : 'bad-result-global' }>{resultGlobal} </div>
+              <button class="mail-btn"  onclick = {updateUser} type="button" if = {googleId == null || googleId == 'undefined'}>Valider modification</button>
+            </div>
           </div>
       </div>
 
-      <div if={modeSetting} style="flex-grow: 1;">
-        <h4>Paramètres</h4>
+        <div class="containerV" if={modeSetting} style="flex-grow: 1;background-color: rgb(238, 242, 249);">
+        <div class="containerV" style="flex-grow:1;justify-content:center;align-items: center;">
+        <h3 style="color: rgb(120,120,120);"> Vous vous en aller déja ? </h3>
         <button class="dec-btn"  onclick = {deconnexion} type="button">Déconnexion</button>
       </div>
 
@@ -57,11 +68,11 @@
   <style scoped>
 
   .label-form{
-    width: 17%;
-    display: block;
+    display: flex;
     margin-bottom: 1em;
     margin-top: 1em;
-    color: black;
+    color: rgb(120,120,120);
+    align-self: center;
   }
   .title-number {
     font-size: 30px;
@@ -85,10 +96,10 @@
     padding-top: 4%;
   }
   #good-result-global{
-    color: green;
+    color: #3CB371;
     font-size: 18px;
     font-family: 'Raleway', sans-serif;
-    padding-top: 1%;
+    flex-grow: 0.5;
   }
 
   #bad-result{
@@ -119,14 +130,13 @@
       padding: 10px;
       border-radius: 5px 5px 5px 5px;
       text-align: center;
-      margin-top: 10%;
       border: 1px solid #3498db;
-      background: transparent;
-      color: #3498db;
+      background: #3498db;
+      color: white;
     }
     .dec-btn {
       color: #ffffff;
-      background-color: red;
+      background-color: #ff6666;
       border: none;
       padding:10px;
       border-radius: 5px 5px 5px 5px;
@@ -264,7 +274,12 @@
 
     RiotControl.on('update_profil_done', function(){
       this.result = true;
-      this.resultGlobal = "le profil à était mis à jour";
+      this.resultGlobal = "Votre profil à bien était mis à jour ";
+      setTimeout(function(){
+        console.log("SET TIME OUT")
+         this.resultGlobal = ""
+         this.update()
+      }.bind(this), 2000);
       this.update();
     }.bind(this))
 
