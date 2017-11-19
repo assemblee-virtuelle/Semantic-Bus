@@ -134,7 +134,7 @@
         var Allday = []
         var AllDayObject = {}
         var lasttab = {}
-        this.golbalConsumption = 0
+        this.golbalConsumption = ""
         var dataT = []
         this.resultEmail = "";
         this.result = true;
@@ -143,32 +143,32 @@
         //this.job = data.user.job;
         //this.societe = data.user.society;
         //this.name = data.user.name;
-        //this.numberWorkspace = data.workspaces.length
+        this.numberWorkspace = ""
 
 
-        function decimalAdjust(type, value, exp) {
-        // Si la valeur de exp n'est pas définie ou vaut zéro...
-        if (typeof exp === 'undefined' || +exp === 0) {
-            return Math[type](value);
-        }
-        value = +value;
-        exp = +exp;
-        // Si la valeur n'est pas un nombre 
-        // ou si exp n'est pas un entier...
-        if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
-            return NaN;
-        }
-        // Si la valeur est négative
-        if (value < 0) {
-            return decimalAdjust(type, -value, exp);
-        }
-        // Décalage
-        value = value.toString().split('e');
-        value = Math[type](+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
-        // Décalage inversé
-        value = value.toString().split('e');
-        return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
-        }
+        let decimalAdjust = function(type, value, exp) {
+            // Si la valeur de exp n'est pas définie ou vaut zéro...
+            if (typeof exp === 'undefined' || +exp === 0) {
+                return Math[type](value);
+            }
+            value = +value;
+            exp = +exp;
+            // Si la valeur n'est pas un nombre 
+            // ou si exp n'est pas un entier...
+            if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
+                return NaN;
+            }
+            // Si la valeur est négative
+            if (value < 0) {
+                return this.decimalAdjust(type, -value, exp);
+            }
+            // Décalage
+            value = value.toString().split('e');
+            value = Math[type](+(value[0] + 'e' + (value[1] ? (+value[1] - exp) : -exp)));
+            // Décalage inversé
+            value = value.toString().split('e');
+            return +(value[0] + 'e' + (value[1] ? (+value[1] + exp) : exp));
+        }.bind(this)
 
         this.formatData = function(data)  {
             console.log("in froma data")
@@ -210,9 +210,9 @@
                             }
                         }
                         }
-                    })
+                    }.bind(this))
                     }
-                })
+                }.bind(this))
 
                 for (var month in AllDayObject) {
                     lasttab[month] = {}
@@ -254,9 +254,10 @@
                     dataT.push(c)
                     }
                 }
-            resolve(dataT)
-        })
-    }
+            console.log("golbalConsumption", this.golbalConsumption)
+            resolve({global: this.golbalConsumption, data:dataT})
+        }.bind(this))
+    }.bind(this)
 
 
         /// D3 JS INITIALIZE
@@ -415,7 +416,10 @@
         this.initgraph  = function (data) {
             console.log("DRAW STACK CHART")
             this.formatData(data).then(function(res){
-                this.initD3js(res)
+                this.numberWorkspace = data.workspaces.length
+                this.golbalConsumption = res.global
+                this.initD3js(res.data)
+                this.update()
             }.bind(this))
         }.bind(this)
 

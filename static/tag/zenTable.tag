@@ -7,12 +7,12 @@
       <div  class="tableRow {selected:selected== true && opts.clickclass} {mainSelected:mainSelected}"  name="tableRow" dragenter={drag_enter} dragleave={drag_leave} draggable={opts.drag}  data-rowid={rowid} data-id={_id} each={indexedData}  ondragend={parent.drag_end}
       	ondragstart={parent.drag_start} onclick={rowClic}>
         <yield from="row"/>
-        <div class="containerV" style="justify-content:space-between">
-              <div onclick={delRowClick} data-rowid={rowid} if={opts.disallowdelete==true} >
+        <div class="containerV" style="margin-left: 2%; justify-content: space-between;flex-direction: row;width: 10%;display: flex;align-items: center;">
+              <div onclick={delRowClick} style="display: flex;width: 40%;" data-rowid={rowid} if={opts.disallowdelete==true} >
                 <img  class="commandButtonImage" src="./image/poubelle.png" height="15px" draggable={false}>
               </div>
-              <div onclick={navigationClick} if={opts.disallownavigation==true} data-rowid={rowid} >
-                <img class="commandButtonImage" style="margin-top: 20px;" src="./image/edit.png" height="15px" draggable={false}>
+              <div onclick={navigationClick} style="display: flex;width: 40%;" if={opts.disallownavigation==true} data-rowid={rowid} >
+                <img class="commandButtonImage"  src="./image/edit.png" height="15px" draggable={false}>
               </div>
         </div>
       </div>
@@ -175,7 +175,7 @@
     }
 
     recalculateHeader() {
-      console.log(this.refs.tableHeader)
+      console.log("IN RECALCULE HEADER")
       var headers = this.refs.tableHeader.children;
       for (var row of this.root.querySelectorAll('.tableRow')) {
         for (var headerkey in headers) {
@@ -203,7 +203,7 @@
         this.recalculateHeader()
       }.bind(this));
       this.refs.tableBodyContainer.addEventListener('scroll', function (e) {
-        //console.log(this.tableBodyContainer.scrollLeft);
+        console.log(this.tableBodyContainer.scrollLeft);
         this.refs.tableHeader.scrollLeft = this.refs.tableBodyContainer.scrollLeft;
       }.bind(this));
     });
@@ -235,12 +235,6 @@
 
     }
 
-
-    .tableRow{
-      background-color: white;
-    }
-
-
     .placeholder{
       margin:4px;
       margin-left:10px;
@@ -251,12 +245,13 @@
   }
 
     .tableRow {
-
       background-color: white;
       margin-top: 9pt;
       border-radius: 10px;
       padding: 8pt;
       color: rgb(110,110,110);
+      flex-basis: 100%;
+      display: flex;
     }
 
     .tableHeader > * {
