@@ -55,7 +55,7 @@
         <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;"  if={isScrennToShow('sharedWorkspaces')}>
           <div  class="header" >
             <div class="containerH commandBar" style="justify-content: center;flex-direction: column;align-items: center;">
-              <div class="containerH commandBar" style="flex-grow: 1;justify-content:center">
+              <div class="containerH commandBar" style="margin-bottom: 15pt;flex-grow: 1;justify-content:center">
                 <strong>Mes Work</strong>spaces partagés
               </div>
               <input class="champ"  type="text" name="inputSearch" ref="inputSearch" placeholder="Search" onkeyup={ filterCards }>
@@ -67,7 +67,7 @@
         <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;"  if={isScrennToShow('profil')}>
           <div  class="header">
             <div class="containerH commandBar" style="flex-grow: 1;justify-content: center;flex-direction: column;align-items: center;">
-              <div class="main-title"><strong>Mon espace</strong> personel</div>
+              <div class="main-title"><strong>Mon espace</strong> personnel</div>
             </div>
           </div>
         </div>
