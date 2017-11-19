@@ -4,6 +4,7 @@ module.exports = {
   editor: 'simple-agregator-editor',
   graphIcon:'flowAggregator.png',
   sift: require('sift'),
+  transform: require('jsonpath-object-transform'),
   tags:[
     'http://semantic-bus.org/data/tags/middleComponents',
     'http://semantic-bus.org/data/tags/middleComponentsAgregation'
@@ -21,16 +22,21 @@ module.exports = {
           var everExistingData = [];
           if (data.specificData.unicityFields != undefined && data.specificData.unicityFields.length>0) {
             for (unicityField of data.specificData.unicityFields) {
+              let transformer={value:'$.'+unicityField.field};
+              let findedValue = this.transform(record, transformer);
+              //console.log(findedValue);
               //console.log(unicityField.field,record);
-              if (record[unicityField.field] != undefined) {
-                filter[unicityField.field] = record[unicityField.field];
+              if (findedValue.value != undefined) {
+                filter[unicityField.field] = findedValue.value;
               }
             }
-            //console.log(filter);
-            everExistingData = this.sift(filter, resultFlow);
+            console.log(filter);
+            if(Object.keys(filter).length !== 0){
+              everExistingData = this.sift(filter, resultFlow);
+            }
           }
 
-          //console.log(filter);
+          console.log(filter,everExistingData);
           //console.log(everExistingData);
           if (everExistingData.length > 0) {
             //console.log('unicite |', everExistingData);

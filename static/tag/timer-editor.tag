@@ -13,7 +13,7 @@
     this.data = {};
 
     changeIntervalInput(e){
-      console.log('change',this.data.specificData,e);
+      //console.log('change',this.data.specificData,e);
       this.data.specificData.interval=e.target.value;
     }
 
