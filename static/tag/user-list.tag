@@ -1,13 +1,5 @@
-<user-list>
-    <div  class="headerComponent">
-        <div class="containerH commandBar"> 
-          <div></div>
-          <div>Ajouter un utilisateur</div>
-          <div  onclick={share} class="{buttonBusNotAvailable:!actionReady} {buttonBus:actionReady} {notSynchronized:actionReady}">
-            share
-          </div>
-        </div>
-    </div>
+<user-list class="containerV">
+
     <div class="containerV" style="height: 85%;background-color:rgb(238,242,249);justify-content: center;
     align-items: center;">
       <input id="users-list" class="awesomplete champ"  placeholder="entrez un email..." value="{email}">
@@ -18,70 +10,70 @@
   <script>
     this.resultShare = ""
     this.actionReady=false;
+    this.email = "";
 
-    RiotControl.on('share_change_no_valide', function () {
-      this.resultShare = "Aucun utilisateur trouvé";
-      this.update();
-    }.bind(this))
 
-    RiotControl.on('share_change_already', function () {
-      this.resultShare = "Workspace déjà partagé";
-      this.update();
-    }.bind(this))
+    
+    this.share = function(){    
+        console.log("user component share",this.workspace)
+        if (this.workspace) {
+          RiotControl.trigger('share-workspace', {
+            email: this.email,
+            worksapce_id: this.workspace._id
+          });
+        };
+    }.bind(this)
 
-    RiotControl.on('share_change', function (data) {
-      this.resultShare = "Votre workspace a été partagé";
-      this.update();
-      data = null;
-    }.bind(this))
-
-    RiotControl.on('share_change_send', function () {
-      this.resultShare = "Envoie en cour";
-      this.update();
-    }.bind(this));
-
-    RiotControl.on('workspace_current_changed', function (data) {
-      //console.log('load current worksapce : user module ||', data)
-      this.workspace = data
-    }.bind(this));
-
-    RiotControl.on('all_profil_by_email_load', function (data) {
-      console.log("all_profil_by_email_load")
-      var input = document.getElementById("users-list");
-      var awesomplete = new Awesomplete(input);
-      awesomplete.list = data;
-      input.addEventListener('awesomplete-selectcomplete', function (evt) {
-        this.actionReady=true;
-        this.email = evt.target.value;
-        this.update();
-      }.bind(this));
-    }.bind(this));
-
-    share(e) {
-      if (this.workspace) {
-        RiotControl.trigger('share-workspace', {
-          email: this.email,
-          worksapce_id: this.workspace._id
-        });
-      }
-    }
     cancelClick(e) {
       RiotControl.trigger('workspace_current_add_user_cancel');
       this.actionReady=false;
     }
 
     this.on('mount', function () {
-      this.email = "";
-// console.log($('#users-list'));
-// $('#users-list').on('change', function (e) {
-//   console.log('value changed',e);
-//   this.email = e.currentTarget.value;
-// }.bind(this));
+      RiotControl.on('share_change_no_valide', function () {
+        this.resultShare = "Aucun utilisateur trouvé";
+        this.update();
+      }.bind(this))
+
+      RiotControl.on('share_change_already', function () {
+        this.resultShare = "Workspace déjà partagé";
+        this.update();
+      }.bind(this))
+
+      RiotControl.on('share_change', function (data) {
+        console.log("share change")
+        this.resultShare = "Votre workspace a été partagé";
+        this.update();
+        data = null;
+      }.bind(this))
+
+      RiotControl.on('share_change_send', function () {
+        this.resultShare = "Envoie en cour";
+        this.update();
+      }.bind(this));
+
+      RiotControl.on('workspace_current_changed', function (data) {
+        this.workspace = data
+      }.bind(this));
+
+      RiotControl.on('all_profil_by_email_load', function (data) {
+          var input = document.getElementById("users-list");
+          var awesomplete = new Awesomplete(input);
+          awesomplete.list = data;
+          input.addEventListener('awesomplete-selectcomplete', function (evt) {
+          this.actionReady=true;
+          this.email = evt.target.value;
+          this.update();
+        }.bind(this));
+      }.bind(this));
+      RiotControl.on("store_share_workspace",this.share);  
       RiotControl.trigger('load_all_profil_by_email');
-
-
       RiotControl.trigger('workspace_current_refresh');
     })
+
+     this.on('unmount', function () {
+       RiotControl.off("store_share_workspace",this.share);  
+     })
   </script>
   <style scoped>
 

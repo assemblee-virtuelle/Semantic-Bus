@@ -175,7 +175,7 @@
     this.on('mount', function () {
       RiotControl.on('item_current_changed', this.updateData);
       this.tags.zentable.on('rowSelect', function (data) {
-        console.log(data)
+        console.log("select scrapper")
         this.selector = data.selector
         this.action = data.action
         this.update()

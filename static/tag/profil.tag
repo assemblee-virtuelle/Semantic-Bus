@@ -1,24 +1,31 @@
-<profil class="containerH" style="flex-grow:1;flex-wrap:nowrap;">
+<profil class="containerH scrollable" style="flex-grow:1;flex-wrap:nowrap; flex-grow: 1;flex-wrap: nowrap">
 
 
-    <div class="containerV" style="flex-basis: 60px; background-color: rgb(9,245,185);">
-        <div onclick={goUtilisation} class="commandButtonImage" style="flex-basis:40px">
-          <img src="./image/Graphe_2.svg" height="40px" width="40px">
+    <div class="containerV" style="flex-basis: 70px; background-color: rgb(9,245,185);">
+      <div class=" containerV" style="flex-basis:400px; background-color: rgb(9,245,185);flex-grow:0;">
+        <div onclick={goUtilisation} class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
+          <img src="./image/Graphe_2.svg" style="margin-bottom: 10px;" height="40px" width="40px">
+          <p style="color:white;font-size:12px">Graphique</p>
         </div>
-        <div onclick={goUserEdition} class="commandButtonImage" style="flex-basis:40px">
-          <img src="./image/Autres.svg" height="40px"  width="40px">
+        <div onclick={goUserEdition} class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
+          <img src="./image/Autres.svg"  style="margin-bottom: 10px;"  height="40px"  width="40px">
+          <p style="color:white;font-size:12px">Graphique</p>
         </div>
-        <div onclick={goSetting} class="commandButtonImage" style="flex-basis:40px">
-          <img src="./image/Roulette_bus.svg" height="40px"  width="40px">
+        <div onclick={goSetting} class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
+          <img src="./image/Roulette_bus.svg"  style="margin-bottom: 10px;"  height="40px"  width="40px">
+          <p style="color:white;font-size:12px">Graphique</p>
         </div>
+      </div>
     </div>
 
 
-    <div class="containerV"  if ={modeUserResume} style="flex-grow: 1;">
+    <div class="containerV"  if={modeUserResume} style="flex-grow: 1;    flex-grow: 1;
+    background-color: rgb(238,242,249);
+    overflow: scroll;">
         <graph-of-use-workspace></graph-of-use-workspace>
     </div>
 
-      <div if={modeUserEdition} class="containerV" style="flex-grow: 1;justify-content: center; align-items: center;">
+      <div if={modeUserEdition} class="containerV" style="background-color:rgb(238, 242, 249);flex-grow: 1;justify-content: center; align-items: center;">
         <h4 style="font-size:20px">Modification de votre profil</h4>
           <form style="height: 61vh;width: 60%; background-color: rgb(250,250,250); padding: 2%; border-radius: 5px;">
             <label class="label-form">Email</label>
@@ -158,6 +165,10 @@
     this.modeSetting = false
 
     goUtilisation(e) {
+      console.log(this.tags["graph-of-use-workspace"])
+      if(this.tags["graph-of-use-workspace"] == null){
+        RiotControl.trigger('load_profil');
+      }
       this.modeUserResume =  true
       this.modeUserEdition = false
       this.modeSetting = false
@@ -265,8 +276,9 @@
 
     this.on('mount', function () {
       RiotControl.trigger('load_profil');
-
       this.googleId = localStorage.googleid
     })
   </script>
 </profil>
+
+

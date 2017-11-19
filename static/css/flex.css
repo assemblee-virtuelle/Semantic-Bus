@@ -15,7 +15,7 @@
   justify-content: center;
   /*flex-wrap: wrap;*/
   align-items : stretch;
-  overflow-y: hidden;
+  overflow: hidden;
 }
 
 
@@ -24,15 +24,15 @@
 {
   display: flex;
   flex-direction: column;
-  /*overflow-y: hidden;*/
+  overflow: hidden;
 }
 .containerV>*
 {
   flex-shrink : 0;
 }
-.containerV-scrollale
+.scrollable
 {
-  overflow-y: auto;
+  overflow-y: scroll;
   height: 0px;
 }
 

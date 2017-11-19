@@ -26,9 +26,9 @@
 </div>
 </div>
 <div style="display: flex">
-<div class="item-flex">
-  <svg id="stacked"></svg>
-</div>
+  <div class="item-flex">
+    <svg id="stacked"></svg>
+  </div>
 </div>
 </div>
 </div>
@@ -99,12 +99,9 @@ Object.defineProperty(this, 'data', {
 });
 
 
-this.on('mount', function () {
-
-  console.log("innerData", this.innerData)
   var barChartData = {}
-  barChartData.datasets = [];
-  barChartData.labels = [];
+    barChartData.datasets = [];
+    barChartData.labels = [];
   var consumption_by_day = {};
   var c = {}
   var r = 10
@@ -112,119 +109,12 @@ this.on('mount', function () {
   var b = 50
   var compteurCompoflow = {}
   var day = []
-  //var dateObj = new Date(); var month = dateObj.getUTCMonth() + 1; //months from 1-12 var day = dateObj.getUTCDate(); var year = dateObj.getUTCFullYear();
-  Allday = []
-  AllDayObject = {}
+  var lasttab = {},
+    Allday = [],
+    AllDayObject = {}
 
-  for (var i = 30; i >= 0; i--) {
-    if (AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] == null) {
-      AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] = {}
-      AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCMonth() + 1 + "-" + moment().subtract(i, 'days')._d.getUTCDate() + "-" + moment().subtract(i, 'days')._d.getFullYear()] = []
-    } else {
-      AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCMonth() + 1 + "-" + moment().subtract(i, 'days')._d.getUTCDate() + "-" + moment().subtract(i, 'days')._d.getFullYear()] = []
-    }
-  }
 
-  //console.log(new Date(moment().subtract(34, 'days')))
-
-  console.log(AllDayObject)
-
-   this.innerData.components.forEach(function (component) {
-    if (component.consumption_history.length > 0) {
-      compteurCompoflow[component.module] = 0
-      component.consumption_history.forEach(function (consumption_history) {
-        var d = new Date(consumption_history.dates.created_at);
-        for (month in AllDayObject) {
-          for (b in AllDayObject[month]) {
-            if ((d.getUTCMonth() + 1) == month && d.getUTCDate() == b.split("-")[1]) {
-              //  if(Allday.indexOf(d.getUTCDate() + d.getUTCMonth() + 1) != -1){
-              var c = {}
-              if (component.name) {
-                var name = component.name
-              } else {
-                var name = "no name"
-              }
-              AllDayObject[month][b].push({
-                day: d.getDate(),
-                fullDate: d,
-                pricing: component.pricing,
-                price: consumption_history.price,
-                data: consumption_history.flow_size,
-                id: component._id,
-                label: component.module,
-                name: name,
-                date: consumption_history.dates.created_at
-              })
-
-            }
-          }
-        }
-      })
-    }
-  })
-
-  console.log(AllDayObject)
-
-  // aggregation des flux
-  var lasttab = {}
-  for (var month in AllDayObject) {
-    lasttab[month] = {}
-    console.log("month")
-    for (var conso in AllDayObject[month]) {
-      lasttab[month][conso] = {}
-      if (AllDayObject[month][conso].length > 0) {
-        AllDayObject[month][conso].forEach(function (compo) {
-          if (lasttab[month][conso][compo.id] == null) {
-            lasttab[month][conso][compo.id] = {}
-            lasttab[month][conso][compo.id].data = compo.data
-            lasttab[month][conso][compo.id].label = compo.label
-            lasttab[month][conso][compo.id].name = compo.name
-            lasttab[month][conso][compo.id].day = compo.day
-            lasttab[month][conso][compo.id].fullDate = compo.fullDate
-            lasttab[month][conso][compo.id].price = compo.price
-            lasttab[month][conso][compo.id].pricing = compo.pricing
-          } else {
-            lasttab[month][conso][compo.id].data += compo.data
-            lasttab[month][conso][compo.id].price += compo.price
-            lasttab[month][conso][compo.id].id = compo.id
-            lasttab[month][conso][compo.id].name = compo.name
-            lasttab[month][conso][compo.id].day = compo.day
-            lasttab[month][conso][compo.id].fullDate = compo.fullDate
-            lasttab[month][conso][compo.id].pricing = compo.pricing
-          }
-        })
-      } else {
-        console.log("no data")
-      }
-    }
-  };
-
-  console.log(lasttab)
-
-  /// mis des data dans un meme tableau
-  var data = []
-    for (var month in lasttab) {
-      for (var conso in lasttab[month]) {
-        var c = {}
-        c["Day"] = conso
-        for (var consoFinal in lasttab[month][conso]) {
-          c[consoFinal] = {
-            pricing: lasttab[month][conso][consoFinal].pricing,
-            label: lasttab[month][conso][consoFinal].label,
-            price: lasttab[month][conso][consoFinal].price,
-            datasize: lasttab[month][conso][consoFinal].data,
-            name: lasttab[month][conso][consoFinal].name,
-            id: lasttab[month][conso][consoFinal].id,
-            fullDate: lasttab[month][conso][consoFinal].fullDate
-          }
-        }
-        data.push(c)
-      }
-    }
-
-    console.log(data)
-
-    function decimalAdjust(type, value, exp) {
+  function decimalAdjust(type, value, exp) {
       // Si la valeur de exp n'est pas définie ou vaut zéro...
       if (typeof exp === 'undefined' || + exp === 0) {
         return Math[type](value);
@@ -251,7 +141,112 @@ this.on('mount', function () {
         : exp));
     }
 
+
+  this.formatData = function(dataInner){
+    console.log("IN FORM DATA", dataInner)
+    return new Promise(function(resolve,reject){
+      for (var i = 30; i >= 0; i--) {
+        if (AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] == null) {
+          AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] = {}
+          AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCMonth() + 1 + "-" + moment().subtract(i, 'days')._d.getUTCDate() + "-" + moment().subtract(i, 'days')._d.getFullYear()] = []
+        } else {
+          AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCMonth() + 1 + "-" + moment().subtract(i, 'days')._d.getUTCDate() + "-" + moment().subtract(i, 'days')._d.getFullYear()] = []
+        }
+      }
+      dataInner.components.forEach(function (component) {
+        if (component.consumption_history.length > 0) {
+          compteurCompoflow[component.module] = 0
+          component.consumption_history.forEach(function (consumption_history) {
+            var d = new Date(consumption_history.dates.created_at);
+            for (month in AllDayObject) {
+              for (b in AllDayObject[month]) {
+                if ((d.getUTCMonth() + 1) == month && d.getUTCDate() == b.split("-")[1]) {
+                  //  if(Allday.indexOf(d.getUTCDate() + d.getUTCMonth() + 1) != -1){
+                  var c = {}
+                  if (component.name) {
+                    var name = component.name
+                  } else {
+                    var name = "no name"
+                  }
+                  AllDayObject[month][b].push({
+                    day: d.getDate(),
+                    fullDate: d,
+                    pricing: component.pricing,
+                    price: consumption_history.price,
+                    data: consumption_history.flow_size,
+                    id: component._id,
+                    label: component.module,
+                    name: name,
+                    date: consumption_history.dates.created_at
+                  })
+
+                }
+              }
+            }
+          })
+        }
+      })
+
+
+    for (var month in AllDayObject) {
+      lasttab[month] = {}
+      console.log("month")
+      for (var conso in AllDayObject[month]) {
+        lasttab[month][conso] = {}
+        if (AllDayObject[month][conso].length > 0) {
+          AllDayObject[month][conso].forEach(function (compo) {
+            if (lasttab[month][conso][compo.id] == null) {
+              lasttab[month][conso][compo.id] = {}
+              lasttab[month][conso][compo.id].data = compo.data
+              lasttab[month][conso][compo.id].label = compo.label
+              lasttab[month][conso][compo.id].name = compo.name
+              lasttab[month][conso][compo.id].day = compo.day
+              lasttab[month][conso][compo.id].fullDate = compo.fullDate
+              lasttab[month][conso][compo.id].price = compo.price
+              lasttab[month][conso][compo.id].pricing = compo.pricing
+            } else {
+              lasttab[month][conso][compo.id].data += compo.data
+              lasttab[month][conso][compo.id].price += compo.price
+              lasttab[month][conso][compo.id].id = compo.id
+              lasttab[month][conso][compo.id].name = compo.name
+              lasttab[month][conso][compo.id].day = compo.day
+              lasttab[month][conso][compo.id].fullDate = compo.fullDate
+              lasttab[month][conso][compo.id].pricing = compo.pricing
+            }
+          })
+        } else {
+          console.log("no data")
+        }
+      }
+    };
+
+    var data = []
+      for (var month in lasttab) {
+        for (var conso in lasttab[month]) {
+          var c = {}
+          c["Day"] = conso
+          for (var consoFinal in lasttab[month][conso]) {
+            c[consoFinal] = {
+              pricing: lasttab[month][conso][consoFinal].pricing,
+              label: lasttab[month][conso][consoFinal].label,
+              price: lasttab[month][conso][consoFinal].price,
+              datasize: lasttab[month][conso][consoFinal].data,
+              name: lasttab[month][conso][consoFinal].name,
+              id: lasttab[month][conso][consoFinal].id,
+              fullDate: lasttab[month][conso][consoFinal].fullDate
+            }
+          }
+          data.push(c)
+        }
+      }
+      resolve(data)
+    }.bind(this))
+  }
+
+    
     /// D3 JS INITIALIZE
+
+  this.initD3js = function(data){
 
     var marginStackChart = {
         top: 20,
@@ -282,7 +277,7 @@ this.on('mount', function () {
 
     var canvasStackChart = d3.select("#stacked").attr("width", widthStackChart + marginStackChart.left + marginStackChart.right).attr("height", heightStackChart + marginStackChart.top + marginStackChart.bottom).append("g").attr("transform", "translate(" + marginStackChart.left + "," + marginStackChart.top + ")");
 
-    var div = d3.select(".item-flex").append("div").attr("class", "tooltip").style("opacity", 0);
+    
 
     //// UPDATE CARD VALUE
     var table = []
@@ -317,9 +312,6 @@ this.on('mount', function () {
       }
     }.bind(this));
 
-    //// d3JS DRAW FUNCTION
-
-    function drawStackChart() {
       colorStackChart.domain(d3.keys(data[0]).filter(function (key) {;
         return key !== "Day";
       }));
@@ -348,7 +340,6 @@ this.on('mount', function () {
         }
       });
 
-      console.log("last data", data)
 
       xStackChart.domain(data.map(function (d) {;
         return d.Day.split("-")[0] + "-" + d.Day.split("-")[1];
@@ -360,13 +351,41 @@ this.on('mount', function () {
         })
       ]);
 
-      canvasStackChart.append("g").attr("class", "x axis").attr("transform", "translate(0," + heightStackChart + ")").call(d3.axisBottom(xStackChart));
+      var div = d3.select(".item-flex")
+      .append("div")
+      .attr("class", "tooltip")
+      .style("opacity", 0);
 
-      canvasStackChart.append("text").attr("class", "x label").attr("text-anchor", "end").attr("x", widthStackChart + 5).attr("y", heightStackChart + 30).attr("font-size", "12px").text("jours");
+      canvasStackChart.append("g")
+      .attr("class", "x axis")
+      .attr("transform", "translate(0," + heightStackChart + ")")
+      .call(d3.axisBottom(xStackChart));
 
-      canvasStackChart.append("g").attr("class", "y axis").call(d3.axisLeft(yStackChart)).append("text").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", ".71em").style("text-anchor", "end")
+      canvasStackChart.append("text")
+      .attr("class", "x label")
+      .attr("text-anchor", "end")
+      .attr("x", widthStackChart + 5)
+      .attr("y", heightStackChart + 30)
+      .attr("font-size", "12px")
+      .text("jours");
 
-      canvasStackChart.append("text").attr("class", "y label").attr("text-anchor", "end").attr("y", 6).attr("dy", ".75em").attr("transform", "rotate(-90)").attr("font-size", "12px").text("Consomation( € )");
+      canvasStackChart.append("g")
+      .attr("class", "y axis")
+      .call(d3.axisLeft(yStackChart))
+      .append("text")
+      .attr("transform", "rotate(-90)")
+      .attr("y", 6)
+      .attr("dy", ".71em")
+      .style("text-anchor", "end")
+
+      canvasStackChart.append("text")
+      .attr("class", "y label")
+      .attr("text-anchor", "end")
+      .attr("y", 6)
+      .attr("dy", ".75em")
+      .attr("transform", "rotate(-90)")
+      .attr("font-size", "12px")
+      .text("Consomation( € )");
 
       var state = canvasStackChart.selectAll(".Day").data(data).enter().append("g").attr("class", "g").attr("transform", function (d) {
         return "translate(" + xStackChart(d.Day.split("-")[0] + "-" + d.Day.split("-")[1]) + ",0)";
@@ -402,10 +421,15 @@ this.on('mount', function () {
           return d;
         }
       });
-
+      console.log("-------- d3Js Done --------")
     };
-    drawStackChart();
-  })
+    
+    this.on('mount', function () {
+      this.formatData(this.innerData).then(function(dataRes){
+        console.log("this.innerData", dataRes)
+        this.initD3js(dataRes)
+      }.bind(this))
+    }.bind(this))
 </script>
 
 </graph-of-use>

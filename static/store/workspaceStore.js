@@ -474,6 +474,7 @@ function WorkspaceStore() {
   }); // <= workspace_collection_share_load
 
 
+
   // --------------------------------------------------------------------------------
 
 
@@ -570,7 +571,7 @@ function WorkspaceStore() {
 
 
   this.on('workspace_current_persist', function() {
-    console.log('workspace_current_persist', this.workspaceCurrent);
+    console.log('Workspace STORE persist FINAL', this.workspaceCurrent);
     var mode = this.workspaceCurrent.mode;
     if (mode == 'init') {
       this.create();
@@ -579,7 +580,25 @@ function WorkspaceStore() {
         //nothing to do. specific action in other case
       })
     }
-  }); // <= workspace_current_persist
+  }.bind(this)); // <= workspace_current_persist
+
+
+  RiotControl.on('persistClick', function (data) {
+    console.log("WORKSPACE STORE PERSIST START");
+    this.componentView = true;
+    this.userView = true;
+    this.DescriptionView = true;
+    RiotControl.trigger('workspace_current_updateField', {
+      field: 'name',
+      data: data.name
+    });
+    RiotControl.trigger('workspace_current_updateField', {
+      field: 'description',
+      data: data.description
+    });
+    RiotControl.trigger('workspace_current_persist');
+  }.bind(this));
+
 
   // --------------------------------------------------------------------------------
 
@@ -596,16 +615,20 @@ function WorkspaceStore() {
   // });
 
   this.on('workspace_current_add_components', function(data) {
-    console.log("workspace_current_add_components ||", data);
+    console.log("workspace store");
     data.forEach(c => {
       c.workspaceId = this.workspaceCurrent._id;
       c.specificData = {};
+      c.connectionsBefore = [];
+      c.connectionsAfter = []
+      c.consumption_history = {}
       this.workspaceCurrent.components.push(c);
-    })
+    }) 
+
     this.update(this.workspaceCurrent).then(data => {
       this.trigger('workspace_current_add_components_done');
     })
-  });
+  }.bind(this));
 
   // --------------------------------------------------------------------------------
 
@@ -685,7 +708,7 @@ function WorkspaceStore() {
         this.trigger('share_change_already')
       } else {
         this.userCurrrent = data,
-          console.log('share-workspace', data);
+        console.log('share-workspace', data);
         this.trigger('share_change', {
           user: data.user,
           workspace: data.workspace

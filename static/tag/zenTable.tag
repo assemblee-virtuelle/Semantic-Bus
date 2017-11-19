@@ -1,4 +1,4 @@
-<zenTable class="containerV" class={opts.zentableClass || "zentableWorkspace"} >
+<zenTable class="containerV" class={opts.zentableclass || "zentableWorkspace"} >
   <div name="tableHeader" class="tableHeader" ref="tableHeader">
     <yield from="header"/>
   </div>
@@ -7,12 +7,12 @@
       <div  class="tableRow {selected:selected== true && opts.clickclass} {mainSelected:mainSelected}"  name="tableRow" dragenter={drag_enter} dragleave={drag_leave} draggable={opts.drag}  data-rowid={rowid} data-id={_id} each={indexedData}  ondragend={parent.drag_end}
       	ondragstart={parent.drag_start} onclick={rowClic}>
         <yield from="row"/>
-        <div style="width:10px">
+        <div class="containerV" style="justify-content:space-between">
               <div onclick={delRowClick} data-rowid={rowid} if={opts.disallowdelete==true} >
                 <img  class="commandButtonImage" src="./image/poubelle.png" height="15px" draggable={false}>
               </div>
               <div onclick={navigationClick} if={opts.disallownavigation==true} data-rowid={rowid} >
-                <img class="commandButtonImage" src="./image/edit.png" height="15px" draggable={false}>
+                <img class="commandButtonImage" style="margin-top: 20px;" src="./image/edit.png" height="15px" draggable={false}>
               </div>
         </div>
       </div>
@@ -51,13 +51,14 @@
     var index = parseInt(e.item.rowid)
     if(this.innerData.length > 0){
       if (!e.ctrlKey) {
-          for (data of this.innerData) {
-            data.selected = false;
-            data.mainSelected = false;
-          }
+        for (data of this.innerData) {
+          data.selected = false;
+          data.mainSelected = false;
+        }
         this.innerData[index].mainSelected = true;
         let dataWithRowId = this.innerData[index];
         dataWithRowId.rowId = index;
+        console.log("rowSelect")
         this.trigger('rowSelect', dataWithRowId)
       }
       var selected = this.innerData[index].selected || false;

@@ -58,9 +58,11 @@
       <g id="lineCommandLayer"></g>
       <g id="shapeCommandLayer"></g>
       <image id="addComponentGraph" xlink:href="./image/ajout_composant.svg" class="commandButtonImage" x="1400" y="20" width="60" height="60" onclick={addComponentClick}></image>
-      <text x="1290" y="60"
-font-size="25"  fill="rgb(33,150,243)" id="mytext" if={fullscreen == true} onclick={graphClick}>full size </text>
+      <image  x="1290" y="20" id="addComponentGraph" xlink:href="./image/fullscreen-button.svg" class="commandButtonImage" if={fullscreen == true} x="1400" y="20" width="60" height="60" onclick={graphClick}></image>
+      <image  x="50" y="20" id="addComponentGraph" xlink:href="./image/fleche.svg" class="commandButtonImage" if={fullscreen == false} x="1400" y="20" width="40" height="40" onclick={back}></image>
     </svg>
+
+    
   </div>
   <!--graphContainer-->
   <script>
@@ -74,6 +76,10 @@ font-size="25"  fill="rgb(33,150,243)" id="mytext" if={fullscreen == true} oncli
 
     addComponentClick(e) {
       RiotControl.trigger('workspace_current_add_component_show', e);
+    }
+
+    back(e) {
+      RiotControl.trigger('back');
     }
 
     graphClick(e) {

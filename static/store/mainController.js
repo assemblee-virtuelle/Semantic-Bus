@@ -164,7 +164,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   this.on('profil_show', function(message) {
     console.log("profil_show")
     this.navigateNext('profil', false, 'menu');
-    profilStore.trigger('load_profil');
+    //profilStore.trigger('load_profil');
     // this.updateMode({
     //   modeProfilEdition: true,
     //   modeTechnicalComponentNavigation: false,
@@ -174,6 +174,10 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     //   modeAdminNavigation: false
     // });
   }.bind(this))
+
+  this.on('row_add_component_select_store', function(){
+    this.trigger("row_add_component_select")
+  })
 
   this.on('admin_show', function(message) {
     this.navigateNext('admin', false, 'menu');
@@ -188,8 +192,41 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   }.bind(this));
 
   this.on('workspaceEditorShow', function(message) {
+    console.log("workspaceEditorShow")
     this.navigateNext('workspaceEditor', true);
   }.bind(this))
+  
+
+
+  workSpaceStore.on('nav_share_workspace', function(message) { 
+    this.trigger("store_share_workspace")
+  })
+
+  this.on('nav_persisteWorkspace', function(message) {
+    console.log("nav_persisteWorkspace MAIN CONTROLLER")
+    this.trigger("store_persisteWorkspace")
+  })
+
+  workSpaceStore.on('nav_addRowWorkspace', function(message) { 
+    this.trigger("store_addRowWorkspace")
+  })
+
+  workSpaceStore.on('nav_filterCards', function(e) { 
+    this.trigger("store_filterCards",e)
+  })
+
+  workSpaceStore.on('nav_component_workspace_editor', function(message) { 
+    console.log("nav_component_workspace_editor")
+    this.trigger("store_component_workspace_editor")
+  })
+
+
+  workSpaceStore.on('add_component_click', function(message) { 
+    this.trigger("add_component_button_select")
+  })
+
+
+  
 
   // genericStore.on('item_current_persist_done', function(message) {
   //   workSpaceStore.trigger('workspace_synchoniseFromServer_done', message);
@@ -201,6 +238,7 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   //   this.trigger('persist_end');
   // }.bind(this));
 
+
   workSpaceStore.on('workspace_current_changed', function(message) {
     console.log('workspace_current_changed', this, message);
     this.workspaceCurrent = message;
@@ -210,6 +248,8 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   workSpaceStore.on('workspace_current_select_done', function(message) {
     this.navigateNext('workspaceEditor', true);
   }.bind(this));
+
+  
 
   workSpaceStore.on('workspace_current_add_components_done', function(message) {
     this.navigatePrevious();

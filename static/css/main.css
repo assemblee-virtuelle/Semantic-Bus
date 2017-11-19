@@ -39,8 +39,12 @@ input {
 display: flex;
 flex-direction:column;
 justify-content: center;
-background-color: rgb(33,150,243);
+background: linear-gradient(90deg, rgb(33,150,243) 20% ,rgb(41,181,237));
 color:white
+}
+
+.main-title {
+  font-size:25pt
 }
 
 
@@ -84,6 +88,19 @@ color:white
   color: white;
   padding-right: 19pt;
   cursor: pointer;
+  padding-top: 5px;
+}
+
+.buttonBus:target {
+  margin-left: -1px;
+  height: 38px;
+  padding-left: 19pt;
+  border-radius: 15pt;
+  border: 3px solid white;
+  color: white;
+  padding-right: 19pt;
+  cursor: pointer;
+  opacity:0.3
 }
 
 .commandGroup{
@@ -116,7 +133,12 @@ color:white
   align-items: center;
   display: flex;
   flex: 0.05;
+  opacity: 1;
 }
+.commandButtonImage:focus{
+  opacity: 0.3;
+}
+
 
 .commandButtonImage:hover{
 

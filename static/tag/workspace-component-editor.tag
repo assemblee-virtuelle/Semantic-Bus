@@ -1,134 +1,19 @@
 <workspace-component-editor class="containerV">
-  <div class="commandBar containerH" style="height: 100pt;
-    /* text-align: center; */
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    background-color: rgb(33,150,243);
-    color:white">
-    <div></div>
-    <div>Edit Componnent</div>
-      <!--<div onclick={nagivationClick} class="commandButton">
-        back to navigation
-      </div>-->
-      <!--<div onclick={testPullClick} class="commandButton">
-        tester un flux tiré
-      </div>-->
-      <!--<div id="workButton" onclick={workClick} class="commandButton">
-        run this component
-      </div>-->
-      <div onclick={saveWorkspaceComponent} class={persistInProgress: persistInProgress }
-          style="margin-left: -1px;
-          height: 38px;
-          padding-left: 19pt;
-          border-radius: 15pt;
-          border: 3px solid white;
-          color: white;
-          padding-right: 19pt;
-          cursor: pointer;" id="saveButton" >
-          save
-      </div>
-    </div>
-  </div>
   <div style="flex-basis:100px; padding:5pt; background-color: rgb(238,242,249);" class="containerH">
-    <div style="flex-grow:1">
-      <label>nom du composant</label>
+    <div style="flex-grow:1;display: flex;flex-direction: column;flex-grow: 0.5;">
+      <label style="padding:5pt;text-align:center"><strong>Nom du composant</strong></label>
       <input type="text" id="nameComponentInput" onchange={onNameChange} value={itemCurrent.name}></input>
     </div>
   </div>
-  <div style="flex-grow:1;flex-wrap: nowrap" class="containerH">
-<!--
-    <div style="flex-basis:250px" class="containerV">
-
-      <div class="containerH commandBar" style="flex-basis:50px">
-        <div>
-          Before
-        </div>
-        <div class="commandGroup containerH">
-          <div onclick={connectBeforeClick} class="commandButtonImage" if={!modeConnectBefore}><img src="./image/Super-Mono-png/PNG/basic/blue/toggle-expand-alt.png" height="40px"></div>
-          <div onclick={cancelConnectBeforeClick} class="commandButtonImage" if={modeConnectBefore}><img src="./image/Super-Mono-png/PNG/basic/yellow/button-cross.png" height="40px"></div>
-        </div>
-      </div>
-
-      <div each={itemCurrent.connectionsBefore} class="containerH" style="flex-wrap: nowrap;justify-content: space-between;align-items:flex-start;">
-        <div onclick={ComponentClickToNavigate} class="selector" style="flex-grow:1;">
-          {type} : {name}
-        </div>
-        <div onclick={deleteConnectionBefore} class="commandButtonImage" style="align-self:flex-start;flex-basis:25px;" ><img src="./image/Super-Mono-png/PNG/basic/red/button-cross.png" height="20px"></div>
-      </div>
-
-      <div onclick={componentClickToConnectBefore} class="selector" each={beforeConnectionsAvaible} style="background-color:green" if={modeConnectBefore}>
-        {type} : {name}
-      </div>
-    </div>-->
+  <div style="flex-grow:1;flex-wrap: nowrap; background-color: rgb(238,242,249);" class="containerV">
+    <label style="padding:5pt;text-align:center"><strong>Parametrage du composant</strong></label>
     <div id="editionContainer" style="flex-grow:1; padding: 15pt;
-    background-color: rgb(238,242,249);" class="containerV">
-      <!--<workspace-editor if={modeWorkspaceEdition}></workspace-editor>-->
-
-    </div>
-<!--
-    <div show={modeComponentTest} style="flex-grow:2;flex-wrap: nowrap;" class="containerH">
-      <div class="containerV commandBar" style="flex-basis:50px">
-        <div></div>
-        <div class="commandGroup containerH">
-          <div onclick={closeTest} class="commandButton">
-            >
-          </div>
-        </div>
-        <div></div>
-      </div>
-
-      <jsonEditor name="testPreviewer" ref="testPreviewer" mode="text" style="flex-grow:1"></jsonEditor>
-
-    </div>-->
-    <!--
-    <div style="flex-basis:250px" class="containerV" >
-      <div class="containerH commandBar" style="flex-basis:50px">
-        <div>
-          After
-        </div>
-        <div class="commandGroup containerH">
-          <div onclick={connectAfterClick} class="commandButtonImage" if={!modeConnectAfter}><img src="./image/Super-Mono-png/PNG/basic/blue/toggle-expand-alt.png" height="40px"></div>
-
-          <div onclick={cancelConnectBeforeClick} class="commandButtonImage" if={modeConnectAfter}><img src="./image/Super-Mono-png/PNG/basic/yellow/button-cross.png" height="40px"></div>
-
-        </div>
-      </div>
-      <div each={itemCurrent.connectionsAfter} class="containerH" style="flex-wrap: nowrap;justify-content: space-between;">
-        <div onclick={ComponentClickToNavigate} class="selector"  style="flex-grow:1;">
-          {type} : {name}
-        </div>
-        <div onclick={deleteConnectionAfter} class="commandButtonImage"  style="align-self:flex-start;flex-basis:25px;"><img src="./image/Super-Mono-png/PNG/basic/red/button-cross.png" height="20px"></div>
-      </div>
-
-      <div onclick={componentClickToConnectAfter} class="selector" each={afterConnectionsAvaible} style="background-color:green" if={modeConnectAfter}>
-        {type} : {name}
-      </div>
-    </div>-->
+    background-color: rgb(238,242,249);" class="containerV"></div>
   </div>
   <script>
     this.itemCurrent={};
 
-    saveWorkspaceComponent(e) {
-      if (this.editionContainer.persist == undefined) {
-        var data = this.editionContainer.data;
-        //console.log('ALLO',data);
-        for (var property in data) {
-          RiotControl.trigger('item_current_updateField', {
-            field: property,
-            data: data[property]
-          });
-        }
-        RiotControl.trigger('item_current_updateField', {
-          field: 'name',
-          data: this.itemCurrent.name
-        });
-        RiotControl.trigger('item_current_persist');
-      } else {
-        this.editionContainer.persist();
-      }
-    }
-
+  
     nagivationClick(e) {
       RiotControl.trigger('item_current_cancel');
       //this.mountWorkspaceNavigator(false);
@@ -138,11 +23,6 @@
       this.modeComponentTest = false;
       this.update();
     }
-    // testPullClick(e) {   if (this.editionContainer.testPullClick == undefined) {     var data = this.editionContainer.data;     //console.log('saveEditionContainerClick : ', data );     RiotControl.trigger('item_current_testPull');
-    //
-    //   } else {     this.editionContainer.testPullClick();
-    //
-    //   } }
 
     workClick(e) {
       //console.log('ALLO');
@@ -153,9 +33,10 @@
 
       } else {
         this.editionContainer.workClick();
-
       }
     }
+
+
 
     connectBeforeClick(e) {
       RiotControl.trigger('item_current_connect_before_show');
@@ -211,21 +92,6 @@
       //this.editionContainer.data=item; console.log('mountEdition | ', componentName, this.editionContainer); this.editorTitle = this.editionContainer.title;
     };
 
-    // RiotControl.on('item_current_testPull_done', function (data) {   this.modeComponentTest = true;   console.log('item_current_testPull_done | data :', data);   this.tags.testPreviewer.data = data;   this.update(); }.bind(this));
-
-    // RiotControl.on('item_current_work_done', function (data) {
-    //   this.modeComponentTest = true;
-    //   console.log('item_current_work_done | data :', data);
-    //   this.refs.testPreviewer.data = data;
-    //   this.update();
-    // }.bind(this));
-
-    // RiotControl.on('navigator_mount', function (webComponentName) {   console.log('navigator_mount');   this.cleanNavigation();   this.contentNavigator = riot.mount('#contentNavigator', webComponentName)[0]; }.bind(this));
-    // RiotControl.on('item_current_edit_mode', function (item) {   console.log('item_current_edit_mode', item);   var tagName;
-    //
-    //   if (item.editor != undefined) {     tagName = item.editor;   } else {     tagName = 'no-editor';   }   //this.modeComponentNetwork=true;
-    //
-    //   this.mountEdition(tagName);   this.update(); }.bind(this));
 
     RiotControl.on('item_curent_connect_show_changed', function (modes) {
       console.log('item_curent_connect_show_changed', modes);
@@ -252,8 +118,33 @@
       this.update();
     }.bind(this));
 
+     this.saveWorkspaceComponent = function() {
+      if (this.editionContainer.persist == undefined) {
+        var data = this.editionContainer.data;
+        //console.log('ALLO',data);
+        for (var property in data) {
+          RiotControl.trigger('item_current_updateField', {
+            field: property,
+            data: data[property]
+          });
+        }
+        RiotControl.trigger('item_current_updateField', {
+          field: 'name',
+          data: this.itemCurrent.name
+        });
+        RiotControl.trigger('item_current_persist');
+      } else {
+        this.editionContainer.persist();
+      }
+    }.bind(this)
+
     this.on('mount', function () {
       RiotControl.trigger('component_current_refresh');
+      RiotControl.on('store_component_workspace_editor', this.saveWorkspaceComponent);
     });
+
+    this.on('unmount', function(){
+      RiotControl.off('store_component_workspace_editor', this.saveWorkspaceComponent);
+    })
   </script>
 </workspace-component-editor>

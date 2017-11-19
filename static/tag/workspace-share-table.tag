@@ -1,8 +1,8 @@
 <workspace-share-table class="containerV">
-  <zenTable  drag={false}  disallownavigation={true} disallowdelete={false}  clickClass={false} style="flex:1;background-color: rgb(240,240,240);" disallowcommand="true">
+  <zenTable  drag={false}  disallownavigation={true} disallowdelete={false}  clickClass={false} style="flex:1;background-color: rgb(238,242,249);" disallowcommand="true">
     <yield to="header">
-      <div>name</div>
-      <div>description</div>
+      <div>Name</div>
+      <div>Description</div>
     </yield>
     <yield to="row">
       <div style="width:30%">{name}</div>
