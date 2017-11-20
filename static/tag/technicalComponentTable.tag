@@ -20,7 +20,7 @@
     </div>
   </div>
 
-  <zenTable style="flex:1" ref="technicalComponentTable" disallowdelete={false} disallowclick={true}  clickClass={true} disallownavigation={false}>
+  <zenTable style="flex:1" ref="technicalComponentTable" disallowdelete={false} disallowselect={true} disallownavigation={false}>
     <yield to="header">
       <div>type</div>
       <div>description</div>
@@ -166,7 +166,7 @@
       color: white;
     }
 
-    
+
 
 
 

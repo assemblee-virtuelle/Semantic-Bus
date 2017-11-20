@@ -26,6 +26,10 @@
         <div style="width:50%">{flowValue}</div>
         <div style="width:50%">{replacementValue}</div>
       </yield>
+      <yield to="editor">
+        <input type="text" value={flowValue} data-field="flowValue"></div>
+        <input type="text" value={replacementValue} data-field="replacementValue">></div>
+      </yield>
     </zenTable>
   </div>
 

@@ -6,7 +6,8 @@
     <div class="table" name="tableBody" ref="tableBody"  ondragover={on_drag_over} ondrop={on_drop}>
       <div  class="tableRow {selected:selected== true && opts.clickclass} {mainSelected:mainSelected}"  name="tableRow" dragenter={drag_enter} dragleave={drag_leave} draggable={opts.drag}  data-rowid={rowid} data-id={_id} each={indexedData}  ondragend={parent.drag_end}
       	ondragstart={parent.drag_start} onclick={rowClic}>
-        <yield from="row"/>
+        <yield from="row" if={opts.directEdit==false && sdsq}/>
+        <yield from="edit"/>
         <div style="width:10px">
               <div onclick={delRowClick} data-rowid={rowid} if={opts.disallowdelete==true} >
                 <img  class="commandButtonImage" src="./image/poubelle.png" height="15px" draggable={false}>
@@ -32,12 +33,12 @@
    e.target.parentNode.parentNode.insertBefore(this.placeholder, e.target.parentNode);
  }
 
-  
+
   on_drag_over(e){
     // return true; para no aceptar
 
   }
-  
+
   drag_end(event){
     this.placeholder.remove();
     this.innerData.splice(this.dragged.item.rowid,1);
@@ -45,7 +46,7 @@
     RiotControl.trigger('workspace_list_persist', this.dragged.item)
     this.update();
   }
-  
+
   rowClic(e) {
     console.log("in row click", this.innerData)
     var index = parseInt(e.item.rowid)
@@ -64,7 +65,7 @@
       this.innerData[index].selected = !selected;
     }
   }
-    
+
 	drag_start(event){
     this.dragged = event;
     return true;
@@ -276,6 +277,10 @@
     }
 
     .tableHeader {
+    }
+
+    .selected {
+      background-color: blue;
     }
 
   </style>

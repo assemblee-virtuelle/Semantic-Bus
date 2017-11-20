@@ -1,5 +1,5 @@
 <workspace-table class="containerV containerV-scrollale">
-  <zenTable style="flex:1" drag={false}  clickClass={false} disallownavigation={true} disallowdelete={true} ref="workspaceZenTable">
+  <zenTable style="flex:1" drag={false} disallowselect={true} ref="workspaceZenTable">
     <yield to="header">
       <div>Name</div>
       <div>Description</div>
@@ -57,7 +57,7 @@
     });
   </script>
   <style>
-    .champ {    
+    .champ {
       color: rgb(220,220,220);
       width: 50vw;
       height: 60px;
