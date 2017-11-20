@@ -260,20 +260,8 @@ Object.defineProperty(this, 'data', {
     var xStackChart = d3.scaleBand().range([0, widthStackChart]).padding(0.1);
     var yStackChart = d3.scaleLinear().range([heightStackChart, 0]);
 
-    var colorStackChart = d3.scaleOrdinal([
-      "rgb(53, 122, 183)",
-      "rgb(15, 157, 232)",
-      "rgb(38, 196, 236)",
-      "rgb(0, 149, 182)",
-      "rgb(84, 114, 174)",
-      "rgb(104, 111, 140)",
-      "rgb(58, 142, 186)",
-      "rgb(169, 234, 254)",
-      "rgb(116, 208, 241)",
-      "rgb(30, 127, 203)",
-      "rgb(0, 127, 255)",
-      "rgb(121, 248, 248)"
-    ])
+    var colorStackChart = d3.scaleOrdinal(d3.schemeCategory20);
+
 
     var canvasStackChart = d3.select("#stacked").attr("width", widthStackChart + marginStackChart.left + marginStackChart.right).attr("height", heightStackChart + marginStackChart.top + marginStackChart.bottom).append("g").attr("transform", "translate(" + marginStackChart.left + "," + marginStackChart.top + ")");
 

@@ -283,7 +283,7 @@
 
             var parser = d3.timeFormat("%d-%b-%y").parse;
 
-            var colorStackChart = d3.scaleOrdinal(["#581845", "#900C3F", "#C70039", "#FF5733", "#FFC30F"])
+            var colorStackChart = d3.scaleOrdinal(d3.schemeCategory20c);
 
 
             var canvasStackChart = d3.select("#stacked")
@@ -410,8 +410,6 @@
                 .style("opacity", 0);
             })
         };
-
-
 
         this.initgraph  = function (data) {
             console.log("DRAW STACK CHART")
