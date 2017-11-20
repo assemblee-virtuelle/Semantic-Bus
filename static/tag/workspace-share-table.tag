@@ -1,5 +1,6 @@
 <workspace-share-table class="containerV">
-  <zenTable  drag={false}  disallownavigation={true} disallowdelete={false}  clickClass={false} style="flex:1;background-color: rgb(238,242,249);" disallowcommand="true">
+
+  <zenTable  if={!isEmpty} drag={false}  disallownavigation={true} disallowdelete={false}  clickClass={false} style="flex:1;background-color: rgb(238,242,249);" disallowcommand="true">
     <yield to="header">
       <div>Name</div>
       <div>Description</div>
@@ -9,8 +10,17 @@
       <div style="width:70%">{description}</div>
     </yield>
   </zenTable>
+  <div if={isEmpty} class="containerH" style="flex-grow:1;justify-content:center;">
+    <div class="containerV"  style="flex-basis:60%;justify-content:center;">
+      <h4 style="font-size: 25pt;
+text-align: center;
+color: rgb(119,119,119);
+"> Vous n'avez pas encore de workspaces partagés, ils apparaitront si d'autres utilisateurs decident de vous partager leur workspaces</h4>
+    </div>
+  </div>
   <script>
 
+    this.isEmpty = false
 
     navigationClick(e) {
       console.log("test", e.item.rowid)
@@ -22,8 +32,14 @@
 
     //console.log('mount opts :',this.opts);
     this.refreshZenTableShare = function (data) {
-      console.log('view UPDATE', data);
-      this.tags.zentable.data = data;
+      console.log('view UPDATE refreshZenTableShare', data);
+      if(data.length > 0){
+        this.isEmpty = false
+        this.tags.zentable.data = data;
+      }else{
+        this.isEmpty = true
+      }
+      this.update()
     }.bind(this);
 
 
