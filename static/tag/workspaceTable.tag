@@ -1,4 +1,4 @@
-<workspace-table class="containerV">
+<workspace-table class="containerH" style="flex-grow:1">
   <zenTable drag={false} disallowselect={true} ref="workspaceZenTable">
     <yield to="header">
       <div>Name</div>

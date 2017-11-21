@@ -1,4 +1,4 @@
-<workspace-component-editor class="containerV">
+<workspace-component-editor class="containerV" >
   <div style="flex-basis:100px; padding:5pt; background-color: rgb(238,242,249);" class="containerH">
     <div style="flex-grow:1;display: flex;flex-direction: column;flex-grow: 0.5;">
       <label style="padding:5pt;text-align:center"><strong>Nom du composant</strong></label>
@@ -13,7 +13,7 @@
   <script>
     this.itemCurrent={};
 
-  
+
     nagivationClick(e) {
       RiotControl.trigger('item_current_cancel');
       //this.mountWorkspaceNavigator(false);

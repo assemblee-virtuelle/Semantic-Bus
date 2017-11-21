@@ -1,5 +1,5 @@
 <graph-of-use class="containerV">
-  <div class="containerH" style="flex-grow:1">
+  <div class="containerH">
     <div class="card">
       <h4>Credits consumed yesterday</h4>
       <span class="second-title-card">{yesterdayCredit} €</span>
