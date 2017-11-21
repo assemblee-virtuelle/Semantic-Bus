@@ -31,7 +31,6 @@ input {
 .commandBar{
   justify-content: space-between;
   padding: 2px;
-  overflow-y :visible;
   flex-shrink:0;
 }
 

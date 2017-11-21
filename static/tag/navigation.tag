@@ -185,7 +185,7 @@
 
       <!--  CONTENT   -->
 
-      <div class="containerV" style="flex-grow:1">
+      <div class="containerH" style="flex-grow:1">
         <landing if={isScrennToShow('landing')}></landing>
         <workspace-table if={isScrennToShow('myWorkspaces')></workspace-table>
         <workspace-share-table if={isScrennToShow('sharedWorkspaces')></workspace-share-table>

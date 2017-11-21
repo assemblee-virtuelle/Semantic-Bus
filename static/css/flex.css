@@ -25,6 +25,8 @@
 {
   display: flex;
   flex-direction: column;
+  align-items : stretch;
+  overflow: hidden;
   /*overflow: hidden;*/
   /*min-height:auto;*/
 }
