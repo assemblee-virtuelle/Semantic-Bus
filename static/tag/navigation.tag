@@ -129,8 +129,7 @@
               <div class="main-title">Editer votre composant</div>
               <div onclick={saveWorkspaceComponent} class="buttonBus {notSynchronized:synchronized==false}" id="save">
                 save
-              </div>
-              
+              </div> 
             </div>
           </div>
         </div>

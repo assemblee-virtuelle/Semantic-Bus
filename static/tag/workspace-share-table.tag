@@ -19,7 +19,7 @@
   </div>
   <script>
 
-    this.isEmpty = false
+    this.isEmpty = true
 
     navigationClick(e) {
       console.log("test", e.item.rowid)
