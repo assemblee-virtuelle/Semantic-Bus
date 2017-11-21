@@ -91,10 +91,7 @@
         <input
           readonly={innerData.mode=="read"
           }
-          class={readOnly:
-          innerData.mode=="read"
-          ,description-worksapce-input:innerData.mode=="edit"
-          }
+          class="{readOnly:innerData.mode=='read'} {description-worksapce-input:innerData.mode=='edit'}"
           ref="workspaceDescriptionInput"
           id="workspaceDescriptionInput"
           type="text"
@@ -104,7 +101,7 @@
       </div>
     </div>
   </div>
-  <div show={menu=='utilisation' } class="containerV" style="padding: 5%;flex-grow: 1;background-color: rgb(238,242,249)">
+  <div show={menu=='utilisation' } class="containerH" style="padding: 5%;flex-grow: 1;background-color: rgb(238,242,249)">
     <graph-of-use></graph-of-use>
   </div>
 </div>
