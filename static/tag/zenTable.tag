@@ -15,7 +15,7 @@
       ondragend={parent.drag_end}
       ondragstart={parent.drag_start}
       onclick={rowClic}
-      style="justify-content: space-between;">
+      style="justify-content: space-between;flex-shrink:0;">
 
       <div class="containerH tableRowContent" style="flex-grow:1;" onkeyup={rowKeyUp}>
         <yield from="row"/>
