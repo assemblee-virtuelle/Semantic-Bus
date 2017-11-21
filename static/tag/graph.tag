@@ -58,9 +58,11 @@
       <g id="lineCommandLayer"></g>
       <g id="shapeCommandLayer"></g>
       <image id="addComponentGraph" xlink:href="./image/ajout_composant.svg" class="commandButtonImage" x="1400" y="20" width="60" height="60" onclick={addComponentClick}></image>
-      <text x="1290" y="60"
-font-size="25"  fill="rgb(33,150,243)" id="mytext" if={fullscreen == true} onclick={graphClick}>full size </text>
+      <image  x="1290" y="20" id="addComponentGraph" xlink:href="./image/fullscreen-button.svg" class="commandButtonImage" if={fullscreen == true} x="1400" y="20" width="60" height="60" onclick={graphClick}></image>
+      <image  x="50" y="20" id="addComponentGraph" xlink:href="./image/fleche.svg" class="commandButtonImage" if={fullscreen == false} x="1400" y="20" width="40" height="40" onclick={back}></image>
     </svg>
+
+
   </div>
   <!--graphContainer-->
   <script>
@@ -74,6 +76,10 @@ font-size="25"  fill="rgb(33,150,243)" id="mytext" if={fullscreen == true} oncli
 
     addComponentClick(e) {
       RiotControl.trigger('workspace_current_add_component_show', e);
+    }
+
+    back(e) {
+      RiotControl.trigger('back');
     }
 
     graphClick(e) {
@@ -90,7 +96,8 @@ font-size="25"  fill="rgb(33,150,243)" id="mytext" if={fullscreen == true} oncli
     }
 
     removeClick(e) {
-      RiotControl.trigger('workspace_current_delete_component', this.selectedNodes[0].component);
+      RiotControl.
+      trigger('workspace_current_delete_component', this.selectedNodes[0].component);
       //   RiotControl.trigger('workspace_current_persist'); RiotControl.trigger('component_current_select', this.selectedNodes);
     }
 
@@ -105,6 +112,7 @@ font-size="25"  fill="rgb(33,150,243)" id="mytext" if={fullscreen == true} oncli
     workComponentClick(e) {
       RiotControl.trigger('item_current_work');
     }
+
 
     removeLinkClick(e) {
       //console.log('removeLink |', this.selectedLines[0].source.component, this.selectedLines[0].target.component);
@@ -158,6 +166,7 @@ font-size="25"  fill="rgb(33,150,243)" id="mytext" if={fullscreen == true} oncli
       this.selectorsShapeCommandeBar = this.svg.select("#shapeCommandLayer").selectAll("svg").data(this.selectedNodes, function (d) {
         return d.id + '-shapeCommandBarComponent';
       });
+
       this.selectorsShapeCommandeBar.exit().remove();
       this.selectorsShapeCommandeBar = this.selectorsShapeCommandeBar.enter().append("svg").merge(this.selectorsShapeCommandeBar).attr('x', function (d) {
 
@@ -555,7 +564,7 @@ font-size="25"  fill="rgb(33,150,243)" id="mytext" if={fullscreen == true} oncli
 
   <style scoped>
     svg {
-      //background-color: rgb(238,242,249);
+      /*background-color: rgb(238,242,249);*/
     }
 
     #shapeLayer image {
@@ -577,9 +586,8 @@ font-size="25"  fill="rgb(33,150,243)" id="mytext" if={fullscreen == true} oncli
     }
 
     #shapeSelector rect {
-      //filter:url(#dropshadow);
+      /*filter:url(#dropshadow);*/
       fill: #649DF9;
-      //fill: white;
       fill-opacity: 0.2;
     }
 
