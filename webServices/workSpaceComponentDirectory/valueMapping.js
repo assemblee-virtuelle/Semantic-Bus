@@ -17,7 +17,7 @@ module.exports = {
       if(valueIn.indexOf!=undefined && valueIn.indexOf(atomicMapping.flowValue)!=-1){
         //console.log('MAP',valueIn,atomicMapping.flowValue,atomicMapping.replacementValue);
         //valueOut = valueIn.replace(atomicMapping.flowValue,atomicMapping.replacementValue);
-        valueOut.push(atomicMapping.replacementValue);
+        valueOut.push({sourceValue:valueIn,translatedValue:atomicMapping.replacementValue});
       }
     }
     if(valueOut.length==0){
