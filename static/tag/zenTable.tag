@@ -5,7 +5,7 @@
   <div class="containerV scrollable tableBody" ref="tableBodyContainer" ondragover={on_drag_over} ondrop={on_drop}>
     <!--<div class="table scrollable" name="tableBody" ref="tableBody" ondragover={on_drag_over} ondrop={on_drop}>-->
     <div
-      class="tableRow containerH {selected:selected} {mainSelected:mainSelected}"
+      class="tableRow containerH {selected:selected==true && opts.disallowselect!=true} {mainSelected:mainSelected=true && opts.disallowselect!=true}"
       dragenter={drag_enter}
       dragleave={drag_leave}
       draggable={opts.drag}

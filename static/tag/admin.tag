@@ -2,7 +2,7 @@
   <div class="commandBar containerH">
     Admin
   </div>
-  <div class="containerH" style="justify-content:space-between">
+  <div class="containerH" style="justify-content:space-between; flex-shrink:0">
     <div onclick={cloneDatabaseClick} class="selector mainSelector" style="padding: 5vh; font-size:1.2em;flex-grow:1;">
       <div>clonage de base de donnée</div>
     </div>

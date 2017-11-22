@@ -131,10 +131,24 @@
             <div onclick={saveWorkspaceComponent} class="buttonBus {notSynchronized:synchronized==false}" id="save">
               save
             </div>
-
           </div>
         </div>
       </div>
+
+      <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('workPreview')}>
+        <div class="header">
+          <div class="commandBar containerH">
+            <div id="backButton" onclick={back} if={isScrennHide()} class="commandButtonImage">
+              <img src="./image/fleche.svg" style="background-color: rgb(33,150,243);" width="40px" height="40">
+            </div>
+            <div class="main-title">flux de sortie du composant</div>
+            <div onclick={saveWorkspaceComponent} class="buttonBus {notSynchronized:synchronized==false}" id="save">
+              save
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
 
     <div class="containerH" style="justify-content:center;justify-content: inherit; flex-grow:1;flex-shrink : 1;">
@@ -154,27 +168,21 @@
         <div class="containerV" style="flex-basis:400px;flex-grow:0;">
           <div class={commandButtonImage:true,selectedMenu:isScrennInHistory('myWorkspaces'),containerV:true} onclick={workspaceSelectorClick} id="workspaceSelector" style="flex-basis:150px;justify-content:center;align-items:center">
             <img src="./image/dossier.svg" style="margin-bottom:10px" width="40px">
-            <div style="display: flex;flex-basis: 30%;">
-              <p show={isPrincipalMenu} style="color:white;font-size:12px">Worksapces</p>
-            </div>
+            <p show={isPrincipalMenu} style="color:white;font-size:12px">Worksapces</p>
           </div>
           <div class={commandButtonImage:true,selectedMenu:isScrennInHistory('sharedWorkspaces'),containerV:true} onclick={workspaceShareSelectorClick} style="flex-basis:150px">
             <img src="./image/double_dossier.svg" style="margin-bottom:10px" width="40px">
-            <div style="display: flex;flex-basis: 30%;">
-              <p show={isPrincipalMenu} style="color:white;font-size:12px;text-align:center">Worksapces Partagé</p>
-            </div>
+            <p show={isPrincipalMenu} style="color:white;font-size:12px;text-align:center">Worksapces Partagé</p>
           </div>
           <div class={commandButtonImage:true,selectedMenu:isScrennInHistory('profil'),containerV:true} onclick={profilSelectorClick} style="flex-basis:150px">
             <img src="./image/photo.svg" style="margin-bottom:10px" width="40px">
-            <div style="display: flex;flex-basis: 30%;">
-              <p show={isPrincipalMenu} style="color:white;font-size:12px">Profil</p>
-            </div>
+            <p show={isPrincipalMenu} style="color:white;font-size:12px">Profil</p>
           </div>
           <!--  ADMIN  -->
-          <!--  <div class={commandButtonImage:true,selectedMenu:isScrennInHistory('admin'),containerV:true} onclick={adminSelectorClick} if={showAdmin} style="flex-basis:250px">
-              <img src="./image/Roulette_bus.svg"  style="margin-bottom:10px" width="40px" if={showAdmin}>
-               <p style="color:white;font-size:12px" if={showAdmin} >Paramêtres</p>
-            </div>  -->
+            <div class={commandButtonImage:true,selectedMenu:isScrennInHistory('admin'),containerV:true} onclick={adminSelectorClick} if={showAdmin} style="flex-basis:150px">
+              <img src="./image/Roulette_bus.svg"  style="margin-bottom:10px" width="40px">
+               <p style="color:white;font-size:12px">Paramêtres</p>
+            </div>
         </div>
         <div class="containerV" style="flex-basis:40px;flex-grow:0;">
           <div class="commandButtonImage" style="flex-basis:120px">
@@ -185,7 +193,7 @@
 
       <!--  CONTENT   -->
 
-      <div class="containerH" style="flex-grow:1">
+      <div class="containerV" style="flex-grow:1">
         <landing if={isScrennToShow('landing')}></landing>
         <workspace-table if={isScrennToShow('myWorkspaces')></workspace-table>
         <workspace-share-table if={isScrennToShow('sharedWorkspaces')></workspace-share-table>
@@ -340,7 +348,7 @@
 
     RiotControl.on('user_authentified', function (data) {
       console.log('user_authentified', localStorage.user_id);
-      //RiotControl.trigger('load_profil');
+      RiotControl.trigger('load_profil');
     }.bind(this));
 
     RiotControl.on('profil_loaded', function (data) {

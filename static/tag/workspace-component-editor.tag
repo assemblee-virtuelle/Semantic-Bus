@@ -4,7 +4,7 @@
     <input type="text" id="nameComponentInput" onchange={onNameChange} value={itemCurrent.name}></input>
     <label style="padding:5pt;text-align:center"><strong>Parametrage du composant</strong></label>
     <div id="editionContainer" style="flex-grow:1; padding: 15pt;
-    background-color: rgb(238,242,249);" class="containerH"></div>
+    background-color: rgb(238,242,249);" class="containerV"></div>
   </div>
   <script>
     this.itemCurrent={};
