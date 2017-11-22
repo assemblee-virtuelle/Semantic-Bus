@@ -1,5 +1,4 @@
-<profil class="containerH scrollable" style="flex-grow:1;flex-wrap:nowrap; flex-grow: 1;flex-wrap: nowrap">
-
+<profil class="containerH" style="flex-grow:1;flex-wrap:nowrap; flex-grow: 1;">
 
     <div class="containerV" style="flex-basis: 70px; background-color: rgb(9,245,185);">
       <div class=" containerV" style="flex-basis:400px; background-color: rgb(9,245,185);flex-grow:0;">
@@ -19,9 +18,7 @@
     </div>
 
 
-    <div class="containerV"  if={modeUserResume} style="flex-grow: 1;    flex-grow: 1;
-    background-color: rgb(238,242,249);
-    overflow: scroll;">
+    <div class="containerV" if={modeUserResume} style="background-color: rgb(238,242,249); flex-grow: 1;">
         <graph-of-use-workspace></graph-of-use-workspace>
     </div>
 
@@ -59,7 +56,7 @@
 
         <div class="containerV" if={modeSetting} style="flex-grow: 1;background-color: rgb(238, 242, 249);">
         <div class="containerV" style="flex-grow:1;justify-content:center;align-items: center;">
-        <h3 style="color: rgb(120,120,120);"> Vous vous en aller déja ? </h3>
+        <h3 style="color: rgb(120,120,120);"> Nous esperons que votre expérience sur cet outil était satisfaisante ? à bientôt.</h3>
         <button class="dec-btn"  onclick = {deconnexion} type="button">Déconnexion</button>
       </div>
 
@@ -295,5 +292,3 @@
     })
   </script>
 </profil>
-
-

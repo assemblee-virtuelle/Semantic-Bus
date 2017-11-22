@@ -20,14 +20,14 @@
     </div>
   </div>
 
-  <zenTable style="flex:1;" zentableclass="zentableScrollable" ref="technicalComponentTable" disallowdelete={false} disallowclick={true}  clickClass={true} disallownavigation={false}>
+  <zenTable style="flex:1" ref="technicalComponentTable" disallowdelete={true} disallownavigation={true}>
     <yield to="header">
       <div>type</div>
       <div>description</div>
     </yield>
     <yield to="row">
-      <div style="width:30%">{type}</div>
-      <div style="width:70%">{description}</div>
+      <div style="flex-basis:30%">{type}</div>
+      <div style="flex-basis:70%">{description}</div>
     </yield>
   </zenTable>
 
@@ -51,9 +51,9 @@
     }
 
 
-
     firstLevelCriteriaClick(e) {
       //console.log(e); console.log(e.item.item['@id']);
+
       let everSelected = this.isTagInSelectedTags(e.item.item);
       this.selectedTags = [];
       this.secondLevelCriteria = [];
@@ -126,15 +126,13 @@
       )
     }.bind(this)
 
-   
+
 
     this.on('mount', function () {
       this.actionReady=false;
-
       this.tags.zentable.on('rowSelect',function(){
         RiotControl.trigger("row_add_component_select_store")
       }.bind(this));
-
       this.tags.zentable.on('addRow', function () {
         //console.log(data);
         RiotControl.trigger('technicalComponent_current_init');
@@ -148,8 +146,8 @@
       this.tags.zentable.on('cancel', function (data) {
         //console.log(data);
         RiotControl.trigger('workspace_current_add_component_cancel');
-      }.bind(this));
 
+      }.bind(this));
       RiotControl.on('technicalComponent_collection_changed', this.updateData);
        RiotControl.on('add_component_button_select', this.addComponent)
       RiotControl.on('componentsCategoriesTree_changed', this.updateComponentsCategoriesTree);
@@ -165,12 +163,20 @@
     });
   </script>
   <style>
-    .zentableScrollable {
+    .notSynchronized {
+      background-color: orange !important;
+      color: white;
+    }
+//TODO migrate ti zentable tag
+  .zentableScrollable {
       padding: 10pt;
       align-items:stretch;
       background-color: rgb(240,240,240);
       overflow:scroll
     }
+
+
+
 
 
   </style>

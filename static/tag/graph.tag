@@ -62,7 +62,7 @@
       <image  x="50" y="20" id="addComponentGraph" xlink:href="./image/fleche.svg" class="commandButtonImage" if={fullscreen == false} x="1400" y="20" width="40" height="40" onclick={back}></image>
     </svg>
 
-    
+
   </div>
   <!--graphContainer-->
   <script>
@@ -96,7 +96,8 @@
     }
 
     removeClick(e) {
-      RiotControl.trigger('workspace_current_delete_component', this.selectedNodes[0].component);
+      RiotControl.
+      trigger('workspace_current_delete_component', this.selectedNodes[0].component);
       //   RiotControl.trigger('workspace_current_persist'); RiotControl.trigger('component_current_select', this.selectedNodes);
     }
 
@@ -111,6 +112,7 @@
     workComponentClick(e) {
       RiotControl.trigger('item_current_work');
     }
+
 
     removeLinkClick(e) {
       //console.log('removeLink |', this.selectedLines[0].source.component, this.selectedLines[0].target.component);
@@ -164,6 +166,7 @@
       this.selectorsShapeCommandeBar = this.svg.select("#shapeCommandLayer").selectAll("svg").data(this.selectedNodes, function (d) {
         return d.id + '-shapeCommandBarComponent';
       });
+
       this.selectorsShapeCommandeBar.exit().remove();
       this.selectorsShapeCommandeBar = this.selectorsShapeCommandeBar.enter().append("svg").merge(this.selectorsShapeCommandeBar).attr('x', function (d) {
 
@@ -561,7 +564,7 @@
 
   <style scoped>
     svg {
-      //background-color: rgb(238,242,249);
+      /*background-color: rgb(238,242,249);*/
     }
 
     #shapeLayer image {
@@ -583,9 +586,8 @@
     }
 
     #shapeSelector rect {
-      //filter:url(#dropshadow);
+      /*filter:url(#dropshadow);*/
       fill: #649DF9;
-      //fill: white;
       fill-opacity: 0.2;
     }
 

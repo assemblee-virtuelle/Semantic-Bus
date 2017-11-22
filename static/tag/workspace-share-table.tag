@@ -1,6 +1,6 @@
 <workspace-share-table class="containerV">
 
-  <zenTable  if={!isEmpty} drag={false}  disallownavigation={true} disallowdelete={false}  clickClass={false} style="flex:1;background-color: rgb(238,242,249);" disallowcommand="true">
+  <zenTable  if={!isEmpty} drag={false}  disallownavigation={true} disallowselect={true} style="background-color: rgb(238,242,249);">
     <yield to="header">
       <div>Name</div>
       <div>Description</div>
@@ -11,10 +11,11 @@
     </yield>
   </zenTable>
   <div if={isEmpty} class="containerH" style="flex-grow:1;justify-content:center;">
-    <div class="containerV"  style="flex-basis:60%;justify-content:center;">
-      <h4 style="font-size: 25pt;text-align: center;color: rgb(119,119,119);"> 
-      Vous n'avez pas encore de workspaces partagés, ils apparaitront si d'autres utilisateurs decident de vous partager leur workspaces
-      </h4>
+    <div class="containerV"  style="flex-grow:1;justify-content:center;">
+
+      <h1 style="text-align: center;color: rgb(119,119,119);">
+      Vous n'avez pas encore de workspaces partagés, ils apparaitront si d'autres utilisateurs decident de vous partager leurs workspaces
+    </h1>
     </div>
   </div>
   <script>
@@ -74,7 +75,7 @@
     });
   </script>
   <style>
-  .champ {    
+  .champ {
       color: rgb(220,220,220);
       width: 50vw;
       height: 38px;

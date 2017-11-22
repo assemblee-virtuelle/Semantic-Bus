@@ -1,5 +1,5 @@
-<workspace-table class="containerV scrollable">
-  <zenTable style="flex:1;background-color: rgb(238,242,249);" drag={false}  clickClass={false} disallownavigation={true} disallowdelete={true} ref="workspaceZenTable">
+<workspace-table class="containerV">
+  <zenTable drag={false} disallowselect={true} ref="workspaceZenTable">
     <yield to="header">
       <div>Name</div>
       <div>Description</div>
@@ -13,7 +13,7 @@
   <script>
 
     this.refreshZenTable = function (data) {
-      console.log("refreshZenTable", data)
+      //console.log("refreshZenTable", data)
       this.tags.zentable.data = data;
       this.data = data
     }.bind(this);
@@ -37,6 +37,7 @@
 
     this.on('mount', function (args) {
       this.tags.zentable.on('rowNavigation', function (data) {
+        console.log("rowNavigation", data);
         RiotControl.trigger('workspace_current_select', data);
       }.bind(this));
       RiotControl.on("store_filterCards", this.filterSearch)
@@ -44,7 +45,9 @@
       this.tags.zentable.on('delRow', function (data) {
         RiotControl.trigger('workspace_delete', data);
       }.bind(this));
+
       RiotControl.on('workspace_collection_changed', this.refreshZenTable);
+
       RiotControl.trigger('workspace_collection_load');
     });
 
@@ -55,7 +58,7 @@
     })
   </script>
   <style>
-    .champ {    
+    .champ {
       color: rgb(220,220,220);
       width: 50vw;
       height: 60px;

@@ -24,26 +24,23 @@
 {
   display: flex;
   flex-direction: column;
-  overflow: hidden;
+  /*overflow: hidden;*/
+  /*min-height:auto;*/
 }
-.containerV>*
+.containerV>.containerH
 {
-  flex-shrink : 0;
+  /*flex-shrink : 0;*/
+  /*flex-basis:100%;*/
 }
 .scrollable
 {
   overflow-y: scroll;
-  height: 0px;
+  /*height: 0px;*/
 }
-
-.flex-basis {
-  display: flex;
-  flex-basis:100%;
-}
-
 
 .containerV>.containerV
 {
   flex-grow: 1;
   flex-shrink : 1;
+  /*flex-basis:100%;*/
 }
