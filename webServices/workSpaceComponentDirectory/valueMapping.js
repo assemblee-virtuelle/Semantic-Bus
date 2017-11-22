@@ -20,6 +20,9 @@ module.exports = {
         valueOut.push(atomicMapping.replacementValue);
       }
     }
+    if(valueOut.length==0){
+      valueOut.push(valueIn)
+    }
     return valueOut;
   },
   mapValues: function(source, specificData) {
@@ -27,7 +30,11 @@ module.exports = {
     return new Promise((resolve, reject) => {
       var out;
       if (Array.isArray(source)){
-        out=source.map(valueIn=>this.mapValue(valueIn, specificData));
+        out=[];
+        for(valueIn of source){
+          out=out.concat(this.mapValue(valueIn, specificData));
+        }
+        //out=source.map(valueIn=>this.mapValue(valueIn, specificData));
       }else{
         out=this.mapValue(source, specificData);
       }
