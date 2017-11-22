@@ -1,11 +1,11 @@
-<zenTable class="containerV {opts.zentableClass}">
-  <div class="containerH tableHeader" ref="tableHeader">
+<zenTable class="containerV {opts.zentableClass}" style="flex-grow:1;">
+  <div class="containerH tableHeader" ref="tableHeader" style="flex-shrink:0;">
     <yield from="header"/>
   </div>
   <div class="containerV scrollable tableBody" ref="tableBodyContainer" ondragover={on_drag_over} ondrop={on_drop}>
     <!--<div class="table scrollable" name="tableBody" ref="tableBody" ondragover={on_drag_over} ondrop={on_drop}>-->
     <div
-      class="tableRow containerH {selected:selected} {mainSelected:mainSelected}"
+      class="tableRow containerH {selected:selected==true && opts.disallowselect!=true} {mainSelected:mainSelected=true && opts.disallowselect!=true}"
       dragenter={drag_enter}
       dragleave={drag_leave}
       draggable={opts.drag}
@@ -15,7 +15,7 @@
       ondragend={parent.drag_end}
       ondragstart={parent.drag_start}
       onclick={rowClic}
-      style="justify-content: space-between;">
+      style="justify-content: space-between;flex-shrink:0;">
 
       <div class="containerH tableRowContent" style="flex-grow:1;" onkeyup={rowKeyUp}>
         <yield from="row"/>

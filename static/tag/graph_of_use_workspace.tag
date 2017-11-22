@@ -1,5 +1,5 @@
 <graph-of-use-workspace class="containerV">
-  <div class="containerH" style="flex-grow:1">
+  <div class="containerH">
     <div class="card">
       <h4>nombre de workspace</h4>
       <span class="second-title-card">{this.numberWorkspace}</span>

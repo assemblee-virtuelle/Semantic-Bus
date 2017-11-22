@@ -14,6 +14,7 @@
   display: flex;
   justify-content: center;
   /*flex-wrap: wrap;*/
+  /*flex-shrink : 0;*/
   align-items : stretch;
   overflow: hidden;
 }
@@ -24,6 +25,8 @@
 {
   display: flex;
   flex-direction: column;
+  align-items : stretch;
+  overflow: hidden;
   /*overflow: hidden;*/
   /*min-height:auto;*/
 }

@@ -19,7 +19,7 @@ input {
   font-size: 1em
 }
 
-.champ {    
+.champ {
   color: rgb(220,220,220);
   width: 50vw;
   height: 38px;
@@ -31,7 +31,7 @@ input {
 .commandBar{
   justify-content: space-between;
   padding: 2px;
-  overflow-y :visible;
+  flex-shrink:0;
 }
 
 button:focus {

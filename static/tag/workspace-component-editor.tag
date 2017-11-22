@@ -1,11 +1,7 @@
-<workspace-component-editor class="containerV">
-  <div style="flex-basis:100px; padding:5pt; background-color: rgb(238,242,249);" class="containerH">
-    <div style="flex-grow:1;display: flex;flex-direction: column;flex-grow: 0.5;">
-      <label style="padding:5pt;text-align:center"><strong>Nom du composant</strong></label>
-      <input type="text" id="nameComponentInput" onchange={onNameChange} value={itemCurrent.name}></input>
-    </div>
-  </div>
-  <div style="flex-grow:1;flex-wrap: nowrap; background-color: rgb(238,242,249);" class="containerV">
+<workspace-component-editor class="containerV" style="flex-grow:1" >
+  <div style="flex-basis:100px; padding:5pt; background-color: rgb(238,242,249);" class="containerV">
+    <label style="padding:5pt;text-align:center"><strong>Nom du composant</strong></label>
+    <input type="text" id="nameComponentInput" onchange={onNameChange} value={itemCurrent.name}></input>
     <label style="padding:5pt;text-align:center"><strong>Parametrage du composant</strong></label>
     <div id="editionContainer" style="flex-grow:1; padding: 15pt;
     background-color: rgb(238,242,249);" class="containerV"></div>
@@ -13,7 +9,7 @@
   <script>
     this.itemCurrent={};
 
-  
+
     nagivationClick(e) {
       RiotControl.trigger('item_current_cancel');
       //this.mountWorkspaceNavigator(false);
