@@ -195,10 +195,10 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     console.log("workspaceEditorShow")
     this.navigateNext('workspaceEditor', true);
   }.bind(this))
-  
 
 
-  workSpaceStore.on('nav_share_workspace', function(message) { 
+
+  workSpaceStore.on('nav_share_workspace', function(message) {
     this.trigger("store_share_workspace")
   })
 
@@ -207,26 +207,26 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     this.trigger("store_persisteWorkspace")
   })
 
-  workSpaceStore.on('nav_addRowWorkspace', function(message) { 
+  workSpaceStore.on('nav_addRowWorkspace', function(message) {
     this.trigger("store_addRowWorkspace")
   })
 
-  workSpaceStore.on('nav_filterCards', function(e) { 
+  workSpaceStore.on('nav_filterCards', function(e) {
     this.trigger("store_filterCards",e)
   })
 
-  workSpaceStore.on('nav_component_workspace_editor', function(message) { 
+  workSpaceStore.on('nav_component_workspace_editor', function(message) {
     console.log("nav_component_workspace_editor")
     this.trigger("store_component_workspace_editor")
   })
 
 
-  workSpaceStore.on('add_component_click', function(message) { 
+  workSpaceStore.on('add_component_click', function(message) {
     this.trigger("add_component_button_select")
   })
 
 
-  
+
 
   // genericStore.on('item_current_persist_done', function(message) {
   //   workSpaceStore.trigger('workspace_synchoniseFromServer_done', message);
@@ -249,10 +249,11 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     this.navigateNext('workspaceEditor', true);
   }.bind(this));
 
-  
+
 
   workSpaceStore.on('workspace_current_add_components_done', function(message) {
-    this.navigatePrevious();
+    //this.navigatePrevious();
+    route('workspace/'+message._id+'/component')
   }.bind(this));
 
   //update current component because it can be change after wokspace persist
@@ -269,17 +270,17 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     this.navigateNext('workPreview', true);
   }.bind(this));
 
-  genericStore.on('component_current_select_done', function(message) {
-
-    if (sift({
-        screen: 'componentEditor',
-        show: true
-      }, this.screenHistory[this.screenHistory.length - 1]).length > 0) {
-      genericStore.refresh();
-    } else {
-      this.navigateNext('componentEditor', true);
-    }
-  }.bind(this));
+  // genericStore.on('component_current_select_done', function(message) {
+  //
+  //   if (sift({
+  //       screen: 'componentEditor',
+  //       show: true
+  //     }, this.screenHistory[this.screenHistory.length - 1]).length > 0) {
+  //     genericStore.refresh();
+  //   } else {
+  //     this.navigateNext('componentEditor', true);
+  //   }
+  // }.bind(this));
 
 
 
@@ -394,11 +395,12 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   });
 
   this.workspaceStore.on('share_change', function(record) {
-    this.navigatePrevious();
+    //this.navigatePrevious();
     // this.updateMode({
     //   modeTechnicalComponentNavigation: false
     // });
     // this.trigger('navigator_mount', 'technical-component-table');
+    route('workspace/'+record.workspace._id+'/user')
   }.bind(this));
 
 

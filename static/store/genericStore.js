@@ -11,6 +11,7 @@ function GenericStore(utilStore, specificStoreList) {
     specificStore.genericStore = this;
   }
   this.workspaceBusiness = new WorkspaceBusiness();
+  this.workspaceCurrent;
   this.itemCurrent;
   this.connectMode;
 
@@ -305,29 +306,60 @@ function GenericStore(utilStore, specificStoreList) {
     this.trigger('component_current_select_done');
   }); //<= item_current_select
 
-  this.refresh = function() {
-    this.trigger('item_current_editor_changed', this.itemCurrent.editor);
-    this.modeConnectBefore = false;
-    this.modeConnectAfter = false;
-    this.trigger('item_curent_connect_show_changed', {
-      before: this.modeConnectBefore,
-      after: this.modeConnectAfter
-    });
-    this.trigger('item_curent_available_connections', this.computeAvailableConnetions());
-    console.log('genericStore | component_current_select |', this.itemCurrent);
-    this.trigger('item_current_changed', this.itemCurrent);
-  }
-
-  this.on('component_current_refresh', function() {
+  this.on('navigation', function(entity, id, action){
     //console.log('WARNING');
-    //this.trigger('item_current_edit_mode','generic', this.itemCurrent);
-    this.refresh();
-  }); //<= item_current_select
+    if (entity == 'component') {
+      this.action = action
+      if (this.workspaceCurrent != undefined) {
+        this.itemCurrent = sift({
+          _id: id
+        }, this.workspaceCurrent.components)[0];
+        if (this.itemCurrent != undefined) {
+          this.trigger('navigation_control_done', entity);
+        } else {
+          this.trigger('ajax_fail', 'no component existing whith this id un current workspace');
+        }
+      } else {
+        this.trigger('ajax_fail', 'the component can not be loaded without first loading its workspace');
+      }
+
+      // if (this.itemCurrent != undefined && this.itemCurrent._id == id) {
+      //   this.action = action;
+      //   this.trigger('navigation_control_done', entity);
+      // } else {
+      //   this.select({
+      //     _id: id
+      //   }).then(item => {
+      //     this.action = action;
+      //     this.trigger('navigation_control_done', entity);
+      //   });
+      // }
+    }
+  });
+
+this.refresh = function() {
+  this.trigger('item_current_editor_changed', this.itemCurrent.editor);
+  this.modeConnectBefore = false;
+  this.modeConnectAfter = false;
+  this.trigger('item_curent_connect_show_changed', {
+    before: this.modeConnectBefore,
+    after: this.modeConnectAfter
+  });
+  this.trigger('item_curent_available_connections', this.computeAvailableConnetions());
+  console.log('genericStore | component_current_select |', this.itemCurrent);
+  this.trigger('item_current_changed', this.itemCurrent);
+}
+
+this.on('component_current_refresh', function() {
+  //console.log('WARNING');
+  //this.trigger('item_current_edit_mode','generic', this.itemCurrent);
+  this.refresh();
+}); //<= item_current_select
 
 
 
 
 
 
-  // --------------------------------------------------------------------------------
+// --------------------------------------------------------------------------------
 }

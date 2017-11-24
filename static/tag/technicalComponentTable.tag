@@ -1,4 +1,4 @@
-<technical-component-table class="containerV scrollable" >
+<technical-component-table class="containerV" >
   <!--  <div class="commandBar containerH header" style="align-items: center;">
     <div></div>
     <div>Add Componnent</div>
