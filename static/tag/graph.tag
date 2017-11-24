@@ -75,7 +75,8 @@
     this.fullscreen = true
 
     addComponentClick(e) {
-      RiotControl.trigger('workspace_current_add_component_show', e);
+      //RiotControl.trigger('workspace_current_add_component_show', e);
+      route('workspace/'+this.graph.workspace._id+'/addComponent');
     }
 
     back(e) {
@@ -83,16 +84,17 @@
     }
 
     graphClick(e) {
-      console.log('EDIT');
+      //console.log('EDIT');
       RiotControl.trigger('workspace_current_graph');
       this.update()
     }
 
 
     editClick(e) {
-      console.log('graph edit Component | ', this.selectedNodes[0].component);
+      //console.log('graph edit Component | ', this.selectedNodes[0].component);
+      route('component/'+this.selectedNodes[0].component._id);
       //RiotControl.trigger('component_current_show');
-      RiotControl.trigger('component_current_select', this.selectedNodes[0].component);
+      //RiotControl.trigger('component_current_select', this.selectedNodes[0].component);
     }
 
     removeClick(e) {
@@ -209,7 +211,8 @@
         }).attr("data-id", function (d) {
           return d.id;
         }).on("click", function (d) {
-          RiotControl.trigger('component_current_select', d.component);
+          route('component/'+d.component._id);
+          //RiotControl.trigger('component_current_select', d.component);
         });
 
         d3.select(this).append("image").attr("xlink:href", function (d) {

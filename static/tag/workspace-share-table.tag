@@ -1,6 +1,6 @@
 <workspace-share-table class="containerV">
 
-  <zenTable  if={!isEmpty} drag={false}  disallownavigation={true} disallowselect={true} style="background-color: rgb(238,242,249);">
+  <zenTable  if={!isEmpty} drag={false} disallowselect={true} style="background-color: rgb(238,242,249);">
     <yield to="header">
       <div>Name</div>
       <div>Description</div>
@@ -21,14 +21,6 @@
   <script>
 
     this.isEmpty = true
-
-    navigationClick(e) {
-      console.log("test", e.item.rowid)
-      var index = parseInt(e.item.rowid);
-      let dataWithRowId =  this.tags.zentable.data[index];
-      console.log("dataWithRowId", dataWithRowId, dataWithRowId.rowid)
-      this.trigger('rowNavigation', dataWithRowId)
-    }
 
     //console.log('mount opts :',this.opts);
     this.refreshZenTableShare = function (data) {
@@ -58,8 +50,9 @@
       }.bind(this))
 
       this.tags.zentable.on('rowNavigation', function (data) {
-        console.log("rowNavigation", data);
-        RiotControl.trigger('workspace_current_select', data);
+        //console.log("rowNavigation", data);
+        //RiotControl.trigger('workspace_current_select', data);
+        route('workspace/'+data._id+'/component');
       }.bind(this));
 
       RiotControl.on('workspace_share_collection_changed', this.refreshZenTableShare);

@@ -104,6 +104,12 @@
   <div show={menu=='utilisation' } class="containerH" style="padding: 5%;flex-grow: 1;background-color: rgb(238,242,249)">
     <graph-of-use></graph-of-use>
   </div>
+  <div show={menu=='addComponent' } class="containerV" style="padding: 5%;flex-grow: 1;background-color: rgb(238,242,249)">
+    <technical-component-table></technical-component-table>
+  </div>
+  <div show={menu=='share' } class="containerV" style="padding: 5%;flex-grow: 1;background-color: rgb(238,242,249)">
+    <user-list></user-list>
+  </div>
 </div>
 </div>
 
@@ -197,25 +203,29 @@ this.title = "Workspace"
 
 goInformation(e) {
   // this.modeUserList = false; this.modeComponentList = false; this.modeUserDescription = true; this.modeUtilisation = false; this.color2 = "white" this.color1 = "white" this.color3 = "blue"  this.color4 = "white" this.menu = 'information';
-  RiotControl.trigger('workspace_editor_change_menu', 'information')
+  //RiotControl.trigger('workspace_editor_change_menu', 'information')
   // this.update()
+  route('workspace/'+this.innerData._id+'/information');
 }.bind(this)
 
 goUser(e) {
   //this.menu = 'user'
-  RiotControl.trigger('workspace_editor_change_menu', 'user')
+  //RiotControl.trigger('workspace_editor_change_menu', 'user')
   // this.modeUserList = true; this.modeComponentList = false; this.modeUserDescription = false; this.modeUtilisation = false; this.color2 = "blue" this.color1 = "white" this.color3 = "white" this.color4 = "white" console.log(this.workspace._id.$oid)
   // RiotControl.trigger('load_all_profil_by_workspace', {_id: this.workspace._id.$oid})
+  route('workspace/'+this.innerData._id+'/user');
 }.bind(this)
 
 goComponent(e) {
   // this.modeUserList = false; this.modeComponentList = true; this.modeUserDescription = false; this.modeUtilisation = false; this.color2 = "white" this.color1 = "blue" this.color3 = "white" this.color4 = "white" this.menu = 'component'
-  RiotControl.trigger('workspace_editor_change_menu', 'component')
+  //RiotControl.trigger('workspace_editor_change_menu', 'component')
+  route('workspace/'+this.innerData._id+'/component');
 }.bind(this)
 
 goUtilisation(e) {
   // this.modeUserList = false; this.modeComponentList = false; this.modeUserDescription = false; this.modeUtilisation = true; this.color2 = "white" this.color1 = "white" this.color3 = "white" this.color4 = "blue" this.menu = 'utilisation'
-  RiotControl.trigger('workspace_editor_change_menu', 'utilisation')
+  //RiotControl.trigger('workspace_editor_change_menu', 'utilisation')
+  route('workspace/'+this.innerData._id+'/utilisation');
 }.bind(this)
 
 this.persistClick = function (e) {
@@ -257,12 +267,13 @@ this.workspaceCurrentChanged = function (data) {
 }.bind(this);
 
 addUser(e) {
-  console.log("add user")
-  this.componentView = false;
-  this.userView = true;
-  this.DescriptionView = false;
-  this.utilisationView = false;
-  RiotControl.trigger('workspace_current_add_user_show');
+  // console.log("add user")
+  // this.componentView = false;
+  // this.userView = true;
+  // this.DescriptionView = false;
+  // this.utilisationView = false;
+  // RiotControl.trigger('workspace_current_add_user_show');
+  route('workspace/'+this.innerData._id+'/share')
 }
 
 this.shareChange = function (data) {
