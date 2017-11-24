@@ -267,7 +267,8 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   }.bind(this));
 
   genericStore.on('item_current_work_done', function(message) {
-    this.navigateNext('workPreview', true);
+    //this.navigateNext('workPreview', true);
+    route('workPreview')
   }.bind(this));
 
   // genericStore.on('component_current_select_done', function(message) {

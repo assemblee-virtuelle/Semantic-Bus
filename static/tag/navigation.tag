@@ -122,7 +122,7 @@
       </div>
 
       <!--  HEADER WORKSPACE COMPONENT EDITOR  -->
-      <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('componentEditor')}>
+      <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('component')}>
         <div class="header">
           <div class="commandBar containerH">
             <div></div>
