@@ -585,7 +585,7 @@ function WorkspaceStore() {
 
 
   this.on('workspace_current_refresh', function() {
-    console.log('workspace_current_refresh || ', this.workspaceCurrent, this.menu);
+    //console.log('workspace_current_refresh || ', this.workspaceCurrent);
     this.trigger('workspace_editor_menu_changed', this.action);
     this.trigger('workspace_current_changed', this.workspaceCurrent);
   }); // <= workspace_current_refresh

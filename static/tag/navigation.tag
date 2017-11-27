@@ -1,6 +1,6 @@
 <navigation>
 
-  <div id="containerloaderDiv">
+  <div id="containerloaderDiv" class="containerV" style="justify-content:center">
     <div id="row">
       <div id="loaderDiv"></div>
       <h1 id="loaderText">
@@ -8,11 +8,11 @@
       </h1>
     </div>
   </div>
-  <div id="containerloaderDiv" if={persistInProgress}>
+  <div id="containerloaderDiv" if={persistInProgress} class="containerV" style="justify-content:center">
     <div id="row">
       <div id="loaderDiv"></div>
       <h1 id="loaderText">
-        Sauvegarde en cours
+        synchronisation avec le serveur
       </h1>
     </div>
   </div>
@@ -153,31 +153,31 @@
       <!--  NAVBAR   -->
       <div class="containerV" style="justify-content: space-between;background: linear-gradient(180deg, rgb(33,150,243) 20% ,rgb(41,181,237));flex-basis:80px;flex-shrink:0">
         <!--<div class="containerV" style="flex-grow:1">-->
-        <div class="containerV" style="flex-basis:400px;flex-grow:0;">
+        <div class="containerV" style="flex-grow:1;justify-content: flex-start">
           <!--<div class={commandButtonImage:true,selectedMenu:isScrennInHistory('myWorkspaces'),containerV:true} onclick={workspaceSelectorClick} id="workspaceSelector" style="flex-basis:150px;justify-content:center;align-items:center">
             <img src="./image/dossier.svg" style="margin-bottom:10px" width="40px">
             <p show={isPrincipalMenu} style="color:white;font-size:12px">Worksapces</p>
           </div>-->
-          <a href="#myWorkspaces" class={commandButtonImage:true,selectedMenu:isScrennInHistory('myWorkspaces'),containerV:true} id="workspaceSelector" style="flex-basis:150px;justify-content:center;align-items:center">
-            <img src="./image/dossier.svg" style="margin-bottom:10px" width="40px">
+          <a href="#myWorkspaces" class="commandButtonImage {selectedMenu:isScrennInHistory('myWorkspaces')} containerV" id="workspaceSelector" style="flex-basis:100px;flex-grow:0;">
+            <img src="./image/dossier.svg" style="" width="40px">
             <p show={isPrincipalMenu} style="color:white;font-size:12px">Worksapces</p>
           </a>
 
-          <a href="#sharedWorkspaces" class={commandButtonImage:true,selectedMenu:isScrennInHistory('sharedWorkspaces'),containerV:true} style="flex-basis:150px">
-            <img src="./image/double_dossier.svg" style="margin-bottom:10px" width="40px">
+          <a href="#sharedWorkspaces" class="commandButtonImage {selectedMenu:isScrennInHistory('sharedWorkspaces')} containerV" style="flex-basis:100px;flex-grow:0;">
+            <img src="./image/double_dossier.svg" style="" width="40px">
             <p show={isPrincipalMenu} style="color:white;font-size:12px;text-align:center">Worksapces Partagé</p>
           </a>
-          <a href="#profil" class={commandButtonImage:true,selectedMenu:isScrennInHistory('profil'),containerV:true} style="flex-basis:150px">
-            <img src="./image/photo.svg" style="margin-bottom:10px" width="40px">
+          <a href="#profil" class="commandButtonImage {selectedMenu:isScrennInHistory('profil')} containerV" style="flex-basis:100px;flex-grow:0;">
+            <img src="./image/photo.svg" style="" width="40px">
             <p show={isPrincipalMenu} style="color:white;font-size:12px">Profil</p>
           </a>
           <!--  ADMIN  -->
-          <a href="#admin" class={commandButtonImage:true,selectedMenu:isScrennInHistory('admin'),containerV:true} if={showAdmin} style="flex-basis:150px">
-            <img src="./image/Roulette_bus.svg" style="margin-bottom:10px" width="40px">
+          <a href="#admin" class="commandButtonImage {selectedMenu:isScrennInHistory('admin')} containerV" if={showAdmin} style="flex-basis:100px;flex-grow:0;">
+            <img src="./image/Roulette_bus.svg" style="" width="40px">
             <p style="color:white;font-size:12px">Paramêtres</p>
           </a>
         </div>
-        <div class="containerV" style="flex-basis:40px;flex-grow:0;">
+        <div class="containerV" style="flex-basis:40px;">
           <div class="commandButtonImage" style="flex-basis:120px">
             <img src="./image/working.gif" width="40px" if={workInProgress}>
           </div>
@@ -344,13 +344,14 @@
     }
 
     this.isScrennInHistory = function (screenToTest) {
-      let out = false;
-      if (this.screenHistory != undefined) {
-        out = sift({
-          screen: screenToTest
-        }, this.screenHistory).length > 0;
-      }
-      return out;
+      // let out = false;
+      // if (this.screenHistory != undefined) {
+      //   out = sift({
+      //     screen: screenToTest
+      //   }, this.screenHistory).length > 0;
+      // }
+      // return out;
+      return screenToTest == this.entity;
     }
 
     this.isScrennHide = function () {
@@ -463,7 +464,7 @@
     }
 
     /*LANDING CSS */
-
+    /*
     #landingTitle {
       text-align: center;
       margin-top: 15vh;
@@ -496,11 +497,17 @@
       height: 100%;
       padding: 0;
       margin: 0;
-    }
+    }*/
 
     #containerloaderDiv {
       background-color: rgba(200,200,200,0.8);
-      width: 100%;
+      bottom:0;
+      top:0;
+      right:0;
+      left:0;
+      position:absolute;
+      z-index: 1;
+      /*width: 100%;
       height: 125vh;
       position: absolute;
       z-index: 1;
@@ -512,7 +519,7 @@
       display: -webkit-flex;
       display: flex;
       align-items: center;
-      justify-content: center;
+      justify-content: center;*/
     }
 
     #row {

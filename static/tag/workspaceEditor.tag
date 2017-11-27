@@ -1,28 +1,28 @@
 <workspace-editor class="containerH" data-id={innerData._id} style="flex-wrap:nowrap;flex-grow:1">
 
-  <div class=" containerV" style="flex-basis:70px; background-color: rgb(9,245,185);">
+  <div class="containerV" style="flex-basis:80px; flex-shrink:0; background-color: rgb(9,245,185);">
     <!--<div class="{color1}" if={componentView} id="component" onclick={goComponent}>Composant(s)</div>
       <div class="{color2}" id="user" if={userView} onclick={goUser}>Utilisateur(s)</div>
       <div class="{color3}" if={DescriptionView} id="description" onclick={goDescription}>Déscription</div>
       <div class="{color4}" if={DescriptionView} id="description" onclick={goUtilisation}>Utilisation</div>-->
-    <div class=" containerV" style="flex-basis:500px; background-color: rgb(9,245,185);flex-grow:0">
-      <div onclick={goComponent} class={commandButtonImage:true,containerV:true} style="flex-basis:120px">
-        <img src="./image/Graphe_2.svg" style="margin-bottom: 10px;" height="40px" width="40px">
+    <!--<div class=" containerV" style="flex-basis:500px; background-color: rgb(9,245,185);flex-grow:0">-->
+      <div onclick={goComponent} class={commandButtonImage:true,containerV:true} style="flex-basis:100px;flex-grow:0;">
+        <img src="./image/Graphe_2.svg" style="" height="40px" width="40px">
         <p style="color:white;font-size:12px">Graphique</p>
       </div>
-      <div onclick={goUser} class={commandButtonImage:true,containerV:true} style="flex-basis:120px">
-        <img src="./image/En_groupe.svg" style="margin-bottom: 10px;" height="40px" width="40px">
+      <div onclick={goUser} class={commandButtonImage:true,containerV:true} style="flex-basis:100px;flex-grow:0;">
+        <img src="./image/En_groupe.svg" style="" height="40px" width="40px">
         <p style="color:white;font-size:12px">Utilisateurs</p>
       </div>
-      <div onclick={goInformation} class={commandButtonImage:true,containerV:true} style="flex-basis:120px">
-        <img src="./image/Autres.svg" style="margin-bottom: 10px;" height="40px" width="40px">
+      <div onclick={goInformation} class={commandButtonImage:true,containerV:true} style="flex-basis:100px;flex-grow:0;">
+        <img src="./image/Autres.svg" style="" height="40px" width="40px">
         <p style="color:white;font-size:12px">Editer</p>
       </div>
-      <div onclick={goUtilisation} class={commandButtonImage:true,containerV:true} style="flex-basis:120px">
-        <img src="./image/Stats.svg" style="margin-bottom: 10px;" height="40px" width="40px">
+      <div onclick={goUtilisation} class={commandButtonImage:true,containerV:true} style="flex-basis:100px;flex-grow:0;">
+        <img src="./image/Stats.svg" style="" height="40px" width="40px">
         <p style="color:white;font-size:12px">Conso</p>
       </div>
-    </div>
+    <!--</div>-->
   </div>
   <!--  <div class=" containerV" style="flex-grow:1; background-color:rgb(238,242,249)">
       <div class="header">

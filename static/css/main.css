@@ -1,3 +1,22 @@
+a{
+  text-decoration: none;
+  color: white;
+}
+a:active{
+  text-decoration: none;
+  color: white;
+}
+
+a:visited{
+  text-decoration: none;
+  color: white;
+}
+
+a:hover{
+  text-decoration: none;
+  color: white;
+}
+
 input[type="text"] {
   box-sizing: border-box;
 }
@@ -13,10 +32,14 @@ body{
 input {
   color: rgb(220,220,220);
   padding-left:10pt;
-  height: 38px;
+  /*height: 38px;*/
   border-radius: 20pt;
   border-width: 0;
   font-size: 1em
+}
+
+*:focus{
+  outline:none!important;
 }
 
 .champ {
@@ -33,14 +56,14 @@ input {
   padding: 2px;
   flex-shrink:0;
 }
-
+/*
 button:focus {
   outline:none!important;
-}
-
+}*/
+/*
 input:focus {
   outline:none!important;
-}
+}*/
 
 .header {height: 90pt;
 /* text-align: center; */
@@ -139,12 +162,13 @@ color:white
   /* align-self: flex-end; */
   justify-content: center;
   align-items: center;
-  display: flex;
+  /*display: flex;
   flex: 0.05;
-  opacity: 1;
+  opacity: 1;*/
 }
 .commandButtonImage:focus{
-  opacity: 0.3;
+  outline:none!important;
+  /*opacity: 0.3;*/
 }
 
 
