@@ -209,23 +209,23 @@ goInformation(e) {
 }.bind(this)
 
 goUser(e) {
-  //this.menu = 'user'
-  //RiotControl.trigger('workspace_editor_change_menu', 'user')
+  // this.menu = 'user'
+  // RiotControl.trigger('workspace_editor_change_menu', 'user')
   // this.modeUserList = true; this.modeComponentList = false; this.modeUserDescription = false; this.modeUtilisation = false; this.color2 = "blue" this.color1 = "white" this.color3 = "white" this.color4 = "white" console.log(this.workspace._id.$oid)
   // RiotControl.trigger('load_all_profil_by_workspace', {_id: this.workspace._id.$oid})
-  route('workspace/'+this.innerData._id+'/user');
+  route('workspace/' + this.innerData._id + '/user');
 }.bind(this)
 
 goComponent(e) {
   // this.modeUserList = false; this.modeComponentList = true; this.modeUserDescription = false; this.modeUtilisation = false; this.color2 = "white" this.color1 = "blue" this.color3 = "white" this.color4 = "white" this.menu = 'component'
-  //RiotControl.trigger('workspace_editor_change_menu', 'component')
+  // RiotControl.trigger('workspace_editor_change_menu', 'component')
   route('workspace/'+this.innerData._id+'/component');
 }.bind(this)
 
 goUtilisation(e) {
   // this.modeUserList = false; this.modeComponentList = false; this.modeUserDescription = false; this.modeUtilisation = true; this.color2 = "white" this.color1 = "white" this.color3 = "white" this.color4 = "blue" this.menu = 'utilisation'
-  //RiotControl.trigger('workspace_editor_change_menu', 'utilisation')
-  route('workspace/'+this.innerData._id+'/utilisation');
+  // RiotControl.trigger('workspace_editor_change_menu', 'utilisation')
+  route('workspace/' + this.innerData._id + '/utilisation');
 }.bind(this)
 
 this.persistClick = function (e) {
