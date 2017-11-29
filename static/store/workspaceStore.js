@@ -11,6 +11,7 @@ function WorkspaceStore() {
   this.workspaceShareCollection;
   this.workspaceCurrent;
   this.workspaceBusiness = new WorkspaceBusiness();
+  this.componentSelectedToAdd=[];
   //this.cancelRequire = false;
   this.modeConnectBefore = false;
   this.modeConnectAfter = false;
@@ -233,27 +234,6 @@ function WorkspaceStore() {
       });
     });
 
-
-
-    return new Promise((resolve, reject) => {
-      console.log('select ||', record);
-      //this.workspaceCurrent = record;
-      $.ajax({
-        method: 'get',
-        url: '../data/core/workspace/' + record._id,
-        headers: {
-          "Authorization": "JTW" + " " + localStorage.token
-        },
-        contentType: 'application/json'
-      }).done(data => {
-        this.workspaceBusiness.connectWorkspaceComponent(data.components);
-        this.workspaceCurrent = data;
-        this.workspaceCurrent.mode = 'edit';
-        this.menu = 'component'
-        //this.workspaceCurrent.synchronized =true;
-        resolve(data);
-      });
-    });
 
   }; // <= select
 
@@ -520,6 +500,9 @@ function WorkspaceStore() {
     this.trigger('workspace_current_changed', this.workspaceCurrent);
   }); // <= workspace_current_updateField
 
+
+
+
   // --------------------------------------------------------------------------------
 
   this.on('workspace_current_select', function(record) {
@@ -535,6 +518,7 @@ function WorkspaceStore() {
   this.on('navigation', function(entity, id, action) {
     //console.log('WARNING');
     if (entity == "workspace") {
+      console.log('ALLO');
       if (this.workspaceCurrent != undefined && this.workspaceCurrent._id == id) {
         this.action = action;
         this.trigger('navigation_control_done', entity,action);
@@ -607,18 +591,18 @@ function WorkspaceStore() {
 
 
   RiotControl.on('persistClick', function(data) {
-    console.log("WORKSPACE STORE PERSIST START");
-    this.componentView = true;
-    this.userView = true;
-    this.DescriptionView = true;
-    RiotControl.trigger('workspace_current_updateField', {
-      field: 'name',
-      data: data.name
-    });
-    RiotControl.trigger('workspace_current_updateField', {
-      field: 'description',
-      data: data.description
-    });
+    // console.log("WORKSPACE STORE PERSIST START");
+    // this.componentView = true;
+    // this.userView = true;
+    // this.DescriptionView = true;
+    // RiotControl.trigger('workspace_current_updateField', {
+    //   field: 'name',
+    //   data: data.name
+    // });
+    // RiotControl.trigger('workspace_current_updateField', {
+    //   field: 'description',
+    //   data: data.description
+    // });
     RiotControl.trigger('workspace_current_persist');
   }.bind(this));
 
@@ -636,10 +620,13 @@ function WorkspaceStore() {
   //   // })
   //   this.trigger('save_auto')
   // });
-
-  this.on('workspace_current_add_components', function(data) {
-    console.log("workspace store");
-    data.forEach(c => {
+  this.on('set_componentSelectedToAdd', function(message) {
+    //console.log('set_componentSelectedToAdd',message);
+    this.componentSelectedToAdd=message;
+  }); // <= workspace_current_updateField
+  this.on('workspace_current_add_components', function() {
+    console.log("workspace_current_add_components",this.componentSelectedToAdd);
+    this.componentSelectedToAdd.forEach(c => {
       c.workspaceId = this.workspaceCurrent._id;
       c.specificData = {};
       c.connectionsBefore = [];
@@ -647,9 +634,11 @@ function WorkspaceStore() {
       c.consumption_history = {}
       this.workspaceCurrent.components.push(c);
     })
+    this.componentSelectedToAdd=[];
 
     this.update(this.workspaceCurrent).then(data => {
       this.trigger('workspace_current_add_components_done',this.workspaceCurrent);
+      //route('workspace/'+this.workspaceCurrent+'/component')
     })
   }.bind(this));
 
@@ -709,13 +698,19 @@ function WorkspaceStore() {
   // }); //<= own_all_workspace
 
   ///GESTION DES DROIT DE USER
+  this.on('set-email-to-share',function(email){
+    this.emailToShare=email;
+  })
 
   this.on('share-workspace', function(data) {
     console.log('share-workspace |', data, localStorage.token);
     $.ajax({
       method: 'put',
       url: '../data/core/share/workspace/',
-      data: JSON.stringify(data),
+      data: JSON.stringify({
+        email: this.emailToShare,
+        worksapce_id: this.workspaceCurrent._id
+      }),
       headers: {
         "Authorization": "JTW" + " " + localStorage.token
       },

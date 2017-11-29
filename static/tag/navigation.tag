@@ -24,15 +24,7 @@
     <!--  CONTAINER GENERAL  -->
     <!--<div class="containerV" style="bottom:0;top:0;right:0;left:0;position:absolute;flex-basis:100%">-->
     <!--<div class="containerV" style="flex-basis:100%">-->
-    <div class="containerH" style="background-color: rgb(33,150,243);flex-wrap:nowrap;flex-shrink : 0;">
-      <router>
-        <route path="hello">
-          <p>HELLO 1</p>
-        </route>
-        <route path="hello2">
-          <p>HELLO 2</p>
-        </route>
-      </router>
+    <div class="containerH header" style="background-color: rgb(33,150,243);flex-wrap:nowrap;flex-shrink : 0; flex-basis:100px;">
       <!--  HEADER WORKSPACE  -->
       <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('myWorkspaces')}>
         <div class="header">
@@ -85,17 +77,17 @@
       </div>
 
       <!--  HEADER ADD USER WORKSPACE  -->
-      <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('workspace') && action=='share'}>
+      <!--<div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('workspace') && action=='share'}>
         <div class="header">
           <div class="containerH commandBar" style="justify-content: space-between;">
             <div class="main-title">Partager votre workspace</div>
             <image style="margin-left: -1px; color: white; cursor: pointer;" src="./image/Share.svg" class="commandButtonImage" width="40" height="40" onclick={share}></image>
           </div>
         </div>
-      </div>
+      </div>-->
 
       <!--  HEADER ADD COMPONENT  -->
-      <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('workspace') && action=='addComponent'}>
+      <!--<div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('workspace') && action=='addComponent'}>
         <div class="header">
           <div class="containerH commandBar" style="justify-content: space-between;align-items: center;">
             <div></div>
@@ -106,20 +98,12 @@
             <image class={AddButtonClick:actionReady,AddButtonNoClick:!actionReady} style="margin-left: -1px; color: white; cursor: pointer;" src="./image/ajout_composant.svg" class="commandButtonImage" width="50" height="50" onclick={addComponent}></image>
           </div>
         </div>
-      </div>
+      </div>-->
 
       <!--  HEADER WORKSPACE EDITOR  -->
-      <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('workspace') && action!='addComponent' && action!='share'}>
-        <div class="header">
-          <div class="commandBar containerH">
-            <div></div>
-            <div class="main-title">{workspaceName}</div>
-            <div onclick={persistClick} class="buttonBus {notSynchronized:synchronized==false}" id="save">
-              save
-            </div>
-          </div>
-        </div>
-      </div>
+      <!--<div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('workspace') && action!='addComponent' && action!='share'}>-->
+      <workspace-editor-header if={isScrennToShow('workspace')}></workspace-editor-header>
+      <!--</div>-->
 
       <!--  HEADER WORKSPACE COMPONENT EDITOR  -->
       <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('component')}>
@@ -187,42 +171,6 @@
       <!--  CONTENT   -->
 
       <div class="containerV" style="flex-grow:1">
-        <!--<router class="containerV">
-          <route path="landing" class="containerV" if={isScrennToShow('landing')}>
-            <landing></landing>
-          </route>
-          <route path="myWorkspaces" class="containerV">
-            <workspace-table></workspace-table>
-          </route>
-          <route path="sharedWorkspace" class="containerV">
-            <workspace-share-table></workspace-share-table>
-          </route>
-          <route path="workspaceEditor" class="containerV">
-            <workspace-editor></workspace-editor>
-          </route>
-          <route path="workspaceAddComponent" class="containerV">
-            <technical-component-table></technical-component-table>
-          </route>
-          <route path="workspaceAddUser" class="containerV">
-            <user-list></user-list>
-          </route>
-          <route path="graph" class="containerV">
-            <graph></graph>
-          </route>
-          <route path="componentEditor" class="containerV">
-            <workspace-component-editor></workspace-component-editor>
-          </route>
-          <route path="profil" class="containerV">
-            <profil></profil>
-          </route>
-          <route path="admin" class="containerV">
-            <admin></admin>
-          </route>
-          <route path="workPreview" class="containerV">
-            <jsonPreviewer></jsonPreviewer>
-          </route>
-        </router>-->
-
         <landing if={isScrennToShow('landing')}></landing>
         <workspace-table if={isScrennToShow('myWorkspaces')></workspace-table>
         <workspace-share-table if={isScrennToShow('sharedWorkspaces')></workspace-share-table>
@@ -254,23 +202,23 @@
       RiotControl.trigger('nav_filterCards', e);
     }
 
-    addRowClick(e) {
-      RiotControl.trigger('nav_addRowWorkspace')
-    }
+    // addRowClick(e) {
+    //   RiotControl.trigger('nav_addRowWorkspace')
+    // }
 
-    persistClick(e) {
-      RiotControl.trigger('nav_persisteWorkspace')
-    }
+    // persistClick(e) {
+    //   RiotControl.trigger('nav_persisteWorkspace')
+    // }
 
-    addComponent(e) {
-      console.log("In navigation")
-      RiotControl.trigger("add_component_click")
-    }
+    // addComponent(e) {
+    //   console.log("In navigation")
+    //   RiotControl.trigger("add_component_click")
+    // }
 
-    RiotControl.on("workspace_current_select_done", function (res) {
-      this.workspaceName = res.name
-      this.update()
-    }.bind(this))
+    // RiotControl.on("workspace_current_select_done", function (res) {
+    //   this.workspaceName = res.name
+    //   this.update()
+    // }.bind(this))
 
     share(e) {
       console.log("share navigation")
@@ -283,11 +231,11 @@
       RiotControl.trigger("nav_component_workspace_editor")
     }
 
-    RiotControl.on("row_add_component_select", function () {
-      console.log("row_add_component_select TEST")
-      this.actionReady = true;
-      this.update()
-    }.bind(this))
+    // RiotControl.on("row_add_component_select", function () {
+    //   console.log("row_add_component_select TEST")
+    //   this.actionReady = true;
+    //   this.update()
+    // }.bind(this))
 
     RiotControl.on("ajax_receipt", function () {
       console.log("in hide");
@@ -308,30 +256,30 @@
     //don't work if is placed in mount
     this.isGoodUser();
 
-    profilSelectorClick(e) {
-      RiotControl.trigger('profil_show');
-    }
-    workspaceSelectorClick(e) {
-      RiotControl.trigger('workspace_show');
-    }
-
-    workspaceShareSelectorClick(e) {
-      RiotControl.trigger('workspace_share_show');
-    }
-    technicalComponentSelectorClick(e) {
-      RiotControl.trigger('technicalComponent_show');
-    }
-    adminSelectorClick(e) {
-      RiotControl.trigger('admin_show');
-    }
-
-    showMenu(e) {
-      RiotControl.trigger('menu_show');
-    }
-
-    back(e) {
-      RiotControl.trigger('back');
-    }
+    // profilSelectorClick(e) {
+    //   RiotControl.trigger('profil_show');
+    // }
+    // workspaceSelectorClick(e) {
+    //   RiotControl.trigger('workspace_show');
+    // }
+    //
+    // workspaceShareSelectorClick(e) {
+    //   RiotControl.trigger('workspace_share_show');
+    // }
+    // technicalComponentSelectorClick(e) {
+    //   RiotControl.trigger('technicalComponent_show');
+    // }
+    // adminSelectorClick(e) {
+    //   RiotControl.trigger('admin_show');
+    // }
+    //
+    // showMenu(e) {
+    //   RiotControl.trigger('menu_show');
+    // }
+    //
+    // back(e) {
+    //   RiotControl.trigger('back');
+    // }
 
     closeError(e) {
       this.errorMessage = undefined;
@@ -354,23 +302,23 @@
       return screenToTest == this.entity;
     }
 
-    this.isScrennHide = function () {
-      return sift({
-        show: false
-      }, this.screenHistory).length > 0;
-    }
+    // this.isScrennHide = function () {
+    //   return sift({
+    //     show: false
+    //   }, this.screenHistory).length > 0;
+    // }
 
-    RiotControl.on('newScreenHistory', function (newScreenHistory) {
-      //console.log('newScreenHistory', newScreenHistory[newScreenHistory.length -1].screen);workspaceAddComponent
-      this.screenHistory = newScreenHistory;
-      if (newScreenHistory[newScreenHistory.length - 1].screen == "workspaceAddComponent" || newScreenHistory[newScreenHistory.length - 1].screen == "landing" || newScreenHistory[newScreenHistory.length - 1].screen == "myWorkspaces" || newScreenHistory[newScreenHistory.length - 1].screen == "sharedWorkspaces") {
-        //console.log("IN IF")
-        this.isPrincipalMenu = true
-      } else {
-        this.isPrincipalMenu = false
-      }
-      this.update();
-    }.bind(this));
+    // RiotControl.on('newScreenHistory', function (newScreenHistory) {
+    //   //console.log('newScreenHistory', newScreenHistory[newScreenHistory.length -1].screen);workspaceAddComponent
+    //   this.screenHistory = newScreenHistory;
+    //   if (newScreenHistory[newScreenHistory.length - 1].screen == "workspaceAddComponent" || newScreenHistory[newScreenHistory.length - 1].screen == "landing" || newScreenHistory[newScreenHistory.length - 1].screen == "myWorkspaces" || newScreenHistory[newScreenHistory.length - 1].screen == "sharedWorkspaces") {
+    //     //console.log("IN IF")
+    //     this.isPrincipalMenu = true
+    //   } else {
+    //     this.isPrincipalMenu = false
+    //   }
+    //   this.update();
+    // }.bind(this));
 
     RiotControl.on('user_authentified', function (data) {
       console.log('user_authentified', localStorage.user_id);

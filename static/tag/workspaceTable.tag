@@ -13,9 +13,10 @@
   <script>
 
     this.refreshZenTable = function (data) {
-      //console.log("refreshZenTable", data)
+      console.log("refreshZenTable", data)
       this.tags.zentable.data = data;
       this.data = data
+      this.update();
     }.bind(this);
 
 

@@ -9,7 +9,7 @@
       dragenter={drag_enter}
       dragleave={drag_leave}
       draggable={opts.drag}
-      data-rowid={rowid}
+      data-rowId={rowId}
       data-id={_id}
       each={indexedData}
       ondragend={parent.drag_end}
@@ -22,10 +22,10 @@
       </div>
       <div class="containerV" style="flex-basis:60px;justify-content:center">
         <div class="containerH">
-          <div onclick={delRowClick} data-rowid={rowid} if={!(opts.disallowdelete==true)} style="flex-basis:30px;">
+          <div onclick={delRowClick} data-rowId={rowId} if={!(opts.disallowdelete==true)} style="flex-basis:30px;">
             <img class="commandButtonImage" src="./image/poubelle.png" height="20px" draggable={false}>
           </div>
-          <div onclick={navigationClick} if={!(opts.disallownavigation==true)} data-rowid={rowid} style="flex-basis:30px;">
+          <div onclick={navigationClick} if={!(opts.disallownavigation==true)} data-rowId={rowId} style="flex-basis:30px;">
             <img class="commandButtonImage" src="./image/edit.png" height="20px" draggable={false}>
           </div>
         </div>
@@ -53,29 +53,39 @@
 
     drag_end(event) {
       this.placeholder.remove();
-      this.innerData.splice(this.dragged.item.rowid, 1);
-      this.innerData.splice(this.Id.rowid, 0, this.dragged.item);
+      this.data.splice(this.dragged.item.rowId, 1);
+      this.data.splice(this.Id.rowId, 0, this.dragged.item);
       RiotControl.trigger('workspace_list_persist', this.dragged.item)
       this.update();
     }
 
     rowClic(e) {
-      //console.log("in row click", this.innerData)
+      //console.log('CLIC');
+      //console.log("in row click", this.data)
       if (!(this.opts.disallowselect == true)) {
-        var index = parseInt(e.item.rowid)
-        if (this.innerData.length > 0) {
+        //console.log(e.item);
+        //var index = parseInt(e.item.rowId)
+        if (this.data.length > 0) {
           if (!e.ctrlKey) {
-            for (data of this.innerData) {
+            for (data of this.data) {
               data.selected = false;
               data.mainSelected = false;
             }
-            this.innerData[index].mainSelected = true;
-            let dataWithRowId = this.innerData[index];
-            dataWithRowId.rowId = index;
-            this.trigger('rowSelect', dataWithRowId)
+            //this.data[index].mainSelected = true;
+            //this.data[index].seleted = true;
+            e.item.mainSelected = true;
+            e.item.selected = true;
+            //let dataWithrowId = this.data[index];
+            //dataWithrowId.rowId = index;
+          }else{
+            e.item.selected=!e.item.selected
+            if(e.item.mainSelected==true){
+              e.item.mainSelected=false;
+            }
           }
-          var selected = this.innerData[index].selected || false;
-          this.innerData[index].selected = !selected;
+          this.trigger('rowsSelected',sift({selected:true},this.data));
+          //var selected = this.data[index].selected || false;
+          //this.data[index].selected = !selected;
         }
       }
     }
@@ -109,62 +119,62 @@
       }
     };
 
-    //  this.innerData = new Proxy([], arrayChangeHandler);
+    //  this.data = new Proxy([], arrayChangeHandler);
 
-    this.innerData = [];
+    this.data = [];
     this.background = ""
     //arrayChangeHandler.tag=this;
-    Object.defineProperty(this, 'data', {
-      set: function (data) {
-        //this.innerData=new Proxy(data, arrayChangeHandler);
-        this.innerData = data;
-        this.update();
-        //this.reportCss(); this.reportFlex(); console.log(this.items,data);
-      }.bind(this),
-      get: function () {
-        return this.innerData;
-      },
-      configurable: true
-    });
+    // Object.defineProperty(this, 'data', {
+    //   set: function (data) {
+    //     //this.data=new Proxy(data, arrayChangeHandler);
+    //     this.data = data;
+    //     this.update();
+    //     //this.reportCss(); this.reportFlex(); console.log(this.items,data);
+    //   }.bind(this),
+    //   get: function () {
+    //     return this.data;
+    //   },
+    //   configurable: true
+    // });
 
     Object.defineProperty(this, 'indexedData', {
       get: function () {
         var recordId = 0;
-        for (record of this.innerData) {
-          record.rowid = recordId++;
+        for (record of this.data) {
+          record.rowId = recordId++;
           record.opts = this.opts;
         }
-        return this.innerData;
+        return this.data;
       }.bind(this),
       configurable: true
     });
 
     navigationClick(e) {
       console.log("test", e.item)
-      var index = parseInt(e.item.rowid);
-      let dataWithRowId = this.innerData[index];
-      dataWithRowId.rowId = index;
-      console.log(dataWithRowId)
-      this.trigger('rowNavigation', dataWithRowId)
+      var index = parseInt(e.item.rowId);
+      let dataWithrowId = this.data[index];
+      dataWithrowId.rowId = index;
+      console.log(dataWithrowId)
+      this.trigger('rowNavigation', dataWithrowId)
     }
 
     addRowClick(e) {
-      //var index=parseInt(e.currentTarget.dataset.rowid) console.log(index);
+      //var index=parseInt(e.currentTarget.dataset.rowId) console.log(index);
       this.trigger('addRow')
     }
 
     delRowClick(e) {
-      //let dataWithRowId = e.item;
+      //let dataWithrowId = e.item;
       this.trigger('delRow', e.item)
-      //dataWithRowId.rowId = i;
+      //dataWithrowId.rowId = i;
       //this.trigger('delRow', e.item)
       // console.log('ALLO');
       // let i = 0;
-      // for (data of this.innerData) {
+      // for (data of this.data) {
       //   if (data.selected) {
       //     console.log("in del row scrapper", data)
-      //     let dataWithRowId = data;
-      //     dataWithRowId.rowId = i;
+      //     let dataWithrowId = data;
+      //     dataWithrowId.rowId = i;
       //     this.trigger('delRow', data)
       //   }
       //   i++
@@ -172,33 +182,33 @@
     }
 
     cancelClick(e) {
-      for (data of this.innerData) {
+      for (data of this.data) {
         data.selected = false;
       }
       this.trigger('cancel');
     }
-    actionClick(e) {
-      let i = 0;
-      let selectedData = [];
-
-      for (data of this.innerData) {
-        if (data.selected) {
-          let dataWithRowId = data;
-          dataWithRowId.rowId = i;
-          selectedData.push(data);
-        }
-        i++
-      }
-      this.trigger('action', selectedData);
-    }
+    // actionClick(e) {
+    //   let i = 0;
+    //   let selectedData = [];
+    //
+    //   for (data of this.data) {
+    //     if (data.selected) {
+    //       let dataWithrowId = data;
+    //       dataWithrowId.rowId = i;
+    //       selectedData.push(data);
+    //     }
+    //     i++
+    //   }
+    //   this.trigger('action', selectedData);
+    // }
 
     rowKeyUp(e) {
-      console.log('KEY PRESS', e);
+      //console.log('KEY PRESS', e);
       if (e.target.attributes['data-field'] != undefined) {
-        console.log('ALLO');
+        //console.log('ALLO');
         e.item[e.target.attributes['data-field'].value] = e.target.value;
       }
-      console.log(this.indexedData);
+      //console.log(this.indexedData);
     }
 
     recalculateHeader() {

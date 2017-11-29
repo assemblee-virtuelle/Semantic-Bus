@@ -52,10 +52,10 @@
         </zenTable>-->
   </div>
   <div show={menu=='user' } class="containerV" style="flex-grow: 1;background-color:rgb(238,242,249);">
-    <div class="containerV" style="padding: 15pt;">
+    <!--<div class="containerV" style="padding: 15pt;">
       <div class="commandBar containerH" style="justify-content:flex-end">
         <image src="./image/ajout_composant.svg" class="commandButtonImage" width="50" height="50" onclick={addUser}></image>
-      </div>
+      </div>-->
       <zenTable title="" drag={false} disallownavigation={true} id="userliste" disallowcommand={innerData.mode=="read" } ref="userZenTable">
         <yield to="header">
           <div>email</div>
@@ -66,7 +66,7 @@
           <div style="width:30%">{role}</div>
         </yield>
       </zenTable>
-    </div>
+    <!--</div>-->
   </div>
   <div show={menu=='information' } class="containerH" id="description" style="background-color: rgb(238,242,249);flex-grow: 1;justify-content: center;align-items: center;">
     <div class="containerV" style="box-shadow: 0px 0px 5px rgba(134,134,134,0.5);flex-grow: 0.5;background-color: rgb(250,250,250); padding: 2%;border-radius: 5px;">
@@ -228,29 +228,29 @@ goUtilisation(e) {
   route('workspace/'+this.innerData._id+'/utilisation');
 }.bind(this)
 
-this.persistClick = function (e) {
-  console.log("--------- persistClick WORKSPACE TAG ----------------", this.innerData)
-  RiotControl.trigger('persistClick', this.innerData)
-}.bind(this)
+// this.persistClick = function (e) {
+//   console.log("--------- persistClick WORKSPACE TAG ----------------", this.innerData)
+//   RiotControl.trigger('persistClick', this.innerData)
+// }.bind(this)
 
-editClick(e) {
-  //console.log('EDIT'); RiotControl.trigger('workspace_current_edit'); this.labelInputName = "Modifier le nom du workspace" this.labelInputDesc = "Modifier la déscription du workspace " console.log(this.innerData.mode)
-}
+// editClick(e) {
+//   //console.log('EDIT'); RiotControl.trigger('workspace_current_edit'); this.labelInputName = "Modifier le nom du workspace" this.labelInputDesc = "Modifier la déscription du workspace " console.log(this.innerData.mode)
+// }
 
-graphClick(e) {
-  //console.log('EDIT');
-  RiotControl.trigger('workspace_current_graph');
-}
+// graphClick(e) {
+//   //console.log('EDIT');
+//   RiotControl.trigger('workspace_current_graph');
+// }
 
-cancelClick(e) {
-  // this.componentView = true; this.userView = true; this.DescriptionView = true; RiotControl.trigger('workspace_current_cancel'); this.labelInputName = "Nom" this.labelInputDesc = "Description"
-}
+// cancelClick(e) {
+//   // this.componentView = true; this.userView = true; this.DescriptionView = true; RiotControl.trigger('workspace_current_cancel'); this.labelInputName = "Nom" this.labelInputDesc = "Description"
+// }
 
-RiotControl.on('all_component_by_workspace_loaded', function (data) {}.bind(this));
-
-RiotControl.on('workspace_current_add_component_cancel', function (data) {}.bind(this));
-
-RiotControl.on('workspace_current_add_user_cancel', function (data) {}.bind(this));
+// RiotControl.on('all_component_by_workspace_loaded', function (data) {}.bind(this));
+//
+// RiotControl.on('workspace_current_add_component_cancel', function (data) {}.bind(this));
+//
+// RiotControl.on('workspace_current_add_user_cancel', function (data) {}.bind(this));
 
 RiotControl.on('workspace_editor_menu_changed', function (menu) {
   console.log("workspace_editor_menu_changed")
@@ -266,21 +266,34 @@ this.workspaceCurrentChanged = function (data) {
   this.update();
 }.bind(this);
 
-addUser(e) {
-  // console.log("add user")
-  // this.componentView = false;
-  // this.userView = true;
-  // this.DescriptionView = false;
-  // this.utilisationView = false;
-  // RiotControl.trigger('workspace_current_add_user_show');
-  route('workspace/'+this.innerData._id+'/share')
+// addUser(e) {
+//   // console.log("add user")
+//   // this.componentView = false;
+//   // this.userView = true;
+//   // this.DescriptionView = false;
+//   // this.utilisationView = false;
+//   // RiotControl.trigger('workspace_current_add_user_show');
+//   route('workspace/'+this.innerData._id+'/share')
+// }
+
+// this.shareChange = function (data) {
+//   console.log("ALERT ALLO share_change", data)
+//   this.refs.userZenTable.data = data.workspace.users;
+//   this.update();
+// }.bind(this)
+nameFieldChange(e) {
+  RiotControl.trigger('workspace_current_updateField', {
+    field: 'name',
+    data: this.innerData.name
+  });
 }
 
-this.shareChange = function (data) {
-  console.log("ALERT ALLO share_change", data)
-  this.refs.userZenTable.data = data.workspace.users;
-  this.update();
-}.bind(this)
+descriptionFieldChange(e) {
+  RiotControl.trigger('workspace_current_updateField', {
+    field: 'description',
+    data: this.innerData.description
+  });
+}
 
 this.on('mount', function () {
   console.log('wokspaceEditor | Mount |', this);

@@ -1,33 +1,35 @@
 <user-list class="containerV">
 
-    <div class="containerV" style="height: 85%;background-color:rgb(238,242,249);justify-content: center;
+  <div class="containerV" style="height: 85%;background-color:rgb(238,242,249);justify-content: center;
     align-items: center;">
-      <input id="users-list" class="awesomplete champ"  placeholder="entrez un email..." value="{email}">
-      <!--<a class="share-btn" onclick={share}>Partager</a>-->
-      <p class="text-user-list">{resultShare}</p>
-      <p class="text-user-list">Saisissez une adresse e-mail pour partager votre Workspace</p>
-    </div>
+    <input id="users-list" class="awesomplete champ" placeholder="entrez un email..." value="{email}">
+    <!--<a class="share-btn" onclick={share}>Partager</a>-->
+    <p class="text-user-list">{resultShare}</p>
+    <p class="text-user-list">Saisissez une adresse e-mail pour partager votre Workspace</p>
+  </div>
   <script>
     this.resultShare = ""
-    this.actionReady=false;
+    this.actionReady = false;
     this.email = "";
 
+    // this.share = function(){     console.log("user component share",this.workspace)     if (this.workspace) {       RiotControl.trigger('share-workspace', {         email: this.email,         worksapce_id: this.workspace._id       });     };
+    // }.bind(this) cancelClick(e) {   RiotControl.trigger('workspace_current_add_user_cancel');   this.actionReady=false; }
 
-    
-    this.share = function(){    
-        console.log("user component share",this.workspace)
-        if (this.workspace) {
-          RiotControl.trigger('share-workspace', {
-            email: this.email,
-            worksapce_id: this.workspace._id
-          });
-        };
-    }.bind(this)
+    this.allProfilByEmailLoad = function (data) {
+      var input = document.getElementById("users-list");
+      var awesomplete = new Awesomplete(input);
+      awesomplete.list = data;
+      input.addEventListener('awesomplete-selectcomplete', function (evt) {
+        this.actionReady = true;
+        this.email = evt.target.value;
+        RiotControl.trigger('set-email-to-share',this.email)
+        this.update();
+      }.bind(this));
+    }.bind(this);
 
-    cancelClick(e) {
-      RiotControl.trigger('workspace_current_add_user_cancel');
-      this.actionReady=false;
-    }
+    this.workspaceCurrentChanged = function (data) {
+      this.workspace = data
+    }.bind(this);
 
     this.on('mount', function () {
       RiotControl.on('share_change_no_valide', function () {
@@ -52,28 +54,17 @@
         this.update();
       }.bind(this));
 
-      RiotControl.on('workspace_current_changed', function (data) {
-        this.workspace = data
-      }.bind(this));
-
-      RiotControl.on('all_profil_by_email_load', function (data) {
-          var input = document.getElementById("users-list");
-          var awesomplete = new Awesomplete(input);
-          awesomplete.list = data;
-          input.addEventListener('awesomplete-selectcomplete', function (evt) {
-          this.actionReady=true;
-          this.email = evt.target.value;
-          this.update();
-        }.bind(this));
-      }.bind(this));
-      RiotControl.on("store_share_workspace",this.share);  
+      RiotControl.on('workspace_current_changed', this.workspaceCurrentChanged);
+      RiotControl.on('all_profil_by_email_load', this.allProfilByEmailLoad);
+      //RiotControl.on("store_share_workspace",this.share);
       RiotControl.trigger('load_all_profil_by_email');
       RiotControl.trigger('workspace_current_refresh');
     })
-
-     this.on('unmount', function () {
-       RiotControl.off("store_share_workspace",this.share);  
-     })
+    this.on('unmount', function () {
+      //RiotControl.off("store_share_workspace",this.share);
+      RiotControl.off('workspace_current_changed', this.workspaceCurrentChanged);
+      RiotControl.off('all_profil_by_email_load', this.allProfilByEmailLoad);
+    })
   </script>
   <style scoped>
 
@@ -128,10 +119,10 @@
     }
 
     .awesomplete mark {
-      color:rgb(9,245,185);
-      background: rgb(238,242,249);;
-      border:1px solid rgb(238,242,249);
-      border-radius:5px
+      color: rgb(9,245,185);
+      background: rgb(238,242,249);
+      border: 1px solid rgb(238,242,249);
+      border-radius: 5px;
     }
     mark {
       background: #3883fa;
@@ -155,10 +146,8 @@
       position: relative;
     }
 
-
     .notSynchronized {
-      opacity:1
-      color: white;
+      opacity:1 color: white;
     }
 
     buttonBusNotAvailable {
@@ -169,7 +158,7 @@
       border: 3px solid white;
       color: white;
       padding-right: 19pt;
-      opacity:0.3
+      opacity: 0.3;
     }
 
   </style>

@@ -57,9 +57,9 @@
       <g id="textLayer"></g>
       <g id="lineCommandLayer"></g>
       <g id="shapeCommandLayer"></g>
-      <image id="addComponentGraph" xlink:href="./image/ajout_composant.svg" class="commandButtonImage" x="1400" y="20" width="60" height="60" onclick={addComponentClick}></image>
+      <!--<image id="addComponentGraph" xlink:href="./image/ajout_composant.svg" class="commandButtonImage" x="1400" y="20" width="60" height="60" onclick={addComponentClick}></image>
       <image  x="1290" y="20" id="addComponentGraph" xlink:href="./image/fullscreen-button.svg" class="commandButtonImage" if={fullscreen == true} x="1400" y="20" width="60" height="60" onclick={graphClick}></image>
-      <image  x="50" y="20" id="addComponentGraph" xlink:href="./image/fleche.svg" class="commandButtonImage" if={fullscreen == false} x="1400" y="20" width="40" height="40" onclick={back}></image>
+      <image  x="50" y="20" id="addComponentGraph" xlink:href="./image/fleche.svg" class="commandButtonImage" if={fullscreen == false} x="1400" y="20" width="40" height="40" onclick={back}></image>-->
     </svg>
 
 
@@ -74,20 +74,20 @@
     this.modeConnectBefore = false;
     this.fullscreen = true
 
-    addComponentClick(e) {
-      //RiotControl.trigger('workspace_current_add_component_show', e);
-      route('workspace/'+this.graph.workspace._id+'/addComponent');
-    }
+    // addComponentClick(e) {
+    //   //RiotControl.trigger('workspace_current_add_component_show', e);
+    //   route('workspace/'+this.graph.workspace._id+'/addComponent');
+    // }
 
-    back(e) {
-      RiotControl.trigger('back');
-    }
+    // back(e) {
+    //   RiotControl.trigger('back');
+    // }
 
-    graphClick(e) {
-      //console.log('EDIT');
-      RiotControl.trigger('workspace_current_graph');
-      this.update()
-    }
+    // graphClick(e) {
+    //   //console.log('EDIT');
+    //   RiotControl.trigger('workspace_current_graph');
+    //   this.update()
+    // }
 
 
     editClick(e) {

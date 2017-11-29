@@ -116,38 +116,38 @@
       this.update();
     }.bind(this);
 
-    this.addComponent = function(){
-      console.log("In technical components",this.tags)
-        RiotControl.trigger('workspace_current_add_components', sift({
-          selected: {
-            $eq: true
-          }
-        }, this.tags.zentable.data)
-      )
-    }.bind(this)
+    // this.addComponent = function(){
+    //   console.log("In technical components",this.tags)
+    //     RiotControl.trigger('workspace_current_add_components', sift({
+    //       selected: {
+    //         $eq: true
+    //       }
+    //     }, this.tags.zentable.data)
+    //   )
+    // }.bind(this)
 
 
 
     this.on('mount', function () {
       this.actionReady=false;
-      this.tags.zentable.on('rowSelect',function(){
-        RiotControl.trigger("row_add_component_select_store")
+      this.tags.zentable.on('rowsSelected',function(selecetedRows){
+        RiotControl.trigger('set_componentSelectedToAdd', selecetedRows);
       }.bind(this));
-      this.tags.zentable.on('addRow', function () {
-        //console.log(data);
-        RiotControl.trigger('technicalComponent_current_init');
-      }.bind(this));
+      // this.tags.zentable.on('addRow', function () {
+      //   //console.log(data);
+      //   RiotControl.trigger('technicalComponent_current_init');
+      // }.bind(this));
 
-      this.tags.zentable.on('delRow', function (data) {
-        //console.log(data);
-        RiotControl.trigger('technicalComponent_delete', data);
-
-      }.bind(this));
-      this.tags.zentable.on('cancel', function (data) {
-        //console.log(data);
-        RiotControl.trigger('workspace_current_add_component_cancel');
-
-      }.bind(this));
+      // this.tags.zentable.on('delRow', function (data) {
+      //   //console.log(data);
+      //   RiotControl.trigger('technicalComponent_delete', data);
+      //
+      // }.bind(this));
+      // this.tags.zentable.on('cancel', function (data) {
+      //   //console.log(data);
+      //   RiotControl.trigger('workspace_current_add_component_cancel');
+      //
+      // }.bind(this));
       RiotControl.on('technicalComponent_collection_changed', this.updateData);
        RiotControl.on('add_component_button_select', this.addComponent)
       RiotControl.on('componentsCategoriesTree_changed', this.updateComponentsCategoriesTree);
