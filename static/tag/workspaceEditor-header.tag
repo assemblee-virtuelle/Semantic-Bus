@@ -74,7 +74,7 @@
       RiotControl.trigger('workspace_current_persist')
     }.bind(this)
 
-    this.showAddUserClick = function (e) {
+    this.showAddComponentClick = function (e) {
       route('workspace/' + this.data._id + '/addComponent');
     }.bind(this)
 
@@ -90,12 +90,7 @@
     this.shareClick = function(e) {
       console.log("user component share",this.workspace)
       //if (this.workspace) {
-        RiotControl.trigger('share-workspace'
-        // , {
-        //   email: this.email,
-        //   worksapce_id: this.data._id
-        // }
-      );
+        RiotControl.trigger('share-workspace');
       //};
     }
 

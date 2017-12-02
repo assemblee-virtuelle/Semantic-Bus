@@ -1,6 +1,6 @@
 <navigation>
 
-  <div id="containerloaderDiv" class="containerV" style="justify-content:center">
+  <div id="containerSecureDiv" if={userAuthentified!=true} class="containerV" style="justify-content:center">
     <div id="row">
       <div id="loaderDiv"></div>
       <h1 id="loaderText">
@@ -8,7 +8,7 @@
       </h1>
     </div>
   </div>
-  <div id="containerloaderDiv" if={persistInProgress} class="containerV" style="justify-content:center">
+  <div id="containerLoaderDiv" if={persistInProgress} class="containerV" style="justify-content:center">
     <div id="row">
       <div id="loaderDiv"></div>
       <h1 id="loaderText">
@@ -16,10 +16,13 @@
       </h1>
     </div>
   </div>
-  <div class="containerH commandBar errorMessage" if={errorMessage}>
-    <div>{errorMessage}</div>
-    <div onclick={closeError} class="commandButtonImage"><img src="./image/Super-Mono-png/PNG/basic/red/button-cross.png" height="20px"></div>
+  <div id="containerErrorDiv" class="containerV" >
+    <div class="containerH commandBar errorMessage" if={errorMessage} style="pointer-events:auto;">
+      <div>{errorMessage}</div>
+      <div onclick={closeError} class="commandButtonImage"><img src="./image/Super-Mono-png/PNG/basic/red/button-cross.png" height="20px"></div>
+    </div>
   </div>
+
   <div class="containerV" style="bottom:0;top:0;right:0;left:0;position:absolute">
     <!--  CONTAINER GENERAL  -->
     <!--<div class="containerV" style="bottom:0;top:0;right:0;left:0;position:absolute;flex-basis:100%">-->
@@ -237,17 +240,17 @@
     //   this.update()
     // }.bind(this))
 
-    RiotControl.on("ajax_receipt", function () {
-      console.log("in hide");
-      $("#containerloaderDiv").hide();
-      this.update()
-    }.bind(this));
-
-    RiotControl.on("ajax_send", function () {
-      console.log("in show");
-      $("#containerloaderDiv").show();
-      this.update()
-    }.bind(this));
+    // RiotControl.on("ajax_receipt", function () {
+    //   console.log("in hide");
+    //   $("#containerloaderDiv").hide();
+    //   this.update()
+    // }.bind(this));
+    //
+    // RiotControl.on("ajax_send", function () {
+    //   console.log("in show");
+    //   $("#containerloaderDiv").show();
+    //   this.update()
+    // }.bind(this));
     ////TEST LOGIN ////
     this.isGoodUser = function () {
       RiotControl.trigger('is_token_valid?');
@@ -322,6 +325,8 @@
 
     RiotControl.on('user_authentified', function (data) {
       console.log('user_authentified', localStorage.user_id);
+      this.userAuthentified=true;
+      this.update();
       RiotControl.trigger('load_profil');
     }.bind(this));
 
@@ -447,8 +452,38 @@
       margin: 0;
     }*/
 
-    #containerloaderDiv {
-      background-color: rgba(200,200,200,0.8);
+    #containerSecureDiv {
+      background-color: rgba(200,200,200,1);
+      bottom:0;
+      top:0;
+      right:0;
+      left:0;
+      position:absolute;
+      z-index: 3;
+
+    }
+
+    #containerErrorDiv {
+      background-color: rgba(200,200,200,0);
+      bottom:0;
+      top:0;
+      right:0;
+      left:0;
+      position:absolute;
+      z-index: 2;
+      pointer-events:none;
+    }
+    #containerErrorDiv {
+      background-color: rgba(200,200,200,0);
+      bottom:0;
+      top:0;
+      right:0;
+      left:0;
+      position:absolute;
+      z-index: 2;
+    }
+    #containerLoaderDiv {
+      background-color: rgba(200,200,200,0.6);
       bottom:0;
       top:0;
       right:0;
