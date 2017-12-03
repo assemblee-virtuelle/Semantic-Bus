@@ -31,25 +31,41 @@ function GenericStore(utilStore, specificStoreList) {
 
   this.update = function() {
     return new Promise((resolve, reject) => {
-      this.trigger('persist_start');
-
-      console.log('GenericStore || update', this.workspaceBusiness.serialiseWorkspaceComponent(this.itemCurrent));
-      $.ajax({
+      utilStore.ajaxCall({
         method: 'put',
         url: '../data/core/workspaceComponent',
         data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(this.itemCurrent)),
-        contentType: 'application/json',
-        headers: {
-          "Authorization": "JTW" + " " + localStorage.token
-        }
-      }).done(function(data) {
-        console.log("final ajax", data)
+      }, true).then(data => {
         this.itemCurrent = data;
-        this.trigger('persist_end');
         this.trigger('item_current_persist_done', this.itemCurrent);
         resolve(this.itemCurrent);
-      }.bind(this));
-    })
+      }).catch(error => {
+        reject(error);
+      });
+    });
+
+
+
+    // return new Promise((resolve, reject) => {
+    //   this.trigger('persist_start');
+    //
+    //   console.log('GenericStore || update', this.workspaceBusiness.serialiseWorkspaceComponent(this.itemCurrent));
+    //   $.ajax({
+    //     method: 'put',
+    //     url: '../data/core/workspaceComponent',
+    //     data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(this.itemCurrent)),
+    //     contentType: 'application/json',
+    //     headers: {
+    //       "Authorization": "JTW" + " " + localStorage.token
+    //     }
+    //   }).done(function(data) {
+    //     console.log("final ajax", data)
+    //     this.itemCurrent = data;
+    //     this.trigger('persist_end');
+    //     this.trigger('item_current_persist_done', this.itemCurrent);
+    //     resolve(this.itemCurrent);
+    //   }.bind(this));
+    // })
 
   }; //<= update
 

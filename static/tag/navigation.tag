@@ -24,122 +24,18 @@
   </div>
 
   <div class="containerV" style="bottom:0;top:0;right:0;left:0;position:absolute">
-    <!--  CONTAINER GENERAL  -->
-    <!--<div class="containerV" style="bottom:0;top:0;right:0;left:0;position:absolute;flex-basis:100%">-->
-    <!--<div class="containerV" style="flex-basis:100%">-->
+
     <div class="containerH header" style="background-color: rgb(33,150,243);flex-wrap:nowrap;flex-shrink : 0; flex-basis:100px;">
-      <!--  HEADER WORKSPACE  -->
-      <!-- <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('myWorkspaces')}>
-        <div class="header">
-          <div class="containerH commandBar" style="margin-bottom: 15pt;justify-content:center">
-            <div>
-              <strong>Mes Work</strong>spaces</div>
-          </div>
-          <div class="containerH commandBar">
-            <div></div>
-            <div><input class="champ" type="text" name="inputSearch" ref="inputSearch" placeholder="Search" onkeyup={ filterCards }></div>
-            <div onclick={addRowClick} class="buttonBus">
-              Add
-            </div>
-          </div>
-        </div>
-      </div> -->
       <workspace-table-header  if={isScrennToShow('myWorkspaces')}></workspace-table-header>
-
-      <!--  HEADER LANDING  -->
-      <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('landing')}>
-        <div class="header">
-          <div class="containerH commandBar" style="justify-content:center">
-            <div>
-              <strong class="main-title">Bienvenue</strong>
-            </div>
-          </div>
-        </div>
-      </div>
-
-
-      <!--  HEADER WORKSPACE SHARE  -->
-      <!--<div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('sharedWorkspaces')}>
-        <div class="header">
-          <div class="containerH commandBar" style="justify-content: center;flex-direction: column;align-items: center;">
-            <div class="containerH commandBar" style="margin-bottom: 15pt;flex-grow: 1;justify-content:center">
-              <strong>Mes Work</strong>spaces partagés
-            </div>
-            <input class="champ" type="text" name="inputSearch" ref="inputSearch" placeholder="Search" onkeyup={ filterCards }>
-          </div>
-        </div>
-      </div>-->
-      <workspace-share-table-header if={isScrennToShow('sharedWorkspaces')}><workspace-share-table-header/>
-
-
-      <!--  HEADER PROFIL  -->
-      <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('profil')}>
-        <div class="header">
-          <div class="containerH commandBar" style="flex-grow: 1;justify-content: center;flex-direction: column;align-items: center;">
-            <div class="main-title">
-              <strong>Mon espace</strong>
-              personnel</div>
-          </div>
-        </div>
-      </div>
-
-      <!--  HEADER ADD USER WORKSPACE  -->
-      <!--<div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('workspace') && action=='share'}>
-        <div class="header">
-          <div class="containerH commandBar" style="justify-content: space-between;">
-            <div class="main-title">Partager votre workspace</div>
-            <image style="margin-left: -1px; color: white; cursor: pointer;" src="./image/Share.svg" class="commandButtonImage" width="40" height="40" onclick={share}></image>
-          </div>
-        </div>
-      </div>-->
-
-      <!--  HEADER ADD COMPONENT  -->
-      <!--<div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('workspace') && action=='addComponent'}>
-        <div class="header">
-          <div class="containerH commandBar" style="justify-content: space-between;align-items: center;">
-            <div></div>
-            <div class="main-title">
-              <strong>Ajouter</strong>
-              un composant
-            </div>
-            <image class={AddButtonClick:actionReady,AddButtonNoClick:!actionReady} style="margin-left: -1px; color: white; cursor: pointer;" src="./image/ajout_composant.svg" class="commandButtonImage" width="50" height="50" onclick={addComponent}></image>
-          </div>
-        </div>
-      </div>-->
-
-      <!--  HEADER WORKSPACE EDITOR  -->
-      <!--<div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('workspace') && action!='addComponent' && action!='share'}>-->
+      <landing-header if={isScrennToShow('landing')}></landing-header>
+      <workspace-share-table-header if={isScrennToShow('sharedWorkspaces')}></workspace-share-table-header>
+      <profil-header if={isScrennToShow('profil')}></profil-header>
       <workspace-editor-header if={isScrennToShow('workspace')}></workspace-editor-header>
-      <!--</div>-->
-
-      <!--  HEADER WORKSPACE COMPONENT EDITOR  -->
-      <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('component')}>
-        <div class="header">
-          <div class="commandBar containerH">
-            <div></div>
-            <div class="main-title">Editer votre composant</div>
-            <div onclick={saveWorkspaceComponent} class="buttonBus {notSynchronized:synchronized==false}" id="save">
-              save
-            </div>
-          </div>
-        </div>
-      </div>
-
-      <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('workPreview')}>
-        <div class="header">
-          <div class="commandBar containerH">
-            <div></div>
-            <div class="main-title">flux de sortie du composant</div>
-            <div onclick={saveWorkspaceComponent} class="buttonBus {notSynchronized:synchronized==false}" id="save">
-              save
-            </div>
-          </div>
-        </div>
-      </div>
-
+      <workspace-component-editor-header if={isScrennToShow('component')}></workspace-component-editor-header>
+      <json-previewer-header if={isScrennToShow('workPreview')}></json-previewer-header>
     </div>
 
-    <div class="containerH" style="justify-content:center;justify-content: inherit; flex-grow:1;flex-shrink : 1;">
+    <div class="containerH" style="flex-grow:1;flex-shrink:1;">
 
       <!--  NAVBAR   -->
       <div class="containerV" style="justify-content: space-between;background: linear-gradient(180deg, rgb(33,150,243) 20% ,rgb(41,181,237));flex-basis:80px;flex-shrink:0">
@@ -182,16 +78,13 @@
         <workspace-table if={isScrennToShow('myWorkspaces')></workspace-table>
         <workspace-share-table if={isScrennToShow('sharedWorkspaces')></workspace-share-table>
         <workspace-editor if={isScrennToShow('workspace')}></workspace-editor>
-        <!--<technical-component-table if={isScrennToShow('workspaceAddComponent')}></technical-component-table>-->
-        <!--<user-list if={isScrennToShow('workspaceAddUser')} style="height:100%"></user-list>-->
         <graph if={isScrennToShow('graph')}></graph>
         <workspace-component-editor if={isScrennToShow('component')}></workspace-component-editor>
         <profil if={isScrennToShow('profil')}></profil>
         <admin if={isScrennToShow('admin')}></admin>
         <jsonPreviewer if={isScrennToShow('workPreview')}></jsonPreviewer>
-
       </div>
-      <!--</div>-->
+
 
     </div>
   </div>
@@ -233,10 +126,10 @@
     //   this.update()
     // }.bind(this)
 
-    saveWorkspaceComponent(e) {
-      console.log("saveWorkspaceComponent nav tag")
-      RiotControl.trigger("nav_component_workspace_editor")
-    }
+    // saveWorkspaceComponent(e) {
+    //   console.log("saveWorkspaceComponent nav tag")
+    //   RiotControl.trigger("nav_component_workspace_editor")
+    // }
 
     // RiotControl.on("row_add_component_select", function () {
     //   console.log("row_add_component_select TEST")

@@ -51,7 +51,7 @@
       </div>
       <div if={menu=='information' } onclick={persistClick} class="commandButtonImage containerV">
         <img src="./image/Super-Mono-png/PNG/sticker/icons/inbox.png" style="" height="40px" width="40px">
-        <div>sauvegarder</div>
+        <div>valider</div>
       </div>
       <div if={menu=='addComponent' } onclick={addComponentClick} class="commandButtonImage containerV">
         <img src="./image/Super-Mono-png/PNG/sticker/icons/inbox.png" style="" height="40px" width="40px">

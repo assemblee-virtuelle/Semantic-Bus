@@ -54,20 +54,25 @@
   <script type="riot/tag" src="tag/workspaceShareTable-header.tag"></script>
   <script type="riot/tag" src="tag/workspaceEditor.tag"></script>
   <script type="riot/tag" src="tag/workspaceEditor-header.tag"></script>
+  <script type="riot/tag" src="tag/workspaceComponentEditor.tag"></script>
+  <script type="riot/tag" src="tag/workspaceComponentEditor-header.tag"></script>
   <script type="riot/tag" src="tag/technicalComponentTable.tag"></script>
   <script type="riot/tag" src="tag/admin.tag"></script>
   <script type="riot/tag" src="tag/jsonEditor.tag"></script>
   <script type="riot/tag" src="tag/user-list.tag"></script>
   <script type="riot/tag" src="tag/login.tag"></script>
   <script type="riot/tag" src="tag/profil.tag"></script>
+  <script type="riot/tag" src="tag/profil-header.tag"></script>
   <script type="riot/tag" src="tag/landing.tag"></script>
+  <script type="riot/tag" src="tag/landing-header.tag"></script>
   <script type="riot/tag" src="tag/graph.tag"></script>
   <script type="riot/tag" src="tag/graph_of_use.tag"></script>
   <script type="riot/tag" src="tag/graph_of_use_workspace.tag"></script>
-
   <script type="riot/tag" src="tag/jsonPreviewer.tag"></script>
+  <script type="riot/tag" src="tag/jsonPreviewer-header.tag"></script>
+
   <script type="riot/tag" src="tag/no-editor.tag"></script>
-  <script type="riot/tag" src="tag/scrapper-editor.tag"></script><!--WARNING exception when riot mount-->
+  <script type="riot/tag" src="tag/scrapper-editor.tag"></script>
   <script type="riot/tag" src="tag/rest-get-json-editor.tag"></script>
   <script type="riot/tag" src="tag/rest-get-editor.tag"></script>
   <script type="riot/tag" src="tag/object-transformer.tag"></script>
@@ -89,16 +94,11 @@
   <script type="riot/tag" src="tag/sql-connecteur-editor.tag"></script>
   <script type="riot/tag" src="tag/mongo-connecteur-editor.tag"></script>
   <script type="riot/tag" src="tag/value-mapping-editor.tag"></script>
-  <script type="riot/tag" src="tag/workspace-component-editor.tag"></script>
   <script type="riot/tag" src="tag/timer-editor.tag"></script>
   <script type="riot/tag" src="tag/rest-api-post-editor.tag"></script>
 
-
-
-
-
   <script>
-    var utilStore=new UtilStore();
+    var utilStore = new UtilStore();
     RiotControl.addStore(utilStore);
     var worspaceStore = new WorkspaceStore(); // Create a store instance.
     var profilStore = new profilStore();
@@ -113,7 +113,7 @@
     for (specificStore of specificStoreList) {
       RiotControl.addStore(specificStore);
     }
-    var genericStore = new GenericStore(utilStore,specificStoreList);
+    var genericStore = new GenericStore(utilStore, specificStoreList);
     RiotControl.addStore(genericStore);
     var mainController = new MainController(worspaceStore, genericStore, profilStore);
     RiotControl.addStore(mainController);
