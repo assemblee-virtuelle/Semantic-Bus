@@ -11,7 +11,7 @@ function WorkspaceStore() {
   this.workspaceShareCollection;
   this.workspaceCurrent;
   this.workspaceBusiness = new WorkspaceBusiness();
-  this.componentSelectedToAdd=[];
+  this.componentSelectedToAdd = [];
   //this.cancelRequire = false;
   this.modeConnectBefore = false;
   this.modeConnectAfter = false;
@@ -64,30 +64,46 @@ function WorkspaceStore() {
   //TODO passer par le proxy client
   this.create = function() {
     console.log('create');
+
     return new Promise((resolve, reject) => {
-      this.trigger('persist_start');
-      $.ajax({
+      utilStore.ajaxCall({
         method: 'post',
         url: '../data/core/workspace/' + localStorage.user_id,
         data: JSON.stringify(this.workspaceCurrent),
-        contentType: 'application/json',
-        headers: {
-          "Authorization": "JTW" + " " + localStorage.token
-        },
-      }).done(function(data) {
-        this.trigger('persist_end', data);
-        //data.mode = 'init';
-        //his.menu='information'
+      }, true).then(data => {
+
         this.workspaceBusiness.connectWorkspaceComponent(data.components);
         this.workspaceCurrent = data;
-        //console.log('update data ||', data);
-        this.trigger('workspace_current_persist_done', data);
-        this.trigger('workspace_current_changed', this.workspaceCurrent);
-        this.menu = 'component';
-        this.trigger('workspace_editor_menu_changed', 'component');
-        resolve(data);
-      }.bind(this));
+        this.workspaceCurrent.mode = 'edit';
+        resolve(this.workspaceCurrent);
+      }).catch(error => {
+        reject(error);
+      });
     });
+    // return new Promise((resolve, reject) => {
+    //   this.trigger('persist_start');
+    //   $.ajax({
+    //     method: 'post',
+    //     url: '../data/core/workspace/' + localStorage.user_id,
+    //     data: JSON.stringify(this.workspaceCurrent),
+    //     contentType: 'application/json',
+    //     headers: {
+    //       "Authorization": "JTW" + " " + localStorage.token
+    //     },
+    //   }).done(function(data) {
+    //     this.trigger('persist_end', data);
+    //     //data.mode = 'init';
+    //     //his.menu='information'
+    //     this.workspaceBusiness.connectWorkspaceComponent(data.components);
+    //     this.workspaceCurrent = data;
+    //     //console.log('update data ||', data);
+    //     this.trigger('workspace_current_persist_done', data);
+    //     this.trigger('workspace_current_changed', this.workspaceCurrent);
+    //     this.menu = 'component';
+    //     this.trigger('workspace_editor_menu_changed', 'component');
+    //     resolve(data);
+    //   }.bind(this));
+    // });
   }; //<= create
 
   // --------------------------------------------------------------------------------
@@ -139,12 +155,12 @@ function WorkspaceStore() {
     })
   }; //<= updateList
 
-
-  this.on('workspace_list_persist', function(workspaceCurrent) {
-    // this.updateList(workspaceCurrent).then(data => {
-    //   console.log("UPDATE DONE")
-    // }); // <= workspace_current_persist
-  })
+  //
+  // this.on('workspace_list_persist', function(workspaceCurrent) {
+  //   // this.updateList(workspaceCurrent).then(data => {
+  //   //   console.log("UPDATE DONE")
+  //   // }); // <= workspace_current_persist
+  // })
 
   // --------------------------------------------------------------------------------
 
@@ -266,7 +282,7 @@ function WorkspaceStore() {
     this.graph = {};
     this.graph.nodes = [];
     this.graph.links = [];
-    this.graph.workspace=this.workspaceCurrent;
+    this.graph.workspace = this.workspaceCurrent;
 
 
     var inputs = 0;
@@ -442,10 +458,15 @@ function WorkspaceStore() {
     } else {
       this.trigger('workspace_collection_changed', this.workspaceCollection);
     }
-
-
   }); // <= workspace_collection_load
-
+  this.on('workspace_collection_filter', function(filter) {
+    var re = new RegExp(filter, 'gi');
+    this.trigger('workspace_collection_changed', sift({
+      name: {
+        $regex: re
+      }
+    }, this.workspaceCollection));
+  });
   // --------------------------------------------------------------------------------
 
   this.on('workspace_collection_share_load', function(record) {
@@ -458,6 +479,14 @@ function WorkspaceStore() {
       this.trigger('workspace_share_collection_changed', this.workspaceShareCollection);
     }
   }); // <= workspace_collection_share_load
+  this.on('workspace_collection_share_filter', function(filter) {
+    var re = new RegExp(filter, 'gi');
+    this.trigger('workspace_share_collection_changed', sift({
+      name: {
+        $regex: re
+      }
+    }, this.workspaceShareCollection));
+  });
 
 
 
@@ -505,30 +534,42 @@ function WorkspaceStore() {
 
   // --------------------------------------------------------------------------------
 
-  this.on('workspace_current_select', function(record) {
-
-    this.select(record).then(workspace => {
-      console.log('workspace_current_select ||', record)
-      this.trigger('workspace_current_select_done', workspace);
-      //this.trigger('workspace_current_changed', workspace);
-    })
-  }); // <= workspace_current_select
+  // this.on('workspace_current_select', function(record) {
+  //
+  //   this.select(record).then(workspace => {
+  //     console.log('workspace_current_select ||', record)
+  //     this.trigger('workspace_current_select_done', workspace);
+  //     //this.trigger('workspace_current_changed', workspace);
+  //   })
+  // }); // <= workspace_current_select
 
 
   this.on('navigation', function(entity, id, action) {
     //console.log('WARNING');
     if (entity == "workspace") {
-      console.log('ALLO');
-      if (this.workspaceCurrent != undefined && this.workspaceCurrent._id == id) {
+      //console.log('ALLO');
+      if (id == 'new') {
+        this.workspaceCurrent = {
+          name: "",
+          description: "",
+          components: [],
+          users: []
+        };
         this.action = action;
-        this.trigger('navigation_control_done', entity,action);
+        this.workspaceCurrent.mode = 'init';
+        this.trigger('navigation_control_done', entity, action);
       } else {
-        this.select({
-          _id: id
-        }).then(workspace => {
+        if (this.workspaceCurrent != undefined && this.workspaceCurrent._id == id) {
           this.action = action;
-          this.trigger('navigation_control_done', entity,action);
-        });
+          this.trigger('navigation_control_done', entity, action);
+        } else {
+          this.select({
+            _id: id
+          }).then(workspace => {
+            this.action = action;
+            this.trigger('navigation_control_done', entity, action);
+          });
+        }
       }
     }
   });
@@ -551,7 +592,7 @@ function WorkspaceStore() {
   // --------------------------------------------------------------------------------
 
   this.on('workspace_current_init', function() {
-    console.log('model : workspace_current_init');
+    //console.log('model : workspace_current_init');
     this.workspaceCurrent = {
       name: "",
       description: "",
@@ -581,7 +622,9 @@ function WorkspaceStore() {
     console.log('Workspace STORE persist FINAL', this.workspaceCurrent);
     var mode = this.workspaceCurrent.mode;
     if (mode == 'init') {
-      this.create();
+      this.create().then(ws => {
+        route('workspace/' + ws._id + '/component');
+      })
     } else if (mode == 'edit') {
       this.update(this.workspaceCurrent).then(data => {
         //nothing to do. specific action in other case
@@ -622,10 +665,10 @@ function WorkspaceStore() {
   // });
   this.on('set_componentSelectedToAdd', function(message) {
     //console.log('set_componentSelectedToAdd',message);
-    this.componentSelectedToAdd=message;
+    this.componentSelectedToAdd = message;
   }); // <= workspace_current_updateField
   this.on('workspace_current_add_components', function() {
-    console.log("workspace_current_add_components",this.componentSelectedToAdd);
+    console.log("workspace_current_add_components", this.componentSelectedToAdd);
     this.componentSelectedToAdd.forEach(c => {
       c.workspaceId = this.workspaceCurrent._id;
       c.specificData = {};
@@ -634,10 +677,10 @@ function WorkspaceStore() {
       c.consumption_history = {}
       this.workspaceCurrent.components.push(c);
     })
-    this.componentSelectedToAdd=[];
+    this.componentSelectedToAdd = [];
 
     this.update(this.workspaceCurrent).then(data => {
-      this.trigger('workspace_current_add_components_done',this.workspaceCurrent);
+      this.trigger('workspace_current_add_components_done', this.workspaceCurrent);
       //route('workspace/'+this.workspaceCurrent+'/component')
     })
   }.bind(this));
@@ -698,8 +741,8 @@ function WorkspaceStore() {
   // }); //<= own_all_workspace
 
   ///GESTION DES DROIT DE USER
-  this.on('set-email-to-share',function(email){
-    this.emailToShare=email;
+  this.on('set-email-to-share', function(email) {
+    this.emailToShare = email;
   })
 
   this.on('share-workspace', function(data) {
@@ -728,7 +771,7 @@ function WorkspaceStore() {
         //this.userCurrrent = data,
         //console.log('share-workspace', data);
         this.workspaceBusiness.connectWorkspaceComponent(data.workspace.components);
-        this.workspaceCurrent=data.workspace;
+        this.workspaceCurrent = data.workspace;
         this.trigger('share_change', {
           user: data.user,
           workspace: data.workspace

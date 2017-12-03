@@ -29,7 +29,7 @@
     <!--<div class="containerV" style="flex-basis:100%">-->
     <div class="containerH header" style="background-color: rgb(33,150,243);flex-wrap:nowrap;flex-shrink : 0; flex-basis:100px;">
       <!--  HEADER WORKSPACE  -->
-      <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('myWorkspaces')}>
+      <!-- <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('myWorkspaces')}>
         <div class="header">
           <div class="containerH commandBar" style="margin-bottom: 15pt;justify-content:center">
             <div>
@@ -43,7 +43,8 @@
             </div>
           </div>
         </div>
-      </div>
+      </div> -->
+      <workspace-table-header  if={isScrennToShow('myWorkspaces')}></workspace-table-header>
 
       <!--  HEADER LANDING  -->
       <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('landing')}>
@@ -56,8 +57,9 @@
         </div>
       </div>
 
+
       <!--  HEADER WORKSPACE SHARE  -->
-      <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('sharedWorkspaces')}>
+      <!--<div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('sharedWorkspaces')}>
         <div class="header">
           <div class="containerH commandBar" style="justify-content: center;flex-direction: column;align-items: center;">
             <div class="containerH commandBar" style="margin-bottom: 15pt;flex-grow: 1;justify-content:center">
@@ -66,7 +68,9 @@
             <input class="champ" type="text" name="inputSearch" ref="inputSearch" placeholder="Search" onkeyup={ filterCards }>
           </div>
         </div>
-      </div>
+      </div>-->
+      <workspace-share-table-header if={isScrennToShow('sharedWorkspaces')}><workspace-share-table-header/>
+
 
       <!--  HEADER PROFIL  -->
       <div class="containerV" style="justify-content: space-between;background-color: rgb(33,150,243);flex-grow: 1;" if={isScrennToShow('profil')}>
@@ -195,15 +199,15 @@
 
     this.persistInProgress = false;
     this.workInProgress = false;
-    this.isPrincipalMenu = true;
-    this.workspaceName = ""
-    this.actionReady = false;
+    // this.isPrincipalMenu = true;
+    // this.workspaceName = ""
+    // this.actionReady = false;
 
     //HEADER EVENT
 
-    filterCards(e) {
-      RiotControl.trigger('nav_filterCards', e);
-    }
+    // filterCards(e) {
+    //   RiotControl.trigger('nav_filterCards', e);
+    // }
 
     // addRowClick(e) {
     //   RiotControl.trigger('nav_addRowWorkspace')
@@ -223,11 +227,11 @@
     //   this.update()
     // }.bind(this))
 
-    share(e) {
-      console.log("share navigation")
-      RiotControl.trigger("nav_share_workspace")
-      this.update()
-    }.bind(this)
+    // share(e) {
+    //   console.log("share navigation")
+    //   RiotControl.trigger("nav_share_workspace")
+    //   this.update()
+    // }.bind(this)
 
     saveWorkspaceComponent(e) {
       console.log("saveWorkspaceComponent nav tag")

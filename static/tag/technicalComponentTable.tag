@@ -103,6 +103,7 @@
     this.updateData = function (dataToUpdate){
       this.tags.zentable.data = dataToUpdate;
       this.rawData = dataToUpdate;
+      this.update();
     }.bind(this);
 
     this.updateComponentsCategoriesTree = function (tree) {
