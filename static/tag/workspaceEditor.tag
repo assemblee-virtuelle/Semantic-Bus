@@ -297,32 +297,22 @@ descriptionFieldChange(e) {
 
 this.on('mount', function () {
   console.log('wokspaceEditor | Mount |', this);
-  this.refs.userZenTable.on('rowNavigation', function (data) {
-    RiotControl.trigger('component_current_show');
-    RiotControl.trigger('component_current_select', data);
-    //this.trigger('selectWorkspace');
-  }.bind(this));
+  // this.refs.userZenTable.on('rowNavigation', function (data) {
+  //   RiotControl.trigger('component_current_show');
+  //   RiotControl.trigger('component_current_select', data);
+  //   //this.trigger('selectWorkspace');
+  // }.bind(this));
 
-  this.refs.userZenTable.on('addRow', function (message) {
-    this.componentView = false;
-    this.userView = true;
-    this.DescriptionView = false;
-    this.utilisationView = false;
-    //RiotControl.trigger('workspace_current_add_user_show', message);
-  }.bind(this));
+  // this.refs.userZenTable.on('addRow', function (message) {
+  //   this.componentView = false;
+  //   this.userView = true;
+  //   this.DescriptionView = false;
+  //   this.utilisationView = false;
+  //   //RiotControl.trigger('workspace_current_add_user_show', message);
+  // }.bind(this));
 
   RiotControl.on('store_persisteWorkspace', this.persistClick)
   RiotControl.on('workspace_current_changed', this.workspaceCurrentChanged);
-
-  ///HEADER PAGE
-  this.refs.workspaceNameInput.addEventListener('change', function (e) {
-    this.innerData.name = e.currentTarget.value;
-  }.bind(this));
-
-  this.refs.workspaceDescriptionInput.addEventListener('change', function (e) {
-    this.innerData.description = e.currentTarget.value;
-  }.bind(this));
-
   RiotControl.on('share_change', this.shareChange);
 
   RiotControl.trigger('workspace_current_refresh');
