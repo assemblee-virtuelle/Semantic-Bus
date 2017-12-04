@@ -1,11 +1,6 @@
-var ace;
-try {
-  ace = require('./ace');
-}
-catch (err) {
-  // failed to load ace, no problem, we will fall back to plain text
-}
+'use strict';
 
+var ace = require('./ace');
 var ModeSwitcher = require('./ModeSwitcher');
 var util = require('./util');
 
@@ -13,6 +8,8 @@ var util = require('./util');
 var textmode = {};
 
 var MAX_ERRORS = 3; // maximum number of displayed errors at the bottom
+
+var DEFAULT_THEME = 'ace/theme/jsoneditor';
 
 /**
  * Create a text editor
@@ -27,6 +24,8 @@ var MAX_ERRORS = 3; // maximum number of displayed errors at the bottom
  *                                                       triggered on change
  *                             {function} onModeChange   Callback method
  *                                                       triggered after setMode
+ *                             {function} onEditable     Determine if textarea is readOnly
+ *                                                       readOnly defaults true
  *                             {Object} ace              A custom instance of
  *                                                       Ace editor.
  *                             {boolean} escapeUnicode   If true, unicode
@@ -37,6 +36,11 @@ var MAX_ERRORS = 3; // maximum number of displayed errors at the bottom
 textmode.create = function (container, options) {
   // read options
   options = options || {};
+  
+  if(typeof options.statusBar === 'undefined') {
+    options.statusBar = true;
+  }
+
   this.options = options;
 
   // indentation
@@ -49,6 +53,7 @@ textmode.create = function (container, options) {
 
   // grab ace from options if provided
   var _ace = options.ace ? options.ace : ace;
+  // TODO: make the option options.ace deprecated, it's not needed anymore (see #309)
 
   // determine mode
   this.mode = (options.mode == 'code') ? 'code' : 'text';
@@ -61,7 +66,15 @@ textmode.create = function (container, options) {
   }
 
   // determine theme
-  this.theme = options.theme || 'ace/theme/jsoneditor';
+  this.theme = options.theme || DEFAULT_THEME;
+  if (this.theme === DEFAULT_THEME && _ace) {
+    try {
+      require('./ace/theme-jsoneditor');
+    }
+    catch (err) {
+      console.error(err);
+    }
+  }
 
   var me = this;
   this.container = container;
@@ -93,6 +106,7 @@ textmode.create = function (container, options) {
 
   // create format button
   var buttonFormat = document.createElement('button');
+  buttonFormat.type = 'button';
   buttonFormat.className = 'jsoneditor-format';
   buttonFormat.title = 'Format JSON data, with proper indentation and line feeds (Ctrl+\\)';
   this.menu.appendChild(buttonFormat);
@@ -108,6 +122,7 @@ textmode.create = function (container, options) {
 
   // create compact button
   var buttonCompact = document.createElement('button');
+  buttonCompact.type = 'button';
   buttonCompact.className = 'jsoneditor-compact';
   buttonCompact.title = 'Compact JSON data, remove all whitespaces (Ctrl+Shift+\\)';
   this.menu.appendChild(buttonCompact);
@@ -121,16 +136,35 @@ textmode.create = function (container, options) {
     }
   };
 
+  // create repair button
+  var buttonRepair = document.createElement('button');
+  buttonRepair.type = 'button';
+  buttonRepair.className = 'jsoneditor-repair';
+  buttonRepair.title = 'Repair JSON: fix quotes and escape characters, remove comments and JSONP notation, turn JavaScript objects into JSON.';
+  this.menu.appendChild(buttonRepair);
+  buttonRepair.onclick = function () {
+    try {
+      me.repair();
+      me._onChange();
+    }
+    catch (err) {
+      me._onError(err);
+    }
+  };
+
   // create mode box
   if (this.options && this.options.modes && this.options.modes.length) {
     this.modeSwitcher = new ModeSwitcher(this.menu, this.options.modes, this.options.mode, function onSwitch(mode) {
-      me.modeSwitcher.destroy();
-
       // switch mode and restore focus
       me.setMode(mode);
       me.modeSwitcher.focus();
     });
   }
+
+  var emptyNode = {};
+  var isReadOnly = (this.options.onEditable
+  && typeof(this.options.onEditable === 'function')
+  && !this.options.onEditable(emptyNode));
 
   this.content = document.createElement('div');
   this.content.className = 'jsoneditor-outer';
@@ -147,6 +181,7 @@ textmode.create = function (container, options) {
     var aceEditor = _ace.edit(this.editorDom);
     aceEditor.$blockScrolling = Infinity;
     aceEditor.setTheme(this.theme);
+    aceEditor.setOptions({ readOnly: isReadOnly });
     aceEditor.setShowPrintMargin(false);
     aceEditor.setFontSize(13);
     aceEditor.getSession().setMode('ace/mode/json');
@@ -186,6 +221,7 @@ textmode.create = function (container, options) {
 
     // register onchange event
     aceEditor.on('change', this._onChange.bind(this));
+    aceEditor.on('changeSelection', this._onSelect.bind(this));
   }
   else {
     // load a plain text textarea
@@ -194,6 +230,7 @@ textmode.create = function (container, options) {
     textarea.spellcheck = false;
     this.content.appendChild(textarea);
     this.textarea = textarea;
+    this.textarea.readOnly = isReadOnly;
 
     // register onchange event
     if (this.textarea.oninput === null) {
@@ -203,9 +240,65 @@ textmode.create = function (container, options) {
       // oninput is undefined. For IE8-
       this.textarea.onchange = this._onChange.bind(this);
     }
+
+    textarea.onselect = this._onSelect.bind(this);
+    textarea.onmousedown = this._onMouseDown.bind(this);
+    textarea.onblur = this._onBlur.bind(this);
   }
 
-  this.setSchema(this.options.schema);
+  if (options.statusBar) {
+      if (this.mode === 'code') {
+        util.addClassName(this.content, 'has-status-bar');
+
+        this.curserInfoElements = {};
+        var statusBar = document.createElement('div');
+        statusBar.className = 'jsoneditor-statusbar';
+        this.frame.appendChild(statusBar);
+
+        var lnLabel = document.createElement('span');
+        lnLabel.className = 'jsoneditor-curserinfo-label';
+        lnLabel.innerText = 'Ln:';
+  
+        var lnVal = document.createElement('span');
+        lnVal.className = 'jsoneditor-curserinfo-val';
+        lnVal.innerText = 0;
+  
+        statusBar.appendChild(lnLabel);
+        statusBar.appendChild(lnVal);
+  
+        var colLabel = document.createElement('span');
+        colLabel.className = 'jsoneditor-curserinfo-label';
+        colLabel.innerText = 'Col:';
+  
+        var colVal = document.createElement('span');
+        colVal.className = 'jsoneditor-curserinfo-val';
+        colVal.innerText = 0;
+  
+        statusBar.appendChild(colLabel);
+        statusBar.appendChild(colVal);
+  
+        this.curserInfoElements.colVal = colVal;
+        this.curserInfoElements.lnVal = lnVal;
+
+        var countLabel = document.createElement('span');
+        countLabel.className = 'jsoneditor-curserinfo-label';
+        countLabel.innerText = 'characters selected';
+        countLabel.style.display = 'none';
+
+        var countVal = document.createElement('span');
+        countVal.className = 'jsoneditor-curserinfo-count';
+        countVal.innerText = 0;
+        countVal.style.display = 'none';
+
+        this.curserInfoElements.countLabel = countLabel;
+        this.curserInfoElements.countVal = countVal;
+
+        statusBar.appendChild(countVal);
+        statusBar.appendChild(countLabel);
+      }
+  }
+
+  this.setSchema(this.options.schema, this.options.schemaRefs);  
 };
 
 /**
@@ -225,6 +318,29 @@ textmode._onChange = function () {
     }
     catch (err) {
       console.error('Error in onChange callback: ', err);
+    }
+  }
+};
+
+/**
+ * Handle text selection
+ * Calculates the cursor position and selection range and updates menu
+ * @private
+ */
+textmode._onSelect = function () {
+  if(this.options.statusBar) {
+    if (this.textarea) {
+      var selectionRange = util.getInputSelection(this.textarea);
+      if (selectionRange.start !== selectionRange.end) {
+        this._setSelectionCountDisplay(Math.abs(selectionRange.end - selectionRange.start));
+      }
+    } else if (this.aceEditor && this.curserInfoElements) {
+      var curserPos = this.aceEditor.getCursorPosition();
+      var selectedText = this.aceEditor.getSelectedText();
+
+      this.curserInfoElements.lnVal.innerText = curserPos.row + 1;
+      this.curserInfoElements.colVal.innerText = curserPos.column + 1;
+      this._setSelectionCountDisplay(selectedText.length);
     }
   }
 };
@@ -254,6 +370,39 @@ textmode._onKeyDown = function (event) {
     event.preventDefault();
     event.stopPropagation();
   }
+
+  this._setSelectionCountDisplay();
+};
+
+/**
+ * Event handler for mousedown.
+ * @param {Event} event
+ * @private
+ */
+textmode._onMouseDown = function (event) {
+  this._setSelectionCountDisplay();
+};
+
+/**
+ * Event handler for blur.
+ * @param {Event} event
+ * @private
+ */
+textmode._onBlur = function (event) {
+  this._setSelectionCountDisplay();
+};
+
+textmode._setSelectionCountDisplay = function (value) {
+  if (this.options.statusBar && this.curserInfoElements) {
+    if (value && this.curserInfoElements && this.curserInfoElements.countVal) {
+      this.curserInfoElements.countVal.innerText = value;
+      this.curserInfoElements.countVal.style.display = 'inline';
+      this.curserInfoElements.countLabel.style.display = 'inline';
+    } else {
+      this.curserInfoElements.countVal.style.display = 'none';
+      this.curserInfoElements.countLabel.style.display = 'none';
+    }
+  }
 };
 
 /**
@@ -281,7 +430,7 @@ textmode.destroy = function () {
 };
 
 /**
- * Compact the code in the formatter
+ * Compact the code in the text editor
  */
 textmode.compact = function () {
   var json = this.get();
@@ -290,12 +439,21 @@ textmode.compact = function () {
 };
 
 /**
- * Format the code in the formatter
+ * Format the code in the text editor
  */
 textmode.format = function () {
   var json = this.get();
   var text = JSON.stringify(json, null, this.indentation);
   this.setText(text);
+};
+
+/**
+ * Repair the code in the text editor
+ */
+textmode.repair = function () {
+  var text = this.getText();
+  var sanitizedText = util.sanitize(text);
+  this.setText(sanitizedText);
 };
 
 /**
@@ -369,6 +527,8 @@ textmode.getText = function() {
  * @param {String} jsonText
  */
 textmode.setText = function(jsonText) {
+  var text;
+
   if (this.options.escapeUnicode === true) {
     text = util.escapeUnicodeChars(jsonText);
   }
@@ -388,7 +548,6 @@ textmode.setText = function(jsonText) {
 
     this.options.onChange = originalOnChange;
   }
-
   // validate JSON schema
   this.validate();
 };
@@ -428,7 +587,7 @@ textmode.validate = function () {
     }
   }
 
-  if (errors.length > 0) {
+  if (errors.length > 0) {  
     // limit the number of displayed errors
     var limit = errors.length > MAX_ERRORS;
     if (limit) {

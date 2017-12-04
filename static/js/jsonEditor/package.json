@@ -1,41 +1,113 @@
 {
-  "name": "jsoneditor",
-  "version": "5.2.0",
-  "main": "./index",
+  "_args": [
+    [
+      {
+        "raw": "jsoneditor",
+        "scope": null,
+        "escapedName": "jsoneditor",
+        "name": "jsoneditor",
+        "rawSpec": "",
+        "spec": "latest",
+        "type": "tag"
+      },
+      "/home/sembus/GIT/Semantic-Bus"
+    ]
+  ],
+  "_from": "jsoneditor@latest",
+  "_id": "jsoneditor@5.11.0",
+  "_inCache": true,
+  "_location": "/jsoneditor",
+  "_nodeVersion": "8.9.1",
+  "_npmOperationalInternal": {
+    "host": "s3://npm-registry-packages",
+    "tmp": "tmp/jsoneditor-5.11.0.tgz_1511364169477_0.7371311376336962"
+  },
+  "_npmUser": {
+    "name": "josdejong",
+    "email": "wjosdejong@gmail.com"
+  },
+  "_npmVersion": "5.5.1",
+  "_phantomChildren": {
+    "co": "4.6.0",
+    "fast-deep-equal": "1.0.0",
+    "fast-json-stable-stringify": "2.0.0",
+    "json-schema-traverse": "0.3.1"
+  },
+  "_requested": {
+    "raw": "jsoneditor",
+    "scope": null,
+    "escapedName": "jsoneditor",
+    "name": "jsoneditor",
+    "rawSpec": "",
+    "spec": "latest",
+    "type": "tag"
+  },
+  "_requiredBy": [
+    "#USER"
+  ],
+  "_resolved": "https://registry.npmjs.org/jsoneditor/-/jsoneditor-5.11.0.tgz",
+  "_shasum": "81ec76126d944bfbce8ab490c4a86e55517c5859",
+  "_shrinkwrap": null,
+  "_spec": "jsoneditor",
+  "_where": "/home/sembus/GIT/Semantic-Bus",
+  "author": {
+    "name": "Jos de Jong",
+    "email": "wjosdejong@gmail.com"
+  },
+  "bugs": {
+    "url": "https://github.com/josdejong/jsoneditor/issues"
+  },
+  "dependencies": {
+    "ajv": "5.4.0",
+    "brace": "0.11.0",
+    "javascript-natural-sort": "0.7.1"
+  },
   "description": "A web-based tool to view, edit, format, and validate JSON",
+  "devDependencies": {
+    "gulp": "3.9.1",
+    "gulp-clean-css": "3.4.2",
+    "gulp-concat-css": "2.3.0",
+    "gulp-shell": "0.6.3",
+    "gulp-util": "3.0.8",
+    "json-loader": "0.5.4",
+    "mkdirp": "0.5.1",
+    "mocha": "3.4.2",
+    "uglify-js": "2.8.22",
+    "webpack": "1.13.1"
+  },
+  "directories": {},
+  "dist": {
+    "integrity": "sha512-AOOai2SOpFubTWrQU6fPD5UsgfQKpKT4ROSqSQDOL9PxpVn+nHmcrkPGwdusGG3V0Tsqs9X3im4+klleDs4YjQ==",
+    "shasum": "81ec76126d944bfbce8ab490c4a86e55517c5859",
+    "tarball": "https://registry.npmjs.org/jsoneditor/-/jsoneditor-5.11.0.tgz"
+  },
+  "gitHead": "a8253afb353058b81c72b91f4a400298013880c2",
+  "homepage": "https://github.com/josdejong/jsoneditor",
+  "license": "Apache-2.0",
+  "main": "./index",
+  "maintainers": [
+    {
+      "name": "josdejong",
+      "email": "wjosdejong@gmail.com"
+    }
+  ],
+  "name": "jsoneditor",
+  "optionalDependencies": {},
+  "readme": "ERROR: No README data found!",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/josdejong/jsoneditor.git"
+  },
+  "scripts": {
+    "build": "gulp",
+    "test": "mocha test",
+    "watch": "gulp watch"
+  },
   "tags": [
     "json",
     "editor",
     "viewer",
     "formatter"
   ],
-  "author": "Jos de Jong <wjosdejong@gmail.com>",
-  "license": "Apache-2.0",
-  "homepage": "https://github.com/josdejong/jsoneditor",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/josdejong/jsoneditor.git"
-  },
-  "bugs": "https://github.com/josdejong/jsoneditor/issues",
-  "scripts": {
-    "build": "gulp",
-    "watch": "gulp watch",
-    "test": "mocha test"
-  },
-  "dependencies": {
-    "ajv": "3.4.0",
-    "brace": "0.7.0"
-  },
-  "devDependencies": {
-    "gulp": "3.9.0",
-    "gulp-concat-css": "2.2.0",
-    "gulp-minify-css": "1.2.3",
-    "gulp-shell": "0.5.1",
-    "gulp-util": "3.0.7",
-    "json-loader": "0.5.4",
-    "mkdirp": "0.5.1",
-    "mocha": "2.3.4",
-    "uglify-js": "2.6.1",
-    "webpack": "1.12.11"
-  }
+  "version": "5.11.0"
 }

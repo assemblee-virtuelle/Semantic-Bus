@@ -1,3 +1,6 @@
+'use strict';
+
+var naturalSort = require('javascript-natural-sort');
 var ContextMenu = require('./ContextMenu');
 var appendNodeFactory = require('./appendNodeFactory');
 var util = require('./util');
@@ -54,7 +57,7 @@ Node.prototype._updateEditability = function () {
       var editable = this.editor.options.onEditable({
         field: this.field,
         value: this.value,
-        path: this.getFieldsPath()
+        path: this.getPath()
       });
 
       if (typeof editable === 'boolean') {
@@ -73,11 +76,16 @@ Node.prototype._updateEditability = function () {
  * Get the path of this node
  * @return {String[]} Array containing the path to this node
  */
-Node.prototype.getFieldsPath = function () {
+Node.prototype.getPath = function () {
   var node = this;
   var path = [];
   while (node) {
-    var field = node.field != undefined ? node.field : node.index;
+    var field = !node.parent
+        ? undefined  // do not add an (optional) field name of the root node
+        :  (node.parent.type != 'array')
+            ? node.field
+            : node.index;
+
     if (field !== undefined) {
       path.unshift(field);
     }
@@ -156,6 +164,7 @@ Node.prototype.setError = function (error, child) {
     popover.appendChild(document.createTextNode(error.message));
 
     var button = document.createElement('button');
+    button.type = 'button';
     button.className = 'jsoneditor-schema-error';
     button.appendChild(popover);
 
@@ -310,21 +319,16 @@ Node.prototype.setValue = function(value, type) {
       }
     }
     this.value = '';
+
+    // sort object keys
+    if (this.editor.options.sortObjectKeys === true) {
+      this.sort('asc');
+    }
   }
   else {
     // value
     this.childs = undefined;
     this.value = value;
-    /* TODO
-     if (typeof(value) == 'string') {
-     var escValue = JSON.stringify(value);
-     this.value = escValue.substring(1, escValue.length - 1);
-     console.log('check', value, this.value);
-     }
-     else {
-     this.value = value;
-     }
-     */
   }
 
   this.previousValue = this.value;
@@ -369,11 +373,11 @@ Node.prototype.getLevel = function() {
 };
 
 /**
- * Get path of the root node till the current node
+ * Get jsonpath of the current node
  * @return {Node[]} Returns an array with nodes
  */
-Node.prototype.getPath = function() {
-  var path = this.parent ? this.parent.getPath() : [];
+Node.prototype.getNodePath = function () {
+  var path = this.parent ? this.parent.getNodePath() : [];
   path.push(this);
   return path;
 };
@@ -532,6 +536,20 @@ Node.prototype.hideChilds = function() {
   this.childs.forEach(function (child) {
     child.hide();
   });
+};
+
+
+/**
+ * Goes through the path from the node to the root and ensures that it is expanded
+ */
+Node.prototype.expandTo = function() {
+  var currentNode = this.parent;
+  while (currentNode) {
+    if (!currentNode.expanded) {
+      currentNode.expand();
+    }
+    currentNode = currentNode.parent;
+  }
 };
 
 
@@ -852,7 +870,11 @@ Node.prototype.focus = function(elementName) {
 
       case 'value':
       default:
-        if (dom.value && !this._hasChilds()) {
+        if (dom.select) {
+          // enum select box
+          dom.select.focus();
+        }
+        else if (dom.value && !this._hasChilds()) {
           dom.value.focus();
           util.selectContentEditable(dom.value);
         }
@@ -1270,6 +1292,63 @@ Node.prototype._updateDomValue = function () {
       }
     }
 
+    if (this.enum && this.editable.value) {
+      // create select box when this node has an enum object
+      if (!this.dom.select) {
+        this.dom.select = document.createElement('select');
+        this.id = this.field + "_" + new Date().getUTCMilliseconds();
+        this.dom.select.id = this.id;
+        this.dom.select.name = this.dom.select.id;
+
+        //Create the default empty option
+        this.dom.select.option = document.createElement('option');
+        this.dom.select.option.value = '';
+        this.dom.select.option.innerHTML = '--';
+        this.dom.select.appendChild(this.dom.select.option);
+
+        //Iterate all enum values and add them as options
+        for(var i = 0; i < this.enum.length; i++) {
+          this.dom.select.option = document.createElement('option');
+          this.dom.select.option.value = this.enum[i];
+          this.dom.select.option.innerHTML = this.enum[i];
+          if(this.dom.select.option.value == this.value){
+            this.dom.select.option.selected = true;
+          }
+          this.dom.select.appendChild(this.dom.select.option);
+        }
+
+        this.dom.tdSelect = document.createElement('td');
+        this.dom.tdSelect.className = 'jsoneditor-tree';
+        this.dom.tdSelect.appendChild(this.dom.select);
+        this.dom.tdValue.parentNode.insertBefore(this.dom.tdSelect, this.dom.tdValue);
+      }
+
+      // If the enum is inside a composite type display
+      // both the simple input and the dropdown field
+      if(this.schema && (
+          !this.schema.hasOwnProperty("oneOf") &&
+          !this.schema.hasOwnProperty("anyOf") &&
+          !this.schema.hasOwnProperty("allOf"))
+      ) {
+        this.valueFieldHTML = this.dom.tdValue.innerHTML;
+        this.dom.tdValue.style.visibility = 'hidden';
+        this.dom.tdValue.innerHTML = '';
+      } else {
+        delete this.valueFieldHTML;
+      }
+    }
+    else {
+      // cleanup select box when displayed
+      if (this.dom.tdSelect) {
+        this.dom.tdSelect.parentNode.removeChild(this.dom.tdSelect);
+        delete this.dom.tdSelect;
+        delete this.dom.select;
+        this.dom.tdValue.innerHTML = this.valueFieldHTML;
+        this.dom.tdValue.style.visibility = '';
+        delete this.valueFieldHTML;
+      }
+    }
+
     // strip formatting from the contents of the editable div
     util.stripFormatting(domValue);
   }
@@ -1356,7 +1435,7 @@ Node.prototype.validate = function () {
     var duplicateKeys = [];
     for (var i = 0; i < this.childs.length; i++) {
       var child = this.childs[i];
-      if (keys[child.field]) {
+      if (keys.hasOwnProperty(child.field)) {
         duplicateKeys.push(child.field);
       }
       keys[child.field] = true;
@@ -1425,6 +1504,7 @@ Node.prototype.getDom = function() {
       // create draggable area
       if (this.parent) {
         var domDrag = document.createElement('button');
+        domDrag.type = 'button';
         dom.drag = domDrag;
         domDrag.className = 'jsoneditor-dragarea';
         domDrag.title = 'Drag to move this field (Alt+Shift+Arrows)';
@@ -1436,6 +1516,7 @@ Node.prototype.getDom = function() {
     // create context menu
     var tdMenu = document.createElement('td');
     var menu = document.createElement('button');
+    menu.type = 'button';
     dom.menu = menu;
     menu.className = 'jsoneditor-contextmenu';
     menu.title = 'Click to open the actions menu (Ctrl+M)';
@@ -1862,20 +1943,22 @@ Node.prototype.updateDom = function (options) {
       domField.className = 'jsoneditor-readonly';
     }
 
-    var field;
+    var fieldText;
     if (this.index != undefined) {
-      field = this.index;
+      fieldText = this.index;
     }
     else if (this.field != undefined) {
-      field = this.field;
+      fieldText = this.field;
     }
     else if (this._hasChilds()) {
-      field = this.type;
+      fieldText = this.type;
     }
     else {
-      field = '';
+      fieldText = '';
     }
-    domField.innerHTML = this._escapeHTML(field);
+    domField.innerHTML = this._escapeHTML(fieldText);
+
+    this._updateSchema();
   }
 
   // apply value to DOM
@@ -1919,6 +2002,100 @@ Node.prototype.updateDom = function (options) {
   if (this.append) {
     this.append.updateDom();
   }
+};
+
+/**
+ * Locate the JSON schema of the node and check for any enum type
+ * @private
+ */
+Node.prototype._updateSchema = function () {
+  //Locating the schema of the node and checking for any enum type
+  if(this.editor && this.editor.options) {
+    // find the part of the json schema matching this nodes path
+    this.schema = this.editor.options.schema 
+        ? Node._findSchema(this.editor.options.schema, this.getPath())
+        : null;
+    if (this.schema) {
+      this.enum = Node._findEnum(this.schema);
+    }
+    else {
+      delete this.enum;
+    }
+  }
+};
+
+/**
+ * find an enum definition in a JSON schema, as property `enum` or inside
+ * one of the schemas composites (`oneOf`, `anyOf`, `allOf`)
+ * @param  {Object} schema
+ * @return {Array | null} Returns the enum when found, null otherwise.
+ * @private
+ */
+Node._findEnum = function (schema) {
+  if (schema.enum) {
+    return schema.enum;
+  }
+
+  var composite = schema.oneOf || schema.anyOf || schema.allOf;
+  if (composite) {
+    var match = composite.filter(function (entry) {return entry.enum});
+    if (match.length > 0) {
+      return match[0].enum;
+    }
+  }
+
+  return null
+};
+
+/**
+ * Return the part of a JSON schema matching given path.
+ * @param {Object} schema
+ * @param {Array.<string | number>} path
+ * @return {Object | null}
+ * @private
+ */
+Node._findSchema = function (schema, path) {
+  var childSchema = schema;
+  var foundSchema = childSchema;
+
+  var allSchemas = schema.oneOf || schema.anyOf || schema.allOf;
+  if (!allSchemas) {
+    allSchemas = [schema];
+  }
+
+  for (var j = 0; j < allSchemas.length; j++) {
+    childSchema = allSchemas[j];
+
+    for (var i = 0; i < path.length && childSchema; i++) {
+      var key = path[i];
+
+      if (typeof key === 'string' && childSchema.patternProperties && i == path.length - 1) {
+        for (var prop in childSchema.patternProperties) {
+          foundSchema = Node._findSchema(childSchema.patternProperties[prop], path.slice(i, path.length));
+        }
+      }
+      else if (childSchema.items && childSchema.items.properties) {
+        childSchema = childSchema.items.properties[key];
+        if (childSchema) {
+          foundSchema = Node._findSchema(childSchema, path.slice(i, path.length));
+        }
+      }
+      else if (typeof key === 'string' && childSchema.properties) {
+        childSchema = childSchema.properties[key] || null;
+        if (childSchema) {
+          foundSchema = Node._findSchema(childSchema, path.slice(i, path.length));
+        }
+      }
+      else if (typeof key === 'number' && childSchema.items) {
+        childSchema = childSchema.items;
+        if (childSchema) {
+          foundSchema = Node._findSchema(childSchema, path.slice(i, path.length));
+        }
+      }
+    }
+
+  }
+  return foundSchema
 };
 
 /**
@@ -1997,6 +2174,7 @@ Node.prototype._createDomValue = function () {
 Node.prototype._createDomExpandButton = function () {
   // create expand button
   var expand = document.createElement('button');
+  expand.type = 'button';
   if (this._hasChilds()) {
     expand.className = this.expanded ? 'jsoneditor-expanded' : 'jsoneditor-collapsed';
     expand.title =
@@ -2116,6 +2294,13 @@ Node.prototype.onEvent = function (event) {
     this._getDomValue();
   }
 
+  // update the value of the node based on the selected option
+  if (type == 'change' && target == dom.select) {
+    this.dom.value.innerHTML = dom.select.value;
+    this._getDomValue();
+    this._updateDomValue();
+  }
+
   // value events
   var domValue = dom.value;
   if (target == domValue) {
@@ -2143,8 +2328,10 @@ Node.prototype.onEvent = function (event) {
         break;
 
       case 'click':
-        if (event.ctrlKey || !this.editable.value) {
+        if (event.ctrlKey && this.editable.value) {
+          // if read-only, we use the regular click behavior of an anchor
           if (util.isUrl(this.value)) {
+            event.preventDefault();
             window.open(this.value, '_blank');
           }
         }
@@ -2181,7 +2368,9 @@ Node.prototype.onEvent = function (event) {
 
       case 'input':
         this._getDomField(true);
+        this._updateSchema();
         this._updateDomField();
+        this._updateDomValue();
         break;
 
       case 'keydown':
@@ -2219,7 +2408,7 @@ Node.prototype.onEvent = function (event) {
       }
     }
     else {
-      if (domValue) {
+      if (domValue && !this.enum) {
         util.setEndOfContentEditable(domValue);
         domValue.focus();
       }
@@ -2747,41 +2936,41 @@ Node.prototype._onChangeType = function (newType) {
 };
 
 /**
- * Sort the childs of the node. Only applicable when the node has type 'object'
+ * Sort the child's of the node. Only applicable when the node has type 'object'
  * or 'array'.
  * @param {String} direction   Sorting direction. Available values: "asc", "desc"
  * @private
  */
-Node.prototype._onSort = function (direction) {
-  if (this._hasChilds()) {
-    var order = (direction == 'desc') ? -1 : 1;
-    var prop = (this.type == 'array') ? 'value': 'field';
-    this.hideChilds();
-
-    var oldChilds = this.childs;
-    var oldSort = this.sort;
-
-    // copy the array (the old one will be kept for an undo action
-    this.childs = this.childs.concat();
-
-    // sort the arrays
-    this.childs.sort(function (a, b) {
-      if (a[prop] > b[prop]) return order;
-      if (a[prop] < b[prop]) return -order;
-      return 0;
-    });
-    this.sort = (order == 1) ? 'asc' : 'desc';
-
-    this.editor._onAction('sort', {
-      node: this,
-      oldChilds: oldChilds,
-      oldSort: oldSort,
-      newChilds: this.childs,
-      newSort: this.sort
-    });
-
-    this.showChilds();
+Node.prototype.sort = function (direction) {
+  if (!this._hasChilds()) {
+    return;
   }
+
+  var order = (direction == 'desc') ? -1 : 1;
+  var prop = (this.type == 'array') ? 'value': 'field';
+  this.hideChilds();
+
+  var oldChilds = this.childs;
+  var oldSortOrder = this.sortOrder;
+
+  // copy the array (the old one will be kept for an undo action
+  this.childs = this.childs.concat();
+
+  // sort the arrays
+  this.childs.sort(function (a, b) {
+    return order * naturalSort(a[prop], b[prop]);
+  });
+  this.sortOrder = (order == 1) ? 'asc' : 'desc';
+
+  this.editor._onAction('sort', {
+    node: this,
+    oldChilds: oldChilds,
+    oldSort: oldSortOrder,
+    newChilds: this.childs,
+    newSort: this.sortOrder
+  });
+
+  this.showChilds();
 };
 
 /**
@@ -3032,6 +3221,32 @@ Node.TYPE_TITLES = {
       'but always returned as string.'
 };
 
+Node.prototype.addTemplates = function (menu, append) {
+    var node = this;
+    var templates = node.editor.options.templates;
+    if (templates == null) return;
+    if (templates.length) {
+        // create a separator
+        menu.push({
+            'type': 'separator'
+        });
+    }
+    var appendData = function (name, data) {
+        node._onAppend(name, data);
+    };
+    var insertData = function (name, data) {
+        node._onInsertBefore(name, data);
+    };
+    templates.forEach(function (template) {
+        menu.push({
+            text: template.text,
+            className: (template.className || 'jsoneditor-type-object'),
+            title: template.title,
+            click: (append ? appendData.bind(this, template.field, template.value) : insertData.bind(this, template.field, template.value))
+        });
+    });
+};
+
 /**
  * Show a contextmenu for this node
  * @param {HTMLElement} anchor   Anchor element to attach the context menu to
@@ -3091,13 +3306,13 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
   }
 
   if (this._hasChilds()) {
-    var direction = ((this.sort == 'asc') ? 'desc': 'asc');
+    var direction = ((this.sortOrder == 'asc') ? 'desc': 'asc');
     items.push({
       text: 'Sort',
       title: 'Sort the childs of this ' + this.type,
       className: 'jsoneditor-sort-' + direction,
       click: function () {
-        node._onSort(direction);
+        node.sort(direction);
       },
       submenu: [
         {
@@ -3105,7 +3320,7 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
           className: 'jsoneditor-sort-asc',
           title: 'Sort the childs of this ' + this.type + ' in ascending order',
           click: function () {
-            node._onSort('asc');
+            node.sort('asc');
           }
         },
         {
@@ -3113,7 +3328,7 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
           className: 'jsoneditor-sort-desc',
           title: 'Sort the childs of this ' + this.type +' in descending order',
           click: function () {
-            node._onSort('desc');
+            node.sort('desc');
           }
         }
       ]
@@ -3131,52 +3346,91 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
     // create append button (for last child node only)
     var childs = node.parent.childs;
     if (node == childs[childs.length - 1]) {
-      items.push({
-        text: 'Append',
-        title: 'Append a new field with type \'auto\' after this field (Ctrl+Shift+Ins)',
-        submenuTitle: 'Select the type of the field to be appended',
-        className: 'jsoneditor-append',
-        click: function () {
-          node._onAppend('', '', 'auto');
-        },
-        submenu: [
-          {
+        var appendSubmenu = [
+            {
+                text: 'Auto',
+                className: 'jsoneditor-type-auto',
+                title: titles.auto,
+                click: function () {
+                    node._onAppend('', '', 'auto');
+                }
+            },
+            {
+                text: 'Array',
+                className: 'jsoneditor-type-array',
+                title: titles.array,
+                click: function () {
+                    node._onAppend('', []);
+                }
+            },
+            {
+                text: 'Object',
+                className: 'jsoneditor-type-object',
+                title: titles.object,
+                click: function () {
+                    node._onAppend('', {});
+                }
+            },
+            {
+                text: 'String',
+                className: 'jsoneditor-type-string',
+                title: titles.string,
+                click: function () {
+                    node._onAppend('', '', 'string');
+                }
+            }
+        ];
+        node.addTemplates(appendSubmenu, true);
+        items.push({
+            text: 'Append',
+            title: 'Append a new field with type \'auto\' after this field (Ctrl+Shift+Ins)',
+            submenuTitle: 'Select the type of the field to be appended',
+            className: 'jsoneditor-append',
+            click: function () {
+                node._onAppend('', '', 'auto');
+            },
+            submenu: appendSubmenu
+        });
+    }
+
+
+
+    // create insert button
+    var insertSubmenu = [
+        {
             text: 'Auto',
             className: 'jsoneditor-type-auto',
             title: titles.auto,
             click: function () {
-              node._onAppend('', '', 'auto');
+                node._onInsertBefore('', '', 'auto');
             }
-          },
-          {
+        },
+        {
             text: 'Array',
             className: 'jsoneditor-type-array',
             title: titles.array,
             click: function () {
-              node._onAppend('', []);
+                node._onInsertBefore('', []);
             }
-          },
-          {
+        },
+        {
             text: 'Object',
             className: 'jsoneditor-type-object',
             title: titles.object,
             click: function () {
-              node._onAppend('', {});
+                node._onInsertBefore('', {});
             }
-          },
-          {
+        },
+        {
             text: 'String',
             className: 'jsoneditor-type-string',
             title: titles.string,
             click: function () {
-              node._onAppend('', '', 'string');
+                node._onInsertBefore('', '', 'string');
             }
-          }
-        ]
-      });
-    }
-
-    // create insert button
+        }
+    ];
+    node.addTemplates(insertSubmenu, false);
     items.push({
       text: 'Insert',
       title: 'Insert a new field with type \'auto\' before this field (Ctrl+Ins)',
@@ -3185,40 +3439,7 @@ Node.prototype.showContextMenu = function (anchor, onClose) {
       click: function () {
         node._onInsertBefore('', '', 'auto');
       },
-      submenu: [
-        {
-          text: 'Auto',
-          className: 'jsoneditor-type-auto',
-          title: titles.auto,
-          click: function () {
-            node._onInsertBefore('', '', 'auto');
-          }
-        },
-        {
-          text: 'Array',
-          className: 'jsoneditor-type-array',
-          title: titles.array,
-          click: function () {
-            node._onInsertBefore('', []);
-          }
-        },
-        {
-          text: 'Object',
-          className: 'jsoneditor-type-object',
-          title: titles.object,
-          click: function () {
-            node._onInsertBefore('', {});
-          }
-        },
-        {
-          text: 'String',
-          className: 'jsoneditor-type-string',
-          title: titles.string,
-          click: function () {
-            node._onInsertBefore('', '', 'string');
-          }
-        }
-      ]
+      submenu: insertSubmenu
     });
 
     if (this.editable.field) {
@@ -3335,7 +3556,7 @@ Node.prototype._escapeHTML = function (text) {
  * @private
  */
 Node.prototype._unescapeHTML = function (escapedText) {
-  var json = '"' + this._escapeJSON(escapedText.trim()) + '"';
+  var json = '"' + this._escapeJSON(escapedText) + '"';
   var htmlEscaped = util.parse(json);
 
   return htmlEscaped

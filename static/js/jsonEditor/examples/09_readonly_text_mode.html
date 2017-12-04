@@ -1,10 +1,13 @@
 <!DOCTYPE HTML>
 <html>
 <head>
+  <title>JSONEditor | Switch mode</title>
+
+  <!-- when using the mode "code", it's important to specify charset utf-8 -->
   <meta http-equiv="Content-Type" content="text/html;charset=utf-8">
 
-  <link href="../dist/jsoneditor.min.css" rel="stylesheet" type="text/css">
-  <script src="../dist/jsoneditor.min.js"></script>
+  <link href="../dist/jsoneditor.css" rel="stylesheet" type="text/css">
+  <script src="../dist/jsoneditor.js"></script>
 
   <style type="text/css">
     body {
@@ -35,19 +38,27 @@
 <div id="jsoneditor"></div>
 
 <script>
-  var container, options, json, editor;
+  var container = document.getElementById('jsoneditor');
 
-  container = document.getElementById('jsoneditor');
-
-  options = {
-    mode: 'tree',
-    modes: ['code', 'form', 'text', 'tree', 'view'], // allowed modes
+  var options = {
+    mode: 'text',
+    modes: ['text', 'code'],
+    onEditable: function (node) {
+      if (!node.path) {
+        // In modes code and text, node is empty: no path, field, or value
+        // returning false makes the text area read-only
+        return false;
+      }
+    },
     onError: function (err) {
       alert(err.toString());
+    },
+    onModeChange: function (newMode, oldMode) {
+      console.log('Mode switched from', oldMode, 'to', newMode);
     }
   };
 
-  json = {
+  var json = {
     "array": [1, 2, 3],
     "boolean": true,
     "null": null,
@@ -56,7 +67,7 @@
     "string": "Hello World"
   };
 
-  editor = new JSONEditor(container, options, json);
+  var editor = new JSONEditor(container, options, json);
 </script>
 </body>
 </html>

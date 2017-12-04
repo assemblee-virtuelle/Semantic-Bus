@@ -3,6 +3,233 @@
 https://github.com/josdejong/jsoneditor
 
 
+## 2017-11-22, version 5.11.0
+
+- Upgraded dependencies
+  - `ajv@5.4.0`
+  - `brace@0.11.0`
+- Fixed dropdown for JSON Schema enums when defined inside pattern
+  properties. Thanks @alquist.
+- Fixed code containing a non UTF-8 character. Thanks @alshakero.
+
+
+## 2017-11-15, version 5.10.1
+
+- Some styling tweaks in the navigation bar and status bar.
+- Don't display status bar in `text` mode (which doesn't yet support
+  row and col counts).
+
+
+## 2017-11-15, version 5.10.0
+
+- Implemented a navigation bar showing the path. Thanks @meirotstein.
+- Implemented a status bar showing cursor location.
+  Thanks @meirotstein.
+- Implemented repairing JSON objects containing left and right single
+  and double quotes (which you get when typing a JSON object in Word)
+  in `text` and `code` mode.
+- Implemented repairing JSON objects containing special white space
+  characters like non-breaking space.
+- Upgraded dependency `ajv` to version `5.3.0`.
+- Fixed #481: A polyfill required `DocumentType` which is not defined
+  in all environments.
+
+
+## 2017-09-16, version 5.9.6
+
+- Fixed displaying a dropdown for enums inside composite schemas.
+  Thanks @hachichaud.
+- Fixed #461: Urls opening twice on Firefox and Safari.
+
+
+## 2017-08-26, version 5.9.5
+
+- Fixed a regression introduced in `v5.9.4`: after using the context
+  menu once, it was not possible to set focus to an other input field
+  anymore.
+
+
+## 2017-08-20, version 5.9.4
+
+- Fixed #447: context menus not working in Shadow DOM. Thanks @tomalec.
+
+
+## 2017-07-24, version 5.9.3
+
+- Fixed broken multi-selection (regression).
+
+
+## 2017-07-13, version 5.9.2
+
+- Fixed a bug in the JSON sanitizer.
+
+
+## 2017-07-13, version 5.9.1
+
+- `setText` method of tree mode now automatically sanitizes JSON input
+  when needed.
+- Fixed #430: automatically fix unescaped control characters in
+  JSON input.
+
+
+## 2017-07-10, version 5.9.0
+
+- Implemented support for JSON schema references `$ref`, see #302.
+  Thanks @meirotstein.
+- Fixed #429: JSONEditor no longer accepting an empty array for option
+  `modes`. Thanks @trystan2k.
+- Fixed JSONEditor picking the first entry of `modes` as initial mode
+  instead of option `mode`.
+
+
+## 2017-07-08, version 5.8.2
+
+- Select first option from `modes` instead of `tree` when `mode` is not
+  configured. Thanks @bag-man.
+- Some fixes and improvements in the API of autocompletion.
+  Thanks @israelito3000.
+
+
+## 2017-07-03, version 5.8.1
+
+- Fixed broken minified bundles in folder `dist` (again...).
+
+
+## 2017-07-02, version 5.8.0
+
+- Implemented support for autocompletion. Thanks @israelito3000.
+
+
+## 2017-06-27, version 5.7.2
+
+- Fixed broken minified bundles in folder `dist`
+  (reverted to `uglify-js@2.8.22` for now).
+
+
+## 2017-06-25, version 5.7.1
+
+- Upgraded dependency `ajv` to version `5.2.0`. Resolves warnings in
+  Webpack build processes.
+
+
+## 2017-05-26, version 5.7.0
+
+- Implemented support for template items. Thanks @israelito3000.
+- Upgraded dependencies to the latest versions. Thanks @andreykaipov.
+
+
+## 2017-04-15, version 5.6.0
+
+- Implemented readonly option for modes `text` and `code.`
+  Thanks @walkerrandolphsmith.
+- Upgraded dependencies (`brance` and `ajv`) to the latest versions.
+- Fixed not being able to move focus to enum select box when clicking
+  a JSON Schema warning.
+- Fixed #309: already loaded version of Ace being overwritten by the
+  embedded version of JSONEditor.
+- Fixed #368: Mode selection drop down not fully visible on small screen.
+- Fixed #253: Optimize the input experience of Chinese IME.
+  Thanks @chinesedfan.
+
+
+## 2017-01-06, version 5.5.11
+
+- Fixed embedded version of jsoneditor ace theme not being loaded in
+  minimalist version (see #55).
+- Fixed a styling issue in the SearchBox of Ace editor (mode `code`).
+- Fixed #347: CSS more robust against global settings of div position.
+- Added docs and example on how to use a custom version of Ace editor.
+
+
+## 2016-11-02, version 5.5.10
+
+- Fixed #85: pressing enter in an input in a form containing a JSONEditor too
+  breaks submitting the form.
+
+
+## 2016-10-17, version 5.5.9
+
+- Fixed #329: Editor showing duplicate key warnings for keys defined on the
+  Object prototype, like `toString` and `watch`.
+
+
+## 2016-09-27, version 5.5.8
+
+- Fixed #314: JSON schema validation throwing an error "Unexpected token ' in
+  JSON at position 0" in specific cases. Thanks @apostrophest
+
+
+## 2016-08-17, version 5.5.7
+
+- Fixed #308: wrong positioning of label "empty array" when `onEditable`
+  returns false.
+
+
+## 2016-06-15, version 5.5.6
+
+- Fixed #303: editor contents collapsed when the parent div of the JSONEditor
+  has no height set.
+- Improved example 04_load_and_save.html. Thanks @RDCH106.
+
+
+## 2016-05-24, version 5.5.5
+
+- Fixed #298: Switch mode button disappears when switching from text/code to
+  tree/form/view mode when the JSON contained errors.
+- Fixed enum drop downs not working when the JSONEditor is configured with
+  a name.
+
+
+## 2016-05-22, version 5.5.4
+
+- Fixed #285: an issue with the enum drop down when having defined multiple
+  enums in a JSON schema.
+- Fixed a (harmless) error in the console when clicking right from an enum
+  drop down.
+
+
+## 2016-05-22, version 5.5.3
+
+- Fixed #299: reverted the fix of #268 by trimming text in fields and values.
+
+
+## 2016-04-18, version 5.5.2
+
+- Fixed #294: Fields reset their caret location on every key press in Firefox.
+
+
+## 2016-04-16, version 5.5.1
+
+- Fixed enum select boxes not being rendered/removed when setting or removing
+  a JSON schema via `editor.setSchema(schema)`.
+
+
+## 2016-04-16, version 5.5.0
+
+- Implemented a dropdown for values having an JSON Schema enum.
+  Thanks @tdakanalis.
+- Fixed #291, #292: Some CSS broken when using the editor in combination with
+  bootstrap. Thanks @nucleartide.
+
+## 2016-04-09, version 5.4.0
+
+- Upgraded all dependencies (`ajv`, `brace`, etc).
+- Fixed #289: Some CSS breaking when using the editor in combination with
+  materialize.css or bootstrap.
+- Fixed #290: `setText()` not working in mode text or code.
+
+
+## 2016-04-06, version 5.3.0
+
+- Implemented support for sorting object keys naturally. Thanks @edufelipe.
+- Sorting object keys or array items via the context menu is now also naturally
+  sorted.
+- Fixed #283: improved JSON schema error message in case of no
+  additionalProperties.
+- Fixed #286: Calling `get()` or `getText()` caused the editor to lose focus.
+  A regression introduced in v5.2.0.
+
+
 ## 2016-03-20, version 5.2.0
 
 - Implemented method `editor.destroy()` to properly cleanup the editor (#278).

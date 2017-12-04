@@ -21,17 +21,17 @@
  * License for the specific language governing permissions and limitations under
  * the License.
  *
- * Copyright (c) 2011-2016 Jos de Jong, http://jsoneditoronline.org
+ * Copyright (c) 2011-2017 Jos de Jong, http://jsoneditoronline.org
  *
  * @author  Jos de Jong, <wjosdejong@gmail.com>
- * @version 5.2.0
- * @date    2016-03-20
+ * @version 5.11.0
+ * @date    2017-11-22
  */
 (function webpackUniversalModuleDefinition(root, factory) {
 	if(typeof exports === 'object' && typeof module === 'object')
 		module.exports = factory();
 	else if(typeof define === 'function' && define.amd)
-		define(factory);
+		define([], factory);
 	else if(typeof exports === 'object')
 		exports["JSONEditor"] = factory();
 	else
@@ -83,6 +83,8 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 0 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
 	var Ajv;
 	try {
 	  Ajv = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"ajv\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
@@ -92,8 +94,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	}
 
 	var treemode = __webpack_require__(1);
-	var textmode = __webpack_require__(2);
-	var util = __webpack_require__(3);
+	var textmode = __webpack_require__(14);
+	var util = __webpack_require__(4);
 
 	/**
 	 * @constructor JSONEditor
@@ -123,6 +125,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	 *                                                        modes 'text' and 'code'
 	 *                               {boolean} escapeUnicode  If true, unicode
 	 *                                                        characters are escaped.
+	 *                                                        false by default.
+	 *                               {boolean} sortObjectKeys If true, object keys are
+	 *                                                        sorted before display.
 	 *                                                        false by default.
 	 * @param {Object | undefined} json JSON object
 	 */
@@ -159,10 +164,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // validate options
 	    if (options) {
 	      var VALID_OPTIONS = [
-	        'ace', 'theme',
-	        'ajv', 'schema',
+	        'ajv', 'schema', 'schemaRefs','templates',
+	        'ace', 'theme','autocomplete',
 	        'onChange', 'onEditable', 'onError', 'onModeChange',
-	        'escapeUnicode', 'history', 'search', 'mode', 'modes', 'name', 'indentation'
+	        'escapeUnicode', 'history', 'search', 'mode', 'modes', 'name', 'indentation', 
+	        'sortObjectKeys', 'navigationBar', 'statusBar'
 	      ];
 
 	      Object.keys(options).forEach(function (option) {
@@ -210,7 +216,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.options = options || {};
 	  this.json = json || {};
 
-	  var mode = this.options.mode || 'tree';
+	  var mode = this.options.mode || (this.options.modes && this.options.modes[0]) || 'tree';
 	  this.setMode(mode);
 	};
 
@@ -353,8 +359,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Set a JSON schema for validation of the JSON object.
 	 * To remove the schema, call JSONEditor.setSchema(null)
 	 * @param {Object | null} schema
+	 * @param {Object.<string, Object>=} schemaRefs Schemas that are referenced using the `$ref` property from the JSON schema that are set in the `schema` option,
+	 +  the object structure in the form of `{reference_key: schemaObject}`
 	 */
-	JSONEditor.prototype.setSchema = function (schema) {
+	JSONEditor.prototype.setSchema = function (schema, schemaRefs) {
 	  // compile a JSON schema validator if a JSON schema is provided
 	  if (schema) {
 	    var ajv;
@@ -368,6 +376,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 
 	    if (ajv) {
+	      if(schemaRefs) {
+	        for (var ref in schemaRefs) {
+	          ajv.removeSchema(ref);  // When updating a schema - old refs has to be removed first
+	          if(schemaRefs[ref]) {
+	            ajv.addSchema(schemaRefs[ref], ref);
+	          }
+	        }
+	        this.options.schemaRefs = schemaRefs;
+	      }
 	      this.validateSchema = ajv.compile(schema);
 
 	      // add schema to the options, so that when switching to an other mode,
@@ -377,12 +394,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	      // validate now
 	      this.validate();
 	    }
+
+	    this.refresh(); // update DOM
 	  }
 	  else {
 	    // remove current schema
 	    this.validateSchema = null;
 	    this.options.schema = null;
+	    this.options.schemaRefs = null;
 	    this.validate(); // to clear current error messages
+	    this.refresh();  // update DOM
 	  }
 	};
 
@@ -392,6 +413,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	JSONEditor.prototype.validate = function () {
 	  // must be implemented by treemode and textmode
+	};
+
+	/**
+	 * Refresh the rendered contents
+	 */
+	JSONEditor.prototype.refresh = function () {
+	  // can be implemented by treemode and textmode
 	};
 
 	/**
@@ -459,13 +487,18 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 1 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var Highlighter = __webpack_require__(4);
-	var History = __webpack_require__(5);
+	'use strict';
+
+
+	var Highlighter = __webpack_require__(2);
+	var History = __webpack_require__(3);
 	var SearchBox = __webpack_require__(6);
 	var ContextMenu = __webpack_require__(7);
-	var Node = __webpack_require__(8);
-	var ModeSwitcher = __webpack_require__(9);
-	var util = __webpack_require__(3);
+	var TreePath = __webpack_require__(8);
+	var Node = __webpack_require__(9);
+	var ModeSwitcher = __webpack_require__(12);
+	var util = __webpack_require__(4);
+	var autocomplete = __webpack_require__(13);
 
 	// create a mixin with the functions for tree mode
 	var treemode = {};
@@ -508,6 +541,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.focusTarget = null;
 
 	  this._setOptions(options);
+
+	  if (options.autocomplete)
+	      this.autocomplete = new autocomplete(options.autocomplete);
 
 	  if (this.options.history && this.options.mode !== 'view') {
 	    this.history = new History(this);
@@ -565,7 +601,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	    history: true,
 	    mode: 'tree',
 	    name: undefined,   // field name of root node
-	    schema: null
+	    schema: null,
+	    schemaRefs: null,
+	    autocomplete: null,
+	    navigationBar : true
 	  };
 
 	  // copy all options
@@ -578,7 +617,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  // compile a JSON schema validator if a JSON schema is provided
-	  this.setSchema(this.options.schema);
+	  this.setSchema(this.options.schema, this.options.schemaRefs);
 
 	  // create a debounced validate function
 	  this._debouncedValidate = util.debounce(this.validate.bind(this), this.DEBOUNCE_INTERVAL);
@@ -641,7 +680,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	treemode.get = function () {
 	  // remove focus from currently edited node
 	  if (this.focusTarget) {
-	    this.focusTarget.blur();
+	    var node = Node.getNodeFromTarget(this.focusTarget);
+	    if (node) {
+	      node.blur();
+	    }
 	  }
 
 	  if (this.node) {
@@ -665,7 +707,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @param {String} jsonText
 	 */
 	treemode.setText = function(jsonText) {
-	  this.set(util.parse(jsonText));
+	  try {
+	    this.set(util.parse(jsonText)); // this can throw an error
+	  }
+	  catch (err) {
+	    // try to sanitize json, replace JavaScript notation with JSON notation
+	    var sanitizedJsonText = util.sanitize(jsonText);
+
+	    // try to parse again
+	    this.set(util.parse(sanitizedJsonText)); // this can throw an error
+	  }
 	};
 
 	/**
@@ -902,6 +953,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	/**
+	 * Refresh the rendered contents
+	 */
+	treemode.refresh = function () {
+	  if (this.node) {
+	    this.node.updateDom({recurse: true});
+	  }
+	};
+
+	/**
 	 * Start autoscrolling when given mouse position is above the top of the
 	 * editor contents, or below the bottom.
 	 * @param {Number} mouseY  Absolute mouse position in pixels
@@ -1122,6 +1182,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  // create expand all button
 	  var expandAll = document.createElement('button');
+	  expandAll.type = 'button';
 	  expandAll.className = 'jsoneditor-expand-all';
 	  expandAll.title = 'Expand all fields';
 	  expandAll.onclick = function () {
@@ -1129,8 +1190,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	  };
 	  this.menu.appendChild(expandAll);
 
-	  // create expand all button
+	  // create collapse all button
 	  var collapseAll = document.createElement('button');
+	  collapseAll.type = 'button';
 	  collapseAll.title = 'Collapse all fields';
 	  collapseAll.className = 'jsoneditor-collapse-all';
 	  collapseAll.onclick = function () {
@@ -1142,6 +1204,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (this.history) {
 	    // create undo button
 	    var undo = document.createElement('button');
+	    undo.type = 'button';
 	    undo.className = 'jsoneditor-undo jsoneditor-separator';
 	    undo.title = 'Undo last action (Ctrl+Z)';
 	    undo.onclick = function () {
@@ -1152,6 +1215,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    // create redo button
 	    var redo = document.createElement('button');
+	    redo.type = 'button';
 	    redo.className = 'jsoneditor-redo';
 	    redo.title = 'Redo (Ctrl+Shift+Z)';
 	    redo.onclick = function () {
@@ -1183,6 +1247,17 @@ return /******/ (function(modules) { // webpackBootstrap
 	  // create search box
 	  if (this.options.search) {
 	    this.searchBox = new SearchBox(this, this.menu);
+	  }
+
+	  if(this.options.navigationBar) {
+	    // create second menu row for treepath
+	    this.navBar = document.createElement('div');
+	    this.navBar.className = 'jsoneditor-navigation-bar nav-bar-empty';
+	    this.frame.appendChild(this.navBar);
+
+	    this.treePath = new TreePath(this.navBar);
+	    this.treePath.onSectionSelected(this._onTreePathSectionSelected.bind(this));
+	    this.treePath.onContextMenuItemSelected(this._onTreePathMenuItemSelected.bind(this));
 	  }
 	};
 
@@ -1237,6 +1312,10 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  var node = Node.getNodeFromTarget(event.target);
 
+	  if (this.options && this.options.navigationBar && node && (event.type == 'keydown' || event.type == 'mousedown')) {
+	    this._updateTreePath(node.getNodePath());
+	  }
+
 	  if (node && node.selected) {
 	    if (event.type == 'click') {
 	      if (event.target == node.dom.menu) {
@@ -1265,7 +1344,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        // drag a singe node
 	        Node.onDragStart(node, event);
 	      }
-	      else if (!node || (event.target != node.dom.field && event.target != node.dom.value)) {
+	      else if (!node || (event.target != node.dom.field && event.target != node.dom.value && event.target != node.dom.select)) {
 	        // select multiple nodes
 	        this._onMultiSelectStart(event);
 	      }
@@ -1274,6 +1353,73 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  if (node) {
 	    node.onEvent(event);
+	  }
+	};
+
+	/**
+	 * Update TreePath components
+	 * @param {Array<Node>} pathNodes list of nodes in path from root to selection 
+	 * @private
+	 */
+	treemode._updateTreePath = function (pathNodes) {
+	  if (pathNodes && pathNodes.length) {
+	    util.removeClassName(this.navBar, 'nav-bar-empty');
+	    
+	    var pathObjs = [];
+	    pathNodes.forEach(function (node) {
+	      var pathObj = {
+	        name: getName(node),
+	        node: node,
+	        children: []
+	      }
+	      if (node.childs && node.childs.length) {
+	        node.childs.forEach(function (childNode) {
+	          pathObj.children.push({
+	            name: getName(childNode),
+	            node: childNode
+	          });
+	        });
+	      }
+	      pathObjs.push(pathObj);
+	    });
+	    this.treePath.setPath(pathObjs);
+	  } else {
+	    util.addClassName(this.navBar, 'nav-bar-empty');
+	  }
+
+	  function getName(node) {
+	    return node.field || (isNaN(node.index) ? node.type : node.index);
+	  }
+	};
+
+	/**
+	 * Callback for tree path section selection - focus the selected node in the tree
+	 * @param {Object} pathObj path object that was represents the selected section node
+	 * @private
+	 */
+	treemode._onTreePathSectionSelected = function (pathObj) {
+	  if(pathObj && pathObj.node) {
+	    pathObj.node.expandTo();
+	    pathObj.node.focus();
+	  }
+	};
+
+	/**
+	 * Callback for tree path menu item selection - rebuild the path accrding to the new selection and focus the selected node in the tree
+	 * @param {Object} pathObj path object that was represents the parent section node
+	 * @param {String} selection selected section child
+	 * @private
+	 */
+	treemode._onTreePathMenuItemSelected = function (pathObj, selection) {
+	  if(pathObj && pathObj.children.length) {
+	    var selectionObj = pathObj.children.find(function (obj) {
+	      return obj.name === selection;
+	    });
+	    if(selectionObj && selectionObj.node) {
+	      this._updateTreePath(selectionObj.node.getNodePath());
+	      selectionObj.node.expandTo();
+	      selectionObj.node.focus();
+	    }
 	  }
 	};
 
@@ -1449,8 +1595,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @private
 	 */
 	treemode._findTopLevelNodes = function (start, end) {
-	  var startPath = start.getPath();
-	  var endPath = end.getPath();
+	  var startPath = start.getNodePath();
+	  var endPath = end.getNodePath();
 	  var i = 0;
 	  while (i < startPath.length && startPath[i] === endPath[i]) {
 	    i++;
@@ -1493,7 +1639,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	 */
 	treemode._onKeyDown = function (event) {
 	  var keynum = event.which || event.keyCode;
+	  var altKey = event.altKey;
 	  var ctrlKey = event.ctrlKey;
+	  var metaKey = event.metaKey;
 	  var shiftKey = event.shiftKey;
 	  var handled = false;
 
@@ -1539,6 +1687,41 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }
 
+	  if ((this.options.autocomplete) && (!handled)) {
+	      if (!ctrlKey && !altKey && !metaKey && (event.key.length == 1 || keynum == 8 || keynum == 46)) {
+	          handled = false;
+	          var jsonElementType = "";
+	          if (event.target.className.indexOf("jsoneditor-value") >= 0) jsonElementType = "value";
+	          if (event.target.className.indexOf("jsoneditor-field") >= 0) jsonElementType = "field";
+
+	          var node = Node.getNodeFromTarget(event.target);
+	          // Activate autocomplete
+	          setTimeout(function (hnode, element) {
+	              if (element.innerText.length > 0) {
+	                  var result = this.options.autocomplete.getOptions(element.innerText, hnode.getPath(), jsonElementType, hnode.editor);
+	                  if (typeof result.then === 'function') {
+	                      // probably a promise
+	                      if (result.then(function (obj) {
+	                          if (obj.options)
+	                              this.autocomplete.show(element, obj.startFrom, obj.options);
+	                          else
+	                              this.autocomplete.show(element, 0, obj);
+	                      }.bind(this)));
+	                  } else {
+	                      // definitely not a promise
+	                      if (result.options)
+	                          this.autocomplete.show(element, result.startFrom, result.options);
+	                      else
+	                          this.autocomplete.show(element, 0, result);
+	                  }
+	              }
+	              else
+	                  this.autocomplete.hideDropDown();
+
+	          }.bind(this, node, event.target), 50);
+	      } 
+	  }
+
 	  if (handled) {
 	    event.preventDefault();
 	    event.stopPropagation();
@@ -1552,6 +1735,9 @@ return /******/ (function(modules) { // webpackBootstrap
 	treemode._createTable = function () {
 	  var contentOuter = document.createElement('div');
 	  contentOuter.className = 'jsoneditor-outer';
+	  if(this.options.navigationBar) {
+	    util.addClassName(contentOuter, 'has-nav-bar');
+	  }
 	  this.contentOuter = contentOuter;
 
 	  this.content = document.createElement('div');
@@ -1587,7 +1773,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	/**
 	 * Show a contextmenu for this node.
 	 * Used for multiselection
-	 * @param {HTMLElement} anchor   Anchor element to attache the context menu to.
+	 * @param {HTMLElement} anchor   Anchor element to attach the context menu to.
 	 * @param {function} [onClose]   Callback method called when the context menu
 	 *                               is being closed.
 	 */
@@ -1642,502 +1828,376 @@ return /******/ (function(modules) { // webpackBootstrap
 
 /***/ },
 /* 2 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	var ace;
-	try {
-	  ace = __webpack_require__(11);
-	}
-	catch (err) {
-	  // failed to load ace, no problem, we will fall back to plain text
-	}
-
-	var ModeSwitcher = __webpack_require__(9);
-	var util = __webpack_require__(3);
-
-	// create a mixin with the functions for text mode
-	var textmode = {};
-
-	var MAX_ERRORS = 3; // maximum number of displayed errors at the bottom
+	'use strict';
 
 	/**
-	 * Create a text editor
-	 * @param {Element} container
-	 * @param {Object} [options]   Object with options. available options:
-	 *                             {String} mode             Available values:
-	 *                                                       "text" (default)
-	 *                                                       or "code".
-	 *                             {Number} indentation      Number of indentation
-	 *                                                       spaces. 2 by default.
-	 *                             {function} onChange       Callback method
-	 *                                                       triggered on change
-	 *                             {function} onModeChange   Callback method
-	 *                                                       triggered after setMode
-	 *                             {Object} ace              A custom instance of
-	 *                                                       Ace editor.
-	 *                             {boolean} escapeUnicode   If true, unicode
-	 *                                                       characters are escaped.
-	 *                                                       false by default.
-	 * @private
+	 * The highlighter can highlight/unhighlight a node, and
+	 * animate the visibility of a context menu.
+	 * @constructor Highlighter
 	 */
-	textmode.create = function (container, options) {
-	  // read options
-	  options = options || {};
-	  this.options = options;
+	function Highlighter () {
+	  this.locked = false;
+	}
 
-	  // indentation
-	  if (options.indentation) {
-	    this.indentation = Number(options.indentation);
+	/**
+	 * Hightlight given node and its childs
+	 * @param {Node} node
+	 */
+	Highlighter.prototype.highlight = function (node) {
+	  if (this.locked) {
+	    return;
 	  }
-	  else {
-	    this.indentation = 2; // number of spaces
-	  }
 
-	  // grab ace from options if provided
-	  var _ace = options.ace ? options.ace : ace;
-
-	  // determine mode
-	  this.mode = (options.mode == 'code') ? 'code' : 'text';
-	  if (this.mode == 'code') {
-	    // verify whether Ace editor is available and supported
-	    if (typeof _ace === 'undefined') {
-	      this.mode = 'text';
-	      console.warn('Failed to load Ace editor, falling back to plain text mode. Please use a JSONEditor bundle including Ace, or pass Ace as via the configuration option `ace`.');
+	  if (this.node != node) {
+	    // unhighlight current node
+	    if (this.node) {
+	      this.node.setHighlight(false);
 	    }
+
+	    // highlight new node
+	    this.node = node;
+	    this.node.setHighlight(true);
 	  }
 
-	  // determine theme
-	  this.theme = options.theme || 'ace/theme/jsoneditor';
+	  // cancel any current timeout
+	  this._cancelUnhighlight();
+	};
+
+	/**
+	 * Unhighlight currently highlighted node.
+	 * Will be done after a delay
+	 */
+	Highlighter.prototype.unhighlight = function () {
+	  if (this.locked) {
+	    return;
+	  }
 
 	  var me = this;
-	  this.container = container;
-	  this.dom = {};
-	  this.aceEditor = undefined;  // ace code editor
-	  this.textarea = undefined;  // plain text editor (fallback when Ace is not available)
-	  this.validateSchema = null;
+	  if (this.node) {
+	    this._cancelUnhighlight();
 
-	  // create a debounced validate function
-	  this._debouncedValidate = util.debounce(this.validate.bind(this), this.DEBOUNCE_INTERVAL);
-
-	  this.width = container.clientWidth;
-	  this.height = container.clientHeight;
-
-	  this.frame = document.createElement('div');
-	  this.frame.className = 'jsoneditor jsoneditor-mode-' + this.options.mode;
-	  this.frame.onclick = function (event) {
-	    // prevent default submit action when the editor is located inside a form
-	    event.preventDefault();
-	  };
-	  this.frame.onkeydown = function (event) {
-	    me._onKeyDown(event);
-	  };
-
-	  // create menu
-	  this.menu = document.createElement('div');
-	  this.menu.className = 'jsoneditor-menu';
-	  this.frame.appendChild(this.menu);
-
-	  // create format button
-	  var buttonFormat = document.createElement('button');
-	  buttonFormat.className = 'jsoneditor-format';
-	  buttonFormat.title = 'Format JSON data, with proper indentation and line feeds (Ctrl+\\)';
-	  this.menu.appendChild(buttonFormat);
-	  buttonFormat.onclick = function () {
-	    try {
-	      me.format();
-	      me._onChange();
-	    }
-	    catch (err) {
-	      me._onError(err);
-	    }
-	  };
-
-	  // create compact button
-	  var buttonCompact = document.createElement('button');
-	  buttonCompact.className = 'jsoneditor-compact';
-	  buttonCompact.title = 'Compact JSON data, remove all whitespaces (Ctrl+Shift+\\)';
-	  this.menu.appendChild(buttonCompact);
-	  buttonCompact.onclick = function () {
-	    try {
-	      me.compact();
-	      me._onChange();
-	    }
-	    catch (err) {
-	      me._onError(err);
-	    }
-	  };
-
-	  // create mode box
-	  if (this.options && this.options.modes && this.options.modes.length) {
-	    this.modeSwitcher = new ModeSwitcher(this.menu, this.options.modes, this.options.mode, function onSwitch(mode) {
-	      me.modeSwitcher.destroy();
-
-	      // switch mode and restore focus
-	      me.setMode(mode);
-	      me.modeSwitcher.focus();
-	    });
+	    // do the unhighlighting after a small delay, to prevent re-highlighting
+	    // the same node when moving from the drag-icon to the contextmenu-icon
+	    // or vice versa.
+	    this.unhighlightTimer = setTimeout(function () {
+	      me.node.setHighlight(false);
+	      me.node = undefined;
+	      me.unhighlightTimer = undefined;
+	    }, 0);
 	  }
-
-	  this.content = document.createElement('div');
-	  this.content.className = 'jsoneditor-outer';
-	  this.frame.appendChild(this.content);
-
-	  this.container.appendChild(this.frame);
-
-	  if (this.mode == 'code') {
-	    this.editorDom = document.createElement('div');
-	    this.editorDom.style.height = '100%'; // TODO: move to css
-	    this.editorDom.style.width = '100%'; // TODO: move to css
-	    this.content.appendChild(this.editorDom);
-
-	    var aceEditor = _ace.edit(this.editorDom);
-	    aceEditor.$blockScrolling = Infinity;
-	    aceEditor.setTheme(this.theme);
-	    aceEditor.setShowPrintMargin(false);
-	    aceEditor.setFontSize(13);
-	    aceEditor.getSession().setMode('ace/mode/json');
-	    aceEditor.getSession().setTabSize(this.indentation);
-	    aceEditor.getSession().setUseSoftTabs(true);
-	    aceEditor.getSession().setUseWrapMode(true);
-	    aceEditor.commands.bindKey('Ctrl-L', null);    // disable Ctrl+L (is used by the browser to select the address bar)
-	    aceEditor.commands.bindKey('Command-L', null); // disable Ctrl+L (is used by the browser to select the address bar)
-	    this.aceEditor = aceEditor;
-
-	    // TODO: deprecated since v5.0.0. Cleanup backward compatibility some day
-	    if (!this.hasOwnProperty('editor')) {
-	      Object.defineProperty(this, 'editor', {
-	        get: function () {
-	          console.warn('Property "editor" has been renamed to "aceEditor".');
-	          return me.aceEditor;
-	        },
-	        set: function (aceEditor) {
-	          console.warn('Property "editor" has been renamed to "aceEditor".');
-	          me.aceEditor = aceEditor;
-	        }
-	      });
-	    }
-
-	    var poweredBy = document.createElement('a');
-	    poweredBy.appendChild(document.createTextNode('powered by ace'));
-	    poweredBy.href = 'http://ace.ajax.org';
-	    poweredBy.target = '_blank';
-	    poweredBy.className = 'jsoneditor-poweredBy';
-	    poweredBy.onclick = function () {
-	      // TODO: this anchor falls below the margin of the content,
-	      // therefore the normal a.href does not work. We use a click event
-	      // for now, but this should be fixed.
-	      window.open(poweredBy.href, poweredBy.target);
-	    };
-	    this.menu.appendChild(poweredBy);
-
-	    // register onchange event
-	    aceEditor.on('change', this._onChange.bind(this));
-	  }
-	  else {
-	    // load a plain text textarea
-	    var textarea = document.createElement('textarea');
-	    textarea.className = 'jsoneditor-text';
-	    textarea.spellcheck = false;
-	    this.content.appendChild(textarea);
-	    this.textarea = textarea;
-
-	    // register onchange event
-	    if (this.textarea.oninput === null) {
-	      this.textarea.oninput = this._onChange.bind(this);
-	    }
-	    else {
-	      // oninput is undefined. For IE8-
-	      this.textarea.onchange = this._onChange.bind(this);
-	    }
-	  }
-
-	  this.setSchema(this.options.schema);
 	};
 
 	/**
-	 * Handle a change:
-	 * - Validate JSON schema
-	 * - Send a callback to the onChange listener if provided
+	 * Cancel an unhighlight action (if before the timeout of the unhighlight action)
 	 * @private
 	 */
-	textmode._onChange = function () {
-	  // validate JSON schema (if configured)
-	  this._debouncedValidate();
-
-	  // trigger the onChange callback
-	  if (this.options.onChange) {
-	    try {
-	      this.options.onChange();
-	    }
-	    catch (err) {
-	      console.error('Error in onChange callback: ', err);
-	    }
+	Highlighter.prototype._cancelUnhighlight = function () {
+	  if (this.unhighlightTimer) {
+	    clearTimeout(this.unhighlightTimer);
+	    this.unhighlightTimer = undefined;
 	  }
 	};
 
 	/**
-	 * Event handler for keydown. Handles shortcut keys
-	 * @param {Event} event
-	 * @private
+	 * Lock highlighting or unhighlighting nodes.
+	 * methods highlight and unhighlight do not work while locked.
 	 */
-	textmode._onKeyDown = function (event) {
-	  var keynum = event.which || event.keyCode;
-	  var handled = false;
-
-	  if (keynum == 220 && event.ctrlKey) {
-	    if (event.shiftKey) { // Ctrl+Shift+\
-	      this.compact();
-	      this._onChange();
-	    }
-	    else { // Ctrl+\
-	      this.format();
-	      this._onChange();
-	    }
-	    handled = true;
-	  }
-
-	  if (handled) {
-	    event.preventDefault();
-	    event.stopPropagation();
-	  }
+	Highlighter.prototype.lock = function () {
+	  this.locked = true;
 	};
 
 	/**
-	 * Destroy the editor. Clean up DOM, event listeners, and web workers.
+	 * Unlock highlighting or unhighlighting nodes
 	 */
-	textmode.destroy = function () {
-	  // remove old ace editor
-	  if (this.aceEditor) {
-	    this.aceEditor.destroy();
-	    this.aceEditor = null;
-	  }
-
-	  if (this.frame && this.container && this.frame.parentNode == this.container) {
-	    this.container.removeChild(this.frame);
-	  }
-
-	  if (this.modeSwitcher) {
-	    this.modeSwitcher.destroy();
-	    this.modeSwitcher = null;
-	  }
-
-	  this.textarea = null;
-	  
-	  this._debouncedValidate = null;
+	Highlighter.prototype.unlock = function () {
+	  this.locked = false;
 	};
 
-	/**
-	 * Compact the code in the formatter
-	 */
-	textmode.compact = function () {
-	  var json = this.get();
-	  var text = JSON.stringify(json);
-	  this.setText(text);
-	};
-
-	/**
-	 * Format the code in the formatter
-	 */
-	textmode.format = function () {
-	  var json = this.get();
-	  var text = JSON.stringify(json, null, this.indentation);
-	  this.setText(text);
-	};
-
-	/**
-	 * Set focus to the formatter
-	 */
-	textmode.focus = function () {
-	  if (this.textarea) {
-	    this.textarea.focus();
-	  }
-	  if (this.aceEditor) {
-	    this.aceEditor.focus();
-	  }
-	};
-
-	/**
-	 * Resize the formatter
-	 */
-	textmode.resize = function () {
-	  if (this.aceEditor) {
-	    var force = false;
-	    this.aceEditor.resize(force);
-	  }
-	};
-
-	/**
-	 * Set json data in the formatter
-	 * @param {Object} json
-	 */
-	textmode.set = function(json) {
-	  this.setText(JSON.stringify(json, null, this.indentation));
-	};
-
-	/**
-	 * Get json data from the formatter
-	 * @return {Object} json
-	 */
-	textmode.get = function() {
-	  var text = this.getText();
-	  var json;
-
-	  try {
-	    json = util.parse(text); // this can throw an error
-	  }
-	  catch (err) {
-	    // try to sanitize json, replace JavaScript notation with JSON notation
-	    text = util.sanitize(text);
-
-	    // try to parse again
-	    json = util.parse(text); // this can throw an error
-	  }
-
-	  return json;
-	};
-
-	/**
-	 * Get the text contents of the editor
-	 * @return {String} jsonText
-	 */
-	textmode.getText = function() {
-	  if (this.textarea) {
-	    return this.textarea.value;
-	  }
-	  if (this.aceEditor) {
-	    return this.aceEditor.getValue();
-	  }
-	  return '';
-	};
-
-	/**
-	 * Set the text contents of the editor
-	 * @param {String} jsonText
-	 */
-	textmode.setText = function(jsonText) {
-	  if (this.options.escapeUnicode === true) {
-	    text = util.escapeUnicodeChars(jsonText);
-	  }
-	  else {
-	    text = jsonText;
-	  }
-
-	  if (this.textarea) {
-	    this.textarea.value = text;
-	  }
-	  if (this.aceEditor) {
-	    // prevent emitting onChange events while setting new text
-	    var originalOnChange = this.options.onChange;
-	    this.options.onChange = null;
-
-	    this.aceEditor.setValue(text, -1);
-
-	    this.options.onChange = originalOnChange;
-	  }
-
-	  // validate JSON schema
-	  this.validate();
-	};
-
-	/**
-	 * Validate current JSON object against the configured JSON schema
-	 * Throws an exception when no JSON schema is configured
-	 */
-	textmode.validate = function () {
-	  // clear all current errors
-	  if (this.dom.validationErrors) {
-	    this.dom.validationErrors.parentNode.removeChild(this.dom.validationErrors);
-	    this.dom.validationErrors = null;
-
-	    this.content.style.marginBottom = '';
-	    this.content.style.paddingBottom = '';
-	  }
-
-	  var doValidate = false;
-	  var errors = [];
-	  var json;
-	  try {
-	    json = this.get(); // this can fail when there is no valid json
-	    doValidate = true;
-	  }
-	  catch (err) {
-	    // no valid JSON, don't validate
-	  }
-
-	  // only validate the JSON when parsing the JSON succeeded
-	  if (doValidate && this.validateSchema) {
-	    var valid = this.validateSchema(json);
-	    if (!valid) {
-	      errors = this.validateSchema.errors.map(function (error) {
-	        return util.improveSchemaError(error);
-	      });
-	    }
-	  }
-
-	  if (errors.length > 0) {
-	    // limit the number of displayed errors
-	    var limit = errors.length > MAX_ERRORS;
-	    if (limit) {
-	      errors = errors.slice(0, MAX_ERRORS);
-	      var hidden = this.validateSchema.errors.length - MAX_ERRORS;
-	      errors.push('(' + hidden + ' more errors...)')
-	    }
-
-	    var validationErrors = document.createElement('div');
-	    validationErrors.innerHTML = '<table class="jsoneditor-text-errors">' +
-	        '<tbody>' +
-	        errors.map(function (error) {
-	          var message;
-	          if (typeof error === 'string') {
-	            message = '<td colspan="2"><pre>' + error + '</pre></td>';
-	          }
-	          else {
-	            message = '<td>' + error.dataPath + '</td>' +
-	                '<td>' + error.message + '</td>';
-	          }
-
-	          return '<tr><td><button class="jsoneditor-schema-error"></button></td>' + message + '</tr>'
-	        }).join('') +
-	        '</tbody>' +
-	        '</table>';
-
-	    this.dom.validationErrors = validationErrors;
-	    this.frame.appendChild(validationErrors);
-
-	    var height = validationErrors.clientHeight;
-	    this.content.style.marginBottom = (-height) + 'px';
-	    this.content.style.paddingBottom = height + 'px';
-	  }
-
-	  // update the height of the ace editor
-	  if (this.aceEditor) {
-	    var force = false;
-	    this.aceEditor.resize(force);
-	  }
-	};
-
-	// define modes
-	module.exports = [
-	  {
-	    mode: 'text',
-	    mixin: textmode,
-	    data: 'text',
-	    load: textmode.format
-	  },
-	  {
-	    mode: 'code',
-	    mixin: textmode,
-	    data: 'text',
-	    load: textmode.format
-	  }
-	];
+	module.exports = Highlighter;
 
 
 /***/ },
 /* 3 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var jsonlint = __webpack_require__(10);
+	'use strict';
+
+	var util = __webpack_require__(4);
+
+	/**
+	 * @constructor History
+	 * Store action history, enables undo and redo
+	 * @param {JSONEditor} editor
+	 */
+	function History (editor) {
+	  this.editor = editor;
+	  this.history = [];
+	  this.index = -1;
+
+	  this.clear();
+
+	  // map with all supported actions
+	  this.actions = {
+	    'editField': {
+	      'undo': function (params) {
+	        params.node.updateField(params.oldValue);
+	      },
+	      'redo': function (params) {
+	        params.node.updateField(params.newValue);
+	      }
+	    },
+	    'editValue': {
+	      'undo': function (params) {
+	        params.node.updateValue(params.oldValue);
+	      },
+	      'redo': function (params) {
+	        params.node.updateValue(params.newValue);
+	      }
+	    },
+	    'changeType': {
+	      'undo': function (params) {
+	        params.node.changeType(params.oldType);
+	      },
+	      'redo': function (params) {
+	        params.node.changeType(params.newType);
+	      }
+	    },
+
+	    'appendNodes': {
+	      'undo': function (params) {
+	        params.nodes.forEach(function (node) {
+	          params.parent.removeChild(node);
+	        });
+	      },
+	      'redo': function (params) {
+	        params.nodes.forEach(function (node) {
+	          params.parent.appendChild(node);
+	        });
+	      }
+	    },
+	    'insertBeforeNodes': {
+	      'undo': function (params) {
+	        params.nodes.forEach(function (node) {
+	          params.parent.removeChild(node);
+	        });
+	      },
+	      'redo': function (params) {
+	        params.nodes.forEach(function (node) {
+	          params.parent.insertBefore(node, params.beforeNode);
+	        });
+	      }
+	    },
+	    'insertAfterNodes': {
+	      'undo': function (params) {
+	        params.nodes.forEach(function (node) {
+	          params.parent.removeChild(node);
+	        });
+	      },
+	      'redo': function (params) {
+	        var afterNode = params.afterNode;
+	        params.nodes.forEach(function (node) {
+	          params.parent.insertAfter(params.node, afterNode);
+	          afterNode = node;
+	        });
+	      }
+	    },
+	    'removeNodes': {
+	      'undo': function (params) {
+	        var parent = params.parent;
+	        var beforeNode = parent.childs[params.index] || parent.append;
+	        params.nodes.forEach(function (node) {
+	          parent.insertBefore(node, beforeNode);
+	        });
+	      },
+	      'redo': function (params) {
+	        params.nodes.forEach(function (node) {
+	          params.parent.removeChild(node);
+	        });
+	      }
+	    },
+	    'duplicateNodes': {
+	      'undo': function (params) {
+	        params.nodes.forEach(function (node) {
+	          params.parent.removeChild(node);
+	        });
+	      },
+	      'redo': function (params) {
+	        var afterNode = params.afterNode;
+	        params.nodes.forEach(function (node) {
+	          params.parent.insertAfter(node, afterNode);
+	          afterNode = node;
+	        });
+	      }
+	    },
+	    'moveNodes': {
+	      'undo': function (params) {
+	        params.nodes.forEach(function (node) {
+	          params.oldBeforeNode.parent.moveBefore(node, params.oldBeforeNode);
+	        });
+	      },
+	      'redo': function (params) {
+	        params.nodes.forEach(function (node) {
+	          params.newBeforeNode.parent.moveBefore(node, params.newBeforeNode);
+	        });
+	      }
+	    },
+
+	    'sort': {
+	      'undo': function (params) {
+	        var node = params.node;
+	        node.hideChilds();
+	        node.sort = params.oldSort;
+	        node.childs = params.oldChilds;
+	        node.showChilds();
+	      },
+	      'redo': function (params) {
+	        var node = params.node;
+	        node.hideChilds();
+	        node.sort = params.newSort;
+	        node.childs = params.newChilds;
+	        node.showChilds();
+	      }
+	    }
+
+	    // TODO: restore the original caret position and selection with each undo
+	    // TODO: implement history for actions "expand", "collapse", "scroll", "setDocument"
+	  };
+	}
+
+	/**
+	 * The method onChange is executed when the History is changed, and can
+	 * be overloaded.
+	 */
+	History.prototype.onChange = function () {};
+
+	/**
+	 * Add a new action to the history
+	 * @param {String} action  The executed action. Available actions: "editField",
+	 *                         "editValue", "changeType", "appendNode",
+	 *                         "removeNode", "duplicateNode", "moveNode"
+	 * @param {Object} params  Object containing parameters describing the change.
+	 *                         The parameters in params depend on the action (for
+	 *                         example for "editValue" the Node, old value, and new
+	 *                         value are provided). params contains all information
+	 *                         needed to undo or redo the action.
+	 */
+	History.prototype.add = function (action, params) {
+	  this.index++;
+	  this.history[this.index] = {
+	    'action': action,
+	    'params': params,
+	    'timestamp': new Date()
+	  };
+
+	  // remove redo actions which are invalid now
+	  if (this.index < this.history.length - 1) {
+	    this.history.splice(this.index + 1, this.history.length - this.index - 1);
+	  }
+
+	  // fire onchange event
+	  this.onChange();
+	};
+
+	/**
+	 * Clear history
+	 */
+	History.prototype.clear = function () {
+	  this.history = [];
+	  this.index = -1;
+
+	  // fire onchange event
+	  this.onChange();
+	};
+
+	/**
+	 * Check if there is an action available for undo
+	 * @return {Boolean} canUndo
+	 */
+	History.prototype.canUndo = function () {
+	  return (this.index >= 0);
+	};
+
+	/**
+	 * Check if there is an action available for redo
+	 * @return {Boolean} canRedo
+	 */
+	History.prototype.canRedo = function () {
+	  return (this.index < this.history.length - 1);
+	};
+
+	/**
+	 * Undo the last action
+	 */
+	History.prototype.undo = function () {
+	  if (this.canUndo()) {
+	    var obj = this.history[this.index];
+	    if (obj) {
+	      var action = this.actions[obj.action];
+	      if (action && action.undo) {
+	        action.undo(obj.params);
+	        if (obj.params.oldSelection) {
+	          this.editor.setSelection(obj.params.oldSelection);
+	        }
+	      }
+	      else {
+	        console.error(new Error('unknown action "' + obj.action + '"'));
+	      }
+	    }
+	    this.index--;
+
+	    // fire onchange event
+	    this.onChange();
+	  }
+	};
+
+	/**
+	 * Redo the last action
+	 */
+	History.prototype.redo = function () {
+	  if (this.canRedo()) {
+	    this.index++;
+
+	    var obj = this.history[this.index];
+	    if (obj) {
+	      var action = this.actions[obj.action];
+	      if (action && action.redo) {
+	        action.redo(obj.params);
+	        if (obj.params.newSelection) {
+	          this.editor.setSelection(obj.params.newSelection);
+	        }
+	      }
+	      else {
+	        console.error(new Error('unknown action "' + obj.action + '"'));
+	      }
+	    }
+
+	    // fire onchange event
+	    this.onChange();
+	  }
+	};
+
+	/**
+	 * Destroy history
+	 */
+	History.prototype.destroy = function () {
+	  this.editor = null;
+
+	  this.history = [];
+	  this.index = -1;
+	};
+
+	module.exports = History;
+
+
+/***/ },
+/* 4 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var jsonlint = __webpack_require__(5);
 
 	/**
 	 * Parse JSON using the parser built-in in the browser.
@@ -2179,6 +2239,23 @@ return /******/ (function(modules) { // webpackBootstrap
 	    jsString = match[3];
 	  }
 
+	  var controlChars = {
+	    '\b': '\\b',
+	    '\f': '\\f',
+	    '\n': '\\n',
+	    '\r': '\\r',
+	    '\t': '\\t'
+	  };
+
+	  var quote = '\'';
+	  var quoteDbl = '"';
+	  var quoteLeft = '\u2018';
+	  var quoteRight = '\u2019';
+	  var quoteDblLeft = '\u201C';
+	  var quoteDblRight = '\u201D';
+	  var graveAccent = '\u0060';
+	  var acuteAccent = '\u00B4';
+
 	  // helper functions to get the current/prev/next character
 	  function curr () { return jsString.charAt(i);     }
 	  function next()  { return jsString.charAt(i + 1); }
@@ -2217,32 +2294,37 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  // parse single or double quoted string
-	  function parseString(quote) {
+	  function parseString(endQuote) {
 	    chars.push('"');
 	    i++;
 	    var c = curr();
-	    while (i < jsString.length && c !== quote) {
+	    while (i < jsString.length && c !== endQuote) {
 	      if (c === '"' && prev() !== '\\') {
 	        // unescaped double quote, escape it
-	        chars.push('\\');
+	        chars.push('\\"');
 	      }
-
-	      // handle escape character
-	      if (c === '\\') {
+	      else if (controlChars.hasOwnProperty(c)) {
+	        // replace unescaped control characters with escaped ones
+	        chars.push(controlChars[c])
+	      }
+	      else if (c === '\\') {
+	        // remove the escape character when followed by a single quote ', not needed
 	        i++;
 	        c = curr();
-
-	        // remove the escape character when followed by a single quote ', not needed
 	        if (c !== '\'') {
 	          chars.push('\\');
 	        }
+	        chars.push(c);
 	      }
-	      chars.push(c);
+	      else {
+	        // regular character
+	        chars.push(c);
+	      }
 
 	      i++;
 	      c = curr();
 	    }
-	    if (c === quote) {
+	    if (c === endQuote) {
 	      chars.push('"');
 	      i++;
 	    }
@@ -2278,8 +2360,25 @@ return /******/ (function(modules) { // webpackBootstrap
 	    else if (c === '/' && next() === '/') {
 	      skipComment();
 	    }
-	    else if (c === '\'' || c === '"') {
-	      parseString(c);
+	    else if (c === '\u00A0' || (c >= '\u2000' && c <= '\u200A') || c === '\u202F' || c === '\u205F' || c === '\u3000') {
+	      // special white spaces (like non breaking space)
+	      chars.push(' ')
+	      i++
+	    }
+	    else if (c === quote) {
+	      parseString(quote);
+	    }
+	    else if (c === quoteDbl) {
+	      parseString(quoteDbl);
+	    }
+	    else if (c === graveAccent) {
+	      parseString(acuteAccent);
+	    }
+	    else if (c === quoteLeft) {
+	      parseString(quoteRight);
+	    }
+	    else if (c === quoteDblLeft) {
+	      parseString(quoteDblRight);
 	    }
 	    else if (/[a-zA-Z_$]/.test(c) && ['{', ','].indexOf(lastNonWhitespace()) !== -1) {
 	      // an unquoted object key (like a in '{a:2}')
@@ -2797,7 +2896,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	      throw new SyntaxError('Index expected after [');
 	    }
 
-	    prop = JSON.parse(jsonPath.substring(1, end));
+	    var value = jsonPath.substring(1, end);
+	    if (value[0] === '\'') {
+	      // ajv produces string prop names with single quotes, so we need
+	      // to reformat them into valid double-quoted JSON strings
+	      value = '\"' + value.substring(1, value.length - 1) + '\"';
+	    }
+
+	    prop = value === '*' ? value : JSON.parse(value); // parse string and number
 	    remainder = jsonPath.substr(end + 1);
 	  }
 	  else {
@@ -2827,6 +2933,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 	      error.message = 'should be equal to one of: ' + enums.join(', ');
 	    }
+	  }
+
+	  if (error.keyword === 'additionalProperties') {
+	    error.message = 'should NOT have additional property: ' + error.params.additionalProperty;
 	  }
 
 	  return error;
@@ -2904,370 +3014,532 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 
-/***/ },
-/* 4 */
-/***/ function(module, exports, __webpack_require__) {
-
 	/**
-	 * The highlighter can highlight/unhighlight a node, and
-	 * animate the visibility of a context menu.
-	 * @constructor Highlighter
-	 */
-	function Highlighter () {
-	  this.locked = false;
+	 * Return an object with the selection range or cursor position (if both have the same value)
+	 * Support also old browsers (IE8-)
+	 * Source: http://ourcodeworld.com/articles/read/282/how-to-get-the-current-cursor-position-and-selection-within-a-text-input-or-textarea-in-javascript
+	 * @param {DOMElement} el A dom element of a textarea or input text.
+	 * @return {Object} reference Object with 2 properties (start and end) with the identifier of the location of the cursor and selected text.
+	 **/
+	exports.getInputSelection = function(el) {
+	  var start = 0, end = 0, normalizedValue, range, textInputRange, len, endRange;
+
+	  if (typeof el.selectionStart == "number" && typeof el.selectionEnd == "number") {
+	      start = el.selectionStart;
+	      end = el.selectionEnd;
+	  } else {
+	      range = document.selection.createRange();
+
+	      if (range && range.parentElement() == el) {
+	          len = el.value.length;
+	          normalizedValue = el.value.replace(/\r\n/g, "\n");
+
+	          // Create a working TextRange that lives only in the input
+	          textInputRange = el.createTextRange();
+	          textInputRange.moveToBookmark(range.getBookmark());
+
+	          // Check if the start and end of the selection are at the very end
+	          // of the input, since moveStart/moveEnd doesn't return what we want
+	          // in those cases
+	          endRange = el.createTextRange();
+	          endRange.collapse(false);
+
+	          if (textInputRange.compareEndPoints("StartToEnd", endRange) > -1) {
+	              start = end = len;
+	          } else {
+	              start = -textInputRange.moveStart("character", -len);
+	              start += normalizedValue.slice(0, start).split("\n").length - 1;
+
+	              if (textInputRange.compareEndPoints("EndToEnd", endRange) > -1) {
+	                  end = len;
+	              } else {
+	                  end = -textInputRange.moveEnd("character", -len);
+	                  end += normalizedValue.slice(0, end).split("\n").length - 1;
+	              }
+	          }
+	      }
+	  }
+
+	  return {
+	      start: start,
+	      end: end
+	  };
 	}
 
-	/**
-	 * Hightlight given node and its childs
-	 * @param {Node} node
-	 */
-	Highlighter.prototype.highlight = function (node) {
-	  if (this.locked) {
-	    return;
-	  }
 
-	  if (this.node != node) {
-	    // unhighlight current node
-	    if (this.node) {
-	      this.node.setHighlight(false);
+	if (typeof Element !== 'undefined') {
+	  // Polyfill for array remove
+	  (function () {
+	    function polyfill (item) {
+	      if (item.hasOwnProperty('remove')) {
+	        return;
+	      }
+	      Object.defineProperty(item, 'remove', {
+	        configurable: true,
+	        enumerable: true,
+	        writable: true,
+	        value: function remove() {
+	          if (this.parentNode != null)
+	            this.parentNode.removeChild(this);
+	        }
+	      });
 	    }
 
-	    // highlight new node
-	    this.node = node;
-	    this.node.setHighlight(true);
+	    if (typeof Element !== 'undefined')       { polyfill(Element.prototype); }
+	    if (typeof CharacterData !== 'undefined') { polyfill(CharacterData.prototype); }
+	    if (typeof DocumentType !== 'undefined')  { polyfill(DocumentType.prototype); }
+	  })();
+	}
+
+
+	// Polyfill for startsWith
+	if (!String.prototype.startsWith) {
+	    String.prototype.startsWith = function (searchString, position) {
+	        position = position || 0;
+	        return this.substr(position, searchString.length) === searchString;
+	    };
+	}
+
+	// Polyfill for Array.find
+	if (!Array.prototype.find) {
+	  Array.prototype.find = function(callback) {    
+	    for (var i = 0; i < this.length; i++) {
+	      var element = this[i];
+	      if ( callback.call(this, element, i, this) ) {
+	        return element;
+	      }
+	    }
 	  }
-
-	  // cancel any current timeout
-	  this._cancelUnhighlight();
-	};
-
-	/**
-	 * Unhighlight currently highlighted node.
-	 * Will be done after a delay
-	 */
-	Highlighter.prototype.unhighlight = function () {
-	  if (this.locked) {
-	    return;
-	  }
-
-	  var me = this;
-	  if (this.node) {
-	    this._cancelUnhighlight();
-
-	    // do the unhighlighting after a small delay, to prevent re-highlighting
-	    // the same node when moving from the drag-icon to the contextmenu-icon
-	    // or vice versa.
-	    this.unhighlightTimer = setTimeout(function () {
-	      me.node.setHighlight(false);
-	      me.node = undefined;
-	      me.unhighlightTimer = undefined;
-	    }, 0);
-	  }
-	};
-
-	/**
-	 * Cancel an unhighlight action (if before the timeout of the unhighlight action)
-	 * @private
-	 */
-	Highlighter.prototype._cancelUnhighlight = function () {
-	  if (this.unhighlightTimer) {
-	    clearTimeout(this.unhighlightTimer);
-	    this.unhighlightTimer = undefined;
-	  }
-	};
-
-	/**
-	 * Lock highlighting or unhighlighting nodes.
-	 * methods highlight and unhighlight do not work while locked.
-	 */
-	Highlighter.prototype.lock = function () {
-	  this.locked = true;
-	};
-
-	/**
-	 * Unlock highlighting or unhighlighting nodes
-	 */
-	Highlighter.prototype.unlock = function () {
-	  this.locked = false;
-	};
-
-	module.exports = Highlighter;
-
+	}
 
 /***/ },
 /* 5 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var util = __webpack_require__(3);
+	/* Jison generated parser */
+	var jsonlint = (function(){
+	var parser = {trace: function trace() { },
+	yy: {},
+	symbols_: {"error":2,"JSONString":3,"STRING":4,"JSONNumber":5,"NUMBER":6,"JSONNullLiteral":7,"NULL":8,"JSONBooleanLiteral":9,"TRUE":10,"FALSE":11,"JSONText":12,"JSONValue":13,"EOF":14,"JSONObject":15,"JSONArray":16,"{":17,"}":18,"JSONMemberList":19,"JSONMember":20,":":21,",":22,"[":23,"]":24,"JSONElementList":25,"$accept":0,"$end":1},
+	terminals_: {2:"error",4:"STRING",6:"NUMBER",8:"NULL",10:"TRUE",11:"FALSE",14:"EOF",17:"{",18:"}",21:":",22:",",23:"[",24:"]"},
+	productions_: [0,[3,1],[5,1],[7,1],[9,1],[9,1],[12,2],[13,1],[13,1],[13,1],[13,1],[13,1],[13,1],[15,2],[15,3],[20,3],[19,1],[19,3],[16,2],[16,3],[25,1],[25,3]],
+	performAction: function anonymous(yytext,yyleng,yylineno,yy,yystate,$$,_$) {
 
-	/**
-	 * @constructor History
-	 * Store action history, enables undo and redo
-	 * @param {JSONEditor} editor
-	 */
-	function History (editor) {
-	  this.editor = editor;
-	  this.history = [];
-	  this.index = -1;
-
-	  this.clear();
-
-	  // map with all supported actions
-	  this.actions = {
-	    'editField': {
-	      'undo': function (params) {
-	        params.node.updateField(params.oldValue);
-	      },
-	      'redo': function (params) {
-	        params.node.updateField(params.newValue);
-	      }
-	    },
-	    'editValue': {
-	      'undo': function (params) {
-	        params.node.updateValue(params.oldValue);
-	      },
-	      'redo': function (params) {
-	        params.node.updateValue(params.newValue);
-	      }
-	    },
-	    'changeType': {
-	      'undo': function (params) {
-	        params.node.changeType(params.oldType);
-	      },
-	      'redo': function (params) {
-	        params.node.changeType(params.newType);
-	      }
-	    },
-
-	    'appendNodes': {
-	      'undo': function (params) {
-	        params.nodes.forEach(function (node) {
-	          params.parent.removeChild(node);
-	        });
-	      },
-	      'redo': function (params) {
-	        params.nodes.forEach(function (node) {
-	          params.parent.appendChild(node);
-	        });
-	      }
-	    },
-	    'insertBeforeNodes': {
-	      'undo': function (params) {
-	        params.nodes.forEach(function (node) {
-	          params.parent.removeChild(node);
-	        });
-	      },
-	      'redo': function (params) {
-	        params.nodes.forEach(function (node) {
-	          params.parent.insertBefore(node, params.beforeNode);
-	        });
-	      }
-	    },
-	    'insertAfterNodes': {
-	      'undo': function (params) {
-	        params.nodes.forEach(function (node) {
-	          params.parent.removeChild(node);
-	        });
-	      },
-	      'redo': function (params) {
-	        var afterNode = params.afterNode;
-	        params.nodes.forEach(function (node) {
-	          params.parent.insertAfter(params.node, afterNode);
-	          afterNode = node;
-	        });
-	      }
-	    },
-	    'removeNodes': {
-	      'undo': function (params) {
-	        var parent = params.parent;
-	        var beforeNode = parent.childs[params.index] || parent.append;
-	        params.nodes.forEach(function (node) {
-	          parent.insertBefore(node, beforeNode);
-	        });
-	      },
-	      'redo': function (params) {
-	        params.nodes.forEach(function (node) {
-	          params.parent.removeChild(node);
-	        });
-	      }
-	    },
-	    'duplicateNodes': {
-	      'undo': function (params) {
-	        params.nodes.forEach(function (node) {
-	          params.parent.removeChild(node);
-	        });
-	      },
-	      'redo': function (params) {
-	        var afterNode = params.afterNode;
-	        params.nodes.forEach(function (node) {
-	          params.parent.insertAfter(node, afterNode);
-	          afterNode = node;
-	        });
-	      }
-	    },
-	    'moveNodes': {
-	      'undo': function (params) {
-	        params.nodes.forEach(function (node) {
-	          params.oldBeforeNode.parent.moveBefore(node, params.oldBeforeNode);
-	        });
-	      },
-	      'redo': function (params) {
-	        params.nodes.forEach(function (node) {
-	          params.newBeforeNode.parent.moveBefore(node, params.newBeforeNode);
-	        });
-	      }
-	    },
-
-	    'sort': {
-	      'undo': function (params) {
-	        var node = params.node;
-	        node.hideChilds();
-	        node.sort = params.oldSort;
-	        node.childs = params.oldChilds;
-	        node.showChilds();
-	      },
-	      'redo': function (params) {
-	        var node = params.node;
-	        node.hideChilds();
-	        node.sort = params.newSort;
-	        node.childs = params.newChilds;
-	        node.showChilds();
-	      }
-	    }
-
-	    // TODO: restore the original caret position and selection with each undo
-	    // TODO: implement history for actions "expand", "collapse", "scroll", "setDocument"
-	  };
+	var $0 = $$.length - 1;
+	switch (yystate) {
+	case 1: // replace escaped characters with actual character
+	          this.$ = yytext.replace(/\\(\\|")/g, "$"+"1")
+	                     .replace(/\\n/g,'\n')
+	                     .replace(/\\r/g,'\r')
+	                     .replace(/\\t/g,'\t')
+	                     .replace(/\\v/g,'\v')
+	                     .replace(/\\f/g,'\f')
+	                     .replace(/\\b/g,'\b');
+	        
+	break;
+	case 2:this.$ = Number(yytext);
+	break;
+	case 3:this.$ = null;
+	break;
+	case 4:this.$ = true;
+	break;
+	case 5:this.$ = false;
+	break;
+	case 6:return this.$ = $$[$0-1];
+	break;
+	case 13:this.$ = {};
+	break;
+	case 14:this.$ = $$[$0-1];
+	break;
+	case 15:this.$ = [$$[$0-2], $$[$0]];
+	break;
+	case 16:this.$ = {}; this.$[$$[$0][0]] = $$[$0][1];
+	break;
+	case 17:this.$ = $$[$0-2]; $$[$0-2][$$[$0][0]] = $$[$0][1];
+	break;
+	case 18:this.$ = [];
+	break;
+	case 19:this.$ = $$[$0-1];
+	break;
+	case 20:this.$ = [$$[$0]];
+	break;
+	case 21:this.$ = $$[$0-2]; $$[$0-2].push($$[$0]);
+	break;
 	}
+	},
+	table: [{3:5,4:[1,12],5:6,6:[1,13],7:3,8:[1,9],9:4,10:[1,10],11:[1,11],12:1,13:2,15:7,16:8,17:[1,14],23:[1,15]},{1:[3]},{14:[1,16]},{14:[2,7],18:[2,7],22:[2,7],24:[2,7]},{14:[2,8],18:[2,8],22:[2,8],24:[2,8]},{14:[2,9],18:[2,9],22:[2,9],24:[2,9]},{14:[2,10],18:[2,10],22:[2,10],24:[2,10]},{14:[2,11],18:[2,11],22:[2,11],24:[2,11]},{14:[2,12],18:[2,12],22:[2,12],24:[2,12]},{14:[2,3],18:[2,3],22:[2,3],24:[2,3]},{14:[2,4],18:[2,4],22:[2,4],24:[2,4]},{14:[2,5],18:[2,5],22:[2,5],24:[2,5]},{14:[2,1],18:[2,1],21:[2,1],22:[2,1],24:[2,1]},{14:[2,2],18:[2,2],22:[2,2],24:[2,2]},{3:20,4:[1,12],18:[1,17],19:18,20:19},{3:5,4:[1,12],5:6,6:[1,13],7:3,8:[1,9],9:4,10:[1,10],11:[1,11],13:23,15:7,16:8,17:[1,14],23:[1,15],24:[1,21],25:22},{1:[2,6]},{14:[2,13],18:[2,13],22:[2,13],24:[2,13]},{18:[1,24],22:[1,25]},{18:[2,16],22:[2,16]},{21:[1,26]},{14:[2,18],18:[2,18],22:[2,18],24:[2,18]},{22:[1,28],24:[1,27]},{22:[2,20],24:[2,20]},{14:[2,14],18:[2,14],22:[2,14],24:[2,14]},{3:20,4:[1,12],20:29},{3:5,4:[1,12],5:6,6:[1,13],7:3,8:[1,9],9:4,10:[1,10],11:[1,11],13:30,15:7,16:8,17:[1,14],23:[1,15]},{14:[2,19],18:[2,19],22:[2,19],24:[2,19]},{3:5,4:[1,12],5:6,6:[1,13],7:3,8:[1,9],9:4,10:[1,10],11:[1,11],13:31,15:7,16:8,17:[1,14],23:[1,15]},{18:[2,17],22:[2,17]},{18:[2,15],22:[2,15]},{22:[2,21],24:[2,21]}],
+	defaultActions: {16:[2,6]},
+	parseError: function parseError(str, hash) {
+	    throw new Error(str);
+	},
+	parse: function parse(input) {
+	    var self = this,
+	        stack = [0],
+	        vstack = [null], // semantic value stack
+	        lstack = [], // location stack
+	        table = this.table,
+	        yytext = '',
+	        yylineno = 0,
+	        yyleng = 0,
+	        recovering = 0,
+	        TERROR = 2,
+	        EOF = 1;
 
-	/**
-	 * The method onChange is executed when the History is changed, and can
-	 * be overloaded.
-	 */
-	History.prototype.onChange = function () {};
+	    //this.reductionCount = this.shiftCount = 0;
 
-	/**
-	 * Add a new action to the history
-	 * @param {String} action  The executed action. Available actions: "editField",
-	 *                         "editValue", "changeType", "appendNode",
-	 *                         "removeNode", "duplicateNode", "moveNode"
-	 * @param {Object} params  Object containing parameters describing the change.
-	 *                         The parameters in params depend on the action (for
-	 *                         example for "editValue" the Node, old value, and new
-	 *                         value are provided). params contains all information
-	 *                         needed to undo or redo the action.
-	 */
-	History.prototype.add = function (action, params) {
-	  this.index++;
-	  this.history[this.index] = {
-	    'action': action,
-	    'params': params,
-	    'timestamp': new Date()
-	  };
+	    this.lexer.setInput(input);
+	    this.lexer.yy = this.yy;
+	    this.yy.lexer = this.lexer;
+	    if (typeof this.lexer.yylloc == 'undefined')
+	        this.lexer.yylloc = {};
+	    var yyloc = this.lexer.yylloc;
+	    lstack.push(yyloc);
 
-	  // remove redo actions which are invalid now
-	  if (this.index < this.history.length - 1) {
-	    this.history.splice(this.index + 1, this.history.length - this.index - 1);
-	  }
+	    if (typeof this.yy.parseError === 'function')
+	        this.parseError = this.yy.parseError;
 
-	  // fire onchange event
-	  this.onChange();
-	};
-
-	/**
-	 * Clear history
-	 */
-	History.prototype.clear = function () {
-	  this.history = [];
-	  this.index = -1;
-
-	  // fire onchange event
-	  this.onChange();
-	};
-
-	/**
-	 * Check if there is an action available for undo
-	 * @return {Boolean} canUndo
-	 */
-	History.prototype.canUndo = function () {
-	  return (this.index >= 0);
-	};
-
-	/**
-	 * Check if there is an action available for redo
-	 * @return {Boolean} canRedo
-	 */
-	History.prototype.canRedo = function () {
-	  return (this.index < this.history.length - 1);
-	};
-
-	/**
-	 * Undo the last action
-	 */
-	History.prototype.undo = function () {
-	  if (this.canUndo()) {
-	    var obj = this.history[this.index];
-	    if (obj) {
-	      var action = this.actions[obj.action];
-	      if (action && action.undo) {
-	        action.undo(obj.params);
-	        if (obj.params.oldSelection) {
-	          this.editor.setSelection(obj.params.oldSelection);
-	        }
-	      }
-	      else {
-	        console.error(new Error('unknown action "' + obj.action + '"'));
-	      }
-	    }
-	    this.index--;
-
-	    // fire onchange event
-	    this.onChange();
-	  }
-	};
-
-	/**
-	 * Redo the last action
-	 */
-	History.prototype.redo = function () {
-	  if (this.canRedo()) {
-	    this.index++;
-
-	    var obj = this.history[this.index];
-	    if (obj) {
-	      var action = this.actions[obj.action];
-	      if (action && action.redo) {
-	        action.redo(obj.params);
-	        if (obj.params.newSelection) {
-	          this.editor.setSelection(obj.params.newSelection);
-	        }
-	      }
-	      else {
-	        console.error(new Error('unknown action "' + obj.action + '"'));
-	      }
+	    function popStack (n) {
+	        stack.length = stack.length - 2*n;
+	        vstack.length = vstack.length - n;
+	        lstack.length = lstack.length - n;
 	    }
 
-	    // fire onchange event
-	    this.onChange();
-	  }
+	    function lex() {
+	        var token;
+	        token = self.lexer.lex() || 1; // $end = 1
+	        // if token isn't its numeric value, convert
+	        if (typeof token !== 'number') {
+	            token = self.symbols_[token] || token;
+	        }
+	        return token;
+	    }
+
+	    var symbol, preErrorSymbol, state, action, a, r, yyval={},p,len,newState, expected;
+	    while (true) {
+	        // retreive state number from top of stack
+	        state = stack[stack.length-1];
+
+	        // use default actions if available
+	        if (this.defaultActions[state]) {
+	            action = this.defaultActions[state];
+	        } else {
+	            if (symbol == null)
+	                symbol = lex();
+	            // read action for current state and first input
+	            action = table[state] && table[state][symbol];
+	        }
+
+	        // handle parse error
+	        _handle_error:
+	        if (typeof action === 'undefined' || !action.length || !action[0]) {
+
+	            if (!recovering) {
+	                // Report error
+	                expected = [];
+	                for (p in table[state]) if (this.terminals_[p] && p > 2) {
+	                    expected.push("'"+this.terminals_[p]+"'");
+	                }
+	                var errStr = '';
+	                if (this.lexer.showPosition) {
+	                    errStr = 'Parse error on line '+(yylineno+1)+":\n"+this.lexer.showPosition()+"\nExpecting "+expected.join(', ') + ", got '" + this.terminals_[symbol]+ "'";
+	                } else {
+	                    errStr = 'Parse error on line '+(yylineno+1)+": Unexpected " +
+	                                  (symbol == 1 /*EOF*/ ? "end of input" :
+	                                              ("'"+(this.terminals_[symbol] || symbol)+"'"));
+	                }
+	                this.parseError(errStr,
+	                    {text: this.lexer.match, token: this.terminals_[symbol] || symbol, line: this.lexer.yylineno, loc: yyloc, expected: expected});
+	            }
+
+	            // just recovered from another error
+	            if (recovering == 3) {
+	                if (symbol == EOF) {
+	                    throw new Error(errStr || 'Parsing halted.');
+	                }
+
+	                // discard current lookahead and grab another
+	                yyleng = this.lexer.yyleng;
+	                yytext = this.lexer.yytext;
+	                yylineno = this.lexer.yylineno;
+	                yyloc = this.lexer.yylloc;
+	                symbol = lex();
+	            }
+
+	            // try to recover from error
+	            while (1) {
+	                // check for error recovery rule in this state
+	                if ((TERROR.toString()) in table[state]) {
+	                    break;
+	                }
+	                if (state == 0) {
+	                    throw new Error(errStr || 'Parsing halted.');
+	                }
+	                popStack(1);
+	                state = stack[stack.length-1];
+	            }
+
+	            preErrorSymbol = symbol; // save the lookahead token
+	            symbol = TERROR;         // insert generic error symbol as new lookahead
+	            state = stack[stack.length-1];
+	            action = table[state] && table[state][TERROR];
+	            recovering = 3; // allow 3 real symbols to be shifted before reporting a new error
+	        }
+
+	        // this shouldn't happen, unless resolve defaults are off
+	        if (action[0] instanceof Array && action.length > 1) {
+	            throw new Error('Parse Error: multiple actions possible at state: '+state+', token: '+symbol);
+	        }
+
+	        switch (action[0]) {
+
+	            case 1: // shift
+	                //this.shiftCount++;
+
+	                stack.push(symbol);
+	                vstack.push(this.lexer.yytext);
+	                lstack.push(this.lexer.yylloc);
+	                stack.push(action[1]); // push state
+	                symbol = null;
+	                if (!preErrorSymbol) { // normal execution/no error
+	                    yyleng = this.lexer.yyleng;
+	                    yytext = this.lexer.yytext;
+	                    yylineno = this.lexer.yylineno;
+	                    yyloc = this.lexer.yylloc;
+	                    if (recovering > 0)
+	                        recovering--;
+	                } else { // error just occurred, resume old lookahead f/ before error
+	                    symbol = preErrorSymbol;
+	                    preErrorSymbol = null;
+	                }
+	                break;
+
+	            case 2: // reduce
+	                //this.reductionCount++;
+
+	                len = this.productions_[action[1]][1];
+
+	                // perform semantic action
+	                yyval.$ = vstack[vstack.length-len]; // default to $$ = $1
+	                // default location, uses first token for firsts, last for lasts
+	                yyval._$ = {
+	                    first_line: lstack[lstack.length-(len||1)].first_line,
+	                    last_line: lstack[lstack.length-1].last_line,
+	                    first_column: lstack[lstack.length-(len||1)].first_column,
+	                    last_column: lstack[lstack.length-1].last_column
+	                };
+	                r = this.performAction.call(yyval, yytext, yyleng, yylineno, this.yy, action[1], vstack, lstack);
+
+	                if (typeof r !== 'undefined') {
+	                    return r;
+	                }
+
+	                // pop off stack
+	                if (len) {
+	                    stack = stack.slice(0,-1*len*2);
+	                    vstack = vstack.slice(0, -1*len);
+	                    lstack = lstack.slice(0, -1*len);
+	                }
+
+	                stack.push(this.productions_[action[1]][0]);    // push nonterminal (reduce)
+	                vstack.push(yyval.$);
+	                lstack.push(yyval._$);
+	                // goto new state = table[STATE][NONTERMINAL]
+	                newState = table[stack[stack.length-2]][stack[stack.length-1]];
+	                stack.push(newState);
+	                break;
+
+	            case 3: // accept
+	                return true;
+	        }
+
+	    }
+
+	    return true;
+	}};
+	/* Jison generated lexer */
+	var lexer = (function(){
+	var lexer = ({EOF:1,
+	parseError:function parseError(str, hash) {
+	        if (this.yy.parseError) {
+	            this.yy.parseError(str, hash);
+	        } else {
+	            throw new Error(str);
+	        }
+	    },
+	setInput:function (input) {
+	        this._input = input;
+	        this._more = this._less = this.done = false;
+	        this.yylineno = this.yyleng = 0;
+	        this.yytext = this.matched = this.match = '';
+	        this.conditionStack = ['INITIAL'];
+	        this.yylloc = {first_line:1,first_column:0,last_line:1,last_column:0};
+	        return this;
+	    },
+	input:function () {
+	        var ch = this._input[0];
+	        this.yytext+=ch;
+	        this.yyleng++;
+	        this.match+=ch;
+	        this.matched+=ch;
+	        var lines = ch.match(/\n/);
+	        if (lines) this.yylineno++;
+	        this._input = this._input.slice(1);
+	        return ch;
+	    },
+	unput:function (ch) {
+	        this._input = ch + this._input;
+	        return this;
+	    },
+	more:function () {
+	        this._more = true;
+	        return this;
+	    },
+	less:function (n) {
+	        this._input = this.match.slice(n) + this._input;
+	    },
+	pastInput:function () {
+	        var past = this.matched.substr(0, this.matched.length - this.match.length);
+	        return (past.length > 20 ? '...':'') + past.substr(-20).replace(/\n/g, "");
+	    },
+	upcomingInput:function () {
+	        var next = this.match;
+	        if (next.length < 20) {
+	            next += this._input.substr(0, 20-next.length);
+	        }
+	        return (next.substr(0,20)+(next.length > 20 ? '...':'')).replace(/\n/g, "");
+	    },
+	showPosition:function () {
+	        var pre = this.pastInput();
+	        var c = new Array(pre.length + 1).join("-");
+	        return pre + this.upcomingInput() + "\n" + c+"^";
+	    },
+	next:function () {
+	        if (this.done) {
+	            return this.EOF;
+	        }
+	        if (!this._input) this.done = true;
+
+	        var token,
+	            match,
+	            tempMatch,
+	            index,
+	            col,
+	            lines;
+	        if (!this._more) {
+	            this.yytext = '';
+	            this.match = '';
+	        }
+	        var rules = this._currentRules();
+	        for (var i=0;i < rules.length; i++) {
+	            tempMatch = this._input.match(this.rules[rules[i]]);
+	            if (tempMatch && (!match || tempMatch[0].length > match[0].length)) {
+	                match = tempMatch;
+	                index = i;
+	                if (!this.options.flex) break;
+	            }
+	        }
+	        if (match) {
+	            lines = match[0].match(/\n.*/g);
+	            if (lines) this.yylineno += lines.length;
+	            this.yylloc = {first_line: this.yylloc.last_line,
+	                           last_line: this.yylineno+1,
+	                           first_column: this.yylloc.last_column,
+	                           last_column: lines ? lines[lines.length-1].length-1 : this.yylloc.last_column + match[0].length}
+	            this.yytext += match[0];
+	            this.match += match[0];
+	            this.yyleng = this.yytext.length;
+	            this._more = false;
+	            this._input = this._input.slice(match[0].length);
+	            this.matched += match[0];
+	            token = this.performAction.call(this, this.yy, this, rules[index],this.conditionStack[this.conditionStack.length-1]);
+	            if (this.done && this._input) this.done = false;
+	            if (token) return token;
+	            else return;
+	        }
+	        if (this._input === "") {
+	            return this.EOF;
+	        } else {
+	            this.parseError('Lexical error on line '+(this.yylineno+1)+'. Unrecognized text.\n'+this.showPosition(), 
+	                    {text: "", token: null, line: this.yylineno});
+	        }
+	    },
+	lex:function lex() {
+	        var r = this.next();
+	        if (typeof r !== 'undefined') {
+	            return r;
+	        } else {
+	            return this.lex();
+	        }
+	    },
+	begin:function begin(condition) {
+	        this.conditionStack.push(condition);
+	    },
+	popState:function popState() {
+	        return this.conditionStack.pop();
+	    },
+	_currentRules:function _currentRules() {
+	        return this.conditions[this.conditionStack[this.conditionStack.length-1]].rules;
+	    },
+	topState:function () {
+	        return this.conditionStack[this.conditionStack.length-2];
+	    },
+	pushState:function begin(condition) {
+	        this.begin(condition);
+	    }});
+	lexer.options = {};
+	lexer.performAction = function anonymous(yy,yy_,$avoiding_name_collisions,YY_START) {
+
+	var YYSTATE=YY_START
+	switch($avoiding_name_collisions) {
+	case 0:/* skip whitespace */
+	break;
+	case 1:return 6
+	break;
+	case 2:yy_.yytext = yy_.yytext.substr(1,yy_.yyleng-2); return 4
+	break;
+	case 3:return 17
+	break;
+	case 4:return 18
+	break;
+	case 5:return 23
+	break;
+	case 6:return 24
+	break;
+	case 7:return 22
+	break;
+	case 8:return 21
+	break;
+	case 9:return 10
+	break;
+	case 10:return 11
+	break;
+	case 11:return 8
+	break;
+	case 12:return 14
+	break;
+	case 13:return 'INVALID'
+	break;
+	}
 	};
+	lexer.rules = [/^(?:\s+)/,/^(?:(-?([0-9]|[1-9][0-9]+))(\.[0-9]+)?([eE][-+]?[0-9]+)?\b)/,/^(?:"(?:\\[\\"bfnrt/]|\\u[a-fA-F0-9]{4}|[^\\\0-\x09\x0a-\x1f"])*")/,/^(?:\{)/,/^(?:\})/,/^(?:\[)/,/^(?:\])/,/^(?:,)/,/^(?::)/,/^(?:true\b)/,/^(?:false\b)/,/^(?:null\b)/,/^(?:$)/,/^(?:.)/];
+	lexer.conditions = {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13],"inclusive":true}};
 
-	/**
-	 * Destroy history
-	 */
-	History.prototype.destroy = function () {
-	  this.editor = null;
 
-	  this.history = [];
-	  this.index = -1;
-	};
-
-	module.exports = History;
-
+	;
+	return lexer;})()
+	parser.lexer = lexer;
+	return parser;
+	})();
+	if (true) {
+	  exports.parser = jsonlint;
+	  exports.parse = jsonlint.parse.bind(jsonlint);
+	}
 
 /***/ },
 /* 6 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
+
+	'use strict';
 
 	/**
 	 * @constructor SearchBox
@@ -3321,12 +3593,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	  tbodySearch.appendChild(tr);
 
 	  var refreshSearch = document.createElement('button');
+	  refreshSearch.type = 'button';
 	  refreshSearch.className = 'jsoneditor-refresh';
 	  td = document.createElement('td');
 	  td.appendChild(refreshSearch);
 	  tr.appendChild(td);
 
 	  var search = document.createElement('input');
+	  // search.type = 'button';
 	  this.dom.search = search;
 	  search.oninput = function (event) {
 	    searchBox._onDelayedSearch(event);
@@ -3350,6 +3624,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  tr.appendChild(td);
 
 	  var searchNext = document.createElement('button');
+	  searchNext.type = 'button';
 	  searchNext.title = 'Next result (Enter)';
 	  searchNext.className = 'jsoneditor-next';
 	  searchNext.onclick = function () {
@@ -3360,6 +3635,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	  tr.appendChild(td);
 
 	  var searchPrevious = document.createElement('button');
+	  searchPrevious.type = 'button';
 	  searchPrevious.title = 'Previous result (Shift+Enter)';
 	  searchPrevious.className = 'jsoneditor-previous';
 	  searchPrevious.onclick = function () {
@@ -3585,7 +3861,18 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 7 */
 /***/ function(module, exports, __webpack_require__) {
 
-	var util = __webpack_require__(3);
+	'use strict';
+
+	var util = __webpack_require__(4);
+
+	/**
+	 * Node.getRootNode shim
+	 * @param  {Node} node node to check
+	 * @return {Node}      node's rootNode or `window` if there is ShadowDOM is not supported.
+	 */
+	function getRootNode(node){
+	    return node.getRootNode && node.getRootNode() || window;
+	}
 
 	/**
 	 * A context menu
@@ -3627,6 +3914,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  // create a (non-visible) button to set the focus to the menu
 	  var focusButton = document.createElement('button');
+	  focusButton.type = 'button';
 	  dom.focusButton = focusButton;
 	  var li = document.createElement('li');
 	  li.style.overflow = 'hidden';
@@ -3653,6 +3941,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	        // create a button in the menu item
 	        var button = document.createElement('button');
+	        button.type = 'button';
 	        button.className = item.className;
 	        domItem.button = button;
 	        if (item.title) {
@@ -3673,7 +3962,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	          var divIcon = document.createElement('div');
 	          divIcon.className = 'jsoneditor-icon';
 	          button.appendChild(divIcon);
-	          button.appendChild(document.createTextNode(item.text));
+	          var divText = document.createElement('div');
+	          divText.className = 'jsoneditor-text' +
+	              (item.click ? '' : ' jsoneditor-right-margin');
+	          divText.appendChild(document.createTextNode(item.text));
+	          button.appendChild(divText);
 
 	          var buttonSubmenu;
 	          if (item.click) {
@@ -3681,6 +3974,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	            button.className += ' jsoneditor-default';
 
 	            var buttonExpand = document.createElement('button');
+	            buttonExpand.type = 'button';
 	            domItem.buttonExpand = buttonExpand;
 	            buttonExpand.className = 'jsoneditor-expand';
 	            buttonExpand.innerHTML = '<div class="jsoneditor-expand"></div>';
@@ -3719,7 +4013,8 @@ return /******/ (function(modules) { // webpackBootstrap
 	        }
 	        else {
 	          // no submenu, just a button with clickhandler
-	          button.innerHTML = '<div class="jsoneditor-icon"></div>' + item.text;
+	          button.innerHTML = '<div class="jsoneditor-icon"></div>' +
+	              '<div class="jsoneditor-text">' + item.text + '</div>';
 	        }
 
 	        domItems.push(domItem);
@@ -3779,8 +4074,12 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	  // determine whether to display the menu below or above the anchor
 	  var showBelow = true;
+	  var parent = anchor.parentNode;
+	  var anchorRect = anchor.getBoundingClientRect();
+	  var parentRect = parent.getBoundingClientRect()
+
 	  if (contentWindow) {
-	    var anchorRect = anchor.getBoundingClientRect();
+	    
 	    var contentRect = contentWindow.getBoundingClientRect();
 
 	    if (anchorRect.bottom + this.maxHeight < contentRect.bottom) {
@@ -3795,29 +4094,34 @@ return /******/ (function(modules) { // webpackBootstrap
 	    }
 	  }
 
+	  var leftGap = anchorRect.left - parentRect.left;
+	  var topGap = anchorRect.top - parentRect.top;
+
 	  // position the menu
 	  if (showBelow) {
 	    // display the menu below the anchor
 	    var anchorHeight = anchor.offsetHeight;
-	    this.dom.menu.style.left = '0px';
-	    this.dom.menu.style.top = anchorHeight + 'px';
+	    this.dom.menu.style.left = leftGap + 'px';
+	    this.dom.menu.style.top = topGap + anchorHeight + 'px';
 	    this.dom.menu.style.bottom = '';
 	  }
 	  else {
 	    // display the menu above the anchor
-	    this.dom.menu.style.left = '0px';
-	    this.dom.menu.style.top = '';
+	    this.dom.menu.style.left = leftGap + 'px';
+	    this.dom.menu.style.top = topGap + 'px';
 	    this.dom.menu.style.bottom = '0px';
 	  }
 
+	  // find the root node of the page (window, or a shadow dom root element)
+	  this.rootNode = getRootNode(anchor);
+
 	  // attach the menu to the parent of the anchor
-	  var parent = anchor.parentNode;
 	  parent.insertBefore(this.dom.root, parent.firstChild);
 
 	  // create and attach event listeners
 	  var me = this;
 	  var list = this.dom.list;
-	  this.eventListeners.mousedown = util.addEventListener(window, 'mousedown', function (event) {
+	  this.eventListeners.mousedown = util.addEventListener(this.rootNode, 'mousedown', function (event) {
 	    // hide menu on click outside of the menu
 	    var target = event.target;
 	    if ((target != list) && !me._isChildOf(target, list)) {
@@ -3826,7 +4130,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      event.preventDefault();
 	    }
 	  });
-	  this.eventListeners.keydown = util.addEventListener(window, 'keydown', function (event) {
+	  this.eventListeners.keydown = util.addEventListener(this.rootNode, 'keydown', function (event) {
 	    me._onKeyDown(event);
 	  });
 
@@ -3861,7 +4165,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    if (this.eventListeners.hasOwnProperty(name)) {
 	      var fn = this.eventListeners[name];
 	      if (fn) {
-	        util.removeEventListener(window, name, fn);
+	        util.removeEventListener(this.rootNode, name, fn);
 	      }
 	      delete this.eventListeners[name];
 	    }
@@ -3903,7 +4207,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var height = ul.clientHeight; // force a reflow in Firefox
 	    setTimeout(function () {
 	      if (me.expandedItem == domItem) {
-	        ul.style.height = (ul.childNodes.length * 24) + 'px';
+	        var childsHeight = 0;
+	        for (var i = 0; i < ul.childNodes.length; i++) {
+	          childsHeight += ul.childNodes[i].clientHeight;
+	        }
+	        ul.style.height = childsHeight + 'px';
 	        ul.style.padding = '5px 10px';
 	      }
 	    }, 0);
@@ -4046,9 +4354,124 @@ return /******/ (function(modules) { // webpackBootstrap
 /* 8 */
 /***/ function(module, exports, __webpack_require__) {
 
+	'use strict';
+
 	var ContextMenu = __webpack_require__(7);
-	var appendNodeFactory = __webpack_require__(12);
-	var util = __webpack_require__(3);
+
+	/**
+	 * Creates a component that visualize path selection in tree based editors
+	 * @param {HTMLElement} container 
+	 * @constructor
+	 */
+	function TreePath(container) {
+	  if (container) {
+	    this.path = document.createElement('div');
+	    this.path.className = 'jsoneditor-treepath';
+	    container.appendChild(this.path);
+	    this.reset();
+	  }
+	};
+
+	/**
+	 * Reset component to initial status
+	 */
+	TreePath.prototype.reset = function () {
+	  this.path.innerHTML = '';
+	}
+
+	/**
+	 * Renders the component UI according to a given path objects
+	 * @param {Array<name: String, childs: Array>} pathObjs a list of path objects
+	 * 
+	 */
+	TreePath.prototype.setPath = function (pathObjs) {
+	  var me = this;
+	  this.reset();
+	  if (pathObjs && pathObjs.length) {
+	    pathObjs.forEach(function (pathObj, idx) {
+	      var pathEl = document.createElement('span');
+	      var sepEl;
+	      pathEl.className = 'jsoneditor-treepath-element';
+	      pathEl.innerText = pathObj.name;
+	      pathEl.onclick = _onSegmentClick.bind(me, pathObj);
+	  
+	      me.path.appendChild(pathEl);
+
+	      if (pathObj.children.length) {
+	        sepEl = document.createElement('span');
+	        sepEl.className = 'jsoneditor-treepath-seperator';
+	        sepEl.innerHTML = '&#9658;';
+
+	        sepEl.onclick = function () {
+	          var items = [];
+	          pathObj.children.forEach(function (child) {
+	            items.push({
+	              'text': child.name,
+	              'className': 'jsoneditor-type-modes' + (pathObjs[idx + 1] + 1 && pathObjs[idx + 1].name === child.name ? ' jsoneditor-selected' : ''),
+	              'click': _onContextMenuItemClick.bind(me, pathObj, child.name)
+	            });
+	          });
+	          var menu = new ContextMenu(items);
+	          menu.show(sepEl);
+	        };
+
+	        me.path.appendChild(sepEl, me.container);
+	      }
+
+	      if(idx === pathObjs.length - 1) {
+	        var leftRectPos = (sepEl || pathEl).getBoundingClientRect().left;
+	        if(me.path.offsetWidth < leftRectPos) {
+	          me.path.scrollLeft = leftRectPos;
+	        }
+	      }
+	    });
+	  }
+
+	  function _onSegmentClick(pathObj) {
+	    if (this.selectionCallback) {
+	      this.selectionCallback(pathObj);
+	    }
+	  };
+
+	  function _onContextMenuItemClick(pathObj, selection) {
+	    if (this.contextMenuCallback) {
+	      this.contextMenuCallback(pathObj, selection);
+	    }
+	  };
+	};
+
+	/**
+	 * set a callback function for selection of path section
+	 * @param {Function} callback function to invoke when section is selected
+	 */
+	TreePath.prototype.onSectionSelected = function (callback) {
+	  if (typeof callback === 'function') {
+	    this.selectionCallback = callback;      
+	  }
+	};
+
+	/**
+	 * set a callback function for selection of path section
+	 * @param {Function} callback function to invoke when section is selected
+	 */
+	TreePath.prototype.onContextMenuItemSelected = function (callback) {
+	  if (typeof callback === 'function') {
+	    this.contextMenuCallback = callback;
+	  }
+	};
+
+	module.exports = TreePath;
+
+/***/ },
+/* 9 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var naturalSort = __webpack_require__(10);
+	var ContextMenu = __webpack_require__(7);
+	var appendNodeFactory = __webpack_require__(11);
+	var util = __webpack_require__(4);
 
 	/**
 	 * @constructor Node
@@ -4102,7 +4525,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var editable = this.editor.options.onEditable({
 	        field: this.field,
 	        value: this.value,
-	        path: this.getFieldsPath()
+	        path: this.getPath()
 	      });
 
 	      if (typeof editable === 'boolean') {
@@ -4121,11 +4544,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * Get the path of this node
 	 * @return {String[]} Array containing the path to this node
 	 */
-	Node.prototype.getFieldsPath = function () {
+	Node.prototype.getPath = function () {
 	  var node = this;
 	  var path = [];
 	  while (node) {
-	    var field = node.field != undefined ? node.field : node.index;
+	    var field = !node.parent
+	        ? undefined  // do not add an (optional) field name of the root node
+	        :  (node.parent.type != 'array')
+	            ? node.field
+	            : node.index;
+
 	    if (field !== undefined) {
 	      path.unshift(field);
 	    }
@@ -4204,6 +4632,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    popover.appendChild(document.createTextNode(error.message));
 
 	    var button = document.createElement('button');
+	    button.type = 'button';
 	    button.className = 'jsoneditor-schema-error';
 	    button.appendChild(popover);
 
@@ -4358,21 +4787,16 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 	    }
 	    this.value = '';
+
+	    // sort object keys
+	    if (this.editor.options.sortObjectKeys === true) {
+	      this.sort('asc');
+	    }
 	  }
 	  else {
 	    // value
 	    this.childs = undefined;
 	    this.value = value;
-	    /* TODO
-	     if (typeof(value) == 'string') {
-	     var escValue = JSON.stringify(value);
-	     this.value = escValue.substring(1, escValue.length - 1);
-	     console.log('check', value, this.value);
-	     }
-	     else {
-	     this.value = value;
-	     }
-	     */
 	  }
 
 	  this.previousValue = this.value;
@@ -4417,11 +4841,11 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	/**
-	 * Get path of the root node till the current node
+	 * Get jsonpath of the current node
 	 * @return {Node[]} Returns an array with nodes
 	 */
-	Node.prototype.getPath = function() {
-	  var path = this.parent ? this.parent.getPath() : [];
+	Node.prototype.getNodePath = function () {
+	  var path = this.parent ? this.parent.getNodePath() : [];
 	  path.push(this);
 	  return path;
 	};
@@ -4580,6 +5004,20 @@ return /******/ (function(modules) { // webpackBootstrap
 	  this.childs.forEach(function (child) {
 	    child.hide();
 	  });
+	};
+
+
+	/**
+	 * Goes through the path from the node to the root and ensures that it is expanded
+	 */
+	Node.prototype.expandTo = function() {
+	  var currentNode = this.parent;
+	  while (currentNode) {
+	    if (!currentNode.expanded) {
+	      currentNode.expand();
+	    }
+	    currentNode = currentNode.parent;
+	  }
 	};
 
 
@@ -4900,7 +5338,11 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      case 'value':
 	      default:
-	        if (dom.value && !this._hasChilds()) {
+	        if (dom.select) {
+	          // enum select box
+	          dom.select.focus();
+	        }
+	        else if (dom.value && !this._hasChilds()) {
 	          dom.value.focus();
 	          util.selectContentEditable(dom.value);
 	        }
@@ -5318,6 +5760,63 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 	    }
 
+	    if (this.enum && this.editable.value) {
+	      // create select box when this node has an enum object
+	      if (!this.dom.select) {
+	        this.dom.select = document.createElement('select');
+	        this.id = this.field + "_" + new Date().getUTCMilliseconds();
+	        this.dom.select.id = this.id;
+	        this.dom.select.name = this.dom.select.id;
+
+	        //Create the default empty option
+	        this.dom.select.option = document.createElement('option');
+	        this.dom.select.option.value = '';
+	        this.dom.select.option.innerHTML = '--';
+	        this.dom.select.appendChild(this.dom.select.option);
+
+	        //Iterate all enum values and add them as options
+	        for(var i = 0; i < this.enum.length; i++) {
+	          this.dom.select.option = document.createElement('option');
+	          this.dom.select.option.value = this.enum[i];
+	          this.dom.select.option.innerHTML = this.enum[i];
+	          if(this.dom.select.option.value == this.value){
+	            this.dom.select.option.selected = true;
+	          }
+	          this.dom.select.appendChild(this.dom.select.option);
+	        }
+
+	        this.dom.tdSelect = document.createElement('td');
+	        this.dom.tdSelect.className = 'jsoneditor-tree';
+	        this.dom.tdSelect.appendChild(this.dom.select);
+	        this.dom.tdValue.parentNode.insertBefore(this.dom.tdSelect, this.dom.tdValue);
+	      }
+
+	      // If the enum is inside a composite type display
+	      // both the simple input and the dropdown field
+	      if(this.schema && (
+	          !this.schema.hasOwnProperty("oneOf") &&
+	          !this.schema.hasOwnProperty("anyOf") &&
+	          !this.schema.hasOwnProperty("allOf"))
+	      ) {
+	        this.valueFieldHTML = this.dom.tdValue.innerHTML;
+	        this.dom.tdValue.style.visibility = 'hidden';
+	        this.dom.tdValue.innerHTML = '';
+	      } else {
+	        delete this.valueFieldHTML;
+	      }
+	    }
+	    else {
+	      // cleanup select box when displayed
+	      if (this.dom.tdSelect) {
+	        this.dom.tdSelect.parentNode.removeChild(this.dom.tdSelect);
+	        delete this.dom.tdSelect;
+	        delete this.dom.select;
+	        this.dom.tdValue.innerHTML = this.valueFieldHTML;
+	        this.dom.tdValue.style.visibility = '';
+	        delete this.valueFieldHTML;
+	      }
+	    }
+
 	    // strip formatting from the contents of the editable div
 	    util.stripFormatting(domValue);
 	  }
@@ -5404,7 +5903,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    var duplicateKeys = [];
 	    for (var i = 0; i < this.childs.length; i++) {
 	      var child = this.childs[i];
-	      if (keys[child.field]) {
+	      if (keys.hasOwnProperty(child.field)) {
 	        duplicateKeys.push(child.field);
 	      }
 	      keys[child.field] = true;
@@ -5473,6 +5972,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      // create draggable area
 	      if (this.parent) {
 	        var domDrag = document.createElement('button');
+	        domDrag.type = 'button';
 	        dom.drag = domDrag;
 	        domDrag.className = 'jsoneditor-dragarea';
 	        domDrag.title = 'Drag to move this field (Alt+Shift+Arrows)';
@@ -5484,6 +5984,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // create context menu
 	    var tdMenu = document.createElement('td');
 	    var menu = document.createElement('button');
+	    menu.type = 'button';
 	    dom.menu = menu;
 	    menu.className = 'jsoneditor-contextmenu';
 	    menu.title = 'Click to open the actions menu (Ctrl+M)';
@@ -5910,20 +6411,22 @@ return /******/ (function(modules) { // webpackBootstrap
 	      domField.className = 'jsoneditor-readonly';
 	    }
 
-	    var field;
+	    var fieldText;
 	    if (this.index != undefined) {
-	      field = this.index;
+	      fieldText = this.index;
 	    }
 	    else if (this.field != undefined) {
-	      field = this.field;
+	      fieldText = this.field;
 	    }
 	    else if (this._hasChilds()) {
-	      field = this.type;
+	      fieldText = this.type;
 	    }
 	    else {
-	      field = '';
+	      fieldText = '';
 	    }
-	    domField.innerHTML = this._escapeHTML(field);
+	    domField.innerHTML = this._escapeHTML(fieldText);
+
+	    this._updateSchema();
 	  }
 
 	  // apply value to DOM
@@ -5967,6 +6470,100 @@ return /******/ (function(modules) { // webpackBootstrap
 	  if (this.append) {
 	    this.append.updateDom();
 	  }
+	};
+
+	/**
+	 * Locate the JSON schema of the node and check for any enum type
+	 * @private
+	 */
+	Node.prototype._updateSchema = function () {
+	  //Locating the schema of the node and checking for any enum type
+	  if(this.editor && this.editor.options) {
+	    // find the part of the json schema matching this nodes path
+	    this.schema = this.editor.options.schema 
+	        ? Node._findSchema(this.editor.options.schema, this.getPath())
+	        : null;
+	    if (this.schema) {
+	      this.enum = Node._findEnum(this.schema);
+	    }
+	    else {
+	      delete this.enum;
+	    }
+	  }
+	};
+
+	/**
+	 * find an enum definition in a JSON schema, as property `enum` or inside
+	 * one of the schemas composites (`oneOf`, `anyOf`, `allOf`)
+	 * @param  {Object} schema
+	 * @return {Array | null} Returns the enum when found, null otherwise.
+	 * @private
+	 */
+	Node._findEnum = function (schema) {
+	  if (schema.enum) {
+	    return schema.enum;
+	  }
+
+	  var composite = schema.oneOf || schema.anyOf || schema.allOf;
+	  if (composite) {
+	    var match = composite.filter(function (entry) {return entry.enum});
+	    if (match.length > 0) {
+	      return match[0].enum;
+	    }
+	  }
+
+	  return null
+	};
+
+	/**
+	 * Return the part of a JSON schema matching given path.
+	 * @param {Object} schema
+	 * @param {Array.<string | number>} path
+	 * @return {Object | null}
+	 * @private
+	 */
+	Node._findSchema = function (schema, path) {
+	  var childSchema = schema;
+	  var foundSchema = childSchema;
+
+	  var allSchemas = schema.oneOf || schema.anyOf || schema.allOf;
+	  if (!allSchemas) {
+	    allSchemas = [schema];
+	  }
+
+	  for (var j = 0; j < allSchemas.length; j++) {
+	    childSchema = allSchemas[j];
+
+	    for (var i = 0; i < path.length && childSchema; i++) {
+	      var key = path[i];
+
+	      if (typeof key === 'string' && childSchema.patternProperties && i == path.length - 1) {
+	        for (var prop in childSchema.patternProperties) {
+	          foundSchema = Node._findSchema(childSchema.patternProperties[prop], path.slice(i, path.length));
+	        }
+	      }
+	      else if (childSchema.items && childSchema.items.properties) {
+	        childSchema = childSchema.items.properties[key];
+	        if (childSchema) {
+	          foundSchema = Node._findSchema(childSchema, path.slice(i, path.length));
+	        }
+	      }
+	      else if (typeof key === 'string' && childSchema.properties) {
+	        childSchema = childSchema.properties[key] || null;
+	        if (childSchema) {
+	          foundSchema = Node._findSchema(childSchema, path.slice(i, path.length));
+	        }
+	      }
+	      else if (typeof key === 'number' && childSchema.items) {
+	        childSchema = childSchema.items;
+	        if (childSchema) {
+	          foundSchema = Node._findSchema(childSchema, path.slice(i, path.length));
+	        }
+	      }
+	    }
+
+	  }
+	  return foundSchema
 	};
 
 	/**
@@ -6045,6 +6642,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	Node.prototype._createDomExpandButton = function () {
 	  // create expand button
 	  var expand = document.createElement('button');
+	  expand.type = 'button';
 	  if (this._hasChilds()) {
 	    expand.className = this.expanded ? 'jsoneditor-expanded' : 'jsoneditor-collapsed';
 	    expand.title =
@@ -6164,6 +6762,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this._getDomValue();
 	  }
 
+	  // update the value of the node based on the selected option
+	  if (type == 'change' && target == dom.select) {
+	    this.dom.value.innerHTML = dom.select.value;
+	    this._getDomValue();
+	    this._updateDomValue();
+	  }
+
 	  // value events
 	  var domValue = dom.value;
 	  if (target == domValue) {
@@ -6191,8 +6796,10 @@ return /******/ (function(modules) { // webpackBootstrap
 	        break;
 
 	      case 'click':
-	        if (event.ctrlKey || !this.editable.value) {
+	        if (event.ctrlKey && this.editable.value) {
+	          // if read-only, we use the regular click behavior of an anchor
 	          if (util.isUrl(this.value)) {
+	            event.preventDefault();
 	            window.open(this.value, '_blank');
 	          }
 	        }
@@ -6229,7 +6836,9 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	      case 'input':
 	        this._getDomField(true);
+	        this._updateSchema();
 	        this._updateDomField();
+	        this._updateDomValue();
 	        break;
 
 	      case 'keydown':
@@ -6267,7 +6876,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      }
 	    }
 	    else {
-	      if (domValue) {
+	      if (domValue && !this.enum) {
 	        util.setEndOfContentEditable(domValue);
 	        domValue.focus();
 	      }
@@ -6795,41 +7404,41 @@ return /******/ (function(modules) { // webpackBootstrap
 	};
 
 	/**
-	 * Sort the childs of the node. Only applicable when the node has type 'object'
+	 * Sort the child's of the node. Only applicable when the node has type 'object'
 	 * or 'array'.
 	 * @param {String} direction   Sorting direction. Available values: "asc", "desc"
 	 * @private
 	 */
-	Node.prototype._onSort = function (direction) {
-	  if (this._hasChilds()) {
-	    var order = (direction == 'desc') ? -1 : 1;
-	    var prop = (this.type == 'array') ? 'value': 'field';
-	    this.hideChilds();
-
-	    var oldChilds = this.childs;
-	    var oldSort = this.sort;
-
-	    // copy the array (the old one will be kept for an undo action
-	    this.childs = this.childs.concat();
-
-	    // sort the arrays
-	    this.childs.sort(function (a, b) {
-	      if (a[prop] > b[prop]) return order;
-	      if (a[prop] < b[prop]) return -order;
-	      return 0;
-	    });
-	    this.sort = (order == 1) ? 'asc' : 'desc';
-
-	    this.editor._onAction('sort', {
-	      node: this,
-	      oldChilds: oldChilds,
-	      oldSort: oldSort,
-	      newChilds: this.childs,
-	      newSort: this.sort
-	    });
-
-	    this.showChilds();
+	Node.prototype.sort = function (direction) {
+	  if (!this._hasChilds()) {
+	    return;
 	  }
+
+	  var order = (direction == 'desc') ? -1 : 1;
+	  var prop = (this.type == 'array') ? 'value': 'field';
+	  this.hideChilds();
+
+	  var oldChilds = this.childs;
+	  var oldSortOrder = this.sortOrder;
+
+	  // copy the array (the old one will be kept for an undo action
+	  this.childs = this.childs.concat();
+
+	  // sort the arrays
+	  this.childs.sort(function (a, b) {
+	    return order * naturalSort(a[prop], b[prop]);
+	  });
+	  this.sortOrder = (order == 1) ? 'asc' : 'desc';
+
+	  this.editor._onAction('sort', {
+	    node: this,
+	    oldChilds: oldChilds,
+	    oldSort: oldSortOrder,
+	    newChilds: this.childs,
+	    newSort: this.sortOrder
+	  });
+
+	  this.showChilds();
 	};
 
 	/**
@@ -7080,6 +7689,32 @@ return /******/ (function(modules) { // webpackBootstrap
 	      'but always returned as string.'
 	};
 
+	Node.prototype.addTemplates = function (menu, append) {
+	    var node = this;
+	    var templates = node.editor.options.templates;
+	    if (templates == null) return;
+	    if (templates.length) {
+	        // create a separator
+	        menu.push({
+	            'type': 'separator'
+	        });
+	    }
+	    var appendData = function (name, data) {
+	        node._onAppend(name, data);
+	    };
+	    var insertData = function (name, data) {
+	        node._onInsertBefore(name, data);
+	    };
+	    templates.forEach(function (template) {
+	        menu.push({
+	            text: template.text,
+	            className: (template.className || 'jsoneditor-type-object'),
+	            title: template.title,
+	            click: (append ? appendData.bind(this, template.field, template.value) : insertData.bind(this, template.field, template.value))
+	        });
+	    });
+	};
+
 	/**
 	 * Show a contextmenu for this node
 	 * @param {HTMLElement} anchor   Anchor element to attach the context menu to
@@ -7139,13 +7774,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	  }
 
 	  if (this._hasChilds()) {
-	    var direction = ((this.sort == 'asc') ? 'desc': 'asc');
+	    var direction = ((this.sortOrder == 'asc') ? 'desc': 'asc');
 	    items.push({
 	      text: 'Sort',
 	      title: 'Sort the childs of this ' + this.type,
 	      className: 'jsoneditor-sort-' + direction,
 	      click: function () {
-	        node._onSort(direction);
+	        node.sort(direction);
 	      },
 	      submenu: [
 	        {
@@ -7153,7 +7788,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          className: 'jsoneditor-sort-asc',
 	          title: 'Sort the childs of this ' + this.type + ' in ascending order',
 	          click: function () {
-	            node._onSort('asc');
+	            node.sort('asc');
 	          }
 	        },
 	        {
@@ -7161,7 +7796,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	          className: 'jsoneditor-sort-desc',
 	          title: 'Sort the childs of this ' + this.type +' in descending order',
 	          click: function () {
-	            node._onSort('desc');
+	            node.sort('desc');
 	          }
 	        }
 	      ]
@@ -7179,52 +7814,91 @@ return /******/ (function(modules) { // webpackBootstrap
 	    // create append button (for last child node only)
 	    var childs = node.parent.childs;
 	    if (node == childs[childs.length - 1]) {
-	      items.push({
-	        text: 'Append',
-	        title: 'Append a new field with type \'auto\' after this field (Ctrl+Shift+Ins)',
-	        submenuTitle: 'Select the type of the field to be appended',
-	        className: 'jsoneditor-append',
-	        click: function () {
-	          node._onAppend('', '', 'auto');
-	        },
-	        submenu: [
-	          {
+	        var appendSubmenu = [
+	            {
+	                text: 'Auto',
+	                className: 'jsoneditor-type-auto',
+	                title: titles.auto,
+	                click: function () {
+	                    node._onAppend('', '', 'auto');
+	                }
+	            },
+	            {
+	                text: 'Array',
+	                className: 'jsoneditor-type-array',
+	                title: titles.array,
+	                click: function () {
+	                    node._onAppend('', []);
+	                }
+	            },
+	            {
+	                text: 'Object',
+	                className: 'jsoneditor-type-object',
+	                title: titles.object,
+	                click: function () {
+	                    node._onAppend('', {});
+	                }
+	            },
+	            {
+	                text: 'String',
+	                className: 'jsoneditor-type-string',
+	                title: titles.string,
+	                click: function () {
+	                    node._onAppend('', '', 'string');
+	                }
+	            }
+	        ];
+	        node.addTemplates(appendSubmenu, true);
+	        items.push({
+	            text: 'Append',
+	            title: 'Append a new field with type \'auto\' after this field (Ctrl+Shift+Ins)',
+	            submenuTitle: 'Select the type of the field to be appended',
+	            className: 'jsoneditor-append',
+	            click: function () {
+	                node._onAppend('', '', 'auto');
+	            },
+	            submenu: appendSubmenu
+	        });
+	    }
+
+
+
+	    // create insert button
+	    var insertSubmenu = [
+	        {
 	            text: 'Auto',
 	            className: 'jsoneditor-type-auto',
 	            title: titles.auto,
 	            click: function () {
-	              node._onAppend('', '', 'auto');
+	                node._onInsertBefore('', '', 'auto');
 	            }
-	          },
-	          {
+	        },
+	        {
 	            text: 'Array',
 	            className: 'jsoneditor-type-array',
 	            title: titles.array,
 	            click: function () {
-	              node._onAppend('', []);
+	                node._onInsertBefore('', []);
 	            }
-	          },
-	          {
+	        },
+	        {
 	            text: 'Object',
 	            className: 'jsoneditor-type-object',
 	            title: titles.object,
 	            click: function () {
-	              node._onAppend('', {});
+	                node._onInsertBefore('', {});
 	            }
-	          },
-	          {
+	        },
+	        {
 	            text: 'String',
 	            className: 'jsoneditor-type-string',
 	            title: titles.string,
 	            click: function () {
-	              node._onAppend('', '', 'string');
+	                node._onInsertBefore('', '', 'string');
 	            }
-	          }
-	        ]
-	      });
-	    }
-
-	    // create insert button
+	        }
+	    ];
+	    node.addTemplates(insertSubmenu, false);
 	    items.push({
 	      text: 'Insert',
 	      title: 'Insert a new field with type \'auto\' before this field (Ctrl+Ins)',
@@ -7233,40 +7907,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      click: function () {
 	        node._onInsertBefore('', '', 'auto');
 	      },
-	      submenu: [
-	        {
-	          text: 'Auto',
-	          className: 'jsoneditor-type-auto',
-	          title: titles.auto,
-	          click: function () {
-	            node._onInsertBefore('', '', 'auto');
-	          }
-	        },
-	        {
-	          text: 'Array',
-	          className: 'jsoneditor-type-array',
-	          title: titles.array,
-	          click: function () {
-	            node._onInsertBefore('', []);
-	          }
-	        },
-	        {
-	          text: 'Object',
-	          className: 'jsoneditor-type-object',
-	          title: titles.object,
-	          click: function () {
-	            node._onInsertBefore('', {});
-	          }
-	        },
-	        {
-	          text: 'String',
-	          className: 'jsoneditor-type-string',
-	          title: titles.string,
-	          click: function () {
-	            node._onInsertBefore('', '', 'string');
-	          }
-	        }
-	      ]
+	      submenu: insertSubmenu
 	    });
 
 	    if (this.editable.field) {
@@ -7383,7 +8024,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	 * @private
 	 */
 	Node.prototype._unescapeHTML = function (escapedText) {
-	  var json = '"' + this._escapeJSON(escapedText.trim()) + '"';
+	  var json = '"' + this._escapeJSON(escapedText) + '"';
 	  var htmlEscaped = util.parse(json);
 
 	  return htmlEscaped
@@ -7440,566 +8081,63 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 9 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var ContextMenu = __webpack_require__(7);
-
-	/**
-	 * Create a select box to be used in the editor menu's, which allows to switch mode
-	 * @param {HTMLElement} container
-	 * @param {String[]} modes  Available modes: 'code', 'form', 'text', 'tree', 'view'
-	 * @param {String} current  Available modes: 'code', 'form', 'text', 'tree', 'view'
-	 * @param {function(mode: string)} onSwitch  Callback invoked on switch
-	 * @constructor
-	 */
-	function ModeSwitcher(container, modes, current, onSwitch) {
-	  // available modes
-	  var availableModes = {
-	    code: {
-	      'text': 'Code',
-	      'title': 'Switch to code highlighter',
-	      'click': function () {
-	        onSwitch('code')
-	      }
-	    },
-	    form: {
-	      'text': 'Form',
-	      'title': 'Switch to form editor',
-	      'click': function () {
-	        onSwitch('form');
-	      }
-	    },
-	    text: {
-	      'text': 'Text',
-	      'title': 'Switch to plain text editor',
-	      'click': function () {
-	        onSwitch('text');
-	      }
-	    },
-	    tree: {
-	      'text': 'Tree',
-	      'title': 'Switch to tree editor',
-	      'click': function () {
-	        onSwitch('tree');
-	      }
-	    },
-	    view: {
-	      'text': 'View',
-	      'title': 'Switch to tree view',
-	      'click': function () {
-	        onSwitch('view');
-	      }
-	    }
-	  };
-
-	  // list the selected modes
-	  var items = [];
-	  for (var i = 0; i < modes.length; i++) {
-	    var mode = modes[i];
-	    var item = availableModes[mode];
-	    if (!item) {
-	      throw new Error('Unknown mode "' + mode + '"');
-	    }
-
-	    item.className = 'jsoneditor-type-modes' + ((current == mode) ? ' jsoneditor-selected' : '');
-	    items.push(item);
-	  }
-
-	  // retrieve the title of current mode
-	  var currentMode = availableModes[current];
-	  if (!currentMode) {
-	    throw new Error('Unknown mode "' + current + '"');
-	  }
-	  var currentTitle = currentMode.text;
-
-	  // create the html element
-	  var box = document.createElement('button');
-	  box.className = 'jsoneditor-modes jsoneditor-separator';
-	  box.innerHTML = currentTitle + ' &#x25BE;';
-	  box.title = 'Switch editor mode';
-	  box.onclick = function () {
-	    var menu = new ContextMenu(items);
-	    menu.show(box);
-	  };
-
-	  var frame = document.createElement('div');
-	  frame.className = 'jsoneditor-modes';
-	  frame.style.position = 'relative';
-	  frame.appendChild(box);
-
-	  container.appendChild(frame);
-
-	  this.dom = {
-	    container: container,
-	    box: box,
-	    frame: frame
-	  };
-	}
-
-	/**
-	 * Set focus to switcher
-	 */
-	ModeSwitcher.prototype.focus = function () {
-	  this.dom.box.focus();
-	};
-
-	/**
-	 * Destroy the ModeSwitcher, remove from DOM
-	 */
-	ModeSwitcher.prototype.destroy = function () {
-	  if (this.dom && this.dom.frame && this.dom.frame.parentNode) {
-	    this.dom.frame.parentNode.removeChild(this.dom.frame);
-	  }
-	  this.dom = null;
-	};
-
-	module.exports = ModeSwitcher;
-
-
-/***/ },
 /* 10 */
-/***/ function(module, exports, __webpack_require__) {
+/***/ function(module, exports) {
 
-	/* Jison generated parser */
-	var jsonlint = (function(){
-	var parser = {trace: function trace() { },
-	yy: {},
-	symbols_: {"error":2,"JSONString":3,"STRING":4,"JSONNumber":5,"NUMBER":6,"JSONNullLiteral":7,"NULL":8,"JSONBooleanLiteral":9,"TRUE":10,"FALSE":11,"JSONText":12,"JSONValue":13,"EOF":14,"JSONObject":15,"JSONArray":16,"{":17,"}":18,"JSONMemberList":19,"JSONMember":20,":":21,",":22,"[":23,"]":24,"JSONElementList":25,"$accept":0,"$end":1},
-	terminals_: {2:"error",4:"STRING",6:"NUMBER",8:"NULL",10:"TRUE",11:"FALSE",14:"EOF",17:"{",18:"}",21:":",22:",",23:"[",24:"]"},
-	productions_: [0,[3,1],[5,1],[7,1],[9,1],[9,1],[12,2],[13,1],[13,1],[13,1],[13,1],[13,1],[13,1],[15,2],[15,3],[20,3],[19,1],[19,3],[16,2],[16,3],[25,1],[25,3]],
-	performAction: function anonymous(yytext,yyleng,yylineno,yy,yystate,$$,_$) {
-
-	var $0 = $$.length - 1;
-	switch (yystate) {
-	case 1: // replace escaped characters with actual character
-	          this.$ = yytext.replace(/\\(\\|")/g, "$"+"1")
-	                     .replace(/\\n/g,'\n')
-	                     .replace(/\\r/g,'\r')
-	                     .replace(/\\t/g,'\t')
-	                     .replace(/\\v/g,'\v')
-	                     .replace(/\\f/g,'\f')
-	                     .replace(/\\b/g,'\b');
-	        
-	break;
-	case 2:this.$ = Number(yytext);
-	break;
-	case 3:this.$ = null;
-	break;
-	case 4:this.$ = true;
-	break;
-	case 5:this.$ = false;
-	break;
-	case 6:return this.$ = $$[$0-1];
-	break;
-	case 13:this.$ = {};
-	break;
-	case 14:this.$ = $$[$0-1];
-	break;
-	case 15:this.$ = [$$[$0-2], $$[$0]];
-	break;
-	case 16:this.$ = {}; this.$[$$[$0][0]] = $$[$0][1];
-	break;
-	case 17:this.$ = $$[$0-2]; $$[$0-2][$$[$0][0]] = $$[$0][1];
-	break;
-	case 18:this.$ = [];
-	break;
-	case 19:this.$ = $$[$0-1];
-	break;
-	case 20:this.$ = [$$[$0]];
-	break;
-	case 21:this.$ = $$[$0-2]; $$[$0-2].push($$[$0]);
-	break;
-	}
-	},
-	table: [{3:5,4:[1,12],5:6,6:[1,13],7:3,8:[1,9],9:4,10:[1,10],11:[1,11],12:1,13:2,15:7,16:8,17:[1,14],23:[1,15]},{1:[3]},{14:[1,16]},{14:[2,7],18:[2,7],22:[2,7],24:[2,7]},{14:[2,8],18:[2,8],22:[2,8],24:[2,8]},{14:[2,9],18:[2,9],22:[2,9],24:[2,9]},{14:[2,10],18:[2,10],22:[2,10],24:[2,10]},{14:[2,11],18:[2,11],22:[2,11],24:[2,11]},{14:[2,12],18:[2,12],22:[2,12],24:[2,12]},{14:[2,3],18:[2,3],22:[2,3],24:[2,3]},{14:[2,4],18:[2,4],22:[2,4],24:[2,4]},{14:[2,5],18:[2,5],22:[2,5],24:[2,5]},{14:[2,1],18:[2,1],21:[2,1],22:[2,1],24:[2,1]},{14:[2,2],18:[2,2],22:[2,2],24:[2,2]},{3:20,4:[1,12],18:[1,17],19:18,20:19},{3:5,4:[1,12],5:6,6:[1,13],7:3,8:[1,9],9:4,10:[1,10],11:[1,11],13:23,15:7,16:8,17:[1,14],23:[1,15],24:[1,21],25:22},{1:[2,6]},{14:[2,13],18:[2,13],22:[2,13],24:[2,13]},{18:[1,24],22:[1,25]},{18:[2,16],22:[2,16]},{21:[1,26]},{14:[2,18],18:[2,18],22:[2,18],24:[2,18]},{22:[1,28],24:[1,27]},{22:[2,20],24:[2,20]},{14:[2,14],18:[2,14],22:[2,14],24:[2,14]},{3:20,4:[1,12],20:29},{3:5,4:[1,12],5:6,6:[1,13],7:3,8:[1,9],9:4,10:[1,10],11:[1,11],13:30,15:7,16:8,17:[1,14],23:[1,15]},{14:[2,19],18:[2,19],22:[2,19],24:[2,19]},{3:5,4:[1,12],5:6,6:[1,13],7:3,8:[1,9],9:4,10:[1,10],11:[1,11],13:31,15:7,16:8,17:[1,14],23:[1,15]},{18:[2,17],22:[2,17]},{18:[2,15],22:[2,15]},{22:[2,21],24:[2,21]}],
-	defaultActions: {16:[2,6]},
-	parseError: function parseError(str, hash) {
-	    throw new Error(str);
-	},
-	parse: function parse(input) {
-	    var self = this,
-	        stack = [0],
-	        vstack = [null], // semantic value stack
-	        lstack = [], // location stack
-	        table = this.table,
-	        yytext = '',
-	        yylineno = 0,
-	        yyleng = 0,
-	        recovering = 0,
-	        TERROR = 2,
-	        EOF = 1;
-
-	    //this.reductionCount = this.shiftCount = 0;
-
-	    this.lexer.setInput(input);
-	    this.lexer.yy = this.yy;
-	    this.yy.lexer = this.lexer;
-	    if (typeof this.lexer.yylloc == 'undefined')
-	        this.lexer.yylloc = {};
-	    var yyloc = this.lexer.yylloc;
-	    lstack.push(yyloc);
-
-	    if (typeof this.yy.parseError === 'function')
-	        this.parseError = this.yy.parseError;
-
-	    function popStack (n) {
-	        stack.length = stack.length - 2*n;
-	        vstack.length = vstack.length - n;
-	        lstack.length = lstack.length - n;
-	    }
-
-	    function lex() {
-	        var token;
-	        token = self.lexer.lex() || 1; // $end = 1
-	        // if token isn't its numeric value, convert
-	        if (typeof token !== 'number') {
-	            token = self.symbols_[token] || token;
-	        }
-	        return token;
-	    }
-
-	    var symbol, preErrorSymbol, state, action, a, r, yyval={},p,len,newState, expected;
-	    while (true) {
-	        // retreive state number from top of stack
-	        state = stack[stack.length-1];
-
-	        // use default actions if available
-	        if (this.defaultActions[state]) {
-	            action = this.defaultActions[state];
-	        } else {
-	            if (symbol == null)
-	                symbol = lex();
-	            // read action for current state and first input
-	            action = table[state] && table[state][symbol];
-	        }
-
-	        // handle parse error
-	        _handle_error:
-	        if (typeof action === 'undefined' || !action.length || !action[0]) {
-
-	            if (!recovering) {
-	                // Report error
-	                expected = [];
-	                for (p in table[state]) if (this.terminals_[p] && p > 2) {
-	                    expected.push("'"+this.terminals_[p]+"'");
-	                }
-	                var errStr = '';
-	                if (this.lexer.showPosition) {
-	                    errStr = 'Parse error on line '+(yylineno+1)+":\n"+this.lexer.showPosition()+"\nExpecting "+expected.join(', ') + ", got '" + this.terminals_[symbol]+ "'";
-	                } else {
-	                    errStr = 'Parse error on line '+(yylineno+1)+": Unexpected " +
-	                                  (symbol == 1 /*EOF*/ ? "end of input" :
-	                                              ("'"+(this.terminals_[symbol] || symbol)+"'"));
-	                }
-	                this.parseError(errStr,
-	                    {text: this.lexer.match, token: this.terminals_[symbol] || symbol, line: this.lexer.yylineno, loc: yyloc, expected: expected});
-	            }
-
-	            // just recovered from another error
-	            if (recovering == 3) {
-	                if (symbol == EOF) {
-	                    throw new Error(errStr || 'Parsing halted.');
-	                }
-
-	                // discard current lookahead and grab another
-	                yyleng = this.lexer.yyleng;
-	                yytext = this.lexer.yytext;
-	                yylineno = this.lexer.yylineno;
-	                yyloc = this.lexer.yylloc;
-	                symbol = lex();
-	            }
-
-	            // try to recover from error
-	            while (1) {
-	                // check for error recovery rule in this state
-	                if ((TERROR.toString()) in table[state]) {
-	                    break;
-	                }
-	                if (state == 0) {
-	                    throw new Error(errStr || 'Parsing halted.');
-	                }
-	                popStack(1);
-	                state = stack[stack.length-1];
-	            }
-
-	            preErrorSymbol = symbol; // save the lookahead token
-	            symbol = TERROR;         // insert generic error symbol as new lookahead
-	            state = stack[stack.length-1];
-	            action = table[state] && table[state][TERROR];
-	            recovering = 3; // allow 3 real symbols to be shifted before reporting a new error
-	        }
-
-	        // this shouldn't happen, unless resolve defaults are off
-	        if (action[0] instanceof Array && action.length > 1) {
-	            throw new Error('Parse Error: multiple actions possible at state: '+state+', token: '+symbol);
-	        }
-
-	        switch (action[0]) {
-
-	            case 1: // shift
-	                //this.shiftCount++;
-
-	                stack.push(symbol);
-	                vstack.push(this.lexer.yytext);
-	                lstack.push(this.lexer.yylloc);
-	                stack.push(action[1]); // push state
-	                symbol = null;
-	                if (!preErrorSymbol) { // normal execution/no error
-	                    yyleng = this.lexer.yyleng;
-	                    yytext = this.lexer.yytext;
-	                    yylineno = this.lexer.yylineno;
-	                    yyloc = this.lexer.yylloc;
-	                    if (recovering > 0)
-	                        recovering--;
-	                } else { // error just occurred, resume old lookahead f/ before error
-	                    symbol = preErrorSymbol;
-	                    preErrorSymbol = null;
-	                }
-	                break;
-
-	            case 2: // reduce
-	                //this.reductionCount++;
-
-	                len = this.productions_[action[1]][1];
-
-	                // perform semantic action
-	                yyval.$ = vstack[vstack.length-len]; // default to $$ = $1
-	                // default location, uses first token for firsts, last for lasts
-	                yyval._$ = {
-	                    first_line: lstack[lstack.length-(len||1)].first_line,
-	                    last_line: lstack[lstack.length-1].last_line,
-	                    first_column: lstack[lstack.length-(len||1)].first_column,
-	                    last_column: lstack[lstack.length-1].last_column
-	                };
-	                r = this.performAction.call(yyval, yytext, yyleng, yylineno, this.yy, action[1], vstack, lstack);
-
-	                if (typeof r !== 'undefined') {
-	                    return r;
-	                }
-
-	                // pop off stack
-	                if (len) {
-	                    stack = stack.slice(0,-1*len*2);
-	                    vstack = vstack.slice(0, -1*len);
-	                    lstack = lstack.slice(0, -1*len);
-	                }
-
-	                stack.push(this.productions_[action[1]][0]);    // push nonterminal (reduce)
-	                vstack.push(yyval.$);
-	                lstack.push(yyval._$);
-	                // goto new state = table[STATE][NONTERMINAL]
-	                newState = table[stack[stack.length-2]][stack[stack.length-1]];
-	                stack.push(newState);
-	                break;
-
-	            case 3: // accept
-	                return true;
-	        }
-
-	    }
-
-	    return true;
-	}};
-	/* Jison generated lexer */
-	var lexer = (function(){
-	var lexer = ({EOF:1,
-	parseError:function parseError(str, hash) {
-	        if (this.yy.parseError) {
-	            this.yy.parseError(str, hash);
-	        } else {
-	            throw new Error(str);
-	        }
-	    },
-	setInput:function (input) {
-	        this._input = input;
-	        this._more = this._less = this.done = false;
-	        this.yylineno = this.yyleng = 0;
-	        this.yytext = this.matched = this.match = '';
-	        this.conditionStack = ['INITIAL'];
-	        this.yylloc = {first_line:1,first_column:0,last_line:1,last_column:0};
-	        return this;
-	    },
-	input:function () {
-	        var ch = this._input[0];
-	        this.yytext+=ch;
-	        this.yyleng++;
-	        this.match+=ch;
-	        this.matched+=ch;
-	        var lines = ch.match(/\n/);
-	        if (lines) this.yylineno++;
-	        this._input = this._input.slice(1);
-	        return ch;
-	    },
-	unput:function (ch) {
-	        this._input = ch + this._input;
-	        return this;
-	    },
-	more:function () {
-	        this._more = true;
-	        return this;
-	    },
-	less:function (n) {
-	        this._input = this.match.slice(n) + this._input;
-	    },
-	pastInput:function () {
-	        var past = this.matched.substr(0, this.matched.length - this.match.length);
-	        return (past.length > 20 ? '...':'') + past.substr(-20).replace(/\n/g, "");
-	    },
-	upcomingInput:function () {
-	        var next = this.match;
-	        if (next.length < 20) {
-	            next += this._input.substr(0, 20-next.length);
-	        }
-	        return (next.substr(0,20)+(next.length > 20 ? '...':'')).replace(/\n/g, "");
-	    },
-	showPosition:function () {
-	        var pre = this.pastInput();
-	        var c = new Array(pre.length + 1).join("-");
-	        return pre + this.upcomingInput() + "\n" + c+"^";
-	    },
-	next:function () {
-	        if (this.done) {
-	            return this.EOF;
-	        }
-	        if (!this._input) this.done = true;
-
-	        var token,
-	            match,
-	            tempMatch,
-	            index,
-	            col,
-	            lines;
-	        if (!this._more) {
-	            this.yytext = '';
-	            this.match = '';
-	        }
-	        var rules = this._currentRules();
-	        for (var i=0;i < rules.length; i++) {
-	            tempMatch = this._input.match(this.rules[rules[i]]);
-	            if (tempMatch && (!match || tempMatch[0].length > match[0].length)) {
-	                match = tempMatch;
-	                index = i;
-	                if (!this.options.flex) break;
-	            }
-	        }
-	        if (match) {
-	            lines = match[0].match(/\n.*/g);
-	            if (lines) this.yylineno += lines.length;
-	            this.yylloc = {first_line: this.yylloc.last_line,
-	                           last_line: this.yylineno+1,
-	                           first_column: this.yylloc.last_column,
-	                           last_column: lines ? lines[lines.length-1].length-1 : this.yylloc.last_column + match[0].length}
-	            this.yytext += match[0];
-	            this.match += match[0];
-	            this.yyleng = this.yytext.length;
-	            this._more = false;
-	            this._input = this._input.slice(match[0].length);
-	            this.matched += match[0];
-	            token = this.performAction.call(this, this.yy, this, rules[index],this.conditionStack[this.conditionStack.length-1]);
-	            if (this.done && this._input) this.done = false;
-	            if (token) return token;
-	            else return;
-	        }
-	        if (this._input === "") {
-	            return this.EOF;
-	        } else {
-	            this.parseError('Lexical error on line '+(this.yylineno+1)+'. Unrecognized text.\n'+this.showPosition(), 
-	                    {text: "", token: null, line: this.yylineno});
-	        }
-	    },
-	lex:function lex() {
-	        var r = this.next();
-	        if (typeof r !== 'undefined') {
-	            return r;
-	        } else {
-	            return this.lex();
-	        }
-	    },
-	begin:function begin(condition) {
-	        this.conditionStack.push(condition);
-	    },
-	popState:function popState() {
-	        return this.conditionStack.pop();
-	    },
-	_currentRules:function _currentRules() {
-	        return this.conditions[this.conditionStack[this.conditionStack.length-1]].rules;
-	    },
-	topState:function () {
-	        return this.conditionStack[this.conditionStack.length-2];
-	    },
-	pushState:function begin(condition) {
-	        this.begin(condition);
-	    }});
-	lexer.options = {};
-	lexer.performAction = function anonymous(yy,yy_,$avoiding_name_collisions,YY_START) {
-
-	var YYSTATE=YY_START
-	switch($avoiding_name_collisions) {
-	case 0:/* skip whitespace */
-	break;
-	case 1:return 6
-	break;
-	case 2:yy_.yytext = yy_.yytext.substr(1,yy_.yyleng-2); return 4
-	break;
-	case 3:return 17
-	break;
-	case 4:return 18
-	break;
-	case 5:return 23
-	break;
-	case 6:return 24
-	break;
-	case 7:return 22
-	break;
-	case 8:return 21
-	break;
-	case 9:return 10
-	break;
-	case 10:return 11
-	break;
-	case 11:return 8
-	break;
-	case 12:return 14
-	break;
-	case 13:return 'INVALID'
-	break;
-	}
+	/*
+	 * Natural Sort algorithm for Javascript - Version 0.7 - Released under MIT license
+	 * Author: Jim Palmer (based on chunking idea from Dave Koelle)
+	 */
+	/*jshint unused:false */
+	module.exports = function naturalSort (a, b) {
+		"use strict";
+		var re = /(^([+\-]?(?:0|[1-9]\d*)(?:\.\d*)?(?:[eE][+\-]?\d+)?)?$|^0x[0-9a-f]+$|\d+)/gi,
+			sre = /(^[ ]*|[ ]*$)/g,
+			dre = /(^([\w ]+,?[\w ]+)?[\w ]+,?[\w ]+\d+:\d+(:\d+)?[\w ]?|^\d{1,4}[\/\-]\d{1,4}[\/\-]\d{1,4}|^\w+, \w+ \d+, \d{4})/,
+			hre = /^0x[0-9a-f]+$/i,
+			ore = /^0/,
+			i = function(s) { return naturalSort.insensitive && ('' + s).toLowerCase() || '' + s; },
+			// convert all to strings strip whitespace
+			x = i(a).replace(sre, '') || '',
+			y = i(b).replace(sre, '') || '',
+			// chunk/tokenize
+			xN = x.replace(re, '\0$1\0').replace(/\0$/,'').replace(/^\0/,'').split('\0'),
+			yN = y.replace(re, '\0$1\0').replace(/\0$/,'').replace(/^\0/,'').split('\0'),
+			// numeric, hex or date detection
+			xD = parseInt(x.match(hre), 16) || (xN.length !== 1 && x.match(dre) && Date.parse(x)),
+			yD = parseInt(y.match(hre), 16) || xD && y.match(dre) && Date.parse(y) || null,
+			oFxNcL, oFyNcL;
+		// first try and sort Hex codes or Dates
+		if (yD) {
+			if ( xD < yD ) { return -1; }
+			else if ( xD > yD ) { return 1; }
+		}
+		// natural sorting through split numeric strings and default strings
+		for(var cLoc=0, numS=Math.max(xN.length, yN.length); cLoc < numS; cLoc++) {
+			// find floats not starting with '0', string or 0 if not defined (Clint Priest)
+			oFxNcL = !(xN[cLoc] || '').match(ore) && parseFloat(xN[cLoc]) || xN[cLoc] || 0;
+			oFyNcL = !(yN[cLoc] || '').match(ore) && parseFloat(yN[cLoc]) || yN[cLoc] || 0;
+			// handle numeric vs string comparison - number < string - (Kyle Adams)
+			if (isNaN(oFxNcL) !== isNaN(oFyNcL)) { return (isNaN(oFxNcL)) ? 1 : -1; }
+			// rely on string comparison if different types - i.e. '02' < 2 != '02' < '2'
+			else if (typeof oFxNcL !== typeof oFyNcL) {
+				oFxNcL += '';
+				oFyNcL += '';
+			}
+			if (oFxNcL < oFyNcL) { return -1; }
+			if (oFxNcL > oFyNcL) { return 1; }
+		}
+		return 0;
 	};
-	lexer.rules = [/^(?:\s+)/,/^(?:(-?([0-9]|[1-9][0-9]+))(\.[0-9]+)?([eE][-+]?[0-9]+)?\b)/,/^(?:"(?:\\[\\"bfnrt/]|\\u[a-fA-F0-9]{4}|[^\\\0-\x09\x0a-\x1f"])*")/,/^(?:\{)/,/^(?:\})/,/^(?:\[)/,/^(?:\])/,/^(?:,)/,/^(?::)/,/^(?:true\b)/,/^(?:false\b)/,/^(?:null\b)/,/^(?:$)/,/^(?:.)/];
-	lexer.conditions = {"INITIAL":{"rules":[0,1,2,3,4,5,6,7,8,9,10,11,12,13],"inclusive":true}};
 
-
-	;
-	return lexer;})()
-	parser.lexer = lexer;
-	return parser;
-	})();
-	if (true) {
-	  exports.parser = jsonlint;
-	  exports.parse = jsonlint.parse.bind(jsonlint);
-	}
 
 /***/ },
 /* 11 */
 /***/ function(module, exports, __webpack_require__) {
 
-	// load brace
-	var ace = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"brace\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+	'use strict';
 
-	// load required ace modules
-	__webpack_require__(14);
-	__webpack_require__(15);
-	__webpack_require__(13);
-
-	module.exports = ace;
-
-
-/***/ },
-/* 12 */
-/***/ function(module, exports, __webpack_require__) {
-
-	var util = __webpack_require__(3);
+	var util = __webpack_require__(4);
 	var ContextMenu = __webpack_require__(7);
 
 	/**
@@ -8043,7 +8181,7 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	    // TODO: consistent naming
 
-	    if (this.editable.field) {
+	    if (this.editor.options.mode === 'tree') {
 	      // a cell for the dragarea column
 	      dom.tdDrag = document.createElement('td');
 
@@ -8051,6 +8189,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	      var tdMenu = document.createElement('td');
 	      dom.tdMenu = tdMenu;
 	      var menu = document.createElement('button');
+	      menu.type = 'button';
 	      menu.className = 'jsoneditor-contextmenu';
 	      menu.title = 'Click to open the actions menu (Ctrl+M)';
 	      dom.menu = menu;
@@ -8132,6 +8271,41 @@ return /******/ (function(modules) { // webpackBootstrap
 	  AppendNode.prototype.showContextMenu = function (anchor, onClose) {
 	    var node = this;
 	    var titles = Node.TYPE_TITLES;
+	    var appendSubmenu = [
+	        {
+	            text: 'Auto',
+	            className: 'jsoneditor-type-auto',
+	            title: titles.auto,
+	            click: function () {
+	                node._onAppend('', '', 'auto');
+	            }
+	        },
+	        {
+	            text: 'Array',
+	            className: 'jsoneditor-type-array',
+	            title: titles.array,
+	            click: function () {
+	                node._onAppend('', []);
+	            }
+	        },
+	        {
+	            text: 'Object',
+	            className: 'jsoneditor-type-object',
+	            title: titles.object,
+	            click: function () {
+	                node._onAppend('', {});
+	            }
+	        },
+	        {
+	            text: 'String',
+	            className: 'jsoneditor-type-string',
+	            title: titles.string,
+	            click: function () {
+	                node._onAppend('', '', 'string');
+	            }
+	        }
+	    ];
+	    node.addTemplates(appendSubmenu, true);
 	    var items = [
 	      // create append button
 	      {
@@ -8142,40 +8316,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	        'click': function () {
 	          node._onAppend('', '', 'auto');
 	        },
-	        'submenu': [
-	          {
-	            'text': 'Auto',
-	            'className': 'jsoneditor-type-auto',
-	            'title': titles.auto,
-	            'click': function () {
-	              node._onAppend('', '', 'auto');
-	            }
-	          },
-	          {
-	            'text': 'Array',
-	            'className': 'jsoneditor-type-array',
-	            'title': titles.array,
-	            'click': function () {
-	              node._onAppend('', []);
-	            }
-	          },
-	          {
-	            'text': 'Object',
-	            'className': 'jsoneditor-type-object',
-	            'title': titles.object,
-	            'click': function () {
-	              node._onAppend('', {});
-	            }
-	          },
-	          {
-	            'text': 'String',
-	            'className': 'jsoneditor-type-string',
-	            'title': titles.string,
-	            'click': function () {
-	              node._onAppend('', '', 'string');
-	            }
-	          }
-	        ]
+	        'submenu': appendSubmenu
 	      }
 	    ];
 
@@ -8228,157 +8369,1179 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 13 */
+/* 12 */
 /***/ function(module, exports, __webpack_require__) {
 
-	/* ***** BEGIN LICENSE BLOCK *****
-	 * Distributed under the BSD license:
-	 *
-	 * Copyright (c) 2010, Ajax.org B.V.
-	 * All rights reserved.
-	 * 
-	 * Redistribution and use in source and binary forms, with or without
-	 * modification, are permitted provided that the following conditions are met:
-	 *     * Redistributions of source code must retain the above copyright
-	 *       notice, this list of conditions and the following disclaimer.
-	 *     * Redistributions in binary form must reproduce the above copyright
-	 *       notice, this list of conditions and the following disclaimer in the
-	 *       documentation and/or other materials provided with the distribution.
-	 *     * Neither the name of Ajax.org B.V. nor the
-	 *       names of its contributors may be used to endorse or promote products
-	 *       derived from this software without specific prior written permission.
-	 * 
-	 * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
-	 * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-	 * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-	 * DISCLAIMED. IN NO EVENT SHALL AJAX.ORG B.V. BE LIABLE FOR ANY
-	 * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-	 * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-	 * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-	 * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-	 * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-	 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-	 *
-	 * ***** END LICENSE BLOCK ***** */
+	'use strict';
 
-	ace.define('ace/theme/jsoneditor', ['require', 'exports', 'module', 'ace/lib/dom'], function(acequire, exports, module) {
+	var ContextMenu = __webpack_require__(7);
 
-	exports.isDark = false;
-	exports.cssClass = "ace-jsoneditor";
-	exports.cssText = ".ace-jsoneditor .ace_gutter {\
-	background: #ebebeb;\
-	color: #333\
-	}\
-	\
-	.ace-jsoneditor.ace_editor {\
-	font-family: droid sans mono, consolas, monospace, courier new, courier, sans-serif;\
-	line-height: 1.3;\
-	}\
-	.ace-jsoneditor .ace_print-margin {\
-	width: 1px;\
-	background: #e8e8e8\
-	}\
-	.ace-jsoneditor .ace_scroller {\
-	background-color: #FFFFFF\
-	}\
-	.ace-jsoneditor .ace_text-layer {\
-	color: gray\
-	}\
-	.ace-jsoneditor .ace_variable {\
-	color: #1a1a1a\
-	}\
-	.ace-jsoneditor .ace_cursor {\
-	border-left: 2px solid #000000\
-	}\
-	.ace-jsoneditor .ace_overwrite-cursors .ace_cursor {\
-	border-left: 0px;\
-	border-bottom: 1px solid #000000\
-	}\
-	.ace-jsoneditor .ace_marker-layer .ace_selection {\
-	background: lightgray\
-	}\
-	.ace-jsoneditor.ace_multiselect .ace_selection.ace_start {\
-	box-shadow: 0 0 3px 0px #FFFFFF;\
-	border-radius: 2px\
-	}\
-	.ace-jsoneditor .ace_marker-layer .ace_step {\
-	background: rgb(255, 255, 0)\
-	}\
-	.ace-jsoneditor .ace_marker-layer .ace_bracket {\
-	margin: -1px 0 0 -1px;\
-	border: 1px solid #BFBFBF\
-	}\
-	.ace-jsoneditor .ace_marker-layer .ace_active-line {\
-	background: #FFFBD1\
-	}\
-	.ace-jsoneditor .ace_gutter-active-line {\
-	background-color : #dcdcdc\
-	}\
-	.ace-jsoneditor .ace_marker-layer .ace_selected-word {\
-	border: 1px solid lightgray\
-	}\
-	.ace-jsoneditor .ace_invisible {\
-	color: #BFBFBF\
-	}\
-	.ace-jsoneditor .ace_keyword,\
-	.ace-jsoneditor .ace_meta,\
-	.ace-jsoneditor .ace_support.ace_constant.ace_property-value {\
-	color: #AF956F\
-	}\
-	.ace-jsoneditor .ace_keyword.ace_operator {\
-	color: #484848\
-	}\
-	.ace-jsoneditor .ace_keyword.ace_other.ace_unit {\
-	color: #96DC5F\
-	}\
-	.ace-jsoneditor .ace_constant.ace_language {\
-	color: darkorange\
-	}\
-	.ace-jsoneditor .ace_constant.ace_numeric {\
-	color: red\
-	}\
-	.ace-jsoneditor .ace_constant.ace_character.ace_entity {\
-	color: #BF78CC\
-	}\
-	.ace-jsoneditor .ace_invalid {\
-	color: #FFFFFF;\
-	background-color: #FF002A;\
-	}\
-	.ace-jsoneditor .ace_fold {\
-	background-color: #AF956F;\
-	border-color: #000000\
-	}\
-	.ace-jsoneditor .ace_storage,\
-	.ace-jsoneditor .ace_support.ace_class,\
-	.ace-jsoneditor .ace_support.ace_function,\
-	.ace-jsoneditor .ace_support.ace_other,\
-	.ace-jsoneditor .ace_support.ace_type {\
-	color: #C52727\
-	}\
-	.ace-jsoneditor .ace_string {\
-	color: green\
-	}\
-	.ace-jsoneditor .ace_comment {\
-	color: #BCC8BA\
-	}\
-	.ace-jsoneditor .ace_entity.ace_name.ace_tag,\
-	.ace-jsoneditor .ace_entity.ace_other.ace_attribute-name {\
-	color: #606060\
-	}\
-	.ace-jsoneditor .ace_markup.ace_underline {\
-	text-decoration: underline\
-	}\
-	.ace-jsoneditor .ace_indent-guide {\
-	background: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAE0lEQVQImWP4////f4bLly//BwAmVgd1/w11/gAAAABJRU5ErkJggg==\") right repeat-y\
-	}";
+	/**
+	 * Create a select box to be used in the editor menu's, which allows to switch mode
+	 * @param {HTMLElement} container
+	 * @param {String[]} modes  Available modes: 'code', 'form', 'text', 'tree', 'view'
+	 * @param {String} current  Available modes: 'code', 'form', 'text', 'tree', 'view'
+	 * @param {function(mode: string)} onSwitch  Callback invoked on switch
+	 * @constructor
+	 */
+	function ModeSwitcher(container, modes, current, onSwitch) {
+	  // available modes
+	  var availableModes = {
+	    code: {
+	      'text': 'Code',
+	      'title': 'Switch to code highlighter',
+	      'click': function () {
+	        onSwitch('code')
+	      }
+	    },
+	    form: {
+	      'text': 'Form',
+	      'title': 'Switch to form editor',
+	      'click': function () {
+	        onSwitch('form');
+	      }
+	    },
+	    text: {
+	      'text': 'Text',
+	      'title': 'Switch to plain text editor',
+	      'click': function () {
+	        onSwitch('text');
+	      }
+	    },
+	    tree: {
+	      'text': 'Tree',
+	      'title': 'Switch to tree editor',
+	      'click': function () {
+	        onSwitch('tree');
+	      }
+	    },
+	    view: {
+	      'text': 'View',
+	      'title': 'Switch to tree view',
+	      'click': function () {
+	        onSwitch('view');
+	      }
+	    }
+	  };
 
-	var dom = acequire("../lib/dom");
-	dom.importCssString(exports.cssText, exports.cssClass);
-	});
+	  // list the selected modes
+	  var items = [];
+	  for (var i = 0; i < modes.length; i++) {
+	    var mode = modes[i];
+	    var item = availableModes[mode];
+	    if (!item) {
+	      throw new Error('Unknown mode "' + mode + '"');
+	    }
+
+	    item.className = 'jsoneditor-type-modes' + ((current == mode) ? ' jsoneditor-selected' : '');
+	    items.push(item);
+	  }
+
+	  // retrieve the title of current mode
+	  var currentMode = availableModes[current];
+	  if (!currentMode) {
+	    throw new Error('Unknown mode "' + current + '"');
+	  }
+	  var currentTitle = currentMode.text;
+
+	  // create the html element
+	  var box = document.createElement('button');
+	  box.type = 'button';
+	  box.className = 'jsoneditor-modes jsoneditor-separator';
+	  box.innerHTML = currentTitle + ' &#x25BE;';
+	  box.title = 'Switch editor mode';
+	  box.onclick = function () {
+	    var menu = new ContextMenu(items);
+	    menu.show(box);
+	  };
+
+	  var frame = document.createElement('div');
+	  frame.className = 'jsoneditor-modes';
+	  frame.style.position = 'relative';
+	  frame.appendChild(box);
+
+	  container.appendChild(frame);
+
+	  this.dom = {
+	    container: container,
+	    box: box,
+	    frame: frame
+	  };
+	}
+
+	/**
+	 * Set focus to switcher
+	 */
+	ModeSwitcher.prototype.focus = function () {
+	  this.dom.box.focus();
+	};
+
+	/**
+	 * Destroy the ModeSwitcher, remove from DOM
+	 */
+	ModeSwitcher.prototype.destroy = function () {
+	  if (this.dom && this.dom.frame && this.dom.frame.parentNode) {
+	    this.dom.frame.parentNode.removeChild(this.dom.frame);
+	  }
+	  this.dom = null;
+	};
+
+	module.exports = ModeSwitcher;
 
 
 /***/ },
+/* 13 */
+/***/ function(module, exports) {
+
+	'use strict';
+
+	function completely(config) {
+	    config = config || {};
+	    config.confirmKeys = config.confirmKeys || [39, 35, 9] // right, end, tab 
+
+	    var fontSize = '';
+	    var fontFamily = '';    
+
+	    var wrapper = document.createElement('div');
+	    wrapper.style.position = 'relative';
+	    wrapper.style.outline = '0';
+	    wrapper.style.border = '0';
+	    wrapper.style.margin = '0';
+	    wrapper.style.padding = '0';
+
+	    var dropDown = document.createElement('div');
+	    dropDown.className = 'autocomplete dropdown';
+	    dropDown.style.position = 'absolute';
+	    dropDown.style.visibility = 'hidden';
+
+	    var spacer;
+	    var leftSide; // <-- it will contain the leftSide part of the textfield (the bit that was already autocompleted)
+	    var createDropDownController = function (elem, rs) {
+	        var rows = [];
+	        var ix = 0;
+	        var oldIndex = -1;
+
+	        var onMouseOver = function () { this.style.outline = '1px solid #ddd'; }
+	        var onMouseOut = function () { this.style.outline = '0'; }
+	        var onMouseDown = function () { p.hide(); p.onmouseselection(this.__hint, p.rs); }
+
+	        var p = {
+	            rs: rs,
+	            hide: function () {
+	                elem.style.visibility = 'hidden';
+	                //rs.hideDropDown();
+	            },
+	            refresh: function (token, array) {
+	                elem.style.visibility = 'hidden';
+	                ix = 0;
+	                elem.innerHTML = '';
+	                var vph = (window.innerHeight || document.documentElement.clientHeight);
+	                var rect = elem.parentNode.getBoundingClientRect();
+	                var distanceToTop = rect.top - 6;                        // heuristic give 6px 
+	                var distanceToBottom = vph - rect.bottom - 6;  // distance from the browser border.
+
+	                rows = [];
+	                for (var i = 0; i < array.length; i++) {
+	                    if (array[i].indexOf(token) !== 0) { continue; }
+	                    var divRow = document.createElement('div');
+	                    divRow.className = 'item';
+	                    //divRow.style.color = config.color;
+	                    divRow.onmouseover = onMouseOver;
+	                    divRow.onmouseout = onMouseOut;
+	                    divRow.onmousedown = onMouseDown;
+	                    divRow.__hint = array[i];
+	                    divRow.innerHTML = token + '<b>' + array[i].substring(token.length) + '</b>';
+	                    rows.push(divRow);
+	                    elem.appendChild(divRow);
+	                }
+	                if (rows.length === 0) {
+	                    return; // nothing to show.
+	                }
+	                if (rows.length === 1 && token === rows[0].__hint) {
+	                    return; // do not show the dropDown if it has only one element which matches what we have just displayed.
+	                }
+
+	                if (rows.length < 2) return;
+	                p.highlight(0);
+
+	                if (distanceToTop > distanceToBottom * 3) {        // Heuristic (only when the distance to the to top is 4 times more than distance to the bottom
+	                    elem.style.maxHeight = distanceToTop + 'px';  // we display the dropDown on the top of the input text
+	                    elem.style.top = '';
+	                    elem.style.bottom = '100%';
+	                } else {
+	                    elem.style.top = '100%';
+	                    elem.style.bottom = '';
+	                    elem.style.maxHeight = distanceToBottom + 'px';
+	                }
+	                elem.style.visibility = 'visible';
+	            },
+	            highlight: function (index) {
+	                if (oldIndex != -1 && rows[oldIndex]) {
+	                    rows[oldIndex].className = "item";
+	                }
+	                rows[index].className = "item hover"; 
+	                oldIndex = index;
+	            },
+	            move: function (step) { // moves the selection either up or down (unless it's not possible) step is either +1 or -1.
+	                if (elem.style.visibility === 'hidden') return ''; // nothing to move if there is no dropDown. (this happens if the user hits escape and then down or up)
+	                if (ix + step === -1 || ix + step === rows.length) return rows[ix].__hint; // NO CIRCULAR SCROLLING. 
+	                ix += step;
+	                p.highlight(ix);
+	                return rows[ix].__hint;//txtShadow.value = uRows[uIndex].__hint ;
+	            },
+	            onmouseselection: function () { } // it will be overwritten. 
+	        };
+	        return p;
+	    }
+
+	    function setEndOfContenteditable(contentEditableElement) {
+	        var range, selection;
+	        if (document.createRange)//Firefox, Chrome, Opera, Safari, IE 9+
+	        {
+	            range = document.createRange();//Create a range (a range is a like the selection but invisible)
+	            range.selectNodeContents(contentEditableElement);//Select the entire contents of the element with the range
+	            range.collapse(false);//collapse the range to the end point. false means collapse to end rather than the start
+	            selection = window.getSelection();//get the selection object (allows you to change selection)
+	            selection.removeAllRanges();//remove any selections already made
+	            selection.addRange(range);//make the range you have just created the visible selection
+	        }
+	        else if (document.selection)//IE 8 and lower
+	        {
+	            range = document.body.createTextRange();//Create a range (a range is a like the selection but invisible)
+	            range.moveToElementText(contentEditableElement);//Select the entire contents of the element with the range
+	            range.collapse(false);//collapse the range to the end point. false means collapse to end rather than the start
+	            range.select();//Select the range (make it the visible selection
+	        }
+	    }
+
+	    function calculateWidthForText(text) {
+	        if (spacer === undefined) { // on first call only.
+	            spacer = document.createElement('span');
+	            spacer.style.visibility = 'hidden';
+	            spacer.style.position = 'fixed';
+	            spacer.style.outline = '0';
+	            spacer.style.margin = '0';
+	            spacer.style.padding = '0';
+	            spacer.style.border = '0';
+	            spacer.style.left = '0';
+	            spacer.style.whiteSpace = 'pre';
+	            spacer.style.fontSize = fontSize;
+	            spacer.style.fontFamily = fontFamily;
+	            spacer.style.fontWeight = 'normal';
+	            document.body.appendChild(spacer);
+	        }
+
+	        // Used to encode an HTML string into a plain text.
+	        // taken from http://stackoverflow.com/questions/1219860/javascript-jquery-html-encoding
+	        spacer.innerHTML = String(text).replace(/&/g, '&amp;')
+	            .replace(/"/g, '&quot;')
+	            .replace(/'/g, '&#39;')
+	            .replace(/</g, '&lt;')
+	            .replace(/>/g, '&gt;');
+	        return spacer.getBoundingClientRect().right;
+	    }
+
+	    var rs = {
+	        onArrowDown: function () { }, // defaults to no action.
+	        onArrowUp: function () { },   // defaults to no action.
+	        onEnter: function () { },     // defaults to no action.
+	        onTab: function () { },       // defaults to no action.
+	        startFrom: 0,
+	        options: [],
+	        element: null,
+	        elementHint: null,
+	        elementStyle: null,
+	        wrapper: wrapper,      // Only to allow  easy access to the HTML elements to the final user (possibly for minor customizations)
+	        show: function (element, startPos, options) {
+	            this.startFrom = startPos;
+	            this.wrapper.remove();
+	            if (this.elementHint) {
+	                this.elementHint.remove();
+	                this.elementHint = null;
+	            }
+	            
+	            if (fontSize == '') {
+	                fontSize = window.getComputedStyle(element).getPropertyValue('font-size');
+	            }
+	            if (fontFamily == '') {
+	                fontFamily = window.getComputedStyle(element).getPropertyValue('font-family');
+	            }
+	            
+	            var w = element.getBoundingClientRect().right - element.getBoundingClientRect().left;
+	            dropDown.style.marginLeft = '0';
+	            dropDown.style.marginTop = element.getBoundingClientRect().height + 'px';
+	            this.options = options;
+
+	            if (this.element != element) {
+	                this.element = element;
+	                this.elementStyle = {
+	                    zIndex: this.element.style.zIndex,
+	                    position: this.element.style.position,
+	                    backgroundColor: this.element.style.backgroundColor,
+	                    borderColor: this.element.style.borderColor
+	                }
+	            }
+
+	            this.element.style.zIndex = 3;
+	            this.element.style.position = 'relative';
+	            this.element.style.backgroundColor = 'transparent';
+	            this.element.style.borderColor = 'transparent';
+
+	            this.elementHint = element.cloneNode();
+	            this.elementHint.className = 'autocomplete hint';
+	            this.elementHint.style.zIndex = 2;
+	            this.elementHint.style.position = 'absolute';
+	            this.elementHint.onfocus = function () { this.element.focus(); }.bind(this);
+
+
+
+	            if (this.element.addEventListener) {
+	                this.element.removeEventListener("keydown", keyDownHandler);
+	                this.element.addEventListener("keydown", keyDownHandler, false);
+	                this.element.removeEventListener("blur", onBlurHandler);
+	                this.element.addEventListener("blur", onBlurHandler, false);                
+	            } 
+
+	            wrapper.appendChild(this.elementHint);
+	            wrapper.appendChild(dropDown);
+	            element.parentElement.appendChild(wrapper);
+
+
+	            this.repaint(element);
+	        },
+	        setText: function (text) {
+	            this.element.innerText = text;
+	        },
+	        getText: function () {
+	            return this.element.innerText;
+	        },
+	        hideDropDown: function () {
+	            this.wrapper.remove();
+	            if (this.elementHint) {
+	                this.elementHint.remove();
+	                this.elementHint = null;
+	                dropDownController.hide();
+	                this.element.style.zIndex = this.elementStyle.zIndex;
+	                this.element.style.position = this.elementStyle.position;
+	                this.element.style.backgroundColor = this.elementStyle.backgroundColor;
+	                this.element.style.borderColor = this.elementStyle.borderColor;
+	            }
+	            
+	        },
+	        repaint: function (element) {
+	            var text = element.innerText;
+	            text = text.replace('\n', '');
+
+	            var startFrom = this.startFrom;
+	            var options = this.options;
+	            var optionsLength = this.options.length;
+
+	            // breaking text in leftSide and token.
+	            
+	            var token = text.substring(this.startFrom);
+	            leftSide = text.substring(0, this.startFrom);
+	            
+	            for (var i = 0; i < optionsLength; i++) {
+	                var opt = this.options[i];
+	                if (opt.indexOf(token) === 0) {         // <-- how about upperCase vs. lowercase
+	                    this.elementHint.innerText = leftSide + opt;
+	                    break;
+	                }
+	            }
+	            // moving the dropDown and refreshing it.
+	            dropDown.style.left = calculateWidthForText(leftSide) + 'px';
+	            dropDownController.refresh(token, this.options);
+	            this.elementHint.style.width = calculateWidthForText(this.elementHint.innerText) + 10 + 'px'
+	            var wasDropDownHidden = (dropDown.style.visibility == 'hidden');
+	            if (!wasDropDownHidden)
+	                this.elementHint.style.width = calculateWidthForText(this.elementHint.innerText) + dropDown.clientWidth + 'px';
+	        }
+	    };
+
+	    var dropDownController = createDropDownController(dropDown, rs);
+
+	    var keyDownHandler = function (e) {
+	        //console.log("Keydown:" + e.keyCode);
+	        e = e || window.event;
+	        var keyCode = e.keyCode;
+
+	        if (this.elementHint == null) return;
+
+	        if (keyCode == 33) { return; } // page up (do nothing)
+	        if (keyCode == 34) { return; } // page down (do nothing);
+
+	        if (keyCode == 27) { //escape
+	            rs.hideDropDown();
+	            rs.element.focus();
+	            e.preventDefault();
+	            e.stopPropagation();
+	            return;
+	        }
+
+	        if (config.confirmKeys.indexOf(keyCode) >= 0) { //  (autocomplete triggered)
+	            if (keyCode == 9) {                 
+	                if (this.elementHint.innerText.length == 0) {
+	                    rs.onTab(); 
+	                }
+	            }
+	            if (this.elementHint.innerText.length > 0) { // if there is a hint               
+	                if (this.element.innerText != this.elementHint.innerText) {
+	                    this.element.innerText = this.elementHint.innerText;
+	                    rs.hideDropDown();
+	                    setEndOfContenteditable(this.element);
+	                    if (keyCode == 9) {                
+	                        rs.element.focus();
+	                        e.preventDefault();
+	                        e.stopPropagation();
+	                    }
+	                }                
+	            }
+	            return;
+	        }
+
+	        if (keyCode == 13) {       // enter  (autocomplete triggered)
+	            if (this.elementHint.innerText.length == 0) { // if there is a hint
+	                rs.onEnter();
+	            } else {
+	                var wasDropDownHidden = (dropDown.style.visibility == 'hidden');
+	                dropDownController.hide();
+
+	                if (wasDropDownHidden) {
+	                    rs.hideDropDown();
+	                    rs.element.focus();
+	                    rs.onEnter();
+	                    return;
+	                }
+
+	                this.element.innerText = this.elementHint.innerText;
+	                rs.hideDropDown();
+	                setEndOfContenteditable(this.element);
+	                e.preventDefault();
+	                e.stopPropagation();
+	            }
+	            return;
+	        }
+
+	        if (keyCode == 40) {     // down
+	            var m = dropDownController.move(+1);
+	            if (m == '') { rs.onArrowDown(); }
+	            this.elementHint.innerText = leftSide + m;
+	            e.preventDefault();
+	            e.stopPropagation();
+	            return;
+	        }
+
+	        if (keyCode == 38) {    // up
+	            var m = dropDownController.move(-1);
+	            if (m == '') { rs.onArrowUp(); }
+	            this.elementHint.innerText = leftSide + m;
+	            e.preventDefault();
+	            e.stopPropagation();
+	            return;
+	        }
+
+	    }.bind(rs);
+
+	    var onBlurHandler = function (e) {
+	        rs.hideDropDown();
+	        //console.log("Lost focus.");
+	    }.bind(rs);
+
+	    dropDownController.onmouseselection = function (text, rs) {
+	        rs.element.innerText = rs.elementHint.innerText = leftSide + text;        
+	        rs.hideDropDown();   
+	        window.setTimeout(function () {
+	            rs.element.focus();
+	            setEndOfContenteditable(rs.element);  
+	        }, 1);              
+	    };
+
+	    return rs;
+	}
+
+	module.exports = completely;
+
+/***/ },
 /* 14 */
+/***/ function(module, exports, __webpack_require__) {
+
+	'use strict';
+
+	var ace = __webpack_require__(15);
+	var ModeSwitcher = __webpack_require__(12);
+	var util = __webpack_require__(4);
+
+	// create a mixin with the functions for text mode
+	var textmode = {};
+
+	var MAX_ERRORS = 3; // maximum number of displayed errors at the bottom
+
+	var DEFAULT_THEME = 'ace/theme/jsoneditor';
+
+	/**
+	 * Create a text editor
+	 * @param {Element} container
+	 * @param {Object} [options]   Object with options. available options:
+	 *                             {String} mode             Available values:
+	 *                                                       "text" (default)
+	 *                                                       or "code".
+	 *                             {Number} indentation      Number of indentation
+	 *                                                       spaces. 2 by default.
+	 *                             {function} onChange       Callback method
+	 *                                                       triggered on change
+	 *                             {function} onModeChange   Callback method
+	 *                                                       triggered after setMode
+	 *                             {function} onEditable     Determine if textarea is readOnly
+	 *                                                       readOnly defaults true
+	 *                             {Object} ace              A custom instance of
+	 *                                                       Ace editor.
+	 *                             {boolean} escapeUnicode   If true, unicode
+	 *                                                       characters are escaped.
+	 *                                                       false by default.
+	 * @private
+	 */
+	textmode.create = function (container, options) {
+	  // read options
+	  options = options || {};
+	  
+	  if(typeof options.statusBar === 'undefined') {
+	    options.statusBar = true;
+	  }
+
+	  this.options = options;
+
+	  // indentation
+	  if (options.indentation) {
+	    this.indentation = Number(options.indentation);
+	  }
+	  else {
+	    this.indentation = 2; // number of spaces
+	  }
+
+	  // grab ace from options if provided
+	  var _ace = options.ace ? options.ace : ace;
+	  // TODO: make the option options.ace deprecated, it's not needed anymore (see #309)
+
+	  // determine mode
+	  this.mode = (options.mode == 'code') ? 'code' : 'text';
+	  if (this.mode == 'code') {
+	    // verify whether Ace editor is available and supported
+	    if (typeof _ace === 'undefined') {
+	      this.mode = 'text';
+	      console.warn('Failed to load Ace editor, falling back to plain text mode. Please use a JSONEditor bundle including Ace, or pass Ace as via the configuration option `ace`.');
+	    }
+	  }
+
+	  // determine theme
+	  this.theme = options.theme || DEFAULT_THEME;
+	  if (this.theme === DEFAULT_THEME && _ace) {
+	    try {
+	      __webpack_require__(19);
+	    }
+	    catch (err) {
+	      console.error(err);
+	    }
+	  }
+
+	  var me = this;
+	  this.container = container;
+	  this.dom = {};
+	  this.aceEditor = undefined;  // ace code editor
+	  this.textarea = undefined;  // plain text editor (fallback when Ace is not available)
+	  this.validateSchema = null;
+
+	  // create a debounced validate function
+	  this._debouncedValidate = util.debounce(this.validate.bind(this), this.DEBOUNCE_INTERVAL);
+
+	  this.width = container.clientWidth;
+	  this.height = container.clientHeight;
+
+	  this.frame = document.createElement('div');
+	  this.frame.className = 'jsoneditor jsoneditor-mode-' + this.options.mode;
+	  this.frame.onclick = function (event) {
+	    // prevent default submit action when the editor is located inside a form
+	    event.preventDefault();
+	  };
+	  this.frame.onkeydown = function (event) {
+	    me._onKeyDown(event);
+	  };
+
+	  // create menu
+	  this.menu = document.createElement('div');
+	  this.menu.className = 'jsoneditor-menu';
+	  this.frame.appendChild(this.menu);
+
+	  // create format button
+	  var buttonFormat = document.createElement('button');
+	  buttonFormat.type = 'button';
+	  buttonFormat.className = 'jsoneditor-format';
+	  buttonFormat.title = 'Format JSON data, with proper indentation and line feeds (Ctrl+\\)';
+	  this.menu.appendChild(buttonFormat);
+	  buttonFormat.onclick = function () {
+	    try {
+	      me.format();
+	      me._onChange();
+	    }
+	    catch (err) {
+	      me._onError(err);
+	    }
+	  };
+
+	  // create compact button
+	  var buttonCompact = document.createElement('button');
+	  buttonCompact.type = 'button';
+	  buttonCompact.className = 'jsoneditor-compact';
+	  buttonCompact.title = 'Compact JSON data, remove all whitespaces (Ctrl+Shift+\\)';
+	  this.menu.appendChild(buttonCompact);
+	  buttonCompact.onclick = function () {
+	    try {
+	      me.compact();
+	      me._onChange();
+	    }
+	    catch (err) {
+	      me._onError(err);
+	    }
+	  };
+
+	  // create repair button
+	  var buttonRepair = document.createElement('button');
+	  buttonRepair.type = 'button';
+	  buttonRepair.className = 'jsoneditor-repair';
+	  buttonRepair.title = 'Repair JSON: fix quotes and escape characters, remove comments and JSONP notation, turn JavaScript objects into JSON.';
+	  this.menu.appendChild(buttonRepair);
+	  buttonRepair.onclick = function () {
+	    try {
+	      me.repair();
+	      me._onChange();
+	    }
+	    catch (err) {
+	      me._onError(err);
+	    }
+	  };
+
+	  // create mode box
+	  if (this.options && this.options.modes && this.options.modes.length) {
+	    this.modeSwitcher = new ModeSwitcher(this.menu, this.options.modes, this.options.mode, function onSwitch(mode) {
+	      // switch mode and restore focus
+	      me.setMode(mode);
+	      me.modeSwitcher.focus();
+	    });
+	  }
+
+	  var emptyNode = {};
+	  var isReadOnly = (this.options.onEditable
+	  && typeof(this.options.onEditable === 'function')
+	  && !this.options.onEditable(emptyNode));
+
+	  this.content = document.createElement('div');
+	  this.content.className = 'jsoneditor-outer';
+	  this.frame.appendChild(this.content);
+
+	  this.container.appendChild(this.frame);
+
+	  if (this.mode == 'code') {
+	    this.editorDom = document.createElement('div');
+	    this.editorDom.style.height = '100%'; // TODO: move to css
+	    this.editorDom.style.width = '100%'; // TODO: move to css
+	    this.content.appendChild(this.editorDom);
+
+	    var aceEditor = _ace.edit(this.editorDom);
+	    aceEditor.$blockScrolling = Infinity;
+	    aceEditor.setTheme(this.theme);
+	    aceEditor.setOptions({ readOnly: isReadOnly });
+	    aceEditor.setShowPrintMargin(false);
+	    aceEditor.setFontSize(13);
+	    aceEditor.getSession().setMode('ace/mode/json');
+	    aceEditor.getSession().setTabSize(this.indentation);
+	    aceEditor.getSession().setUseSoftTabs(true);
+	    aceEditor.getSession().setUseWrapMode(true);
+	    aceEditor.commands.bindKey('Ctrl-L', null);    // disable Ctrl+L (is used by the browser to select the address bar)
+	    aceEditor.commands.bindKey('Command-L', null); // disable Ctrl+L (is used by the browser to select the address bar)
+	    this.aceEditor = aceEditor;
+
+	    // TODO: deprecated since v5.0.0. Cleanup backward compatibility some day
+	    if (!this.hasOwnProperty('editor')) {
+	      Object.defineProperty(this, 'editor', {
+	        get: function () {
+	          console.warn('Property "editor" has been renamed to "aceEditor".');
+	          return me.aceEditor;
+	        },
+	        set: function (aceEditor) {
+	          console.warn('Property "editor" has been renamed to "aceEditor".');
+	          me.aceEditor = aceEditor;
+	        }
+	      });
+	    }
+
+	    var poweredBy = document.createElement('a');
+	    poweredBy.appendChild(document.createTextNode('powered by ace'));
+	    poweredBy.href = 'http://ace.ajax.org';
+	    poweredBy.target = '_blank';
+	    poweredBy.className = 'jsoneditor-poweredBy';
+	    poweredBy.onclick = function () {
+	      // TODO: this anchor falls below the margin of the content,
+	      // therefore the normal a.href does not work. We use a click event
+	      // for now, but this should be fixed.
+	      window.open(poweredBy.href, poweredBy.target);
+	    };
+	    this.menu.appendChild(poweredBy);
+
+	    // register onchange event
+	    aceEditor.on('change', this._onChange.bind(this));
+	    aceEditor.on('changeSelection', this._onSelect.bind(this));
+	  }
+	  else {
+	    // load a plain text textarea
+	    var textarea = document.createElement('textarea');
+	    textarea.className = 'jsoneditor-text';
+	    textarea.spellcheck = false;
+	    this.content.appendChild(textarea);
+	    this.textarea = textarea;
+	    this.textarea.readOnly = isReadOnly;
+
+	    // register onchange event
+	    if (this.textarea.oninput === null) {
+	      this.textarea.oninput = this._onChange.bind(this);
+	    }
+	    else {
+	      // oninput is undefined. For IE8-
+	      this.textarea.onchange = this._onChange.bind(this);
+	    }
+
+	    textarea.onselect = this._onSelect.bind(this);
+	    textarea.onmousedown = this._onMouseDown.bind(this);
+	    textarea.onblur = this._onBlur.bind(this);
+	  }
+
+	  if (options.statusBar) {
+	      if (this.mode === 'code') {
+	        util.addClassName(this.content, 'has-status-bar');
+
+	        this.curserInfoElements = {};
+	        var statusBar = document.createElement('div');
+	        statusBar.className = 'jsoneditor-statusbar';
+	        this.frame.appendChild(statusBar);
+
+	        var lnLabel = document.createElement('span');
+	        lnLabel.className = 'jsoneditor-curserinfo-label';
+	        lnLabel.innerText = 'Ln:';
+	  
+	        var lnVal = document.createElement('span');
+	        lnVal.className = 'jsoneditor-curserinfo-val';
+	        lnVal.innerText = 0;
+	  
+	        statusBar.appendChild(lnLabel);
+	        statusBar.appendChild(lnVal);
+	  
+	        var colLabel = document.createElement('span');
+	        colLabel.className = 'jsoneditor-curserinfo-label';
+	        colLabel.innerText = 'Col:';
+	  
+	        var colVal = document.createElement('span');
+	        colVal.className = 'jsoneditor-curserinfo-val';
+	        colVal.innerText = 0;
+	  
+	        statusBar.appendChild(colLabel);
+	        statusBar.appendChild(colVal);
+	  
+	        this.curserInfoElements.colVal = colVal;
+	        this.curserInfoElements.lnVal = lnVal;
+
+	        var countLabel = document.createElement('span');
+	        countLabel.className = 'jsoneditor-curserinfo-label';
+	        countLabel.innerText = 'characters selected';
+	        countLabel.style.display = 'none';
+
+	        var countVal = document.createElement('span');
+	        countVal.className = 'jsoneditor-curserinfo-count';
+	        countVal.innerText = 0;
+	        countVal.style.display = 'none';
+
+	        this.curserInfoElements.countLabel = countLabel;
+	        this.curserInfoElements.countVal = countVal;
+
+	        statusBar.appendChild(countVal);
+	        statusBar.appendChild(countLabel);
+	      }
+	  }
+
+	  this.setSchema(this.options.schema, this.options.schemaRefs);  
+	};
+
+	/**
+	 * Handle a change:
+	 * - Validate JSON schema
+	 * - Send a callback to the onChange listener if provided
+	 * @private
+	 */
+	textmode._onChange = function () {
+	  // validate JSON schema (if configured)
+	  this._debouncedValidate();
+
+	  // trigger the onChange callback
+	  if (this.options.onChange) {
+	    try {
+	      this.options.onChange();
+	    }
+	    catch (err) {
+	      console.error('Error in onChange callback: ', err);
+	    }
+	  }
+	};
+
+	/**
+	 * Handle text selection
+	 * Calculates the cursor position and selection range and updates menu
+	 * @private
+	 */
+	textmode._onSelect = function () {
+	  if(this.options.statusBar) {
+	    if (this.textarea) {
+	      var selectionRange = util.getInputSelection(this.textarea);
+	      if (selectionRange.start !== selectionRange.end) {
+	        this._setSelectionCountDisplay(Math.abs(selectionRange.end - selectionRange.start));
+	      }
+	    } else if (this.aceEditor && this.curserInfoElements) {
+	      var curserPos = this.aceEditor.getCursorPosition();
+	      var selectedText = this.aceEditor.getSelectedText();
+
+	      this.curserInfoElements.lnVal.innerText = curserPos.row + 1;
+	      this.curserInfoElements.colVal.innerText = curserPos.column + 1;
+	      this._setSelectionCountDisplay(selectedText.length);
+	    }
+	  }
+	};
+
+	/**
+	 * Event handler for keydown. Handles shortcut keys
+	 * @param {Event} event
+	 * @private
+	 */
+	textmode._onKeyDown = function (event) {
+	  var keynum = event.which || event.keyCode;
+	  var handled = false;
+
+	  if (keynum == 220 && event.ctrlKey) {
+	    if (event.shiftKey) { // Ctrl+Shift+\
+	      this.compact();
+	      this._onChange();
+	    }
+	    else { // Ctrl+\
+	      this.format();
+	      this._onChange();
+	    }
+	    handled = true;
+	  }
+
+	  if (handled) {
+	    event.preventDefault();
+	    event.stopPropagation();
+	  }
+
+	  this._setSelectionCountDisplay();
+	};
+
+	/**
+	 * Event handler for mousedown.
+	 * @param {Event} event
+	 * @private
+	 */
+	textmode._onMouseDown = function (event) {
+	  this._setSelectionCountDisplay();
+	};
+
+	/**
+	 * Event handler for blur.
+	 * @param {Event} event
+	 * @private
+	 */
+	textmode._onBlur = function (event) {
+	  this._setSelectionCountDisplay();
+	};
+
+	textmode._setSelectionCountDisplay = function (value) {
+	  if (this.options.statusBar && this.curserInfoElements) {
+	    if (value && this.curserInfoElements && this.curserInfoElements.countVal) {
+	      this.curserInfoElements.countVal.innerText = value;
+	      this.curserInfoElements.countVal.style.display = 'inline';
+	      this.curserInfoElements.countLabel.style.display = 'inline';
+	    } else {
+	      this.curserInfoElements.countVal.style.display = 'none';
+	      this.curserInfoElements.countLabel.style.display = 'none';
+	    }
+	  }
+	};
+
+	/**
+	 * Destroy the editor. Clean up DOM, event listeners, and web workers.
+	 */
+	textmode.destroy = function () {
+	  // remove old ace editor
+	  if (this.aceEditor) {
+	    this.aceEditor.destroy();
+	    this.aceEditor = null;
+	  }
+
+	  if (this.frame && this.container && this.frame.parentNode == this.container) {
+	    this.container.removeChild(this.frame);
+	  }
+
+	  if (this.modeSwitcher) {
+	    this.modeSwitcher.destroy();
+	    this.modeSwitcher = null;
+	  }
+
+	  this.textarea = null;
+	  
+	  this._debouncedValidate = null;
+	};
+
+	/**
+	 * Compact the code in the text editor
+	 */
+	textmode.compact = function () {
+	  var json = this.get();
+	  var text = JSON.stringify(json);
+	  this.setText(text);
+	};
+
+	/**
+	 * Format the code in the text editor
+	 */
+	textmode.format = function () {
+	  var json = this.get();
+	  var text = JSON.stringify(json, null, this.indentation);
+	  this.setText(text);
+	};
+
+	/**
+	 * Repair the code in the text editor
+	 */
+	textmode.repair = function () {
+	  var text = this.getText();
+	  var sanitizedText = util.sanitize(text);
+	  this.setText(sanitizedText);
+	};
+
+	/**
+	 * Set focus to the formatter
+	 */
+	textmode.focus = function () {
+	  if (this.textarea) {
+	    this.textarea.focus();
+	  }
+	  if (this.aceEditor) {
+	    this.aceEditor.focus();
+	  }
+	};
+
+	/**
+	 * Resize the formatter
+	 */
+	textmode.resize = function () {
+	  if (this.aceEditor) {
+	    var force = false;
+	    this.aceEditor.resize(force);
+	  }
+	};
+
+	/**
+	 * Set json data in the formatter
+	 * @param {Object} json
+	 */
+	textmode.set = function(json) {
+	  this.setText(JSON.stringify(json, null, this.indentation));
+	};
+
+	/**
+	 * Get json data from the formatter
+	 * @return {Object} json
+	 */
+	textmode.get = function() {
+	  var text = this.getText();
+	  var json;
+
+	  try {
+	    json = util.parse(text); // this can throw an error
+	  }
+	  catch (err) {
+	    // try to sanitize json, replace JavaScript notation with JSON notation
+	    text = util.sanitize(text);
+
+	    // try to parse again
+	    json = util.parse(text); // this can throw an error
+	  }
+
+	  return json;
+	};
+
+	/**
+	 * Get the text contents of the editor
+	 * @return {String} jsonText
+	 */
+	textmode.getText = function() {
+	  if (this.textarea) {
+	    return this.textarea.value;
+	  }
+	  if (this.aceEditor) {
+	    return this.aceEditor.getValue();
+	  }
+	  return '';
+	};
+
+	/**
+	 * Set the text contents of the editor
+	 * @param {String} jsonText
+	 */
+	textmode.setText = function(jsonText) {
+	  var text;
+
+	  if (this.options.escapeUnicode === true) {
+	    text = util.escapeUnicodeChars(jsonText);
+	  }
+	  else {
+	    text = jsonText;
+	  }
+
+	  if (this.textarea) {
+	    this.textarea.value = text;
+	  }
+	  if (this.aceEditor) {
+	    // prevent emitting onChange events while setting new text
+	    var originalOnChange = this.options.onChange;
+	    this.options.onChange = null;
+
+	    this.aceEditor.setValue(text, -1);
+
+	    this.options.onChange = originalOnChange;
+	  }
+	  // validate JSON schema
+	  this.validate();
+	};
+
+	/**
+	 * Validate current JSON object against the configured JSON schema
+	 * Throws an exception when no JSON schema is configured
+	 */
+	textmode.validate = function () {
+	  // clear all current errors
+	  if (this.dom.validationErrors) {
+	    this.dom.validationErrors.parentNode.removeChild(this.dom.validationErrors);
+	    this.dom.validationErrors = null;
+
+	    this.content.style.marginBottom = '';
+	    this.content.style.paddingBottom = '';
+	  }
+
+	  var doValidate = false;
+	  var errors = [];
+	  var json;
+	  try {
+	    json = this.get(); // this can fail when there is no valid json
+	    doValidate = true;
+	  }
+	  catch (err) {
+	    // no valid JSON, don't validate
+	  }
+
+	  // only validate the JSON when parsing the JSON succeeded
+	  if (doValidate && this.validateSchema) {
+	    var valid = this.validateSchema(json);
+	    if (!valid) {
+	      errors = this.validateSchema.errors.map(function (error) {
+	        return util.improveSchemaError(error);
+	      });
+	    }
+	  }
+
+	  if (errors.length > 0) {  
+	    // limit the number of displayed errors
+	    var limit = errors.length > MAX_ERRORS;
+	    if (limit) {
+	      errors = errors.slice(0, MAX_ERRORS);
+	      var hidden = this.validateSchema.errors.length - MAX_ERRORS;
+	      errors.push('(' + hidden + ' more errors...)')
+	    }
+
+	    var validationErrors = document.createElement('div');
+	    validationErrors.innerHTML = '<table class="jsoneditor-text-errors">' +
+	        '<tbody>' +
+	        errors.map(function (error) {
+	          var message;
+	          if (typeof error === 'string') {
+	            message = '<td colspan="2"><pre>' + error + '</pre></td>';
+	          }
+	          else {
+	            message = '<td>' + error.dataPath + '</td>' +
+	                '<td>' + error.message + '</td>';
+	          }
+
+	          return '<tr><td><button class="jsoneditor-schema-error"></button></td>' + message + '</tr>'
+	        }).join('') +
+	        '</tbody>' +
+	        '</table>';
+
+	    this.dom.validationErrors = validationErrors;
+	    this.frame.appendChild(validationErrors);
+
+	    var height = validationErrors.clientHeight;
+	    this.content.style.marginBottom = (-height) + 'px';
+	    this.content.style.paddingBottom = height + 'px';
+	  }
+
+	  // update the height of the ace editor
+	  if (this.aceEditor) {
+	    var force = false;
+	    this.aceEditor.resize(force);
+	  }
+	};
+
+	// define modes
+	module.exports = [
+	  {
+	    mode: 'text',
+	    mixin: textmode,
+	    data: 'text',
+	    load: textmode.format
+	  },
+	  {
+	    mode: 'code',
+	    mixin: textmode,
+	    data: 'text',
+	    load: textmode.format
+	  }
+	];
+
+
+/***/ },
+/* 15 */
+/***/ function(module, exports, __webpack_require__) {
+
+	var ace
+	if (window.ace) {
+	  // use the already loaded instance of Ace
+	  ace = window.ace
+	}
+	else {
+	  try {
+	    // load brace
+	    ace = __webpack_require__(!(function webpackMissingModule() { var e = new Error("Cannot find module \"brace\""); e.code = 'MODULE_NOT_FOUND'; throw e; }()));
+
+	    // load required Ace plugins
+	    __webpack_require__(16);
+	    __webpack_require__(18);
+	  }
+	  catch (err) {
+	    // failed to load brace (can be minimalist bundle).
+	    // No worries, the editor will fall back to plain text if needed.
+	  }
+	}
+
+	module.exports = ace;
+
+
+/***/ },
+/* 16 */
 /***/ function(module, exports, __webpack_require__) {
 
 	ace.define("ace/mode/json_highlight_rules",["require","exports","module","ace/lib/oop","ace/mode/text_highlight_rules"], function(acequire, exports, module) {
@@ -8407,11 +9570,15 @@ return /******/ (function(modules) { // webpackBootstrap
 	                token : "constant.language.boolean",
 	                regex : "(?:true|false)\\b"
 	            }, {
-	                token : "invalid.illegal", // single quoted strings are not allowed
+	                token : "text", // single quoted strings are not allowed
 	                regex : "['](?:(?:\\\\.)|(?:[^'\\\\]))*?[']"
 	            }, {
-	                token : "invalid.illegal", // comments are not allowed
+	                token : "comment", // comments are not allowed, but who cares?
 	                regex : "\\/\\/.*$"
+	            }, {
+	                token : "comment.start", // comments are not allowed, but who cares?
+	                regex : "\\/\\*",
+	                next  : "comment"
 	            }, {
 	                token : "paren.lparen",
 	                regex : "[[({]"
@@ -8429,15 +9596,19 @@ return /******/ (function(modules) { // webpackBootstrap
 	                regex : /\\(?:x[0-9a-fA-F]{2}|u[0-9a-fA-F]{4}|["\\\/bfnrt])/
 	            }, {
 	                token : "string",
-	                regex : '[^"\\\\]+'
-	            }, {
-	                token : "string",
-	                regex : '"',
+	                regex : '"|$',
 	                next  : "start"
 	            }, {
-	                token : "string",
-	                regex : "",
+	                defaultToken : "string"
+	            }
+	        ],
+	        "comment" : [
+	            {
+	                token : "comment.end", // comments are not allowed, but who cares?
+	                regex : "\\*\\/",
 	                next  : "start"
+	            }, {
+	                defaultToken: "comment"
 	            }
 	        ]
 	    };
@@ -8489,363 +9660,6 @@ return /******/ (function(modules) { // webpackBootstrap
 	exports.MatchingBraceOutdent = MatchingBraceOutdent;
 	});
 
-	ace.define("ace/mode/behaviour/cstyle",["require","exports","module","ace/lib/oop","ace/mode/behaviour","ace/token_iterator","ace/lib/lang"], function(acequire, exports, module) {
-	"use strict";
-
-	var oop = acequire("../../lib/oop");
-	var Behaviour = acequire("../behaviour").Behaviour;
-	var TokenIterator = acequire("../../token_iterator").TokenIterator;
-	var lang = acequire("../../lib/lang");
-
-	var SAFE_INSERT_IN_TOKENS =
-	    ["text", "paren.rparen", "punctuation.operator"];
-	var SAFE_INSERT_BEFORE_TOKENS =
-	    ["text", "paren.rparen", "punctuation.operator", "comment"];
-
-	var context;
-	var contextCache = {};
-	var initContext = function(editor) {
-	    var id = -1;
-	    if (editor.multiSelect) {
-	        id = editor.selection.index;
-	        if (contextCache.rangeCount != editor.multiSelect.rangeCount)
-	            contextCache = {rangeCount: editor.multiSelect.rangeCount};
-	    }
-	    if (contextCache[id])
-	        return context = contextCache[id];
-	    context = contextCache[id] = {
-	        autoInsertedBrackets: 0,
-	        autoInsertedRow: -1,
-	        autoInsertedLineEnd: "",
-	        maybeInsertedBrackets: 0,
-	        maybeInsertedRow: -1,
-	        maybeInsertedLineStart: "",
-	        maybeInsertedLineEnd: ""
-	    };
-	};
-
-	var getWrapped = function(selection, selected, opening, closing) {
-	    var rowDiff = selection.end.row - selection.start.row;
-	    return {
-	        text: opening + selected + closing,
-	        selection: [
-	                0,
-	                selection.start.column + 1,
-	                rowDiff,
-	                selection.end.column + (rowDiff ? 0 : 1)
-	            ]
-	    };
-	};
-
-	var CstyleBehaviour = function() {
-	    this.add("braces", "insertion", function(state, action, editor, session, text) {
-	        var cursor = editor.getCursorPosition();
-	        var line = session.doc.getLine(cursor.row);
-	        if (text == '{') {
-	            initContext(editor);
-	            var selection = editor.getSelectionRange();
-	            var selected = session.doc.getTextRange(selection);
-	            if (selected !== "" && selected !== "{" && editor.getWrapBehavioursEnabled()) {
-	                return getWrapped(selection, selected, '{', '}');
-	            } else if (CstyleBehaviour.isSaneInsertion(editor, session)) {
-	                if (/[\]\}\)]/.test(line[cursor.column]) || editor.inMultiSelectMode) {
-	                    CstyleBehaviour.recordAutoInsert(editor, session, "}");
-	                    return {
-	                        text: '{}',
-	                        selection: [1, 1]
-	                    };
-	                } else {
-	                    CstyleBehaviour.recordMaybeInsert(editor, session, "{");
-	                    return {
-	                        text: '{',
-	                        selection: [1, 1]
-	                    };
-	                }
-	            }
-	        } else if (text == '}') {
-	            initContext(editor);
-	            var rightChar = line.substring(cursor.column, cursor.column + 1);
-	            if (rightChar == '}') {
-	                var matching = session.$findOpeningBracket('}', {column: cursor.column + 1, row: cursor.row});
-	                if (matching !== null && CstyleBehaviour.isAutoInsertedClosing(cursor, line, text)) {
-	                    CstyleBehaviour.popAutoInsertedClosing();
-	                    return {
-	                        text: '',
-	                        selection: [1, 1]
-	                    };
-	                }
-	            }
-	        } else if (text == "\n" || text == "\r\n") {
-	            initContext(editor);
-	            var closing = "";
-	            if (CstyleBehaviour.isMaybeInsertedClosing(cursor, line)) {
-	                closing = lang.stringRepeat("}", context.maybeInsertedBrackets);
-	                CstyleBehaviour.clearMaybeInsertedClosing();
-	            }
-	            var rightChar = line.substring(cursor.column, cursor.column + 1);
-	            if (rightChar === '}') {
-	                var openBracePos = session.findMatchingBracket({row: cursor.row, column: cursor.column+1}, '}');
-	                if (!openBracePos)
-	                     return null;
-	                var next_indent = this.$getIndent(session.getLine(openBracePos.row));
-	            } else if (closing) {
-	                var next_indent = this.$getIndent(line);
-	            } else {
-	                CstyleBehaviour.clearMaybeInsertedClosing();
-	                return;
-	            }
-	            var indent = next_indent + session.getTabString();
-
-	            return {
-	                text: '\n' + indent + '\n' + next_indent + closing,
-	                selection: [1, indent.length, 1, indent.length]
-	            };
-	        } else {
-	            CstyleBehaviour.clearMaybeInsertedClosing();
-	        }
-	    });
-
-	    this.add("braces", "deletion", function(state, action, editor, session, range) {
-	        var selected = session.doc.getTextRange(range);
-	        if (!range.isMultiLine() && selected == '{') {
-	            initContext(editor);
-	            var line = session.doc.getLine(range.start.row);
-	            var rightChar = line.substring(range.end.column, range.end.column + 1);
-	            if (rightChar == '}') {
-	                range.end.column++;
-	                return range;
-	            } else {
-	                context.maybeInsertedBrackets--;
-	            }
-	        }
-	    });
-
-	    this.add("parens", "insertion", function(state, action, editor, session, text) {
-	        if (text == '(') {
-	            initContext(editor);
-	            var selection = editor.getSelectionRange();
-	            var selected = session.doc.getTextRange(selection);
-	            if (selected !== "" && editor.getWrapBehavioursEnabled()) {
-	                return getWrapped(selection, selected, '(', ')');
-	            } else if (CstyleBehaviour.isSaneInsertion(editor, session)) {
-	                CstyleBehaviour.recordAutoInsert(editor, session, ")");
-	                return {
-	                    text: '()',
-	                    selection: [1, 1]
-	                };
-	            }
-	        } else if (text == ')') {
-	            initContext(editor);
-	            var cursor = editor.getCursorPosition();
-	            var line = session.doc.getLine(cursor.row);
-	            var rightChar = line.substring(cursor.column, cursor.column + 1);
-	            if (rightChar == ')') {
-	                var matching = session.$findOpeningBracket(')', {column: cursor.column + 1, row: cursor.row});
-	                if (matching !== null && CstyleBehaviour.isAutoInsertedClosing(cursor, line, text)) {
-	                    CstyleBehaviour.popAutoInsertedClosing();
-	                    return {
-	                        text: '',
-	                        selection: [1, 1]
-	                    };
-	                }
-	            }
-	        }
-	    });
-
-	    this.add("parens", "deletion", function(state, action, editor, session, range) {
-	        var selected = session.doc.getTextRange(range);
-	        if (!range.isMultiLine() && selected == '(') {
-	            initContext(editor);
-	            var line = session.doc.getLine(range.start.row);
-	            var rightChar = line.substring(range.start.column + 1, range.start.column + 2);
-	            if (rightChar == ')') {
-	                range.end.column++;
-	                return range;
-	            }
-	        }
-	    });
-
-	    this.add("brackets", "insertion", function(state, action, editor, session, text) {
-	        if (text == '[') {
-	            initContext(editor);
-	            var selection = editor.getSelectionRange();
-	            var selected = session.doc.getTextRange(selection);
-	            if (selected !== "" && editor.getWrapBehavioursEnabled()) {
-	                return getWrapped(selection, selected, '[', ']');
-	            } else if (CstyleBehaviour.isSaneInsertion(editor, session)) {
-	                CstyleBehaviour.recordAutoInsert(editor, session, "]");
-	                return {
-	                    text: '[]',
-	                    selection: [1, 1]
-	                };
-	            }
-	        } else if (text == ']') {
-	            initContext(editor);
-	            var cursor = editor.getCursorPosition();
-	            var line = session.doc.getLine(cursor.row);
-	            var rightChar = line.substring(cursor.column, cursor.column + 1);
-	            if (rightChar == ']') {
-	                var matching = session.$findOpeningBracket(']', {column: cursor.column + 1, row: cursor.row});
-	                if (matching !== null && CstyleBehaviour.isAutoInsertedClosing(cursor, line, text)) {
-	                    CstyleBehaviour.popAutoInsertedClosing();
-	                    return {
-	                        text: '',
-	                        selection: [1, 1]
-	                    };
-	                }
-	            }
-	        }
-	    });
-
-	    this.add("brackets", "deletion", function(state, action, editor, session, range) {
-	        var selected = session.doc.getTextRange(range);
-	        if (!range.isMultiLine() && selected == '[') {
-	            initContext(editor);
-	            var line = session.doc.getLine(range.start.row);
-	            var rightChar = line.substring(range.start.column + 1, range.start.column + 2);
-	            if (rightChar == ']') {
-	                range.end.column++;
-	                return range;
-	            }
-	        }
-	    });
-
-	    this.add("string_dquotes", "insertion", function(state, action, editor, session, text) {
-	        if (text == '"' || text == "'") {
-	            initContext(editor);
-	            var quote = text;
-	            var selection = editor.getSelectionRange();
-	            var selected = session.doc.getTextRange(selection);
-	            if (selected !== "" && selected !== "'" && selected != '"' && editor.getWrapBehavioursEnabled()) {
-	                return getWrapped(selection, selected, quote, quote);
-	            } else if (!selected) {
-	                var cursor = editor.getCursorPosition();
-	                var line = session.doc.getLine(cursor.row);
-	                var leftChar = line.substring(cursor.column-1, cursor.column);
-	                var rightChar = line.substring(cursor.column, cursor.column + 1);
-	                
-	                var token = session.getTokenAt(cursor.row, cursor.column);
-	                var rightToken = session.getTokenAt(cursor.row, cursor.column + 1);
-	                if (leftChar == "\\" && token && /escape/.test(token.type))
-	                    return null;
-	                
-	                var stringBefore = token && /string|escape/.test(token.type);
-	                var stringAfter = !rightToken || /string|escape/.test(rightToken.type);
-	                
-	                var pair;
-	                if (rightChar == quote) {
-	                    pair = stringBefore !== stringAfter;
-	                } else {
-	                    if (stringBefore && !stringAfter)
-	                        return null; // wrap string with different quote
-	                    if (stringBefore && stringAfter)
-	                        return null; // do not pair quotes inside strings
-	                    var wordRe = session.$mode.tokenRe;
-	                    wordRe.lastIndex = 0;
-	                    var isWordBefore = wordRe.test(leftChar);
-	                    wordRe.lastIndex = 0;
-	                    var isWordAfter = wordRe.test(leftChar);
-	                    if (isWordBefore || isWordAfter)
-	                        return null; // before or after alphanumeric
-	                    if (rightChar && !/[\s;,.})\]\\]/.test(rightChar))
-	                        return null; // there is rightChar and it isn't closing
-	                    pair = true;
-	                }
-	                return {
-	                    text: pair ? quote + quote : "",
-	                    selection: [1,1]
-	                };
-	            }
-	        }
-	    });
-
-	    this.add("string_dquotes", "deletion", function(state, action, editor, session, range) {
-	        var selected = session.doc.getTextRange(range);
-	        if (!range.isMultiLine() && (selected == '"' || selected == "'")) {
-	            initContext(editor);
-	            var line = session.doc.getLine(range.start.row);
-	            var rightChar = line.substring(range.start.column + 1, range.start.column + 2);
-	            if (rightChar == selected) {
-	                range.end.column++;
-	                return range;
-	            }
-	        }
-	    });
-
-	};
-
-	    
-	CstyleBehaviour.isSaneInsertion = function(editor, session) {
-	    var cursor = editor.getCursorPosition();
-	    var iterator = new TokenIterator(session, cursor.row, cursor.column);
-	    if (!this.$matchTokenType(iterator.getCurrentToken() || "text", SAFE_INSERT_IN_TOKENS)) {
-	        var iterator2 = new TokenIterator(session, cursor.row, cursor.column + 1);
-	        if (!this.$matchTokenType(iterator2.getCurrentToken() || "text", SAFE_INSERT_IN_TOKENS))
-	            return false;
-	    }
-	    iterator.stepForward();
-	    return iterator.getCurrentTokenRow() !== cursor.row ||
-	        this.$matchTokenType(iterator.getCurrentToken() || "text", SAFE_INSERT_BEFORE_TOKENS);
-	};
-
-	CstyleBehaviour.$matchTokenType = function(token, types) {
-	    return types.indexOf(token.type || token) > -1;
-	};
-
-	CstyleBehaviour.recordAutoInsert = function(editor, session, bracket) {
-	    var cursor = editor.getCursorPosition();
-	    var line = session.doc.getLine(cursor.row);
-	    if (!this.isAutoInsertedClosing(cursor, line, context.autoInsertedLineEnd[0]))
-	        context.autoInsertedBrackets = 0;
-	    context.autoInsertedRow = cursor.row;
-	    context.autoInsertedLineEnd = bracket + line.substr(cursor.column);
-	    context.autoInsertedBrackets++;
-	};
-
-	CstyleBehaviour.recordMaybeInsert = function(editor, session, bracket) {
-	    var cursor = editor.getCursorPosition();
-	    var line = session.doc.getLine(cursor.row);
-	    if (!this.isMaybeInsertedClosing(cursor, line))
-	        context.maybeInsertedBrackets = 0;
-	    context.maybeInsertedRow = cursor.row;
-	    context.maybeInsertedLineStart = line.substr(0, cursor.column) + bracket;
-	    context.maybeInsertedLineEnd = line.substr(cursor.column);
-	    context.maybeInsertedBrackets++;
-	};
-
-	CstyleBehaviour.isAutoInsertedClosing = function(cursor, line, bracket) {
-	    return context.autoInsertedBrackets > 0 &&
-	        cursor.row === context.autoInsertedRow &&
-	        bracket === context.autoInsertedLineEnd[0] &&
-	        line.substr(cursor.column) === context.autoInsertedLineEnd;
-	};
-
-	CstyleBehaviour.isMaybeInsertedClosing = function(cursor, line) {
-	    return context.maybeInsertedBrackets > 0 &&
-	        cursor.row === context.maybeInsertedRow &&
-	        line.substr(cursor.column) === context.maybeInsertedLineEnd &&
-	        line.substr(0, cursor.column) == context.maybeInsertedLineStart;
-	};
-
-	CstyleBehaviour.popAutoInsertedClosing = function() {
-	    context.autoInsertedLineEnd = context.autoInsertedLineEnd.substr(1);
-	    context.autoInsertedBrackets--;
-	};
-
-	CstyleBehaviour.clearMaybeInsertedClosing = function() {
-	    if (context) {
-	        context.maybeInsertedBrackets = 0;
-	        context.maybeInsertedRow = -1;
-	    }
-	};
-
-
-
-	oop.inherits(CstyleBehaviour, Behaviour);
-
-	exports.CstyleBehaviour = CstyleBehaviour;
-	});
-
 	ace.define("ace/mode/folding/cstyle",["require","exports","module","ace/lib/oop","ace/range","ace/mode/folding/fold_mode"], function(acequire, exports, module) {
 	"use strict";
 
@@ -8867,8 +9681,8 @@ return /******/ (function(modules) { // webpackBootstrap
 
 	(function() {
 	    
-	    this.foldingStartMarker = /(\{|\[)[^\}\]]*$|^\s*(\/\*)/;
-	    this.foldingStopMarker = /^[^\[\{]*(\}|\])|^[\s\*]*(\*\/)/;
+	    this.foldingStartMarker = /([\{\[\(])[^\}\]\)]*$|^\s*(\/\*)/;
+	    this.foldingStopMarker = /^[^\[\{\(]*([\}\]\)])|^[\s\*]*(\*\/)/;
 	    this.singleLineBlockCommentRe= /^\s*(\/\*).*\*\/\s*$/;
 	    this.tripleStarBlockCommentRe = /^\s*(\/\*\*\*).*\*\/\s*$/;
 	    this.startRegionRe = /^\s*(\/\*|\/\/)#?region\b/;
@@ -9029,7 +9843,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    this.createWorker = function(session) {
-	        var worker = new WorkerClient(["ace"], __webpack_require__(16), "JsonWorker");
+	        var worker = new WorkerClient(["ace"], __webpack_require__(17), "JsonWorker");
 	        worker.attachToDocument(session.getDocument());
 
 	        worker.on("annotate", function(e) {
@@ -9052,8 +9866,15 @@ return /******/ (function(modules) { // webpackBootstrap
 
 
 /***/ },
-/* 15 */
-/***/ function(module, exports, __webpack_require__) {
+/* 17 */
+/***/ function(module, exports) {
+
+	module.exports.id = 'ace/mode/json_worker';
+	module.exports.src = "\"no use strict\";!function(window){function resolveModuleId(id,paths){for(var testPath=id,tail=\"\";testPath;){var alias=paths[testPath];if(\"string\"==typeof alias)return alias+tail;if(alias)return alias.location.replace(/\\/*$/,\"/\")+(tail||alias.main||alias.name);if(alias===!1)return\"\";var i=testPath.lastIndexOf(\"/\");if(-1===i)break;tail=testPath.substr(i)+tail,testPath=testPath.slice(0,i)}return id}if(!(void 0!==window.window&&window.document||window.acequire&&window.define)){window.console||(window.console=function(){var msgs=Array.prototype.slice.call(arguments,0);postMessage({type:\"log\",data:msgs})},window.console.error=window.console.warn=window.console.log=window.console.trace=window.console),window.window=window,window.ace=window,window.onerror=function(message,file,line,col,err){postMessage({type:\"error\",data:{message:message,data:err.data,file:file,line:line,col:col,stack:err.stack}})},window.normalizeModule=function(parentId,moduleName){if(-1!==moduleName.indexOf(\"!\")){var chunks=moduleName.split(\"!\");return window.normalizeModule(parentId,chunks[0])+\"!\"+window.normalizeModule(parentId,chunks[1])}if(\".\"==moduleName.charAt(0)){var base=parentId.split(\"/\").slice(0,-1).join(\"/\");for(moduleName=(base?base+\"/\":\"\")+moduleName;-1!==moduleName.indexOf(\".\")&&previous!=moduleName;){var previous=moduleName;moduleName=moduleName.replace(/^\\.\\//,\"\").replace(/\\/\\.\\//,\"/\").replace(/[^\\/]+\\/\\.\\.\\//,\"\")}}return moduleName},window.acequire=function acequire(parentId,id){if(id||(id=parentId,parentId=null),!id.charAt)throw Error(\"worker.js acequire() accepts only (parentId, id) as arguments\");id=window.normalizeModule(parentId,id);var module=window.acequire.modules[id];if(module)return module.initialized||(module.initialized=!0,module.exports=module.factory().exports),module.exports;if(!window.acequire.tlns)return console.log(\"unable to load \"+id);var path=resolveModuleId(id,window.acequire.tlns);return\".js\"!=path.slice(-3)&&(path+=\".js\"),window.acequire.id=id,window.acequire.modules[id]={},importScripts(path),window.acequire(parentId,id)},window.acequire.modules={},window.acequire.tlns={},window.define=function(id,deps,factory){if(2==arguments.length?(factory=deps,\"string\"!=typeof id&&(deps=id,id=window.acequire.id)):1==arguments.length&&(factory=id,deps=[],id=window.acequire.id),\"function\"!=typeof factory)return window.acequire.modules[id]={exports:factory,initialized:!0},void 0;deps.length||(deps=[\"require\",\"exports\",\"module\"]);var req=function(childId){return window.acequire(id,childId)};window.acequire.modules[id]={exports:{},factory:function(){var module=this,returnExports=factory.apply(this,deps.map(function(dep){switch(dep){case\"require\":return req;case\"exports\":return module.exports;case\"module\":return module;default:return req(dep)}}));return returnExports&&(module.exports=returnExports),module}}},window.define.amd={},acequire.tlns={},window.initBaseUrls=function(topLevelNamespaces){for(var i in topLevelNamespaces)acequire.tlns[i]=topLevelNamespaces[i]},window.initSender=function(){var EventEmitter=window.acequire(\"ace/lib/event_emitter\").EventEmitter,oop=window.acequire(\"ace/lib/oop\"),Sender=function(){};return function(){oop.implement(this,EventEmitter),this.callback=function(data,callbackId){postMessage({type:\"call\",id:callbackId,data:data})},this.emit=function(name,data){postMessage({type:\"event\",name:name,data:data})}}.call(Sender.prototype),new Sender};var main=window.main=null,sender=window.sender=null;window.onmessage=function(e){var msg=e.data;if(msg.event&&sender)sender._signal(msg.event,msg.data);else if(msg.command)if(main[msg.command])main[msg.command].apply(main,msg.args);else{if(!window[msg.command])throw Error(\"Unknown command:\"+msg.command);window[msg.command].apply(window,msg.args)}else if(msg.init){window.initBaseUrls(msg.tlns),acequire(\"ace/lib/es5-shim\"),sender=window.sender=window.initSender();var clazz=acequire(msg.module)[msg.classname];main=window.main=new clazz(sender)}}}}(this),ace.define(\"ace/lib/oop\",[\"require\",\"exports\",\"module\"],function(acequire,exports){\"use strict\";exports.inherits=function(ctor,superCtor){ctor.super_=superCtor,ctor.prototype=Object.create(superCtor.prototype,{constructor:{value:ctor,enumerable:!1,writable:!0,configurable:!0}})},exports.mixin=function(obj,mixin){for(var key in mixin)obj[key]=mixin[key];return obj},exports.implement=function(proto,mixin){exports.mixin(proto,mixin)}}),ace.define(\"ace/range\",[\"require\",\"exports\",\"module\"],function(acequire,exports){\"use strict\";var comparePoints=function(p1,p2){return p1.row-p2.row||p1.column-p2.column},Range=function(startRow,startColumn,endRow,endColumn){this.start={row:startRow,column:startColumn},this.end={row:endRow,column:endColumn}};(function(){this.isEqual=function(range){return this.start.row===range.start.row&&this.end.row===range.end.row&&this.start.column===range.start.column&&this.end.column===range.end.column},this.toString=function(){return\"Range: [\"+this.start.row+\"/\"+this.start.column+\"] -> [\"+this.end.row+\"/\"+this.end.column+\"]\"},this.contains=function(row,column){return 0==this.compare(row,column)},this.compareRange=function(range){var cmp,end=range.end,start=range.start;return cmp=this.compare(end.row,end.column),1==cmp?(cmp=this.compare(start.row,start.column),1==cmp?2:0==cmp?1:0):-1==cmp?-2:(cmp=this.compare(start.row,start.column),-1==cmp?-1:1==cmp?42:0)},this.comparePoint=function(p){return this.compare(p.row,p.column)},this.containsRange=function(range){return 0==this.comparePoint(range.start)&&0==this.comparePoint(range.end)},this.intersects=function(range){var cmp=this.compareRange(range);return-1==cmp||0==cmp||1==cmp},this.isEnd=function(row,column){return this.end.row==row&&this.end.column==column},this.isStart=function(row,column){return this.start.row==row&&this.start.column==column},this.setStart=function(row,column){\"object\"==typeof row?(this.start.column=row.column,this.start.row=row.row):(this.start.row=row,this.start.column=column)},this.setEnd=function(row,column){\"object\"==typeof row?(this.end.column=row.column,this.end.row=row.row):(this.end.row=row,this.end.column=column)},this.inside=function(row,column){return 0==this.compare(row,column)?this.isEnd(row,column)||this.isStart(row,column)?!1:!0:!1},this.insideStart=function(row,column){return 0==this.compare(row,column)?this.isEnd(row,column)?!1:!0:!1},this.insideEnd=function(row,column){return 0==this.compare(row,column)?this.isStart(row,column)?!1:!0:!1},this.compare=function(row,column){return this.isMultiLine()||row!==this.start.row?this.start.row>row?-1:row>this.end.row?1:this.start.row===row?column>=this.start.column?0:-1:this.end.row===row?this.end.column>=column?0:1:0:this.start.column>column?-1:column>this.end.column?1:0},this.compareStart=function(row,column){return this.start.row==row&&this.start.column==column?-1:this.compare(row,column)},this.compareEnd=function(row,column){return this.end.row==row&&this.end.column==column?1:this.compare(row,column)},this.compareInside=function(row,column){return this.end.row==row&&this.end.column==column?1:this.start.row==row&&this.start.column==column?-1:this.compare(row,column)},this.clipRows=function(firstRow,lastRow){if(this.end.row>lastRow)var end={row:lastRow+1,column:0};else if(firstRow>this.end.row)var end={row:firstRow,column:0};if(this.start.row>lastRow)var start={row:lastRow+1,column:0};else if(firstRow>this.start.row)var start={row:firstRow,column:0};return Range.fromPoints(start||this.start,end||this.end)},this.extend=function(row,column){var cmp=this.compare(row,column);if(0==cmp)return this;if(-1==cmp)var start={row:row,column:column};else var end={row:row,column:column};return Range.fromPoints(start||this.start,end||this.end)},this.isEmpty=function(){return this.start.row===this.end.row&&this.start.column===this.end.column},this.isMultiLine=function(){return this.start.row!==this.end.row},this.clone=function(){return Range.fromPoints(this.start,this.end)},this.collapseRows=function(){return 0==this.end.column?new Range(this.start.row,0,Math.max(this.start.row,this.end.row-1),0):new Range(this.start.row,0,this.end.row,0)},this.toScreenRange=function(session){var screenPosStart=session.documentToScreenPosition(this.start),screenPosEnd=session.documentToScreenPosition(this.end);return new Range(screenPosStart.row,screenPosStart.column,screenPosEnd.row,screenPosEnd.column)},this.moveBy=function(row,column){this.start.row+=row,this.start.column+=column,this.end.row+=row,this.end.column+=column}}).call(Range.prototype),Range.fromPoints=function(start,end){return new Range(start.row,start.column,end.row,end.column)},Range.comparePoints=comparePoints,Range.comparePoints=function(p1,p2){return p1.row-p2.row||p1.column-p2.column},exports.Range=Range}),ace.define(\"ace/apply_delta\",[\"require\",\"exports\",\"module\"],function(acequire,exports){\"use strict\";exports.applyDelta=function(docLines,delta){var row=delta.start.row,startColumn=delta.start.column,line=docLines[row]||\"\";switch(delta.action){case\"insert\":var lines=delta.lines;if(1===lines.length)docLines[row]=line.substring(0,startColumn)+delta.lines[0]+line.substring(startColumn);else{var args=[row,1].concat(delta.lines);docLines.splice.apply(docLines,args),docLines[row]=line.substring(0,startColumn)+docLines[row],docLines[row+delta.lines.length-1]+=line.substring(startColumn)}break;case\"remove\":var endColumn=delta.end.column,endRow=delta.end.row;row===endRow?docLines[row]=line.substring(0,startColumn)+line.substring(endColumn):docLines.splice(row,endRow-row+1,line.substring(0,startColumn)+docLines[endRow].substring(endColumn))}}}),ace.define(\"ace/lib/event_emitter\",[\"require\",\"exports\",\"module\"],function(acequire,exports){\"use strict\";var EventEmitter={},stopPropagation=function(){this.propagationStopped=!0},preventDefault=function(){this.defaultPrevented=!0};EventEmitter._emit=EventEmitter._dispatchEvent=function(eventName,e){this._eventRegistry||(this._eventRegistry={}),this._defaultHandlers||(this._defaultHandlers={});var listeners=this._eventRegistry[eventName]||[],defaultHandler=this._defaultHandlers[eventName];if(listeners.length||defaultHandler){\"object\"==typeof e&&e||(e={}),e.type||(e.type=eventName),e.stopPropagation||(e.stopPropagation=stopPropagation),e.preventDefault||(e.preventDefault=preventDefault),listeners=listeners.slice();for(var i=0;listeners.length>i&&(listeners[i](e,this),!e.propagationStopped);i++);return defaultHandler&&!e.defaultPrevented?defaultHandler(e,this):void 0}},EventEmitter._signal=function(eventName,e){var listeners=(this._eventRegistry||{})[eventName];if(listeners){listeners=listeners.slice();for(var i=0;listeners.length>i;i++)listeners[i](e,this)}},EventEmitter.once=function(eventName,callback){var _self=this;callback&&this.addEventListener(eventName,function newCallback(){_self.removeEventListener(eventName,newCallback),callback.apply(null,arguments)})},EventEmitter.setDefaultHandler=function(eventName,callback){var handlers=this._defaultHandlers;if(handlers||(handlers=this._defaultHandlers={_disabled_:{}}),handlers[eventName]){var old=handlers[eventName],disabled=handlers._disabled_[eventName];disabled||(handlers._disabled_[eventName]=disabled=[]),disabled.push(old);var i=disabled.indexOf(callback);-1!=i&&disabled.splice(i,1)}handlers[eventName]=callback},EventEmitter.removeDefaultHandler=function(eventName,callback){var handlers=this._defaultHandlers;if(handlers){var disabled=handlers._disabled_[eventName];if(handlers[eventName]==callback)handlers[eventName],disabled&&this.setDefaultHandler(eventName,disabled.pop());else if(disabled){var i=disabled.indexOf(callback);-1!=i&&disabled.splice(i,1)}}},EventEmitter.on=EventEmitter.addEventListener=function(eventName,callback,capturing){this._eventRegistry=this._eventRegistry||{};var listeners=this._eventRegistry[eventName];return listeners||(listeners=this._eventRegistry[eventName]=[]),-1==listeners.indexOf(callback)&&listeners[capturing?\"unshift\":\"push\"](callback),callback},EventEmitter.off=EventEmitter.removeListener=EventEmitter.removeEventListener=function(eventName,callback){this._eventRegistry=this._eventRegistry||{};var listeners=this._eventRegistry[eventName];if(listeners){var index=listeners.indexOf(callback);-1!==index&&listeners.splice(index,1)}},EventEmitter.removeAllListeners=function(eventName){this._eventRegistry&&(this._eventRegistry[eventName]=[])},exports.EventEmitter=EventEmitter}),ace.define(\"ace/anchor\",[\"require\",\"exports\",\"module\",\"ace/lib/oop\",\"ace/lib/event_emitter\"],function(acequire,exports){\"use strict\";var oop=acequire(\"./lib/oop\"),EventEmitter=acequire(\"./lib/event_emitter\").EventEmitter,Anchor=exports.Anchor=function(doc,row,column){this.$onChange=this.onChange.bind(this),this.attach(doc),column===void 0?this.setPosition(row.row,row.column):this.setPosition(row,column)};(function(){function $pointsInOrder(point1,point2,equalPointsInOrder){var bColIsAfter=equalPointsInOrder?point1.column<=point2.column:point1.column<point2.column;return point1.row<point2.row||point1.row==point2.row&&bColIsAfter}function $getTransformedPoint(delta,point,moveIfEqual){var deltaIsInsert=\"insert\"==delta.action,deltaRowShift=(deltaIsInsert?1:-1)*(delta.end.row-delta.start.row),deltaColShift=(deltaIsInsert?1:-1)*(delta.end.column-delta.start.column),deltaStart=delta.start,deltaEnd=deltaIsInsert?deltaStart:delta.end;return $pointsInOrder(point,deltaStart,moveIfEqual)?{row:point.row,column:point.column}:$pointsInOrder(deltaEnd,point,!moveIfEqual)?{row:point.row+deltaRowShift,column:point.column+(point.row==deltaEnd.row?deltaColShift:0)}:{row:deltaStart.row,column:deltaStart.column}}oop.implement(this,EventEmitter),this.getPosition=function(){return this.$clipPositionToDocument(this.row,this.column)},this.getDocument=function(){return this.document},this.$insertRight=!1,this.onChange=function(delta){if(!(delta.start.row==delta.end.row&&delta.start.row!=this.row||delta.start.row>this.row)){var point=$getTransformedPoint(delta,{row:this.row,column:this.column},this.$insertRight);this.setPosition(point.row,point.column,!0)}},this.setPosition=function(row,column,noClip){var pos;if(pos=noClip?{row:row,column:column}:this.$clipPositionToDocument(row,column),this.row!=pos.row||this.column!=pos.column){var old={row:this.row,column:this.column};this.row=pos.row,this.column=pos.column,this._signal(\"change\",{old:old,value:pos})}},this.detach=function(){this.document.removeEventListener(\"change\",this.$onChange)},this.attach=function(doc){this.document=doc||this.document,this.document.on(\"change\",this.$onChange)},this.$clipPositionToDocument=function(row,column){var pos={};return row>=this.document.getLength()?(pos.row=Math.max(0,this.document.getLength()-1),pos.column=this.document.getLine(pos.row).length):0>row?(pos.row=0,pos.column=0):(pos.row=row,pos.column=Math.min(this.document.getLine(pos.row).length,Math.max(0,column))),0>column&&(pos.column=0),pos}}).call(Anchor.prototype)}),ace.define(\"ace/document\",[\"require\",\"exports\",\"module\",\"ace/lib/oop\",\"ace/apply_delta\",\"ace/lib/event_emitter\",\"ace/range\",\"ace/anchor\"],function(acequire,exports){\"use strict\";var oop=acequire(\"./lib/oop\"),applyDelta=acequire(\"./apply_delta\").applyDelta,EventEmitter=acequire(\"./lib/event_emitter\").EventEmitter,Range=acequire(\"./range\").Range,Anchor=acequire(\"./anchor\").Anchor,Document=function(textOrLines){this.$lines=[\"\"],0===textOrLines.length?this.$lines=[\"\"]:Array.isArray(textOrLines)?this.insertMergedLines({row:0,column:0},textOrLines):this.insert({row:0,column:0},textOrLines)};(function(){oop.implement(this,EventEmitter),this.setValue=function(text){var len=this.getLength()-1;this.remove(new Range(0,0,len,this.getLine(len).length)),this.insert({row:0,column:0},text)},this.getValue=function(){return this.getAllLines().join(this.getNewLineCharacter())},this.createAnchor=function(row,column){return new Anchor(this,row,column)},this.$split=0===\"aaa\".split(/a/).length?function(text){return text.replace(/\\r\\n|\\r/g,\"\\n\").split(\"\\n\")}:function(text){return text.split(/\\r\\n|\\r|\\n/)},this.$detectNewLine=function(text){var match=text.match(/^.*?(\\r\\n|\\r|\\n)/m);this.$autoNewLine=match?match[1]:\"\\n\",this._signal(\"changeNewLineMode\")},this.getNewLineCharacter=function(){switch(this.$newLineMode){case\"windows\":return\"\\r\\n\";case\"unix\":return\"\\n\";default:return this.$autoNewLine||\"\\n\"}},this.$autoNewLine=\"\",this.$newLineMode=\"auto\",this.setNewLineMode=function(newLineMode){this.$newLineMode!==newLineMode&&(this.$newLineMode=newLineMode,this._signal(\"changeNewLineMode\"))},this.getNewLineMode=function(){return this.$newLineMode},this.isNewLine=function(text){return\"\\r\\n\"==text||\"\\r\"==text||\"\\n\"==text},this.getLine=function(row){return this.$lines[row]||\"\"},this.getLines=function(firstRow,lastRow){return this.$lines.slice(firstRow,lastRow+1)},this.getAllLines=function(){return this.getLines(0,this.getLength())},this.getLength=function(){return this.$lines.length},this.getTextRange=function(range){return this.getLinesForRange(range).join(this.getNewLineCharacter())},this.getLinesForRange=function(range){var lines;if(range.start.row===range.end.row)lines=[this.getLine(range.start.row).substring(range.start.column,range.end.column)];else{lines=this.getLines(range.start.row,range.end.row),lines[0]=(lines[0]||\"\").substring(range.start.column);var l=lines.length-1;range.end.row-range.start.row==l&&(lines[l]=lines[l].substring(0,range.end.column))}return lines},this.insertLines=function(row,lines){return console.warn(\"Use of document.insertLines is deprecated. Use the insertFullLines method instead.\"),this.insertFullLines(row,lines)},this.removeLines=function(firstRow,lastRow){return console.warn(\"Use of document.removeLines is deprecated. Use the removeFullLines method instead.\"),this.removeFullLines(firstRow,lastRow)},this.insertNewLine=function(position){return console.warn(\"Use of document.insertNewLine is deprecated. Use insertMergedLines(position, ['', '']) instead.\"),this.insertMergedLines(position,[\"\",\"\"])},this.insert=function(position,text){return 1>=this.getLength()&&this.$detectNewLine(text),this.insertMergedLines(position,this.$split(text))},this.insertInLine=function(position,text){var start=this.clippedPos(position.row,position.column),end=this.pos(position.row,position.column+text.length);return this.applyDelta({start:start,end:end,action:\"insert\",lines:[text]},!0),this.clonePos(end)},this.clippedPos=function(row,column){var length=this.getLength();void 0===row?row=length:0>row?row=0:row>=length&&(row=length-1,column=void 0);var line=this.getLine(row);return void 0==column&&(column=line.length),column=Math.min(Math.max(column,0),line.length),{row:row,column:column}},this.clonePos=function(pos){return{row:pos.row,column:pos.column}},this.pos=function(row,column){return{row:row,column:column}},this.$clipPosition=function(position){var length=this.getLength();return position.row>=length?(position.row=Math.max(0,length-1),position.column=this.getLine(length-1).length):(position.row=Math.max(0,position.row),position.column=Math.min(Math.max(position.column,0),this.getLine(position.row).length)),position},this.insertFullLines=function(row,lines){row=Math.min(Math.max(row,0),this.getLength());var column=0;this.getLength()>row?(lines=lines.concat([\"\"]),column=0):(lines=[\"\"].concat(lines),row--,column=this.$lines[row].length),this.insertMergedLines({row:row,column:column},lines)},this.insertMergedLines=function(position,lines){var start=this.clippedPos(position.row,position.column),end={row:start.row+lines.length-1,column:(1==lines.length?start.column:0)+lines[lines.length-1].length};return this.applyDelta({start:start,end:end,action:\"insert\",lines:lines}),this.clonePos(end)},this.remove=function(range){var start=this.clippedPos(range.start.row,range.start.column),end=this.clippedPos(range.end.row,range.end.column);return this.applyDelta({start:start,end:end,action:\"remove\",lines:this.getLinesForRange({start:start,end:end})}),this.clonePos(start)},this.removeInLine=function(row,startColumn,endColumn){var start=this.clippedPos(row,startColumn),end=this.clippedPos(row,endColumn);return this.applyDelta({start:start,end:end,action:\"remove\",lines:this.getLinesForRange({start:start,end:end})},!0),this.clonePos(start)},this.removeFullLines=function(firstRow,lastRow){firstRow=Math.min(Math.max(0,firstRow),this.getLength()-1),lastRow=Math.min(Math.max(0,lastRow),this.getLength()-1);var deleteFirstNewLine=lastRow==this.getLength()-1&&firstRow>0,deleteLastNewLine=this.getLength()-1>lastRow,startRow=deleteFirstNewLine?firstRow-1:firstRow,startCol=deleteFirstNewLine?this.getLine(startRow).length:0,endRow=deleteLastNewLine?lastRow+1:lastRow,endCol=deleteLastNewLine?0:this.getLine(endRow).length,range=new Range(startRow,startCol,endRow,endCol),deletedLines=this.$lines.slice(firstRow,lastRow+1);return this.applyDelta({start:range.start,end:range.end,action:\"remove\",lines:this.getLinesForRange(range)}),deletedLines},this.removeNewLine=function(row){this.getLength()-1>row&&row>=0&&this.applyDelta({start:this.pos(row,this.getLine(row).length),end:this.pos(row+1,0),action:\"remove\",lines:[\"\",\"\"]})},this.replace=function(range,text){if(range instanceof Range||(range=Range.fromPoints(range.start,range.end)),0===text.length&&range.isEmpty())return range.start;if(text==this.getTextRange(range))return range.end;this.remove(range);var end;return end=text?this.insert(range.start,text):range.start},this.applyDeltas=function(deltas){for(var i=0;deltas.length>i;i++)this.applyDelta(deltas[i])},this.revertDeltas=function(deltas){for(var i=deltas.length-1;i>=0;i--)this.revertDelta(deltas[i])},this.applyDelta=function(delta,doNotValidate){var isInsert=\"insert\"==delta.action;(isInsert?1>=delta.lines.length&&!delta.lines[0]:!Range.comparePoints(delta.start,delta.end))||(isInsert&&delta.lines.length>2e4&&this.$splitAndapplyLargeDelta(delta,2e4),applyDelta(this.$lines,delta,doNotValidate),this._signal(\"change\",delta))},this.$splitAndapplyLargeDelta=function(delta,MAX){for(var lines=delta.lines,l=lines.length,row=delta.start.row,column=delta.start.column,from=0,to=0;;){from=to,to+=MAX-1;var chunk=lines.slice(from,to);if(to>l){delta.lines=chunk,delta.start.row=row+from,delta.start.column=column;break}chunk.push(\"\"),this.applyDelta({start:this.pos(row+from,column),end:this.pos(row+to,column=0),action:delta.action,lines:chunk},!0)}},this.revertDelta=function(delta){this.applyDelta({start:this.clonePos(delta.start),end:this.clonePos(delta.end),action:\"insert\"==delta.action?\"remove\":\"insert\",lines:delta.lines.slice()})},this.indexToPosition=function(index,startRow){for(var lines=this.$lines||this.getAllLines(),newlineLength=this.getNewLineCharacter().length,i=startRow||0,l=lines.length;l>i;i++)if(index-=lines[i].length+newlineLength,0>index)return{row:i,column:index+lines[i].length+newlineLength};return{row:l-1,column:lines[l-1].length}},this.positionToIndex=function(pos,startRow){for(var lines=this.$lines||this.getAllLines(),newlineLength=this.getNewLineCharacter().length,index=0,row=Math.min(pos.row,lines.length),i=startRow||0;row>i;++i)index+=lines[i].length+newlineLength;return index+pos.column}}).call(Document.prototype),exports.Document=Document}),ace.define(\"ace/lib/lang\",[\"require\",\"exports\",\"module\"],function(acequire,exports){\"use strict\";exports.last=function(a){return a[a.length-1]},exports.stringReverse=function(string){return string.split(\"\").reverse().join(\"\")},exports.stringRepeat=function(string,count){for(var result=\"\";count>0;)1&count&&(result+=string),(count>>=1)&&(string+=string);return result};var trimBeginRegexp=/^\\s\\s*/,trimEndRegexp=/\\s\\s*$/;exports.stringTrimLeft=function(string){return string.replace(trimBeginRegexp,\"\")},exports.stringTrimRight=function(string){return string.replace(trimEndRegexp,\"\")},exports.copyObject=function(obj){var copy={};for(var key in obj)copy[key]=obj[key];return copy},exports.copyArray=function(array){for(var copy=[],i=0,l=array.length;l>i;i++)copy[i]=array[i]&&\"object\"==typeof array[i]?this.copyObject(array[i]):array[i];return copy},exports.deepCopy=function deepCopy(obj){if(\"object\"!=typeof obj||!obj)return obj;var copy;if(Array.isArray(obj)){copy=[];for(var key=0;obj.length>key;key++)copy[key]=deepCopy(obj[key]);return copy}if(\"[object Object]\"!==Object.prototype.toString.call(obj))return obj;copy={};for(var key in obj)copy[key]=deepCopy(obj[key]);return copy},exports.arrayToMap=function(arr){for(var map={},i=0;arr.length>i;i++)map[arr[i]]=1;return map},exports.createMap=function(props){var map=Object.create(null);for(var i in props)map[i]=props[i];return map},exports.arrayRemove=function(array,value){for(var i=0;array.length>=i;i++)value===array[i]&&array.splice(i,1)},exports.escapeRegExp=function(str){return str.replace(/([.*+?^${}()|[\\]\\/\\\\])/g,\"\\\\$1\")},exports.escapeHTML=function(str){return str.replace(/&/g,\"&#38;\").replace(/\"/g,\"&#34;\").replace(/'/g,\"&#39;\").replace(/</g,\"&#60;\")},exports.getMatchOffsets=function(string,regExp){var matches=[];return string.replace(regExp,function(str){matches.push({offset:arguments[arguments.length-2],length:str.length})}),matches},exports.deferredCall=function(fcn){var timer=null,callback=function(){timer=null,fcn()},deferred=function(timeout){return deferred.cancel(),timer=setTimeout(callback,timeout||0),deferred};return deferred.schedule=deferred,deferred.call=function(){return this.cancel(),fcn(),deferred},deferred.cancel=function(){return clearTimeout(timer),timer=null,deferred},deferred.isPending=function(){return timer},deferred},exports.delayedCall=function(fcn,defaultTimeout){var timer=null,callback=function(){timer=null,fcn()},_self=function(timeout){null==timer&&(timer=setTimeout(callback,timeout||defaultTimeout))};return _self.delay=function(timeout){timer&&clearTimeout(timer),timer=setTimeout(callback,timeout||defaultTimeout)},_self.schedule=_self,_self.call=function(){this.cancel(),fcn()},_self.cancel=function(){timer&&clearTimeout(timer),timer=null},_self.isPending=function(){return timer},_self}}),ace.define(\"ace/worker/mirror\",[\"require\",\"exports\",\"module\",\"ace/range\",\"ace/document\",\"ace/lib/lang\"],function(acequire,exports){\"use strict\";acequire(\"../range\").Range;var Document=acequire(\"../document\").Document,lang=acequire(\"../lib/lang\"),Mirror=exports.Mirror=function(sender){this.sender=sender;var doc=this.doc=new Document(\"\"),deferredUpdate=this.deferredUpdate=lang.delayedCall(this.onUpdate.bind(this)),_self=this;sender.on(\"change\",function(e){var data=e.data;if(data[0].start)doc.applyDeltas(data);else for(var i=0;data.length>i;i+=2){if(Array.isArray(data[i+1]))var d={action:\"insert\",start:data[i],lines:data[i+1]};else var d={action:\"remove\",start:data[i],end:data[i+1]};doc.applyDelta(d,!0)}return _self.$timeout?deferredUpdate.schedule(_self.$timeout):(_self.onUpdate(),void 0)})};(function(){this.$timeout=500,this.setTimeout=function(timeout){this.$timeout=timeout},this.setValue=function(value){this.doc.setValue(value),this.deferredUpdate.schedule(this.$timeout)},this.getValue=function(callbackId){this.sender.callback(this.doc.getValue(),callbackId)},this.onUpdate=function(){},this.isPending=function(){return this.deferredUpdate.isPending()}}).call(Mirror.prototype)}),ace.define(\"ace/mode/json/json_parse\",[\"require\",\"exports\",\"module\"],function(){\"use strict\";var at,ch,text,value,escapee={'\"':'\"',\"\\\\\":\"\\\\\",\"/\":\"/\",b:\"\\b\",f:\"\\f\",n:\"\\n\",r:\"\\r\",t:\"\t\"},error=function(m){throw{name:\"SyntaxError\",message:m,at:at,text:text}},next=function(c){return c&&c!==ch&&error(\"Expected '\"+c+\"' instead of '\"+ch+\"'\"),ch=text.charAt(at),at+=1,ch},number=function(){var number,string=\"\";for(\"-\"===ch&&(string=\"-\",next(\"-\"));ch>=\"0\"&&\"9\">=ch;)string+=ch,next();if(\".\"===ch)for(string+=\".\";next()&&ch>=\"0\"&&\"9\">=ch;)string+=ch;if(\"e\"===ch||\"E\"===ch)for(string+=ch,next(),(\"-\"===ch||\"+\"===ch)&&(string+=ch,next());ch>=\"0\"&&\"9\">=ch;)string+=ch,next();return number=+string,isNaN(number)?(error(\"Bad number\"),void 0):number},string=function(){var hex,i,uffff,string=\"\";if('\"'===ch)for(;next();){if('\"'===ch)return next(),string;if(\"\\\\\"===ch)if(next(),\"u\"===ch){for(uffff=0,i=0;4>i&&(hex=parseInt(next(),16),isFinite(hex));i+=1)uffff=16*uffff+hex;string+=String.fromCharCode(uffff)}else{if(\"string\"!=typeof escapee[ch])break;string+=escapee[ch]}else string+=ch}error(\"Bad string\")},white=function(){for(;ch&&\" \">=ch;)next()},word=function(){switch(ch){case\"t\":return next(\"t\"),next(\"r\"),next(\"u\"),next(\"e\"),!0;case\"f\":return next(\"f\"),next(\"a\"),next(\"l\"),next(\"s\"),next(\"e\"),!1;case\"n\":return next(\"n\"),next(\"u\"),next(\"l\"),next(\"l\"),null}error(\"Unexpected '\"+ch+\"'\")},array=function(){var array=[];if(\"[\"===ch){if(next(\"[\"),white(),\"]\"===ch)return next(\"]\"),array;for(;ch;){if(array.push(value()),white(),\"]\"===ch)return next(\"]\"),array;next(\",\"),white()}}error(\"Bad array\")},object=function(){var key,object={};if(\"{\"===ch){if(next(\"{\"),white(),\"}\"===ch)return next(\"}\"),object;for(;ch;){if(key=string(),white(),next(\":\"),Object.hasOwnProperty.call(object,key)&&error('Duplicate key \"'+key+'\"'),object[key]=value(),white(),\"}\"===ch)return next(\"}\"),object;next(\",\"),white()}}error(\"Bad object\")};return value=function(){switch(white(),ch){case\"{\":return object();case\"[\":return array();case'\"':return string();case\"-\":return number();default:return ch>=\"0\"&&\"9\">=ch?number():word()}},function(source,reviver){var result;return text=source,at=0,ch=\" \",result=value(),white(),ch&&error(\"Syntax error\"),\"function\"==typeof reviver?function walk(holder,key){var k,v,value=holder[key];if(value&&\"object\"==typeof value)for(k in value)Object.hasOwnProperty.call(value,k)&&(v=walk(value,k),void 0!==v?value[k]=v:delete value[k]);return reviver.call(holder,key,value)}({\"\":result},\"\"):result}}),ace.define(\"ace/mode/json_worker\",[\"require\",\"exports\",\"module\",\"ace/lib/oop\",\"ace/worker/mirror\",\"ace/mode/json/json_parse\"],function(acequire,exports){\"use strict\";var oop=acequire(\"../lib/oop\"),Mirror=acequire(\"../worker/mirror\").Mirror,parse=acequire(\"./json/json_parse\"),JsonWorker=exports.JsonWorker=function(sender){Mirror.call(this,sender),this.setTimeout(200)};oop.inherits(JsonWorker,Mirror),function(){this.onUpdate=function(){var value=this.doc.getValue(),errors=[];try{value&&parse(value)}catch(e){var pos=this.doc.indexToPosition(e.at-1);errors.push({row:pos.row,column:pos.column,text:e.message,type:\"error\"})}this.sender.emit(\"annotate\",errors)}}.call(JsonWorker.prototype)}),ace.define(\"ace/lib/es5-shim\",[\"require\",\"exports\",\"module\"],function(){function Empty(){}function doesDefinePropertyWork(object){try{return Object.defineProperty(object,\"sentinel\",{}),\"sentinel\"in object}catch(exception){}}function toInteger(n){return n=+n,n!==n?n=0:0!==n&&n!==1/0&&n!==-(1/0)&&(n=(n>0||-1)*Math.floor(Math.abs(n))),n}Function.prototype.bind||(Function.prototype.bind=function(that){var target=this;if(\"function\"!=typeof target)throw new TypeError(\"Function.prototype.bind called on incompatible \"+target);var args=slice.call(arguments,1),bound=function(){if(this instanceof bound){var result=target.apply(this,args.concat(slice.call(arguments)));return Object(result)===result?result:this}return target.apply(that,args.concat(slice.call(arguments)))};return target.prototype&&(Empty.prototype=target.prototype,bound.prototype=new Empty,Empty.prototype=null),bound});var defineGetter,defineSetter,lookupGetter,lookupSetter,supportsAccessors,call=Function.prototype.call,prototypeOfArray=Array.prototype,prototypeOfObject=Object.prototype,slice=prototypeOfArray.slice,_toString=call.bind(prototypeOfObject.toString),owns=call.bind(prototypeOfObject.hasOwnProperty);if((supportsAccessors=owns(prototypeOfObject,\"__defineGetter__\"))&&(defineGetter=call.bind(prototypeOfObject.__defineGetter__),defineSetter=call.bind(prototypeOfObject.__defineSetter__),lookupGetter=call.bind(prototypeOfObject.__lookupGetter__),lookupSetter=call.bind(prototypeOfObject.__lookupSetter__)),2!=[1,2].splice(0).length)if(function(){function makeArray(l){var a=Array(l+2);return a[0]=a[1]=0,a}var lengthBefore,array=[];return array.splice.apply(array,makeArray(20)),array.splice.apply(array,makeArray(26)),lengthBefore=array.length,array.splice(5,0,\"XXX\"),lengthBefore+1==array.length,lengthBefore+1==array.length?!0:void 0\n}()){var array_splice=Array.prototype.splice;Array.prototype.splice=function(start,deleteCount){return arguments.length?array_splice.apply(this,[void 0===start?0:start,void 0===deleteCount?this.length-start:deleteCount].concat(slice.call(arguments,2))):[]}}else Array.prototype.splice=function(pos,removeCount){var length=this.length;pos>0?pos>length&&(pos=length):void 0==pos?pos=0:0>pos&&(pos=Math.max(length+pos,0)),length>pos+removeCount||(removeCount=length-pos);var removed=this.slice(pos,pos+removeCount),insert=slice.call(arguments,2),add=insert.length;if(pos===length)add&&this.push.apply(this,insert);else{var remove=Math.min(removeCount,length-pos),tailOldPos=pos+remove,tailNewPos=tailOldPos+add-remove,tailCount=length-tailOldPos,lengthAfterRemove=length-remove;if(tailOldPos>tailNewPos)for(var i=0;tailCount>i;++i)this[tailNewPos+i]=this[tailOldPos+i];else if(tailNewPos>tailOldPos)for(i=tailCount;i--;)this[tailNewPos+i]=this[tailOldPos+i];if(add&&pos===lengthAfterRemove)this.length=lengthAfterRemove,this.push.apply(this,insert);else for(this.length=lengthAfterRemove+add,i=0;add>i;++i)this[pos+i]=insert[i]}return removed};Array.isArray||(Array.isArray=function(obj){return\"[object Array]\"==_toString(obj)});var boxedString=Object(\"a\"),splitString=\"a\"!=boxedString[0]||!(0 in boxedString);if(Array.prototype.forEach||(Array.prototype.forEach=function(fun){var object=toObject(this),self=splitString&&\"[object String]\"==_toString(this)?this.split(\"\"):object,thisp=arguments[1],i=-1,length=self.length>>>0;if(\"[object Function]\"!=_toString(fun))throw new TypeError;for(;length>++i;)i in self&&fun.call(thisp,self[i],i,object)}),Array.prototype.map||(Array.prototype.map=function(fun){var object=toObject(this),self=splitString&&\"[object String]\"==_toString(this)?this.split(\"\"):object,length=self.length>>>0,result=Array(length),thisp=arguments[1];if(\"[object Function]\"!=_toString(fun))throw new TypeError(fun+\" is not a function\");for(var i=0;length>i;i++)i in self&&(result[i]=fun.call(thisp,self[i],i,object));return result}),Array.prototype.filter||(Array.prototype.filter=function(fun){var value,object=toObject(this),self=splitString&&\"[object String]\"==_toString(this)?this.split(\"\"):object,length=self.length>>>0,result=[],thisp=arguments[1];if(\"[object Function]\"!=_toString(fun))throw new TypeError(fun+\" is not a function\");for(var i=0;length>i;i++)i in self&&(value=self[i],fun.call(thisp,value,i,object)&&result.push(value));return result}),Array.prototype.every||(Array.prototype.every=function(fun){var object=toObject(this),self=splitString&&\"[object String]\"==_toString(this)?this.split(\"\"):object,length=self.length>>>0,thisp=arguments[1];if(\"[object Function]\"!=_toString(fun))throw new TypeError(fun+\" is not a function\");for(var i=0;length>i;i++)if(i in self&&!fun.call(thisp,self[i],i,object))return!1;return!0}),Array.prototype.some||(Array.prototype.some=function(fun){var object=toObject(this),self=splitString&&\"[object String]\"==_toString(this)?this.split(\"\"):object,length=self.length>>>0,thisp=arguments[1];if(\"[object Function]\"!=_toString(fun))throw new TypeError(fun+\" is not a function\");for(var i=0;length>i;i++)if(i in self&&fun.call(thisp,self[i],i,object))return!0;return!1}),Array.prototype.reduce||(Array.prototype.reduce=function(fun){var object=toObject(this),self=splitString&&\"[object String]\"==_toString(this)?this.split(\"\"):object,length=self.length>>>0;if(\"[object Function]\"!=_toString(fun))throw new TypeError(fun+\" is not a function\");if(!length&&1==arguments.length)throw new TypeError(\"reduce of empty array with no initial value\");var result,i=0;if(arguments.length>=2)result=arguments[1];else for(;;){if(i in self){result=self[i++];break}if(++i>=length)throw new TypeError(\"reduce of empty array with no initial value\")}for(;length>i;i++)i in self&&(result=fun.call(void 0,result,self[i],i,object));return result}),Array.prototype.reduceRight||(Array.prototype.reduceRight=function(fun){var object=toObject(this),self=splitString&&\"[object String]\"==_toString(this)?this.split(\"\"):object,length=self.length>>>0;if(\"[object Function]\"!=_toString(fun))throw new TypeError(fun+\" is not a function\");if(!length&&1==arguments.length)throw new TypeError(\"reduceRight of empty array with no initial value\");var result,i=length-1;if(arguments.length>=2)result=arguments[1];else for(;;){if(i in self){result=self[i--];break}if(0>--i)throw new TypeError(\"reduceRight of empty array with no initial value\")}do i in this&&(result=fun.call(void 0,result,self[i],i,object));while(i--);return result}),Array.prototype.indexOf&&-1==[0,1].indexOf(1,2)||(Array.prototype.indexOf=function(sought){var self=splitString&&\"[object String]\"==_toString(this)?this.split(\"\"):toObject(this),length=self.length>>>0;if(!length)return-1;var i=0;for(arguments.length>1&&(i=toInteger(arguments[1])),i=i>=0?i:Math.max(0,length+i);length>i;i++)if(i in self&&self[i]===sought)return i;return-1}),Array.prototype.lastIndexOf&&-1==[0,1].lastIndexOf(0,-3)||(Array.prototype.lastIndexOf=function(sought){var self=splitString&&\"[object String]\"==_toString(this)?this.split(\"\"):toObject(this),length=self.length>>>0;if(!length)return-1;var i=length-1;for(arguments.length>1&&(i=Math.min(i,toInteger(arguments[1]))),i=i>=0?i:length-Math.abs(i);i>=0;i--)if(i in self&&sought===self[i])return i;return-1}),Object.getPrototypeOf||(Object.getPrototypeOf=function(object){return object.__proto__||(object.constructor?object.constructor.prototype:prototypeOfObject)}),!Object.getOwnPropertyDescriptor){var ERR_NON_OBJECT=\"Object.getOwnPropertyDescriptor called on a non-object: \";Object.getOwnPropertyDescriptor=function(object,property){if(\"object\"!=typeof object&&\"function\"!=typeof object||null===object)throw new TypeError(ERR_NON_OBJECT+object);if(owns(object,property)){var descriptor,getter,setter;if(descriptor={enumerable:!0,configurable:!0},supportsAccessors){var prototype=object.__proto__;object.__proto__=prototypeOfObject;var getter=lookupGetter(object,property),setter=lookupSetter(object,property);if(object.__proto__=prototype,getter||setter)return getter&&(descriptor.get=getter),setter&&(descriptor.set=setter),descriptor}return descriptor.value=object[property],descriptor}}}if(Object.getOwnPropertyNames||(Object.getOwnPropertyNames=function(object){return Object.keys(object)}),!Object.create){var createEmpty;createEmpty=null===Object.prototype.__proto__?function(){return{__proto__:null}}:function(){var empty={};for(var i in empty)empty[i]=null;return empty.constructor=empty.hasOwnProperty=empty.propertyIsEnumerable=empty.isPrototypeOf=empty.toLocaleString=empty.toString=empty.valueOf=empty.__proto__=null,empty},Object.create=function(prototype,properties){var object;if(null===prototype)object=createEmpty();else{if(\"object\"!=typeof prototype)throw new TypeError(\"typeof prototype[\"+typeof prototype+\"] != 'object'\");var Type=function(){};Type.prototype=prototype,object=new Type,object.__proto__=prototype}return void 0!==properties&&Object.defineProperties(object,properties),object}}if(Object.defineProperty){var definePropertyWorksOnObject=doesDefinePropertyWork({}),definePropertyWorksOnDom=\"undefined\"==typeof document||doesDefinePropertyWork(document.createElement(\"div\"));if(!definePropertyWorksOnObject||!definePropertyWorksOnDom)var definePropertyFallback=Object.defineProperty}if(!Object.defineProperty||definePropertyFallback){var ERR_NON_OBJECT_DESCRIPTOR=\"Property description must be an object: \",ERR_NON_OBJECT_TARGET=\"Object.defineProperty called on non-object: \",ERR_ACCESSORS_NOT_SUPPORTED=\"getters & setters can not be defined on this javascript engine\";Object.defineProperty=function(object,property,descriptor){if(\"object\"!=typeof object&&\"function\"!=typeof object||null===object)throw new TypeError(ERR_NON_OBJECT_TARGET+object);if(\"object\"!=typeof descriptor&&\"function\"!=typeof descriptor||null===descriptor)throw new TypeError(ERR_NON_OBJECT_DESCRIPTOR+descriptor);if(definePropertyFallback)try{return definePropertyFallback.call(Object,object,property,descriptor)}catch(exception){}if(owns(descriptor,\"value\"))if(supportsAccessors&&(lookupGetter(object,property)||lookupSetter(object,property))){var prototype=object.__proto__;object.__proto__=prototypeOfObject,delete object[property],object[property]=descriptor.value,object.__proto__=prototype}else object[property]=descriptor.value;else{if(!supportsAccessors)throw new TypeError(ERR_ACCESSORS_NOT_SUPPORTED);owns(descriptor,\"get\")&&defineGetter(object,property,descriptor.get),owns(descriptor,\"set\")&&defineSetter(object,property,descriptor.set)}return object}}Object.defineProperties||(Object.defineProperties=function(object,properties){for(var property in properties)owns(properties,property)&&Object.defineProperty(object,property,properties[property]);return object}),Object.seal||(Object.seal=function(object){return object}),Object.freeze||(Object.freeze=function(object){return object});try{Object.freeze(function(){})}catch(exception){Object.freeze=function(freezeObject){return function(object){return\"function\"==typeof object?object:freezeObject(object)}}(Object.freeze)}if(Object.preventExtensions||(Object.preventExtensions=function(object){return object}),Object.isSealed||(Object.isSealed=function(){return!1}),Object.isFrozen||(Object.isFrozen=function(){return!1}),Object.isExtensible||(Object.isExtensible=function(object){if(Object(object)===object)throw new TypeError;for(var name=\"\";owns(object,name);)name+=\"?\";object[name]=!0;var returnValue=owns(object,name);return delete object[name],returnValue}),!Object.keys){var hasDontEnumBug=!0,dontEnums=[\"toString\",\"toLocaleString\",\"valueOf\",\"hasOwnProperty\",\"isPrototypeOf\",\"propertyIsEnumerable\",\"constructor\"],dontEnumsLength=dontEnums.length;for(var key in{toString:null})hasDontEnumBug=!1;Object.keys=function(object){if(\"object\"!=typeof object&&\"function\"!=typeof object||null===object)throw new TypeError(\"Object.keys called on a non-object\");var keys=[];for(var name in object)owns(object,name)&&keys.push(name);if(hasDontEnumBug)for(var i=0,ii=dontEnumsLength;ii>i;i++){var dontEnum=dontEnums[i];owns(object,dontEnum)&&keys.push(dontEnum)}return keys}}Date.now||(Date.now=function(){return(new Date).getTime()});var ws=\"\t\\n\u000b\\f\\r   ᠎             　\\u2028\\u2029﻿\";if(!String.prototype.trim||ws.trim()){ws=\"[\"+ws+\"]\";var trimBeginRegexp=RegExp(\"^\"+ws+ws+\"*\"),trimEndRegexp=RegExp(ws+ws+\"*$\");String.prototype.trim=function(){return(this+\"\").replace(trimBeginRegexp,\"\").replace(trimEndRegexp,\"\")}}var toObject=function(o){if(null==o)throw new TypeError(\"can't convert \"+o+\" to object\");return Object(o)}});";
+
+/***/ },
+/* 18 */
+/***/ function(module, exports) {
 
 	ace.define("ace/ext/searchbox",["require","exports","module","ace/lib/dom","ace/lib/lang","ace/lib/event","ace/keyboard/hash_handler","ace/lib/keys"], function(acequire, exports, module) {
 	"use strict";
@@ -9064,16 +9885,14 @@ return /******/ (function(modules) { // webpackBootstrap
 	var searchboxCss = "\
 	.ace_search {\
 	background-color: #ddd;\
+	color: #666;\
 	border: 1px solid #cbcbcb;\
 	border-top: 0 none;\
-	max-width: 325px;\
 	overflow: hidden;\
 	margin: 0;\
-	padding: 4px;\
-	padding-right: 6px;\
-	padding-bottom: 0;\
+	padding: 4px 6px 0 4px;\
 	position: absolute;\
-	top: 0px;\
+	top: 0;\
 	z-index: 99;\
 	white-space: normal;\
 	}\
@@ -9088,59 +9907,71 @@ return /******/ (function(modules) { // webpackBootstrap
 	right: 0;\
 	}\
 	.ace_search_form, .ace_replace_form {\
-	border-radius: 3px;\
-	border: 1px solid #cbcbcb;\
-	float: left;\
-	margin-bottom: 4px;\
+	margin: 0 20px 4px 0;\
 	overflow: hidden;\
+	line-height: 1.9;\
+	}\
+	.ace_replace_form {\
+	margin-right: 0;\
 	}\
 	.ace_search_form.ace_nomatch {\
 	outline: 1px solid red;\
 	}\
 	.ace_search_field {\
+	border-radius: 3px 0 0 3px;\
 	background-color: white;\
-	border-right: 1px solid #cbcbcb;\
-	border: 0 none;\
-	-webkit-box-sizing: border-box;\
-	-moz-box-sizing: border-box;\
-	box-sizing: border-box;\
-	float: left;\
-	height: 22px;\
+	color: black;\
+	border: 1px solid #cbcbcb;\
+	border-right: 0 none;\
+	box-sizing: border-box!important;\
 	outline: 0;\
-	padding: 0 7px;\
-	width: 214px;\
+	padding: 0;\
+	font-size: inherit;\
 	margin: 0;\
+	line-height: inherit;\
+	padding: 0 6px;\
+	min-width: 17em;\
+	vertical-align: top;\
 	}\
-	.ace_searchbtn,\
-	.ace_replacebtn {\
+	.ace_searchbtn {\
+	border: 1px solid #cbcbcb;\
+	line-height: inherit;\
+	display: inline-block;\
+	padding: 0 6px;\
 	background: #fff;\
-	border: 0 none;\
+	border-right: 0 none;\
 	border-left: 1px solid #dcdcdc;\
 	cursor: pointer;\
-	float: left;\
-	height: 22px;\
 	margin: 0;\
 	position: relative;\
+	box-sizing: content-box!important;\
+	color: #666;\
 	}\
-	.ace_searchbtn:last-child,\
-	.ace_replacebtn:last-child {\
-	border-top-right-radius: 3px;\
-	border-bottom-right-radius: 3px;\
+	.ace_searchbtn:last-child {\
+	border-radius: 0 3px 3px 0;\
+	border-right: 1px solid #cbcbcb;\
 	}\
 	.ace_searchbtn:disabled {\
 	background: none;\
 	cursor: default;\
 	}\
-	.ace_searchbtn {\
-	background-position: 50% 50%;\
-	background-repeat: no-repeat;\
-	width: 27px;\
+	.ace_searchbtn:hover {\
+	background-color: #eef1f6;\
 	}\
-	.ace_searchbtn.prev {\
-	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAFCAYAAAB4ka1VAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAADFJREFUeNpiSU1NZUAC/6E0I0yACYskCpsJiySKIiY0SUZk40FyTEgCjGgKwTRAgAEAQJUIPCE+qfkAAAAASUVORK5CYII=);    \
+	.ace_searchbtn.prev, .ace_searchbtn.next {\
+	padding: 0px 0.7em\
 	}\
-	.ace_searchbtn.next {\
-	background-image: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAgAAAAFCAYAAAB4ka1VAAAAGXRFWHRTb2Z0d2FyZQBBZG9iZSBJbWFnZVJlYWR5ccllPAAAADRJREFUeNpiTE1NZQCC/0DMyIAKwGJMUAYDEo3M/s+EpvM/mkKwCQxYjIeLMaELoLMBAgwAU7UJObTKsvAAAAAASUVORK5CYII=);    \
+	.ace_searchbtn.prev:after, .ace_searchbtn.next:after {\
+	content: \"\";\
+	border: solid 2px #888;\
+	width: 0.5em;\
+	height: 0.5em;\
+	border-width:  2px 0 0 2px;\
+	display:inline-block;\
+	transform: rotate(-45deg);\
+	}\
+	.ace_searchbtn.next:after {\
+	border-width: 0 2px 2px 0 ;\
 	}\
 	.ace_searchbtn_close {\
 	background: url(data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAA4AAAAcCAYAAABRVo5BAAAAZ0lEQVR42u2SUQrAMAhDvazn8OjZBilCkYVVxiis8H4CT0VrAJb4WHT3C5xU2a2IQZXJjiQIRMdkEoJ5Q2yMqpfDIo+XY4k6h+YXOyKqTIj5REaxloNAd0xiKmAtsTHqW8sR2W5f7gCu5nWFUpVjZwAAAABJRU5ErkJggg==) no-repeat 50% 0;\
@@ -9148,24 +9979,18 @@ return /******/ (function(modules) { // webpackBootstrap
 	border: 0 none;\
 	color: #656565;\
 	cursor: pointer;\
-	float: right;\
 	font: 16px/16px Arial;\
-	height: 14px;\
-	margin: 5px 1px 9px 5px;\
 	padding: 0;\
-	text-align: center;\
+	height: 14px;\
 	width: 14px;\
+	top: 9px;\
+	right: 7px;\
+	position: absolute;\
 	}\
 	.ace_searchbtn_close:hover {\
 	background-color: #656565;\
 	background-position: 50% 100%;\
 	color: white;\
-	}\
-	.ace_replacebtn.prev {\
-	width: 54px\
-	}\
-	.ace_replacebtn.next {\
-	width: 27px\
 	}\
 	.ace_button {\
 	margin-left: 2px;\
@@ -9179,8 +10004,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	opacity: 0.7;\
 	border: 1px solid rgba(100,100,100,0.23);\
 	padding: 1px;\
-	-moz-box-sizing: border-box;\
-	box-sizing:    border-box;\
+	box-sizing:    border-box!important;\
 	color: black;\
 	}\
 	.ace_button:hover {\
@@ -9202,36 +10026,50 @@ return /******/ (function(modules) { // webpackBootstrap
 	-o-user-select: none;\
 	-ms-user-select: none;\
 	user-select: none;\
+	clear: both;\
+	}\
+	.ace_search_counter {\
+	float: left;\
+	font-family: arial;\
+	padding: 0 8px;\
 	}";
 	var HashHandler = acequire("../keyboard/hash_handler").HashHandler;
 	var keyUtil = acequire("../lib/keys");
 
+	var MAX_COUNT = 999;
+
 	dom.importCssString(searchboxCss, "ace_searchbox");
 
 	var html = '<div class="ace_search right">\
-	    <button type="button" action="hide" class="ace_searchbtn_close"></button>\
+	    <span action="hide" class="ace_searchbtn_close"></span>\
 	    <div class="ace_search_form">\
 	        <input class="ace_search_field" placeholder="Search for" spellcheck="false"></input>\
-	        <button type="button" action="findNext" class="ace_searchbtn next"></button>\
-	        <button type="button" action="findPrev" class="ace_searchbtn prev"></button>\
-	        <button type="button" action="findAll" class="ace_searchbtn" title="Alt-Enter">All</button>\
+	        <span action="findPrev" class="ace_searchbtn prev"></span>\
+	        <span action="findNext" class="ace_searchbtn next"></span>\
+	        <span action="findAll" class="ace_searchbtn" title="Alt-Enter">All</span>\
 	    </div>\
 	    <div class="ace_replace_form">\
 	        <input class="ace_search_field" placeholder="Replace with" spellcheck="false"></input>\
-	        <button type="button" action="replaceAndFindNext" class="ace_replacebtn">Replace</button>\
-	        <button type="button" action="replaceAll" class="ace_replacebtn">All</button>\
+	        <span action="replaceAndFindNext" class="ace_searchbtn">Replace</span>\
+	        <span action="replaceAll" class="ace_searchbtn">All</span>\
 	    </div>\
 	    <div class="ace_search_options">\
+	        <span action="toggleReplace" class="ace_button" title="Toggel Replace mode"\
+	            style="float:left;margin-top:-2px;padding:0 5px;">+</span>\
+	        <span class="ace_search_counter"></span>\
 	        <span action="toggleRegexpMode" class="ace_button" title="RegExp Search">.*</span>\
 	        <span action="toggleCaseSensitive" class="ace_button" title="CaseSensitive Search">Aa</span>\
 	        <span action="toggleWholeWords" class="ace_button" title="Whole Word Search">\\b</span>\
+	        <span action="searchInSelection" class="ace_button" title="Search In Selection">S</span>\
 	    </div>\
-	</div>'.replace(/>\s+/g, ">");
+	</div>'.replace(/> +/g, ">");
 
 	var SearchBox = function(editor, range, showReplaceForm) {
 	    var div = dom.createElement("div");
 	    div.innerHTML = html;
 	    this.element = div.firstChild;
+
+	    this.setSession = this.setSession.bind(this);
 
 	    this.$init();
 	    this.setEditor(editor);
@@ -9240,19 +10078,26 @@ return /******/ (function(modules) { // webpackBootstrap
 	(function() {
 	    this.setEditor = function(editor) {
 	        editor.searchBox = this;
-	        editor.container.appendChild(this.element);
+	        editor.renderer.scroller.appendChild(this.element);
 	        this.editor = editor;
+	    };
+
+	    this.setSession = function(e) {
+	        this.searchRange = null;
+	        this.$syncOptions(true);
 	    };
 
 	    this.$initElements = function(sb) {
 	        this.searchBox = sb.querySelector(".ace_search_form");
 	        this.replaceBox = sb.querySelector(".ace_replace_form");
-	        this.searchOptions = sb.querySelector(".ace_search_options");
+	        this.searchOption = sb.querySelector("[action=searchInSelection]");
+	        this.replaceOption = sb.querySelector("[action=toggleReplace]");
 	        this.regExpOption = sb.querySelector("[action=toggleRegexpMode]");
 	        this.caseSensitiveOption = sb.querySelector("[action=toggleCaseSensitive]");
 	        this.wholeWordOption = sb.querySelector("[action=toggleWholeWords]");
 	        this.searchInput = this.searchBox.querySelector(".ace_search_field");
 	        this.replaceInput = this.replaceBox.querySelector(".ace_search_field");
+	        this.searchCounter = sb.querySelector(".ace_search_counter");
 	    };
 	    
 	    this.$init = function() {
@@ -9314,10 +10159,13 @@ return /******/ (function(modules) { // webpackBootstrap
 	        "Ctrl-f|Command-f": function(sb) {
 	            var isReplace = sb.isReplace = !sb.isReplace;
 	            sb.replaceBox.style.display = isReplace ? "" : "none";
+	            sb.replaceOption.checked = false;
+	            sb.$syncOptions();
 	            sb.searchInput.focus();
 	        },
 	        "Ctrl-H|Command-Option-F": function(sb) {
-	            sb.replaceBox.style.display = "";
+	            sb.replaceOption.checked = true;
+	            sb.$syncOptions();
 	            sb.replaceInput.focus();
 	        },
 	        "Ctrl-G|Command-G": function(sb) {
@@ -9370,18 +10218,45 @@ return /******/ (function(modules) { // webpackBootstrap
 	            sb.wholeWordOption.checked = !sb.wholeWordOption.checked;
 	            sb.$syncOptions();
 	        }
+	    }, {
+	        name: "toggleReplace",
+	        exec: function(sb) {
+	            sb.replaceOption.checked = !sb.replaceOption.checked;
+	            sb.$syncOptions();
+	        }
+	    }, {
+	        name: "searchInSelection",
+	        exec: function(sb) {
+	            sb.searchOption.checked = !sb.searchRange;
+	            sb.setSearchRange(sb.searchOption.checked && sb.editor.getSelectionRange());
+	            sb.$syncOptions();
+	        }
 	    }]);
 
-	    this.$syncOptions = function() {
+	    this.setSearchRange = function(range) {
+	        this.searchRange = range;
+	        if (range) {
+	            this.searchRangeMarker = this.editor.session.addMarker(range, "ace_active-line");
+	        } else if (this.searchRangeMarker) {
+	            this.editor.session.removeMarker(this.searchRangeMarker);
+	            this.searchRangeMarker = null;
+	        }
+	    };
+
+	    this.$syncOptions = function(preventScroll) {
+	        dom.setCssClass(this.replaceOption, "checked", this.searchRange);
+	        dom.setCssClass(this.searchOption, "checked", this.searchOption.checked);
+	        this.replaceOption.textContent = this.replaceOption.checked ? "-" : "+";
 	        dom.setCssClass(this.regExpOption, "checked", this.regExpOption.checked);
 	        dom.setCssClass(this.wholeWordOption, "checked", this.wholeWordOption.checked);
 	        dom.setCssClass(this.caseSensitiveOption, "checked", this.caseSensitiveOption.checked);
-	        this.find(false, false);
+	        this.replaceBox.style.display = this.replaceOption.checked ? "" : "none";
+	        this.find(false, false, preventScroll);
 	    };
 
 	    this.highlight = function(re) {
 	        this.editor.session.highlight(re || this.editor.$search.$options.re);
-	        this.editor.renderer.updateBackMarkers()
+	        this.editor.renderer.updateBackMarkers();
 	    };
 	    this.find = function(skipCurrent, backwards, preventScroll) {
 	        var range = this.editor.find(this.searchInput.value, {
@@ -9391,12 +10266,46 @@ return /******/ (function(modules) { // webpackBootstrap
 	            regExp: this.regExpOption.checked,
 	            caseSensitive: this.caseSensitiveOption.checked,
 	            wholeWord: this.wholeWordOption.checked,
-	            preventScroll: preventScroll
+	            preventScroll: preventScroll,
+	            range: this.searchRange
 	        });
 	        var noMatch = !range && this.searchInput.value;
 	        dom.setCssClass(this.searchBox, "ace_nomatch", noMatch);
 	        this.editor._emit("findSearchBox", { match: !noMatch });
 	        this.highlight();
+	        this.updateCounter();
+	    };
+	    this.updateCounter = function() {
+	        var editor = this.editor;
+	        var regex = editor.$search.$options.re;
+	        var all = 0;
+	        var before = 0;
+	        if (regex) {
+	            var value = this.searchRange
+	                ? editor.session.getTextRange(this.searchRange)
+	                : editor.getValue();
+
+	            var offset = editor.session.doc.positionToIndex(editor.selection.anchor);
+	            if (this.searchRange)
+	                offset -= editor.session.doc.positionToIndex(this.searchRange.start);
+
+	            var last = regex.lastIndex = 0;
+	            var m;
+	            while ((m = regex.exec(value))) {
+	                all++;
+	                last = m.index;
+	                if (last <= offset)
+	                    before++;
+	                if (all > MAX_COUNT)
+	                    break;
+	                if (!m[0]) {
+	                    regex.lastIndex = last += 1;
+	                    if (last >= value.length)
+	                        break;
+	                }
+	            }
+	        }
+	        this.searchCounter.textContent = before + " of " + (all > MAX_COUNT ? MAX_COUNT + "+" : all);
 	    };
 	    this.findNext = function() {
 	        this.find(true, false);
@@ -9423,7 +10332,7 @@ return /******/ (function(modules) { // webpackBootstrap
 	    this.replaceAndFindNext = function() {
 	        if (!this.editor.getReadOnly()) {
 	            this.editor.replace(this.replaceInput.value);
-	            this.findNext()
+	            this.findNext();
 	        }
 	    };
 	    this.replaceAll = function() {
@@ -9432,31 +10341,35 @@ return /******/ (function(modules) { // webpackBootstrap
 	    };
 
 	    this.hide = function() {
+	        this.active = false;
+	        this.setSearchRange(null);
+	        this.editor.off("changeSession", this.setSession);
+
 	        this.element.style.display = "none";
 	        this.editor.keyBinding.removeKeyboardHandler(this.$closeSearchBarKb);
 	        this.editor.focus();
 	    };
 	    this.show = function(value, isReplace) {
+	        this.active = true;
+	        this.editor.on("changeSession", this.setSession);
 	        this.element.style.display = "";
-	        this.replaceBox.style.display = isReplace ? "" : "none";
-
-	        this.isReplace = isReplace;
+	        this.replaceOption.checked = isReplace;
 
 	        if (value)
 	            this.searchInput.value = value;
-	        
-	        this.find(false, false, true);
 	        
 	        this.searchInput.focus();
 	        this.searchInput.select();
 
 	        this.editor.keyBinding.addKeyboardHandler(this.$closeSearchBarKb);
+
+	        this.$syncOptions(true);
 	    };
 
 	    this.isFocused = function() {
 	        var el = document.activeElement;
 	        return el == this.searchInput || el == this.replaceInput;
-	    }
+	    };
 	}).call(SearchBox.prototype);
 
 	exports.SearchBox = SearchBox;
@@ -9473,11 +10386,155 @@ return /******/ (function(modules) { // webpackBootstrap
 	            
 
 /***/ },
-/* 16 */
-/***/ function(module, exports, __webpack_require__) {
+/* 19 */
+/***/ function(module, exports) {
 
-	module.exports.id = 'ace/mode/json_worker';
-	module.exports.src = "\"no use strict\";(function(window){function resolveModuleId(id,paths){for(var testPath=id,tail=\"\";testPath;){var alias=paths[testPath];if(\"string\"==typeof alias)return alias+tail;if(alias)return alias.location.replace(/\\/*$/,\"/\")+(tail||alias.main||alias.name);if(alias===!1)return\"\";var i=testPath.lastIndexOf(\"/\");if(-1===i)break;tail=testPath.substr(i)+tail,testPath=testPath.slice(0,i)}return id}if(!(void 0!==window.window&&window.document||window.acequire&&window.define)){window.console||(window.console=function(){var msgs=Array.prototype.slice.call(arguments,0);postMessage({type:\"log\",data:msgs})},window.console.error=window.console.warn=window.console.log=window.console.trace=window.console),window.window=window,window.ace=window,window.onerror=function(message,file,line,col,err){postMessage({type:\"error\",data:{message:message,data:err.data,file:file,line:line,col:col,stack:err.stack}})},window.normalizeModule=function(parentId,moduleName){if(-1!==moduleName.indexOf(\"!\")){var chunks=moduleName.split(\"!\");return window.normalizeModule(parentId,chunks[0])+\"!\"+window.normalizeModule(parentId,chunks[1])}if(\".\"==moduleName.charAt(0)){var base=parentId.split(\"/\").slice(0,-1).join(\"/\");for(moduleName=(base?base+\"/\":\"\")+moduleName;-1!==moduleName.indexOf(\".\")&&previous!=moduleName;){var previous=moduleName;moduleName=moduleName.replace(/^\\.\\//,\"\").replace(/\\/\\.\\//,\"/\").replace(/[^\\/]+\\/\\.\\.\\//,\"\")}}return moduleName},window.acequire=function acequire(parentId,id){if(id||(id=parentId,parentId=null),!id.charAt)throw Error(\"worker.js acequire() accepts only (parentId, id) as arguments\");id=window.normalizeModule(parentId,id);var module=window.acequire.modules[id];if(module)return module.initialized||(module.initialized=!0,module.exports=module.factory().exports),module.exports;if(!window.acequire.tlns)return console.log(\"unable to load \"+id);var path=resolveModuleId(id,window.acequire.tlns);return\".js\"!=path.slice(-3)&&(path+=\".js\"),window.acequire.id=id,window.acequire.modules[id]={},importScripts(path),window.acequire(parentId,id)},window.acequire.modules={},window.acequire.tlns={},window.define=function(id,deps,factory){if(2==arguments.length?(factory=deps,\"string\"!=typeof id&&(deps=id,id=window.acequire.id)):1==arguments.length&&(factory=id,deps=[],id=window.acequire.id),\"function\"!=typeof factory)return window.acequire.modules[id]={exports:factory,initialized:!0},void 0;deps.length||(deps=[\"require\",\"exports\",\"module\"]);var req=function(childId){return window.acequire(id,childId)};window.acequire.modules[id]={exports:{},factory:function(){var module=this,returnExports=factory.apply(this,deps.map(function(dep){switch(dep){case\"require\":return req;case\"exports\":return module.exports;case\"module\":return module;default:return req(dep)}}));return returnExports&&(module.exports=returnExports),module}}},window.define.amd={},acequire.tlns={},window.initBaseUrls=function(topLevelNamespaces){for(var i in topLevelNamespaces)acequire.tlns[i]=topLevelNamespaces[i]},window.initSender=function(){var EventEmitter=window.acequire(\"ace/lib/event_emitter\").EventEmitter,oop=window.acequire(\"ace/lib/oop\"),Sender=function(){};return function(){oop.implement(this,EventEmitter),this.callback=function(data,callbackId){postMessage({type:\"call\",id:callbackId,data:data})},this.emit=function(name,data){postMessage({type:\"event\",name:name,data:data})}}.call(Sender.prototype),new Sender};var main=window.main=null,sender=window.sender=null;window.onmessage=function(e){var msg=e.data;if(msg.event&&sender)sender._signal(msg.event,msg.data);else if(msg.command)if(main[msg.command])main[msg.command].apply(main,msg.args);else{if(!window[msg.command])throw Error(\"Unknown command:\"+msg.command);window[msg.command].apply(window,msg.args)}else if(msg.init){window.initBaseUrls(msg.tlns),acequire(\"ace/lib/es5-shim\"),sender=window.sender=window.initSender();var clazz=acequire(msg.module)[msg.classname];main=window.main=new clazz(sender)}}}})(this),ace.define(\"ace/lib/oop\",[\"require\",\"exports\",\"module\"],function(acequire,exports){\"use strict\";exports.inherits=function(ctor,superCtor){ctor.super_=superCtor,ctor.prototype=Object.create(superCtor.prototype,{constructor:{value:ctor,enumerable:!1,writable:!0,configurable:!0}})},exports.mixin=function(obj,mixin){for(var key in mixin)obj[key]=mixin[key];return obj},exports.implement=function(proto,mixin){exports.mixin(proto,mixin)}}),ace.define(\"ace/range\",[\"require\",\"exports\",\"module\"],function(acequire,exports){\"use strict\";var comparePoints=function(p1,p2){return p1.row-p2.row||p1.column-p2.column},Range=function(startRow,startColumn,endRow,endColumn){this.start={row:startRow,column:startColumn},this.end={row:endRow,column:endColumn}};(function(){this.isEqual=function(range){return this.start.row===range.start.row&&this.end.row===range.end.row&&this.start.column===range.start.column&&this.end.column===range.end.column},this.toString=function(){return\"Range: [\"+this.start.row+\"/\"+this.start.column+\"] -> [\"+this.end.row+\"/\"+this.end.column+\"]\"},this.contains=function(row,column){return 0==this.compare(row,column)},this.compareRange=function(range){var cmp,end=range.end,start=range.start;return cmp=this.compare(end.row,end.column),1==cmp?(cmp=this.compare(start.row,start.column),1==cmp?2:0==cmp?1:0):-1==cmp?-2:(cmp=this.compare(start.row,start.column),-1==cmp?-1:1==cmp?42:0)},this.comparePoint=function(p){return this.compare(p.row,p.column)},this.containsRange=function(range){return 0==this.comparePoint(range.start)&&0==this.comparePoint(range.end)},this.intersects=function(range){var cmp=this.compareRange(range);return-1==cmp||0==cmp||1==cmp},this.isEnd=function(row,column){return this.end.row==row&&this.end.column==column},this.isStart=function(row,column){return this.start.row==row&&this.start.column==column},this.setStart=function(row,column){\"object\"==typeof row?(this.start.column=row.column,this.start.row=row.row):(this.start.row=row,this.start.column=column)},this.setEnd=function(row,column){\"object\"==typeof row?(this.end.column=row.column,this.end.row=row.row):(this.end.row=row,this.end.column=column)},this.inside=function(row,column){return 0==this.compare(row,column)?this.isEnd(row,column)||this.isStart(row,column)?!1:!0:!1},this.insideStart=function(row,column){return 0==this.compare(row,column)?this.isEnd(row,column)?!1:!0:!1},this.insideEnd=function(row,column){return 0==this.compare(row,column)?this.isStart(row,column)?!1:!0:!1},this.compare=function(row,column){return this.isMultiLine()||row!==this.start.row?this.start.row>row?-1:row>this.end.row?1:this.start.row===row?column>=this.start.column?0:-1:this.end.row===row?this.end.column>=column?0:1:0:this.start.column>column?-1:column>this.end.column?1:0},this.compareStart=function(row,column){return this.start.row==row&&this.start.column==column?-1:this.compare(row,column)},this.compareEnd=function(row,column){return this.end.row==row&&this.end.column==column?1:this.compare(row,column)},this.compareInside=function(row,column){return this.end.row==row&&this.end.column==column?1:this.start.row==row&&this.start.column==column?-1:this.compare(row,column)},this.clipRows=function(firstRow,lastRow){if(this.end.row>lastRow)var end={row:lastRow+1,column:0};else if(firstRow>this.end.row)var end={row:firstRow,column:0};if(this.start.row>lastRow)var start={row:lastRow+1,column:0};else if(firstRow>this.start.row)var start={row:firstRow,column:0};return Range.fromPoints(start||this.start,end||this.end)},this.extend=function(row,column){var cmp=this.compare(row,column);if(0==cmp)return this;if(-1==cmp)var start={row:row,column:column};else var end={row:row,column:column};return Range.fromPoints(start||this.start,end||this.end)},this.isEmpty=function(){return this.start.row===this.end.row&&this.start.column===this.end.column},this.isMultiLine=function(){return this.start.row!==this.end.row},this.clone=function(){return Range.fromPoints(this.start,this.end)},this.collapseRows=function(){return 0==this.end.column?new Range(this.start.row,0,Math.max(this.start.row,this.end.row-1),0):new Range(this.start.row,0,this.end.row,0)},this.toScreenRange=function(session){var screenPosStart=session.documentToScreenPosition(this.start),screenPosEnd=session.documentToScreenPosition(this.end);return new Range(screenPosStart.row,screenPosStart.column,screenPosEnd.row,screenPosEnd.column)},this.moveBy=function(row,column){this.start.row+=row,this.start.column+=column,this.end.row+=row,this.end.column+=column}}).call(Range.prototype),Range.fromPoints=function(start,end){return new Range(start.row,start.column,end.row,end.column)},Range.comparePoints=comparePoints,Range.comparePoints=function(p1,p2){return p1.row-p2.row||p1.column-p2.column},exports.Range=Range}),ace.define(\"ace/apply_delta\",[\"require\",\"exports\",\"module\"],function(acequire,exports){\"use strict\";exports.applyDelta=function(docLines,delta){var row=delta.start.row,startColumn=delta.start.column,line=docLines[row]||\"\";switch(delta.action){case\"insert\":var lines=delta.lines;if(1===lines.length)docLines[row]=line.substring(0,startColumn)+delta.lines[0]+line.substring(startColumn);else{var args=[row,1].concat(delta.lines);docLines.splice.apply(docLines,args),docLines[row]=line.substring(0,startColumn)+docLines[row],docLines[row+delta.lines.length-1]+=line.substring(startColumn)}break;case\"remove\":var endColumn=delta.end.column,endRow=delta.end.row;row===endRow?docLines[row]=line.substring(0,startColumn)+line.substring(endColumn):docLines.splice(row,endRow-row+1,line.substring(0,startColumn)+docLines[endRow].substring(endColumn))}}}),ace.define(\"ace/lib/event_emitter\",[\"require\",\"exports\",\"module\"],function(acequire,exports){\"use strict\";var EventEmitter={},stopPropagation=function(){this.propagationStopped=!0},preventDefault=function(){this.defaultPrevented=!0};EventEmitter._emit=EventEmitter._dispatchEvent=function(eventName,e){this._eventRegistry||(this._eventRegistry={}),this._defaultHandlers||(this._defaultHandlers={});var listeners=this._eventRegistry[eventName]||[],defaultHandler=this._defaultHandlers[eventName];if(listeners.length||defaultHandler){\"object\"==typeof e&&e||(e={}),e.type||(e.type=eventName),e.stopPropagation||(e.stopPropagation=stopPropagation),e.preventDefault||(e.preventDefault=preventDefault),listeners=listeners.slice();for(var i=0;listeners.length>i&&(listeners[i](e,this),!e.propagationStopped);i++);return defaultHandler&&!e.defaultPrevented?defaultHandler(e,this):void 0}},EventEmitter._signal=function(eventName,e){var listeners=(this._eventRegistry||{})[eventName];if(listeners){listeners=listeners.slice();for(var i=0;listeners.length>i;i++)listeners[i](e,this)}},EventEmitter.once=function(eventName,callback){var _self=this;callback&&this.addEventListener(eventName,function newCallback(){_self.removeEventListener(eventName,newCallback),callback.apply(null,arguments)})},EventEmitter.setDefaultHandler=function(eventName,callback){var handlers=this._defaultHandlers;if(handlers||(handlers=this._defaultHandlers={_disabled_:{}}),handlers[eventName]){var old=handlers[eventName],disabled=handlers._disabled_[eventName];disabled||(handlers._disabled_[eventName]=disabled=[]),disabled.push(old);var i=disabled.indexOf(callback);-1!=i&&disabled.splice(i,1)}handlers[eventName]=callback},EventEmitter.removeDefaultHandler=function(eventName,callback){var handlers=this._defaultHandlers;if(handlers){var disabled=handlers._disabled_[eventName];if(handlers[eventName]==callback)handlers[eventName],disabled&&this.setDefaultHandler(eventName,disabled.pop());else if(disabled){var i=disabled.indexOf(callback);-1!=i&&disabled.splice(i,1)}}},EventEmitter.on=EventEmitter.addEventListener=function(eventName,callback,capturing){this._eventRegistry=this._eventRegistry||{};var listeners=this._eventRegistry[eventName];return listeners||(listeners=this._eventRegistry[eventName]=[]),-1==listeners.indexOf(callback)&&listeners[capturing?\"unshift\":\"push\"](callback),callback},EventEmitter.off=EventEmitter.removeListener=EventEmitter.removeEventListener=function(eventName,callback){this._eventRegistry=this._eventRegistry||{};var listeners=this._eventRegistry[eventName];if(listeners){var index=listeners.indexOf(callback);-1!==index&&listeners.splice(index,1)}},EventEmitter.removeAllListeners=function(eventName){this._eventRegistry&&(this._eventRegistry[eventName]=[])},exports.EventEmitter=EventEmitter}),ace.define(\"ace/anchor\",[\"require\",\"exports\",\"module\",\"ace/lib/oop\",\"ace/lib/event_emitter\"],function(acequire,exports){\"use strict\";var oop=acequire(\"./lib/oop\"),EventEmitter=acequire(\"./lib/event_emitter\").EventEmitter,Anchor=exports.Anchor=function(doc,row,column){this.$onChange=this.onChange.bind(this),this.attach(doc),column===void 0?this.setPosition(row.row,row.column):this.setPosition(row,column)};(function(){function $pointsInOrder(point1,point2,equalPointsInOrder){var bColIsAfter=equalPointsInOrder?point1.column<=point2.column:point1.column<point2.column;return point1.row<point2.row||point1.row==point2.row&&bColIsAfter}function $getTransformedPoint(delta,point,moveIfEqual){var deltaIsInsert=\"insert\"==delta.action,deltaRowShift=(deltaIsInsert?1:-1)*(delta.end.row-delta.start.row),deltaColShift=(deltaIsInsert?1:-1)*(delta.end.column-delta.start.column),deltaStart=delta.start,deltaEnd=deltaIsInsert?deltaStart:delta.end;return $pointsInOrder(point,deltaStart,moveIfEqual)?{row:point.row,column:point.column}:$pointsInOrder(deltaEnd,point,!moveIfEqual)?{row:point.row+deltaRowShift,column:point.column+(point.row==deltaEnd.row?deltaColShift:0)}:{row:deltaStart.row,column:deltaStart.column}}oop.implement(this,EventEmitter),this.getPosition=function(){return this.$clipPositionToDocument(this.row,this.column)},this.getDocument=function(){return this.document},this.$insertRight=!1,this.onChange=function(delta){if(!(delta.start.row==delta.end.row&&delta.start.row!=this.row||delta.start.row>this.row)){var point=$getTransformedPoint(delta,{row:this.row,column:this.column},this.$insertRight);this.setPosition(point.row,point.column,!0)}},this.setPosition=function(row,column,noClip){var pos;if(pos=noClip?{row:row,column:column}:this.$clipPositionToDocument(row,column),this.row!=pos.row||this.column!=pos.column){var old={row:this.row,column:this.column};this.row=pos.row,this.column=pos.column,this._signal(\"change\",{old:old,value:pos})}},this.detach=function(){this.document.removeEventListener(\"change\",this.$onChange)},this.attach=function(doc){this.document=doc||this.document,this.document.on(\"change\",this.$onChange)},this.$clipPositionToDocument=function(row,column){var pos={};return row>=this.document.getLength()?(pos.row=Math.max(0,this.document.getLength()-1),pos.column=this.document.getLine(pos.row).length):0>row?(pos.row=0,pos.column=0):(pos.row=row,pos.column=Math.min(this.document.getLine(pos.row).length,Math.max(0,column))),0>column&&(pos.column=0),pos}}).call(Anchor.prototype)}),ace.define(\"ace/document\",[\"require\",\"exports\",\"module\",\"ace/lib/oop\",\"ace/apply_delta\",\"ace/lib/event_emitter\",\"ace/range\",\"ace/anchor\"],function(acequire,exports){\"use strict\";var oop=acequire(\"./lib/oop\"),applyDelta=acequire(\"./apply_delta\").applyDelta,EventEmitter=acequire(\"./lib/event_emitter\").EventEmitter,Range=acequire(\"./range\").Range,Anchor=acequire(\"./anchor\").Anchor,Document=function(textOrLines){this.$lines=[\"\"],0===textOrLines.length?this.$lines=[\"\"]:Array.isArray(textOrLines)?this.insertMergedLines({row:0,column:0},textOrLines):this.insert({row:0,column:0},textOrLines)};(function(){oop.implement(this,EventEmitter),this.setValue=function(text){var len=this.getLength()-1;this.remove(new Range(0,0,len,this.getLine(len).length)),this.insert({row:0,column:0},text)},this.getValue=function(){return this.getAllLines().join(this.getNewLineCharacter())},this.createAnchor=function(row,column){return new Anchor(this,row,column)},this.$split=0===\"aaa\".split(/a/).length?function(text){return text.replace(/\\r\\n|\\r/g,\"\\n\").split(\"\\n\")}:function(text){return text.split(/\\r\\n|\\r|\\n/)},this.$detectNewLine=function(text){var match=text.match(/^.*?(\\r\\n|\\r|\\n)/m);this.$autoNewLine=match?match[1]:\"\\n\",this._signal(\"changeNewLineMode\")},this.getNewLineCharacter=function(){switch(this.$newLineMode){case\"windows\":return\"\\r\\n\";case\"unix\":return\"\\n\";default:return this.$autoNewLine||\"\\n\"}},this.$autoNewLine=\"\",this.$newLineMode=\"auto\",this.setNewLineMode=function(newLineMode){this.$newLineMode!==newLineMode&&(this.$newLineMode=newLineMode,this._signal(\"changeNewLineMode\"))},this.getNewLineMode=function(){return this.$newLineMode},this.isNewLine=function(text){return\"\\r\\n\"==text||\"\\r\"==text||\"\\n\"==text},this.getLine=function(row){return this.$lines[row]||\"\"},this.getLines=function(firstRow,lastRow){return this.$lines.slice(firstRow,lastRow+1)},this.getAllLines=function(){return this.getLines(0,this.getLength())},this.getLength=function(){return this.$lines.length},this.getTextRange=function(range){return this.getLinesForRange(range).join(this.getNewLineCharacter())},this.getLinesForRange=function(range){var lines;if(range.start.row===range.end.row)lines=[this.getLine(range.start.row).substring(range.start.column,range.end.column)];else{lines=this.getLines(range.start.row,range.end.row),lines[0]=(lines[0]||\"\").substring(range.start.column);var l=lines.length-1;range.end.row-range.start.row==l&&(lines[l]=lines[l].substring(0,range.end.column))}return lines},this.insertLines=function(row,lines){return console.warn(\"Use of document.insertLines is deprecated. Use the insertFullLines method instead.\"),this.insertFullLines(row,lines)},this.removeLines=function(firstRow,lastRow){return console.warn(\"Use of document.removeLines is deprecated. Use the removeFullLines method instead.\"),this.removeFullLines(firstRow,lastRow)},this.insertNewLine=function(position){return console.warn(\"Use of document.insertNewLine is deprecated. Use insertMergedLines(position, ['', '']) instead.\"),this.insertMergedLines(position,[\"\",\"\"])},this.insert=function(position,text){return 1>=this.getLength()&&this.$detectNewLine(text),this.insertMergedLines(position,this.$split(text))},this.insertInLine=function(position,text){var start=this.clippedPos(position.row,position.column),end=this.pos(position.row,position.column+text.length);return this.applyDelta({start:start,end:end,action:\"insert\",lines:[text]},!0),this.clonePos(end)},this.clippedPos=function(row,column){var length=this.getLength();void 0===row?row=length:0>row?row=0:row>=length&&(row=length-1,column=void 0);var line=this.getLine(row);return void 0==column&&(column=line.length),column=Math.min(Math.max(column,0),line.length),{row:row,column:column}},this.clonePos=function(pos){return{row:pos.row,column:pos.column}},this.pos=function(row,column){return{row:row,column:column}},this.$clipPosition=function(position){var length=this.getLength();return position.row>=length?(position.row=Math.max(0,length-1),position.column=this.getLine(length-1).length):(position.row=Math.max(0,position.row),position.column=Math.min(Math.max(position.column,0),this.getLine(position.row).length)),position},this.insertFullLines=function(row,lines){row=Math.min(Math.max(row,0),this.getLength());var column=0;this.getLength()>row?(lines=lines.concat([\"\"]),column=0):(lines=[\"\"].concat(lines),row--,column=this.$lines[row].length),this.insertMergedLines({row:row,column:column},lines)},this.insertMergedLines=function(position,lines){var start=this.clippedPos(position.row,position.column),end={row:start.row+lines.length-1,column:(1==lines.length?start.column:0)+lines[lines.length-1].length};return this.applyDelta({start:start,end:end,action:\"insert\",lines:lines}),this.clonePos(end)},this.remove=function(range){var start=this.clippedPos(range.start.row,range.start.column),end=this.clippedPos(range.end.row,range.end.column);return this.applyDelta({start:start,end:end,action:\"remove\",lines:this.getLinesForRange({start:start,end:end})}),this.clonePos(start)},this.removeInLine=function(row,startColumn,endColumn){var start=this.clippedPos(row,startColumn),end=this.clippedPos(row,endColumn);return this.applyDelta({start:start,end:end,action:\"remove\",lines:this.getLinesForRange({start:start,end:end})},!0),this.clonePos(start)},this.removeFullLines=function(firstRow,lastRow){firstRow=Math.min(Math.max(0,firstRow),this.getLength()-1),lastRow=Math.min(Math.max(0,lastRow),this.getLength()-1);var deleteFirstNewLine=lastRow==this.getLength()-1&&firstRow>0,deleteLastNewLine=this.getLength()-1>lastRow,startRow=deleteFirstNewLine?firstRow-1:firstRow,startCol=deleteFirstNewLine?this.getLine(startRow).length:0,endRow=deleteLastNewLine?lastRow+1:lastRow,endCol=deleteLastNewLine?0:this.getLine(endRow).length,range=new Range(startRow,startCol,endRow,endCol),deletedLines=this.$lines.slice(firstRow,lastRow+1);return this.applyDelta({start:range.start,end:range.end,action:\"remove\",lines:this.getLinesForRange(range)}),deletedLines},this.removeNewLine=function(row){this.getLength()-1>row&&row>=0&&this.applyDelta({start:this.pos(row,this.getLine(row).length),end:this.pos(row+1,0),action:\"remove\",lines:[\"\",\"\"]})},this.replace=function(range,text){if(range instanceof Range||(range=Range.fromPoints(range.start,range.end)),0===text.length&&range.isEmpty())return range.start;if(text==this.getTextRange(range))return range.end;this.remove(range);var end;return end=text?this.insert(range.start,text):range.start},this.applyDeltas=function(deltas){for(var i=0;deltas.length>i;i++)this.applyDelta(deltas[i])},this.revertDeltas=function(deltas){for(var i=deltas.length-1;i>=0;i--)this.revertDelta(deltas[i])},this.applyDelta=function(delta,doNotValidate){var isInsert=\"insert\"==delta.action;(isInsert?1>=delta.lines.length&&!delta.lines[0]:!Range.comparePoints(delta.start,delta.end))||(isInsert&&delta.lines.length>2e4&&this.$splitAndapplyLargeDelta(delta,2e4),applyDelta(this.$lines,delta,doNotValidate),this._signal(\"change\",delta))},this.$splitAndapplyLargeDelta=function(delta,MAX){for(var lines=delta.lines,l=lines.length,row=delta.start.row,column=delta.start.column,from=0,to=0;;){from=to,to+=MAX-1;var chunk=lines.slice(from,to);if(to>l){delta.lines=chunk,delta.start.row=row+from,delta.start.column=column;break}chunk.push(\"\"),this.applyDelta({start:this.pos(row+from,column),end:this.pos(row+to,column=0),action:delta.action,lines:chunk},!0)}},this.revertDelta=function(delta){this.applyDelta({start:this.clonePos(delta.start),end:this.clonePos(delta.end),action:\"insert\"==delta.action?\"remove\":\"insert\",lines:delta.lines.slice()})},this.indexToPosition=function(index,startRow){for(var lines=this.$lines||this.getAllLines(),newlineLength=this.getNewLineCharacter().length,i=startRow||0,l=lines.length;l>i;i++)if(index-=lines[i].length+newlineLength,0>index)return{row:i,column:index+lines[i].length+newlineLength};return{row:l-1,column:lines[l-1].length}},this.positionToIndex=function(pos,startRow){for(var lines=this.$lines||this.getAllLines(),newlineLength=this.getNewLineCharacter().length,index=0,row=Math.min(pos.row,lines.length),i=startRow||0;row>i;++i)index+=lines[i].length+newlineLength;return index+pos.column}}).call(Document.prototype),exports.Document=Document}),ace.define(\"ace/lib/lang\",[\"require\",\"exports\",\"module\"],function(acequire,exports){\"use strict\";exports.last=function(a){return a[a.length-1]},exports.stringReverse=function(string){return string.split(\"\").reverse().join(\"\")},exports.stringRepeat=function(string,count){for(var result=\"\";count>0;)1&count&&(result+=string),(count>>=1)&&(string+=string);return result};var trimBeginRegexp=/^\\s\\s*/,trimEndRegexp=/\\s\\s*$/;exports.stringTrimLeft=function(string){return string.replace(trimBeginRegexp,\"\")},exports.stringTrimRight=function(string){return string.replace(trimEndRegexp,\"\")},exports.copyObject=function(obj){var copy={};for(var key in obj)copy[key]=obj[key];return copy},exports.copyArray=function(array){for(var copy=[],i=0,l=array.length;l>i;i++)copy[i]=array[i]&&\"object\"==typeof array[i]?this.copyObject(array[i]):array[i];return copy},exports.deepCopy=function deepCopy(obj){if(\"object\"!=typeof obj||!obj)return obj;var copy;if(Array.isArray(obj)){copy=[];for(var key=0;obj.length>key;key++)copy[key]=deepCopy(obj[key]);return copy}var cons=obj.constructor;if(cons===RegExp)return obj;copy=cons();for(var key in obj)copy[key]=deepCopy(obj[key]);return copy},exports.arrayToMap=function(arr){for(var map={},i=0;arr.length>i;i++)map[arr[i]]=1;return map},exports.createMap=function(props){var map=Object.create(null);for(var i in props)map[i]=props[i];return map},exports.arrayRemove=function(array,value){for(var i=0;array.length>=i;i++)value===array[i]&&array.splice(i,1)},exports.escapeRegExp=function(str){return str.replace(/([.*+?^${}()|[\\]\\/\\\\])/g,\"\\\\$1\")},exports.escapeHTML=function(str){return str.replace(/&/g,\"&#38;\").replace(/\"/g,\"&#34;\").replace(/'/g,\"&#39;\").replace(/</g,\"&#60;\")},exports.getMatchOffsets=function(string,regExp){var matches=[];return string.replace(regExp,function(str){matches.push({offset:arguments[arguments.length-2],length:str.length})}),matches},exports.deferredCall=function(fcn){var timer=null,callback=function(){timer=null,fcn()},deferred=function(timeout){return deferred.cancel(),timer=setTimeout(callback,timeout||0),deferred};return deferred.schedule=deferred,deferred.call=function(){return this.cancel(),fcn(),deferred},deferred.cancel=function(){return clearTimeout(timer),timer=null,deferred},deferred.isPending=function(){return timer},deferred},exports.delayedCall=function(fcn,defaultTimeout){var timer=null,callback=function(){timer=null,fcn()},_self=function(timeout){null==timer&&(timer=setTimeout(callback,timeout||defaultTimeout))};return _self.delay=function(timeout){timer&&clearTimeout(timer),timer=setTimeout(callback,timeout||defaultTimeout)},_self.schedule=_self,_self.call=function(){this.cancel(),fcn()},_self.cancel=function(){timer&&clearTimeout(timer),timer=null},_self.isPending=function(){return timer},_self}}),ace.define(\"ace/worker/mirror\",[\"require\",\"exports\",\"module\",\"ace/range\",\"ace/document\",\"ace/lib/lang\"],function(acequire,exports){\"use strict\";acequire(\"../range\").Range;var Document=acequire(\"../document\").Document,lang=acequire(\"../lib/lang\"),Mirror=exports.Mirror=function(sender){this.sender=sender;var doc=this.doc=new Document(\"\"),deferredUpdate=this.deferredUpdate=lang.delayedCall(this.onUpdate.bind(this)),_self=this;sender.on(\"change\",function(e){var data=e.data;if(data[0].start)doc.applyDeltas(data);else for(var i=0;data.length>i;i+=2){if(Array.isArray(data[i+1]))var d={action:\"insert\",start:data[i],lines:data[i+1]};else var d={action:\"remove\",start:data[i],end:data[i+1]};doc.applyDelta(d,!0)}return _self.$timeout?deferredUpdate.schedule(_self.$timeout):(_self.onUpdate(),void 0)})};(function(){this.$timeout=500,this.setTimeout=function(timeout){this.$timeout=timeout},this.setValue=function(value){this.doc.setValue(value),this.deferredUpdate.schedule(this.$timeout)},this.getValue=function(callbackId){this.sender.callback(this.doc.getValue(),callbackId)},this.onUpdate=function(){},this.isPending=function(){return this.deferredUpdate.isPending()}}).call(Mirror.prototype)}),ace.define(\"ace/mode/json/json_parse\",[\"require\",\"exports\",\"module\"],function(){\"use strict\";var at,ch,text,value,escapee={'\"':'\"',\"\\\\\":\"\\\\\",\"/\":\"/\",b:\"\\b\",f:\"\\f\",n:\"\\n\",r:\"\\r\",t:\"\t\"},error=function(m){throw{name:\"SyntaxError\",message:m,at:at,text:text}},next=function(c){return c&&c!==ch&&error(\"Expected '\"+c+\"' instead of '\"+ch+\"'\"),ch=text.charAt(at),at+=1,ch},number=function(){var number,string=\"\";for(\"-\"===ch&&(string=\"-\",next(\"-\"));ch>=\"0\"&&\"9\">=ch;)string+=ch,next();if(\".\"===ch)for(string+=\".\";next()&&ch>=\"0\"&&\"9\">=ch;)string+=ch;if(\"e\"===ch||\"E\"===ch)for(string+=ch,next(),(\"-\"===ch||\"+\"===ch)&&(string+=ch,next());ch>=\"0\"&&\"9\">=ch;)string+=ch,next();return number=+string,isNaN(number)?(error(\"Bad number\"),void 0):number},string=function(){var hex,i,uffff,string=\"\";if('\"'===ch)for(;next();){if('\"'===ch)return next(),string;if(\"\\\\\"===ch)if(next(),\"u\"===ch){for(uffff=0,i=0;4>i&&(hex=parseInt(next(),16),isFinite(hex));i+=1)uffff=16*uffff+hex;string+=String.fromCharCode(uffff)}else{if(\"string\"!=typeof escapee[ch])break;string+=escapee[ch]}else string+=ch}error(\"Bad string\")},white=function(){for(;ch&&\" \">=ch;)next()},word=function(){switch(ch){case\"t\":return next(\"t\"),next(\"r\"),next(\"u\"),next(\"e\"),!0;case\"f\":return next(\"f\"),next(\"a\"),next(\"l\"),next(\"s\"),next(\"e\"),!1;case\"n\":return next(\"n\"),next(\"u\"),next(\"l\"),next(\"l\"),null}error(\"Unexpected '\"+ch+\"'\")},array=function(){var array=[];if(\"[\"===ch){if(next(\"[\"),white(),\"]\"===ch)return next(\"]\"),array;for(;ch;){if(array.push(value()),white(),\"]\"===ch)return next(\"]\"),array;next(\",\"),white()}}error(\"Bad array\")},object=function(){var key,object={};if(\"{\"===ch){if(next(\"{\"),white(),\"}\"===ch)return next(\"}\"),object;for(;ch;){if(key=string(),white(),next(\":\"),Object.hasOwnProperty.call(object,key)&&error('Duplicate key \"'+key+'\"'),object[key]=value(),white(),\"}\"===ch)return next(\"}\"),object;next(\",\"),white()}}error(\"Bad object\")};return value=function(){switch(white(),ch){case\"{\":return object();case\"[\":return array();case'\"':return string();case\"-\":return number();default:return ch>=\"0\"&&\"9\">=ch?number():word()}},function(source,reviver){var result;return text=source,at=0,ch=\" \",result=value(),white(),ch&&error(\"Syntax error\"),\"function\"==typeof reviver?function walk(holder,key){var k,v,value=holder[key];if(value&&\"object\"==typeof value)for(k in value)Object.hasOwnProperty.call(value,k)&&(v=walk(value,k),void 0!==v?value[k]=v:delete value[k]);return reviver.call(holder,key,value)}({\"\":result},\"\"):result}}),ace.define(\"ace/mode/json_worker\",[\"require\",\"exports\",\"module\",\"ace/lib/oop\",\"ace/worker/mirror\",\"ace/mode/json/json_parse\"],function(acequire,exports){\"use strict\";var oop=acequire(\"../lib/oop\"),Mirror=acequire(\"../worker/mirror\").Mirror,parse=acequire(\"./json/json_parse\"),JsonWorker=exports.JsonWorker=function(sender){Mirror.call(this,sender),this.setTimeout(200)};oop.inherits(JsonWorker,Mirror),function(){this.onUpdate=function(){var value=this.doc.getValue(),errors=[];try{value&&parse(value)}catch(e){var pos=this.doc.indexToPosition(e.at-1);errors.push({row:pos.row,column:pos.column,text:e.message,type:\"error\"})}this.sender.emit(\"annotate\",errors)}}.call(JsonWorker.prototype)}),ace.define(\"ace/lib/es5-shim\",[\"require\",\"exports\",\"module\"],function(){function Empty(){}function doesDefinePropertyWork(object){try{return Object.defineProperty(object,\"sentinel\",{}),\"sentinel\"in object}catch(exception){}}function toInteger(n){return n=+n,n!==n?n=0:0!==n&&n!==1/0&&n!==-(1/0)&&(n=(n>0||-1)*Math.floor(Math.abs(n))),n}Function.prototype.bind||(Function.prototype.bind=function(that){var target=this;if(\"function\"!=typeof target)throw new TypeError(\"Function.prototype.bind called on incompatible \"+target);var args=slice.call(arguments,1),bound=function(){if(this instanceof bound){var result=target.apply(this,args.concat(slice.call(arguments)));return Object(result)===result?result:this}return target.apply(that,args.concat(slice.call(arguments)))};return target.prototype&&(Empty.prototype=target.prototype,bound.prototype=new Empty,Empty.prototype=null),bound});var defineGetter,defineSetter,lookupGetter,lookupSetter,supportsAccessors,call=Function.prototype.call,prototypeOfArray=Array.prototype,prototypeOfObject=Object.prototype,slice=prototypeOfArray.slice,_toString=call.bind(prototypeOfObject.toString),owns=call.bind(prototypeOfObject.hasOwnProperty);if((supportsAccessors=owns(prototypeOfObject,\"__defineGetter__\"))&&(defineGetter=call.bind(prototypeOfObject.__defineGetter__),defineSetter=call.bind(prototypeOfObject.__defineSetter__),lookupGetter=call.bind(prototypeOfObject.__lookupGetter__),lookupSetter=call.bind(prototypeOfObject.__lookupSetter__)),2!=[1,2].splice(0).length)if(function(){function makeArray(l){var a=Array(l+2);return a[0]=a[1]=0,a}var lengthBefore,array=[];return array.splice.apply(array,makeArray(20)),array.splice.apply(array,makeArray(26)),lengthBefore=array.length,array.splice(5,0,\"XXX\"),lengthBefore+1==array.length,lengthBefore+1==array.length?!0:void 0\n}()){var array_splice=Array.prototype.splice;Array.prototype.splice=function(start,deleteCount){return arguments.length?array_splice.apply(this,[void 0===start?0:start,void 0===deleteCount?this.length-start:deleteCount].concat(slice.call(arguments,2))):[]}}else Array.prototype.splice=function(pos,removeCount){var length=this.length;pos>0?pos>length&&(pos=length):void 0==pos?pos=0:0>pos&&(pos=Math.max(length+pos,0)),length>pos+removeCount||(removeCount=length-pos);var removed=this.slice(pos,pos+removeCount),insert=slice.call(arguments,2),add=insert.length;if(pos===length)add&&this.push.apply(this,insert);else{var remove=Math.min(removeCount,length-pos),tailOldPos=pos+remove,tailNewPos=tailOldPos+add-remove,tailCount=length-tailOldPos,lengthAfterRemove=length-remove;if(tailOldPos>tailNewPos)for(var i=0;tailCount>i;++i)this[tailNewPos+i]=this[tailOldPos+i];else if(tailNewPos>tailOldPos)for(i=tailCount;i--;)this[tailNewPos+i]=this[tailOldPos+i];if(add&&pos===lengthAfterRemove)this.length=lengthAfterRemove,this.push.apply(this,insert);else for(this.length=lengthAfterRemove+add,i=0;add>i;++i)this[pos+i]=insert[i]}return removed};Array.isArray||(Array.isArray=function(obj){return\"[object Array]\"==_toString(obj)});var boxedString=Object(\"a\"),splitString=\"a\"!=boxedString[0]||!(0 in boxedString);if(Array.prototype.forEach||(Array.prototype.forEach=function(fun){var object=toObject(this),self=splitString&&\"[object String]\"==_toString(this)?this.split(\"\"):object,thisp=arguments[1],i=-1,length=self.length>>>0;if(\"[object Function]\"!=_toString(fun))throw new TypeError;for(;length>++i;)i in self&&fun.call(thisp,self[i],i,object)}),Array.prototype.map||(Array.prototype.map=function(fun){var object=toObject(this),self=splitString&&\"[object String]\"==_toString(this)?this.split(\"\"):object,length=self.length>>>0,result=Array(length),thisp=arguments[1];if(\"[object Function]\"!=_toString(fun))throw new TypeError(fun+\" is not a function\");for(var i=0;length>i;i++)i in self&&(result[i]=fun.call(thisp,self[i],i,object));return result}),Array.prototype.filter||(Array.prototype.filter=function(fun){var value,object=toObject(this),self=splitString&&\"[object String]\"==_toString(this)?this.split(\"\"):object,length=self.length>>>0,result=[],thisp=arguments[1];if(\"[object Function]\"!=_toString(fun))throw new TypeError(fun+\" is not a function\");for(var i=0;length>i;i++)i in self&&(value=self[i],fun.call(thisp,value,i,object)&&result.push(value));return result}),Array.prototype.every||(Array.prototype.every=function(fun){var object=toObject(this),self=splitString&&\"[object String]\"==_toString(this)?this.split(\"\"):object,length=self.length>>>0,thisp=arguments[1];if(\"[object Function]\"!=_toString(fun))throw new TypeError(fun+\" is not a function\");for(var i=0;length>i;i++)if(i in self&&!fun.call(thisp,self[i],i,object))return!1;return!0}),Array.prototype.some||(Array.prototype.some=function(fun){var object=toObject(this),self=splitString&&\"[object String]\"==_toString(this)?this.split(\"\"):object,length=self.length>>>0,thisp=arguments[1];if(\"[object Function]\"!=_toString(fun))throw new TypeError(fun+\" is not a function\");for(var i=0;length>i;i++)if(i in self&&fun.call(thisp,self[i],i,object))return!0;return!1}),Array.prototype.reduce||(Array.prototype.reduce=function(fun){var object=toObject(this),self=splitString&&\"[object String]\"==_toString(this)?this.split(\"\"):object,length=self.length>>>0;if(\"[object Function]\"!=_toString(fun))throw new TypeError(fun+\" is not a function\");if(!length&&1==arguments.length)throw new TypeError(\"reduce of empty array with no initial value\");var result,i=0;if(arguments.length>=2)result=arguments[1];else for(;;){if(i in self){result=self[i++];break}if(++i>=length)throw new TypeError(\"reduce of empty array with no initial value\")}for(;length>i;i++)i in self&&(result=fun.call(void 0,result,self[i],i,object));return result}),Array.prototype.reduceRight||(Array.prototype.reduceRight=function(fun){var object=toObject(this),self=splitString&&\"[object String]\"==_toString(this)?this.split(\"\"):object,length=self.length>>>0;if(\"[object Function]\"!=_toString(fun))throw new TypeError(fun+\" is not a function\");if(!length&&1==arguments.length)throw new TypeError(\"reduceRight of empty array with no initial value\");var result,i=length-1;if(arguments.length>=2)result=arguments[1];else for(;;){if(i in self){result=self[i--];break}if(0>--i)throw new TypeError(\"reduceRight of empty array with no initial value\")}do i in this&&(result=fun.call(void 0,result,self[i],i,object));while(i--);return result}),Array.prototype.indexOf&&-1==[0,1].indexOf(1,2)||(Array.prototype.indexOf=function(sought){var self=splitString&&\"[object String]\"==_toString(this)?this.split(\"\"):toObject(this),length=self.length>>>0;if(!length)return-1;var i=0;for(arguments.length>1&&(i=toInteger(arguments[1])),i=i>=0?i:Math.max(0,length+i);length>i;i++)if(i in self&&self[i]===sought)return i;return-1}),Array.prototype.lastIndexOf&&-1==[0,1].lastIndexOf(0,-3)||(Array.prototype.lastIndexOf=function(sought){var self=splitString&&\"[object String]\"==_toString(this)?this.split(\"\"):toObject(this),length=self.length>>>0;if(!length)return-1;var i=length-1;for(arguments.length>1&&(i=Math.min(i,toInteger(arguments[1]))),i=i>=0?i:length-Math.abs(i);i>=0;i--)if(i in self&&sought===self[i])return i;return-1}),Object.getPrototypeOf||(Object.getPrototypeOf=function(object){return object.__proto__||(object.constructor?object.constructor.prototype:prototypeOfObject)}),!Object.getOwnPropertyDescriptor){var ERR_NON_OBJECT=\"Object.getOwnPropertyDescriptor called on a non-object: \";Object.getOwnPropertyDescriptor=function(object,property){if(\"object\"!=typeof object&&\"function\"!=typeof object||null===object)throw new TypeError(ERR_NON_OBJECT+object);if(owns(object,property)){var descriptor,getter,setter;if(descriptor={enumerable:!0,configurable:!0},supportsAccessors){var prototype=object.__proto__;object.__proto__=prototypeOfObject;var getter=lookupGetter(object,property),setter=lookupSetter(object,property);if(object.__proto__=prototype,getter||setter)return getter&&(descriptor.get=getter),setter&&(descriptor.set=setter),descriptor}return descriptor.value=object[property],descriptor}}}if(Object.getOwnPropertyNames||(Object.getOwnPropertyNames=function(object){return Object.keys(object)}),!Object.create){var createEmpty;createEmpty=null===Object.prototype.__proto__?function(){return{__proto__:null}}:function(){var empty={};for(var i in empty)empty[i]=null;return empty.constructor=empty.hasOwnProperty=empty.propertyIsEnumerable=empty.isPrototypeOf=empty.toLocaleString=empty.toString=empty.valueOf=empty.__proto__=null,empty},Object.create=function(prototype,properties){var object;if(null===prototype)object=createEmpty();else{if(\"object\"!=typeof prototype)throw new TypeError(\"typeof prototype[\"+typeof prototype+\"] != 'object'\");var Type=function(){};Type.prototype=prototype,object=new Type,object.__proto__=prototype}return void 0!==properties&&Object.defineProperties(object,properties),object}}if(Object.defineProperty){var definePropertyWorksOnObject=doesDefinePropertyWork({}),definePropertyWorksOnDom=\"undefined\"==typeof document||doesDefinePropertyWork(document.createElement(\"div\"));if(!definePropertyWorksOnObject||!definePropertyWorksOnDom)var definePropertyFallback=Object.defineProperty}if(!Object.defineProperty||definePropertyFallback){var ERR_NON_OBJECT_DESCRIPTOR=\"Property description must be an object: \",ERR_NON_OBJECT_TARGET=\"Object.defineProperty called on non-object: \",ERR_ACCESSORS_NOT_SUPPORTED=\"getters & setters can not be defined on this javascript engine\";Object.defineProperty=function(object,property,descriptor){if(\"object\"!=typeof object&&\"function\"!=typeof object||null===object)throw new TypeError(ERR_NON_OBJECT_TARGET+object);if(\"object\"!=typeof descriptor&&\"function\"!=typeof descriptor||null===descriptor)throw new TypeError(ERR_NON_OBJECT_DESCRIPTOR+descriptor);if(definePropertyFallback)try{return definePropertyFallback.call(Object,object,property,descriptor)}catch(exception){}if(owns(descriptor,\"value\"))if(supportsAccessors&&(lookupGetter(object,property)||lookupSetter(object,property))){var prototype=object.__proto__;object.__proto__=prototypeOfObject,delete object[property],object[property]=descriptor.value,object.__proto__=prototype}else object[property]=descriptor.value;else{if(!supportsAccessors)throw new TypeError(ERR_ACCESSORS_NOT_SUPPORTED);owns(descriptor,\"get\")&&defineGetter(object,property,descriptor.get),owns(descriptor,\"set\")&&defineSetter(object,property,descriptor.set)}return object}}Object.defineProperties||(Object.defineProperties=function(object,properties){for(var property in properties)owns(properties,property)&&Object.defineProperty(object,property,properties[property]);return object}),Object.seal||(Object.seal=function(object){return object}),Object.freeze||(Object.freeze=function(object){return object});try{Object.freeze(function(){})}catch(exception){Object.freeze=function(freezeObject){return function(object){return\"function\"==typeof object?object:freezeObject(object)}}(Object.freeze)}if(Object.preventExtensions||(Object.preventExtensions=function(object){return object}),Object.isSealed||(Object.isSealed=function(){return!1}),Object.isFrozen||(Object.isFrozen=function(){return!1}),Object.isExtensible||(Object.isExtensible=function(object){if(Object(object)===object)throw new TypeError;for(var name=\"\";owns(object,name);)name+=\"?\";object[name]=!0;var returnValue=owns(object,name);return delete object[name],returnValue}),!Object.keys){var hasDontEnumBug=!0,dontEnums=[\"toString\",\"toLocaleString\",\"valueOf\",\"hasOwnProperty\",\"isPrototypeOf\",\"propertyIsEnumerable\",\"constructor\"],dontEnumsLength=dontEnums.length;for(var key in{toString:null})hasDontEnumBug=!1;Object.keys=function(object){if(\"object\"!=typeof object&&\"function\"!=typeof object||null===object)throw new TypeError(\"Object.keys called on a non-object\");var keys=[];for(var name in object)owns(object,name)&&keys.push(name);if(hasDontEnumBug)for(var i=0,ii=dontEnumsLength;ii>i;i++){var dontEnum=dontEnums[i];owns(object,dontEnum)&&keys.push(dontEnum)}return keys}}Date.now||(Date.now=function(){return(new Date).getTime()});var ws=\"\t\\n\u000b\\f\\r   ᠎             　\\u2028\\u2029﻿\";if(!String.prototype.trim||ws.trim()){ws=\"[\"+ws+\"]\";var trimBeginRegexp=RegExp(\"^\"+ws+ws+\"*\"),trimEndRegexp=RegExp(ws+ws+\"*$\");String.prototype.trim=function(){return(this+\"\").replace(trimBeginRegexp,\"\").replace(trimEndRegexp,\"\")}}var toObject=function(o){if(null==o)throw new TypeError(\"can't convert \"+o+\" to object\");return Object(o)}});";
+	/* ***** BEGIN LICENSE BLOCK *****
+	 * Distributed under the BSD license:
+	 *
+	 * Copyright (c) 2010, Ajax.org B.V.
+	 * All rights reserved.
+	 * 
+	 * Redistribution and use in source and binary forms, with or without
+	 * modification, are permitted provided that the following conditions are met:
+	 *     * Redistributions of source code must retain the above copyright
+	 *       notice, this list of conditions and the following disclaimer.
+	 *     * Redistributions in binary form must reproduce the above copyright
+	 *       notice, this list of conditions and the following disclaimer in the
+	 *       documentation and/or other materials provided with the distribution.
+	 *     * Neither the name of Ajax.org B.V. nor the
+	 *       names of its contributors may be used to endorse or promote products
+	 *       derived from this software without specific prior written permission.
+	 * 
+	 * THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS" AND
+	 * ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
+	 * WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
+	 * DISCLAIMED. IN NO EVENT SHALL AJAX.ORG B.V. BE LIABLE FOR ANY
+	 * DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
+	 * (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
+	 * LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
+	 * ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+	 * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
+	 * SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+	 *
+	 * ***** END LICENSE BLOCK ***** */
+
+	ace.define('ace/theme/jsoneditor', ['require', 'exports', 'module', 'ace/lib/dom'], function(acequire, exports, module) {
+
+	exports.isDark = false;
+	exports.cssClass = "ace-jsoneditor";
+	exports.cssText = ".ace-jsoneditor .ace_gutter {\
+	background: #ebebeb;\
+	color: #333\
+	}\
+	\
+	.ace-jsoneditor.ace_editor {\
+	font-family: droid sans mono, consolas, monospace, courier new, courier, sans-serif;\
+	line-height: 1.3;\
+	background-color: #fff;\
+	}\
+	.ace-jsoneditor .ace_print-margin {\
+	width: 1px;\
+	background: #e8e8e8\
+	}\
+	.ace-jsoneditor .ace_scroller {\
+	background-color: #FFFFFF\
+	}\
+	.ace-jsoneditor .ace_text-layer {\
+	color: gray\
+	}\
+	.ace-jsoneditor .ace_variable {\
+	color: #1a1a1a\
+	}\
+	.ace-jsoneditor .ace_cursor {\
+	border-left: 2px solid #000000\
+	}\
+	.ace-jsoneditor .ace_overwrite-cursors .ace_cursor {\
+	border-left: 0px;\
+	border-bottom: 1px solid #000000\
+	}\
+	.ace-jsoneditor .ace_marker-layer .ace_selection {\
+	background: lightgray\
+	}\
+	.ace-jsoneditor.ace_multiselect .ace_selection.ace_start {\
+	box-shadow: 0 0 3px 0px #FFFFFF;\
+	border-radius: 2px\
+	}\
+	.ace-jsoneditor .ace_marker-layer .ace_step {\
+	background: rgb(255, 255, 0)\
+	}\
+	.ace-jsoneditor .ace_marker-layer .ace_bracket {\
+	margin: -1px 0 0 -1px;\
+	border: 1px solid #BFBFBF\
+	}\
+	.ace-jsoneditor .ace_marker-layer .ace_active-line {\
+	background: #FFFBD1\
+	}\
+	.ace-jsoneditor .ace_gutter-active-line {\
+	background-color : #dcdcdc\
+	}\
+	.ace-jsoneditor .ace_marker-layer .ace_selected-word {\
+	border: 1px solid lightgray\
+	}\
+	.ace-jsoneditor .ace_invisible {\
+	color: #BFBFBF\
+	}\
+	.ace-jsoneditor .ace_keyword,\
+	.ace-jsoneditor .ace_meta,\
+	.ace-jsoneditor .ace_support.ace_constant.ace_property-value {\
+	color: #AF956F\
+	}\
+	.ace-jsoneditor .ace_keyword.ace_operator {\
+	color: #484848\
+	}\
+	.ace-jsoneditor .ace_keyword.ace_other.ace_unit {\
+	color: #96DC5F\
+	}\
+	.ace-jsoneditor .ace_constant.ace_language {\
+	color: darkorange\
+	}\
+	.ace-jsoneditor .ace_constant.ace_numeric {\
+	color: red\
+	}\
+	.ace-jsoneditor .ace_constant.ace_character.ace_entity {\
+	color: #BF78CC\
+	}\
+	.ace-jsoneditor .ace_invalid {\
+	color: #FFFFFF;\
+	background-color: #FF002A;\
+	}\
+	.ace-jsoneditor .ace_fold {\
+	background-color: #AF956F;\
+	border-color: #000000\
+	}\
+	.ace-jsoneditor .ace_storage,\
+	.ace-jsoneditor .ace_support.ace_class,\
+	.ace-jsoneditor .ace_support.ace_function,\
+	.ace-jsoneditor .ace_support.ace_other,\
+	.ace-jsoneditor .ace_support.ace_type {\
+	color: #C52727\
+	}\
+	.ace-jsoneditor .ace_string {\
+	color: green\
+	}\
+	.ace-jsoneditor .ace_comment {\
+	color: #BCC8BA\
+	}\
+	.ace-jsoneditor .ace_entity.ace_name.ace_tag,\
+	.ace-jsoneditor .ace_entity.ace_other.ace_attribute-name {\
+	color: #606060\
+	}\
+	.ace-jsoneditor .ace_markup.ace_underline {\
+	text-decoration: underline\
+	}\
+	.ace-jsoneditor .ace_indent-guide {\
+	background: url(\"data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAACCAYAAACZgbYnAAAAE0lEQVQImWP4////f4bLly//BwAmVgd1/w11/gAAAABJRU5ErkJggg==\") right repeat-y\
+	}";
+
+	var dom = acequire("../lib/dom");
+	dom.importCssString(exports.cssText, exports.cssClass);
+	});
+
 
 /***/ }
 /******/ ])

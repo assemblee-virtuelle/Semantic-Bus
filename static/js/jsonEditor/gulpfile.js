@@ -2,7 +2,7 @@ var fs = require('fs');
 var gulp = require('gulp');
 var gutil = require('gulp-util');
 var concatCss = require('gulp-concat-css');
-var minifyCSS = require('gulp-minify-css');
+var minifyCSS = require('gulp-clean-css');
 var shell = require('gulp-shell');
 var mkdirp = require('mkdirp');
 var webpack = require('webpack');
@@ -70,7 +70,8 @@ function minify(name) {
   var result = uglify.minify([DIST + '/' + name + '.js'], {
     outSourceMap: name + '.map',
     output: {
-      comments: /@license/
+      comments: /@license/,
+      max_line_len: 64000 // extra large because we have embedded code for workers
     }
   });
 
@@ -84,7 +85,7 @@ function minify(name) {
   gutil.log('Mapped ' + fileMap);
 }
 
-// make dist and dist/img folders
+// make dist folder structure
 gulp.task('mkdir', function () {
   mkdirp.sync(DIST);
   mkdirp.sync(DIST + '/img');
@@ -125,10 +126,15 @@ gulp.task('bundle-minimalist', ['mkdir'], function (done) {
 // bundle css
 gulp.task('bundle-css', ['mkdir'], function () {
   gulp.src([
+    'src/css/reset.css',
     'src/css/jsoneditor.css',
     'src/css/contextmenu.css',
     'src/css/menu.css',
-    'src/css/searchbox.css'
+    'src/css/searchbox.css',
+    'src/css/autocomplete.css',
+    'src/css/treepath.css',
+    'src/css/statusbar.css',
+    'src/css/navigationbar.css'
   ])
       .pipe(concatCss(NAME + '.css'))
       .pipe(gulp.dest(DIST))
@@ -143,7 +149,7 @@ gulp.task('bundle-css', ['mkdir'], function () {
 // create a folder img and copy the icons
 gulp.task('copy-img', ['mkdir'], function () {
   gulp.src(IMAGE)
-      .pipe(gulp.dest(DIST +'/img'));
+      .pipe(gulp.dest(DIST + '/img'));
   gutil.log('Copied images');
 });
 
