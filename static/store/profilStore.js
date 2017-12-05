@@ -17,10 +17,14 @@ function profilStore() {
       }).done(function(data) {
         this.userCurrrent = data
         console.log("load profil |", this.userCurrrent)
+        this.trigger('profil_menu_changed', this.menu)
         this.trigger('profil_loaded', this.userCurrrent)
+
       }.bind(this));
     } else {
+      this.trigger('profil_menu_changed', this.menu)
       this.trigger('profil_loaded', this.userCurrrent)
+
     }
   })
 
@@ -81,6 +85,12 @@ function profilStore() {
       }
     }.bind(this));
   })
+  this.on('navigation', function(entity, id, action) {
+    if (entity == "profil") {
+      this.menu = action;
+      this.trigger('navigation_control_done', entity, action);
+    }
+  });
 
   this.on('deconnexion', function(message) {
     localStorage.token = null;

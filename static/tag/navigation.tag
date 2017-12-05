@@ -54,7 +54,7 @@
             <img src="./image/double_dossier.svg" style="" width="40px">
             <p show={isPrincipalMenu} style="color:white;font-size:12px;text-align:center">Worksapces Partagé</p>
           </a>
-          <a href="#profil" class="commandButtonImage {selectedMenu:isScrennInHistory('profil')} containerV" style="flex-basis:100px;flex-grow:0;">
+          <a href="#profil//running" class="commandButtonImage {selectedMenu:isScrennInHistory('profil')} containerV" style="flex-basis:100px;flex-grow:0;">
             <img src="./image/photo.svg" style="" width="40px">
             <p show={isPrincipalMenu} style="color:white;font-size:12px">Profil</p>
           </a>
@@ -278,7 +278,7 @@
       route(function (entity, id, action) {
         console.log(entity, id, action);
         //this.routePath=path; this.routeHistory=history;
-        if (id == undefined) {
+        if (id == undefined && action == undefined) {
           this.entity = entity;
           this.update();
         } else {
