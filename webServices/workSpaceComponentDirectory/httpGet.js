@@ -52,12 +52,12 @@ module.exports = {
             fullError.displayMessage = "HTTP GET : Erreur lors du traitement de votre fichier";
             reject(fullError)
           })
-          console.log('end');
+          //console.log('end');
         }.bind(this));
       });
 
       request.on('error', function (e) {
-        console.log('error :', e);
+        //console.log('error :', e);
         let fullError = new Error(e);
         fullError.displayMessage = "HTTP GET : Erreur lors de la requete";
         reject(fullError)
@@ -67,7 +67,7 @@ module.exports = {
   },
 
   pull: function (data) {
-    console.log('REST Get JSON | pull : ',data);
+    //console.log('REST Get JSON | pull : ',data);
     return this.makeRequest('GET', data.specificData.url, data.specificData.contentType);
   }
 };

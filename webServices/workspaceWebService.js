@@ -14,7 +14,7 @@ module.exports = function(router) {
 
   // ---------------------------------------  ALL USERS  -----------------------------------------
 
-  router.get('/workspaceByUser/:userId', function(req, res,next) {
+  router.get('/workspaceByUser/:userId', function(req, res, next) {
     //throw new Error('Whoops!');
     workspace_lib.getAll(req.params.userId, "owner").then(function(workspaces) {
       res.json(workspaces)
@@ -26,7 +26,7 @@ module.exports = function(router) {
 
   // ---------------------------------------------------------------------------------
 
-  router.get('/workspaces/share/:userId', function(req, res,next) {
+  router.get('/workspaces/share/:userId', function(req, res, next) {
     workspace_lib.getAll(req.params.userId, "editor").then(function(workspaces) {
       res.json(workspaces)
     }).catch(e => {
@@ -36,7 +36,7 @@ module.exports = function(router) {
 
   // --------------------------------------------------------------------------------
 
-  router.get('/workspace/:id', function(req, res,next) {
+  router.get('/workspace/:id', function(req, res, next) {
     //console.log('Get On Workspace 1');
     workspace_lib.getWorkspace(req.params.id).then(function(workspace) {
       //console.log('Get On Workspace 2');
@@ -50,16 +50,16 @@ module.exports = function(router) {
       // })
 
       for (var c of workspace.components) {
-        console.log(c, "ccccc")
-        if(technicalComponentDirectory[c.module] != null){
+
+        if (technicalComponentDirectory[c.module] != null) {
           //console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
           c.graphIcon = technicalComponentDirectory[c.module].graphIcon;
-        }else{
+        } else {
           c.graphIcon = "default"
         }
         //console.log('-->',c);
       }
-      console.log(workspace);
+      //console.log(workspace);
       res.json(workspace);
     }).catch(e => {
       next(e);
@@ -67,31 +67,31 @@ module.exports = function(router) {
   }); // <= get one workspace
 
   // --------------------------------------------------------------------------------
-  router.put('/workspacerowId/', function(req, res,next) {
+  router.put('/workspacerowId/', function(req, res, next) {
     if (req.body != null) {
       workspace_lib.updateSimple(req.body).then(workspaceUpdate => {
-        console.log("UPDATE DONE", workspaceUpdate)        
+        //console.log("UPDATE DONE", workspaceUpdate)
         res.send(workspaceUpdate);
       })
     }
   })
 
-  router.put('/workspace/', function(req, res,next) {
+  router.put('/workspace/', function(req, res, next) {
     console.log('req.body', req.body)
     if (req.body != null) {
       workspace_lib.update(req.body).then(workspaceUpdate => {
 
         for (var c of workspaceUpdate.components) {
-          if(technicalComponentDirectory[c.module] != null){
+          if (technicalComponentDirectory[c.module] != null) {
             c.graphIcon = technicalComponentDirectory[c.module].graphIcon;
-          }else{
+          } else {
             c.graphIcon = "default"
           }
         }
-        console.log('update workspace WebService result', workspaceUpdate);
+        //console.log('update workspace WebService result', workspaceUpdate);
         res.send(workspaceUpdate);
       }).catch(e => {
-        console.log('FAIL', e);
+        //console.log('FAIL', e);
         res.status(500).send(e);
       }).catch(e => {
         next(e);
@@ -114,7 +114,7 @@ module.exports = function(router) {
 
   // --------------------------------------------------------------------------------
 
-  router.post('/workspace/:userId', function(req, res,next) {
+  router.post('/workspace/:userId', function(req, res, next) {
     if (req.body.components) {
       // dans le cas ou il n'y a pas de save à la création : save du WS et des comp
       if (req.body.components.length > 0) {
@@ -145,10 +145,10 @@ module.exports = function(router) {
 
   // --------------------------------------------------------------------------------
 
-  router.delete('/workspace/:id/:userId', function(req, res,next) {
+  router.delete('/workspace/:id/:userId', function(req, res, next) {
 
     workspace_lib.destroy(req.params.userId, req.params.id).then(function(workspace) {
-      console.log("workspace delete", workspace)
+      //console.log("workspace delete", workspace)
       res.json(workspace)
     }).catch(e => {
       next(e);
@@ -157,9 +157,9 @@ module.exports = function(router) {
 
 
 
-  router.get('/workspaceComponent/load_all_component/:id', function(req, res,next) {
+  router.get('/workspaceComponent/load_all_component/:id', function(req, res, next) {
     var id = req.params.id;
-    console.log(id)
+    //console.log(id)
     workspace_lib.load_all_component(id).then(function(data) {
       res.send(data)
     }).catch(e => {

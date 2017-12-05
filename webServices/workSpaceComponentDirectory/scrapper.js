@@ -13,7 +13,7 @@ module.exports = {
   webdriverio: require('webdriverio'),
   base: require('../../test/wdio.conf.base'),
   makeRequest: function (user, key, actions, url,  saucelabname, flowData, flow_before, fix_url) {
-    console.log("scrapper start saucelabname", saucelabname)
+    //console.log("scrapper start saucelabname", saucelabname)
 
 
     // var config = Object.assign(this.base.config, {
@@ -87,18 +87,18 @@ module.exports = {
     };
 
     function simulateClick(action, client) {
-      console.log(" ------ simulateClick function ----", action)
+      //console.log(" ------ simulateClick function ----", action)
       return new Promise(function (resolve, reject) {
         resolve(client.element(action.selector).click())
       })
     };
 
     function _getAttr(action, client) {
-      console.log("in action", action)
+      //console.log("in action", action)
       return new Promise(function (resolve, reject) {
-        console.log("BEFOREEEEEE action", action)
+        //console.log("BEFOREEEEEE action", action)
         client.getAttribute(action.selector, action.attribut).then(function (elem) {
-          console.log("in return promise ", elem)
+          //console.log("in return promise ", elem)
           resolve(elem)
         })
       })
@@ -107,7 +107,7 @@ module.exports = {
     function _getHtml(action, client) {
       return new Promise(function (resolve, reject) {
         client.element(action.selector).getText().then(function (elem) {
-          console.log("in return promise ", elem)
+          //console.log("in return promise ", elem)
           resolve(elem)
         })
       })
@@ -117,9 +117,9 @@ module.exports = {
 
     function _getText(action, client, deeth) {
       return new Promise(function (resolve, reject) {
-        console.log("--- in get text ----- ")
+        //console.log("--- in get text ----- ")
         client.element(action.selector).getValue().then(function (elem) {
-          console.log("in return promise ", elem)
+          //console.log("in return promise ", elem)
           resolve(elem)
         })
       })
@@ -128,9 +128,9 @@ module.exports = {
 
     function _selectByValue(action, client, deeth) {
       return new Promise(function (resolve, reject) {
-        console.log("--- in get text ----- ")
+        //console.log("--- in get text ----- ")
         client.selectByValue(action.selector, action.setValue).then(function (elem) {
-          console.log("in return promise ", elem)
+          //console.log("in return promise ", elem)
           resolve(elem)
         })
       })
@@ -140,21 +140,21 @@ module.exports = {
     //Setter
 
     function _setValue(action, client) {
-      console.log("---- set value ----", action.setValue)
+      //console.log("---- set value ----", action.setValue)
       return new Promise(function (resolve, reject) {
         resolve(client.setValue(action.selector, action.setValue))
       })
     }
 
     function _scroll(action, client) {
-      console.log("---- scroll value ----", action.scrollX, action.scrollY)
+      //console.log("---- scroll value ----", action.scrollX, action.scrollY)
       if (action.scrollX == null || action.scrollX == undefined) {
         action.scrollX = 0
       }
       if (action.scrollY == null || action.scrollY == undefined) {
         action.scrollY = 0
       }
-      console.log(action.scrollX, action.scrollY)
+      //console.log(action.scrollX, action.scrollY)
       return new Promise(function (resolve, reject) {
         var elem = client.element(action.selector)
         resolve(elem.scroll(parseInt(action.scrollX), parseInt(action.scrollY)))
@@ -184,25 +184,25 @@ module.exports = {
     // };
 
     function _aggregateAction(actions, client, deeth, data) {
-      console.log('------   action restante -------- ', actions[deeth]);
+      //console.log('------   action restante -------- ', actions[deeth]);
       return new Promise(function (resolve, reject) {
-        console.log(" ------  deeth  ------- ", deeth);
-        console.log('------   tour restant -------- ', (actions.length) - deeth);
+        //console.log(" ------  deeth  ------- ", deeth);
+        //console.log('------   tour restant -------- ', (actions.length) - deeth);
         if (deeth == actions.length) {
-          console.log("---- _aggregateAction finish ---- ", data)
+          //console.log("---- _aggregateAction finish ---- ", data)
           client.end();
           resolve(data)
         } else {
           if (actions[deeth].actionType) {
-            console.log("type", actions[deeth].actionType)
+            //console.log("type", actions[deeth].actionType)
             switch (actions[deeth].actionType) {
               case ("getValue"):
                 client.waitForVisible(actions[deeth].selector, 25000)
                   .then(function (visible) {
-                    console.log("visible", visible)
+                    //console.log("visible", visible)
                     setTimeout(function () {
                       _getText(actions[deeth], client, deeth).then(function (res) {
-                        console.log("---- get text return promise -----", res)
+                        //console.log("---- get text return promise -----", res)
                         data[actions[deeth].action] = res
                         deeth += 1
                         _aggregateAction(actions, client, deeth, data).then(function (res) {
@@ -219,13 +219,13 @@ module.exports = {
                       })
                     }, 3000)
                   }, (err) => {
-                    console.log("not visible", err)
+                    //console.log("not visible", err)
                     let fullError = new Error(err);
                     fullError.displayMessage = "Scrappeur : Element pas visible : " + actions[deeth].action;
                     reject(fullError)
                     client.end();
                   }, (err) => {
-                    console.log("not visible", err)
+                    //console.log("not visible", err)
                     let fullError = new Error(err);
                     fullError.displayMessage = "Scrappeur : Element pas visible : " + actions[deeth].action;
                     reject(fullError)
@@ -235,10 +235,10 @@ module.exports = {
               case ("getHtml"):
                 client.waitForVisible(actions[deeth].selector, 25000)
                   .then(function (visible) {
-                    console.log("visible", visible)
+                    //console.log("visible", visible)
                     setTimeout(function () {
                       _getHtml(actions[deeth], client, deeth).then(function (res) {
-                        console.log("---- get text return promise -----", res)
+                        //console.log("---- get text return promise -----", res)
                         data[actions[deeth].action] = res
                         deeth += 1
                         _aggregateAction(actions, client, deeth, data).then(function (res) {
@@ -255,7 +255,7 @@ module.exports = {
                       })
                     })
                   }, (err) => {
-                    console.log("not visible", err)
+                    //console.log("not visible", err)
                     let fullError = new Error(err);
                     fullError.displayMessage = "Scrappeur : Element pas visible : " + actions[deeth].action;
                     reject(fullError)
@@ -265,10 +265,10 @@ module.exports = {
               case ("getAttr"):
                 client.waitForVisible(actions[deeth].selector, 25000)
                 .then(function (visible) {
-                  console.log("visible", visible)
+                  //console.log("visible", visible)
                   setTimeout(function () {
                     _getAttr(actions[deeth], client).then(function (res) {
-                      console.log("---- get text return promise -----", res)
+                      //console.log("---- get text return promise -----", res)
                       data[actions[deeth].action] = res
                       deeth += 1
                       _aggregateAction(actions, client, deeth, data).then(function (res) {
@@ -285,7 +285,7 @@ module.exports = {
                     })
                   })
                 }, (err) => {
-                  console.log("not visible", err)
+                  //console.log("not visible", err)
                   let fullError = new Error(err);
                   fullError.displayMessage = "Scrappeur : Element pas visible : " + actions[deeth].action;
                   reject(fullError)
@@ -295,10 +295,10 @@ module.exports = {
               case ("setValue"):
                 client.waitForVisible(actions[deeth].selector, 25000)
                   .then(function (visible) {
-                    console.log("visible", visible)
+                    //console.log("visible", visible)
                     // setTimeout(function () {
                     _setValue(actions[deeth], client).then(function (res) {
-                      console.log("---- get text return promise -----", res)
+                      //console.log("---- get text return promise -----", res)
                       data[actions[deeth].action] = res
                       deeth += 1
                       _aggregateAction(actions, client, deeth, data).then(function (res) {
@@ -315,7 +315,7 @@ module.exports = {
                     })
                     // }, 3000)
                   }, (err) => {
-                    console.log("not visible", err)
+                    //console.log("not visible", err)
                     let fullError = new Error(err);
                     fullError.displayMessage = "Scrappeur : Element pas visible : " + actions[deeth].action;
                     reject(fullError)
@@ -325,10 +325,10 @@ module.exports = {
               case ("selectByValue"):
                 client.waitForVisible(actions[deeth].selector, 15000)
                   .then(function (visible) {
-                    console.log("visible", visible)
+                    //console.log("visible", visible)
                     // setTimeout(function () {
                     _selectByValue(actions[deeth], client).then(function (res) {
-                      console.log("---- get selectByValue return promise -----", res)
+                      //console.log("---- get selectByValue return promise -----", res)
                       data[actions[deeth].action] = res
                       deeth += 1
                       _aggregateAction(actions, client, deeth, data).then(function (res) {
@@ -345,7 +345,7 @@ module.exports = {
                     })
                     // }, 3000)
                   }, (err) => {
-                    console.log("not visible", err)
+                    //console.log("not visible", err)
                     let fullError = new Error(err);
                     fullError.displayMessage = "Scrappeur : Element pas visible : " + actions[deeth].action;
                     reject(fullError)
@@ -353,13 +353,13 @@ module.exports = {
                   });
                 break;
               case ("scroll"):
-                console.log("in scroll")
+                //console.log("in scroll")
                 client.waitForVisible(actions[deeth].selector, 15000)
                   .then(function (visible) {
-                    console.log("visible", actions[deeth].selector, visible)
+                    //console.log("visible", actions[deeth].selector, visible)
                     // setTimeout(function () {
                     _scroll(actions[deeth], client, deeth).then(function (res) {
-                      console.log("---- get scroll return promise -----", res)
+                      //console.log("---- get scroll return promise -----", res)
                       data[actions[deeth].action] = res
                       deeth += 1
                       _aggregateAction(actions, client, deeth, data).then(function (res) {
@@ -376,7 +376,7 @@ module.exports = {
                     })
                     // }, 3000)
                   }, (err) => {
-                    console.log("not visible", err)
+                    //console.log("not visible", err)
                     let fullError = new Error(err);
                     fullError.displayMessage = "Scrappeur : Element pas visible : " + actions[deeth].action;
                     reject(fullError)
@@ -384,13 +384,13 @@ module.exports = {
                   });
                 break;
               case ("click"):
-                console.log("in click")
+                //console.log("in click")
                 client.waitForVisible(actions[deeth].selector, 15000)
                   .then(function (visible) {
-                    console.log("visible", actions[deeth].selector, visible)
+                    //console.log("visible", actions[deeth].selector, visible)
                     // setTimeout(function () {
                     simulateClick(actions[deeth], client, deeth).then(function (res) {
-                      console.log("---- get text return promise -----", res)
+                      //console.log("---- get text return promise -----", res)
                       data[actions[deeth].action] = res
                       deeth += 1
                       _aggregateAction(actions, client, deeth, data).then(function (res) {
@@ -407,7 +407,7 @@ module.exports = {
                     })
                     // }, 3000)
                   }, (err) => {
-                    console.log("not visible", err)
+                    //console.log("not visible", err)
                     let fullError = new Error(err);
                     fullError.displayMessage = "Scrappeur : Element pas visible : " + actions[deeth].action;
                     reject(fullError)
@@ -428,7 +428,7 @@ module.exports = {
     return new Promise(function (resolve, reject) {
       let data = {}
       let deeth = 0
-      console.log("----  before recursive ------ ")
+      //console.log("----  before recursive ------ ")
       if (user == null || key == null) {
         reject("Scrapper: no connection data")
       }
@@ -439,7 +439,7 @@ module.exports = {
         reject(err)
       });
       _aggregateAction(actions, client, deeth, data).then(function (res) {
-        console.log("--traitmeent terminé final ----")
+        //console.log("--traitmeent terminé final ----")
         resolve({
           data: res
         })
@@ -450,7 +450,7 @@ module.exports = {
   },
 
   pull: function (data, flowData) {
-    console.log("before scrapping start", data.specificData.saucelabname)
+    //console.log("before scrapping start", data.specificData.saucelabname)
     return this.makeRequest(data.specificData.user, data.specificData.key, data.specificData.scrappe, data.specificData.url, data.specificData.saucelabname)
   },
 }

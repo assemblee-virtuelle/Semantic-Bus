@@ -120,9 +120,9 @@ module.exports = {
                     var responseBody = '';
 
                     if (hasResponseFailed) {
-                      console.log({
-                        error: 'request status fail'
-                      });
+                      // console.log({
+                      //   error: 'request status fail'
+                      // });
                       resolve({
                         error: 'Request to ${response.url} failed with HTTP ${response.status}'
                       });
@@ -141,7 +141,7 @@ module.exports = {
                         resolve(JSON.parse(responseBody));
                         //console.log('ok',sourceKey);
                       } catch (e) {
-                        console.log('parse fail');
+                        //console.log('parse fail');
                         resolve({
                           error: e
                         });
@@ -155,7 +155,7 @@ module.exports = {
 
 
                   request.on('error', function(e) {
-                    console.log('request fail :', e);
+                    //console.log('request fail :', e);
                     resolve({
                       error: e
                     });
@@ -163,7 +163,7 @@ module.exports = {
                   //console.log('start');
                   request.end();
                 } catch (e) {
-                  console.log('global socket adress.data.gouv fail', e);
+                  //console.log('global socket adress.data.gouv fail', e);
                   resolve({
                     error: e
                   });
@@ -184,70 +184,6 @@ module.exports = {
         }
 
       }.bind(this), 200);
-      //200
-
-      /*for (record of source) {
-        var address = {
-          street: record[specificData.streetPath],
-          town: record[specificData.townPath],
-          postalCode: record[specificData.postalCodePath],
-          country: record[specificData.countryPath],
-        }
-
-        var addressGouvFrFormated = ''
-        addressGouvFrFormated = addressGouvFrFormated + (address.street ? address.street + ' ' : '');
-        addressGouvFrFormated = addressGouvFrFormated + (address.town ? address.town + ' ' : '');
-        addressGouvFrFormated = addressGouvFrFormated + (address.postalCode ? address.postalCode + ' ' : '');
-        addressGouvFrFormated = addressGouvFrFormated + (address.country ? address.country + ' ' : '');
-        if (addressGouvFrFormated.length > 0) {
-
-
-        } else {
-          goePromises.push(
-            new Promise((resolve, reject) => {
-              resolve({
-                error: 'no adresse'
-              });
-            })
-          );
-        }
-      }*/
-
-
-      /*  this.waterfall(goePromises).then(data => {
-            console.log('OK');
-          }).catch(err => {
-            console.log('Fail');
-          });*/
-
-      /*this.buildWaterFall(goePromises).then(data=>{
-        console.log("EPIC");
-      });*/
-
-
-
-
-      /*  var geoResolutions = [];
-        var serialisedPromises = goePromises[0];
-        goePromises.forEach(function(prom) {
-          if (prom !== serialisedPromises) {
-            //soluce1 pas fini
-            serialisedPromises = new Promise((resolve, reject) => {
-                serialisedPromises.then(data => {
-                  geoResolutions.push(data);
-                  return prom;
-                })
-              })
-              //soluce 2 inspiré par ex
-            serialisedPromises = serialisedPromises.then(function(data) {
-              geoResolutions.push(data);
-              return prom;
-            });
-          }
-        });*/
-      //resolve([]);
-
-
 
     })
   },

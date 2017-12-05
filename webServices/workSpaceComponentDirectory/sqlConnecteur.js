@@ -11,7 +11,7 @@ module.exports = {
   ],
 
   initialise: function (driver, host, port, username, password, database) {
-    console.log("----- initialize sql -----")
+    //console.log("----- initialize sql -----")
     return new Promise(function (resolve, reject) {
       const sequelize = new this.Sequelize(database, username, password, {
         host: host,
@@ -29,10 +29,10 @@ module.exports = {
   },
 
   createmodel: function (modelName, data, sequelize) {
-    console.log("----- create model sql-----")
+    //console.log("----- create model sql-----")
     return new Promise(function (resolve, reject) {
       sequelize.authenticate().then(() => {
-        console.log('Connection has been established successfully.');
+        //console.log('Connection has been established successfully.');
         dataModel = {}
         var name = modelName;
         for (property in data) {
@@ -56,7 +56,7 @@ module.exports = {
 
   request: function (querysTable, modelShema, sequelize) {
     return new Promise(function (resolve, reject) {
-      console.log(querysTable)
+      //console.log(querysTable)
       sequelize.query(querysTable, {
           type: sequelize.QueryTypes.SELECT
         })

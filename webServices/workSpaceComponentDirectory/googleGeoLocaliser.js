@@ -99,7 +99,7 @@ module.exports = {
             record[specificData.longitudePath] = geoLocalisations[geoLocalisationKey].results[0].geometry.location.lng;
             result.push(record);
           }else{
-            console.log('google geocode failed');
+            //console.log('google geocode failed');
           }
         }
 

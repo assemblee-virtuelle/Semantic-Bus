@@ -91,7 +91,7 @@ module.exports = {
       }
 
       Promise.all(goePromises).then(geoLocalisations => {
-        console.log('gouvInverse | ALL DONE');
+        //console.log('gouvInverse | ALL DONE');
         var result= [];
         //console.log('geoLocalise | geoLocalisations result |', geoLocalisations);
         for (var geoLocalisationKey in geoLocalisations) {
@@ -103,7 +103,7 @@ module.exports = {
             result.push(record);
           }
         }
-        console.log('gouvInverse | result |',result);
+        //console.log('gouvInverse | result |',result);
         resolve({data:result});
       });
 

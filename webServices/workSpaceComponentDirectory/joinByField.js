@@ -19,11 +19,11 @@ module.exports = {
     var primaryFlow = this.sift({
       componentId: data.specificData.primaryComponentId
     }, flowData);
-    console.log("---------PRIMARY FLOW--------", primaryFlow)
+    //console.log("---------PRIMARY FLOW--------", primaryFlow)
     return primaryFlow;
   },
   pull: function(data, flowData) {
-    console.log('Join by Field');
+    //console.log('Join by Field');
     //console.log('Join by Field | pull : ', data, ' | ', flowData);
     return new Promise((resolve, reject) => {
       var secondaryFlowData = this.sift({
@@ -34,8 +34,8 @@ module.exports = {
       }, flowData)[0].data;
       var secondaryFlowData=JSON.parse(JSON.stringify(secondaryFlowData))//in case primary and secandary is the same source
 
-      console.log('joinByField | primaryFlowData :', primaryFlowData);
-      console.log('joinByField | secondaryFlowData :',secondaryFlowData);
+      //console.log('joinByField | primaryFlowData :', primaryFlowData);
+      //console.log('joinByField | secondaryFlowData :',secondaryFlowData);
       //console.log(primaryFlowData.componentId);
       //console.log(secondaryFlowData);
       //console.log(this.sift({ agregName: 'Max - ORSET'}, secondaryFlowData));

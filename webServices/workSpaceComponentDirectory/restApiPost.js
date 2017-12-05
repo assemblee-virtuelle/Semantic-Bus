@@ -16,14 +16,14 @@ module.exports = new function() {
 
     this.initialise = function(router) {
       router.post('/:urlRequiered', function(req, res, next) {
-        console.log("IN POST", req.body);
+        //console.log("IN POST", req.body);
         var urlRequiered = req.params.urlRequiered;
         //this require is live because constructor require cause cyclic dependencies (recursivPullResolvePromise->restApiGet)
         //TODO require use cache object  : need to build one engine per request
         this.recursivPullResolvePromiseDynamic = require('../recursivPullResolvePromise')
         var specificData;
 
-        console.log('urlRequiered', urlRequiered)
+        //console.log('urlRequiered', urlRequiered)
         this.workspace_component_lib.get({
           "specificData.url": urlRequiered
         }).then(component => {
@@ -37,7 +37,7 @@ module.exports = new function() {
             //     reject(new Error("API without content-type"));
             //   })
             // } else {
-            console.log("in component", component)
+            //console.log("in component", component)
             specificData = component.specificData;
             return this.recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(component, 'push', {data:req.body})
               //return this.recursivPullResolvePromise.resolveComponentPull(data[0], false,req.query);
@@ -89,7 +89,7 @@ module.exports = new function() {
         //     }
         //   }
         }).catch(err => {
-          console.log('FAIL', err);
+          //console.log('FAIL', err);
           if (err.code) {
             res.status(err.code).send(err.message);
           } else {
