@@ -19,8 +19,8 @@ module.exports = function (router) {
         if (obj != false) {
             var i = a.length;
             while (i--) {
-                console.log(a[i]);
-                console.log(obj._id);
+                //console.log(a[i]);
+                //console.log(obj._id);
                 if (a[i]._id === obj._id) {
                     return true;
                 }
@@ -37,7 +37,7 @@ module.exports = function (router) {
         var data = req.body;
         var workspace_id = req.body.worksapce_id
         var newUser = null
-        console.log("data |", data)
+        //console.log("data |", data)
         // FIND BY EMAIL ///
         user_lib.get({
                     ['credentials.email']: req.body.email
@@ -45,7 +45,7 @@ module.exports = function (router) {
             if (user) {
                 newUser = user
                 userId = user._id
-                console.log("update", user)
+                //console.log("update", user)
                 // console.log(newUser)
                 if (newUser.workspaces.length > 0) {
                     if (!contains(newUser.workspaces, {

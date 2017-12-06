@@ -13,7 +13,7 @@ module.exports = {
 
 
 function _exel_traitment_client(urlEXEL, callback) {
-	console.log("urlEXEL", urlEXEL)
+	//console.log("urlEXEL", urlEXEL)
 	return new Promise(function (resolve, reject) {
 		var buffer = Buffer.concat(urlEXEL);
 		var exel = XLSX.read(buffer, {
@@ -26,20 +26,20 @@ function _exel_traitment_client(urlEXEL, callback) {
 }
 
 function _json_to_exel(jsonData, header){
-	return XLSX.utils.json_to_sheet(jsonData, {header: header});	
+	return XLSX.utils.json_to_sheet(jsonData, {header: header});
 }
 
 function decode_utf8(s) {
-	console.log("in decode",s)
+	//console.log("in decode",s)
 	try{
 		return decodeURIComponent(escape(s))
 	}catch (e) {
-		return s 
+		return s
 	 }
 }
 
 function _exel_traitment_server(data, uploadBoolean) {
-	console.log("_exel server traitment initiliaze")
+	//console.log("_exel server traitment initiliaze")
 	var final_tab = []
 	var count_table = []
 	var regnumero = /[0-9].*/g
@@ -50,7 +50,7 @@ function _exel_traitment_server(data, uploadBoolean) {
 			var cellContent = [];
 			for (var sheet in data[sheets]) {
 				for (var st in data[sheets][sheet]) {
-					console.log("in data", data[sheets][sheet][st].v)
+					//console.log("in data", data[sheets][sheet][st].v)
 					var cell = {
 						[st]: decode_utf8(data[sheets][sheet][st].v),
 						feuille: Object.keys(data[sheets])[0]
@@ -65,12 +65,12 @@ function _exel_traitment_server(data, uploadBoolean) {
 				}
 			})
 		}
-		console.log("final_tab", final_tab)
+		//console.log("final_tab", final_tab)
 		resolve(
 			final_tab
 		)
 	}).then(function (feuilles) {
-		// console.log(feuilles)
+		// //console.log(feuilles)
 		return new Promise(function (resolve, reject) {
 			var result = []
 			feuilles.forEach(function (feuille) {
@@ -79,7 +79,7 @@ function _exel_traitment_server(data, uploadBoolean) {
 				if(feuille){
 					feuille.feuille.content.forEach(function (content, index) {
 						if (content.feuille == feuille.feuille.name) {
-							
+
 							if (feuille.feuille.content[index + 1]) {
 								if (Object.keys(content)[0].match(regnumero) != null && Object.keys(feuille.feuille.content[index + 1])[0].match(regnumero) != null) {
 									var val = Object.keys(content).map(function (key) {
@@ -87,7 +87,7 @@ function _exel_traitment_server(data, uploadBoolean) {
 									});
 									if (Object.keys(content)[0].match(regnumero)[0] < Object.keys(feuille.feuille.content[index + 1])[0].match(regnumero)[0]) {
 										var c = {}
-										console.log(val[0]);
+										//console.log(val[0]);
 										c[Object.keys(content)[0].match(regLettre)[0]] = val[0]
 										Object.assign(cell, c);
 										exel_table_to_json.push(cell)

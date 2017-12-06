@@ -17,7 +17,7 @@ module.exports = function (router) {
 
   router.get('/users', function (req, res,next) {
     user_lib.get_all({}).then(function (users) {
-      console.log(users)
+      //console.log(users)
       res.send(users)
     }).catch(e => {
       next(e);
@@ -42,12 +42,12 @@ module.exports = function (router) {
 // --------------------------------------------------------------------------------
 
   router.put('/users/:id', function (req, res) {
-    console.log("req body -----------------", req.body.mailChange)
+    //console.log("req body -----------------", req.body.mailChange)
       user_lib.update(req.body.user, req.body.mailChange).then(function (result) {
-        console.log("update done")
+        //console.log("update done")
         res.send(result)
       }).catch(function(err){
-        console.log("update error", err)
+        //console.log("update error", err)
         if(err == "google_user"){
           res.send({err: "google_user"})
         }

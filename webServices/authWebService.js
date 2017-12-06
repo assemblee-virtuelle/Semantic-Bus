@@ -3,7 +3,7 @@ var inscription_lib_user = require('../lib/core/lib/inscription_lib')
 var auth_lib_user = require('../lib/core/lib/auth_lib')
 var configuration = require('../configuration')
 var url = !configuration.https ? './login.html?google_token=' : 'https://semantic-bus.org/auth/login.html?google_token='
-console.log(url)
+//console.log(url)
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -21,7 +21,7 @@ module.exports = function (router) {
           res.send(token_result);
         }
       }).catch((err) => {
-        console.log("error is token validde web service")
+        //console.log("error is token validde web service")
         if(err)
           res.send(false)
       })
@@ -31,7 +31,7 @@ module.exports = function (router) {
   // --------------------------------------------------------------------------------
 
   router.post('/inscription', function (req, res) {
-    console.log(req.body)
+    //console.log(req.body)
     inscription_lib_user.create({
       user: {
         name: req.body.name,
@@ -42,14 +42,14 @@ module.exports = function (router) {
         password: req.body.passwordInscription
       }
     }).then(function (data) {
-      console.log("inscription data ====>", data)
+      //console.log("inscription data ====>", data)
       res.send({
         user: data.user,
         token: data.token.token
       });
     }).catch(function (err) {
-      console.log(err)
-      console.log(" ----- error during connexion -----")
+      //console.log(err)
+      //console.log(" ----- error during connexion -----")
       if (err == 'name_bad_format') {
         res.send({
           err: "name_bad_format"
@@ -82,7 +82,7 @@ module.exports = function (router) {
         password: req.body.password
       }
     }).then(function (data) {
-      console.log("authenticate =====>", data)
+      //console.log("authenticate =====>", data)
       res.send({
         user: data.user,
         token: data.token

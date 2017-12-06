@@ -77,7 +77,7 @@ module.exports = function(router) {
   })
 
   router.put('/workspace/', function(req, res, next) {
-    console.log('req.body', req.body)
+    //console.log('req.body', req.body)
     if (req.body != null) {
       workspace_lib.update(req.body).then(workspaceUpdate => {
 
