@@ -1,3 +1,4 @@
+const https = require('https');
 module.exports = {
   type: 'REST Get JSON',
   description: 'intéroger une API REST avec une requete Get qui fourni un flux JSON, XML',
@@ -9,7 +10,8 @@ module.exports = {
   ],
   url: require('url'),
   http: require('http'),
-  https: require('https'),
+  //https: require('https'),
+  https: require('follow-redirects').https,
   xml2js:  require('xml2js'),
   makeRequest: function(methodRest, urlString, pullParams, options) {
 
@@ -43,11 +45,12 @@ module.exports = {
       //requestOptions.headers['Upgrade-Insecure-Requests']=1;
       requestOptions.headers['User-Agent']='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/62.0.3202.94 Chrome/62.0.3202.94 Safari/537.36';
 
-      //console.log(requestOptions);
+      console.log(requestOptions);
+      console.log(urlString.indexOf('https') != -1);
 
-      var lib = urlString.indexOf('https') != -1 ? this.http : this.https;
+      //var lib = urlString.indexOf('https') != -1 ? this.https : this.http;
 
-      const request = lib.request(requestOptions, response => {
+      const request = this.https.request(requestOptions, response => {
         const hasResponseFailed = response.statusCode >= 400;
         //console.log('REST Get JSON | header |',response.headers);
         //console.log('REST Get JSON | statusCode: |',response.statusCode);
@@ -58,11 +61,11 @@ module.exports = {
         } else {
           /* the response stream's (an instance of Stream) current data. See:
            * https://nodejs.org/api/stream.html#stream_event_data */
-          var i = 0;
+          //var i = 0;
           response.on('data', chunk => {
             //console.log(chunk.toString());
             //console.log('chunk ',i);
-            i++;
+            //i++;
             responseBody += chunk.toString()
           });
 
