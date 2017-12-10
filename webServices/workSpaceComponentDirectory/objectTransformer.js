@@ -4,7 +4,7 @@ module.exports = {
   editor: 'object-transformer',
   graphIcon: 'objectTransformer.png',
   transform: require('jsonpath-object-transform'),
-  tags:[
+  tags: [
     'http://semantic-bus.org/data/tags/middleComponents',
     'http://semantic-bus.org/data/tags/middleQueryingComponents'
   ],
@@ -62,20 +62,25 @@ module.exports = {
     //console.log('resolvable | ', JSON.stringify(dissociatePatternResolvable));
     //console.log('postProcess | ', JSON.stringify(dissociatePatternPostProcess));
     //console.log('source | ', JSON.stringify(source));
-    var transformResult = this.transform(source, dissociatePatternResolvable);
-    //console.log('jsonTransform | resultBeforUnresolved |', transformResult);
-    if (Object.keys(transformResult)[0] == 'undefined') {
-      transformResult = transformResult['undefined'];
-    }
-    //console.log('jsonTransform | resultBeforUnresolved |', JSON.stringify(transformResult));
-    var destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable)
-    //console.log('jsonTransform | afterUnresolved |', destResult);
     var postProcessResult;
-    if (dissociatePatternPostProcess == undefined) {
-      //console.log('ALLO');
-      postProcessResult = destResult;
-    } else {
-      postProcessResult = this.postProcess(destResult, dissociatePatternPostProcess)
+    try {
+      var transformResult = this.transform(source, dissociatePatternResolvable);
+      //console.log('jsonTransform | resultBeforUnresolved |', transformResult);
+      if (Object.keys(transformResult)[0] == 'undefined') {
+        transformResult = transformResult['undefined'];
+      }
+      //console.log('jsonTransform | resultBeforUnresolved |', JSON.stringify(transformResult));
+      var destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable)
+      //console.log('jsonTransform | afterUnresolved |', destResult);
+
+      if (dissociatePatternPostProcess == undefined) {
+        //console.log('ALLO');
+        postProcessResult = destResult;
+      } else {
+        postProcessResult = this.postProcess(destResult, dissociatePatternPostProcess)
+      }
+    } catch (e) {
+      postProcessResult = source;
     }
 
     //console.log(postProcessResult);
@@ -276,7 +281,7 @@ module.exports = {
               nodeOut[nodeInDataProperty] = eval(javascriptEvalString);
               //console.log('eval done');
             } catch (e) {
-              console.log('Javascript Eval failed ',javascriptEvalString,e);
+              //console.log('Javascript Eval failed ', javascriptEvalString, e);
             }
           } else if (nodeInPostProcess[nodeInDataProperty].process == 'arrayHack') {
             //console.log('arrayHack',nodeInDataProperty);
@@ -353,7 +358,9 @@ module.exports = {
           data: this.jsonTransform(flowData[0].data, data.specificData.transformObject)
         });
       } else {
-        resolve({data:data.specificData.transformObject});
+        resolve({
+          data: data.specificData.transformObject
+        });
       }
     })
   }

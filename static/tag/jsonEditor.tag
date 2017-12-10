@@ -37,6 +37,9 @@
           if (this.opts.modes!=undefined){
             options.modes=JSON.parse(this.opts.modes.split("\'").join("\""));
           }
+          options.onChange=function(){
+            this.trigger('change');
+          }.bind(this);
           console.log('EDITOR INTANCIATION');
           this.editor = new JSONEditor(this.refs.jsoneditor , options);
           resolve(this.editor);

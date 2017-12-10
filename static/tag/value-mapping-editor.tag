@@ -83,7 +83,7 @@
   }.bind(this);
 
   this.on('mount', function () {
-    this.tags.zentable.on('rowSelect', function (data) {
+    this.tags.zentable.on('rowsSelected', function (data) {
       console.log(data);
       this.currentRowId = data.rowid
       this.flowValue = data.flowValue;

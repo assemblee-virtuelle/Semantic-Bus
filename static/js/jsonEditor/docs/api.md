@@ -35,6 +35,8 @@ Constructs a new JSONEditor.
 
   Provide a custom version of the [Ace editor](http://ace.c9.io/) and use this instead of the version that comes embedded with JSONEditor. Only applicable when `mode` is `code`.
 
+  Note that when using the minimalist version of JSONEditor (which has Ace excluded), JSONEditor will try to load the Ace plugins `ace/mode/json` and `ace/ext/searchbox`. These plugins must be loaded beforehand or be available in the folder of the Ace editor.
+
 - `{Object} ajv`
 
   Provide a custom instance of [ajv](https://github.com/epoberezkin/ajv), the
@@ -52,7 +54,11 @@ Constructs a new JSONEditor.
 
 - `{function} onEditable`
 
-  Set a callback function  to determine whether individual nodes are editable or read-only. Only applicable when option `mode` is `tree`. The callback is invoked as `editable(node)`, where `node` is an object `{field: string, value: string, path: string[]}`. The function must either return a boolean value to set both the nodes field and value editable or read-only, or return an object `{field: boolean, value: boolean}`.
+  Set a callback function  to determine whether individual nodes are editable or read-only. Only applicable when option `mode` is `tree`, `text`, or `code`.
+
+  In case of mode `tree`, the callback is invoked as `editable(node)`, where `node` is an object `{field: string, value: string, path: string[]}`. The function must either return a boolean value to set both the nodes field and value editable or read-only, or return an object `{field: boolean, value: boolean}` to set set the read-only attribute for field and value individually.
+
+  In modes `text` and `code`, the callback is invoked as `editable(node)` where `node` is an empty object (no field, value, or path). In that case the function can return false to make the text or code editor completely read-only.
 
 - `{function} onError`
 
@@ -67,6 +73,10 @@ Constructs a new JSONEditor.
 - `{boolean} escapeUnicode`
 
   If true, unicode characters are escaped and displayed as their hexadecimal code (like `\u260E`) instead of of the character itself (like `☎`). False by default.
+
+- `{boolean} sortObjectKeys`
+
+  If true, object keys in 'tree', 'view' or 'form' mode list be listed alphabetically instead by their insertion order. Sorting is performed using a natural sort algorithm, which makes it easier to see objects that have string numbers as keys. False by default.
 
 - `{boolean} history`
 
@@ -92,6 +102,11 @@ Constructs a new JSONEditor.
 
   See [http://json-schema.org/](http://json-schema.org/) for more information.
 
+- `{Object} schemaRefs`
+
+  Schemas that are referenced using the `$ref` property from the JSON schema that are set in the `schema` option,
+  the object structure in the form of `{reference_key: schemaObject}`
+
 - `{boolean} search`
 
   Enables a search box in the upper right corner of the JSONEditor. True by default. Only applicable when `mode` is 'tree', 'view', or 'form'.
@@ -104,6 +119,74 @@ Constructs a new JSONEditor.
 
   Set the Ace editor theme, uses included 'ace/theme/jsoneditor' by default. Please note that only the default theme is included with jsoneditor, so if you specify another one you need to make sure it is loaded.
 
+- `{Object} templates`
+
+  Array of templates that will appear in the context menu, Each template is a json object precreated that can be added as a object value to any node in your document. 
+
+  The following example allow you can create a "Person" node and a "Address" node, each one will appear in your context menu, once you selected the whole json object will be created.
+
+    ```js
+  var options = {
+    templates: [
+          {
+              text: 'Person',
+              title: 'Insert a Person Node',
+              className: 'jsoneditor-type-object',
+              field: 'PersonTemplate',
+              value: {
+                  'firstName': 'John',
+                  'lastName': 'Do',
+                  'age': 28
+              }
+          },
+          {
+              text: 'Address',
+              title: 'Insert a Address Node',
+              field: 'AddressTemplate',
+              value: {
+                  'street': "",
+                  'city': "",
+                  'state': "",
+                  'ZIP code': ""
+              }
+          }
+      ]
+  }
+  ```
+
+- `{Object} autocomplete`
+
+  *autocomplete* will enable this feature in your editor in tree mode, the object have the following **subelements**:
+
+  - `{number[]} confirmKeys`
+
+     Indicate the KeyCodes for trigger confirm completion, by default those keys are:  [39, 35, 9] which are the code for [right, end, tab]
+
+  - `{Function} getOptions (text: string, path: string[], input: string, editor: JSONEditor)`
+
+     This function will return your possible options for create the autocomplete selection, you can control dynamically which options you want to display according to the current active editing node.
+     
+     *Parameters:*
+
+     - `text`   : The text in the current node part. (basically the text that the user is editing)
+     - `path`   : The path of the node that is being edited as an array with strings.
+     - `input`  : Can be "field" or "value" depending if the user is editing a field name or a value of a node.
+     - `editor` : The editor instance object that is being edited.
+
+     *Returns:*
+
+     - Can return an array with autocomplete options (strings), for example `['apple','cranberry','raspberry','pie']`
+     - Can return `null` when there are no autocomplete options.
+     - Can return an object `{startFrom: number, options: string[]}`. Here `startFrom` determines the start character from where the existing text will be replaced. `startFrom` is `0` by default, replacing the whole text.
+     - Can return a `Promise` resolving one of the return types above to support asynchronously retrieving a list with options.
+
+- `{boolean} navigationBar`
+
+  Adds navigation bar to the menu - the navigation bar visualize the current position on the tree structure as well as allows breadcrumbs navigation. True by default. Only applicable when `mode` is 'tree', 'form' or 'view'.
+
+- `{boolean} statusBar`
+
+  Adds status bar to the buttom of the editor - the status bar shows the cursor position (currently only for 'code' `mode`) and a count of the selected charcters. True by default. Only applicable when `mode` is 'code' or 'text'.
 
 ### Methods
 
@@ -153,7 +236,7 @@ Set a field name for the root node.
 
   Field name of the root node. If undefined, the current name will be removed.
 
-#### `JSONEditor.setSchema(schema)`
+#### `JSONEditor.setSchema(schema [,schemaRefs])`
 
 Set a JSON schema for validation of the JSON object. See also option `schema`.
 See [http://json-schema.org/](http://json-schema.org/) for more information on the JSON schema definition.
@@ -163,6 +246,10 @@ See [http://json-schema.org/](http://json-schema.org/) for more information on t
 - `{Object} schema`
 
   A JSON schema.
+
+- `{Object} schemaRefs`
+
+  Optional, Schemas that are referenced using the `$ref` property from the JSON schema, the object structure in the form of `{reference_key: schemaObject}`
 
 #### `JSONEditor.setText(jsonString)`
 

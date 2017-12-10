@@ -17,12 +17,36 @@ function profilStore() {
       }).done(function(data) {
         this.userCurrrent = data
         console.log("load profil |", this.userCurrrent)
+        this.trigger('profil_menu_changed', this.menu)
         this.trigger('profil_loaded', this.userCurrrent)
+
       }.bind(this));
     } else {
+      this.trigger('profil_menu_changed', this.menu)
       this.trigger('profil_loaded', this.userCurrrent)
+
     }
   })
+
+
+
+  this.on('send_back_email', function(data) {
+    console.log("IN TRIGGER SEND BACK EMAIL", data)
+    $.ajax({
+      method: 'get',
+      url: '../auth/sendbackmail/' + data.user._id,
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
+      contentType: 'application/json'
+    }).done(function(data) {
+      if(data == "mail_sent"){
+        this.trigger('email_send')
+      }else{
+        this.trigger('error_email_send')
+      }
+    }.bind(this))
+  });
 
 
   this.on('load_all_profil_by_email', function(message) {
@@ -81,6 +105,12 @@ function profilStore() {
       }
     }.bind(this));
   })
+  this.on('navigation', function(entity, id, action) {
+    if (entity == "profil") {
+      this.menu = action;
+      this.trigger('navigation_control_done', entity, action);
+    }
+  });
 
   this.on('deconnexion', function(message) {
     localStorage.token = null;

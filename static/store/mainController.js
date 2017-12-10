@@ -94,66 +94,66 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     }
   })
 
-  this.navigateNext = function(newScreen, hidePrevious, baseScreen) {
-    //all screen after baseScreen will be removed
-    var baseScreenDepth;
-    console.log(this.screenHistory[this.screenHistory.length - 1], newScreen);
-    // if (sift({
-    //     screen: newScreen
-    //   }, this.screenHistory[this.screenHistory.length - 1]).length == 0) {
-    if (baseScreen != undefined) {
-      baseScreenDepth = sift({
-        screen: baseScreen
-      }, this.screenHistory[this.screenHistory.length - 1])[0].depth;
-    } else {
-      let lastStep = this.screenHistory[this.screenHistory.length - 1];
-      baseScreenDepth = lastStep[lastStep.length - 1].depth;
-    }
-    var newScreenHistory = JSON.parse(JSON.stringify(sift({
-      depth: {
-        $lte: baseScreenDepth
-      }
-    }, this.screenHistory[this.screenHistory.length - 1])));
-    if (hidePrevious) {
-      newScreenHistory.forEach(step => {
-        step.show = false
-      });
-    }
-    newScreenHistory.push({
-      screen: newScreen,
-      depth: baseScreenDepth + 1,
-      show: true
-    })
-    this.screenHistory.push(newScreenHistory);
-    console.log('screenHistory', this.screenHistory);
-    this.trigger('newScreenHistory', newScreenHistory);
-    // }
+  // this.navigateNext = function(newScreen, hidePrevious, baseScreen) {
+  //   //all screen after baseScreen will be removed
+  //   var baseScreenDepth;
+  //   console.log(this.screenHistory[this.screenHistory.length - 1], newScreen);
+  //   // if (sift({
+  //   //     screen: newScreen
+  //   //   }, this.screenHistory[this.screenHistory.length - 1]).length == 0) {
+  //   if (baseScreen != undefined) {
+  //     baseScreenDepth = sift({
+  //       screen: baseScreen
+  //     }, this.screenHistory[this.screenHistory.length - 1])[0].depth;
+  //   } else {
+  //     let lastStep = this.screenHistory[this.screenHistory.length - 1];
+  //     baseScreenDepth = lastStep[lastStep.length - 1].depth;
+  //   }
+  //   var newScreenHistory = JSON.parse(JSON.stringify(sift({
+  //     depth: {
+  //       $lte: baseScreenDepth
+  //     }
+  //   }, this.screenHistory[this.screenHistory.length - 1])));
+  //   if (hidePrevious) {
+  //     newScreenHistory.forEach(step => {
+  //       step.show = false
+  //     });
+  //   }
+  //   newScreenHistory.push({
+  //     screen: newScreen,
+  //     depth: baseScreenDepth + 1,
+  //     show: true
+  //   })
+  //   this.screenHistory.push(newScreenHistory);
+  //   console.log('screenHistory', this.screenHistory);
+  //   this.trigger('newScreenHistory', newScreenHistory);
+  //   // }
+  //
+  // }
+  // this.navigatePrevious = function() {
+  //   this.screenHistory.pop();
+  //   console.log(this.screenHistory);
+  //   this.trigger('newScreenHistory', this.screenHistory[this.screenHistory.length - 1]);
+  // }
 
-  }
-  this.navigatePrevious = function() {
-    this.screenHistory.pop();
-    console.log(this.screenHistory);
-    this.trigger('newScreenHistory', this.screenHistory[this.screenHistory.length - 1]);
-  }
+  // this.on('back', function() {
+  //   this.navigatePrevious();
+  // });
 
-  this.on('back', function() {
-    this.navigatePrevious();
-  });
-
-  this.on('screenHistoryInit', function() {
-    this.screenHistory = [
-      [{
-        screen: 'menu',
-        depth: 0,
-        show: true
-      }, {
-        screen: 'landing',
-        depth: 1,
-        show: true
-      }]
-    ];
-    this.trigger('newScreenHistory', this.screenHistory[this.screenHistory.length - 1]);
-  });
+  // this.on('screenHistoryInit', function() {
+  //   this.screenHistory = [
+  //     [{
+  //       screen: 'menu',
+  //       depth: 0,
+  //       show: true
+  //     }, {
+  //       screen: 'landing',
+  //       depth: 1,
+  //       show: true
+  //     }]
+  //   ];
+  //   this.trigger('newScreenHistory', this.screenHistory[this.screenHistory.length - 1]);
+  // });
 
 
   // this.on('item_current_persist', function() {
@@ -161,69 +161,69 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   // });
 
   //PROFIL STORE
-  this.on('profil_show', function(message) {
-    console.log("profil_show")
-    this.navigateNext('profil', false, 'menu');
-    //profilStore.trigger('load_profil');
-    // this.updateMode({
-    //   modeProfilEdition: true,
-    //   modeTechnicalComponentNavigation: false,
-    //   modeWorkspaceNavigation: false,
-    //   modeWorkspaceShareNavigation: false,
-    //   modeWorkspaceEdition: false,
-    //   modeAdminNavigation: false
-    // });
-  }.bind(this))
+  // this.on('profil_show', function(message) {
+  //   console.log("profil_show")
+  //   this.navigateNext('profil', false, 'menu');
+  //   //profilStore.trigger('load_profil');
+  //   // this.updateMode({
+  //   //   modeProfilEdition: true,
+  //   //   modeTechnicalComponentNavigation: false,
+  //   //   modeWorkspaceNavigation: false,
+  //   //   modeWorkspaceShareNavigation: false,
+  //   //   modeWorkspaceEdition: false,
+  //   //   modeAdminNavigation: false
+  //   // });
+  // }.bind(this))
 
-  this.on('row_add_component_select_store', function(){
-    this.trigger("row_add_component_select")
-  })
+  // this.on('row_add_component_select_store', function(){
+  //   this.trigger("row_add_component_select")
+  // })
 
-  this.on('admin_show', function(message) {
-    this.navigateNext('admin', false, 'menu');
-    // this.updateMode({
-    //   modeProfilEdition: false,
-    //   modeTechnicalComponentNavigation: false,
-    //   modeWorkspaceNavigation: false,
-    //   modeWorkspaceEdition: false,
-    //   modeWorkspaceShareNavigation: false,
-    //   modeAdminNavigation: true
-    // });
-  }.bind(this));
+  // this.on('admin_show', function(message) {
+  //   this.navigateNext('admin', false, 'menu');
+  //   // this.updateMode({
+  //   //   modeProfilEdition: false,
+  //   //   modeTechnicalComponentNavigation: false,
+  //   //   modeWorkspaceNavigation: false,
+  //   //   modeWorkspaceEdition: false,
+  //   //   modeWorkspaceShareNavigation: false,
+  //   //   modeAdminNavigation: true
+  //   // });
+  // }.bind(this));
 
-  this.on('workspaceEditorShow', function(message) {
-    console.log("workspaceEditorShow")
-    this.navigateNext('workspaceEditor', true);
-  }.bind(this))
-
-
-
-  workSpaceStore.on('nav_share_workspace', function(message) {
-    this.trigger("store_share_workspace")
-  })
-
-  this.on('nav_persisteWorkspace', function(message) {
-    console.log("nav_persisteWorkspace MAIN CONTROLLER")
-    this.trigger("store_persisteWorkspace")
-  })
-
-  workSpaceStore.on('nav_addRowWorkspace', function(message) {
-    this.trigger("store_addRowWorkspace")
-  })
-
-  workSpaceStore.on('nav_filterCards', function(e) {
-    this.trigger("store_filterCards",e)
-  })
-
-  workSpaceStore.on('nav_component_workspace_editor', function(message) {
-    console.log("nav_component_workspace_editor")
-    this.trigger("store_component_workspace_editor")
-  })
+  // this.on('workspaceEditorShow', function(message) {
+  //   console.log("workspaceEditorShow")
+  //   this.navigateNext('workspaceEditor', true);
+  // }.bind(this))
 
 
-  workSpaceStore.on('add_component_click', function(message) {
-    this.trigger("add_component_button_select")
-  })
+  //
+  // workSpaceStore.on('nav_share_workspace', function(message) {
+  //   this.trigger("store_share_workspace")
+  // })
+
+  // this.on('nav_persisteWorkspace', function(message) {
+  //   console.log("nav_persisteWorkspace MAIN CONTROLLER")
+  //   this.trigger("store_persisteWorkspace")
+  // })
+
+  // workSpaceStore.on('nav_addRowWorkspace', function(message) {
+  //   this.trigger("store_addRowWorkspace")
+  // })
+
+  // workSpaceStore.on('nav_filterCards', function(e) {
+  //   this.trigger("store_filterCards",e)
+  // })
+
+  // workSpaceStore.on('nav_component_workspace_editor', function(message) {
+  //   console.log("nav_component_workspace_editor")
+  //   this.trigger("store_component_workspace_editor")
+  // })
+  //
+  //
+  // workSpaceStore.on('add_component_click', function(message) {
+  //   this.trigger("add_component_button_select")
+  // })
 
 
 
@@ -245,9 +245,9 @@ function MainController(workSpaceStore, genericStore, profilStore) {
     this.genericStore.workspaceCurrent = message;
   }.bind(this));
 
-  workSpaceStore.on('workspace_current_select_done', function(message) {
-    this.navigateNext('workspaceEditor', true);
-  }.bind(this));
+  // workSpaceStore.on('workspace_current_select_done', function(message) {
+  //   this.navigateNext('workspaceEditor', true);
+  // }.bind(this));
 
 
 
@@ -348,52 +348,52 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   //   // });
   // });
 
-  this.on('workspace_show', function(message) {
-    this.navigateNext('myWorkspaces', false, 'menu');
-    // this.updateMode({
-    //   modeTechnicalComponentNavigation: false,
-    //   modeProfilEdition: false,
-    //   modeWorkspaceNavigation: true,
-    //   modeAdminNavigation: false,
-    //   modeWorkspaceEdition: false,
-    //   modeWorkspaceShareNavigation: false
-    // });
-  });
+  // this.on('workspace_show', function(message) {
+  //   this.navigateNext('myWorkspaces', false, 'menu');
+  //   // this.updateMode({
+  //   //   modeTechnicalComponentNavigation: false,
+  //   //   modeProfilEdition: false,
+  //   //   modeWorkspaceNavigation: true,
+  //   //   modeAdminNavigation: false,
+  //   //   modeWorkspaceEdition: false,
+  //   //   modeWorkspaceShareNavigation: false
+  //   // });
+  // });
 
-  this.on('workspace_share_show', function(message) {
-    this.navigateNext('sharedWorkspaces', false, 'menu');
-    // this.updateMode({
-    //   modeTechnicalComponentNavigation: false,
-    //   modeProfilEdition: false,
-    //   modeWorkspaceNavigation: false,
-    //   modeAdminNavigation: false,
-    //   modeWorkspaceEdition: false,
-    //   modeWorkspaceShareNavigation: true
-    // });
-  });
+  // this.on('workspace_share_show', function(message) {
+  //   this.navigateNext('sharedWorkspaces', false, 'menu');
+  //   // this.updateMode({
+  //   //   modeTechnicalComponentNavigation: false,
+  //   //   modeProfilEdition: false,
+  //   //   modeWorkspaceNavigation: false,
+  //   //   modeAdminNavigation: false,
+  //   //   modeWorkspaceEdition: false,
+  //   //   modeWorkspaceShareNavigation: true
+  //   // });
+  // });
 
 
-  this.on('workspace_current_add_component_show', function(record) {
-    this.navigateNext('workspaceAddComponent', true);
-    // this.updateMode({
-    //   modeNavigation: true,
-    //   modeEdition: false,
-    //   modeTechnicalComponentNavigation: true,
-    //   modeTechnicalUserNavigation: false,
-    //   modeMenuHide: true,
-    //   modeWorkspaceNavigation: false,
-    //   modeWorkspaceShareNavigation: false
-    // });
-    // this.trigger('navigator_mount', 'technical-component-table');
-  });
+  // this.on('workspace_current_add_component_show', function(record) {
+  //   this.navigateNext('workspaceAddComponent', true);
+  //   // this.updateMode({
+  //   //   modeNavigation: true,
+  //   //   modeEdition: false,
+  //   //   modeTechnicalComponentNavigation: true,
+  //   //   modeTechnicalUserNavigation: false,
+  //   //   modeMenuHide: true,
+  //   //   modeWorkspaceNavigation: false,
+  //   //   modeWorkspaceShareNavigation: false
+  //   // });
+  //   // this.trigger('navigator_mount', 'technical-component-table');
+  // });
 
-  this.on('workspace_current_add_component_cancel', function(record) {
-    this.navigatePrevious();
-    // this.updateMode({
-    //   modeTechnicalComponentNavigation: false
-    // });
-    // this.trigger('navigator_mount', 'technical-component-table');
-  });
+  // this.on('workspace_current_add_component_cancel', function(record) {
+  //   this.navigatePrevious();
+  //   // this.updateMode({
+  //   //   modeTechnicalComponentNavigation: false
+  //   // });
+  //   // this.trigger('navigator_mount', 'technical-component-table');
+  // });
 
   this.workspaceStore.on('share_change', function(record) {
     //this.navigatePrevious();
@@ -405,25 +405,25 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   }.bind(this));
 
 
-  this.on('workspace_current_add_user_show', function(record) {
-    this.navigateNext('workspaceAddUser', true);
-    // this.updateMode({
-    //   modeNavigation: true,
-    //   modeEdition: false,
-    //   modeTechnicalComponentNavigation: false,
-    //   modeTechnicalUserNavigation: true,
-    //   modeMenuHide: true,
-    //   modeWorkspaceShareNavigation: false,
-    //   modeWorkspaceNavigation: false
-    // });
-  });
+  // this.on('workspace_current_add_user_show', function(record) {
+  //   this.navigateNext('workspaceAddUser', true);
+  //   // this.updateMode({
+  //   //   modeNavigation: true,
+  //   //   modeEdition: false,
+  //   //   modeTechnicalComponentNavigation: false,
+  //   //   modeTechnicalUserNavigation: true,
+  //   //   modeMenuHide: true,
+  //   //   modeWorkspaceShareNavigation: false,
+  //   //   modeWorkspaceNavigation: false
+  //   // });
+  // });
 
-  this.on('workspace_current_add_user_cancel', function(record) {
-    this.navigatePrevious();
-    // this.updateMode({
-    //   modeTechnicalUserNavigation: false,
-    // });
-  });
+  // this.on('workspace_current_add_user_cancel', function(record) {
+  //   this.navigatePrevious();
+  //   // this.updateMode({
+  //   //   modeTechnicalUserNavigation: false,
+  //   // });
+  // });
 
 
   // this.on('workspace_current_edit', function(message) {
@@ -439,21 +439,21 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   //   // });
   // });
 
-  this.on('workspace_current_graph', function(message) {
-    this.navigateNext('graph', true);
-    // this.updateMode({
-    //   modeComponentTest: false,
-    //   modeComponentNetwork: false,
-    //   modeNavigation: false,
-    //   modeEdition: true,
-    //   modeGraph: true,
-    //   modeWorkspaceNavigation: false,
-    //   modeWorkspaceShareNavigation: false,
-    //   modeWorksapceEdition: false,
-    //   modeMenuHide: true
-    //
-    // });
-  });
+  // this.on('workspace_current_graph', function(message) {
+  //   this.navigateNext('graph', true);
+  //   // this.updateMode({
+  //   //   modeComponentTest: false,
+  //   //   modeComponentNetwork: false,
+  //   //   modeNavigation: false,
+  //   //   modeEdition: true,
+  //   //   modeGraph: true,
+  //   //   modeWorkspaceNavigation: false,
+  //   //   modeWorkspaceShareNavigation: false,
+  //   //   modeWorksapceEdition: false,
+  //   //   modeMenuHide: true
+  //   //
+  //   // });
+  // });
 
   // this.on('workspace_current_init', function(message) {
   //   this.navigateNext('workspaceEditor', true);
@@ -497,9 +497,9 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   // });
 
 
-  genericStore.on('component_current_show', function() {
-    this.navigateNext('componentEditor', true);
-  }.bind(this));
+  // genericStore.on('component_current_show', function() {
+  //   this.navigateNext('componentEditor', true);
+  // }.bind(this));
 
 
   //
@@ -535,11 +535,11 @@ function MainController(workSpaceStore, genericStore, profilStore) {
   //   }
   // });
 
-  this.on('menu_show', function(data) {
-    this.updateMode({
-      modeMenuHide: false
-    });
-  });
+  // this.on('menu_show', function(data) {
+  //   this.updateMode({
+  //     modeMenuHide: false
+  //   });
+  // });
 
   this.on('clone_database', function(data) {
     console.log('clone');

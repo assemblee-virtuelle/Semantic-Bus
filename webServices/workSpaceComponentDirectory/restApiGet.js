@@ -4,10 +4,10 @@
     this.editor = 'rest-api-get-editor';
     this.graphIcon = 'restApiGet.png';
     this.tags = [
-      'http://semantic-bus.org/data/tags/outComponents',
-      'http://semantic-bus.org/data/tags/APIComponents'
-    ],
-    this.stepNode = false;
+        'http://semantic-bus.org/data/tags/outComponents',
+        'http://semantic-bus.org/data/tags/APIComponents'
+      ],
+      this.stepNode = false;
     this.workspace_component_lib = require('../../lib/core/lib/workspace_component_lib');
     this.data2xml = require('data2xml');
     this.dataTraitment = require("../dataTraitmentLibrary/index.js");
@@ -17,14 +17,16 @@
     this.initialise = function(router) {
       router.get('/:urlRequiered', function(req, res, next) {
         //console.log(req.query);
-        console.log("in get")
+
+        //console.log("in get")
+
         var urlRequiered = req.params.urlRequiered;
         //this require is live because constructor require cause cyclic dependencies (recursivPullResolvePromise->restApiGet)
         //TODO require use cache object  : need to build one engine per request
         this.recursivPullResolvePromiseDynamic = require('../recursivPullResolvePromise')
         var specificData;
+        //console.log('urlRequiered', urlRequiered)
 
-        console.log('urlRequiered', urlRequiered)
         this.workspace_component_lib.get({
           "specificData.url": urlRequiered
         }).then(component => {
@@ -53,17 +55,14 @@
             })
           }
         }).then(dataToSend => {
-          // console.log('API data', specificData);
-          // console.log('ALLO');
-          // console.log('API component');
-          // console.log('ALLO2');
+
           if (specificData != undefined) { // exception in previous promise
             if (specificData.contentType.search('application/vnd.ms-excel') != -1) {
               res.setHeader('content-type', specificData.contentType);
               var responseBodyExel = []
-              console.log('data.contentType XLS', specificData)
+              //console.log('data.contentType XLS', specificData)
               this.dataTraitment.type.type_file(specificData.contentType, dataToSend, responseBodyExel, specificData.xls, true).then(function(result) {
-                console.log(result)
+                //console.log(result)
                 res.send(result)
               })
             } else if (specificData.contentType.search('xml') != -1) {
@@ -88,7 +87,7 @@
             }
           }
         }).catch(err => {
-          console.log('FAIL', err);
+          //console.log('FAIL', err);
           if (err.code) {
             res.status(err.code).send(err.message);
           } else {
@@ -108,7 +107,7 @@
             data: flowData[0].data
           })
         } else {
-          throw new Error('composant finale : ne peux etre branché comme source')
+          reject(new Error('composant finale : ne peux etre branché comme source'));
         }
       })
     }

@@ -30,11 +30,20 @@ module.exports = {
       requestOptions.port = parsedUrl.port;
       requestOptions.method = methodRest;
       requestOptions.headers = requestOptions.headers || {};
-      requestOptions.headers.Accept = 'application/json';
-      requestOptions.headers['user-agent'] = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0';
+      //requestOptions.headers.Accept = 'application/json';
+      //requestOptions.headers['user-agent'] = 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0';
 
+      requestOptions.headers.Accept='application/xhtml+xml,application/xml,application/json,application/ld+json';
+      //requestOptions.headers['Accept-Encoding']='gzip, deflate, br';
+      //requestOptions.headers['Accept-Language']='fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7';
+      //requestOptions.headers['Cache-Control']='max-age=0';
+      //requestOptions.headers.Connection='keep-alive';
+      //requestOptions.headers.Cookie='PHPSESSID=70d62a9v3ghkegr7jeka00nte4';
+      //requestOptions.headers.Host='www.communecter.org';
+      //requestOptions.headers['Upgrade-Insecure-Requests']=1;
+      requestOptions.headers['User-Agent']='Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/62.0.3202.94 Chrome/62.0.3202.94 Safari/537.36';
 
-      console.log(requestOptions);
+      //console.log(requestOptions);
 
       var lib = urlString.indexOf('https') != -1 ? this.http : this.https;
 
@@ -63,7 +72,9 @@ module.exports = {
             //console.log(responseBody);
 
             try{
-              console.log('CONTENT-TYPE',response.headers['content-type']);
+              //console.log('CONTENT-TYPE',response.headers['content-type']);
+              //console.log(responseBody);
+              //console.log('Location',response.headers['location']);
               if (response.headers['content-type'].search('xml') != -1) {
                 this.xml2js.parseString(responseBody,{attrkey: "attr", "trim": true}, function(err, result) {
                   resolve({
@@ -75,6 +86,8 @@ module.exports = {
                 resolve({
                   data: JSON.parse(responseBody)
                 });
+              } else{
+                reject(new Error('unsuported content-type '+response.headers['content-type']))
               }
 
 
@@ -90,7 +103,7 @@ module.exports = {
       /* if there's an error, then reject the Promise
        * (can be handled with Promise.prototype.catch) */
       request.on('error', function(e) {
-        console.log('error request:', e);
+        //console.log('error request:', e);
         reject(e);
       });
       request.end();
@@ -99,12 +112,6 @@ module.exports = {
   pull: function(data, flowdata, pullParams) {
     //console.log('REST Get JSON | pull : ',data);
     return this.makeRequest('GET', data.specificData.url, pullParams);
-    /*this.makeRequest('GET', data.specificData.url).then(data => {
-      //console.log('ALLO', data);
-      res.json(data);
-    });*/
-    /*    res.json({
-          url: data.url
-        });*/
+
   }
 };

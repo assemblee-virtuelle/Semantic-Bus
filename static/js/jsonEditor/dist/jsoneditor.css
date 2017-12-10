@@ -1,3 +1,30 @@
+/* reset styling (prevent conflicts with bootstrap, materialize.css, etc.) */
+
+div.jsoneditor .jsoneditor-search input {
+  height: auto;
+  border: inherit;
+}
+
+div.jsoneditor .jsoneditor-search input:focus {
+  border: none !important;
+  box-shadow: none !important;
+}
+
+div.jsoneditor table {
+  border-collapse: collapse;
+  width: auto;
+}
+
+div.jsoneditor td,
+div.jsoneditor th {
+  padding: 0;
+  display: table-cell;
+  text-align: left;
+  vertical-align: inherit;
+  border-radius: inherit;
+}
+
+
 div.jsoneditor-field,
 div.jsoneditor-value,
 div.jsoneditor-readonly {
@@ -178,7 +205,6 @@ div.jsoneditor {
   box-sizing: border-box;
   width: 100%;
   height: 100%;
-  overflow: hidden;
   position: relative;
   padding: 0;
   line-height: 100%;
@@ -192,6 +218,7 @@ div.jsoneditor-tree table.jsoneditor-tree {
 }
 
 div.jsoneditor-outer {
+  position: static;
   width: 100%;
   height: 100%;
   margin: -35px 0 0 0;
@@ -199,6 +226,21 @@ div.jsoneditor-outer {
   -moz-box-sizing: border-box;
   -webkit-box-sizing: border-box;
   box-sizing: border-box;
+}
+
+div.jsoneditor-outer.has-nav-bar {
+  margin: -61px 0 0 0;
+  padding: 61px 0 0 0;
+}
+
+div.jsoneditor-outer.has-status-bar {
+  margin: -35px 0 -26px 0;
+  padding: 35px 0 26px 0;
+}
+
+textarea.jsoneditor-text,
+.ace-jsoneditor {
+  min-height: 150px;
 }
 
 div.jsoneditor-tree {
@@ -223,7 +265,7 @@ textarea.jsoneditor-text {
 
 tr.jsoneditor-highlight,
 tr.jsoneditor-selected {
-  background-color: #e6e6e6;
+  background-color: #d3d3d3;
 }
 
 tr.jsoneditor-selected button.jsoneditor-dragarea,
@@ -465,14 +507,21 @@ div.jsoneditor-contextmenu-root {
 
 div.jsoneditor-contextmenu {
   position: absolute;
+  box-sizing: content-box;
   z-index: 99999;
+}
+
+div.jsoneditor-contextmenu ul,
+div.jsoneditor-contextmenu li {
+  box-sizing: content-box;
+  position: relative;
 }
 
 div.jsoneditor-contextmenu ul {
   position: relative;
   left: 0;
   top: 0;
-  width: 124px;
+  width: 128px;
   background: white;
   border: 1px solid #d3d3d3;
   box-shadow: 2px 2px 12px rgba(128, 128, 128, 0.3);
@@ -482,10 +531,11 @@ div.jsoneditor-contextmenu ul {
 }
 
 div.jsoneditor-contextmenu ul li button {
-  padding: 0;
+  position: relative;
+  padding: 0 4px 0 0;
   margin: 0;
-  width: 124px;
-  height: 24px;
+  width: 128px;
+  height: auto;
   border: none;
   cursor: pointer;
   color: #4d4d4d;
@@ -493,7 +543,6 @@ div.jsoneditor-contextmenu ul li button {
   font-size: 10pt;
   font-family: arial, sans-serif;
   box-sizing: border-box;
-  line-height: 26px;
   text-align: left;
 }
 
@@ -512,7 +561,8 @@ div.jsoneditor-contextmenu ul li button:focus {
 }
 
 div.jsoneditor-contextmenu ul li button.jsoneditor-default {
-  width: 92px;
+  width: 96px;
+  /* 128px - 32px */
 }
 
 div.jsoneditor-contextmenu ul li button.jsoneditor-expand {
@@ -523,7 +573,9 @@ div.jsoneditor-contextmenu ul li button.jsoneditor-expand {
 }
 
 div.jsoneditor-contextmenu div.jsoneditor-icon {
-  float: left;
+  position: absolute;
+  top: 0;
+  left: 0;
   width: 24px;
   height: 24px;
   border: none;
@@ -532,8 +584,23 @@ div.jsoneditor-contextmenu div.jsoneditor-icon {
   background-image: url("img/jsoneditor-icons.svg");
 }
 
+div.jsoneditor-contextmenu ul li ul div.jsoneditor-icon {
+  margin-left: 24px;
+}
+
+div.jsoneditor-contextmenu div.jsoneditor-text {
+  padding: 4px 0 4px 24px;
+  word-wrap: break-word;
+}
+
+div.jsoneditor-contextmenu div.jsoneditor-text.jsoneditor-right-margin {
+  padding-right: 24px;
+}
+
 div.jsoneditor-contextmenu ul li button div.jsoneditor-expand {
-  float: right;
+  position: absolute;
+  top: 0;
+  right: 0;
   width: 24px;
   height: 24px;
   padding: 0;
@@ -774,6 +841,10 @@ div.jsoneditor-menu > button.jsoneditor-format {
   background-position: -72px -120px;
 }
 
+div.jsoneditor-menu > button.jsoneditor-repair {
+  background-position: -96px -96px;
+}
+
 div.jsoneditor-menu > div.jsoneditor-modes {
   display: inline-block;
   float: left;
@@ -888,4 +959,107 @@ table.jsoneditor-search button.jsoneditor-previous {
 
 table.jsoneditor-search button.jsoneditor-previous:hover {
   background-position: -148px -49px;
+}
+div.jsoneditor div.autocomplete.dropdown {
+  position: absolute;
+  background: white;
+  box-shadow: 2px 2px 12px rgba(128, 128, 128, 0.3);
+  border: 1px solid #d3d3d3;
+  z-index: 100;
+  overflow-x: hidden;
+  overflow-y: auto;
+  cursor: default;
+  margin: 0;
+  padding-left: 2pt;
+  padding-right: 5pt;
+  text-align: left;
+  outline: 0;
+  font-family: droid sans mono, consolas, monospace, courier new, courier, sans-serif;
+  font-size: 10pt;
+}
+
+div.jsoneditor div.autocomplete.dropdown .item {
+  color: #333;
+}
+
+div.jsoneditor div.autocomplete.dropdown .item.hover {
+  background-color: #ddd;
+}
+
+div.jsoneditor div.autocomplete.hint {
+  color: #aaa;
+  top: 4px;
+  left: 4px;
+}
+div.jsoneditor-treepath {
+  padding: 0 5px;
+  overflow: hidden;
+}
+
+div.jsoneditor-treepath div.jsoneditor-contextmenu-root {
+  position: absolute;
+  left: 0;
+}
+
+div.jsoneditor-treepath span.jsoneditor-treepath-element {
+  margin: 1px;
+  font-family: arial, sans-serif;
+  font-size: 10pt;
+}
+
+div.jsoneditor-treepath span.jsoneditor-treepath-seperator {
+  margin: 2px;
+  font-size: 9pt;
+  font-family: arial, sans-serif;
+}
+
+div.jsoneditor-treepath span.jsoneditor-treepath-element:hover,
+div.jsoneditor-treepath span.jsoneditor-treepath-seperator:hover {
+  cursor: pointer;
+  text-decoration: underline;
+}
+div.jsoneditor-statusbar {
+  line-height: 26px;
+  height: 26px;
+  margin-top: -26px;
+  color: #808080;
+  background-color: #ebebeb;
+  border-top: 1px solid #d3d3d3;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  font-size: 10pt;
+}
+
+div.jsoneditor-statusbar > .jsoneditor-curserinfo-label {
+  margin: 0 2px 0 4px;
+}
+
+div.jsoneditor-statusbar > .jsoneditor-curserinfo-val {
+  margin-right: 12px;
+}
+
+div.jsoneditor-statusbar > .jsoneditor-curserinfo-count {
+  margin-left: 4px;
+}
+div.jsoneditor-navigation-bar {
+  width: 100%;
+  height: 26px;
+  line-height: 26px;
+  padding: 0;
+  margin: 0;
+  border-bottom: 1px solid #d3d3d3;
+  -moz-box-sizing: border-box;
+  -webkit-box-sizing: border-box;
+  box-sizing: border-box;
+  color: #808080;
+  background-color: #ebebeb;
+  font-size: 10pt;
+}
+
+div.jsoneditor-navigation-bar.nav-bar-empty:after {
+  content: 'Select a node ...';
+  color: rgba(104, 104, 91, 0.56);
+  position: absolute;
+  margin-left: 5px;
 }

@@ -47,7 +47,7 @@ module.exports = {
             this.dataTraitment.type.type_file(fileName, string, buffer).then(function (result) {
               resolve(result)
             }, (err) => {
-              console.log("in error ")
+              //console.log("in error ")
               let fullError = new Error(err);
               fullError.displayMessage = "Upload : " + err;
               reject(fullError)
@@ -72,7 +72,7 @@ module.exports = {
             reject(fullError)
           }.bind(this))
         }, (err) => {
-          console.log("in error 2");
+          //console.log("in error 2");
           res.status(500).send(err);
         })
       }.bind(this))

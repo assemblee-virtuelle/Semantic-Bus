@@ -14,7 +14,7 @@ module.exports = {
 
 
   initialise: function (url) {
-    console.log("----- create uri connexion -----")
+    //console.log("----- create uri connexion -----")
     return new Promise(function (resolve, reject) {
       if (url) {
         resolve(url)
@@ -28,7 +28,7 @@ module.exports = {
 
 
   createmodel: function (modelName, data, mongoose, url) {
-    console.log("----- create model mongoose -----")
+    //console.log("----- create model mongoose -----")
     return new Promise(function (resolve, reject) {
       dataModel = {}
       var name = modelName;
@@ -57,7 +57,7 @@ module.exports = {
 
 
   request: function (querysTable, modelShema) {
-    console.log("----- request mongoose -----", querysTable)
+    //console.log("----- request mongoose -----", querysTable)
     return new Promise(function (resolve, reject) {
     //   modelShema.db.once('connected', function () {
     //     console.log("----- in connected mongo ------", querysTable)
@@ -74,15 +74,15 @@ module.exports = {
           )
         } else {
           try {
-            console.log("----- in try mongo ------")
+            //console.log("----- in try mongo ------")
             var query = eval("modelShema.model" + "." + querysTable)
             query.exec(function (err, data) {
               if (data) {
-                console.log(data)
+                //console.log(data)
                 resolve(data)
               }
               if (err) {
-                console.log(err)
+                //console.log(err)
                 let fullError = new Error(err);
                 fullError.displayMessage = "Connecteur Mongo :  nous avons rencontré un probleme avec votre query MongoDB";
                 reject(fullError)

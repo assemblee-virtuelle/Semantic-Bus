@@ -17,13 +17,13 @@ module.exports = {
     //console.log('INIT',router);
     router.get('/reloadcache/:compId', function(req, res) {
       var compId = req.params.compId;
-      console.log(compId);
+      //console.log(compId);
       this.workspace_component_lib.get({
         _id: compId
       }).then(component => {
-        console.log('Cache NoSql | reload |', component);
+        //console.log('Cache NoSql | reload |', component);
         this.recursivPullResolvePromise.resolveComponent(component, 'work').then(data => {
-          console.log('CACHE LOADED');
+          //console.log('CACHE LOADED');
         });
         res.json({
           message: 'in progress'

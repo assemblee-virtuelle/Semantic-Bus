@@ -30,13 +30,13 @@ module.exports = {
                 filter[unicityField.field] = findedValue.value;
               }
             }
-            console.log(filter);
+            //console.log(filter);
             if(Object.keys(filter).length !== 0){
               everExistingData = this.sift(filter, resultFlow);
             }
           }
 
-          console.log(filter,everExistingData);
+          //console.log(filter,everExistingData);
           //console.log(everExistingData);
           if (everExistingData.length > 0) {
             //console.log('unicite |', everExistingData);

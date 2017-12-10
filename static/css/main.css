@@ -30,7 +30,7 @@ body{
 }
 
 input {
-  color: rgb(220,220,220);
+  /*color: rgb(220,220,220);*/
   padding-left:10pt;
   /*height: 38px;*/
   border-radius: 20pt;

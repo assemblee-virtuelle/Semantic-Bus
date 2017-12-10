@@ -26,7 +26,7 @@ var proto = {
   },
   resolveComponent(component, requestDirection, pushData) {
     //buildPathResolution component, requestDirection
-    console.log("---- push data 1",pushData)
+    //console.log("---- push data 1",pushData)
     //console.log(" ---------- resolveComponent -----------", component)
     if (this.config.quietLog != true) {
       console.log(" ---------- resolveComponent -----------")
@@ -68,7 +68,7 @@ var proto = {
         /// -------------- push case  -----------------------
         var traitement_id = Date.now()
         if (requestDirection == 'push') {
-          console.log("push data",pushData)
+          //console.log("push data",pushData)
           // affecter le flux à tous les link dont la source est le composant
           // console.log(" function : resolveComponent | variable : in push ")
           // this.sift({
@@ -83,7 +83,7 @@ var proto = {
           }, this.pathResolution).forEach(link => {
             link.status = 'processing'
           });
-          console.log('compare',this.RequestOrigine._id);
+          //console.log('compare',this.RequestOrigine._id);
           this.processNextBuildPath(traitement_id, component.workspaceId, global_flow);
           resolve(pushData)
         }
@@ -113,7 +113,7 @@ var proto = {
           //console.log('PULL start | ', componentProcessing._id);
           module.pull(componentProcessing, undefined, undefined).then(componentFlow => {
               if (this.config.quietLog != true) {
-                console.log('PULL END | ', componentProcessing._id,componentFlow);
+                //console.log('PULL END | ', componentProcessing._id,componentFlow);
               }
               componentProcessing.dataResolution = componentFlow;
               componentProcessing.status = 'resolved';
@@ -217,13 +217,13 @@ var proto = {
         //   }
         // })
         if (this.config.quietLog != true) {
-          console.log('BEFORE lib Update');
+          //console.log('BEFORE lib Update');
         }
         this.workspace_component_lib.update(
           processingLink.destination
         ).then(function(res) {
           if (this.config.quietLog != true) {
-            console.log('AFTER lib Update');
+            //console.log('AFTER lib Update');
           }
           //console.log("res update =======>",res)
           // global_flow += this.objectSizeOf(dataFlow)
@@ -249,7 +249,7 @@ var proto = {
 
             var dfobFinalFlow = this.buildDfobFlow(primaryflow.data, dfobTab);
             if (this.config.quietLog != true) {
-              console.log('dfobFinalFlow | ', dfobFinalFlow);
+              //console.log('dfobFinalFlow | ', dfobFinalFlow);
             }
             var testPromises = dfobFinalFlow.map(finalItem => {
 

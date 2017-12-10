@@ -1,4 +1,15 @@
+'use strict';
+
 var util = require('./util');
+
+/**
+ * Node.getRootNode shim
+ * @param  {Node} node node to check
+ * @return {Node}      node's rootNode or `window` if there is ShadowDOM is not supported.
+ */
+function getRootNode(node){
+    return node.getRootNode && node.getRootNode() || window;
+}
 
 /**
  * A context menu
@@ -40,6 +51,7 @@ function ContextMenu (items, options) {
 
   // create a (non-visible) button to set the focus to the menu
   var focusButton = document.createElement('button');
+  focusButton.type = 'button';
   dom.focusButton = focusButton;
   var li = document.createElement('li');
   li.style.overflow = 'hidden';
@@ -66,6 +78,7 @@ function ContextMenu (items, options) {
 
         // create a button in the menu item
         var button = document.createElement('button');
+        button.type = 'button';
         button.className = item.className;
         domItem.button = button;
         if (item.title) {
@@ -86,7 +99,11 @@ function ContextMenu (items, options) {
           var divIcon = document.createElement('div');
           divIcon.className = 'jsoneditor-icon';
           button.appendChild(divIcon);
-          button.appendChild(document.createTextNode(item.text));
+          var divText = document.createElement('div');
+          divText.className = 'jsoneditor-text' +
+              (item.click ? '' : ' jsoneditor-right-margin');
+          divText.appendChild(document.createTextNode(item.text));
+          button.appendChild(divText);
 
           var buttonSubmenu;
           if (item.click) {
@@ -94,6 +111,7 @@ function ContextMenu (items, options) {
             button.className += ' jsoneditor-default';
 
             var buttonExpand = document.createElement('button');
+            buttonExpand.type = 'button';
             domItem.buttonExpand = buttonExpand;
             buttonExpand.className = 'jsoneditor-expand';
             buttonExpand.innerHTML = '<div class="jsoneditor-expand"></div>';
@@ -132,7 +150,8 @@ function ContextMenu (items, options) {
         }
         else {
           // no submenu, just a button with clickhandler
-          button.innerHTML = '<div class="jsoneditor-icon"></div>' + item.text;
+          button.innerHTML = '<div class="jsoneditor-icon"></div>' +
+              '<div class="jsoneditor-text">' + item.text + '</div>';
         }
 
         domItems.push(domItem);
@@ -192,8 +211,12 @@ ContextMenu.prototype.show = function (anchor, contentWindow) {
 
   // determine whether to display the menu below or above the anchor
   var showBelow = true;
+  var parent = anchor.parentNode;
+  var anchorRect = anchor.getBoundingClientRect();
+  var parentRect = parent.getBoundingClientRect()
+
   if (contentWindow) {
-    var anchorRect = anchor.getBoundingClientRect();
+    
     var contentRect = contentWindow.getBoundingClientRect();
 
     if (anchorRect.bottom + this.maxHeight < contentRect.bottom) {
@@ -208,29 +231,34 @@ ContextMenu.prototype.show = function (anchor, contentWindow) {
     }
   }
 
+  var leftGap = anchorRect.left - parentRect.left;
+  var topGap = anchorRect.top - parentRect.top;
+
   // position the menu
   if (showBelow) {
     // display the menu below the anchor
     var anchorHeight = anchor.offsetHeight;
-    this.dom.menu.style.left = '0px';
-    this.dom.menu.style.top = anchorHeight + 'px';
+    this.dom.menu.style.left = leftGap + 'px';
+    this.dom.menu.style.top = topGap + anchorHeight + 'px';
     this.dom.menu.style.bottom = '';
   }
   else {
     // display the menu above the anchor
-    this.dom.menu.style.left = '0px';
-    this.dom.menu.style.top = '';
+    this.dom.menu.style.left = leftGap + 'px';
+    this.dom.menu.style.top = topGap + 'px';
     this.dom.menu.style.bottom = '0px';
   }
 
+  // find the root node of the page (window, or a shadow dom root element)
+  this.rootNode = getRootNode(anchor);
+
   // attach the menu to the parent of the anchor
-  var parent = anchor.parentNode;
   parent.insertBefore(this.dom.root, parent.firstChild);
 
   // create and attach event listeners
   var me = this;
   var list = this.dom.list;
-  this.eventListeners.mousedown = util.addEventListener(window, 'mousedown', function (event) {
+  this.eventListeners.mousedown = util.addEventListener(this.rootNode, 'mousedown', function (event) {
     // hide menu on click outside of the menu
     var target = event.target;
     if ((target != list) && !me._isChildOf(target, list)) {
@@ -239,7 +267,7 @@ ContextMenu.prototype.show = function (anchor, contentWindow) {
       event.preventDefault();
     }
   });
-  this.eventListeners.keydown = util.addEventListener(window, 'keydown', function (event) {
+  this.eventListeners.keydown = util.addEventListener(this.rootNode, 'keydown', function (event) {
     me._onKeyDown(event);
   });
 
@@ -274,7 +302,7 @@ ContextMenu.prototype.hide = function () {
     if (this.eventListeners.hasOwnProperty(name)) {
       var fn = this.eventListeners[name];
       if (fn) {
-        util.removeEventListener(window, name, fn);
+        util.removeEventListener(this.rootNode, name, fn);
       }
       delete this.eventListeners[name];
     }
@@ -316,7 +344,11 @@ ContextMenu.prototype._onExpandItem = function (domItem) {
     var height = ul.clientHeight; // force a reflow in Firefox
     setTimeout(function () {
       if (me.expandedItem == domItem) {
-        ul.style.height = (ul.childNodes.length * 24) + 'px';
+        var childsHeight = 0;
+        for (var i = 0; i < ul.childNodes.length; i++) {
+          childsHeight += ul.childNodes[i].clientHeight;
+        }
+        ul.style.height = childsHeight + 'px';
         ul.style.padding = '5px 10px';
       }
     }, 0);

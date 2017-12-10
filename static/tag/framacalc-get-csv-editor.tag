@@ -7,9 +7,6 @@
   <script>
 
     this.innerData={};
-    this.test=function(){
-      console.log('test');
-    }
 
     Object.defineProperty(this, 'data', {
        set: function (data) {

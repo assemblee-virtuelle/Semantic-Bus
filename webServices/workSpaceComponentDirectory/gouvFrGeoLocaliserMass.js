@@ -94,7 +94,7 @@ module.exports = {
 
           resolve(result);
         });*/
-      console.log(adresseCSV);
+      //console.log(adresseCSV);
       var urlString = 'http://api-adresse.data.gouv.fr/search/csv/';
       //urlString = urlString + encodeURI(addressGouvFrFormated);
 
@@ -118,7 +118,7 @@ module.exports = {
         });
 
         response.on('end', function() {
-          console.log(responseBody);
+          //console.log(responseBody);
           try {
             //resolve(JSON.parse(responseBody));
 
