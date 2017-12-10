@@ -4,9 +4,9 @@
 <head>
   <meta charset="UTF-8">
   <title>Bus Sémantique</title>
-  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+  <!--<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
   <link href='https://fonts.googleapis.com/css?family=Ubuntu|Ubuntu+Mono' rel='stylesheet' type='text/css'>
-  <link href='https://cdn.jsdelivr.net/semantic-ui/2.1.8/semantic.min.css' rel='stylesheet' type='text/css'>
+  <link href='https://cdn.jsdelivr.net/semantic-ui/2.1.8/semantic.min.css' rel='stylesheet' type='text/css'>-->
   <link href='./css/flex.css' rel='stylesheet' type='text/css'>
   <link href='./css/main.css' rel='stylesheet' type='text/css'>
   <link href='./js/jsonEditor/dist/jsoneditor.min.css' rel='stylesheet' type='text/css'>
@@ -38,7 +38,7 @@
   RiotControl.addStore(userStore); // Register the store in central dispatch.
   RiotControl.on('application_redirect', function(){
     console.log("trigger");
-    window.open("../ihm/application.html", "_self");
+    window.open("../ihm/application.html#landing", "_self");
   })
   console.log(window.location.href)
   RiotControl.trigger('https_force?')

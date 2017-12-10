@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>Bus Sémantique</title>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
+</head>
+
+<body>
+
+  <style>
+
+  </style>
+  <script>
+    let param={
+      crossDomain: true,
+      dataType: 'jsonp',
+      headers: {
+        "X-Requested-With": "XMLHttpRequest"
+      },
+      // headers: {
+      //   'Authorization': 'dummy'
+      // },
+      // beforeSend: function(request) {
+      //   request.setRequestHeader("Authority", authorizationToken);
+      // },
+      method: 'get',
+      url: 'https://presdecheznous.fr/api/elementsInBounds?bounds=-8.371582031250002%2C37.89219554724437%2C14.018554687500002%2C51.91716758909015%3B&mainOptionId=all&fullRepresentation=true'
+    };
+    $().ready(()=>{
+      $.ajax(param).done(data=>{
+        console.log(data);
+      }).fail(error=>{
+        console.log(error);
+      });
+    });
+
+
+
+    // let headers = new Headers({
+    //   "X-Requested-With": "XMLHttpRequest",
+    //   "Accept": "application/json",
+    //   // "Content-Length": content.length.toString(),
+    //   // "X-Custom-Header": "ProcessThisImmediately",
+    // });
+    // let options = {
+    //   method: 'GET',
+    //   headers: headers,
+    //   mode: 'no-cors',
+    //   cache: 'default'
+    // };
+    //
+    // console.log(options);
+    // fetch('https://presdecheznous.fr/api/elementsInBounds?bounds=-8.371582031250002%2C37.89219554724437%2C14.018554687500002%2C51.91716758909015%3B&mainOptionId=all&fullRepresentation=true', options)
+    //   .then(function(response) {
+    //     return response.json();
+    //   })
+    //   .then(function(data) {
+    //     console.log(data);
+    //   });
+  </script>
+</body>
+
+</html>
