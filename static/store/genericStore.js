@@ -37,7 +37,7 @@ function GenericStore(utilStore, specificStoreList) {
         data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(this.itemCurrent)),
       }, true).then(data => {
         this.itemCurrent = data;
-        this.trigger('item_current_persist_done', this.itemCurrent);
+        //this.trigger('item_current_persist_done', this.itemCurrent);
         resolve(this.itemCurrent);
       }).catch(error => {
         reject(error);
@@ -79,7 +79,9 @@ function GenericStore(utilStore, specificStoreList) {
     // } else if (mode == 'edit') {
     //   this.update();
     // }
-    this.update();
+    this.update().then(data=>{
+      route('workspace/'+data.workspaceId+'/component')
+    })
   } //<= persist
 
   // ----------------------------------------- EVENT  -----------------------------------------

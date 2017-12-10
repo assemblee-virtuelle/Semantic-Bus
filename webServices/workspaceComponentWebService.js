@@ -44,7 +44,7 @@ module.exports = function (router) {
       //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
       res.json(data.data);
     }).catch(e => {
-      console.log('WEB Service Run Error',e.displayMessage);
+      //console.log('WEB Service Run Error',e.displayMessage);
       next(e);
     });
   }); //<= resolveComponent

@@ -74,7 +74,7 @@ module.exports = {
     var responseBody = '';
 
     if (hasResponseFailed) {
-      console.log('FAIL');
+      //console.log('FAIL');
       reject(`Request to ${response.url} failed with HTTP ${response.status}`);
     }
 
@@ -92,7 +92,7 @@ module.exports = {
   },
 
   cloneDatabase() {
-    console.log('configuration :',this.configuration);
+    //console.log('configuration :',this.configuration);
     return new Promise((resolve, reject) => {
       console.log('clone start');
 
@@ -116,17 +116,17 @@ module.exports = {
         console.log(insertWorkspaceData.length)
         console.log(insertComponentData.length)
         PromisesExecution.push(this.request('PUT', 'workspacecomponents', [], undefined));
-        
-        
+
+
         PromisesExecution.push(this.request('PUT', 'workspaces', [], undefined));
 
         return Promise.all(PromisesExecution);
       }).then(data => {
         let PromisesExecution = [];
-          
+
         PromisesExecution.push(this.request('POST', 'workspacecomponents', insertComponentData, undefined));
 
-        
+
         PromisesExecution.push(this.request('POST', 'workspaces', insertWorkspaceData, undefined));
 
         return Promise.all(PromisesExecution);
@@ -166,10 +166,10 @@ module.exports = {
         insertComponentData=data[0];
 
         insertUserData = data[2]
-        
+
         PromisesExecution.push(this.request('PUT', 'workspacecomponents', [], undefined, DBcible));
-        
-        
+
+
         PromisesExecution.push(this.request('PUT', 'workspaces', [], undefined, DBcible));
 
 
@@ -179,10 +179,10 @@ module.exports = {
         return Promise.all(PromisesExecution);
       }).then(data => {
         let PromisesExecution = [];
-          
+
         PromisesExecution.push(this.request('POST', 'workspacecomponents', insertWorkspaceData, undefined, DBcible));
-        
-        
+
+
         PromisesExecution.push(this.request('POST', 'workspaces', insertComponentData, undefined, DBcible));
 
 

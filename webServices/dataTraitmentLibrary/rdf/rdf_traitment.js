@@ -35,7 +35,7 @@ function _rdf_traitmentXML (dataXML) {
 
 function _rdf_traitmentJSONLD (dataJSON) {
   serializer.serialize(dataJSON).then(function (jsonld) {
-    console.log(jsonld)
+    //console.log(jsonld)
     resolve(jsonld)
   })
 }
@@ -43,7 +43,7 @@ function _rdf_traitmentJSONLD (dataJSON) {
 
 function _rdf_traitmentTTL(dataTTL) {
     let n3Tab = []
-    console.log(dataTTL)
+    //console.log(dataTTL)
     return new Promise(function(resolve,reject){
       new Promise(function (resolve, reject) {
         n3Parser.process(dataTTL, function (n3) {
@@ -60,12 +60,12 @@ function _rdf_traitmentTTL(dataTTL) {
 
 function _rdf_traitmentRDFA (dataHTMLRDFA) {
   ///EN COUR DE DEV
-} 
+}
 
 
 ////commentaires////
 
 
-//// DBPEDIA  PB ==> http://dbpedia.org/resource/Eiffel_Tower PROXY pour format ttl je pense 
+//// DBPEDIA  PB ==> http://dbpedia.org/resource/Eiffel_Tower PROXY pour format ttl je pense
 //redirection  vers  http://dbpedia.org/page/Eiffel_Tower qui est rdfa et qui ne peux pas ce convertir en n3 du a probleme de lib //
 // ISSUE RDF-EXT :  https://github.com/rdf-ext/rdf-parser-rdfxml/issues/1 ///

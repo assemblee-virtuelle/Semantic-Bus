@@ -10,6 +10,7 @@ module.exports = {
   url: require('url'),
   http: require('http'),
   https: require('follow-redirects').https,
+  //https: require('https'),
   dataTraitment: require("../dataTraitmentLibrary/index.js"),
   makeRequest: function (methodRest, urlString, contentType) {
     var _self = this
@@ -27,8 +28,8 @@ module.exports = {
       };
 
 
-      var lib = urlString.indexOf('https') != -1 ? this.https : this.http;
-      const request = lib.request(requestOptions, response => {
+      //var lib = urlString.indexOf('https') != -1 ? this.https : this.http;
+      const request = this.https.request(requestOptions, response => {
         const hasResponseFailed = response.statusCode >= 400;
         var responseBody = '';
         var responseBodyExel = [];

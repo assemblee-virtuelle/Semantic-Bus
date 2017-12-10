@@ -208,6 +208,7 @@
         //console.log('ALLO');
         e.item[e.target.attributes['data-field'].value] = e.target.value;
       }
+      this.trigger('dataChanged',this.data)
       //console.log(this.indexedData);
     }
 

@@ -293,8 +293,8 @@ module.exports = function (router) {
         token: data.token.token
       });
     }).catch(function (err) {
-      console.log(err)
-      console.log(" ----- error during connexion -----")
+      //console.log(err)
+      //console.log(" ----- error during connexion -----")
       if (err == 'name_bad_format') {
         res.send({
           err: "name_bad_format"
@@ -327,7 +327,7 @@ module.exports = function (router) {
         password: req.body.password
       }
     }).then(function (data) {
-      console.log("authenticate =====>", data)
+      //console.log("authenticate =====>", data)
       res.send({
         user: data.user,
         token: data.token

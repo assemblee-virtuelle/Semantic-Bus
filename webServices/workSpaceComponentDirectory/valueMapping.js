@@ -12,9 +12,10 @@ module.exports = {
   //waterfall: require('promise-waterfall'),
 
   mapValue :function(valueIn, specificData){
+    let valueInString= valueIn.toString()
     var valueOut=[];
     for (var atomicMapping of specificData.mappingTable||[]){
-      if(valueIn.indexOf!=undefined && valueIn.indexOf(atomicMapping.flowValue)!=-1){
+      if(valueInString.indexOf!=undefined && valueInString.indexOf(atomicMapping.flowValue)!=-1){
         //console.log('MAP',valueIn,atomicMapping.flowValue,atomicMapping.replacementValue);
         //valueOut = valueIn.replace(atomicMapping.flowValue,atomicMapping.replacementValue);
         valueOut.push({sourceValue:valueIn,translatedValue:atomicMapping.replacementValue});

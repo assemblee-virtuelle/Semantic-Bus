@@ -1,12 +1,12 @@
  var technicalComponentDirectory = require('./technicalComponentDirectory.js');
- 
+
 
  // --------------------------------------------------------------------------------
  // --------------------------------------------------------------------------------
  // --------------------------------------------------------------------------------
 
  module.exports = {
-   mLabPromise: require('./mLabPromise'), 
+   mLabPromise: require('./mLabPromise'),
    getInsertPromise: function (entityToInsert) {
      var module = this.technicalComponentDirectory[entityToInsert.module];
      if (entityToInsert.specificData == undefined) {
@@ -20,7 +20,7 @@
      entityToInsert.connectionsAfter = entityToInsert.connectionsAfter || [];
      entityToInsert.connectionsBefore = entityToInsert.connectionsBefore || [];
 
-  
+
      return this.mLabPromise.request('POST', 'workspacecomponents', entityToInsert);
    }, //<= getInsertPromise
 
@@ -28,7 +28,7 @@
 
    getReadPromise: function () {
      //console.log(entityToInsert);
-     console.log( this.mLabPromise)
+     //console.log( this.mLabPromise)
      return this.mLabPromise.request('GET', 'workspacecomponents');
    }, //<= getReadPromise
 
