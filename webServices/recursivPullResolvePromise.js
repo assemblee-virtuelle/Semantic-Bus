@@ -162,7 +162,7 @@ var proto = {
     this.fackCounter++;
     if (this.config.quietLog != true) {
       console.log(" ---------- processNextBuildPath -----------", this.fackCounter)
-      console.log("--------- glovbal flow ------------" , global_flow)
+      //console.log("--------- global flow ------------" , global_flow)
       console.log(this.pathResolution.map(link => {
         return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
       }));
@@ -208,14 +208,14 @@ var proto = {
 
         /// Update procecing link
         //console.log("DATA FLOWWWW==>", this.objectSizeOf(dataFlow))
-        // processingLink.destination.consumption_history.push({
-        //   traitement_id: traitement_id,
-        //   flow_size: this.objectSizeOf(dataFlow) / 1000000,
-        //   price: (this.objectSizeOf(dataFlow) / 1000000) * 0.04,
-        //   dates: {
-        //     created_at: new Date()
-        //   }
-        // })
+        processingLink.destination.consumption_history.push({
+          traitement_id: traitement_id,
+          flow_size: this.objectSizeOf(dataFlow) / 1000000,
+          price: (this.objectSizeOf(dataFlow) / 1000000) * 0.04,
+          dates: {
+            created_at: new Date()
+          }
+        })
         if (this.config.quietLog != true) {
           //console.log('BEFORE lib Update');
         }
@@ -349,7 +349,7 @@ var proto = {
 
           this.workspace_lib.updateSimple(res).then(function(res) {
             if (this.config.quietLog != true) {
-              console.log('length after', res.components.length)
+              //console.log('length after', res.components.length)
               console.log('--------------  End of Worksapce processing -------------- ', res._id)
             }
         }.bind(this))

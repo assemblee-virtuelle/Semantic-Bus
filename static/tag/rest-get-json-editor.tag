@@ -1,7 +1,10 @@
 <rest-get-json-editor>
   <div>description du web service à intéroger</div>
   <label>url</label>
-  <input type="text" name="urlInput" ref="urlInput" value={data.specificData.url} onchange={urlInputChange}></input>
+  <input type="text" ref="urlInput" value={data.specificData.url} onchange={urlInputChange}></input>
+  <label>content-type forcé</label>
+  <input type="text" ref="overidedContentTypeInput" value={data.specificData.overidedContentType} onchange={overidedContentTypeInputChange}></input>
+
   <label>header</label>
   <div class="commandBar containerH" style="justify-content:flex-end">
     <image class="commandButtonImage" src="./image/ajout_composant.svg" width="50" height="50" onclick={addRowClick}></image>
@@ -23,20 +26,24 @@
       this.data.specificData.url = e.target.value;
     }
 
+    this.overidedContentTypeInputChange = function (e) {
+      this.data.specificData.overidedContentType = e.target.value;
+    }
+
     this.updateData = function (dataToUpdate) {
       this.data = dataToUpdate;
-      this.refs.headerTable.data = this.data.specificData.headers|| [];
+      this.refs.headerTable.data = this.data.specificData.headers || [];
       this.update();
     }.bind(this);
 
-    this.addRowClick=function(e) {
+    this.addRowClick = function (e) {
       this.refs.headerTable.data.push({})
     }
     this.on('mount', function () {
-      this.refs.headerTable.on('dataChanged',data=>{
-        this.data.specificData.headers=data;
+      this.refs.headerTable.on('dataChanged', data => {
+        this.data.specificData.headers = data;
       });
-      this.refs.headerTable.on('delRow', row=>{
+      this.refs.headerTable.on('delRow', row => {
         this.refs.headerTable.data.splice(row.rowid, 1);
       });
       RiotControl.on('item_current_changed', this.updateData);

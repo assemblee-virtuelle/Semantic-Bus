@@ -274,7 +274,7 @@
     }.bind(this));
 
     this.on('mount', function () {
-      this.router = route.create()
+      //this.router = route.create()
       route(function (entity, id, action) {
         console.log(entity, id, action);
         //this.routePath=path; this.routeHistory=history;
