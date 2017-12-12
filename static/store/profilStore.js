@@ -29,6 +29,26 @@ function profilStore() {
   })
 
 
+
+  this.on('send_back_email', function(data) {
+    console.log("IN TRIGGER SEND BACK EMAIL", data)
+    $.ajax({
+      method: 'get',
+      url: '../auth/sendbackmail/' + data.user._id,
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
+      contentType: 'application/json'
+    }).done(function(data) {
+      if(data == "mail_sent"){
+        this.trigger('email_send')
+      }else{
+        this.trigger('error_email_send')
+      }
+    }.bind(this))
+  });
+
+
   this.on('load_all_profil_by_email', function(message) {
     $.ajax({
       method: 'get',

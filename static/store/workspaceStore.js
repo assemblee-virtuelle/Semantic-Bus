@@ -543,7 +543,6 @@ function WorkspaceStore() {
   //   })
   // }); // <= workspace_current_select
 
-
   this.on('navigation', function(entity, id, action) {
     //console.log('WARNING');
     if (entity == "workspace") {

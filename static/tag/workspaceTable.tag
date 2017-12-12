@@ -40,7 +40,7 @@
       this.tags.zentable.on('rowNavigation', function (data) {
         console.log("rowNavigation", data);
         //RiotControl.trigger('workspace_current_select', data);
-        route('workspace/'+data._id+'/component');
+        route('workspace/' + data._id + '/component');
       }.bind(this));
       RiotControl.on("store_filterCards", this.filterSearch)
       RiotControl.on('store_addRowWorkspace',this.addRow);

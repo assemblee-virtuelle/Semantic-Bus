@@ -98,8 +98,91 @@ var UserStore = function() {
   });
 
 
+  
+
+  this.on('is_authorize', function (data) {
+    console.log("is_authorize", data)
+    if(data.length > 1){
+      $.ajax({
+        method: 'post',
+        data: JSON.stringify(data),
+        contentType: 'application/json',
+        url: '/auth/is_authorize_component',
+      }).done(data => {
+        console.log("isScrennAuthorize", data)
+        if(data.state == "authorize"){
+          this.trigger('is_authorize_true')
+        }else{
+          this.trigger('is_authorize_false')
+        }
+      })
+    }else{
+        this.trigger('is_authorize_false')
+    }
+  })
+
+  this.on('forgot_password', function (email) {
+    console.log(email)
+    $.ajax({
+      method: 'get',
+      contentType: 'application/json',
+      url: '/auth/passwordforget/' + email,
+    }).done(data => {
+      console.log("mail sent", data)
+      if(data.state == "mail_sent"){
+        this.trigger('enter_code', data.user)
+      }else{
+        this.trigger('error_send_mail_code')
+      }
+    })
+  })
 
 
+  this.on('verife_code', function (data) {
+    console.log("verifecode", data)
+    if(data.user._id){
+      $.ajax({
+        method: 'get',
+        contentType: 'application/json',
+        url: '/auth/verifycode/' + data.user._id + '/' + data.code,
+      }).done(data => {
+        console.log("verif code done", data)
+        if(data.state == "good_code"){
+          this.trigger('good_code', data.user)
+        }else if(data.state == "bad_code"){
+          this.trigger('error_change_code')
+        }else{
+          this.trigger('token_expired')
+        }
+      })
+    }else{
+      this.trigger('back_send_mail')
+    }
+  })
+
+
+  this.on('update_password', function (data) {
+    console.log("update_password", JSON.stringify(data))
+    $.ajax({
+      method: 'post',
+      contentType: 'application/json',
+      data: JSON.stringify(data),
+      url: '/auth/updatepassword',
+    }).done(data => {
+      console.log("update_password", data)
+      if(data.state == "password_update"){
+        this.trigger('password_update')
+      }else if(data.state == "token_expired"){
+        this.trigger('token_expired')
+      }else if(data.state == "no_user"){
+        this.trigger('back_send_mail')
+      }else{
+        this.trigger('password_update_error')
+      }
+    })
+  })
+
+  
 
   this.on('user_inscription', function (user) {
     console.log(user);

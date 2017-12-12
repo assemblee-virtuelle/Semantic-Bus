@@ -47,6 +47,15 @@
           </div>
         </div>
       </div>
+      <div class="containerV" if={!profil.active} style=" justify-content: center; align-items: center;/* flex-grow: 1; */flex-basis: 105pt;">
+        <div if={!mailsend}>
+          <div>Vous n'avez pas valider votre email ( consulter votre mail )</div>
+          <button class="mail-btn" onclick={sendbackmail} type="button">{emailtext}</button>
+        </div>
+        <div if={mailsend}>
+          <div>Un email à été envoyé, verifier votre boite mail </div>
+        </div>
+      </div>
       <div class="containerV" style=" justify-content: center; align-items: center;/* flex-grow: 1; */flex-basis: 105pt;">
         <div id={result? 'good-result-global' : 'bad-result-global' }>{resultGlobal}
         </div>
@@ -170,6 +179,8 @@
   this.modeUserResume = true
   this.modeUserEdition = false
   this.modeSetting = false
+  this.mailsend = false
+  this.emailtext = "Renvoyer un email"
 
   deconnexion(e) {
     RiotControl.trigger('deconnexion');
@@ -213,6 +224,15 @@
       this.resultEmail = "L'email n'est pas au bond format";
     }
   }
+
+  sendbackmail(e){
+     RiotControl.trigger('send_back_email', {user: this.profil})
+  }
+
+  RiotControl.on('email_send', function(){
+      this.mailsend = true 
+      this.update()
+  }.bind(this))
 
   RiotControl.on('email_already_use', function () {
     this.result = false;
