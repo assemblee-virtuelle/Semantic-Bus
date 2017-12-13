@@ -255,11 +255,16 @@ module.exports = {
             //if (typeof nodeInPostProcess[nodeInDataProperty] == 'string') {
             //console.log('PostProcess | ', nodeInPostProcess[nodeInDataProperty]);
             var javascriptEvalString = nodeInPostProcess[nodeInDataProperty].processData;
+            //console.log('javascriptEvalString |',javascriptEvalString)
+            //console.log('nodeInData[nodeInDataProperty] |', nodeInData[nodeInDataProperty]);
             for (evalParam in nodeInData[nodeInDataProperty]) {
               //console.log(evalParam);
               var evalParamValue = nodeInData[nodeInDataProperty][evalParam];
               //console.log('evalParam |',evalParam,' | evalParamValue | ',evalParamValue);
               if (typeof evalParamValue == 'string') {
+
+                evalParamValue = evalParamValue.replace(/"/g, '\\"')
+                //console.log('evalParamValue',evalParamValue);
                 evalParamValue = '"' + evalParamValue + '"';
               }
               if (typeof evalParamValue == 'object') {

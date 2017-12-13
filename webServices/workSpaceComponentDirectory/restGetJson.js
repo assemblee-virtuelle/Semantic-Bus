@@ -19,9 +19,9 @@ module.exports = {
     return new Promise((resolve, reject) => {
       //console.log(pullParams,urlString);
       let urlString = specificData.url;
-      console.log(urlString);
+      //console.log(urlString);
       for (param in pullParams) {
-        console.log(param);
+        //console.log(param);
         urlString = urlString.replace('<%' + param + '%>', pullParams[param]);
       }
       let headers = {}
@@ -31,7 +31,7 @@ module.exports = {
         }
       }
       //let headers=specificData.headers.map(record=>{return({record.key:record.value})});
-      console.log(headers);
+      //console.log(headers);
       //console.log(urlString);
       const parsedUrl = this.url.parse(urlString);
       // console.log('REST Get JSON | makerequest | port', parsedUrl.port);
@@ -55,8 +55,8 @@ module.exports = {
       //requestOptions.headers['Upgrade-Insecure-Requests']=1;
       requestOptions.headers['User-Agent'] = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/62.0.3202.94 Chrome/62.0.3202.94 Safari/537.36';
 
-      console.log(requestOptions);
-      console.log(urlString.indexOf('https') != -1);
+      //console.log(requestOptions);
+      //console.log(urlString.indexOf('https') != -1);
 
       //var lib = urlString.indexOf('https') != -1 ? this.https : this.http;
 
@@ -85,10 +85,14 @@ module.exports = {
             //console.log(responseBody);
 
             try {
-              console.log('CONTENT-TYPE',response.headers['content-type']);
+              //console.log('CONTENT-TYPE',response.headers['content-type']);
+              let contentType=response.headers['content-type'];
+              if (specificData.overidedContentType!=undefined && specificData.overidedContentType.length>0){
+                contentType=specificData.overidedContentType;
+              }
               //console.log(responseBody);
               //console.log('Location',response.headers['location']);
-              if (response.headers['content-type'].search('xml') != -1) {
+              if (contentType.search('xml') != -1) {
                 this.xml2js.parseString(responseBody, {
                   attrkey: "attr",
                   "trim": true
@@ -97,13 +101,13 @@ module.exports = {
                     data: result
                   });
                 });
-              } else if (response.headers['content-type'].search('json') != -1) {
+              } else if (contentType.search('json') != -1) {
                 let responseObject = JSON.parse(responseBody);
                 resolve({
                   data: JSON.parse(responseBody)
                 });
               } else {
-                reject(new Error('unsuported content-type ' + response.headers['content-type']))
+                reject(new Error('unsuported content-type :' + contentType))
               }
 
 
@@ -128,7 +132,7 @@ module.exports = {
   },
   pull: function(data, flowdata, pullParams) {
     //console.log('REST Get JSON | pull : ',data);
-    console.log(data.specificData);
+    //console.log(data.specificData);
     return this.makeRequest('GET', data.specificData, pullParams);
 
   }
