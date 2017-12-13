@@ -224,7 +224,7 @@
       console.log('user_authentified', localStorage.user_id);
       this.userAuthentified=true;
       this.update();
-      RiotControl.trigger('load_profil');
+      //RiotControl.trigger('load_profil');
     }.bind(this));
 
     RiotControl.on('profil_loaded', function (data) {

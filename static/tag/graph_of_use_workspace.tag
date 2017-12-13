@@ -1,16 +1,20 @@
 <graph-of-use-workspace class="containerV">
-  <div class="containerH">
-    <div class="card">
-      <h4>nombre de workspace</h4>
-      <span class="second-title-card">{this.numberWorkspace}</span>
+ <div class="scrollable">
+    <div class="containerH">
+      <div class="card">
+        <h4>nombres de workspaces</h4>
+        <span class="second-title-card">{this.numberWorkspace}</span>
+      </div>
+      <div class="card">
+        <h4>Consomés sur 30 jours</h4>
+        <span class="second-title-card">{this.golbalConsumption} Mo</span>
+      </div>
     </div>
-    <div class="card">
-      <h4>Consomé sur 30 jours</h4>
-      <span class="second-title-card">{this.golbalConsumption} Mo</span>
+    <div class="containerH" style="padding:5vh">
+      <div class="item-flex">
+        <svg viewBox="0 0 1000 600" id="stacked" style="background-color:rgb(250,250,250);"></svg>
+      </div>
     </div>
-  </div>
-  <div class="containerH scrollable" style="height:100%">
-      <svg viewBox="0 0 1000 600" id="stacked"></svg>
   </div>
 </div>
 
@@ -20,11 +24,13 @@
     background: #fff;
     border-radius: 5px;
     font-family: "adelle-sans", sans-serif;
-    font-weight: 100;
-    margin: 48px auto;
-    width: 20rem;
-    padding: 20px;
-    text-align: center;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10vh;
+    margin-left: 5vw;
+
   }
 
   .title-number {
@@ -323,7 +329,7 @@
 
     canvasStackChart.append("g").attr("class", "y axis").call(d3.axisLeft(yStackChart)).append("text").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", ".71em").style("text-anchor", "end")
 
-    canvasStackChart.append("text").attr("class", "y label").attr("text-anchor", "end").attr("y", 6).attr("dy", ".75em").attr("transform", "rotate(-90)").attr("font-size", "12px").text("Consomation( € )");
+    canvasStackChart.append("text").attr("class", "y label").attr("text-anchor", "end").attr("y", 6).attr("dy", ".75em").attr("transform", "rotate()").attr("font-size", "12px").text("Consomation( € )");
 
     var state = canvasStackChart.selectAll(".Day").data(dataT).enter().append("g").attr("class", "g").attr("transform", function (d) {
       return "translate(" + xStackChart(d.Day.split("-")[0] + "-" + d.Day.split("-")[1]) + ",0)";

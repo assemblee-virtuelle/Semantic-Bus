@@ -14,6 +14,10 @@
         <img src="./image/Roulette_bus.svg" style="margin-bottom: 10px;" height="40px" width="40px">
         <p style="color:white;font-size:12px">Paramêtres</p>
       </a>
+       <a href="#profil//payement" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
+        <img src="./image/credit_card.png" style="margin-bottom: 10px;" height="40px" width="40px">
+        <p style="color:white;font-size:12px">Credits</p>
+      </a>
     </div>
   </div>
 
@@ -68,13 +72,46 @@
     <div class="containerV" style="flex-grow:1;justify-content:center;align-items: center;">
       <h3 style="color: rgb(120,120,120);">
         Nous esperons que votre expérience sur cet outil était satisfaisante ? à bientôt.</h3>
-      <button class="dec-btn" onclick={deconnexion} type="button">Déconnexion</button>
+        <button class="dec-btn" onclick={deconnexion} type="button">Déconnexion</button>
     </div>
+  </div>
 
+  <div class="containerV" if={menu=='payement'} style="flex-grow: 1;background-color: rgb(238, 242, 249);">
+    <div class="containerV" style="flex-grow:1;justify-content:center;align-items: center;">
+      <h3 style="color: rgb(120,120,120);"> 
+        Vous disposez de {profil.credit} credits
+      </h3>
+      <div class="containerH">
+        <button class="credit-btn" onclick={} type="button">Recharger mes credits</button>
+        <button class="transac-btn" onclick={} type="button">Consulter mes transactions</button>
+      </div>
+    </div>
   </div>
 </div>
-<style scoped>
 
+<style scoped>
+  .credit-btn{
+    color: #ffffff;
+    background-color: rgb(33,150,243);
+    border: none;
+    padding: 10px;
+    border-radius: 5px 5px 5px 5px;
+    text-align: center;
+    max-width: 40%;
+    margin-top: 10%;
+  }
+
+  .transac-btn {
+    color: #ffffff;
+    background-color: rgb(9,245,185);
+    border: none;
+    padding: 10px;
+    border-radius: 5px 5px 5px 5px;
+    text-align: center;
+    max-width: 40%;
+    margin-top: 10%;
+    margin-left: 10%;
+  }
   .label-form {
     display: flex;
     margin-bottom: 1em;
@@ -272,7 +309,7 @@
 
   RiotControl.on('update_profil_done', function () {
     this.result = true;
-    this.resultGlobal = "Votre profil à bien était mis à jour ";
+    this.resultGlobal = "Votre profil à bien était mis à jour";
     setTimeout(function () {
       console.log("SET TIME OUT")
       this.resultGlobal = ""
@@ -282,7 +319,7 @@
   }.bind(this))
 
   RiotControl.on('profil_loaded', function (data) {
-    console.log("profil loaded", data)
+    console.log("profil loaded", this.profil)
     this.profil = data.user;
     this.update()
   }.bind(this))
@@ -304,3 +341,6 @@
   })
 </script>
 </profil>
+
+
+
