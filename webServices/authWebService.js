@@ -99,9 +99,11 @@ module.exports = function (router) {
 
 
   router.get('/verify', function (req, res) {
+    console.log(req.query.userid)
     user_lib.get({
       _id: req.query.userid
     }).then((user) => {
+      console.log(user, req.query.id, user.mailid)
       if (req.query.id == user.mailid) {
         user.active = true
         user_lib.update(user, null).then(function (result) {

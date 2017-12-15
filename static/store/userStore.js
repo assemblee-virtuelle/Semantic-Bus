@@ -72,7 +72,6 @@ var UserStore = function() {
     var token = {
       token: token
     }
-    console.log(token)
     $.ajax({
       method: 'post',
       data: JSON.stringify(token),

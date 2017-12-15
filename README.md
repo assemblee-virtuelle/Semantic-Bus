@@ -42,3 +42,4 @@ semantic data transformation &amp; semantic container crawling
 - redemarer console
 - `nvm install 7.10`
 - `npm install`
+- `node app.js`
