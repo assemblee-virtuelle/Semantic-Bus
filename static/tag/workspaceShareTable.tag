@@ -1,6 +1,6 @@
 <workspace-share-table class="containerV">
 
-  <zenTable if={!isEmpty} drag={false} disallowselect={true} style="background-color: rgb(238,242,249);">
+  <zenTable show={!isEmpty} drag={false} disallowselect={true} style="background-color: rgb(238,242,249);">
     <yield to="header">
       <div>Name</div>
       <div>Description</div>
