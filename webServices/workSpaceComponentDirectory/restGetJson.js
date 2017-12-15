@@ -58,9 +58,9 @@ module.exports = {
       //console.log(requestOptions);
       //console.log(urlString.indexOf('https') != -1);
 
-      //var lib = urlString.indexOf('https') != -1 ? this.https : this.http;
+      var lib = urlString.indexOf('https') != -1 ? this.https : this.http;
 
-      const request = this.https.request(requestOptions, response => {
+      const request = lib.request(requestOptions, response => {
         const hasResponseFailed = response.statusCode >= 400;
         //console.log('REST Get JSON | header |',response.headers);
         //console.log('REST Get JSON | statusCode: |',response.statusCode);

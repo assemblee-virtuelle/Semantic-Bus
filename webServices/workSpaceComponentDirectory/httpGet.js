@@ -28,8 +28,8 @@ module.exports = {
       };
 
 
-      //var lib = urlString.indexOf('https') != -1 ? this.https : this.http;
-      const request = this.https.request(requestOptions, response => {
+      var lib = urlString.indexOf('https') != -1 ? this.https : this.http;
+      const request = lib.request(requestOptions, response => {
         const hasResponseFailed = response.statusCode >= 400;
         var responseBody = '';
         var responseBodyExel = [];
