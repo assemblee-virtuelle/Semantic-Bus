@@ -269,8 +269,9 @@ module.exports = {
               }
               if (typeof evalParamValue == 'object') {
                 //evalParamValue= 'JSON.parse(\''+JSON.stringify(evalParamValue)+'\')';
-                evalParamValue = JSON.stringify(evalParamValue)
-                evalParamValue = evalParamValue.replace(/'/g, "\\'")
+                evalParamValue = JSON.stringify(evalParamValue);
+                evalParamValue = evalParamValue.replace(/\\/g, "\\\\");
+                evalParamValue = evalParamValue.replace(/'/g, "\\'");
                 evalParamValue = "JSON.parse('" + evalParamValue + "')";
                 //evalParamValue = evalParamValue.replace("'", "X");
                 //evalParamValue=evalParamValue.replace(":","X");
@@ -286,7 +287,7 @@ module.exports = {
               nodeOut[nodeInDataProperty] = eval(javascriptEvalString);
               //console.log('eval done');
             } catch (e) {
-              //console.log('Javascript Eval failed ', javascriptEvalString, e);
+              console.log('Javascript Eval failed ', javascriptEvalString, e);
             }
           } else if (nodeInPostProcess[nodeInDataProperty].process == 'arrayHack') {
             //console.log('arrayHack',nodeInDataProperty);
