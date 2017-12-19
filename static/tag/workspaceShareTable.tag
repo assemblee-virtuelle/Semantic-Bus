@@ -20,7 +20,7 @@
   </div>
   <script>
 
-    this.isEmpty = true
+    this.isEmpty = false
 
     //console.log('mount opts :',this.opts);
     this.refreshZenTableShare = function (data) {
