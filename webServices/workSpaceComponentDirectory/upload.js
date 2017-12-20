@@ -16,7 +16,7 @@ module.exports = {
   readable: require('stream').Readable,
   stepNode: false,
   initialise: function (router, recursivPullResolvePromise) {
-    router.post('/upload/:compId', function (req, res) {
+    router.post('/upload/:compId', function (req, res, next) {
       var compId = req.params.compId;
       const isexel = false
       return new Promise(function (resolve, reject) {
@@ -73,7 +73,8 @@ module.exports = {
           }.bind(this))
         }, (err) => {
           //console.log("in error 2");
-          res.status(500).send(err);
+          //res.status(500).send(err);
+          next(err)
         })
       }.bind(this))
     }.bind(this))

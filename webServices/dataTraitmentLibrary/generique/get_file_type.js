@@ -16,7 +16,9 @@ function _extension(filename, contentType) {
     var reg = new RegExp(regex, 'g');
     if (filename != null) {
       //console.log(filename.match(reg)[0])
-      resolve(filename.match(reg)[0])
+      //let matchArray=filename.match(reg);
+      //console.log(filename.match(reg));
+      resolve(filename.match(reg).pop())
     } else {
       if (contentType) {
         //console.log(contentType)
@@ -29,7 +31,7 @@ function _extension(filename, contentType) {
 function _type_file(filename, dataString, dataBuffer, out, contentType) {
   //console.log("in aggregate function")
   return _extension(filename, contentType).then(function (extension) {
-    //console.log("extension |", extension)
+    console.log("extension |", extension)
     return new Promise(function (resolve, reject) {
       if (out == true || out == 'true') {
         //console.log(out)
