@@ -63,7 +63,7 @@
     });
     this.on('unmount', function () {
       RiotControl.off('item_current_changed',this.updateData);
-      RiotControl.off('item_current_getCache_done', this.refreshCashe);
+      RiotControl.off('item_current_getCache_done', this.refreshCache);
     });
   </script>
 </cache-nosql-editor>

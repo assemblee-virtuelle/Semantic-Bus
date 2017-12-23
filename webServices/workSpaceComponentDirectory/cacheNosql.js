@@ -71,13 +71,15 @@ module.exports = {
             if (data.specificData.historyOut==true){
               //console.log('RETURN CACHE',cachedData);
               resolve({
-                data : JSON.parse(JSON.stringify(cachedData))
+                //data : JSON.parse(JSON.stringify(cachedData))
+                data : cachedData
                 //data: {data:cachedData.data,history:cachedData.history}
               });
             }
             else{
               resolve({
-                data: JSON.parse(JSON.stringify(cachedData.data))
+                //data: JSON.parse(JSON.stringify(cachedData.data))
+                data: cachedData.data
               });
             }
 
