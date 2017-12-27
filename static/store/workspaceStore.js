@@ -239,6 +239,7 @@ function WorkspaceStore() {
         method: 'get',
         url: '../data/core/workspace/' + record._id
       }, true).then(data => {
+        console.log(data);
         this.workspaceBusiness.connectWorkspaceComponent(data.components);
         this.workspaceCurrent = data;
         this.workspaceCurrent.mode = 'edit';

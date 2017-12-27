@@ -39,6 +39,7 @@
   <script src="./store/workspaceStore.js"></script>
   <script src="./store/technicalComponentStore.js"></script>
   <script src="./store/genericStore.js"></script>
+  <script src="./store/adminStore.js"></script>
   <script src="./store/cacheNosqlStore.js"></script>
   <script src="./store/uploadFileStore.js"></script>
   <script src="./store/profilStore.js"></script>
@@ -115,7 +116,10 @@
     }
     var genericStore = new GenericStore(utilStore, specificStoreList);
     RiotControl.addStore(genericStore);
-    var mainController = new MainController(worspaceStore, genericStore, profilStore);
+    var adminStore = new AdminStore();
+    RiotControl.addStore(adminStore);
+
+    var mainController = new MainController(worspaceStore, genericStore, profilStore, utilStore);
     RiotControl.addStore(mainController);
     RiotControl.on('login_redirect', function() {
       window.open("../auth/login.html", "_self");

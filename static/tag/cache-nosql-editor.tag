@@ -62,6 +62,7 @@
       RiotControl.trigger('item_current_getCache');
     });
     this.on('unmount', function () {
+      console.log('UNMOUNT');
       RiotControl.off('item_current_changed',this.updateData);
       RiotControl.off('item_current_getCache_done', this.refreshCache);
     });

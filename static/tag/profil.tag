@@ -1,6 +1,6 @@
-<profil class="containerH" style="flex-grow:1;flex-wrap:nowrap; flex-grow: 1;">
+<profil class="containerH" style="flex-grow:1;flex-wrap:nowrap;">
 
-  <div class="containerV" style="flex-basis: 70px; background-color: rgb(9,245,185);">
+  <div class="containerV" style="flex-basis: 70px; background-color: rgb(9,245,185);flex-shrink:0;">
     <div class=" containerV" style="flex-basis:400px; background-color: rgb(9,245,185);flex-grow:0;">
       <a href="#profil//running" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
         <img src="./image/Stats.svg" style="margin-bottom: 10px;" height="40px" width="40px">
@@ -78,7 +78,7 @@
 
   <div class="containerV" if={menu=='payement'} style="flex-grow: 1;background-color: rgb(238, 242, 249);">
     <div class="containerV" style="flex-grow:1;justify-content:center;align-items: center;">
-      <h3 style="color: rgb(120,120,120);"> 
+      <h3 style="color: rgb(120,120,120);">
         Vous disposez de {profil.credit} credits
       </h3>
       <div class="containerH">
@@ -89,6 +89,138 @@
   </div>
 </div>
 
+
+
+<script>
+  this.resultEmail = ""
+  this.googleId = localStorage.googleid
+  this.modeUserResume = true
+  this.modeUserEdition = false
+  this.modeSetting = false
+  this.mailsend = false
+  this.emailtext = "Renvoyer un email"
+
+  deconnexion(e) {
+    RiotControl.trigger('deconnexion');
+  }
+
+  changeEmailInput(e) {
+    this.profil.credentials.email = e.currentTarget.value;
+    console.log(this.profil.credentials.email);
+  }
+
+  changeJobInput(e) {
+    this.profil.job = e.currentTarget.value;
+    console.log(this.profil.job);
+  }
+  changeSocietyInput(e) {
+    this.profil.society = e.currentTarget.value;
+    console.log(this.profil.society);
+  }
+  changeNameInput(e) {
+    this.profil.name = e.currentTarget.value;
+    console.log(this.profil.name);
+  }
+
+  updateUser(e) {
+    console.log(this.refs.email.value, this.profil.credentials.email)
+    var regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g
+    if (this.profil.credentials.email.match(regex)) {
+      if (this.profil.credentials.email != this.refs.email.value) {
+        RiotControl.trigger('update_user', {
+          user: this.profil,
+          mailChange: true
+        });
+      } else {
+        RiotControl.trigger('update_user', {
+          user: this.profil,
+          mailChange: false
+        });
+      }
+    } else {
+      this.result = false;
+      this.resultEmail = "L'email n'est pas au bond format";
+    }
+  }
+
+  sendbackmail(e){
+     RiotControl.trigger('send_back_email', {user: this.profil})
+  }
+
+  RiotControl.on('email_send', function(){
+      this.mailsend = true
+      this.update()
+  }.bind(this))
+
+  RiotControl.on('email_already_use', function () {
+    this.result = false;
+    this.resultEmail = "L'email choisi exsite déjà";
+    this.update();
+  }.bind(this));
+
+  RiotControl.on('bad_format_email', function () {
+    this.result = false;
+    this.resultEmail = "L'email n'est pas au bond format";
+    this.update();
+  }.bind(this));
+
+  RiotControl.on('google_user', function () {
+    this.result = false;
+    this.resultEmail = "vous ne pouvez pas modifier votre email en tant q'utilisateur google";
+    this.update();
+  }.bind(this));
+
+  RiotControl.on('bad_format_job', function () {
+    this.result = false;
+    this.resultJob = "Le job n'est pas au bon format";
+    this.update();
+  }.bind(this));
+
+  RiotControl.on('bad_format_name', function () {
+    this.result = false;
+    this.resultName = "Le job n'est pas au bon format";
+    this.update();
+  }.bind(this));
+
+  RiotControl.on('bad_format_society', function () {
+    this.result = false;
+    this.resultSociety = "La societe n'est pas au bon format";
+    this.update();
+  }.bind(this));
+
+  RiotControl.on('update_profil_done', function () {
+    this.result = true;
+    this.resultGlobal = "Votre profil à bien était mis à jour";
+    setTimeout(function () {
+      console.log("SET TIME OUT")
+      this.resultGlobal = ""
+      this.update()
+    }.bind(this), 2000);
+    this.update();
+  }.bind(this))
+
+  RiotControl.on('profil_loaded', function (data) {
+    console.log("profil loaded", this.profil)
+    this.profil = data.user;
+    this.update()
+  }.bind(this))
+
+  this.profilMenuChanged = function (menu) {
+    //console.log('PROFIL MENU CHANGED',menu);
+    this.menu = menu;
+    this.update();
+  }.bind(this);
+
+  this.on('mount', function () {
+    RiotControl.on('profil_menu_changed', this.profilMenuChanged);
+    RiotControl.trigger('load_profil');
+    this.googleId = localStorage.googleid
+  })
+
+  this.on('unmount', function () {
+    RiotControl.off('profil_menu_changed', this.profilMenuChanged);
+  })
+</script>
 <style scoped>
   .credit-btn{
     color: #ffffff;
@@ -209,138 +341,4 @@
   }
 
 </style>
-
-<script>
-  this.resultEmail = ""
-  this.googleId = localStorage.googleid
-  this.modeUserResume = true
-  this.modeUserEdition = false
-  this.modeSetting = false
-  this.mailsend = false
-  this.emailtext = "Renvoyer un email"
-
-  deconnexion(e) {
-    RiotControl.trigger('deconnexion');
-  }
-
-  changeEmailInput(e) {
-    this.profil.credentials.email = e.currentTarget.value;
-    console.log(this.profil.credentials.email);
-  }
-
-  changeJobInput(e) {
-    this.profil.job = e.currentTarget.value;
-    console.log(this.profil.job);
-  }
-  changeSocietyInput(e) {
-    this.profil.society = e.currentTarget.value;
-    console.log(this.profil.society);
-  }
-  changeNameInput(e) {
-    this.profil.name = e.currentTarget.value;
-    console.log(this.profil.name);
-  }
-
-  updateUser(e) {
-    console.log(this.refs.email.value, this.profil.credentials.email)
-    var regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g
-    if (this.profil.credentials.email.match(regex)) {
-      if (this.profil.credentials.email != this.refs.email.value) {
-        RiotControl.trigger('update_user', {
-          user: this.profil,
-          mailChange: true
-        });
-      } else {
-        RiotControl.trigger('update_user', {
-          user: this.profil,
-          mailChange: false
-        });
-      }
-    } else {
-      this.result = false;
-      this.resultEmail = "L'email n'est pas au bond format";
-    }
-  }
-
-  sendbackmail(e){
-     RiotControl.trigger('send_back_email', {user: this.profil})
-  }
-
-  RiotControl.on('email_send', function(){
-      this.mailsend = true 
-      this.update()
-  }.bind(this))
-
-  RiotControl.on('email_already_use', function () {
-    this.result = false;
-    this.resultEmail = "L'email choisi exsite déjà";
-    this.update();
-  }.bind(this));
-
-  RiotControl.on('bad_format_email', function () {
-    this.result = false;
-    this.resultEmail = "L'email n'est pas au bond format";
-    this.update();
-  }.bind(this));
-
-  RiotControl.on('google_user', function () {
-    this.result = false;
-    this.resultEmail = "vous ne pouvez pas modifier votre email en tant q'utilisateur google";
-    this.update();
-  }.bind(this));
-
-  RiotControl.on('bad_format_job', function () {
-    this.result = false;
-    this.resultJob = "Le job n'est pas au bon format";
-    this.update();
-  }.bind(this));
-
-  RiotControl.on('bad_format_name', function () {
-    this.result = false;
-    this.resultName = "Le job n'est pas au bon format";
-    this.update();
-  }.bind(this));
-
-  RiotControl.on('bad_format_society', function () {
-    this.result = false;
-    this.resultSociety = "La societe n'est pas au bon format";
-    this.update();
-  }.bind(this));
-
-  RiotControl.on('update_profil_done', function () {
-    this.result = true;
-    this.resultGlobal = "Votre profil à bien était mis à jour";
-    setTimeout(function () {
-      console.log("SET TIME OUT")
-      this.resultGlobal = ""
-      this.update()
-    }.bind(this), 2000);
-    this.update();
-  }.bind(this))
-
-  RiotControl.on('profil_loaded', function (data) {
-    console.log("profil loaded", this.profil)
-    this.profil = data.user;
-    this.update()
-  }.bind(this))
-
-  this.profilMenuChanged = function (menu) {
-    console.log('PROFIL MENU CHANGED',menu);
-    this.menu = menu;
-    this.update();
-  }.bind(this);
-
-  this.on('mount', function () {
-    RiotControl.on('profil_menu_changed', this.profilMenuChanged);
-    RiotControl.trigger('load_profil');
-    this.googleId = localStorage.googleid
-  })
-
-  this.on('unmount', function () {
-    RiotControl.off('profil_menu_changed', this.profilMenuChanged);
-  })
-</script>
 </profil>
-
-
-

@@ -4,26 +4,26 @@ function profilStore() {
   this.userCurrrent;
 
   this.on('load_profil', function(message) {
-    console.log('show_profil', localStorage.user_id);
+    //console.log('show_profil', localStorage.user_id);
     if (this.userCurrrent == undefined) {
       // console.log(localStorage.user_id);
       $.ajax({
         method: 'get',
         url: '../data/core/users/' + localStorage.user_id,
         headers: {
-          "Authorization": "JTW" + " " + localStorage.token
+          "Authorization": "JTW" + " " + localStorage.toke
         },
         contentType: 'application/json'
       }).done(function(data) {
-        this.userCurrrent = data
-        console.log("load profil |", this.userCurrrent)
-        this.trigger('profil_menu_changed', this.menu)
-        this.trigger('profil_loaded', this.userCurrrent)
+        this.userCurrrent = data;
+        console.log("load profil |", this.userCurrrent);
+        this.trigger('profil_menu_changed', this.menu);
+        this.trigger('profil_loaded', this.userCurrrent);
 
       }.bind(this));
     } else {
-      this.trigger('profil_menu_changed', this.menu)
-      this.trigger('profil_loaded', this.userCurrrent)
+      this.trigger('profil_menu_changed', this.menu);
+      this.trigger('profil_loaded', this.userCurrrent);
 
     }
   })

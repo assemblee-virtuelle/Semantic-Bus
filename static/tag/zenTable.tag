@@ -1,6 +1,8 @@
 <zenTable class="containerV {opts.zentableClass}" style="flex-grow:1;">
   <div class="containerH tableHeader" ref="tableHeader" style="flex-shrink:0;">
     <yield from="header"/>
+    <div style="flex-basis:50px">
+    </div>
   </div>
   <div class="containerV scrollable tableBody" ref="tableBodyContainer" ondragover={on_drag_over} ondrop={on_drop}>
     <!--<div class="table scrollable" name="tableBody" ref="tableBody" ondragover={on_drag_over} ondrop={on_drop}>-->

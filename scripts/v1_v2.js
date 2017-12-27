@@ -1,17 +1,24 @@
 'use strict';
-var user_model = require('../lib/core/models').user
-var workspace_model = require('../lib/core/models').workspace
-var workspaceComponent_model = require('../lib/core/models').workspaceComponent
-var cache_model = require('../lib/core/models').cache
-var config = require('../configuration');
+
+module.exports = {
+user_model : require('../lib/core/models').user,
+workspace_model : require('../lib/core/models').workspace,
+workspaceComponent_model : require('../lib/core/models').workspaceComponent,
+cache_model : require('../lib/core/models').cache,
+config : require('../configuration'),
 
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
+ work : function(){
+  this._migration_user;
+  this._migration_workspace_workspace_component;
+  this._migration_cache
+},
 
-function _migration_workspace_workspace_component() {
+_migration_workspace_workspace_component : function(){
   var i = 0
   console.log("Votre migration commence")
   workspace_model.find().exec(function (err, workspaces) {
@@ -86,12 +93,12 @@ function _migration_workspace_workspace_component() {
       })
     });
   })
-} //<= _migration_workspace_workspace_component
+}, //<= _migration_workspace_workspace_component
 
 
 // --------------------------------------------------------------------------------
 
-function _migration_user() {
+_migration_user : function() {
   user_model.find().exec(function (err, users) {
     console.log(users)
     users.forEach(function (user) {
@@ -123,12 +130,12 @@ function _migration_user() {
       });
     })
   });
-} //<= _migration_user
+}, //<= _migration_user
 
 
 // --------------------------------------------------------------------------------
 
-function _migration_cache() {
+_migration_cache : function() {
   cache_model.find().exec(function (err, caches) {
       caches.forEach(function (cache, index) {
         var new_version_cache_model = {};
@@ -148,6 +155,7 @@ function _migration_cache() {
     })
 } //<= _migration_cache
 
+}
 // --------------------------------------------------------------------------------
 
 // _migration_user();
