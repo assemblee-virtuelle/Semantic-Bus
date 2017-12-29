@@ -1,5 +1,4 @@
 <profil class="containerH" style="flex-grow:1;flex-wrap:nowrap;">
-
   <div class="containerV" style="flex-basis: 70px; background-color: rgb(9,245,185);flex-shrink:0;">
     <div class=" containerV" style="flex-basis:400px; background-color: rgb(9,245,185);flex-grow:0;">
       <a href="#profil//running" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
@@ -32,7 +31,7 @@
           <h3 style="color:rgb(120,120,120)">{profil.name}</h3>
         </div>
         <div class="containerV">
-          <label class="label-form">Mon email</label>
+          <label class="label-forrefreshErrorsTablem">Mon email</label>
           <input class="change-mail" value="{profil.credentials.email}" ref="email" onchange={changeEmailInput}/>
           <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultEmail}</div>
         </div>
@@ -200,13 +199,13 @@
   }.bind(this))
 
   RiotControl.on('profil_loaded', function (data) {
-    console.log("profil loaded", this.profil)
-    this.profil = data.user;
+    console.log("profil loaded", data)
+    this.profil = data;
     this.update()
   }.bind(this))
 
   this.profilMenuChanged = function (menu) {
-    //console.log('PROFIL MENU CHANGED',menu);
+    console.log('PROFIL MENU CHANGED',menu);
     this.menu = menu;
     this.update();
   }.bind(this);

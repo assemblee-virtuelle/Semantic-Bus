@@ -3,6 +3,11 @@ function profilStore() {
   ////LE USER STORE EST RELIE A LOGIN EST NON A APPLICATION
   this.userCurrrent;
 
+  this.setUserCurrent=function(user){
+      this.userCurrrent=user;
+      this.trigger('profil_loaded', this.userCurrrent);
+  }
+
   this.on('load_profil', function(message) {
     //console.log('show_profil', localStorage.user_id);
     if (this.userCurrrent == undefined) {
@@ -15,17 +20,20 @@ function profilStore() {
         },
         contentType: 'application/json'
       }).done(function(data) {
-        this.userCurrrent = data;
-        console.log("load profil |", this.userCurrrent);
-        this.trigger('profil_menu_changed', this.menu);
-        this.trigger('profil_loaded', this.userCurrrent);
+        this.setUserCurrent(data);
+        // this.userCurrrent = data;
+        // console.log("load profil |", this.userCurrrent);
+        // this.trigger('profil_menu_changed', this.menu);
+        // this.trigger('profil_loaded', this.userCurrrent);
 
       }.bind(this));
     } else {
-      this.trigger('profil_menu_changed', this.menu);
-      this.trigger('profil_loaded', this.userCurrrent);
+      this.setUserCurrent(this.userCurrrent);
+      // this.trigger('profil_menu_changed', this.menu);
+      // this.trigger('profil_loaded', this.userCurrrent);
 
     }
+    this.trigger('profil_menu_changed', this.menu);
   })
 
 

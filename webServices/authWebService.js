@@ -1,6 +1,7 @@
 var jwtService = require('./jwtService');
 var inscription_lib_user = require('../lib/core/lib/inscription_lib')
-var auth_lib_user = require('../lib/core/lib/auth_lib')
+var auth_lib_user = require('../lib/core/lib/auth_lib');
+var user_lib = require('../lib/core/lib/auth_lib');
 var configuration = require('../configuration')
 var nodemailer = require("nodemailer");
 var url = !configuration.https ? './login.html?google_token=' : 'https://semantic-bus.org/auth/login.html?google_token='
@@ -262,7 +263,10 @@ module.exports = function (router) {
     if (req.body.token) {
       jwtService.require_token(req.body.token).then(function (token_result) {
         if (token_result != false) {
-          res.send(token_result);
+          user_lib.getWithWorkspace(token_result.iss).then(u=>{
+            token_result.profil=u;
+            res.send(token_result);
+          })
         }
       }).catch((err) => {
         console.log("error is token validde web service")

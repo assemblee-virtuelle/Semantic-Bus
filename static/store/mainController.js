@@ -53,6 +53,8 @@ function MainController(workSpaceStore, genericStore, profilStore,utilStore) {
           ///HERE HERE
           localStorage.googleid = data.subject;
           localStorage.user_id = data.iss;
+          this.profilStore.setUserCurrent(data.profil);
+          this.workspaceStore.setGlobalWorkspaceCollection(data.profil.workspaces);
           this.trigger('user_authentified');
         } else {
           localStorage.token = null

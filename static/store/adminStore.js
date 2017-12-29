@@ -22,6 +22,21 @@ function AdminStore() {
     }.bind(this));
   });
 
+  this.on('own_all_workspace', function(data) {
+    $.ajax({
+      method: 'get',
+      url: '../data/core/workspaceOwnAll/' + localStorage.user_id,
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
+      contentType: 'application/json',
+    }).done(function(data) {
+      this.workspaceCollection = data;
+      this.trigger('workspace_collection_changed', this.workspaceCollection);
+    }.bind(this));
+  }); //<= own_all_workspace
+
+
   this.on('dbScript_load', function(data) {
     utilStore.ajaxCall({
       method: 'get',
@@ -63,8 +78,10 @@ function AdminStore() {
     if (entity == "admin") {
       this.menu = action;
       this.trigger('navigation_control_done', entity, action);
-      this.trigger('admin_menu_changed', this.menu);
     }
+  });
+  this.on('admin_menu_get', function(entity, id, action) {
+    this.trigger('admin_menu_changed', this.menu);
   });
 
 }

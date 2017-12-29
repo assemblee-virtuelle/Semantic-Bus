@@ -4,7 +4,7 @@
     <div></div>
     <div class="containerV">
       <div class="containerH">
-        <div>
+        <div class="main-title">
           mes WorkFlow Partagés
         </div>
       </div>

@@ -70,13 +70,14 @@
     //this.menu='script';
 
     this.refreshErrorsTable = function (data) {
+      console.log('refreshErrorsTable', this.refs);
       //console.log('view', data);
       this.refs.errorsTable.data = data;
       this.update();
     }.bind(this);
 
     this.refreshDbScriptsTable = function (data) {
-      console.log('ALLO', data);
+      console.log('refreshDbScriptsTable', this);
       this.refs.dbScriptTable.data = data;
       this.update();
     }.bind(this);
@@ -92,20 +93,24 @@
     }
 
     this.on('mount', function () {
+      console.log('MOUNT');
       this.refs.dbScriptTable.on('rowsSelected',(data)=>{
         this.scriptsToExecute=data;
       })
       RiotControl.on('error_loaded', this.refreshErrorsTable);
       RiotControl.on('dbScript_loaded', this.refreshDbScriptsTable);
       RiotControl.on('admin_menu_changed', this.adminMenuChanged);
-      RiotControl.trigger('error_load');
+      RiotControl.trigger('admin_menu_get');
       RiotControl.trigger('dbScript_load');
+      RiotControl.trigger('error_load');
+
+
 
     });
 
     this.on('unmount', function () {
       RiotControl.off('error_loaded', this.refreshErrorsTable);
-      RiotControl.off('dbScript_loaded', this.refreshErrorsTable);
+      RiotControl.off('dbScript_loaded', this.refreshDbScriptsTable);
       RiotControl.off('admin_menu_changed', this.adminMenuChanged);
     });
 
