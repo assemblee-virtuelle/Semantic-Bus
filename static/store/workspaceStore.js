@@ -774,13 +774,15 @@ function WorkspaceStore() {
         this.trigger('share_change_already')
       } else {
         //this.userCurrrent = data,
-        //console.log('share-workspace', data);
+        console.log('share-workspace', data);
         this.workspaceBusiness.connectWorkspaceComponent(data.workspace.components);
         this.workspaceCurrent = data.workspace;
+        this.workspaceCurrent.mode='edit';
         this.trigger('share_change', {
           user: data.user,
           workspace: data.workspace
-        })
+        });
+        route('workspace/'+data.workspace._id+'/user');
       }
     }.bind(this));
   });

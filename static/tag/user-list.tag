@@ -31,6 +31,15 @@
       this.workspace = data
     }.bind(this);
 
+    this.shareChanged =function(data){
+      console.log("share change")
+      this.resultShare = "Votre workspace a été partagé";
+      this.update();
+    
+      //data = null;
+
+    }.bind(this);
+
     this.on('mount', function () {
       RiotControl.on('share_change_no_valide', function () {
         this.resultShare = "Aucun utilisateur trouvé";
@@ -42,12 +51,7 @@
         this.update();
       }.bind(this))
 
-      RiotControl.on('share_change', function (data) {
-        console.log("share change")
-        this.resultShare = "Votre workspace a été partagé";
-        this.update();
-        data = null;
-      }.bind(this))
+      RiotControl.on('share_change', this.shareChanged);
 
       RiotControl.on('share_change_send', function () {
         this.resultShare = "Envoie en cour";
@@ -64,6 +68,7 @@
       //RiotControl.off("store_share_workspace",this.share);
       RiotControl.off('workspace_current_changed', this.workspaceCurrentChanged);
       RiotControl.off('all_profil_by_email_load', this.allProfilByEmailLoad);
+      RiotControl.off('share_change', this.shareChanged);
     })
   </script>
   <style scoped>
