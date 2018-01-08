@@ -1,4 +1,9 @@
 "use strict";
+//memory leak tool, code is here to don't forget
+var memwatch = require('memwatch-next');
+var hd = new memwatch.HeapDiff();
+var diff = hd.end();
+
 var express = require('express')
 var cors = require('cors')
 var app = express();
@@ -34,14 +39,16 @@ var httpGet = require('./webServices/workSpaceComponentDirectory/restGetJson.js'
 var fs = require('fs');
 const configUrl = env.CONFIG_URL || 'http://app-cee3fd62-a81e-48b2-a766-a8be305d5fa9.cleverapps.io/file/dev';
 //console.log("before http config",configUrl);
-httpGet.makeRequest('GET', {url:configUrl}).then(result => {
+httpGet.makeRequest('GET', {
+  url: configUrl
+}).then(result => {
   console.log('~~ remote config | ', result);
   const configJson = result.data;
   const content = 'module.exports = ' + JSON.stringify(result.data);
 
 
 
-  fs.writeFile("configuration.js", content, 'utf8', function (err) {
+  fs.writeFile("configuration.js", content, 'utf8', function(err) {
     if (err) {
       throw err;
     } else {
@@ -53,7 +60,7 @@ httpGet.makeRequest('GET', {url:configUrl}).then(result => {
 
 
       //Sécurisation des route de data
-      safe.use(function (req, res, next) {
+      safe.use(function(req, res, next) {
         // ensureSec(req,res,next)
         jwtService.securityAPI(req, res, next);
       })
@@ -75,7 +82,7 @@ httpGet.makeRequest('GET', {url:configUrl}).then(result => {
 
       ///OTHER APP COMPONENT
       ///SECURISATION DES REQUETES
-      app.get('/',function(req, res, next){
+      app.get('/', function(req, res, next) {
         res.redirect('/ihm/application.html#landing');
       });
       app.use('/auth', express.static('static'));
@@ -91,7 +98,7 @@ httpGet.makeRequest('GET', {url:configUrl}).then(result => {
       let errorLib = require('./lib/core/lib/error_lib');
       let jwtSimple = require('jwt-simple');
       let errorParser = require('error-stack-parser');
-      app.use(function (err, req, res, next) {
+      app.use(function(err, req, res, next) {
         //console.log('PROXY');
         if (err) {
           //console.log('ERROR MANAGEMENT');
@@ -116,13 +123,13 @@ httpGet.makeRequest('GET', {url:configUrl}).then(result => {
         //able to centralise response using res.data ans res.send(res.data)
       });
 
-      server.listen(process.env.PORT || 8080, function () {
+      server.listen(process.env.PORT || 8080, function() {
         console.log('~~ server started at ', this.address().address, ':', this.address().port)
         require('./lib/core/timerScheduler').run();
 
         if (jenkins) {
           //console.log("jenkins is true");
-          http.get('http://bkz2jalw7c:3bdcf7bc40f582a4ae7ff52f77e90b24@tvcntysyea-jenkins.services.clever-cloud.com:4003/job/semanticbus-pic-3/build?token=semantic_bus_token', function (res) {
+          http.get('http://bkz2jalw7c:3bdcf7bc40f582a4ae7ff52f77e90b24@tvcntysyea-jenkins.services.clever-cloud.com:4003/job/semanticbus-pic-3/build?token=semantic_bus_token', function(res) {
             console.log("jenkins JOB production triggered")
           })
         }
@@ -134,7 +141,7 @@ httpGet.makeRequest('GET', {url:configUrl}).then(result => {
 
       // Lets encrypt response
 
-      app.get('/.well-known/acme-challenge/:challengeHash', function (req, res) {
+      app.get('/.well-known/acme-challenge/:challengeHash', function(req, res) {
         var params = req.params.challengeHash.substr(0, req.params.challengeHash.length)
         var hash = params + ".rCIAnB6OZN-jvB1XIOagkbUTKQQmQ1ogeb5DUVFNUko";
         res.send(hash)
@@ -143,7 +150,7 @@ httpGet.makeRequest('GET', {url:configUrl}).then(result => {
       /// Nous Securisons desormais IHM par un appel AJAX
       /// à lentrée sur la page application.html
 
-      server.on('error', function (err) {
+      server.on('error', function(err) {
         console.log(err)
       })
     }

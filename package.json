@@ -43,6 +43,7 @@
     "jsonpath-object-transform": "latest",
     "jsonwebtoken": "^7.4.1",
     "jwt-simple": "^0.5.1",
+    "memwatch-next": "^0.3.0",
     "mocha": "^3.5.0",
     "moment": "^2.18.1",
     "mongoose": "^4.10.5",
