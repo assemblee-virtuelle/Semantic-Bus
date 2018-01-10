@@ -1,6 +1,7 @@
 'use strict';
 
 var user_lib = require('../lib/core/lib/user_lib');
+var payment_lib = require('../lib/core/lib/payment_lib');
 
 
 
@@ -23,6 +24,35 @@ module.exports = function (router) {
       next(e);
     });
   });
+
+  router.post('/users/stripe/:id', function (req, res,next) {
+    console.log("IN STRIPE WEBSERVICE", JSON.parse(req.body.stripeToken))
+    payment_lib.addStripePayement(req.params.id, JSON.parse(req.body.stripeToken).card, req.body.amout).then(function (payment) {
+      if(payment.state == "done"){
+        res.send(payment.data)
+      }else{
+        res.send("error")
+      }
+    }).catch(e => {
+      next(e);
+    });
+  });
+
+
+  router.get('/users/transactions/:id', function (req, res,next) {
+    console.log("in web service transaction", req.params.id)
+    payment_lib.getAllTransactionList(req.params.id).then(function (user_charges) {
+      if(user_charges.state == "done"){
+        res.send(user_charges.data)
+      }else{
+        res.send("error")
+      }
+    }).catch(e => {
+      next(e);
+    });
+  });
+
+  
 
 
   // ---------------------------------------------------------------------------------

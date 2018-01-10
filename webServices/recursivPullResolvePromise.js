@@ -18,6 +18,7 @@ var proto = {
   mLabPromise: require('./mLabPromise'),
   workspace_component_lib: require('../lib/core/lib/workspace_component_lib'),
   workspace_lib: require('../lib/core/lib/workspace_lib'),
+  user_lib: require('../lib/core/lib/user_lib'),
   config: require('../configuration.js'),
   fackCounter: 0,
   resolveComponentPull(component, notMainNode, pullParams) {
@@ -109,6 +110,7 @@ var proto = {
         var global_flow = 0
         tableSift.forEach(componentProcessing => {
           let module = this.technicalComponentDirectory[componentProcessing.module];
+          console.log("FOR EACH COMPONET ------///// ------",componentProcessing.module )
           //let componentProcessing = processingLink.source;
           //console.log('PULL start | ', componentProcessing._id);
           module.pull(componentProcessing, undefined, undefined).then(componentFlow => {
@@ -301,7 +303,7 @@ var proto = {
           } else {
 
             module.pull(processingLink.destination, dataFlow, undefined).then(componentFlow => {
-              //console.log("componentFlow", this.objectSizeOf(componentFlow))
+              console.log("componentFlow", this.objectSizeOf(componentFlow))
               //console.log('PULL END | ', processingLink.destination._id);
               processingLink.destination.dataResolution = componentFlow;
               processingLink.destination.status = 'resolved';
@@ -483,6 +485,8 @@ var proto = {
       return out;
     }
   },
+
+
   //   _makeRequest(component, notMainNode, pullParams) {
   //
   //     // create a new Promise

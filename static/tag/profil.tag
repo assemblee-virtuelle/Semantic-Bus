@@ -1,4 +1,14 @@
 <profil class="containerH" style="flex-grow:1;flex-wrap:nowrap;">
+  <div id="containerSecureDiv" if={payment_in_progress == true} class="containerV" style="justify-content:center">
+    <div id="row">
+      <div id="loaderDiv"></div>
+      <h1 id="loaderText" class="containerV">
+        <span>
+         Paiement en cour
+        </span>
+      </h1>
+    </div>
+  </div>
   <div class="containerV" style="flex-basis: 70px; background-color: rgb(9,245,185);flex-shrink:0;">
     <div class=" containerV" style="flex-basis:400px; background-color: rgb(9,245,185);flex-grow:0;">
       <a href="#profil//running" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
@@ -76,14 +86,25 @@
   </div>
 
   <div class="containerV" if={menu=='payement'} style="flex-grow: 1;background-color: rgb(238, 242, 249);">
-    <div class="containerV" style="flex-grow:1;justify-content:center;align-items: center;">
-      <h3 style="color: rgb(120,120,120);">
+    <div class="containerV" style="flex-grow:1;justify-content:center">
+      <h3 style="color: rgb(120,120,120);" if={addCredit == false && consultTransactionBoolean == false}>
         Vous disposez de {profil.credit} credits
       </h3>
-      <div class="containerH">
-        <button class="credit-btn" onclick={} type="button">Recharger mes credits</button>
-        <button class="transac-btn" onclick={} type="button">Consulter mes transactions</button>
+      <div class="containerH"  if={addCredit == false && consultTransactionBoolean == false}>
+        <button class="credit-btn" onclick={addCreditButton} type="button">Recharger mes credits</button>
+        <button class="transac-btn" onclick={consultTransaction} type="button">Consulter mes transactions</button>
       </div>
+        <stripe-tag if={addCredit == true}></stripe-tag>
+        <transactions-list if={consultTransactionBoolean == true} ></transactions-list>
+        <div class="containerV" style="flex-grow:1;justify-content:center;align-items:center">
+        <button if={addCredit == true || consultTransactionBoolean == true} style="padding: 20px;
+                  border-radius: 10px;
+                  background-color: rgb(9,245,185);
+                  color: white;
+                  font-size: 20px;
+                  margin-top: 20px;
+                  text-align: center;" onclick={retourCreditButton}>Retour</button>
+        </div>
     </div>
   </div>
 </div>
@@ -97,10 +118,32 @@
   this.modeUserEdition = false
   this.modeSetting = false
   this.mailsend = false
+  this.payment_in_progress = false
+  this.consultTransactionBoolean = false
   this.emailtext = "Renvoyer un email"
+  
+  consultTransaction(){
+    this.consultTransactionBoolean = true
+    this.update()
+  }
 
   deconnexion(e) {
     RiotControl.trigger('deconnexion');
+  }
+  addCreditButton(){
+    console.log(this.addCredit)
+    this.addCredit = true
+    this.consultTransactionBoolean = false
+    console.log(this.addCredit)
+    this.update()
+  }
+
+  retourCreditButton(){
+    console.log(this.addCredit)
+     this.consultTransactionBoolean = false
+    this.addCredit = false
+    console.log(this.addCredit)
+    this.update()
   }
 
   changeEmailInput(e) {
@@ -149,6 +192,18 @@
   RiotControl.on('email_send', function(){
       this.mailsend = true
       this.update()
+  }.bind(this))
+
+  RiotControl.on('payment_in_progress',function(){
+    console.log("payment in progress")
+    this.payment_in_progress = true
+    this.update()
+  }.bind(this))
+
+  RiotControl.on('payment_done',function(){
+    this.payment_in_progress = false
+    this.consultTransactionBoolean = false
+    this.update()
   }.bind(this))
 
   RiotControl.on('email_already_use', function () {
@@ -211,6 +266,8 @@
   }.bind(this);
 
   this.on('mount', function () {
+    this.consultCredit = false
+    this.addCredit = false
     RiotControl.on('profil_menu_changed', this.profilMenuChanged);
     RiotControl.trigger('load_profil');
     this.googleId = localStorage.googleid
@@ -221,6 +278,46 @@
   })
 </script>
 <style scoped>
+    #containerSecureDiv {
+      background-color: rgba(200,200,200,1);
+      bottom: 0;
+      top: 0;
+      right: 0;
+      left: 0;
+      position: absolute;
+      z-index: 3;
+
+    }
+    #containerLoaderDiv {
+      background-color: rgba(200,200,200,0.6);
+      bottom: 0;
+      top: 0;
+      right: 0;
+      left: 0;
+      position: absolute;
+      z-index: 1;
+      /*width: 100%;
+      height: 125vh;
+      position: absolute;
+      z-index: 1;
+      padding: 0;
+      margin: 0;
+      display: -webkit-box;
+      display: -moz-box;
+      display: -ms-flexbox;
+      display: -webkit-flex;
+      display: flex;
+      align-items: center;
+      justify-content: center;*/
+    }
+
+
+    #row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+
+    }
   .credit-btn{
     color: #ffffff;
     background-color: rgb(33,150,243);
