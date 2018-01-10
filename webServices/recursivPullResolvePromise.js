@@ -58,7 +58,7 @@ var proto = {
           //console.log("link", link)
           link.status = 'waiting';
         });
-        // this.linksProcessing = [];
+        // this.linksProcessingInputs = [];
         // this.linksProcessed = [];
         this.RequestOrigine = originComponent;
         this.RequestOrigineResolveMethode = resolve;
@@ -192,14 +192,14 @@ var proto = {
 
       //-------------- Component processing --------------
       if (processingLink != undefined) {
-        let linksProcessing = this.sift({
+        let linksProcessingInputs = this.sift({
           'destination._id': processingLink.destination._id,
           status: 'processing'
         }, this.pathResolution);
 
-        //console.log('linksProcessing | ',linksProcessing);
+        //console.log('linksProcessingInputs | ',linksProcessingInputs);
         let module = this.technicalComponentDirectory[processingLink.destination.module];
-        let dataFlow = linksProcessing.map(sourceLink => {
+        let dataFlow = linksProcessingInputs.map(sourceLink => {
           let d = sourceLink.source.dataResolution;
           d.componentId = sourceLink.source._id;
           //console.log("in dataflow constitution", d)
@@ -285,7 +285,7 @@ var proto = {
                 link.status = 'processing'
               });
 
-              linksProcessing.forEach(link => {
+              linksProcessingInputs.forEach(link => {
                 link.status = 'resolved';
               })
 
@@ -313,7 +313,7 @@ var proto = {
                 link.status = 'processing'
               });
 
-              linksProcessing.forEach(link => {
+              linksProcessingInputs.forEach(link => {
                 link.status = 'resolved';
               })
 

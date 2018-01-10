@@ -856,7 +856,25 @@ function WorkspaceStore() {
     }, this.workspaceCurrent.components)[0];
     item[message.field] = message.data;
     this.trigger('workspace_current_changed', this.workspaceCurrent);
-  }); //<= item_current_updateField
+  });
+
+  this.on('item_persist', function(message) {
+    console.log(message);
+    let item = sift({
+      _id: message.id
+    }, this.workspaceCurrent.components)[0];
+
+    utilStore.ajaxCall({
+      method: 'put',
+      url: '../data/core/workspaceComponent',
+      data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(item)),
+    }, true).then(data => {
+      item = data;
+      this.trigger('workspace_current_changed', this.workspaceCurrent);
+    }).catch(error => {
+      throw error;
+    });
+  });
 
   this.on('workspace_editor_change_menu', function(menu) {
     this.menu = menu;

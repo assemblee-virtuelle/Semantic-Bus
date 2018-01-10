@@ -423,7 +423,7 @@
           field: "graphPositionY",
           data: d.y
         });
-        RiotControl.trigger('workspace_current_persist');
+        RiotControl.trigger('item_persist',d);
         // this.updateBoundObject(d); this.drawSelected(); if (!d3.event.active) {   this.simulation.alphaTarget(0.1); }
       }
     }.bind(this);
