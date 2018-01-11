@@ -3,12 +3,55 @@ function profilStore() {
   ////LE USER STORE EST RELIE A LOGIN EST NON A APPLICATION
   this.userCurrrent;
 
-  this.setUserCurrent=function(user){
-      this.userCurrrent=user;
-      this.trigger('profil_loaded', this.userCurrrent);
+  this.setUserCurrent = function (user) {
+    this.userCurrrent = user;
+    this.trigger('profil_loaded', this.userCurrrent);
   }
 
-  this.on('load_profil', function(message) {
+  this.on('stripe_payment', function (data) {
+    this.trigger('payment_in_progress')
+    console.log("stripe_payment IN STORE", localStorage.user_id, JSON.stringify(data))
+    // console.log(localStorage.user_id);
+    $.ajax({
+      method: 'post',
+      url: '../data/core/users/stripe/' + localStorage.user_id,
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
+      data: JSON.stringify({
+        amout: JSON.stringify(data.amout),
+        stripeToken: JSON.stringify(data)
+      }),
+      contentType: 'application/json'
+    }).done(function (data) {
+      this.trigger('payment_done')
+      if (data != "error") {
+        this.trigger('payment_good', data.credit)
+      } else {
+        this.trigger('error_payment')
+      }
+      this.setUserCurrent(data);
+    }.bind(this));
+  })
+
+  this.on('load_transactions', function () {
+    $.ajax({
+      method: 'get',
+      url: '../data/core/users/transactions/' + localStorage.user_id,
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
+      contentType: 'application/json'
+    }).done(function (data) {
+      if(data != "error"){
+        this.trigger('list_transaction_load', data);
+      }else{
+        this.trigger('list_transaction_error');
+      }
+    }.bind(this));
+  })
+
+  this.on('load_profil', function (message) {
     //console.log('show_profil', localStorage.user_id);
     if (this.userCurrrent == undefined) {
       // console.log(localStorage.user_id);
@@ -16,10 +59,10 @@ function profilStore() {
         method: 'get',
         url: '../data/core/users/' + localStorage.user_id,
         headers: {
-          "Authorization": "JTW" + " " + localStorage.toke
+          "Authorization": "JTW" + " " + localStorage.token
         },
         contentType: 'application/json'
-      }).done(function(data) {
+      }).done(function (data) {
         this.setUserCurrent(data);
         // this.userCurrrent = data;
         // console.log("load profil |", this.userCurrrent);
@@ -38,7 +81,7 @@ function profilStore() {
 
 
 
-  this.on('send_back_email', function(data) {
+  this.on('send_back_email', function (data) {
     console.log("IN TRIGGER SEND BACK EMAIL", data)
     $.ajax({
       method: 'get',
@@ -47,17 +90,18 @@ function profilStore() {
         "Authorization": "JTW" + " " + localStorage.token
       },
       contentType: 'application/json'
-    }).done(function(data) {
-      if(data == "mail_sent"){
+    }).done(function (data) {
+      if (data == "mail_sent") {
         this.trigger('email_send')
-      }else{
+      } else {
         this.trigger('error_email_send')
       }
     }.bind(this))
   });
 
 
-  this.on('load_all_profil_by_email', function(message) {
+  this.on('load_all_profil_by_email', function (message) {
+
     $.ajax({
       method: 'get',
       url: '../data/core/users',
@@ -65,10 +109,11 @@ function profilStore() {
         "Authorization": "JTW" + " " + localStorage.token
       },
       contentType: 'application/json'
-    }).done(function(data) {
+    }).done(function (data) {
+
       console.log(data)
       var emails = []
-      data.forEach(function(user) {
+      data.forEach(function (user) {
         if (user.credentials) {
           emails.push(user.credentials.email)
         } else {
@@ -80,7 +125,7 @@ function profilStore() {
   })
 
 
-  this.on('update_user', function(data) {
+  this.on('update_user', function (data) {
     console.log('update_user', data);
     console.log(JSON.stringify(data));
     $.ajax({
@@ -91,7 +136,7 @@ function profilStore() {
         "Authorization": "JTW" + " " + localStorage.token
       },
       contentType: 'application/json'
-    }).done(function(data) {
+    }).done(function (data) {
       console.log(data)
       if (data.err == "google_user") {
         this.trigger('google_user_update')
@@ -113,14 +158,14 @@ function profilStore() {
       }
     }.bind(this));
   })
-  this.on('navigation', function(entity, id, action) {
+  this.on('navigation', function (entity, id, action) {
     if (entity == "profil") {
       this.menu = action;
       this.trigger('navigation_control_done', entity, action);
     }
   });
 
-  this.on('deconnexion', function(message) {
+  this.on('deconnexion', function (message) {
     localStorage.token = null;
     localStorage.user_id = null;
     window.open("../auth/login.html", "_self");
