@@ -706,11 +706,30 @@ function WorkspaceStore() {
   // --------------------------------------------------------------------------------
 
   this.on('workspace_current_delete_component', function(record) {
-    console.log("workspace_current_delete_component ||", record)
-    this.workspaceCurrent.components.splice(this.workspaceCurrent.components.indexOf(record), 1);
-    console.log('workspace_current_delete_component_before_update', this.workspaceCurrent);
-    this.update(this.workspaceCurrent);
+    console.log("workspace_current_delete_component ||", record);
+    utilStore.ajaxCall({
+       method: 'delete',
+       url: '../data/core/workspaceComponent/'+record._id,
+       data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(record)),
+   }, true).then(data=>{
+     sift({"connectionsAfter._id":record._id},this.workspaceCurrent.components).forEach(beforeComp=>{
+       beforeComp.connectionsAfter.splice(beforeComp.connectionsAfter.indexOf(record), 1);
+     });
+     sift({"connectionsBefore._id":record._id},this.workspaceCurrent.components).forEach(afterComp=>{
+       afterComp.connectionsBefore.splice(afterComp.connectionsBefore.indexOf(record), 1);
+     })
+     this.workspaceCurrent.components.splice(this.workspaceCurrent.components.indexOf(record),1)
+     this.trigger('workspace_current_changed', this.workspaceCurrent);
+     if (this.viewBox) {
+       this.computeGraph();
+     }
+   })
+
+    //this.workspaceCurrent.components.splice(this.workspaceCurrent.components.indexOf(record), 1);
+    //console.log('workspace_current_delete_component_before_update', this.workspaceCurrent);
+    //this.update(this.workspaceCurrent);
     //this.trigger('workspace_current_changed', this.workspaceCurrent);
+
 
   }); //<= workspace_current_delete_component
 
@@ -805,12 +824,14 @@ function WorkspaceStore() {
   });
 
   this.on('item_current_connect_after_show', function(data) {
+    //not used
     this.modeConnectBefore = false;
     this.modeConnectAfter = !this.modeConnectAfter;
     this.trigger('item_curent_connect_show_changed', {
       before: this.modeConnectBefore,
       after: this.modeConnectAfter
     });
+    //!not used
 
     sift({
       selected: true
@@ -824,28 +845,69 @@ function WorkspaceStore() {
   this.on('connect_components', function(source, destination) {
     source.connectionsAfter.push(destination);
     destination.connectionsBefore.push(source);
-    this.update(this.workspaceCurrent);
+
+    let updatePromises=[];
+    updatePromises.push(  utilStore.ajaxCall({
+        method: 'put',
+        url: '../data/core/workspaceComponent',
+        data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(source)),
+    }, true));
+    updatePromises.push(  utilStore.ajaxCall({
+        method: 'put',
+        url: '../data/core/workspaceComponent',
+        data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(destination)),
+    }, true));
+    Promise.all(updatePromises).then(items=>{
+      source = items[0];
+      destination=items[1];
+    })
+    this.trigger('workspace_current_changed', this.workspaceCurrent);
+
+    //not used
     this.modeConnectBefore = false;
     this.modeConnectAfter = false;
     this.trigger('item_curent_connect_show_changed', {
       before: this.modeConnectBefore,
       after: this.modeConnectAfter
     });
+    //!not used
 
-    sift({
-      selected: true
-    }, this.graph.nodes).forEach(n => {
-      n.connectAfterMode = false;
-      n.connectBeforeMode = false;
-    });
-    this.trigger('workspace_graph_selection_changed', this.graph);
+    // sift({
+    //   selected: true
+    // }, this.graph.nodes).forEach(n => {
+    //   n.connectAfterMode = false;
+    //   n.connectBeforeMode = false;
+    // });
+    // this.trigger('workspace_graph_selection_changed', this.graph);
+    if (this.viewBox) {
+      this.computeGraph();
+    }
 
   });
 
   this.on('disconnect_components', function(source, destination) {
     source.connectionsAfter.splice(source.connectionsAfter.indexOf(destination), 1);
     destination.connectionsBefore.splice(destination.connectionsBefore.indexOf(source), 1);
-    this.update(this.workspaceCurrent);
+    let updatePromises=[];
+    updatePromises.push(  utilStore.ajaxCall({
+        method: 'put',
+        url: '../data/core/workspaceComponent',
+        data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(source)),
+    }, true));
+    updatePromises.push(  utilStore.ajaxCall({
+        method: 'put',
+        url: '../data/core/workspaceComponent',
+        data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(destination)),
+    }, true));
+    Promise.all(updatePromises).then(items=>{
+      source = items[0];
+      destination=items[1];
+    })
+    this.trigger('workspace_current_changed', this.workspaceCurrent);
+    if (this.viewBox) {
+      this.computeGraph();
+    }
+    //this.update(this.workspaceCurrent);
   });
 
   //it is here because genericStore manage the current item and drad&drop impact others

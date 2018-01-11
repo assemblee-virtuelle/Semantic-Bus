@@ -127,6 +127,7 @@ function GenericStore(utilStore, specificStoreList) {
     this.persist();
   }); //<=  item_current_persist
 
+
   // --------------------------------------------------------------------------------
 
 
