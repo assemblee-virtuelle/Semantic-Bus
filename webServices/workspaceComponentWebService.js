@@ -3,7 +3,8 @@ module.exports = function (router) {
   var recursivPullResolvePromise = require('./recursivPullResolvePromise');
   var workspaceComponentPromise = require('./workspaceComponentPromise.js');
   var workspaceBusiness = require('./workspaceBusiness.js');
-  var workspace_component_lib = require('../lib/core/lib/workspace_component_lib')
+  var workspace_component_lib = require('../lib/core/lib/workspace_component_lib');
+  var configuration = require('../configuration');
 
 
 
@@ -52,23 +53,37 @@ module.exports = function (router) {
   // --------------------------------------------------------------------------------
 
   router.put('/workspaceComponent/', function (req, res,next) {
-
-    var configuration = require('../configuration');
+    //var configuration = require('../configuration');
     if (configuration.saveLock == false) {
-      var id = req.body._id;
-      var componentToUpdate = req.body;
-      console.log('workspaceComponent',componentToUpdate);
-      workspace_component_lib.update(req.body).then(function (compoupdate) {
-        res.json(compoupdate)
+      //var id = req.body._id;
+      //var componentToUpdate = req.body;
+      //console.log('workspaceComponent',componentToUpdate);
+      workspace_component_lib.update(req.body).then((componentUpdated)=>{
+        res.json(componentUpdated)
       }).catch(e => {
         next(e);
       });
     } else {
-      res.json({
-        message: 'save forbiden'
-      })
+      next(new Error('save forbiden'));
     }
   });
+
+  router.delete('/workspaceComponent/:id', function (req, res,next) {
+    //var configuration = require('../configuration');
+    if (configuration.saveLock == false) {
+      //var id = req.body._id;
+      //var componentToUpdate = req.body;
+      //console.log('workspaceComponent',componentToUpdate);
+      workspace_component_lib.remove({_id:req.params.id}).then(()=>{
+        res.json(req.body)
+      }).catch(e => {
+        next(e);
+      });
+    } else {
+      next(new Error('save forbiden'));
+    }
+  });
+
 
   // --------------------------------------------------------------------------------
 
