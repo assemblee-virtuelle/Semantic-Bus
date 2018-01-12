@@ -72,7 +72,10 @@ function WorkspaceStore() {
         url: '../data/core/workspace/' + localStorage.user_id,
         data: JSON.stringify(this.workspaceCurrent),
       }, true).then(data => {
-        this.globalWorkspaceCollection.push({role:'owner',workspace:data});
+        this.globalWorkspaceCollection.push({
+          role: 'owner',
+          workspace: data
+        });
         this.setGlobalWorkspaceCollection(this.globalWorkspaceCollection);
         this.workspaceBusiness.connectWorkspaceComponent(data.components);
         this.workspaceCurrent = data;
@@ -177,8 +180,12 @@ function WorkspaceStore() {
         "Authorization": "JTW" + " " + localStorage.token
       },
     }).done(function(data) {
-      console.log("delete done",record);
-      this.globalWorkspaceCollection=sift({'workspace._id':{$ne:record._id}}, this.globalWorkspaceCollection);
+      console.log("delete done", record);
+      this.globalWorkspaceCollection = sift({
+        'workspace._id': {
+          $ne: record._id
+        }
+      }, this.globalWorkspaceCollection);
       this.setGlobalWorkspaceCollection(this.globalWorkspaceCollection);
       this.trigger('persist_end', data);
       this.trigger('workspace_collection_changed', this.workspaceCollection);
@@ -459,15 +466,19 @@ function WorkspaceStore() {
 
   // --------------------------------------------------------------------------------
 
-  this.setGlobalWorkspaceCollection=function(data){
+  this.setGlobalWorkspaceCollection = function(data) {
     //console.log('setGlobalWorkspaceCollection',data.map(r=>r.workspace));
-    this.globalWorkspaceCollection=data;
-    this.workspaceCollection=sift({role:'owner'},data).map(r=>r.workspace);
-    this.workspaceShareCollection=sift({role:'editor'},data).map(r=>r.workspace);
+    this.globalWorkspaceCollection = data;
+    this.workspaceCollection = sift({
+      role: 'owner'
+    }, data).map(r => r.workspace);
+    this.workspaceShareCollection = sift({
+      role: 'editor'
+    }, data).map(r => r.workspace);
   }
 
   this.on('workspace_collection_load', function(record) {
-    console.log('workspace_collection_load',this.workspaceCollection);
+    console.log('workspace_collection_load', this.workspaceCollection);
     if (this.workspaceCollection == undefined) {
       this.load(this.workspaceCurrent).then(data => {
         this.trigger('workspace_collection_changed', this.workspaceCollection);
@@ -686,21 +697,34 @@ function WorkspaceStore() {
     this.componentSelectedToAdd = message;
   }); // <= workspace_current_updateField
   this.on('workspace_current_add_components', function() {
-    console.log("workspace_current_add_components", this.componentSelectedToAdd);
-    this.componentSelectedToAdd.forEach(c => {
-      c.workspaceId = this.workspaceCurrent._id;
-      c.specificData = {};
-      c.connectionsBefore = [];
-      c.connectionsAfter = []
-      c.consumption_history = {}
-      this.workspaceCurrent.components.push(c);
+    // console.log("workspace_current_add_components", this.componentSelectedToAdd);
+    // this.componentSelectedToAdd.forEach(c => {
+    //   c.workspaceId = this.workspaceCurrent._id;
+    //   c.specificData = {};
+    //   c.connectionsBefore = [];
+    //   c.connectionsAfter = []
+    //   c.consumption_history = {}
+    //   this.workspaceCurrent.components.push(c);
+    // })
+    // this.componentSelectedToAdd = [];
+    //
+    // this.update(this.workspaceCurrent).then(data => {
+    //   this.trigger('workspace_current_add_components_done', this.workspaceCurrent);
+    //   //route('workspace/'+this.workspaceCurrent+'/component')
+    // })
+    //let coponentsToSend = this.componentSelectedToAdd.map((c)=>{return this.workspaceBusiness.serialiseWorkspaceComponent(c)})
+    utilStore.ajaxCall({
+      method: 'post',
+      url: '../data/core/addComponentsToWorkspace/' + this.workspaceCurrent._id,
+      data: JSON.stringify(this.componentSelectedToAdd.map((c)=>{return this.workspaceBusiness.serialiseWorkspaceComponent(c)})),
+    }, true).then(data => {
+      this.workspaceCurrent.components.push(data);
+      this.trigger('workspace_current_changed', this.workspaceCurrent);
+      if (this.viewBox) {
+        this.computeGraph();
+      }
     })
-    this.componentSelectedToAdd = [];
 
-    this.update(this.workspaceCurrent).then(data => {
-      this.trigger('workspace_current_add_components_done', this.workspaceCurrent);
-      //route('workspace/'+this.workspaceCurrent+'/component')
-    })
   }.bind(this));
 
   // --------------------------------------------------------------------------------
@@ -708,22 +732,26 @@ function WorkspaceStore() {
   this.on('workspace_current_delete_component', function(record) {
     console.log("workspace_current_delete_component ||", record);
     utilStore.ajaxCall({
-       method: 'delete',
-       url: '../data/core/workspaceComponent/'+record._id,
-       data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(record)),
-   }, true).then(data=>{
-     sift({"connectionsAfter._id":record._id},this.workspaceCurrent.components).forEach(beforeComp=>{
-       beforeComp.connectionsAfter.splice(beforeComp.connectionsAfter.indexOf(record), 1);
-     });
-     sift({"connectionsBefore._id":record._id},this.workspaceCurrent.components).forEach(afterComp=>{
-       afterComp.connectionsBefore.splice(afterComp.connectionsBefore.indexOf(record), 1);
-     })
-     this.workspaceCurrent.components.splice(this.workspaceCurrent.components.indexOf(record),1)
-     this.trigger('workspace_current_changed', this.workspaceCurrent);
-     if (this.viewBox) {
-       this.computeGraph();
-     }
-   })
+      method: 'delete',
+      url: '../data/core/workspaceComponent/' + record._id,
+      data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(record)),
+    }, true).then(data => {
+      sift({
+        "connectionsAfter._id": record._id
+      }, this.workspaceCurrent.components).forEach(beforeComp => {
+        beforeComp.connectionsAfter.splice(beforeComp.connectionsAfter.indexOf(record), 1);
+      });
+      sift({
+        "connectionsBefore._id": record._id
+      }, this.workspaceCurrent.components).forEach(afterComp => {
+        afterComp.connectionsBefore.splice(afterComp.connectionsBefore.indexOf(record), 1);
+      })
+      this.workspaceCurrent.components.splice(this.workspaceCurrent.components.indexOf(record), 1)
+      this.trigger('workspace_current_changed', this.workspaceCurrent);
+      if (this.viewBox) {
+        this.computeGraph();
+      }
+    })
 
     //this.workspaceCurrent.components.splice(this.workspaceCurrent.components.indexOf(record), 1);
     //console.log('workspace_current_delete_component_before_update', this.workspaceCurrent);
@@ -796,12 +824,12 @@ function WorkspaceStore() {
         console.log('share-workspace', data);
         this.workspaceBusiness.connectWorkspaceComponent(data.workspace.components);
         this.workspaceCurrent = data.workspace;
-        this.workspaceCurrent.mode='edit';
+        this.workspaceCurrent.mode = 'edit';
         this.trigger('share_change', {
           user: data.user,
           workspace: data.workspace
         });
-        route('workspace/'+data.workspace._id+'/user');
+        route('workspace/' + data.workspace._id + '/user');
       }
     }.bind(this));
   });
@@ -846,20 +874,20 @@ function WorkspaceStore() {
     source.connectionsAfter.push(destination);
     destination.connectionsBefore.push(source);
 
-    let updatePromises=[];
-    updatePromises.push(  utilStore.ajaxCall({
-        method: 'put',
-        url: '../data/core/workspaceComponent',
-        data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(source)),
+    let updatePromises = [];
+    updatePromises.push(utilStore.ajaxCall({
+      method: 'put',
+      url: '../data/core/workspaceComponent',
+      data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(source)),
     }, true));
-    updatePromises.push(  utilStore.ajaxCall({
-        method: 'put',
-        url: '../data/core/workspaceComponent',
-        data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(destination)),
+    updatePromises.push(utilStore.ajaxCall({
+      method: 'put',
+      url: '../data/core/workspaceComponent',
+      data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(destination)),
     }, true));
-    Promise.all(updatePromises).then(items=>{
+    Promise.all(updatePromises).then(items => {
       source = items[0];
-      destination=items[1];
+      destination = items[1];
     })
     this.trigger('workspace_current_changed', this.workspaceCurrent);
 
@@ -888,20 +916,20 @@ function WorkspaceStore() {
   this.on('disconnect_components', function(source, destination) {
     source.connectionsAfter.splice(source.connectionsAfter.indexOf(destination), 1);
     destination.connectionsBefore.splice(destination.connectionsBefore.indexOf(source), 1);
-    let updatePromises=[];
-    updatePromises.push(  utilStore.ajaxCall({
-        method: 'put',
-        url: '../data/core/workspaceComponent',
-        data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(source)),
+    let updatePromises = [];
+    updatePromises.push(utilStore.ajaxCall({
+      method: 'put',
+      url: '../data/core/workspaceComponent',
+      data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(source)),
     }, true));
-    updatePromises.push(  utilStore.ajaxCall({
-        method: 'put',
-        url: '../data/core/workspaceComponent',
-        data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(destination)),
+    updatePromises.push(utilStore.ajaxCall({
+      method: 'put',
+      url: '../data/core/workspaceComponent',
+      data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(destination)),
     }, true));
-    Promise.all(updatePromises).then(items=>{
+    Promise.all(updatePromises).then(items => {
       source = items[0];
-      destination=items[1];
+      destination = items[1];
     })
     this.trigger('workspace_current_changed', this.workspaceCurrent);
     if (this.viewBox) {

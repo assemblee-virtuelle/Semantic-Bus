@@ -108,9 +108,39 @@ module.exports = function(router) {
       //   })
       // }
     } else {
-      res.status(500).send('empty body');
+      next(new Error('empty body'))
     }
   }) //<= update_workspace;
+
+  router.post('/addComponentsToWorkspace/:id', function(req, res, next) {
+    //console.log('req.body', req.body)
+    if (req.body != null) {
+      let components = req.body;
+      components.forEach(c=>{
+        c.workspaceId = req.params.id;
+        c.specificData = {};
+        c.connectionsBefore = [];
+        c.connectionsAfter = [];
+        c.consumption_history = {};
+      })
+      workspace_component_lib.create(components).then(function(workspaceComponents) {
+        workspace_lib.getWorkspace(req.params.id).then((workspace)=>{
+          workspace.components.push(workspaceComponents);
+          workspace_lib.update(workspace).then(workspaceUpdated=>{
+              res.send(components);
+          }).catch(e => {
+            next(e);
+          });
+        }).catch(e => {
+          next(e);
+        });
+      }).catch(e => {
+        next(e);
+      });
+    } else {
+      next(new Error('empty body'))
+    }
+  })
 
   // --------------------------------------------------------------------------------
 
