@@ -2,6 +2,7 @@ var mLabPromise = require('./mLabPromise');
 var workspaceComponentPromise = require('./workspaceComponentPromise.js');
 var workspaceBusiness = require('./workspaceBusiness.js');
 var workspace_lib = require('../lib/core/lib/workspace_lib');
+var workspace_component_lib = require('../lib/core/lib/workspace_component_lib');
 var technicalComponentDirectory = require('./technicalComponentDirectory.js');
 var sift = require('sift');
 
@@ -112,11 +113,11 @@ module.exports = function(router) {
     }
   }) //<= update_workspace;
 
-  router.post('/addComponentsToWorkspace/:id', function(req, res, next) {
+  router.post('/workspace/:id/addComponents', function(req, res, next) {
     //console.log('req.body', req.body)
     if (req.body != null) {
       let components = req.body;
-      components.forEach(c=>{
+      components.forEach(c => {
         c.workspaceId = req.params.id;
         c.specificData = {};
         c.connectionsBefore = [];
@@ -124,10 +125,19 @@ module.exports = function(router) {
         c.consumption_history = {};
       })
       workspace_component_lib.create(components).then(function(workspaceComponents) {
-        workspace_lib.getWorkspace(req.params.id).then((workspace)=>{
-          workspace.components.push(workspaceComponents);
-          workspace_lib.update(workspace).then(workspaceUpdated=>{
-              res.send(components);
+        workspace_lib.getWorkspace(req.params.id).then((workspace) => {
+          workspace.components=workspace.components.concat(workspaceComponents);
+          workspace_lib.update(workspace).then(workspaceUpdated => {
+            for (var c of components) {
+              if (technicalComponentDirectory[c.module] != null) {
+                //console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
+                c.graphIcon = technicalComponentDirectory[c.module].graphIcon;
+              } else {
+                c.graphIcon = "default"
+              }
+              //console.log('-->',c);
+            }
+            res.send(components);
           }).catch(e => {
             next(e);
           });

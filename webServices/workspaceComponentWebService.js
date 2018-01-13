@@ -1,4 +1,4 @@
-module.exports = function (router) {
+module.exports = function(router) {
 
   var recursivPullResolvePromise = require('./recursivPullResolvePromise');
   var workspaceComponentPromise = require('./workspaceComponentPromise.js');
@@ -13,15 +13,15 @@ module.exports = function (router) {
   // --------------------------------------------------------------------------------
 
 
-  router.get('/workspaceComponent/:id/test', function (req, res,next) {
+  router.get('/workspaceComponent/:id/test', function(req, res, next) {
     var id = req.params.id;
     workspace_component_lib.get({
       _id: id
-    }).then(function (data) {
+    }).then(function(data) {
       console.log('workspaceComponent | test| ', data);
       var recursivPullResolvePromiseDynamic = require('./recursivPullResolvePromise');
       return recursivPullResolvePromise.getNewInstance().resolveComponentPull(data, false);
-    }).then(function (data) {
+    }).then(function(data) {
       //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
       res.json(data.data);
     }).catch(e => {
@@ -32,16 +32,16 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.get('/workspaceComponent/:id/work', function (req, res,next) {
+  router.get('/workspaceComponent/:id/work', function(req, res, next) {
     //console.log('WORK');
     var id = req.params.id;
     workspace_component_lib.get({
       _id: id
-    }).then(function (data) {
+    }).then(function(data) {
       //console.log('workspaceComponent | work| ', data);
       var recursivPullResolvePromiseDynamic = require('./recursivPullResolvePromise');
       return recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(data, 'work');
-    }).then(function (data) {
+    }).then(function(data) {
       //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
       res.json(data.data);
     }).catch(e => {
@@ -52,13 +52,13 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.put('/workspaceComponent/', function (req, res,next) {
+  router.put('/workspaceComponent/', function(req, res, next) {
     //var configuration = require('../configuration');
     if (configuration.saveLock == false) {
       //var id = req.body._id;
       //var componentToUpdate = req.body;
       //console.log('workspaceComponent',componentToUpdate);
-      workspace_component_lib.update(req.body).then((componentUpdated)=>{
+      workspace_component_lib.update(req.body).then((componentUpdated) => {
         res.json(componentUpdated)
       }).catch(e => {
         next(e);
@@ -68,13 +68,35 @@ module.exports = function (router) {
     }
   });
 
-  router.delete('/workspaceComponent/:id', function (req, res,next) {
+  router.post('/workspaceComponent/connection', function(req, res, next) {
+    //var configuration = require('../configuration');
+    if (configuration.saveLock == false) {
+      let connection = req.body;
+      let promises = [];
+      promises.push(workspace_component_lib.update(connection.source));
+      promises.push(workspace_component_lib.update(connection.target));
+      Promise.all(promises).then((data) => {
+        res.json({
+          source: data[0],
+          target: data[1]
+        })
+      }).catch(e => {
+        next(e);
+      });
+    } else {
+      next(new Error('save forbiden'));
+    }
+  });
+
+  router.delete('/workspaceComponent/:id', function(req, res, next) {
     //var configuration = require('../configuration');
     if (configuration.saveLock == false) {
       //var id = req.body._id;
       //var componentToUpdate = req.body;
       //console.log('workspaceComponent',componentToUpdate);
-      workspace_component_lib.remove({_id:req.params.id}).then(()=>{
+      workspace_component_lib.remove({
+        _id: req.params.id
+      }).then(() => {
         res.json(req.body)
       }).catch(e => {
         next(e);
@@ -87,11 +109,11 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.get('/workspaceComponent/ConnectBeforeConnectAfter/:id', function (req, res,next) {
+  router.get('/workspaceComponent/ConnectBeforeConnectAfter/:id', function(req, res, next) {
     var id = req.params.id;
     workspace_component_lib.getConnectBeforeConnectAfter({
       _id: id
-    }).then(function (data) {
+    }).then(function(data) {
       res.send(data)
     }).catch(e => {
       next(e);

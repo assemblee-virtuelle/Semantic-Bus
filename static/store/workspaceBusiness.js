@@ -8,15 +8,17 @@ function WorkspaceBusiness() {
 
       if (component != null) {
         component.connectionsAfter = component.connectionsAfter.map(componentId => {
+          let mergedId=componentId._id?componentId._id:componentId;
           return (sift({
-            _id: componentId
+            _id: mergedId
           }, workspaceComponentsList))[0];
         });
         component.connectionsAfter=sift({$ne:undefined},component.connectionsAfter);
 
         component.connectionsBefore = component.connectionsBefore.map(componentId => {
+          let mergedId=componentId._id?componentId._id:componentId;
           return (sift({
-            _id: componentId
+            _id: mergedId
           }, workspaceComponentsList))[0];
         });
         component.connectionsBefore=sift({$ne:undefined},component.connectionsBefore);
