@@ -23,26 +23,26 @@
     <zenTable ref="errorsTable" disallownavigation={true}>
       <yield to="header">
         <div class="containerV;" style="flex-grow:1;">
-          <div class="containerH">
-            <div style="width:30%">date</div>
-            <div style="width:30%">userId</div>
-            <div style="width:40%">message</div>
+          <div class="containerH tableHeader">
+            <div style="width:200px">date</div>
+            <div style="width:200px">userId</div>
+            <div style="width:100%">message</div>
           </div>
-          <div class="containerH">
+          <div class="containerH tableHeader">
             <div>first stack</div>
           </div>
         </div>
 
       </yield>
       <yield to="row">
-        <div class="containerV;" style="flex-grow:1;">
-          <div class="containerH">
-            <div style="width:30%">{date}</div>
-            <div style="width:30%">{userId}</div>
-            <div style="width:40%">{message}</div>
+        <div class="containerV" style="flex-grow:1;">
+          <div class="containerH tableRowContent">
+            <div style="width:200px">{date}</div>
+            <div style="width:200px">{userId}</div>
+            <div style="width:100%">{message}</div>
           </div>
-          <div class="containerH">
-            <div >{stackArray[0]}</div>
+          <div class="containerH tableRowContent">
+            <div>{stackArray[0]}</div>
           </div>
         </div>
       </yield>

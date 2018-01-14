@@ -697,32 +697,12 @@ function WorkspaceStore() {
     this.componentSelectedToAdd = message;
   }); // <= workspace_current_updateField
   this.on('workspace_current_add_components', function() {
-    // console.log("workspace_current_add_components", this.componentSelectedToAdd);
-    // this.componentSelectedToAdd.forEach(c => {
-    //   c.workspaceId = this.workspaceCurrent._id;
-    //   c.specificData = {};
-    //   c.connectionsBefore = [];
-    //   c.connectionsAfter = []
-    //   c.consumption_history = {}
-    //   this.workspaceCurrent.components.push(c);
-    // })
-    // this.componentSelectedToAdd = [];
-    //
-    // this.update(this.workspaceCurrent).then(data => {
-    //   this.trigger('workspace_current_add_components_done', this.workspaceCurrent);
-    //   //route('workspace/'+this.workspaceCurrent+'/component')
-    // })
-    //let coponentsToSend = this.componentSelectedToAdd.map((c)=>{return this.workspaceBusiness.serialiseWorkspaceComponent(c)})
     utilStore.ajaxCall({
       method: 'post',
       url: '../data/core/workspace/'+this.workspaceCurrent._id+'/addComponents',
       data: JSON.stringify(this.componentSelectedToAdd.map((c)=>{return this.workspaceBusiness.serialiseWorkspaceComponent(c)})),
     }, true).then(data => {
       this.workspaceCurrent.components=this.workspaceCurrent.components.concat(data);
-      // this.trigger('workspace_current_changed', this.workspaceCurrent);
-      // if (this.viewBox) {
-      //   this.computeGraph();
-      // }
       route('workspace/' + this.workspaceCurrent._id+ '/component');
     })
 
@@ -753,45 +733,7 @@ function WorkspaceStore() {
         this.computeGraph();
       }
     })
-
-    //this.workspaceCurrent.components.splice(this.workspaceCurrent.components.indexOf(record), 1);
-    //console.log('workspace_current_delete_component_before_update', this.workspaceCurrent);
-    //this.update(this.workspaceCurrent);
-    //this.trigger('workspace_current_changed', this.workspaceCurrent);
-
-
   }); //<= workspace_current_delete_component
-
-  // --------------------------------------------------------------------------------
-
-
-  // this.on('item_current_cancel', function(data) {
-  //   console.log('item_current_cancel ||', data);
-  //   this.workspaceCurrent.mode = 'read';
-  //   this.cancelRequire = true;
-  // }); //<= item_current_cancel
-
-  // --------------------------------------------------------------------------------
-
-
-
-  // --------------------------------------------------------------------------------
-
-  // this.on('workspace_current_graph', function(data) {
-  //   this.trigger('workspace_current_graph_changed', this.workspaceCurrent);
-  //   // $.ajax({
-  //   //   method: 'get',
-  //   //   url: '../data/core/workspaceComponent/load_all_component/' + this.workspaceCurrent._id,
-  //   //   headers: {
-  //   //     "Authorization": "JTW" + " " + localStorage.token
-  //   //   },
-  //   //   contentType: 'application/json',
-  //   // }).done(function (data) {
-  //   //   this.workspaceCurrent = data
-  //   //   console.log("CURRENT GRAPH TRIGGER", this.workspaceCurrent)
-  //   //   this.trigger('workspace_current_graph_changed', this.workspaceCurrent);
-  //   // }.bind(this));
-  // }); //<= own_all_workspace
 
   ///GESTION DES DROIT DE USER
   this.on('set-email-to-share', function(email) {
@@ -890,55 +832,11 @@ function WorkspaceStore() {
       source.connectionsAfter.push(connectedComps.target);
       target.connectionsBefore.push(connectedComps.source);
       this.workspaceBusiness.connectWorkspaceComponent(this.workspaceCurrent.components);
-      //not used
-      // this.modeConnectBefore = false;
-      // this.modeConnectAfter = false;
-      // this.trigger('item_curent_connect_show_changed', {
-      //   before: this.modeConnectBefore,
-      //   after: this.modeConnectAfter
-      // });
-      //!not used
       this.trigger('workspace_current_changed', this.workspaceCurrent);
       if (this.viewBox) {
         this.computeGraph();
       }
     })
-
-
-    // let updatePromises = [];
-    // updatePromises.push(utilStore.ajaxCall({
-    //   method: 'put',
-    //   url: '../data/core/workspaceComponent',
-    //   data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(source)),
-    // }, true));
-    // updatePromises.push(utilStore.ajaxCall({
-    //   method: 'put',
-    //   url: '../data/core/workspaceComponent',
-    //   data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(destination)),
-    // }, true));
-    // Promise.all(updatePromises).then(items => {
-    //   source = items[0];
-    //   destination = items[1];
-    // })
-
-    //not used
-    // this.modeConnectBefore = false;
-    // this.modeConnectAfter = false;
-    // this.trigger('item_curent_connect_show_changed', {
-    //   before: this.modeConnectBefore,
-    //   after: this.modeConnectAfter
-    // });
-    //!not used
-
-    // sift({
-    //   selected: true
-    // }, this.graph.nodes).forEach(n => {
-    //   n.connectAfterMode = false;
-    //   n.connectBeforeMode = false;
-    // });
-    // this.trigger('workspace_graph_selection_changed', this.graph);
-
-
   });
 
   this.on('disconnect_components', function(source, target) {
@@ -957,68 +855,40 @@ function WorkspaceStore() {
       //console.log('connectedComps',disconnectedComps);
       source.connectionsAfter.splice(source.connectionsAfter.indexOf(sift({_id:disconnectedComps.target._id},source.connectionsAfter)[0]),1);
       target.connectionsBefore.splice(target.connectionsBefore.indexOf(sift({_id:disconnectedComps.source._id},target.connectionsBefore)[0]),1);
-      //this.workspaceBusiness.connectWorkspaceComponent(this.workspaceCurrent.components);
-      //not used
-      // this.modeConnectBefore = false;
-      // this.modeConnectAfter = false;
-      // this.trigger('item_curent_connect_show_changed', {
-      //   before: this.modeConnectBefore,
-      //   after: this.modeConnectAfter
-      // });
-      //!not used
       this.trigger('workspace_current_changed', this.workspaceCurrent);
       if (this.viewBox) {
         this.computeGraph();
       }
     })
-    // source.connectionsAfter.splice(source.connectionsAfter.indexOf(destination), 1);
-    // destination.connectionsBefore.splice(destination.connectionsBefore.indexOf(source), 1);
-    // let updatePromises = [];
-    // updatePromises.push(utilStore.ajaxCall({
-    //   method: 'put',
-    //   url: '../data/core/workspaceComponent',
-    //   data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(source)),
-    // }, true));
-    // updatePromises.push(utilStore.ajaxCall({
-    //   method: 'put',
-    //   url: '../data/core/workspaceComponent',
-    //   data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(destination)),
-    // }, true));
-    // Promise.all(updatePromises).then(items => {
-    //   source = items[0];
-    //   destination = items[1];
-    // })
-    // this.trigger('workspace_current_changed', this.workspaceCurrent);
-    // if (this.viewBox) {
-    //   this.computeGraph();
-    // }
-    //this.update(this.workspaceCurrent);
   });
 
   //it is here because genericStore manage the current item and drad&drop impact others
-  this.on('item_updateField', function(message) {
-    console.log('item_current_updateField ', message);
-    let item = sift({
-      _id: message.id
-    }, this.workspaceCurrent.components)[0];
-    item[message.field] = message.data;
-    this.trigger('workspace_current_changed', this.workspaceCurrent);
-  });
+  // this.on('item_updateField', function(message) {
+  //   console.log('item_current_updateField ', message);
+  //   let item = sift({
+  //     _id: message.id
+  //   }, this.workspaceCurrent.components)[0];
+  //   item[message.field] = message.data;
+  //   this.trigger('workspace_current_changed', this.workspaceCurrent);
+  // });
 
-  this.on('item_persist', function(message) {
-    console.log(message);
-    let item = sift({
-      _id: message.id
-    }, this.workspaceCurrent.components)[0];
+  this.on('item_persist', function(item) {
+    // console.log(message);
+    // let item = sift({
+    //   _id: message.id
+    // }, this.workspaceCurrent.components)[0];
 
     utilStore.ajaxCall({
       method: 'put',
       url: '../data/core/workspaceComponent',
       data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(item)),
     }, true).then(data => {
-      this.workspaceBusiness.connectWorkspaceComponent(this.workspaceCurrent.components);
       item = data;
+      this.workspaceBusiness.connectWorkspaceComponent(this.workspaceCurrent.components);
       this.trigger('workspace_current_changed', this.workspaceCurrent);
+      if (this.viewBox) {
+        this.computeGraph();
+      }
     }).catch(error => {
       throw error;
     });

@@ -413,17 +413,19 @@
         //RiotControl.trigger('component_current_show'); RiotControl.trigger('component_current_select', d.component);
       } else {
         console.log('dragended');
-        RiotControl.trigger('item_updateField', {
-          id: d.id,
-          field: "graphPositionX",
-          data: d.x
-        });
-        RiotControl.trigger('item_updateField', {
-          id: d.id,
-          field: "graphPositionY",
-          data: d.y
-        });
-        RiotControl.trigger('item_persist',d);
+        // RiotControl.trigger('item_updateField', {
+        //   id: d.id,
+        //   field: "graphPositionX",
+        //   data: d.x
+        // });
+        // RiotControl.trigger('item_updateField', {
+        //   id: d.id,
+        //   field: "graphPositionY",
+        //   data: d.y
+        // });
+        d.component.graphPositionX=d.x;
+        d.component.graphPositionY=d.y;
+        RiotControl.trigger('item_persist',d.component);
         // this.updateBoundObject(d); this.drawSelected(); if (!d3.event.active) {   this.simulation.alphaTarget(0.1); }
       }
     }.bind(this);

@@ -256,6 +256,8 @@
     }
     .tableBody {
       background-color: rgb(238,242,249);
+      word-break: break-all;
+      overflow-wrap:break-word;
     }
 
     .commandBarTable {
@@ -287,6 +289,12 @@
     .tableRowContent {
       justify-content: start;
     }
+
+    .tableRowContent > * {
+      padding: 10px;
+      border-width: 1px;
+    }
+
     .tableHeader > * {
       /*display: inline-block;*/
       padding: 10px;
