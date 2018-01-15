@@ -2,6 +2,7 @@ var mLabPromise = require('./mLabPromise');
 var workspaceComponentPromise = require('./workspaceComponentPromise.js');
 var workspaceBusiness = require('./workspaceBusiness.js');
 var workspace_lib = require('../lib/core/lib/workspace_lib');
+var workspace_component_lib = require('../lib/core/lib/workspace_component_lib');
 var technicalComponentDirectory = require('./technicalComponentDirectory.js');
 var sift = require('sift');
 
@@ -108,9 +109,48 @@ module.exports = function(router) {
       //   })
       // }
     } else {
-      res.status(500).send('empty body');
+      next(new Error('empty body'))
     }
   }) //<= update_workspace;
+
+  router.post('/workspace/:id/addComponents', function(req, res, next) {
+    //console.log('req.body', req.body)
+    if (req.body != null) {
+      let components = req.body;
+      components.forEach(c => {
+        c.workspaceId = req.params.id;
+        c.specificData = {};
+        c.connectionsBefore = [];
+        c.connectionsAfter = [];
+        c.consumption_history = {};
+      })
+      workspace_component_lib.create(components).then(function(workspaceComponents) {
+        workspace_lib.getWorkspace(req.params.id).then((workspace) => {
+          workspace.components=workspace.components.concat(workspaceComponents);
+          workspace_lib.update(workspace).then(workspaceUpdated => {
+            for (var c of components) {
+              if (technicalComponentDirectory[c.module] != null) {
+                //console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
+                c.graphIcon = technicalComponentDirectory[c.module].graphIcon;
+              } else {
+                c.graphIcon = "default"
+              }
+              //console.log('-->',c);
+            }
+            res.send(components);
+          }).catch(e => {
+            next(e);
+          });
+        }).catch(e => {
+          next(e);
+        });
+      }).catch(e => {
+        next(e);
+      });
+    } else {
+      next(new Error('empty body'))
+    }
+  })
 
   // --------------------------------------------------------------------------------
 

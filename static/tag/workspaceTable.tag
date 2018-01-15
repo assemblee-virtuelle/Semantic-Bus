@@ -1,12 +1,12 @@
 <workspace-table class="containerH" style="flex-grow:1">
   <zenTable drag={false} disallowselect={true} ref="workspaceZenTable">
     <yield to="header">
-      <div>Name</div>
-      <div>Description</div>
+      <div style="width:40%">Name</div>
+      <div style="width:60%">Description</div>
     </yield>
     <yield to="row">
       <div style="width:40%" >{name}</div>
-      <div style="width:50%">{description}</div>
+      <div style="width:60%; word-break: normal;">{description}</div>
     </yield>
   </zenTable>
 

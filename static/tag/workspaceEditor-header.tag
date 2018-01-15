@@ -111,7 +111,7 @@
 
     this.on('unmount', function () {
       RiotControl.off('workspace_current_changed', this.workspaceCurrentChanged);
-      RiotControl.off('share_change', this.shareChange)
+      //RiotControl.off('share_change', this.shareChange)
     });
   </script>
 </workspace-editor-header>

@@ -72,7 +72,10 @@ function WorkspaceStore() {
         url: '../data/core/workspace/' + localStorage.user_id,
         data: JSON.stringify(this.workspaceCurrent),
       }, true).then(data => {
-        this.globalWorkspaceCollection.push({role:'owner',workspace:data});
+        this.globalWorkspaceCollection.push({
+          role: 'owner',
+          workspace: data
+        });
         this.setGlobalWorkspaceCollection(this.globalWorkspaceCollection);
         this.workspaceBusiness.connectWorkspaceComponent(data.components);
         this.workspaceCurrent = data;
@@ -177,8 +180,12 @@ function WorkspaceStore() {
         "Authorization": "JTW" + " " + localStorage.token
       },
     }).done(function(data) {
-      console.log("delete done",record);
-      this.globalWorkspaceCollection=sift({'workspace._id':{$ne:record._id}}, this.globalWorkspaceCollection);
+      console.log("delete done", record);
+      this.globalWorkspaceCollection = sift({
+        'workspace._id': {
+          $ne: record._id
+        }
+      }, this.globalWorkspaceCollection);
       this.setGlobalWorkspaceCollection(this.globalWorkspaceCollection);
       this.trigger('persist_end', data);
       this.trigger('workspace_collection_changed', this.workspaceCollection);
@@ -459,15 +466,19 @@ function WorkspaceStore() {
 
   // --------------------------------------------------------------------------------
 
-  this.setGlobalWorkspaceCollection=function(data){
+  this.setGlobalWorkspaceCollection = function(data) {
     //console.log('setGlobalWorkspaceCollection',data.map(r=>r.workspace));
-    this.globalWorkspaceCollection=data;
-    this.workspaceCollection=sift({role:'owner'},data).map(r=>r.workspace);
-    this.workspaceShareCollection=sift({role:'editor'},data).map(r=>r.workspace);
+    this.globalWorkspaceCollection = data;
+    this.workspaceCollection = sift({
+      role: 'owner'
+    }, data).map(r => r.workspace);
+    this.workspaceShareCollection = sift({
+      role: 'editor'
+    }, data).map(r => r.workspace);
   }
 
   this.on('workspace_collection_load', function(record) {
-    console.log('workspace_collection_load',this.workspaceCollection);
+    console.log('workspace_collection_load', this.workspaceCollection);
     if (this.workspaceCollection == undefined) {
       this.load(this.workspaceCurrent).then(data => {
         this.trigger('workspace_collection_changed', this.workspaceCollection);
@@ -686,21 +697,15 @@ function WorkspaceStore() {
     this.componentSelectedToAdd = message;
   }); // <= workspace_current_updateField
   this.on('workspace_current_add_components', function() {
-    console.log("workspace_current_add_components", this.componentSelectedToAdd);
-    this.componentSelectedToAdd.forEach(c => {
-      c.workspaceId = this.workspaceCurrent._id;
-      c.specificData = {};
-      c.connectionsBefore = [];
-      c.connectionsAfter = []
-      c.consumption_history = {}
-      this.workspaceCurrent.components.push(c);
+    utilStore.ajaxCall({
+      method: 'post',
+      url: '../data/core/workspace/'+this.workspaceCurrent._id+'/addComponents',
+      data: JSON.stringify(this.componentSelectedToAdd.map((c)=>{return this.workspaceBusiness.serialiseWorkspaceComponent(c)})),
+    }, true).then(data => {
+      this.workspaceCurrent.components=this.workspaceCurrent.components.concat(data);
+      route('workspace/' + this.workspaceCurrent._id+ '/component');
     })
-    this.componentSelectedToAdd = [];
 
-    this.update(this.workspaceCurrent).then(data => {
-      this.trigger('workspace_current_add_components_done', this.workspaceCurrent);
-      //route('workspace/'+this.workspaceCurrent+'/component')
-    })
   }.bind(this));
 
   // --------------------------------------------------------------------------------
@@ -708,61 +713,27 @@ function WorkspaceStore() {
   this.on('workspace_current_delete_component', function(record) {
     console.log("workspace_current_delete_component ||", record);
     utilStore.ajaxCall({
-       method: 'delete',
-       url: '../data/core/workspaceComponent/'+record._id,
-       data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(record)),
-   }, true).then(data=>{
-     sift({"connectionsAfter._id":record._id},this.workspaceCurrent.components).forEach(beforeComp=>{
-       beforeComp.connectionsAfter.splice(beforeComp.connectionsAfter.indexOf(record), 1);
-     });
-     sift({"connectionsBefore._id":record._id},this.workspaceCurrent.components).forEach(afterComp=>{
-       afterComp.connectionsBefore.splice(afterComp.connectionsBefore.indexOf(record), 1);
-     })
-     this.workspaceCurrent.components.splice(this.workspaceCurrent.components.indexOf(record),1)
-     this.trigger('workspace_current_changed', this.workspaceCurrent);
-     if (this.viewBox) {
-       this.computeGraph();
-     }
-   })
-
-    //this.workspaceCurrent.components.splice(this.workspaceCurrent.components.indexOf(record), 1);
-    //console.log('workspace_current_delete_component_before_update', this.workspaceCurrent);
-    //this.update(this.workspaceCurrent);
-    //this.trigger('workspace_current_changed', this.workspaceCurrent);
-
-
+      method: 'delete',
+      url: '../data/core/workspaceComponent/' + record._id,
+      data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(record)),
+    }, true).then(data => {
+      sift({
+        "connectionsAfter._id": record._id
+      }, this.workspaceCurrent.components).forEach(beforeComp => {
+        beforeComp.connectionsAfter.splice(beforeComp.connectionsAfter.indexOf(record), 1);
+      });
+      sift({
+        "connectionsBefore._id": record._id
+      }, this.workspaceCurrent.components).forEach(afterComp => {
+        afterComp.connectionsBefore.splice(afterComp.connectionsBefore.indexOf(record), 1);
+      })
+      this.workspaceCurrent.components.splice(this.workspaceCurrent.components.indexOf(record), 1)
+      this.trigger('workspace_current_changed', this.workspaceCurrent);
+      if (this.viewBox) {
+        this.computeGraph();
+      }
+    })
   }); //<= workspace_current_delete_component
-
-  // --------------------------------------------------------------------------------
-
-
-  // this.on('item_current_cancel', function(data) {
-  //   console.log('item_current_cancel ||', data);
-  //   this.workspaceCurrent.mode = 'read';
-  //   this.cancelRequire = true;
-  // }); //<= item_current_cancel
-
-  // --------------------------------------------------------------------------------
-
-
-
-  // --------------------------------------------------------------------------------
-
-  // this.on('workspace_current_graph', function(data) {
-  //   this.trigger('workspace_current_graph_changed', this.workspaceCurrent);
-  //   // $.ajax({
-  //   //   method: 'get',
-  //   //   url: '../data/core/workspaceComponent/load_all_component/' + this.workspaceCurrent._id,
-  //   //   headers: {
-  //   //     "Authorization": "JTW" + " " + localStorage.token
-  //   //   },
-  //   //   contentType: 'application/json',
-  //   // }).done(function (data) {
-  //   //   this.workspaceCurrent = data
-  //   //   console.log("CURRENT GRAPH TRIGGER", this.workspaceCurrent)
-  //   //   this.trigger('workspace_current_graph_changed', this.workspaceCurrent);
-  //   // }.bind(this));
-  // }); //<= own_all_workspace
 
   ///GESTION DES DROIT DE USER
   this.on('set-email-to-share', function(email) {
@@ -796,12 +767,12 @@ function WorkspaceStore() {
         console.log('share-workspace', data);
         this.workspaceBusiness.connectWorkspaceComponent(data.workspace.components);
         this.workspaceCurrent = data.workspace;
-        this.workspaceCurrent.mode='edit';
+        this.workspaceCurrent.mode = 'edit';
         this.trigger('share_change', {
           user: data.user,
           workspace: data.workspace
         });
-        route('workspace/'+data.workspace._id+'/user');
+        route('workspace/' + data.workspace._id + '/user');
       }
     }.bind(this));
   });
@@ -842,89 +813,70 @@ function WorkspaceStore() {
   });
 
 
-  this.on('connect_components', function(source, destination) {
-    source.connectionsAfter.push(destination);
-    destination.connectionsBefore.push(source);
-
-    let updatePromises=[];
-    updatePromises.push(  utilStore.ajaxCall({
-        method: 'put',
-        url: '../data/core/workspaceComponent',
-        data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(source)),
-    }, true));
-    updatePromises.push(  utilStore.ajaxCall({
-        method: 'put',
-        url: '../data/core/workspaceComponent',
-        data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(destination)),
-    }, true));
-    Promise.all(updatePromises).then(items=>{
-      source = items[0];
-      destination=items[1];
-    })
-    this.trigger('workspace_current_changed', this.workspaceCurrent);
-
-    //not used
-    this.modeConnectBefore = false;
-    this.modeConnectAfter = false;
-    this.trigger('item_curent_connect_show_changed', {
-      before: this.modeConnectBefore,
-      after: this.modeConnectAfter
-    });
-    //!not used
-
-    // sift({
-    //   selected: true
-    // }, this.graph.nodes).forEach(n => {
-    //   n.connectAfterMode = false;
-    //   n.connectBeforeMode = false;
-    // });
-    // this.trigger('workspace_graph_selection_changed', this.graph);
-    if (this.viewBox) {
-      this.computeGraph();
+  this.on('connect_components', function(source, target) {
+    //source.connectionsAfter.push(target);
+    //target.connectionsBefore.push(source);
+    let serialised={
+      source : this.workspaceBusiness.serialiseWorkspaceComponent(source),
+      target : this.workspaceBusiness.serialiseWorkspaceComponent(target)
     }
+    serialised.source.connectionsAfter.push({_id:target._id});
+    serialised.target.connectionsBefore.push({_id:source._id});
 
+    utilStore.ajaxCall({
+      method: 'post',
+      url: '../data/core/workspaceComponent/connection',
+      data: JSON.stringify(serialised),
+    }, true).then(connectedComps=>{
+      console.log('connectedComps',connectedComps);
+      source.connectionsAfter.push(connectedComps.target);
+      target.connectionsBefore.push(connectedComps.source);
+      this.workspaceBusiness.connectWorkspaceComponent(this.workspaceCurrent.components);
+      this.trigger('workspace_current_changed', this.workspaceCurrent);
+      if (this.viewBox) {
+        this.computeGraph();
+      }
+    })
   });
 
-  this.on('disconnect_components', function(source, destination) {
-    source.connectionsAfter.splice(source.connectionsAfter.indexOf(destination), 1);
-    destination.connectionsBefore.splice(destination.connectionsBefore.indexOf(source), 1);
-    let updatePromises=[];
-    updatePromises.push(  utilStore.ajaxCall({
-        method: 'put',
-        url: '../data/core/workspaceComponent',
-        data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(source)),
-    }, true));
-    updatePromises.push(  utilStore.ajaxCall({
-        method: 'put',
-        url: '../data/core/workspaceComponent',
-        data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(destination)),
-    }, true));
-    Promise.all(updatePromises).then(items=>{
-      source = items[0];
-      destination=items[1];
-    })
-    this.trigger('workspace_current_changed', this.workspaceCurrent);
-    if (this.viewBox) {
-      this.computeGraph();
+  this.on('disconnect_components', function(source, target) {
+    let serialised={
+      source : this.workspaceBusiness.serialiseWorkspaceComponent(source),
+      target : this.workspaceBusiness.serialiseWorkspaceComponent(target)
     }
-    //this.update(this.workspaceCurrent);
+    serialised.source.connectionsAfter.splice(serialised.source.connectionsAfter.indexOf(sift({_id:target._id},serialised.source.connectionsAfter)[0]),1);
+    serialised.target.connectionsBefore.splice(serialised.source.connectionsBefore.indexOf(sift({_id:source._id},serialised.source.connectionsBefore)[0]),1);
+
+    utilStore.ajaxCall({
+      method: 'post',
+      url: '../data/core/workspaceComponent/connection',
+      data: JSON.stringify(serialised),
+    }, true).then(disconnectedComps=>{
+      //console.log('connectedComps',disconnectedComps);
+      source.connectionsAfter.splice(source.connectionsAfter.indexOf(sift({_id:disconnectedComps.target._id},source.connectionsAfter)[0]),1);
+      target.connectionsBefore.splice(target.connectionsBefore.indexOf(sift({_id:disconnectedComps.source._id},target.connectionsBefore)[0]),1);
+      this.trigger('workspace_current_changed', this.workspaceCurrent);
+      if (this.viewBox) {
+        this.computeGraph();
+      }
+    })
   });
 
   //it is here because genericStore manage the current item and drad&drop impact others
-  this.on('item_updateField', function(message) {
-    console.log('item_current_updateField ', message);
-    let item = sift({
-      _id: message.id
-    }, this.workspaceCurrent.components)[0];
-    item[message.field] = message.data;
-    this.trigger('workspace_current_changed', this.workspaceCurrent);
-  });
+  // this.on('item_updateField', function(message) {
+  //   console.log('item_current_updateField ', message);
+  //   let item = sift({
+  //     _id: message.id
+  //   }, this.workspaceCurrent.components)[0];
+  //   item[message.field] = message.data;
+  //   this.trigger('workspace_current_changed', this.workspaceCurrent);
+  // });
 
-  this.on('item_persist', function(message) {
-    console.log(message);
-    let item = sift({
-      _id: message.id
-    }, this.workspaceCurrent.components)[0];
+  this.on('item_persist', function(item) {
+    // console.log(message);
+    // let item = sift({
+    //   _id: message.id
+    // }, this.workspaceCurrent.components)[0];
 
     utilStore.ajaxCall({
       method: 'put',
@@ -932,7 +884,11 @@ function WorkspaceStore() {
       data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(item)),
     }, true).then(data => {
       item = data;
+      this.workspaceBusiness.connectWorkspaceComponent(this.workspaceCurrent.components);
       this.trigger('workspace_current_changed', this.workspaceCurrent);
+      if (this.viewBox) {
+        this.computeGraph();
+      }
     }).catch(error => {
       throw error;
     });

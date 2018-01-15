@@ -35,7 +35,7 @@ var proto = {
     }
 
     return new Promise((resolve, reject) => {
-      this.workspace_component_lib.get_all({
+      this.workspace_component_lib.get_all_withConsomation({
         workspaceId: component.workspaceId
       }).then(components => {
         // GOOD ==> console.log(" ---------- resolveComponentInner -----------" , components)

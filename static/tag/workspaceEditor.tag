@@ -17,7 +17,6 @@
       <img src="./image/Stats.svg" style="" height="40px" width="40px">
       <p style="color:white;font-size:12px">Conso</p>
     </a>
-
   </div>
 
   <div show={menu=='component' } class="containerV" style="flex-grow: 1;background-color:rgb(238,242,249)">
