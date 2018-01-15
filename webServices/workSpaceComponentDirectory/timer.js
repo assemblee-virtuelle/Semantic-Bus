@@ -10,7 +10,11 @@ module.exports = {
     'http://semantic-bus.org/data/tags/middleComponents',
     'http://semantic-bus.org/data/tags/middleUtilitiesComponents'
   ],
-
+  getPriceState: function(){
+    return new Promise((resolve,reject)=>{
+      resolve({state:true})
+    })
+  },
   pull: function(data, flowData, undefined) {
     //console.log('--------- cash data START --------  : ');
     return new Promise((resolve, reject) => {

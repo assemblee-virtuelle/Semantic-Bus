@@ -14,6 +14,11 @@ module.exports = new function() {
     this.json2yaml = require('json2yaml');
 
 
+    this.getPriceState =  function(){
+      return new Promise((resolve,reject)=>{
+        resolve({state:true})
+      })
+    };
     this.initialise = function(router) {
       router.post('/:urlRequiered', function(req, res, next) {
         //console.log("IN POST", req.body);

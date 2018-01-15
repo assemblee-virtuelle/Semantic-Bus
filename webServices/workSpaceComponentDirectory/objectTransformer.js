@@ -8,6 +8,11 @@ module.exports = {
     'http://semantic-bus.org/data/tags/middleComponents',
     'http://semantic-bus.org/data/tags/middleQueryingComponents'
   ],
+  getPriceState: function(){
+    return new Promise((resolve,reject)=>{
+      resolve({state:true})
+    })
+  },
   initComponent: function(entity) {
     //console.log('Object Transformer | initComponent : ',entity);
 

@@ -317,6 +317,7 @@ module.exports = function (router) {
         })
       }
       if (err == "user_exist") {
+        console.log("IN WEB SERVICE USER EXIST")
         res.send({
           err: "user_exist"
         })

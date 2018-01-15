@@ -12,6 +12,11 @@ module.exports = {
   https: require('follow-redirects').https,
   //https: require('https'),
   dataTraitment: require("../dataTraitmentLibrary/index.js"),
+  getPriceState: function(){
+    return new Promise((resolve,reject)=>{
+      resolve({state:true})
+    })
+  },
   makeRequest: function (methodRest, urlString, contentType) {
     var _self = this
     return new Promise((resolve, reject) => {

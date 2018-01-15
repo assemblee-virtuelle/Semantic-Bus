@@ -17,6 +17,13 @@ module.exports = {
     }*/
     return entity;
   },
+  getPriceState: function(specificData){
+    return new Promise((resolve,reject)=>{
+      if(specificData.googleToken != null){
+        resolve({state:false,price:1})
+      }
+    })
+  },
   geoLocalise: function(source, specificData) {
 
     return new Promise((resolve, reject) => {

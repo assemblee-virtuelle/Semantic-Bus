@@ -10,7 +10,11 @@ module.exports = {
   url: require('url'),
   http: require('http'),
   RequestCount :0,
-  //waterfall: require('promise-waterfall'),
+  getPriceState: function(){
+    return new Promise((resolve,reject)=>{
+      resolve({state:true})
+    })
+  },
   initComponent: function(entity) {
     return entity;
   },

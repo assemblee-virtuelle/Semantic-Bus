@@ -7,10 +7,14 @@ module.exports = {
     'http://semantic-bus.org/data/tags/middleComponents',
     'http://semantic-bus.org/data/tags/middleUtilitiesComponents'
   ],
-
+  getPriceState: function(){
+    return new Promise((resolve,reject)=>{
+      resolve({state:true})
+    })
+  },
 
   pull: function(data,flowData) {
-
+    
     return new Promise((resolve, reject) => {
       //console.log('dfob | pull : ',data,' | ',flowData);
       var dfob = flowData[0].dfob==undefined?[]:flowData.dfob;
