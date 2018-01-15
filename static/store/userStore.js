@@ -44,25 +44,25 @@ var UserStore = function() {
         // window.open("../ihm/application.html", "_self");
         this.trigger('application_redirect')
         this.sleep(2000).then(function () {
-          this.trigger('ajax_receipt_login');
+          this.trigger('ajax_receipt_login',"/connexion");
         }.bind(this))
       } else if(data.err == "google_user") {
         this.trigger('google_user')
         this.sleep(2000).then(function () {
-          this.trigger('ajax_receipt_login');
+          this.trigger('ajax_receipt_login',"/connexion");
         }.bind(this))
       }else if(data.err == "no_account_found") {
           console.log("no_account_found");
           this.trigger('bad_auth')
           this.sleep(2000).then(function () {
-            this.trigger('ajax_receipt_login');
+            this.trigger('ajax_receipt_login',"/connexion");
           }.bind(this))
       }
       else if(data.err == "probleme_procesus") {
         console.log("probleme_procesus");
         this.trigger('err_processus')
         this.sleep(2000).then(function () {
-          this.trigger('ajax_receipt_login');
+          this.trigger('ajax_receipt_login',"/connexion");
         }.bind(this))
     }
     });
@@ -87,11 +87,11 @@ var UserStore = function() {
         console.log("----- token data -----", localStorage.token)
         this.trigger('application_redirect')
         this.sleep(2000).then(function () {
-          this.trigger('ajax_receipt_login');
+          this.trigger('ajax_receipt_login', "/connexion");
         }.bind(this))
       } else {
         this.trigger('bad_auth')
-        this.trigger('ajax_receipt_login');
+        this.trigger('ajax_receipt_login', "/connexion");
       }
     });
   });
@@ -201,35 +201,36 @@ var UserStore = function() {
         // window.open("../ihm/application.html", "_self");
         this.trigger('application_redirect')
         this.sleep(2000).then(function () {
-          this.trigger('ajax_receipt_login');
+          this.trigger('ajax_receipt_login', "/inscription");
         }.bind(this))
       } else if(data.err == 'google_user') {
         this.trigger('google_user')
         this.sleep(2000).then(function () {
-          this.trigger('ajax_receipt_login');
+          this.trigger('ajax_receipt_login', "/inscription");
         }.bind(this))
       }else if (data.err == "user_exist"){
+        console.log("IN IF USER EXIST")
         this.trigger('email_already_exist')
         this.sleep(2000).then(function () {
-          this.trigger('ajax_receipt_login');
+          this.trigger('ajax_receipt_login', "/inscription");
         }.bind(this))
       }
       else if (data.err == "name_bad_format"){
         this.trigger('name_bad_format')
         this.sleep(2000).then(function () {
-          this.trigger('ajax_receipt_login');
+          this.trigger('ajax_receipt_login', "/inscription");
         }.bind(this))
       }
       else if (data.err == "job_bad_format"){
         this.trigger('job_bad_format')
         this.sleep(2000).then(function () {
-          this.trigger('ajax_receipt_login');
+          this.trigger('ajax_receipt_login', "/inscription");
         }.bind(this))
       }
       else if (data.err == "bad_email"){
         this.trigger('bad_email')
         this.sleep(2000).then(function () {
-          this.trigger('ajax_receipt_login');
+          this.trigger('ajax_receipt_login', "/inscription");
         }.bind(this))
       }
     });
@@ -250,7 +251,7 @@ var UserStore = function() {
       url: '/auth/google'
     }).done(data => {
       sleep(2000).then(function () {
-        this.trigger('ajax_receipt_login');
+        this.trigger('ajax_receipt_login', "/connexion");
       }.bind(this))
       // if(data != null && data.token != null){
       //   localStorage.token = data.token

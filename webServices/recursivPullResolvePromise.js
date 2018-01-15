@@ -14,6 +14,7 @@ var proto = {
   //mLabPromise: require('./mLabPromise'),
   workspaceComponentPromise: require('./workspaceComponentPromise'),
   sift: require('sift'),
+  config_component: require('../configuration'),
   objectSizeOf: require('object-sizeof'),
   mLabPromise: require('./mLabPromise'),
   workspace_component_lib: require('../lib/core/lib/workspace_component_lib'),
@@ -210,14 +211,36 @@ var proto = {
 
         /// Update procecing link
         //console.log("DATA FLOWWWW==>", this.objectSizeOf(dataFlow))
-        processingLink.destination.consumption_history.push({
-          traitement_id: traitement_id,
-          flow_size: this.objectSizeOf(dataFlow) / 1000000,
-          price: (this.objectSizeOf(dataFlow) / 1000000) * 0.04,
-          dates: {
-            created_at: new Date()
+        module.getPriceState().then((res)=>{
+          if(res.state == true){
+            this.config_component.components_information.forEach((component)=>{
+              console.log(component, processingLink.destination.module)
+              console.log(component[processingLink.destination.module])
+              // console.log(parseInt(component[processingLink.destination.module].price) * this.objectSizeOf(dataFlow) / 1000000)
+            })
           }
         })
+        if(processingLink.destination.consumption_history){
+          processingLink.destination.consumption_history.push({
+            traitement_id: traitement_id,
+            flow_size: this.objectSizeOf(dataFlow) / 1000000,
+            price: (this.objectSizeOf(dataFlow) / 1000000) * 0.04,
+            dates: {
+              created_at: new Date()
+            }
+          })
+        }else{
+          processingLink.destination.consumption_history = []
+          processingLink.destination.consumption_history.push({
+            traitement_id: traitement_id,
+            flow_size: this.objectSizeOf(dataFlow) / 1000000,
+            price: (this.objectSizeOf(dataFlow) / 1000000) * 0.04,
+            dates: {
+              created_at: new Date()
+            }
+          })
+        }
+        console.log(processingLink.destination)
         if (this.config.quietLog != true) {
           //console.log('BEFORE lib Update');
         }
@@ -333,17 +356,29 @@ var proto = {
 
     } else {
       if (this.config.quietLog != true) {
-        console.log('--------------  End of Worksapce processing -------------- ', global_flow);
+        // console.log('--------------  End of Worksapce processing --------------', global_flow);
       }
         this.workspace_lib.getWorkspace(component_workspaceId).then(function(res) {
-          res.consumption_history.push({
-            traitement_id: traitement_id,
-            flow_size: global_flow / 1000000,
-            price: (global_flow / 1000000) * 0.04,
-            dates: {
-              created_at: new Date()
-            }
-          })
+          if(res.consumption_history){
+            res.consumption_history.push({
+              traitement_id: traitement_id,
+              flow_size: global_flow / 1000000,
+              price: (global_flow / 1000000) * 0.04,
+              dates: {
+                created_at: new Date()
+              }
+            })
+          }else{
+            res.consumption_history = []
+            res.consumption_history.push({
+              traitement_id: traitement_id,
+              flow_size: global_flow / 1000000,
+              price: (global_flow / 1000000) * 0.04,
+              dates: {
+                created_at: new Date()
+              }
+            })
+          }
           //console.log('--------------  Before save workspace -------------- ')
           //console.log(res.components.length);
           //console.log('length before',res.components.length);

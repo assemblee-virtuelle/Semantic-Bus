@@ -15,6 +15,11 @@ module.exports = {
   dataTraitment: require("../dataTraitmentLibrary/index.js"),
   readable: require('stream').Readable,
   stepNode: false,
+  getPriceState: function(){
+    return new Promise((resolve,reject)=>{
+      resolve({state:true})
+    })
+  },
   initialise: function (router, recursivPullResolvePromise) {
     router.post('/upload/:compId', function (req, res, next) {
       var compId = req.params.compId;

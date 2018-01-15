@@ -12,6 +12,11 @@ module.exports = {
   sift: require('sift'),
   webdriverio: require('webdriverio'),
   base: require('../../test/wdio.conf.base'),
+  getPriceState: function(){
+    return new Promise((resolve,reject)=>{
+      resolve({state:true})
+    })
+  },
   makeRequest: function (user, key, actions, url,  saucelabname, flowData, flow_before, fix_url) {
     //console.log("scrapper start saucelabname", saucelabname)
 

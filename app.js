@@ -53,7 +53,7 @@ httpGet.makeRequest('GET', {
       throw err;
     } else {
 
-      //console.log("~~ remote configuration saved");
+      console.log("~~ remote configuration saved");
       require('./lib/core/Oauth/google_auth_strategy')(passport);
 
       var jwtService = require('./webServices/jwtService')

@@ -12,6 +12,11 @@ module.exports = {
   initComponent: function(entity) {
     return entity;
   },
+  getPriceState: function(){
+    return new Promise((resolve,reject)=>{
+      resolve({state:true})
+    })
+  },
   geoLocalise: function(source, specificData) {
 
     return new Promise((resolve, reject) => {

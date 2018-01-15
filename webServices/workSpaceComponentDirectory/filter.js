@@ -8,7 +8,11 @@ module.exports = {
     'http://semantic-bus.org/data/tags/middleComponents',
     'http://semantic-bus.org/data/tags/middleQueryingComponents'
   ],
-
+  getPriceState: function(){
+    return new Promise((resolve,reject)=>{
+      resolve({state:true})
+    })
+  },
   pull: function(data, flowData) {
 
     //console.log('Filter| pull : ', data, ' | ', flowData);

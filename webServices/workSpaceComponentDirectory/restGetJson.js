@@ -13,6 +13,12 @@ module.exports = {
   //https: require('https'),
   https: require('follow-redirects').https,
   xml2js: require('xml2js'),
+  //waterfall: require('promise-waterfall'),
+  getPriceState: function(){
+    return new Promise((resolve,reject)=>{
+      resolve({state:true})
+    })
+  },
   makeRequest: function(methodRest, specificData, pullParams) {
 
     // create a new Promise

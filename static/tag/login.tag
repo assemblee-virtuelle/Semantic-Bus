@@ -243,11 +243,11 @@ border: 0.2px solid rgb(228,228,228);">
   
 
 
-  RiotControl.on("ajax_receipt_login", function(){
-      console.log("ajax-conexion")
-      this.is_login = false
+  RiotControl.on("ajax_receipt_login", function(routeParams){
+      console.log("ajax-conexion", routeParams)
+      route(routeParams)
       this.update()
-    }.bind(this));
+  }.bind(this));
 
 
     
