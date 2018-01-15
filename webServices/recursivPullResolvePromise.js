@@ -356,7 +356,7 @@ var proto = {
 
     } else {
       if (this.config.quietLog != true) {
-        console.log('--------------  End of Worksapce processing --------------', global_flow);
+        // console.log('--------------  End of Worksapce processing --------------', global_flow);
       }
         this.workspace_lib.getWorkspace(component_workspaceId).then(function(res) {
           if(res.consumption_history){
