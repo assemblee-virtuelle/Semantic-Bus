@@ -122,7 +122,7 @@ module.exports = function(router) {
         c.specificData = {};
         c.connectionsBefore = [];
         c.connectionsAfter = [];
-        c.consumption_history = {};
+        c.consumption_history = [];
       })
       workspace_component_lib.create(components).then(function(workspaceComponents) {
         workspace_lib.getWorkspace(req.params.id).then((workspace) => {
