@@ -41,4 +41,20 @@
       RiotControl.off('item_current_changed', this.updateData);
     });
   </script>
+  <style>
+  a{
+    color: blue;
+  }
+  a:active{
+    color: blue;
+  }
+
+  a:visited{
+    color: blue;
+  }
+
+  a:hover{
+    color: blue;
+  }
+  </style>
 </rest-api-get-editor>

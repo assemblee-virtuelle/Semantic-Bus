@@ -211,6 +211,7 @@ var proto = {
 
         /// Update procecing link
         //console.log("DATA FLOWWWW==>", this.objectSizeOf(dataFlow))
+
         module.getPriceState().then((res)=>{
           if(res.state == true){
             this.config_component.components_information.forEach((component)=>{
@@ -240,7 +241,7 @@ var proto = {
             }
           })
         }
-        console.log(processingLink.destination)
+        //console.log(processingLink.destination)
         if (this.config.quietLog != true) {
           //console.log('BEFORE lib Update');
         }
@@ -264,6 +265,7 @@ var proto = {
           secondaryFlow = secondaryFlow.concat(dataFlow);
           secondaryFlow.splice(secondaryFlow.indexOf(primaryflow), 1);
           //console.log('secondaryFlow |' , secondaryFlow);
+
           if (primaryflow.dfob != undefined) {
             //console.log("after ---- primary flow")
             //console.log('DFOB |',primaryflow.dfob);
@@ -324,7 +326,7 @@ var proto = {
               this.RequestOrigineRejectMethode(e);
             });
           } else {
-
+console.log("DATA FLOWWWW==>",dataFlow)
             module.pull(processingLink.destination, dataFlow, undefined).then(componentFlow => {
               console.log("componentFlow", this.objectSizeOf(componentFlow))
               //console.log('PULL END | ', processingLink.destination._id);
