@@ -2,10 +2,10 @@
   <div id="containerloaderDiv" show={isScrennToShow('loading')}>
       <div id="row">
         <div id="loaderDiv"></div>
-        <h1 id="loaderText"> Connection en cours </h1>
+        <h1 id="loaderText"> Connexion en cours </h1>
       </div>
     </div>
-  <div class="header" style="align-items: center;height: 15%;"> 
+  <div class="header" style="align-items: center;height: 15%;">
   <h1> Bienvenue sur le bus Semantic</h1>
   </div>
 <div class="containerH" show={isScrennToShow('connexion')}>
@@ -13,7 +13,7 @@
   <h1 style="color:rgb(119,119,119)"></h1>
       <div class="box">
         <div class="google-block">
-          <h2 style="color:rgb(117,117,117)"> 
+          <h2 style="color:rgb(117,117,117)">
           Choisissez votre connexion</h2>
           <div class="google" >
               <a href="/auth/google" style="display: flex;align-items: center;justify-content: center;"id="btn-google"><img src="../ihm/image/google-plus.png" alt="" id="googleP">  Connexion</a>
@@ -40,20 +40,20 @@ border: 0.2px solid rgb(228,228,228);">
           </div>
           <div id="result-co">{resultConnexion}</div>
           <div class="flex-container">
-            <a onclick = {login} id="btn2">Connexion</a> 
+            <a onclick = {login} id="btn2">Connexion</a>
         </div>
         </div>
       </div> <!-- End Box -->
       <div class="inscription-link">
         <p>Vous n'avez pas encore de compte ? <a onclick = {hidePage} style="cursor: pointer;color: black;">Inscription</a></p>
-      </div>  
+      </div>
   </div>
 </div>
 <div class="containerH" show={isScrennToShow('inscription')}>
   <div class="containerV">
     <div class="box">
       <div class="title-insc-block">
-          <h2 style="color:rgb(117,117,117)"> 
+          <h2 style="color:rgb(117,117,117)">
           Inscription</h2>
       </div>
       <div class="insc-name-box insc-block ">
@@ -92,7 +92,7 @@ border: 0.2px solid rgb(228,228,228);">
     </div>
     <div class="inscription-link">
       <p>Vous avez deja un compte avec nous? <a onclick = {showPage} style="cursor: pointer;color: black;">Connectez vous</a></p>
-    </div> 
+    </div>
   </div>
 </div>
 
@@ -240,7 +240,7 @@ border: 0.2px solid rgb(228,228,228);">
     this.result_email = "Une erreur est survenu veuillez recommencer l'opération"
     this.update()
   }.bind(this));
-  
+
 
 
   RiotControl.on("ajax_receipt_login", function(routeParams){
@@ -250,7 +250,7 @@ border: 0.2px solid rgb(228,228,228);">
   }.bind(this));
 
 
-    
+
 
   RiotControl.on("ajax_send_login", function(){
       this.is_login = true
@@ -295,7 +295,7 @@ border: 0.2px solid rgb(228,228,228);">
   RiotControl.on('error_send_mail_code', function(user){
     this.result_email = "Votre adresse email est introuvable"
     this.update()
-  }.bind(this))  
+  }.bind(this))
 
   RiotControl.on('good_code', function(user){
     route('forgot_password/changePassword?u='+ this.user._id + "&code=" + this.user.resetpasswordmdp)
@@ -312,7 +312,7 @@ border: 0.2px solid rgb(228,228,228);">
     route('connexion')
     this.resultConnexion = "Votre mot de passe a bien été mis a jour"
     this.update()
-  }.bind(this))  
+  }.bind(this))
 
 
   RiotControl.on('token_expired', function(user){
@@ -576,7 +576,7 @@ border: 0.2px solid rgb(228,228,228);">
     text-align:center;
     margin-top: 15vh;
   }
-  
+
 
   #landingText {
     text-align:center;
