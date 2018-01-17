@@ -25,7 +25,7 @@ module.exports = {
 
       for (flow of flowData) {
         //console.log('flow.data',flow.data);
-        if (!Array.isArray(flow)) {
+        if (!Array.isArray(flow.data)) {
           reject(new Error('input flow have to be an array'));
         } else {
           for (record of flow.data) {
@@ -72,6 +72,7 @@ module.exports = {
         //console.log('Flow Agregator | result flow |  ',flow);
         //resultFlow = resultFlow.concat(flow.data)
       }
+      console.log('RESOLVE!!!!!!!!!!!!!!!');
       //console.log('Flow Agregator | result total |  ',resultFlow);
       resolve({
         data: resultFlow

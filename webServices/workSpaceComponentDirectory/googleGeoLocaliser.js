@@ -17,12 +17,14 @@ module.exports = {
     }*/
     return entity;
   },
-  getPriceState: function(specificData){
-    return new Promise((resolve,reject)=>{
+  getPriceState: function(specificData, moPrice, recordPrice){
+
       if(specificData.googleToken != null){
-        resolve({state:false,price:1})
+        return {moPrice:moPrice,recordPrice:0};
+      }else {
+        return {moPrice:moPrice,recordPrice:recordPrice};
       }
-    })
+
   },
   geoLocalise: function(source, specificData) {
 
