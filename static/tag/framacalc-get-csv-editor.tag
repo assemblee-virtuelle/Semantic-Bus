@@ -1,5 +1,5 @@
 <framacalc-get-csv-editor>
-  <div>information de connection à framacalc</div>
+  <div>information de connexion à framacalc</div>
   <label>key</label>
   <input type="text" name="keyInput" ref="keyInput" value={data.specificData.key}></input>
   <label>offset</label>

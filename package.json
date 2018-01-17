@@ -72,6 +72,7 @@
     "simplecrypt": "^0.1.0",
     "slickgrid": "latest",
     "stripe": "^5.4.0",
+    "threads": "^0.10.0",
     "url-parse": "^1.1.9",
     "wdio-junit-reporter": "^0.3.0",
     "wdio-mocha-framework": "^0.5.10",

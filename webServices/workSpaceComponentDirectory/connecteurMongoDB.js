@@ -3,7 +3,7 @@ module.exports = {
   description: 'intéroger une base de donnée Mongo',
   editor: 'mongo-connecteur-editor',
   mongoose: require('mongoose'),
-  mLabPromise: require('../mLabPromise'),
+  //mLabPromise: require('../mLabPromise'),
   graphIcon: 'mongoDbConnector.png',
   tags:[
     'http://semantic-bus.org/data/tags/inComponents',
