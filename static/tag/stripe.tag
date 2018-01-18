@@ -37,10 +37,14 @@
                 font-size: 20px;
                 margin-top: 20px;
                 text-align: center;" onclick={addPaiment}>Confirmer paiement</button>
+                <h3 style="text-align: center;font-family: 'Open Sans', sans-serif;color: rgb(130,130,130);">
+                    Offre de 20% de crédit pendant la beta Test
+                </h3>
+                
         </div>
     </div>
     <div class="containerV"style="justify-content:center;" if={(payment_error == true) && (payment_done == false)}>
-        <h3 style="text-align: center;font-family: 'Open Sans', sans-serif;color: rgb(130,130,130);">Erreur lors de votre payment </br>  Contactez nous si cela persiste (semanticbusdev@gmail.com)</h3>
+        <h3 style="text-align: center;font-family: 'Open Sans', sans-serif;color: rgb(130,130,130);">{error}</h3>
     </div>
 
     <div class="containerV"style="justify-content:center; align-items:center" if={(payment_done == true) && (payment_error == false)}>
@@ -75,11 +79,18 @@
         RiotControl.on('error_payment', function(){
             this.payment_done = false
             this.payment_error = true
+            this.error = "Erreur lors de votre payment </br>  Contactez nous si cela persiste (semanticbusdev@gmail.com)"
             this.update()
         }.bind(this))
 
-          
-                    
+
+        RiotControl.on('user_no_validate', function(){
+            this.payment_done = false
+            this.payment_error = true
+            this.error = "Votre compte n'est pas validé, veuillez le valider avant de recharger vos credits"
+            this.update()
+        }.bind(this))
+         
         changeValue(e){
             if(parseInt(e.currentTarget.value) && parseInt(e.currentTarget.value) > 500){
                 console.log("in if", e.currentTarget.value)

@@ -19,8 +19,10 @@ module.exports = {
   },
   getPriceState: function(specificData){
     return new Promise((resolve,reject)=>{
-      if(specificData.googleToken != null){
+      if(specificData.googleToken == null){
         resolve({state:false,price:1})
+      }else{
+        resolve({state:true})
       }
     })
   },

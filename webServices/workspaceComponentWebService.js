@@ -20,15 +20,16 @@ module.exports = function(router) {
     }).then(function(data) {
       console.log('workspaceComponent | test| ', data);
       var recursivPullResolvePromiseDynamic = require('./recursivPullResolvePromise');
-      return recursivPullResolvePromise.getNewInstance().resolveComponentPull(data, false);
-    }).then(function(data) {
+      return recursivPullResolvePromise.getNewInstance().resolveComponentPull(data, false).then(function(data) {
       //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
       res.json(data.data);
     }).catch(e => {
+      console.log("IN ERROR WEB SERVICE",e)
       next(e);
     });
 
   }); //<= resolveComponentPull
+})
 
   // --------------------------------------------------------------------------------
 
@@ -45,8 +46,8 @@ module.exports = function(router) {
       //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
       res.json(data.data);
     }).catch(e => {
-      //console.log('WEB Service Run Error',e.displayMessage);
-      next(e);
+      console.log("IN ERROR WEB SERVICE",e.message)
+        next(e);
     });
   }); //<= resolveComponent
 

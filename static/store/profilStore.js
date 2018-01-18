@@ -25,10 +25,12 @@ function profilStore() {
       contentType: 'application/json'
     }).done(function (data) {
       this.trigger('payment_done')
-      if (data != "error") {
-        this.trigger('payment_good', data.credit)
-      } else {
+      if(data == "user_no_validate"){
+        this.trigger('user_no_validate')
+      }else if(data == "error"){
         this.trigger('error_payment')
+      }else{
+        this.trigger('payment_good', data.credit)
       }
       this.setUserCurrent(data);
     }.bind(this));

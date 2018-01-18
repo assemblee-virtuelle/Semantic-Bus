@@ -28,10 +28,15 @@ module.exports = function (router) {
   router.post('/users/stripe/:id', function (req, res,next) {
     console.log("IN STRIPE WEBSERVICE", JSON.parse(req.body.stripeToken))
     payment_lib.addStripePayement(req.params.id, JSON.parse(req.body.stripeToken).card, req.body.amout).then(function (payment) {
+      console.log(payment)
       if(payment.state == "done"){
         res.send(payment.data)
-      }else{
-        res.send("error")
+      }else if(payment.state =="error"){
+        if(payment.err == "user_no_validate"){
+          res.send("user_no_validate")
+        }else{
+          res.send("error")
+        }
       }
     }).catch(e => {
       next(e);
