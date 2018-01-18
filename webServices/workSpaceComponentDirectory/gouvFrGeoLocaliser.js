@@ -10,11 +10,7 @@ module.exports = {
   url: require('url'),
   http: require('http'),
   RequestCount :0,
-  getPriceState: function(){
-    return new Promise((resolve,reject)=>{
-      resolve({state:true})
-    })
-  },
+
   initComponent: function(entity) {
     return entity;
   },
@@ -52,7 +48,7 @@ module.exports = {
             var result = [];
             //console.log('geoLocalise | geoLocalisations result |', geoLocalisations);
             for (var geoLocalisationKey in geoLocalisations) {
-              console.log(geoLocalisations[geoLocalisationKey]);
+              //console.log(geoLocalisations[geoLocalisationKey]);
               if (geoLocalisations[geoLocalisationKey].error == undefined && geoLocalisations[geoLocalisationKey].features[0] != undefined) {
                 //console.log('geoLocalise | geoLocalisations line |',geoLocalisations[geoLocalisationKey]);
                 //console.log('geoLocalise | geoLocalisations key |', geoLocalisationKey);

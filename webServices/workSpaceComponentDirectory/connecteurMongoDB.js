@@ -12,11 +12,7 @@ module.exports = {
   schema: null,
   modelShema: null,
 
-  getPriceState: function(){
-    return new Promise((resolve,reject)=>{
-      resolve({state:true})
-    })
-  },
+
   initialise: function (url) {
     //console.log("----- create uri connexion -----")
     return new Promise(function (resolve, reject) {

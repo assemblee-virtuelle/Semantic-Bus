@@ -9,11 +9,7 @@ module.exports = {
   ],
 
   sift: require('sift'),
-  getPriceState: function(){
-    return new Promise((resolve,reject)=>{
-      resolve({state:true})
-    })
-  },
+
   getPrimaryFlow: function(data, flowData) {
     //console.log('joinByField | getPrimaryFlow');
 

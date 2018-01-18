@@ -12,7 +12,7 @@
   <link href='./css/main.css' rel='stylesheet' type='text/css'>
   <link href='./js/jsonEditor/dist/jsoneditor.min.css' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="./js/awesomplete-gh-pages/awesomplete.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flexboxgrid/6.3.1/flexboxgrid.min.css" type="text/css" >
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flexboxgrid/6.3.1/flexboxgrid.min.css" type="text/css">
 </head>
 
 <body>
@@ -21,6 +21,7 @@
   <script src="https://cdn.jsdelivr.net/npm/riot-route@3.1.2/dist/route+tag.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/webstomp-client@1.2.0/dist/webstomp.min.js"></script>
   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>-->
   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-detect-element-resize/0.5.3/detect-element-resize.js"></script>-->
 
@@ -140,6 +141,26 @@
         tags[2].data=message.data;
       }.bind(this));*/
     });
+
+    //var ws = new WebSocket('ws://stomp-rabitmq-stomp.b9ad.pro-us-east-1.openshiftapps.com:80/ws');
+    var url = 'ws://stomp-rabitmq-stomp.b9ad.pro-us-east-1.openshiftapps.com:80/ws';
+    login = 'guest', password = 'guest';
+    var stompClient = webstomp.client(url,{heartbeat: false,debug:true})
+
+    function onMessage(message) {
+      console.log('message', JSON.parse(message.body));
+    }
+
+    function onConnect(client) {
+      console.log('connected');
+      stompClient.subscribe('/queue/work-response', onMessage);
+      stompClient.send('/exchange/work-ask',JSON.stringify({message:'c est le navigateur qui te parle!!!'}));
+    }
+
+    function onError(err) {
+      console.log('disconnected ', err);
+    }
+    stompClient.connect(login, password, onConnect, onError);
   </script>
 </body>
 
