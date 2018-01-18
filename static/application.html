@@ -148,12 +148,12 @@
     var stompClient = webstomp.client(url,{heartbeat: false,debug:true})
 
     function onMessage(message) {
-      console.log('message', message);
+      console.log('message', JSON.parse(message.body));
     }
 
     function onConnect(client) {
       console.log('connected');
-      //stompClient.subscribe('queu-example', onMessage);
+      stompClient.subscribe('/queue/work-response', onMessage);
       stompClient.send('/exchange/work-ask',JSON.stringify({message:'c est le navigateur qui te parle!!!'}));
     }
 

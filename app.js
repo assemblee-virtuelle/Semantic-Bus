@@ -153,6 +153,7 @@ httpGet.makeRequest('GET', {
 
         function onMessage(message) {
           console.log('message', JSON.parse(message.body));
+          stompClient.send('/exchange/work-response', JSON.stringify({message:'AJAX va prendre cher'}));
         }
 
         function onConnect(client) {
