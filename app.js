@@ -137,6 +137,33 @@ httpGet.makeRequest('GET', {
         // console.log(this.address().port);
         //console.log('new message from master 18');
         //console.log(this.address());
+
+        // var amqp = require('amqplib/callback_api');
+        // amqp.connect('amqp://amqp-rabitmq-stomp.b9ad.pro-us-east-1.openshiftapps.com:80', function(err, conn) {
+        //   console.log('connected',err);
+        //   conn.createChannel(function(err, ch) {});
+        // });
+        var webstomp = require('webstomp-client');
+        var WebSocket = require('ws');
+
+        var url = 'ws://stomp-rabitmq-stomp.b9ad.pro-us-east-1.openshiftapps.com:80/ws';
+        var login = 'guest', password = 'guest';
+        var stompClient = webstomp.over(new WebSocket(url),{heartbeat: false,debug:false});
+        //client: webstomp.over(new WebSocket(url), options)
+
+        function onMessage(message) {
+          console.log('message', JSON.parse(message.body));
+        }
+
+        function onConnect(client) {
+          console.log('connected');
+          stompClient.subscribe('/queue/work-ask', onMessage);
+        }
+
+        function onError(err) {
+          console.log('disconnected ', err);
+        }
+        stompClient.connect(login, password, onConnect, onError);
       })
 
       // Lets encrypt response

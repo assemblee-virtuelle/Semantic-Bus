@@ -81,6 +81,8 @@
     "wdio-spec-reporter": "0.0.3",
     "wdio-testingbot-service": "^0.1.7",
     "webdriverio": "^4.2.16",
+    "webstomp-client": "^1.2.0",
+    "ws": "^4.0.0",
     "xlsx": "^0.10.5",
     "xml2js": "latest"
   },

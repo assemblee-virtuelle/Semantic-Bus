@@ -72,7 +72,7 @@ module.exports = {
         //console.log('Flow Agregator | result flow |  ',flow);
         //resultFlow = resultFlow.concat(flow.data)
       }
-      console.log('RESOLVE!!!!!!!!!!!!!!!');
+      //console.log('RESOLVE!!!!!!!!!!!!!!!');
       //console.log('Flow Agregator | result total |  ',resultFlow);
       resolve({
         data: resultFlow
