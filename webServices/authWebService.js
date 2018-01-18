@@ -121,6 +121,28 @@ module.exports = function (router) {
   }); //<-- mailVerification
 
 
+  router.get('/payement', function (req, res) {
+    console.log("IN PAEMENT WEBHOOK", req.query)
+    // user_lib.get({
+    //   _id: req.query.userid
+    // }).then((user) => {
+    //   console.log(user, req.query.id, user.mailid)
+    //   if (req.query.id == user.mailid) {
+    //     user.active = true
+    //     user_lib.update(user, null).then(function (result) {
+    //       res.redirect('https://semantic-bus.org/ihm/application.html')
+    //     }).catch(function (err) {
+    //       if (err) {
+    //         res.send({
+    //           err: "load error"
+    //         })
+    //       }
+    //     })
+    //   }
+    // })
+  }); //<-- mailVerification
+
+
 
   router.post('/is_authorize_component', function (req, res) {
     console.log("is_authorize_component", req.body)

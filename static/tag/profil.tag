@@ -1,10 +1,10 @@
 <profil class="containerH" style="flex-grow:1;flex-wrap:nowrap;">
-  <div id="containerSecureDiv" if={payment_in_progress == true} class="containerV" style="justify-content:center">
+  <div id="containerLoaderDiv" if={payment_in_progress == true} class="containerV" style="justify-content:center">
     <div id="row">
       <div id="loaderDiv"></div>
       <h1 id="loaderText" class="containerV">
         <span>
-         Paiement en cour
+         Paiement en cours
         </span>
       </h1>
     </div>
@@ -278,16 +278,7 @@
   })
 </script>
 <style scoped>
-    #containerSecureDiv {
-      background-color: rgba(200,200,200,1);
-      bottom: 0;
-      top: 0;
-      right: 0;
-      left: 0;
-      position: absolute;
-      z-index: 3;
 
-    }
     #containerLoaderDiv {
       background-color: rgba(200,200,200,0.6);
       bottom: 0;

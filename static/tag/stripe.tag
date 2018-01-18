@@ -144,17 +144,34 @@
             });
 
             addPaiment(){
-                stripe.createToken(card).then(function(result) {
-                    console.log(result)
+               
+                stripe.createSource(card).then(function(result) {
+                    console.log(result.source)
                     if (result.error) {
                     // Inform the user if there was an error
                     var errorElement = document.getElementById('card-errors');
                     errorElement.textContent = result.error.message;
-                    } else {
-                    // Send the token to your server
-                    if(this.credits >= 500){
-                        RiotControl.trigger('stripe_payment',{card:result.token, amout:this.credits});
-                    }
+                    } else if(result.source.card.three_d_secure == "required" || result.source.card.three_d_secure == "optional" ) {
+                        stripe.createSource({
+                        type: 'three_d_secure',
+                        amount: this.credits,
+                        currency: "eur",
+                        three_d_secure: {
+                            card: result.source.id
+                        },
+                        redirect: {
+                            return_url: "https://semantic-bus.org/auth/payement"
+                        }
+                        }).then(function(result) {
+                            console.log("3D secure", result)
+                            if (result.error) {
+                                // Inform the user if there was an error
+                                var errorElement = document.getElementById('card-errors');
+                                errorElement.textContent = result.error.message;
+                            }else{
+                                RiotControl.trigger('stripe_payment',{card:result.source, amout:this.credits});
+                            }
+                        }.bind(this));
                     }
                 }.bind(this));
             }
@@ -192,3 +209,17 @@
 </stripe-tag>
 
 
+<!--  
+ stripe.createToken(card).then(function(result) {
+                    console.log(result)
+                    if (result.error) {
+                    // Inform the user if there was an error
+                    var errorElement = document.getElementById('card-errors');
+                    errorElement.textContent = result.error.message;
+                    } else {
+                    // Send the token to your server
+                    if(this.credits >= 500){
+                        RiotControl.trigger('stripe_payment',{card:result.token, amout:this.credits});
+                    }
+                    }
+                }.bind(this));  -->
