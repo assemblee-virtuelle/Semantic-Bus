@@ -143,7 +143,6 @@ module.exports = function (router) {
   }); //<-- mailVerification
 
 
-
   router.post('/is_authorize_component', function (req, res) {
     console.log("is_authorize_component", req.body)
     let code = req.body[1].split("&code=")[1]
