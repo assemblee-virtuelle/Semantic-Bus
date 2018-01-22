@@ -1,4 +1,4 @@
-function WorkspaceStore() {
+function WorkspaceStore(utilStore) {
 
 
   // --------------------------------------------------------------------------------
@@ -16,6 +16,7 @@ function WorkspaceStore() {
   //this.cancelRequire = false;
   this.modeConnectBefore = false;
   this.modeConnectAfter = false;
+  this.utilStore=utilStore;
 
 
   // --------------------------------------------------------------------------------
@@ -29,7 +30,7 @@ function WorkspaceStore() {
   this.load = function() {
     //console.log('load workspace to ||', localStorage.user_id);
     return new Promise((resolve, reject) => {
-      utilStore.ajaxCall({
+      this.utilStore.ajaxCall({
         method: 'get',
         url: '../data/core/workspaceByUser/' + localStorage.user_id
       }, true).then(data => {
@@ -48,7 +49,7 @@ function WorkspaceStore() {
     console.log('load share workspace');
 
     return new Promise((resolve, reject) => {
-      utilStore.ajaxCall({
+      this.utilStore.ajaxCall({
         method: 'get',
         url: '../data/core/workspaces/share/' + localStorage.user_id,
       }, true).then(data => {
@@ -67,7 +68,7 @@ function WorkspaceStore() {
     console.log('create');
 
     return new Promise((resolve, reject) => {
-      utilStore.ajaxCall({
+      this.utilStore.ajaxCall({
         method: 'post',
         url: '../data/core/workspace/' + localStorage.user_id,
         data: JSON.stringify(this.workspaceCurrent),
@@ -250,7 +251,7 @@ function WorkspaceStore() {
 
   this.select = function(record) {
     return new Promise((resolve, reject) => {
-      utilStore.ajaxCall({
+      this.utilStore.ajaxCall({
         method: 'get',
         url: '../data/core/workspace/' + record._id
       }, true).then(data => {
@@ -697,7 +698,7 @@ function WorkspaceStore() {
     this.componentSelectedToAdd = message;
   }); // <= workspace_current_updateField
   this.on('workspace_current_add_components', function() {
-    utilStore.ajaxCall({
+    this.utilStore.ajaxCall({
       method: 'post',
       url: '../data/core/workspace/'+this.workspaceCurrent._id+'/addComponents',
       data: JSON.stringify(this.componentSelectedToAdd.map((c)=>{return this.workspaceBusiness.serialiseWorkspaceComponent(c)})),
@@ -712,7 +713,7 @@ function WorkspaceStore() {
 
   this.on('workspace_current_delete_component', function(record) {
     console.log("workspace_current_delete_component ||", record);
-    utilStore.ajaxCall({
+    this.utilStore.ajaxCall({
       method: 'delete',
       url: '../data/core/workspaceComponent/' + record._id,
       data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(record)),
@@ -823,7 +824,7 @@ function WorkspaceStore() {
     serialised.source.connectionsAfter.push({_id:target._id});
     serialised.target.connectionsBefore.push({_id:source._id});
 
-    utilStore.ajaxCall({
+    this.utilStore.ajaxCall({
       method: 'post',
       url: '../data/core/workspaceComponent/connection',
       data: JSON.stringify(serialised),
@@ -847,7 +848,7 @@ function WorkspaceStore() {
     serialised.source.connectionsAfter.splice(serialised.source.connectionsAfter.indexOf(sift({_id:target._id},serialised.source.connectionsAfter)[0]),1);
     serialised.target.connectionsBefore.splice(serialised.source.connectionsBefore.indexOf(sift({_id:source._id},serialised.source.connectionsBefore)[0]),1);
 
-    utilStore.ajaxCall({
+    this.utilStore.ajaxCall({
       method: 'post',
       url: '../data/core/workspaceComponent/connection',
       data: JSON.stringify(serialised),
@@ -878,7 +879,7 @@ function WorkspaceStore() {
     //   _id: message.id
     // }, this.workspaceCurrent.components)[0];
 
-    utilStore.ajaxCall({
+    this.utilStore.ajaxCall({
       method: 'put',
       url: '../data/core/workspaceComponent',
       data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(item)),

@@ -1,5 +1,5 @@
 
-function sqlStore() {
+function SqlStore() {
   riot.observable(this) // Riot provides our event emitter.
 
   this.on('connectesql', function(data) {

@@ -1,11 +1,10 @@
-function MainController(workSpaceStore, genericStore, profilStore,utilStore) {
+function MainController(allStore,stompClient) {
+  console.log(allStore);
   riot.observable(this) // Riot provides our event emitter.
-  this.workspaceStore = workSpaceStore;
-  this.workspaceStore.mainController = this;
-  this.genericStore = genericStore;
-  this.genericStore.mainController = this;
-  this.profilStore = profilStore;
-  this.profilStore.mainController = this;
+  for(store in allStore){
+    allStore[store].mainController = this;
+    this[store]=allStore[store];
+  }
 
   this.on('https_force?', function() {
     console.log("https_force")
@@ -22,7 +21,7 @@ function MainController(workSpaceStore, genericStore, profilStore,utilStore) {
           // window.location.replace("https" + window.location.href.substr(5, window.location.href.split("").length -1))
         }
       }
-      return data
+      //return data
     })
   })
 
@@ -67,19 +66,19 @@ function MainController(workSpaceStore, genericStore, profilStore,utilStore) {
     }
   })
 
-  workSpaceStore.on('workspace_current_changed', function(message) {
+  this.workspaceStore.on('workspace_current_changed', function(message) {
     console.log('workspace_current_changed', this, message);
     this.workspaceCurrent = message;
     this.genericStore.workspaceCurrent = message;
   }.bind(this));
 
-  workSpaceStore.on('workspace_current_add_components_done', function(message) {
+  this.workspaceStore.on('workspace_current_add_components_done', function(message) {
     //this.navigatePrevious();
     route('workspace/'+message._id+'/component')
   }.bind(this));
 
   //update current component because it can be change after wokspace persist
-  workSpaceStore.on('workspace_current_persist_done', function(message) {
+  this.workspaceStore.on('workspace_current_persist_done', function(message) {
     if (this.genericStore.itemCurrent != undefined) {
       this.genericStore.itemCurrent = sift({
         _id: this.genericStore.itemCurrent._id
@@ -88,13 +87,16 @@ function MainController(workSpaceStore, genericStore, profilStore,utilStore) {
     }
   }.bind(this));
 
-  genericStore.on('item_current_work_done', function(message) {
+  this.genericStore.on('item_current_work_done', function(message) {
     route('workPreview')
   }.bind(this));
 
   this.workspaceStore.on('share_change', function(record) {
     route('workspace/'+record.workspace._id+'/user')
   }.bind(this));
+
+
+
 
 
 

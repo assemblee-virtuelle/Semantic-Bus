@@ -1,4 +1,4 @@
-function profilStore() {
+function ProfilStore() {
   riot.observable(this) // Riot provides our event emitter.
   ////LE USER STORE EST RELIE A LOGIN EST NON A APPLICATION
   this.userCurrrent;
