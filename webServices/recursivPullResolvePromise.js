@@ -100,7 +100,7 @@ class Engine {
               }).then(function (user) {
                 var global_flow = 0
                 tableSift.forEach(componentProcessing => {
-                  console.log("OWNER", user.credit)
+                  //console.log("OWNER", user.credit)
                   if (user.credit >= 1000) {
                     let module = this.technicalComponentDirectory[componentProcessing.module];
                     // console.log("FOR EACH COMPONET ------///// ------", componentProcessing.module)
@@ -216,9 +216,9 @@ class Engine {
         if(module.getPriceState!=undefined){
           this.config_component.components_information.forEach((component) => {
             owner.credit -= (res.price * dataFlow[0].data.length +  (this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price))
-            console.log(owner.credit, res.price * dataFlow[0].data.length, (this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price))
+            //console.log(owner.credit, res.price * dataFlow[0].data.length, (this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price))
             this.user_lib.update(owner).then(res=>{
-              console.log("CREDIT UPDATE",res.credit)
+              //console.log("CREDIT UPDATE",res.credit)
             })
           })
         }
@@ -330,7 +330,7 @@ class Engine {
           } else {
 
             module.pull(processingLink.destination, dataFlow, undefined).then(componentFlow => {
-              console.log("componentFlow", this.objectSizeOf(componentFlow))
+              //console.log("componentFlow", this.objectSizeOf(componentFlow))
               //console.log('PULL END | ', processingLink.destination._id);
               processingLink.destination.dataResolution = componentFlow;
               processingLink.destination.status = 'resolved';

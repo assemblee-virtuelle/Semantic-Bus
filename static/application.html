@@ -116,6 +116,7 @@
       // var onMessage = function(message) {
       //   console.log('message', JSON.parse(message.body));
       // };
+      //console.log(amqpHost);
 
       var onConnect = function(client) {
         //console.log('connected',stompClient,client);
@@ -198,7 +199,7 @@
       var login = 'guest';
       var password = 'guest';
       var stompClient = webstomp.client(url,{heartbeat: false,debug:true})
-      if(amqpHost!=undefined){
+      if(amqpHost!=undefined && amqpHost.length>0){
         stompClient.connect(login, password, onConnect, onError,amqpHost);
       }else{
         stompClient.connect(login, password, onConnect, onError);
