@@ -1,10 +1,10 @@
 <profil class="containerH" style="flex-grow:1;flex-wrap:nowrap;">
-  <div id="containerSecureDiv" if={payment_in_progress == true} class="containerV" style="justify-content:center">
+  <div id="containerLoaderDiv" if={payment_in_progress == true} class="containerV" style="justify-content:center">
     <div id="row">
       <div id="loaderDiv"></div>
       <h1 id="loaderText" class="containerV">
         <span>
-         Paiement en cour
+         Paiement en cours
         </span>
       </h1>
     </div>
@@ -90,25 +90,36 @@
       <h3 style="color: rgb(120,120,120);" if={addCredit == false && consultTransactionBoolean == false}>
         Vous disposez de {profil.credit} credits
       </h3>
-      <div class="containerH"  if={addCredit == false && consultTransactionBoolean == false}>
-        <button class="credit-btn" onclick={addCreditButton} type="button">Recharger mes credits</button>
-        <button class="transac-btn" onclick={consultTransaction} type="button">Consulter mes transactions</button>
+      <div class="containerH" style="justify-content:center">
+        <a href="#profil//addcredit" class="credit-btn"> Recharger mes credits </a>
+        <a href="#profil//transaction" class="transac-btn"> Consulter mes transactions </a>
       </div>
-        <stripe-tag if={addCredit == true}></stripe-tag>
-        <transactions-list if={consultTransactionBoolean == true} ></transactions-list>
-        <div class="containerV" style="flex-grow:1;justify-content:center;align-items:center">
-        <button if={addCredit == true || consultTransactionBoolean == true} style="padding: 20px;
-                  border-radius: 10px;
-                  background-color: rgb(9,245,185);
-                  color: white;
-                  font-size: 20px;
-                  margin-top: 20px;
-                  text-align: center;" onclick={retourCreditButton}>Retour</button>
-        </div>
     </div>
   </div>
-</div>
-
+  <div class="containerV" if={menu=='addcredit'} style="flex-grow: 1;background-color: rgb(238, 242, 249);">
+    <stripe-tag></stripe-tag>
+    <div class="containerV" style="flex-grow:1;justify-content:center;align-items:center">
+      <a href="#profil//payement" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px" style="padding: 20px;
+      border-radius: 10px;
+      background-color: rgb(9,245,185);
+      color: white;
+      font-size: 20px;
+      margin-top: 20px;
+      text-align: center;">Retour</a>
+    </div>
+  </div>
+  <div if={menu=='transaction'} style="flex-grow: 1;background-color: rgb(238, 242, 249);">
+    <transactions-list></transactions-list>
+    <div class="containerV" style="flex-grow:1;justify-content:center;align-items:center">
+      <a href="#profil//payement" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px" style="padding: 20px;
+      border-radius: 10px;
+      background-color: rgb(9,245,185);
+      color: white;
+      font-size: 20px;
+      margin-top: 20px;
+      text-align: center;"> Retour </a>
+    </div>
+  </div>
 
 
 <script>
@@ -122,6 +133,17 @@
   this.consultTransactionBoolean = false
   this.emailtext = "Renvoyer un email"
   
+  this.isIn3DSecurePayement = function () {
+    console.log("IN this.isIn3DSecurePayement",location.search.split('client_secret='))
+    this.addCredit = false
+     if(location.search.split('client_secret=').length > 1){
+      var client_secret = location.search.split('client_secret=')[1].split('&livemode')[0]
+      var source = location.search.split('source=')[1]
+      var amount = location.search.split('amount=')[1].split('&client_secret')[0]
+      RiotControl.trigger('stripe_payment',{ source: source, amount: amount, secret: client_secret});
+    }
+  }
+
   consultTransaction(){
     this.consultTransactionBoolean = true
     this.update()
@@ -140,7 +162,7 @@
 
   retourCreditButton(){
     console.log(this.addCredit)
-     this.consultTransactionBoolean = false
+    this.consultTransactionBoolean = false
     this.addCredit = false
     console.log(this.addCredit)
     this.update()
@@ -266,6 +288,7 @@
   }.bind(this);
 
   this.on('mount', function () {
+    this.isIn3DSecurePayement()
     this.consultCredit = false
     this.addCredit = false
     RiotControl.on('profil_menu_changed', this.profilMenuChanged);
@@ -278,16 +301,7 @@
   })
 </script>
 <style scoped>
-    #containerSecureDiv {
-      background-color: rgba(200,200,200,1);
-      bottom: 0;
-      top: 0;
-      right: 0;
-      left: 0;
-      position: absolute;
-      z-index: 3;
 
-    }
     #containerLoaderDiv {
       background-color: rgba(200,200,200,0.6);
       bottom: 0;

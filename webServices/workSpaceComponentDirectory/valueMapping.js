@@ -10,11 +10,7 @@ module.exports = {
   //url: require('url'),
   //http: require('http'),
   //waterfall: require('promise-waterfall'),
-  getPriceState: function(){
-    return new Promise((resolve,reject)=>{
-      resolve({state:true})
-    })
-  },
+
   mapValue :function(valueIn, specificData){
     let valueInString= valueIn.toString()
     var valueOut=[];

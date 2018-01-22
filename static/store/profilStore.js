@@ -8,7 +8,7 @@ function ProfilStore() {
     this.trigger('profil_loaded', this.userCurrrent);
   }
 
-  this.on('stripe_payment', function (data) {
+  this.on('init_stripe_user', function (data) {
     this.trigger('payment_in_progress')
     console.log("stripe_payment IN STORE", localStorage.user_id, JSON.stringify(data))
     // console.log(localStorage.user_id);
@@ -20,19 +20,58 @@ function ProfilStore() {
       },
       data: JSON.stringify({
         amout: JSON.stringify(data.amout),
-        stripeToken: JSON.stringify(data)
+        card: JSON.stringify(data)
       }),
       contentType: 'application/json'
     }).done(function (data) {
-      this.trigger('payment_done')
-      if (data != "error") {
-        this.trigger('payment_good', data.credit)
-      } else {
+      console.log("DATA RESULT", data)
+      // this.trigger('payment_done')
+      if(data == "user_no_validate"){
+        this.trigger('user_no_validate')
+        this.trigger('payment_done')
+      }else if(data == "error"){
         this.trigger('error_payment')
+        this.trigger('payment_done')
+      }else{
+        this.trigger('payment_init_done', data)
       }
       this.setUserCurrent(data);
     }.bind(this));
   })
+
+
+  this.on('stripe_payment', function (data) {
+    this.trigger('payment_in_progress')
+    console.log("stripe_payment IN STORE", localStorage.user_id, JSON.stringify(data.amount),JSON.stringify(data.source))    
+    console.log(localStorage.user_id);
+    $.ajax({
+      method: 'post',
+      url: '../data/core/users/stripecharge/' + localStorage.user_id,
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
+      data: JSON.stringify({
+        amount: data.amount,
+        source: data.source,
+        secret: data.secret
+      }),
+      contentType: 'application/json'
+    }).done(function (data) {
+      console.log("ON ERROR PAYMENT", data)
+      this.trigger('payment_done')
+      window.history.pushState("", "", '/ihm/application.html#profil//addcredit');
+      if(data == "user_no_validate"){
+        this.trigger('user_no_validate')
+      }else if(data == "error"){
+        this.trigger('error_payment')
+      }else{
+        this.trigger('payment_good', data.credit)
+      }
+      this.setUserCurrent(data);
+    }.bind(this));
+  })
+
+  
 
   this.on('load_transactions', function () {
     $.ajax({
@@ -101,7 +140,6 @@ function ProfilStore() {
 
 
   this.on('load_all_profil_by_email', function (message) {
-
     $.ajax({
       method: 'get',
       url: '../data/core/users',
@@ -110,7 +148,6 @@ function ProfilStore() {
       },
       contentType: 'application/json'
     }).done(function (data) {
-
       console.log(data)
       var emails = []
       data.forEach(function (user) {

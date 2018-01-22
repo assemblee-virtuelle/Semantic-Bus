@@ -8,11 +8,7 @@ module.exports = {
     'http://semantic-bus.org/data/tags/middleQueryingComponents'
   ],
   rdfstore: require('rdfstore'),
-  getPriceState: function(){
-    return new Promise((resolve,reject)=>{
-      resolve({state:true})
-    })
-  },
+
   makeRequest: function(flowData, request) {
     return new Promise((resolve, reject) => {
       //var query = request;

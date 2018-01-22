@@ -17,11 +17,7 @@ module.exports = {
     }*/
     return entity;
   },
-  getPriceState: function(){
-    return new Promise((resolve,reject)=>{
-      resolve({state:true})
-    })
-  },
+
   inverseGeoLocalise: function(source, specificData) {
 
     return new Promise((resolve, reject) => {

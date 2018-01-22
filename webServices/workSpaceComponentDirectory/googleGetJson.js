@@ -10,11 +10,7 @@ module.exports = {
   //  url: require('url'),
   //  http: require('http'),
   sheetrock: require('sheetrock'),
-  getPriceState: function(){
-    return new Promise((resolve,reject)=>{
-      resolve({state:true})
-    })
-  },
+
   makeRequest: function(key, select, offset, provider) {
 
     return new Promise((resolve, reject) => {

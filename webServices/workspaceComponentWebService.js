@@ -23,17 +23,18 @@ module.exports = function(router,stompClient) {
     }).then(function(data) {
       console.log('workspaceComponent | test| ', data);
       var recursivPullResolvePromiseDynamic = require('./recursivPullResolvePromise');
-      return recursivPullResolvePromise.getNewInstance().resolveComponentPull(data, false);
-    }).then(function(data) {
+      return recursivPullResolvePromise.getNewInstance().resolveComponentPull(data, false).then(function(data) {
       //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
       res.json(data.data);
       //this.stompClient.message...
 
     }).catch(e => {
+      console.log("IN ERROR WEB SERVICE",e)
       next(e);
     });
 
   }); //<= resolveComponentPull
+})
 
   // --------------------------------------------------------------------------------
 
@@ -51,8 +52,8 @@ module.exports = function(router,stompClient) {
 
       res.json(data.data);
     }).catch(e => {
-      //console.log('WEB Service Run Error',e.displayMessage);
-      next(e);
+      console.log("IN ERROR WEB SERVICE",e.message)
+        next(e);
     });
   }.bind(this)); //<= resolveComponent
 

@@ -6,8 +6,8 @@
                 <image class="" src="./image/plus.png" style="margin-bottom:10px" width="30" height="30" onclick={plusClick}></image>
                 <image class="" src="./image/moins.png" width="30" height="30" onclick={moinsClick}></image>
             </div>
-            <input onkeypress='return event.charCode >= 48 && event.charCode <= 57' type="text" onChange={changeValue} value={credits} style="width: 30%;display: flex;
-    border-radius: 5px;
+            <input onkeypress='return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 8' type="text" onChange={changeValue} value={credits} style="width: 30%;display: flex;
+        border-radius: 5px;
         height: 10vh;
         font-size: 40px;
         text-align:center;
@@ -37,10 +37,14 @@
                 font-size: 20px;
                 margin-top: 20px;
                 text-align: center;" onclick={addPaiment}>Confirmer paiement</button>
+                <h3 style="text-align: center;font-family: 'Open Sans', sans-serif;color: rgb(130,130,130);">
+                    Offre de 20% de crédit pendant la beta Test
+                </h3>
+                
         </div>
     </div>
     <div class="containerV"style="justify-content:center;" if={(payment_error == true) && (payment_done == false)}>
-        <h3 style="text-align: center;font-family: 'Open Sans', sans-serif;color: rgb(130,130,130);">Erreur lors de votre payment </br>  Contactez nous si cela persiste (semanticbusdev@gmail.com)</h3>
+        <h3 style="text-align: center;font-family: 'Open Sans', sans-serif;color: rgb(130,130,130);">{error}</h3>
     </div>
 
     <div class="containerV"style="justify-content:center; align-items:center" if={(payment_done == true) && (payment_error == false)}>
@@ -51,7 +55,7 @@
     </div>
 
     <script>
-        var stripe = Stripe('pk_test_SzHbTFS2RaTIzBiKLvCvWGGz');
+        var stripe = Stripe('pk_live_VxdWt7nfX3EyVcMyQ153TOvr');
        
 
         plusClick(e){
@@ -65,6 +69,8 @@
             }
         }
 
+
+
         RiotControl.on('payment_good', function(credits){
             this.payment_done = true
             this.payment_error = false
@@ -73,13 +79,21 @@
         }.bind(this))
 
         RiotControl.on('error_payment', function(){
+            console.log("ON ERROR PAYMENT")
             this.payment_done = false
             this.payment_error = true
+            this.error = "Erreur lors de votre payment, Contactez nous si cela persiste (semanticbusdev@gmail.com)"
             this.update()
         }.bind(this))
 
-          
-                    
+
+        RiotControl.on('user_no_validate', function(){
+            this.payment_done = false
+            this.payment_error = true
+            this.error = "Votre compte n'est pas validé, veuillez le valider avant de recharger vos credits"
+            this.update()
+        }.bind(this))
+         
         changeValue(e){
             if(parseInt(e.currentTarget.value) && parseInt(e.currentTarget.value) > 500){
                 console.log("in if", e.currentTarget.value)
@@ -133,22 +147,21 @@
             });
 
             addPaiment(){
-                stripe.createToken(card).then(function(result) {
-                    console.log(result)
+                stripe.createSource(card).then(function(result) {
+                    console.log(result.source)
                     if (result.error) {
                     // Inform the user if there was an error
                     var errorElement = document.getElementById('card-errors');
                     errorElement.textContent = result.error.message;
-                    } else {
-                    // Send the token to your server
-                    if(this.credits >= 500){
-                        RiotControl.trigger('stripe_payment',{card:result.token, amout:this.credits});
-                    }
+                    }else {
+                        RiotControl.trigger('init_stripe_user',{card:result.source, amout:this.credits});
                     }
                 }.bind(this));
             }
 
-            // Handle form submission
+            RiotControl.on('payment_init_done', (source)=>{
+                window.open(source.redirect.url,'_self');
+            })
     });
     </script>
 
@@ -181,3 +194,42 @@
 </stripe-tag>
 
 
+<!--  
+ stripe.createToken(card).then(function(result) {
+    console.log(result)
+    if (result.error) {
+    // Inform the user if there was an error
+    var errorElement = document.getElementById('card-errors');
+    errorElement.textContent = result.error.message;
+    } else {
+    // Send the token to your server
+    if(this.credits >= 500){
+        RiotControl.trigger('stripe_payment',{card:result.token, amout:this.credits});
+    }
+                    }
+                }.bind(this));  -->
+
+
+                 <!--  else if(result.source.card.three_d_secure == "required" || result.source.card.three_d_secure == "optional" ) {
+                        stripe.createSource({
+                            type: 'three_d_secure',
+                            amount: this.credits,
+                            currency: "eur",
+                            three_d_secure: {
+                                card: result.source.id
+                            },
+                            redirect: {
+                                return_url: "http://localhost:8080/ihm/application.html#profil//payement"
+                            }
+                        }).then(function(result) {
+                            console.log("3D secure", result)
+                            if (result.error) {
+                                // Inform the user if there was an error
+                                var errorElement = document.getElementById('card-errors');
+                                errorElement.textContent = result.error.message;
+                            }
+                            else{
+                                window.open(result.source.redirect.url)
+                            }
+                        }.bind(this));
+                    }  -->

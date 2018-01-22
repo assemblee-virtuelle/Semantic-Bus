@@ -13,11 +13,7 @@ module.exports = {
   stepNode: true,
   //recursivPullResolvePromise : require('../recursivPullResolvePromise'),
 
-  getPriceState: function(){
-    return new Promise((resolve,reject)=>{
-      resolve({state:true})
-    })
-  },
+ 
   initialise: function(router, recursivPullResolvePromise) {
     this.recursivPullResolvePromise = recursivPullResolvePromise;
     //console.log('INIT',router);

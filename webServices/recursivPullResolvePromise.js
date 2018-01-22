@@ -73,6 +73,7 @@ class Engine {
 
         //if (requestDirection == 'pull') {
 
+
         var tableSift = []
         this.componentsResolving.forEach(componentToInspect => {
           //console.log('init pathResolution', componentToInspect._id, componentToInspect.status, componentToInspect.pullSource);
@@ -80,65 +81,90 @@ class Engine {
             tableSift.push(componentToInspect)
           }
         })
+
+
+
+
         // this.sift({
         //   pullSource: "true",
         //   // dataResolution: {
         //   //   $exists: false
         //   // }
         // }, this.componentsResolving)
-        var global_flow = 0
-        tableSift.forEach(componentProcessing => {
-          let module = this.technicalComponentDirectory[componentProcessing.module];
-          console.log("FOR EACH COMPONET ------///// ------", componentProcessing.module)
-          //let componentProcessing = processingLink.source;
-          //console.log('PULL start | ', componentProcessing._id);
-          module.pull(componentProcessing, undefined, undefined).then(componentFlow => {
-              if (this.config.quietLog != true) {
-                //console.log('PULL END | ', componentProcessing._id,componentFlow);
-              }
-              componentProcessing.dataResolution = componentFlow;
-              componentProcessing.status = 'resolved';
-              //console.log("componentFlow ----------", componentFlow)
-              ///update first component her
-              // componentProcessing.consumption_history.push({
-              //   traitement_id: traitement_id,
-              //   flow_size: this.objectSizeOf(componentFlow) / 1000000,
-              //   price: (this.objectSizeOf(componentFlow) / 400000000),
-              //   dates: {
-              //     created_at: new Date()
-              //   }
-              // })
-              // this.workspace_component_lib.update(
-              //  componentProcessing
-              // ).then(function(res){
-              //TODO reactivate global_flow computing
-              //global_flow += this.objectSizeOf(componentFlow)
-              // console.log("traitement_update =====>", res.consumption_history)
-              this.sift({
-                "source._id": componentProcessing._id
-              }, this.pathResolution).forEach(link => {
-                link.status = 'processing'
-              });
+        let owner = null
+        this.workspace_lib.getWorkspace(component.workspaceId).then(function (res) {
+          res.users.forEach((user) => {
+            if (user.role == "owner") {
+              this.user_lib.get({
+                'credentials.email': user.email
+              }).then(function (user) {
+                var global_flow = 0
+                tableSift.forEach(componentProcessing => {
+                  console.log("OWNER", user.credit)
+                  if (user.credit >= 1000) {
+                    let module = this.technicalComponentDirectory[componentProcessing.module];
+                    // console.log("FOR EACH COMPONET ------///// ------", componentProcessing.module)
+                    //let componentProcessing = processingLink.source;
+                    //console.log('PULL start | ', componentProcessing._id);
+                    module.pull(componentProcessing, undefined, undefined).then(componentFlow => {
+                        if (this.config.quietLog != true) {
+                          //console.log('PULL END | ', componentProcessing._id,componentFlow);
+                        }
+                        componentProcessing.dataResolution = componentFlow;
+                        componentProcessing.status = 'resolved';
+                        //console.log("componentFlow ----------", componentFlow)
+                        ///update first component her
+                        // componentProcessing.consumption_history.push({
+                        //   traitement_id: traitement_id,
+                        //   flow_size: this.objectSizeOf(componentFlow) / 1000000,
+                        //   price: (this.objectSizeOf(componentFlow) / 400000000),
+                        //   dates: {
+                        //     created_at: new Date()
+                        //   }
+                        // })
+                        // this.workspace_component_lib.update(
+                        //  componentProcessing
+                        // ).then(function(res){
+                        //TODO reactivate global_flow computing
+                        //global_flow += this.objectSizeOf(componentFlow)
+                        // console.log("traitement_update =====>", res.consumption_history)
+                        this.sift({
+                          "source._id": componentProcessing._id
+                        }, this.pathResolution).forEach(link => {
+                          link.status = 'processing'
+                        });
 
-              // console.log('compare',this.RequestOrigine._id, componentProcessing._id);
-              if (componentProcessing._id == this.RequestOrigine._id) {
-                this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
-              }
+                        // console.log('compare',this.RequestOrigine._id, componentProcessing._id);
+                        if (componentProcessing._id == this.RequestOrigine._id) {
+                          this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
+                        }
 
-              this.processNextBuildPath(traitement_id, component.workspaceId, global_flow);
-              // }.bind(this))
-            })
-            .catch(e => {
-              // console.log('WORK ERROR',e);
-              reject(e);
-            });
-        });
+                        this.processNextBuildPath(traitement_id, component.workspaceId, global_flow, user);
+                        // }.bind(this))
+                      })
+                      .catch(e => {
+                        console.log('WORK ERROR', e);
+                        reject(e);
+                      });
+                  } else {
+                    let fullError = new Error();
+                    fullError.message = "Vous n'avez pas assez de credit"
+                    reject(fullError)
+                  }
+                });
+              }.bind(this))
+            }
+          })
+        }.bind(this))
         //}
 
       })
+
     });
+
   };
-  processNextBuildPath(traitement_id, component_workspaceId, global_flow) {
+  processNextBuildPath(traitement_id, component_workspaceId, global_flow, owner) {
+    if (owner.credit >= 100) {
     this.fackCounter++;
     if (this.config.quietLog != true) {
       console.log(" ---------- processNextBuildPath -----------", this.fackCounter)
@@ -186,11 +212,15 @@ class Engine {
           return d;
         });
 
-        /// Update procecing link
-        //console.log("DATA FLOWWWW==>", this.objectSizeOf(dataFlow))
 
         if(module.getPriceState!=undefined){
-          let specificPrice=module.getPriceState(processingLink.destination.specificData);
+          this.config_component.components_information.forEach((component) => {
+            owner.credit -= (res.price * dataFlow[0].data.length +  (this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price))
+            console.log(owner.credit, res.price * dataFlow[0].data.length, (this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price))
+            this.user_lib.update(owner).then(res=>{
+              console.log("CREDIT UPDATE",res.credit)
+            })
+          })
         }
 
         if (processingLink.destination.consumption_history) {
@@ -219,12 +249,12 @@ class Engine {
         }
         this.workspace_component_lib.update(
           processingLink.destination
-        ).then(function(res) {
+        ).then(function (res) {
           if (this.config.quietLog != true) {
             //console.log('AFTER lib Update');
           }
           //console.log("res update =======>",res)
-          // global_flow += this.objectSizeOf(dataFlow)
+          global_flow += this.objectSizeOf(dataFlow)
           var primaryflow;
           if (module.getPrimaryFlow != undefined) {
             //console.log("DATA ----FLOW --------------", processingLink.destination)
@@ -291,7 +321,7 @@ class Engine {
               if (processingLink.destination._id == this.RequestOrigine._id) {
                 this.RequestOrigineResolveMethode(processingLink.destination.dataResolution)
               }
-              this.processNextBuildPath(traitement_id, component_workspaceId, global_flow);
+              this.processNextBuildPath(traitement_id, component_workspaceId, global_flow, owner);
 
             }).catch(e => {
               //console.log(e);
@@ -319,7 +349,7 @@ class Engine {
               if (processingLink.destination._id == this.RequestOrigine._id) {
                 this.RequestOrigineResolveMethode(processingLink.destination.dataResolution)
               }
-              this.processNextBuildPath(traitement_id, component_workspaceId, global_flow);
+              this.processNextBuildPath(traitement_id, component_workspaceId, global_flow, owner);
             }).catch(e => {
               this.RequestOrigineRejectMethode(e);
               //reject(e);
@@ -332,7 +362,7 @@ class Engine {
       if (this.config.quietLog != true) {
         // console.log('--------------  End of Worksapce processing --------------', global_flow);
       }
-      this.workspace_lib.getWorkspace(component_workspaceId).then(function(res) {
+      this.workspace_lib.getWorkspace(component_workspaceId).then(function (res) {
         if (res.consumption_history) {
           res.consumption_history.push({
             traitement_id: traitement_id,
@@ -358,7 +388,7 @@ class Engine {
         //console.log('length before',res.components.length);
         //console.log('components_id',res.components.map(m=>m._id));
 
-        this.workspace_lib.updateSimple(res).then(function(res) {
+        this.workspace_lib.updateSimple(res).then(function (res) {
           if (this.config.quietLog != true) {
             //console.log('length after', res.components.length)
             console.log('--------------  End of Worksapce processing -------------- ', res._id)
@@ -366,7 +396,13 @@ class Engine {
         }.bind(this))
       }.bind(this))
     }
+  }else{
+    let fullError = new Error();
+    fullError.message = "Vous n'avez pas assez de credit"
+    this.RequestOrigineRejectMethode(fullError);
+  }
   };
+
   //TODO don't work if flow is array at fisrt depth
   buildDfobFlow(currentFlow, dfobPathTab) {
 
@@ -500,14 +536,13 @@ class Engine {
 
 module.exports = {
   threads: require('threads'),
-  getNewInstance: function() {
+  getNewInstance: function () {
     let out = new Engine();
     //console.log(out);
     return out;
   },
-  executeInThread: function(component, requestDirection, pushData) {
-
-    const thread = this.threads.spawn(function([dirname, component, requestDirection, pushData]) {
+  executeInThread: function (component, requestDirection, pushData) {
+    const thread = this.threads.spawn(function ([dirname, component, requestDirection, pushData]) {
       return new Promise((resolve, reject) => {
         let recursivPullResolvePromise = require(dirname + '/recursivPullResolvePromise.js');
         recursivPullResolvePromise.getNewInstance().resolveComponent(component, requestDirection, pushData).then(data => {
@@ -525,7 +560,9 @@ module.exports = {
           //console.log('THREAD RESPONSE', response);
           thread.kill();
           resolve(response);
-        });
+        }).on('error', function (error) {
+          reject(error)
+        })
     });
 
     //console.log('1',Engine);

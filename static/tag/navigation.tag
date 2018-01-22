@@ -63,7 +63,7 @@
             <p show={isPrincipalMenu} style="color:white;font-size:12px;text-align:center">Worksapces Partagé</p>
           </a>
           <a href="#profil//running" class="commandButtonImage {selectedMenu:isScrennInHistory('profil')} containerV" style="flex-basis:100px;flex-grow:0;">
-            <img src="./image/photo.svg" style="" width="40px">
+            <img src="./image/user.png" style="" width="40px">
             <p show={isPrincipalMenu} style="color:white;font-size:12px">Profil</p>
           </a>
           <!--  ADMIN  -->

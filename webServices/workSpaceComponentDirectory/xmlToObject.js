@@ -4,11 +4,8 @@ module.exports = {
   editor: 'xml-property-to-object-editor',
   graphIcon:'default.png',
   xml2js: require('xml2js'),
-  getPriceState: function(){
-    return new Promise((resolve,reject)=>{
-      resolve({state:true})
-    })
-  },
+
+  
   xmlTransform: function(source, specificData) {
     //console.log(this.xml2js);
     return new Promise((resolve, reject) => {

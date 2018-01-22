@@ -13,11 +13,7 @@ module.exports = {
   http: require('http'),
   https: require('https'),
   csv: require('csvtojson'),
-  getPriceState: function(){
-    return new Promise((resolve,reject)=>{
-      resolve({state:true})
-    })
-  },
+
   makeRequest: function(key, offset, provider) {
 
     return new Promise((resolve, reject) => {

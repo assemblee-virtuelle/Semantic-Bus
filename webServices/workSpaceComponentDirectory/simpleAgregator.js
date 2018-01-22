@@ -10,13 +10,7 @@ module.exports = {
     'http://semantic-bus.org/data/tags/middleComponentsAgregation'
   ],
 
-  getPriceState: function() {
-    return new Promise((resolve, reject) => {
-      resolve({
-        state: true
-      })
-    })
-  },
+
   pull: function(data, flowData) {
     //console.log('Flow Agregator | pull : ',data,' | ',flowData);
     return new Promise((resolve, reject) => {
