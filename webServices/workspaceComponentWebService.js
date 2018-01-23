@@ -78,7 +78,8 @@ module.exports = function(router,stompClient) {
       this.stompClient.send('/topic/work-response.'+token, JSON.stringify({data:data}));
 
     }).catch(e => {
-        this.stompClient.send('/topic/work-response.'+token, JSON.stringify({error:e}));
+      //console.log('AMQP work error',JSON.stringify(e));
+        this.stompClient.send('/topic/work-response.'+token, JSON.stringify({error:e.message}));
     });
   });
 

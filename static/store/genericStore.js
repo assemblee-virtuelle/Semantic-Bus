@@ -168,10 +168,14 @@ function GenericStore(utilStore, specificStoreList, stompClient) {
   }); //<= item_current_work
 
   stompClient.subscribe('/topic/work-response.'+localStorage.token, message=>{
-    console.log('message', JSON.parse(message.body));
+    //console.log('message', JSON.parse(message.body));
     let body=JSON.parse(message.body);
-    this.currentPreview = body.data;
-    this.trigger('item_current_work_done', this.currentPreview );
+    if (body.error==undefined){
+      this.currentPreview = body.data;
+      this.trigger('item_current_work_done', this.currentPreview );
+    }else{
+      this.trigger('ajax_fail',body.error);
+    }
   });
 
 
