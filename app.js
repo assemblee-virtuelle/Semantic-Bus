@@ -71,116 +71,128 @@ httpGet.makeRequest('GET', {
 
       unSafeRouteur.use(cors());
 
-      require('./webServices/initialiseHTTPS')(unSafeRouteur);
-      require('./webServices/authWebService')(unSafeRouteur);
-      require('./webServices/workspaceWebService')(safe);
-      require('./webServices/workspaceComponentWebService')(safe);
-      require('./webServices/technicalComponentWebService')(safe, unSafeRouteur);
-      require('./webServices/userWebservices')(safe);
-      require('./webServices/rightsManagementWebService')(safe);
-      require('./webServices/adminWebService')(safe);
+      var webstomp = require('webstomp-client');
+      var WebSocket = require('ws');
+      var url = 'wss://stomp-rabitmq-stomp.b9ad.pro-us-east-1.openshiftapps.com:443/ws/';
 
-      ///OTHER APP COMPONENT
-      ///SECURISATION DES REQUETES
-      app.get('/', function(req, res, next) {
-        res.redirect('/ihm/application.html#landing');
-      });
-      app.use('/auth', express.static('static'));
-      app.use('/auth', unSafeRouteur);
-      app.use('/configuration', unSafeRouteur);
-      app.use('/data/specific', unSafeRouteur);
-      app.use('/data/api', unSafeRouteur);
-      app.use('/data/core', safe);
-      app.use('/ihm', express.static('static'));
-      app.use('/browserify', express.static('browserify'));
-      app.use('/npm', express.static('node_modules'));
+      let webSocket = new WebSocket(url)
+      // let webSocket = new WebSocket(url, {
+      //   origin: 'https://semantic-bus.org'
+      // });
 
-      let errorLib = require('./lib/core/lib/error_lib');
-      let jwtSimple = require('jwt-simple');
-      let errorParser = require('error-stack-parser');
-      app.use(function(err, req, res, next) {
-        //console.log('PROXY');
-        if (err) {
-          //console.log('ERROR MANAGEMENT');
-          var token = req.body.token || req.query.token || req.headers['authorization'];
-          //console.log('token |',token);
-          let user;
-          if (token != undefined) {
-            token.split("");
-            let decodedToken = jwtSimple.decode(token.substring(4, token.length), configJson.secret);
-            user = decodedToken.iss;
-            //console.log('user |',user);
+      var login = 'guest', password = 'guest';
+      var stompClient = webstomp.over(webSocket,{heartbeat: false,debug:false});
+      //client: webstomp.over(new WebSocket(url), options)
+
+      // function onMessage(message) {
+      //   console.log('message', JSON.parse(message.body));
+      //   stompClient.send('/topic/work-response', JSON.stringify({message:'AJAX va prendre cher'}));
+      // }
+
+      var onConnect=function(client) {
+      //  console.log(app);
+        console.log('connected');
+        //stompClient.subscribe('/queue/work-ask', message=>{console.log('ALLO');});
+        let messagingSevices=[];
+
+
+        //TODO it's ugly!!!! sytem function is increment with stompClient
+        require('./webServices/initialise')(unSafeRouteur,stompClient);
+        require('./webServices/authWebService')(unSafeRouteur,stompClient);
+        require('./webServices/workspaceWebService')(safe,stompClient);
+        require('./webServices/workspaceComponentWebService')(safe,stompClient);
+        require('./webServices/technicalComponentWebService')(safe, unSafeRouteur,stompClient);
+        require('./webServices/userWebservices')(safe,stompClient);
+        require('./webServices/rightsManagementWebService')(safe,stompClient);
+        require('./webServices/adminWebService')(safe,stompClient);
+
+        ///OTHER APP COMPONENT
+        ///SECURISATION DES REQUETES
+        app.get('/', function(req, res, next) {
+          res.redirect('/ihm/application.html#landing');
+        });
+        app.use('/auth', express.static('static'));
+        app.use('/auth', unSafeRouteur);
+        app.use('/configuration', unSafeRouteur);
+        app.use('/data/specific', unSafeRouteur);
+        app.use('/data/api', unSafeRouteur);
+        app.use('/data/core', safe);
+        app.use('/ihm', express.static('static'));
+        app.use('/browserify', express.static('browserify'));
+        app.use('/npm', express.static('node_modules'));
+
+        let errorLib = require('./lib/core/lib/error_lib');
+        let jwtSimple = require('jwt-simple');
+        let errorParser = require('error-stack-parser');
+        app.use(function(err, req, res, next) {
+          //console.log('PROXY');
+          if (err) {
+            //console.log('ERROR MANAGEMENT');
+            var token = req.body.token || req.query.token || req.headers['authorization'];
+            //console.log('token |',token);
+            let user;
+            if (token != undefined) {
+              token.split("");
+              let decodedToken = jwtSimple.decode(token.substring(4, token.length), configJson.secret);
+              user = decodedToken.iss;
+              //console.log('user |',user);
+            }
+            errorLib.create(err, user);
+            //console.log(err);
+            //console.log('XXXXXXXXXXX',res);
+            res.status(500).send({
+              message: err.message,
+              stack: errorParser.parse(err),
+              displayMessage: err.displayMessage
+            });
           }
-          errorLib.create(err, user);
-          console.log(err);
-          //console.log('XXXXXXXXXXX',res);
-          res.status(500).send({
-            message: err.message,
-            stack: errorParser.parse(err),
-            displayMessage: err.displayMessage
-          });
-        }
-        //able to centralise response using res.data ans res.send(res.data)
-      });
+          //able to centralise response using res.data ans res.send(res.data)
+        });
 
-      server.listen(process.env.PORT || 8080, function() {
-        console.log('~~ server started at ', this.address().address, ':', this.address().port)
-        require('./lib/core/timerScheduler').run();
+        server.listen(process.env.PORT || 8080, function() {
+          console.log('~~ server started at ', this.address().address, ':', this.address().port)
+          require('./lib/core/timerScheduler').run();
 
-        if (jenkins) {
-          //console.log("jenkins is true");
-          http.get('http://bkz2jalw7c:3bdcf7bc40f582a4ae7ff52f77e90b24@tvcntysyea-jenkins.services.clever-cloud.com:4003/job/semanticbus-pic-3/build?token=semantic_bus_token', function(res) {
-            console.log("jenkins JOB production triggered")
-          })
-        }
-        // console.log('Listening on port  ');
-        // console.log(this.address().port);
-        //console.log('new message from master 18');
-        //console.log(this.address());
+          if (jenkins) {
+            //console.log("jenkins is true");
+            http.get('http://bkz2jalw7c:3bdcf7bc40f582a4ae7ff52f77e90b24@tvcntysyea-jenkins.services.clever-cloud.com:4003/job/semanticbus-pic-3/build?token=semantic_bus_token', function(res) {
+              console.log("jenkins JOB production triggered")
+            })
+          }
+          // console.log('Listening on port  ');
+          // console.log(this.address().port);
+          //console.log('new message from master 18');
+          //console.log(this.address());
 
-        // var amqp = require('amqplib/callback_api');
-        // amqp.connect('amqp://amqp-rabitmq-stomp.b9ad.pro-us-east-1.openshiftapps.com:80', function(err, conn) {
-        //   console.log('connected',err);
-        //   conn.createChannel(function(err, ch) {});
-        // });
-        var webstomp = require('webstomp-client');
-        var WebSocket = require('ws');
+        })
 
-        var url = 'ws://stomp-rabitmq-stomp.b9ad.pro-us-east-1.openshiftapps.com:80/ws';
-        var login = 'guest', password = 'guest';
-        var stompClient = webstomp.over(new WebSocket(url),{heartbeat: false,debug:false});
-        //client: webstomp.over(new WebSocket(url), options)
+        // Lets encrypt response
 
-        function onMessage(message) {
-          console.log('message', JSON.parse(message.body));
-          stompClient.send('/exchange/work-response', JSON.stringify({message:'AJAX va prendre cher'}));
-        }
+        app.get('/.well-known/acme-challenge/:challengeHash', function(req, res) {
+          var params = req.params.challengeHash.substr(0, req.params.challengeHash.length)
+          var hash = params + ".rCIAnB6OZN-jvB1XIOagkbUTKQQmQ1ogeb5DUVFNUko";
+          res.send(hash)
+        });
 
-        function onConnect(client) {
-          console.log('connected');
-          stompClient.subscribe('/queue/work-ask', onMessage);
-        }
+        /// Nous Securisons desormais IHM par un appel AJAX
+        /// à lentrée sur la page application.html
 
-        function onError(err) {
-          console.log('disconnected ', err);
-        }
+        server.on('error', function(err) {
+          console.log(err)
+        })
+      }
+
+      var onError=function(err) {
+        console.log('disconnected ', err);
+      }
+      let amqpHost=env.AMQPHOST;
+      if(amqpHost!=undefined){
+        stompClient.connect(login, password, onConnect, onError,amqpHost);
+      }else{
         stompClient.connect(login, password, onConnect, onError);
-      })
+      }
 
-      // Lets encrypt response
 
-      app.get('/.well-known/acme-challenge/:challengeHash', function(req, res) {
-        var params = req.params.challengeHash.substr(0, req.params.challengeHash.length)
-        var hash = params + ".rCIAnB6OZN-jvB1XIOagkbUTKQQmQ1ogeb5DUVFNUko";
-        res.send(hash)
-      });
-
-      /// Nous Securisons desormais IHM par un appel AJAX
-      /// à lentrée sur la page application.html
-
-      server.on('error', function(err) {
-        console.log(err)
-      })
     }
   });
 })

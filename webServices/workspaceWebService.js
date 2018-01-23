@@ -11,14 +11,16 @@ var sift = require('sift');
 // --------------------------------------------------------------------------------
 
 
-module.exports = function(router) {
+module.exports = function(router,stompClient) {
 
   // ---------------------------------------  ALL USERS  -----------------------------------------
 
   router.get('/workspaceByUser/:userId', function(req, res, next) {
-    //throw new Error('Whoops!');
+    //next(new Error('Whoops!'));
+    //console.log('ALLO');
     workspace_lib.getAll(req.params.userId, "owner").then(function(workspaces) {
-      res.json(workspaces)
+      //console.log('stompClient',stompClient);
+      res.json(workspaces);
     }).catch(e => {
       next(e);
     })

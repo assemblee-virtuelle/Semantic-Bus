@@ -11,7 +11,10 @@ var user_lib = require('../lib/core/lib/user_lib');
 // --------------------------------------------------------------------------------
 
 
-module.exports = function (router) {
+module.exports = function (router,stompClient) {
+
+  //TODO ugly
+  this.stompClient=stompClient;
 
   let sendMail = function (rand, req, email, id, res) {
     return new Promise(function (resolve, reject) {
@@ -281,8 +284,11 @@ module.exports = function (router) {
   // -------------------------------------------------------------------------------
 
   router.post('/isTokenValid', function (req, res) {
+    //console.log(this);
+    //console.log('stompClient 1',this.stompClient);
     if (req.body.token) {
       jwtService.require_token(req.body.token).then(function (token_result) {
+        //console.log('stompClient 2',this.stompClient);
         if (token_result != false) {
           user_lib.getWithWorkspace(token_result.iss).then(u=>{
             token_result.profil=u;
@@ -295,7 +301,7 @@ module.exports = function (router) {
           res.send(false)
       })
     }
-  }); // <= isTokenValid
+  }.bind(this)); // <= isTokenValid
 
 
   // --------------------------------------------------------------------------------

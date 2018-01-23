@@ -1,8 +1,10 @@
-function TechnicalComponentStore() {
+function TechnicalComponentStore(utilStore) {
   riot.observable(this) // Riot provides our event emitter.
 
   this.technicalComponentCollection =[];
   this.technicalComponentCurrent =[];
+
+  this.utilStore=utilStore;
 
   this.load=function(){
     //console.log('load GLF');
@@ -115,7 +117,7 @@ function TechnicalComponentStore() {
 
   this.on('componentsCategoriesTree_refresh', function() {
       console.log('componentsCategoriesTree_refresh');
-      utilStore.ajaxCall({
+      this.utilStore.ajaxCall({
         method: 'get',
         url: '../data/core/technicalComponent/componentsCategoriesTree'
       }, false).then(data => {

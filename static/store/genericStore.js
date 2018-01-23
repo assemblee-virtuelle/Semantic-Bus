@@ -1,4 +1,4 @@
-function GenericStore(utilStore, specificStoreList) {
+function GenericStore(utilStore, specificStoreList, stompClient) {
 
 
   // --------------------------------------------------------------------------------
@@ -79,8 +79,8 @@ function GenericStore(utilStore, specificStoreList) {
     // } else if (mode == 'edit') {
     //   this.update();
     // }
-    this.update().then(data=>{
-      route('workspace/'+data.workspaceId+'/component')
+    this.update().then(data => {
+      route('workspace/' + data.workspaceId + '/component')
     })
   } //<= persist
 
@@ -149,20 +149,34 @@ function GenericStore(utilStore, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   this.on('item_current_work', function(message) {
-    console.log('item_current_testWork | itemCurrent:', this.itemCurrent);
-    var id = this.itemCurrent._id;
-    this.trigger('item_current_work_start');
-    utilStore.ajaxCall({
-      method: 'get',
-      url: '../data/core/workspaceComponent/' + id + '/work'
-    }, false).then(data => {
-      this.currentPreview = data;
-      this.trigger('item_current_work_done', data);
-    }).catch(error => {
-      this.trigger('item_current_work_fail');
-    });
+    stompClient.send('/queue/work-ask', JSON.stringify({
+      id: this.itemCurrent._id,
+      token : localStorage.token
+    }));
+    // console.log('item_current_testWork | itemCurrent:', this.itemCurrent);
+    // var id = this.itemCurrent._id;
+    // this.trigger('item_current_work_start');
+    // utilStore.ajaxCall({
+    //   method: 'get',
+    //   url: '../data/core/workspaceComponent/' + id + '/work'
+    // }, false).then(data => {
+    //   this.currentPreview = data;
+    //   this.trigger('item_current_work_done', data);
+    // }).catch(error => {
+    //   this.trigger('item_current_work_fail');
+    // });
   }); //<= item_current_work
 
+  stompClient.subscribe('/topic/work-response.'+localStorage.token, message=>{
+    //console.log('message', JSON.parse(message.body));
+    let body=JSON.parse(message.body);
+    if (body.error==undefined){
+      this.currentPreview = body.data;
+      this.trigger('item_current_work_done', this.currentPreview );
+    }else{
+      this.trigger('ajax_fail',body.error);
+    }
+  });
 
 
   this.on('previewJSON_refresh', function() {
@@ -325,7 +339,7 @@ function GenericStore(utilStore, specificStoreList) {
     this.trigger('component_current_select_done');
   }); //<= item_current_select
 
-  this.on('navigation', function(entity, id, action){
+  this.on('navigation', function(entity, id, action) {
     //console.log('WARNING');
     if (entity == 'component') {
       this.action = action
@@ -356,29 +370,31 @@ function GenericStore(utilStore, specificStoreList) {
     }
   });
 
-this.refresh = function() {
-  this.trigger('item_current_editor_changed', this.itemCurrent.editor);
-  this.modeConnectBefore = false;
-  this.modeConnectAfter = false;
-  this.trigger('item_curent_connect_show_changed', {
-    before: this.modeConnectBefore,
-    after: this.modeConnectAfter
-  });
-  this.trigger('item_curent_available_connections', this.computeAvailableConnetions());
-  console.log('genericStore | component_current_select |', this.itemCurrent);
-  this.trigger('item_current_changed', this.itemCurrent);
-}
+  this.refresh = function() {
+    this.trigger('item_current_editor_changed', this.itemCurrent.editor);
+    this.modeConnectBefore = false;
+    this.modeConnectAfter = false;
+    this.trigger('item_curent_connect_show_changed', {
+      before: this.modeConnectBefore,
+      after: this.modeConnectAfter
+    });
+    this.trigger('item_curent_available_connections', this.computeAvailableConnetions());
+    console.log('genericStore | component_current_select |', this.itemCurrent);
+    this.trigger('item_current_changed', this.itemCurrent);
+  }
 
-this.on('component_current_refresh', function() {
-  //console.log('WARNING');
-  //this.trigger('item_current_edit_mode','generic', this.itemCurrent);
-  this.refresh();
-}); //<= item_current_select
-
-
+  this.on('component_current_refresh', function() {
+    //console.log('WARNING');
+    //this.trigger('item_current_edit_mode','generic', this.itemCurrent);
+    this.refresh();
+  }); //<= item_current_select
 
 
 
 
-// --------------------------------------------------------------------------------
+
+
+
+
+  // --------------------------------------------------------------------------------
 }

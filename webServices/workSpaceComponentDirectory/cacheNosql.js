@@ -13,7 +13,7 @@ module.exports = {
   stepNode: true,
   //recursivPullResolvePromise : require('../recursivPullResolvePromise'),
 
- 
+
   initialise: function(router, recursivPullResolvePromise) {
     this.recursivPullResolvePromise = recursivPullResolvePromise;
     //console.log('INIT',router);
@@ -55,30 +55,35 @@ module.exports = {
         //console.log("----- cache data stock ----",flowData[0])
         this.cache_lib.get(data).then(cachedData => {
 
-          cachedData=cachedData||{};
-          cachedData.data=flowData[0].data;
-          cachedData.date=new Date();
+          cachedData = cachedData || {};
+          cachedData.data = flowData[0].data;
+          cachedData.date = new Date();
 
-          if (data.specificData.history==true){
-            cachedData.history=cachedData.history||[];
-            cachedData.history.push({data:flowData[0].data});
+          if (data.specificData.history == true) {
+            cachedData.history = cachedData.history || [];
+            cachedData.history.push({
+              data: flowData[0].data
+            });
           }
           //console.log('PERSIST CACHE',cachedData);
-          this.cache_lib.persist(data,cachedData)
+          this.cache_lib.persist(data, cachedData).then(data => {
+            resolve(data);
+          }).catch(e => {
+            reject(e)
+          })
         });
       } else {
         this.cache_lib.get(data).then(cachedData => {
           //console.log("----- cache data get ----")
           if (cachedData != undefined) {
-            if (data.specificData.historyOut==true){
+            if (data.specificData.historyOut == true) {
               //console.log('RETURN CACHE',cachedData);
               resolve({
                 //data : JSON.parse(JSON.stringify(cachedData))
-                data : cachedData
+                data: cachedData
                 //data: {data:cachedData.data,history:cachedData.history}
               });
-            }
-            else{
+            } else {
               resolve({
                 //data: JSON.parse(JSON.stringify(cachedData.data))
                 data: cachedData.data

@@ -252,8 +252,6 @@ class Engine {
           })
         }
 
-        console.log("current_cost ||", current_cost);
-
         if (processingLink.destination.consumption_history) {
           processingLink.destination.consumption_history.push({
             traitement_id: traitement_id,
@@ -394,8 +392,7 @@ class Engine {
         // console.log('--------------  End of Worksapce processing --------------', global_flow);
       }
 
-      console.log("globalPrice ||", globalPrice);
-
+      console.log("globalPrice | ", globalPrice)
       this.workspace_lib.getWorkspace(component_workspaceId).then(function (res) {
         if (res.consumption_history) {
           res.consumption_history.push({

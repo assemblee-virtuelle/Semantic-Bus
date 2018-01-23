@@ -107,60 +107,109 @@
 
 
   <script>
-    var utilStore = new UtilStore();
-    RiotControl.addStore(utilStore);
-    var worspaceStore = new WorkspaceStore(); // Create a store instance.
-    var profilStore = new profilStore();
-    RiotControl.addStore(worspaceStore); // Register the store in central dispatch.
-    RiotControl.addStore(profilStore);
-    var technicalComponentStore = new TechnicalComponentStore();
-    RiotControl.addStore(technicalComponentStore);
-    var specificStoreList = [];
-    specificStoreList.push(new CacheNosqlStore());
-    specificStoreList.push(new UploadStore(utilStore));
-    specificStoreList.push(new sqlStore());
-    for (specificStore of specificStoreList) {
-      RiotControl.addStore(specificStore);
-    }
-    var genericStore = new GenericStore(utilStore, specificStoreList);
-    RiotControl.addStore(genericStore);
-    var adminStore = new AdminStore();
-    RiotControl.addStore(adminStore);
 
-    var mainController = new MainController(worspaceStore, genericStore, profilStore, utilStore);
-    RiotControl.addStore(mainController);
-    RiotControl.on('login_redirect', function() {
-      window.open("../auth/login.html", "_self");
+    $.ajax({
+      method: 'get',
+      url: '/configuration/configurationAmqpHost',
+    }).done(amqpHost => {
+      //console.log("configurationAmqpHost", amqpHost)
+      // var onMessage = function(message) {
+      //   console.log('message', JSON.parse(message.body));
+      // };
+      //console.log(amqpHost);
+
+      var onConnect = function(client) {
+        //console.log('connected',stompClient,client);
+
+        let allStore={};
+        let utilStore = new UtilStore();
+        RiotControl.addStore(utilStore);
+        allStore['utilStore']=utilStore;
+
+        var workspaceStore = new WorkspaceStore(utilStore); // Create a store instance.
+        RiotControl.addStore(workspaceStore); // Register the store in central dispatch.
+        allStore['workspaceStore']=workspaceStore;
+
+        var profilStore = new ProfilStore();
+        RiotControl.addStore(profilStore);
+        allStore['profilStore']=profilStore;
+
+        var technicalComponentStore = new TechnicalComponentStore(utilStore);
+        RiotControl.addStore(technicalComponentStore);
+        allStore['technicalComponentStore']=technicalComponentStore;
+
+        var specificStoreList = [];
+
+        let cacheNosqlStore = new CacheNosqlStore()
+        RiotControl.addStore(cacheNosqlStore);
+        specificStoreList.push(cacheNosqlStore)
+        allStore['cacheNosqlStore']=cacheNosqlStore;
+
+        let uploadStore = new UploadStore(utilStore);
+        RiotControl.addStore(uploadStore);
+        specificStoreList.push(uploadStore)
+        allStore['uploadStore']=uploadStore;
+
+        let sqlStore = new SqlStore();
+        RiotControl.addStore(sqlStore);
+        specificStoreList.push(sqlStore)
+        allStore['sqlStore']=sqlStore;
+
+        var genericStore = new GenericStore(utilStore, specificStoreList,stompClient);
+        RiotControl.addStore(genericStore);
+        allStore['genericStore']=genericStore;
+
+        var adminStore = new AdminStore();
+        RiotControl.addStore(adminStore);
+        allStore['adminStore']=adminStore;
+
+        var mainController = new MainController(allStore,stompClient);
+        RiotControl.addStore(mainController);
+
+        RiotControl.on('login_redirect', function() {
+          window.open("../auth/login.html", "_self");
+        })
+        //console.log(window.location.href)
+        RiotControl.trigger('https_force?')
+
+        riot.compile(function() {
+          // here tags are compiled and riot.mount works synchronously
+          var tags = riot.mount('*');
+          /*RiotControl.on('previewJSON',function(message){
+            tags[2].data=message.data;
+          }.bind(this));*/
+        });
+
+        // for (store in this.allStore){
+        //   if(store.setStompClient!=undefined){
+        //       store.setStompClient(this.stompClient);
+        //   }
+        // }
+
+        // stompClient.subscribe('/topic/work-response', this.onMessage);
+        // // this.stompClient.subscribe('/queue/work-response', this.onMessage);
+        // stompClient.send('/queue/work-ask',JSON.stringify({message:'c est le navigateur qui te parle!!!'}));
+      }.bind(this);
+
+      var onError=function(err) {
+        console.log('disconnected ', err);
+      };
+
+      var url = 'wss://stomp-rabitmq-stomp.b9ad.pro-us-east-1.openshiftapps.com:443/ws';
+      var login = 'guest';
+      var password = 'guest';
+      var stompClient = webstomp.client(url,{heartbeat: false,debug:true})
+      if(amqpHost!=undefined && amqpHost.length>0){
+        stompClient.connect(login, password, onConnect, onError,amqpHost);
+      }else{
+        stompClient.connect(login, password, onConnect, onError);
+      }
+
     })
-    console.log(window.location.href)
-    RiotControl.trigger('https_force?')
-    riot.compile(function() {
-      // here tags are compiled and riot.mount works synchronously
-      var tags = riot.mount('*');
-      /*RiotControl.on('previewJSON',function(message){
-        tags[2].data=message.data;
-      }.bind(this));*/
-    });
 
-    //var ws = new WebSocket('ws://stomp-rabitmq-stomp.b9ad.pro-us-east-1.openshiftapps.com:80/ws');
-    var url = 'ws://stomp-rabitmq-stomp.b9ad.pro-us-east-1.openshiftapps.com:80/ws';
-    login = 'guest', password = 'guest';
-    var stompClient = webstomp.client(url,{heartbeat: false,debug:true})
 
-    function onMessage(message) {
-      console.log('message', JSON.parse(message.body));
-    }
 
-    function onConnect(client) {
-      console.log('connected');
-      stompClient.subscribe('/queue/work-response', onMessage);
-      stompClient.send('/exchange/work-ask',JSON.stringify({message:'c est le navigateur qui te parle!!!'}));
-    }
 
-    function onError(err) {
-      console.log('disconnected ', err);
-    }
-    stompClient.connect(login, password, onConnect, onError);
   </script>
 </body>
 

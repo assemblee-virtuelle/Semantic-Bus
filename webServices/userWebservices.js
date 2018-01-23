@@ -10,7 +10,7 @@ var payment_lib = require('../lib/core/lib/payment_lib');
 // --------------------------------------------------------------------------------
 
 
-module.exports = function (router) {
+module.exports = function (router,stompClient) {
 
 
  // ---------------------------------------  ALL USERS  -----------------------------------------
@@ -79,7 +79,7 @@ module.exports = function (router) {
     });
   });
 
-  
+
 
 
   // ---------------------------------------------------------------------------------
@@ -89,6 +89,7 @@ module.exports = function (router) {
     user_lib.getWithWorkspace(
           req.params.id, "owner"
     ).then(function (result) {
+      //console.log('stompClient',stompClient);
       //console.log("LOADING USER",result)
       res.send(result)
     }).catch(e => {
