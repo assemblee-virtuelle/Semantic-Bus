@@ -24,7 +24,7 @@ class Engine {
 
   resolveComponent(component, requestDirection, pushData) {
     if (this.config.quietLog != true) {
-      console.log(" ---------- resolveComponent -----------")
+      console.log(" ---------- resolveComponent -----------"+component._id)
     }
 
     return new Promise((resolve, reject) => {
@@ -61,6 +61,7 @@ class Engine {
           this.sift({
             "source._id": component._id
           }, this.pathResolution).forEach(link => {
+
             link.status = 'processing'
           });
           //console.log('compare',this.RequestOrigine._id);
@@ -101,7 +102,7 @@ class Engine {
                 var global_flow = 0
                 var globalPrice = 0
                 tableSift.forEach(componentProcessing => {
-                  console.log("OWNER", user.credit)
+                  //console.log("OWNER", user.credit)
                   if (user.credit >= 1000) {
                     let module = this.technicalComponentDirectory[componentProcessing.module];
                     // console.log("FOR EACH COMPONET ------///// ------", componentProcessing.module)
@@ -168,11 +169,11 @@ class Engine {
     if (owner.credit >= 100) {
     this.fackCounter++;
     if (this.config.quietLog != true) {
-      console.log(" ---------- processNextBuildPath -----------", this.fackCounter)
+      //console.log(" ---------- processNextBuildPath -----------", this.fackCounter)
       //console.log("--------- global flow ------------" , global_flow)
-      console.log(this.pathResolution.map(link => {
-        return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
-      }));
+      // console.log(this.pathResolution.map(link => {
+      //   return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
+      // }));
     }
     let linkNotResolved = this.sift({
       status: 'processing'
@@ -216,11 +217,11 @@ class Engine {
         let current_component = null
         let current_cost = null
         if(module.getPriceState != undefined){
-          
+
           this.config_component.components_information.forEach((component) => {
-           
+
             current_component = component[processingLink.destination.module]
-            
+
             globalPrice += (module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice * dataFlow[0].data.length  +  (this.objectSizeOf(dataFlow) / 1000000 * current_component.price))
 
             owner.credit -= (module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice * dataFlow[0].data.length  +  (this.objectSizeOf(dataFlow) / 1000000 * current_component.price))
@@ -228,14 +229,14 @@ class Engine {
             current_cost = (module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice * dataFlow[0].data.length  + (this.objectSizeOf(dataFlow) / 1000000 * current_component.price))
 
             this.user_lib.update(owner).then(res=>{
-              console.log("CREDIT UPDATE",res.credit)
+              //console.log("CREDIT UPDATE",res.credit)
             })
           })
         }else{
           this.config_component.components_information.forEach((component) => {
-            
+
             current_component = component[processingLink.destination.module]
-           
+
             globalPrice += (this.objectSizeOf(dataFlow) / 1000000 * current_component.price)
 
             owner.credit -= (this.objectSizeOf(dataFlow) / 1000000 * current_component.price)
@@ -243,8 +244,8 @@ class Engine {
             current_cost = this.objectSizeOf(dataFlow) / 1000000 * current_component.price
 
             this.user_lib.update(owner).then(res=>{
-             
-              console.log("CREDIT UPDATE",res.credit)
+
+              //console.log("CREDIT UPDATE",res.credit)
             })
           })
         }
@@ -356,7 +357,7 @@ class Engine {
           } else {
 
             module.pull(processingLink.destination, dataFlow, undefined).then(componentFlow => {
-              console.log("componentFlow", this.objectSizeOf(componentFlow))
+              //console.log("componentFlow", this.objectSizeOf(componentFlow))
               //console.log('PULL END | ', processingLink.destination._id);
               processingLink.destination.dataResolution = componentFlow;
               processingLink.destination.status = 'resolved';
@@ -389,7 +390,7 @@ class Engine {
         // console.log('--------------  End of Worksapce processing --------------', global_flow);
       }
 
-      console.log("globalPrice | ", globalPrice)
+      //console.log("globalPrice | ", globalPrice)
       this.workspace_lib.getWorkspace(component_workspaceId).then(function (res) {
         if (res.consumption_history) {
           res.consumption_history.push({
