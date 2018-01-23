@@ -24,7 +24,7 @@ class Engine {
 
   resolveComponent(component, requestDirection, pushData) {
     if (this.config.quietLog != true) {
-      console.log(" ---------- resolveComponent -----------")
+      // console.log(" ---------- resolveComponent -----------")
     }
 
     return new Promise((resolve, reject) => {
@@ -43,7 +43,7 @@ class Engine {
         }, this.componentsResolving)[0];
         this.pathResolution = this.buildPathResolution(originComponent, requestDirection, 0, this.componentsResolving);
         this.pathResolution.forEach(link => {
-          console.log(link.source._id + ' -> ' + link.destination._id + ' : ' + link.source.module + ' -> ' + link.destination.module);
+          // console.log(link.source._id + ' -> ' + link.destination._id + ' : ' + link.source.module + ' -> ' + link.destination.module);
           link.status = 'waiting';
         });
 
@@ -168,11 +168,11 @@ class Engine {
     if (owner.credit >= 100) {
       this.fackCounter++;
       if (this.config.quietLog != true) {
-        console.log(" ---------- processNextBuildPath -----------", this.fackCounter)
+        // console.log(" ---------- processNextBuildPath -----------", this.fackCounter)
         //console.log("--------- global flow ------------" , global_flow)
-        console.log(this.pathResolution.map(link => {
-          return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
-        }));
+        // console.log(this.pathResolution.map(link => {
+        //   return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
+        // }));
       }
       let linkNotResolved = this.sift({
         status: 'processing'
@@ -311,7 +311,6 @@ class Engine {
                 this.sift({
                   "source._id": processingLink.destination._id
                 }, this.pathResolution).forEach(link => {
-                  //console.log(link)
                   link.status = 'processing'
                 });
 
@@ -322,7 +321,7 @@ class Engine {
                 if (processingLink.destination._id == this.RequestOrigine._id) {
                   this.RequestOrigineResolveMethode(processingLink.destination.dataResolution)
                 }
-                console.log('<-- dfob');
+
                 this.processNextBuildPath(traitement_id, component_workspaceId, global_flow, owner);
 
               }).catch(e => {
@@ -330,7 +329,7 @@ class Engine {
                 this.RequestOrigineRejectMethode(e);
               });
             } else {
-              console.log('pull normal');
+              //console.log('pull normal');
               module.pull(processingLink.destination, dataFlow, undefined).then(componentFlow => {
                 //console.log("componentFlow", this.objectSizeOf(componentFlow))
                 //console.log('PULL END | ', processingLink.destination._id);
@@ -351,7 +350,7 @@ class Engine {
                 if (processingLink.destination._id == this.RequestOrigine._id) {
                   this.RequestOrigineResolveMethode(processingLink.destination.dataResolution)
                 }
-                console.log('<-- normal');
+
                 this.processNextBuildPath(traitement_id, component_workspaceId, global_flow, owner);
               }).catch(e => {
                 console.log('component work error', e);
