@@ -218,16 +218,14 @@ class Engine {
         if(module.getPriceState != undefined){
           
           this.config_component.components_information.forEach((component) => {
-            console.log("FUNCTION MOTOR", module.getPriceState(current_component.specificData, component.price, component.recordPrice))
+           
             current_component = component[processingLink.destination.module]
+            
+            globalPrice += (module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice * dataFlow[0].data.length  +  (this.objectSizeOf(dataFlow) / 1000000 * current_component.price))
 
-            globalPrice += (module.getPriceState(current_component.specificData, component.price, component.recordPrice).recordPrice * dataFlow[0].data.length  +  (this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price))
+            owner.credit -= (module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice * dataFlow[0].data.length  +  (this.objectSizeOf(dataFlow) / 1000000 * current_component.price))
 
-            owner.credit -= (module.getPriceState(current_component.specificData, component.price, component.recordPrice).recordPrice * dataFlow[0].data.length  +  (this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price))
-
-            current_cost = (module.getPriceState(current_component.specificData, component.price, component.recordPrice).recordPrice * dataFlow[0].data.length  + (this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price))
-
-            console.log(owner.credit, component.price * dataFlow[0].data.length, (this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price))
+            current_cost = (module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice * dataFlow[0].data.length  + (this.objectSizeOf(dataFlow) / 1000000 * current_component.price))
 
             this.user_lib.update(owner).then(res=>{
               console.log("CREDIT UPDATE",res.credit)
@@ -238,12 +236,11 @@ class Engine {
             
             current_component = component[processingLink.destination.module]
            
-            
-            globalPrice += (this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price)
+            globalPrice += (this.objectSizeOf(dataFlow) / 1000000 * current_component.price)
 
-            owner.credit -= (this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price)
+            owner.credit -= (this.objectSizeOf(dataFlow) / 1000000 * current_component.price)
 
-            current_cost = this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price
+            current_cost = this.objectSizeOf(dataFlow) / 1000000 * current_component.price
 
             this.user_lib.update(owner).then(res=>{
              
