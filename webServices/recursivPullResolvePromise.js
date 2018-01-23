@@ -143,7 +143,8 @@ class Engine {
                         // }.bind(this))
                       })
                       .catch(e => {
-                        console.log('WORK ERROR', e);
+                        //console.log('WORK ERROR', e);
+                        console.log('WORK ERROR', e.message);
                         reject(e);
                       });
                   } else {
