@@ -99,6 +99,7 @@ class Engine {
                 'credentials.email': user.email
               }).then(function (user) {
                 var global_flow = 0
+                var globalPrice = 0
                 tableSift.forEach(componentProcessing => {
                   console.log("OWNER", user.credit)
                   if (user.credit >= 1000) {
@@ -139,7 +140,7 @@ class Engine {
                           this.RequestOrigineResolveMethode(componentProcessing.dataResolution)
                         }
 
-                        this.processNextBuildPath(traitement_id, component.workspaceId, global_flow, user);
+                        this.processNextBuildPath(traitement_id, component.workspaceId, global_flow, user, globalPrice);
                         // }.bind(this))
                       })
                       .catch(e => {
@@ -163,7 +164,7 @@ class Engine {
     });
 
   };
-  processNextBuildPath(traitement_id, component_workspaceId, global_flow, owner) {
+  processNextBuildPath(traitement_id, component_workspaceId, global_flow, owner, globalPrice) {
     if (owner.credit >= 100) {
     this.fackCounter++;
     if (this.config.quietLog != true) {
@@ -212,22 +213,52 @@ class Engine {
           return d;
         });
 
-
-        if(module.getPriceState!=undefined){
+        let current_component = null
+        let current_cost = null
+        if(module.getPriceState != undefined){
+          
           this.config_component.components_information.forEach((component) => {
-            owner.credit -= (res.price * dataFlow[0].data.length +  (this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price))
-            console.log(owner.credit, res.price * dataFlow[0].data.length, (this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price))
+            console.log("FUNCTION MOTOR", module.getPriceState(current_component.specificData, component.price, component.recordPrice))
+            current_component = component[processingLink.destination.module]
+
+            globalPrice += (module.getPriceState(current_component.specificData, component.price, component.recordPrice).recordPrice * dataFlow[0].data.length  +  (this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price))
+
+            owner.credit -= (module.getPriceState(current_component.specificData, component.price, component.recordPrice).recordPrice * dataFlow[0].data.length  +  (this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price))
+
+            current_cost = (module.getPriceState(current_component.specificData, component.price, component.recordPrice).recordPrice * dataFlow[0].data.length  + (this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price))
+
+            console.log(owner.credit, component.price * dataFlow[0].data.length, (this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price))
+
             this.user_lib.update(owner).then(res=>{
+              console.log("CREDIT UPDATE",res.credit)
+            })
+          })
+        }else{
+          this.config_component.components_information.forEach((component) => {
+            
+            current_component = component[processingLink.destination.module]
+           
+            
+            globalPrice += (this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price)
+
+            owner.credit -= (this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price)
+
+            current_cost = this.objectSizeOf(dataFlow) / 1000000 * component[processingLink.destination.module].price
+
+            this.user_lib.update(owner).then(res=>{
+             
               console.log("CREDIT UPDATE",res.credit)
             })
           })
         }
 
+        console.log("current_cost ||", current_cost);
+
         if (processingLink.destination.consumption_history) {
           processingLink.destination.consumption_history.push({
             traitement_id: traitement_id,
             flow_size: this.objectSizeOf(dataFlow) / 1000000,
-            price: (this.objectSizeOf(dataFlow) / 1000000) * 0.04,
+            price: current_cost,
             dates: {
               created_at: new Date()
             }
@@ -237,7 +268,7 @@ class Engine {
           processingLink.destination.consumption_history.push({
             traitement_id: traitement_id,
             flow_size: this.objectSizeOf(dataFlow) / 1000000,
-            price: (this.objectSizeOf(dataFlow) / 1000000) * 0.04,
+            price: current_cost,
             dates: {
               created_at: new Date()
             }
@@ -349,7 +380,7 @@ class Engine {
               if (processingLink.destination._id == this.RequestOrigine._id) {
                 this.RequestOrigineResolveMethode(processingLink.destination.dataResolution)
               }
-              this.processNextBuildPath(traitement_id, component_workspaceId, global_flow, owner);
+              this.processNextBuildPath(traitement_id, component_workspaceId, global_flow, owner, globalPrice);
             }).catch(e => {
               this.RequestOrigineRejectMethode(e);
               //reject(e);
@@ -362,12 +393,15 @@ class Engine {
       if (this.config.quietLog != true) {
         // console.log('--------------  End of Worksapce processing --------------', global_flow);
       }
+
+      console.log("globalPrice ||", globalPrice);
+
       this.workspace_lib.getWorkspace(component_workspaceId).then(function (res) {
         if (res.consumption_history) {
           res.consumption_history.push({
             traitement_id: traitement_id,
             flow_size: global_flow / 1000000,
-            price: (global_flow / 1000000) * 0.04,
+            price: globalPrice,
             dates: {
               created_at: new Date()
             }
@@ -377,7 +411,7 @@ class Engine {
           res.consumption_history.push({
             traitement_id: traitement_id,
             flow_size: global_flow / 1000000,
-            price: (global_flow / 1000000) * 0.04,
+            price: globalPrice,
             dates: {
               created_at: new Date()
             }
