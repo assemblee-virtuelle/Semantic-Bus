@@ -150,7 +150,8 @@ function GenericStore(utilStore, specificStoreList, stompClient) {
 
   this.on('item_current_work', function(message) {
     stompClient.send('/queue/work-ask', JSON.stringify({
-      id: this.itemCurrent._id
+      id: this.itemCurrent._id,
+      token : localStorage.token
     }));
     // console.log('item_current_testWork | itemCurrent:', this.itemCurrent);
     // var id = this.itemCurrent._id;
@@ -166,7 +167,7 @@ function GenericStore(utilStore, specificStoreList, stompClient) {
     // });
   }); //<= item_current_work
 
-  stompClient.subscribe('/topic/work-response', message=>{
+  stompClient.subscribe('/topic/work-response.'+localStorage.token, message=>{
     console.log('message', JSON.parse(message.body));
     let body=JSON.parse(message.body);
     this.currentPreview = body.data;

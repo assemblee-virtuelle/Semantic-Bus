@@ -60,10 +60,12 @@ module.exports = function(router,stompClient) {
 
   stompClient.subscribe('/queue/work-ask', message=>{
     let body=JSON.parse(message.body);
-    console.log('body', body);
+    //console.log('body', body);
     //this.stompClient.send('/topic/work-response', JSON.stringify({message:'AJAX va prendre cher'}));
     //console.log('WORK');
     var id = body.id;
+    let token = body.token;
+    //console.log(token);
     workspace_component_lib.get({
       _id: id
     }).then(function(data) {
@@ -73,10 +75,10 @@ module.exports = function(router,stompClient) {
     }).then(function(data) {
       //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
 
-      this.stompClient.send('/topic/work-response', JSON.stringify({data:data}));
+      this.stompClient.send('/topic/work-response.'+token, JSON.stringify({data:data}));
 
     }).catch(e => {
-        this.stompClient.send('/topic/work-response', JSON.stringify({error:e}));
+        this.stompClient.send('/topic/work-response.'+token, JSON.stringify({error:e}));
     });
   });
 
