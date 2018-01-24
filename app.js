@@ -81,7 +81,7 @@ httpGet.makeRequest('GET', {
       // });
 
       var login = 'guest', password = 'guest';
-      var stompClient = webstomp.over(webSocket,{heartbeat: false,debug:true});
+      var stompClient = webstomp.over(webSocket,{heartbeat: {incoming: 10000, outgoing: 10000},debug:false});
       //client: webstomp.over(new WebSocket(url), options)
 
       // function onMessage(message) {

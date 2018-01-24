@@ -198,7 +198,7 @@
       var url = 'wss://stomp-rabitmq-stomp.b9ad.pro-us-east-1.openshiftapps.com:443/ws';
       var login = 'guest';
       var password = 'guest';
-      var stompClient = webstomp.client(url,{heartbeat: false,debug:true})
+      var stompClient = webstomp.client(url,{heartbeat: {incoming: 10000, outgoing: 10000},debug:true})
       if(amqpHost!=undefined && amqpHost.length>0){
         stompClient.connect(login, password, onConnect, onError,amqpHost);
       }else{
