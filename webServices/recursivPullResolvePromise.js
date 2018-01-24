@@ -26,7 +26,7 @@ class Engine {
     if (this.config.quietLog != true) {
       console.log(" ---------- resolveComponent -----------"+component._id)
     }
-    console.log("resolveComponent :"+component._id
+    console.log("resolveComponent :"+component._id);
 
     return new Promise((resolve, reject) => {
       this.workspace_component_lib.get_all_withConsomation({
