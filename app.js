@@ -81,7 +81,7 @@ httpGet.makeRequest('GET', {
       // });
 
       var login = 'guest', password = 'guest';
-      var stompClient = webstomp.over(webSocket,{heartbeat: false,debug:false});
+      var stompClient = webstomp.over(webSocket,{heartbeat: false,debug:true});
       //client: webstomp.over(new WebSocket(url), options)
 
       // function onMessage(message) {
@@ -183,7 +183,20 @@ httpGet.makeRequest('GET', {
       }
 
       var onError=function(err) {
-        console.log('disconnected ', err);
+        //console.log(stompClient);
+        if(err.command=='ERROR'){
+          console.log('disconnected ',err.body);
+          // let webSocket = new WebSocket(url)
+          //
+          // stompClient = webstomp.over(webSocket,{heartbeat: false,debug:true});
+          // let amqpHost=env.AMQPHOST;
+          // console.log(login, password, onConnect, onError,amqpHost);
+          // if(amqpHost!=undefined){
+          //   stompClient.connect(login, password, onConnect, onError,amqpHost);
+          // }else{
+          //   stompClient.connect(login, password, onConnect, onError);
+          // }
+        }
       }
       let amqpHost=env.AMQPHOST;
       if(amqpHost!=undefined){
