@@ -39,9 +39,11 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
           data: exel.json_to_exel(dataString.data)
         })
       } else {
+
         switch (extension) {
           // JSONLD ///JSON //DONE
-          case (".json" || ".json-ld"):
+          case (".json"):
+          case (".json-ld"):
             //console.log()
             resolve({
               data: JSON.parse(dataString)
@@ -62,11 +64,13 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
 
             // RDF XML DONE IF TEST PARSE
           case (".rdf"):
-            rdf.rdf_traitmentXML(dataString).then(function (reusltat) {
+          case (".owl"):
+          console.log('allo');
+            rdf.rdf_traitmentXML(dataString).then(result=>{
               //console.log("RDF", reusltat)
               //console.log(JSON.stringify(reusltat))
               resolve({
-                data: reusltat
+                data: result
               })
             }, function (err) {
               reject("votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien un buffer")

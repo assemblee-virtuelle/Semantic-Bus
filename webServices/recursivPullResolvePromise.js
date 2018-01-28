@@ -32,6 +32,15 @@ class Engine {
       this.workspace_component_lib.get_all_withConsomation({
         workspaceId: component.workspaceId
       }).then(components => {
+        this.workspace_lib.getWorkspace(component.workspaceId).then(workspace=>{
+          let ownerUserMail = this.sift({role:'owner'},workspace.users)[0];
+          this.user_lib.get({
+            'credentials.email': ownerUserMail
+          }).then(user){
+          });
+        })
+
+
         this.componentsResolving = components;
         this.componentsResolving.forEach(component => {
           component.status = 'waiting';
@@ -66,6 +75,8 @@ class Engine {
             link.status = 'processing'
           });
           //console.log('compare',this.RequestOrigine._id);
+          var global_flow = 0
+          var globalPrice = 0
           this.processNextBuildPath(traitement_id, component.workspaceId, global_flow);
           resolve(pushData)
         }
