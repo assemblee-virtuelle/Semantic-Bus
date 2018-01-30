@@ -49,35 +49,55 @@ module.exports = {
   },
 
   pull: function(data, flowData, undefined) {
-    //console.log('--------- cash data START --------  : ');
+    console.log('--------- cash data START --------  : ', data);
     return new Promise((resolve, reject) => {
       if (flowData != undefined && flowData[0].data != undefined) {
-        //console.log("----- cache data stock ----",flowData[0])
+        // console.log("----- cache data stock ----",flowData[0])
         this.cache_lib.get(data).then(cachedData => {
-
+          
           cachedData = cachedData || {};
-          cachedData.data = flowData[0].data;
+          cachedData.data = JSON.stringify(flowData[0].data);
           cachedData.date = new Date();
-
+          
           if (data.specificData.history == true) {
             cachedData.history = cachedData.history || [];
             cachedData.history.push({
-              data: flowData[0].data
+              data: JSON.stringify(flowData[0].data)
             });
           }
-          //console.log('PERSIST CACHE',cachedData);
+
           this.cache_lib.persist(data, cachedData).then(data => {
-            resolve(data);
+            console.log('PERSIST CACHE DONE');
+            resolve(data);      
           }).catch(e => {
             reject(e)
           })
         });
       } else {
         this.cache_lib.get(data).then(cachedData => {
-          //console.log("----- cache data get ----")
+          
+          console.log("----- cache data get ----",typeof cachedData.data)
           if (cachedData != undefined) {
+            if(typeof cachedData.data == "string"){
+              try {
+                cachedData.data = JSON.parse(cachedData.data);
+              }catch (e){
+                //simple string
+              }
+            };
             if (data.specificData.historyOut == true) {
               //console.log('RETURN CACHE',cachedData);
+              cachedData.history.map((historyItem)=>{
+                let out;
+                if(typeof historyItem == "string"){
+                  try {
+                    out = JSON.parse(cachedData.data);
+                  }catch (e){
+                    out = historyItem
+                  }
+                }
+                return out;
+              });
               resolve({
                 //data : JSON.parse(JSON.stringify(cachedData))
                 data: cachedData

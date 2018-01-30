@@ -67,7 +67,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
           case (".owl"):
           console.log('allo');
             rdf.rdf_traitmentXML(dataString).then(result=>{
-              //console.log("RDF", reusltat)
+              // console.log("RDF", reusltat)
               //console.log(JSON.stringify(reusltat))
               resolve({
                 data: result
