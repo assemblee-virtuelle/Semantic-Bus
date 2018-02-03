@@ -178,7 +178,7 @@ class Engine {
     if (owner.credit >= 100) {
       this.fackCounter++;
       if (this.config.quietLog != true) {
-        //console.log(" ---------- processNextBuildPath -----------", this.fackCounter)
+        console.log(" ---------- processNextBuildPath -----------", this.fackCounter)
         //console.log("--------- global flow ------------" , global_flow)
         console.log(this.pathResolution.map(link => {
           return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
@@ -189,10 +189,10 @@ class Engine {
       }, this.pathResolution);
       if (linkNotResolved.length > 0) {
         //if (linkNotResolved.length > 0 && this.fackCounter < 10) {
-        console.log(" --------- processingLinks ------------- ")
-        console.log(linkNotResolved.map(link => {
-          return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
-        }));
+        // console.log(" --------- processingLinks ------------- ")
+        // console.log(linkNotResolved.map(link => {
+        //   return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
+        // }));
 
         for (var processingLinkCandidate of linkNotResolved) {
           let linksNotReady = this.sift({
@@ -395,9 +395,9 @@ class Engine {
         }
 
       } else {
-        if (this.config.quietLog != true) {
-          console.log('--------------  End of Worksapce processing --------------', global_flow);
-        }
+        // if (this.config.quietLog != true) {
+        //   console.log('--------------  End of Worksapce processing --------------', global_flow);
+        // }
 
         //console.log("globalPrice | ", globalPrice)
         this.workspace_lib.getWorkspace(component_workspaceId).then(function (res) {
