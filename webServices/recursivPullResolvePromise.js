@@ -118,7 +118,7 @@ class Engine {
             console.log("OWNER", user.credit)
             tableSift.forEach(componentProcessing => {
 
-              if (user.credit >= 1000) {
+              if (user.credit >= 0) {
                 let module = this.technicalComponentDirectory[componentProcessing.module];
                 // console.log("FOR EACH COMPONET ------///// ------", componentProcessing.module)
                 //let componentProcessing = processingLink.source;
