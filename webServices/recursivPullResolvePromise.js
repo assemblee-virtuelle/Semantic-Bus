@@ -175,7 +175,7 @@ class Engine {
     })
   }
   processNextBuildPath(traitement_id, component_workspaceId, global_flow, owner, globalPrice) {
-    if (owner.credit >= 100) {
+    if (owner.credit >= 0) {
       this.fackCounter++;
       if (this.config.quietLog != true) {
         console.log(" ---------- processNextBuildPath -----------", this.fackCounter)
