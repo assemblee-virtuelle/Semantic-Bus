@@ -49,16 +49,16 @@ module.exports = {
   },
 
   pull: function(data, flowData, undefined) {
-    console.log('--------- cash data START --------  : ', data);
+    //console.log('--------- cash data START --------  : ', data);
     return new Promise((resolve, reject) => {
       if (flowData != undefined && flowData[0].data != undefined) {
         // console.log("----- cache data stock ----",flowData[0])
         this.cache_lib.get(data).then(cachedData => {
-          
+
           cachedData = cachedData || {};
           cachedData.data = JSON.stringify(flowData[0].data);
           cachedData.date = new Date();
-          
+
           if (data.specificData.history == true) {
             cachedData.history = cachedData.history || [];
             cachedData.history.push({
@@ -68,15 +68,15 @@ module.exports = {
 
           this.cache_lib.persist(data, cachedData).then(data => {
             console.log('PERSIST CACHE DONE');
-            resolve(data);      
+            resolve(data);
           }).catch(e => {
             reject(e)
           })
         });
       } else {
         this.cache_lib.get(data).then(cachedData => {
-          
-          console.log("----- cache data get ----",typeof cachedData.data)
+
+          //console.log("----- cache data get ----",typeof cachedData.data)
           if (cachedData != undefined) {
             if(typeof cachedData.data == "string"){
               try {

@@ -9,7 +9,7 @@ module.exports = {
     'http://semantic-bus.org/data/tags/middleQueryingComponents'
   ],
 
-  
+
   initComponent: function(entity) {
     //console.log('Object Transformer | initComponent : ',entity);
 
@@ -64,14 +64,16 @@ module.exports = {
     //console.log('resolvable | ', JSON.stringify(dissociatePatternResolvable));
     //console.log('postProcess | ', JSON.stringify(dissociatePatternPostProcess));
     //console.log('source | ', JSON.stringify(source));
+    //console.log('source | ', source);
     var postProcessResult;
     try {
       var transformResult = this.transform(source, dissociatePatternResolvable);
       //console.log('jsonTransform | resultBeforUnresolved |', transformResult);
+      //TODO documentation why (seems for array)
       if (Object.keys(transformResult)[0] == 'undefined') {
         transformResult = transformResult['undefined'];
       }
-      //console.log('jsonTransform | resultBeforUnresolved |', JSON.stringify(transformResult));
+      //console.log('jsonTransform | resultBeforUnresolved |', transformResult);
       var destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable)
       //console.log('jsonTransform | afterUnresolved |', destResult);
 
@@ -81,7 +83,9 @@ module.exports = {
       } else {
         postProcessResult = this.postProcess(destResult, dissociatePatternPostProcess)
       }
+      //console.log('jsonTransform | postProcessResult |', postProcessResult);
     } catch (e) {
+      console.log(e);
       postProcessResult = source;
     }
 
@@ -329,7 +333,7 @@ module.exports = {
     //console.log('----------'+JSON.stringify(nodeIn));
     for (var key in nodeIn) {
       //console.log(key);
-      if (nodeIn[key] == undefined) {
+      if (nodeIn[key] == undefined && jsonTransformPattern != undefined) {
 
         if (typeof jsonTransformPattern[key] == 'string' && jsonTransformPattern[key].indexOf('$') != -1) {
           nodeOut[key] = '';
@@ -337,22 +341,20 @@ module.exports = {
           //console.log('unresolveProcess | ',key,'|',jsonTransformPattern[key]);
           nodeOut[key] = jsonTransformPattern[key];
         }
-      } else {
-        //nodeOut[key] = nodeIn[key];
-        if (typeof nodeIn[key] == 'object' && jsonTransformPattern != undefined) {
+      } else if (typeof nodeIn[key] == 'object' && jsonTransformPattern != undefined) {
 
-          if (Array.isArray(nodeIn)) {
-            nodeOut.push(this.unresolveProcess(nodeIn[key], jsonTransformPattern[1]));
-          } else {
-            nodeOut[key] = this.unresolveProcess(nodeIn[key], jsonTransformPattern[key]);
-
-          }
+        if (Array.isArray(nodeIn)) {
+          nodeOut.push(this.unresolveProcess(nodeIn[key], jsonTransformPattern[1]));
         } else {
+          nodeOut[key] = this.unresolveProcess(nodeIn[key], jsonTransformPattern[key]);
 
-          nodeOut[key] = nodeIn[key];
         }
+      } else {
 
+        nodeOut[key] = nodeIn[key];
       }
+
+
       //console.log('ALLO',nodeOut);
     }
     //console.log('unresolveProcess intermediate| ',nodeOut);

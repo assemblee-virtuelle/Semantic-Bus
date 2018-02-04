@@ -75,7 +75,7 @@ module.exports = function(router,stompClient) {
     }).then(function(data) {
       //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
 
-      this.stompClient.send('/topic/work-response.'+token, JSON.stringify({data:data}));
+      this.stompClient.send('/topic/work-response.'+token, JSON.stringify({data:data.data}));
 
     }).catch(e => {
       //console.log('AMQP work error',JSON.stringify(e));
