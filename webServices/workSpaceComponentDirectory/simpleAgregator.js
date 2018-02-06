@@ -15,7 +15,7 @@ module.exports = {
     //console.log('Flow Agregator | pull : ',data,' | ',flowData);
     return new Promise((resolve, reject) => {
       var resultFlow = [];
-      //console.log(data);
+      //console.log(flowData);
 
       for (flow of flowData) {
         //console.log('flow.data',flow.data);
