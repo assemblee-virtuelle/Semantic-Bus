@@ -151,6 +151,7 @@ httpGet.makeRequest('GET', {
 
         server.listen(process.env.PORT || 8080, function() {
           console.log('~~ server started at ', this.address().address, ':', this.address().port)
+          console.log('ALLO');
           require('./lib/core/timerScheduler').run();
 
           if (jenkins) {
