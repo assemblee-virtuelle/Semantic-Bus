@@ -14,7 +14,7 @@
         color:rgb(100,100,100);"/>
             <div style="justify-content:center;align-items:center;display:flex">
             <h4 style="margin-left:30px;text-align: center;font-family: 'Open Sans', sans-serif;color: rgb(130,130,130);">
-                    = {credits / 1000} Euros
+                    = {credits / 1000} Euros + {this.precisionRound((credits / 1000 * 0.2), 1)} Euros offert pendant la Beta Test
             </h4>
             </div>
         </div>
@@ -67,6 +67,11 @@
                 this.credits -= 100
                 this.update()
             }
+        }
+
+        precisionRound(number, precision) {
+            var factor = Math.pow(10, precision);
+            return Math.round(number * factor) / factor;
         }
 
 
