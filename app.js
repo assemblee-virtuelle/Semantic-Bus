@@ -151,6 +151,7 @@ httpGet.makeRequest('GET', {
 
         server.listen(process.env.PORT || 8080, function() {
           console.log('~~ server started at ', this.address().address, ':', this.address().port)
+          console.log('ALLO');
           require('./lib/core/timerScheduler').run();
 
           if (jenkins) {
@@ -184,8 +185,9 @@ httpGet.makeRequest('GET', {
 
       var onError=function(err) {
         //console.log(stompClient);
+        console.log('disconnected ',err);
         if(err.command=='ERROR'){
-          console.log('disconnected ',err.body);
+          console.log('disconnected body',err.body);
           // let webSocket = new WebSocket(url)
           //
           // stompClient = webstomp.over(webSocket,{heartbeat: false,debug:true});

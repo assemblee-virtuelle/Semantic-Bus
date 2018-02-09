@@ -26,7 +26,6 @@ class Engine {
     if (this.config.quietLog != true) {
       console.log(" ---------- resolveComponent -----------" + component._id)
     }
-    console.log("resolveComponent :" + component._id);
 
     return new Promise((resolve, reject) => {
       this.workspace_component_lib.get_all_withConsomation({
@@ -37,7 +36,7 @@ class Engine {
             role: 'owner'
           }, workspace.users)[0];
 
-          console.log(ownerUserMail)
+          //console.log(ownerUserMail)
           this.user_lib.get({
             'credentials.email': ownerUserMail.email
           }).then((user) => {
@@ -77,7 +76,7 @@ class Engine {
 
                 link.status = 'processing'
               });
-              console.log(component.workspaceId);
+              //console.log(component.workspaceId);
 
               this.processNextBuildPath(traitement_id, component.workspaceId, global_flow, user, globalPrice);
               resolve(pushData)
@@ -115,7 +114,7 @@ class Engine {
             // }).then(function (user) {
             // var global_flow = 0
             // var globalPrice = 0
-            console.log("OWNER", user.credit)
+            //console.log("OWNER", user.credit)
             tableSift.forEach(componentProcessing => {
 
               if (user.credit >= 0) {
@@ -293,7 +292,7 @@ class Engine {
             global_flow += this.objectSizeOf(dataFlow)
             var primaryflow;
             if (module.getPrimaryFlow != undefined) {
-              console.log("DATA ----FLOW --------------", processingLink.destination)
+              //console.log("DATA ----FLOW --------------", processingLink.destination)
               primaryflow = module.getPrimaryFlow(processingLink.destination, dataFlow);
             } else {
               primaryflow = dataFlow[0];
