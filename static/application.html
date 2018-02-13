@@ -172,6 +172,8 @@
         //console.log(window.location.href)
         RiotControl.trigger('https_force?')
 
+        RiotControl.trigger('init_stripe')
+
         riot.compile(function() {
           // here tags are compiled and riot.mount works synchronously
           var tags = riot.mount('*');

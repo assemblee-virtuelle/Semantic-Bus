@@ -25,6 +25,18 @@ function MainController(allStore,stompClient) {
     })
   })
 
+  this.on('init_stripe', function() {
+    console.log("https_force")
+    $.ajax({
+      method: 'get',
+      url: '/configuration/stripePublicKey',
+    }).done(data => {
+      console.log("in return STRIPE PUBLIC KEY", data)
+      localStorage.stripe_public_key = data
+      //return data
+    })
+  })
+
   this.on('is_token_valid?', function() {
     console.log(localStorage.token)
     if (localStorage.token == 'null' || localStorage.token == null) {

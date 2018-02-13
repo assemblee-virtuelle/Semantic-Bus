@@ -55,7 +55,7 @@
     </div>
 
     <script>
-        var stripe = Stripe('pk_live_VxdWt7nfX3EyVcMyQ153TOvr');
+        var stripe = Stripe(localStorage.stripe_public_key);
        
 
         plusClick(e){
@@ -77,6 +77,7 @@
 
 
         RiotControl.on('payment_good', function(credits){
+            console.log("ON PAYEMENT GOOD")
             this.payment_done = true
             this.payment_error = false
             this.credits = credits
@@ -152,6 +153,7 @@
             });
 
             addPaiment(){
+                console.log("ADD PAYYEMENT", this.precisionRound((this.euros * 1000), 1))
                 stripe.createSource(card).then(function(result) {
                     console.log(result.source)
                     if (result.error) {
@@ -159,10 +161,12 @@
                     var errorElement = document.getElementById('card-errors');
                     errorElement.textContent = result.error.message;
                     }else {
-                        RiotControl.trigger('init_stripe_user',{card:result.source, amout: (this.euros * 1000)});
+                        RiotControl.trigger('init_stripe_user',{card:result.source, amout: this.precisionRound((this.euros * 1000), 1)});
                     }
                 }.bind(this));
             }
+
+
 
             RiotControl.on('payment_init_done', (source)=>{
                 window.open(source.redirect.url,'_self');
