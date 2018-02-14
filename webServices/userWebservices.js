@@ -97,6 +97,18 @@ module.exports = function (router,stompClient) {
     });
   });
 
+  router.get('/users/:id/workspaces', function (req, res,next) {
+     console.log("LOADING USER",req.params.id)
+      user_lib.getUserWorkspaceGraphData(
+            req.params.id, "owner"
+      ).then(function (result) {
+        res.send(result)
+      }).catch(e => {
+        next(e);
+      });
+    });
+
+
 // --------------------------------------------------------------------------------
 
   router.put('/users/:id', function (req, res) {

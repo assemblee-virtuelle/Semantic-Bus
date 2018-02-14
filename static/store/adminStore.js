@@ -1,4 +1,4 @@
-function AdminStore() {
+function AdminStore(utilStore) {
   riot.observable(this) // Riot provides our event emitter.
   ////LE USER STORE EST RELIE A LOGIN EST NON A APPLICATION
   this.menu = 'errors'

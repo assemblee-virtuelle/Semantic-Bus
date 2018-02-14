@@ -37,12 +37,21 @@ module.exports = function(router,stompClient) {
     });
   }); //<= shared workspace
 
+  // ---------------------------------------------------------------------------------
+
+  router.get('/workspace/:id/graph', function(req, res, next) {
+    workspace_lib.get_workspace_graph_data(req.params.id).then((workspaceGraph)=>{
+      res.json(workspaceGraph)
+    }).catch(e => {
+      next(e);
+    });
+  }); //<= graph workspace
+
   // --------------------------------------------------------------------------------
 
   router.get('/workspace/:id', function(req, res, next) {
     //console.log('Get On Workspace 1');
     workspace_lib.getWorkspace(req.params.id).then(function(workspace) {
-      //console.log('Get On Workspace 2');
       //console.log("RENDER ", req.params.id)
       //console.log('workspace | getWorkspace',workspace.users);
       //console.log(technicalComponentDirectory);

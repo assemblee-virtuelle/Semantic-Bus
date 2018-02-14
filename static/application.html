@@ -159,7 +159,7 @@
         RiotControl.addStore(genericStore);
         allStore['genericStore']=genericStore;
 
-        var adminStore = new AdminStore();
+        var adminStore = new AdminStore(utilStore);
         RiotControl.addStore(adminStore);
         allStore['adminStore']=adminStore;
 
