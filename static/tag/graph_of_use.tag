@@ -161,6 +161,7 @@ var b = 50
           }
         }
         if (prop != "Day" && prop != "ages") {
+          console.log("PRO PRICE", d[prop].price)
           table.push({
             price: y2 += + d[prop].price,
             y1: y0 += + d[prop].datasize

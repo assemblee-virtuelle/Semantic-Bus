@@ -220,7 +220,6 @@ exports.formatDataUserGraph = function (data) {
               fullDate: lasttab[month][conso][consoFinal].fullDate
             }
           }
-         
           data.push(c)
         }
       }

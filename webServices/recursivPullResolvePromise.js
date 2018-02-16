@@ -225,7 +225,7 @@ class Engine {
 
           let current_component = null
           let current_cost = null
-          console.log(module.getPriceState)
+          console.log("GET PRICE STATE", module.getPriceState)
           // if (module.getPriceState != undefined) {
 
           //   this.config_component.components_information.forEach((component) => {
