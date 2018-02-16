@@ -18,11 +18,12 @@ class Engine {
     this.user_lib = require('../lib/core/lib/user_lib');
     this.config = require('../configuration.js');
     this.fackCounter = 0;
-
-
   };
 
+  
+
   resolveComponent(component, requestDirection, pushData) {
+    
     if (this.config.quietLog != true) {
       console.log(" ---------- resolveComponent -----------" + component._id)
     }
@@ -224,39 +225,40 @@ class Engine {
 
           let current_component = null
           let current_cost = null
-          if (module.getPriceState != undefined) {
+          console.log(module.getPriceState)
+          // if (module.getPriceState != undefined) {
 
-            this.config_component.components_information.forEach((component) => {
+          //   this.config_component.components_information.forEach((component) => {
 
-              current_component = component[processingLink.destination.module]
+          //     current_component = component[processingLink.destination.module]
 
-              globalPrice += (module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice * dataFlow[0].data.length + (this.objectSizeOf(dataFlow) / 1000000 * current_component.price))
+          //     globalPrice += (module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice * dataFlow[0].data.length + (this.objectSizeOf(dataFlow) / 1000000 * current_component.price))
 
-              owner.credit -= (module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice * dataFlow[0].data.length + (this.objectSizeOf(dataFlow) / 1000000 * current_component.price))
+          //     owner.credit -= (module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice * dataFlow[0].data.length + (this.objectSizeOf(dataFlow) / 1000000 * current_component.price))
 
-              current_cost = (module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice * dataFlow[0].data.length + (this.objectSizeOf(dataFlow) / 1000000 * current_component.price))
-              console.log("current_cost, ",processingLink.destination.specificData,current_component.price,dataFlow[0].data.length, current_component.record_price,  module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice * dataFlow[0].data.length + (this.objectSizeOf(dataFlow) / 1000000 * current_component.price))
-              this.user_lib.update(owner).then(res => {
-                //console.log("CREDIT UPDATE",res.credit)
-              })
-            })
-          } else {
-            this.config_component.components_information.forEach((component) => {
+          //     current_cost = (module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice * dataFlow[0].data.length + (this.objectSizeOf(dataFlow) / 1000000 * current_component.price))
+          //     console.log("current_cost, ",processingLink.destination.specificData,current_component.price,dataFlow[0].data.length, current_component.record_price)
+          //     this.user_lib.update(owner).then(res => {
+          //       //console.log("CREDIT UPDATE",res.credit)
+          //     })
+          //   })
+          // } else {
+          //   this.config_component.components_information.forEach((component) => {
 
-              current_component = component[processingLink.destination.module]
+          //     current_component = component[processingLink.destination.module]
 
-              globalPrice += (this.objectSizeOf(dataFlow) / 1000000 * current_component.price)
+          //     globalPrice += (this.objectSizeOf(dataFlow) / 1000000 * current_component.price)
 
-              owner.credit -= (this.objectSizeOf(dataFlow) / 1000000 * current_component.price)
+          //     owner.credit -= (this.objectSizeOf(dataFlow) / 1000000 * current_component.price)
 
-              current_cost = this.objectSizeOf(dataFlow) / 1000000 * current_component.price
-              console.log("current_cost, ",processingLink.destination.specificData,current_component.price)
-              this.user_lib.update(owner).then(res => {
+          //     current_cost = this.objectSizeOf(dataFlow) / 1000000 * current_component.price
+          //     console.log("current_cost, ",processingLink.destination.specificData,current_component.price)
+          //     this.user_lib.update(owner).then(res => {
 
-                //console.log("CREDIT UPDATE",res.credit)
-              })
-            })
-          }
+          //       //console.log("CREDIT UPDATE",res.credit)
+          //     })
+          //   })
+          // }
 
           
           if (processingLink.destination.consumption_history) {
