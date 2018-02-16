@@ -235,7 +235,7 @@ class Engine {
               owner.credit -= (module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice * dataFlow[0].data.length + (this.objectSizeOf(dataFlow) / 1000000 * current_component.price))
 
               current_cost = (module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice * dataFlow[0].data.length + (this.objectSizeOf(dataFlow) / 1000000 * current_component.price))
-
+              console.log("current_cost, ",processingLink.destination.specificData,current_component.price,dataFlow[0].data.length, current_component.record_price,  module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice * dataFlow[0].data.length + (this.objectSizeOf(dataFlow) / 1000000 * current_component.price))
               this.user_lib.update(owner).then(res => {
                 //console.log("CREDIT UPDATE",res.credit)
               })
@@ -250,7 +250,7 @@ class Engine {
               owner.credit -= (this.objectSizeOf(dataFlow) / 1000000 * current_component.price)
 
               current_cost = this.objectSizeOf(dataFlow) / 1000000 * current_component.price
-
+              console.log("current_cost, ",processingLink.destination.specificData,current_component.price,dataFlow[0].data.length, current_component.record_price,  module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice * dataFlow[0].data.length + (this.objectSizeOf(dataFlow) / 1000000 * current_component.price))
               this.user_lib.update(owner).then(res => {
 
                 //console.log("CREDIT UPDATE",res.credit)
@@ -258,6 +258,7 @@ class Engine {
             })
           }
 
+          
           if (processingLink.destination.consumption_history) {
             processingLink.destination.consumption_history.push({
               traitement_id: traitement_id,
