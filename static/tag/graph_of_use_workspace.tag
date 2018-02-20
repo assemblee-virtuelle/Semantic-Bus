@@ -134,14 +134,8 @@
 
 </style>
 <script>
-  var Allday = []
-  var AllDayObject = {}
-  var lasttab = {}
-  this.golbalConsumption = ""
-  var dataT = []
   this.resultEmail = "";
   this.result = true;
-  //this.profil = data; this.email = data.user.credentials.email; this.job = data.user.job; this.societe = data.user.society; this.name = data.user.name;
   this.numberWorkspace = ""
 
   let decimalAdjust = function (type, value, exp) {
@@ -171,94 +165,6 @@
       : exp));
   }.bind(this)
 
-  this.formatData = function (data) {
-    console.log("in froma data")
-
-    return new Promise(function (resolve, reject) {
-      for (var i = 30; i >= 0; i--) {
-        if (AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] == null) {
-          AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] = {}
-          AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCMonth() + 1 + "-" + moment().subtract(i, 'days')._d.getUTCDate() + "-" + moment().subtract(i, 'days')._d.getFullYear()] = []
-        } else {
-          AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCMonth() + 1 + "-" + moment().subtract(i, 'days')._d.getUTCDate() + "-" + moment().subtract(i, 'days')._d.getFullYear()] = []
-        }
-      }
-
-      data.workspaces.forEach(function (workspace) {
-        workspace.flow = 0
-        workspace.pricing = 0
-        if (workspace.consumption_history.length > 0) {
-          workspace.consumption_history.forEach(function (cons) {
-            this.golbalConsumption += cons.flow_size
-            this.golbalConsumption = decimalAdjust('round', (this.golbalConsumption), -2);
-            var d = new Date(cons.dates.created_at);
-            for (month in AllDayObject) {
-              for (b in AllDayObject[month]) {
-                if ((d.getUTCMonth() + 1) == month && d.getUTCDate() == b.split("-")[1]) {
-                  var c = {}
-                  if (workspace.name) {
-                    var name = workspace.name
-                  } else {
-                    var name = "no name"
-                  }
-                  AllDayObject[month][b].push({
-                    flow: cons.flow_size,
-                    pricing: cons.price,
-                    id: workspace._id,
-                    name: workspace.name,
-                    date: new Date(cons.dates.created_at)
-                  })
-                }
-              }
-            }
-          }.bind(this))
-        }
-      }.bind(this))
-
-      for (var month in AllDayObject) {
-        lasttab[month] = {}
-        for (var conso in AllDayObject[month]) {
-          lasttab[month][conso] = {}
-          if (AllDayObject[month][conso].length > 0) {
-            AllDayObject[month][conso].forEach(function (compo) {
-              if (lasttab[month][conso][compo.id] == null) {
-                lasttab[month][conso][compo.id] = {}
-                lasttab[month][conso][compo.id].flow = compo.flow
-                lasttab[month][conso][compo.id].name = compo.name
-                lasttab[month][conso][compo.id].price = compo.pricing
-                lasttab[month][conso][compo.id].date = compo.date
-              } else {
-                lasttab[month][conso][compo.id].flow += compo.flow
-                lasttab[month][conso][compo.id].name = compo.name
-                lasttab[month][conso][compo.id].price += compo.pricing
-                lasttab[month][conso][compo.id].date = compo.date
-              }
-            })
-          } else {
-            console.log("no data")
-          }
-        };
-      }
-      for (var month in lasttab) {
-        for (var conso in lasttab[month]) {
-          var c = {}
-          c["Day"] = conso
-          for (var consoFinal in lasttab[month][conso]) {
-            c[consoFinal] = {
-              name: lasttab[month][conso][consoFinal].name,
-              flow: lasttab[month][conso][consoFinal].flow,
-              price: lasttab[month][conso][consoFinal].price,
-              date: lasttab[month][conso][consoFinal].date
-            }
-
-          }
-          dataT.push(c)
-        }
-      }
-      console.log("golbalConsumption", this.golbalConsumption)
-      resolve({global: this.golbalConsumption, data: dataT})
-    }.bind(this))
-  }.bind(this)
 
   /// D3 JS INITIALIZE
 
@@ -289,7 +195,7 @@
     colorStackChart.domain(d3.keys(data[0]).filter(function (key) {;
       return key !== "Day";
     }));
-    dataT.forEach(function (d) {
+    data.forEach(function (d) {
       if (Object.keys(d).length > 1) {
         d.ages = []
         var y0 = 0;
@@ -313,12 +219,12 @@
       }
     });
 
-    xStackChart.domain(dataT.map(function (d) {;
+    xStackChart.domain(data.map(function (d) {;
       return d.Day.split("-")[0] + "-" + d.Day.split("-")[1];
     }));
     yStackChart.domain([
       0,
-      d3.max(dataT, function (d) {
+      d3.max(data, function (d) {
         return d.total;
       })
     ]);
@@ -329,9 +235,9 @@
 
     canvasStackChart.append("g").attr("class", "y axis").call(d3.axisLeft(yStackChart)).append("text").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", ".71em").style("text-anchor", "end")
 
-    canvasStackChart.append("text").attr("class", "y label").attr("text-anchor", "end").attr("y", 6).attr("dy", ".75em").attr("transform", "rotate()").attr("font-size", "12px").text("Consomation( € )");
+    canvasStackChart.append("text").attr("class", "y label").attr("text-anchor", "end").attr("y", 6).attr("dy", ".75em").attr("transform", "rotate(-90)").attr("font-size", "12px").text("Consomation( € )");
 
-    var state = canvasStackChart.selectAll(".Day").data(dataT).enter().append("g").attr("class", "g").attr("transform", function (d) {
+    var state = canvasStackChart.selectAll(".Day").data(data).enter().append("g").attr("class", "g").attr("transform", function (d) {
       return "translate(" + xStackChart(d.Day.split("-")[0] + "-" + d.Day.split("-")[1]) + ",0)";
     })
 
@@ -356,24 +262,33 @@
   };
 
   this.initgraph = function (data) {
-    console.log("DRAW STACK CHART")
-    this.formatData(data).then(function (res) {
+    console.log("DRAW STACK CHART", data)
+    this.numberWorkspace = data.numberWorkspace
+    this.golbalConsumption = data.global
+    this.initD3js(data.data)
+    this.update()
+  }.bind(this)
+
+  RiotControl.on('load_user_workspace_graph_done', this.initgraph)
+
+  this.on('mount', function () {
+    console.log("MOUNT DRAW STACK CHART")
+    RiotControl.trigger('load_user_workspace_graph');
+  }.bind(this))
+
+  this.on('unmount', function () {
+    RiotControl.off('load_user_workspace_graph_done', this.initgraph);
+  })
+</script>
+</graph-of-use-workspace>
+<!--  
+
+ this.formatData(data).then(function (res) {
       this.numberWorkspace = data.workspaces.length
       this.golbalConsumption = res.global
       this.initD3js(res.data)
       this.update()
-    }.bind(this))
-  }.bind(this)
-
-  this.on('mount', function () {
-    RiotControl.on('profil_loaded', this.initgraph)
-  }.bind(this))
-
-  this.on('unmount', function () {
-    RiotControl.off('profil_loaded', this.initgraph);
-  })
-</script>
-</graph-of-use-workspace>
+    }.bind(this))  -->
 
 <!--  var legend = canvasStackChart.selectAll(".legend")
             .data(colorStackChart.domain().slice().reverse())

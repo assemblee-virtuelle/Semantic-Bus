@@ -223,6 +223,29 @@ function WorkspaceStore(utilStore) {
 
   // --------------------------------------------------------------------------------
 
+  this.on('load_workspace_graph', function (data) {
+    console.log('show_WORKSPACE GRAPH', data);
+      // console.log(localStorage.user_id);
+      $.ajax({
+        method: 'get',
+        url: '../data/core/workspace/' + data._id + '/graph',
+        headers: {
+          "Authorization": "JTW" + " " + localStorage.token
+        },
+        contentType: 'application/json'
+      }).done(function (data) {
+        console.log("WORKSPACE LOADED", data)
+        this.trigger('graph_workspace_data_loaded', data)
+        // this.setUserCurrent(data);
+        // this.userCurrrent = data;
+        // console.log("load profil |", this.userCurrrent);
+      // this.trigger('profil_menu_changed', this.menu);
+      }.bind(this))
+  })
+
+
+  // --------------------------------------------------------------------------------
+
 
   // this.updateComponentListe = function(data) {
   //   console.log('update Component Liste', data);

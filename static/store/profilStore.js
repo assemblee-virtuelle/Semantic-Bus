@@ -118,6 +118,31 @@ function ProfilStore() {
     this.trigger('profil_menu_changed', this.menu);
   })
 
+  
+
+  this.on('load_user_workspace_graph', function (message) {
+    console.log('show_WORKSPACE GRAPH', localStorage.user_id);
+      // console.log(localStorage.user_id);
+      $.ajax({
+        method: 'get',
+        url: '../data/core/users/' + localStorage.user_id + '/workspaces',
+        headers: {
+          "Authorization": "JTW" + " " + localStorage.token
+        },
+        contentType: 'application/json'
+      }).done(function (data) {
+        console.log("WORKSPACE LOADED", data)
+        // this.setUserCurrent(data);
+        // this.userCurrrent = data;
+        // console.log("load profil |", this.userCurrrent);
+        this.trigger('profil_menu_changed', this.menu);
+        this.trigger('load_user_workspace_graph_done', data);
+      // this.trigger('profil_menu_changed', this.menu);
+      }.bind(this))
+  })
+
+  
+
 
 
   this.on('send_back_email', function (data) {

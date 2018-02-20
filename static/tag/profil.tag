@@ -282,7 +282,6 @@
   }.bind(this))
 
   this.profilMenuChanged = function (menu) {
-    console.log('PROFIL MENU CHANGED',menu);
     this.menu = menu;
     this.update();
   }.bind(this);

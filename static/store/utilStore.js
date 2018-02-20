@@ -2,7 +2,7 @@ function UtilStore(specificStoreList) {
 
   riot.observable(this) // Riot provides our event emitter.
 
-  this.ajaxCall=function(param,persistTrigger){
+  this.ajaxCall = function(param,persistTrigger){
 
     return new Promise((resolve,reject)=>{
 //console.log('UtilStore | ajaxCall');

@@ -159,7 +159,7 @@
         RiotControl.addStore(genericStore);
         allStore['genericStore']=genericStore;
 
-        var adminStore = new AdminStore();
+        var adminStore = new AdminStore(utilStore);
         RiotControl.addStore(adminStore);
         allStore['adminStore']=adminStore;
 
@@ -171,6 +171,8 @@
         })
         //console.log(window.location.href)
         RiotControl.trigger('https_force?')
+
+        RiotControl.trigger('init_stripe')
 
         riot.compile(function() {
           // here tags are compiled and riot.mount works synchronously

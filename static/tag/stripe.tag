@@ -6,7 +6,7 @@
                 <image class="" src="./image/plus.png" style="margin-bottom:10px" width="30" height="30" onclick={plusClick}></image>
                 <image class="" src="./image/moins.png" width="30" height="30" onclick={moinsClick}></image>
             </div>
-            <input onkeypress='return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 8' type="text" onChange={changeValue} value={credits} style="width: 30%;display: flex;
+            <input onkeypress='return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 8' onChange={changeValue} value={this.precisionRound(euros,1) + " €"} style="width: 30%;display: flex;
         border-radius: 5px;
         height: 10vh;
         font-size: 40px;
@@ -14,7 +14,7 @@
         color:rgb(100,100,100);"/>
             <div style="justify-content:center;align-items:center;display:flex">
             <h4 style="margin-left:30px;text-align: center;font-family: 'Open Sans', sans-serif;color: rgb(130,130,130);">
-                    = {credits / 1000} Euros
+                    = {this.precisionRound((euros*1000),1)} crédits + {this.precisionRound((euros * 1000 * 0.2), 1)}  offert pendant la Beta Test
             </h4>
             </div>
         </div>
@@ -55,23 +55,29 @@
     </div>
 
     <script>
-        var stripe = Stripe('pk_live_VxdWt7nfX3EyVcMyQ153TOvr');
+        var stripe = Stripe(localStorage.stripe_public_key);
        
 
         plusClick(e){
-            this.credits += 100
+            this.euros += 0.10
             this.update()
         }
         moinsClick(e){
-            if(this.credits > 500){
-                this.credits -= 100
+            if(this.euros > 0.50){
+                this.euros -= 0.10
                 this.update()
             }
+        }
+
+        precisionRound(number, precision) {
+            var factor = Math.pow(10, precision);
+            return Math.round(number * factor) / factor;
         }
 
 
 
         RiotControl.on('payment_good', function(credits){
+            console.log("ON PAYEMENT GOOD")
             this.payment_done = true
             this.payment_error = false
             this.credits = credits
@@ -95,13 +101,13 @@
         }.bind(this))
          
         changeValue(e){
-            if(parseInt(e.currentTarget.value) && parseInt(e.currentTarget.value) > 500){
+            if(parseInt(e.currentTarget.value) && parseInt(e.currentTarget.value) > 0.50){
                 console.log("in if", e.currentTarget.value)
-                this.credits = parseInt(e.currentTarget.value);
+                this.euros = parseInt(e.currentTarget.value);
                  this.update()
             }else{
                 console.log("in else", e.currentTarget.value)
-                this.credits = 500   
+                this.euros = 0.50   
                  this.update()
             }
         }.bind(this) 
@@ -111,7 +117,7 @@
 
         this.on('mount', function () {     
   
-            this.credits = 500
+            this.euros = 0.50
             var elements = stripe.elements();
             var style = {
                 base: {
@@ -147,6 +153,7 @@
             });
 
             addPaiment(){
+                console.log("ADD PAYYEMENT", this.precisionRound((this.euros * 1000), 1))
                 stripe.createSource(card).then(function(result) {
                     console.log(result.source)
                     if (result.error) {
@@ -154,14 +161,17 @@
                     var errorElement = document.getElementById('card-errors');
                     errorElement.textContent = result.error.message;
                     }else {
-                        RiotControl.trigger('init_stripe_user',{card:result.source, amout:this.credits});
+                        RiotControl.trigger('init_stripe_user',{card:result.source, amout: this.precisionRound((this.euros * 1000), 1)});
                     }
                 }.bind(this));
             }
 
+
+
             RiotControl.on('payment_init_done', (source)=>{
                 window.open(source.redirect.url,'_self');
             })
+            this.update()
     });
     </script>
 

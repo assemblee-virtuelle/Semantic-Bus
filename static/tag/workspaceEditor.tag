@@ -110,7 +110,6 @@ descriptionFieldChange(e) {
 
 this.on('mount', function () {
   //console.log('wokspaceEditor | Mount |', this);
-
   RiotControl.on('store_persisteWorkspace', this.persistClick)
   RiotControl.on('workspace_current_changed', this.workspaceCurrentChanged);
   RiotControl.on('share_change', this.shareChange);

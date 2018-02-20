@@ -47,9 +47,7 @@
       this.tags.zentable.on('delRow', function (data) {
         RiotControl.trigger('workspace_delete', data);
       }.bind(this));
-
       RiotControl.on('workspace_collection_changed', this.refreshZenTable);
-
       RiotControl.trigger('workspace_collection_load');
     });
 
