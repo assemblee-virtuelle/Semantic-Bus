@@ -3,7 +3,7 @@
   "version": "0.1.1",
   "description": "ETL style data middlware transformation embended in an ESB for all kind of data",
   "private": true,
-  "main": "cluster.js",
+  "main": "",
   "scripts": {
     "scrapp": "node webServices/workSpaceComponentDirectory/testscrapper.js",
     "start": "node cluster.js --max_old_space_size=2048",
