@@ -11,37 +11,49 @@ module.exports = {
 
   makeRequest: function(flowData, request) {
     return new Promise((resolve, reject) => {
+
       //var query = request;
       if (request == undefined) {
         reject(new Error("empty request"))
       } else {
-        new this.rdfstore.Store(function(err, store) {
-          //console.log('store', store);
-          try {
-            store.load("application/ld+json", flowData, function(err, results) {
+        try {
+
+          new this.rdfstore.Store((err, store) => {
+
+            try {
+
+              store.load("application/ld+json", flowData, (err, results) => {
 
 
-              //console.log(JSON.stringify(results));
-              //console.log(query);
-              try {
-                store.execute(request, function(err, graph) {
-                  if (err) {
-                    reject(err);
-                  } else {
-                    resolve({
-                      data: graph
-                    })
-                  }
-                })
-              } catch (e) {
-                reject(e);
-              }
-            })
-
-          } catch (e) {
-            reject(e);
-          }
-        });
+                //console.log(JSON.stringify(results));
+                //console.log(query);
+                try {
+                  console.log('ALLO');
+                  store.execute(request, function(err, graph) {
+                    console.log('ALLO2');
+                    //console.log('err',err,'graph',graph);
+                    if (err != null && err != undefined) {
+                      reject(new Error(err));
+                    } else {
+                      resolve({
+                        data: graph
+                      })
+                    }
+                  })
+                } catch(e) {
+                  console.log('ERROR');
+                  reject(e);
+                }
+              })
+            } catch(e) {
+              console.log('ERROR1');
+              reject(e);
+            }
+          });
+        } catch(e) {
+          console.log('ERROR2');
+          reject(e);
+        }
       }
 
     })

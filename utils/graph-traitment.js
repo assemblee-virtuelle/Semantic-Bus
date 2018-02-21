@@ -50,7 +50,7 @@ exports.formatDataUserGraph = function (data) {
         workspace.flow = 0
         workspace.pricing = 0
         if (workspace.consumption_history && workspace.consumption_history.length > 0) {
-            console.log("historique")
+            //console.log("historique")
             workspace.consumption_history.forEach(function (cons) {
                 golbalConsumption += cons.flow_size
                 golbalConsumption = decimalAdjust('round', (golbalConsumption), -2);
@@ -117,7 +117,7 @@ exports.formatDataUserGraph = function (data) {
           dataT.push(c)
         }
       }
-      console.log("golbalConsumption", golbalConsumption)
+      //console.log("golbalConsumption", golbalConsumption)
       resolve({global: golbalConsumption, data: dataT, numberWorkspace: data.workspaces.length})
     })
   }
@@ -223,7 +223,7 @@ exports.formatDataUserGraph = function (data) {
           data.push(c)
         }
       }
-      console.log(data)
+      //console.log(data)
       resolve(data)
     })
   }
