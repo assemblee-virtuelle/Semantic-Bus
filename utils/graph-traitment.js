@@ -78,7 +78,7 @@ exports.formatDataUserGraph = function (data) {
             }
         }.bind(this))
 
-    
+
       for (var month in AllDayObject) {
         lasttab[month] = {}
         for (var conso in AllDayObject[month]) {
@@ -154,7 +154,7 @@ exports.formatDataUserGraph = function (data) {
                   } else {
                     var name = "no name"
                   }
-                  console.log("FUCKING COMPONENT", component)
+                  //console.log("FUCKING COMPONENT", component)
                   AllDayObject[month][b].push({
                     day: d.getDate(),
                     fullDate: d,
@@ -209,7 +209,7 @@ exports.formatDataUserGraph = function (data) {
           var c = {}
           c["Day"] = conso
           for (var consoFinal in lasttab[month][conso]) {
-            
+
             c[consoFinal] = {
               pricing: lasttab[month][conso][consoFinal].pricing,
               label: lasttab[month][conso][consoFinal].label,

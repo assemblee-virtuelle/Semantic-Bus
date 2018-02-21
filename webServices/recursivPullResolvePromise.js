@@ -20,16 +20,16 @@ class Engine {
     this.fackCounter = 0;
   };
 
-  
+
 
   resolveComponent(component, requestDirection, pushData) {
-    
+
     if (this.config.quietLog != true) {
       console.log(" ---------- resolveComponent -----------" + component._id)
     }
 
     return new Promise((resolve, reject) => {
-      this.workspace_component_lib.get_all_withConsomation({
+      this.workspace_component_lib.get_all({
         workspaceId: component.workspaceId
       }).then(components => {
         this.workspace_lib.getWorkspace(component.workspaceId).then(workspace => {
@@ -225,7 +225,7 @@ class Engine {
 
           let current_component = null
           let current_cost = null
-          console.log("GET PRICE STATE", module.getPriceState)
+          //console.log("GET PRICE STATE", module.getPriceState)
           // if (module.getPriceState != undefined) {
 
           //   this.config_component.components_information.forEach((component) => {
@@ -260,27 +260,27 @@ class Engine {
           //   })
           // }
 
-          
-          if (processingLink.destination.consumption_history) {
-            processingLink.destination.consumption_history.push({
-              traitement_id: traitement_id,
-              flow_size: this.objectSizeOf(dataFlow) / 1000000,
-              price: current_cost,
-              dates: {
-                created_at: new Date()
-              }
-            })
-          } else {
-            processingLink.destination.consumption_history = []
-            processingLink.destination.consumption_history.push({
-              traitement_id: traitement_id,
-              flow_size: this.objectSizeOf(dataFlow) / 1000000,
-              price: current_cost,
-              dates: {
-                created_at: new Date()
-              }
-            })
-          }
+          //TODO REFACTOR PRICE
+          // if (processingLink.destination.consumption_history) {
+          //   processingLink.destination.consumption_history.push({
+          //     traitement_id: traitement_id,
+          //     flow_size: this.objectSizeOf(dataFlow) / 1000000,
+          //     price: current_cost,
+          //     dates: {
+          //       created_at: new Date()
+          //     }
+          //   })
+          // } else {
+          //   processingLink.destination.consumption_history = []
+          //   processingLink.destination.consumption_history.push({
+          //     traitement_id: traitement_id,
+          //     flow_size: this.objectSizeOf(dataFlow) / 1000000,
+          //     price: current_cost,
+          //     dates: {
+          //       created_at: new Date()
+          //     }
+          //   })
+          // }
           //console.log(processingLink.destination)
           if (this.config.quietLog != true) {
             //console.log('BEFORE lib Update');
@@ -403,26 +403,27 @@ class Engine {
 
         //console.log("globalPrice | ", globalPrice)
         this.workspace_lib.getWorkspace(component_workspaceId).then(function (res) {
-          if (res.consumption_history) {
-            res.consumption_history.push({
-              traitement_id: traitement_id,
-              flow_size: global_flow / 1000000,
-              price: globalPrice,
-              dates: {
-                created_at: new Date()
-              }
-            })
-          } else {
-            res.consumption_history = []
-            res.consumption_history.push({
-              traitement_id: traitement_id,
-              flow_size: global_flow / 1000000,
-              price: globalPrice,
-              dates: {
-                created_at: new Date()
-              }
-            })
-          }
+          // TODO REFACTOR PRICEs
+          // if (res.consumption_history) {
+          //   res.consumption_history.push({
+          //     traitement_id: traitement_id,
+          //     flow_size: global_flow / 1000000,
+          //     price: globalPrice,
+          //     dates: {
+          //       created_at: new Date()
+          //     }
+          //   })
+          // } else {
+          //   res.consumption_history = []
+          //   res.consumption_history.push({
+          //     traitement_id: traitement_id,
+          //     flow_size: global_flow / 1000000,
+          //     price: globalPrice,
+          //     dates: {
+          //       created_at: new Date()
+          //     }
+          //   })
+          // }
           //console.log('--------------  Before save workspace -------------- ')
           //console.log(res.components.length);
           //console.log('length before',res.components.length);

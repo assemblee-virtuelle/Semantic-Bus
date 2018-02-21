@@ -6,7 +6,7 @@
   "main": "",
   "scripts": {
     "scrapp": "node webServices/workSpaceComponentDirectory/testscrapper.js",
-    "start": "node cluster.js --max_old_space_size=2048",
+    "start": "node cluster.js --max_old_space_size=3500",
     "test-unitaires": "node_modules/mocha/bin/mocha test/test_unitaires/test.js --reporter mocha-junit-reporter --reporter-options mochaFile=./test/test_result/integ_unit_result/test-result.xml",
     "test-fonctionel": "node test/wrapperTest.js",
     "test-fonctionel-local": "node test/wrapperLocalTest.js",
