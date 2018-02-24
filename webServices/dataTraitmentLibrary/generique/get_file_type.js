@@ -65,7 +65,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
             // RDF XML DONE IF TEST PARSE
           case (".rdf"):
           case (".owl"):
-          console.log('allo');
+          //console.log('allo');
             rdf.rdf_traitmentXML(dataString).then(result=>{
               // console.log("RDF", reusltat)
               //console.log(JSON.stringify(reusltat))

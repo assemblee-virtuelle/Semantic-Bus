@@ -50,7 +50,7 @@ exports.formatDataUserGraph = function (data) {
         workspace.flow = 0
         workspace.pricing = 0
         if (workspace.consumption_history && workspace.consumption_history.length > 0) {
-            console.log("historique")
+            //console.log("historique")
             workspace.consumption_history.forEach(function (cons) {
                 golbalConsumption += cons.flow_size
                 golbalConsumption = decimalAdjust('round', (golbalConsumption), -2);
@@ -78,7 +78,7 @@ exports.formatDataUserGraph = function (data) {
             }
         }.bind(this))
 
-    
+
       for (var month in AllDayObject) {
         lasttab[month] = {}
         for (var conso in AllDayObject[month]) {
@@ -117,7 +117,7 @@ exports.formatDataUserGraph = function (data) {
           dataT.push(c)
         }
       }
-      console.log("golbalConsumption", golbalConsumption)
+      //console.log("golbalConsumption", golbalConsumption)
       resolve({global: golbalConsumption, data: dataT, numberWorkspace: data.workspaces.length})
     })
   }
@@ -154,7 +154,7 @@ exports.formatDataUserGraph = function (data) {
                   } else {
                     var name = "no name"
                   }
-                  console.log("FUCKING COMPONENT", component)
+                  //console.log("FUCKING COMPONENT", component)
                   AllDayObject[month][b].push({
                     day: d.getDate(),
                     fullDate: d,
@@ -209,7 +209,7 @@ exports.formatDataUserGraph = function (data) {
           var c = {}
           c["Day"] = conso
           for (var consoFinal in lasttab[month][conso]) {
-            
+
             c[consoFinal] = {
               pricing: lasttab[month][conso][consoFinal].pricing,
               label: lasttab[month][conso][consoFinal].label,
@@ -223,7 +223,7 @@ exports.formatDataUserGraph = function (data) {
           data.push(c)
         }
       }
-      console.log(data)
+      //console.log(data)
       resolve(data)
     })
   }
