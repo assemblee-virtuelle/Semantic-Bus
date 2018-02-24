@@ -20,7 +20,7 @@ module.exports = {
       return {moPrice:moPrice,recordPrice:recordPrice};
     }
   },
-  
+
   makeRequest: function (user, key, actions, url,  saucelabname, flowData, flow_before, fix_url) {
     console.log("scrapper start", actions)
 
@@ -462,6 +462,12 @@ module.exports = {
 
   pull: function (data, flowData) {
     //console.log("before scrapping start", data.specificData.saucelabname)
-    return this.makeRequest(data.specificData.user, data.specificData.key, data.specificData.scrapperRef, data.specificData.url, data.specificData.saucelabname)
+    let url=data.specificData.url;
+    console.log("SCRAPPER flowData",flowData[0].data);
+    if(flowData[0].data.url!=undefined){
+      url=flowData[0].data.url;
+    }
+    console.log('URL',url);
+    return this.makeRequest(data.specificData.user, data.specificData.key, data.specificData.scrapperRef, url, data.specificData.saucelabname)
   },
 }

@@ -18,8 +18,8 @@ module.exports = {
       } else {
         try {
 
-          new this.rdfstore.Store((err, store) => {
-
+          new this.rdfstore.Store({name:'test', overwrite:true},(err, store) => {
+          //this.rdfstore.create((err, store) => {
             try {
 
               store.load("application/ld+json", flowData, (err, results) => {
@@ -28,9 +28,7 @@ module.exports = {
                 //console.log(JSON.stringify(results));
                 //console.log(query);
                 try {
-                  console.log('ALLO');
-                  store.execute(request, function(err, graph) {
-                    console.log('ALLO2');
+                  store.execute(request, (err, graph) => {
                     //console.log('err',err,'graph',graph);
                     if (err != null && err != undefined) {
                       reject(new Error(err));
@@ -41,17 +39,14 @@ module.exports = {
                     }
                   })
                 } catch(e) {
-                  console.log('ERROR');
                   reject(e);
                 }
               })
             } catch(e) {
-              console.log('ERROR1');
               reject(e);
             }
           });
         } catch(e) {
-          console.log('ERROR2');
           reject(e);
         }
       }
