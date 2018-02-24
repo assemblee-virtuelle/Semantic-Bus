@@ -22,7 +22,7 @@ module.exports = {
   },
   
   makeRequest: function (user, key, actions, url,  saucelabname, flowData, flow_before, fix_url) {
-    //console.log("scrapper start saucelabname", saucelabname)
+    console.log("scrapper start", actions)
 
 
     // var config = Object.assign(this.base.config, {
@@ -114,6 +114,7 @@ module.exports = {
     }
 
     function _getHtml(action, client) {
+      console.log("IN GET HTML")
       return new Promise(function (resolve, reject) {
         client.element(action.selector).getText().then(function (elem) {
           //console.log("in return promise ", elem)
@@ -193,7 +194,7 @@ module.exports = {
     // };
 
     function _aggregateAction(actions, client, deeth, data) {
-      //console.log('------   action restante -------- ', actions[deeth]);
+      console.log('------   action restante -------- ', actions[deeth]);
       return new Promise(function (resolve, reject) {
         //console.log(" ------  deeth  ------- ", deeth);
         //console.log('------   tour restant -------- ', (actions.length) - deeth);
@@ -447,6 +448,7 @@ module.exports = {
       .catch((err) => {
         reject(err)
       });
+       console.log("before aggregate fonction",actions, client, deeth, data );
       _aggregateAction(actions, client, deeth, data).then(function (res) {
         //console.log("--traitmeent terminé final ----")
         resolve({
@@ -460,6 +462,6 @@ module.exports = {
 
   pull: function (data, flowData) {
     //console.log("before scrapping start", data.specificData.saucelabname)
-    return this.makeRequest(data.specificData.user, data.specificData.key, data.specificData.scrappe, data.specificData.url, data.specificData.saucelabname)
+    return this.makeRequest(data.specificData.user, data.specificData.key, data.specificData.scrapperRef, data.specificData.url, data.specificData.saucelabname)
   },
 }

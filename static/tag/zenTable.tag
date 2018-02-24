@@ -19,7 +19,7 @@
       onclick={rowClic}
       style="justify-content: space-between;flex-shrink:0;">
 
-      <div class="containerH tableRowContent" style="flex-grow:1;" onkeyup={rowKeyUp}>
+      <div class="containerH tableRowContent" style="flex-grow:1;" onkeyup={rowKeyUp} onchange={onChange}>
         <yield from="row"/>
       </div>
       <div class="containerV" style="flex-basis:60px;justify-content:center">
@@ -212,6 +212,14 @@
       }
       this.trigger('dataChanged',this.data)
       //console.log(this.indexedData);
+    }
+
+    onChange(e){
+      if (e.target.attributes['data-field'] != undefined) {
+        //console.log('ALLO');
+        e.item[e.target.attributes['data-field'].value] = e.target.value;
+      }
+      this.trigger('onValueChange',this.data)
     }
 
     recalculateHeader() {

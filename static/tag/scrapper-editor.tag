@@ -1,74 +1,43 @@
-<scrapper-editor>
+<scrapper-editor class="containerV">
 
-  <label>User ( Sauce Lab )</label>
-
-  <input type="text" ref="user" class="form-controle" value={data.specificData.user}></input>
-
-  <label>Key ( Sauce Lab ) </h4>
-
-  <input type="text" ref="key" class="form-controle" value={data.specificData.key}></input>
-
-  <label>Name of Sauce Labs JOB </label>
-
-  <input type="text" ref="saucelabname" class="form-controle" value={data.specificData.saucelabname}></input>
-
-  <label>URL </label>
-
-  <input type="text" ref="url" class="form-controle" value={data.specificData.url}></input>
-
-  <h4 style="text-align:center">Create Action</h4>
-
-
-  <label>Choice your Action Type</label>
-
-  <select class="form-controle" ref="actionType" >
-    <option each={actionType in options}>{actionType}</option>
-  </select>
-
-  <label>Action Name</label>
-
-  <input type="text" class="form-controle" ref="action" value={action}></input>
-
-
-  <label>Selector CSS</label>
-  <input type="text" class="form-controle" ref="selector" value={selector}></input>
-
-  <div show = {getAttr} >
-    <label>Attribut</label>
-    <input type="text" class="form-controle" ref="attribut" value={attribut} ></input>
-  </div>
-  <div>
-  <div show = {setValue} >
-    <label>Value</label>
-    <input type="text" class="form-controle" ref="setValue" value={setValue}></input>
+  <div class="commandBar" style="justify-content:flex-end">
+    <label>User ( Sauce Lab )</label>
+    <input type="text" ref="user" class="form-controle" value={data.specificData.user}></input>
+    <label>Key ( Sauce Lab ) </h4>
+    <input type="text" ref="key" class="form-controle" value={data.specificData.key}></input>
+    <label>Name of Sauce Labs JOB </label>
+    <input type="text" ref="saucelabname" class="form-controle" value={data.specificData.saucelabname}></input>
+    <label>URL </label>
+    <input type="text" ref="url" class="form-controle" value={data.specificData.url}></input>
+    <div class="containerH">
+      <h4 style="text-align:center">Create Action </h4>
+      <image class="commandButtonImage" src="./image/ajout_composant.svg" width="50" height="50" onclick={addRowClick}></image>
+    </div>
+    <h4 style="text-align:left">Séléctionné votre type d'action</h4>
+    <!--  <select ref="actionType" style="flex-basis:50%" >
+      <option each={actionType in options}>{actionType}</option>
+    </select>  -->
   </div>
 
-  <div show = {scroll} >
-    <label>scroll x </label>
-    <input type="text" class="form-controle" ref="scrollX" value={scrollX}></input>
-     <label>scroll y </label>
-    <input type="text" class="form-controle" ref="scrollY" value={scrollY}></input>
-  </div>
-   <image  style="margin-left: -1px; margin-left: 88vw;  cursor: pointer;" src="./image/ajout_composant.svg" width="50" height="50" onclick={addRowClick}>
-  </image>
-  <zenTable style="flex:1" drag={true} title="Your scenario" disallownavigation={false} disallowdelete={true} >
+  <zenTable ref="scrapperRef" style="flex:1" drag={true} title="vos changement de valeurs" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
     <yield to="header">
       <div>Name</div>
-      <div>Type</div>
       <div>Selector</div>
       <div>Attribut</div>
       <div>Value</div>
       <div>ScrollX</div>
       <div>ScrollY</div>
     </yield>
-    <yield to="row">
-      <div style="width:14.25%">{action}</div>
-      <div style="width:14.25%">{actionType}</div>
-      <div style="width:14.25%">{selector}</div>
-      <div style="width:14.25%" >{attribut}</div>
-      <div style="width:14.25%">{setValue}</div>
-      <div style="width:14.25%">{scrollX}</div>
-      <div style="width:14.25%">{scrollY}</div>
+    <yield to="row" >
+      <select data-field="actionType" ref="actionType" style="flex-basis:50%">
+        <option each={actionType in ["getValue", "getHtml", "getAttr", "setValue", "click", "scroll","selectByValue"]} value={actionType}>{actionType}</option>
+      </select>
+      <input type="text" style="flex-basis:20%" value={action} data-field="action"/>
+      <input type="text" style="flex-basis:20%" value={selector} data-field="selector"/>
+      <input type="text" style="flex-basis:20%" value={attribut} data-field="attribut"/>
+      <input type="text" style="flex-basis:20%" value={setValue} data-field="setValue"/>
+      <input type="text" style="flex-basis:20%" value={scrollX} data-field="scrollX"/>
+      <input type="text" style="flex-basis:20%" value={scrollY} data-field="scrollY"/>
     </yield>
   </zenTable>
 
@@ -117,21 +86,27 @@
   </style>
 
   <script>
-    this.options = ["getValue", "getHtml", "getAttr", "setValue", "click", "scroll","selectByValue"]
+    
+    //initialize
     this.currentRowId = undefined;
     this.getAttr = false
     this.setValue = false
     this.scroll = false
+    this.data = {};
+    this.data.specificData = {};
 
     addRowClick(e) {
-      console.log("add row",e)
       //var index=parseInt(e.currentTarget.dataset.rowid) console.log(index);
-      this.recalculateHeader()
-      this.trigger('addRow')
+      this.refs.scrapperRef.data.push({})   
     }
 
+    this.updateData = function (dataToUpdate) {
+      this.data = dataToUpdate;
+      this.refs.scrapperRef.data = this.data.specificData.scrapperRef|| [];
+      this.update();
+    }.bind(this);
+
     recalculateHeader() {
-      console.log(this.tags.zentable.refs.tableHeader.children)
       var headers = this.tags.zentable.refs.tableHeader.children;
       for (var row of this.root.querySelectorAll('.tableRow')) {
         for (var headerkey in headers) {
@@ -151,20 +126,6 @@
       }
     }
 
-    //initialize
-    this.data = {}
-    this.data.specificData = {}
-    this.data.specificData.scrappe = []
-
-    this.updateData=function(dataToUpdate){
-      console.log("datatoupdate",dataToUpdate)
-      this.data = dataToUpdate;
-      if(this.data.specificData.scrappe == null){
-        this.data.specificData.scrappe = []
-      }
-      this.tags.zentable.data = this.data.specificData.scrappe;
-      this.update();
-    }.bind(this);
 
     
 
@@ -174,77 +135,32 @@
    
     this.on('mount', function () {
       RiotControl.on('item_current_changed', this.updateData);
-      this.tags.zentable.on('rowsSelected', function (data) {
-        console.log("select scrapper")
-        this.selector = data.selector
-        this.action = data.action
-        this.update()
-      }.bind(this));
 
-      this.on('addRow', function () {
-        console.log("add row")
+      this.refs.scrapperRef.on('onValueChange', (data) => {
 
-        if(this.refs.actionType.value == "getValue" || this.refs.actionType.value == "getHtml" ||  this.refs.actionType.value == "click"){
-          this.refs.attribut = "";
-          this.refs.setValue = "";
-          this.refs.scrollX = "";
-          this.refs.scrollY = ""
-        }
+      });
 
-        else if(this.refs.actionType.value == "setValue"){
-          this.refs.attribut = "";
-           this.refs.scrollX = "";
-          this.refs.scrollY = "";
-        }
+      this.refs.scrapperRef.on('dataChanged',data=>{
+        this.data.specificData.scrapperRef = data;
+      });
+     
+      this.refs.scrapperRef.on('delRow',(row) => {
+        this.refs.scrapperRef.data.splice(row.rowid, 1);
+      });
 
-        else if(this.refs.actionType.value == "getAttr"){
-          this.refs.setValue = "";
-           this.refs.scrollX = "";
-          this.refs.scrollY = "";
-        }
-
-        else if(this.refs.actionType.value == "scroll"){
-          this.refs.setValue = "";
-        }
-        
-        if(this.data.specificData.scrappe == null){
-           this.data.specificData.scrappe  = []
-        }
-        this.data.specificData.scrappe.push({
-          selector: this.selector,
-          action: this.action,
-          actionType: this.actionType,
-          attribut: this.attribut,
-          setValue: this.setValue,
-          scrollX: this.scrollX,
-          scrollY: this.scrollY
-        });
-        console.log(this.data.specificData.scrappe)
-        this.update()
-      }.bind(this));
-
-      this.tags.zentable.on('delRow', function (row) {
-        console.log("in delete", row)
-        this.data.specificData.scrappe.splice(row.rowid, 1);
-        this.tags.zentable.data = this.data.specificData.scrappe;
-      }.bind(this));
-
+      RiotControl.on('item_current_changed', this.updateData);
 
       this.refs.url.addEventListener('change', function (e) {
-        console.log(e.currentTarget.value);
         this.url = e.currentTarget.value;
         this.data.specificData.url = e.currentTarget.value;
-      }.bind(this));
-
-    
-      this.refs.selector.addEventListener('change', function (e) {
-        this.selector = e.target.value;
+        console.log(this.data.specificData)
       }.bind(this));
 
       this.refs.user.addEventListener('change', function (e) {
         this.user = e.target.value;
         this.data.specificData.user = e.currentTarget.value;
       }.bind(this));
+
 
       this.refs.key.addEventListener('change', function (e) {
         this.key = e.target.value;
@@ -256,54 +172,6 @@
         this.data.specificData.saucelabname = e.currentTarget.value;
       }.bind(this));
 
-
-      this.refs.action.addEventListener('change', function (e) {
-        this.action = e.target.value;
-      }.bind(this));
-
-
-     
-      this.refs.scrollX.addEventListener('change', function (e) {
-        this.scrollX = e.target.value;
-      }.bind(this));
-
-      this.refs.scrollY.addEventListener('change', function (e) {
-        this.scrollY = e.target.value;
-      }.bind(this));
-
-
-      this.refs.attribut.addEventListener('change', function (e) {
-        this.attribut = e.target.value;
-      }.bind(this));
-
-      this.refs.setValue.addEventListener('change', function (e) {
-        this.setValue = e.target.value;
-      }.bind(this));
-
-      this.refs.actionType.addEventListener('change', function (e) {
-        console.log(e.target.value);
-        this.actionType = e.target.value;
-        if(e.target.value == "getAttr"){
-          this.getAttr = true
-          this.setValue = false
-        }else if(e.target.value == "setValue"){
-          this.setValue = true
-          this.getAttr = false
-        }else if(e.target.value == "scroll"){
-          this.scroll = true
-          this.getAttr = false
-          this.setValue = false
-        }else if(e.target.value == "selectByValue"){
-          this.setValue = true
-          this.getAttr = false
-          this.scroll = false
-        }else{
-          this.setValue = false
-          this.getAttr = false
-          this.scroll = false
-        }
-        this.update()
-      }.bind(this))
-    })
+    });
   </script>
 </scrapper-editor>
