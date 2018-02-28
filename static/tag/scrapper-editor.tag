@@ -107,7 +107,8 @@
     }.bind(this);
 
     recalculateHeader() {
-      var headers = this.tags.zentable.refs.tableHeader.children;
+      var headers = this.refs.scrapperRef.refs.tableHeader.children;
+      console.log("HEADER", headers)
       for (var row of this.root.querySelectorAll('.tableRow')) {
         for (var headerkey in headers) {
           var numkey = parseInt(headerkey);
@@ -134,6 +135,7 @@
     });
    
     this.on('mount', function () {
+      this.recalculateHeader()
       RiotControl.on('item_current_changed', this.updateData);
 
       this.refs.scrapperRef.on('onValueChange', (data) => {

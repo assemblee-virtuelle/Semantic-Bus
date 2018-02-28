@@ -127,9 +127,9 @@ module.exports = {
 
     function _getText(action, client, deeth) {
       return new Promise(function (resolve, reject) {
-        //console.log("--- in get text ----- ")
+        console.log("--- in get text ----- ")
         client.element(action.selector).getValue().then(function (elem) {
-          //console.log("in return promise ", elem)
+          console.log("in return promise ", elem)
           resolve(elem)
         })
       })
