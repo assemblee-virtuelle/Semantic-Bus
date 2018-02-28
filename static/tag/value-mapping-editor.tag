@@ -22,12 +22,12 @@
 
   <zenTable ref="mappingTable" style="flex:1" drag={true} title="vos changement de valeurs" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
     <yield to="header">
-      <div>flux</div>
-      <div>remplacement</div>
+      <div style="width::50%">flux</div>
+      <div style="width::50%">remplacement</div>
     </yield>
     <yield to="row">
-      <input type="text" style="flex-basis:50%" value={flowValue} data-field="flowValue"/>
-      <input type="text" style="flex-basis:50%" value={replacementValue} data-field="replacementValue"/>
+      <input type="text" style="width::50%" value={flowValue} data-field="flowValue"/>
+      <input type="text" style="width::50%" value={replacementValue} data-field="replacementValue"/>
     </yield>
   </zenTable>
 

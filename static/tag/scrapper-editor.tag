@@ -21,27 +21,28 @@
 
   <zenTable ref="scrapperRef" style="flex:1" drag={true} title="vos changement de valeurs" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
     <yield to="header">
-      <div>Name</div>
-      <div>Selector</div>
-      <div>Attribut</div>
-      <div>Value</div>
-      <div>ScrollX</div>
-      <div>ScrollY</div>
+      <div style="width:20%">Action</div>
+      <div style="width:20%">Name</div>
+      <div style="width:20%">Selector</div>
+      <div style="width:20%">Attribut</div>
+      <div style="width:20%">Value</div>
+      <div style="width:20%">ScrollX</div>
+      <div style="width:20%">ScrollY</div>
     </yield>
     <yield to="row" >
-      <select data-field="actionType" ref="actionType" style="flex-basis:50%">
+      <select data-field="actionType" ref="actionType" style="flex-basis:20%">
         <option each={actionType in ["getValue", "getHtml", "getAttr", "setValue", "click", "scroll","selectByValue"]} value={actionType}>{actionType}</option>
       </select>
-      <input type="text" style="flex-basis:20%" value={action} data-field="action"/>
-      <input type="text" style="flex-basis:20%" value={selector} data-field="selector"/>
-      <input type="text" style="flex-basis:20%" value={attribut} data-field="attribut"/>
-      <input type="text" style="flex-basis:20%" value={setValue} data-field="setValue"/>
-      <input type="text" style="flex-basis:20%" value={scrollX} data-field="scrollX"/>
-      <input type="text" style="flex-basis:20%" value={scrollY} data-field="scrollY"/>
+      <input type="text" style="width:20%" value={action} data-field="action"/>
+      <input type="text" style="width:20%" value={selector} data-field="selector"/>
+      <input type="text" style="width:20%" value={attribut} data-field="attribut"/>
+      <input type="text" style="width:20%" value={setValue} data-field="setValue"/>
+      <input type="text" style="width:20%" value={scrollX} data-field="scrollX"/>
+      <input type="text" style="width:20%" value={scrollY} data-field="scrollY"/>
     </yield>
   </zenTable>
 
-  <style> 
+  <style>
     .form-controle {
       display: block;
       width: 100%;
@@ -86,7 +87,7 @@
   </style>
 
   <script>
-    
+
     //initialize
     this.currentRowId = undefined;
     this.getAttr = false
@@ -97,7 +98,7 @@
 
     addRowClick(e) {
       //var index=parseInt(e.currentTarget.dataset.rowid) console.log(index);
-      this.refs.scrapperRef.data.push({})   
+      this.refs.scrapperRef.data.push({})
     }
 
     this.updateData = function (dataToUpdate) {
@@ -128,12 +129,12 @@
     }
 
 
-    
+
 
     this.on('unmount', function () {
       RiotControl.off('item_current_changed', this.updateData);
     });
-   
+
     this.on('mount', function () {
       this.recalculateHeader()
       RiotControl.on('item_current_changed', this.updateData);
@@ -145,7 +146,7 @@
       this.refs.scrapperRef.on('dataChanged',data=>{
         this.data.specificData.scrapperRef = data;
       });
-     
+
       this.refs.scrapperRef.on('delRow',(row) => {
         this.refs.scrapperRef.data.splice(row.rowid, 1);
       });
