@@ -24,7 +24,7 @@ module.exports = {
   },
   pull: function(data, flowData) {
     //console.log('Join by Field');
-    console.log('Join by Field | pull : ', data, ' | ', flowData);
+    //console.log('Join by Field | pull : ', data, ' | ', flowData);
     return new Promise((resolve, reject) => {
       try {
         var secondaryFlowData = this.sift({
@@ -47,7 +47,7 @@ module.exports = {
           //console.log(data.specificData.primaryFlowFKId);
           let filter = {};
           filter[data.specificData.secondaryFlowId] = primaryRecord[data.specificData.primaryFlowFKId];
-          console.log(filter, secondaryFlowData);
+          //console.log(filter, secondaryFlowData);
           if (Array.isArray(secondaryFlowData) == true) {
             primaryRecord[data.specificData.primaryFlowFKName] = this.sift(filter, secondaryFlowData)[0];
           } else {
