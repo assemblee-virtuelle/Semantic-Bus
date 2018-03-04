@@ -338,6 +338,7 @@
     this.dragged = function (dragged) {
       dragged.x = d3.event.x;
       dragged.y = d3.event.y;
+      RiotControl.trigger('workspace_current_move_component', dragged);
       //d3.select(this).attr("x", dragged.x).attr("y", dragged.y); //this représente le DOM
       this.nodes = this.svg.select("#shapeLayer").selectAll("image").data([dragged], function (d) {
         return d.id;

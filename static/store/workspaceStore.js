@@ -1,4 +1,4 @@
-function WorkspaceStore(utilStore) {
+function WorkspaceStore(utilStore, stompClient) {
 
 
   // --------------------------------------------------------------------------------
@@ -16,7 +16,8 @@ function WorkspaceStore(utilStore) {
   //this.cancelRequire = false;
   this.modeConnectBefore = false;
   this.modeConnectAfter = false;
-  this.utilStore=utilStore;
+  this.utilStore = utilStore;
+  this.stompClient = stompClient;
 
 
   // --------------------------------------------------------------------------------
@@ -223,24 +224,24 @@ function WorkspaceStore(utilStore) {
 
   // --------------------------------------------------------------------------------
 
-  this.on('load_workspace_graph', function (data) {
+  this.on('load_workspace_graph', function(data) {
     console.log('show_WORKSPACE GRAPH', data);
-      // console.log(localStorage.user_id);
-      $.ajax({
-        method: 'get',
-        url: '../data/core/workspace/' + data._id + '/graph',
-        headers: {
-          "Authorization": "JTW" + " " + localStorage.token
-        },
-        contentType: 'application/json'
-      }).done(function (data) {
-        console.log("WORKSPACE LOADED", data)
-        this.trigger('graph_workspace_data_loaded', data)
-        // this.setUserCurrent(data);
-        // this.userCurrrent = data;
-        // console.log("load profil |", this.userCurrrent);
+    // console.log(localStorage.user_id);
+    $.ajax({
+      method: 'get',
+      url: '../data/core/workspace/' + data._id + '/graph',
+      headers: {
+        "Authorization": "JTW" + " " + localStorage.token
+      },
+      contentType: 'application/json'
+    }).done(function(data) {
+      console.log("WORKSPACE LOADED", data)
+      this.trigger('graph_workspace_data_loaded', data)
+      // this.setUserCurrent(data);
+      // this.userCurrrent = data;
+      // console.log("load profil |", this.userCurrrent);
       // this.trigger('profil_menu_changed', this.menu);
-      }.bind(this))
+    }.bind(this))
   })
 
 
@@ -616,10 +617,26 @@ function WorkspaceStore(utilStore) {
           this.action = action;
           this.trigger('navigation_control_done', entity, action);
         } else {
+          if (this.subscription_workspace_current_move_component != undefined) {
+            this.subscription_workspace_current_move_component.unsubscribe();
+          }
           this.select({
             _id: id
           }).then(workspace => {
             this.action = action;
+            this.subscription_workspace_current_move_component = this.stompClient.subscribe('/topic/workspace_current_move_component.' + this.workspaceCurrent._id, message => {
+              //console.log('message', JSON.parse(message.body));
+              let body = JSON.parse(message.body);
+              if (body.token != localStorage.token) {            
+                let componentToUpdate = sift({
+                  _id: body.componentId
+                }, this.workspaceCurrent.components)[0];
+                componentToUpdate.graphPositionX = body.x;
+                componentToUpdate.graphPositionY = body.y;
+                this.computeGraph();
+              }
+
+            });
             this.trigger('navigation_control_done', entity, action);
           });
         }
@@ -723,11 +740,13 @@ function WorkspaceStore(utilStore) {
   this.on('workspace_current_add_components', function() {
     this.utilStore.ajaxCall({
       method: 'post',
-      url: '../data/core/workspace/'+this.workspaceCurrent._id+'/addComponents',
-      data: JSON.stringify(this.componentSelectedToAdd.map((c)=>{return this.workspaceBusiness.serialiseWorkspaceComponent(c)})),
+      url: '../data/core/workspace/' + this.workspaceCurrent._id + '/addComponents',
+      data: JSON.stringify(this.componentSelectedToAdd.map((c) => {
+        return this.workspaceBusiness.serialiseWorkspaceComponent(c)
+      })),
     }, true).then(data => {
-      this.workspaceCurrent.components=this.workspaceCurrent.components.concat(data);
-      route('workspace/' + this.workspaceCurrent._id+ '/component');
+      this.workspaceCurrent.components = this.workspaceCurrent.components.concat(data);
+      route('workspace/' + this.workspaceCurrent._id + '/component');
     })
 
   }.bind(this));
@@ -758,6 +777,17 @@ function WorkspaceStore(utilStore) {
       }
     })
   }); //<= workspace_current_delete_component
+  this.on('workspace_current_move_component', function(component) {
+    this.stompClient.send('/topic/workspace_current_move_component.' + this.workspaceCurrent._id, JSON.stringify({
+      componentId: component.id,
+      x: component.x,
+      y: component.y,
+      token: localStorage.token
+    }));
+  });
+
+
+
 
   ///GESTION DES DROIT DE USER
   this.on('set-email-to-share', function(email) {
@@ -840,19 +870,23 @@ function WorkspaceStore(utilStore) {
   this.on('connect_components', function(source, target) {
     //source.connectionsAfter.push(target);
     //target.connectionsBefore.push(source);
-    let serialised={
-      source : this.workspaceBusiness.serialiseWorkspaceComponent(source),
-      target : this.workspaceBusiness.serialiseWorkspaceComponent(target)
+    let serialised = {
+      source: this.workspaceBusiness.serialiseWorkspaceComponent(source),
+      target: this.workspaceBusiness.serialiseWorkspaceComponent(target)
     }
-    serialised.source.connectionsAfter.push({_id:target._id});
-    serialised.target.connectionsBefore.push({_id:source._id});
+    serialised.source.connectionsAfter.push({
+      _id: target._id
+    });
+    serialised.target.connectionsBefore.push({
+      _id: source._id
+    });
 
     this.utilStore.ajaxCall({
       method: 'post',
       url: '../data/core/workspaceComponent/connection',
       data: JSON.stringify(serialised),
-    }, true).then(connectedComps=>{
-      console.log('connectedComps',connectedComps);
+    }, true).then(connectedComps => {
+      console.log('connectedComps', connectedComps);
       source.connectionsAfter.push(connectedComps.target);
       target.connectionsBefore.push(connectedComps.source);
       this.workspaceBusiness.connectWorkspaceComponent(this.workspaceCurrent.components);
@@ -864,21 +898,29 @@ function WorkspaceStore(utilStore) {
   });
 
   this.on('disconnect_components', function(source, target) {
-    let serialised={
-      source : this.workspaceBusiness.serialiseWorkspaceComponent(source),
-      target : this.workspaceBusiness.serialiseWorkspaceComponent(target)
+    let serialised = {
+      source: this.workspaceBusiness.serialiseWorkspaceComponent(source),
+      target: this.workspaceBusiness.serialiseWorkspaceComponent(target)
     }
-    serialised.source.connectionsAfter.splice(serialised.source.connectionsAfter.indexOf(sift({_id:target._id},serialised.source.connectionsAfter)[0]),1);
-    serialised.target.connectionsBefore.splice(serialised.source.connectionsBefore.indexOf(sift({_id:source._id},serialised.source.connectionsBefore)[0]),1);
+    serialised.source.connectionsAfter.splice(serialised.source.connectionsAfter.indexOf(sift({
+      _id: target._id
+    }, serialised.source.connectionsAfter)[0]), 1);
+    serialised.target.connectionsBefore.splice(serialised.source.connectionsBefore.indexOf(sift({
+      _id: source._id
+    }, serialised.source.connectionsBefore)[0]), 1);
 
     this.utilStore.ajaxCall({
       method: 'post',
       url: '../data/core/workspaceComponent/connection',
       data: JSON.stringify(serialised),
-    }, true).then(disconnectedComps=>{
+    }, true).then(disconnectedComps => {
       //console.log('connectedComps',disconnectedComps);
-      source.connectionsAfter.splice(source.connectionsAfter.indexOf(sift({_id:disconnectedComps.target._id},source.connectionsAfter)[0]),1);
-      target.connectionsBefore.splice(target.connectionsBefore.indexOf(sift({_id:disconnectedComps.source._id},target.connectionsBefore)[0]),1);
+      source.connectionsAfter.splice(source.connectionsAfter.indexOf(sift({
+        _id: disconnectedComps.target._id
+      }, source.connectionsAfter)[0]), 1);
+      target.connectionsBefore.splice(target.connectionsBefore.indexOf(sift({
+        _id: disconnectedComps.source._id
+      }, target.connectionsBefore)[0]), 1);
       this.trigger('workspace_current_changed', this.workspaceCurrent);
       if (this.viewBox) {
         this.computeGraph();
