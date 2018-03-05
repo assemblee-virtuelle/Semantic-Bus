@@ -126,7 +126,7 @@
         RiotControl.addStore(utilStore);
         allStore['utilStore']=utilStore;
 
-        var workspaceStore = new WorkspaceStore(utilStore); // Create a store instance.
+        var workspaceStore = new WorkspaceStore(utilStore,stompClient); // Create a store instance.
         RiotControl.addStore(workspaceStore); // Register the store in central dispatch.
         allStore['workspaceStore']=workspaceStore;
 
