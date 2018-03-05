@@ -167,7 +167,6 @@
             }
 
 
-
             RiotControl.on('payment_init_done', (source)=>{
                 window.open(source.redirect.url,'_self');
             })

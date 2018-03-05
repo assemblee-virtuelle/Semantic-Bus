@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="40px" height="32px" viewBox="0 0 40 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 46.2 (44496) - http://www.bohemiancoding.com/sketch -->
+    <title>folder-shared</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Graphe_choix_conect" transform="translate(-15.000000, -247.000000)" fill="#FFFFFF">
+            <g id="folder-shared" transform="translate(15.000000, 247.000000)">
+                <path d="M36,4 L20,4 L16,0 L4,0 C1.8,0 0,1.8 0,4 L0,28 C0,30.2 1.8,32 4,32 L36,32 C38.2,32 40,30.2 40,28 L40,8 C40,5.8 38.2,4 36,4 L36,4 Z M26,10 C28.2,10 30,11.8 30,14 C30,16.2 28.2,18 26,18 C23.8,18 22,16.2 22,14 C22,11.8 23.8,10 26,10 L26,10 Z M34,26 L18,26 L18,24 C18,21.4 23.4,20 26,20 C28.6,20 34,21.4 34,24 L34,26 L34,26 Z M11,5 C13.2,5 15,6.8 15,9 C15,11.2 13.2,13 11,13 C8.8,13 7,11.2 7,9 C7,6.8 8.8,5 11,5 L11,5 Z M19,21 L3,21 L3,19 C3,16.4 8.4,15 11,15 C13.6,15 19,16.4 19,19 L19,21 L19,21 Z" id="Shape"></path>
+            </g>
+        </g>
+    </g>
+</svg>

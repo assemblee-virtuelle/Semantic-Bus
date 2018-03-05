@@ -31,7 +31,7 @@
     </yield>
     <yield to="row" >
       <select data-field="actionType" ref="actionType" style="flex-basis:20%">
-        <option each={actionType in ["getValue", "getHtml", "getAttr", "setValue", "click", "scroll","selectByValue"]} value={actionType}>{actionType}</option>
+        <option each={actionType in [" ", "getValue", "getHtml", "getAttr", "setValue", "click", "scroll","selectByValue"]} value={actionType}>{actionType}</option>
       </select>
       <input type="text" style="width:20%" value={action} data-field="action"/>
       <input type="text" style="width:20%" value={selector} data-field="selector"/>

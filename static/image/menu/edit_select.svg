@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg width="40px" height="32px" viewBox="0 0 40 32" version="1.1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink">
+    <!-- Generator: Sketch 46.2 (44496) - http://www.bohemiancoding.com/sketch -->
+    <title>Group 9</title>
+    <desc>Created with Sketch.</desc>
+    <defs></defs>
+    <g id="Page-1" stroke="none" stroke-width="1" fill="none" fill-rule="evenodd">
+        <g id="Graphe_choix_conect" transform="translate(-84.000000, -427.000000)">
+            <g id="Group-9" transform="translate(84.000000, 427.000000)">
+                <g id="Group-8" fill="#FFFFFF">
+                    <g id="Group-4">
+                        <rect id="Rectangle" x="0" y="0" width="40" height="32" rx="5"></rect>
+                    </g>
+                </g>
+                <path d="M20.1059341,6.8888583 L22.8214587,11.9070515 L17.3904095,11.9070515 L20.1059341,6.8888583 Z M17.3904095,12.9106902 L22.8214587,12.9106902 L22.8214587,21.943438 L17.3904095,21.943438 L17.3904095,12.9106902 Z M17.3904095,22.9470766 L22.8214587,22.9470766 L22.8214587,24.9543539 C22.8214587,26.0629426 21.9246314,26.9616312 20.8145669,26.9616312 L19.3973013,26.9616312 C18.2889256,26.9616312 17.3904095,26.0706714 17.3904095,24.9543539 L17.3904095,22.9470766 Z" id="Combined-Shape" fill="#09F5B9" transform="translate(20.105934, 16.925245) rotate(-134.000000) translate(-20.105934, -16.925245) "></path>
+            </g>
+        </g>
+    </g>
+</svg>

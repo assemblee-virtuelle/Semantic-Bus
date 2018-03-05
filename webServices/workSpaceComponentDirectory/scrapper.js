@@ -4,7 +4,7 @@ module.exports = {
   description: 'Scrapper page html',
   editor: 'scrapper-editor',
   graphIcon: 'scrapper.png',
-  tags:[
+  tags: [
     'http://semantic-bus.org/data/tags/inComponents',
     'http://semantic-bus.org/data/tags/scrapperComponents'
   ],
@@ -13,15 +13,21 @@ module.exports = {
   webdriverio: require('webdriverio'),
   base: require('../../test/wdio.conf.base'),
 
-  getPriceState: function(specificData, moPrice, recordPrice){
-    if(specificData.sauceLabToken != null){
-      return {moPrice:moPrice,recordPrice:0};
+  getPriceState: function (specificData, moPrice, recordPrice) {
+    if (specificData.sauceLabToken != null) {
+      return {
+        moPrice: moPrice,
+        recordPrice: 0
+      };
     } else {
-      return {moPrice:moPrice,recordPrice:recordPrice};
+      return {
+        moPrice: moPrice,
+        recordPrice: recordPrice
+      };
     }
   },
 
-  makeRequest: function (user, key, actions, url,  saucelabname, flowData, flow_before, fix_url) {
+  makeRequest: function (user, key, actions, url, saucelabname, flowData, flow_before, fix_url) {
     console.log("scrapper start", actions)
 
 
@@ -104,11 +110,14 @@ module.exports = {
 
     function _getAttr(action, client) {
       //console.log("in action", action)
+      console.log("--- in get Attr -----")
       return new Promise(function (resolve, reject) {
         //console.log("BEFOREEEEEE action", action)
         client.getAttribute(action.selector, action.attribut).then(function (elem) {
-          //console.log("in return promise ", elem)
+          console.log("in return promise ", elem)
           resolve(elem)
+        }).catch((err) => {
+          reject(err)
         })
       })
     }
@@ -119,6 +128,8 @@ module.exports = {
         client.element(action.selector).getText().then(function (elem) {
           //console.log("in return promise ", elem)
           resolve(elem)
+        }).catch((err) => {
+          console.log("ERRROR", err)
         })
       })
     }
@@ -131,6 +142,8 @@ module.exports = {
         client.element(action.selector).getValue().then(function (elem) {
           console.log("in return promise ", elem)
           resolve(elem)
+        }).catch((err) => {
+          console.log("ERRROR", err)
         })
       })
     }
@@ -142,6 +155,8 @@ module.exports = {
         client.selectByValue(action.selector, action.setValue).then(function (elem) {
           //console.log("in return promise ", elem)
           resolve(elem)
+        }).catch((err) => {
+          console.log("ERRROR", err)
         })
       })
     }
@@ -153,6 +168,8 @@ module.exports = {
       //console.log("---- set value ----", action.setValue)
       return new Promise(function (resolve, reject) {
         resolve(client.setValue(action.selector, action.setValue))
+      }).catch((err) => {
+        console.log("ERRROR", err)
       })
     }
 
@@ -168,6 +185,8 @@ module.exports = {
       return new Promise(function (resolve, reject) {
         var elem = client.element(action.selector)
         resolve(elem.scroll(parseInt(action.scrollX), parseInt(action.scrollY)))
+      }).catch((err) => {
+        console.log("ERRROR", err)
       })
     }
 
@@ -199,7 +218,7 @@ module.exports = {
         //console.log(" ------  deeth  ------- ", deeth);
         //console.log('------   tour restant -------- ', (actions.length) - deeth);
         if (deeth == actions.length) {
-          //console.log("---- _aggregateAction finish ---- ", data)
+          console.log("---- _aggregateAction finish ---- ", data)
           client.end();
           resolve(data)
         } else {
@@ -207,7 +226,7 @@ module.exports = {
             //console.log("type", actions[deeth].actionType)
             switch (actions[deeth].actionType) {
               case ("getValue"):
-                client.waitForVisible(actions[deeth].selector, 25000)
+                client.waitForExist(actions[deeth].selector, 25000)
                   .then(function (visible) {
                     //console.log("visible", visible)
                     setTimeout(function () {
@@ -243,7 +262,7 @@ module.exports = {
                   });
                 break;
               case ("getHtml"):
-                client.waitForVisible(actions[deeth].selector, 25000)
+                client.waitForExist(actions[deeth].selector, 25000)
                   .then(function (visible) {
                     //console.log("visible", visible)
                     setTimeout(function () {
@@ -273,37 +292,37 @@ module.exports = {
                   })
                 break;
               case ("getAttr"):
-                client.waitForVisible(actions[deeth].selector, 25000)
-                .then(function (visible) {
-                  //console.log("visible", visible)
-                  setTimeout(function () {
-                    _getAttr(actions[deeth], client).then(function (res) {
-                      //console.log("---- get text return promise -----", res)
-                      data[actions[deeth].action] = res
-                      deeth += 1
-                      _aggregateAction(actions, client, deeth, data).then(function (res) {
-                        resolve(res)
-                      }, function (err) {
-                        reject(err)
+                client.waitForExist(actions[deeth].selector, 25000)
+                  .then(function (visible) {
+                    //console.log("visible", visible)
+                    setTimeout(function () {
+                      _getAttr(actions[deeth], client).then(function (res) {
+                        //console.log("---- get text return promise -----", res)
+                        data[actions[deeth].action] = res
+                        deeth += 1
+                        _aggregateAction(actions, client, deeth, data).then(function (res) {
+                          resolve(res)
+                        }, function (err) {
+                          reject(err)
+                          client.end();
+                        })
+                      }).catch(err => {
+                        let fullError = new Error(err);
+                        fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement 1 de page : " + actions[deeth].action;
+                        reject(fullError)
                         client.end();
                       })
-                    }).catch(err => {
-                      let fullError = new Error(err);
-                      fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement 1 de page : " + actions[deeth].action;
-                      reject(fullError)
-                      client.end();
                     })
+                  }, (err) => {
+                    //console.log("not visible", err)
+                    let fullError = new Error(err);
+                    fullError.displayMessage = "Scrappeur : Element pas visible : " + actions[deeth].action;
+                    reject(fullError)
+                    client.end();
                   })
-                }, (err) => {
-                  //console.log("not visible", err)
-                  let fullError = new Error(err);
-                  fullError.displayMessage = "Scrappeur : Element pas visible : " + actions[deeth].action;
-                  reject(fullError)
-                  client.end();
-                })
-              break;
+                break;
               case ("setValue"):
-                client.waitForVisible(actions[deeth].selector, 25000)
+                client.waitForExist(actions[deeth].selector, 25000)
                   .then(function (visible) {
                     //console.log("visible", visible)
                     // setTimeout(function () {
@@ -333,7 +352,7 @@ module.exports = {
                   });
                 break;
               case ("selectByValue"):
-                client.waitForVisible(actions[deeth].selector, 15000)
+                client.waitForExist(actions[deeth].selector, 15000)
                   .then(function (visible) {
                     //console.log("visible", visible)
                     // setTimeout(function () {
@@ -364,7 +383,7 @@ module.exports = {
                 break;
               case ("scroll"):
                 //console.log("in scroll")
-                client.waitForVisible(actions[deeth].selector, 15000)
+                client.waitForExist(actions[deeth].selector, 15000)
                   .then(function (visible) {
                     //console.log("visible", actions[deeth].selector, visible)
                     // setTimeout(function () {
@@ -443,14 +462,14 @@ module.exports = {
         reject("Scrapper: no connection data")
       }
       client
-      .init()
-      .url(url)
-      .catch((err) => {
-        reject(err)
-      });
-       console.log("before aggregate fonction",actions, client, deeth, data );
+        .init()
+        .url(url)
+        .catch((err) => {
+          reject(err)
+        });
+      console.log("before aggregate fonction", actions, client, deeth, data);
       _aggregateAction(actions, client, deeth, data).then(function (res) {
-        //console.log("--traitmeent terminé final ----")
+        console.log("--traitmeent terminé final ----", res)
         resolve({
           data: res
         })
@@ -462,12 +481,12 @@ module.exports = {
 
   pull: function (data, flowData) {
     //console.log("before scrapping start", data.specificData.saucelabname)
-    let url=data.specificData.url;
-    console.log("SCRAPPER flowData",flowData[0].data);
-    if(flowData[0].data.url!=undefined){
-      url=flowData[0].data.url;
+    let url = data.specificData.url;
+    // console.log("SCRAPPER flowData",flowData[0].data);
+    if (flowData && flowData[0] && flowData[0].data.url != undefined) {
+      url = flowData[0].data.url;
     }
-    console.log('URL',url);
+    console.log('URL', url);
     return this.makeRequest(data.specificData.user, data.specificData.key, data.specificData.scrapperRef, url, data.specificData.saucelabname)
   },
 }
