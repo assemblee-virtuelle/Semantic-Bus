@@ -39,7 +39,7 @@
   RiotControl.addStore(userStore); // Register the store in central dispatch.
   RiotControl.on('application_redirect', function(){
     console.log("trigger");
-    window.open("../ihm/application.html#landing", "_self");
+    window.open("../ihm/application.html#myWorkspaces", "_self");
   })
   console.log(window.location.href)
   RiotControl.trigger('https_force?')

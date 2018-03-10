@@ -5,7 +5,14 @@
                 <span class="title-payement"> Vous disposez de : </span> 
                 <span if={profil != null} style="font-size:3em;color:rgb(14,33,89)"> {this.precisionRound((profil.credit),1)} crédits</span> 
                 <span if={profil != null} style="font-size:2em;color:rgb(141,141,141)">  {this.precisionRound((profil.credit/1000),1)} Euros </span> 
-                <a href="#profil//transaction" class="transac-btn"> Historique </a>
+                <a href="#profil//transaction" style=
+                "border-radius: 25px;
+                padding:1em;
+                background-color: rgb(9,245,185);
+                color: white;
+                font-size: 20px;
+                margin-top: 20px;
+                text-align: center;"> Historique </a>
             </div>
             <div class="containerV" style="flex: 0.003;justify-content:center;align-items:center">
                 <div class="row-vertical"></div>
@@ -126,7 +133,7 @@
                 Payement réalisé avec succés vous beneficier de {credits} credits
             </h3>
             <image class="" src="./image/checked.png" width="50" height="50" />
-            <a href="#profil" onclick={reloadLoc} style="padding: 0.8em;
+            <a href="#profil//running"  style="padding: 0.8em;
                                     border-radius: 25px;
                                     background-color:rgb(41,177,238);
                                     color: white;

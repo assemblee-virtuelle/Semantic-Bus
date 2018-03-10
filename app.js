@@ -109,7 +109,7 @@ httpGet.makeRequest('GET', {
         ///OTHER APP COMPONENT
         ///SECURISATION DES REQUETES
         app.get('/', function(req, res, next) {
-          res.redirect('/ihm/application.html#landing');
+          res.redirect('/ihm/application.html#myWorkspaces');
         });
         app.use('/auth', express.static('static'));
         app.use('/auth', unSafeRouteur);
