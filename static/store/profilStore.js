@@ -59,7 +59,7 @@ function ProfilStore() {
     }).done(function (data) {
       console.log("ON ERROR PAYMENT", data)
       this.trigger('payment_done')
-      window.history.pushState("", "", '/ihm/application.html#profil//addcredit');
+      window.history.pushState("", "", '/ihm/application.html#profil//payement');
       if(data == "user_no_validate"){
         this.trigger('user_no_validate')
       }else if(data == "error"){

@@ -19,13 +19,13 @@
         <img src="./image/Autres.svg" style="margin-bottom: 10px;" height="40px" width="40px">
         <p style="color:white;font-size:12px">Edition</p>
       </a>
-      <a href="#profil//setting" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
-        <img src="./image/Roulette_bus.svg" style="margin-bottom: 10px;" height="40px" width="40px">
-        <p style="color:white;font-size:12px">Paramêtres</p>
-      </a>
        <a href="#profil//payement" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
         <img src="./image/credit_card.png" style="margin-bottom: 10px;" height="40px" width="40px">
         <p style="color:white;font-size:12px">Credits</p>
+      </a>
+      <a href="#profil//setting" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
+        <img src="./image/Roulette_bus.svg" style="margin-bottom: 10px;" height="40px" width="40px">
+        <p style="color:white;font-size:12px">Paramêtres</p>
       </a>
     </div>
   </div>
@@ -34,36 +34,44 @@
     <graph-of-use-workspace></graph-of-use-workspace>
   </div>
 
-  <div if={menu=='edit'} class="containerH" style="background-color:rgb(238, 242, 249);flex-grow: 1;justify-content: center; align-items: center;">
-    <div class="containerV" style="justify-content:center;flex-basis: 600pt;">
-      <div style="flex-basis:300pt;box-shadow: 0px 0px 5px rgba(134,134,134,0.5); background-color: rgb(250,250,250); padding: 5%;  border-radius: 5px;">
+  <div if={menu=='edit'} class="containerH" style="background-color:white;flex-grow: 1;justify-content: center; align-items: center;">
+    <div class="containerV" style="flex-grow:0.4">
+      <div style="flex-basis:300pt; background-color:white; padding: 5%;  border-radius: 5px;">
+        
         <div class="containerV" style="flex-grow: 1;padding: 3%;">
           <h3 style="color:rgb(120,120,120)">{profil.name}</h3>
         </div>
+
         <div class="containerV">
-          <label class="label-forrefreshErrorsTablem">Mon email</label>
-          <input class="change-mail" value="{profil.credentials.email}" ref="email" onchange={changeEmailInput}/>
+          <label class="label-form">Email</label>
+          <input class="field" value="{profil.credentials.email}" ref="email" onchange={changeEmailInput}/>
           <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultEmail}</div>
         </div>
-        <!--  <label class="label-form">Name</label>
-              <input class="change-mail" value="{profil.name}" name="name" onchange={changeNameInput}/>  -->
-        <!--  <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultName}</div>  -->
+
         <div class="containerV">
-          <label class="label-form">Mon post actuel</label>
-          <input class="change-mail" value="{profil.society}" placeholder="ajouter votre societé" name="society" onchange={changeSocietyInput}/>
+          <label class="label-form">Société</label>
+          <input class="field" value="{profil.job}" placeholder="ajouter votre job" name="job" onchange={changeJobInput}/>
+          <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultSociety} </div>
+        </div>
+
+        <div class="containerV">
+          <label class="label-form">Post actuel</label>
+          <input class="field" value="{profil.society}" placeholder="ajouter votre societé" name="society" onchange={changeSocietyInput}/>
           <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultJob}</div>
         </div>
-        <div class="containerV">
-          <label class="label-form">Ma société</label>
-          <input class="change-mail" value="{profil.job}" placeholder="ajouter votre job" name="job" onchange={changeJobInput}/>
-          <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultSociety}
-          </div>
-        </div>
       </div>
+
       <div class="containerV" if={!profil.active} style=" justify-content: center; align-items: center;/* flex-grow: 1; */flex-basis: 105pt;">
         <div if={!mailsend}>
           <div>Vous n'avez pas valider votre email ( consulter votre mail )</div>
-          <button class="mail-btn" onclick={sendbackmail} type="button">{emailtext}</button>
+          <button style="padding: 0.6em;
+                      border-radius: 25px;
+                      background-color:rgb(41,177,238);
+                      color: white;
+                      font-size: 20px;
+                      margin-top: 20px;
+                      text-align: center;
+                      border: none;" onclick={sendbackmail} type="button">{emailtext}</button>
         </div>
         <div if={mailsend}>
           <div>Un email à été envoyé, verifier votre boite mail </div>
@@ -72,21 +80,35 @@
       <div class="containerV" style=" justify-content: center; align-items: center;/* flex-grow: 1; */flex-basis: 105pt;">
         <div id={result? 'good-result-global' : 'bad-result-global' }>{resultGlobal}
         </div>
-        <button class="mail-btn" onclick={updateUser} type="button" if={googleId ==null || googleId=='undefined' }>Valider modification</button>
+         <button style="padding: 0.6em;
+                      border-radius: 25px;
+                      background-color:rgb(41,177,238);
+                      color: white;
+                      font-size: 20px;
+                      margin-top: 20px;
+                      text-align: center;
+                      border: none;" onclick={updateUser} type="button" if={googleId ==null || googleId=='undefined' }>Valider modification</button>
       </div>
     </div>
   </div>
 
-  <div class="containerV" if={menu=='setting'} style="flex-grow: 1;background-color: rgb(238, 242, 249);">
+  <div class="containerV" if={menu=='setting'} style="flex-grow: 1;background-color: white;">
     <div class="containerV" style="flex-grow:1;justify-content:center;align-items: center;">
-      <h3 style="color: rgb(120,120,120);">
-        Nous esperons que votre expérience sur cet outil était satisfaisante ? à bientôt.</h3>
-        <button class="dec-btn" onclick={deconnexion} type="button">Déconnexion</button>
+      <span class="title-profil">
+        Nous esperons que votre expérience sur cet outil était satisfaisante ? à bientôt.</span>
+        <button style="padding: 0.6em;
+                      border-radius: 25px;
+                      background-color:rgb(41,177,238);
+                      color: white;
+                      font-size: 20px;
+                      margin-top: 20px;
+                      text-align: center;
+                      border: none;" onclick={deconnexion} type="button">Déconnexion</button>
     </div>
   </div>
 
-  <div class="containerV" if={menu=='payement'} style="flex-grow: 1;background-color: rgb(238, 242, 249);">
-    <div class="containerV" style="flex-grow: 1;background-color: rgb(238, 242, 249);">
+  <div class="containerV" if={menu=='payement'} style="flex-grow: 1;background-color: white;">
+    <div class="containerV" style="flex-grow: 1;background-color: white;">
       <stripe2-tag></stripe2-tag>
       <!--  <div class="containerV" style="flex-grow:1;justify-content:center;align-items:center">
         <a href="#profil//payement" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px" style="padding: 20px;
@@ -98,10 +120,11 @@
         text-align: center;">Retour</a>
       </div>  -->
     </div>
+  </div>
   <div if={menu=='transaction'} style="flex-grow: 1;background-color: rgb(238, 242, 249);">
     <transactions-list></transactions-list>
     <div class="containerV" style="flex-grow:1;justify-content:center;align-items:center">
-      <a href="#profil//addcredit" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px" style="padding: 20px;
+      <a href="#profil" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px" style="padding: 20px;
       border-radius: 10px;
       background-color: rgb(9,245,185);
       color: white;
@@ -122,7 +145,8 @@
   this.payment_in_progress = false
   this.consultTransactionBoolean = false
   this.emailtext = "Renvoyer un email"
-  
+  this.menu = 'running'
+
   this.isIn3DSecurePayement = function () {
     console.log("IN this.isIn3DSecurePayement",location.search.split('client_secret='))
     this.addCredit = false
@@ -134,35 +158,13 @@
     }
   }
 
-  consultTransaction(){
-    this.consultTransactionBoolean = true
-    this.update()
-  }
-
   deconnexion(e) {
     RiotControl.trigger('deconnexion');
   }
-  addCreditButton(){
-    console.log(this.addCredit)
-    this.addCredit = true
-    this.consultTransactionBoolean = false
-    console.log(this.addCredit)
-    this.update()
-  }
-
-  retourCreditButton(){
-    console.log(this.addCredit)
-    this.consultTransactionBoolean = false
-    this.addCredit = false
-    console.log(this.addCredit)
-    this.update()
-  }
-
   changeEmailInput(e) {
     this.profil.credentials.email = e.currentTarget.value;
     console.log(this.profil.credentials.email);
   }
-
   changeJobInput(e) {
     this.profil.job = e.currentTarget.value;
     console.log(this.profil.job);
@@ -175,7 +177,6 @@
     this.profil.name = e.currentTarget.value;
     console.log(this.profil.name);
   }
-
   updateUser(e) {
     console.log(this.refs.email.value, this.profil.credentials.email)
     var regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g
@@ -196,27 +197,25 @@
       this.resultEmail = "L'email n'est pas au bond format";
     }
   }
-
   sendbackmail(e){
      RiotControl.trigger('send_back_email', {user: this.profil})
   }
-
   RiotControl.on('email_send', function(){
       this.mailsend = true
       this.update()
-  }.bind(this))
+  }.bind(this));
 
   RiotControl.on('payment_in_progress',function(){
     console.log("payment in progress")
     this.payment_in_progress = true
     this.update()
-  }.bind(this))
+  }.bind(this));
 
   RiotControl.on('payment_done',function(){
     this.payment_in_progress = false
     this.consultTransactionBoolean = false
     this.update()
-  }.bind(this))
+  }.bind(this));
 
   RiotControl.on('email_already_use', function () {
     this.result = false;
@@ -263,10 +262,9 @@
       this.update()
     }.bind(this), 2000);
     this.update();
-  }.bind(this))
+  }.bind(this));
 
   RiotControl.on('profil_loaded', function (data) {
-    console.log("profil loaded", data)
     this.profil = data;
     this.update()
   }.bind(this))
@@ -277,9 +275,9 @@
   }.bind(this);
 
   this.on('mount', function () {
+    this.menu = 'running'
+    console.log("MENU", this.menu)
     this.isIn3DSecurePayement()
-    this.consultCredit = false
-    this.addCredit = false
     RiotControl.on('profil_menu_changed', this.profilMenuChanged);
     RiotControl.trigger('load_profil');
     this.googleId = localStorage.googleid
@@ -291,58 +289,34 @@
 </script>
 <style scoped>
 
-    #containerLoaderDiv {
-      background-color: rgba(200,200,200,0.6);
-      bottom: 0;
-      top: 0;
-      right: 0;
-      left: 0;
-      position: absolute;
-      z-index: 1;
-      /*width: 100%;
-      height: 125vh;
-      position: absolute;
-      z-index: 1;
-      padding: 0;
-      margin: 0;
-      display: -webkit-box;
-      display: -moz-box;
-      display: -ms-flexbox;
-      display: -webkit-flex;
-      display: flex;
-      align-items: center;
-      justify-content: center;*/
-    }
-
-
-    #row {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-
-    }
-  .credit-btn{
-    color: #ffffff;
-    background-color: rgb(33,150,243);
-    border: none;
-    padding: 10px;
-    border-radius: 5px 5px 5px 5px;
-    text-align: center;
-    max-width: 40%;
-    margin-top: 10%;
+  .field {
+    background-color: #f4f5f7;
+    border-radius: 3rem;
+    padding: 10px 20px 11px;
+    border:1px solid white
   }
 
-  .transac-btn {
-    color: #ffffff;
-    background-color: rgb(9,245,185);
-    border: none;
-    padding: 10px;
-    border-radius: 5px 5px 5px 5px;
-    text-align: center;
-    max-width: 40%;
-    margin-top: 10%;
-    margin-left: 10%;
+  .title-profil {
+    color:rgb(33,151,242)
   }
+
+  #containerLoaderDiv {
+    background-color: rgba(200,200,200,0.6);
+    bottom: 0;
+    top: 0;
+    right: 0;
+    left: 0;
+    position: absolute;
+    z-index: 1;
+  }
+
+  #row {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+
+  }
+ 
   .label-form {
     display: flex;
     margin-bottom: 1em;
@@ -392,13 +366,7 @@
     text-align: center;
     margin-top: 0;
   }
-  .change-mail {
-    min-width: 80%;
-    border-radius: 9px;
-    box-shadow: none;
-    border: 1px solid white;
-    padding: 5px;
-  }
+
   .mail-btn {
     padding: 10px;
     border-radius: 5px 5px 5px 5px;

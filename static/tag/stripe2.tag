@@ -1,9 +1,9 @@
 <stripe2-tag style="flex-grow: 1;display: flex;">
     <div class="containerV" style="flex-grow: 1;">
-        <div class="containerH" style="flex-grow: 1;flex: 1; justify-content:space-around;background:white"  if={(payment_error == true) && (payment_done == false)} >
+        <div class="containerH" style="flex-grow: 1;flex: 1; justify-content:space-around;background:white"  if={(payment_error == false) && (payment_done == false)} >
             <div class="containerV" style="justify-content:center;align-items:center;background:white;flex: 0.35;">
                 <span class="title-payement"> Vous disposez de : </span> 
-                <span if={profil != null} style="font-size:3em;color:rgb(14,33,89)"> {profil.credit} crédits</span> 
+                <span if={profil != null} style="font-size:3em;color:rgb(14,33,89)"> {this.precisionRound((profil.credit),1)} crédits</span> 
                 <span if={profil != null} style="font-size:2em;color:rgb(141,141,141)">  {this.precisionRound((profil.credit/1000),1)} Euros </span> 
                 <a href="#profil//transaction" class="transac-btn"> Historique </a>
             </div>
@@ -21,9 +21,9 @@
                                 <input type='button' value='-'  style="background:white" onclick={moinsClick}/>
                             </div>
                             <div class="first-infos-payement-block" style="width: 20%">
-                                <span class="sub-title-payement">Euros</span>
+                                <span class="sub-title-payement">Euros €</span>
                                 <input onkeypress='return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 8' 
-                                onChange={changeValue} value={precisionRound(euros,1) + " €"}
+                                onChange={changeValue} value={precisionRound(euros,1)}
                                 class="field"
                                 />
                             </div>
@@ -121,12 +121,12 @@
             <h3 style="text-align: center;font-family: 'Open Sans', sans-serif;color: rgb(130,130,130);">{error}</h3>
         </div>
 
-        <div class="containerV"style="justify-content:center;align-items:center;background:white" if={(payment_done == false) && (payment_error == false)}>
+        <div class="containerV"style="justify-content:center;align-items:center;background:white" if={(payment_done == true) && (payment_error == false)}>
             <h3 class="title-payement">
                 Payement réalisé avec succés vous beneficier de {credits} credits
             </h3>
             <image class="" src="./image/checked.png" width="50" height="50" />
-            <a href="#profil" style="padding: 0.8em;
+            <a href="#profil" onclick={reloadLoc} style="padding: 0.8em;
                                     border-radius: 25px;
                                     background-color:rgb(41,177,238);
                                     color: white;
@@ -141,33 +141,7 @@
     let cardNumber;
     this.payment_error = false
     this.payment_done = false
-    changeValue(e){
-        if(parseInt(e.currentTarget.value) && parseInt(e.currentTarget.value) > 0.50){
-            this.euros = parseInt(e.currentTarget.value);
-            this.update()
-        }else{
-            this.euros = 0.50   
-            this.update()
-        }
-    }.bind(this) 
-
-    plusClick(e){
-        this.euros += 0.10
-        this.update()
-    };
-
-    moinsClick(e){
-        if(this.euros > 0.50){
-            this.euros -= 0.10
-            this.update()
-        }
-    };
-
-    precisionRound(number, precision) {
-        var factor = Math.pow(10, precision);
-        return Math.round(number * factor) / factor;
-    };
-
+    this.euros = 0.50;
     const registerElements = (elements, classN) => {
         if(elements && classN){
             var formClass = '.' + classN;
@@ -240,14 +214,42 @@
         },
     };
 
-    this.euros = 0.50;
+    reloadLoc(){
+        location.reload()
+    };
+
+    changeValue(e){
+        if(parseInt(e.currentTarget.value) && parseInt(e.currentTarget.value) > 0.50){
+            this.euros = parseInt(e.currentTarget.value);
+            this.update()
+        }else{
+            this.euros = 0.50   
+            this.update()
+        }
+    }.bind(this) 
+
+    plusClick(e){
+        this.euros += 0.10
+        this.update()
+    };
+
+    moinsClick(e){
+        if(this.euros > 0.50){
+            this.euros -= 0.10
+            this.update()
+        }
+    };
+
+    precisionRound(number, precision) {
+        var factor = Math.pow(10, precision);
+        return Math.round(number * factor) / factor;
+    };
 
     RiotControl.on('profil_loaded', function (data) {
         console.log("profil loaded", data)
         this.profil = data;
         this.update()
     }.bind(this)) 
-
 
     RiotControl.on('payment_good', function(credits){
         console.log("ON PAYEMENT GOOD")
@@ -337,9 +339,6 @@
 </script>
 <style>
 
-    .InputAddOn {
-    display: flex;
-    }
 
     .title-payement {
         color:rgb(33,151,242)
@@ -350,27 +349,9 @@
         font-size:0.6em
     }
     
-
-    .InputAddOn-field {
-    flex: 1;
-    /* field styles */
-    }
     .first-infos-payement-block {
         display: flex;
         flex-direction: column;
-    }
-    /* IMAGE AND ICONE CSS */
-
-    .icone-select-payement {
-        width: 1em;
-        margin-right: 1em;
-        margin-left: -2em;
-    }
-    .image-footer {
-        width: 20%;
-    }
-    .image-select-pricing {
-        width: 50%;
     }
     
     /* UTILS  */
@@ -403,40 +384,7 @@
         pointer-events: none;
         overflow: hidden;
     }
-    .vertical-line-payement {
-        opacity: 0.1;
-        border: solid 0.6px #203f6a;
-        flex: 0.8;
-    }
-    /* Globale page */
-    
-
     /*-------------- */
-    
-    /* Header global container */
-    
-    .header-container-payment {
-        flex: 0.3;
-        justify-content: center;
-        align-items: center;
-        display: flex;
-        background: white;
-    }
-    
-    /*-------------- */
-    
-    /* Main global container */
-    
-    .main-container-payment {
-        flex-direction: column;
-        flex: 0.65;
-        display: flex;
-        justify-content: center;
-        background: white;
-        flex-direction: row;
-        padding-left: 5em;
-        padding-right: 5em;
-    }
     
     /* row dashed */
     
@@ -444,171 +392,6 @@
         border: 0.7px solid #e8ebf0;
         border-style: dashed;
         flex:0.3;
-    }
-    
-    /* Right main container */
-    
-    /* text  */
-    
-    .p-payement-right {
-        font-family: "Gotham Rounded Medium";
-        color: #203f6a;
-        font-size: 1.3rem;
-        text-align: right;
-    }
-    .p-payement-left {
-        font-size: 1.2rem;
-        color: rgba(0, 0, 0, 0.5);
-        font-family: "Gotham Rounded Light";
-    }
-    .p-payement-final {
-        font-size: 1.8rem;
-        color: #2ad2b6;
-        font-family: "Gotham Rounded Medium";
-        margin-left: 1.6em;
-    }
-    
-    /* content */
-    
-    .right-container-payment {
-        display: flex;
-        background: white;
-        flex: 0.25;
-        justify-content: stretch;
-        align-items: center;
-        flex-direction: column;
-    }
-    .right-sub-container-payment {
-        display: flex;
-        background-color: #ffffff;
-        box-shadow: 0 23px 47px 0 rgba(0, 0, 0, 0.07);
-        flex: 0.8;
-        width: 80%;
-        justify-content: space-evenly;
-        flex-direction: column;
-        border-radius: 10px;
-    }
-    .header-right-payment {
-        display: flex;
-        flex-direction: column;
-        flex: 0.6;
-        justify-content: center;
-        align-items: center;
-    }
-    .right-container-payment-premium-pricing {
-        display: flex;
-        flex-direction: column;
-    }
-    .right-item-payment-premium-pricing {
-        display: flex;
-        align-items: center;
-        justify-content: space-around;
-        flex-direction: row;
-    }
-    .footer-right-payment {
-        display: flex;
-        flex-direction: row;
-        flex: 0.2;
-        justify-content: space-around;
-    }
-    
-    /* Left main container */
-    
-    .left-container-payment {
-        display: flex;
-        background: white;
-        flex: 0.25;
-        justify-content: stretch;
-        align-items: center;
-        flex-direction: column;
-        margin-top: -0.5em;
-    }
-    .left-sub-container-payment {
-        display: flex;
-        background-color: #ffffff;
-        width: 80%;
-        justify-content: flex-start;
-        flex-direction: column;
-        border-radius: 10px;
-    }
-    .left-container-payment-premium-fonc {
-        display: flex;
-        align-items: flex-start;
-        justify-content: center;
-        flex-direction: column;
-    }
-    .left-item-payment-premium-fonc {
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-direction: row;
-    }
-    
-    /* Middle main container */
-    
-    .middle-container-payment {
-        display: flex;
-        background: white;
-        flex: 0.4;
-        justify-content: stretch;
-        align-items: center;
-        flex-direction: column;
-    }
-    .sub-middle-container-payment {
-        display: flex;
-        background-color: #ffffff;
-        flex: 0.6;
-        width: 90%;
-        flex-direction: column;
-        border-radius: 10px;
-    }
-    .first-infos-payement {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-        align-items: center;
-    }
-    .second-infos-payement {
-        display: flex;
-        flex-direction: row;
-        justify-content: space-around;
-        align-items: center;
-    }
-    .select-payment-container {
-        flex: 0.33;
-        display: flex;
-        flex-direction: column;
-        background: white;
-    }
-    
-    /*-------------- */
-    
-    /* Footer global container */
-    
-    .footer-container-payment {
-        flex-direction: column;
-        flex: 0.2;
-        display: flex;
-        justify-content: flex-start;
-        align-items: center;
-        background: white;
-    }
-    .button-footer-payement {
-        height: 5vh;
-        font-family: "Gotham Rounded Medium";
-        width: 20vh;
-        background: #2ad2b6;
-        border-radius: 30px;
-        justify-content: center;
-        align-items: center;
-        display: flex;
-        box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.1), 0 12px 26px 0 rgba(0, 0, 0, 0.1);
-    }
-    .button-footer-payment-link {
-        align-items: center;
-        justify-content: space-around;
-        display: flex;
-        flex-direction: "row";
     }
     
     /*-------------- */
@@ -645,16 +428,11 @@
     }
     .stripeContainer .field {
         background-color: #f4f5f7;
-        border-radius: 0.3rem;
+        border-radius: 3rem;
         padding: 10px 20px 11px;
         border:1px solid white
     }
-    .stripeContainer .field.focus,
-    .stripeContainer .field:focus {
-        color: #424770;
-        background-color: #f6f9fc;
-        border: 1px solid #2ad2b6;
-    }
+
     .stripeContainer .field.StripeElement--invalid {
         background-color: #fa755a;
     }
@@ -667,9 +445,7 @@
     .stripeContainer .field.invalid.focus {
         background-color: #f6f9fc;
     }
-    .stripeContainer .field.focus {
-        border: 1px solid #2ad2b6;
-    }
+
     .stripeContainer input, .stripeContainer button {
         -webkit-appearance: none;
         -moz-appearance: none;
@@ -704,43 +480,6 @@
     }
     .stripeContainer .error .message {
         color: #203f6a;
-    }
-    
-    /*-------------- */
-    
-    /* Sucess css */
-    
-    .success .icon .border {
-        stroke: #fcd669;
-    }
-    .success .icon .checkmark {
-        stroke: #fff;
-    }
-    .success {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        background:#203f6a;
-        padding: 10px;
-        text-align: center;
-        flex: 1;
-        flex-direction: column;
-        height: 100vh;
-    }
-    .button-modal-payment {
-        height:5vh;
-        font-family: 'Gotham Rounded Medium';
-        width:20vh;
-        background:#2ad2b6;
-        border-radius: 30px;
-        justify-content:center;
-        align-items:center;
-        display:flex;
-        box-shadow: 0 10px 20px 0 rgba(0, 0, 0, 0.1), 0 12px 26px 0 rgba(0, 0, 0, 0.1);
-    }
-    .button-text-modal-payment {
-        color:white;
-        font-size:1.5rem;
     }
     
     /*-------------- */

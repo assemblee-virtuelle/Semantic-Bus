@@ -1,35 +1,37 @@
-<graph-of-use-workspace class="containerV">
- <div class="scrollable">
-    <div class="containerH">
-      <div class="card">
-        <h4>nombres de workspaces</h4>
-        <span class="second-title-card">{this.numberWorkspace}</span>
-      </div>
-      <div class="card">
-        <h4>Consomés sur 30 jours</h4>
-        <span class="second-title-card">{this.golbalConsumption} Mo</span>
+<graph-of-use-workspace class="scrollable">
+  <div class="containerH" style="margin-top:5em"> 
+    <div class="containerV" style="flex:0.7;;background:white;padding: 2em;">
+      <span style="margin-bottom:1em;text-align: center;font-size:1.3em;"> Vos données globales (30 jours) </span>
+      <div class="containerH" style="justify-content:space-between">
+        <div class="card" >
+          <span style="font-size:2em;color:rgb(14,33,89)">{this.numberWorkspace}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  Workspaces</span>
+        </div>
+        <div class="card" >
+          <span style="font-size:2em;color:rgb(14,33,89)">{this.golbalConsumption}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  Mo</span>
+        </div>
+        <div class="card">
+          <span style="font-size:2em;color:rgb(14,33,89)">{this.golbalConsumption}</span><span style="font-size:0.8em;color:rgb(141,141,141)"> Euros</span>
+        </div>
       </div>
     </div>
-    <div class="containerH" style="padding:5vh">
-      <div class="item-flex">
-        <svg viewBox="0 0 1000 600" id="stacked" style="background-color:rgb(250,250,250);"></svg>
-      </div>
+  </div>
+  <div class="containerH" style="padding:5vh">
+    <div class="item-flex">
+      <svg viewBox="0 0 1000 600" id="stacked" style="background-color:rgb(250,250,250);"></svg>
     </div>
   </div>
 </div>
 
 <style scoped>
-
   .card {
-    background: #fff;
+    background: rgba(0,0,0,0.03);
     border-radius: 5px;
     font-family: "adelle-sans", sans-serif;
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    padding: 10vh;
-    margin-left: 5vw;
+    padding: 8vh;
 
   }
 
@@ -116,6 +118,8 @@
     border: 0;
     border-radius: 8px;
     pointer-events: none;
+    background-color:rgb(41,177,238);
+    color:white;
   }
 
   .x.axis path {
@@ -131,6 +135,21 @@
     stroke: #000;
     shape-rendering: crispEdges;
   }
+  .line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 2px;
+}
+
+.grid line {
+  stroke: lightgrey;
+  stroke-opacity: 0.7;
+  shape-rendering: crispEdges;
+}
+
+.grid path {
+  stroke-width: 0;
+}
 
 </style>
 <script>
@@ -195,6 +214,7 @@
     colorStackChart.domain(d3.keys(data[0]).filter(function (key) {;
       return key !== "Day";
     }));
+
     data.forEach(function (d) {
       if (Object.keys(d).length > 1) {
         d.ages = []
@@ -225,13 +245,16 @@
     yStackChart.domain([
       0,
       d3.max(data, function (d) {
-        return d.total;
+        if(d.total){
+          return d.total;
+        }
+        return 100
       })
     ]);
 
     canvasStackChart.append("g").attr("class", "x axis").attr("transform", "translate(0," + heightStackChart + ")").call(xAxis);
 
-    canvasStackChart.append("text").attr("class", "x label").attr("text-anchor", "end").attr("x", widthStackChart + 5).attr("y", heightStackChart + 30).attr("font-size", "12px").text("jours");
+    canvasStackChart.append("text").attr("class", "x label").attr("text-anchor", "end").attr("x", widthStackChart + 40).attr("y", heightStackChart + 15).attr("font-size", "12px").text("Jours");
 
     canvasStackChart.append("g").attr("class", "y axis").call(d3.axisLeft(yStackChart)).append("text").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", ".71em").style("text-anchor", "end")
 
@@ -240,6 +263,38 @@
     var state = canvasStackChart.selectAll(".Day").data(data).enter().append("g").attr("class", "g").attr("transform", function (d) {
       return "translate(" + xStackChart(d.Day.split("-")[0] + "-" + d.Day.split("-")[1]) + ",0)";
     })
+
+
+    // gridlines in x axis function
+    function make_x_gridlines() {		
+        return d3.axisBottom(xStackChart)
+            .ticks(5)
+    }
+
+    // gridlines in y axis function
+    function make_y_gridlines() {		
+        return d3.axisLeft(yStackChart)
+            .ticks(5)
+    }
+
+    // add the X gridlines
+    //canvasStackChart.append("g")			
+    //  .attr("class", "grid")
+    //  .attr("transform", "translate(0," + heightStackChart + ")")
+    //  .call(make_x_gridlines()
+    //      .tickSize(-heightStackChart)
+    //      .tickFormat("")
+    //  )
+
+    // add the Y gridlines
+    canvasStackChart.append("g")			
+      .attr("class", "grid")
+      .call(make_y_gridlines()
+          .tickSize(-widthStackChart)
+        .tickFormat("")
+      )
+
+
 
     state.selectAll("rect").data(function (d) {
       return d.ages;
@@ -262,7 +317,6 @@
   };
 
   this.initgraph = function (data) {
-    console.log("DRAW STACK CHART", data)
     this.numberWorkspace = data.numberWorkspace
     this.golbalConsumption = data.global
     this.initD3js(data.data)
@@ -272,7 +326,6 @@
   RiotControl.on('load_user_workspace_graph_done', this.initgraph)
 
   this.on('mount', function () {
-    console.log("MOUNT DRAW STACK CHART")
     RiotControl.trigger('load_user_workspace_graph');
   }.bind(this))
 
