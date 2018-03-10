@@ -1,6 +1,6 @@
 <navigation>
 
-  <div id="containerSecureDiv" if={userAuthentified!=true} class="containerV" style="justify-content:center">
+  <div id="containerLoaderDiv" if={userAuthentified!=true} class="containerV" style="justify-content:center">
     <div id="row">
       <div id="loaderDiv"></div>
       <h1 id="loaderText" class="containerV">

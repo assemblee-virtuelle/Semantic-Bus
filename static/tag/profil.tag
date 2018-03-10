@@ -86,32 +86,22 @@
   </div>
 
   <div class="containerV" if={menu=='payement'} style="flex-grow: 1;background-color: rgb(238, 242, 249);">
-    <div class="containerV" style="flex-grow:1;justify-content:center">
-      <h3 style="color: rgb(120,120,120);" if={addCredit == false && consultTransactionBoolean == false}>
-        Vous disposez de {profil.credit} credits
-      </h3>
-      <div class="containerH" style="justify-content:center">
-        <a href="#profil//addcredit" class="credit-btn"> Recharger mes credits </a>
-        <a href="#profil//transaction" class="transac-btn"> Consulter mes transactions </a>
-      </div>
+    <div class="containerV" style="flex-grow: 1;background-color: rgb(238, 242, 249);">
+      <stripe2-tag></stripe2-tag>
+      <!--  <div class="containerV" style="flex-grow:1;justify-content:center;align-items:center">
+        <a href="#profil//payement" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px" style="padding: 20px;
+        border-radius: 10px;
+        background-color: rgb(9,245,185);
+        color: white;
+        font-size: 20px;
+        margin-top: 20px;
+        text-align: center;">Retour</a>
+      </div>  -->
     </div>
-  </div>
-  <div class="containerV" if={menu=='addcredit'} style="flex-grow: 1;background-color: rgb(238, 242, 249);">
-    <stripe-tag></stripe-tag>
-    <div class="containerV" style="flex-grow:1;justify-content:center;align-items:center">
-      <a href="#profil//payement" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px" style="padding: 20px;
-      border-radius: 10px;
-      background-color: rgb(9,245,185);
-      color: white;
-      font-size: 20px;
-      margin-top: 20px;
-      text-align: center;">Retour</a>
-    </div>
-  </div>
   <div if={menu=='transaction'} style="flex-grow: 1;background-color: rgb(238, 242, 249);">
     <transactions-list></transactions-list>
     <div class="containerV" style="flex-grow:1;justify-content:center;align-items:center">
-      <a href="#profil//payement" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px" style="padding: 20px;
+      <a href="#profil//addcredit" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px" style="padding: 20px;
       border-radius: 10px;
       background-color: rgb(9,245,185);
       color: white;

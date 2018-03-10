@@ -1,16 +1,15 @@
 <login style="flex-grow: 1;">
-  <div id="containerloaderDiv" show={isScrennToShow('loading')}>
+  <div id="containerLoaderDiv" show={isScrennToShow('loading')}>
       <div id="row">
         <div id="loaderDiv"></div>
         <h1 id="loaderText"> Connexion en cours </h1>
       </div>
     </div>
-  <div class="header" style="align-items: center;height: 15%;">
+  <div class="header" style="align-items: center">
   <h1> Bienvenue sur le bus Semantic</h1>
   </div>
 <div class="containerH" show={isScrennToShow('connexion')}>
   <div class="containerV" style="flex-direction: column;">
-  <h1 style="color:rgb(119,119,119)"></h1>
       <div class="box">
         <div class="google-block">
           <h2 style="color:rgb(117,117,117)">
@@ -518,7 +517,6 @@ border: 0.2px solid rgb(228,228,228);">
   .inscription-link{
     display: flex;
     justify-content: center;
-    padding: 10vh;
     color: rgb(161,161,161);
   }
   /*LANDING CSS */
@@ -607,8 +605,8 @@ border: 0.2px solid rgb(228,228,228);">
     margin: 0;
   }
 
-  #containerloaderDiv {
-    background-color:rgba(200,200,200,0.8);
+  #containerLoaderDiv {
+    background-color: rgba(200,200,200,0.6);
     width:100%;
     height:125vh;
     padding: 0;
