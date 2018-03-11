@@ -158,7 +158,6 @@ class Engine {
   }
 
   processNextBuildPath(traitement_id, component_workspaceId, owner, name) {
-    console.log("PROCESS NEXT BUILD PATH", name)
     if (owner.credit >= 0) {
       this.fackCounter++;
       if (this.config.quietLog != true) {
@@ -217,19 +216,20 @@ class Engine {
 
           if (module.getPriceState != undefined) {
             this.config_component.components_information.forEach(component => {
+              
               //GET CURRENT COMPONENT PRICE
               current_component = component[processingLink.destination.module];
-
+              console.log("PRICE 1", current_component,module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price))
               //UPDATE HISTORIQUE
               consumption_history_object.totalPrice =
-                module.getPriceState(vprocessingLink.destination.specificData,vcurrent_component.price,current_component.record_price).recordPrice * 0.001
-                  dataFlow[0].data.length + this.objectSizeOf(dataFlow) / 1000000 * current_component.price;
+                (module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice / 1000 ) 
+                * dataFlow[0].data.length +  ( this.objectSizeOf(dataFlow) / 1000000 * current_component.price );
               consumption_history_object.moCount =
                 this.objectSizeOf(dataFlow) / 1000000;
               consumption_history_object.recordCount = dataFlow[0].data.length;
-              consumption_history_object.recordPrice =
-                current_component.record_price;
-
+              consumption_history_object.recordPrice = current_component.record_price;
+              consumption_history_object.componentPrice = current_component.price
+              
               //UPDATE USER CREDIT
               owner.credit -=
                 module.getPriceState(
@@ -255,19 +255,18 @@ class Engine {
           } 
           else {
             this.config_component.components_information.forEach(component => {
-              //UPDATE HISTORIQUE
+              //GET CURRENT COMPONENT PRICE
               current_component = component[processingLink.destination.module];
-              consumption_history_object.totalPrice = this.objectSizeOf(dataFlow) / 1000000 * current_component.price;
+              console.log("PRICE 2", current_component)
+              //UPDATE HISTORIQUE
+              consumption_history_object.totalPrice = this.objectSizeOf(dataFlow) / 1000000 * current_component.price / 1000;
               consumption_history_object.moCount = this.objectSizeOf(dataFlow) / 1000000;
               consumption_history_object.recordCount = dataFlow[0].data.length;
               consumption_history_object.recordPrice = 0;
-
+              consumption_history_object.componentPrice = current_component.price
+              
               //UPDATE USER CREDIT
-              current_cost =
-                this.objectSizeOf(dataFlow) / 1000000 * current_component.price;
-
-              console.log(owner.credit);
-
+              current_cost = this.objectSizeOf(dataFlow) / 1000000 * current_component.price;
               owner.credit =
                 owner.credit -
                 this.objectSizeOf(dataFlow) / 1000000 * current_component.price;
@@ -285,7 +284,8 @@ class Engine {
             roundDate.setMilliseconds(0);
             roundDate.setHours(0);
             
-
+          consumption_history_object.componentModule = processingLink.destination.module
+          consumption_history_object.componentName = processingLink.destination.name
           consumption_history_object.roundDate = roundDate.getTime();
           consumption_history_object.workspaceName = name
           consumption_history_object.workspaceId = component_workspaceId;

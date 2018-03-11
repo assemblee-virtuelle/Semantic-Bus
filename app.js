@@ -24,10 +24,10 @@ var unSafeRouteur = express.Router();
 
 var bodyParser = require("body-parser");
 app.use(bodyParser.json({
-  limit: '5mb'
+  limit: '10mb'
 }));
 app.use(bodyParser.urlencoded({
-  limit: '5mb',
+  limit: '10mb',
   extended: true
 }));
 safe.use(bodyParser.json()); // used to parse JSON object given in the request body

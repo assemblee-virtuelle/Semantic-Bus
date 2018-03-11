@@ -108,3 +108,109 @@ exports.userGraph = function(userId) {
     );
   });
 };
+
+
+
+// 59ebe7fc538e7c0a1515ee59
+// :
+// datasize
+// :
+// 1.174374
+// fullDate
+// :
+// "2018-02-09T23:12:00.228Z"
+// id
+// :
+// "59ebe7fc538e7c0a1515ee59"
+// label
+// :
+// "filter"
+// name
+// :
+// "no name"
+// price
+// :
+// 4.697496
+// pricing
+
+workspaceGraph = function(userId) {
+  return new Promise((resolve, reject) => {
+    historiqueModel.aggregate(
+      [
+        {
+          $group: {
+            _id: {
+              workspaceId: "$workspaceId",
+              userId: userId,
+              workflowComponentId : "$workflowComponentId",
+              roundDate: "$roundDate"
+            },
+            totalPrice: { $sum: "$totalPrice" },
+            totalMo: { $sum: "$moCount" },
+            workspaces: { $push: "$$ROOT" }
+          }
+        }
+      ],
+      function(err, result) {
+        if (err) {
+          console.log(err);
+        } else {
+          console.log(result)
+          graphTraitement.formatDataUserGraph().then(graphData => {
+            let final_graph = [];
+            let globalPrice = 0;
+            let tableId = []
+            let componentNumber = 0;
+            let globalMo = 0;
+            let c = {};
+            for (var month in graphData) {
+              for (var day in graphData[month]) {
+                let y0 = 0;
+                let final_data_object = {};
+                final_data_object.Day = day;
+                final_data_object.total = 0;
+                final_data_object.ages = [];
+                let i = 0;
+                result.forEach(res => {
+                let key;
+                  if (
+                    new Date(parseInt(res._id.roundDate)).getUTCMonth() + 1 ==
+                      month &&
+                    new Date(parseInt(res._id.roundDate)).getUTCDate() ==
+                      day.split("-")[1]
+                  ) {
+                      tableId.push(res.workspaces[0].workflowComponentId)
+                      final_data_object.ages.push({
+                        name: res.workspaces[0].componentName,
+                        ID: res.workspaces[0].workflowComponentId,
+                        module: res.workspaces[0].componentModule,
+                        componentPrice: res.workspaces[0].componentPrice,
+                        price: decimalAdjust("round", res.totalPrice, -4),
+                        flow: decimalAdjust("round", res.totalMo, -4),
+                        y0: +y0,
+                        y1: (y0 += res.totalPrice)
+                      });
+                      final_data_object.total += res.totalPrice;
+                      componentNumber += 1;
+                      globalPrice += res.totalPrice;
+                      globalMo += res.totalMo;
+                    }
+                })
+                final_graph.push(final_data_object);
+              }
+            }
+            console.log(tableId, globalPrice, globalMo, componentNumber)
+            resolve({
+              tableId: tableId,
+              globalPrice: globalPrice,
+              data: final_graph,
+              globalMo: globalMo,
+              componentNumber: componentNumber
+            });  
+          })
+        }
+      })
+    })
+  }
+
+// workspaceGraph('5944649a1041c10021f97722')

@@ -2,18 +2,18 @@
 
   <div class="commandBar containerH" style="flex-grow:1">
     <div></div>
-    <div class="containerV">
+    <div class="containerV" style="justify-content:space-evenly">
       <div class="containerH">
         <div class="main-title">
           mes WorkFlow
         </div>
       </div>
       <div class="containerH">
-        <div><input class="champ" type="text" name="inputSearch" ref="inputSearch" placeholder="Search" onkeyup={filterCards}/></div>
+        <div><input class="champ" type="text" name="inputSearch" ref="inputSearch" placeholder="Rechercher" onkeyup={filterCards}/></div>
       </div>
     </div>
 
-    <div style="flex-basis:100px;flex-grow:0;flex-shrink:0">
+    <div style="flex-basis:140px;flex-grow:0;flex-shrink:0">
       <div onclick={addWorkflowClick} class="commandButtonImage containerV">
         <img src="./image/ajout_composant.svg" style="" height="40px" width="40px">
         <div>créer un workflow</div>

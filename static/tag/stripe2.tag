@@ -1,7 +1,7 @@
 <stripe2-tag style="flex-grow: 1;display: flex;">
     <div class="containerV" style="flex-grow: 1;">
-        <div class="containerH" style="flex-grow: 1;flex: 1; justify-content:space-around;background:white"  if={(payment_error == false) && (payment_done == false)} >
-            <div class="containerV" style="justify-content:center;align-items:center;background:white;flex: 0.35;">
+        <div class="containerH" style="flex-grow: 1;flex: 1; justify-content:space-around;background:rgb(238, 242, 249)"  if={(payment_error == false) && (payment_done == false)} >
+            <div class="containerV" style="justify-content:center;align-items:center;background:rgb(238, 242, 249);flex: 0.35;">
                 <span class="title-payement"> Vous disposez de : </span> 
                 <span if={profil != null} style="font-size:3em;color:rgb(14,33,89)"> {this.precisionRound((profil.credit),1)} crédits</span> 
                 <span if={profil != null} style="font-size:2em;color:rgb(141,141,141)">  {this.precisionRound((profil.credit/1000),1)} Euros </span> 
@@ -17,9 +17,9 @@
             <div class="containerV" style="flex: 0.003;justify-content:center;align-items:center">
                 <div class="row-vertical"></div>
             </div>
-            <div class="containerV" style="flex: 0.55;justify-content:center">
+            <div class="containerV" style="flex: 0.45;justify-content:center">
                 <div class="stripeContainer">
-                    <div class="stripeSubContainer" style="flex-grow: 1;">
+                    <div class="stripeSubContainer" style="flex-grow: 1;padding: 2em;">
                         <h3 class="title-payement" style="text-align: left;font-family: 'Open Sans', sans-serif;">Recharger vos crédits </h3>
                         
                         <div class="containerH" style="justify-content:flex-start;"> 
@@ -53,7 +53,7 @@
                                 <form>
                                     <div class="fieldset">
                                         <div class="first-infos-payement-block"
-                                                style="width:70%">
+                                                style="width:87%">
                                             <span class="sub-title-payement">Nom du proprietaire</span>
                                             <input 
                                                     id="card-proprietaire"
@@ -64,14 +64,14 @@
                                     </div>
                                         <div class="fieldset">
                                             <div class="first-infos-payement-block"
-                                                style="width:70%;">
+                                                style="width:87%;">
                                             <span class="sub-title-payement">Numéro de carte</span>
                                             <div id="stripeContainer-card-number"
                                                 class="field empty first-width">
                                             </div>
                                         </div>
                                     </div>
-                                    <div class="fieldset">
+                                    <div class="fieldset" style="justify-content:baseline">
                                         <div class="first-infos-payement-block"
                                                 style="width:25%">
                                             <span class="sub-title-payement"> Expiration </span>
@@ -80,7 +80,7 @@
                                             </div>
                                         </div>
                                         <div class="first-infos-payement-block"
-                                                style="width:25%">
+                                                style="width:25%;margin-left:36%">
                                             <span class="sub-title-payement"> CVC </span>
                                             <div id="stripeContainer-card-cvc" class="field empty second-width">
                                             </div>

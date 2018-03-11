@@ -23,15 +23,35 @@
 </div>
 
 <style scoped>
-  .card {
-    background: rgba(0,0,0,0.03);
-    border-radius: 5px;
-    font-family: "adelle-sans", sans-serif;
-    display: flex;
-    flex-direction: column;
-    justify-content: center;
-    align-items: center;
-    padding: 8vh;
+  @media screen and (max-width: 1200px) {
+      .card {
+      background: rgba(0,0,0,0.03);
+      border-radius: 5px;
+      font-family: "adelle-sans", sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1em;
+    }
+  }
+   @media screen and (min-width: 1200px) {
+      .card {
+      background: rgba(0,0,0,0.03);
+      border-radius: 5px;
+      font-family: "adelle-sans", sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 8vh;
+    }
+  }
+
+  @media screen and (max-width: 1200px) {
+      .item-flex {
+        overflow-x:scroll
+    }
   }
 
   .title-number {
@@ -138,17 +158,17 @@
   fill: none;
   stroke: steelblue;
   stroke-width: 2px;
-}
+  }
 
-.grid line {
-  stroke: lightgrey;
-  stroke-opacity: 0.7;
-  shape-rendering: crispEdges;
-}
+  .grid line {
+    stroke: lightgrey;
+    stroke-opacity: 0.7;
+    shape-rendering: crispEdges;
+  }
 
-.grid path {
-  stroke-width: 0;
-}
+  .grid path {
+    stroke-width: 0;
+  }
 
 </style>
 <script>
@@ -183,7 +203,6 @@
       ? (+ value[1] + exp)
       : exp));
   }.bind(this)
-
 
   /// D3 JS INITIALIZE
 
@@ -227,10 +246,8 @@
     yStackChart.domain([
       0,
       d3.max(data, function (d) {
-        if(d.total){
+        console.log(d.total)
           return d.total;
-        }
-        return 100
       })
     ]);
 

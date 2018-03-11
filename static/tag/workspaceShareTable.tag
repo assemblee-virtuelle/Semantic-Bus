@@ -10,11 +10,11 @@
       <div style="width:70%">{description}</div>
     </yield>
   </zenTable>
-  <div if={isEmpty} class="containerH" style="flex-grow:1;justify-content:center;">
+  <div if={isEmpty} class="containerH" style="flex-grow:1;justify-content:center;background:rgb(238,242,249)">
     <div class="containerV" style="flex-basis:1;justify-content:center;margin:50px">
 
       <h1 style="text-align: center;color: rgb(119,119,119);">
-        Vous n'avez pas encore de workspaces partagés, ils apparaitront si d'autres utilisateurs decident de vous partager leurs workspaces
+        Vous n'avez pas encore de workflows partagés, ils apparaitront si d'autres utilisateurs decident de vous partager leurs workspaces
       </h1>
     </div>
   </div>
