@@ -7,10 +7,10 @@
           <span style="font-size:2em;color:rgb(14,33,89)">{this.numberWorkspace}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  Workspaces</span>
         </div>
         <div class="card" >
-          <span style="font-size:2em;color:rgb(14,33,89)">{this.golbalConsumption}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  Mo</span>
+          <span style="font-size:2em;color:rgb(14,33,89)">{decimalAdjust('round', this.globalMo, -2)}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  Mo</span>
         </div>
         <div class="card">
-          <span style="font-size:2em;color:rgb(14,33,89)">{this.golbalConsumption}</span><span style="font-size:0.8em;color:rgb(141,141,141)"> Euros</span>
+          <span style="font-size:2em;color:rgb(14,33,89)">{decimalAdjust('round', this.globalPrice, -2)}</span><span style="font-size:0.8em;color:rgb(141,141,141)"> Euros</span>
         </div>
       </div>
     </div>
@@ -32,7 +32,6 @@
     justify-content: center;
     align-items: center;
     padding: 8vh;
-
   }
 
   .title-number {
@@ -157,7 +156,7 @@
   this.result = true;
   this.numberWorkspace = ""
 
-  let decimalAdjust = function (type, value, exp) {
+  decimalAdjust(type, value, exp) {
     // Si la valeur de exp n'est pas définie ou vaut zéro...
     if (typeof exp === 'undefined' || + exp === 0) {
       return Math[type](value);
@@ -172,6 +171,7 @@
     if (value < 0) {
       return this.decimalAdjust(type, -value, exp);
     }
+
     // Décalage
     value = value.toString().split('e');
     value = Math[type](+ (value[0] + 'e' + (value[1]
@@ -187,7 +187,8 @@
 
   /// D3 JS INITIALIZE
 
-  this.initD3js = function (data) {
+  this.initD3js = function (data, tableId) {
+    
     var marginStackChart = {
         top: 20,
         right: 200,
@@ -196,7 +197,7 @@
       },
       widthStackChart = 1000,
       heightStackChart = 600 - marginStackChart.top - marginStackChart.bottom;
-
+  
     var xStackChart = d3.scaleBand().range([0, widthStackChart]).padding(.4);
 
     var yStackChart = d3.scaleLinear().range([heightStackChart, 0]);
@@ -205,43 +206,24 @@
 
     var parser = d3.timeFormat("%d-%b-%y").parse;
 
-    var colorStackChart = d3.scaleOrdinal(d3.schemeCategory20c);
+    var colorStackChart = d3.scaleOrdinal(d3.schemeSet3);
 
-    var canvasStackChart = d3.select("#stacked").attr("width", widthStackChart + marginStackChart.left + marginStackChart.right).attr("height", heightStackChart + marginStackChart.top + marginStackChart.bottom).append("g").attr("transform", "translate(" + marginStackChart.left + "," + marginStackChart.top + ")");
+    var canvasStackChart = 
+      d3.select("#stacked")
+        .attr("width", widthStackChart + marginStackChart.left + marginStackChart.right)
+        .attr("height", heightStackChart + marginStackChart.top + marginStackChart.bottom)
+        .append("g").attr("transform", "translate(" + marginStackChart.left + "," + marginStackChart.top + ")");
 
     var div = d3.select(".item-flex").append("div").attr("class", "tooltip").style("opacity", 0);
 
-    colorStackChart.domain(d3.keys(data[0]).filter(function (key) {;
-      return key !== "Day";
-    }));
+    colorStackChart.domain(tableId)
+	  
 
-    data.forEach(function (d) {
-      if (Object.keys(d).length > 1) {
-        d.ages = []
-        var y0 = 0;
-        for (var prop in d) {
-          if (prop != "Day" && prop != "ages") {
-            d.ages.push({
-              pricing: d[prop].price,
-              name: d[prop].name,
-              datasize: d[prop].flow,
-              y0: + y0,
-              y1: y0 += d[prop].price
-            });
-          }
-        }
-        d.total = d.ages[d.ages.length - 1].y1;
-      } else {
-        d.ages = []
-        var y0 = 0;
-        d.ages.push({name: "name", y0: y0, y1: y0});
-        d.total = 0;
-      }
-    });
 
-    xStackChart.domain(data.map(function (d) {;
+    xStackChart.domain(data.map(function (d) {
       return d.Day.split("-")[0] + "-" + d.Day.split("-")[1];
     }));
+
     yStackChart.domain([
       0,
       d3.max(data, function (d) {
@@ -251,19 +233,6 @@
         return 100
       })
     ]);
-
-    canvasStackChart.append("g").attr("class", "x axis").attr("transform", "translate(0," + heightStackChart + ")").call(xAxis);
-
-    canvasStackChart.append("text").attr("class", "x label").attr("text-anchor", "end").attr("x", widthStackChart + 40).attr("y", heightStackChart + 15).attr("font-size", "12px").text("Jours");
-
-    canvasStackChart.append("g").attr("class", "y axis").call(d3.axisLeft(yStackChart)).append("text").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", ".71em").style("text-anchor", "end")
-
-    canvasStackChart.append("text").attr("class", "y label").attr("text-anchor", "end").attr("y", 6).attr("dy", ".75em").attr("transform", "rotate(-90)").attr("font-size", "12px").text("Consomation( € )");
-
-    var state = canvasStackChart.selectAll(".Day").data(data).enter().append("g").attr("class", "g").attr("transform", function (d) {
-      return "translate(" + xStackChart(d.Day.split("-")[0] + "-" + d.Day.split("-")[1]) + ",0)";
-    })
-
 
     // gridlines in x axis function
     function make_x_gridlines() {		
@@ -277,14 +246,18 @@
             .ticks(5)
     }
 
-    // add the X gridlines
-    //canvasStackChart.append("g")			
-    //  .attr("class", "grid")
-    //  .attr("transform", "translate(0," + heightStackChart + ")")
-    //  .call(make_x_gridlines()
-    //      .tickSize(-heightStackChart)
-    //      .tickFormat("")
-    //  )
+
+    canvasStackChart.append("g").attr("class", "x axis").attr("transform", "translate(0," + heightStackChart + ")").call(xAxis);
+
+    canvasStackChart.append("text").attr("class", "x label").attr("text-anchor", "end").attr("x", widthStackChart + 40).attr("y", heightStackChart + 15).attr("font-size", "12px").text("Jours");
+
+    canvasStackChart.append("g").attr("class", "y axis").call(d3.axisLeft(yStackChart)).append("text").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", ".71em").style("text-anchor", "end")
+
+    canvasStackChart.append("text").attr("class", "y label").attr("text-anchor", "end").attr("y", 6).attr("dy", ".75em").attr("transform", "rotate(-90)").attr("font-size", "12px").text("Consomation( € )");
+
+    var state = canvasStackChart.selectAll(".Day").data(data).enter().append("g").attr("class", "g").attr("transform", function (d) {
+      return "translate(" + xStackChart(d.Day.split("-")[0] + "-" + d.Day.split("-")[1]) + ",0)";
+    })
 
     // add the Y gridlines
     canvasStackChart.append("g")			
@@ -294,8 +267,6 @@
         .tickFormat("")
       )
 
-
-
     state.selectAll("rect").data(function (d) {
       return d.ages;
     }).enter().append("rect").attr("width", xStackChart.bandwidth()).attr("y", function (d) {
@@ -303,13 +274,12 @@
     }).attr("height", function (d) {
       return yStackChart(d.y0) - yStackChart(d.y1);
     }).style("fill", function (d) {
-      return colorStackChart(d.name);
+      return colorStackChart(d.ID);
     }).on("mouseover", function (d) {
-      var conso = decimalAdjust('round', (d.datasize), -4);
-      var price = decimalAdjust('round', d.y1 - d.y0, -4);
       d3.select(this).style("opacity", .6)
       div.transition().duration(200).style("opacity", .9);
-      div.html("name:" + d.name + "<br/>conso : " + decimalAdjust('round', (d.datasize), -4) + "Mo<br/>price : " + decimalAdjust('round', d.pricing, -4) + "€<br/>").style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 28 + "px");
+      let name = d.name ? "Nom:" + d.name : ''
+      div.html( name + "<br/>ID : " + d.ID + "<br/>Conso : " + d.flow + "Mo<br/>Prix : " + d.price + "€<br/>").style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 28 + "px");
     }).on("mouseout", function (d) {
       d3.select(this).style("opacity", .9)
       div.transition().duration(500).style("opacity", 0);
@@ -317,9 +287,12 @@
   };
 
   this.initgraph = function (data) {
+    this.tableId = data.tableId
     this.numberWorkspace = data.numberWorkspace
-    this.golbalConsumption = data.global
-    this.initD3js(data.data)
+    this.numberWorkspace = data.numberWorkspace
+    this.globalMo = data.globalMo
+    this.globalPrice = data.globalPrice
+    this.initD3js(data.data, this.tableId)
     this.update()
   }.bind(this)
 
@@ -334,38 +307,3 @@
   })
 </script>
 </graph-of-use-workspace>
-<!--  
-
- this.formatData(data).then(function (res) {
-      this.numberWorkspace = data.workspaces.length
-      this.golbalConsumption = res.global
-      this.initD3js(res.data)
-      this.update()
-    }.bind(this))  -->
-
-<!--  var legend = canvasStackChart.selectAll(".legend")
-            .data(colorStackChart.domain().slice().reverse())
-            .enter().append("g")
-            .attr("class", "legend")
-            .attr("transform", function (d, i) {
-                return "translate(0," + i * 20 + ")";
-            });
-
-            legend.append("rect")
-            .attr("x", widthStackChart + 170)
-            .attr("width", 16)
-            .attr("height", 16)
-            .style("fill",colorStackChart)
-
-            legend.append("text")
-            .attr("x", widthStackChart + 160)
-            .attr("y", 9)
-            .attr("font-size", "12px")
-            .attr("dy", ".35em")
-            .style("text-anchor", "end")
-            .text(function (d) {
-              console.log("legend", d)
-                if(d != "name"){
-                    return d;
-                }
-            });  -->

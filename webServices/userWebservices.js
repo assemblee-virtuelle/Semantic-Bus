@@ -2,7 +2,7 @@
 
 var user_lib = require('../lib/core/lib/user_lib');
 var payment_lib = require('../lib/core/lib/payment_lib');
-
+var test = require('../scripts/requestTest')
 
 
 // --------------------------------------------------------------------------------
@@ -99,14 +99,12 @@ module.exports = function (router,stompClient) {
 
   router.get('/users/:id/workspaces', function (req, res,next) {
      console.log("LOADING USER",req.params.id)
-      user_lib.getUserWorkspaceGraphData(
-            req.params.id, "owner"
-      ).then(function (result) {
-        res.send(result)
-      }).catch(e => {
-        next(e);
-      });
+     user_lib.userGraph(req.params.id).then((result)=>{
+      res.send(result)
+     }).catch(e => {
+      next(e);
     });
+  });
 
 
 // --------------------------------------------------------------------------------

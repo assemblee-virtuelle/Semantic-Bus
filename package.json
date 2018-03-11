@@ -16,7 +16,9 @@
     "test_int_auth_lib": "node_modules/mocha/bin/mocha test/test_integrations/auth/auth_int.js",
     "test_int_workspace_lib": "node_modules/mocha/bin/mocha test/test_integrations/workspaces/workspace_int.js",
     "test_int_inscription_lib": "node_modules/mocha/bin/mocha test/test_integrations/inscription/inscription_int.js",
-    "migrationV1": "node migration_database/V1_V2.js"
+    "migrationV1": "node scripts/V1_V2.js",
+    "migrationHistorique": "node scripts/migrationHistorique.js",
+    "request": "node scripts/requestTest.js"
   },
   "author": "Simon Louvet <simon.louvet.zen@gmail.com> && Boceno Alexandre <bocenoalex@gmail.com>",
   "license": "GNUV3",

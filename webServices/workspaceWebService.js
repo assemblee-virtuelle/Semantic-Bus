@@ -47,6 +47,13 @@ module.exports = function(router,stompClient) {
     });
   }); //<= graph workspace
 
+
+  router.post('/workspace/:id/addHistorique', function(req, res, next) {
+    if (req.body != null) {
+      console.log(req.params.id)
+      console.log(req.body)
+    }
+  })
   // --------------------------------------------------------------------------------
 
   router.get('/workspace/:id', function(req, res, next) {
@@ -205,7 +212,6 @@ module.exports = function(router,stompClient) {
       next(e);
     });
   }) //<= delete workspace
-
 
 
   router.get('/workspaceComponent/load_all_component/:id', function(req, res, next) {

@@ -39,8 +39,8 @@
                                 <input readonly="readonly"  value={this.precisionRound((euros*1000),1)} class="field"/>
                             </div>
                             <div class="first-infos-payement-block" style="width: 20%">
-                                <span class="sub-title-payement">Réduction Beta </span>
-                                <input readonly="readonly"  value="- 20%" class="field"/>
+                                <span class="sub-title-payement">Offre Beta </span>
+                                <input readonly="readonly"  value="+ 20%" class="field"/>
                             </div>
                             <div class="first-infos-payement-block" style="width: 20%">
                                 <span class="sub-title-payement">Crédit Offert</span>
