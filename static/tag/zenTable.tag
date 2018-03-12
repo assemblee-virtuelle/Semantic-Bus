@@ -166,8 +166,13 @@
     }
 
     delRowClick(e) {
+        if (confirm("Êtes vous sur de vouloir supprimer l'élément ?")) {
+            this.trigger('delRow', e.item)
+        } else {
+            return
+        }
       //let dataWithrowId = e.item;
-      this.trigger('delRow', e.item)
+      
       //dataWithrowId.rowId = i;
       //this.trigger('delRow', e.item)
       // console.log('ALLO');

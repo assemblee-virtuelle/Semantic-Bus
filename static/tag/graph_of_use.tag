@@ -1,106 +1,203 @@
-<graph-of-use class="containerV">
-  <div class="containerH">
-    <div class="card">
-      <h4>Credits consumed yesterday</h4>
-      <span class="second-title-card">{yesterdayCredit} €</span>
-    </div>
-    <div class="card">
-      <h4>Credits consumed last 30 days</h4>
-      <span class="second-title-card">{totalConsume} €</span>
-    </div>
-    <div class="card">
-      <h4>Running Components </h4>
-      <span class="second-title-card">{runningComponent}</span>
+<graph-of-use  class="scrollable" style="flex-grow:1">
+    <div class="containerH" style="margin-top:5em"> 
+    <div class="containerV" style="flex:0.7;;background:white;padding: 2em;">
+      <span style="margin-bottom:1em;text-align: center;font-size:1.3em;">  Consomation (30 jours) </span>
+      <div class="containerH" style="justify-content:space-between">
+        <div class="card" >
+          <span style="font-size:2em;color:rgb(14,33,89)">{componentNumber}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  Composants</span>
+        </div>
+        <div class="card" >
+          <span style="font-size:2em;color:rgb(14,33,89)">{decimalAdjust('round', globalMo, -2)}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  Mo </span>
+        </div>
+        <div class="card">
+          <span style="font-size:2em;color:rgb(14,33,89)">{decimalAdjust('round', globalPrice, -2)}</span><span style="font-size:0.8em;color:rgb(141,141,141)"> Euros </span>
+        </div>
+      </div>
     </div>
   </div>
-</div>
-<div style="text-align: center; padding: 5%;">
-  <div>
-    Consomation sur vos 30 jours
-  </div>
-</div>
-<div class="containerH scrollable">
+  <div class="containerH" style="padding:5vh">
     <div class="item-flex">
-      <svg id="stacked"></svg>
+      <svg viewBox="0 0 1000 600" id="stacked" style="background-color:rgb(250,250,250);"></svg>
     </div>
+  </div>
 </div>
-</div>
-</div>
-<style>
+<style scoped>
 
-.card {
-background: #fff;
-border-radius: 5px;
-font-family: "adelle-sans", sans-serif;
-font-weight: 100;
-margin: 48px auto;
-width: 20rem;
-padding: 20px;
-text-align: center;
-}
 
-.second-title-card {}
+  @media screen and (max-width: 1200px) {
+      .card {
+      background: rgba(0,0,0,0.03);
+      border-radius: 5px;
+      font-family: "adelle-sans", sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 1em;
+    }
+  }
+   @media screen and (min-width: 1200px) {
+      .card {
+      background: rgba(0,0,0,0.03);
+      border-radius: 5px;
+      font-family: "adelle-sans", sans-serif;
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      padding: 8vh;
+    }
+  }
 
-form {
-font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-position: absolute;
-left: 10px;
-top: 10px;
-}
+  @media screen and (max-width: 1200px) {
+      .item-flex {
+        overflow-x:scroll
+    }
+  }
 
-label {
-display: block;
-}
+  
 
-.text {
-font-size: 10px;
-fill: white;
-font-family: sans-serif;
-}
+  .title-number {
+    font-size: 30px;
+    text-align: center;
+  }
 
-div.tooltip {
-position: absolute;
-text-align: left;
-width: 200px;
-height: 70px;
-padding: 10px;
-font: 12px sans-serif;
-background: lightsteelblue;
-border: 0;
-border-radius: 8px;
-pointer-events: none;
-}
+  .container-top {
+    display: flex;
+    background-color: rgb(33,150,243);
+    color: white;
+    padding: 15pt;
+  }
+  #bad-result {
+    color: red;
+    font-size: 18px;
+    font-family: 'Raleway', sans-serif;
+    padding-top: 4%;
+  }
+
+  .center-left-top {
+    text-align: left;
+    width: 30%;
+  }
+  .center-right-top {
+    display: flex;
+    justify-content: space-around;
+    width: 60%;
+  }
+  #good-result {
+    color: green;
+    font-size: 18px;
+    font-family: 'Raleway', sans-serif;
+    padding-top: 4%;
+  }
+
+  .sub-title {
+    text-align: center;
+    margin-top: 30%;
+  }
+  .change-mail {
+    background-color: inherit !important;
+    border-bottom: 1px solid #3498db !important;
+    border: none;
+    color: #3498db;
+    text-align: center;
+    min-width: 40%;
+  }
+  .mail-btn {
+    color: #ffffff;
+    background-color: green;
+    border: none;
+    padding: 10px;
+    border-radius: 5px 5px 5px 5px;
+    text-align: center;
+    max-width: 25%;
+    margin-top: 10%;
+  }
+  .dec-btn {
+    color: #ffffff;
+    background-color: red;
+    border: none;
+    padding: 10px;
+    border-radius: 5px 5px 5px 5px;
+    text-align: center;
+    max-width: 25%;
+    margin-top: 10%;
+  }
+
+  h3 {
+    text-align: center;
+    font-family: 'Raleway', sans-serif;
+  }
+
+  div.tooltip {
+    position: absolute;
+    text-align: left;
+    width: 200px;
+    height: 70px;
+    padding: 10px;
+    font: 12px sans-serif;
+    background: lightsteelblue;
+    border: 0;
+    border-radius: 8px;
+    pointer-events: none;
+    background-color:rgb(41,177,238);
+    color:white;
+  }
+
+  .x.axis path {
+    display: none;
+  }
+  .axis {
+    font: 10px sans-serif;
+  }
+
+  .axis line,
+  .axis path {
+    fill: none;
+    stroke: #000;
+    shape-rendering: crispEdges;
+  }
+  .line {
+  fill: none;
+  stroke: steelblue;
+  stroke-width: 2px;
+  }
+
+  .grid line {
+    stroke: lightgrey;
+    stroke-opacity: 0.7;
+    shape-rendering: crispEdges;
+  }
+
+  .grid path {
+    stroke-width: 0;
+  }
 
 </style>
 <script>
-this.yesterdayCredit = 0
-this.totalConsume = 0
-this.runningComponent = 0
-Object.defineProperty(this, 'data', {
-  set: function (data) {
 
-    //this.innerData=new Proxy(data, arrayChangeHandler);
-    this.innerData = data;
-    this.update();
+  Object.defineProperty(this, 'data', {
+    set: function (data) {
 
-    //this.reportCss(); this.reportFlex(); console.log(this.items,data);
-  }.bind(this),
-  get: function () {
-    return this.innerData;
-  },
-  configurable: true
-});
+      //this.innerData=new Proxy(data, arrayChangeHandler);
+      this.innerData = data;
+      this.update();
 
-var barChartData = {}
-barChartData.datasets = [];
-barChartData.labels = [];
-var c = {}
-var r = 10
-var g = 10
-var b = 50
+      //this.reportCss(); this.reportFlex(); console.log(this.items,data);
+    }.bind(this),
+    get: function () {
+      return this.innerData;
+    },
+    configurable: true
+  });
+
+  this.componentNumber = 0
+  this.globalPrice = 0
+  this.globalMo = 0
 
 
-  function decimalAdjust(type, value, exp) {
+  decimalAdjust(type, value, exp) {
+    console.log("DECIMAL ADJUSTE", value)
     // Si la valeur de exp n'est pas définie ou vaut zéro...
     if (typeof exp === 'undefined' || + exp === 0) {
       return Math[type](value);
@@ -113,8 +210,9 @@ var b = 50
     }
     // Si la valeur est négative
     if (value < 0) {
-      return decimalAdjust(type, -value, exp);
+      return this.decimalAdjust(type, -value, exp);
     }
+
     // Décalage
     value = value.toString().split('e');
     value = Math[type](+ (value[0] + 'e' + (value[1]
@@ -125,91 +223,33 @@ var b = 50
     return + (value[0] + 'e' + (value[1]
       ? (+ value[1] + exp)
       : exp));
-  }
-
+  }.bind(this)
 
   /// D3 JS INITIALIZE
 
-  this.initD3js = function (data) {
+  this.initD3js = function (data, tableID) {
 
     var marginStackChart = {
-        top: 20,
-        right: 200,
-        bottom: 30,
-        left: 30
-      },
-      widthStackChart = 1000 - marginStackChart.left - marginStackChart.right,
-      heightStackChart = 500 - marginStackChart.top - marginStackChart.bottom;
+      top: 20,
+      right: 200,
+      bottom: 30,
+      left: 30
+    },
+    widthStackChart = 1000,
+    heightStackChart = 600 - marginStackChart.top - marginStackChart.bottom;
+  
+    var xStackChart = d3.scaleBand().range([0, widthStackChart]).padding(.4);
 
-    var xStackChart = d3.scaleBand().range([0, widthStackChart]).padding(0.1);
     var yStackChart = d3.scaleLinear().range([heightStackChart, 0]);
 
-    var colorStackChart = d3.scaleOrdinal(d3.schemeCategory20);
+    var xAxis = d3.axisBottom().scale(xStackChart)
+
+    var parser = d3.timeFormat("%d-%b-%y").parse;
+
+    var colorStackChart = d3.scaleOrdinal(d3.schemeSet3);
 
     var canvasStackChart = d3.select("#stacked").attr("width", widthStackChart + marginStackChart.left + marginStackChart.right).attr("height", heightStackChart + marginStackChart.top + marginStackChart.bottom).append("g").attr("transform", "translate(" + marginStackChart.left + "," + marginStackChart.top + ")");
-
-    //// UPDATE CARD VALUE
-    var table = []
-    data.forEach(function (d) {
-      var y0 = 0
-      var y2 = 0
-      for (var prop in d) {
-        if (Object.keys(d).length > 1) {
-          if (table.indexOf(d[prop].id) == -1 && d[prop].id != undefined) {
-            table.push(d[prop].id)
-            this.runningComponent += 1
-          }
-        }
-        if (prop != "Day" && prop != "ages") {
-          console.log("PRO PRICE", d[prop].price)
-          table.push({
-            price: y2 += + d[prop].price,
-            y1: y0 += + d[prop].datasize
-          });
-
-        }
-        if (d[prop].price != undefined) {
-          this.totalConsume += decimalAdjust('round', d[prop].price, -4)
-        }
-        if (d["Day"] == new Date().getUTCDate() && table.length > 0) {
-          if (d[prop].price) {
-            this.yesterdayCredit = decimalAdjust('round', table[table.length - 1].price, -4);
-          }
-        } else {
-          this.yesterdayCredit = 0
-        }
-        this.update()
-      }
-    }.bind(this));
-    console.log("data errr", data)
-    colorStackChart.domain(d3.keys(data[0]).filter(function (key) {;
-      return key !== "Day";
-    }));
-    data.forEach(function (d) {
-      if (Object.keys(d).length > 1) {
-        d.ages = []
-        var y0 = 0;
-        for (var prop in d) {
-          if (prop != "Day" && prop != "ages") {
-            d.ages.push({
-              pricing: d[prop].pricing,
-              name: d[prop].label,
-              module: d[prop].name,
-              datasize: d[prop].datasize,
-              y0: + y0,
-              y1: y0 += d[prop].price
-            });
-          }
-        }
-        d.total = d.ages[d.ages.length - 1].y1;
-      } else {
-        d.ages = []
-        var y0 = 0;
-        d.ages.push({name: "name", y0: y0, y1: y0});
-        d.total = 0;
-      }
-    });
-
+  
     xStackChart.domain(data.map(function (d) {;
       return d.Day.split("-")[0] + "-" + d.Day.split("-")[1];
     }));
@@ -220,117 +260,81 @@ var b = 50
       })
     ]);
 
-      var div = d3.select(".item-flex").append("div").attr("class", "tooltip").style("opacity", 0);
+    function make_y_gridlines() {		
+        return d3.axisLeft(yStackChart)
+            .ticks(5)
+    }
 
-      canvasStackChart.append("g").attr("class", "x axis").attr("transform", "translate(0," + heightStackChart + ")").call(d3.axisBottom(xStackChart));
+    canvasStackChart.append("g")			
+      .attr("class", "grid")
+      .call(make_y_gridlines()
+          .tickSize(-widthStackChart)
+        .tickFormat("")
+      )
 
-      canvasStackChart.append("text").attr("class", "x label").attr("text-anchor", "end").attr("x", widthStackChart + 5).attr("y", heightStackChart + 30).attr("font-size", "12px").text("jours");
+    var div = d3.select(".item-flex").append("div").attr("class", "tooltip").style("opacity", 0);
 
-      canvasStackChart.append("g").attr("class", "y axis").call(d3.axisLeft(yStackChart)).append("text").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", ".71em").style("text-anchor", "end")
+    canvasStackChart.append("g").attr("class", "x axis").attr("transform", "translate(0," + heightStackChart + ")").call(d3.axisBottom(xStackChart));
 
-      canvasStackChart.append("text").attr("class", "y label").attr("text-anchor", "end").attr("y", 6).attr("dy", ".75em").attr("transform", "rotate(-90)").attr("font-size", "12px").text("Consomation( € )");
+    canvasStackChart.append("text").attr("class", "x label").attr("text-anchor", "end").attr("x", widthStackChart + 5).attr("y", heightStackChart + 30).attr("font-size", "12px").text("jours");
 
-      var state = canvasStackChart.selectAll(".Day").data(data).enter().append("g").attr("class", "g").attr("transform", function (d) {
-        return "translate(" + xStackChart(d.Day.split("-")[0] + "-" + d.Day.split("-")[1]) + ",0)";
-      })
+    canvasStackChart.append("g").attr("class", "y axis").call(d3.axisLeft(yStackChart)).append("text").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", ".71em").style("text-anchor", "end")
 
-      state.selectAll("rect").data(function (d) {
-        return d.ages;
-      }).enter().append("rect").attr("width", xStackChart.bandwidth()).attr("y", function (d) {
-        return yStackChart(d.y1);
-      }).attr("height", function (d) {
-        return yStackChart(d.y0) - yStackChart(d.y1);
-      }).style("fill", function (d) {
-        return colorStackChart(d.name);
-      }).on("mouseover", function (d) {
-        var conso = decimalAdjust('round', (d.datasize), -4);
-        var price = decimalAdjust('round', d.y1 - d.y0, -4);
-        d3.select(this).style("opacity", .6)
-        div.transition().duration(200).style("opacity", .9);
-        div.html("module:" + d.name + "<br/>name:" + d.module + "<br/>conso : " + d.datasize + "Mo<br/>pricing : " + d.pricing + "€ / 100 Mo<br/>price : " + price + "€").style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 28 + "px");
-      }).on("mouseout", function (d) {
-        d3.select(this).style("opacity", .9)
-        div.transition().duration(500).style("opacity", 0);
-      })
+    canvasStackChart.append("text").attr("class", "y label").attr("text-anchor", "end").attr("y", 6).attr("dy", ".75em").attr("transform", "rotate(-90)").attr("font-size", "12px").text("Consomation( € )");
 
-      var legend = canvasStackChart.selectAll(".legend").data(colorStackChart.domain().slice().reverse()).enter().append("g").attr("class", "legend").attr("transform", function (d, i) {
-        return "translate(0," + i * 20 + ")";
-      });
-
-      legend.append("rect").attr("x", widthStackChart + 170).attr("width", 16).attr("height", 16).style("fill", colorStackChart)
-
-      legend.append("text").attr("x", widthStackChart + 160).attr("y", 9).attr("font-size", "12px").attr("dy", ".35em").style("text-anchor", "end").text(function (d) {
-        if (d != "name") {
-          return d;
-        }
-      });
-      console.log("-------- d3Js Done --------")
-    };
-
-
-    RiotControl.on('graph_workspace_data_loaded',(data)=>{
-      if(!this.dataLoaded){
-        this.initD3js(data)
-        this.dataLoaded = true
-      }
+    var state = canvasStackChart.selectAll(".Day").data(data).enter().append("g").attr("class", "g").attr("transform", function (d) {
+      return "translate(" + xStackChart(d.Day.split("-")[0] + "-" + d.Day.split("-")[1]) + ",0)";
     })
 
-    this.on('mount', function () {
-      this.dataLoaded = false
-      console.log("MOUNT GRAPH")
-      RiotControl.trigger('load_workspace_graph', this.innerData)
-    }.bind(this))
 
-    this.on('unmount', function(){
-
-       RiotControl.off('graph_workspace_data_loaded')
+    state.selectAll("rect").data(function (d) {
+      return d.ages;
+    }).enter().append("rect").attr("width", xStackChart.bandwidth()).attr("y", function (d) {
+      return yStackChart(d.y1);
+    }).attr("height", function (d) {
+      return yStackChart(d.y0) - yStackChart(d.y1);
+    }).style("fill", function (d) {
+      return colorStackChart(d.ID);
+    }).on("mouseover", function (d) {
+      d3.select(this).style("opacity", .6)
+      div.transition().duration(200).style("opacity", .9);
+      let nom = '';
+      if(d.name){
+        nom = "Nom:" + d.name + "<br/>"
+      } 
+      div.html(nom + "Module: " 
+      + d.module + "<br/>Consomation : " 
+      + d.flow + "Mo<br/>Prix du flux : " 
+      + d.price + "€ <br/>Prix composant: " 
+      + d.componentPrice/1000 + "€ / Mo").style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 28 + "px");
+    }).on("mouseout", function (d) {
+      d3.select(this).style("opacity", .9)
+      div.transition().duration(500).style("opacity", 0);
     })
+  };
+
+
+  RiotControl.on('graph_workspace_data_loaded',(data)=>{
+    if(!this.dataLoaded){
+      this.initD3js(data.workspaceGraph.data, data.workspaceGraph.tableId);
+      this.dataLoaded = true
+      this.componentNumber = data.workspaceGraph.componentNumber
+      this.globalPrice = data.workspaceGraph.globalPrice
+      this.globalMo = data.workspaceGraph.globalMo
+      this.update()
+    }
+  })
+
+  this.on('mount', function () {
+    this.dataLoaded = false
+    RiotControl.trigger('load_workspace_graph', this.innerData)
+  }.bind(this))
+
+  this.on('unmount', function(){
+      RiotControl.off('graph_workspace_data_loaded')
+  })
+
 </script>
 
 </graph-of-use>
 
-<!--  
-this.formatData(this.innerData).then(function (dataRes) {
-                console.log("this.innerData", dataRes)
-                this.initD3js(dataRes)
-              }.bind(this))  -->
-<!--
-function t
-    data.forEach(function (d) {
-        if(Object.keys(d).length > 1){
-            d.compt = []
-            var y0 = 0;
-            for(var prop in d ){
-                if(prop != "Day" && prop != "ages"){
-                    console.log("if", prop)
-                    d.compt.push(
-                        {
-                        name: prop,
-                        price: d[prop].price,
-                        y0: +y0,
-                        y1: y0 += +d[prop].datasize
-                        }
-                    );
-                }
-            }
-
-            d.totalcompt = d.compt[d.compt.length - 1].y1;
-            if(d["Day"] == new Date().getUTCDate()){
-                this.yesterdayCredit = d.compt[d.compt.length - 1].y1
-            }
-            this.totalConsume +=  d.compt[d.compt.length - 1].y1
-            this.update()
-        }else{
-            if(d["Day"] == new Date().getUTCDate()){
-                this.yesterdayCredit = 0
-            }
-            d.compt = []
-            var y0 = 0;
-            d.compt.push({
-                name: "name",
-                y0: y0,
-                y1: y0
-            });
-            d.totalcompt = 0;
-        }
-    }.bind(this));  -->

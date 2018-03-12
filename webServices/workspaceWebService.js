@@ -40,13 +40,21 @@ module.exports = function(router,stompClient) {
   // ---------------------------------------------------------------------------------
 
   router.get('/workspace/:id/graph', function(req, res, next) {
+    console.log(" WEB SERVICE", req.params.id);
     workspace_lib.get_workspace_graph_data(req.params.id).then((workspaceGraph)=>{
-      res.json(workspaceGraph)
+      res.json({workspaceGraph})
     }).catch(e => {
       next(e);
     });
   }); //<= graph workspace
 
+
+  router.post('/workspace/:id/addHistorique', function(req, res, next) {
+    if (req.body != null) {
+      console.log(req.params.id)
+      console.log(req.body)
+    }
+  })
   // --------------------------------------------------------------------------------
 
   router.get('/workspace/:id', function(req, res, next) {
@@ -205,7 +213,6 @@ module.exports = function(router,stompClient) {
       next(e);
     });
   }) //<= delete workspace
-
 
 
   router.get('/workspaceComponent/load_all_component/:id', function(req, res, next) {

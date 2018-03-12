@@ -34,18 +34,19 @@
     <graph-of-use-workspace></graph-of-use-workspace>
   </div>
 
-  <div if={menu=='edit'} class="containerH" style="background-color:white;flex-grow: 1;justify-content: center; align-items: center;">
-    <div class="containerV" style="flex-grow:0.4">
+  <div if={menu=='edit'} class="containerH" style="background-color:rgb(238, 242, 249);flex-grow: 1;justify-content: center; align-items: center;">
+    <div class="containerV" style="flex-grow:0.25; margin-top:2em">
       <div style="flex-basis:300pt; background-color:white; padding: 5%;  border-radius: 5px;">
         
-        <div class="containerV" style="flex-grow: 1;padding: 3%;">
-          <h3 style="color:rgb(120,120,120)">{profil.name}</h3>
+        <div class="containerV" style="flex-grow: 1;background-color: rgb(250,250,250);"  >
+          <h3 style="color:rgb(33,151,242); font-family: 'Open Sans', sans-serif;">{profil.name}</h3>
         </div>
 
-        <div class="containerV">
+        <div class="containerV" >
           <label class="label-form">Email</label>
-          <input class="field" value="{profil.credentials.email}" ref="email" onchange={changeEmailInput}/>
-          <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultEmail}</div>
+          <!--  <input class="field" value="{profil.credentials.email}" ref="email" readOnly onchange={changeEmailInput}/>  -->
+          <input class="field" value="{profil.credentials.email}" ref="email" readOnly/>
+          <p style="color:rgba(0,0,0,0.5);text-align:center"> L'email ne peut être modifier pour le moment </p>
         </div>
 
         <div class="containerV">
@@ -92,7 +93,7 @@
     </div>
   </div>
 
-  <div class="containerV" if={menu=='setting'} style="flex-grow: 1;background-color: white;">
+  <div class="containerV" if={menu=='setting'} style="flex-grow: 1;background-color:rgb(238, 242, 249);">
     <div class="containerV" style="flex-grow:1;justify-content:center;align-items: center;">
       <span class="title-profil">
         Nous esperons que votre expérience sur cet outil était satisfaisante ? à bientôt.</span>
@@ -286,7 +287,12 @@
     background-color: #f4f5f7;
     border-radius: 3rem;
     padding: 10px 20px 11px;
-    border:1px solid white
+    color: rgba(0,0,0,0.6);
+  }
+
+  .field:focus {
+    background-color:rgb(33,150,243);
+    color:white
   }
 
   .title-profil {

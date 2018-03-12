@@ -33,7 +33,7 @@
 
   <div class="containerV" style="bottom:0;top:0;right:0;left:0;position:absolute">
 
-    <div class="containerH header" style="background-color: rgb(33,150,243);flex-wrap:nowrap;flex-shrink : 0; flex-basis:100px;">
+    <div class="containerH header" style="background-color: rgb(33,150,243);flex-wrap:nowrap;flex-shrink : 0; flex-basis:140px;">
       <workspace-table-header if={isScrennToShow('myWorkspaces')}></workspace-table-header>
       <landing-header if={isScrennToShow('landing')}></landing-header>
       <workspace-share-table-header if={isScrennToShow('sharedWorkspaces')}></workspace-share-table-header>

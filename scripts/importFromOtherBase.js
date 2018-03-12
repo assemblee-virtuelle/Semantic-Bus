@@ -51,7 +51,6 @@ module.exports = {
       });
     });
 
-
     console.log('workspaces component import');
     workspaceComponentModelTarget.remove({}).then(message => {
       workspaceComponentModelSource.find({}).exec((err, WSToImport) => {
@@ -62,9 +61,5 @@ module.exports = {
         });
       });
     });
-
-
-
-
   },
 }

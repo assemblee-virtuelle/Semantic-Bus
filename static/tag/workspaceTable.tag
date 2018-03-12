@@ -1,5 +1,5 @@
 <workspace-table class="containerH" style="flex-grow:1">
-  <zenTable drag={false} disallowselect={true} ref="workspaceZenTable">
+  <zenTable show={!isEmpty}  drag={false} disallowselect={true} ref="workspaceZenTable">
     <yield to="header">
       <div style="width:40%">Name</div>
       <div style="width:60%">Description</div>
@@ -10,12 +10,26 @@
     </yield>
   </zenTable>
 
-  <script>
+    <div if={isEmpty} class="containerH" style="flex-grow:1;justify-content:center;background:rgb(238,242,249)">
+    <div class="containerV" style="flex-basis:1;justify-content:center;margin:50px">
 
+      <h1 style="text-align: center;color: rgb(119,119,119);">
+        Vous n'avez pas encore crée de workflow , Vous n'avez plus qu'a en créer un, ca ce passe en haut a droite
+      </h1>
+    </div>
+  </div>
+
+  <script>
+    this.isEmpty = false
     this.refreshZenTable = function (data) {
       console.log("refreshZenTable", data)
-      this.tags.zentable.data = data;
-      this.data = data
+      if (data.length > 0) {
+        this.isEmpty = false
+        this.tags.zentable.data = data;
+        this.data = data
+      } else {
+        this.isEmpty = true
+      }
       this.update();
     }.bind(this);
 
