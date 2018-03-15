@@ -18,8 +18,9 @@
         //console.log(req.query);
 
         //console.log("in get")
-          
+
         var urlRequiered = req.params.urlRequiered;
+        //console.log(urlRequiered);
         //this require is live because constructor require cause cyclic dependencies (recursivPullResolvePromise->restApiGet)
         //TODO require use cache object  : need to build one engine per request
         this.recursivPullResolvePromiseDynamic = require('../recursivPullResolvePromise')
@@ -29,7 +30,7 @@
         this.workspace_component_lib.get({
           "specificData.url": urlRequiered
         }).then(component => {
-
+          //console.log(component);
           if (component != undefined) {
 
 
@@ -40,7 +41,7 @@
               })
             } else {
               specificData = component.specificData;
-              return this.recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(component, 'work', req.query);
+              return this.recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(component, 'work',undefined, req.query);
               //return this.recursivPullResolvePromise.resolveComponentPull(data[0], false,req.query);
             }
 
@@ -96,7 +97,7 @@
         });
       }.bind(this));
     }
-    
+
 
     this.pull = function(data, flowData) {
       //console.log('Flow Agregator | pull : ',data,' | ',flowData);

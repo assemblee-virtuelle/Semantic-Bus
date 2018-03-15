@@ -14,7 +14,7 @@ class Engine {
     this.fackCounter = 0;
   }
 
-  resolveComponent(component, requestDirection, pushData) {
+  resolveComponent(component, requestDirection, pushData, queryParams) {
     if (this.config.quietLog != true) {
       console.log(" ---------- resolveComponent -----------" + component._id);
     }
@@ -46,18 +46,23 @@ class Engine {
                     //empty object are not persist by mongoose
                     component.specificData = component.specificData || {};
                   });
+
                   let originComponent = this.sift(
                     {
                       _id: component._id
                     },
                     this.componentsResolving
                   )[0];
+
                   this.pathResolution = this.buildPathResolution(
                     originComponent,
                     requestDirection,
                     0,
-                    this.componentsResolving
+                    this.componentsResolving,
+                    undefined,
+                    queryParams
                   );
+
                   this.pathResolution.forEach(link => {
                     link.status = "waiting";
                   });
@@ -106,7 +111,7 @@ class Engine {
                         componentProcessing.module
                       ];
                       module
-                        .pull(componentProcessing, undefined, undefined)
+                        .pull(componentProcessing, undefined, componentProcessing.queryParams)
                         .then(componentFlow => {
                           if (this.config.quietLog != true) {
                           }
@@ -216,20 +221,20 @@ class Engine {
 
           if (module.getPriceState != undefined) {
             this.config_component.components_information.forEach(component => {
-              
+
               //GET CURRENT COMPONENT PRICE
               current_component = component[processingLink.destination.module];
-              console.log("PRICE 1", current_component,module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price))
+              //console.log("PRICE 1", current_component,module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price))
               //UPDATE HISTORIQUE
               consumption_history_object.totalPrice =
-                (module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice / 1000 ) 
+                (module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice / 1000 )
                 * dataFlow[0].data.length +  ( this.objectSizeOf(dataFlow) / 1000000 * current_component.price );
               consumption_history_object.moCount =
                 this.objectSizeOf(dataFlow) / 1000000;
               consumption_history_object.recordCount = dataFlow[0].data.length;
               consumption_history_object.recordPrice = current_component.record_price;
               consumption_history_object.componentPrice = current_component.price
-              
+
               //UPDATE USER CREDIT
               owner.credit -=
                 module.getPriceState(
@@ -249,22 +254,22 @@ class Engine {
                 this.objectSizeOf(dataFlow) / 1000000 * current_component.price;
 
               this.user_lib.update(owner).then(res => {
-                console.log("CREDIT 1 UPDATE", res.credit);
+                //console.log("CREDIT 1 UPDATE", res.credit);
               });
             });
-          } 
+          }
           else {
             this.config_component.components_information.forEach(component => {
               //GET CURRENT COMPONENT PRICE
               current_component = component[processingLink.destination.module];
-              console.log("PRICE 2", current_component)
+              //console.log("PRICE 2", current_component)
               //UPDATE HISTORIQUE
               consumption_history_object.totalPrice = this.objectSizeOf(dataFlow) / 1000000 * current_component.price / 1000;
               consumption_history_object.moCount = this.objectSizeOf(dataFlow) / 1000000;
               consumption_history_object.recordCount = dataFlow[0].data.length;
               consumption_history_object.recordPrice = 0;
               consumption_history_object.componentPrice = current_component.price
-              
+
               //UPDATE USER CREDIT
               current_cost = this.objectSizeOf(dataFlow) / 1000000 * current_component.price;
               owner.credit =
@@ -272,7 +277,7 @@ class Engine {
                 this.objectSizeOf(dataFlow) / 1000000 * current_component.price;
 
               this.user_lib.update(owner).then(res => {
-                console.log("CREDIT 2 UPDATE", res.credit);
+                //console.log("CREDIT 2 UPDATE", res.credit);
               });
             });
           }
@@ -283,27 +288,34 @@ class Engine {
             roundDate.setSeconds(0);
             roundDate.setMilliseconds(0);
             roundDate.setHours(0);
-            
+
           consumption_history_object.componentModule = processingLink.destination.module
-          consumption_history_object.componentName = processingLink.destination.name
-          consumption_history_object.roundDate = roundDate.getTime();
-          consumption_history_object.workspaceName = name
-          consumption_history_object.workspaceId = component_workspaceId;
+          //TODO pas besoin de stoquer le name du component, on a l'id. ok si grosse perte de perf pour histogramme
+          consumption_history_object.componentName = processingLink.destination.name;
+          //TODO attribut mal nommé : componentId
           consumption_history_object.workflowComponentId = processingLink.destination._id;
+          consumption_history_object.roundDate = roundDate.getTime();
+          // TODO attribut mal nommé : workflowName ; mm remarque que pour componentName
+          consumption_history_object.workspaceName = name
+          // TODO attribut mal nommé : workflowId
+          consumption_history_object.workspaceId = component_workspaceId;
+          // TODO attribut TRES mal nommé : workProcessId ou workId
           consumption_history_object.workflowId = traitement_id;
           consumption_history_object.userId = owner._id;
 
-          
+
 
           if (this.config.quietLog != true) {
-            console.log("CONSUPTION_HISTORIQUE", consumption_history_object);
+            //console.log("CONSUPTION_HISTORIQUE", consumption_history_object);
           }
 
+          // TODO L'historique devrait avoir sa lib indépendante de workspace_lib
+          // TODO L'enregistrement de l'historique devait avoir lieu apres la résolution du work. on ne facture pas si le composant plante
           this.workspace_lib
             .createHistorique(consumption_history_object)
             .then((consumption_history_res)=>{
               if (this.config.quietLog != true) {
-                console.log('AFTER consumption Update', consumption_history_res);
+                //console.log('AFTER consumption Update', consumption_history_res);
               }
               var primaryflow;
               if (module.getPrimaryFlow != undefined) {
@@ -319,7 +331,7 @@ class Engine {
               secondaryFlow = secondaryFlow.concat(dataFlow);
               secondaryFlow.splice(secondaryFlow.indexOf(primaryflow), 1);
 
-              if (primaryflow.dfob != undefined) {
+              if (primaryflow.dfob != undefined && primaryflow.dfob.length>0) {
                 var dfobTab = primaryflow.dfob[0].split(".");
                 var dfobFinalFlow = this.buildDfobFlow(
                   primaryflow.data,
@@ -392,7 +404,7 @@ class Engine {
                   });
               } else {
                 module
-                  .pull(processingLink.destination, dataFlow, undefined)
+                  .pull(processingLink.destination, dataFlow, processingLink.queryParams)
                   .then(componentFlow => {
                     processingLink.destination.dataResolution = componentFlow;
                     processingLink.destination.status = "resolved";
@@ -421,7 +433,7 @@ class Engine {
                     this.processNextBuildPath(
                       traitement_id,
                       component_workspaceId,
-                      owner, 
+                      owner,
                       name
                     );
                   })
@@ -486,8 +498,9 @@ class Engine {
     }
   }
 
-  buildPathResolution( component, requestDirection,depth,usableComponents,buildPath) {
+  buildPathResolution( component, requestDirection,depth,usableComponents,buildPath,queryParams) {
     buildPath = buildPath || [];
+
     //infinite depth protection. Could be remove if process is safe
     if (depth < 100) {
       //var pathResolution = currentPathResolution || [];
@@ -499,6 +512,10 @@ class Engine {
       let module = this.technicalComponentDirectory[component.module];
       // console.log(incConsole, "buildPathResolution", component._id, requestDirection, module.type);
       var out = [];
+      let currentQueryParam=queryParams;
+      if(module.buildQueryParam!=undefined){
+        currentQueryParam=module.buildQueryParam(queryParams,component.specificData);
+      }
       //if (requestDirection == "pull") {
       if (requestDirection != "push") {
         if (
@@ -519,7 +536,8 @@ class Engine {
               var linkToProcess = {
                 source: beforeComponentObject,
                 destination: component,
-                requestDirection: "pull"
+                requestDirection: "pull",
+                queryParams:currentQueryParam
               };
               var existingLink = this.sift(
                 {
@@ -539,7 +557,8 @@ class Engine {
                     "pull",
                     depth + 1,
                     usableComponents,
-                    buildPath
+                    buildPath,
+                    currentQueryParam
                   )
                 );
               }
@@ -548,6 +567,7 @@ class Engine {
         } else {
           //console.log("add pullSource", component._id)
           component.pullSource = true;
+          component.queryParams=currentQueryParam;
         }
       }
       if (requestDirection != "pull") {
@@ -643,4 +663,3 @@ module.exports = {
     });
   }
 };
-

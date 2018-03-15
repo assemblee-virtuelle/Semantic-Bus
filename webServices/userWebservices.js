@@ -64,7 +64,7 @@ module.exports = function (router,stompClient) {
 
 
 
-  
+
 
   router.get('/users/transactions/:id', function (req, res,next) {
     console.log("in web service transaction", req.params.id)
@@ -98,7 +98,7 @@ module.exports = function (router,stompClient) {
   });
 
   router.get('/users/:id/workspaces', function (req, res,next) {
-     console.log("LOADING USER",req.params.id)
+     //console.log("LOADING USER",req.params.id)
      user_lib.userGraph(req.params.id).then((result)=>{
       res.send(result)
      }).catch(e => {

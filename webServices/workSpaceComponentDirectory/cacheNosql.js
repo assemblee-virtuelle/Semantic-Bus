@@ -48,12 +48,13 @@ module.exports = {
     }.bind(this));
   },
 
-  pull: function(data, flowData, undefined) {
+  pull: function(data, flowData, queryParams) {
+    console.log("cache queryParams",queryParams);
     //console.log('--------- cash data START --------  : ', data);
     return new Promise((resolve, reject) => {
       if (flowData != undefined && flowData[0].data != undefined) {
         // console.log("----- cache data stock ----",flowData[0])
-        this.cache_lib.get(data).then(cachedData => {
+        this.cache_lib.get(data, queryParams).then(cachedData => {
 
           cachedData = cachedData || {};
           cachedData.data = JSON.stringify(flowData[0].data);
@@ -74,7 +75,7 @@ module.exports = {
           })
         });
       } else {
-        this.cache_lib.get(data).then(cachedData => {
+        this.cache_lib.get(data, queryParams).then(cachedData => {
 
           //console.log("----- cache data get ----",typeof cachedData.data)
           if (cachedData != undefined) {
