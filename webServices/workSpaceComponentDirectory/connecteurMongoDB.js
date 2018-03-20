@@ -65,7 +65,7 @@ module.exports = {
       //   modelShema.db.once('connected', function () {
       //     console.log("----- in connected mongo ------", querysTable)
       if (querysTable == null || querysTable.length == 0) {
-        modelShema.model.find(
+        modelShema.model.find().lean().exec(
           function(err, dataElements) {
             resolve(dataElements)
             if (err) {
