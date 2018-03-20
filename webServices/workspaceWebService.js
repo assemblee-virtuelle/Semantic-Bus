@@ -51,10 +51,10 @@ module.exports = function(router,stompClient) {
 
 
   router.post('/workspace/:id/addHistorique', function(req, res, next) {
-    if (req.body != null) {
-      console.log(req.params.id)
-      console.log(req.body)
-    }
+    // if (req.body != null) {
+    //   console.log(req.params.id)
+    //   console.log(req.body)
+    // }
   })
   // --------------------------------------------------------------------------------
 

@@ -78,16 +78,16 @@ module.exports = {
       } else {
         try {
           //console.log("----- in try mongo ------")
-          console.log(querysTable);
+          //console.log(querysTable);
           const regex = /{(\£.*?)}/g;
           let elementsRaw = querysTable.match(regex);
           if (elementsRaw != null) {
             for (let match of elementsRaw) {
               let ObjectKey=match.slice(3, -1);
-              console.log(match,ObjectKey);
+              //console.log(match,ObjectKey);
               querysTable=querysTable.replace(match,queryParams[ObjectKey])
             }
-            console.log(querysTable);
+            //console.log(querysTable);
           }
 
           var query = eval("modelShema.model." + querysTable+".lean()")

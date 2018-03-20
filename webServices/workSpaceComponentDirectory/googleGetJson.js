@@ -15,7 +15,7 @@ module.exports = {
 
     return new Promise((resolve, reject) => {
       try {
-        console.log('ALLO',key);
+        //console.log('ALLO',key);
         this.sheetrock({
           url: 'https://docs.google.com/spreadsheets/d/' + key,
           reset: true,
@@ -52,7 +52,7 @@ module.exports = {
 
             } else {
               //console.log('Google query rejected | ', error);
-              console.log('error',error);
+              //console.log('error',error);
               let fullError = new Error(error);
               //error.message='google request failed, check your parameters : '+error.message;
               fullError.displayMessage = 'google request failed, check your parameters';
@@ -61,8 +61,8 @@ module.exports = {
           }.bind(this)
         });
       } catch (e) {
-        console.log('ERROR');
-        console.log(e);
+        //console.log('ERROR');
+        //console.log(e);
         reject(e);
       }
 

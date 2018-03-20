@@ -31,7 +31,7 @@ function _extension(filename, contentType) {
 function _type_file(filename, dataString, dataBuffer, out, contentType) {
   //console.log("in aggregate function")
   return _extension(filename, contentType).then(function (extension) {
-    console.log("extension |", extension)
+    //console.log("extension |", extension)
     return new Promise(function (resolve, reject) {
       if (out == true || out == 'true') {
         //console.log(out)
