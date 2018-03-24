@@ -36,7 +36,7 @@
 
   <div if={menu=='edit'} class="containerH" style="background-color:rgb(238, 242, 249);flex-grow: 1;justify-content: center; align-items: center;">
     <div class="containerV" style="flex-grow:0.25; margin-top:2em">
-      <div style="flex-basis:300pt; background-color:white; padding: 5%;  border-radius: 5px;">
+      <div style="flex-basis:300pt; background-color:white; padding: 4vh;  border-radius: 5px;">
         
         <div class="containerV" style="flex-grow: 1;background-color: rgb(250,250,250);"  >
           <h3 style="color:rgb(33,151,242); font-family: 'Open Sans', sans-serif;">{profil.name}</h3>
