@@ -620,6 +620,9 @@ function WorkspaceStore(utilStore, stompClient) {
           if (this.subscription_workspace_current_move_component != undefined) {
             this.subscription_workspace_current_move_component.unsubscribe();
           }
+          if (this.subscription_workspace_current_updateComponentField != undefined) {
+            this.subscription_workspace_current_updateComponentField.unsubscribe();
+          }
           this.select({
             _id: id
           }).then(workspace => {
@@ -627,13 +630,27 @@ function WorkspaceStore(utilStore, stompClient) {
             this.subscription_workspace_current_move_component = this.stompClient.subscribe('/topic/workspace_current_move_component.' + this.workspaceCurrent._id, message => {
               //console.log('message', JSON.parse(message.body));
               let body = JSON.parse(message.body);
-              if (body.token != localStorage.token) {            
+              if (body.token != localStorage.token) {
                 let componentToUpdate = sift({
                   _id: body.componentId
                 }, this.workspaceCurrent.components)[0];
                 componentToUpdate.graphPositionX = body.x;
                 componentToUpdate.graphPositionY = body.y;
                 this.computeGraph();
+              }
+            });
+            this.subscription_workspace_current_updateComponentField = this.stompClient.subscribe('/topic/workspace_current_updateComponentField.' + this.workspaceCurrent._id, message => {
+              console.log('message', JSON.parse(message.body));
+              let body = JSON.parse(message.body);
+              if (body.token != localStorage.token) {
+                //console.log('body',body);
+                let updatingComponent = sift({_id:body.componentId},this.workspaceCurrent.components)[0];
+                utilStore.objectSetFieldValue(updatingComponent,body.field,body.data);
+                //this.itemCurrent.specificData[body.field] = body.data;
+                //console.log('this.itemCurrent',this.itemCurrent);
+                if(this.itemCurrent._id==updatingComponent._id){
+                  this.trigger('item_current_changed', updatingComponent);
+                }
               }
 
             });

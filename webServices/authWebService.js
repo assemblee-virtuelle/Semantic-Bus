@@ -103,11 +103,11 @@ module.exports = function (router,stompClient) {
 
 
   router.get('/verify', function (req, res) {
-    console.log(req.query.userid)
+    //console.log(req.query.userid)
     user_lib.get({
       _id: req.query.userid
     }).then((user) => {
-      console.log(user, req.query.id, user.mailid)
+      //console.log(user, req.query.id, user.mailid)
       if (req.query.id == user.mailid) {
         user.active = true
         user_lib.update(user, null).then(function (result) {
@@ -319,7 +319,7 @@ module.exports = function (router,stompClient) {
         password: req.body.passwordInscription
       }
     }).then(function (data) {
-      console.log("inscription data ====>", data.token)
+      //console.log("inscription data ====>", data.token)
       sendMail(rand, req, req.body.emailInscription, data.token.user)
       res.send({
         user: data.user,

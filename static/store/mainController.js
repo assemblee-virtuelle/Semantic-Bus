@@ -76,12 +76,18 @@ function MainController(allStore,stompClient) {
         }
       });
     }
-  })
+  });
 
-  this.workspaceStore.on('workspace_current_changed', function(message) {
-    console.log('workspace_current_changed', this, message);
-    this.workspaceCurrent = message;
-    this.genericStore.workspaceCurrent = message;
+  this.workspaceStore.on('navigation_control_done', function(message) {
+    //console.log('workspace_current_changed', this, message);
+    this.workspaceCurrent = this.workspaceStore.workspaceCurrent;
+    this.genericStore.workspaceCurrent = this.workspaceStore.workspaceCurrent;
+  }.bind(this));
+
+  this.genericStore.on('navigation_control_done', function(message) {
+    //console.log('workspace_current_changed', this, message);
+    this.itemCurrent = this.genericStore.itemCurrent;
+    this.workspaceStore.itemCurrent = this.genericStore.itemCurrent;
   }.bind(this));
 
   this.workspaceStore.on('workspace_current_add_components_done', function(message) {

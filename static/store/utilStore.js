@@ -30,6 +30,15 @@ function UtilStore(specificStoreList) {
         reject(error);
       }.bind(this));
     })
-  }
+  };
+
+  this.objectSetFieldValue=function(object,field,value){
+    let fieldArray=field.split('.');
+    let currentObject=object;
+    for (var i = 0; i < fieldArray.length-1; i++) {
+      currentObject=currentObject[fieldArray[i]];
+    }
+    currentObject[fieldArray[fieldArray.length-1]]=value;
+  };
 
 }

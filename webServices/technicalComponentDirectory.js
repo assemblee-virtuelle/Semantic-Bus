@@ -28,6 +28,7 @@ module.exports = {
   sparqlRequest: require('./workSpaceComponentDirectory/sparqlRequest.js'),
   valueMapping: require('./workSpaceComponentDirectory/valueMapping.js'),
   timer: require('./workSpaceComponentDirectory/timer.js'),
+  queryParamsCreation:require('./workSpaceComponentDirectory/queryParamsCreation.js'),
 
   /* some other modules you want */
 

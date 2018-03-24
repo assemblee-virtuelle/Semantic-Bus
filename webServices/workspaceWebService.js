@@ -40,7 +40,8 @@ module.exports = function(router,stompClient) {
   // ---------------------------------------------------------------------------------
 
   router.get('/workspace/:id/graph', function(req, res, next) {
-    console.log(" WEB SERVICE", req.params.id);
+    //console.log(" WEB SERVICE GRAPH", req.params.id);
+    //console.log(" WEB SERVICE GRAPH");
     workspace_lib.get_workspace_graph_data(req.params.id).then((workspaceGraph)=>{
       res.json({workspaceGraph})
     }).catch(e => {
@@ -50,10 +51,10 @@ module.exports = function(router,stompClient) {
 
 
   router.post('/workspace/:id/addHistorique', function(req, res, next) {
-    if (req.body != null) {
-      console.log(req.params.id)
-      console.log(req.body)
-    }
+    // if (req.body != null) {
+    //   console.log(req.params.id)
+    //   console.log(req.body)
+    // }
   })
   // --------------------------------------------------------------------------------
 

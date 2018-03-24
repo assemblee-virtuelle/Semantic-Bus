@@ -75,6 +75,10 @@
   <script type="riot/tag" src="tag/graph_of_use_workspace.tag"></script>
   <script type="riot/tag" src="tag/jsonPreviewer.tag"></script>
   <script type="riot/tag" src="tag/jsonPreviewer-header.tag"></script>
+  <script type="riot/tag" src="tag/stripe.tag"></script>
+  <script type="riot/tag" src="tag/stripe2.tag"></script>
+  <script type="riot/tag" src="tag/transactions-list.tag"></script>
+
 
   <script type="riot/tag" src="tag/no-editor.tag"></script>
   <script type="riot/tag" src="tag/scrapper-editor.tag"></script>
@@ -101,15 +105,13 @@
   <script type="riot/tag" src="tag/value-mapping-editor.tag"></script>
   <script type="riot/tag" src="tag/timer-editor.tag"></script>
   <script type="riot/tag" src="tag/rest-api-post-editor.tag"></script>
-  <script type="riot/tag" src="tag/stripe.tag"></script>
-  <script type="riot/tag" src="tag/stripe2.tag"></script>
-  <script type="riot/tag" src="tag/transactions-list.tag"></script>
+
+  <script type="riot/tag" src="tag/query-params-creation-editor.tag"></script>
 
 
 
 
   <script>
-
     $.ajax({
       method: 'get',
       url: '/configuration/configurationAmqpHost',
@@ -123,49 +125,49 @@
       var onConnect = function(client) {
         //console.log('connected',stompClient,client);
 
-        let allStore={};
+        let allStore = {};
         let utilStore = new UtilStore();
         RiotControl.addStore(utilStore);
-        allStore['utilStore']=utilStore;
+        allStore['utilStore'] = utilStore;
 
-        var workspaceStore = new WorkspaceStore(utilStore,stompClient); // Create a store instance.
+        var workspaceStore = new WorkspaceStore(utilStore, stompClient); // Create a store instance.
         RiotControl.addStore(workspaceStore); // Register the store in central dispatch.
-        allStore['workspaceStore']=workspaceStore;
+        allStore['workspaceStore'] = workspaceStore;
 
         var profilStore = new ProfilStore();
         RiotControl.addStore(profilStore);
-        allStore['profilStore']=profilStore;
+        allStore['profilStore'] = profilStore;
 
         var technicalComponentStore = new TechnicalComponentStore(utilStore);
         RiotControl.addStore(technicalComponentStore);
-        allStore['technicalComponentStore']=technicalComponentStore;
+        allStore['technicalComponentStore'] = technicalComponentStore;
 
         var specificStoreList = [];
 
         let cacheNosqlStore = new CacheNosqlStore()
         RiotControl.addStore(cacheNosqlStore);
         specificStoreList.push(cacheNosqlStore)
-        allStore['cacheNosqlStore']=cacheNosqlStore;
+        allStore['cacheNosqlStore'] = cacheNosqlStore;
 
         let uploadStore = new UploadStore(utilStore);
         RiotControl.addStore(uploadStore);
         specificStoreList.push(uploadStore)
-        allStore['uploadStore']=uploadStore;
+        allStore['uploadStore'] = uploadStore;
 
         let sqlStore = new SqlStore();
         RiotControl.addStore(sqlStore);
         specificStoreList.push(sqlStore)
-        allStore['sqlStore']=sqlStore;
+        allStore['sqlStore'] = sqlStore;
 
-        var genericStore = new GenericStore(utilStore, specificStoreList,stompClient);
+        var genericStore = new GenericStore(utilStore, specificStoreList, stompClient);
         RiotControl.addStore(genericStore);
-        allStore['genericStore']=genericStore;
+        allStore['genericStore'] = genericStore;
 
         var adminStore = new AdminStore(utilStore);
         RiotControl.addStore(adminStore);
-        allStore['adminStore']=adminStore;
+        allStore['adminStore'] = adminStore;
 
-        var mainController = new MainController(allStore,stompClient);
+        var mainController = new MainController(allStore, stompClient);
         RiotControl.addStore(mainController);
 
         RiotControl.on('login_redirect', function() {
@@ -195,25 +197,27 @@
         // stompClient.send('/queue/work-ask',JSON.stringify({message:'c est le navigateur qui te parle!!!'}));
       }.bind(this);
 
-      var onError=function(err) {
+      var onError = function(err) {
         console.log('disconnected ', err);
       };
 
       var url = 'wss://stomp-rabitmq-stomp.b9ad.pro-us-east-1.openshiftapps.com:443/ws';
       var login = 'guest';
       var password = 'guest';
-      var stompClient = webstomp.client(url,{heartbeat: {incoming: 10000, outgoing: 10000},debug:true})
-      if(amqpHost!=undefined && amqpHost.length>0){
-        stompClient.connect(login, password, onConnect, onError,amqpHost);
-      }else{
+      var stompClient = webstomp.client(url, {
+        heartbeat: {
+          incoming: 10000,
+          outgoing: 10000
+        },
+        debug: true
+      })
+      if (amqpHost != undefined && amqpHost.length > 0) {
+        stompClient.connect(login, password, onConnect, onError, amqpHost);
+      } else {
         stompClient.connect(login, password, onConnect, onError);
       }
 
     })
-
-
-
-
   </script>
   <style>
     body {

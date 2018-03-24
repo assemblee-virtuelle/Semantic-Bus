@@ -21,7 +21,7 @@ module.exports = function(router,stompClient) {
     workspace_component_lib.get({
       _id: id
     }).then(function(data) {
-      console.log('workspaceComponent | test| ', data);
+      //console.log('workspaceComponent | test| ', data);
       var recursivPullResolvePromiseDynamic = require('./recursivPullResolvePromise');
       return recursivPullResolvePromise.getNewInstance().resolveComponentPull(data, false).then(function(data) {
       //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
@@ -60,7 +60,7 @@ module.exports = function(router,stompClient) {
 
   stompClient.subscribe('/queue/work-ask', message=>{
     let body=JSON.parse(message.body);
-    console.log('/queue/work-ask | body', body);
+    //console.log('/queue/work-ask | body', body);
     //this.stompClient.send('/topic/work-response', JSON.stringify({message:'AJAX va prendre cher'}));
     //console.log('WORK');
     var id = body.id;

@@ -17,6 +17,7 @@ function GenericStore(utilStore, specificStoreList, stompClient) {
 
   this.modeConnectBefore = false;
   this.modeConnectAfter = false;
+  this.stompClient=stompClient;
 
 
   // --------------------------------------------------------------------------------
@@ -114,8 +115,15 @@ function GenericStore(utilStore, specificStoreList, stompClient) {
 
   this.on('item_current_updateField', function(message) {
     console.log('item_current_updateField ', message);
-    this.itemCurrent[message.field] = message.data;
+    utilStore.objectSetFieldValue(this.itemCurrent,message.field,message.data);
+    //this.itemCurrent[message.field] = message.data;
     this.trigger('item_current_changed', this.itemCurrent);
+    this.stompClient.send('/topic/workspace_current_updateComponentField.' + this.workspaceCurrent._id, JSON.stringify({
+      field: message.field,
+      data: message.data,
+      componentId:this.itemCurrent._id,
+      token: localStorage.token
+    }));
   }); //<= item_current_updateField
 
   // --------------------------------------------------------------------------------
@@ -149,7 +157,7 @@ function GenericStore(utilStore, specificStoreList, stompClient) {
   // --------------------------------------------------------------------------------
 
   this.on('item_current_work', function(message) {
-    stompClient.send('/queue/work-ask', JSON.stringify({
+    this.stompClient.send('/queue/work-ask', JSON.stringify({
       id: this.itemCurrent._id,
       token : localStorage.token
     }));
@@ -167,7 +175,7 @@ function GenericStore(utilStore, specificStoreList, stompClient) {
     // });
   }); //<= item_current_work
 
-  stompClient.subscribe('/topic/work-response.'+localStorage.token, message=>{
+  this.stompClient.subscribe('/topic/work-response.'+localStorage.token, message=>{
     //console.log('message', JSON.parse(message.body));
     let body=JSON.parse(message.body);
     if (body.error==undefined){
@@ -344,11 +352,13 @@ function GenericStore(utilStore, specificStoreList, stompClient) {
     if (entity == 'component') {
       this.action = action
       if (this.workspaceCurrent != undefined) {
+      
         this.itemCurrent = sift({
           _id: id
         }, this.workspaceCurrent.components)[0];
         if (this.itemCurrent != undefined) {
           this.trigger('navigation_control_done', entity);
+
         } else {
           this.trigger('ajax_fail', 'no component existing whith this id un current workspace');
         }

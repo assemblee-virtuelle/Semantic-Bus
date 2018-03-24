@@ -39,7 +39,7 @@ module.exports = {
       }
       out.push(workspaceComponentsListDictionnary[workspaceComponentKey]);
     }
-    console.log("out", out)
+    //console.log("out", out)
     return out;
   }//<= checkWorkspaceComponentConsistency
 

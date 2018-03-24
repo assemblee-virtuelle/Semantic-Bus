@@ -5,17 +5,19 @@ module.exports = {
   mongoose: require('mongoose'),
   //mLabPromise: require('../mLabPromise'),
   graphIcon: 'mongoDbConnector.png',
-  tags:[
+  tags: [
     'http://semantic-bus.org/data/tags/inComponents',
+    'http://semantic-bus.org/data/tags/outComponents',
     'http://semantic-bus.org/data/tags/BDDComponents'
   ],
   schema: null,
   modelShema: null,
+  stepNode: true,
 
 
-  initialise: function (url) {
+  initialise: function(url) {
     //console.log("----- create uri connexion -----")
-    return new Promise(function (resolve, reject) {
+    return new Promise(function(resolve, reject) {
       if (url) {
         resolve(url)
       } else {
@@ -27,19 +29,20 @@ module.exports = {
   },
 
 
-  createmodel: function (modelName, data, mongoose, url) {
+  createmodel: function(modelName, data, url) {
     //console.log("----- create model mongoose -----")
-    return new Promise(function (resolve, reject) {
+    return new Promise(function(resolve, reject) {
       dataModel = {}
       var name = modelName;
-      var db = mongoose.createConnection(url, function (error) {
+      var db = this.mongoose.createConnection(url, (error) => {
         if (error) {
           let fullError = new Error(error);
           fullError.displayMessage = "Connecteur Mongo :  Veuillez entre une uri de connexion valide";
           reject(fullError)
         } else {
-          var modelShema = db.model(modelName, new mongoose.Schema(
-          ));
+          var modelShema = db.model(modelName, new this.mongoose.Schema({}, {
+            strict: false
+          }), modelName);
           if (modelName != null) {
             resolve({
               db: db,
@@ -56,70 +59,144 @@ module.exports = {
   },
 
 
-  request: function (querysTable, modelShema) {
+  request: function(querysTable, modelShema,queryParams) {
     //console.log("----- request mongoose -----", querysTable)
-    return new Promise(function (resolve, reject) {
-    //   modelShema.db.once('connected', function () {
-    //     console.log("----- in connected mongo ------", querysTable)
-        if (querysTable == null || querysTable.length  == 0) {
-          modelShema.model.find(
-            function (err, dataElements) {
-              resolve(dataElements)
-              if (err) {
-                let fullError = new Error(err);
-                fullError.displayMessage = "Connecteur Mongo :  nous avons rencontré un probleme avec  MongoDB";
-                reject(fullError)
-              }
-            }
-          )
-        } else {
-          try {
-            //console.log("----- in try mongo ------")
-            var query = eval("modelShema.model" + "." + querysTable)
-            query.exec(function (err, data) {
-              if (data) {
-                //console.log(data)
-                resolve(data)
-              }
-              if (err) {
-                //console.log(err)
-                let fullError = new Error(err);
-                fullError.displayMessage = "Connecteur Mongo :  nous avons rencontré un probleme avec votre query MongoDB";
-                reject(fullError)
-              }
-              if (data == null) {
-                resolve([])
-              }
-            })
-          } catch (e) {
-            if (e instanceof SyntaxError) {
-              let fullError = new Error(e);
-              fullError.displayMessage = "Connecteur Mongo : Veuillez entre une query valide  ex: findOne({name:'thomas')}";
+    return new Promise(function(resolve, reject) {
+      //   modelShema.db.once('connected', function () {
+      //     console.log("----- in connected mongo ------", querysTable)
+      if (querysTable == null || querysTable.length == 0) {
+        modelShema.model.find().lean().exec(
+          function(err, dataElements) {
+            resolve(dataElements)
+            if (err) {
+              let fullError = new Error(err);
+              fullError.displayMessage = "Connecteur Mongo :  nous avons rencontré un probleme avec  MongoDB";
               reject(fullError)
             }
           }
+        )
+      } else {
+        try {
+          //console.log("----- in try mongo ------")
+          //console.log(querysTable);
+          const regex = /{(\£.*?)}/g;
+          let elementsRaw = querysTable.match(regex);
+          if (elementsRaw != null) {
+            for (let match of elementsRaw) {
+              let ObjectKey=match.slice(3, -1);
+              //console.log(match,ObjectKey);
+              querysTable=querysTable.replace(match,queryParams[ObjectKey])
+            }
+            //console.log(querysTable);
+          }
+
+          var query = eval("modelShema.model." + querysTable+".lean()")
+          query.exec(function(err, data) {
+            if (data) {
+              //console.log(data)
+              resolve(data)
+            }
+            if (err) {
+              //console.log(err)
+              let fullError = new Error(err);
+              fullError.displayMessage = "Connecteur Mongo :  nous avons rencontré un probleme avec votre query MongoDB";
+              reject(fullError)
+            }
+            if (data == null) {
+              resolve([])
+            }
+          })
+        } catch (e) {
+          if (e instanceof SyntaxError) {
+            let fullError = new Error(e);
+            fullError.displayMessage = "Connecteur Mongo : Veuillez entre une query valide  ex: findOne({name:'thomas')}";
+            reject(fullError)
+          }
         }
-      });
+      }
+    });
   },
 
-  pull: function (data) {
+  insert: function(dataFlow, modelShema) {
+    //console.log("----- request mongoose -----", querysTable)
+    return new Promise(function(resolve, reject) {
+      //   modelShema.db.once('connected', function () {
+      //     console.log("----- in connected mongo ------", querysTable)
+      try {
+        //console.log('insert',dataFlow);
+        new Promise((resolve, reject) => {
+          modelShema.model.remove({}, (err) => {
+            if (err) {
+              reject(err);
+            } else {
+              resolve();
+            }
+          })
+        }).then(() => {
+          modelShema.model.create(dataFlow, (err, docs) => {
+            //console.log('after create', docs, err);
+            if (err) {
+              reject(err);
+            } else {
+              resolve(docs)
+            }
+          })
+        });
+
+      } catch (e) {
+        //if (e instanceof SyntaxError) {
+        //let fullError = new Error(e);
+        //fullError.displayMessage = "Connecteur Mongo : Veuillez entre une query valide  ex: findOne({name:'thomas')}";
+        reject(e)
+        //}
+      }
+
+    });
+  },
+
+
+  pull: function(data, dataFlow, queryParams) {
     return new Promise((resolve, reject) => {
-      var mongoose = require('mongoose');
-      this.initialise(data.specificData.url).then(function (url) {
-        this.createmodel(data.specificData.modelName, data.specificData.jsonSchema, mongoose, url).then(function (model) {
-          this.request(data.specificData.querySelect, model).then(function (finalRes) {
-            resolve({
-              data: finalRes
+
+      if (dataFlow == undefined) {
+        this.initialise(data.specificData.url).then(function(url) {
+          this.createmodel(data.specificData.modelName, data.specificData.jsonSchema, url).then(function(model) {
+            this.request(data.specificData.querySelect, model,queryParams).then(function(finalRes) {
+              resolve({
+                data: finalRes
+              })
+            }.bind(this), function(error) {
+              reject(error)
             })
-          }.bind(this), function (error) {
+          }.bind(this), function(error) {
             reject(error)
           })
-        }.bind(this), function (error) {
+        }.bind(this), function(error) {
           reject(error)
         })
-      }.bind(this), function (error) {
-        reject(error)
-      })
+      } else {
+
+        this.initialise(data.specificData.url).then((url) => {
+          this.createmodel(data.specificData.modelName, data.specificData.jsonSchema, url).then((model) => {
+            this.insert(dataFlow[0].data, model).then((finalRes) => {
+              this.request(data.specificData.querySelect, model,queryParams).then((finalRes) => {
+                resolve({
+                  data: finalRes
+                })
+              }, function(error) {
+                reject(error)
+              })
+            }, (error) => {
+              reject(error)
+            })
+          }, (error) => {
+            reject(error)
+          })
+        }, (error) => {
+          reject(error)
+        })
+      }
+
     })
   }
 };
