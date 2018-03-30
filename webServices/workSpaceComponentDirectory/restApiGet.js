@@ -12,61 +12,154 @@
     this.data2xml = require('data2xml');
     this.dataTraitment = require("../dataTraitmentLibrary/index.js");
     this.json2yaml = require('json2yaml');
+    this.express = require('express');
+    this.cors = require('cors');
+    this.pathToRegexp = require('path-to-regexp');
+    this.recursivPullResolvePromise=require('../recursivPullResolvePromise.js');
 
-    this.initialise = function(router) {
-      router.get('/:urlRequiered', function(req, res, next) {
-        //console.log(req.query);
+    this.initialise = function(router, app) {
+
+      let apiGetRouteur = this.express.Router();
+      apiGetRouteur.use(this.cors());
+
+
+      // this.workspace_component_lib.get_all({
+      //   module: 'restApiGet'
+      // }).then(comps => {
+      //
+      //   for (let comp of comps) {
+      //     if (comp.specificData.url != undefined) {
+      //       console.log('API comp | ', comp.specificData.url);
+      //       apiGetRouteur.get('/' + comp.specificData.url, function(req, res, next) {
+      //         console.log('API TRIGGERED');
+      //         res.json('API TRIGGERED');
+      //       });
+      //     }
+      //
+      //   }
+      // })
+      // console.log('routes', app._router.map);
+
+
+      apiGetRouteur.get('/*', (req, res, next) => {
+        //console.log('query',req.query);
+        //console.log('params',req.params);
+        urlRequiered=req.params[0];
+        // for(let key in req.params){
+        //   urlRequiered=urlRequiered+req.params[key];
+        // }
+        //console.log(urlRequiered);
 
         //console.log("in get")
-
-        var urlRequiered = req.params.urlRequiered;
+        // console.log('recursivPullResolvePromise',this.recursivPullResolvePromise);
+        //   console.log('pathToRegexp', this.pathToRegexp);
+        //var urlRequiered = req.params.join('');
         //console.log(urlRequiered);
         //this require is live because constructor require cause cyclic dependencies (recursivPullResolvePromise->restApiGet)
         //TODO require use cache object  : need to build one engine per request
-        this.recursivPullResolvePromiseDynamic = require('../recursivPullResolvePromise')
-        var specificData;
+        //this.recursivPullResolvePromiseDynamic = require('../recursivPullResolvePromise')
+        var targetedComponent;
         //console.log('urlRequiered', urlRequiered)
 
-        this.workspace_component_lib.get({
-          "specificData.url": urlRequiered
-        }).then(component => {
+
+        // this.workspace_component_lib.get_all({module:'restApiGet'}).then(comps=>{
+        //   for(let comp of comps){
+        //       let route = new express.Route('', '/api/users/:username');
+        //   }
+        //
+        // })
+
+        let keys = [];
+        let matches;
+        this.workspace_component_lib.get_all({
+          module: 'restApiGet'
+        }).then(components => {
           //console.log(component);
-          if (component != undefined) {
+          var matched=false;
+          for (let component of components) {
+            if (component.specificData.url != undefined) {
+              //console.log(component.specificData.url,urlRequiered);
+              let regexp = this.pathToRegexp(component.specificData.url, keys);
+              //console.log(re);
+              if(regexp.test(urlRequiered)){
+                matched=true;
+                targetedComponent=component;
+                let values = regexp.exec(urlRequiered)
+                console.log(keys,values);
+                let valueIndex=1;
+                for(let key of keys){
+                  req.query[key.name]=values[valueIndex];
+                  valueIndex++;
+                }
+                console.log(req.query);
 
-
-
-            if (component.specificData.contentType == undefined) {
-              return new Promise((resolve, reject) => {
-                reject(new Error("API without content-type"));
-              })
-            } else {
-              specificData = component.specificData;
-              return this.recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(component, 'work',undefined, req.query);
-              //return this.recursivPullResolvePromise.resolveComponentPull(data[0], false,req.query);
+                break;
+              }
+              // matches = re.exec(urlRequiered);
+              // console.log(matches);
+              // if(matches.length>1){
+              //   matched=true;
+              //   break;
+              // }
             }
-
-
-          } else {
+          }
+          if (!matched){
             return new Promise((resolve, reject) => {
               reject({
                 code: 404,
                 message: "no API for this url"
               })
             })
+          }else {
+            //console.log(this.recursivPullResolvePromise);
+            return this.recursivPullResolvePromise.getNewInstance().resolveComponent(targetedComponent, 'work', undefined, {query:req.query,body:req.body});
+            //return this.recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(component, 'work', undefined, req.query);
+            // return new Promise((resolve, reject) => {
+            //   resolve({
+            //     data: "api finded"
+            //   })
+            // })
           }
-        }).then(dataToSend => {
 
-          if (specificData != undefined) { // exception in previous promise
-            if (specificData.contentType.search('application/vnd.ms-excel') != -1) {
-              res.setHeader('content-type', specificData.contentType);
+
+
+
+
+
+
+          // if (component != undefined) {
+          //
+          //   if (component.specificData.contentType == undefined) {
+          //     return new Promise((resolve, reject) => {
+          //       reject(new Error("API without content-type"));
+          //     })
+          //   } else {
+          //     specificData = component.specificData;
+          //     return this.recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(component, 'work', undefined, req.query);
+          //     //return this.recursivPullResolvePromise.resolveComponentPull(data[0], false,req.query);
+          //   }
+          //
+          //
+          // } else {
+          //   return new Promise((resolve, reject) => {
+          //     reject({
+          //       code: 404,
+          //       message: "no API for this url"
+          //     })
+          //   })
+          // }
+        }).then(dataToSend => {
+          if (targetedComponent.specificData != undefined) { // exception in previous promise
+            if (targetedComponent.specificData.contentType.search('application/vnd.ms-excel') != -1) {
+              res.setHeader('content-type', targetedComponent.specificData.contentType);
               var responseBodyExel = []
               //console.log('data.contentType XLS', specificData)
-              this.dataTraitment.type.type_file(specificData.contentType, dataToSend, responseBodyExel, specificData.xls, true).then(function(result) {
+              this.dataTraitment.type.type_file(targetedComponent.specificData.contentType, dataToSend, responseBodyExel, undefined, true).then(function(result) {
                 //console.log(result)
                 res.send(result)
               })
-            } else if (specificData.contentType.search('xml') != -1) {
-              res.setHeader('content-type', specificData.contentType);
+            } else if (targetedComponent.specificData.contentType.search('xml') != -1) {
+              res.setHeader('content-type', targetedComponent.specificData.contentType);
               var convert = this.data2xml();
               var out = "";
               for (key in dataToSend.data) {
@@ -74,12 +167,12 @@
               }
               //console.log(out);
               res.send(out);
-            } else if (specificData.contentType.search('yaml') != -1) {
-              res.setHeader('content-type', specificData.contentType);
+            } else if (targetedComponent.specificData.contentType.search('yaml') != -1) {
+              res.setHeader('content-type', targetedComponent.specificData.contentType);
               res.send(this.json2yaml.stringify(dataToSend.data));
 
-            } else if (specificData.contentType.search('json') != -1) {
-              res.setHeader('content-type', specificData.contentType);
+            } else if (targetedComponent.specificData.contentType.search('json') != -1) {
+              res.setHeader('content-type', targetedComponent.specificData.contentType);
               res.json(dataToSend.data);
             } else {
               next(new Error('no supported madiatype'));
@@ -95,7 +188,9 @@
             //res.status(500).send("serveur error");
           }
         });
-      }.bind(this));
+      });
+
+      app.use('/data/api', apiGetRouteur);
     }
 
 

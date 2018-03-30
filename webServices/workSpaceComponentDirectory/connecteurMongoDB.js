@@ -5,6 +5,7 @@ module.exports = {
   mongoose: require('mongoose'),
   //mLabPromise: require('../mLabPromise'),
   graphIcon: 'mongoDbConnector.png',
+  dotProp : require('dot-prop'),
   tags: [
     'http://semantic-bus.org/data/tags/inComponents',
     'http://semantic-bus.org/data/tags/outComponents',
@@ -61,7 +62,7 @@ module.exports = {
 
   request: function(querysTable, modelShema,queryParams) {
     //console.log("----- request mongoose -----", querysTable)
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject)=> {
       //   modelShema.db.once('connected', function () {
       //     console.log("----- in connected mongo ------", querysTable)
       if (querysTable == null || querysTable.length == 0) {
@@ -84,10 +85,13 @@ module.exports = {
           if (elementsRaw != null) {
             for (let match of elementsRaw) {
               let ObjectKey=match.slice(3, -1);
-              //console.log(match,ObjectKey);
-              querysTable=querysTable.replace(match,queryParams[ObjectKey])
+              console.log(match,ObjectKey,queryParams);
+
+              querysTable=querysTable.replace(match,this.dotProp.get(queryParams, ObjectKey));
+
+
             }
-            //console.log(querysTable);
+            console.log(querysTable);
           }
 
           var query = eval("modelShema.model." + querysTable+".lean()")
@@ -111,6 +115,8 @@ module.exports = {
             let fullError = new Error(e);
             fullError.displayMessage = "Connecteur Mongo : Veuillez entre une query valide  ex: findOne({name:'thomas')}";
             reject(fullError)
+          }else{
+            reject(e)
           }
         }
       }
@@ -159,19 +165,19 @@ module.exports = {
     return new Promise((resolve, reject) => {
 
       if (dataFlow == undefined) {
-        this.initialise(data.specificData.url).then(function(url) {
-          this.createmodel(data.specificData.modelName, data.specificData.jsonSchema, url).then(function(model) {
-            this.request(data.specificData.querySelect, model,queryParams).then(function(finalRes) {
+        this.initialise(data.specificData.url).then((url)=> {
+          this.createmodel(data.specificData.modelName, data.specificData.jsonSchema, url).then((model)=> {
+            this.request(data.specificData.querySelect, model,queryParams).then((finalRes)=> {
               resolve({
                 data: finalRes
               })
-            }.bind(this), function(error) {
+            }, (error)=> {
               reject(error)
             })
-          }.bind(this), function(error) {
+          }, (error) => {
             reject(error)
           })
-        }.bind(this), function(error) {
+        }, (error)=> {
           reject(error)
         })
       } else {

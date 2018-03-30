@@ -34,6 +34,7 @@
     "cors": "latest",
     "csvtojson": "latest",
     "data2xml": "^1.2.5",
+    "dot-prop": "^4.2.0",
     "error-stack-parser": "^2.0.1",
     "express": "latest",
     "follow-redirects": "^1.2.4",

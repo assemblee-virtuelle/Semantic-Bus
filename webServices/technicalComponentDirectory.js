@@ -50,9 +50,9 @@ module.exports = {
     }
     return directory;
   },
-  initialise: function (router, unSafeRouteur, recursivPullResolvePromise) {
+  initialise: function ( unSafeRouteur, app,recursivPullResolvePromise) {
     this.restApiPost.initialise(unSafeRouteur); //NO SECURE CHANGE ROUTER
-    this.restApiGet.initialise(unSafeRouteur); //NO SECURE CHANGE ROUTER
+    this.restApiGet.initialise(unSafeRouteur,app); //NO SECURE CHANGE ROUTER
     this.upload.initialise(unSafeRouteur);
     this.cacheNosql.initialise(unSafeRouteur, recursivPullResolvePromise); //NO SECURE CHANGE ROUTER
   }
