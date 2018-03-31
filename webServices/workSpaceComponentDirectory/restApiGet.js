@@ -42,6 +42,7 @@
 
 
       apiGetRouteur.get('/*', (req, res, next) => {
+        //console.log('req',req);
         //console.log('query',req.query);
         //console.log('params',req.params);
         urlRequiered=req.params[0];
@@ -69,7 +70,7 @@
         //
         // })
 
-        let keys = [];
+
         let matches;
         this.workspace_component_lib.get_all({
           module: 'restApiGet'
@@ -79,20 +80,31 @@
           for (let component of components) {
             if (component.specificData.url != undefined) {
               //console.log(component.specificData.url,urlRequiered);
+              let keys = [];
               let regexp = this.pathToRegexp(component.specificData.url, keys);
+              //console.log(keys);
               //console.log(re);
               if(regexp.test(urlRequiered)){
                 matched=true;
                 targetedComponent=component;
                 let values = regexp.exec(urlRequiered)
-                console.log(keys,values);
+                //console.log(keys,values);
                 let valueIndex=1;
                 for(let key of keys){
-                  req.query[key.name]=values[valueIndex];
+                  //console.log(key);
+                  let value=values[valueIndex];
+                  req.query[key.name]=value;
                   valueIndex++;
                 }
-                console.log(req.query);
 
+                for (queryKey in req.query) {
+                  try{
+                    req.query[queryKey]=JSON.parse(req.query[queryKey]);
+                  }catch(e){
+                    console.log(e) ;
+                  }
+                }
+                console.log('QUERY',req.query);
                 break;
               }
               // matches = re.exec(urlRequiered);

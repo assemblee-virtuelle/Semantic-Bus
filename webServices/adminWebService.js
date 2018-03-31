@@ -51,9 +51,11 @@ module.exports = function(router) {
   });
 
   router.post('/dbScripts', function(req, res, next) {
-console.log('EXECUTION');
+    console.log('EXECUTION');
     //console.log(configuration);
-    res.json({message:'in progress'});
+    res.json({
+      message: 'in progress'
+    });
     var token = req.body.token || req.query.token || req.headers['authorization'];
     //console.log('token |',token);
     let user;
@@ -64,10 +66,12 @@ console.log('EXECUTION');
       user = decodedToken.iss;
       //console.log('user |',user);
     }
-    let scripts=req.body;
-    for(script of scripts){
-      let scriptConfig = sift({identifier:script.identifier},configuration.importScripts)[0];
-      let scriptObject= require('../scripts/'+scriptConfig.script);
+    let scripts = req.body;
+    for (script of scripts) {
+      let scriptConfig = sift({
+        identifier: script.identifier
+      }, configuration.importScripts)[0];
+      let scriptObject = require('../scripts/' + scriptConfig.script);
       scriptObject.work(user);
     }
 

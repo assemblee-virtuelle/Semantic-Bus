@@ -106,7 +106,7 @@ httpGet.makeRequest('GET', {
         require('./webServices/authWebService')(unSafeRouteur,stompClient);
         require('./webServices/workspaceWebService')(safe,stompClient);
         require('./webServices/workspaceComponentWebService')(safe,stompClient);
-        require('./webServices/technicalComponentWebService')(safe, app,stompClient);
+        require('./webServices/technicalComponentWebService')(safe,unSafeRouteur, app,stompClient);
         require('./webServices/userWebservices')(safe,stompClient);
         require('./webServices/rightsManagementWebService')(safe,stompClient);
         require('./webServices/adminWebService')(safe,stompClient);
