@@ -369,7 +369,7 @@ module.exports = {
         });
       } else {
         resolve({
-          data: data.specificData.transformObject
+          data: this.jsonTransform({}, data.specificData.transformObject)
         });
       }
     })

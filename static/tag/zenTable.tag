@@ -152,11 +152,11 @@
     });
 
     navigationClick(e) {
-      console.log("test", e.item)
+      //console.log("test", e.item)
       var index = parseInt(e.item.rowId);
       let dataWithrowId = this.data[index];
       dataWithrowId.rowId = index;
-      console.log(dataWithrowId)
+      //console.log(dataWithrowId)
       this.trigger('rowNavigation', dataWithrowId)
     }
 
@@ -166,13 +166,14 @@
     }
 
     delRowClick(e) {
+      //console.log(e);
         if (confirm("Êtes vous sur de vouloir supprimer l'élément ?")) {
             this.trigger('delRow', e.item)
         } else {
             return
         }
       //let dataWithrowId = e.item;
-      
+
       //dataWithrowId.rowId = i;
       //this.trigger('delRow', e.item)
       // console.log('ALLO');
@@ -224,29 +225,29 @@
         //console.log('ALLO');
         e.item[e.target.attributes['data-field'].value] = e.target.value;
       }
-      this.trigger('onValueChange',this.data)
+      this.trigger('dataChanged',this.data)
     }
 
-    recalculateHeader() {
-      //console.log(this.refs.tableHeader)
-      var headers = this.refs.tableHeader.children;
-      for (var row of this.root.querySelectorAll('.tableRow')) {
-        for (var headerkey in headers) {
-          var numkey = parseInt(headerkey);
-          if (!isNaN(numkey)) {
-            //console.log(row.children[numkey].getBoundingClientRect().width);
-            var width = row.children[numkey].getBoundingClientRect().width;
-            var cssWidth = width + 'px';
-            headers[headerkey].style.width = cssWidth;
-            headers[headerkey].style.maxWidth = cssWidth;
-            headers[headerkey].style.minWidth = cssWidth;
-            headers[headerkey].style.flexBasis = cssWidth;
-            //console.log(headers[headerkey].style);
-          }
-        }
-        break;
-      }
-    }
+    // recalculateHeader() {
+    //   //console.log(this.refs.tableHeader)
+    //   var headers = this.refs.tableHeader.children;
+    //   for (var row of this.root.querySelectorAll('.tableRow')) {
+    //     for (var headerkey in headers) {
+    //       var numkey = parseInt(headerkey);
+    //       if (!isNaN(numkey)) {
+    //         //console.log(row.children[numkey].getBoundingClientRect().width);
+    //         var width = row.children[numkey].getBoundingClientRect().width;
+    //         var cssWidth = width + 'px';
+    //         headers[headerkey].style.width = cssWidth;
+    //         headers[headerkey].style.maxWidth = cssWidth;
+    //         headers[headerkey].style.minWidth = cssWidth;
+    //         headers[headerkey].style.flexBasis = cssWidth;
+    //         //console.log(headers[headerkey].style);
+    //       }
+    //     }
+    //     break;
+    //   }
+    // }
 
     this.on('mount', function () {
       this.placeholder = document.createElement("div");

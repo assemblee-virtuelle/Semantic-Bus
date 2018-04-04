@@ -11,6 +11,8 @@ class Engine {
     this.workspace_lib = require("../lib/core/lib/workspace_lib");
     this.user_lib = require("../lib/core/lib/user_lib");
     this.config = require("../configuration.js");
+    this.PromiseOrchestrator = require("./promiseOrchestrator.js")
+    this.promiseOrchestrator = new this.PromiseOrchestrator();
     this.fackCounter = 0;
   }
 
@@ -27,8 +29,7 @@ class Engine {
           this.workspace_lib
             .getWorkspace(component.workspaceId)
             .then(workspace => {
-              let ownerUserMail = this.sift(
-                {
+              let ownerUserMail = this.sift({
                   role: "owner"
                 },
                 workspace.users
@@ -47,8 +48,7 @@ class Engine {
                     component.specificData = component.specificData || {};
                   });
 
-                  let originComponent = this.sift(
-                    {
+                  let originComponent = this.sift({
                       _id: component._id
                     },
                     this.componentsResolving
@@ -79,8 +79,7 @@ class Engine {
                   if (requestDirection == "push") {
                     originComponent.dataResolution = pushData;
 
-                    this.sift(
-                      {
+                    this.sift({
                         "source._id": component._id
                       },
                       this.pathResolution
@@ -113,13 +112,11 @@ class Engine {
                       module
                         .pull(componentProcessing, undefined, componentProcessing.queryParams)
                         .then(componentFlow => {
-                          if (this.config.quietLog != true) {
-                          }
+                          if (this.config.quietLog != true) {}
                           componentProcessing.dataResolution = componentFlow;
                           componentProcessing.status = "resolved";
 
-                          this.sift(
-                            {
+                          this.sift({
                               "source._id": componentProcessing._id
                             },
                             this.pathResolution
@@ -171,16 +168,14 @@ class Engine {
         //   return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
         // }));
       }
-      let linkNotResolved = this.sift(
-        {
+      let linkNotResolved = this.sift({
           status: "processing"
         },
         this.pathResolution
       );
       if (linkNotResolved.length > 0) {
         for (var processingLinkCandidate of linkNotResolved) {
-          let linksNotReady = this.sift(
-            {
+          let linksNotReady = this.sift({
               "destination._id": processingLinkCandidate.destination._id,
               status: {
                 $ne: "processing"
@@ -198,8 +193,7 @@ class Engine {
         //-------------- Component processing --------------
 
         if (processingLink != undefined) {
-          let linksProcessingInputs = this.sift(
-            {
+          let linksProcessingInputs = this.sift({
               "destination._id": processingLink.destination._id,
               status: "processing"
             },
@@ -218,76 +212,40 @@ class Engine {
           let current_component = null;
           let current_cost = null;
           let consumption_history_object = {};
+          current_component = this.config_component.components_information[processingLink.destination.module];
+          let current_component_price;
 
           if (module.getPriceState != undefined) {
-            this.config_component.components_information.forEach(component => {
-
-              //GET CURRENT COMPONENT PRICE
-              current_component = component[processingLink.destination.module];
-              //console.log("PRICE 1", current_component,module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price))
-              //UPDATE HISTORIQUE
-              consumption_history_object.totalPrice =
-                (module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price).recordPrice / 1000 )
-                * dataFlow[0].data.length +  ( this.objectSizeOf(dataFlow) / 1000000 * current_component.price );
-              consumption_history_object.moCount =
-                this.objectSizeOf(dataFlow) / 1000000;
-              consumption_history_object.recordCount = dataFlow[0].data.length;
-              consumption_history_object.recordPrice = current_component.record_price;
-              consumption_history_object.componentPrice = current_component.price
-
-              //UPDATE USER CREDIT
-              owner.credit -=
-                module.getPriceState(
-                  processingLink.destination.specificData,
-                  current_component.price,
-                  current_component.record_price
-                ).recordPrice *
-                  dataFlow[0].data.length +
-                this.objectSizeOf(dataFlow) / 1000000 * current_component.price;
-              current_cost =
-                module.getPriceState(
-                  processingLink.destination.specificData,
-                  current_component.price,
-                  current_component.record_price
-                ).recordPrice *
-                  dataFlow[0].data.length +
-                this.objectSizeOf(dataFlow) / 1000000 * current_component.price;
-
-              this.user_lib.update(owner).then(res => {
-                //console.log("CREDIT 1 UPDATE", res.credit);
-              });
-            });
+            current_component_price = module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price);
+          } else {
+            current_component_price = {
+              moPrice: current_component.price,
+              recordPrice: current_component.record_price
+            }
           }
-          else {
-            this.config_component.components_information.forEach(component => {
-              //GET CURRENT COMPONENT PRICE
-              current_component = component[processingLink.destination.module];
-              //console.log("PRICE 2", current_component)
-              //UPDATE HISTORIQUE
-              consumption_history_object.totalPrice = this.objectSizeOf(dataFlow) / 1000000 * current_component.price / 1000;
-              consumption_history_object.moCount = this.objectSizeOf(dataFlow) / 1000000;
-              consumption_history_object.recordCount = dataFlow[0].data.length;
-              consumption_history_object.recordPrice = 0;
-              consumption_history_object.componentPrice = current_component.price
+          current_component = this.config_component.components_information[processingLink.destination.module];
+          //console.log(dataFlow[0].data);
+          consumption_history_object.recordCount = dataFlow==undefined?0:dataFlow[0].data.length||1;
+          consumption_history_object.recordPrice = current_component_price.record_price||0;
+          consumption_history_object.moCount = this.objectSizeOf(dataFlow) / 1000000;
+          consumption_history_object.componentPrice = current_component_price.moPrice;
+          consumption_history_object.totalPrice =
+            (consumption_history_object.recordCount * consumption_history_object.recordPrice) / 1000 +
+            (consumption_history_object.moCount * consumption_history_object.componentPrice) / 1000;
 
-              //UPDATE USER CREDIT
-              current_cost = this.objectSizeOf(dataFlow) / 1000000 * current_component.price;
-              owner.credit =
-                owner.credit -
-                this.objectSizeOf(dataFlow) / 1000000 * current_component.price;
 
-              this.user_lib.update(owner).then(res => {
-                //console.log("CREDIT 2 UPDATE", res.credit);
-              });
-            });
-          }
+          //UPDATE USER CREDIT
+          owner.credit -= consumption_history_object.totalPrice;
 
+          this.user_lib.update(owner).then(res => {
+            //console.log("CREDIT 1 UPDATE", res.credit);
+          });
 
           let roundDate = new Date();
-            roundDate.setMinutes(0);
-            roundDate.setSeconds(0);
-            roundDate.setMilliseconds(0);
-            roundDate.setHours(0);
+          roundDate.setMinutes(0);
+          roundDate.setSeconds(0);
+          roundDate.setMilliseconds(0);
+          roundDate.setHours(0);
 
           consumption_history_object.componentModule = processingLink.destination.module
           //TODO pas besoin de stoquer le name du component, on a l'id. ok si grosse perte de perf pour histogramme
@@ -313,7 +271,7 @@ class Engine {
           // TODO L'enregistrement de l'historique devait avoir lieu apres la résolution du work. on ne facture pas si le composant plante
           this.workspace_lib
             .createHistorique(consumption_history_object)
-            .then((consumption_history_res)=>{
+            .then((consumption_history_res) => {
               if (this.config.quietLog != true) {
                 //console.log('AFTER consumption Update', consumption_history_res);
               }
@@ -331,7 +289,7 @@ class Engine {
               secondaryFlow = secondaryFlow.concat(dataFlow);
               secondaryFlow.splice(secondaryFlow.indexOf(primaryflow), 1);
 
-              if (primaryflow.dfob != undefined && primaryflow.dfob.length>0) {
+              if (primaryflow.dfob != undefined && primaryflow.dfob.length > 0) {
                 var dfobTab = primaryflow.dfob[0].split(".");
                 var dfobFinalFlow = this.buildDfobFlow(
                   primaryflow.data,
@@ -341,67 +299,121 @@ class Engine {
                 if (this.config.quietLog != true) {
                   //console.log('dfobFinalFlow | ', dfobFinalFlow);
                 }
-
-                var testPromises = dfobFinalFlow.map(finalItem => {
+                let paramArray = dfobFinalFlow.map(finalItem => {
                   var recomposedFlow = [];
-                  recomposedFlow = recomposedFlow.concat([
-                    {
-                      data: finalItem.objectToProcess[finalItem.key],
-                      componentId: primaryflow.componentId
-                    }
-                  ]);
+                  recomposedFlow = recomposedFlow.concat([{
+                    data: finalItem.objectToProcess[finalItem.key],
+                    componentId: primaryflow.componentId
+                  }]);
                   recomposedFlow = recomposedFlow.concat(secondaryFlow);
-                  return module.pull(
+                  return [
                     processingLink.destination,
                     recomposedFlow,
                     undefined
-                  );
+                  ];
                 });
-
-                Promise.all(testPromises)
-                  .then(componentFlowDfob => {
-                    for (var componentFlowDfobKey in componentFlowDfob) {
-                      dfobFinalFlow[componentFlowDfobKey].objectToProcess[
+                //console.log('paramArray',paramArray);
+                this.promiseOrchestrator.execute(module,module.pull,paramArray,{}).then((componentFlowDfob)=>{
+                  for (var componentFlowDfobKey in componentFlowDfob) {
+                    dfobFinalFlow[componentFlowDfobKey].objectToProcess[
                         dfobFinalFlow[componentFlowDfobKey].key
                       ] =
-                        componentFlowDfob[componentFlowDfobKey].data;
-                    }
+                      componentFlowDfob[componentFlowDfobKey].data;
+                  }
 
-                    processingLink.destination.dataResolution = {
-                      componentId: processingLink.destination._id,
-                      data: primaryflow.data
-                    };
-                    processingLink.destination.status = "resolved";
-                    this.sift(
-                      {
-                        "source._id": processingLink.destination._id
-                      },
-                      this.pathResolution
-                    ).forEach(link => {
-                      link.status = "processing";
-                    });
-
-                    linksProcessingInputs.forEach(link => {
-                      link.status = "resolved";
-                    });
-
-                    if (
-                      processingLink.destination._id == this.RequestOrigine._id
-                    ) {
-                      this.RequestOrigineResolveMethode(
-                        processingLink.destination.dataResolution
-                      );
-                    }
-                    this.processNextBuildPath(
-                      traitement_id,
-                      component_workspaceId,
-                      owner,
-                      name
-                    );
-                  })
-                  .catch(e => {
-                    this.RequestOrigineRejectMethode(e);
+                  processingLink.destination.dataResolution = {
+                    componentId: processingLink.destination._id,
+                    data: primaryflow.data
+                  };
+                  processingLink.destination.status = "resolved";
+                  this.sift({
+                      "source._id": processingLink.destination._id
+                    },
+                    this.pathResolution
+                  ).forEach(link => {
+                    link.status = "processing";
                   });
+
+                  linksProcessingInputs.forEach(link => {
+                    link.status = "resolved";
+                  });
+
+                  if (
+                    processingLink.destination._id == this.RequestOrigine._id
+                  ) {
+                    this.RequestOrigineResolveMethode(
+                      processingLink.destination.dataResolution
+                    );
+                  }
+                  this.processNextBuildPath(
+                    traitement_id,
+                    component_workspaceId,
+                    owner,
+                    name
+                  );
+                }).catch(e => {
+                    this.RequestOrigineRejectMethode(e);
+                });
+
+                // var testPromises = dfobFinalFlow.map(finalItem => {
+                //   var recomposedFlow = [];
+                //   recomposedFlow = recomposedFlow.concat([{
+                //     data: finalItem.objectToProcess[finalItem.key],
+                //     componentId: primaryflow.componentId
+                //   }]);
+                //   recomposedFlow = recomposedFlow.concat(secondaryFlow);
+                //   return module.pull(
+                //     processingLink.destination,
+                //     recomposedFlow,
+                //     undefined
+                //   );
+                // });
+
+
+
+                // Promise.all(testPromises)
+                //   .then(componentFlowDfob => {
+                //     for (var componentFlowDfobKey in componentFlowDfob) {
+                //       dfobFinalFlow[componentFlowDfobKey].objectToProcess[
+                //           dfobFinalFlow[componentFlowDfobKey].key
+                //         ] =
+                //         componentFlowDfob[componentFlowDfobKey].data;
+                //     }
+                //
+                //     processingLink.destination.dataResolution = {
+                //       componentId: processingLink.destination._id,
+                //       data: primaryflow.data
+                //     };
+                //     processingLink.destination.status = "resolved";
+                //     this.sift({
+                //         "source._id": processingLink.destination._id
+                //       },
+                //       this.pathResolution
+                //     ).forEach(link => {
+                //       link.status = "processing";
+                //     });
+                //
+                //     linksProcessingInputs.forEach(link => {
+                //       link.status = "resolved";
+                //     });
+                //
+                //     if (
+                //       processingLink.destination._id == this.RequestOrigine._id
+                //     ) {
+                //       this.RequestOrigineResolveMethode(
+                //         processingLink.destination.dataResolution
+                //       );
+                //     }
+                //     this.processNextBuildPath(
+                //       traitement_id,
+                //       component_workspaceId,
+                //       owner,
+                //       name
+                //     );
+                //   })
+                  // .catch(e => {
+                  //   this.RequestOrigineRejectMethode(e);
+                  // });
               } else {
                 module
                   .pull(processingLink.destination, dataFlow, processingLink.queryParams)
@@ -409,8 +421,7 @@ class Engine {
                     processingLink.destination.dataResolution = componentFlow;
                     processingLink.destination.status = "resolved";
 
-                    this.sift(
-                      {
+                    this.sift({
                         "source._id": processingLink.destination._id
                       },
                       this.pathResolution
@@ -498,7 +509,9 @@ class Engine {
     }
   }
 
-  buildPathResolution( component, requestDirection,depth,usableComponents,buildPath,queryParams) {
+
+
+  buildPathResolution(component, requestDirection, depth, usableComponents, buildPath, queryParams) {
     buildPath = buildPath || [];
 
     //infinite depth protection. Could be remove if process is safe
@@ -512,9 +525,9 @@ class Engine {
       let module = this.technicalComponentDirectory[component.module];
       // console.log(incConsole, "buildPathResolution", component._id, requestDirection, module.type);
       var out = [];
-      let currentQueryParam=queryParams;
-      if(module.buildQueryParam!=undefined){
-        currentQueryParam=module.buildQueryParam(queryParams,component.specificData);
+      let currentQueryParam = queryParams;
+      if (module.buildQueryParam != undefined) {
+        currentQueryParam = module.buildQueryParam(queryParams, component.specificData);
       }
       //if (requestDirection == "pull") {
       if (requestDirection != "push") {
@@ -525,8 +538,7 @@ class Engine {
         ) {
           for (var beforeComponent of component.connectionsBefore) {
             //console.log(beforeComponent);
-            var beforeComponentObject = this.sift(
-              {
+            var beforeComponentObject = this.sift({
                 _id: beforeComponent
               },
               usableComponents
@@ -537,10 +549,9 @@ class Engine {
                 source: beforeComponentObject,
                 destination: component,
                 requestDirection: "pull",
-                queryParams:currentQueryParam
+                queryParams: currentQueryParam
               };
-              var existingLink = this.sift(
-                {
+              var existingLink = this.sift({
                   "source._id": linkToProcess.source._id,
                   "destination._id": linkToProcess.destination._id
                 },
@@ -567,7 +578,7 @@ class Engine {
         } else {
           //console.log("add pullSource", component._id)
           component.pullSource = true;
-          component.queryParams=currentQueryParam;
+          component.queryParams = currentQueryParam;
         }
       }
       if (requestDirection != "pull") {
@@ -577,8 +588,7 @@ class Engine {
           !(requestDirection == "push" && module.stepNode == true)
         ) {
           for (var afterComponentId of component.connectionsAfter) {
-            var afterComponentObject = this.sift(
-              {
+            var afterComponentObject = this.sift({
                 _id: afterComponentId
               },
               usableComponents
@@ -590,8 +600,7 @@ class Engine {
                 destination: afterComponentObject,
                 requestDirection: "push"
               };
-              var existingLink = this.sift(
-                {
+              var existingLink = this.sift({
                   "source._id": linkToProcess.source._id,
                   "destination._id": linkToProcess.destination._id
                 },
