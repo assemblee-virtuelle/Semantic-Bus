@@ -1,3 +1,4 @@
+"use strict";
 module.exports = {
   type: 'Cache NoSql',
   description: 'sauvegarder un flux et le réutiliser sans avoir besoin de requeter la source',

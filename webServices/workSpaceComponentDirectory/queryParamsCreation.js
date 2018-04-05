@@ -1,3 +1,4 @@
+"use strict";
 module.exports = {
   type: 'QueryParamsCreation',
   description: 'créer des paramètres de requete dand le flux',

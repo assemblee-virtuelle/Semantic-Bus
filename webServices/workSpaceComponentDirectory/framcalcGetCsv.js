@@ -1,3 +1,4 @@
+"use strict";
 module.exports = {
   type: 'Framacalc Get CSV',
   description: 'intéroger une feuille de calcule Framacalc qui fourni un flux CSV',

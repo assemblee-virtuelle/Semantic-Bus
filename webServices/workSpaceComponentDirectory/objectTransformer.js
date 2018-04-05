@@ -1,3 +1,4 @@
+"use strict";
 module.exports = {
   type: 'Object Transformer',
   description: 'transformer un objet par mapping grâce à un objet transformation',
@@ -140,7 +141,7 @@ module.exports = {
                 return match.slice(1, -1);
               })
               let dispatchParameter = {}
-              for (elementKey in elements) {
+              for (let elementKey in elements) {
                 dispatchParameter[elements[elementKey]] = elements[elementKey];
               }
               //console.log(dispatchParameter);
@@ -247,7 +248,7 @@ module.exports = {
     if (Array.isArray(nodeInData)) {
       nodeOut = [];
       if (nodeInPostProcess != undefined && nodeInPostProcess[0] != undefined) {
-        for (recordData of nodeInData) {
+        for (let recordData of nodeInData) {
           nodeOut.push(this.postProcess(recordData, nodeInPostProcess[0]));
         }
       } else {
@@ -263,7 +264,7 @@ module.exports = {
             var javascriptEvalString = nodeInPostProcess[nodeInDataProperty].processData;
             //console.log('javascriptEvalString |',javascriptEvalString)
             //console.log('nodeInData[nodeInDataProperty] |', nodeInData[nodeInDataProperty]);
-            for (evalParam in nodeInData[nodeInDataProperty]) {
+            for (let evalParam in nodeInData[nodeInDataProperty]) {
               //console.log(evalParam);
               var evalParamValue = nodeInData[nodeInDataProperty][evalParam];
               //console.log('evalParam |',evalParam,' | evalParamValue | ',evalParamValue);
@@ -293,13 +294,14 @@ module.exports = {
               nodeOut[nodeInDataProperty] = eval(javascriptEvalString);
               //console.log('eval done');
             } catch (e) {
-              console.log('Javascript Eval failed ', javascriptEvalString, e.message);
+              nodeOut[nodeInDataProperty]={error:'Javascript Eval failed ',evalString:javascriptEvalString,cause:e.message};
+              //console.log('Javascript Eval failed ', javascriptEvalString, e.message);
             }
           } else if (nodeInPostProcess[nodeInDataProperty].process == 'arrayHack') {
             //console.log('arrayHack',nodeInDataProperty);
             var objectToTransform = this.postProcess(nodeInData[nodeInDataProperty], nodeInPostProcess[nodeInDataProperty]);
             var arrayTransform = [];
-            for (key in objectToTransform) {
+            for (let key in objectToTransform) {
               arrayTransform.push(objectToTransform[key])
             }
             nodeOut[nodeInDataProperty] = arrayTransform;

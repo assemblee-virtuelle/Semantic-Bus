@@ -1,3 +1,4 @@
+"use strict";
 module.exports = {
   type: 'SQL connector',
   description: 'intéroger une base de donnée SQL',

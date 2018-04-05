@@ -1,9 +1,11 @@
-var mLabPromise = require('../mLabPromise');
-var workspace_component_lib = require('../../lib/core/lib/workspace_component_lib');
+"use strict";
+//var mLabPromise = require('../mLabPromise');
+//var workspace_component_lib = require('../../lib/core/lib/workspace_component_lib');
 
 module.exports = {
   type: 'Upload',
   description: 'Uploader un fichier',
+  workspace_component_lib : require('../../lib/core/lib/workspace_component_lib'),
   editor: 'upload-editor',
   graphIcon: 'default.png',
   tags:[
@@ -16,7 +18,7 @@ module.exports = {
   readable: require('stream').Readable,
   stepNode: false,
 
-  
+
   initialise: function (router, recursivPullResolvePromise) {
     router.post('/upload/:compId', function (req, res, next) {
       var compId = req.params.compId;
@@ -60,7 +62,7 @@ module.exports = {
 
         }.bind(this)).then(function (resultatTraite) {
           var recursivPullResolvePromiseDynamic = require('../recursivPullResolvePromise');
-          workspace_component_lib.get({
+          this.workspace_component_lib.get({
             _id: compId
           }).then(data => {
             recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(data, 'push', resultatTraite).then((res) => {

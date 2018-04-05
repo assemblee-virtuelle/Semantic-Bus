@@ -1,3 +1,4 @@
+"use strict";
 module.exports = {
   type: 'Sparql request',
   description: 'Requeter en sparql sur un fichier json ld',

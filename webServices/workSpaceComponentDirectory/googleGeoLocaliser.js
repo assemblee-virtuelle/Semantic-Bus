@@ -1,3 +1,4 @@
+"use strict";
 module.exports = {
   type: 'Google geolocaliser',
   description: 'interoge l api google geocode pour transo une adresse en latitude et longitude',
@@ -34,7 +35,7 @@ module.exports = {
       //var errorArray = [];
 
 
-      for (record of source) {
+      for (let record of source) {
         var address = {
           street: record[specificData.streetPath],
           town: record[specificData.townPath],
@@ -87,7 +88,7 @@ module.exports = {
 
               // once all the data has been read, resolve the Promise
               response.on('end', () => {
-                responseBodyObject = JSON.parse(responseBody);
+                let responseBodyObject = JSON.parse(responseBody);
                 //console.log(responseBodyObject);
                 if (responseBodyObject.error_message == undefined) {
                   resolve(JSON.parse(responseBody));

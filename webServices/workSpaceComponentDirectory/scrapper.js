@@ -255,15 +255,6 @@ module.exports = {
               default:
             }
             return scrappingFunction(actions[deeth], client, deeth);
-            // scrappingFunction(actions[deeth], client, deeth).then(res => {
-            //   data[actions[deeth].action] = res;
-            //   return new Promise((resolve,reject)=>{resolve();});
-            // }).catch(err => {
-            //   data[actions[deeth].action] = {
-            //     error: err
-            //   };
-            //   return new Promise((resolve,reject)=>{resolve();});
-            // });
           }).then(res => {
             //console.log("----- DATA INJECTION");
             data[actions[deeth].action] = res;

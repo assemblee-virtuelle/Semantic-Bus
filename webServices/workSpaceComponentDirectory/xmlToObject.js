@@ -1,3 +1,4 @@
+"use strict";
 module.exports = {
   type: 'xml property to Object',
   description: 'convertir une propriété qui contient du xml en object',
@@ -5,7 +6,7 @@ module.exports = {
   graphIcon:'default.png',
   xml2js: require('xml2js'),
 
-  
+
   xmlTransform: function(source, specificData) {
     //console.log(this.xml2js);
     return new Promise((resolve, reject) => {

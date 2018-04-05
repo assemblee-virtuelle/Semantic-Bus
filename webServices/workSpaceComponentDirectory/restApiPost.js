@@ -1,3 +1,4 @@
+"use strict";
 module.exports = new function() {
     this.type = 'REST API POST';
     this.description = 'exposition du flux de donnée sur une API http uniquement en POST';

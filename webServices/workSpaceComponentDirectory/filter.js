@@ -1,3 +1,4 @@
+"use strict";
 module.exports = {
   type: 'Filter',
   description: 'filter le flux',
@@ -13,7 +14,7 @@ module.exports = {
 
     //console.log('Filter| pull : ', data, ' | ', flowData);
     return new Promise((resolve, reject) => {
-    
+
 
       var resultData = this.sift(JSON.parse(data.specificData.filterString), flowData[0].data);
       //console.log('result |',resultData);

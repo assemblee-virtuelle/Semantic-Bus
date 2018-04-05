@@ -1,3 +1,4 @@
+"use strict";
 module.exports = {
   type: 'Timer',
   description: 'déclencher un traitement à interval régulier (min 1 min)',

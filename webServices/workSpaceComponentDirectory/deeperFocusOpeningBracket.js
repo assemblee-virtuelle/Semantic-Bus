@@ -1,3 +1,4 @@
+"use strict";
 module.exports = {
   type: 'Deeper Focus Opening Bracket',
   description: 'début de traitement d\'un niveau de profondeur du flux ',
@@ -10,7 +11,7 @@ module.exports = {
 
 
   pull: function(data,flowData) {
-    
+
     return new Promise((resolve, reject) => {
       //console.log('dfob | pull : ',data,' | ',flowData);
       var dfob = flowData[0].dfob==undefined?[]:flowData.dfob;

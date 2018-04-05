@@ -1,3 +1,4 @@
+"use strict";
 module.exports = {
   type: 'data.gouv inverse geolocaliser',
   description: 'interoge l api adresse .data.gouv pour retrouver une adresse + CP + Insee depuis latitude et longitude',

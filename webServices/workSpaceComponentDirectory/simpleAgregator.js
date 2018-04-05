@@ -1,3 +1,4 @@
+"use strict";
 module.exports = {
   type: 'Flow Agregator',
   description: 'agréger plusieurs flux pour n en former qu un',
@@ -15,19 +16,20 @@ module.exports = {
     //console.log('Flow Agregator | pull : ',data,' | ',flowData);
     return new Promise((resolve, reject) => {
       var resultFlow = [];
-      //console.log(flowData);
+      //console.log('TOTAL',flowData.length);
 
-      for (flow of flowData) {
+      for (let flow of flowData) {
+        //console.log('stotal',flow.data.length,flow.componentId);
         //console.log('flow.data',flow.data);
         if (!Array.isArray(flow.data)) {
           reject(new Error('input flow have to be an array'));
         } else {
-          for (record of flow.data) {
+          for (let record of flow.data) {
             var filter = {};
             var everExistingData = [];
             //console.log('unicityFields',data.specificData.unicityFields);
             if (data.specificData.unicityFields != undefined && data.specificData.unicityFields.length > 0) {
-              for (unicityField of data.specificData.unicityFields) {
+              for (let unicityField of data.specificData.unicityFields) {
                 let transformer = {
                   value: '$.' + unicityField.field
                 };
@@ -50,7 +52,7 @@ module.exports = {
               //console.log('unicite |', everExistingData);
               var oldRecord = everExistingData[0];
               //console.log(resultFlow.indexOf(everExistingData[0]));
-              for (key in record) {
+              for (let key in record) {
                 if (oldRecord[key] == undefined) {
                   oldRecord[key] = record[key];
                 }

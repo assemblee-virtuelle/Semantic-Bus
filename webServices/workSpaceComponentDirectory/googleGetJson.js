@@ -1,3 +1,4 @@
+"use strict";
 module.exports = {
   type: 'GOOGLE calc Get JSON',
   description: 'intéroger une feuille de calcule GOOGLE calc qui fourni un flux JSON',

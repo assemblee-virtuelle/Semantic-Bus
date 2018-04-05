@@ -1,3 +1,4 @@
+"use strict";
 module.exports = {
   type: 'adresse.data.gouv.fr geolocaliser',
   description: 'interroger l api adresse.data.gouv pour transo une adresse en latitude et longitude',

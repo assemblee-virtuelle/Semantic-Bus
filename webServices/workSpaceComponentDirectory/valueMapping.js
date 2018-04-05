@@ -1,3 +1,4 @@
+"use strict";
 module.exports = {
   type: 'Value Mapping',
   description: 'remplacer les valeurs d une propriété par une autre',

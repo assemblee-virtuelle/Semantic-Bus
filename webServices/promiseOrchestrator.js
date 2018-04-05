@@ -1,3 +1,4 @@
+"use strict";
 class PromiseOrchestrator {
   constructor() {
   }
@@ -24,12 +25,12 @@ class PromiseExecutor {
     });
   }
   incrementExecute(context,workFunction,paramArray,option){
-    console.log('ALLO');
+    //console.log('ALLO');
     if(this.globalOut.length==paramArray.length){
       this.initialPromiseResolve(this.globalOut);
     }else{
       let currentParams=paramArray[this.increment];
-      console.log('apply',currentParams);
+      //console.log('apply',currentParams);
       let currentOut= workFunction.apply(context,currentParams).then((currentOut)=>{
         this.globalOut.push(currentOut);
       }).catch((e)=>{

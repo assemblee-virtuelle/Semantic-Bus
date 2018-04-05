@@ -1,3 +1,4 @@
+"use strict";
   module.exports = new function() {
     this.type = 'REST API GET';
     this.description = 'exposition du flux de donnée sur une API http uniquement en GET';
@@ -45,7 +46,8 @@
         //console.log('req',req);
         //console.log('query',req.query);
         //console.log('params',req.params);
-        urlRequiered=req.params[0];
+        let urlRequiered=req.params[0];
+        //console.log('urlRequiered',urlRequiered);
         // for(let key in req.params){
         //   urlRequiered=urlRequiered+req.params[key];
         // }
@@ -86,6 +88,8 @@
               //console.log(re);
               if(regexp.test(urlRequiered)){
                 matched=true;
+                //console.log('MATCHING',component.specificData.url,urlRequiered);
+                component.specificData.url
                 targetedComponent=component;
                 let values = regexp.exec(urlRequiered)
                 //console.log(keys,values);
@@ -104,7 +108,7 @@
                     console.log(e) ;
                   }
                 }
-                console.log('QUERY',req.query);
+                //console.log('QUERY',req.query);
                 break;
               }
               // matches = re.exec(urlRequiered);

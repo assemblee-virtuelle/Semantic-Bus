@@ -1,3 +1,4 @@
+"use strict";
 module.exports = {
   type: 'REST Get HTPP',
   description: 'intéroger un fichier mis à disposition sur une API REST avec une requete Get',
@@ -13,7 +14,7 @@ module.exports = {
   //https: require('https'),
   dataTraitment: require("../dataTraitmentLibrary/index.js"),
 
-  
+
   makeRequest: function (methodRest, urlString, contentType) {
     var _self = this
     return new Promise((resolve, reject) => {

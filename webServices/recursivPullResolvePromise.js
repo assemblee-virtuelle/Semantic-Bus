@@ -104,15 +104,21 @@ class Engine {
                     }
                   });
 
+                  //console.log(tableSift);
+
                   tableSift.forEach(componentProcessing => {
                     if (user.credit >= 0) {
                       let module = this.technicalComponentDirectory[
                         componentProcessing.module
                       ];
+                      //console.log(componentProcessing.specificData);
                       module
                         .pull(componentProcessing, undefined, componentProcessing.queryParams)
                         .then(componentFlow => {
-                          if (this.config.quietLog != true) {}
+                          if (this.config.quietLog != true) {
+                            //console.log('AFFECTATION',componentProcessing._id,componentFlow.data.length);
+                          }
+
                           componentProcessing.dataResolution = componentFlow;
                           componentProcessing.status = "resolved";
 
