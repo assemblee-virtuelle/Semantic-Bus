@@ -34,7 +34,7 @@ module.exports = {
   createmodel: function(modelName, data, url) {
     //console.log("----- create model mongoose -----")
     return new Promise(function(resolve, reject) {
-      dataModel = {}
+      let dataModel = {}
       var name = modelName;
       var db = this.mongoose.createConnection(url, (error) => {
         if (error) {
