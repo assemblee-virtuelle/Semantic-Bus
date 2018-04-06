@@ -101,7 +101,7 @@
                   valueIndex++;
                 }
 
-                for (queryKey in req.query) {
+                for (let queryKey in req.query) {
                   try{
                     req.query[queryKey]=JSON.parse(req.query[queryKey]);
                   }catch(e){
