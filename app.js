@@ -73,11 +73,8 @@ httpGet.makeRequest('GET', {
 
       var webstomp = require('webstomp-client');
       var WebSocket = require('ws');
-      //var url = 'wss://stomp-rabitmq-stomp.b9ad.pro-us-east-1.openshiftapps.com:443/ws/';
-      //var url = 'ws://stomp2-rabbitmq.e4ff.pro-eu-west-1.openshiftapps.com/ws/';
-      //http://stomp-rabbitmq.e4ff.pro-eu-west-1.openshiftapps.com/
-      //var url = 'wss://semantic-bus.org:443/stomp/ws/';
-      var url = 'ws://35.187.66.2:15674/ws/';
+      var url = 'wss://semantic-bus.org:443/stomp/ws/';
+      //var url = 'ws://35.187.66.2:15674/ws/';
 
       let webSocket = new WebSocket(url,{handshakeTimeout:20000});
       webSocket.on('error', function (m) { console.log("error",m); });
