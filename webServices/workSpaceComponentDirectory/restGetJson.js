@@ -30,7 +30,7 @@ module.exports = {
       }
       let headers = {}
       if (specificData.headers != undefined) {
-        for (header of specificData.headers) {
+        for (let header of specificData.headers) {
           headers[header.key] = header.value;
         }
       }

@@ -105,7 +105,8 @@ function MainController(allStore,stompClient) {
     }
   }.bind(this));
 
-  this.genericStore.on('item_current_work_done', function(message) {
+  this.workspaceStore.on('process_result', function(message) {
+    //console.log('ROUTE');
     route('workPreview')
   }.bind(this));
 

@@ -37,7 +37,7 @@
   <div if={menu=='edit'} class="containerH" style="background-color:rgb(238, 242, 249);flex-grow: 1;justify-content: center; align-items: center;">
     <div class="containerV" style="flex-grow:0.25; margin-top:2em">
       <div style="flex-basis:300pt; background-color:white; padding: 4vh;  border-radius: 5px;">
-        
+
         <div class="containerV" style="flex-grow: 1;background-color: rgb(250,250,250);"  >
           <h3 style="color:rgb(33,151,242); font-family: 'Open Sans', sans-serif;">{profil.name}</h3>
         </div>
@@ -56,7 +56,7 @@
         </div>
 
         <div class="containerV">
-          <label class="label-form">Post actuel</label>
+          <label class="label-form">Poste actuel</label>
           <input class="field" value="{profil.society}" placeholder="ajouter votre societé" name="society" onchange={changeSocietyInput}/>
           <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultJob}</div>
         </div>
@@ -123,7 +123,7 @@
           color: white;
           font-size: 20px;
           margin-top: 20px;
-          text-align: center;"> 
+          text-align: center;">
           Retour </a>
     </div>
   </div>
@@ -315,7 +315,7 @@
     align-items: center;
 
   }
- 
+
   .label-form {
     display: flex;
     margin-bottom: 1em;

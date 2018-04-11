@@ -227,7 +227,7 @@ module.exports = {
         //console.log(" ------  deeth  ------- ", deeth);
         //console.log('------   tour restant -------- ', (actions.length) - deeth);
 
-        client.waitForExist(actions[deeth].selector, 20000)
+        client.waitForExist(actions[deeth].selector, 50000)
           .then(function(visible) {
             let scrappingFunction;
             switch (actions[deeth].actionType) {

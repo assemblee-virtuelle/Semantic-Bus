@@ -12,7 +12,8 @@ var sift = require('sift');
 
 
 module.exports = function(router,stompClient) {
-
+  //TODO Ugly
+  this.stompClient=stompClient;
   // ---------------------------------------  ALL USERS  -----------------------------------------
 
   router.get('/workspaceByUser/:userId', function(req, res, next) {
@@ -227,10 +228,23 @@ module.exports = function(router,stompClient) {
   }) //<= get_ConnectBeforeConnectAfter
 
   // --------------------------------------------------------------------------------
-
-
-
-  // ---------------------------------------  ADMIN  -----------------------------------------
-
+  router.get('/processData/:id', function(req, res, next) {
+    //console.log('WORK');
+    var id = req.params.id;
+    // console.log(id);
+    workspace_lib.get_process_result(id).then((historiqueEnd)=>{
+      if(historiqueEnd!=null){
+        res.send(historiqueEnd)
+      }else {
+        next(new Error("no process "+id))
+      }
+      //this.stompClient.send('/topic/work-response.'+data.callerId, JSON.stringify({processId:0}));
+    }).catch(e => {
+      console.log(e);
+      next(e);
+      // console.log("IN ERROR WEB SERVICE",e.message);
+      // this.stompClient.send('/topic/work-response.'+data.callerId, JSON.stringify({error:e.message}));
+    });
+  }.bind(this)); //<= process
 
 }

@@ -18,6 +18,7 @@ function WorkspaceStore(utilStore, stompClient) {
   this.modeConnectAfter = false;
   this.utilStore = utilStore;
   this.stompClient = stompClient;
+  this.processCollection = [];
 
 
   // --------------------------------------------------------------------------------
@@ -623,6 +624,12 @@ function WorkspaceStore(utilStore, stompClient) {
           if (this.subscription_workspace_current_updateComponentField != undefined) {
             this.subscription_workspace_current_updateComponentField.unsubscribe();
           }
+          if (this.subscription_workspace_current_process_start != undefined) {
+            this.subscription_workspace_current_process_start.unsubscribe();
+          }
+          if (this.subscription_workspace_current_process_end != undefined) {
+            this.subscription_workspace_current_process_end.unsubscribe();
+          }
           this.select({
             _id: id
           }).then(workspace => {
@@ -644,23 +651,74 @@ function WorkspaceStore(utilStore, stompClient) {
               let body = JSON.parse(message.body);
               if (body.token != localStorage.token) {
                 //console.log('body',body);
-                let updatingComponent = sift({_id:body.componentId},this.workspaceCurrent.components)[0];
-                utilStore.objectSetFieldValue(updatingComponent,body.field,body.data);
+                let updatingComponent = sift({
+                  _id: body.componentId
+                }, this.workspaceCurrent.components)[0];
+                utilStore.objectSetFieldValue(updatingComponent, body.field, body.data);
                 //this.itemCurrent.specificData[body.field] = body.data;
                 //console.log('this.itemCurrent',this.itemCurrent);
-                if(this.itemCurrent._id==updatingComponent._id){
+                if (this.itemCurrent._id == updatingComponent._id) {
                   this.trigger('item_current_changed', updatingComponent);
                 }
               }
-
             });
+            this.subscription_workspace_current_process_start = this.stompClient.subscribe('/topic/process-start.' + this.workspaceCurrent._id, message => {
+              //console.log('message', JSON.parse(message.body));
+              let body = JSON.parse(message.body);
+              if (body.error == undefined) {
+                this.processCollection.unshift({
+                  processId: body.processId,
+                  state: 'inProgress'
+                })
+                this.trigger('process-change', this.processCollection);
+              } else {
+                this.trigger('ajax_fail', body.error);
+              }
+            });
+            this.subscription_workspace_current_process_end = this.stompClient.subscribe('/topic/process-end.' + this.workspaceCurrent._id, message => {
+              //console.log('message', JSON.parse(message.body));
+              let body = JSON.parse(message.body);
+              if (body.error == undefined) {
+                let targetProcess = sift({
+                  processId: body.processId
+                }, this.processCollection)[0];
+                if (targetProcess != undefined) {
+                  targetProcess.state = 'success';
+                  this.trigger('process-change', this.processCollection);
+                }
+              } else {
+                this.trigger('ajax_fail', body.error);
+              }
+            });
+
+
             this.trigger('navigation_control_done', entity, action);
           });
         }
       }
     }
   });
-  // --------------------------------------------------------------------------------
+
+  this.on('process_preview', (processId)=>{
+    //console.log(processId);
+    this.utilStore.ajaxCall({
+      method: 'get',
+      url: '../data/core/processData/' + processId
+    }, true).then(data => {
+      this.currentPreview = data;
+      //console.log('DATA',data);
+      this.trigger('process_result', this.currentPreview);
+    }).catch(error => {
+      //reject(error);
+      this.trigger('ajax_fail', error);
+    });
+  })
+
+  this.on('previewJSON_refresh', function() {
+    //console.log('workspace_current_refresh || ', this.workspaceCurrent);
+    this.trigger('previewJSON', this.currentPreview);
+  }); // <= workspace_current_refresh
+  //--------------------------------------------------------------------------------
 
   this.on('workspace_current_cancel', function(record) {
     console.log('workspace_current_cancel ||', this.workspaceCurrent)
@@ -794,6 +852,7 @@ function WorkspaceStore(utilStore, stompClient) {
       }
     })
   }); //<= workspace_current_delete_component
+
   this.on('workspace_current_move_component', function(component) {
     this.stompClient.send('/topic/workspace_current_move_component.' + this.workspaceCurrent._id, JSON.stringify({
       componentId: component.id,
@@ -802,7 +861,6 @@ function WorkspaceStore(utilStore, stompClient) {
       token: localStorage.token
     }));
   });
-
 
 
 

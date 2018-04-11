@@ -72,10 +72,13 @@
             <p style="color:white;font-size:12px">Paramêtres</p>
           </a>
         </div>
-        <div class="containerV" style="flex-basis:40px;">
-          <div class="commandButtonImage" style="flex-basis:40px">
-            <img src="./image/working.gif" width="40px" if={workInProgress}>
+        <div class="containerV scrollable" style="flex-basis:40px;">
+          <div each={processCollection} class="containerH progressContainer">
+            <progress max="100" value="100" onclick={processClick} class={state} data-processId={processId}></progress>
           </div>
+          <!-- <div class="commandButtonImage" style="flex-basis:40px">
+            <img src="./image/working.gif" width="40px" if={workInProgress}>
+          </div> -->
         </div>
       </div>
 
@@ -125,6 +128,11 @@
       this.errorMessage = undefined;
     }
 
+    processClick(e){
+      //console.log(e.item);
+      RiotControl.trigger('process_preview', e.item.processId)
+    }
+
     this.isScrennToShow = function (screenToTest) {
       // let out=false; //console.log(this.routePath); if(this.screen!=undefined && this.screen.indexOf(screenToTest)!=-1){   out=true; }
       let entity = this.userAuthentified
@@ -170,20 +178,25 @@
       this.update();
     }.bind(this));
 
-    RiotControl.on('item_current_work_start', function (data) {
-      this.workInProgress = true;
+    RiotControl.on('process-change', processCollection => {
+      this.processCollection = processCollection;
       this.update();
-    }.bind(this));
+    });
 
-    RiotControl.on('item_current_work_done', function (data) {
-      this.workInProgress = false;
-      this.update();
-    }.bind(this));
+    // RiotControl.on('item_current_work_start', function (data) {
+    //   this.workInProgress = true;
+    //   this.update();
+    // }.bind(this));
 
-    RiotControl.on('item_current_work_fail', function () {
-      this.workInProgress = false;
-      this.update();
-    }.bind(this));
+    // RiotControl.on('item_current_work_done', function (data) {
+    //   this.workInProgress = false;
+    //   this.update();
+    // }.bind(this));
+
+    // RiotControl.on('item_current_work_fail', function () {
+    //   this.workInProgress = false;
+    //   this.update();
+    // }.bind(this));
 
     RiotControl.on('ajax_fail', function (message) {
       console.log('navigation.tag | ajax_fail');
@@ -369,6 +382,43 @@
     .selectedMenu {
       background-color: rgb(9,245,185);
     }
+
+    .progressContainer {
+      padding: 5px;
+      flex-basis: 20px;
+      flex-shrink: 0;
+    }
+
+    progress {
+      width: 100%;
+
+      background: #000;
+    }
+    progress::-webkit-progress-bar {
+      /*background: transparent;*/
+      /*border-radius: 12px;*/
+      background: #000;
+      /*box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4), 0 2px 5px 0px rgba(0,0,0,0.3);*/
+
+    }
+
+    progress.inProgress::-webkit-progress-value {
+      /*border-radius: 12px;*/
+      background: orange;
+      /*box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4), 0 2px 5px 0px rgba(0,0,0,0.3);*/
+    }
+    progress.success::-webkit-progress-value {
+      background: green;
+    }
+    progress.inProgress::-moz-progress-bar {
+      /*border-radius: 5px;*/
+      background: orange;
+      /*box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4), 0 2px 5px 0 rgba(0,0,0,0.3);*/
+    }
+    progress.success::-moz-progress-bar {
+      background: green;
+    }
+
 
   </style>
 </navigation>

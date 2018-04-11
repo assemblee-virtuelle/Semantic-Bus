@@ -63,25 +63,40 @@ module.exports = function(router,stompClient) {
     //console.log('/queue/work-ask | body', body);
     //this.stompClient.send('/topic/work-response', JSON.stringify({message:'AJAX va prendre cher'}));
     //console.log('WORK');
+    // console.log('traitement');
+    // let out = []
+    // for (let i=0; i<800000; i++){
+    //   out.push({text:'lorem ipsum',iteration:i})
+    // }
     var id = body.id;
-    let token = body.token;
+    let userId = body.userId;
+
+    // this.stompClient.send('/topic/work-response.'+token, JSON.stringify({data:out}));
+
+
     //console.log(token);
     workspace_component_lib.get({
       _id: id
     }).then(function(data) {
       //console.log('workspaceComponent | work| ', data);
       var recursivPullResolvePromiseDynamic = require('./recursivPullResolvePromise');
-      return recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(data, 'work');
-    }).then(function(data) {
-      //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
+      return recursivPullResolvePromiseDynamic.execute(data, 'work',this.stompClient,userId);
+    }).then((data)=> {
 
-      this.stompClient.send('/topic/work-response.'+token, JSON.stringify({data:data.data}));
+      //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
+      //this.stompClient.send('/topic/work-response.'+token, JSON.stringify({processId:0}));
+
 
     }).catch(e => {
       //console.log('AMQP work error',JSON.stringify(e));
-        this.stompClient.send('/topic/work-response.'+token, JSON.stringify({error:e.message}));
+      //console.log('AMQP work error',e);
+
+      console.log('work error');
+
+      //this.stompClient.send('/topic/work-response.'+token, JSON.stringify({error:e.message}));
     });
   });
+
 
   // --------------------------------------------------------------------------------
 

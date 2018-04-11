@@ -18,6 +18,7 @@ function GenericStore(utilStore, specificStoreList, stompClient) {
   this.modeConnectBefore = false;
   this.modeConnectAfter = false;
   this.stompClient=stompClient;
+  this.utilStore= utilStore
 
 
   // --------------------------------------------------------------------------------
@@ -159,7 +160,7 @@ function GenericStore(utilStore, specificStoreList, stompClient) {
   this.on('item_current_work', function(message) {
     this.stompClient.send('/queue/work-ask', JSON.stringify({
       id: this.itemCurrent._id,
-      token : localStorage.token
+      userId : localStorage.user_id
     }));
     // console.log('item_current_testWork | itemCurrent:', this.itemCurrent);
     // var id = this.itemCurrent._id;
@@ -175,22 +176,29 @@ function GenericStore(utilStore, specificStoreList, stompClient) {
     // });
   }); //<= item_current_work
 
-  this.stompClient.subscribe('/topic/work-response.'+localStorage.token, message=>{
-    //console.log('message', JSON.parse(message.body));
-    let body=JSON.parse(message.body);
-    if (body.error==undefined){
-      this.currentPreview = body.data;
-      this.trigger('item_current_work_done', this.currentPreview );
-    }else{
-      this.trigger('ajax_fail',body.error);
-    }
-  });
+  // this.stompClient.subscribe('/topic/work-response.'+localStorage.user_id, message=>{
+  //   //console.log('message', JSON.parse(message.body));
+  //   let body=JSON.parse(message.body);
+  //   if (body.error==undefined){
+  //
+  //     this.utilStore.ajaxCall({
+  //       method: 'get',
+  //       url: '../data/core/processData/'+body.processId
+  //     }, true).then(data => {
+  //       this.currentPreview = data;
+  //       this.trigger('item_current_work_done', this.currentPreview );
+  //     }).catch(error => {
+  //       //reject(error);
+  //       this.trigger('ajax_fail',error);
+  //     });
+  //
+  //   }else{
+  //     this.trigger('ajax_fail',body.error);
+  //   }
+  // });
 
 
-  this.on('previewJSON_refresh', function() {
-    //console.log('workspace_current_refresh || ', this.workspaceCurrent);
-    this.trigger('previewJSON', this.currentPreview);
-  }); // <= workspace_current_refresh
+
 
   // --------------------------------------------------------------------------------
 
@@ -352,7 +360,7 @@ function GenericStore(utilStore, specificStoreList, stompClient) {
     if (entity == 'component') {
       this.action = action
       if (this.workspaceCurrent != undefined) {
-      
+
         this.itemCurrent = sift({
           _id: id
         }, this.workspaceCurrent.components)[0];
