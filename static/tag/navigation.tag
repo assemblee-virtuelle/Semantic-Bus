@@ -130,7 +130,7 @@
 
     processClick(e){
       //console.log(e.item);
-      RiotControl.trigger('process_preview', e.item.processId)
+      RiotControl.trigger('process_state', e.item.processId)
     }
 
     this.isScrennToShow = function (screenToTest) {
@@ -410,6 +410,10 @@
     progress.success::-webkit-progress-value {
       background: green;
     }
+    progress.error::-webkit-progress-value {
+      background: red;
+    }
+
     progress.inProgress::-moz-progress-bar {
       /*border-radius: 5px;*/
       background: orange;
@@ -417,6 +421,9 @@
     }
     progress.success::-moz-progress-bar {
       background: green;
+    }
+    progress.error::-moz-progress-bar {
+      background: red;
     }
 
 

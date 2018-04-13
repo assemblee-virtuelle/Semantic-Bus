@@ -50,10 +50,10 @@ module.exports = {
     }
     return directory;
   },
-  initialise: function ( unSafeRouteur, app,recursivPullResolvePromise) {
-    this.restApiPost.initialise(unSafeRouteur); //NO SECURE CHANGE ROUTER
-    this.restApiGet.initialise(unSafeRouteur,app); //NO SECURE CHANGE ROUTER
-    this.upload.initialise(unSafeRouteur);
-    this.cacheNosql.initialise(unSafeRouteur, recursivPullResolvePromise); //NO SECURE CHANGE ROUTER
+  initialise: function ( unSafeRouteur, app,stompClient) {
+    this.restApiPost.initialise(unSafeRouteur,stompClient); //NO SECURE CHANGE ROUTER
+    this.restApiGet.initialise(unSafeRouteur,app,stompClient); //NO SECURE CHANGE ROUTER
+    this.upload.initialise(unSafeRouteur,stompClient);
+    this.cacheNosql.initialise(unSafeRouteur); //NO SECURE CHANGE ROUTER
   }
 }

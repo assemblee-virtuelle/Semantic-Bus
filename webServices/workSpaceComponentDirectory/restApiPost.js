@@ -16,7 +16,7 @@ module.exports = new function() {
 
 
 
-    this.initialise = function(router) {
+    this.initialise = function(router,stompClient) {
       router.post('/:urlRequiered', function(req, res, next) {
         //console.log("IN POST", req.body);
         var urlRequiered = req.params.urlRequiered;
@@ -41,7 +41,7 @@ module.exports = new function() {
             // } else {
             //console.log("in component", component)
             specificData = component.specificData;
-            return this.recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(component, 'push', {data:req.body})
+            return this.recursivPullResolvePromiseDynamic.execute(component, 'push',stompClient,undefined,{data:req.body})
               //return this.recursivPullResolvePromise.resolveComponentPull(data[0], false,req.query);
             // }
 

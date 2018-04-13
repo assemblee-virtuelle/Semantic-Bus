@@ -3,7 +3,7 @@
 var memwatch = require('memwatch-next');
 var hd = new memwatch.HeapDiff();
 var diff = hd.end();
-
+// var WebSocket = require('ws');
 var express = require('express')
 var cors = require('cors')
 var app = express();
@@ -16,7 +16,7 @@ var http = require('http');
 http.globalAgent.maxSockets = 1000000000;
 var server = http.Server(app);
 var https = require('https');
-
+var amqp = require('amqplib/callback_api');
 
 
 var safe = express.Router();
@@ -71,21 +71,34 @@ httpGet.makeRequest('GET', {
 
       unSafeRouteur.use(cors());
 
-      var webstomp = require('webstomp-client');
-      var WebSocket = require('ws');
-      var url = 'wss://semantic-bus.org:443/stomp/ws/';
+      //var webstomp = require('webstomp-client');
+
+      var url=configJson.socketServer;
+      //var url = 'wss://semantic-bus.org:443/stomp/ws/';
       //var url = 'ws://35.187.66.2:15674/ws/';
 
-      let webSocket = new WebSocket(url,{handshakeTimeout:20000});
-      webSocket.on('error', function (m) { console.log("error",m); });
-      webSocket.on('open', function (m) { console.log("websocket connection open"); });
+
+
+      // var stompClient = webstomp.client(url, {
+      //   heartbeat: {
+      //     incoming: 10000,
+      //     outgoing: 10000
+      //   },
+      //   debug: true
+      // })
+
+      // var stompClient = webstomp.over(webSocket,{heartbeat: {incoming: 10000, outgoing: 10000},debug:false});
+      //
+      // let webSocket = new WebSocket(url,{handshakeTimeout:20000});
+      // webSocket.on('error', function (m) { console.log("websocket error",m); });
+      // webSocket.on('open', function (m) { console.log("websocket connection open"); });
+      // webSocket.on('close', function (m) { console.log("websocket close",m); });
       // let webSocket = new WebSocket(url, {
       //   origin: 'https://semantic-bus.org'
       // });
 
       var login = 'guest', password = 'guest';
-      var stompClient = webstomp.over(webSocket,{heartbeat: {incoming: 10000, outgoing: 10000},debug:false});
-    //  var stompClient = webstomp.over(webSocket,{heartbeat: {incoming: 10000, outgoing: 10000},debug:true});
+      //  var stompClient = webstomp.over(webSocket,{heartbeat: {incoming: 10000, outgoing: 10000},debug:true});
 
       //client: webstomp.over(new WebSocket(url), options)
 
@@ -93,8 +106,17 @@ httpGet.makeRequest('GET', {
       //   console.log('message', JSON.parse(message.body));
       //   stompClient.send('/topic/work-response', JSON.stringify({message:'AJAX va prendre cher'}));
       // }
+      amqp.connect('amqp://35.195.196.184:5672/', function(err, conn) {
+        console.log('AMQP connected');
+        conn.createChannel(function(err, ch) {
+          onConnect(ch);
+          console.log('channel created');
+          ch.assertQueue('work-ask', {durable: true});
+          ch.assertExchange('amq-topic', 'topic', {durable: true});
+        });
 
-      var onConnect=function(client) {
+      });
+      var onConnect=function(amqpClient) {
       //  console.log(app);
         console.log('connected');
         //stompClient.subscribe('/queue/work-ask', message=>{console.log('ALLO');});
@@ -102,14 +124,14 @@ httpGet.makeRequest('GET', {
 
 
         //TODO it's ugly!!!! sytem function is increment with stompClient
-        require('./webServices/initialise')(unSafeRouteur,stompClient);
-        require('./webServices/authWebService')(unSafeRouteur,stompClient);
-        require('./webServices/workspaceWebService')(safe,stompClient);
-        require('./webServices/workspaceComponentWebService')(safe,stompClient);
-        require('./webServices/technicalComponentWebService')(safe,unSafeRouteur, app,stompClient);
-        require('./webServices/userWebservices')(safe,stompClient);
-        require('./webServices/rightsManagementWebService')(safe,stompClient);
-        require('./webServices/adminWebService')(safe,stompClient);
+        require('./webServices/initialise')(unSafeRouteur,amqpClient);
+        require('./webServices/authWebService')(unSafeRouteur,amqpClient);
+        require('./webServices/workspaceWebService')(safe,amqpClient);
+        require('./webServices/workspaceComponentWebService')(safe,amqpClient);
+        require('./webServices/technicalComponentWebService')(safe,unSafeRouteur, app,amqpClient);
+        require('./webServices/userWebservices')(safe,amqpClient);
+        require('./webServices/rightsManagementWebService')(safe,amqpClient);
+        require('./webServices/adminWebService')(safe,amqpClient);
 
         ///OTHER APP COMPONENT
         ///SECURISATION DES REQUETES
@@ -205,12 +227,12 @@ httpGet.makeRequest('GET', {
           // }
         }
       }
-      let amqpHost=env.AMQPHOST;
-      if(amqpHost!=undefined){
-        stompClient.connect(login, password, onConnect, onError,amqpHost);
-      }else{
-        stompClient.connect(login, password, onConnect, onError);
-      }
+      // let amqpHost=env.AMQPHOST;
+      // if(amqpHost!=undefined){
+      //   stompClient.connect(login, password, onConnect, onError,amqpHost);
+      // }else{
+      //   stompClient.connect(login, password, onConnect, onError);
+      // }
 
 
     }

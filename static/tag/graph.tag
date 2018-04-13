@@ -234,6 +234,24 @@
         });
 
         d3.select(this).append("image").attr("xlink:href", function (d) {
+          return "./image/Super-Mono-png/PNG/sticker/icons/outbox.png";
+        }).attr("width", function (d) {
+          return 30;
+        }).attr("height", function (d) {
+          return 30;
+        }).attr("x", function (d) {
+          return 120;
+        }).attr("y", function (d) {
+          return 0;
+        }).attr("class", function (d) {
+          return 'workButtonGraph';
+        }).attr("data-id", function (d) {
+          return d.id;
+        }).on("click", function (d) {
+          RiotControl.trigger('component_preview');
+        });
+
+        d3.select(this).append("image").attr("xlink:href", function (d) {
           return "./image/Super-Mono-png/PNG/basic/red/bin.png";
         }).attr("width", function (d) {
           return 30;

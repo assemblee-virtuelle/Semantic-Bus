@@ -19,7 +19,7 @@ module.exports = {
   stepNode: false,
 
 
-  initialise: function (router, recursivPullResolvePromise) {
+  initialise: function (router, stompClient) {
     router.post('/upload/:compId', function (req, res, next) {
       var compId = req.params.compId;
       const isexel = false
@@ -65,7 +65,7 @@ module.exports = {
           this.workspace_component_lib.get({
             _id: compId
           }).then(data => {
-            recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(data, 'push', resultatTraite).then((res) => {
+            recursivPullResolvePromiseDynamic.execute(data, 'push',stompclient,undefined, resultatTraite).then((res) => {
               resolve({
                 data: res
               })

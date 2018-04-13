@@ -1,7 +1,7 @@
 "use strict";
 
 class Engine {
-  constructor(component, requestDirection, stompClient, callerId, pushData, queryParams) {
+  constructor(component, requestDirection, amqpClient, callerId, pushData, queryParams) {
     this.technicalComponentDirectory = require("./technicalComponentDirectory.js");
     this.sift = require("sift");
     this.config_component = require("../configuration");
@@ -13,7 +13,7 @@ class Engine {
     let PromiseOrchestrator = require("./promiseOrchestrator.js")
     this.promiseOrchestrator = new PromiseOrchestrator();
     this.fackCounter = 0;
-    this.stompClient = stompClient,
+    this.amqpClient = amqpClient,
       this.callerId = callerId;
     this.originComponent = component;
     this.requestDirection = requestDirection;
@@ -64,9 +64,19 @@ class Engine {
                     originComponentId: this.originComponent._id
                   }).then((process) => {
                     this.processId = process._id;
-                    this.stompClient.send('/topic/process-start.' + this.originComponent.workspaceId, JSON.stringify({
+                    this.keyStart = 'process-start.' + this.originComponent.workspaceId;
+                    this.keyProgress = 'process-progress.' + this.originComponent.workspaceId;
+                    this.keyError = 'process-error.' + this.originComponent.workspaceId;
+                    this.keyEnd = 'process-end.' + this.originComponent.workspaceId;
+
+                    // this.stompClient.send('/topic/process-start.' + this.originComponent.workspaceId, JSON.stringify({
+                    //   processId: this.processId
+                    // }));
+
+                    this.amqpClient.publish('amq.topic', this.keyStart, new Buffer(JSON.stringify({
                       processId: this.processId
-                    }));
+                    })));
+
 
                     this.componentsResolving.forEach(component => {
                       component.status = "waiting";
@@ -100,6 +110,7 @@ class Engine {
                     /// -------------- push case  -----------------------
                     if (this.requestDirection == "push") {
                       this.originComponent.dataResolution = this.pushData;
+                      this.originComponent='resolved';
 
                       this.sift({
                           "source._id": component._id
@@ -126,6 +137,7 @@ class Engine {
 
                     tableSift.forEach(componentProcessing => {
                       if (user.credit >= 0) {
+                        componentProcessing.status = 'processing';
                         let module = this.technicalComponentDirectory[
                           componentProcessing.module
                         ];
@@ -138,7 +150,7 @@ class Engine {
                             }
 
                             componentProcessing.dataResolution = componentFlow;
-                            componentProcessing.status = "resolved";
+                            componentProcessing.status = 'resolved';
 
                             this.sift({
                                 "source._id": componentProcessing._id
@@ -147,7 +159,6 @@ class Engine {
                             ).forEach(link => {
                               link.status = "processing";
                             });
-
                             this.workspace_lib.createHistoriqueEnd({
                               data: componentProcessing.dataResolution.data,
                               processId: this.processId,
@@ -155,17 +166,21 @@ class Engine {
                               componentName: componentProcessing.name,
                               componentModule: module.type
                             }).then(historiqueEnd => {
-                              this.stompClient.send('/topic/process-progress.' + this.token, JSON.stringify({
+                              // this.stompClient.send('/topic/process-progress.' + this.token, JSON.stringify({
+                              //   processId: this.processId
+                              // }));
+                              //var key = 'process-progress.'+this.originComponent.workspaceId;
+                              this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
                                 processId: this.processId
-                              }));
+                              })));
                             }).catch(e => {
                               console.log(e);
-                              this.stompClient.send('/topic/process-progress.' + this.callerId, JSON.stringify({
-                                error: {
-                                  "code": e.code,
-                                  "errmsg": e.errmsg
-                                }
-                              }));
+                              // this.stompClient.send('/topic/process-progress.' + this.callerId, JSON.stringify({
+                              //   error: 'error writing execution result'
+                              // }));
+                              this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
+                                error: 'error writing execution result'
+                              })));
                             });
 
                             if (
@@ -180,11 +195,48 @@ class Engine {
                           })
                           .catch(e => {
                             console.log(
-                              "WORK ERROR",
+                              "source component error",
                               e.message,
                               componentProcessing._id
                             );
-                            reject(e);
+                            componentProcessing.dataResolution = {
+                              error: e
+                            };
+                            this.workspace_lib.createHistoriqueEnd({
+                              error: e,
+                              processId: this.processId,
+                              componentId: componentProcessing._id,
+                              componentName: componentProcessing.name,
+                              componentModule: module.type
+                            }).then(historiqueEnd => {
+                              this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
+                                error: e
+                              })));
+                            }).catch(e => {
+                              console.log(e);
+                              this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
+                                error: 'error writing execution result'
+                              })));
+                            });
+                            this.sift({
+                                "source._id": componentProcessing._id
+                              },
+                              this.pathResolution
+                            ).forEach(link => {
+                              link.status = "error";
+                            });
+                            componentProcessing.status = "error";
+
+                            if (
+                              componentProcessing._id == this.RequestOrigine._id
+                            ) {
+                              this.RequestOrigineRejectMethode(
+                                e
+                              );
+                            }
+
+                            this.processNextBuildPath();
+                            //reject(e);
                           });
                       } else {
                         let fullError = new Error();
@@ -213,7 +265,10 @@ class Engine {
         },
         this.pathResolution
       );
+      //console.log(linkNotResolved.length);
+
       if (linkNotResolved.length > 0) {
+        let linksLockedNumber = 0;
         for (var processingLinkCandidate of linkNotResolved) {
           let linksNotReady = this.sift({
               "destination._id": processingLinkCandidate.destination._id,
@@ -224,15 +279,28 @@ class Engine {
             this.pathResolution
           );
 
+          let linksWaiting = this.sift({
+              "destination._id": processingLinkCandidate.destination._id,
+              status: "waiting"
+            },
+            this.pathResolution
+          );
+
           if (linksNotReady.length == 0) {
             var processingLink = processingLinkCandidate;
             break;
+          } else {
+            //console.log(linksWaiting.length);
+            if (linksWaiting.length == 0) {
+              linksLockedNumber++;
+            }
           }
         }
 
         //-------------- Component processing --------------
 
         if (processingLink != undefined) {
+          processingLink.status='processing';
           let linksProcessingInputs = this.sift({
               "destination._id": processingLink.destination._id,
               status: "processing"
@@ -363,17 +431,15 @@ class Engine {
                 componentName: processingLink.destination.name,
                 componentModule: module.type
               }).then(historiqueEnd => {
-                this.stompClient.send('/topic/process-progress.' + this.callerId, JSON.stringify({
+                this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
                   processId: this.processId
-                }));
+                })));
+
               }).catch(e => {
-                //console.log("process creation Error",e,this.callerId);
-                this.stompClient.send('/topic/process-progress.' + this.callerId, JSON.stringify({
-                  error: {
-                    "code": e.code,
-                    "errmsg": e.errmsg
-                  }
-                }));
+                this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
+                  processId: this.processId,
+                  error: 'error writing execution result'
+                })));
               });
 
               if (
@@ -387,7 +453,45 @@ class Engine {
 
               this.processNextBuildPath();
             }).catch(e => {
-              this.RequestOrigineRejectMethode(e);
+              processingLink.destination.dataResolution = {
+                error: e
+              };
+              this.workspace_lib.createHistoriqueEnd({
+                error: e,
+                processId: this.processId,
+                componentId: processingLink.destination._id,
+                componentName: processingLink.destination.name,
+                componentModule: module.type
+              }).then(historiqueEnd => {
+                this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
+                  processId: this.processId,
+                  error: e
+                })));
+
+              }).catch(e => {
+                console.log(e);
+                this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
+                  error: 'error writing execution error'
+                })));
+              });
+              this.sift({
+                  "source._id": processingLink.destination._id
+                },
+                this.pathResolution
+              ).forEach(link => {
+                link.status = "error";
+              });
+              processingLink.destination.status = "error";
+
+              if (
+                processingLink.destination._id == this.RequestOrigine._id
+              ) {
+                this.RequestOrigineRejectMethode(
+                  e
+                );
+              }
+
+              this.processNextBuildPath();
             });
 
             // var testPromises = dfobFinalFlow.map(finalItem => {
@@ -477,17 +581,14 @@ class Engine {
                 }).then(historiqueEnd => {
                   //console.log('PROCESS CREATED',process);
                   //console.log('SEND'+this.callerId);
-                  this.stompClient.send('/topic/process-progress.' + this.callerId, JSON.stringify({
+                  this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
                     processId: this.processId
-                  }));
+                  })));
                 }).catch(e => {
                   //console.log("process creation Error", e, this.callerId);
-                  this.stompClient.send('/topic/process-progress.' + this.callerId, JSON.stringify({
-                    error: {
-                      "code": e.code,
-                      "errmsg": e.errmsg
-                    }
-                  }));
+                  this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
+                    error: 'error writing execution error'
+                  })));
                 });
 
                 if (
@@ -503,19 +604,87 @@ class Engine {
                 this.processNextBuildPath();
               })
               .catch(e => {
-                this.RequestOrigineRejectMethode(e);
+                processingLink.destination.dataResolution = {
+                  error: e
+                };
+                this.workspace_lib.createHistoriqueEnd({
+                  error: e,
+                  processId: this.processId,
+                  componentId: processingLink.destination._id,
+                  componentName: processingLink.destination.name,
+                  componentModule: module.type
+                }).then(historiqueEnd => {
+                  this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
+                    processId: this.processId,
+                    error: e
+                  })));
+                }).catch(e => {
+                  console.log(e);
+                  this.stompClient.send('/topic/process-progress.' + this.originComponent.workspaceId, JSON.stringify({
+                    error: 'error writing execution error'
+                  }));
+                });
+                this.sift({
+                    "source._id": processingLink.destination._id
+                  },
+                  this.pathResolution
+                ).forEach(link => {
+                  link.status = "error";
+                });
+                processingLink.destination.status = "error";
+
+                if (
+                  processingLink.destination._id == this.RequestOrigine._id
+                ) {
+                  this.RequestOrigineRejectMethode(
+                    e
+                  );
+                }
+
+                this.processNextBuildPath();
               });
+          }
+        } else {
+          //console.log('no process', linksLockedNumber, linkNotResolved.length);
+          if (linksLockedNumber == linkNotResolved.length) {
+            //console.log("END with errors");
+            this.amqpClient.publish('amq.topic', this.keyError, new Buffer(JSON.stringify({
+              processId: this.processId
+            })));
           }
         }
       } else {
-        if (this.config.quietLog != true) {
-          this.stompClient.send('/topic/process-end.' + this.originComponent.workspaceId, JSON.stringify({
-            processId: this.processId
-          }));
-
-          console.log(
-            "--------------  End of Worksapce processing --------------"
-          );
+        // console.log(" ---------- no processing link -----------", this.fackCounter)
+        // console.log(this.pathResolution.map(link => {
+        //   return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.source.status+'->' + link.status+'->'+ link.destination.status);
+        // }));
+        let linkOnError = this.sift({
+            status: "error"
+          },
+          this.pathResolution
+        );
+        //console.log(linkOnError.length);
+        let linkOnWaitingButNodeInProcessing = this.sift({
+            status: "waiting",
+            "source.status": "processing",
+          },
+          this.pathResolution
+        );
+        if(linkOnWaitingButNodeInProcessing.length==0){
+          if (linkOnError.length > 0) {
+            this.amqpClient.publish('amq.topic', this.keyError, new Buffer(JSON.stringify({
+              processId: this.processId
+            })));
+          } else {
+            this.amqpClient.publish('amq.topic', this.keyEnd, new Buffer(JSON.stringify({
+              processId: this.processId
+            })));
+          }
+          if (this.config.quietLog != true) {
+            console.log(
+              "--------------  End of Worksapce processing --------------"
+            );
+          }
         }
       }
     } else {

@@ -86,13 +86,13 @@ module.exports = {
           if (elementsRaw != null) {
             for (let match of elementsRaw) {
               let ObjectKey=match.slice(3, -1);
-              console.log(match,ObjectKey,queryParams);
+              //console.log(match,ObjectKey,queryParams);
 
               querysTable=querysTable.replace(match,this.dotProp.get(queryParams, ObjectKey));
 
 
             }
-            console.log(querysTable);
+            //console.log(querysTable);
           }
 
           var query = eval("modelShema.model." + querysTable+".lean()")

@@ -18,8 +18,8 @@ module.exports = function (router) {
         res.send(configuration.secret_stripe_public)
     }) //<= configurationhttps
 
-    router.get('/configurationAmqpHost', function (req, res) {
+    router.get('/configurationMessageQueue', function (req, res) {
     //  console.log(process.env.AMQPHOST);
-        res.send(process.env.AMQPHOST)
+        res.send({host:process.env.AMQPHOST,url:configuration.socketClient})
     }) //<= configurationhttps
 }

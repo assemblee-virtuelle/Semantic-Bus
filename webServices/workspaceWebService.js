@@ -228,23 +228,24 @@ module.exports = function(router,stompClient) {
   }) //<= get_ConnectBeforeConnectAfter
 
   // --------------------------------------------------------------------------------
-  router.get('/processData/:id', function(req, res, next) {
+  router.get('/processState/:id', function(req, res, next) {
     //console.log('WORK');
     var id = req.params.id;
+    res.send({state:'inprogress'});
     // console.log(id);
-    workspace_lib.get_process_result(id).then((historiqueEnd)=>{
-      if(historiqueEnd!=null){
-        res.send(historiqueEnd)
-      }else {
-        next(new Error("no process "+id))
-      }
-      //this.stompClient.send('/topic/work-response.'+data.callerId, JSON.stringify({processId:0}));
-    }).catch(e => {
-      console.log(e);
-      next(e);
-      // console.log("IN ERROR WEB SERVICE",e.message);
-      // this.stompClient.send('/topic/work-response.'+data.callerId, JSON.stringify({error:e.message}));
-    });
+    // workspace_lib.get_process_result(id).then((historiqueEnd)=>{
+    //   if(historiqueEnd!=null){
+    //     res.send(historiqueEnd)
+    //   }else {
+    //     next(new Error("no process "+id))
+    //   }
+    //   //this.stompClient.send('/topic/work-response.'+data.callerId, JSON.stringify({processId:0}));
+    // }).catch(e => {
+    //   console.log(e);
+    //   next(e);
+    //   // console.log("IN ERROR WEB SERVICE",e.message);
+    //   // this.stompClient.send('/topic/work-response.'+data.callerId, JSON.stringify({error:e.message}));
+    // });
   }.bind(this)); //<= process
 
 }

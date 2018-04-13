@@ -22,6 +22,9 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/webstomp-client@1.2.0/dist/webstomp.min.js"></script>
+
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.js"></script>
+
   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>-->
   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-detect-element-resize/0.5.3/detect-element-resize.js"></script>-->
 
@@ -114,8 +117,8 @@
   <script>
     $.ajax({
       method: 'get',
-      url: '/configuration/configurationAmqpHost',
-    }).done(amqpHost => {
+      url: '/configuration/configurationMessageQueue',
+    }).done(configurationMessageQueue => {
       //console.log("configurationAmqpHost", amqpHost)
       // var onMessage = function(message) {
       //   console.log('message', JSON.parse(message.body));
@@ -202,19 +205,22 @@
       };
 
       //var url = 'wss://stomp-rabitmq-stomp.b9ad.pro-us-east-1.openshiftapps.com:443/ws';
-      var url = 'wss://semantic-bus.org:443/stomp/ws/';
+      //var url = 'wss://semantic-bus.org:443/stomp/ws/';
+      var url = configurationMessageQueue.socketClient;
       //var url = 'ws://35.187.66.2:15674/ws/';
       var login = 'guest';
       var password = 'guest';
-      var stompClient = webstomp.client(url, {
+      var stompClient = webstomp.client(configurationMessageQueue.url, {
         heartbeat: {
           incoming: 10000,
           outgoing: 10000
         },
         debug: true
       })
-      if (amqpHost != undefined && amqpHost.length > 0) {
-        stompClient.connect(login, password, onConnect, onError, amqpHost);
+      if (configurationMessageQueue.host != undefined && configurationMessageQueue.host.length > 0) {
+        //stompClient.connect(login, password, onConnect, onError, configurationMessageQueue.host);
+        stompClient.connect(login, password, onConnect, onError);
+      
       } else {
         stompClient.connect(login, password, onConnect, onError);
       }

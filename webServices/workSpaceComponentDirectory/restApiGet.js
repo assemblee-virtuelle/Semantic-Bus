@@ -18,7 +18,7 @@
     this.pathToRegexp = require('path-to-regexp');
     this.recursivPullResolvePromise=require('../recursivPullResolvePromise.js');
 
-    this.initialise = function(router, app) {
+    this.initialise = function(router, app, stompClient) {
 
       let apiGetRouteur = this.express.Router();
       apiGetRouteur.use(this.cors());
@@ -128,7 +128,7 @@
             })
           }else {
             //console.log(this.recursivPullResolvePromise);
-            return this.recursivPullResolvePromise.getNewInstance().resolveComponent(targetedComponent, 'work', undefined, {query:req.query,body:req.body});
+            return this.recursivPullResolvePromise.execute(targetedComponent, 'work', stompClient, undefined,undefined,{query:req.query,body:req.body});
             //return this.recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(component, 'work', undefined, req.query);
             // return new Promise((resolve, reject) => {
             //   resolve({

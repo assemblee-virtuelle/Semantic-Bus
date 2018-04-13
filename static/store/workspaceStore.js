@@ -332,7 +332,7 @@ function WorkspaceStore(utilStore, stompClient) {
     var middles = 0;
 
     // determine le nombre d inputs et d outputs
-    console.log(this.workspaceCurrent.components);
+    //console.log(this.workspaceCurrent.components);
     for (record of this.workspaceCurrent.components) {
       if (record.connectionsBefore.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) {
         inputs++;
@@ -630,6 +630,9 @@ function WorkspaceStore(utilStore, stompClient) {
           if (this.subscription_workspace_current_process_end != undefined) {
             this.subscription_workspace_current_process_end.unsubscribe();
           }
+          if (this.subscription_workspace_current_process_error != undefined) {
+            this.subscription_workspace_current_process_error.unsubscribe();
+          }
           this.select({
             _id: id
           }).then(workspace => {
@@ -690,6 +693,22 @@ function WorkspaceStore(utilStore, stompClient) {
                 this.trigger('ajax_fail', body.error);
               }
             });
+            this.subscription_workspace_current_process_error = this.stompClient.subscribe('/topic/process-error.' + this.workspaceCurrent._id, message => {
+              //console.log('message', JSON.parse(message.body));
+              let body = JSON.parse(message.body);
+              if (body.error == undefined) {
+                let targetProcess = sift({
+                  processId: body.processId
+                }, this.processCollection)[0];
+                if (targetProcess != undefined) {
+                  targetProcess.state = 'error';
+                  this.trigger('process-change', this.processCollection);
+                }
+              } else {
+                this.trigger('ajax_fail', body.error);
+              }
+            });
+
 
 
             this.trigger('navigation_control_done', entity, action);
@@ -699,20 +718,21 @@ function WorkspaceStore(utilStore, stompClient) {
     }
   });
 
-  this.on('process_preview', (processId)=>{
+  this.on('process_state', (processId)=>{
     //console.log(processId);
     this.utilStore.ajaxCall({
       method: 'get',
-      url: '../data/core/processData/' + processId
+      url: '../data/core/processState/' + processId
     }, true).then(data => {
-      this.currentPreview = data;
-      //console.log('DATA',data);
-      this.trigger('process_result', this.currentPreview);
-    }).catch(error => {
-      //reject(error);
-      this.trigger('ajax_fail', error);
+      for(let component of data){
+         let componentOfWorkspace = sift({_id:component.componentId},this.workspaceCurrent.components)[0];
+        if(componentOfWorkspace!=undefined){
+          componentOfWorkspace.state=component.state;
+        }
+      }
+      this.computeGraph();
     });
-  })
+  });
 
   this.on('previewJSON_refresh', function() {
     //console.log('workspace_current_refresh || ', this.workspaceCurrent);

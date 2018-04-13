@@ -24,7 +24,7 @@ module.exports = {
       //console.log(pullParams,urlString);
       let urlString = specificData.url;
       //console.log(urlString);
-      for (param in pullParams) {
+      for (let param in pullParams) {
         //console.log(param);
         urlString = urlString.replace('<%' + param + '%>', pullParams[param]);
       }
@@ -71,7 +71,7 @@ module.exports = {
         var responseBody = '';
         response.resume();
         if (hasResponseFailed) {
-          reject(new Error('Requestfailed with status ' + response.statusCode));
+          reject(new Error('Request failed for url '+urlString+' with status ' + response.statusCode));
         } else {
           /* the response stream's (an instance of Stream) current data. See:
            * https://nodejs.org/api/stream.html#stream_event_data */

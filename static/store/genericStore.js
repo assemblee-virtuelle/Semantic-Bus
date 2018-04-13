@@ -157,9 +157,28 @@ function GenericStore(utilStore, specificStoreList, stompClient) {
 
   // --------------------------------------------------------------------------------
 
+
+  this.on('component_preview', ()=>{
+    console.log('component_preview',this.itemCurrent._id,this.currentProcessId);
+    this.utilStore.ajaxCall({
+      method: 'get',
+      url: '../data/core/componentData/'+this.itemCurrent._id+'/'+this.currentProcessId
+    }, true).then(data => {
+      this.currentPreview = data;
+      //console.log('DATA',data);
+      this.trigger('process_result', this.currentPreview);
+    })
+  });
+
+  this.on('process_state', (processId)=>{
+    console.log('ALLO');
+    this.currentProcessId=processId;
+  });
+
   this.on('item_current_work', function(message) {
     this.stompClient.send('/queue/work-ask', JSON.stringify({
       id: this.itemCurrent._id,
+      workspaceId:this.itemCurrent.workspaceId,
       userId : localStorage.user_id
     }));
     // console.log('item_current_testWork | itemCurrent:', this.itemCurrent);
