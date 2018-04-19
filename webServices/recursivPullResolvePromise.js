@@ -497,7 +497,7 @@ class Engine {
               _id: this.processId
             })));
           }
-          this.workspace_lib.cleanHoldProcess(this.workflow).then(processes=>{
+          this.workspace_lib.cleanOldProcess(this.workflow).then(processes=>{
             //console.log(processes);
             this.amqpClient.publish('amq.topic', this.keyProcessCleaned, new Buffer(JSON.stringify({cleanedProcesses:processes})));
           })
@@ -555,6 +555,7 @@ class Engine {
     historic_object.startTime=startTime;
     historic_object.roundDate=roundDate;
     historic_object.workflowId=this.originComponent.workspaceId;
+    //console.log(historic_object);
 
     this.workspace_lib.createHistoriqueEnd(historic_object).then(historiqueEnd => {
       this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
@@ -667,7 +668,7 @@ class Engine {
           !(requestDirection == "pull" && module.stepNode == true)
         ) {
           for (var beforeComponent of connectionsBefore) {
-            console.log(beforeComponent);
+            //console.log(beforeComponent);
             var beforeComponentObject = this.sift({
                 _id: beforeComponent
               },
