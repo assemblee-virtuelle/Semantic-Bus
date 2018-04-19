@@ -554,6 +554,7 @@ class Engine {
     historic_object.error = error;
     historic_object.startTime=startTime;
     historic_object.roundDate=roundDate;
+    historic_object.workflowId=this.originComponent.workspaceId;
 
     this.workspace_lib.createHistoriqueEnd(historic_object).then(historiqueEnd => {
       this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({

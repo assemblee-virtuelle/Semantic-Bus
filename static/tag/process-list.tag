@@ -34,7 +34,7 @@
         selected=records[0];
         console.log(selected);
         RiotControl.trigger('workspace_current_process_select',selected);
-        route('workspace/' + selected.workflowId + '/component');
+
       });
       RiotControl.on('workspace_current_process_changed', this.workspaceCurrentProcesChanged);
       RiotControl.trigger('workspace_current_process_refresh');

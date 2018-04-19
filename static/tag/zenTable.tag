@@ -62,9 +62,10 @@
     }
 
     rowClic(e) {
-      //console.log('CLIC');
-      //console.log("in row click", this.data)
+
+      console.log("in row click", this.opts)
       if (!(this.opts.disallowselect == true)) {
+        console.log('CLIC');
         //console.log(e.item);
         //var index = parseInt(e.item.rowId)
         if (this.data.length > 0) {
@@ -85,6 +86,7 @@
               e.item.mainSelected=false;
             }
           }
+          console.log('TRIGGER');
           this.trigger('rowsSelected',sift({selected:true},this.data));
           //var selected = this.data[index].selected || false;
           //this.data[index].selected = !selected;
