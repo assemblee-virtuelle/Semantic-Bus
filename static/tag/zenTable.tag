@@ -308,6 +308,9 @@
       padding: 10px;
       border-width: 1px;
     }
+    .tableHeader{
+        padding: 8pt;
+      }
 
     .tableHeader > * {
       /*display: inline-block;*/

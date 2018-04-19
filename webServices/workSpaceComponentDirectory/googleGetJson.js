@@ -15,6 +15,7 @@ module.exports = {
   makeRequest: function(key, select, offset, provider) {
 
     return new Promise((resolve, reject) => {
+      //reject(new Error("fake"));
       try {
         //console.log('ALLO',key);
         this.sheetrock({

@@ -1,5 +1,5 @@
 <graph-of-use  class="scrollable" style="flex-grow:1">
-    <div class="containerH" style="margin-top:5em"> 
+    <div class="containerH" style="margin-top:5em">
     <div class="containerV" style="flex:0.7;;background:white;padding: 2em;">
       <span style="margin-bottom:1em;text-align: center;font-size:1.3em;">  Consomation (30 jours) </span>
       <div class="containerH" style="justify-content:space-between">
@@ -55,7 +55,7 @@
     }
   }
 
-  
+
 
   .title-number {
     font-size: 30px;
@@ -197,7 +197,7 @@
 
 
   decimalAdjust(type, value, exp) {
-    console.log("DECIMAL ADJUSTE", value)
+    //console.log("DECIMAL ADJUSTE", value)
     // Si la valeur de exp n'est pas définie ou vaut zéro...
     if (typeof exp === 'undefined' || + exp === 0) {
       return Math[type](value);
@@ -237,7 +237,7 @@
     },
     widthStackChart = 1000,
     heightStackChart = 600 - marginStackChart.top - marginStackChart.bottom;
-  
+
     var xStackChart = d3.scaleBand().range([0, widthStackChart]).padding(.4);
 
     var yStackChart = d3.scaleLinear().range([heightStackChart, 0]);
@@ -249,7 +249,7 @@
     var colorStackChart = d3.scaleOrdinal(d3.schemeSet3);
 
     var canvasStackChart = d3.select("#stacked").attr("width", widthStackChart + marginStackChart.left + marginStackChart.right).attr("height", heightStackChart + marginStackChart.top + marginStackChart.bottom).append("g").attr("transform", "translate(" + marginStackChart.left + "," + marginStackChart.top + ")");
-  
+
     xStackChart.domain(data.map(function (d) {;
       return d.Day.split("-")[0] + "-" + d.Day.split("-")[1];
     }));
@@ -260,12 +260,12 @@
       })
     ]);
 
-    function make_y_gridlines() {		
+    function make_y_gridlines() {
         return d3.axisLeft(yStackChart)
             .ticks(5)
     }
 
-    canvasStackChart.append("g")			
+    canvasStackChart.append("g")
       .attr("class", "grid")
       .call(make_y_gridlines()
           .tickSize(-widthStackChart)
@@ -301,11 +301,11 @@
       let nom = '';
       if(d.name){
         nom = "Nom:" + d.name + "<br/>"
-      } 
-      div.html(nom + "Module: " 
-      + d.module + "<br/>Consomation : " 
-      + d.flow + "Mo<br/>Prix du flux : " 
-      + d.price + "€ <br/>Prix composant: " 
+      }
+      div.html(nom + "Module: "
+      + d.module + "<br/>Consomation : "
+      + d.flow + "Mo<br/>Prix du flux : "
+      + d.price + "€ <br/>Prix composant: "
       + d.componentPrice/1000 + "€ / Mo").style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 28 + "px");
     }).on("mouseout", function (d) {
       d3.select(this).style("opacity", .9)
@@ -337,4 +337,3 @@
 </script>
 
 </graph-of-use>
-

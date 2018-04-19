@@ -4,7 +4,7 @@ class Engine {
   constructor(component, requestDirection, amqpClient, callerId, pushData, queryParams) {
     this.technicalComponentDirectory = require("./technicalComponentDirectory.js");
     this.sift = require("sift");
-    this.config_component = require("../configuration");
+    //this.config_component = require("../configuration");
     this.objectSizeOf = require("object-sizeof");
     this.workspace_component_lib = require("../lib/core/lib/workspace_component_lib");
     this.workspace_lib = require("../lib/core/lib/workspace_lib");
@@ -14,7 +14,7 @@ class Engine {
     this.promiseOrchestrator = new PromiseOrchestrator();
     this.fackCounter = 0;
     this.amqpClient = amqpClient,
-      this.callerId = callerId;
+    this.callerId = callerId;
     this.originComponent = component;
     this.requestDirection = requestDirection;
     this.pushData = pushData;
@@ -50,56 +50,70 @@ class Engine {
                   "credentials.email": ownerUserMail.email
                 })
                 .then(user => {
+
+                  this.componentsResolving.forEach(component => {
+                    component.status = "waiting";
+                    //empty object are not persist by mongoose
+                    component.specificData = component.specificData || {};
+                  });
+
+                  this.originComponent = this.sift({
+                      _id: this.originComponent._id
+                    },
+                    this.componentsResolving
+                  )[0];
+
+
+                  this.pathResolution = this.buildPathResolution(
+                    workflow,
+                    this.originComponent,
+                    this.requestDirection,
+                    0,
+                    this.componentsResolving,
+                    undefined,
+                    this.originQueryParams
+                  );
+
+                  // if (this.config.quietLog != true) {
+                  //   console.log(" ---------- BuildPath -----------", this.fackCounter)
+                  //   console.log(this.pathResolution.links.map(link => {
+                  //     return (link.source._id + ' -> ' + link.destination._id);
+                  //   }));
+                  // }
+
+
                   this.owner = user;
-                  let roundDate = new Date();
-                  roundDate.setMinutes(0);
-                  roundDate.setSeconds(0);
-                  roundDate.setMilliseconds(0);
-                  roundDate.setHours(0);
+
                   this.workspace_lib.createProcess({
                     workflowId: this.originComponent.workspaceId,
-                    roundDate: roundDate,
                     ownerId: this.owner._id,
                     callerId: this.callerId,
-                    originComponentId: this.originComponent._id
+                    originComponentId: this.originComponent._id,
+                    steps: this.pathResolution.nodes.map(node => {
+                      return ({
+                        componentId: node._id
+                      });
+                    })
                   }).then((process) => {
                     this.processId = process._id;
                     this.keyStart = 'process-start.' + this.originComponent.workspaceId;
                     this.keyProgress = 'process-progress.' + this.originComponent.workspaceId;
                     this.keyError = 'process-error.' + this.originComponent.workspaceId;
                     this.keyEnd = 'process-end.' + this.originComponent.workspaceId;
-
-                    // this.stompClient.send('/topic/process-start.' + this.originComponent.workspaceId, JSON.stringify({
-                    //   processId: this.processId
-                    // }));
-
+                    this.keyProcessCleaned = 'workflow-processCleaned.' + this.originComponent.workspaceId;
                     this.amqpClient.publish('amq.topic', this.keyStart, new Buffer(JSON.stringify({
-                      processId: this.processId
+                      _id: this.processId,
+                      callerId: this.callerId,
+                      timeStamp: process.timeStamp,
+                      steps: this.pathResolution.nodes.map(node => {
+                        return ({
+                          componentId: node._id,
+                          status: node.status
+                        });
+                      })
                     })));
 
-
-                    this.componentsResolving.forEach(component => {
-                      component.status = "waiting";
-                      //empty object are not persist by mongoose
-                      component.specificData = component.specificData || {};
-                    });
-
-                    this.originComponent = this.sift({
-                        _id: this.originComponent._id
-                      },
-                      this.componentsResolving
-                    )[0];
-
-                    this.pathResolution = this.buildPathResolution(
-                      this.originComponent,
-                      this.requestDirection,
-                      0,
-                      this.componentsResolving,
-                      undefined,
-                      this.originQueryParams
-                    );
-
-                    this.pathResolution.forEach(link => {
+                    this.pathResolution.links.forEach(link => {
                       link.status = "waiting";
                     });
                     this.RequestOrigine = this.originComponent;
@@ -110,12 +124,12 @@ class Engine {
                     /// -------------- push case  -----------------------
                     if (this.requestDirection == "push") {
                       this.originComponent.dataResolution = this.pushData;
-                      this.originComponent='resolved';
+                      this.originComponent = 'resolved';
 
                       this.sift({
                           "source._id": component._id
                         },
-                        this.pathResolution
+                        this.pathResolution.links
                       ).forEach(link => {
                         link.status = "processing";
                       });
@@ -141,6 +155,8 @@ class Engine {
                         let module = this.technicalComponentDirectory[
                           componentProcessing.module
                         ];
+                        let startTime = new Date();
+                        //historicEndAndCredit(processingLink,module,[]);
                         //console.log(componentProcessing.specificData);
                         module
                           .pull(componentProcessing, undefined, componentProcessing.queryParams)
@@ -155,33 +171,12 @@ class Engine {
                             this.sift({
                                 "source._id": componentProcessing._id
                               },
-                              this.pathResolution
+                              this.pathResolution.links
                             ).forEach(link => {
                               link.status = "processing";
                             });
-                            this.workspace_lib.createHistoriqueEnd({
-                              data: componentProcessing.dataResolution.data,
-                              processId: this.processId,
-                              componentId: componentProcessing._id,
-                              componentName: componentProcessing.name,
-                              componentModule: module.type
-                            }).then(historiqueEnd => {
-                              // this.stompClient.send('/topic/process-progress.' + this.token, JSON.stringify({
-                              //   processId: this.processId
-                              // }));
-                              //var key = 'process-progress.'+this.originComponent.workspaceId;
-                              this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
-                                processId: this.processId
-                              })));
-                            }).catch(e => {
-                              console.log(e);
-                              // this.stompClient.send('/topic/process-progress.' + this.callerId, JSON.stringify({
-                              //   error: 'error writing execution result'
-                              // }));
-                              this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
-                                error: 'error writing execution result'
-                              })));
-                            });
+
+                            this.historicEndAndCredit(componentProcessing, startTime, undefined)
 
                             if (
                               componentProcessing._id == this.RequestOrigine._id
@@ -194,34 +189,20 @@ class Engine {
                             this.processNextBuildPath();
                           })
                           .catch(e => {
-                            console.log(
-                              "source component error",
-                              e.message,
-                              componentProcessing._id
-                            );
+                            // console.log(
+                            //   "source component error",
+                            //   e.message,
+                            //   componentProcessing._id
+                            // );
                             componentProcessing.dataResolution = {
                               error: e
                             };
-                            this.workspace_lib.createHistoriqueEnd({
-                              error: e,
-                              processId: this.processId,
-                              componentId: componentProcessing._id,
-                              componentName: componentProcessing.name,
-                              componentModule: module.type
-                            }).then(historiqueEnd => {
-                              this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
-                                error: e
-                              })));
-                            }).catch(e => {
-                              console.log(e);
-                              this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
-                                error: 'error writing execution result'
-                              })));
-                            });
+                            this.historicEndAndCredit(componentProcessing, startTime, e)
+
                             this.sift({
                                 "source._id": componentProcessing._id
                               },
-                              this.pathResolution
+                              this.pathResolution.links
                             ).forEach(link => {
                               link.status = "error";
                             });
@@ -256,14 +237,14 @@ class Engine {
       this.fackCounter++;
       if (this.config.quietLog != true) {
         // console.log(" ---------- processNextBuildPath -----------", this.fackCounter)
-        // console.log(this.pathResolution.map(link => {
+        // console.log(this.pathResolution.links.map(link => {
         //   return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
         // }));
       }
       let linkNotResolved = this.sift({
           status: "processing"
         },
-        this.pathResolution
+        this.pathResolution.links
       );
       //console.log(linkNotResolved.length);
 
@@ -276,14 +257,14 @@ class Engine {
                 $ne: "processing"
               } // ==  dataResolution: { $exists: false }
             },
-            this.pathResolution
+            this.pathResolution.links
           );
 
           let linksWaiting = this.sift({
               "destination._id": processingLinkCandidate.destination._id,
               status: "waiting"
             },
-            this.pathResolution
+            this.pathResolution.links
           );
 
           if (linksNotReady.length == 0) {
@@ -300,12 +281,13 @@ class Engine {
         //-------------- Component processing --------------
 
         if (processingLink != undefined) {
-          processingLink.status='processing';
+          let startTime = new Date();
+          processingLink.status = 'processing';
           let linksProcessingInputs = this.sift({
               "destination._id": processingLink.destination._id,
               status: "processing"
             },
-            this.pathResolution
+            this.pathResolution.links
           );
 
           let module = this.technicalComponentDirectory[
@@ -317,50 +299,8 @@ class Engine {
             return d;
           });
 
-          let current_cost = null;
-          let consumption_history_object = {};
-          let current_component = this.config_component.components_information[processingLink.destination.module];
-          let current_component_price;
+          // historicEndAndCredit(processingLink,module,dataFlow);
 
-          if (module.getPriceState != undefined) {
-            current_component_price = module.getPriceState(processingLink.destination.specificData, current_component.price, current_component.record_price);
-          } else {
-            current_component_price = {
-              moPrice: current_component.price,
-              recordPrice: current_component.record_price
-            }
-          }
-          current_component = this.config_component.components_information[processingLink.destination.module];
-          //console.log(dataFlow[0].data);
-          consumption_history_object.recordCount = dataFlow == undefined ? 0 : dataFlow[0].data.length || 1;
-          consumption_history_object.recordPrice = current_component_price.record_price || 0;
-          consumption_history_object.moCount = this.objectSizeOf(dataFlow) / 1000000;
-          consumption_history_object.componentPrice = current_component_price.moPrice;
-          consumption_history_object.totalPrice =
-            (consumption_history_object.recordCount * consumption_history_object.recordPrice) / 1000 +
-            (consumption_history_object.moCount * consumption_history_object.componentPrice) / 1000;
-          consumption_history_object.componentModule = processingLink.destination.module
-          //TODO pas besoin de stoquer le name du component, on a l'id. ok si grosse perte de perf pour histogramme
-          consumption_history_object.componentName = processingLink.destination.name;
-          consumption_history_object.componentId = processingLink.destination._id;
-          consumption_history_object.processId = this.processId;
-
-          if (this.config.quietLog != true) {
-            //console.log("CONSUPTION_HISTORIQUE", consumption_history_object);
-          }
-
-          // TODO L'historique devrait avoir sa lib indépendante de workspace_lib
-          // TODO L'enregistrement de l'historique devait avoir lieu apres la résolution du work. on ne facture pas si le composant plante
-          this.workspace_lib.createHistoriqueStart(consumption_history_object);
-
-          //UPDATE USER CREDIT
-          this.owner.credit -= consumption_history_object.totalPrice;
-
-          this.user_lib.update(this.owner);
-
-          if (this.config.quietLog != true) {
-            //console.log('AFTER consumption Update', consumption_history_res);
-          }
           var primaryflow;
           if (module.getPrimaryFlow != undefined) {
             primaryflow = module.getPrimaryFlow(
@@ -400,6 +340,7 @@ class Engine {
             });
             //console.log('paramArray',paramArray);
             this.promiseOrchestrator.execute(module, module.pull, paramArray, {}).then((componentFlowDfob) => {
+
               for (var componentFlowDfobKey in componentFlowDfob) {
                 dfobFinalFlow[componentFlowDfobKey].objectToProcess[
                     dfobFinalFlow[componentFlowDfobKey].key
@@ -409,13 +350,13 @@ class Engine {
 
               processingLink.destination.dataResolution = {
                 componentId: processingLink.destination._id,
-                data: primaryflow.data
+                data: dfobFinalFlow
               };
               processingLink.destination.status = "resolved";
               this.sift({
                   "source._id": processingLink.destination._id
                 },
-                this.pathResolution
+                this.pathResolution.links
               ).forEach(link => {
                 link.status = "processing";
               });
@@ -424,23 +365,7 @@ class Engine {
                 link.status = "resolved";
               });
 
-              this.workspace_lib.createHistoriqueEnd({
-                data: processingLink.destination.dataResolution.data,
-                processId: this.processId,
-                componentId: processingLink.destination._id,
-                componentName: processingLink.destination.name,
-                componentModule: module.type
-              }).then(historiqueEnd => {
-                this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
-                  processId: this.processId
-                })));
-
-              }).catch(e => {
-                this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
-                  processId: this.processId,
-                  error: 'error writing execution result'
-                })));
-              });
+              this.historicEndAndCredit(processingLink.destination, startTime, undefined)
 
               if (
                 processingLink.destination._id == this.RequestOrigine._id
@@ -456,28 +381,12 @@ class Engine {
               processingLink.destination.dataResolution = {
                 error: e
               };
-              this.workspace_lib.createHistoriqueEnd({
-                error: e,
-                processId: this.processId,
-                componentId: processingLink.destination._id,
-                componentName: processingLink.destination.name,
-                componentModule: module.type
-              }).then(historiqueEnd => {
-                this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
-                  processId: this.processId,
-                  error: e
-                })));
+              this.historicEndAndCredit(processingLink.destination, startTime, e)
 
-              }).catch(e => {
-                console.log(e);
-                this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
-                  error: 'error writing execution error'
-                })));
-              });
               this.sift({
                   "source._id": processingLink.destination._id
                 },
-                this.pathResolution
+                this.pathResolution.links
               ).forEach(link => {
                 link.status = "error";
               });
@@ -494,65 +403,6 @@ class Engine {
               this.processNextBuildPath();
             });
 
-            // var testPromises = dfobFinalFlow.map(finalItem => {
-            //   var recomposedFlow = [];
-            //   recomposedFlow = recomposedFlow.concat([{
-            //     data: finalItem.objectToProcess[finalItem.key],
-            //     componentId: primaryflow.componentId
-            //   }]);
-            //   recomposedFlow = recomposedFlow.concat(secondaryFlow);
-            //   return module.pull(
-            //     processingLink.destination,
-            //     recomposedFlow,
-            //     undefined
-            //   );
-            // });
-
-
-
-            // Promise.all(testPromises)
-            //   .then(componentFlowDfob => {
-            //     for (var componentFlowDfobKey in componentFlowDfob) {
-            //       dfobFinalFlow[componentFlowDfobKey].objectToProcess[
-            //           dfobFinalFlow[componentFlowDfobKey].key
-            //         ] =
-            //         componentFlowDfob[componentFlowDfobKey].data;
-            //     }
-            //
-            //     processingLink.destination.dataResolution = {
-            //       componentId: processingLink.destination._id,
-            //       data: primaryflow.data
-            //     };
-            //     processingLink.destination.status = "resolved";
-            //     this.sift({
-            //         "source._id": processingLink.destination._id
-            //       },
-            //       this.pathResolution
-            //     ).forEach(link => {
-            //       link.status = "processing";
-            //     });
-            //
-            //     linksProcessingInputs.forEach(link => {
-            //       link.status = "resolved";
-            //     });
-            //
-            //     if (
-            //       processingLink.destination._id == this.RequestOrigine._id
-            //     ) {
-            //       this.RequestOrigineResolveMethode(
-            //         processingLink.destination.dataResolution
-            //       );
-            //     }
-            //     this.processNextBuildPath(
-            //       traitement_id,
-            //       component_workspaceId,
-            //       owner,
-            //       name
-            //     );
-            //   })
-            // .catch(e => {
-            //   this.RequestOrigineRejectMethode(e);
-            // });
           } else {
             module
               .pull(processingLink.destination, dataFlow, processingLink.queryParams)
@@ -563,7 +413,7 @@ class Engine {
                 this.sift({
                     "source._id": processingLink.destination._id
                   },
-                  this.pathResolution
+                  this.pathResolution.links
                 ).forEach(link => {
                   link.status = "processing";
                 });
@@ -571,25 +421,7 @@ class Engine {
                 linksProcessingInputs.forEach(link => {
                   link.status = "resolved";
                 });
-
-                this.workspace_lib.createHistoriqueEnd({
-                  data: processingLink.destination.dataResolution.data,
-                  processId: this.processId,
-                  componentId: processingLink.destination._id,
-                  componentName: processingLink.destination.name,
-                  componentModule: module.type
-                }).then(historiqueEnd => {
-                  //console.log('PROCESS CREATED',process);
-                  //console.log('SEND'+this.callerId);
-                  this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
-                    processId: this.processId
-                  })));
-                }).catch(e => {
-                  //console.log("process creation Error", e, this.callerId);
-                  this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
-                    error: 'error writing execution error'
-                  })));
-                });
+                this.historicEndAndCredit(processingLink.destination, startTime, undefined)
 
                 if (
                   processingLink.destination._id == this.RequestOrigine._id
@@ -607,27 +439,12 @@ class Engine {
                 processingLink.destination.dataResolution = {
                   error: e
                 };
-                this.workspace_lib.createHistoriqueEnd({
-                  error: e,
-                  processId: this.processId,
-                  componentId: processingLink.destination._id,
-                  componentName: processingLink.destination.name,
-                  componentModule: module.type
-                }).then(historiqueEnd => {
-                  this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
-                    processId: this.processId,
-                    error: e
-                  })));
-                }).catch(e => {
-                  console.log(e);
-                  this.stompClient.send('/topic/process-progress.' + this.originComponent.workspaceId, JSON.stringify({
-                    error: 'error writing execution error'
-                  }));
-                });
+                this.historicEndAndCredit(processingLink.destination, startTime, e)
+
                 this.sift({
                     "source._id": processingLink.destination._id
                   },
-                  this.pathResolution
+                  this.pathResolution.links
                 ).forEach(link => {
                   link.status = "error";
                 });
@@ -661,25 +478,29 @@ class Engine {
         let linkOnError = this.sift({
             status: "error"
           },
-          this.pathResolution
+          this.pathResolution.links
         );
         //console.log(linkOnError.length);
         let linkOnWaitingButNodeInProcessing = this.sift({
             status: "waiting",
             "source.status": "processing",
           },
-          this.pathResolution
+          this.pathResolution.links
         );
-        if(linkOnWaitingButNodeInProcessing.length==0){
+        if (linkOnWaitingButNodeInProcessing.length == 0) {
           if (linkOnError.length > 0) {
             this.amqpClient.publish('amq.topic', this.keyError, new Buffer(JSON.stringify({
-              processId: this.processId
+              _id: this.processId
             })));
           } else {
             this.amqpClient.publish('amq.topic', this.keyEnd, new Buffer(JSON.stringify({
-              processId: this.processId
+              _id: this.processId
             })));
           }
+          this.workspace_lib.cleanHoldProcess(this.workflow).then(processes=>{
+            //console.log(processes);
+            this.amqpClient.publish('amq.topic', this.keyProcessCleaned, new Buffer(JSON.stringify({cleanedProcesses:processes})));
+          })
           if (this.config.quietLog != true) {
             console.log(
               "--------------  End of Worksapce processing --------------"
@@ -694,8 +515,72 @@ class Engine {
     }
   }
 
-  //TODO don't work if flow is array at fisrt depth
+  historicEndAndCredit(component, startTime, error) {
+    let dataFlow= component.dataResolution
+    let module = component.module;
+    let specificData = component.specificData;
+    let historic_object = {};
+    let current_component = this.config.components_information[module];
+    let current_component_price;
+    let roundDate = new Date();
+    roundDate.setMinutes(0);
+    roundDate.setSeconds(0);
+    roundDate.setMilliseconds(0);
+    roundDate.setHours(0);
 
+    if (module.getPriceState != undefined) {
+      current_component_price = module.getPriceState(specificData, current_component.price, current_component.record_price);
+    } else {
+      current_component_price = {
+        moPrice: current_component.price,
+        recordPrice: current_component.record_price
+      }
+    }
+    current_component = this.config.components_information[module];
+
+    historic_object.recordCount = dataFlow == undefined ? 0 : dataFlow.data.length || 1;
+    historic_object.recordPrice = current_component_price.record_price || 0;
+    historic_object.moCount = this.objectSizeOf(dataFlow) / 1000000;
+    historic_object.componentPrice = current_component_price.moPrice;
+    historic_object.totalPrice =
+      (historic_object.recordCount * historic_object.recordPrice) / 1000 +
+      (historic_object.moCount * historic_object.componentPrice) / 1000;
+    historic_object.componentModule = module
+    //TODO pas besoin de stoquer le name du component, on a l'id. ok si grosse perte de perf pour histogramme
+    historic_object.componentName = component.name;
+    historic_object.componentId = component._id;
+    historic_object.processId = this.processId;
+    historic_object.data = dataFlow.data;
+    historic_object.error = error;
+    historic_object.startTime=startTime;
+    historic_object.roundDate=roundDate;
+
+    this.workspace_lib.createHistoriqueEnd(historic_object).then(historiqueEnd => {
+      this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
+        componentId: historiqueEnd.componentId,
+        processId: historiqueEnd.processId,
+        error: historiqueEnd.error
+      })));
+    }).catch(e => {
+      console.log(e);
+      this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
+        componentId: component._id,
+        processId: this.processId,
+        error: 'error writing historic error'
+      })));
+    });
+
+    if (this.config.quietLog != true) {
+      //console.log("CONSUPTION_HISTORIQUE", consumption_historic_object);
+    }
+
+    this.owner.credit -= historic_object.totalPrice;
+
+    this.user_lib.update(this.owner);
+  }
+
+
+  //TODO don't work if flow is array at fisrt depth
   buildDfobFlow(currentFlow, dfobPathTab) {
     var currentDfob = dfobPathTab.shift();
     if (dfobPathTab.length > 0) {
@@ -737,9 +622,8 @@ class Engine {
 
 
 
-  buildPathResolution(component, requestDirection, depth, usableComponents, buildPath, queryParams) {
-    buildPath = buildPath || [];
-
+  buildPathResolution(workspace,component, requestDirection, depth, usableComponents, buildPath, queryParams) {
+    //buildPath = buildPath || [];
     //infinite depth protection. Could be remove if process is safe
     if (depth < 100) {
       //var pathResolution = currentPathResolution || [];
@@ -747,23 +631,42 @@ class Engine {
       for (var i = 0; i < depth; i++) {
         incConsole += "-";
       }
+      if (buildPath == undefined) {
+        buildPath = {};
+        buildPath.links = [];
+        buildPath.nodes = [];
+      }
+      // console.log(" ---------- buildPathResolution -----------")
+      // console.log(buildPath.links.map(link => {
+      //   return (link.source._id+':'+link.source.name + ' -> ' + link.destination._id+':'+link.destination.name);
+      // }));
 
       let module = this.technicalComponentDirectory[component.module];
       // console.log(incConsole, "buildPathResolution", component._id, requestDirection, module.type);
-      var out = [];
+      var existingNodes = this.sift({
+          "_id": component._id,
+        },
+        buildPath.nodes
+      );
+      if (existingNodes.length == 0) {
+        buildPath.nodes.push(component)
+      }
+
       let currentQueryParam = queryParams;
       if (module.buildQueryParam != undefined) {
         currentQueryParam = module.buildQueryParam(queryParams, component.specificData);
       }
+      let connectionsBefore=this.sift({target:component._id},workspace.links).map(r=>r.source);
+      let connectionsAfter=this.sift({source:component._id},workspace.links).map(r=>r.target);
+//console.log(connectionsBefore);
       //if (requestDirection == "pull") {
       if (requestDirection != "push") {
         if (
-          component.connectionsBefore != undefined &&
-          component.connectionsBefore.length > 0 &&
+          connectionsBefore.length > 0 &&
           !(requestDirection == "pull" && module.stepNode == true)
         ) {
-          for (var beforeComponent of component.connectionsBefore) {
-            //console.log(beforeComponent);
+          for (var beforeComponent of connectionsBefore) {
+            console.log(beforeComponent);
             var beforeComponentObject = this.sift({
                 _id: beforeComponent
               },
@@ -781,23 +684,26 @@ class Engine {
                   "source._id": linkToProcess.source._id,
                   "destination._id": linkToProcess.destination._id
                 },
-                buildPath
+                buildPath.links
               );
               if (existingLink.length == 0) {
                 //linkToProcess.status='waiting';
-                out.push(linkToProcess);
+                buildPath.links.push(linkToProcess);
                 //console.log(linkToProcess);
-                buildPath.push(linkToProcess);
-                out = out.concat(
-                  this.buildPathResolution(
-                    beforeComponentObject,
-                    "pull",
-                    depth + 1,
-                    usableComponents,
-                    buildPath,
-                    currentQueryParam
-                  )
-                );
+                //buildPath.push(out);
+                this.buildPathResolution(
+                  workspace,
+                  beforeComponentObject,
+                  "pull",
+                  depth + 1,
+                  usableComponents,
+                  buildPath,
+                  currentQueryParam
+                )
+
+                // out.links = out.concat(
+                //   recursivOut.links
+                // );
               }
             }
           }
@@ -809,11 +715,10 @@ class Engine {
       }
       if (requestDirection != "pull") {
         if (
-          component.connectionsAfter != undefined &&
-          component.connectionsAfter.length > 0 &&
+          connectionsAfter.length > 0 &&
           !(requestDirection == "push" && module.stepNode == true)
         ) {
-          for (var afterComponentId of component.connectionsAfter) {
+          for (var afterComponentId of connectionsAfter) {
             var afterComponentObject = this.sift({
                 _id: afterComponentId
               },
@@ -830,27 +735,28 @@ class Engine {
                   "source._id": linkToProcess.source._id,
                   "destination._id": linkToProcess.destination._id
                 },
-                buildPath
+                buildPath.links
               );
               if (existingLink.length == 0) {
-                out.push(linkToProcess);
+
                 //console.log(linkToProcess);
-                buildPath.push(linkToProcess);
-                out = out.concat(
-                  this.buildPathResolution(
-                    afterComponentObject,
-                    "push",
-                    depth + 1,
-                    usableComponents,
-                    buildPath
-                  )
-                );
+                buildPath.links.push(linkToProcess);
+
+                this.buildPathResolution(
+                  workspace,
+                  afterComponentObject,
+                  "push",
+                  depth + 1,
+                  usableComponents,
+                  buildPath
+                )
+
               }
             }
           }
         }
       }
-      return out;
+      return buildPath;
     }
   }
 

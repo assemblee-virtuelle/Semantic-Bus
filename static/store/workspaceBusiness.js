@@ -84,8 +84,6 @@ function WorkspaceBusiness() {
       _id: workspaceComponentIn._id,
       specificData: workspaceComponentIn.specificData,
       name: workspaceComponentIn.name,
-      average_consumption: workspaceComponentIn.average_consumption,
-      flow_size: workspaceComponentIn.flow_size,
       connectionsBefore: workspaceComponentIn.connectionsBefore.map(conn => {
         return {
           _id: conn._id
@@ -119,8 +117,7 @@ function WorkspaceBusiness() {
       _id: workspaceIn._id,
       name: workspaceIn.name,
       description: workspaceIn.description,
-      average_consumption: workspaceIn.average_consumption,
-      flow_size: workspaceIn.flow_size,
+      limitHistoric : workspaceIn.limitHistoric,
       rowid: workspaceIn.rowid
     }
     for (component of workspaceIn.components) {

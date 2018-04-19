@@ -88,6 +88,17 @@ module.exports = function(router,stompClient) {
     });
   }); // <= get one workspace
 
+  router.get('/processByWorkflow/:id', function(req, res, next) {
+    //console.log('Get On Workspace 1');
+    workspace_lib.get_process_byWorkflow(req.params.id).then((workspaceProcess)=>{
+      res.json(workspaceProcess);
+    }).catch(e => {
+      next(e);
+    });
+  }); // <= get one workspace
+
+
+
   // --------------------------------------------------------------------------------
   router.put('/workspacerowId/', function(req, res, next) {
     if (req.body != null) {
@@ -247,5 +258,36 @@ module.exports = function(router,stompClient) {
     //   // this.stompClient.send('/topic/work-response.'+data.callerId, JSON.stringify({error:e.message}));
     // });
   }.bind(this)); //<= process
+
+
+  //return updated Links
+  router.post('/workspaceComponent/connection', function(req, res, next) {
+    configuration = require('../configuration');
+    let body = req.body;
+    if (configuration.saveLock == false) {
+      workspace_lib.addConnection(req.body.workspaceId,req.body.source,req.body.target).then(links=>{
+        res.json(links)
+      }).catch(e => {
+        next(e);
+      });
+    } else {
+      next(new Error('save forbiden'));
+    }
+  });
+
+  //return updated Links
+  router.delete('/workspaceComponent/connection', function(req, res, next) {
+    configuration = require('../configuration');
+    let body = req.body;
+    if (configuration.saveLock == false) {
+      workspace_lib.removeConnection(req.body.workspaceId,req.body.linkId).then(links=>{
+        res.json(links)
+      }).catch(e => {
+        next(e);
+      });
+    } else {
+      next(new Error('save forbiden'));
+    }
+  });
 
 }

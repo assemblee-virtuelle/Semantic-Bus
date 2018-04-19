@@ -41,6 +41,7 @@
       <workspace-editor-header if={isScrennToShow('workspace')}></workspace-editor-header>
       <workspace-component-editor-header if={isScrennToShow('component')}></workspace-component-editor-header>
       <json-previewer-header if={isScrennToShow('workPreview')}></json-previewer-header>
+
     </div>
 
     <div class="containerH" style="flex-grow:1;flex-shrink:1;">
@@ -72,19 +73,11 @@
             <p style="color:white;font-size:12px">Paramêtres</p>
           </a>
         </div>
-        <div class="containerV scrollable" style="flex-basis:40px;">
-          <div each={processCollection} class="containerH progressContainer">
-            <progress max="100" value="100" onclick={processClick} class={state} data-processId={processId}></progress>
-          </div>
-          <!-- <div class="commandButtonImage" style="flex-basis:40px">
-            <img src="./image/working.gif" width="40px" if={workInProgress}>
-          </div> -->
-        </div>
       </div>
 
       <!--  CONTENT   -->
 
-      <div class="containerV" style="flex-grow:1">
+      <div class="containerV generalContainer" style="flex-grow:1">
         <landing if={isScrennToShow('landing')}></landing>
         <workspace-table if={isScrennToShow('myWorkspaces')></workspace-table>
         <workspace-share-table if={isScrennToShow('sharedWorkspaces')></workspace-share-table>
@@ -126,11 +119,6 @@
 
     closeError(e) {
       this.errorMessage = undefined;
-    }
-
-    processClick(e){
-      //console.log(e.item);
-      RiotControl.trigger('process_state', e.item.processId)
     }
 
     this.isScrennToShow = function (screenToTest) {
@@ -251,6 +239,10 @@
       text-align: center;
     }
 
+
+    .generalContainer{
+          background-color: rgb(238,242,249);
+    }
     /*LANDING CSS */
     /*
     #landingTitle {
@@ -389,42 +381,6 @@
       flex-shrink: 0;
     }
 
-    progress {
-      width: 100%;
-
-      background: #000;
-    }
-    progress::-webkit-progress-bar {
-      /*background: transparent;*/
-      /*border-radius: 12px;*/
-      background: #000;
-      /*box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4), 0 2px 5px 0px rgba(0,0,0,0.3);*/
-
-    }
-
-    progress.inProgress::-webkit-progress-value {
-      /*border-radius: 12px;*/
-      background: orange;
-      /*box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4), 0 2px 5px 0px rgba(0,0,0,0.3);*/
-    }
-    progress.success::-webkit-progress-value {
-      background: green;
-    }
-    progress.error::-webkit-progress-value {
-      background: red;
-    }
-
-    progress.inProgress::-moz-progress-bar {
-      /*border-radius: 5px;*/
-      background: orange;
-      /*box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4), 0 2px 5px 0 rgba(0,0,0,0.3);*/
-    }
-    progress.success::-moz-progress-bar {
-      background: green;
-    }
-    progress.error::-moz-progress-bar {
-      background: red;
-    }
 
 
   </style>

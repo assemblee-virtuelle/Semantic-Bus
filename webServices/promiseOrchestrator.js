@@ -25,7 +25,7 @@ class PromiseExecutor {
     });
   }
   incrementExecute(context,workFunction,paramArray,option){
-    //console.log('ALLO');
+    //console.log('incrementExecute',this.globalOut.length,paramArray.length);
     if(this.globalOut.length==paramArray.length){
       this.initialPromiseResolve(this.globalOut);
     }else{
@@ -35,7 +35,7 @@ class PromiseExecutor {
         this.globalOut.push(currentOut);
       }).catch((e)=>{
         this.globalOut.push({'$error':e});
-        //console.log('Orchestrator Error',e);
+        console.log('Orchestrator Error',e);
       }).then(()=>{
         this.increment++;
         this.incrementExecute(context,workFunction,paramArray,option);

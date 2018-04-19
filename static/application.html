@@ -81,6 +81,7 @@
   <script type="riot/tag" src="tag/stripe.tag"></script>
   <script type="riot/tag" src="tag/stripe2.tag"></script>
   <script type="riot/tag" src="tag/transactions-list.tag"></script>
+  <script type="riot/tag" src="tag/process-list.tag"></script>
 
 
   <script type="riot/tag" src="tag/no-editor.tag"></script>
@@ -133,9 +134,7 @@
         RiotControl.addStore(utilStore);
         allStore['utilStore'] = utilStore;
 
-        var workspaceStore = new WorkspaceStore(utilStore, stompClient); // Create a store instance.
-        RiotControl.addStore(workspaceStore); // Register the store in central dispatch.
-        allStore['workspaceStore'] = workspaceStore;
+
 
         var profilStore = new ProfilStore();
         RiotControl.addStore(profilStore);
@@ -162,9 +161,13 @@
         specificStoreList.push(sqlStore)
         allStore['sqlStore'] = sqlStore;
 
-        var genericStore = new GenericStore(utilStore, specificStoreList, stompClient);
-        RiotControl.addStore(genericStore);
-        allStore['genericStore'] = genericStore;
+        // var genericStore = new GenericStore(utilStore, specificStoreList, stompClient);
+        // RiotControl.addStore(genericStore);
+        // allStore['genericStore'] = genericStore;
+
+        var workspaceStore = new WorkspaceStore(utilStore, stompClient,specificStoreList); // Create a store instance.
+        RiotControl.addStore(workspaceStore); // Register the store in central dispatch.
+        allStore['workspaceStore'] = workspaceStore;
 
         var adminStore = new AdminStore(utilStore);
         RiotControl.addStore(adminStore);
@@ -218,9 +221,9 @@
         debug: true
       })
       if (configurationMessageQueue.host != undefined && configurationMessageQueue.host.length > 0) {
-        //stompClient.connect(login, password, onConnect, onError, configurationMessageQueue.host);
-        stompClient.connect(login, password, onConnect, onError);
-      
+        stompClient.connect(login, password, onConnect, onError, configurationMessageQueue.host);
+        //stompClient.connect(login, password, onConnect, onError);
+
       } else {
         stompClient.connect(login, password, onConnect, onError);
       }

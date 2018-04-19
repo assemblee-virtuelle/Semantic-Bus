@@ -105,7 +105,7 @@ module.exports = function(router, amqpClient) {
     }).then(function(data) {
       //console.log('workspaceComponent | work| ', data);
       var recursivPullResolvePromiseDynamic = require('./recursivPullResolvePromise');
-      return recursivPullResolvePromiseDynamic.execute(data, 'work', this.amqpClient, messageObject.userId);
+      return recursivPullResolvePromiseDynamic.execute(data, 'work', this.amqpClient, messageObject.callerId);
     }).then((data) => {
 
       //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)

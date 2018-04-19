@@ -11,9 +11,7 @@ var sift = require('sift');
 
 module.exports = function(router) {
 
-
   // --------------------------------------------------------------------------------
-
   router.get('/errors', function(req, res, next) {
     error_lib.getAll().then(function(errors) {
       res.json(errors)
@@ -56,6 +54,7 @@ module.exports = function(router) {
     res.json({
       message: 'in progress'
     });
+    console.log('ALLO');
     var token = req.body.token || req.query.token || req.headers['authorization'];
     //console.log('token |',token);
     let user;

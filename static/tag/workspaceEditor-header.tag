@@ -33,8 +33,12 @@
           consomation du workflow
         </div>
       </div>
+      <div if={menu=='process' } class="containerH">
+        <div>
+          les process
+        </div>
+      </div>
       <div class="containerH" >
-
         <div class="main-title">{data.name}</div>
       </div>
     </div>
@@ -60,6 +64,10 @@
       <div if={menu=='share' } onclick={shareClick} class="commandButtonImage containerV">
         <img src="./image/Share.svg" style="" height="40px" width="40px">
         <div>partager</div>
+      </div>
+      <div if={menu=='process' } onclick={shareClick} class="commandButtonImage containerV">
+        <img src="./image/Super-Mono-png/PNG/sticker/icons/bin.png" style="" height="40px" width="40px">
+        <div>supprimer tous</div>
       </div>
     </div>
 

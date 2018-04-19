@@ -17,11 +17,16 @@
       <img src="./image/Stats.svg" style="" height="40px" width="40px">
       <p style="color:white;font-size:12px">Conso</p>
     </a>
+    <a if={innerData.mode=="edit" } href={'#workspace/' +innerData._id+'/process' }  class={commandButtonImage:true,containerV:true} style="flex-basis:100px;flex-grow:0;">
+      <img src="./image/Super-Mono-png/PNG/sticker/icons/traffic-lights.png" style="" height="40px" width="40px">
+      <p style="color:white;font-size:12px">Process</p>
+    </a>
+
   </div>
   <div show={menu=='component'} class="containerV" style="flex-grow: 1;background-color:rgb(238,242,249)">
     <graph></graph>
   </div>
-  <div show={menu=='user' } class="containerV" style="flex-grow: 1;background-color:rgb(238,242,249);">   
+  <div show={menu=='user' } class="containerV" style="flex-grow: 1;background-color:rgb(238,242,249);">
     <zenTable  title="" drag={false} disallownavigation={true} id="userliste" disallowcommand={innerData.mode=="read" } ref="userZenTable">
       <yield to="header">
         <div>email</div>
@@ -36,21 +41,20 @@
   <div show={menu=='information' } class="containerH" id="description" style="background-color: rgb(238,242,249);flex-grow: 1;justify-content: center;align-items: center;">
     <div class="containerV" style="flex-grow: 0.5;background-color: rgb(250,250,250); padding: 2%;border-radius: 5px;">
       <div class="containerV">
-        <div class="containerV">
-          <label class="label-form">{labelInputName}</label>
+
+          <label class="label-form">Nom de votre Workspace</label>
           <input
-            class="field" 
+            class="field"
             id="workspaceNameInput"
             type="text"
             ref="workspaceNameInput"
             placeholder="nom du workspace"
             value="{innerData.name}"
             onkeyup="{nameFieldChange}"></input>
-        </div>
-        <div class="containerV">
-          <label class="label-form" style="padding-top:3vh">{labelInputDesc}</label>
+
+          <label class="label-form" style="padding-top:3vh">Description de votre Workspace</label>
           <input
-            class="field" 
+            class="field"
             readonly={innerData.mode=="read"
             }
             ref="workspaceDescriptionInput"
@@ -60,7 +64,20 @@
             value="{innerData.description}"
             onkeyup="{descriptionFieldChange}">
           </input>
-        </div>
+
+          <label class="label-form" style="padding-top:3vh">nombre de process consultable</label>
+          <input
+            class="field"
+            readonly={innerData.mode=="read"
+            }
+            ref="workspaceLimitHistoricnput"
+            id="workspaceLimitHistoricInput"
+            type="text"
+            placeholder="nombre de process consultable"
+            value="{innerData.limitHistoric}"
+            onkeyup="{limitHistoricFieldChange}">
+          </input>
+
       </div>
     </div>
   </div>
@@ -73,11 +90,12 @@
   <div show={menu=='share' } class="containerV" style="padding: 5%;flex-grow: 1;background-color: rgb(238,242,249)">
     <user-list></user-list>
   </div>
+  <div show={menu=='process' } class="containerV" style="padding: 5%;flex-grow: 1;background-color: rgb(238,242,249)">
+    <process-list></process-list>
+  </div>
 </div>
 </div>
 <script>
-  this.labelInputName = "Nom de votre Workspace"
-  this.labelInputDesc = "Description de votre Workspace"
   this.innerData = {};
   this.title = "Workspace"
 
@@ -102,8 +120,20 @@
   }
 
   descriptionFieldChange(e) {
-    this.innerData.description = e.target.value;
+    RiotControl.trigger('workspace_current_updateField', {
+      field: 'description',
+      data: e.target.value
+    });
+    //this.innerData.description = e.target.value;
   }
+  limitHistoricFieldChange(e) {
+    RiotControl.trigger('workspace_current_updateField', {
+      field: 'limitHistoric',
+      data: e.target.value
+    });
+    //this.innerData.description = e.target.value;
+  }
+
 
   this.on('mount', function () {
     //console.log('wokspaceEditor | Mount |', this);

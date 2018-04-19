@@ -78,32 +78,32 @@ function MainController(allStore,stompClient) {
     }
   });
 
-  this.workspaceStore.on('navigation_control_done', function(message) {
-    //console.log('workspace_current_changed', this, message);
-    this.workspaceCurrent = this.workspaceStore.workspaceCurrent;
-    this.genericStore.workspaceCurrent = this.workspaceStore.workspaceCurrent;
-  }.bind(this));
-
-  this.genericStore.on('navigation_control_done', function(message) {
-    //console.log('workspace_current_changed', this, message);
-    this.itemCurrent = this.genericStore.itemCurrent;
-    this.workspaceStore.itemCurrent = this.genericStore.itemCurrent;
-  }.bind(this));
+  // this.workspaceStore.on('navigation_control_done', function(message) {
+  //   //console.log('workspace_current_changed', this, message);
+  //   this.workspaceCurrent = this.workspaceStore.workspaceCurrent;
+  //   this.genericStore.workspaceCurrent = this.workspaceStore.workspaceCurrent;
+  // }.bind(this));
+  //
+  // this.genericStore.on('navigation_control_done', function(message) {
+  //   //console.log('workspace_current_changed', this, message);
+  //   this.itemCurrent = this.genericStore.itemCurrent;
+  //   this.workspaceStore.itemCurrent = this.genericStore.itemCurrent;
+  // }.bind(this));
 
   this.workspaceStore.on('workspace_current_add_components_done', function(message) {
     //this.navigatePrevious();
     route('workspace/'+message._id+'/component')
   }.bind(this));
 
-  //update current component because it can be change after wokspace persist
-  this.workspaceStore.on('workspace_current_persist_done', function(message) {
-    if (this.genericStore.itemCurrent != undefined) {
-      this.genericStore.itemCurrent = sift({
-        _id: this.genericStore.itemCurrent._id
-      }, message.components)[0];
-      //this.genericStore.trigger('component_current_select', );
-    }
-  }.bind(this));
+  // //update current component because it can be change after wokspace persist
+  // this.workspaceStore.on('workspace_current_persist_done', function(message) {
+  //   if (this.genericStore.itemCurrent != undefined) {
+  //     this.genericStore.itemCurrent = sift({
+  //       _id: this.genericStore.itemCurrent._id
+  //     }, message.components)[0];
+  //     //this.genericStore.trigger('component_current_select', );
+  //   }
+  // }.bind(this));
 
   this.workspaceStore.on('process_result', function(message) {
     //console.log('ROUTE');
