@@ -350,7 +350,7 @@ class Engine {
 
               processingLink.destination.dataResolution = {
                 componentId: processingLink.destination._id,
-                data: dfobFinalFlow
+                data: dfobFinalFlow.map(FF=>FF.objectToProcess)
               };
               processingLink.destination.status = "resolved";
               this.sift({
@@ -516,6 +516,7 @@ class Engine {
   }
 
   historicEndAndCredit(component, startTime, error) {
+    // console.log('historicEndAndCredit',error);
     let dataFlow= component.dataResolution
     let module = component.module;
     let specificData = component.specificData;
@@ -538,9 +539,9 @@ class Engine {
     }
     current_component = this.config.components_information[module];
 
-    historic_object.recordCount = dataFlow == undefined ? 0 : dataFlow.data.length || 1;
+    historic_object.recordCount = dataFlow == undefined ||  dataFlow.data==undefined ? 0 : dataFlow.data.length || 1;
     historic_object.recordPrice = current_component_price.record_price || 0;
-    historic_object.moCount = this.objectSizeOf(dataFlow) / 1000000;
+    historic_object.moCount = dataFlow == undefined ||  dataFlow.data==undefined ? 0 : this.objectSizeOf(dataFlow) / 1000000;
     historic_object.componentPrice = current_component_price.moPrice;
     historic_object.totalPrice =
       (historic_object.recordCount * historic_object.recordPrice) / 1000 +
@@ -555,7 +556,7 @@ class Engine {
     historic_object.startTime=startTime;
     historic_object.roundDate=roundDate;
     historic_object.workflowId=this.originComponent.workspaceId;
-    //console.log(historic_object);
+    // console.log(historic_object);
 
     this.workspace_lib.createHistoriqueEnd(historic_object).then(historiqueEnd => {
       this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({

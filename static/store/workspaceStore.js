@@ -830,11 +830,11 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
               let errorNB = sift({
                 status: 'error'
               }, process.steps).length;
-              if (waitingNB > 0) {
-                process.status = 'waiting';
+              if (errorNB > 0) {
+                process.status = 'error';
               } else {
-                if(errorNB>0){
-                  process.status = 'error';
+                if(waitingNB>0){
+                  process.status = 'waiting';
                 }else{
                   process.status = 'resolved';
                 }

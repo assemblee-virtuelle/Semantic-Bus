@@ -59,7 +59,7 @@
 
   }
 
-  progress.processing::-webkit-progress-value {
+  progress.waiting::-webkit-progress-value {
     /*border-radius: 12px;*/
     background: orange;
     /*box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4), 0 2px 5px 0px rgba(0,0,0,0.3);*/
@@ -71,7 +71,7 @@
     background: red;
   }
 
-  progress.processing::-moz-progress-bar {
+  progress.waiting::-moz-progress-bar {
     /*border-radius: 5px;*/
     background: orange;
     /*box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4), 0 2px 5px 0 rgba(0,0,0,0.3);*/

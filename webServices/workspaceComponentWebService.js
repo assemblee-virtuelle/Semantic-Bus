@@ -141,25 +141,7 @@ module.exports = function(router, amqpClient) {
     }
   });
 
-  router.post('/workspaceComponent/connection', function(req, res, next) {
-    //var configuration = require('../configuration');
-    if (configuration.saveLock == false) {
-      let connection = req.body;
-      let promises = [];
-      promises.push(workspace_component_lib.update(connection.source));
-      promises.push(workspace_component_lib.update(connection.target));
-      Promise.all(promises).then((data) => {
-        res.json({
-          source: data[0],
-          target: data[1]
-        })
-      }).catch(e => {
-        next(e);
-      });
-    } else {
-      next(new Error('save forbiden'));
-    }
-  });
+
 
   router.delete('/workspaceComponent/:id', function(req, res, next) {
     //var configuration = require('../configuration');
@@ -185,6 +167,7 @@ module.exports = function(router, amqpClient) {
     var componentId = req.params.componentId;
     var processId = req.params.processId;
     workspace_component_lib.get_component_result(componentId, processId).then(function(data) {
+      console.log(data);
       res.send(data);
     }).catch(e => {
       next(e);
