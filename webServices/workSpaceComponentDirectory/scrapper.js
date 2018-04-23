@@ -537,7 +537,7 @@ module.exports = {
         .catch((err) => {
           reject(err)
         });
-      console.log("before aggregate fonction", actions, client, deeth, data);
+      // console.log("before aggregate fonction", actions, client, deeth, data);
       _aggregateAction(actions, client, deeth, data).then(function(res) {
         //console.log("--traitmeent terminé final ----", res)
         resolve({
@@ -552,8 +552,8 @@ module.exports = {
   pull: function(data, flowData) {
     //console.log("before scrapping start", data)
     let url = data.specificData.url;
-    //console.log("SCRAPPER flowData",flowData[0].data);
-    if (flowData && flowData[0] && flowData[0].data.url != undefined) {
+
+    if (flowData && flowData[0] && flowData[0].data && flowData[0].data.url != undefined) {
       url = flowData[0].data.url;
     }
     console.log('scrapp url', url);

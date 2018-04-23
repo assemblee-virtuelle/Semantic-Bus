@@ -236,10 +236,10 @@ class Engine {
     if (this.owner.credit >= 0) {
       this.fackCounter++;
       if (this.config.quietLog != true) {
-        // console.log(" ---------- processNextBuildPath -----------", this.fackCounter)
-        // console.log(this.pathResolution.links.map(link => {
-        //   return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
-        // }));
+        console.log(" ---------- processNextBuildPath -----------", this.fackCounter)
+        console.log(this.pathResolution.links.map(link => {
+          return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
+        }));
       }
       let linkNotResolved = this.sift({
           status: "processing"
@@ -347,7 +347,7 @@ class Engine {
                   ] =
                   componentFlowDfob[componentFlowDfobKey].data;
               }
-
+              //console.log('dfobFinalFlow',dfobFinalFlow);
               processingLink.destination.dataResolution = {
                 componentId: processingLink.destination._id,
                 data: dfobFinalFlow.map(FF=>FF.objectToProcess)
@@ -378,16 +378,20 @@ class Engine {
 
               this.processNextBuildPath();
             }).catch(e => {
+              //console.log('CATCH',e);
               processingLink.destination.dataResolution = {
                 error: e
               };
               this.historicEndAndCredit(processingLink.destination, startTime, e)
 
-              this.sift({
-                  "source._id": processingLink.destination._id
-                },
-                this.pathResolution.links
-              ).forEach(link => {
+              // this.sift({
+              //     "source._id": processingLink.destination._id
+              //   },
+              //   this.pathResolution.links
+              // ).forEach(link => {
+              //   link.status = "error";
+              // });
+              linksProcessingInputs.forEach(link => {
                 link.status = "error";
               });
               processingLink.destination.status = "error";

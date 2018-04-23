@@ -25,22 +25,35 @@ class PromiseExecutor {
     });
   }
   incrementExecute(context,workFunction,paramArray,option){
-    //console.log('incrementExecute',this.globalOut.length,paramArray.length);
-    if(this.globalOut.length==paramArray.length){
-      this.initialPromiseResolve(this.globalOut);
-    }else{
-      let currentParams=paramArray[this.increment];
-      //console.log('apply',currentParams);
-      let currentOut= workFunction.apply(context,currentParams).then((currentOut)=>{
-        this.globalOut.push(currentOut);
-      }).catch((e)=>{
-        this.globalOut.push({'$error':e});
-        console.log('Orchestrator Error',e);
-      }).then(()=>{
-        this.increment++;
-        this.incrementExecute(context,workFunction,paramArray,option);
-      })
+    console.log('incrementExecute',this.globalOut.length,paramArray.length);
+    try{
+      if(this.globalOut.length==paramArray.length){
+        console.log('END');
+        this.initialPromiseResolve(this.globalOut);
+      }else{
+        let currentParams=paramArray[this.increment];
+        //console.log('apply',currentParams);
+        let currentOut= workFunction.apply(context,currentParams).then((currentOut)=>{
+          console.log('sucess exection');
+          this.globalOut.push(currentOut);
+          this.increment++;
+          this.incrementExecute(context,workFunction,paramArray,option);
+        }).catch((e)=>{
+          console.log('fail exection');
+          this.globalOut.push({'$error':e});
+          console.log('Orchestrator Error',e);
+          this.increment++;
+          this.incrementExecute(context,workFunction,paramArray,option);
+        }).then(()=>{
+          // this.increment++;
+          // this.incrementExecute(context,workFunction,paramArray,option);
+        })
+      }
+    }catch(e){
+      //console.log(e);
+      this.initialPromiseReject(e);
     }
+
   }
 }
 
