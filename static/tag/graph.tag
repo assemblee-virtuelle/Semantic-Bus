@@ -52,6 +52,7 @@
       </g>
       <g id="lineSelector"></g>
       <g id="lineLayer"></g>
+      <g id="stateLayer"></g>
       <g id="shapeSelector"></g>
       <g id="shapeLayer"></g>
       <g id="textLayer"></g>
@@ -355,6 +356,7 @@
       let beforeLinks = sift({
         "target.id": dragged.id
       }, this.graph.links);
+      //console.log('beforeLinks', beforeLinks);
       this.links = this.svg.select("#lineLayer").selectAll("line").data(beforeLinks, function (d) {
         return d.id;
       }).attr("x2", dragged.x + 110).attr("y2", dragged.y + 35);
@@ -375,6 +377,7 @@
       let afterLinks = sift({
         "source.id": dragged.id
       }, this.graph.links);
+      //console.log('afterLinks', afterLinks);
       this.links = this.svg.select("#lineLayer").selectAll("line").data(afterLinks, function (d) {
         return d.id;
       }).attr("x1", dragged.x + 110).attr("y1", dragged.y + 35);
@@ -390,6 +393,26 @@
         return ((dragged.x + d.target.x) / 2) + 95;
       }).attr('y', function (d) {
         return ((dragged.y + d.target.y) / 2) + 10;
+      });
+
+      let nodesWithStatus = sift({
+        $and: [
+          {
+            status: {
+              $exists: true
+            }
+          }, {
+            id: dragged.id
+          }
+        ]
+      }, this.graph.nodes);
+      console.log('status',nodesWithStatus);
+      this.status = this.svg.select("#stateLayer").selectAll("circle").data(nodesWithStatus, function (d) {
+        return d.id;
+      }).attr('cx', function (d) {
+        return dragged.x + 105;
+      }).attr('cy', function (d) {
+        return dragged.y + 5;
       });
 
     }.bind(this);
@@ -489,19 +512,18 @@
           $exists: true
         }
       }, graph.nodes);
-      //console.log(nodesWithStatus);
-      this.status = this.svg.select("#shapeLayer").selectAll("circle").data(nodesWithStatus, function (d) {
+      this.status = this.svg.select("#stateLayer").selectAll("circle").data(nodesWithStatus, function (d) {
         return d.id;
       });
       this.status.exit().remove();
       this.status = this.status.enter().append("circle").merge(this.status).attr("r", function (d) {
-        return 20;
+        return 40;
       }).attr('cx', function (d) {
-        return d.x;
+        return d.x + 105;
       }).attr('class', function (d) {
         return d.status;
       }).attr('cy', function (d) {
-        return d.y;
+        return d.y + 5;
       }).attr('data-id', function (d) {
         return d.id;
       }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
@@ -591,15 +613,15 @@
       cursor: pointer;
     }
 
-    #shapeLayer circle.resolved {
+    #stateLayer circle.resolved {
       fill: green;
     }
 
-    #shapeLayer circle.waiting {
+    #stateLayer circle.waiting {
       fill: orange;
     }
 
-    #shapeLayer circle.error {
+    #stateLayer circle.error {
       fill: red;
     }
 

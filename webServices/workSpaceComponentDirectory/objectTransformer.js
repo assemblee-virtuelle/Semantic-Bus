@@ -76,15 +76,16 @@ module.exports = {
       }
       //console.log('jsonTransform | resultBeforUnresolved |', transformResult);
       var destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable)
-      //console.log('jsonTransform | afterUnresolved |', destResult);
+      // console.log('jsonTransform | afterUnresolved |', destResult);
 
       if (dissociatePatternPostProcess == undefined) {
         //console.log('ALLO');
         postProcessResult = destResult;
       } else {
+        // console.log('jsonTransform | dissociatePatternPostProcess |', dissociatePatternPostProcess);
         postProcessResult = this.postProcess(destResult, dissociatePatternPostProcess)
       }
-      //console.log('jsonTransform | postProcessResult |', postProcessResult);
+      // console.log('jsonTransform | postProcessResult |', postProcessResult);
     } catch (e) {
       console.log(e);
       postProcessResult = source;
@@ -329,6 +330,10 @@ module.exports = {
     var nodeOut;
     if (Array.isArray(nodeIn)) {
       nodeOut = [];
+      //console.log(nodeIn,jsonTransformPattern);
+      if(nodeIn.length==0&&jsonTransformPattern.length>0){
+        nodeOut=jsonTransformPattern;
+      }
     } else {
       nodeOut = {};
     }

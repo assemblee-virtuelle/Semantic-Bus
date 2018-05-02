@@ -1,5 +1,5 @@
 <jsonEditor class="containerV">
-  <div id="jsoneditor" ref="jsoneditor" class="containerV">
+  <div id="jsoneditor" ref="jsoneditor" class="containerV" style="flex-grow:1">
   </div>
   <script>
     //var tag = this
@@ -7,17 +7,19 @@
     this.option={};
     Object.defineProperty(this, "data", {
        set: function (data) {
-         console.log('JsonEditor set data|',data);
-         this.mountEditor().then(editor=>{
+         console.log('JsonEditor set data|');
+         this.mountEditor(data).then(editor=>{
            editor.set(data);
-           if(editor.options.mode!='text'){
-             editor.expandAll();
+           if(this.editor.options.mode!='text'){
+             this.editor.expandAll();
            }
+          //  console.log(this.refs.jsoneditor.querySelectorAll('.jsoneditor-tree button'));
+          //  this.refs.jsoneditor.querySelector('button.jsoneditor-collapsed').forEach((dom)=>{
+          //    dom.addEventListener('click',(e)=>{console.log('CLICK',e);})
+          //  })
          });
         //  this.editor.set(data);
-        //  if(this.editor.options.mode!='text'){
-        //    this.editor.expandAll();
-        //  }
+
        }.bind(this),
        get: function () {
         return this.editor.get();
@@ -25,7 +27,7 @@
       configurable: true
     });
 
-    this.mountEditor=function(){
+    this.mountEditor=function(data){
       return new Promise((resolve,reject)=>{
         if (this.editor==undefined){
           var options = {};

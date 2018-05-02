@@ -25,21 +25,22 @@ class PromiseExecutor {
     });
   }
   incrementExecute(context,workFunction,paramArray,option){
-    console.log('incrementExecute',this.globalOut.length,paramArray.length);
+
     try{
       if(this.globalOut.length==paramArray.length){
-        console.log('END');
+        //console.log('END');
         this.initialPromiseResolve(this.globalOut);
       }else{
+        //console.log('incrementExecute',this.globalOut.length,paramArray.length);
         let currentParams=paramArray[this.increment];
         //console.log('apply',currentParams);
         let currentOut= workFunction.apply(context,currentParams).then((currentOut)=>{
-          console.log('sucess exection');
+          //console.log('sucess exection');
           this.globalOut.push(currentOut);
           this.increment++;
           this.incrementExecute(context,workFunction,paramArray,option);
         }).catch((e)=>{
-          console.log('fail exection');
+          // console.log('fail exection');
           this.globalOut.push({'$error':e});
           console.log('Orchestrator Error',e);
           this.increment++;

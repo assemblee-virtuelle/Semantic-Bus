@@ -132,6 +132,7 @@ httpGet.makeRequest('GET', {
         require('./webServices/userWebservices')(safe,amqpClient);
         require('./webServices/rightsManagementWebService')(safe,amqpClient);
         require('./webServices/adminWebService')(safe,amqpClient);
+        require('./webServices/fragmentWebService')(safe,amqpClient);
 
         ///OTHER APP COMPONENT
         ///SECURISATION DES REQUETES
@@ -165,7 +166,7 @@ httpGet.makeRequest('GET', {
               //console.log('user |',user);
             }
             errorLib.create(err, user);
-            console.log(err);
+            //console.log(err);
             //console.log('XXXXXXXXXXX',res);
             res.status(500).send({
               message: err.message,

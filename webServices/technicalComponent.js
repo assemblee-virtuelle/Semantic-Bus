@@ -1,7 +1,7 @@
 module.exports = function(router, unSafeRouteur) {
   var https = require('https');
   var technicalComponentDirectory = require('./technicalComponentDirectory.js');
-  var recursivPullResolvePromise = require('./recursivPullResolvePromise');
+  var recursivPullResolvePromise = require('./engine');
   technicalComponentDirectory.initialise(router, unSafeRouteur, recursivPullResolvePromise);
 
   router.get('/technicalComponent/', function(req, res) {

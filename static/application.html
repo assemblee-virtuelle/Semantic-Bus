@@ -13,6 +13,7 @@
   <link href='./js/jsonEditor/dist/jsoneditor.min.css' rel='stylesheet' type='text/css'>
   <link rel="stylesheet" href="./js/awesomplete-gh-pages/awesomplete.css" />
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flexboxgrid/6.3.1/flexboxgrid.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.5/themes/default/style.min.css" />
 </head>
 
 <body>
@@ -22,8 +23,8 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.18.1/moment.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/webstomp-client@1.2.0/dist/webstomp.min.js"></script>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/sockjs-client/1.1.4/sockjs.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.5/jstree.min.js"></script>
 
   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>-->
   <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/javascript-detect-element-resize/0.5.3/detect-element-resize.js"></script>-->
@@ -67,6 +68,7 @@
   <script type="riot/tag" src="tag/technicalComponentTable.tag"></script>
   <script type="riot/tag" src="tag/admin.tag"></script>
   <script type="riot/tag" src="tag/jsonEditor.tag"></script>
+  <script type="riot/tag" src="tag/jsonFragViewer.tag"></script>
   <script type="riot/tag" src="tag/user-list.tag"></script>
   <script type="riot/tag" src="tag/login.tag"></script>
   <script type="riot/tag" src="tag/profil.tag"></script>
@@ -134,8 +136,6 @@
         RiotControl.addStore(utilStore);
         allStore['utilStore'] = utilStore;
 
-
-
         var profilStore = new ProfilStore();
         RiotControl.addStore(profilStore);
         allStore['profilStore'] = profilStore;
@@ -146,7 +146,7 @@
 
         var specificStoreList = [];
 
-        let cacheNosqlStore = new CacheNosqlStore()
+        let cacheNosqlStore = new CacheNosqlStore(utilStore)
         RiotControl.addStore(cacheNosqlStore);
         specificStoreList.push(cacheNosqlStore)
         allStore['cacheNosqlStore'] = cacheNosqlStore;

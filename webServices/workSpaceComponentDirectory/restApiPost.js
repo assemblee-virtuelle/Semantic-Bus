@@ -22,7 +22,7 @@ module.exports = new function() {
         var urlRequiered = req.params.urlRequiered;
         //this require is live because constructor require cause cyclic dependencies (recursivPullResolvePromise->restApiGet)
         //TODO require use cache object  : need to build one engine per request
-        this.recursivPullResolvePromiseDynamic = require('../recursivPullResolvePromise')
+        this.recursivPullResolvePromiseDynamic = require('../engine')
         var specificData;
 
         //console.log('urlRequiered', urlRequiered)

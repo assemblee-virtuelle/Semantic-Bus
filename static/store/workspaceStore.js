@@ -24,7 +24,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
   this.utilStore = utilStore;
   this.stompClient = stompClient;
   this.processCollection = [];
-  this.currentProcessId = undefined;
+  this.currentProcess = undefined;
 
   this.itemCurrent;
   this.connectMode;
@@ -445,7 +445,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
         target: sift({
           id: link.target
         }, this.graph.nodes)[0],
-        _id: id,
+        id: id,
         selected: selectedLinks.indexOf(id) != -1
       })
 
@@ -687,6 +687,9 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
           if (this.subscription_workspace_current_process_progress != undefined) {
             this.subscription_workspace_current_process_progress.unsubscribe();
           }
+          if (this.subscription_workspace_current_process_persist != undefined) {
+            this.subscription_workspace_current_process_persist.unsubscribe();
+          }
           if (this.subscription_workflow_processCleaned != undefined) {
             this.subscription_workflow_processCleaned.unsubscribe();
           }
@@ -827,6 +830,16 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
               );
               this.trigger('workspace_current_process_changed', this.processCollection);
             });
+            this.subscription_workspace_current_process_persist = this.stompClient.subscribe('/topic/process-persist.' + this.workspaceCurrent._id, message => {
+              console.log('message', JSON.parse(message.body));
+              let body = JSON.parse(message.body);
+              console.log(this.currentProcess._id,body.processId,this.itemCurrent._id,body.componentId);
+              if (this.currentProcess._id == body.processId && this.itemCurrent._id == body.componentId) {
+                this.trigger('item_current_process_persist_changed', body.data);
+              }
+            });
+
+
             this.trigger('navigation_control_done', entity, action);
           });
           this.utilStore.ajaxCall({
@@ -835,7 +848,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
           }, true).then(data => {
             this.processCollection = data;
 
-            this.processCollection.forEach(process=>{
+            this.processCollection.forEach(process => {
               let waitingNB = sift({
                 status: 'waiting'
               }, process.steps).length;
@@ -845,13 +858,13 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
               if (errorNB > 0) {
                 process.status = 'error';
               } else {
-                if(waitingNB>0){
+                if (waitingNB > 0) {
                   process.status = 'waiting';
-                }else{
+                } else {
                   process.status = 'resolved';
                 }
               }
-              process.stepFinished=process.steps.length-waitingNB;
+              process.stepFinished = process.steps.length - waitingNB;
             });
 
             this.trigger('workspace_current_process_changed', this.processCollection);
@@ -1176,10 +1189,10 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
       url: '../data/core/workspaceComponent/connection',
       data: JSON.stringify({
         workspaceId: this.workspaceCurrent._id,
-        linkId: link._id,
+        linkId: link.id,
       }),
     }, true).then(links => {
-      console.log('connectedComps',links);
+      console.log('connectedComps', links);
       this.workspaceCurrent.links = links;
       this.trigger('workspace_current_changed', this.workspaceCurrent);
       if (this.viewBox) {

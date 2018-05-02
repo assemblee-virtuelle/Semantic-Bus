@@ -87,7 +87,10 @@ class Engine {
                   this.workspace_lib.createProcess({
                     workflowId: this.originComponent.workspaceId,
                     ownerId: this.owner._id,
-                    callerId: this.callerId,
+                    callerId: this.callerId,              //console.log(this.processCollection);
+              // } else {
+              //   this.trigger('ajax_fail', body.error);
+              // }
                     originComponentId: this.originComponent._id,
                     steps: this.pathResolution.nodes.map(node => {
                       return ({
@@ -100,6 +103,7 @@ class Engine {
                     this.keyProgress = 'process-progress.' + this.originComponent.workspaceId;
                     this.keyError = 'process-error.' + this.originComponent.workspaceId;
                     this.keyEnd = 'process-end.' + this.originComponent.workspaceId;
+                    this.keyPersist = 'process-persist.' + this.originComponent.workspaceId;
                     this.keyProcessCleaned = 'workflow-processCleaned.' + this.originComponent.workspaceId;
                     this.amqpClient.publish('amq.topic', this.keyStart, new Buffer(JSON.stringify({
                       _id: this.processId,
@@ -134,7 +138,7 @@ class Engine {
                         link.status = "processing";
                       });
 
-                      this.processNextBuildPath();
+                      this.processNextBuildPath('push');
                       resolve(pushData);
                     }
 
@@ -186,7 +190,7 @@ class Engine {
                               );
                             }
 
-                            this.processNextBuildPath();
+                            this.processNextBuildPath('sources');
                           })
                           .catch(e => {
                             // console.log(
@@ -216,7 +220,7 @@ class Engine {
                               );
                             }
 
-                            this.processNextBuildPath();
+                            this.processNextBuildPath('source ko');
                             //reject(e);
                           });
                       } else {
@@ -232,7 +236,8 @@ class Engine {
     });
   }
 
-  processNextBuildPath() {
+  processNextBuildPath(source) {
+    //console.log(source);
     if (this.owner.credit >= 0) {
       this.fackCounter++;
       if (this.config.quietLog != true) {
@@ -323,7 +328,7 @@ class Engine {
             );
 
             if (this.config.quietLog != true) {
-              //console.log('dfobFinalFlow | ', dfobFinalFlow);
+              // console.log('dfobFinalFlow | ', dfobFinalFlow);
             }
             let paramArray = dfobFinalFlow.map(finalItem => {
               var recomposedFlow = [];
@@ -340,8 +345,8 @@ class Engine {
             });
             //console.log('paramArray',paramArray);
             this.promiseOrchestrator.execute(module, module.pull, paramArray, {}).then((componentFlowDfob) => {
-
               for (var componentFlowDfobKey in componentFlowDfob) {
+
                 dfobFinalFlow[componentFlowDfobKey].objectToProcess[
                     dfobFinalFlow[componentFlowDfobKey].key
                   ] =
@@ -350,7 +355,8 @@ class Engine {
               //console.log('dfobFinalFlow',dfobFinalFlow);
               processingLink.destination.dataResolution = {
                 componentId: processingLink.destination._id,
-                data: dfobFinalFlow.map(FF=>FF.objectToProcess)
+                //data: dfobFinalFlow.map(FF=>FF.objectToProcess),
+                data: primaryflow.data
               };
               processingLink.destination.status = "resolved";
               this.sift({
@@ -376,7 +382,7 @@ class Engine {
 
               }
 
-              this.processNextBuildPath();
+              this.processNextBuildPath('dfob ok');
             }).catch(e => {
               //console.log('CATCH',e);
               processingLink.destination.dataResolution = {
@@ -404,7 +410,7 @@ class Engine {
                 );
               }
 
-              this.processNextBuildPath();
+              this.processNextBuildPath('dfob ko');
             });
 
           } else {
@@ -437,7 +443,7 @@ class Engine {
 
                 }
 
-                this.processNextBuildPath();
+                this.processNextBuildPath('normal ok');
               })
               .catch(e => {
                 processingLink.destination.dataResolution = {
@@ -454,6 +460,10 @@ class Engine {
                 });
                 processingLink.destination.status = "error";
 
+                linksProcessingInputs.forEach(link => {
+                  link.status = "error";
+                });
+
                 if (
                   processingLink.destination._id == this.RequestOrigine._id
                 ) {
@@ -462,7 +472,7 @@ class Engine {
                   );
                 }
 
-                this.processNextBuildPath();
+                this.processNextBuildPath('normal ko');
               });
           }
         } else {
@@ -520,6 +530,7 @@ class Engine {
   }
 
   historicEndAndCredit(component, startTime, error) {
+
     // console.log('historicEndAndCredit',error);
     let dataFlow= component.dataResolution
     let module = component.module;
@@ -554,8 +565,9 @@ class Engine {
     //TODO pas besoin de stoquer le name du component, on a l'id. ok si grosse perte de perf pour histogramme
     historic_object.componentName = component.name;
     historic_object.componentId = component._id;
+    historic_object.persistProcess= component.persistProcess;
     historic_object.processId = this.processId;
-    historic_object.data = dataFlow.data;
+    //historic_object.data = dataFlow.data;
     historic_object.error = error;
     historic_object.startTime=startTime;
     historic_object.roundDate=roundDate;
@@ -568,12 +580,29 @@ class Engine {
         processId: historiqueEnd.processId,
         error: historiqueEnd.error
       })));
+      if(component.persistProcess==true){
+        this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id,dataFlow.data).then(frag => {
+          //console.log('ALLO',frag);
+          this.amqpClient.publish('amq.topic', this.keyPersist, new Buffer(JSON.stringify({
+            componentId: historiqueEnd.componentId,
+            processId: historiqueEnd.processId,
+            data: frag.data,
+          })));
+        }).catch(e=>{
+          this.amqpClient.publish('amq.topic', this.keyPersist, new Buffer(JSON.stringify({
+            componentId: historiqueEnd.componentId,
+            processId: historiqueEnd.processId,
+            error: 'error persisting historic data'
+          })));
+        });
+      }
+
     }).catch(e => {
       console.log(e);
       this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
         componentId: component._id,
         processId: this.processId,
-        error: 'error writing historic error'
+        error: 'error writing historic'
       })));
     });
 

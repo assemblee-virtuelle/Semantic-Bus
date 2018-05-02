@@ -556,7 +556,7 @@ module.exports = {
     if (flowData && flowData[0] && flowData[0].data && flowData[0].data.url != undefined) {
       url = flowData[0].data.url;
     }
-    console.log('scrapp url', url);
+    // console.log('scrapp url', url);
     return this.makeRequest(data.specificData.user, data.specificData.key, data.specificData.scrapperRef, url, data.specificData.saucelabname)
   },
 }

@@ -11,12 +11,13 @@ module.exports = {
   ],
   workspace_component_lib: require('../../lib/core/lib/workspace_component_lib'),
   cache_lib: require('../../lib/core/lib/cache_lib'),
+  fragment_lib: require('../../lib/core/lib/fragment_lib'),
   stepNode: true,
 
 
 
   initialise: function(router) {
-    //this.recursivPullResolvePromise = require('../recursivPullResolvePromise'),;
+    //this.recursivPullResolvePromise = require('../engine'),;
     //console.log('INIT',router);
     // router.get('/reloadcache/:compId', function(req, res) {
     //   var compId = req.params.compId;
@@ -34,17 +35,22 @@ module.exports = {
     //   });
     // }.bind(this));
 
-    router.get('/getCache/:compId', function(req, res) {
+    router.get('/getCache/:compId', function(req, res,next) {
       var compId = req.params.compId;
       //console.log(compId);
 
       this.workspace_component_lib.get({
         _id: compId
       }).then(component => {
-        //console.log('Cache NoSql | get |', component);
-        this.pull(component, undefined).then(cachedData => {
-          res.json(cachedData.data);
-        });
+        this.cache_lib.get(component,false).then(cachedData => {
+          if (cachedData != undefined) {
+            res.json(cachedData);
+          } else {
+            next(new Error('empty cache'))
+          }
+        }).catch(e=>{
+          next(e);
+        })
       });
     }.bind(this));
   },
@@ -54,64 +60,19 @@ module.exports = {
     //console.log('--------- cash data START --------  : ', data);
     return new Promise((resolve, reject) => {
       if (flowData != undefined && flowData[0].data != undefined) {
-        // console.log("----- cache data stock ----",flowData[0])
-        this.cache_lib.get(data, queryParams).then(cachedData => {
-
-          cachedData = cachedData || {};
-          cachedData.data = JSON.stringify(flowData[0].data);
-          cachedData.date = new Date();
-
-          if (data.specificData.history == true) {
-            cachedData.history = cachedData.history || [];
-            cachedData.history.push({
-              data: JSON.stringify(flowData[0].data)
-            });
-          }
-
-          this.cache_lib.persist(data, cachedData).then(data => {
-            //console.log('PERSIST CACHE DONE');
-            resolve(data);
-          }).catch(e => {
-            reject(e)
-          })
-        });
+        console.log("----- cache data stock ----",flowData[0].data.length)
+        // resolve({data:flowData[0].data});
+        this.cache_lib.persist(data, flowData[0].data, data.specificData.history).then(cachedData => {
+          //console.log('persist OK',flowData[0]);
+          resolve({data:flowData[0].data});
+        }).catch(e => {
+          //console.log('persist KO',flowData[0].data.length);
+          reject(e)
+        })
       } else {
-        this.cache_lib.get(data, queryParams).then(cachedData => {
-
-          //console.log("----- cache data get ----",typeof cachedData.data)
+        this.cache_lib.get(data,true).then(cachedData => {
           if (cachedData != undefined) {
-            if(typeof cachedData.data == "string"){
-              try {
-                cachedData.data = JSON.parse(cachedData.data);
-              }catch (e){
-                //simple string
-              }
-            };
-            if (data.specificData.historyOut == true) {
-              //console.log('RETURN CACHE',cachedData);
-              cachedData.history.map((historyItem)=>{
-                let out;
-                if(typeof historyItem == "string"){
-                  try {
-                    out = JSON.parse(cachedData.data);
-                  }catch (e){
-                    out = historyItem
-                  }
-                }
-                return out;
-              });
-              resolve({
-                //data : JSON.parse(JSON.stringify(cachedData))
-                data: cachedData
-                //data: {data:cachedData.data,history:cachedData.history}
-              });
-            } else {
-              resolve({
-                //data: JSON.parse(JSON.stringify(cachedData.data))
-                data: cachedData.data
-              });
-            }
-
+            resolve({data:cachedData});
           } else {
             reject(new Error('empty cache'))
           }

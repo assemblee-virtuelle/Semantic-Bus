@@ -61,7 +61,7 @@ module.exports = {
           req.pipe(busboy);
 
         }.bind(this)).then(function (resultatTraite) {
-          var recursivPullResolvePromiseDynamic = require('../recursivPullResolvePromise');
+          var recursivPullResolvePromiseDynamic = require('../engine');
           this.workspace_component_lib.get({
             _id: compId
           }).then(data => {

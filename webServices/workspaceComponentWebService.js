@@ -3,10 +3,11 @@ module.exports = function(router, amqpClient) {
   this.amqpClient = amqpClient;
   //this.stompClient = stompClient;
 
-  var recursivPullResolvePromise = require('./recursivPullResolvePromise');
+  var recursivPullResolvePromise = require('./engine');
   var workspaceComponentPromise = require('./workspaceComponentPromise.js');
   var workspaceBusiness = require('./workspaceBusiness.js');
   var workspace_component_lib = require('../lib/core/lib/workspace_component_lib');
+  var fragment_lib = require('../lib/core/lib/fragment_lib');
   var configuration = require('../configuration');
 
 
@@ -22,7 +23,7 @@ module.exports = function(router, amqpClient) {
   //       _id: id
   //     }).then(function(data) {
   //       //console.log('workspaceComponent | test| ', data);
-  //       var recursivPullResolvePromiseDynamic = require('./recursivPullResolvePromise');
+  //       var recursivPullResolvePromiseDynamic = require('./engine');
   //       return recursivPullResolvePromise.getNewInstance().resolveComponentPull(data, false).then(function(data) {
   //       //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
   //       res.json(data.data);
@@ -45,7 +46,7 @@ module.exports = function(router, amqpClient) {
   //     _id: id
   //   }).then(function(data) {
   //     //console.log('workspaceComponent | work| ', data);
-  //     var recursivPullResolvePromiseDynamic = require('./recursivPullResolvePromise');
+  //     var recursivPullResolvePromiseDynamic = require('./engine');
   //     return recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(data, 'work');
   //   }).then(function(data) {
   //     //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
@@ -79,7 +80,7 @@ module.exports = function(router, amqpClient) {
   //     _id: id
   //   }).then(function(data) {
   //     //console.log('workspaceComponent | work| ', data);
-  //     var recursivPullResolvePromiseDynamic = require('./recursivPullResolvePromise');
+  //     var recursivPullResolvePromiseDynamic = require('./engine');
   //     return recursivPullResolvePromiseDynamic.execute(data, 'work',this.stompClient,userId);
   //   }).then((data)=> {
   //
@@ -104,7 +105,7 @@ module.exports = function(router, amqpClient) {
       _id: messageObject.id
     }).then(function(data) {
       //console.log('workspaceComponent | work| ', data);
-      var recursivPullResolvePromiseDynamic = require('./recursivPullResolvePromise');
+      var recursivPullResolvePromiseDynamic = require('./engine');
       return recursivPullResolvePromiseDynamic.execute(data, 'work', this.amqpClient, messageObject.callerId);
     }).then((data) => {
 
@@ -114,7 +115,7 @@ module.exports = function(router, amqpClient) {
 
     }).catch(e => {
       //console.log('AMQP work error',JSON.stringify(e));
-      console.log('AMQP work error',e);
+      console.log('AMQP work error', e);
 
       //console.log('work error');
 
@@ -167,8 +168,29 @@ module.exports = function(router, amqpClient) {
     var componentId = req.params.componentId;
     var processId = req.params.processId;
     workspace_component_lib.get_component_result(componentId, processId).then(function(data) {
-      console.log(data);
-      res.send(data);
+      //console.log('componentData',data);
+      if(data!=undefined){
+        if (data.persistProcess == true && data.frag != undefined) {
+
+          fragment_lib.get(data.frag).then(frag => {
+            if(frag!=null){
+              data.data = frag.data;
+            }else{
+              data.error = {error:"frag of cache doesn't exist"}
+            }
+            //console.log('get Fag', frag);
+            res.send(data);
+          })
+
+        } else {
+          res.send(data);
+        }
+      }else {
+        res.send(undefined);
+      }
+
+      //console.log(data);
+      //res.send(data);
     }).catch(e => {
       next(e);
     });

@@ -16,7 +16,7 @@ module.exports = new function() {
   this.express = require('express');
   this.cors = require('cors');
   this.pathToRegexp = require('path-to-regexp');
-  this.recursivPullResolvePromise = require('../recursivPullResolvePromise.js');
+  this.recursivPullResolvePromise = require('../engine.js');
 
   this.initialise = function(router, app, stompClient) {
 
@@ -60,7 +60,7 @@ module.exports = new function() {
       //console.log(urlRequiered);
       //this require is live because constructor require cause cyclic dependencies (recursivPullResolvePromise->restApiGet)
       //TODO require use cache object  : need to build one engine per request
-      //this.recursivPullResolvePromiseDynamic = require('../recursivPullResolvePromise')
+      //this.recursivPullResolvePromiseDynamic = require('../engine')
       var targetedComponent;
       //console.log('urlRequiered', urlRequiered)
 

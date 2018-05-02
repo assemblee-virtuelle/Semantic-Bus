@@ -1,6 +1,6 @@
 {
   "name": "SemanticBus ",
-  "version": "0.9.0",
+  "version": "0.9.1",
   "description": "ETL style data middlware transformation embended in an ESB for all kind of data",
   "private": true,
   "main": "",

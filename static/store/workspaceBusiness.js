@@ -74,31 +74,17 @@ function WorkspaceBusiness() {
 
 
   this.serialiseWorkspaceComponent = function(workspaceComponentIn) {
-    if (!workspaceComponentIn.connectionsBefore) {
-      workspaceComponentIn.connectionsBefore = []
-    }
-    if (!workspaceComponentIn.connectionsAfter) {
-      workspaceComponentIn.connectionsAfter = []
-    }
+    console.log("SERIALISE",workspaceComponentIn);
     var out = {
       _id: workspaceComponentIn._id,
       specificData: workspaceComponentIn.specificData,
       name: workspaceComponentIn.name,
-      connectionsBefore: workspaceComponentIn.connectionsBefore.map(conn => {
-        return {
-          _id: conn._id
-        }
-      }),
-      connectionsAfter: workspaceComponentIn.connectionsAfter.map(conn => {
-        return {
-          _id: conn._id
-        }
-      }),
       module: workspaceComponentIn.module,
       type: workspaceComponentIn.type,
       description: workspaceComponentIn.description,
       editor: workspaceComponentIn.editor,
       workspaceId: workspaceComponentIn.workspaceId,
+      persistProcess: workspaceComponentIn.persistProcess,
       graphPositionX : workspaceComponentIn.graphPositionX,
       graphPositionY : workspaceComponentIn.graphPositionY
     }

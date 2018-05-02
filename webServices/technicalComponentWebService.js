@@ -12,7 +12,7 @@ module.exports = function(router,unsafeRouter, app,stompClient) {
   // --------------------------------------------------------------------------------
 
   var technicalComponentDirectory = require('./technicalComponentDirectory.js');
-  var recursivPullResolvePromise = require('./recursivPullResolvePromise');
+  var recursivPullResolvePromise = require('./engine');
   technicalComponentDirectory.initialise(unsafeRouter,app, stompClient);
 
 
