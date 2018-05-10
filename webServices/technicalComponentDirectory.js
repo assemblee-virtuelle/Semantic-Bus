@@ -29,6 +29,7 @@ module.exports = {
   valueMapping: require('./workSpaceComponentDirectory/valueMapping.js'),
   timer: require('./workSpaceComponentDirectory/timer.js'),
   queryParamsCreation:require('./workSpaceComponentDirectory/queryParamsCreation.js'),
+  valueFromPath:require('./workSpaceComponentDirectory/valueFromPath.js'),
 
   /* some other modules you want */
 

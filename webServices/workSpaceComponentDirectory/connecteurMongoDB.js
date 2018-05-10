@@ -15,6 +15,8 @@ module.exports = {
   schema: null,
   modelShema: null,
   stepNode: true,
+  PromiseOrchestrator : require("../../lib/core/helpers/promiseOrchestrator.js"),
+  ArraySegmentator : require("../../lib/core/helpers/ArraySegmentator.js"),
 
 
   initialise: function(url) {
@@ -32,6 +34,7 @@ module.exports = {
 
 
   createmodel: function(modelName, data, url) {
+    //  console.log('createmodel');
     //console.log("----- create model mongoose -----")
     return new Promise(function(resolve, reject) {
       let dataModel = {}
@@ -62,6 +65,7 @@ module.exports = {
 
 
   request: function(querysTable, modelShema,queryParams) {
+    //  console.log('REQUEST');
     //console.log("----- request mongoose -----", querysTable)
     return new Promise((resolve, reject)=> {
       //   modelShema.db.once('connected', function () {
@@ -125,8 +129,9 @@ module.exports = {
   },
 
   insert: function(dataFlow, modelShema) {
+    //console.log('INSERT',this);
     //console.log("----- request mongoose -----", querysTable)
-    return new Promise(function(resolve, reject) {
+    return new Promise((resolve, reject)=> {
       //   modelShema.db.once('connected', function () {
       //     console.log("----- in connected mongo ------", querysTable)
       try {
@@ -140,14 +145,25 @@ module.exports = {
             }
           })
         }).then(() => {
-          modelShema.model.create(dataFlow, (err, docs) => {
-            //console.log('after create', docs, err);
-            if (err) {
-              reject(err);
-            } else {
-              resolve(docs)
-            }
-          })
+          //console.log(this);
+          let arraySegmentator = new this.ArraySegmentator();
+          let segments=arraySegmentator.segment(dataFlow,100);
+          let paramArray=segments.map(s=>{return [modelShema,s]})
+          let promiseOrchestrator = new this.PromiseOrchestrator();
+          // resolve(dataFlow);
+          promiseOrchestrator.execute(this,this.insertPromise,paramArray,{beamNb:10}).then(results=>{
+            resolve(results);
+          }).catch(e=>{
+            reject(e);
+          });
+          // modelShema.model.insertMany(dataFlow, (err, docs) => {
+          //   //console.log('after create', docs, err);
+          //   if (err) {
+          //     reject(err);
+          //   } else {
+          //     resolve(docs)
+          //   }
+          // })
         });
 
       } catch (e) {
@@ -160,9 +176,19 @@ module.exports = {
 
     });
   },
+  insertPromise:function(modelShema,data){
+    return new Promise((resolve,reject)=>{
+      modelShema.model.insertMany(data).exec().then(docs=>{
+        resolve(docs);
+      }).catch(e=>{
+        reject(e);
+      })
+    })
+  },
 
 
   pull: function(data, dataFlow, queryParams) {
+    //console.log("MONGO PULL");
     return new Promise((resolve, reject) => {
 
       if (dataFlow == undefined) {
@@ -186,13 +212,14 @@ module.exports = {
         this.initialise(data.specificData.url).then((url) => {
           this.createmodel(data.specificData.modelName, data.specificData.jsonSchema, url).then((model) => {
             this.insert(dataFlow[0].data, model).then((finalRes) => {
-              this.request(data.specificData.querySelect, model,queryParams).then((finalRes) => {
-                resolve({
-                  data: finalRes
-                })
-              }, function(error) {
-                reject(error)
-              })
+              resolve({data:finalRes})
+              // this.request(data.specificData.querySelect, model,queryParams).then((finalRes) => {
+              //   resolve({
+              //     data: finalRes
+              //   })
+              // }, function(error) {
+              //   reject(error)
+              // })
             }, (error) => {
               reject(error)
             })

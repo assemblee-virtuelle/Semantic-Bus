@@ -55,7 +55,10 @@
       <g id="stateLayer"></g>
       <g id="shapeSelector"></g>
       <g id="shapeLayer"></g>
-      <g id="textLayer"></g>
+      <svg id="textLayer">
+        <rect class="tooltip" width="220" height="30"></rect>
+        <text x="10" y="20" width="200" height="20"></text>
+      </svg>
       <g id="lineCommandLayer"></g>
       <g id="shapeCommandLayer"></g>
       <!--<image id="addComponentGraph" xlink:href="./image/ajout_composant.svg" class="commandButtonImage" x="1400" y="20" width="60" height="60" onclick={addComponentClick}></image>
@@ -406,7 +409,7 @@
           }
         ]
       }, this.graph.nodes);
-      console.log('status',nodesWithStatus);
+      console.log('status', nodesWithStatus);
       this.status = this.svg.select("#stateLayer").selectAll("circle").data(nodesWithStatus, function (d) {
         return d.id;
       }).attr('cx', function (d) {
@@ -433,6 +436,7 @@
         } else {
           //this.selectedLines = []; this.drawSelectedLines(); this.selectedNodes = [d];
           RiotControl.trigger('component_current_set', d.component);
+          this.tooltip.classed("tooltipHide", true);
           //this.drawSelected(); this.update();
         }
         //RiotControl.trigger('component_current_show'); RiotControl.trigger('component_current_select', d.component);
@@ -505,6 +509,14 @@
         return d.y;
       }).attr('data-id', function (d) {
         return d.id;
+      }).on('mouseover', (d) => {
+        //console.log("mouseover",d);
+        if (!d.selected == true && d.component.name!=undefined) {
+          this.tooltip.classed("tooltipHide", false);
+          this.tooltip.attr('x', d.x).attr('y', d.y + 70).select('text').html(d.component.name);
+        }
+      }).on('mouseout', (d) => {
+        this.tooltip.classed("tooltipHide", true);
       }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
 
       let nodesWithStatus = sift({
@@ -529,60 +541,12 @@
       }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
 
       this.drawSelected();
+      this.tooltip = this.svg.select("#textLayer").classed("tooltipHide", true);
+
+      console.log('tooltip', this.tooltip);
 
     }.bind(this)
 
-    // this.refreshGraph = function (data) {
-    //
-    //   //this.svg.selectAll("*").remove();   console.log('GRAPH | workspace_current_changed ', data);   var graph = {};   graph.nodes = [];   graph.links = [];
-    //
-    //   var inputs = 0;   var outputs = 0;   var middles = 0;
-    //
-    //   // determine le nombre d inputs et d outputs   console.log(data.components);   for (record of data.components) {     if (record.connectionsBefore.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) {
-    // inputs++;     } else if (record.connectionsAfter.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) {       outputs++;     } else if (record.graphPositionX == undefined && record.graphPositionY == undefined) {
-    //       middles++;     }   }
-    //
-    //   // console.log(inputs, outputs); calcule une distance type pour positionner les inputs et outputs du graphe   var inputsOffset = height / (inputs + 1);   var outputsOffset = height / (outputs + 1);   var middlesOffset = height / (middles + 1);
-    //
-    //   var inputCurrentOffset = inputsOffset;   var outputCurrentOffset = outputsOffset;   var middleCurrentOffset = middlesOffset;
-    //
-    //   console.log("automatic repartition", inputs, inputsOffset, middles, middlesOffset, outputs, outputsOffset);
-    //
-    //   //console.log(inputsOffset, outputsOffset);
-    //
-    //   for (record of data.components) {     var node = {};     if (record.connectionsBefore.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) { // si rien n est connecte avant       node = {         text:
-    // record.type, //-         id: record._id,         graphIcon: record.graphIcon,         // fx: record.graphPositionX || 10, //positionne l'élémént sur le bord gauche fy: record.graphPositionY || inputCurrentOffset,         x: 10, //positionne
-    // l'élémént sur le bord gauche         y: inputCurrentOffset,         component: record       }       inputCurrentOffset += inputsOffset;     } else if (record.connectionsAfter.length == 0 && record.graphPositionX == undefined &&
-    // record.graphPositionY == undefined) {       node = {         text: record.type,         id: record._id,         graphIcon: record.graphIcon,         // fx: record.graphPositionX || width - 10 - record.type.length * 10, // positionne l'element en
-    // largeur par rapport au bord droit du graphe fy: record.graphPositionY || outputCurrentOffset,         x: width - 230, // positionne l'element en largeur par rapport au bord droit du graphe         y: outputCurrentOffset,         component: record
-    // }       outputCurrentOffset += outputsOffset;     } else { // tous ceux du milieu       node = {         text: record.type,         id: record._id,         graphIcon: record.graphIcon,         x: record.graphPositionX || width / 2,         y:
-    // record.graphPositionY || middleCurrentOffset,         component: record       }       if (record.graphPositionY == undefined) {         middleCurrentOffset += middlesOffset;       }
-    //
-    //     }     graph.nodes.push(node);   }
-    //
-    //   for (record of data.components) {     for (connection of record.connectionsAfter) {       graph.links.push({         source: sift({           id: record._id         }, graph.nodes)[0],         target: sift({           id: connection._id },
-    // graph.nodes)[0],         id: record._id + '-' + connection._id       }) // creation de tous les links     }   }
-    //
-    //   console.log(graph);
-    //
-    //   this.drawGraph(graph);   // if (this.selectedNodes.length > 0) {   this.selectedNodes = sift({     id: {       $in: this.selectedNodes.map(s => s.id)     }   }, this.graph.nodes);   this.drawSelected(); }   //   // if (this.selectedLines.length
-    // > 0) {   this.selectedLines = sift({     id: {       $in: this.selectedLines.map(s => s.id)     }   }, this.graph.links);   this.drawSelectedLines(); } this.simulation.nodes(this.graph.nodes);   //
-    // this.simulation.force("link").links(this.graph.links); this.simulation.alpha(1).restart();
-    //
-    // }.bind(this); this.refreshSelection = function (selectedNodes, selectedLines) {   //console.log('refreshSelection',selectedNodes, selectedLines);   this.drawSelected(selectedNodes);   this.drawSelectedLines(selectedLines);   this.update();   //
-    // this.selectedNodes = selectedNodes;   //   // if (this.selectedNodes.length > 0) {   this.selectedNodes = sift({     id: {       $in: this.selectedNodes.map(s => s.id)     }   }, this.graph.nodes);   this.drawSelected(); }   //   //
-    // this.selectedLines = selectedLines;   //   // if (this.selectedLines.length > 0) {   this.selectedLines = sift({     id: {       $in: this.selectedLines.map(s => s.id)     }   }, this.graph.links);   this.drawSelectedLines(); }
-    //
-    // }.bind(this); this.on('unmount', function () {   //this.simulation.stop();   RiotControl.off('workspace_current_changed', this.refreshGraph); }); this.ticked = function () {   console.log("ticked");   this.links.attr('x1', function (d) { return
-    // d.source.x + 165;   }).attr('y1', function (d) {     return d.source.y + 35;   }).attr('x2', function (d) {     return d.target.x + 55; }).attr('y2', function (d) {     return d.target.y + 35;   });
-    //
-    //   this.nodes.attr('x', function (d) {     return d.x - 5;   }).attr('y', function (d) {     return d.y - 5;   });   if (this.selectorsNodes.length > 0) {     this.selectorsNodes.attr('x', function (d) {       return d.x - 5;     }).attr('y',
-    // function (d) {     return d.y - 5;     });   }
-    //
-    //   // this.texts.attr('x', function (d) {   return d.x; }).attr('y', function (d) {   return d.y + d.height; }); tickCount++; if (tickCount>10) {   simulation.stop(); }
-    //
-    // }.bind(this); // jusque la on est dans le workspace changed RiotControl.on('item_curent_connect_show_changed', function (modes) {   console.log('item_curent_connect_show_changed', modes);   this.modeConnectAfter = modes.after;
-    // this.modeConnectBefore = modes.before;   this.update(); }.bind(this)); evenement appele par riot
     this.on('mount', function () { // mount du composant riot
       //RiotControl.on('workspace_current_changed', this.refreshGraph);
       if (this.parent != undefined && this.parent.title == "Workspace") {
@@ -668,6 +632,18 @@
     .activConnection {
       background-color: orange !important;
       color: white;
+    }
+    .tooltip {
+      fill: grey;
+      fill-opacity: 0.5;
+    }
+    /*.tooltipShow {
+      fill-opacity: 0.5;
+    }*/
+
+    .tooltipHide {
+      /*fill-opacity: 0;*/
+      display: none;
     }
 
   </style>

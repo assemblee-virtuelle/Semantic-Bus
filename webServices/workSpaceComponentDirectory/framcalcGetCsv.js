@@ -75,6 +75,7 @@ module.exports = {
       /* if there's an error, then reject the Promise
        * (can be handled with Promise.prototype.catch) */
       request.on('error', reject);
+      request.on('socket', (s) => { s.setTimeout(120000, () => { s.destroy(); })});
       request.end();
     });
   },

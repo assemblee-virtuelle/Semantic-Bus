@@ -37,7 +37,7 @@
       </div>
     </div>
   </div>
-  <jsonFragViewer show={data.persistProcess} ref="jsonFragViewer" style="flex-grow:100;"></jsonFragViewer>
+  <jsonFragViewer show={data.persistProcess||data.error} ref="jsonFragViewer" style="flex-grow:100;"></jsonFragViewer>
   <script>
     this.data = {};
     this.updateData = function (data) {

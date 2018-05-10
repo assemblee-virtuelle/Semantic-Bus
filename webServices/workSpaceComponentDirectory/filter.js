@@ -12,7 +12,7 @@ module.exports = {
 
   pull: function(data, flowData) {
 
-    //console.log('Filter| pull : ', data, ' | ', flowData);
+    console.log('Filter| pull : ', JSON.parse(data.specificData.filterString), ' | ', JSON.stringify(flowData[0].data));
     return new Promise((resolve, reject) => {
 
 

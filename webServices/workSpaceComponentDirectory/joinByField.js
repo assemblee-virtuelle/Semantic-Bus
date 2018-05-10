@@ -28,6 +28,7 @@ module.exports = {
     //console.log('Join by Field | pull : ', data, ' | ', flowData);
     return new Promise((resolve, reject) => {
       try {
+        //console.log(flowData);
         var secondaryFlowData = this.sift({
           componentId: data.specificData.secondaryComponentId
         }, flowData)[0].data;

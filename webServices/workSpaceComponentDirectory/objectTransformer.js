@@ -64,6 +64,8 @@ module.exports = {
     var dissociatePatternPostProcess = this.dissociatePatternPostProcess(jsonTransformPattern);
     //console.log('resolvable | ', JSON.stringify(dissociatePatternResolvable));
     //console.log('postProcess | ', JSON.stringify(dissociatePatternPostProcess));
+    //console.log('resolvable | ', dissociatePatternResolvable);
+    //console.log('postProcess | ', dissociatePatternPostProcess);
     //console.log('source | ', JSON.stringify(source));
     //console.log('source | ', source);
     var postProcessResult;
@@ -76,7 +78,7 @@ module.exports = {
       }
       //console.log('jsonTransform | resultBeforUnresolved |', transformResult);
       var destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable)
-      // console.log('jsonTransform | afterUnresolved |', destResult);
+      //console.log('jsonTransform | afterUnresolved |', destResult);
 
       if (dissociatePatternPostProcess == undefined) {
         //console.log('ALLO');
@@ -87,7 +89,7 @@ module.exports = {
       }
       // console.log('jsonTransform | postProcessResult |', postProcessResult);
     } catch (e) {
-      console.log(e);
+      //console.log('transform exception',e);
       postProcessResult = source;
     }
 
@@ -106,15 +108,16 @@ module.exports = {
     //console.log(depth, everArrayPath);
     var nodeOut;
     var arrayHack = false;
-    if (Array.isArray(nodeIn) && everArrayPath == false && nodeIn[0] != undefined && typeof nodeIn[0] == 'string' && nodeIn[0].search('$..')) {
-      nodeOut = [];
-      everArrayPath = true;
-    } else {
+    //console.log(nodeIn[0],typeof nodeIn[0],nodeIn[0].indexOf('$..'));
+    // if (Array.isArray(nodeIn) && everArrayPath == false && nodeIn[0] != undefined && typeof nodeIn[0] == 'string' && nodeIn[0].indexOf('$.')>=0) {
+    //   nodeOut = [];
+    //   everArrayPath = true;
+    // } else {
       if (Array.isArray(nodeIn)) {
         arrayHack = true;
       }
       nodeOut = {};
-    }
+    // }
 
     //console.log(nodeOut);
 
@@ -175,16 +178,17 @@ module.exports = {
 
     var nodeOut;
     var arrayHack = false;
-    if (Array.isArray(nodeIn) && everArrayPath == false && nodeIn[0] != undefined && typeof nodeIn[0] == 'string' && nodeIn[0].search('$..')) {
-      nodeOut = [];
-      everArrayPath = true;
-    } else {
+    // if (Array.isArray(nodeIn) && everArrayPath == false && nodeIn[0] != undefined && typeof nodeIn[0] == 'string' && nodeIn[0].indexOf('$.')>=0) {
+    //   console.log("ARRAY SKIP");
+    //   nodeOut = [];
+    //   everArrayPath = true;
+    // } else {
       if (Array.isArray(nodeIn)) {
         arrayHack = true;
       }
       nodeOut = {};
 
-    }
+    // }
 
     if (typeof nodeIn == 'string') {
       const regex = /^=(.*)/g;
@@ -261,7 +265,7 @@ module.exports = {
         if (nodeInPostProcess[nodeInDataProperty] != undefined) {
           if (nodeInPostProcess[nodeInDataProperty].process == 'javascriptExec') {
             //if (typeof nodeInPostProcess[nodeInDataProperty] == 'string') {
-            //console.log('PostProcess | ', nodeInPostProcess[nodeInDataProperty]);
+            //console.log('PostProcess javascriptExec| ', nodeInPostProcess[nodeInDataProperty]);
             var javascriptEvalString = nodeInPostProcess[nodeInDataProperty].processData;
             //console.log('javascriptEvalString |',javascriptEvalString)
             //console.log('nodeInData[nodeInDataProperty] |', nodeInData[nodeInDataProperty]);
@@ -331,9 +335,9 @@ module.exports = {
     if (Array.isArray(nodeIn)) {
       nodeOut = [];
       //console.log(nodeIn,jsonTransformPattern);
-      if(nodeIn.length==0&&jsonTransformPattern.length>0){
-        nodeOut=jsonTransformPattern;
-      }
+      // if(nodeIn.length==0&&jsonTransformPattern.length>0){
+      //   nodeOut=jsonTransformPattern;
+      // }
     } else {
       nodeOut = {};
     }
@@ -357,7 +361,7 @@ module.exports = {
 
         }
       } else {
-
+        //console.log('CORRECTION');
         nodeOut[key] = nodeIn[key];
       }
 

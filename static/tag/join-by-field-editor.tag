@@ -2,13 +2,13 @@
   <div>jointure entre un flux principale et un flux secondaire</div>
   <label>composant qui contient le flux principale</label>
   <select name="primaryComponentIdInput" ref="primaryComponentIdInput">
-    <option each={option in data.connectionsBefore} value={option._id} selected={parent.data.specificData.primaryComponentId ==option._id}>{option.type} : {option.name}</option>
+    <option each={option in linkedComponents.beforeComponents} value={option._id} selected={parent.data.specificData.primaryComponentId ==option._id}>{option.type} : {option.name}</option>
   </select>
   <label>champ du composant principale qui contient l'identifiant du flux secondaire</label>
   <input type="text" name="primaryFlowFKIdInput" value={data.specificData.primaryFlowFKId} ref="primaryFlowFKIdInput"></input>
   <label>composant qui contient le flux secondaire</label>
   <select name="secondaryComponentIdInput" ref="secondaryComponentIdInput">
-    <option each={option in data.connectionsBefore} value={option._id} selected={parent.data.specificData.secondaryComponentId ==option._id}>{option.type} : {option.name}</option>
+    <option each={option in linkedComponents.beforeComponents} value={option._id} selected={parent.data.specificData.secondaryComponentId ==option._id}>{option.type} : {option.name}</option>
   </select>
   <label>champ du composant secondaire qui défini son identifiant</label>
   <input type="text" name="secondaryFlowIdInput" ref="secondaryFlowIdInput" value={data.specificData.secondaryFlowId}></input>
@@ -23,6 +23,12 @@
     }
     this.updateData = function (dataToUpdate) {
       this.innerData = dataToUpdate;
+      this.update();
+      RiotControl.trigger('component_current_connections_refresh');
+    }.bind(this);
+
+    this.updateConnections = function (connections) {
+      this.linkedComponents = connections;
       this.update();
     }.bind(this);
 
@@ -59,9 +65,12 @@
       }.bind(this));
 
       RiotControl.on('item_current_changed', this.updateData);
+      RiotControl.on('component_current_connections_changed', this.updateConnections);
+
     });
     this.on('unmount', function () {
       RiotControl.off('item_current_changed',this.updateData);
+      RiotControl.off('component_current_connections_changed', this.updateConnections);
     });
   </script>
 </join-by-field-editor>

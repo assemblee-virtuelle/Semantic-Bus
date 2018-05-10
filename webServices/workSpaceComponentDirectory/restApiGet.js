@@ -89,7 +89,7 @@ module.exports = new function() {
             if (regexp.test(urlRequiered)) {
               matched = true;
               //console.log('MATCHING',component.specificData.url,urlRequiered);
-              component.specificData.url
+              //component.specificData.url
               targetedComponent = component;
               let values = regexp.exec(urlRequiered)
               //console.log(keys,values);
@@ -132,42 +132,9 @@ module.exports = new function() {
             query: req.query,
             body: req.body
           });
-          //return this.recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(component, 'work', undefined, req.query);
-          // return new Promise((resolve, reject) => {
-          //   resolve({
-          //     data: "api finded"
-          //   })
-          // })
         }
-
-
-
-
-
-
-
-        // if (component != undefined) {
-        //
-        //   if (component.specificData.contentType == undefined) {
-        //     return new Promise((resolve, reject) => {
-        //       reject(new Error("API without content-type"));
-        //     })
-        //   } else {
-        //     specificData = component.specificData;
-        //     return this.recursivPullResolvePromiseDynamic.getNewInstance().resolveComponent(component, 'work', undefined, req.query);
-        //     //return this.recursivPullResolvePromise.resolveComponentPull(data[0], false,req.query);
-        //   }
-        //
-        //
-        // } else {
-        //   return new Promise((resolve, reject) => {
-        //     reject({
-        //       code: 404,
-        //       message: "no API for this url"
-        //     })
-        //   })
-        // }
       }).then(dataToSend => {
+        //console.log('AALLOO',dataToSend);
         if (targetedComponent.specificData != undefined) { // exception in previous promise
           if (targetedComponent.specificData.contentType != undefined) {
             if (targetedComponent.specificData.contentType.search('application/vnd.ms-excel') != -1) {
@@ -182,7 +149,7 @@ module.exports = new function() {
               res.setHeader('content-type', targetedComponent.specificData.contentType);
               var convert = this.data2xml();
               var out = "";
-              for (key in dataToSend.data) {
+              for (let key in dataToSend.data) {
                 out += convert(key, dataToSend.data[key]);
               }
               //console.log(out);
@@ -204,7 +171,7 @@ module.exports = new function() {
           }
         }
       }).catch(err => {
-        //console.log('FAIL', err);
+        console.log('FAIL', err);
         if (err.code) {
           res.status(err.code).send(err.message);
         } else {

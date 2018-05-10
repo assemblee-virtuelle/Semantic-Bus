@@ -108,14 +108,14 @@ module.exports = function(router, amqpClient) {
       var recursivPullResolvePromiseDynamic = require('./engine');
       return recursivPullResolvePromiseDynamic.execute(data, 'work', this.amqpClient, messageObject.callerId);
     }).then((data) => {
-
+      console.log('ENGINE work sucess');
       //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
       //this.stompClient.send('/topic/work-response.'+token, JSON.stringify({processId:0}));
 
 
     }).catch(e => {
       //console.log('AMQP work error',JSON.stringify(e));
-      console.log('AMQP work error', e);
+      console.log('ENGINE work error', e);
 
       //console.log('work error');
 

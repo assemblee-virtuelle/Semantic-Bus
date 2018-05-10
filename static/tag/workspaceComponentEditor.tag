@@ -10,7 +10,12 @@
       <label >
         persistance du process (payant)
       </label>
-      <input type="checkbox" id="peristProcessInput" onchange={onPersistProcessChange} checked={itemCurrent.persistProcess}></input>
+      <div class="containerH">
+        <label class="switch">
+          <input type="checkbox" onchange={onPersistProcessChange} checked={itemCurrent.persistProcess}>
+          <span class="slider round"></span>
+        </label>
+      </div>
     </div>
   </div>
   <div id="editionContainer" style="flex-grow:1; padding: 15pt;

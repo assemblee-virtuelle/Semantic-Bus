@@ -10,11 +10,11 @@ class Engine {
     this.workspace_lib = require("../lib/core/lib/workspace_lib");
     this.user_lib = require("../lib/core/lib/user_lib");
     this.config = require("../configuration.js");
-    let PromiseOrchestrator = require("./promiseOrchestrator.js")
+    let PromiseOrchestrator = require("../lib/core/helpers/promiseOrchestrator.js")
     this.promiseOrchestrator = new PromiseOrchestrator();
     this.fackCounter = 0;
     this.amqpClient = amqpClient,
-    this.callerId = callerId;
+      this.callerId = callerId;
     this.originComponent = component;
     this.requestDirection = requestDirection;
     this.pushData = pushData;
@@ -37,6 +37,7 @@ class Engine {
             .getWorkspace(this.originComponent.workspaceId)
             .then(workflow => {
               this.workflow = workflow;
+              //console.log(this.workflow);
               let ownerUserMail = this.sift({
                   role: "owner"
                 },
@@ -52,7 +53,7 @@ class Engine {
                 .then(user => {
 
                   this.componentsResolving.forEach(component => {
-                    component.status = "waiting";
+                    //component.status = "waiting";
                     //empty object are not persist by mongoose
                     component.specificData = component.specificData || {};
                   });
@@ -71,15 +72,25 @@ class Engine {
                     0,
                     this.componentsResolving,
                     undefined,
-                    this.originQueryParams
+                    this.originQueryParams == undefined ? undefined : {
+                      origin: this.originComponent._id,
+                      queryParams: this.originQueryParams
+                    },
+                    undefined
                   );
 
-                  // if (this.config.quietLog != true) {
-                  //   console.log(" ---------- BuildPath -----------", this.fackCounter)
-                  //   console.log(this.pathResolution.links.map(link => {
-                  //     return (link.source._id + ' -> ' + link.destination._id);
-                  //   }));
-                  // }
+                  if (this.config.quietLog != true) {
+                    console.log(" ---------- BuildPath Links-----------", this.fackCounter)
+                    console.log(this.pathResolution.links.map(link => {
+                      //return (link.source);
+                      return (link.source.component._id + ' : ' + link.source.queryParams + ' -> ' + link.target.component._id + ' : ' + link.target.queryParams);
+
+                    }));
+                    console.log(" ---------- BuildPath Nodes-----------", this.fackCounter)
+                    console.log(this.pathResolution.nodes.map(node => {
+                      return (node.component._id + ':' + node.queryParams);
+                    }));
+                  }
 
 
                   this.owner = user;
@@ -87,14 +98,14 @@ class Engine {
                   this.workspace_lib.createProcess({
                     workflowId: this.originComponent.workspaceId,
                     ownerId: this.owner._id,
-                    callerId: this.callerId,              //console.log(this.processCollection);
-              // } else {
-              //   this.trigger('ajax_fail', body.error);
-              // }
+                    callerId: this.callerId, //console.log(this.processCollection);
+                    // } else {
+                    //   this.trigger('ajax_fail', body.error);
+                    // }
                     originComponentId: this.originComponent._id,
                     steps: this.pathResolution.nodes.map(node => {
                       return ({
-                        componentId: node._id
+                        componentId: node.component._id
                       });
                     })
                   }).then((process) => {
@@ -111,7 +122,7 @@ class Engine {
                       timeStamp: process.timeStamp,
                       steps: this.pathResolution.nodes.map(node => {
                         return ({
-                          componentId: node._id,
+                          componentId: node.component._id,
                           status: node.status
                         });
                       })
@@ -120,10 +131,10 @@ class Engine {
                     this.pathResolution.links.forEach(link => {
                       link.status = "waiting";
                     });
-                    this.RequestOrigine = this.originComponent;
+                    //this.RequestOrigine = this.originComponent;
                     this.RequestOrigineResolveMethode = resolve;
                     this.RequestOrigineRejectMethode = reject;
-                    this.RequestOrigineResponse = undefined;
+
 
                     /// -------------- push case  -----------------------
                     if (this.requestDirection == "push") {
@@ -142,93 +153,7 @@ class Engine {
                       resolve(pushData);
                     }
 
-                    /// -------------- pull case  -----------------------
-
-                    var tableSift = [];
-                    this.componentsResolving.forEach(componentToInspect => {
-                      if (componentToInspect.pullSource == true) {
-                        tableSift.push(componentToInspect);
-                      }
-                    });
-
-                    //console.log(tableSift);
-
-                    tableSift.forEach(componentProcessing => {
-                      if (user.credit >= 0) {
-                        componentProcessing.status = 'processing';
-                        let module = this.technicalComponentDirectory[
-                          componentProcessing.module
-                        ];
-                        let startTime = new Date();
-                        //historicEndAndCredit(processingLink,module,[]);
-                        //console.log(componentProcessing.specificData);
-                        module
-                          .pull(componentProcessing, undefined, componentProcessing.queryParams)
-                          .then(componentFlow => {
-                            if (this.config.quietLog != true) {
-                              //console.log('AFFECTATION',componentProcessing._id,componentFlow.data.length);
-                            }
-
-                            componentProcessing.dataResolution = componentFlow;
-                            componentProcessing.status = 'resolved';
-
-                            this.sift({
-                                "source._id": componentProcessing._id
-                              },
-                              this.pathResolution.links
-                            ).forEach(link => {
-                              link.status = "processing";
-                            });
-
-                            this.historicEndAndCredit(componentProcessing, startTime, undefined)
-
-                            if (
-                              componentProcessing._id == this.RequestOrigine._id
-                            ) {
-                              this.RequestOrigineResolveMethode(
-                                componentProcessing.dataResolution
-                              );
-                            }
-
-                            this.processNextBuildPath('sources');
-                          })
-                          .catch(e => {
-                            // console.log(
-                            //   "source component error",
-                            //   e.message,
-                            //   componentProcessing._id
-                            // );
-                            componentProcessing.dataResolution = {
-                              error: e
-                            };
-                            this.historicEndAndCredit(componentProcessing, startTime, e)
-
-                            this.sift({
-                                "source._id": componentProcessing._id
-                              },
-                              this.pathResolution.links
-                            ).forEach(link => {
-                              link.status = "error";
-                            });
-                            componentProcessing.status = "error";
-
-                            if (
-                              componentProcessing._id == this.RequestOrigine._id
-                            ) {
-                              this.RequestOrigineRejectMethode(
-                                e
-                              );
-                            }
-
-                            this.processNextBuildPath('source ko');
-                            //reject(e);
-                          });
-                      } else {
-                        let fullError = new Error();
-                        fullError.message = "Vous n'avez pas assez de credit";
-                        reject(fullError);
-                      }
-                    });
+                    this.processNextBuildPath('start');
                   })
                 });
             });
@@ -237,304 +162,274 @@ class Engine {
   }
 
   processNextBuildPath(source) {
-    //console.log(source);
     if (this.owner.credit >= 0) {
+
       this.fackCounter++;
       if (this.config.quietLog != true) {
         console.log(" ---------- processNextBuildPath -----------", this.fackCounter)
-        console.log(this.pathResolution.links.map(link => {
-          return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.status);
+        // console.log(this.pathResolution.links.map(link => {
+        //   return (link.source.component._id + ' -> ' + link.target.component._id + ' : ' + link.source.status + ' -> ' + link.target.status + ' ' + link.source.component.name);
+        // }));
+        console.log(this.pathResolution.nodes.map(node => {
+          return (node.component._id + ' : ' + node.status + ' ' + node.component.name);
         }));
       }
-      let linkNotResolved = this.sift({
-          status: "processing"
-        },
-        this.pathResolution.links
-      );
-      //console.log(linkNotResolved.length);
-
-      if (linkNotResolved.length > 0) {
-        let linksLockedNumber = 0;
-        for (var processingLinkCandidate of linkNotResolved) {
-          let linksNotReady = this.sift({
-              "destination._id": processingLinkCandidate.destination._id,
-              status: {
-                $ne: "processing"
-              } // ==  dataResolution: { $exists: false }
+      let processingNode = undefined;
+      let nodeWithoutIncoming = this.sift({
+          $and: [{
+              sources: {
+                $size: 0
+              }
             },
-            this.pathResolution.links
-          );
-
-          let linksWaiting = this.sift({
-              "destination._id": processingLinkCandidate.destination._id,
-              status: "waiting"
-            },
-            this.pathResolution.links
-          );
-
-          if (linksNotReady.length == 0) {
-            var processingLink = processingLinkCandidate;
-            break;
-          } else {
-            //console.log(linksWaiting.length);
-            if (linksWaiting.length == 0) {
-              linksLockedNumber++;
+            {
+              status: 'waiting'
             }
+          ]
+        },
+        this.pathResolution.nodes
+      );
+      if (nodeWithoutIncoming.length > 0) {
+        //console.log('source component', nodeWithoutIncoming[0]);
+        processingNode = nodeWithoutIncoming[0];
+      } else {
+        let nodeWithAllIncomingResolved = this.sift({
+            status: 'waiting'
+          },
+          this.pathResolution.nodes
+        );
+        nodeWithAllIncomingResolved.every(n => {
+
+          let nbSourcesResolved = this.sift({
+            'source.status': 'resolved'
+          }, n.sources).length;
+          //console.log('source resolved size', nbSourcesResolved, n.sources.length);
+          if (n.sources.length == nbSourcesResolved) {
+            processingNode = n;
+            return false;
+          } else {
+            return true;
           }
-        }
+        })
+        //console.log(processingNode);
+        // if (nodeWithAllIncomingResolved.length > 0) {
+        //
+        //   processingNode = nodeWithAllIncomingResolved[0];
+        // }
+      }
+      //console.log('processingNode', processingNode);
+      if (processingNode != undefined) {
+        //console.log('PROCESS', processingNode.component._id);
+        // processingNode.sources.forEach(s => {
+        //   console.log(s.source.component._id + ' : ' + s.source.status);
+        // })
+        let startTime = new Date();
+        //processingLink.status = 'processing';
+        let nodesProcessingInputs = this.sift({
+            "targets.target.component._id": processingNode.component._id,
+            //  status: "processing"
+          },
+          this.pathResolution.nodes
+        );
 
-        //-------------- Component processing --------------
 
-        if (processingLink != undefined) {
-          let startTime = new Date();
-          processingLink.status = 'processing';
-          let linksProcessingInputs = this.sift({
-              "destination._id": processingLink.destination._id,
-              status: "processing"
-            },
-            this.pathResolution.links
-          );
-
-          let module = this.technicalComponentDirectory[
-            processingLink.destination.module
-          ];
-          let dataFlow = linksProcessingInputs.map(sourceLink => {
-            let d = sourceLink.source.dataResolution;
-            d.componentId = sourceLink.source._id;
+        let module = this.technicalComponentDirectory[
+          processingNode.component.module
+        ];
+        let dataFlow = undefined;
+        let primaryflow = undefined;
+        let secondaryFlow = undefined;
+        if (nodesProcessingInputs.length > 0) {
+          //console.log('ALLO');
+          dataFlow = nodesProcessingInputs.map(sourceNode => {
+            let d = sourceNode.dataResolution;
+            d.componentId = sourceNode.component._id;
             return d;
           });
-
-          // historicEndAndCredit(processingLink,module,dataFlow);
-
-          var primaryflow;
           if (module.getPrimaryFlow != undefined) {
             primaryflow = module.getPrimaryFlow(
-              processingLink.destination,
+              processingNode.component,
               dataFlow
             );
           } else {
             primaryflow = dataFlow[0];
           }
 
-          var secondaryFlow = [];
+          secondaryFlow = [];
           secondaryFlow = secondaryFlow.concat(dataFlow);
           secondaryFlow.splice(secondaryFlow.indexOf(primaryflow), 1);
-
-          if (primaryflow.dfob != undefined && primaryflow.dfob.length > 0) {
-            var dfobTab = primaryflow.dfob[0].split(".");
+        }
+        //console.log("dataFlow", dataFlow);
+        if (dataFlow != undefined && primaryflow.dfob != undefined) {
+          try {
+            //console.log("DFOB");
+            var dfobTab = primaryflow.dfob[0].length > 0 ? primaryflow.dfob[0].split(".") : [];
+            //console.log(dfobTab);
             var dfobFinalFlow = this.buildDfobFlow(
               primaryflow.data,
               dfobTab
             );
+            //console.log('dfobFinalFlow',dfobFinalFlow);
 
             if (this.config.quietLog != true) {
-              // console.log('dfobFinalFlow | ', dfobFinalFlow);
+              //console.log('dfobFinalFlow | ', dfobFinalFlow);
             }
-            let paramArray = dfobFinalFlow.map(finalItem => {
-              var recomposedFlow = [];
-              recomposedFlow = recomposedFlow.concat([{
-                data: finalItem.objectToProcess[finalItem.key],
-                componentId: primaryflow.componentId
-              }]);
-              recomposedFlow = recomposedFlow.concat(secondaryFlow);
-              return [
-                processingLink.destination,
-                recomposedFlow,
-                undefined
-              ];
-            });
-            //console.log('paramArray',paramArray);
-            this.promiseOrchestrator.execute(module, module.pull, paramArray, {}).then((componentFlowDfob) => {
-              for (var componentFlowDfobKey in componentFlowDfob) {
 
-                dfobFinalFlow[componentFlowDfobKey].objectToProcess[
-                    dfobFinalFlow[componentFlowDfobKey].key
-                  ] =
-                  componentFlowDfob[componentFlowDfobKey].data;
-              }
-              //console.log('dfobFinalFlow',dfobFinalFlow);
-              processingLink.destination.dataResolution = {
-                componentId: processingLink.destination._id,
-                //data: dfobFinalFlow.map(FF=>FF.objectToProcess),
+            if (dfobFinalFlow.length == 0) {
+              processingNode.dataResolution = {
                 data: primaryflow.data
               };
-              processingLink.destination.status = "resolved";
-              this.sift({
-                  "source._id": processingLink.destination._id
-                },
-                this.pathResolution.links
-              ).forEach(link => {
-                link.status = "processing";
-              });
-
-              linksProcessingInputs.forEach(link => {
-                link.status = "resolved";
-              });
-
-              this.historicEndAndCredit(processingLink.destination, startTime, undefined)
-
+              processingNode.status = "resolved";
+              this.historicEndAndCredit(processingNode, startTime, undefined)
               if (
-                processingLink.destination._id == this.RequestOrigine._id
+                processingNode.component._id == this.originComponent._id
               ) {
                 this.RequestOrigineResolveMethode(
-                  processingLink.destination.dataResolution
+                  processingNode.dataResolution
                 );
 
               }
+              this.processNextBuildPath('dfob empty');
+            } else {
 
-              this.processNextBuildPath('dfob ok');
-            }).catch(e => {
-              //console.log('CATCH',e);
-              processingLink.destination.dataResolution = {
-                error: e
-              };
-              this.historicEndAndCredit(processingLink.destination, startTime, e)
-
-              // this.sift({
-              //     "source._id": processingLink.destination._id
-              //   },
-              //   this.pathResolution.links
-              // ).forEach(link => {
-              //   link.status = "error";
-              // });
-              linksProcessingInputs.forEach(link => {
-                link.status = "error";
+              let paramArray = dfobFinalFlow.map(finalItem => {
+                var recomposedFlow = [];
+                recomposedFlow = recomposedFlow.concat([{
+                  data: finalItem.objectToProcess[finalItem.key],
+                  componentId: primaryflow.componentId
+                }]);
+                recomposedFlow = recomposedFlow.concat(secondaryFlow);
+                return [
+                  processingNode.component,
+                  recomposedFlow,
+                  undefined
+                ];
               });
-              processingLink.destination.status = "error";
 
-              if (
-                processingLink.destination._id == this.RequestOrigine._id
-              ) {
-                this.RequestOrigineRejectMethode(
-                  e
-                );
-              }
+              //console.log('paramArray',paramArray);
+              this.promiseOrchestrator.execute(module, module.pull, paramArray, {
+                beamNb: 1
+              }).then((componentFlowDfob) => {
+                for (var componentFlowDfobKey in componentFlowDfob) {
 
-              this.processNextBuildPath('dfob ko');
-            });
-
-          } else {
-            module
-              .pull(processingLink.destination, dataFlow, processingLink.queryParams)
-              .then(componentFlow => {
-                processingLink.destination.dataResolution = componentFlow;
-                processingLink.destination.status = "resolved";
-
-                this.sift({
-                    "source._id": processingLink.destination._id
-                  },
-                  this.pathResolution.links
-                ).forEach(link => {
-                  link.status = "processing";
-                });
-
-                linksProcessingInputs.forEach(link => {
-                  link.status = "resolved";
-                });
-                this.historicEndAndCredit(processingLink.destination, startTime, undefined)
-
+                  dfobFinalFlow[componentFlowDfobKey].objectToProcess[
+                      dfobFinalFlow[componentFlowDfobKey].key
+                    ] =
+                    componentFlowDfob[componentFlowDfobKey].data;
+                }
+                //console.log('dfobFinalFlow',dfobFinalFlow);
+                processingNode.dataResolution = {
+                  //componentId: processingNode.component._id,
+                  //data: dfobFinalFlow.map(FF=>FF.objectToProcess),
+                  data: primaryflow.data
+                };
+                processingNode.status = "resolved";
+                this.historicEndAndCredit(processingNode, startTime, undefined)
                 if (
-                  processingLink.destination._id == this.RequestOrigine._id
+                  processingNode.component._id == this.originComponent._id
                 ) {
-
                   this.RequestOrigineResolveMethode(
-                    processingLink.destination.dataResolution
+                    processingNode.dataResolution
                   );
 
                 }
 
-                this.processNextBuildPath('normal ok');
-              })
-              .catch(e => {
-                processingLink.destination.dataResolution = {
+                this.processNextBuildPath('dfob ok');
+              }).catch(e => {
+                console.log('CATCH dfob', e);
+                processingNode.dataResolution = {
                   error: e
                 };
-                this.historicEndAndCredit(processingLink.destination, startTime, e)
-
-                this.sift({
-                    "source._id": processingLink.destination._id
-                  },
-                  this.pathResolution.links
-                ).forEach(link => {
-                  link.status = "error";
-                });
-                processingLink.destination.status = "error";
-
-                linksProcessingInputs.forEach(link => {
-                  link.status = "error";
-                });
-
-                if (
-                  processingLink.destination._id == this.RequestOrigine._id
-                ) {
-                  this.RequestOrigineRejectMethode(
-                    e
-                  );
-                }
-
-                this.processNextBuildPath('normal ko');
+                this.historicEndAndCredit(processingNode, startTime, e)
+                processingNode.status = "error";
+                this.processNextBuildPath('dfob ko');
               });
+            }
+
+          } catch (e) {
+            console.log('CATCH dfob', e);
+            processingNode.dataResolution = {
+              error: e
+            };
+            this.historicEndAndCredit(processingNode, startTime, e)
+            processingNode.status = "error";
+            this.processNextBuildPath('dfob ko');
           }
         } else {
-          //console.log('no process', linksLockedNumber, linkNotResolved.length);
-          if (linksLockedNumber == linkNotResolved.length) {
-            //console.log("END with errors");
-            this.amqpClient.publish('amq.topic', this.keyError, new Buffer(JSON.stringify({
-              processId: this.processId
-            })));
-          }
+          //console.log("NORMAL", processingNode.component._id);
+          module.pull(processingNode.component, dataFlow, processingNode.queryParams).then(componentFlow => {
+            processingNode.dataResolution = componentFlow;
+            processingNode.status = "resolved";
+            this.historicEndAndCredit(processingNode, startTime, undefined)
+            if (processingNode.component._id == this.originComponent._id) {
+              this.RequestOrigineResolveMethode(
+                processingNode.dataResolution
+              );
+            }
+            this.processNextBuildPath('normal ok');
+          }).catch(e => {
+            console.log('CATCH normal', processingNode.component._id, e);
+            processingNode.dataResolution = {
+              error: e
+            };
+            processingNode.status = "error";
+            //console.log('HIST')
+            this.historicEndAndCredit(processingNode, startTime, e)
+            //console.log('NEXT');
+            this.processNextBuildPath('normal ko');
+          });
         }
       } else {
-        // console.log(" ---------- no processing link -----------", this.fackCounter)
-        // console.log(this.pathResolution.map(link => {
-        //   return (link.source._id + ' -> ' + link.destination._id + ' : ' + link.source.status+'->' + link.status+'->'+ link.destination.status);
-        // }));
-        let linkOnError = this.sift({
+        //console.log('END');
+        let nodeOnError = this.sift({
             status: "error"
           },
-          this.pathResolution.links
+          this.pathResolution.nodes
         );
-        //console.log(linkOnError.length);
-        let linkOnWaitingButNodeInProcessing = this.sift({
-            status: "waiting",
-            "source.status": "processing",
-          },
-          this.pathResolution.links
-        );
-        if (linkOnWaitingButNodeInProcessing.length == 0) {
-          if (linkOnError.length > 0) {
-            this.amqpClient.publish('amq.topic', this.keyError, new Buffer(JSON.stringify({
-              _id: this.processId
-            })));
-          } else {
-            this.amqpClient.publish('amq.topic', this.keyEnd, new Buffer(JSON.stringify({
-              _id: this.processId
-            })));
-          }
-          this.workspace_lib.cleanOldProcess(this.workflow).then(processes=>{
-            //console.log(processes);
-            this.amqpClient.publish('amq.topic', this.keyProcessCleaned, new Buffer(JSON.stringify({cleanedProcesses:processes})));
+
+        if (nodeOnError.length > 0) {
+          this.amqpClient.publish('amq.topic', this.keyError, new Buffer(JSON.stringify({
+            _id: this.processId
+          })));
+
+          let errors = [];
+          this.pathResolution.nodes.forEach(n => {
+            if (n.dataResolution != undefined && n.dataResolution.error != undefined) {
+              errors.push(n.dataResolution.error);
+            }
           })
-          if (this.config.quietLog != true) {
-            console.log(
-              "--------------  End of Worksapce processing --------------"
-            );
-          }
+          this.RequestOrigineRejectMethode(errors);
+          // }
+        } else {
+          this.amqpClient.publish('amq.topic', this.keyEnd, new Buffer(JSON.stringify({
+            _id: this.processId
+          })));
+        }
+        this.workspace_lib.cleanOldProcess(this.workflow).then(processes => {
+          //console.log(processes);
+          this.amqpClient.publish('amq.topic', this.keyProcessCleaned, new Buffer(JSON.stringify({
+            cleanedProcesses: processes
+          })));
+        })
+        if (this.config.quietLog != true) {
+          console.log(
+            "--------------  End of Worksapce processing --------------"
+          );
         }
       }
     } else {
-      let fullError = new Error();
-      fullError.message = "Vous n'avez pas assez de credit";
+      let fullError = new Error("Vous n'avez pas assez de credit");
+      //fullError.message = "Vous n'avez pas assez de credit";
       this.RequestOrigineRejectMethode(fullError);
     }
   }
 
-  historicEndAndCredit(component, startTime, error) {
+
+  historicEndAndCredit(processingNode, startTime, error) {
 
     // console.log('historicEndAndCredit',error);
-    let dataFlow= component.dataResolution
-    let module = component.module;
-    let specificData = component.specificData;
+    let dataFlow = processingNode.dataResolution
+    let module = processingNode.component.module;
+    let specificData = processingNode.component.specificData;
     let historic_object = {};
     let current_component = this.config.components_information[module];
     let current_component_price;
@@ -554,41 +449,45 @@ class Engine {
     }
     current_component = this.config.components_information[module];
 
-    historic_object.recordCount = dataFlow == undefined ||  dataFlow.data==undefined ? 0 : dataFlow.data.length || 1;
+    historic_object.recordCount = dataFlow == undefined || dataFlow.data == undefined ? 0 : dataFlow.data.length || 1;
     historic_object.recordPrice = current_component_price.record_price || 0;
-    historic_object.moCount = dataFlow == undefined ||  dataFlow.data==undefined ? 0 : this.objectSizeOf(dataFlow) / 1000000;
+    historic_object.moCount = dataFlow == undefined || dataFlow.data == undefined ? 0 : this.objectSizeOf(dataFlow) / 1000000;
     historic_object.componentPrice = current_component_price.moPrice;
     historic_object.totalPrice =
       (historic_object.recordCount * historic_object.recordPrice) / 1000 +
       (historic_object.moCount * historic_object.componentPrice) / 1000;
     historic_object.componentModule = module
     //TODO pas besoin de stoquer le name du component, on a l'id. ok si grosse perte de perf pour histogramme
-    historic_object.componentName = component.name;
-    historic_object.componentId = component._id;
-    historic_object.persistProcess= component.persistProcess;
+    historic_object.componentName = processingNode.component.name;
+    historic_object.componentId = processingNode.component._id;
+    historic_object.persistProcess = processingNode.component.persistProcess;
     historic_object.processId = this.processId;
     //historic_object.data = dataFlow.data;
     historic_object.error = error;
-    historic_object.startTime=startTime;
-    historic_object.roundDate=roundDate;
-    historic_object.workflowId=this.originComponent.workspaceId;
+    historic_object.startTime = startTime;
+    historic_object.roundDate = roundDate;
+    historic_object.workflowId = this.originComponent.workspaceId;
     // console.log(historic_object);
-
+    let persistFlow;
+    if (processingNode.component.persistProcess == true && dataFlow.data != undefined) {
+      persistFlow = JSON.parse(JSON.stringify(dataFlow.data));
+    }
+    //console.log('BEFORE createHistoriqueEnd');
     this.workspace_lib.createHistoriqueEnd(historic_object).then(historiqueEnd => {
       this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
         componentId: historiqueEnd.componentId,
         processId: historiqueEnd.processId,
         error: historiqueEnd.error
       })));
-      if(component.persistProcess==true){
-        this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id,dataFlow.data).then(frag => {
+      if (processingNode.component.persistProcess == true) {
+        this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id, persistFlow).then(frag => {
           //console.log('ALLO',frag);
           this.amqpClient.publish('amq.topic', this.keyPersist, new Buffer(JSON.stringify({
             componentId: historiqueEnd.componentId,
             processId: historiqueEnd.processId,
             data: frag.data,
           })));
-        }).catch(e=>{
+        }).catch(e => {
           this.amqpClient.publish('amq.topic', this.keyPersist, new Buffer(JSON.stringify({
             componentId: historiqueEnd.componentId,
             processId: historiqueEnd.processId,
@@ -600,7 +499,7 @@ class Engine {
     }).catch(e => {
       console.log(e);
       this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
-        componentId: component._id,
+        componentId: processingNode.component._id,
         processId: this.processId,
         error: 'error writing historic'
       })));
@@ -616,49 +515,154 @@ class Engine {
   }
 
 
-  //TODO don't work if flow is array at fisrt depth
-  buildDfobFlow(currentFlow, dfobPathTab) {
-    var currentDfob = dfobPathTab.shift();
+  // //TODO don't work if flow is array at fisrt depth
+  // buildDfobFlow(currentFlow, dfobPathTab) {
+  //   var currentDfob = dfobPathTab.shift();
+  //   if (dfobPathTab.length > 0) {
+  //     if (Array.isArray(currentFlow)) {
+  //       var deepArray = currentFlow.map(currentInspectObject =>
+  //         this.buildDfobFlow(
+  //           currentInspectObject[currentDfob],
+  //           dfobPathTab.slice(0)
+  //         )
+  //       );
+  //       return [].concat.apply([], deepArray); // flatten array
+  //     } else {
+  //       return this.buildDfobFlow(
+  //         currentFlow[currentDfob],
+  //         dfobPathTab.slice(0)
+  //       );
+  //     }
+  //   } else {
+  //     var out = [];
+  //     if (Array.isArray(currentFlow)) {
+  //       out = out.concat(
+  //         currentFlow.map(o => {
+  //           return {
+  //             objectToProcess: o,
+  //             key: currentDfob
+  //           };
+  //         })
+  //       );
+  //     } else {
+  //       out = out.concat({
+  //         objectToProcess: currentFlow,
+  //         key: currentDfob
+  //       });
+  //     }
+  //     return out;
+  //   }
+  // }
+
+  buildDfobFlowArray(currentFlow, dfobPathTab, key) {
+    //console.log('buildDfobFlowArray',currentFlow);
+    if (Array.isArray(currentFlow)) {
+      let flatOut = [];
+      currentFlow.forEach((f, i) => {
+        flatOut = flatOut.concat(this.buildDfobFlowArray(f, dfobPathTab, key));
+      })
+      return flatOut;
+    } else {
+
+      return (this.buildDfobFlow(currentFlow, dfobPathTab, key));
+    }
+  }
+  buildDfobFlow(currentFlow, dfobPathTab, key, fromArray) {
+
     if (dfobPathTab.length > 0) {
+      //console.log(dfobPathTab);
+
+
       if (Array.isArray(currentFlow)) {
-        var deepArray = currentFlow.map(currentInspectObject =>
-          this.buildDfobFlow(
-            currentInspectObject[currentDfob],
-            dfobPathTab.slice(0)
-          )
-        );
-        return [].concat.apply([], deepArray); // flatten array
+        let currentdFob = dfobPathTab[0];
+        //console.log('buildDfobFlow processing ARRAY',currentFlow);
+        let flatOut = [];
+        currentFlow.forEach((f, i) => {
+          flatOut = flatOut.concat(this.buildDfobFlowArray(f, dfobPathTab, currentdFob));
+        })
+        return flatOut;
       } else {
-        return this.buildDfobFlow(
-          currentFlow[currentDfob],
-          dfobPathTab.slice(0)
-        );
+        let newDfobPathTab = JSON.parse(JSON.stringify(dfobPathTab))
+        let currentdFob = newDfobPathTab.shift();
+        //console.log('buildDfobFlow processing OTHER',currentFlow);
+        let flowOfKey = currentFlow[currentdFob];
+        if (newDfobPathTab.length > 0) {
+          return (this.buildDfobFlow(flowOfKey, newDfobPathTab, currentdFob));
+        } else {
+          if (Array.isArray(flowOfKey)) {
+            return (this.buildDfobFlow(flowOfKey, newDfobPathTab, currentdFob));
+          } else {
+            return (this.buildDfobFlow(currentFlow, newDfobPathTab, currentdFob));
+          }
+        }
       }
     } else {
-      var out = [];
+      //let flowOfKey = currentFlow[currentdFob];
+      let out;
       if (Array.isArray(currentFlow)) {
-        out = out.concat(
-          currentFlow.map(o => {
-            return {
-              objectToProcess: o,
-              key: currentDfob
-            };
-          })
-        );
+        //console.log('buildDfobFlow final ARRAY',currentFlow);
+        out = currentFlow.map((r, i) => {
+          return {
+            objectToProcess: currentFlow,
+            key: i
+          }
+        })
       } else {
-        out = out.concat({
+        //console.log('buildDfobFlow final OTHER',currentFlow)
+        out = [{
           objectToProcess: currentFlow,
-          key: currentDfob
-        });
+          key: key
+        }]
       }
+      // return {
+      //   objectToProcess: currentFlow,
+      //   key: key
+      // }
 
       return out;
     }
+
+
+    // var currentDfob = dfobPathTab.shift();
+    // if (dfobPathTab.length > 0) {
+    //   if (Array.isArray(currentFlow)) {
+    //     var deepArray = currentFlow.map(currentInspectObject =>
+    //       this.buildDfobFlow(
+    //         currentInspectObject[currentDfob],
+    //         dfobPathTab.slice(0)
+    //       )
+    //     );
+    //     return [].concat.apply([], deepArray); // flatten array
+    //   } else {
+    //     return this.buildDfobFlow(
+    //       currentFlow[currentDfob],
+    //       dfobPathTab.slice(0)
+    //     );
+    //   }
+    // } else {
+    //   var out = [];
+    //   if (Array.isArray(currentFlow)) {
+    //     out = out.concat(
+    //       currentFlow.map(o => {
+    //         return {
+    //           objectToProcess: o,
+    //           key: currentDfob
+    //         };
+    //       })
+    //     );
+    //   } else {
+    //     out = out.concat({
+    //       objectToProcess: currentFlow,
+    //       key: currentDfob
+    //     });
+    //   }
+    //   return out;
+    // }
   }
 
 
 
-  buildPathResolution(workspace,component, requestDirection, depth, usableComponents, buildPath, queryParams) {
+  buildPathResolution(workspace, component, requestDirection, depth, usableComponents, buildPath, queryParams, buildPathCauseLink) {
     //buildPath = buildPath || [];
     //infinite depth protection. Could be remove if process is safe
     if (depth < 100) {
@@ -674,57 +678,107 @@ class Engine {
       }
       // console.log(" ---------- buildPathResolution -----------")
       // console.log(buildPath.links.map(link => {
-      //   return (link.source._id+':'+link.source.name + ' -> ' + link.destination._id+':'+link.destination.name);
+      //   return (link.source._id+':'+link.source.name + ' -> ' + link.target._id+':'+link.target.name);
       // }));
 
       let module = this.technicalComponentDirectory[component.module];
       // console.log(incConsole, "buildPathResolution", component._id, requestDirection, module.type);
-      var existingNodes = this.sift({
-          "_id": component._id,
-        },
-        buildPath.nodes
-      );
-      if (existingNodes.length == 0) {
-        buildPath.nodes.push(component)
+
+      if (module.buildQueryParam != undefined) {
+        queryParams = {
+          origin: component._id,
+          params: module.buildQueryParam(queryParams, component.specificData)
+        }
       }
 
-      let currentQueryParam = queryParams;
-      if (module.buildQueryParam != undefined) {
-        currentQueryParam = module.buildQueryParam(queryParams, component.specificData);
+      let existingNodesFilter = {
+        "component._id": component._id
+      };
+
+      if (queryParams != undefined) {
+        existingNodesFilter['queryParams.origin'] = queryParams.origin;
+      } else {
+        existingNodesFilter['queryParams'] = {
+          $eq: undefined
+        };
       }
-      let connectionsBefore=this.sift({target:component._id},workspace.links).map(r=>r.source);
-      let connectionsAfter=this.sift({source:component._id},workspace.links).map(r=>r.target);
-//console.log(connectionsBefore);
+      //console.log('existingNodesFilter', existingNodesFilter);
+      var existingNodes = this.sift(existingNodesFilter,
+        buildPath.nodes
+      );
+
+      let buildPathNode;
+      if (existingNodes.length == 0) {
+        buildPathNode = {
+          component: component,
+          queryParams: queryParams,
+          status: 'waiting',
+          targets: [],
+          sources: []
+        }
+        buildPath.nodes.push(buildPathNode)
+      } else {
+        buildPathNode = existingNodes[0];
+      }
+
+      if (buildPathCauseLink != undefined)
+        if (requestDirection == 'pull') {
+          buildPathNode.targets.push(buildPathCauseLink);
+          buildPathCauseLink.source = buildPathNode;
+        } else if (requestDirection == 'push') {
+        buildPathNode.sources.push(buildPathCauseLink);
+        buildPathCauseLink.target = buildPathNode;
+      }
+
+      let connectionsBefore = this.sift({
+        target: component._id
+      }, workspace.links);
+
+      let connectionsAfter = this.sift({
+        source: component._id
+      }, workspace.links);
+      //console.log(connectionsBefore);
       //if (requestDirection == "pull") {
       if (requestDirection != "push") {
         if (
           connectionsBefore.length > 0 &&
           !(requestDirection == "pull" && module.stepNode == true)
         ) {
-          for (var beforeComponent of connectionsBefore) {
+          for (var beforelink of connectionsBefore) {
             //console.log(beforeComponent);
             var beforeComponentObject = this.sift({
-                _id: beforeComponent
+                _id: beforelink.source
               },
               usableComponents
             )[0];
+            //console.log("beforeComponentObject",beforeComponentObject);
             //protection against dead link
             if (beforeComponentObject) {
-              var linkToProcess = {
-                source: beforeComponentObject,
-                destination: component,
-                requestDirection: "pull",
-                queryParams: currentQueryParam
-              };
-              var existingLink = this.sift({
-                  "source._id": linkToProcess.source._id,
-                  "destination._id": linkToProcess.destination._id
-                },
+
+              let existingLinkFilter = {
+                "linkId": beforelink._id
+              }
+              if (queryParams != undefined) {
+                existingLinkFilter["queryParams.origin"] = queryParams.origin;
+              } else {
+                existingLinkFilter["queryParams"] = {
+                  $eq: undefined
+                };
+              }
+              var existingLink = this.sift(existingLinkFilter,
                 buildPath.links
               );
               if (existingLink.length == 0) {
+                var linkToProcess = {
+                  //sourceComponentId: beforeComponentObject._id,
+                  target: buildPathNode,
+                  requestDirection: "pull",
+                  queryParams: queryParams,
+                  linkId: beforelink._id
+                };
                 //linkToProcess.status='waiting';
                 buildPath.links.push(linkToProcess);
+                buildPathNode.sources.push(linkToProcess)
                 //console.log(linkToProcess);
                 //buildPath.push(out);
                 this.buildPathResolution(
@@ -734,19 +788,12 @@ class Engine {
                   depth + 1,
                   usableComponents,
                   buildPath,
-                  currentQueryParam
+                  queryParams,
+                  linkToProcess
                 )
-
-                // out.links = out.concat(
-                //   recursivOut.links
-                // );
               }
             }
           }
-        } else {
-          //console.log("add pullSource", component._id)
-          component.pullSource = true;
-          component.queryParams = currentQueryParam;
         }
       }
       if (requestDirection != "pull") {
@@ -754,46 +801,62 @@ class Engine {
           connectionsAfter.length > 0 &&
           !(requestDirection == "push" && module.stepNode == true)
         ) {
-          for (var afterComponentId of connectionsAfter) {
+          for (var afterlink of connectionsAfter) {
+            //console.log(beforeComponent);
             var afterComponentObject = this.sift({
-                _id: afterComponentId
+                _id: afterlink.target
               },
               usableComponents
             )[0];
+            //console.log("beforeComponentObject",beforeComponentObject);
             //protection against dead link
             if (afterComponentObject) {
-              var linkToProcess = {
-                source: component,
-                destination: afterComponentObject,
-                requestDirection: "push"
-              };
-              var existingLink = this.sift({
-                  "source._id": linkToProcess.source._id,
-                  "destination._id": linkToProcess.destination._id
-                },
+
+              let existingLinkFilter = {
+                "linkId": afterlink._id
+              }
+              if (queryParams != undefined) {
+                existingLinkFilter["queryParams.origin"] = queryParams.origin;
+              } else {
+                existingLinkFilter["queryParams"] = {
+                  $eq: undefined
+                };
+              }
+              var existingLink = this.sift(existingLinkFilter,
                 buildPath.links
               );
               if (existingLink.length == 0) {
-
-                //console.log(linkToProcess);
+                var linkToProcess = {
+                  //sourceComponentId: beforeComponentObject._id,
+                  source: buildPathNode,
+                  requestDirection: "push",
+                  queryParams: queryParams,
+                  linkId: afterlink._id
+                };
+                //linkToProcess.status='waiting';
                 buildPath.links.push(linkToProcess);
-
+                buildPathNode.targets.push(linkToProcess)
+                //console.log(linkToProcess);
+                //buildPath.push(out);
                 this.buildPathResolution(
                   workspace,
                   afterComponentObject,
                   "push",
                   depth + 1,
                   usableComponents,
-                  buildPath
+                  buildPath,
+                  queryParams,
+                  linkToProcess
                 )
-
               }
             }
           }
         }
       }
+
       return buildPath;
     }
+
   }
 
 }

@@ -92,7 +92,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
           workspace: data
         });
         this.setGlobalWorkspaceCollection(this.globalWorkspaceCollection);
-        this.workspaceBusiness.connectWorkspaceComponent(data.components);
+        //this.workspaceBusiness.connectWorkspaceComponent(data.components);
         this.workspaceCurrent = data;
         this.workspaceCurrent.mode = 'edit';
         resolve(this.workspaceCurrent);
@@ -145,7 +145,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
       }).done(function(data) {
         this.trigger('persist_end', data);
         data.mode = 'edit';
-        this.workspaceBusiness.connectWorkspaceComponent(data.components);
+        //this.workspaceBusiness.connectWorkspaceComponent(data.components);
         this.workspaceCurrent = data;
         //console.log('update data ||', data);
         this.trigger('workspace_current_persist_done', this.workspaceCurrent);
@@ -295,7 +295,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
         url: '../data/core/workspace/' + record._id
       }, true).then(data => {
         //console.log(data);
-        this.workspaceBusiness.connectWorkspaceComponent(data.components);
+        //this.workspaceBusiness.connectWorkspaceComponent(data.components);
         this.workspaceCurrent = data;
         this.workspaceCurrent.mode = 'edit';
         this.menu = 'component'
@@ -726,7 +726,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
               }
             });
             this.subscription_workspace_current_process_start = this.stompClient.subscribe('/topic/process-start.' + this.workspaceCurrent._id, message => {
-              //console.log('message', JSON.parse(message.body));
+              console.log('subscription_workspace_current_process_start', JSON.parse(message.body));
               let body = JSON.parse(message.body);
               if (body.error == undefined) {
                 let process = {
@@ -1089,7 +1089,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
       } else {
         //this.userCurrrent = data,
         console.log('share-workspace', data);
-        this.workspaceBusiness.connectWorkspaceComponent(data.workspace.components);
+        //this.workspaceBusiness.connectWorkspaceComponent(data.workspace.components);
         this.workspaceCurrent = data.workspace;
         this.workspaceCurrent.mode = 'edit';
         this.trigger('share_change', {
@@ -1223,7 +1223,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
       data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(item)),
     }, true).then(data => {
       item = data;
-      this.workspaceBusiness.connectWorkspaceComponent(this.workspaceCurrent.components);
+      //this.workspaceBusiness.connectWorkspaceComponent(this.workspaceCurrent.components);
       this.trigger('workspace_current_changed', this.workspaceCurrent);
       if (this.viewBox) {
         this.computeGraph();
@@ -1310,39 +1310,40 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
     }
   });
 
-  this.computeAvailableConnetions = function() {
-    let beforeConnectionAvailable = sift({
-      $and: [{
-        _id: {
-          $nin: this.itemCurrent.connectionsBefore.map(c => c._id)
-        }
-      }, {
-        _id: {
-          $ne: this.itemCurrent._id
-        }
-      }]
-      //workspace of component should filled but is'nt (should be filled in workspace load/deserialized)
-    }, this.workspaceCurrent.components);
 
-    let afterConnectionAvailable = sift({
-      $and: [{
-        _id: {
-          $nin: this.itemCurrent.connectionsAfter.map(c => c._id)
-        }
-      }, {
-        _id: {
-          $ne: this.itemCurrent._id
-        }
-      }]
-      //workspace of component should filled but is'nt (should be filled in workspace load/deserialized)
-    }, this.workspaceCurrent.components);
-    let out = {
-      before: beforeConnectionAvailable,
-      after: afterConnectionAvailable
-    };
-
-    return out;
-  }
+  // this.computeAvailableConnetions = function() {
+  //   let beforeConnectionAvailable = sift({
+  //     $and: [{
+  //       _id: {
+  //         $nin: this.itemCurrent.connectionsBefore.map(c => c._id)
+  //       }
+  //     }, {
+  //       _id: {
+  //         $ne: this.itemCurrent._id
+  //       }
+  //     }]
+  //     //workspace of component should filled but is'nt (should be filled in workspace load/deserialized)
+  //   }, this.workspaceCurrent.components);
+  //
+  //   let afterConnectionAvailable = sift({
+  //     $and: [{
+  //       _id: {
+  //         $nin: this.itemCurrent.connectionsAfter.map(c => c._id)
+  //       }
+  //     }, {
+  //       _id: {
+  //         $ne: this.itemCurrent._id
+  //       }
+  //     }]
+  //     //workspace of component should filled but is'nt (should be filled in workspace load/deserialized)
+  //   }, this.workspaceCurrent.components);
+  //   let out = {
+  //     before: beforeConnectionAvailable,
+  //     after: afterConnectionAvailable
+  //   };
+  //
+  //   return out;
+  // }
   this.on('component_current_set', function(data) {
     //console.log('component_current_set 1');
     this.itemCurrent = data;
@@ -1354,6 +1355,15 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
     //this.trigger('item_current_edit_mode','generic', this.itemCurrent);
     this.trigger('component_current_select_done');
   }); //<= item_current_select
+
+  this.on('component_current_connections_refresh', function() {
+    let beforeLinks = sift({target:this.itemCurrent._id},this.workspaceCurrent.links);
+    let beforeComponents=sift({"_id":{"$in":beforeLinks.map(l=>l.source)}},this.workspaceCurrent.components);
+    let afterLinks = sift({source:this.itemCurrent._id},this.workspaceCurrent.links);
+    let afterComponents=sift({"_id":{"$in":beforeLinks.map(l=>l.target)}},this.workspaceCurrent.components);
+    this.trigger('component_current_connections_changed',{beforeComponents:beforeComponents,afterComponents:afterComponents});
+  });
+
 
   this.on('navigation', function(entity, id, action) {
     //console.log('WARNING');
@@ -1375,7 +1385,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
     }
   });
 
-  this.refreshComponent = function() {
+  this.refreshComponent = function(triggerConnections) {
     this.trigger('item_current_editor_changed', this.itemCurrent.editor);
     this.modeConnectBefore = false;
     this.modeConnectAfter = false;
@@ -1383,7 +1393,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
       before: this.modeConnectBefore,
       after: this.modeConnectAfter
     });
-    this.trigger('item_curent_available_connections', this.computeAvailableConnetions());
+    //this.trigger('item_curent_available_connections', this.computeAvailableConnetions());
     console.log('genericStore | component_current_select |', this.itemCurrent);
     this.trigger('item_current_changed', this.itemCurrent);
   }

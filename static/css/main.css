@@ -17,53 +17,16 @@ a:hover{
   color: white;
 }
 
-input[type="text"] {
-  box-sizing: border-box;
-}
-
-input.readOnly {
-    border: none;
-}
-
 body{
   font-size: 1.2em;
 }
 
-input {
-  /*color: rgb(220,220,220);*/
-  padding-left:10pt;
-  /*height: 38px;*/
-  border-radius: 20pt;
-  border-width: 0;
-  font-size: 1em
-}
-
-*:focus{
-  outline:none!important;
-}
-
-.champ {
-  color: rgb(220,220,220);
-  width: 50vw;
-  height: 38px;
-  border-radius: 20pt;
-  border-width: 0;
-  font-size: 1em
-}
 
 .commandBar{
   justify-content: space-between;
   padding: 2px;
   flex-shrink:0;
 }
-/*
-button:focus {
-  outline:none!important;
-}*/
-/*
-input:focus {
-  outline:none!important;
-}*/
 
 .header {height: 90pt;
 /* text-align: center; */

@@ -70,119 +70,128 @@ module.exports = {
           this.RequestCount++;
           //console.log('RequestCount',this.RequestCount);
           var record = source[sourceKey];
-          var address = {
-            street: record[specificData.streetPath],
-            town: record[specificData.townPath],
-            postalCode: record[specificData.postalCodePath],
-            country: record[specificData.countryPath],
-          }
 
-          var postalCodeString = address.postalCode + '';
-          if (postalCodeString.length == 4) {
-            address.postalCode = '0' + postalCodeString;
-          }
+          if(record==undefined){
+            resolve({
+              error: 'undefined data'
+            });
+          }else{
+            var address = {
+              street: record[specificData.streetPath],
+              town: record[specificData.townPath],
+              postalCode: record[specificData.postalCodePath],
+              country: record[specificData.countryPath],
+            }
 
-          var addressGouvFrFormated = ''
-          addressGouvFrFormated = addressGouvFrFormated + (address.street ? address.street + ' ' : '');
-          addressGouvFrFormated = addressGouvFrFormated + (address.town ? address.town + ' ' : '');
-          addressGouvFrFormated = addressGouvFrFormated + (address.postalCode ? address.postalCode + ' ' : '');
-          //TODO notify user the adresse is too long (200)
-          addressGouvFrFormated=addressGouvFrFormated.substr(0,199);
-          //addressGouvFrFormated = addressGouvFrFormated + (address.country ? address.country + ' ' : '');
-          if (addressGouvFrFormated.length > 0) {
-            goePromises.push(
-              new Promise((resolve, reject) => {
-                //var apiKey = 'AIzaSyBAg94NXmqVLFeIWGBcQ4cweA7YXC3ndLI'
-                //var apiKey = 'AIzaSyAGHo04gqJWKF8uVYhsWVRY_zo61YtemMQ'
-                var urlString = 'http://api-adresse.data.gouv.fr/search/?q=';
-                urlString = urlString + encodeURI(addressGouvFrFormated);
-                //urlString = urlString + '&key='+apiKey;
+            var postalCodeString = address.postalCode + '';
+            if (postalCodeString.length == 4) {
+              address.postalCode = '0' + postalCodeString;
+            }
 
-                //console.log('geoLocalise | urlString |', urlString);
+            var addressGouvFrFormated = ''
+            addressGouvFrFormated = addressGouvFrFormated + (address.street ? address.street + ' ' : '');
+            addressGouvFrFormated = addressGouvFrFormated + (address.town ? address.town + ' ' : '');
+            addressGouvFrFormated = addressGouvFrFormated + (address.postalCode ? address.postalCode + ' ' : '');
+            //TODO notify user the adresse is too long (200)
+            addressGouvFrFormated=addressGouvFrFormated.substr(0,199);
+            //addressGouvFrFormated = addressGouvFrFormated + (address.country ? address.country + ' ' : '');
+            if (addressGouvFrFormated.length > 0) {
+              goePromises.push(
+                new Promise((resolve, reject) => {
+                  //var apiKey = 'AIzaSyBAg94NXmqVLFeIWGBcQ4cweA7YXC3ndLI'
+                  //var apiKey = 'AIzaSyAGHo04gqJWKF8uVYhsWVRY_zo61YtemMQ'
+                  var urlString = 'http://api-adresse.data.gouv.fr/search/?q=';
+                  urlString = urlString + encodeURI(addressGouvFrFormated);
+                  //urlString = urlString + '&key='+apiKey;
 
-                const parsedUrl = this.url.parse(urlString);
-                //console.log('geoLocalise | parsedUrl |', parsedUrl);
-                //console.log('REST Get JSON | makerequest | port',parsedUrl.port);
-                //  console.log('REST Get JSON | makerequest | host',parsedUrl.hostname);
-                let keepAliveAgent = new this.http.Agent({
-                  keepAlive: true
-                });
-                const requestOptions = {
-                  hostname: parsedUrl.hostname,
-                  path: parsedUrl.path,
-                  port: parsedUrl.port,
-                  method: 'GET',
-                  agent: keepAliveAgent
-                }
-                //          console.log(requestOptions);
-                // console.log('JUST before adresse.data.gouv request', specificData.countryPath);
-                try {
-                  //resolve({error:'dummy'})
-                  const request = this.http.request(requestOptions, response => {
-                      // console.log('JUST after adresse.data.gouv request', specificData.countryPath);
-                    const hasResponseFailed = response.status >= 400;
-                    var responseBody = '';
+                  //console.log('geoLocalise | urlString |', urlString);
 
-                    if (hasResponseFailed) {
-                      // console.log({
-                      //   error: 'request status fail'
-                      // });
-                      resolve({
-                        error: 'Request to ${response.url} failed with HTTP ${response.status}'
+                  const parsedUrl = this.url.parse(urlString);
+                  //console.log('geoLocalise | parsedUrl |', parsedUrl);
+                  //console.log('REST Get JSON | makerequest | port',parsedUrl.port);
+                  //  console.log('REST Get JSON | makerequest | host',parsedUrl.hostname);
+                  let keepAliveAgent = new this.http.Agent({
+                    keepAlive: true
+                  });
+                  const requestOptions = {
+                    hostname: parsedUrl.hostname,
+                    path: parsedUrl.path,
+                    port: parsedUrl.port,
+                    method: 'GET',
+                    agent: keepAliveAgent
+                  }
+                  //          console.log(requestOptions);
+                  // console.log('JUST before adresse.data.gouv request', specificData.countryPath);
+                  try {
+                    //resolve({error:'dummy'})
+                    const request = this.http.request(requestOptions, response => {
+                        // console.log('JUST after adresse.data.gouv request', specificData.countryPath);
+                      const hasResponseFailed = response.status >= 400;
+                      var responseBody = '';
+
+                      if (hasResponseFailed) {
+                        // console.log({
+                        //   error: 'request status fail'
+                        // });
+                        resolve({
+                          error: 'Request to ${response.url} failed with HTTP ${response.status}'
+                        });
+                      }
+
+                      response.on('data', chunk => {
+                        //console.log(chunk.toString());
+                        responseBody += chunk.toString()
                       });
-                    }
 
-                    response.on('data', chunk => {
-                      //console.log(chunk.toString());
-                      responseBody += chunk.toString()
+                      // once all the data has been read, resolve the Promise
+                      response.on('end', function() {
+                        try {
+                          //console.log(responseBody);
+                          //console.log('try');
+                          resolve(JSON.parse(responseBody));
+                          //console.log('ok',sourceKey);
+                        } catch (e) {
+                          //console.log('parse fail');
+                          resolve({
+                            error: e
+                          });
+                          //throw e;
+                        }
+                      }.bind(this));
+
                     });
 
-                    // once all the data has been read, resolve the Promise
-                    response.on('end', function() {
-                      try {
-                        //console.log(responseBody);
-                        //console.log('try');
-                        resolve(JSON.parse(responseBody));
-                        //console.log('ok',sourceKey);
-                      } catch (e) {
-                        //console.log('parse fail');
-                        resolve({
-                          error: e
-                        });
-                        //throw e;
-                      }
-                    }.bind(this));
-
-                  });
 
 
 
-
-                  request.on('error', function(e) {
-                    //console.log('request fail :', e);
+                    request.on('error', function(e) {
+                      //console.log('request fail :', e);
+                      resolve({
+                        error: e
+                      });
+                    });
+                    //console.log('start');
+                    request.end();
+                  } catch (e) {
+                    //console.log('global socket adress.data.gouv fail', e);
                     resolve({
                       error: e
                     });
-                  });
-                  //console.log('start');
-                  request.end();
-                } catch (e) {
-                  //console.log('global socket adress.data.gouv fail', e);
+                  }
+                })
+              );
+            } else {
+              goePromises.push(
+                new Promise((resolve, reject) => {
                   resolve({
-                    error: e
+                    error: 'no adresse'
                   });
-                }
-              })
-            );
-          } else {
-            goePromises.push(
-              new Promise((resolve, reject) => {
-                resolve({
-                  error: 'no adresse'
-                });
-              })
-            );
+                })
+              );
+            }
           }
+
+
 
           sourceKey++;
         }
