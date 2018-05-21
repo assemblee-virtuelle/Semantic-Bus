@@ -30,6 +30,8 @@ module.exports = {
   timer: require('./workSpaceComponentDirectory/timer.js'),
   queryParamsCreation:require('./workSpaceComponentDirectory/queryParamsCreation.js'),
   valueFromPath:require('./workSpaceComponentDirectory/valueFromPath.js'),
+  unicity:require('./workSpaceComponentDirectory/unicity.js'),
+  propertiesMatrix:require('./workSpaceComponentDirectory/propertiesMatrix.js'),
 
   /* some other modules you want */
 

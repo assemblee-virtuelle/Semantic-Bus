@@ -24,26 +24,26 @@
     <div class="containerH commandBar" style="justify-content:flex-end">
       <image class="commandButtonImage" src="./image/ajout_composant.svg" width="50" height="50" onclick={addRowClick}></image>
     </div>
-    <zenTable ref="scrapperRef" style="flex:1" drag={true} title="vos changement de valeurs" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
+    <zenTable ref="scrapperRef" style="flex:1" drag={true} allowdirectedit={true} disallowselect={true} disallownavigation={true}>
       <yield to="header">
         <div style="width:20%">Action</div>
         <div style="width:20%">Name</div>
-        <div style="width:20%">Selector</div>
+        <div style="width:40%">Selector</div>
         <div style="width:20%">Attribut</div>
         <div style="width:20%">Value</div>
-        <div style="width:20%">ScrollX</div>
-        <div style="width:20%">ScrollY</div>
+        <div style="width:10%">ScrollX</div>
+        <div style="width:10%">ScrollY</div>
       </yield>
       <yield to="row">
         <select data-field="actionType" ref="actionType" style="flex-basis:20%">
-          <option each={optionValue in [" " , "getValue" , "getHtml" , "getAttr" , "setValue" , "click" , "scroll" ,"selectByValue" ]} value={optionValue} selected={actionType==optionValue}>{optionValue}</option>
+          <option each={optionValue in [" " , "getValue" , "getHtml" , "getAttr" , "setValue" , "click" , "scroll" ,"selectByValue","wait" ]} value={optionValue} selected={actionType==optionValue}>{optionValue}</option>
         </select>
         <input type="text" style="width:20%" value={action} data-field="action"/>
-        <input type="text" style="width:20%" value={selector} data-field="selector"/>
+        <input type="text" style="width:40%" value={selector} data-field="selector"/>
         <input type="text" style="width:20%" value={attribut} data-field="attribut"/>
         <input type="text" style="width:20%" value={setValue} data-field="setValue"/>
-        <input type="text" style="width:20%" value={scrollX} data-field="scrollX"/>
-        <input type="text" style="width:20%" value={scrollY} data-field="scrollY"/>
+        <input type="text" style="width:10%" value={scrollX} data-field="scrollX"/>
+        <input type="text" style="width:10%" value={scrollY} data-field="scrollY"/>
       </yield>
     </zenTable>
   </div>
@@ -141,30 +141,30 @@
       });
 
       this.refs.scrapperRef.on('delRow', (row) => {
-        console.log(row);
+        //console.log(row);
         this.refs.scrapperRef.data.splice(row.rowId, 1);
       });
 
       RiotControl.on('item_current_changed', this.updateData);
 
       this.refs.url.addEventListener('change', function (e) {
-        this.url = e.currentTarget.value;
+        //this.url = e.currentTarget.value;
         this.data.specificData.url = e.currentTarget.value;
-        console.log(this.data.specificData)
+        //console.log(this.data.specificData)
       }.bind(this));
 
       this.refs.user.addEventListener('change', function (e) {
-        this.user = e.target.value;
+        //this.user = e.target.value;
         this.data.specificData.user = e.currentTarget.value;
       }.bind(this));
 
       this.refs.key.addEventListener('change', function (e) {
-        this.key = e.target.value;
+        //this.key = e.target.value;
         this.data.specificData.key = e.currentTarget.value;
       }.bind(this));
 
       this.refs.saucelabname.addEventListener('change', function (e) {
-        this.key = e.target.value;
+        //this.key = e.target.value;
         this.data.specificData.saucelabname = e.currentTarget.value;
       }.bind(this));
 

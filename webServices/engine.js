@@ -138,19 +138,24 @@ class Engine {
 
                     /// -------------- push case  -----------------------
                     if (this.requestDirection == "push") {
-                      this.originComponent.dataResolution = this.pushData;
-                      this.originComponent = 'resolved';
-
-                      this.sift({
-                          "source._id": component._id
-                        },
-                        this.pathResolution.links
-                      ).forEach(link => {
-                        link.status = "processing";
-                      });
+                      //console.log("pushData",this.pushData);
+                      let originNode = this.sift({
+                        "component._id": this.originComponent._id
+                      }, this.pathResolution.nodes)[0];
+                      originNode.dataResolution = {data:this.pushData};
+                      originNode.status = 'resolved';
+                      //console.log(originNode);
+                      this.historicEndAndCredit(originNode, new Date(), undefined)
+                      // this.sift({
+                      //     "source._id": component._id
+                      //   },
+                      //   this.pathResolution.links
+                      // ).forEach(link => {
+                      //   link.status = "processing";
+                      // });
 
                       this.processNextBuildPath('push');
-                      resolve(pushData);
+                      resolve(this.pushData);
                     }
 
                     this.processNextBuildPath('start');
@@ -262,11 +267,13 @@ class Engine {
         if (dataFlow != undefined && primaryflow.dfob != undefined) {
           try {
             //console.log("DFOB");
-            var dfobTab = primaryflow.dfob[0].length > 0 ? primaryflow.dfob[0].split(".") : [];
-            //console.log(dfobTab);
+            var dfobTab = primaryflow.dfob[0].path.length > 0 ? primaryflow.dfob[0].path.split(".") : [];
+            //console.log('dfob',dfobTab,primaryflow.dfob[0].keepArray);
             var dfobFinalFlow = this.buildDfobFlow(
               primaryflow.data,
-              dfobTab
+              dfobTab,
+              undefined,
+              primaryflow.dfob[0].keepArray
             );
             //console.log('dfobFinalFlow',dfobFinalFlow);
 
@@ -293,15 +300,17 @@ class Engine {
 
               let paramArray = dfobFinalFlow.map(finalItem => {
                 var recomposedFlow = [];
+                //console.log(finalItem.objectToProcess,finalItem.key);
                 recomposedFlow = recomposedFlow.concat([{
                   data: finalItem.objectToProcess[finalItem.key],
                   componentId: primaryflow.componentId
                 }]);
                 recomposedFlow = recomposedFlow.concat(secondaryFlow);
+                //console.log(recomposedFlow);
                 return [
                   processingNode.component,
                   recomposedFlow,
-                  undefined
+                  processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams
                 ];
               });
 
@@ -309,6 +318,7 @@ class Engine {
               this.promiseOrchestrator.execute(module, module.pull, paramArray, {
                 beamNb: 1
               }).then((componentFlowDfob) => {
+                console.log('componentFlowDfob',componentFlowDfob);
                 for (var componentFlowDfobKey in componentFlowDfob) {
 
                   dfobFinalFlow[componentFlowDfobKey].objectToProcess[
@@ -356,7 +366,7 @@ class Engine {
           }
         } else {
           //console.log("NORMAL", processingNode.component._id);
-          module.pull(processingNode.component, dataFlow, processingNode.queryParams).then(componentFlow => {
+          module.pull(processingNode.component, dataFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams).then(componentFlow => {
             processingNode.dataResolution = componentFlow;
             processingNode.status = "resolved";
             this.historicEndAndCredit(processingNode, startTime, undefined)
@@ -428,6 +438,7 @@ class Engine {
 
     // console.log('historicEndAndCredit',error);
     let dataFlow = processingNode.dataResolution
+    //console.log('dataFlow',dataFlow);
     let module = processingNode.component.module;
     let specificData = processingNode.component.specificData;
     let historic_object = {};
@@ -480,6 +491,7 @@ class Engine {
         error: historiqueEnd.error
       })));
       if (processingNode.component.persistProcess == true) {
+        //console.log('persistFlow',persistFlow);
         this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id, persistFlow).then(frag => {
           //console.log('ALLO',frag);
           this.amqpClient.publish('amq.topic', this.keyPersist, new Buffer(JSON.stringify({
@@ -554,23 +566,23 @@ class Engine {
   //   }
   // }
 
-  buildDfobFlowArray(currentFlow, dfobPathTab, key) {
+  buildDfobFlowArray(currentFlow, dfobPathTab, key, keepArray) {
     //console.log('buildDfobFlowArray',currentFlow);
     if (Array.isArray(currentFlow)) {
       let flatOut = [];
       currentFlow.forEach((f, i) => {
-        flatOut = flatOut.concat(this.buildDfobFlowArray(f, dfobPathTab, key));
+        flatOut = flatOut.concat(this.buildDfobFlowArray(f, dfobPathTab, key, keepArray));
       })
       return flatOut;
     } else {
 
-      return (this.buildDfobFlow(currentFlow, dfobPathTab, key));
+      return (this.buildDfobFlow(currentFlow, dfobPathTab, key, keepArray));
     }
   }
-  buildDfobFlow(currentFlow, dfobPathTab, key, fromArray) {
+  buildDfobFlow(currentFlow, dfobPathTab, key, keepArray) {
 
     if (dfobPathTab.length > 0) {
-      //console.log(dfobPathTab);
+      //console.log('buildDfobFlow',dfobPathTab,keepArray);
 
 
       if (Array.isArray(currentFlow)) {
@@ -578,7 +590,7 @@ class Engine {
         //console.log('buildDfobFlow processing ARRAY',currentFlow);
         let flatOut = [];
         currentFlow.forEach((f, i) => {
-          flatOut = flatOut.concat(this.buildDfobFlowArray(f, dfobPathTab, currentdFob));
+          flatOut = flatOut.concat(this.buildDfobFlowArray(f, dfobPathTab, currentdFob, keepArray));
         })
         return flatOut;
       } else {
@@ -586,21 +598,23 @@ class Engine {
         let currentdFob = newDfobPathTab.shift();
         //console.log('buildDfobFlow processing OTHER',currentFlow);
         let flowOfKey = currentFlow[currentdFob];
+
+        // TODO complex algorythm, To improve
         if (newDfobPathTab.length > 0) {
-          return (this.buildDfobFlow(flowOfKey, newDfobPathTab, currentdFob));
+          return (this.buildDfobFlow(flowOfKey, newDfobPathTab, currentdFob, keepArray));
         } else {
-          if (Array.isArray(flowOfKey)) {
-            return (this.buildDfobFlow(flowOfKey, newDfobPathTab, currentdFob));
+          if (Array.isArray(flowOfKey) && keepArray!=true) {
+            return (this.buildDfobFlow(flowOfKey, newDfobPathTab, currentdFob, keepArray));
           } else {
-            return (this.buildDfobFlow(currentFlow, newDfobPathTab, currentdFob));
+            return (this.buildDfobFlow(currentFlow, newDfobPathTab, currentdFob, keepArray));
           }
         }
       }
     } else {
       //let flowOfKey = currentFlow[currentdFob];
       let out;
-      if (Array.isArray(currentFlow)) {
-        //console.log('buildDfobFlow final ARRAY',currentFlow);
+      if (Array.isArray(currentFlow) && keepArray!=true) {
+        //console.log('buildDfobFlow final ARRAY',keepArray,currentFlow);
         out = currentFlow.map((r, i) => {
           return {
             objectToProcess: currentFlow,

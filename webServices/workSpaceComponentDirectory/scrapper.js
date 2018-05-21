@@ -27,7 +27,7 @@ module.exports = {
     }
   },
 
-  makeRequest: function(user, key, actions, url, saucelabname, flowData, flow_before, fix_url) {
+  makeRequest: function(user, key, actions, url, saucelabname, flowData) {
     //console.log("scrapper start", actions)
 
 
@@ -104,7 +104,16 @@ module.exports = {
     function simulateClick(action, client) {
       //console.log(" ------ simulateClick function ----", action)
       return new Promise(function(resolve, reject) {
-        resolve(client.element(action.selector).click())
+        client.element(action.selector).click().then(elem=>{
+          //console.log('resolve',elem);
+          //console.log('resolve');
+          resolve('click done');
+        }).catch(e=>{
+          // console.log('reject',e);
+          //console.log('reject');
+          reject(e);
+        });
+        //resolve(client.element(action.selector).click())
       })
     };
 
@@ -131,6 +140,9 @@ module.exports = {
       return new Promise(function(resolve, reject) {
         client.elements(action.selector).getText().then(function(elem) {
           //console.log("in return promise ", elem)
+          if (!Array.isArray(elem)) {
+            elem = [elem];
+          }
           resolve(elem)
         }).catch((err) => {
           //console.log("ERRROR", err);
@@ -164,8 +176,8 @@ module.exports = {
         }).catch((err) => {
           //console.log("ERRROR", err);
           reject(err)
-        })
-      })
+        });
+      });
     }
 
 
@@ -173,12 +185,23 @@ module.exports = {
 
     function _setValue(action, client) {
       //console.log("---- set value ----", action.setValue)
+      return new Promise((resolve, reject) => {
+        client.setValue(action.selector, action.setValue).then((elem) => {
+          resolve(elem);
+        }).catch((err) => {
+          //console.log("ERRROR", err);
+          reject(err);
+        });
+      });
+    }
+
+    function _wait(action, client) {
+      //console.log("---- set value ----", action.setValue)
       return new Promise(function(resolve, reject) {
-        resolve(client.setValue(action.selector, action.setValue))
-      }).catch((err) => {
-        //console.log("ERRROR", err);
-        reject(err);
-      })
+        setTimeout(() => {
+          resolve()
+        }, action.setValue);
+      });
     }
 
     function _scroll(action, client) {
@@ -191,43 +214,28 @@ module.exports = {
       }
       //console.log(action.scrollX, action.scrollY)
       return new Promise(function(resolve, reject) {
-        var elem = client.element(action.selector)
-        resolve(elem.scroll(parseInt(action.scrollX), parseInt(action.scrollY)))
+        var elem = client.element(action.selector);
+        //resolve(elem.scroll(parseInt(action.scrollX), parseInt(action.scrollY)))
+        elem.scroll(parseInt(action.scrollX), parseInt(action.scrollY)).then((elem) => {
+          resolve(elem);
+        }).catch((err) => {
+          //console.log("ERRROR", err);
+          reject(err);
+        });
       }).catch((err) => {
         reject(err);
         //console.log("ERRROR", err)
       })
     }
 
-
-
-    // // Gesture of cooki
-
-    // function _addCookie(phantom, cookie) {
-    //   phantom.addCookie({
-    //     cookie
-    //   })
-    // };
-
-    // function _deleteCookie(phantom, cookie) {
-    //   phantom.deleteCookie({
-    //     cookie
-    //   })
-    // };
-
-    // function _clearCookies(phantom, cookie) {
-    //   phantom.clearCookies({
-    //     cookie
-    //   })
-    // };
-
     function _aggregateAction(actions, client, deeth, data) {
       //console.log('------   action restante -------- ', actions[deeth]);
       return new Promise((resolve, reject) => {
         //console.log(" ------  deeth  ------- ", deeth);
         //console.log('------   tour restant -------- ', (actions.length) - deeth);
-
-        client.waitForExist(actions[deeth].selector, 50000)
+        console.log('action',actions[deeth].actionType);
+        let effectivSelector=actions[deeth].selector||'body';
+        client.waitForExist(effectivSelector, 60000)
           .then(function(visible) {
             let scrappingFunction;
             switch (actions[deeth].actionType) {
@@ -252,16 +260,21 @@ module.exports = {
               case ("getValue"):
                 scrappingFunction = _getText;
                 break;
+              case ("wait"):
+                scrappingFunction = _wait;
+                break;
               default:
             }
             return scrappingFunction(actions[deeth], client, deeth);
           }).then(res => {
+            console.log("----- END Of Action");
             //console.log("----- DATA INJECTION");
             data[actions[deeth].action] = res;
             return new Promise((resolve, reject) => {
               resolve();
             });
           }).catch(err => {
+            console.log("----- CATCH Of Action");
             data[actions[deeth].action] = {
               error: 'element not in dom',
               cause: err
@@ -270,7 +283,7 @@ module.exports = {
               resolve();
             });
           }).then(() => {
-            //console.log('----- DEPTH++');
+            console.log('----- DEPTH++');
             deeth++;
             if (deeth < actions.length) {
               _aggregateAction(actions, client, deeth, data).then((res) => {
@@ -283,254 +296,17 @@ module.exports = {
           });
 
 
-
-
-        // if (deeth == actions.length) {
-        //   console.log("---- _aggregateAction finish ---- ", data)
-        //   client.end();
-        //   resolve(data)
-        // } else {
-        //   if (actions[deeth].actionType) {
-        //
-        //     //console.log("type", actions[deeth].actionType)
-        //     switch (actions[deeth].actionType) {
-        //       case ("getValue"):
-        //         client.waitForExist(actions[deeth].selector, 25000)
-        //           .then(function(visible) {
-        //             //console.log("visible", visible)
-        //             setTimeout(function() {
-        //               _getText(actions[deeth], client, deeth).then(function(res) {
-        //                 //console.log("---- get text return promise -----", res)
-        //                 data[actions[deeth].action] = res
-        //                 deeth += 1
-        //                 _aggregateAction(actions, client, deeth, data).then(function(res) {
-        //                   resolve(res)
-        //                 }, function(err) {
-        //                   reject(err)
-        //                   client.end();
-        //                 })
-        //               }).catch(err => {
-        //                 let fullError = new Error(err);
-        //                 fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement 1 de  page : " + actions[deeth].action;
-        //                 reject(fullError)
-        //                 client.end();
-        //               })
-        //             }, 3000)
-        //           }, (err) => {
-        //             //console.log("not visible", err)
-        //             let fullError = new Error(err);
-        //             fullError.displayMessage = "Scrappeur : Element pas visible : " + actions[deeth].action;
-        //             reject(fullError)
-        //             client.end();
-        //           }, (err) => {
-        //             //console.log("not visible", err)
-        //             let fullError = new Error(err);
-        //             fullError.displayMessage = "Scrappeur : Element pas visible : " + actions[deeth].action;
-        //             reject(fullError)
-        //             client.end();
-        //           });
-        //         break;
-        //       case ("getHtml"):
-        //         client.waitForExist(actions[deeth].selector, 25000)
-        //           .then(function(visible) {
-        //             //console.log("visible", visible)
-        //             setTimeout(function() {
-        //               _getHtml(actions[deeth], client, deeth).then(function(res) {
-        //                 //console.log("---- get text return promise -----", res)
-        //                 data[actions[deeth].action] = res
-        //                 deeth += 1
-        //                 _aggregateAction(actions, client, deeth, data).then(function(res) {
-        //                   resolve(res)
-        //                 }, function(err) {
-        //                   reject(err)
-        //                   client.end();
-        //                 })
-        //               }).catch(err => {
-        //                 let fullError = new Error(err);
-        //                 fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement 1 de page : " + actions[deeth].action;
-        //                 reject(fullError)
-        //                 client.end();
-        //               })
-        //             })
-        //           }, (err) => {
-        //             //console.log("not visible", err)
-        //             let fullError = new Error(err);
-        //             fullError.displayMessage = "Scrappeur : Element pas visible : " + actions[deeth].action;
-        //             reject(fullError)
-        //             client.end();
-        //           })
-        //         break;
-        //       case ("getAttr"):
-        //         client.waitForExist(actions[deeth].selector, 25000)
-        //           .then(function(visible) {
-        //             //console.log("visible", visible)
-        //             setTimeout(function() {
-        //               _getAttr(actions[deeth], client).then(function(res) {
-        //                 //console.log("---- get text return promise -----", res),
-        //                 //console.log("ALLO",actions[deeth]);
-        //                 data[actions[deeth].action] = res
-        //                 deeth += 1
-        //                 _aggregateAction(actions, client, deeth, data).then(function(res) {
-        //                   resolve(res)
-        //                 }, function(err) {
-        //                   reject(err)
-        //                   client.end();
-        //                 })
-        //               }).catch(err => {
-        //                 let fullError = new Error(err);
-        //                 fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement 1 de page : " + actions[deeth].action;
-        //                 reject(fullError)
-        //                 client.end();
-        //               })
-        //             })
-        //           }, (err) => {
-        //             //console.log("not visible", err)
-        //             let fullError = new Error(err);
-        //             fullError.displayMessage = "Scrappeur : Element pas visible : " + actions[deeth].action;
-        //             reject(fullError)
-        //             client.end();
-        //           })
-        //         break;
-        //       case ("setValue"):
-        //         client.waitForExist(actions[deeth].selector, 25000)
-        //           .then(function(visible) {
-        //             //console.log("visible", visible)
-        //             // setTimeout(function () {
-        //             _setValue(actions[deeth], client).then(function(res) {
-        //               //console.log("---- get text return promise -----", res)
-        //               data[actions[deeth].action] = res
-        //               deeth += 1
-        //               _aggregateAction(actions, client, deeth, data).then(function(res) {
-        //                 resolve(res)
-        //               }, function(err) {
-        //                 reject(err)
-        //                 client.end();
-        //               })
-        //             }).catch(err => {
-        //               let fullError = new Error(err);
-        //               fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement 1 de  page : " + actions[deeth].action;
-        //               reject(fullError)
-        //               client.end();
-        //             })
-        //             // }, 3000)
-        //           }, (err) => {
-        //             //console.log("not visible", err)
-        //             let fullError = new Error(err);
-        //             fullError.displayMessage = "Scrappeur : Element pas visible : " + actions[deeth].action;
-        //             reject(fullError)
-        //             client.end();
-        //           });
-        //         break;
-        //       case ("selectByValue"):
-        //         client.waitForExist(actions[deeth].selector, 15000)
-        //           .then(function(visible) {
-        //             //console.log("visible", visible)
-        //             // setTimeout(function () {
-        //             _selectByValue(actions[deeth], client).then(function(res) {
-        //               //console.log("---- get selectByValue return promise -----", res)
-        //               data[actions[deeth].action] = res
-        //               deeth += 1
-        //               _aggregateAction(actions, client, deeth, data).then(function(res) {
-        //                 resolve(res)
-        //               }, function(err) {
-        //                 reject(err)
-        //                 client.end();
-        //               })
-        //             }).catch(err => {
-        //               let fullError = new Error(err);
-        //               fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement 1 de  page : " + actions[deeth].action;
-        //               reject(fullError)
-        //               client.end();
-        //             })
-        //             // }, 3000)
-        //           }, (err) => {
-        //             //console.log("not visible", err)
-        //             let fullError = new Error(err);
-        //             fullError.displayMessage = "Scrappeur : Element pas visible : " + actions[deeth].action;
-        //             reject(fullError)
-        //             client.end();
-        //           });
-        //         break;
-        //       case ("scroll"):
-        //         //console.log("in scroll")
-        //         client.waitForExist(actions[deeth].selector, 15000)
-        //           .then(function(visible) {
-        //             //console.log("visible", actions[deeth].selector, visible)
-        //             // setTimeout(function () {
-        //             _scroll(actions[deeth], client, deeth).then(function(res) {
-        //               //console.log("---- get scroll return promise -----", res)
-        //               data[actions[deeth].action] = res
-        //               deeth += 1
-        //               _aggregateAction(actions, client, deeth, data).then(function(res) {
-        //                 resolve(res)
-        //               }, function(err) {
-        //                 reject(err)
-        //                 client.end();
-        //               })
-        //             }).catch(err => {
-        //               let fullError = new Error(err);
-        //               fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement de  page : " + actions[deeth].action;
-        //               reject(fullError)
-        //               client.end();
-        //             })
-        //             // }, 3000)
-        //           }, (err) => {
-        //             //console.log("not visible", err)
-        //             let fullError = new Error(err);
-        //             fullError.displayMessage = "Scrappeur : Element pas visible : " + actions[deeth].action;
-        //             reject(fullError)
-        //             client.end();
-        //           });
-        //         break;
-        //       case ("click"):
-        //         //console.log("in click")
-        //         client.waitForVisible(actions[deeth].selector, 15000)
-        //           .then(function(visible) {
-        //             //console.log("visible", actions[deeth].selector, visible)
-        //             // setTimeout(function () {
-        //             simulateClick(actions[deeth], client, deeth).then(function(res) {
-        //               //console.log("---- get text return promise -----", res)
-        //               data[actions[deeth].action] = res
-        //               deeth += 1
-        //               _aggregateAction(actions, client, deeth, data).then(function(res) {
-        //                 resolve(res)
-        //               }, function(err) {
-        //                 reject(err)
-        //                 client.end();
-        //               })
-        //             }).catch(err => {
-        //               let fullError = new Error(err);
-        //               fullError.displayMessage = "Scrappeur : Erreur lors de votre traitement 1 de  page : " + actions[deeth].action;
-        //               reject(fullError)
-        //               client.end();
-        //             })
-        //             // }, 3000)
-        //           }, (err) => {
-        //             //console.log("not visible", err)
-        //             let fullError = new Error(err);
-        //             fullError.displayMessage = "Scrappeur : Element pas visible : " + actions[deeth].action;
-        //             reject(fullError)
-        //             client.end();
-        //           });
-        //         break;
-        //     }
-        //   } else {
-        //     let fullError = new Error("Pas d'attribut selectionné");
-        //     fullError.displayMessage = "Scrappeur : Pas d'attribut selectionné";
-        //     reject(fullError)
-        //     client.end();
-        //   }
-        // }
       })
     }
 
     return new Promise(function(resolve, reject) {
-      let data = {}
+      let data = flowData || {};
       let deeth = 0
       //console.log("----  before recursive ------ ")
       if (user == null || key == null) {
         reject("Scrapper: no connection data")
       }
+      console.log('client Init',url);
       client
         .init()
         .url(url)
@@ -539,7 +315,7 @@ module.exports = {
         });
       // console.log("before aggregate fonction", actions, client, deeth, data);
       _aggregateAction(actions, client, deeth, data).then(function(res) {
-        //console.log("--traitmeent terminé final ----", res)
+        console.log("--traitmeent terminé final ----", res)
         resolve({
           data: res
         })
@@ -556,7 +332,8 @@ module.exports = {
     if (flowData && flowData[0] && flowData[0].data && flowData[0].data.url != undefined) {
       url = flowData[0].data.url;
     }
+    let usableFlowData = flowData == undefined ? undefined : flowData[0].data;
     // console.log('scrapp url', url);
-    return this.makeRequest(data.specificData.user, data.specificData.key, data.specificData.scrapperRef, url, data.specificData.saucelabname)
+    return this.makeRequest(data.specificData.user, data.specificData.key, data.specificData.scrapperRef, url, data.specificData.saucelabname, usableFlowData)
   },
 }

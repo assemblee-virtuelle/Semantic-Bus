@@ -35,8 +35,14 @@ module.exports = {
   //     }
   //   });
   // },
-  geoLocalise: function(source, specificData) {
+  geoLocalise: function(rawSource, specificData) {
     //console.log('adress.data.gouv geoLocalise',specificData.countryPath);
+
+    let source= rawSource;
+    if(!Array.isArray(rawSource)){
+      source=[source];
+    }
+
     return new Promise((resolve, reject) => {
 
       var goePromises = [];
@@ -62,6 +68,9 @@ module.exports = {
               }
             }
 
+            if(!Array.isArray(rawSource)){
+              result=result[0];
+            }
             resolve({
               data: result
             });

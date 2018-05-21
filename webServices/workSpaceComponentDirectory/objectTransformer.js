@@ -25,6 +25,8 @@ module.exports = {
     //console.log(source);
     //console.log(jsonTransformPattern);
     //console.log(jsonSchema);
+    //source={root:source};
+    jsonTransformPattern ={root:jsonTransformPattern};
     var array = true;
     for (var propertyKey in source) {
       //console.log(parseInt(propertyKey));
@@ -94,7 +96,7 @@ module.exports = {
     }
 
     //console.log(postProcessResult);
-    return postProcessResult;
+    return postProcessResult.root;
   },
   dissociatePatternResolvable: function(nodeIn, depth, everArrayPath) {
     if (depth == undefined) {

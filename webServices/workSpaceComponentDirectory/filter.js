@@ -12,11 +12,12 @@ module.exports = {
 
   pull: function(data, flowData) {
 
-    console.log('Filter| pull : ', JSON.parse(data.specificData.filterString), ' | ', JSON.stringify(flowData[0].data));
+    //console.log('Filter| pull : ', JSON.parse(data.specificData.filterString), ' | ', JSON.stringify(flowData[0].data));
+    let usableData=JSON.parse(JSON.stringify(flowData[0].data));
     return new Promise((resolve, reject) => {
 
-
-      var resultData = this.sift(JSON.parse(data.specificData.filterString), flowData[0].data);
+      //console.log('before filter',usableData);
+      var resultData = this.sift(JSON.parse(data.specificData.filterString), usableData);
       //console.log('result |',resultData);
 
 

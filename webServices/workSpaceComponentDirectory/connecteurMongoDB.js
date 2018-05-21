@@ -65,7 +65,7 @@ module.exports = {
 
 
   request: function(querysTable, modelShema,queryParams) {
-    //  console.log('REQUEST');
+    console.log('REQUEST',queryParams);
     //console.log("----- request mongoose -----", querysTable)
     return new Promise((resolve, reject)=> {
       //   modelShema.db.once('connected', function () {

@@ -5,10 +5,10 @@
 module.exports = {
   type: 'Upload',
   description: 'Uploader un fichier',
-  workspace_component_lib : require('../../lib/core/lib/workspace_component_lib'),
+  workspace_component_lib: require('../../lib/core/lib/workspace_component_lib'),
   editor: 'upload-editor',
   graphIcon: 'default.png',
-  tags:[
+  tags: [
     'http://semantic-bus.org/data/tags/inComponents',
     'http://semantic-bus.org/data/tags/fileComponents'
   ],
@@ -18,13 +18,16 @@ module.exports = {
   readable: require('stream').Readable,
   stepNode: false,
 
+  initialise: function(router, stompClient) {
+    //this.stompClient=stompClient;
+    router.post('/upload/:compId', (req, res, next) => {
 
-  initialise: function (router, stompClient) {
-    router.post('/upload/:compId', function (req, res, next) {
       var compId = req.params.compId;
       const isexel = false
-      return new Promise(function (resolve, reject) {
-        new Promise(function (resolve, reject) {
+      return new Promise((resolve, reject) => {
+
+        new Promise((resolve, reject)=> {
+
           var busboy = new this.busboy({
             headers: req.headers
           });
@@ -32,61 +35,65 @@ module.exports = {
           var string = ""
           var fileName = null
 
-          busboy.on('file', function (fieldname, file, filename, encoding, mimetype) {
+          busboy.on('file', (fieldname, file, filename, encoding, mimetype) =>{
             fileName = filename
-            file.on('data', function (data) {
+            file.on('data', function(data) {
               buffer.push(data)
               string += data
             });
           });
 
-          busboy.on('error', function (err) {
+          busboy.on('error', (err) =>{
             let fullError = new Error(err);
             fullError.displayMessage = "Upload : Erreur lors de votre traitement de fichier";
             reject(fullError)
           });
 
-          busboy.on('finish', function () {
+          busboy.on('finish', () => {
+
             res.statusCode = 200;
-            this.dataTraitment.type.type_file(fileName, string, buffer).then(function (result) {
+            this.dataTraitment.type.type_file(fileName, string, buffer).then((result)=> {
               resolve(result)
             }, (err) => {
               //console.log("in error ")
               let fullError = new Error(err);
               fullError.displayMessage = "Upload : " + err;
-              reject(fullError)
+              reject(fullError);
             })
-          }.bind(this));
+          });
 
           req.pipe(busboy);
 
-        }.bind(this)).then(function (resultatTraite) {
+        }).then((resultatTraite) => {
+          //console.log('ALLO');
+          //console.log(this);
           var recursivPullResolvePromiseDynamic = require('../engine');
           this.workspace_component_lib.get({
             _id: compId
           }).then(data => {
-            recursivPullResolvePromiseDynamic.execute(data, 'push',stompclient,undefined, resultatTraite).then((res) => {
+            //console.log('resultatTraite',resultatTraite);
+            recursivPullResolvePromiseDynamic.execute(data, 'push', stompClient, undefined, resultatTraite.data).then((res) => {
               resolve({
                 data: res
               })
             });
-          }, function (err) {
+          }).catch(err => {
             let fullError = new Error(err);
             fullError.displayMessage = "Upload : Erreur lors de votre traitement de fichier";
             reject(fullError)
-          }.bind(this))
-        }, (err) => {
+          });
+        }).catch(err => {
           //console.log("in error 2");
           //res.status(500).send(err);
           next(err)
         })
-      }.bind(this))
-    }.bind(this))
+      })
+    })
   },
 
 
 
-  pull: function (data, flowData) {
+  pull: function(data, flowData) {
     return new Promise((resolve, reject) => {
       resolve({});
     })
