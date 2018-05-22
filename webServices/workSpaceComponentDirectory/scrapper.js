@@ -271,20 +271,26 @@ module.exports = {
             //console.log("----- DATA INJECTION");
             data[actions[deeth].action] = res;
             return new Promise((resolve, reject) => {
-              resolve();
+              resolve(true);
             });
           }).catch(err => {
             console.log("----- CATCH Of Action");
             data[actions[deeth].action] = {
-              error: 'element not in dom',
-              cause: err
+              error: err,
             };
             return new Promise((resolve, reject) => {
-              resolve();
+              if(err.seleniumStack && err.seleniumStack.type == 'UnknownError'){
+                resolve(false);
+              } else{
+                resolve(true);
+              }
             });
-          }).then(() => {
-            console.log('----- DEPTH++');
-            deeth++;
+          }).then((continueDepth) => {
+            if(continueDepth){
+              console.log('----- DEPTH++');
+              deeth++;
+            }
+
             if (deeth < actions.length) {
               _aggregateAction(actions, client, deeth, data).then((res) => {
                 resolve(res)

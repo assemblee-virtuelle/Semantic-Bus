@@ -27,16 +27,16 @@ module.exports = {
     //console.log(jsonSchema);
     //source={root:source};
     jsonTransformPattern ={root:jsonTransformPattern};
-    var array = true;
-    for (var propertyKey in source) {
-      //console.log(parseInt(propertyKey));
-      if (isNaN(propertyKey)) {
-        array = false;
-        //console.log('BREAK ARRAY');
-      }
-    }
+    // var array = true;
+    // for (var propertyKey in source) {
+    //   //console.log(parseInt(propertyKey));
+    //   if (isNaN(propertyKey)) {
+    //     array = false;
+    //     //console.log('BREAK ARRAY');
+    //   }
+    // }
 
-    if (array == true) {
+    if (Array.isArray(source)) {
       var destArray = [];
       for (var propertyKey in source) {
         var record = source[propertyKey];
@@ -45,13 +45,13 @@ module.exports = {
       source = destArray;
     }
 
-    array = true;
-    for (var propertyKey in jsonTransformPattern) {
-      if (isNaN(propertyKey)) {
-        array = false;
-      }
-    }
-    if (array == true) {
+    // array = true;
+    // for (var propertyKey in jsonTransformPattern) {
+    //   if (isNaN(propertyKey)) {
+    //     array = false;
+    //   }
+    // }
+    if (Array.isArray(jsonTransformPattern)) {
       var destArray = [];
       for (var propertyKey in jsonTransformPattern) {
         var record = jsonTransformPattern[propertyKey];
@@ -69,7 +69,7 @@ module.exports = {
     //console.log('resolvable | ', dissociatePatternResolvable);
     //console.log('postProcess | ', dissociatePatternPostProcess);
     //console.log('source | ', JSON.stringify(source));
-    //console.log('source | ', source);
+    console.log('source | ', source);
     var postProcessResult;
     try {
       var transformResult = this.transform(source, dissociatePatternResolvable);
@@ -374,7 +374,7 @@ module.exports = {
     return nodeOut;
   },
   pull: function(data, flowData) {
-    //console.log('Object Transformer | pull : ',data,' | ',flowData[0].length);
+    //console.log('Object Transformer | pull : ',data,' | ',flowData[0].data);
     return new Promise((resolve, reject) => {
       if (flowData != undefined) {
         resolve({

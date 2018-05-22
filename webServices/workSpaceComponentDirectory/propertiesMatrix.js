@@ -2,7 +2,7 @@
 module.exports = {
   type: 'Property Matrix',
   description: 'recontruire des objects à partir de plusieurs propriétés en liste',
-  editor: 'property-matrix-editor',
+  editor: 'properties-matrix-editor',
   graphIcon: 'default.png',
   sift: require('sift'),
   transform: require('jsonpath-object-transform'),
@@ -28,13 +28,17 @@ module.exports = {
       if (Array.isArray(flowData[0].data)) {
         reject(new Error('input flow can\'t be an array'));
       } else {
-        let maxLength=0
-        for(let field of data.specificData.fields){
-          maxLength=Math.max(maxLength,flowData[0].data[field]);
+        let maxLength=0;
+        for(let fieldObject of data.specificData.fields){
+          let field=fieldObject.field;
+          console.log(flowData[0].data,field);
+          maxLength=Math.max(maxLength,flowData[0].data[field].length);
         }
+        console.log('maxLength',maxLength);
         for(let i=0;i<maxLength;i++){
           let currentOject={};
-          for(let field of data.specificData.fields){
+          for(let fieldObject of data.specificData.fields){
+            let field=fieldObject.field;
             currentOject[field]=flowData[0].data[field][i];
           }
           matrixResult.push(currentOject);
@@ -43,7 +47,7 @@ module.exports = {
       }
 
       resolve({
-        data: flowData[0].data;
+        data: flowData[0].data
       });
     })
   }

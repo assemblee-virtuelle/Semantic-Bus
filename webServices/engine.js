@@ -306,7 +306,7 @@ class Engine {
                   componentId: primaryflow.componentId
                 }]);
                 recomposedFlow = recomposedFlow.concat(secondaryFlow);
-                //console.log(recomposedFlow);
+                //console.log('recomposedFlow',recomposedFlow);
                 return [
                   processingNode.component,
                   recomposedFlow,
@@ -314,11 +314,11 @@ class Engine {
                 ];
               });
 
-              //console.log('paramArray',paramArray);
+              //console.log('paramArray',JSON.stringify(paramArray));
               this.promiseOrchestrator.execute(module, module.pull, paramArray, {
                 beamNb: 1
               }).then((componentFlowDfob) => {
-                console.log('componentFlowDfob',componentFlowDfob);
+                //console.log('componentFlowDfob',componentFlowDfob);
                 for (var componentFlowDfobKey in componentFlowDfob) {
 
                   dfobFinalFlow[componentFlowDfobKey].objectToProcess[
