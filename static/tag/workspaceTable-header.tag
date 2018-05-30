@@ -13,10 +13,10 @@
       </div>
     </div>
 
-    <div style="flex-basis:140px;flex-grow:0;flex-shrink:0">
+    <div style="flex-basis:100px;flex-grow:0;flex-shrink:0">
       <div onclick={addWorkflowClick} class="commandButtonImage containerV">
         <img src="./image/ajout_composant.svg" style="" height="40px" width="40px">
-        <div>créer un workflow</div>
+        <div style="text-align:center">créer un workflow<span>
       </div>
     </div>
   </div>

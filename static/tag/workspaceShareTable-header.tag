@@ -13,7 +13,7 @@
       </div>
     </div>
 
-    <div style="flex-basis:140px;flex-grow:0;flex-shrink:0">
+    <div style="flex-basis:100px;flex-grow:0;flex-shrink:0">
 
     </div>
   </div>

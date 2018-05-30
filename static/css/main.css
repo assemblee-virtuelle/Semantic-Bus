@@ -28,11 +28,12 @@ body{
   flex-shrink:0;
 }
 
-.header {height: 90pt;
+.header {
+/*height: 90pt;*/
 /* text-align: center; */
-display: flex;
-flex-direction:column;
-justify-content: center;
+/*display: flex;*/
+/*flex-direction:column;*/
+/*justify-content: center;*/
 background: linear-gradient(90deg, rgb(33,150,243) 20% ,rgb(41,181,237));
 color:white
 }
@@ -42,14 +43,14 @@ color:white
 }
 
 
-.headerComponent {height: 15%;
-  /* text-align: center; */
+/*.headerComponent {height: 15%;
+   text-align: center; 
   display: flex;
   flex-direction:column;
   justify-content: center;
   background-color: rgb(33,150,243);
   color:white
-}
+}*/
 
 .tagSelected {
   border: 3px solid rgb(9,245,185)!important;

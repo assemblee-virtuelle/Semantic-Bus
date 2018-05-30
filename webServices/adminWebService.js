@@ -54,7 +54,7 @@ module.exports = function(router) {
     res.json({
       message: 'in progress'
     });
-    console.log('ALLO');
+    //console.log('ALLO');
     var token = req.body.token || req.query.token || req.headers['authorization'];
     //console.log('token |',token);
     let user;

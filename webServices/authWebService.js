@@ -4,7 +4,7 @@ var auth_lib_user = require('../lib/core/lib/auth_lib');
 var user_lib = require('../lib/core/lib/auth_lib');
 var configuration = require('../configuration')
 var nodemailer = require("nodemailer");
-var url = !configuration.https ? './login.html?google_token=' : 'https://semantic-bus.org/auth/login.html?google_token='
+var url = './login.html?google_token='
 var user_lib = require('../lib/core/lib/user_lib');
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

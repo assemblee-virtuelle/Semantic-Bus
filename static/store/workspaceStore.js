@@ -779,7 +779,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
               }
             });
             this.subscription_workspace_current_process_progress = this.stompClient.subscribe('/topic/process-progress.' + this.workspaceCurrent._id, message => {
-              console.log('message', JSON.parse(message.body));
+              //console.log('message', JSON.parse(message.body));
 
               let body = JSON.parse(message.body);
 

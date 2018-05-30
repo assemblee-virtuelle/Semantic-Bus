@@ -13,7 +13,8 @@
     <div style="flex-basis:140px;flex-grow:0;flex-shrink:0">
       <div onclick={saveClick} class="commandButtonImage containerV">
         <img src="./image/Super-Mono-png/PNG/sticker/icons/inbox.png" style="" height="40px" width="40px">
-        <div>valider</div>
+        <div style="text-align:center">valider</div>
+
       </div>
     </div>
   </div>

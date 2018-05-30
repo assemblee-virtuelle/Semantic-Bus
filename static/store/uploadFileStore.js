@@ -29,10 +29,12 @@ function UploadStore() {
             return xhr;
           }.bind(this)
     }).done(function(data) {
-      console.log("data uplaod", data)
+      //console.log("data uplaod", data)
+      //console.log("XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX")
       this.trigger('item_is_upload');
+      route('workspace/' + this.genericStore.workspaceCurrent._id + '/component');
     }.bind(this)).fail(function(error) {
-      console.log("in fail ajax")
+      //console.log("in fail ajax")
       this.trigger('ajax_fail',error.displayMessage||error.message);
     }.bind(this));
   });

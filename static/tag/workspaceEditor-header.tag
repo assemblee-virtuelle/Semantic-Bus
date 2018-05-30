@@ -46,28 +46,28 @@
     <div style="flex-basis:100px;flex-grow:0;flex-shrink:0">
       <div if={menu=='component' } onclick={showAddComponentClick} class="commandButtonImage containerV">
         <img src="./image/ajout_composant.svg" style="" height="40px" width="40px">
-        <div>ajouter un composant</div>
+        <div style="text-align:center">ajouter un composant</div>
       </div>
 
       <div if={menu=='user' } onclick={showShareClick} class="commandButtonImage containerV">
         <img src="./image/ajout_composant.svg" style="" height="40px" width="40px">
-        <div>ajouter un utilisateur</div>
+        <div style="text-align:center">ajouter un utilisateur</div>
       </div>
       <div if={menu=='information' } onclick={persistClick} class="commandButtonImage containerV">
         <img src="./image/Super-Mono-png/PNG/sticker/icons/inbox.png" style="" height="40px" width="40px">
-        <div>valider</div>
+        <div style="text-align:center">valider</div>
       </div>
       <div if={menu=='addComponent' } onclick={addComponentClick} class="commandButtonImage containerV">
         <img src="./image/Super-Mono-png/PNG/sticker/icons/inbox.png" style="" height="40px" width="40px">
-        <div>valider</div>
+        <div style="text-align:center">valider</div>
       </div>
       <div if={menu=='share' } onclick={shareClick} class="commandButtonImage containerV">
         <img src="./image/Share.svg" style="" height="40px" width="40px">
-        <div>partager</div>
+        <div style="text-align:center">partager</div>
       </div>
       <div if={menu=='process' } onclick={shareClick} class="commandButtonImage containerV">
         <img src="./image/Super-Mono-png/PNG/sticker/icons/bin.png" style="" height="40px" width="40px">
-        <div>supprimer tous</div>
+        <div style="text-align:center">supprimer tous</div>
       </div>
     </div>
 
