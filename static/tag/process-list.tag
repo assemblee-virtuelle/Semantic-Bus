@@ -1,6 +1,6 @@
 <process-list class="containerV">
 
-  <zenTable drag={false} disallownavigation={true}  ref="processZenTable">
+  <zenTable drag={false} disallownavigation={true} disallowdelete={true}  ref="processZenTable">
     <yield to="header">
       <div style="width:200px">date</div>
       <div style="width:200px">heure</div>

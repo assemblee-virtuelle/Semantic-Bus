@@ -66,8 +66,8 @@
         <div style="text-align:center">partager</div>
       </div>
       <div if={menu=='process' } onclick={shareClick} class="commandButtonImage containerV">
-        <img src="./image/Super-Mono-png/PNG/sticker/icons/bin.png" style="" height="40px" width="40px">
-        <div style="text-align:center">supprimer tous</div>
+        <!--<img src="./image/Super-Mono-png/PNG/sticker/icons/bin.png" style="" height="40px" width="40px">
+        <div style="text-align:center">supprimer tous</div>-->
       </div>
     </div>
 
