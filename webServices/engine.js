@@ -14,7 +14,7 @@ class Engine {
     this.promiseOrchestrator = new PromiseOrchestrator();
     this.fackCounter = 0;
     this.amqpClient = amqpClient,
-      this.callerId = callerId;
+    this.callerId = callerId;
     this.originComponent = component;
     this.requestDirection = requestDirection;
     this.pushData = pushData;
@@ -317,7 +317,7 @@ class Engine {
               //console.log('paramArray',JSON.stringify(paramArray));
               this.promiseOrchestrator.execute(module, module.pull, paramArray, {
                 beamNb: 1
-              }).then((componentFlowDfob) => {
+              },this.config).then((componentFlowDfob) => {
                 //console.log('componentFlowDfob',componentFlowDfob);
                 for (var componentFlowDfobKey in componentFlowDfob) {
 
@@ -415,7 +415,7 @@ class Engine {
           })));
         }
         this.workspace_lib.cleanOldProcess(this.workflow).then(processes => {
-          //console.log(processes);
+          // console.log(processes);
           this.amqpClient.publish('amq.topic', this.keyProcessCleaned, new Buffer(JSON.stringify({
             cleanedProcesses: processes
           })));

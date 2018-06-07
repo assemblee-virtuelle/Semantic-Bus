@@ -56,19 +56,25 @@ module.exports = {
             //console.log('geoLocalise | geoLocalisations result |', geoLocalisations);
             for (var geoLocalisationKey in geoLocalisations) {
               //console.log(geoLocalisations[geoLocalisationKey]);
-              if (geoLocalisations[geoLocalisationKey].error == undefined && geoLocalisations[geoLocalisationKey].features[0] != undefined) {
+              let record = source[geoLocalisationKey];
+              if (geoLocalisations[geoLocalisationKey].error == undefined && geoLocalisations[geoLocalisationKey].features!=undefined && geoLocalisations[geoLocalisationKey].features[0] != undefined) {
                 //console.log('geoLocalise | geoLocalisations line |',geoLocalisations[geoLocalisationKey]);
                 //console.log('geoLocalise | geoLocalisations key |', geoLocalisationKey);
-                var record = source[geoLocalisationKey];
                 record[specificData.latitudePath] = geoLocalisations[geoLocalisationKey].features[0].geometry.coordinates[1];
                 record[specificData.longitudePath] = geoLocalisations[geoLocalisationKey].features[0].geometry.coordinates[0];
+
                 result.push(record);
               } else {
+                //console.log();
+                record[specificData.latitudePath] = {error:geoLocalisations[geoLocalisationKey].error} ;
+                record[specificData.longitudePath] = {error:geoLocalisations[geoLocalisationKey].error} ;
+                result.push(record);
                 //console.log(geoLocalisations[geoLocalisationKey]);
               }
             }
 
             if(!Array.isArray(rawSource)){
+              console.log(result);
               result=result[0];
             }
             resolve({
@@ -135,7 +141,7 @@ module.exports = {
                     //resolve({error:'dummy'})
                     const request = this.http.request(requestOptions, response => {
                         // console.log('JUST after adresse.data.gouv request', specificData.countryPath);
-                      const hasResponseFailed = response.status >= 400;
+                      const hasResponseFailed = response.statusCode >= 400;
                       var responseBody = '';
 
                       if (hasResponseFailed) {

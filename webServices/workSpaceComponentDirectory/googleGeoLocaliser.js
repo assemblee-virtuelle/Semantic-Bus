@@ -27,12 +27,16 @@ module.exports = {
       };
     }
   },
-  geoLocalise: function(source, specificData) {
+  geoLocalise: function(rawSource, specificData) {
 
     return new Promise((resolve, reject) => {
 
       var goePromises = [];
       //var errorArray = [];
+      let source = rawSource;
+      if (!Array.isArray(rawSource)) {
+        source = [source];
+      }
 
 
       for (let record of source) {
@@ -42,7 +46,7 @@ module.exports = {
           postalCode: record[specificData.postalCodePath],
           country: record[specificData.countryPath],
         }
-
+        console.log();
         goePromises.push(
           new Promise((resolve, reject) => {
 
@@ -70,14 +74,11 @@ module.exports = {
             }
             //          console.log(requestOptions);
             const request = this.https.request(requestOptions, response => {
-              const hasResponseFailed = response.status >= 400;
+              //console.log(response.statusCode);
+              const hasResponseFailed = response.statusCode >= 400;
               var responseBody = '';
 
-              if (hasResponseFailed) {
-                //errorArray.push(new Error(`Request to ${response.url} failed with HTTP ${response.status}`))
-                reject(new Error(`Request to ${response.url} failed with HTTP ${response.status}`));
 
-              }
 
               /* the response stream's (an instance of Stream) current data. See:
                * https://nodejs.org/api/stream.html#stream_event_data */
@@ -88,15 +89,40 @@ module.exports = {
 
               // once all the data has been read, resolve the Promise
               response.on('end', () => {
-                let responseBodyObject = JSON.parse(responseBody);
-                //console.log(responseBodyObject);
-                if (responseBodyObject.error_message == undefined) {
-                  resolve(JSON.parse(responseBody));
-                } else {
-                  // console.log(responseBodyObject.error_message);
-                  // errorArray.push(new Error(responseBodyObject.error_message))
-                  reject(new Error(responseBodyObject.error_message));
+                if (hasResponseFailed) {
+                  //console.log(response);
+                  //errorArray.push(new Error(`Request to ${response.url} failed with HTTP ${response.status}`))
+                  resolve({error: `Request to ${response.url} failed with HTTP ${response.statusCode}:${response.statusMessage}`});
+
+                }else{
+                  let responseBodyObject={};
+                  try{
+                     responseBodyObject = JSON.parse(responseBody);
+                     if (responseBodyObject.error_message == undefined) {
+                       resolve(responseBodyObject);
+                     }else{
+                       resolve({error:responseBodyObject.error_message})
+                     }
+                  }
+                  catch(e){
+                    resolve({error:responseBody});
+                  }
                 }
+
+                //console.log(responseBodyObject);
+                // if (responseBodyObject.error_message == undefined) {
+                //   try{
+                //     resolve(JSON.parse(responseBody));
+                //   }catch(e){
+                //     resolve({error:responseBody});
+                //   }
+                //
+                // } else {
+                //   // console.log(responseBodyObject.error_message);
+                //   // errorArray.push(new Error(responseBodyObject.error_message))
+                //   //reject(new Error(responseBodyObject.error_message));
+                //   resolve({error:responseBodyObject.error_message})
+                // }
 
 
               });
@@ -115,15 +141,21 @@ module.exports = {
         var result = [];
         //console.log('geoLocalise | geoLocalisations result |', geoLocalisations);
         for (var geoLocalisationKey in geoLocalisations) {
-          //        console.log('geoLocalise | geoLocalisations line |',geoLocalisations[geoLocalisationKey].results[0].geometry.location);
-          if (geoLocalisations[geoLocalisationKey].status == 'OK') {
-            var record = source[geoLocalisationKey];
+          //console.log('geoLocalise | geoLocalisations line |', geoLocalisations[geoLocalisationKey].results[0].geometry.location);
+          let record = source[geoLocalisationKey];
+          if (geoLocalisations[geoLocalisationKey].status == 'OK' && geoLocalisations[geoLocalisationKey].error==undefined ) {
             record[specificData.latitudePath] = geoLocalisations[geoLocalisationKey].results[0].geometry.location.lat;
             record[specificData.longitudePath] = geoLocalisations[geoLocalisationKey].results[0].geometry.location.lng;
             result.push(record);
           } else {
+            record[specificData.latitudePath] = {error:geoLocalisations[geoLocalisationKey].error || geoLocalisations[geoLocalisationKey].status};
+            record[specificData.longitudePath] = {error:geoLocalisations[geoLocalisationKey].error || geoLocalisations[geoLocalisationKey].status};
+            result.push(record);
             //console.log('google geocode failed');
           }
+        }
+        if (!Array.isArray(rawSource)){
+          result=result[0];
         }
 
         resolve({

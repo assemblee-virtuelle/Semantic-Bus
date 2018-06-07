@@ -69,7 +69,7 @@ module.exports = {
     //console.log('resolvable | ', dissociatePatternResolvable);
     //console.log('postProcess | ', dissociatePatternPostProcess);
     //console.log('source | ', JSON.stringify(source));
-    console.log('source | ', source);
+    //console.log('source | ', source);
     var postProcessResult;
     try {
       var transformResult = this.transform(source, dissociatePatternResolvable);

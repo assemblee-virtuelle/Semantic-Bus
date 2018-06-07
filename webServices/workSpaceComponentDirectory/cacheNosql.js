@@ -69,6 +69,7 @@ module.exports = {
           //console.log('persist KO',flowData[0].data.length);
           reject(e)
         })
+
       } else {
         this.cache_lib.get(data,true).then(cachedData => {
           if (cachedData != undefined) {
