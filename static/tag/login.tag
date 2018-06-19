@@ -53,18 +53,11 @@
   <div class="containerH" if={isScrennToShow('inscription')}>
     <div class="containerV" style="flex-basis:800px">
 
-      <div class="containerH">Vous avez deja un compte avec nous?</div>
-      <div class="containerH">
-        <a onclick={showPage} class="btn" style="white-space: pre;">
-          <span>Connectez vous</span>
-        </a>
-      </div>
-
       <div class="containerH" style="flex-shrink:0">
         <h2 style="color:rgb(117,117,117)">
           Inscription</h2>
       </div>
-      <div class="containerV box">
+      <div class="containerV box"  style="flex-shrink:0">
         <label>Nom</label>
         <input ref="nameInscription" id="test-nameInscription" onchange={nameInscriptionChange} placeholder="saisir name (*)"/>
         <div id="result">{resultName}</div>
@@ -89,10 +82,16 @@
         <input type="password" id="test-confirmepasswordInscription" onkeyup={confirmPasswordInscriptionKeyup} required ref="confirmPasswordInscription" placeholder="confirmer mot de passe"/>
 
         <div id="result">{resultMdpConfirme}</div>
-        <div class="containerH">
+        <div class="containerH" style="flex-shrink:0">
           <a onclick={inscription} class="btn" id="btn2">Inscription</a>
         </div>
 
+      </div>
+      <div class="containerH" style="flex-shrink:0">Vous avez deja un compte avec nous?</div>
+      <div class="containerH" style="flex-shrink:0">
+        <a onclick={showPage} class="btn" style="white-space: pre;">
+          <span>Connectez vous</span>
+        </a>
       </div>
     </div>
 

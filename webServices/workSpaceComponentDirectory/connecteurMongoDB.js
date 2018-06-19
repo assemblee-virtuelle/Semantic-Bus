@@ -96,7 +96,7 @@ module.exports = {
 
 
             }
-            //console.log(querysTable);
+            console.log(querysTable);
           }
 
           var query = eval("modelShema.model." + querysTable+".lean()")

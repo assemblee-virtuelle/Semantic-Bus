@@ -6,6 +6,7 @@
   "main": "",
   "scripts": {
     "scrapp": "node webServices/workSpaceComponentDirectory/testscrapper.js",
+    "amqp" : "sudo docker start rabbitmq || sudo docker run -d -p 15672:15672 -p 15674:15674 -p 5672:5672 --name rabbitmq rabbitmq:latest",
     "start": "node cluster.js --max_old_space_size=3500",
     "test-unitaires": "node_modules/mocha/bin/mocha test/test_unitaires/test.js --reporter mocha-junit-reporter --reporter-options mochaFile=./test/test_result/integ_unit_result/test-result.xml",
     "test-fonctionel": "node test/wrapperTest.js",
