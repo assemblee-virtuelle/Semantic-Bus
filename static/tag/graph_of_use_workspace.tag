@@ -1,5 +1,5 @@
 <graph-of-use-workspace class="scrollable">
-  <div class="containerH" style="margin-top:5em"> 
+  <div class="containerH" style="margin-top:5em">
     <div class="containerV" style="flex:0.7;;background:white;padding: 2em;">
       <span style="margin-bottom:1em;text-align: center;font-size:1.3em;"> Vos données globales (30 jours) </span>
       <div class="containerH" style="justify-content:space-between">
@@ -207,7 +207,7 @@
   /// D3 JS INITIALIZE
 
   this.initD3js = function (data, tableId) {
-    
+
     var marginStackChart = {
         top: 20,
         right: 200,
@@ -216,7 +216,7 @@
       },
       widthStackChart = 1000,
       heightStackChart = 600 - marginStackChart.top - marginStackChart.bottom;
-  
+
     var xStackChart = d3.scaleBand().range([0, widthStackChart]).padding(.4);
 
     var yStackChart = d3.scaleLinear().range([heightStackChart, 0]);
@@ -227,7 +227,7 @@
 
     var colorStackChart = d3.scaleOrdinal(d3.schemeSet3);
 
-    var canvasStackChart = 
+    var canvasStackChart =
       d3.select("#stacked")
         .attr("width", widthStackChart + marginStackChart.left + marginStackChart.right)
         .attr("height", heightStackChart + marginStackChart.top + marginStackChart.bottom)
@@ -236,7 +236,7 @@
     var div = d3.select(".item-flex").append("div").attr("class", "tooltip").style("opacity", 0);
 
     colorStackChart.domain(tableId)
-	  
+
 
 
     xStackChart.domain(data.map(function (d) {
@@ -252,13 +252,13 @@
     ]);
 
     // gridlines in x axis function
-    function make_x_gridlines() {		
+    function make_x_gridlines() {
         return d3.axisBottom(xStackChart)
             .ticks(5)
     }
 
     // gridlines in y axis function
-    function make_y_gridlines() {		
+    function make_y_gridlines() {
         return d3.axisLeft(yStackChart)
             .ticks(5)
     }
@@ -277,7 +277,7 @@
     })
 
     // add the Y gridlines
-    canvasStackChart.append("g")			
+    canvasStackChart.append("g")
       .attr("class", "grid")
       .call(make_y_gridlines()
           .tickSize(-widthStackChart)
@@ -304,6 +304,7 @@
   };
 
   this.initgraph = function (data) {
+    console.log('initgraph',initgraph);
     this.tableId = data.tableId
     this.numberWorkspace = data.numberWorkspace
     this.numberWorkspace = data.numberWorkspace
@@ -313,9 +314,11 @@
     this.update()
   }.bind(this)
 
-  RiotControl.on('load_user_workspace_graph_done', this.initgraph)
+
 
   this.on('mount', function () {
+    console.log('ALLO');
+    RiotControl.on('load_user_workspace_graph_done', this.initgraph)
     RiotControl.trigger('load_user_workspace_graph');
   }.bind(this))
 

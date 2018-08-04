@@ -25,7 +25,7 @@ module.exports = {
         port: parsedUrl.port,
         method: 'get',
         headers: {
-          Accept: 'text/plain, application/xml , application/ld+json',
+          Accept: 'text/plain, application/xml , application/ld+json, text/csv',
           'user-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0',
         }
       };
@@ -34,6 +34,7 @@ module.exports = {
       var lib = urlString.indexOf('https') != -1 ? this.https : this.http;
       const request = lib.request(requestOptions, response => {
         const hasResponseFailed = response.statusCode >= 400;
+        //console.log(response);
         var responseBody = '';
         var responseBodyExel = [];
         if (hasResponseFailed) {
@@ -48,7 +49,10 @@ module.exports = {
         });
 
         response.on('end', function () {
-          this.dataTraitment.type.type_file(response.headers['content-disposition'],responseBody, responseBodyExel, undefined,  contentType).then(function(result){
+          //console.log('end',response.headers['content-disposition']);
+          let responseContentType=response.headers['content-type'];
+          responseContentType=responseContentType||contentType;
+          this.dataTraitment.type.type_file(response.headers['content-disposition'],responseBody, responseBodyExel, undefined,  responseContentType).then(function(result){
             resolve(result)
           }, function(err){
             //console.log('FILE ERROR',err);

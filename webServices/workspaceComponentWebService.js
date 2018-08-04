@@ -100,13 +100,14 @@ module.exports = function(router, amqpClient) {
 
 
   amqpClient.consume('work-ask', (msg) => {
+    console.log('ALLO');
     var messageObject = JSON.parse(msg.content.toString());
     workspace_component_lib.get({
       _id: messageObject.id
     }).then(function(data) {
       //console.log('workspaceComponent | work| ', data);
-      var recursivPullResolvePromiseDynamic = require('./engine');
-      return recursivPullResolvePromiseDynamic.execute(data, 'work', this.amqpClient, messageObject.callerId);
+      var engine = require('./engine');
+      return engine.execute(data, 'work', this.amqpClient, messageObject.callerId);
     }).then((data) => {
       console.log('ENGINE work sucess');
       //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)

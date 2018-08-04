@@ -20,6 +20,6 @@ module.exports = function (router) {
 
     router.get('/configurationMessageQueue', function (req, res) {
     //  console.log(process.env.AMQPHOST);
-        res.send({host:process.env.AMQPHOST,url:configuration.socketClient})
+        res.send({host: configuration.amqpHost,url:configuration.socketClient})
     }) //<= configurationhttps
 }

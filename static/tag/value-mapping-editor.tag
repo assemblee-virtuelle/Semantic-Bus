@@ -51,7 +51,8 @@
         this.data.specificData.mappingTable=data;
       })
       this.refs.mappingTable.on('delRow', row=>{
-        this.refs.mappingTable.data.splice(row.rowid, 1);
+        console.log(row);
+        this.refs.mappingTable.data.splice(row.rowId, 1);
       });
       RiotControl.on('item_current_changed', this.updateData);
     });

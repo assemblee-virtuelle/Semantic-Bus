@@ -4,18 +4,26 @@ module.exports = {
   description: 'créer des paramètres de requete dand le flux',
   editor:'query-params-creation-editor',
   graphIcon:'default.png',
+  objectTransformation: require('../sharedLibrary/objectTransformation.js'),
   tags:[
     'http://semantic-bus.org/data/tags/middleComponents',
     'http://semantic-bus.org/data/tags/middleUtilitiesComponents'
   ],
 
   buildQueryParam:function(previousQueryParam, specificData){
+    console.log('QUERY INITIAL',previousQueryParam);
+    let stringPattern=JSON.stringify(specificData.queryParamsCreationObject);
+    //console.log(stringPattern);
+    stringPattern = stringPattern.replace(/£./g,'$.')
+    let objectPattern = JSON.parse(stringPattern);
+    //console.log(previousQueryParam.queryParams,objectPattern);
+    let out= this.objectTransformation.execute(previousQueryParam, objectPattern);
 
-    let out= previousQueryParam || {};
-    for (let key in specificData.queryParamsCreationObject){
-      out[key]=specificData.queryParamsCreationObject[key];
-    }
-    //    console.log('BUILD QUERY PARAM',previousQueryParam,out);
+    // let out= previousQueryParam.queryParams || {};
+    // for (let key in specificData.queryParamsCreationObject){
+    //   out[key]=specificData.queryParamsCreationObject[key];
+    // }
+    console.log('BUILD QUERY PARAM',previousQueryParam,out);
     return out;
   },
   pull: function(data,flowData) {

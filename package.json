@@ -6,7 +6,9 @@
   "main": "",
   "scripts": {
     "scrapp": "node webServices/workSpaceComponentDirectory/testscrapper.js",
-    "amqp" : "sudo docker start rabbitmq || sudo docker run -d -p 15672:15672 -p 15674:15674 -p 5672:5672 --name rabbitmq rabbitmq:latest",
+    "amqpPull" : "sudo docker pull semanticbus/rabbitmq-stomp",
+    "amqpRun" : "sudo docker start rabbitmq || sudo docker run -d -p 15672:15672 -p 15674:15674 -p 5672:5672 --name rabbitmq semanticbus/rabbitmq-stomp",
+    "amqpRun2" : "sudo docker start rabbitmq || sudo docker run -d -P --name rabbitmq semanticbus/rabbitmq-stomp",
     "start": "node cluster.js --max_old_space_size=3500",
     "test-unitaires": "node_modules/mocha/bin/mocha test/test_unitaires/test.js --reporter mocha-junit-reporter --reporter-options mochaFile=./test/test_result/integ_unit_result/test-result.xml",
     "test-fonctionel": "node test/wrapperTest.js",
@@ -19,7 +21,8 @@
     "test_int_inscription_lib": "node_modules/mocha/bin/mocha test/test_integrations/inscription/inscription_int.js",
     "migrationV1": "node scripts/V1_V2.js",
     "migrationHistorique": "node scripts/migrationHistorique.js",
-    "request": "node scripts/requestTest.js"
+    "request": "node scripts/requestTest.js",
+    "dockerPush":"sudo docker build -t semanticbus-app . && sudo docker tag semanticbus-app semanticbus/semanticbus && sudo docker push semanticbus/semanticbus"
   },
   "author": "Simon Louvet <simon.louvet.zen@gmail.com> && Boceno Alexandre <bocenoalex@gmail.com>",
   "license": "GNUV3",

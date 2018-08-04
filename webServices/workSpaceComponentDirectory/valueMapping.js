@@ -19,10 +19,13 @@ module.exports = {
       if (valueInString.indexOf != undefined && valueInString.indexOf(atomicMapping.flowValue) != -1) {
         //console.log('MAP',valueIn,atomicMapping.flowValue,atomicMapping.replacementValue);
         //valueOut = valueIn.replace(atomicMapping.flowValue,atomicMapping.replacementValue);
-        valueOut.push({
-          sourceValue: valueIn,
-          translatedValue: atomicMapping.replacementValue
-        });
+        if(atomicMapping.replacementValue!=undefined && atomicMapping.replacementValue!=null && atomicMapping.replacementValue.length>0){
+          valueOut.push({
+            sourceValue: valueIn,
+            translatedValue: atomicMapping.replacementValue
+          });  
+        }
+
       }
     }
     // if(valueOut.length==0){

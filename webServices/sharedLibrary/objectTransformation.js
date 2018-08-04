@@ -1,104 +1,86 @@
-"use strict";
+'use strict';
+//console.log("Datatraitment module initialize")
+
 module.exports = {
-  type: 'Object Transformer',
-  description: 'transformer un objet par mapping grâce à un objet transformation',
-  editor: 'object-transformer',
-  graphIcon: 'objectTransformer.png',
-  //transform: require('jsonpath-object-transform'),
-  objectTransformation: require('../sharedLibrary/objectTransformation.js'),
-  tags: [
-    'http://semantic-bus.org/data/tags/middleComponents',
-    'http://semantic-bus.org/data/tags/middleQueryingComponents'
-  ],
+  transform: require('jsonpath-object-transform'),
+  execute : function(source, jsonTransformPattern) {
+    //console.log("source", source,'jsonTransformPattern', jsonTransformPattern )
+    //console.log('Object Transformer | source',source,' | pattern | ',jsonTransformPattern);
+    //console.log(source);
+    //console.log(jsonTransformPattern);
+    //console.log(jsonSchema);
+    //source={root:source};
+    jsonTransformPattern ={root:jsonTransformPattern};
+    // var array = true;
+    // for (var propertyKey in source) {
+    //   //console.log(parseInt(propertyKey));
+    //   if (isNaN(propertyKey)) {
+    //     array = false;
+    //     //console.log('BREAK ARRAY');
+    //   }
+    // }
 
-
-  initComponent: function(entity) {
-    //console.log('Object Transformer | initComponent : ',entity);
-
-    if (entity.specificData.transformObject == undefined) {
-      entity.specificData.transformObject = {};
+    if (Array.isArray(source)) {
+      var destArray = [];
+      for (var propertyKey in source) {
+        var record = source[propertyKey];
+        destArray.push(record);
+      }
+      source = destArray;
     }
-    return entity;
-  },
-  jsonTransform: function(source, jsonTransformPattern) {
-    return this.objectTransformation.execute(source, jsonTransformPattern);
-    // //console.log("source", source,'jsonTransformPattern', jsonTransformPattern )
-    // //console.log('Object Transformer | source',source,' | pattern | ',jsonTransformPattern);
-    // //console.log(source);
-    // //console.log(jsonTransformPattern);
-    // //console.log(jsonSchema);
-    // //source={root:source};
-    // jsonTransformPattern ={root:jsonTransformPattern};
-    // // var array = true;
-    // // for (var propertyKey in source) {
-    // //   //console.log(parseInt(propertyKey));
-    // //   if (isNaN(propertyKey)) {
-    // //     array = false;
-    // //     //console.log('BREAK ARRAY');
-    // //   }
-    // // }
-    //
-    // if (Array.isArray(source)) {
-    //   var destArray = [];
-    //   for (var propertyKey in source) {
-    //     var record = source[propertyKey];
-    //     destArray.push(record);
+
+    // array = true;
+    // for (var propertyKey in jsonTransformPattern) {
+    //   if (isNaN(propertyKey)) {
+    //     array = false;
     //   }
-    //   source = destArray;
     // }
-    //
-    // // array = true;
-    // // for (var propertyKey in jsonTransformPattern) {
-    // //   if (isNaN(propertyKey)) {
-    // //     array = false;
-    // //   }
-    // // }
-    // if (Array.isArray(jsonTransformPattern)) {
-    //   var destArray = [];
-    //   for (var propertyKey in jsonTransformPattern) {
-    //     var record = jsonTransformPattern[propertyKey];
-    //     destArray.push(record);
-    //   }
-    //   jsonTransformPattern = destArray;
-    // }
-    //
-    //
-    //
-    // var dissociatePatternResolvable = this.dissociatePatternResolvable(jsonTransformPattern);
-    // var dissociatePatternPostProcess = this.dissociatePatternPostProcess(jsonTransformPattern);
-    // //console.log('resolvable | ', JSON.stringify(dissociatePatternResolvable));
-    // //console.log('postProcess | ', JSON.stringify(dissociatePatternPostProcess));
-    // //console.log('resolvable | ', dissociatePatternResolvable);
-    // //console.log('postProcess | ', dissociatePatternPostProcess);
-    // //console.log('source | ', JSON.stringify(source));
-    // //console.log('source | ', source);
-    // var postProcessResult;
-    // try {
-    //   var transformResult = this.transform(source, dissociatePatternResolvable);
-    //   //console.log('jsonTransform | resultBeforUnresolved |', transformResult);
-    //   //TODO documentation why (seems for array)
-    //   if (Object.keys(transformResult)[0] == 'undefined') {
-    //     transformResult = transformResult['undefined'];
-    //   }
-    //   //console.log('jsonTransform | resultBeforUnresolved |', transformResult);
-    //   var destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable)
-    //   //console.log('jsonTransform | afterUnresolved |', destResult);
-    //
-    //   if (dissociatePatternPostProcess == undefined) {
-    //     //console.log('ALLO');
-    //     postProcessResult = destResult;
-    //   } else {
-    //     // console.log('jsonTransform | dissociatePatternPostProcess |', dissociatePatternPostProcess);
-    //     postProcessResult = this.postProcess(destResult, dissociatePatternPostProcess)
-    //   }
-    //   // console.log('jsonTransform | postProcessResult |', postProcessResult);
-    // } catch (e) {
-    //   //console.log('transform exception',e);
-    //   postProcessResult = source;
-    // }
-    //
-    // //console.log(postProcessResult);
-    // return postProcessResult.root;
+    if (Array.isArray(jsonTransformPattern)) {
+      var destArray = [];
+      for (var propertyKey in jsonTransformPattern) {
+        var record = jsonTransformPattern[propertyKey];
+        destArray.push(record);
+      }
+      jsonTransformPattern = destArray;
+    }
+
+
+
+    var dissociatePatternResolvable = this.dissociatePatternResolvable(jsonTransformPattern);
+    var dissociatePatternPostProcess = this.dissociatePatternPostProcess(jsonTransformPattern);
+    //console.log('resolvable | ', JSON.stringify(dissociatePatternResolvable));
+    //console.log('postProcess | ', JSON.stringify(dissociatePatternPostProcess));
+    //console.log('resolvable | ', dissociatePatternResolvable);
+    //console.log('postProcess | ', dissociatePatternPostProcess);
+    //console.log('source | ', JSON.stringify(source));
+    //console.log('source | ', source);
+    var postProcessResult;
+    try {
+      var transformResult = this.transform(source, dissociatePatternResolvable);
+      //console.log('jsonTransform | resultBeforUnresolved |', transformResult);
+      //TODO documentation why (seems for array)
+      if (Object.keys(transformResult)[0] == 'undefined') {
+        transformResult = transformResult['undefined'];
+      }
+      //console.log('jsonTransform | resultBeforUnresolved |', transformResult);
+      var destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable)
+      //console.log('jsonTransform | afterUnresolved |', destResult);
+
+      if (dissociatePatternPostProcess == undefined) {
+        //console.log('ALLO');
+        postProcessResult = destResult;
+      } else {
+        // console.log('jsonTransform | dissociatePatternPostProcess |', dissociatePatternPostProcess);
+        postProcessResult = this.postProcess(destResult, dissociatePatternPostProcess)
+      }
+      // console.log('jsonTransform | postProcessResult |', postProcessResult);
+    } catch (e) {
+      //console.log('transform exception',e);
+      postProcessResult = source;
+    }
+
+    //console.log(postProcessResult);
+    return postProcessResult.root;
   },
   dissociatePatternResolvable: function(nodeIn, depth, everArrayPath) {
     if (depth == undefined) {
@@ -374,19 +356,5 @@ module.exports = {
     }
     //console.log('unresolveProcess intermediate| ',nodeOut);
     return nodeOut;
-  },
-  pull: function(data, flowData) {
-    //console.log('Object Transformer | pull : ',data,' | ',flowData[0].data);
-    return new Promise((resolve, reject) => {
-      if (flowData != undefined) {
-        resolve({
-          data: this.jsonTransform(flowData[0].data, data.specificData.transformObject)
-        });
-      } else {
-        resolve({
-          data: this.jsonTransform({}, data.specificData.transformObject)
-        });
-      }
-    })
   }
 }

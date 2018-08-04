@@ -5,8 +5,8 @@ module.exports = {
   editor: 'framacalc-get-csv-editor',
   //  url: require('url'),
   //  http: require('http'),
-  graphIcon:'framacalcCsv.png',
-  tags:[
+  graphIcon: 'framacalcCsv.png',
+  tags: [
     'http://semantic-bus.org/data/tags/inComponents',
     'http://semantic-bus.org/data/tags/APIComponents'
   ],
@@ -23,16 +23,16 @@ module.exports = {
       //console.log('REST Get JSON | makerequest | port',parsedUrl.port);
       //  console.log('REST Get JSON | makerequest | host',parsedUrl.hostname);
       const requestOptions = {
-          hostname: parsedUrl.hostname,
-          path: parsedUrl.path,
-          port: parsedUrl.port,
-          method: 'get',
-          headers: {
-            Accept: 'text/csv',
-            'user-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0'
-          }
+        hostname: parsedUrl.hostname,
+        path: parsedUrl.path,
+        port: parsedUrl.port,
+        method: 'get',
+        headers: {
+          Accept: 'text/csv',
+          'user-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0'
         }
-        //console.log(requestOptions);
+      }
+      //console.log(requestOptions);
 
       var lib = urlString.indexOf('htts') != -1 ? this.http : this.https;
 
@@ -57,25 +57,31 @@ module.exports = {
         response.on('end', () => {
           //console.log('responseBody | ', responseBody);
           this.csv({
-              noheader: true
-            }).fromString(responseBody).on('json', (jsonObj) => {
-              //console.log('CSV', jsonObj)
-            }).on('end', () => {
-              //console.log('end')
-            }).on('end_parsed', (jsonArr) => {
-              //console.log(offset);
-              jsonArr.splice(0,offset);
-              //console.log(jsonArr);
-              resolve({data:jsonArr});
-            })
-            //resolve(JSON.parse(responseBody));
+            noheader: true
+          }).fromString(responseBody).on('json', (jsonObj) => {
+            //console.log('CSV', jsonObj)
+          }).on('end', () => {
+            //console.log('end')
+          }).on('end_parsed', (jsonArr) => {
+            //console.log(offset);
+            jsonArr.splice(0, offset);
+            //console.log(jsonArr);
+            resolve({
+              data: jsonArr
+            });
+          })
+          //resolve(JSON.parse(responseBody));
         });
       });
 
       /* if there's an error, then reject the Promise
        * (can be handled with Promise.prototype.catch) */
       request.on('error', reject);
-      request.on('socket', (s) => { s.setTimeout(120000, () => { s.destroy(); })});
+      request.on('socket', (s) => {
+        s.setTimeout(120000, () => {
+          s.destroy();
+        })
+      });
       request.end();
     });
   },

@@ -314,19 +314,20 @@
   };
 
 
-  RiotControl.on('graph_workspace_data_loaded',(data)=>{
-    if(!this.dataLoaded){
-      this.initD3js(data.workspaceGraph.data, data.workspaceGraph.tableId);
-      this.dataLoaded = true
-      this.componentNumber = data.workspaceGraph.componentNumber
-      this.globalPrice = data.workspaceGraph.globalPrice
-      this.globalMo = data.workspaceGraph.globalMo
-      this.update()
-    }
-  })
+
 
   this.on('mount', function () {
     this.dataLoaded = false
+    RiotControl.on('graph_workspace_data_loaded',(data)=>{
+      if(!this.dataLoaded){
+        this.initD3js(data.workspaceGraph.data, data.workspaceGraph.tableId);
+        this.dataLoaded = true
+        this.componentNumber = data.workspaceGraph.componentNumber
+        this.globalPrice = data.workspaceGraph.globalPrice
+        this.globalMo = data.workspaceGraph.globalMo
+        this.update()
+      }
+    })
     RiotControl.trigger('load_workspace_graph', this.innerData)
   }.bind(this))
 

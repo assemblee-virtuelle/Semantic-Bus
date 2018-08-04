@@ -200,6 +200,7 @@
     delRowClick(e) {
       //console.log(e);
       if (confirm("Êtes vous sur de vouloir supprimer l'élément ?")) {
+        //console.log(e.item);
         this.trigger('delRow', e.item)
       } else {
         return

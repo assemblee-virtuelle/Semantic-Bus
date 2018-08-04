@@ -90,9 +90,9 @@ module.exports = {
           if (elementsRaw != null) {
             for (let match of elementsRaw) {
               let ObjectKey=match.slice(3, -1);
-              //console.log(match,ObjectKey,queryParams);
+              console.log(match,ObjectKey,queryParams,this.dotProp.get(queryParams, ObjectKey));
 
-              querysTable=querysTable.replace(match,this.dotProp.get(queryParams, ObjectKey));
+              querysTable=querysTable.replace(match,JSON.stringify(this.dotProp.get(queryParams, ObjectKey)));
 
 
             }

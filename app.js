@@ -37,7 +37,7 @@ var env = process.env;
 
 var httpGet = require('./webServices/workSpaceComponentDirectory/restGetJson.js');
 var fs = require('fs');
-const configUrl = env.CONFIG_URL || 'http://app-cee3fd62-a81e-48b2-a766-a8be305d5fa9.cleverapps.io/file/dev';
+const configUrl = env.CONFIG_URL || 'http://data-players.com/config/dev.json';
 //console.log("before http config",configUrl);
 httpGet.makeRequest('GET', {
   url: configUrl
@@ -74,6 +74,7 @@ httpGet.makeRequest('GET', {
       //var webstomp = require('webstomp-client');
 
       var url = configJson.socketServer;
+
       //var url = 'wss://semantic-bus.org:443/stomp/ws/';
       //var url = 'ws://35.187.66.2:15674/ws/';
 
@@ -107,7 +108,7 @@ httpGet.makeRequest('GET', {
       //   console.log('message', JSON.parse(message.body));
       //   stompClient.send('/topic/work-response', JSON.stringify({message:'AJAX va prendre cher'}));
       // }
-      console.log(env.AMQPHOST);
+      //console.log(env.AMQPHOST);
       amqp.connect(url + '/' + configJson.amqpHost, function(err, conn) {
         //if(err!=undefined){
           console.log('AMQP Connection Error',err);
@@ -119,9 +120,9 @@ httpGet.makeRequest('GET', {
           ch.assertQueue('work-ask', {
             durable: true
           });
-          ch.assertExchange('amq-topic', 'topic', {
-            durable: true
-          });
+          // ch.assertExchange('amq-topic', 'topic', {
+          //   durable: true
+          // });
         });
 
       });

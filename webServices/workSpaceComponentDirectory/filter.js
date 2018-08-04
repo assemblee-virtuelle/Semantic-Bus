@@ -16,7 +16,7 @@ module.exports = {
     let usableData=JSON.parse(JSON.stringify(flowData[0].data));
     return new Promise((resolve, reject) => {
 
-      //console.log('before filter',usableData);
+      console.log('before filter',usableData);
       var resultData = this.sift(JSON.parse(data.specificData.filterString), usableData);
       //console.log('result |',resultData);
 
