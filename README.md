@@ -57,6 +57,6 @@ semantic data transformation &amp; semantic container crawling
 
 ### launhing
 #### one time
-- `npm run rabbit`
+- `npm run amqpRun`
 #### each time
 - `node start`
