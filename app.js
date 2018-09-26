@@ -37,7 +37,7 @@ var env = process.env;
 
 var httpGet = require('./webServices/workSpaceComponentDirectory/restGetJson.js');
 var fs = require('fs');
-const configUrl = env.CONFIG_URL || 'http://data-players.com/config/dev.json';
+const configUrl = env.CONFIG_URL || 'http://data-players.com/config/devOutOfDocker.json';
 //console.log("before http config",configUrl);
 httpGet.makeRequest('GET', {
   url: configUrl
@@ -111,9 +111,9 @@ httpGet.makeRequest('GET', {
       //console.log(env.AMQPHOST);
       amqp.connect(url + '/' + configJson.amqpHost, function(err, conn) {
         //if(err!=undefined){
-          console.log('AMQP Connection Error',err);
+        console.log('AMQP Connection Error', err);
         //}
-        console.log('AMQP connected',conn);
+        console.log('AMQP connected', conn);
         conn.createChannel(function(err, ch) {
           onConnect(ch);
           console.log('channel created');
@@ -155,7 +155,9 @@ httpGet.makeRequest('GET', {
         app.use('/data/specific', unSafeRouteur);
         app.use('/data/api', unSafeRouteur);
         app.use('/data/core', safe);
-        app.use('/ihm', express.static('static'));
+        app.use('/ihm', express.static('static', {
+          etag: false
+        }));
         app.use('/browserify', express.static('browserify'));
         app.use('/npm', express.static('node_modules'));
 

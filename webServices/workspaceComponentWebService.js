@@ -131,8 +131,7 @@ module.exports = function(router, amqpClient) {
     //var configuration = require('../configuration');
     if (configuration.saveLock == false) {
       //var id = req.body._id;
-      //var componentToUpdate = req.body;
-      //console.log('workspaceComponent',componentToUpdate);
+      //var componentToUpdate = req.body;      
       workspace_component_lib.update(req.body).then((componentUpdated) => {
         res.json(componentUpdated)
       }).catch(e => {

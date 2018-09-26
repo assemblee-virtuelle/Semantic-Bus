@@ -16,7 +16,7 @@ module.exports = {
   mLabPromise: require('../mLabPromise'),
   dataTraitment: require("../dataTraitmentLibrary/index.js"),
   readable: require('stream').Readable,
-  configuration : require('../../configuration.js'),
+  configuration: require('../../configuration.js'),
   stepNode: false,
 
   initialise: function(router, stompClient) {
@@ -32,27 +32,44 @@ module.exports = {
         var busboy = new this.busboy({
           headers: req.headers
         });
-        var buffer = []
+        //var buffer = []
         var string = ""
         var fileName = null
+        let buffer;
 
         busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
-          fileName = filename
-          file.on('data', function(data) {
-            buffer.push(data)
-            string += data
+          fileName = filename;
+          let bufferEnconding;
+          switch (encoding) {
+            case '7bit':
+              bufferEnconding = 'ascii'
+              break;
+            default:
+              bufferEnconding = encoding;
+              break;
+
+          }
+
+
+          console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
+          file.on('data', (data) => {
+            console.log('data', typeof(data));
+            if (buffer == undefined) {
+              buffer =  Buffer.from(data);
+            } else {
+              //console.log(data);
+              buffer = Buffer.concat([buffer,data]);
+              //buffer.write(data, bufferEnconding);
+            }
+            //string += data
           });
-        });
-
-        busboy.on('error', (err) => {
-          let fullError = new Error(err);
-          fullError.displayMessage = "Upload : Erreur lors de votre traitement de fichier";
-          reject(fullError)
-        });
-
-        busboy.on('finish', () => {
-
-          //res.statusCode = 200;
+          file.on('end', () => {
+            console.log('end');
+            //console.log('File [' + fieldname + '] Finished');
+            string = buffer.toString("utf-8");
+          });
+        }).on('finish', ()=>{
+          console.log('finish');
           this.dataTraitment.type.type_file(fileName, string, buffer).then((result) => {
             resolve(result)
           }, (err) => {
@@ -61,7 +78,28 @@ module.exports = {
             fullError.displayMessage = "Upload : " + err;
             reject(fullError);
           })
+
+          //console.log('Data2: ' + base64data);
         });
+
+        busboy.on('error', (err) => {
+          let fullError = new Error(err);
+          fullError.displayMessage = "Upload : Erreur lors de votre traitement de fichier";
+          reject(fullError)
+        });
+
+        // busboy.on('finish', () => {
+        //
+        //   //res.statusCode = 200;
+        //   this.dataTraitment.type.type_file(fileName, string, buffer).then((result) => {
+        //     resolve(result)
+        //   }, (err) => {
+        //     //console.log("in error ")
+        //     let fullError = new Error(err);
+        //     fullError.displayMessage = "Upload : " + err;
+        //     reject(fullError);
+        //   })
+        // });
 
         req.pipe(busboy);
 
@@ -84,7 +122,7 @@ module.exports = {
           if (token != undefined) {
 
             token.split("");
-            let decodedToken= jwtSimple.decode(token.substring(4, token.length), this.configuration.secret);
+            let decodedToken = jwtSimple.decode(token.substring(4, token.length), this.configuration.secret);
             //console.log('ALLO', decodedToken);
             user = decodedToken.iss;
             //console.log('user |', user);

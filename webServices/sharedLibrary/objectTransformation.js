@@ -259,11 +259,18 @@ module.exports = {
               //console.log(evalParam);
               var evalParamValue = nodeInData[nodeInDataProperty][evalParam];
               //console.log('evalParam |',evalParam,' | evalParamValue | ',evalParamValue);
+              //console.log('typeof evalParamValue',typeof evalParamValue);
               if (typeof evalParamValue == 'string') {
 
-                evalParamValue = evalParamValue.replace(/"/g, '\\"')
-                //console.log('evalParamValue',evalParamValue);
-                evalParamValue = '"' + evalParamValue + '"';
+                // evalParamValue = evalParamValue.replace(/\\/g, '\\\\')
+                //evalParamValue = evalParamValue.replace(/"/g, '\\"')
+                //evalParamValue = evalParamValue.replace(/\\/g, 'XXXXXX')
+                //evalParamValue = evalParamValue.replace(/\n/g, '\\n')
+                //evalParamValue = evalParamValue.replace(/\n/g, 'L24=')
+                //evalParamValue = evalParamValue.replace(/\n/g, '')
+                //console.log('**********************************');
+                //console.log(evalParamValue);
+                evalParamValue = '`' + evalParamValue + '`';
               }
               if (typeof evalParamValue == 'object') {
                 //evalParamValue= 'JSON.parse(\''+JSON.stringify(evalParamValue)+'\')';
@@ -281,7 +288,8 @@ module.exports = {
             }
             //console.log('javascriptEvalString | ',javascriptEvalString);
             try {
-              //console.log('eval process');
+              console.log('**********************************');
+              console.log(javascriptEvalString);
               nodeOut[nodeInDataProperty] = eval(javascriptEvalString);
               //console.log('eval done');
             } catch (e) {

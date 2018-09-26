@@ -65,6 +65,15 @@
           data: data,
           children: []
         }
+        if(Array.isArray(data)){
+          let showDataLenght = 100
+          if(data.length>showDataLenght){
+            let hideDataLenght = data.length-showDataLenght
+            data=data.slice(0,showDataLenght);
+            data.push(hideDataLenght+' records hidden');
+          }
+        }
+
         for (let key in data) {
           let insertingNodes = this.jsonToJsTree(data[key], Array.isArray(data)
             ? key

@@ -32,6 +32,12 @@ class Engine {
           workspaceId: this.originComponent.workspaceId
         })
         .then(components => {
+          // for (let comp of components) {
+          //   if(comp.specificData.transformObject!=undefined && comp.specificData.transformObject.desc!=undefined){
+          //     console.log('YYYYYYYYYYYYYYYYY',encodeURI(comp.specificData.transformObject.desc));
+          //   }
+          // }
+
           this.componentsResolving = components;
           this.workspace_lib
             .getWorkspace(this.originComponent.workspaceId)
@@ -154,11 +160,11 @@ class Engine {
                       //   link.status = "processing";
                       // });
 
-                      this.processNextBuildPath('push');
+                      //this.processNextBuildPath('push');
                       resolve(this.pushData);
                     }
 
-                    this.processNextBuildPath('start');
+                    this.processNextBuildPath();
                   })
                 });
             });
@@ -166,7 +172,11 @@ class Engine {
     });
   }
 
-  processNextBuildPath(source) {
+  processNextBuildPath() {
+    //console.log('processNextBuildPath 1');
+    setTimeout(this.processNextBuildPathDelayed.bind(this),100);
+  }
+  processNextBuildPathDelayed() {
     if (this.owner.credit >= 0) {
 
       this.fackCounter++;
@@ -315,12 +325,13 @@ class Engine {
               });
 
               //console.log('paramArray',JSON.stringify(paramArray));
+
               this.promiseOrchestrator.execute(module, module.pull, paramArray, {
                 beamNb: 1
               },this.config).then((componentFlowDfob) => {
                 //console.log('componentFlowDfob',componentFlowDfob);
                 for (var componentFlowDfobKey in componentFlowDfob) {
-
+                  //console.log(componentFlowDfobKey);
                   dfobFinalFlow[componentFlowDfobKey].objectToProcess[
                       dfobFinalFlow[componentFlowDfobKey].key
                     ] =

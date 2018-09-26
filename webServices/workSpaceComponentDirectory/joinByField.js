@@ -4,6 +4,7 @@ module.exports = {
   description: 'completer un flux par un second en se basant sur un champ du 1er et un identifiant du 2nd',
   editor: 'join-by-field-editor',
   graphIcon: 'joinByField.png',
+  PromiseOrchestrator : require("../../lib/core/helpers/promiseOrchestrator.js"),
   tags: [
     'http://semantic-bus.org/data/tags/middleComponents',
     'http://semantic-bus.org/data/tags/middleComponentsAgregation'
@@ -23,6 +24,29 @@ module.exports = {
     //console.log("---------PRIMARY FLOW--------", primaryFlow)
     return primaryFlow;
   },
+  join:function(primaryRecord,secondaryFlowData, data){
+    //console.log('join1');
+    //console.log(primaryRecord);
+    //console.log(data.specificData.primaryFlowFKId);
+    return new Promise((resolve,reject)=>{
+      //console.log('join2');
+      try{
+        //console.log('join3',data);
+        //console.log('join',data.specificData.secondaryFlowId,data.specificData.primaryFlowFKId);
+        let filter = {};
+        filter[data.specificData.secondaryFlowId] = primaryRecord[data.specificData.primaryFlowFKId];
+        //console.log(filter, secondaryFlowData.length);
+
+        primaryRecord[data.specificData.primaryFlowFKName] = this.sift(filter, secondaryFlowData)[0];
+
+        resolve(primaryRecord);
+      }catch(e){
+        //console.log(e);
+        reject(e);
+      }
+    })
+
+  },
   pull: function(data, flowData) {
     //console.log('Join by Field');
     //console.log('Join by Field | pull : ', data, ' | ', flowData);
@@ -35,36 +59,46 @@ module.exports = {
         var primaryFlowData = this.sift({
           componentId: data.specificData.primaryComponentId
         }, flowData)[0].data;
-        var secondaryFlowData = JSON.parse(JSON.stringify(secondaryFlowData)) //in case primary and secandary is the same source
+        if (!Array.isArray(secondaryFlowData)) {
+          reject(new Error('secondary Flow have to be an array'));
+        } else {
+          var secondaryFlowData = JSON.parse(JSON.stringify(secondaryFlowData)) //in case primary and secandary is the same source
+          let paramArray=primaryFlowData.map(r=>{return [
+            r,
+            secondaryFlowData,
+            data
+          ]})
+          let promiseOrchestrator = new this.PromiseOrchestrator();
+          promiseOrchestrator.execute(this, this.join, paramArray, {
+            beamNb: 10
+          },this.config).then(primaryFlowCompleted=>{
+            resolve({
+              data: primaryFlowCompleted
+            });
+          });
+        }
 
-        //console.log('joinByField | primaryFlowData :', primaryFlowData);
-        //console.log('joinByField | secondaryFlowData :',secondaryFlowData);
-        //console.log(primaryFlowData.componentId);
-        //console.log(secondaryFlowData);
-        //console.log(this.sift({ agregName: 'Max - ORSET'}, secondaryFlowData));
-
-
-        var resultData = primaryFlowData.map(function(primaryRecord) {
-          //console.log(primaryRecord);
-          //console.log(data.specificData.primaryFlowFKId);
-          let filter = {};
-          filter[data.specificData.secondaryFlowId] = primaryRecord[data.specificData.primaryFlowFKId];
-          //console.log(filter, secondaryFlowData);
-          if (Array.isArray(secondaryFlowData) == true) {
-            primaryRecord[data.specificData.primaryFlowFKName] = this.sift(filter, secondaryFlowData)[0];
-          } else {
-            reject(new Error('secondary Flow have to be an array'));
-          }
-          return primaryRecord;
-        }.bind(this));
+        // var resultData = primaryFlowData.map(function(primaryRecord) {
+        //   //console.log(primaryRecord);
+        //   //console.log(data.specificData.primaryFlowFKId);
+        //   let filter = {};
+        //   filter[data.specificData.secondaryFlowId] = primaryRecord[data.specificData.primaryFlowFKId];
+        //   //console.log(filter, secondaryFlowData);
+        //   if (Array.isArray(secondaryFlowData) == true) {
+        //     primaryRecord[data.specificData.primaryFlowFKName] = this.sift(filter, secondaryFlowData)[0];
+        //   } else {
+        //     reject(new Error('secondary Flow have to be an array'));
+        //   }
+        //   return primaryRecord;
+        // }.bind(this));
         //console.log(resultData);
       } catch (e) {
         reject(e);
       }
 
-      resolve({
-        data: resultData
-      });
+      // resolve({
+      //   data: resultData
+      // });
     })
   }
 }

@@ -60,7 +60,7 @@ module.exports = {
     //console.log('--------- cash data START --------  : ', data);
     return new Promise((resolve, reject) => {
       if (flowData != undefined && flowData[0].data != undefined) {
-        //console.log("----- cache data stock ----",flowData[0].data.length)
+        //console.log("----- cache data persist ----")
         // resolve({data:flowData[0].data});
         this.cache_lib.persist(data, flowData[0].data, data.specificData.history).then(cachedData => {
           //console.log('persist OK',flowData[0]);

@@ -140,9 +140,10 @@ module.exports = new function() {
             if (targetedComponent.specificData.contentType.search('application/vnd.ms-excel') != -1) {
               res.setHeader('content-type', targetedComponent.specificData.contentType);
               var responseBodyExel = []
-              //console.log('data.contentType XLS', specificData)
-              this.dataTraitment.type.type_file(targetedComponent.specificData.contentType, dataToSend, responseBodyExel, undefined, true).then(function(result) {
+              console.log('data.contentType XLS', targetedComponent.specificData);
+              this.dataTraitment.type.buildFile(undefined, JSON.stringify(dataToSend.data), undefined,true, targetedComponent.specificData.contentType).then((result)=>{
                 //console.log(result)
+                res.setHeader('Content-disposition', 'attachment; filename='+targetedComponent.specificData.url+'.xlsx');
                 res.send(result)
               })
             } else if (targetedComponent.specificData.contentType.search('xml') != -1) {

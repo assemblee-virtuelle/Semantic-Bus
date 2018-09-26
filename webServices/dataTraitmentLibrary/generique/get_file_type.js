@@ -5,6 +5,7 @@ var csv = require('../csv/csv_traitment.js');
 
 module.exports = {
   type_file: _type_file,
+  buildFile: _buildFile
 };
 
 
@@ -37,6 +38,25 @@ function _extension(filename, contentType) {
   })
 }
 
+function _buildFile(filename, dataString, dataBuffer, out, contentType) {
+  return _extension(undefined, contentType).then(function(extension) {
+    console.log("extension |", extension)
+    return new Promise(function(resolve, reject) {
+      switch (extension) {
+        case ("vnd.ms-excel"):
+        case ("xlsx"):
+        //console.log('ALLO');
+          resolve(exel.json_to_exel(JSON.parse(dataString)));
+          break;
+        default:
+          //console.log("in default")
+          reject("erreur, votre fichier n'est pas au bon format");
+          break;
+      }
+    })
+  })
+}
+
 function _type_file(filename, dataString, dataBuffer, out, contentType) {
   //console.log("in aggregate function")
   return _extension(filename, contentType).then(function(extension) {
@@ -44,9 +64,22 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
     return new Promise(function(resolve, reject) {
       if (out == true || out == 'true') {
         //console.log(out)
-        resolve({
-          data: exel.json_to_exel(dataString.data)
-        })
+        switch (extension) {
+
+          case ("xlsx"):
+          //console.log('ALLO');
+            resolve(exel.json_to_exel(JSON.parse(dataString)))
+            // let ws = exel.json_to_exel(JSON.parse(dataString))
+            // let wb = XLSX.utils.book_new();
+            // XLSX.utils.book_append_sheet(wb, ws, "People");
+            break;
+          default:
+            //console.log("in default")
+            reject("erreur, votre fichier n'est pas au bon format")
+
+            break;
+        }
+
       } else {
 
         switch (extension) {
@@ -61,10 +94,10 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
 
             // RDF TTL DONE
           case ("ttl"):
-            rdf.rdf_traitmentTTL(dataString).then(function(reusltat) {
+            rdf.rdf_traitmentTTL(dataString).then((result) =>{
               //console.log(reusltat)
               resolve({
-                data: reusltat
+                data: result
               })
             }, function(err) {
               reject("votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
@@ -78,9 +111,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
             rdf.rdf_traitmentXML(dataString).then(result => {
               // console.log("RDF", reusltat)
               //console.log(JSON.stringify(reusltat))
-              resolve({
-                data: result
-              })
+              resolve(result)
             }, function(err) {
               reject("votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
             })
@@ -90,15 +121,20 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
           case ("xls"):
           case ("xlsx"):
           case ("ods"):
-            exel.exel_traitment_client(dataBuffer).then(function(resultat) {
+          //console.log('ALLO3');
+            exel.exel_to_json(dataBuffer).then((resultat)=>{
               //console.log("RESULTAT", resultat)
-              exel.exel_traitment_server(resultat, true).then(function(exelTraite) {
-                //console.log("FINAL", exelTraite)
-                resolve({
-                  data: exelTraite
-                })
+              resolve({
+                data: resultat
               })
+              // exel.exel_traitment_server(resultat, true).then(function(exelTraite) {
+              //   //console.log("FINAL", exelTraite)
+              //   resolve({
+              //     data: exelTraite
+              //   })
+              // })
             }, function(err) {
+              console.log(err);
               reject("votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
             })
             break;
@@ -116,14 +152,14 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
             })
             break;
           case ("csv"):
-            csv.csvtojson(dataString).then((result)=>{
+            csv.csvtojson(dataString).then((result) => {
               // //console.log("FINAL", reusltat)
               //console.log("FINAL", reusltat)
               resolve({
                 data: result
               })
             }, function(err) {
-              console.log('err',err);
+              console.log('err', err);
               reject("votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
             })
             break;
