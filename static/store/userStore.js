@@ -97,7 +97,7 @@ var UserStore = function() {
   });
 
 
-  
+
 
   this.on('is_authorize', function (data) {
     console.log("is_authorize", data)
@@ -181,7 +181,7 @@ var UserStore = function() {
     })
   })
 
-  
+
 
   this.on('user_inscription', function (user) {
     console.log(user);
@@ -191,11 +191,12 @@ var UserStore = function() {
       contentType: 'application/json',
       url: '/auth/inscription',
       beforeSend: function () {
-        console.log("before send")
+        //console.log("before send")
         this.trigger('ajax_send_login');
       }.bind(this),
     }).done(data => {
       console.log(data.err);
+      console.log('XXXXXXXXXXXXXx',data);
       if (data != null && data.token != null) {
         localStorage.token = data.token
         // window.open("../ihm/application.html", "_self");

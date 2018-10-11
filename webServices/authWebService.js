@@ -319,15 +319,15 @@ module.exports = function (router,stompClient) {
         password: req.body.passwordInscription
       }
     }).then(function (data) {
-      //console.log("inscription data ====>", data.token)
+      // console.log("inscription data ====>", data.token)
       sendMail(rand, req, req.body.emailInscription, data.token.user)
       res.send({
         user: data.user,
         token: data.token.token
       });
     }).catch(function (err) {
-      //console.log(err)
-      //console.log(" ----- error during connexion -----")
+      console.log(err)
+      // console.log(" ----- error during connexion -----")
       if (err == 'name_bad_format') {
         res.send({
           err: "name_bad_format"

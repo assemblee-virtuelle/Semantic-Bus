@@ -100,7 +100,7 @@ module.exports = function(router, amqpClient) {
 
 
   amqpClient.consume('work-ask', (msg) => {
-    console.log('ALLO');
+    // console.log('ALLO');
     var messageObject = JSON.parse(msg.content.toString());
     workspace_component_lib.get({
       _id: messageObject.id
@@ -131,7 +131,7 @@ module.exports = function(router, amqpClient) {
     //var configuration = require('../configuration');
     if (configuration.saveLock == false) {
       //var id = req.body._id;
-      //var componentToUpdate = req.body;      
+      //var componentToUpdate = req.body;
       workspace_component_lib.update(req.body).then((componentUpdated) => {
         res.json(componentUpdated)
       }).catch(e => {

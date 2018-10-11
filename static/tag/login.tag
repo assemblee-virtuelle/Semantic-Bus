@@ -227,7 +227,7 @@
     })
 
     this.isScrennToShow = function (screenToTest) {
-      console.log(screenToTest == this.entity)
+      //console.log(screenToTest == this.entity)
       return screenToTest == this.entity;
     }
 
@@ -349,7 +349,7 @@
         if (this.newUser.emailInscription.match(reg) != null) {
           //if(this.newUser.passwordInscription.split().length > 5){
           if ((this.newUser.passwordInscription == this.newUser.confirmPasswordInscription) && (this.newUser.passwordInscription.split("").length > 5)) {
-            RiotControl.trigger('user_inscription', this.newUser);
+
             RiotControl.on('google_user', function () {
               this.resultEmail = "Votre compte est déja relier à un compte google"
             }.bind(this));
@@ -365,6 +365,8 @@
             RiotControl.on('name_bad_format', function () {
               this.resultName = "Entrez un format de nom valide [A-Z,a-z] max 20 caractères"
             }.bind(this));
+
+            RiotControl.trigger('user_inscription', this.newUser);
           } else {
             this.resultMdp = "mot de passe invalide 6 caracteres minimum"
           }

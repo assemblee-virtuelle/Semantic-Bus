@@ -6,7 +6,7 @@ module.exports = {
   mongoose: require('mongoose'),
   //mLabPromise: require('../mLabPromise'),
   graphIcon: 'mongoDbConnector.png',
-  dotProp : require('dot-prop'),
+  dotProp: require('dot-prop'),
   tags: [
     'http://semantic-bus.org/data/tags/inComponents',
     'http://semantic-bus.org/data/tags/outComponents',
@@ -15,8 +15,8 @@ module.exports = {
   schema: null,
   modelShema: null,
   stepNode: true,
-  PromiseOrchestrator : require("../../lib/core/helpers/promiseOrchestrator.js"),
-  ArraySegmentator : require("../../lib/core/helpers/ArraySegmentator.js"),
+  PromiseOrchestrator: require("../../lib/core/helpers/promiseOrchestrator.js"),
+  ArraySegmentator: require("../../lib/core/helpers/ArraySegmentator.js"),
 
 
   initialise: function(url) {
@@ -61,7 +61,7 @@ module.exports = {
     }.bind(this))
   },
 
-  request: function (querysTable, modelShema, queryParams) {
+  request: function(querysTable, modelShema, queryParams) {
     console.log('REQUEST', queryParams);
     if (querysTable == null || querysTable.length == 0) {
       return modelShema.model
@@ -84,11 +84,11 @@ module.exports = {
             fullError.displayMessage = "Connecteur Mongo :  nous avons rencontré un probleme avec votre query MongoDB";
             throw fullError
           })
-        } catch (e) {
-          if (e instanceof SyntaxError) {
-            let fullError = new Error(e);
-            fullError.displayMessage = "Connecteur Mongo : Veuillez entre une query valide  ex: findOne({name:'thomas')}";
-            return Promise.reject(fullError)
+      } catch (e) {
+        if (e instanceof SyntaxError) {
+          let fullError = new Error(e);
+          fullError.displayMessage = "Connecteur Mongo : Veuillez entre une query valide  ex: findOne({name:'thomas')}";
+          return Promise.reject(fullError)
         } else {
           return Promise.reject(e)
         }
@@ -96,18 +96,18 @@ module.exports = {
     }
   },
 
-  normalizeQuerysTable: function (querysTable, queryParams) {
+  normalizeQuerysTable: function(querysTable, queryParams) {
     let processingQuerysTable = querysTable
     const regex = /{(\£.*?)}/g;
     const elementsRaw = processingQuerysTable.match(regex);
     if (elementsRaw != null) {
       for (let match of elementsRaw) {
         const ObjectKey = match.slice(3, -1);
-        console.log(match, ObjectKey, queryParams, this.dotProp.get(queryParams, ObjectKey));
+        //console.log(match, ObjectKey, queryParams, this.dotProp.get(queryParams, ObjectKey));
 
         processingQuerysTable = processingQuerysTable.replace(match, JSON.stringify(this.dotProp.get(queryParams, ObjectKey)));
       }
-      console.log(processingQuerysTable);
+      //console.log(processingQuerysTable);
     }
     return processingQuerysTable;
   },
@@ -121,11 +121,13 @@ module.exports = {
         const segments = arraySegmentator.segment(dataFlow, 100);
         const paramArray = segments.map(s => [modelShema, s])
         const promiseOrchestrator = new this.PromiseOrchestrator();
-        promiseOrchestrator.execute(this, this.insertPromise, paramArray, {beamNb: 10})
+        promiseOrchestrator.execute(this, this.insertPromise, paramArray, {
+          beamNb: 10
+        })
       })
   },
 
-  insertPromise:function(modelShema, data) {
+  insertPromise: function(modelShema, data) {
     return modelShema.model.insertMany(data).exec()
   },
 
@@ -134,7 +136,7 @@ module.exports = {
     if (dataFlow === undefined) {
       return this.initialise(data.specificData.url)
         .then(url => this.createmodel(data.specificData.modelName, data.specificData.jsonSchema, url))
-        .then(model => this.request(data.specificData.querySelect, model,queryParams))
+        .then(model => this.request(data.specificData.querySelect, model, queryParams))
         .then(finalRes => ({
           data: finalRes
         }))
