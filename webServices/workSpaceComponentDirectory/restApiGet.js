@@ -161,8 +161,8 @@ module.exports = new function() {
 
             } else if (targetedComponent.specificData.contentType.search('json') != -1) {
               res.setHeader('content-type', targetedComponent.specificData.contentType);
-              //var buf = Buffer.from(JSON.stringify(dataToSend.data));
-              res.send('toto');
+              var buf = Buffer.from(JSON.stringify(dataToSend.data));
+              res.send(buf);
             } else {
               next(new Error('no supported madiatype'));
               //res.send('type mime non géré')

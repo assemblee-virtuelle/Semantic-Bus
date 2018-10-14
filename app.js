@@ -110,25 +110,26 @@ httpGet.makeRequest('GET', {
       // }
       //console.log(env.AMQPHOST);
       amqp.connect(url + '/' + configJson.amqpHost, function(err, conn) {
-        //if(err!=undefined){
-        console.log('AMQP Connection Error', err);
-        //}
-        console.log('AMQP connected', conn);
-        conn.createChannel(function(err, ch) {
-          onConnect(ch);
-          console.log('channel created');
-          ch.assertQueue('work-ask', {
-            durable: true
+        if (err != null) {
+          console.log('AMQP Connection Error', err);
+        } else {
+          console.log('AMQP connected');
+          conn.createChannel(function(err, ch) {
+            onConnect(ch);
+            console.log('channel created');
+            ch.assertQueue('work-ask', {
+              durable: true
+            });
+            // ch.assertExchange('amq-topic', 'topic', {
+            //   durable: true
+            // });
           });
-          // ch.assertExchange('amq-topic', 'topic', {
-          //   durable: true
-          // });
-        });
+        }
 
       });
       var onConnect = function(amqpClient) {
         //  console.log(app);
-        console.log('connected');
+        //console.log('connected');
         //stompClient.subscribe('/queue/work-ask', message=>{console.log('ALLO');});
         let messagingSevices = [];
 
