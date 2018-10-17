@@ -23,7 +23,8 @@
     "dockerPush": "sudo docker tag semanticbus-app semanticbus/semanticbus && sudo docker push semanticbus/semanticbus",
     "dockerStop": "sudo docker stop semanticbus-app && sudo docker rm semanticbus-app",
     "dockerRun": "sudo docker run -i -P -p 8080:80 --link rabbitmq --name semanticbus-app semanticbus-app",
-    "dockerRun2": "sudo docker run -i -P -p 8080:80 --link rabbitmq --name semanticbus-app -e CONFIG_URL='http://data-players.com/config/devButProd.json' semanticbus-app"
+    "dockerRun2": "sudo docker run -i -P -p 8080:80 --link rabbitmq --name semanticbus-app -e CONFIG_URL='http://data-players.com/config/devButProd.json' semanticbus-app",
+    "dockerRunProd": "sudo docker run -i -P -p 8080:80 --link rabbitmq --name semanticbus-app -e CONFIG_URL='http://data-players.com/config/prod.json' semanticbus-app"
   },
   "author": "Simon Louvet <simon.louvet.zen@gmail.com> && Boceno Alexandre <bocenoalex@gmail.com>",
   "license": "GNUV3",
@@ -56,6 +57,7 @@
     "memwatch-next": "^0.3.0",
     "mocha": "^3.5.0",
     "moment": "^2.20.1",
+    "mongodb": "^3.1.8",
     "mongoose": "^5.3.2",
     "mongoose-unique-validator": "^2.0.2",
     "mysql": "^2.13.0",

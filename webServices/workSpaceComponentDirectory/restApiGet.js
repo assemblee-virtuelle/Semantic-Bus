@@ -173,7 +173,7 @@ module.exports = new function() {
           }
         }
       }).catch(err => {
-        console.log('FAIL', err);
+        console.log('Engine FAIL for API');
         if (err.code) {
           res.status(err.code).send(err.message);
         } else {

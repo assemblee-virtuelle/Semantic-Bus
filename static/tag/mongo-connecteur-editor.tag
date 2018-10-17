@@ -1,8 +1,11 @@
 <mongo-connecteur-editor>
   <div style="padding: 5%;" class="containerV">
-    <label>URI de connexion
+    <label>serveur (sans la base de donnée)
     </label>
     <input type="text" ref="url" value={data.specificData.url}/>
+    <label>base de donnée
+    </label>
+    <input type="text" ref="database" value={data.specificData.database}/>
     <label>nom de la collection</label>
     <input type="text" ref="modelName" value={data.specificData.modelName}/>
     <h3 >
@@ -32,6 +35,9 @@
       this.query = false
       this.refs.url.addEventListener('change', function (e) {
         this.data.specificData.url = e.currentTarget.value;
+      }.bind(this));
+      this.refs.database.addEventListener('change', function (e) {
+        this.data.specificData.database = e.currentTarget.value;
       }.bind(this));
 
       this.refs.modelName.addEventListener('change', function (e) {
