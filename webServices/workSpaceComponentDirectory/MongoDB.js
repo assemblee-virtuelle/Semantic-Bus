@@ -50,7 +50,7 @@ module.exports = {
         //console.log(eval("collection." + normalizedQuerysTable+".toArray()"));
         const evaluation = eval("collection." + normalizedQuerysTable);
         let mongoPromise;
-        console.log(evaluation);
+        //console.log(evaluation);
         if (evaluation instanceof Promise) {
           mongoPromise = evaluation;
 
@@ -185,6 +185,36 @@ module.exports = {
         })
       })
   },
+  mongoInsert: function(client, database, collectionName, dataFlow) {
+    return new Promise((resolve, reject) => {
+      try {
+        const db = client.db(database)
+
+        //console.log(db);
+        const collection = db.collection(collectionName);
+        //console.log("collection",collectionName,collection);
+        collection.remove({}).then(()=>{
+          const arraySegmentator = new this.ArraySegmentator();
+          const segments = arraySegmentator.segment(dataFlow, 100);
+          const paramArray = segments.map(s => [collection, s])
+          const promiseOrchestrator = new this.PromiseOrchestrator();
+          promiseOrchestrator.execute(this, this.mongoInsertPromise, paramArray, {
+            beamNb: 10
+          }).then(()=>{
+            resolve();
+          })
+        })
+      } catch (e) {
+        reject(e);
+      } finally{
+        client.close();
+      }
+    })
+  },
+  mongoInsertPromise: function(collection, data) {
+    //console.log("mongoInsertPromise",data);
+    return collection.insertMany(data)
+  },
 
   insertPromise: function(modelShema, data) {
     return modelShema.model.insertMany(data).exec()
@@ -200,7 +230,7 @@ module.exports = {
             resolve({
               data: mongoRequestResolved.result
             })
-            return Promise.resolve(mongoRequestResolved.client);
+            //return Promise.resolve(mongoRequestResolved.client);
           })
           .catch(e => {
             reject(e);
@@ -214,12 +244,23 @@ module.exports = {
       //     data: finalRes
       //   }))
     } else {
-      return this.initialise(data.specificData.url)
-        .then(url => this.createmodel(data.specificData.modelName, data.specificData.jsonSchema, url))
-        .then(model => this.insert(dataFlow[0].data, model))
-        .then(finalRes => ({
-          data: finalRes
-        }))
+      return new Promise((resolve, reject) => {
+        this.mongoInitialise(data.specificData.url)
+          .then(client => this.mongoInsert(client, data.specificData.database, data.specificData.modelName, dataFlow[0].data))
+          .then(() => {
+            resolve()
+            //return Promise.resolve(mongoRequestResolved.client);
+          })
+          .catch(e => {
+            reject(e);
+          });
+      })
+      // return this.initialise(data.specificData.url)
+      //   .then(url => this.createmodel(data.specificData.modelName, data.specificData.jsonSchema, url))
+      //   .then(model => this.insert(dataFlow[0].data, model))
+      //   .then(finalRes => ({
+      //     data: finalRes
+      //   }))
     }
   }
 };
