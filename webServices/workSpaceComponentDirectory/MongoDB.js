@@ -67,8 +67,8 @@ module.exports = {
         })
       } catch (e) {
         reject(e);
-      } finally{
-        client.close();
+      } finally {
+        //client.close();
       }
     })
   },
@@ -193,20 +193,20 @@ module.exports = {
         //console.log(db);
         const collection = db.collection(collectionName);
         //console.log("collection",collectionName,collection);
-        collection.remove({}).then(()=>{
+        collection.remove({}).then(() => {
           const arraySegmentator = new this.ArraySegmentator();
           const segments = arraySegmentator.segment(dataFlow, 100);
           const paramArray = segments.map(s => [collection, s])
           const promiseOrchestrator = new this.PromiseOrchestrator();
           promiseOrchestrator.execute(this, this.mongoInsertPromise, paramArray, {
             beamNb: 10
-          }).then(()=>{
+          }).then(() => {
             resolve();
           })
         })
       } catch (e) {
         reject(e);
-      } finally{
+      } finally {
         client.close();
       }
     })
@@ -223,44 +223,31 @@ module.exports = {
 
   pull: function(data, dataFlow, queryParams) {
     if (dataFlow === undefined) {
-      return new Promise((resolve, reject) => {
-        this.mongoInitialise(data.specificData.url)
-          .then(client => this.mongoRequest(client, data.specificData.querySelect, data.specificData.database, data.specificData.modelName, queryParams))
-          .then(mongoRequestResolved => {
-            resolve({
-              data: mongoRequestResolved.result
-            })
-            //return Promise.resolve(mongoRequestResolved.client);
+      return new Promise(async (resolve, reject) => {
+        const client = await this.mongoInitialise(data.specificData.url);
+        try {
+          const mongoRequestResolved = await this.mongoRequest(client, data.specificData.querySelect, data.specificData.database, data.specificData.modelName, queryParams)
+          resolve({
+            data: mongoRequestResolved.result
           })
-          .catch(e => {
-            reject(e);
-          });
+        } catch (error) {
+          reject(error)
+        } finally {
+          client.close();
+        }
       })
-
-      // return this.initialise(data.specificData.url)
-      //   .then(url => this.createmodel(data.specificData.modelName, data.specificData.jsonSchema, url))
-      //   .then(model => this.request(data.specificData.querySelect, model, queryParams))
-      //   .then(finalRes => ({
-      //     data: finalRes
-      //   }))
     } else {
-      return new Promise((resolve, reject) => {
-        this.mongoInitialise(data.specificData.url)
-          .then(client => this.mongoInsert(client, data.specificData.database, data.specificData.modelName, dataFlow[0].data))
-          .then(() => {
-            resolve()
-            //return Promise.resolve(mongoRequestResolved.client);
-          })
-          .catch(e => {
-            reject(e);
-          });
+      return new Promise(async (resolve, reject) => {
+        const client = await this.mongoInitialise(data.specificData.url);
+        try {
+          await this.mongoInsert(client, data.specificData.database, data.specificData.modelName, dataFlow[0].data)
+          resolve({data:dataFlow[0].data})
+        } catch (error) {
+          reject(error)
+        } finally {
+          client.close();
+        }
       })
-      // return this.initialise(data.specificData.url)
-      //   .then(url => this.createmodel(data.specificData.modelName, data.specificData.jsonSchema, url))
-      //   .then(model => this.insert(dataFlow[0].data, model))
-      //   .then(finalRes => ({
-      //     data: finalRes
-      //   }))
     }
   }
 };
