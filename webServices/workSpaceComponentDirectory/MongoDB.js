@@ -207,12 +207,12 @@ module.exports = {
       } catch (e) {
         reject(e);
       } finally {
-        client.close();
+        //client.close();
       }
     })
   },
   mongoInsertPromise: function(collection, data) {
-    //console.log("mongoInsertPromise",data);
+    console.log("mongoInsertPromise",collection,data.length);
     return collection.insertMany(data)
   },
 
