@@ -109,7 +109,7 @@ module.exports = function(router, amqpClient) {
       var engine = require('./engine');
       return engine.execute(data, 'work', this.amqpClient, messageObject.callerId);
     }).then((data) => {
-      console.log('ENGINE work sucess');
+      //console.log('ENGINE work sucess');
       //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
       //this.stompClient.send('/topic/work-response.'+token, JSON.stringify({processId:0}));
 

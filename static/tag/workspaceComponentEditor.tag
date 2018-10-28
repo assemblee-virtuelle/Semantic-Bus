@@ -18,8 +18,7 @@
       </div>
     </div>
   </div>
-  <div id="editionContainer" style="flex-grow:1; padding: 15pt;
-    background-color: rgb(238,242,249);" class="containerV"></div>
+  <div id="editionContainer" style="flex-grow:1; padding: 15pt; background-color: rgb(238,242,249);" class="containerV"></div>
   <script>
     this.itemCurrent = {};
 
@@ -77,7 +76,6 @@
     label {
       text-align: center;
     }
-
   </style>
 
 </workspace-component-editor>
