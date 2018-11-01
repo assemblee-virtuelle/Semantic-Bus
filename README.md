@@ -2,7 +2,7 @@
 semantic data transformation &amp; semantic container crawling
 
 ## features
-- Ready for 100 MO / 100000 Item per proess
+- Ready for 100 MO / 100000 Item per process
 - Multiple source protocole
 - Multiple destination protocole
 - Rich API creation
