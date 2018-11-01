@@ -1,10 +1,5 @@
 <technical-component-table class="containerV" >
-  <!--  <div class="commandBar containerH header" style="align-items: center;">
-    <div></div>
-    <div>Add Componnent</div>
-    <image if={actionReady} style="margin-left: -1px;
-    color: white; cursor: pointer;" src="./image/ajout_composant.svg" class="commandButtonImage" width="50" height="50" onclick={addComponent}></image>
-  </div>  -->
+<!-- tableau des composants  -->
   <div class="commandBar containerH">
     <div class="containerH commandGroup " style="flex-grow:1;">
       <div each={item in firstLevelCriteria} class={commandButton:true,tagSelected:isTagInSelectedTags(item)} onclick={firstLevelCriteriaClick}>
@@ -22,16 +17,26 @@
 
   <zenTable style="flex:1" ref="technicalComponentTable" disallowdelete={true} disallownavigation={true}>
     <yield to="header">
-      <div>type</div>
-      <div>description</div>
+      <div style="padding-left: 70px;flex-basis:30%">Composants</div>
+      <div style="flex-basis:70%">description</div>
     </yield>
     <yield to="row">
       <div style="flex-basis:30%">{type}</div>
       <div style="flex-basis:70%">{description}</div>
     </yield>
   </zenTable>
-
+  </div>
+<!--dockfooter-->
+        <div class="containerV" style="height: 85px;justify-content: center;">
+          <div onclick={addComponentClick} class="commandButtonImage containerV">
+            <img src="./image/ajout_composant.svg" style="" height="40px" width="40px">
+            <span>Ajouter</span>
+          </div>
+        </div>
   <script>
+    this.data = {};
+
+
 
     //this.actionReady = false;
     this.firstLevelCriteria = [];
@@ -49,7 +54,10 @@
       //console.log('isScrennToShow',screenToTest,out, this.screenHistory);
       return out;
     }
-
+    this.addComponentClick = function(e) {
+       //console.log("In navigation")
+       RiotControl.trigger("workspace_current_add_components")
+    }
 
     firstLevelCriteriaClick(e) {
       //console.log(e); console.log(e.item.item['@id']);

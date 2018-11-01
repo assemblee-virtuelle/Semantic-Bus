@@ -1,23 +1,16 @@
 <workspace-component-editor-header class="containerH" style="flex-wrap:nowrap;flex-grow:1">
-
+<!--  header éditer un composant   -->
   <div class="commandBar containerH" style="flex-grow:1">
     <div></div>
     <div class="containerV">
-      <div class="containerH">
+      <div class="containerH title-header">
         <div>
           Editer votre composant
         </div>
       </div>
     </div>
-
-    <div style="flex-basis:140px;flex-grow:0;flex-shrink:0">
-      <div onclick={saveClick} class="commandButtonImage containerV">
-        <img src="./image/Super-Mono-png/PNG/sticker/icons/inbox.png" style="" height="40px" width="40px">
-        <div style="text-align:center">valider</div>
-
-      </div>
-    </div>
   </div>
+
 
   <style></style>
   <script>

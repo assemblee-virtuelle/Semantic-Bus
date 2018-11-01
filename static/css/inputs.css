@@ -85,3 +85,9 @@ input.readOnly {
   border-width: 0;
   font-size: 1em
 }
+
+.Search {
+  flex-direction: column;
+	align-items: stretch;
+  border-radius: 10px;
+}

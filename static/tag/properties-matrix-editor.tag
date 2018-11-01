@@ -1,14 +1,13 @@
-<properties-matrix-editor class="containerV">
-  <div>matrice de propriétés</div>
+<properties-matrix-editor style="justify-content:center; align-items: center;">
+<!-- Titre du composant -->
+<div class="contenaireV title-component">Matrice de propriétés</div>
+<!-- Description du composant -->
+  <label style="padding-top: 10px;">Recontruire des objects à partir de plusieurs propriétés en liste</label>
+<!-- Champ du composant -->>
+  <label style="padding-top: 10px;">Attribut à générer</label>
+  <input class="field" style=" margin-bottom: 20px;width:600px;"placeholder="Attribut"type="text" value={data.specificData.attribut} onkeyup={onAttributChange}>
 
-  <label>
-    attribut à générer
-  </label>
-  <input type="text" value={data.specificData.attribut} onkeyup={onAttributChange}>
-  <label>
-    champs sources (doivent être des tableaux)
-  </label>
-  <div class="fieldsTable containerV">
+  <div class="fieldsTable containerV" style="width:90%;">
     <div class="containerH commandBar" style="justify-content:flex-end">
       <div class="commandGroup">
         <image src="./image/ajout_composant.svg" class="commandButtonImage" width="50" height="50" onclick={addRow}></image>
@@ -16,10 +15,10 @@
     </div>
     <zenTable ref="fieldsTableRef" style="flex:1" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
       <yield to="header">
-        <div>champ</div>
+        <div style="padding-left: 20%;">Champ</div>
       </yield>
       <yield to="row">
-        <input type="text" value={field} data-field="field"/>
+        <input class="field" style="width:600px;" placeholder="Le champ source doivent être un tableau"type="text" value={field} data-field="field"/>
       </yield>
     </zenTable>
   </div>

@@ -1,5 +1,10 @@
-<simple-agregator-editor>
-  <div>agrégateur de flux</div>
+<simple-agregator-editor style="justify-content:center; align-items: center;">
+<!-- Titre du composant -->
+<div class="contenaireV title-component">FLOW AGREGATOR</div>
+<!-- Description du composant -->
+<label style="padding-top: 10px;">Agréger plusieurs flux pour n en former qu'un</label>
+<!-- Champ du composant -->
+  <div style="padding-top: 10px;">Agrégateur de flux</div>
   <!--<div class="containerV">
     <div class="containerH">
       <div>

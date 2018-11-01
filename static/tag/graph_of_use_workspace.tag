@@ -1,20 +1,25 @@
-<graph-of-use-workspace class="scrollable">
-  <div class="containerH" style="margin-top:5em">
-    <div class="containerV" style="flex:0.7;;background:white;padding: 2em;">
-      <span style="margin-bottom:1em;text-align: center;font-size:1.3em;"> Vos données globales (30 jours) </span>
+<graph-of-use-workspace>
+  <!--ancienne margin top <div class="containerH" style="margin-top:5em">-->
+<!--  Titre  CONSO  -->
+    <div class="containerH" style="flex-grow:0;margin-top:2em;flex:0.7;;background:white;padding: 2em;">
+      <span style="margin-bottom:2em;text-align: center;font-size:1.3em;"> Vos données globales (30 jours) </span>
+<!--  Nombre de WorkFlow  -->
       <div class="containerH" style="justify-content:space-between">
         <div class="card" >
-          <span style="font-size:2em;color:rgb(14,33,89)">{this.numberWorkspace}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  Workspaces</span>
+          <span style="font-size:2em;color:rgb(14,33,89)">{this.numberWorkspace}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  WorkFlow</span>
         </div>
+<!--  Nombre de MégaOctet  -->
         <div class="card" >
           <span style="font-size:2em;color:rgb(14,33,89)">{decimalAdjust('round', this.globalMo, -2)}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  Mo</span>
         </div>
+<!--  Montant en Euro  -->
         <div class="card">
           <span style="font-size:2em;color:rgb(14,33,89)">{decimalAdjust('round', this.globalPrice, -2)}</span><span style="font-size:0.8em;color:rgb(141,141,141)"> Euros</span>
         </div>
       </div>
     </div>
   </div>
+<!--  Graphique de consommation  -->
   <div class="containerH" style="padding:5vh">
     <div class="item-flex">
       <svg viewBox="0 0 1000 600" id="stacked" style="background-color:rgb(250,250,250);"></svg>
@@ -27,7 +32,7 @@
       .card {
       background: rgba(0,0,0,0.03);
       border-radius: 5px;
-      font-family: "adelle-sans", sans-serif;
+      font-family: Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -39,7 +44,7 @@
       .card {
       background: rgba(0,0,0,0.03);
       border-radius: 5px;
-      font-family: "adelle-sans", sans-serif;
+      font-family: Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
       display: flex;
       flex-direction: column;
       justify-content: center;
@@ -68,7 +73,7 @@
   #bad-result {
     color: red;
     font-size: 18px;
-    font-family: 'Raleway', sans-serif;
+    font-family: Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
     padding-top: 4%;
   }
 
@@ -84,7 +89,7 @@
   #good-result {
     color: green;
     font-size: 18px;
-    font-family: 'Raleway', sans-serif;
+    font-family: Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
     padding-top: 4%;
   }
 
@@ -123,7 +128,7 @@
 
   h3 {
     text-align: center;
-    font-family: 'Raleway', sans-serif;
+    font-family: Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
   }
 
   div.tooltip {
@@ -132,7 +137,7 @@
     width: 200px;
     height: 70px;
     padding: 10px;
-    font: 12px sans-serif;
+    font: 12px Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
     background: lightsteelblue;
     border: 0;
     border-radius: 8px;
@@ -145,7 +150,7 @@
     display: none;
   }
   .axis {
-    font: 10px sans-serif;
+    font: 10px Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
   }
 
   .axis line,

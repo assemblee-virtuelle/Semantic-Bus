@@ -1,5 +1,9 @@
 <filter-editor>
-  <label>filtre</label>
+  <!-- Titre du composant -->
+  <div class="contenaireV title-component">FILTRE</div>
+  <!-- Description du composant -->
+  <label style="padding-top: 10px;">Filtrer le flux</label>
+
   <jsonEditor ref="filterObjectInput" title="Filter Schema" style="flex:1" modes="['tree','text']"></jsonEditor>
 
   <script>

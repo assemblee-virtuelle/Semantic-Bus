@@ -1,17 +1,29 @@
 <user-list class="containerV">
 
-  <div class="containerV" style="height: 85%;background-color:rgb(238,242,249);justify-content: center;
-    align-items: center;">
-    <input id="users-list" class="awesomplete champ" placeholder="entrez un email..." value="{email}">
-    <!--<a class="share-btn" onclick={share}>Partager</a>-->
+<!-- partager votre WorkFlow à un utilisateur -->
+  <div class="containerV" style="background-color:rgb(238,242,249);justify-content: center;align-items: center;">
+    <input id="users-list" class="awesomplete" placeholder="Entrez une adresse email..." value="{email}">
+    <p class="text-user-list">Saisissez une adresse e-mail pour partager votre Workflow</p>
     <p class="text-user-list">{resultShare}</p>
-    <p class="text-user-list">Saisissez une adresse e-mail pour partager votre Workspace</p>
   </div>
+<!--   Bouton Partager -->
+<div class="containerH" style="flex-basis:80px;justify-content: center;">
+  <div onclick={shareClick} class="commandButton containerV">
+    <span>partager</span></div>
+  </div>
+
   <script>
     this.resultShare = ""
     this.actionReady = false;
     this.email = "";
+    this.data = {};
 
+    this.shareClick = function(e) {
+      console.log("user component share",this.workspace)
+      //if (this.workspace) {
+        RiotControl.trigger('share-workspace');
+      //};
+    }
     // this.share = function(){     console.log("user component share",this.workspace)     if (this.workspace) {       RiotControl.trigger('share-workspace', {         email: this.email,         worksapce_id: this.workspace._id       });     };
     // }.bind(this) cancelClick(e) {   RiotControl.trigger('workspace_current_add_user_cancel');   this.actionReady=false; }
 
@@ -35,7 +47,7 @@
       console.log("share change")
       this.resultShare = "Votre workspace a été partagé";
       this.update();
-    
+
       //data = null;
 
     }.bind(this);
@@ -84,9 +96,9 @@
       margin-top: 10vh;
       margin-left: 39%;
     }
+/*couleur du text partager workflow*/
     .text-user-list {
-      margin-top: 20vh;
-      color: rgb(200,200,200);
+      color: grey;
     }
     .flex-container {
       display: flex;
@@ -149,6 +161,14 @@
     .awesomplete {
       display: inline!important;
       position: relative;
+      background-color: #ffffff;
+      background-image: linear-gradient(#fff, #f2f3f5);
+      border-radius: 35px;
+      border-width: 1px;
+      border-style: solid;
+      border-color: rgb(213,218,224);
+      width: 400px;
+      height: 35px;
     }
 
     .notSynchronized {

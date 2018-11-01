@@ -1,4 +1,4 @@
-<graph-of-use  class="scrollable" style="flex-grow:1">
+<graph-of-use>
     <div class="containerH" style="margin-top:5em">
     <div class="containerV" style="flex:0.7;;background:white;padding: 2em;">
       <span style="margin-bottom:1em;text-align: center;font-size:1.3em;">  Consomation (30 jours) </span>

@@ -1,13 +1,19 @@
 <zenTable class="containerV {opts.zentableClass}" style="flex-grow:1;">
+  <div class="containerH tableHeader" style="justify-content:center">
+    <yield from="Search"/>
+  </div>
+  <!-- header -->
   <div class="containerH tableHeader" ref="tableHeader" style="flex-shrink:0;">
     <yield from="header"/>
     <div style="flex-basis:50px"></div>
   </div>
+
   <div class="containerV scrollable tableBody" ref="tableBodyContainer">
     <!--<div class="table scrollable" name="tableBody" ref="tableBody" ondragover={on_drag_over} ondrop={on_drop}>-->
-    <div class="containerV" each={indexedData} style="flex-grow:0;flex-shrink:0;">
+    <div class="containerV" each={indexedData} style="margin-right: 50px;margin-left: 50px;flex-grow:0;flex-shrink:0;">
       <div class="dropTarget" draggable="true" ondragenter={drag_enter} ondragover={drag_over} ondragleave={drag_leave} ondrop={drag_drop} data-insert="before">
       </div>
+
       <div
         class="tableRow containerH {selected:selected==true && opts.disallowselect!=true} {mainSelected:mainSelected==true && opts.disallowselect!=true}"
         data-rowId={rowId}
@@ -15,29 +21,35 @@
         ondragstart={drag_start}
         onclick={rowClic}
         style="justify-content: space-between;flex-shrink:0;">
-        <div if={opts.drag} draggable="true" class="containerV" style="background-color:grey;flex-shrink:0;margin-right:10px;justify-content: space-between;">
+<!-- ?? -->
+        <div if={opts.drag} draggable="true" class="containerV" style="background-color:grey;flex-shrink:0;justify-content: space-between;">
           <img src="./image/Super-Mono-png/PNG/sticker/icons/navigation-up-button.png" height="20px" width="20px" draggable="false">
           <img src="./image/Super-Mono-png/PNG/sticker/icons/navigation-down-button.png" height="20px" width="20px" draggable="false">
         </div>
+<!-- ?? -->
         <div class="containerH tableRowContent" style="flex-grow:1;" onkeyup={rowKeyUp} onchange={onChange} draggable="false">
           <yield from="row"/>
         </div>
-        <div class="containerV" style="flex-basis:60px;justify-content:center" draggable="false">
-          <div class="containerH">
-            <div onclick={delRowClick} data-rowId={rowId} if={!(opts.disallowdelete==true)} style="flex-basis:30px;">
+<!-- zone bouton -->
+        <div class="containerV" style="flex-basis:120px;" draggable="false">
+          <div class="containerH"style="justify-content:space-around;padding-top:10px;align-items: center;">
+<!-- Bouton éditer -->
+                        <div onclick={navigationClick} if={!(opts.disallownavigation==true)} data-rowId={rowId} style="flex-basis:10px;">
+                          <img class="commandButtonImage" src="./image/edit.png" height="20px" draggable={false}>
+                        </div>
+<!-- Bouton supprimer -->
+            <div onclick={delRowClick} data-rowId={rowId} if={!(opts.disallowdelete==true)} style="flex-basis:10px;">
               <img class="commandButtonImage" src="./image/poubelle.png" height="20px" draggable={false}>
             </div>
-            <div onclick={navigationClick} if={!(opts.disallownavigation==true)} data-rowId={rowId} style="flex-basis:30px;">
-              <img class="commandButtonImage" src="./image/edit.png" height="20px" draggable={false}>
-            </div>
+
           </div>
         </div>
       </div>
+<!-- déplacer un workflow -->
       <div class="dropTarget" draggable="true" ondragenter={drag_enter} ondragover={drag_over} ondragleave={drag_leave} ondrop={drag_drop} data-insert="after">
       </div>
     </div>
 
-    <!--</div>-->
   </div>
   <script>
 
@@ -268,7 +280,7 @@
       flex-basis:5px;
     }
     .dropFocus{
-      background-color: blue;
+      background-color: rgb(213,218,224);
       flex-basis:40px;
     }
     .tableBody {
@@ -289,42 +301,51 @@
     }
 
     .placeholder {
-      margin: 4px 4px 4px 10px;
+      margin: 10px 10px 10px 10px;
       border-width: 2px;
       border-style: solid;
       border-radius: 4px;
       border-color: #3883fa;
     }
-
+/* ligne Workflow*/
     .tableRow {
-      background-color: rgb(248,252,256);
-      /*margin-top: 9pt;*/
-      border-radius: 10px;
-      padding: 8pt;
-      color: rgb(110,110,110);
+      background-color: #ffffff;
+      background-image: linear-gradient(#fff, #f2f3f5);
+      border-radius: 5px;
+      border-top-width: 1px;
+      border-left-width: 1px;
+      border-right-width: 1px;
+      border-style: solid;
+      border-color: #f2f3f5 rgb(213,218,224) rgb(213,218,224);
+
     }
     .tableRowContent {
       justify-content: start;
+
     }
 
     .tableRowContent > * {
       padding: 10px;
       border-width: 1px;
-    }
-    .tableHeader {
-      padding: 8pt;
+
     }
 
+    /*.tableHeader {
+      padding: 8pt;
+    }*/
+
     .tableHeader > * {
-      /*display: inline-block;*/
       padding: 10px;
       border-width: 1px;
+
     }
     .tableHeader > *:last-child {
       border-right-style: none;
+
     }
     .tableRow > *:last-child {
       border-right-style: none;
+
     }
 
     .selected {

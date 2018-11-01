@@ -1,11 +1,15 @@
-<rest-api-post-editor>
-  <div>description de l'api POST</div>
-  <label>key</label>
-  <input type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.url}></input>
-  <label>url</label>
-  <a ref="link" href={'http://semantic-bus.org/data/api/' +data.specificData.url}>{'http://semantic-bus.org/data/api/'+data.specificData.url}</a>
-  <label>content-type</label>
-  <input type="text" name="contentTypeInput" ref="contentTypeInput" onChange={contentTypeInputChanged} value={data.specificData.contentType}></input>
+<rest-api-post-editor style="justify-content:center; align-items: center;">
+  <!-- Titre du composant -->
+  <div class="contenaireV title-component">API POST INPUT</div>
+  <!-- Description du composant -->
+  <label style="padding-top: 10px;">Exposition du flux de donnée sur une API http uniquement en POST</label>
+  <!-- Champ du composant -->
+  <label style="padding-top: 10px;">Clé</label>
+  <input class="field" style="width:600px;"placeholder="champ libre" type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.url}></input>
+  <label style="padding-top: 10px;">url</label>
+  <a style="color: grey"ref="link" href={'http://semantic-bus.org/data/api/' +data.specificData.url}>{'http://semantic-bus.org/data/api/'+data.specificData.url}</a>
+  <label style="padding-top: 10px;">content-type</label>
+  <input class="field" style="width:600px;"placeholder="champ libre" type="text" name="contentTypeInput" ref="contentTypeInput" onChange={contentTypeInputChanged} value={data.specificData.contentType}></input>
   <!--<label>Sortie en xls (Boolean)</label>
   <input type="text" name="xlsInput" ref="xlsInput"value={data.specificData.xls}></input>-->
   <script>

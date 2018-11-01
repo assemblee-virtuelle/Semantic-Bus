@@ -1,8 +1,11 @@
-<value-from-path-editor>
-
-  <label>chemin vers la valeur à récupérer et mettre à a racine</label>
-  <input type="text" name="pathInput" ref="pathInput" value={data.specificData.path} onChange={pathInputChange}></input>
-
+<value-from-path-editor  style="justify-content:center; align-items: center;">
+<!-- Titre du composant -->
+<div class="contenaireV title-component">VALEUR DU CHEMIN</div>
+<!-- Description du composant -->
+<label style="padding-top: 10px;">Extraire une valeur par son chemin</label>
+<!-- Champ du composant -->
+  <label style="padding-top: 10px;">Chemin vers la valeur à récupérer et la mettre à la racine</label>
+  <input class="field" style="width:600px;"type="text" name="pathInput" ref="pathInput" value={data.specificData.path} onChange={pathInputChange}></input>
 
   <script>
 

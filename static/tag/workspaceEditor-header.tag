@@ -1,41 +1,41 @@
 <workspace-editor-header class="containerH" style="flex-wrap:nowrap;flex-grow:1">
 
-  <div class="commandBar containerH" style="flex-grow:1">
+  <div class="commandBar containerH" style="justify-content: center;flex-grow:1">
     <div></div>
     <div class="containerV">
       <div if={menu=='component' } class="containerH">
         <div>
-          modifier votre worflow
+          Modifier votre worflow
         </div>
       </div>
       <div if={menu=='user' } class="containerH">
         <div>
-          les utilisateurs qui ont acces au workflow
+          Les utilisateurs qui ont acces au workflow
         </div>
       </div>
       <div if={menu=='information' } class="containerH">
         <div>
-          les informations du worflow
+          Les informations du worflow
         </div>
       </div>
       <div if={menu=='addComponent' } class="containerH">
         <div>
-          ajouter un composant au workflow
+          Ajouter un composant au workflow
         </div>
       </div>
       <div if={menu=='share' } class="containerH">
         <div>
-          ajouter un utilisateur au workflow
+          Ajouter un utilisateur au workflow
         </div>
       </div>
       <div if={menu=='utilisation' } class="containerH">
         <div>
-          consomation du workflow
+          Consomation du workflow
         </div>
       </div>
       <div if={menu=='process' } class="containerH">
         <div>
-          les process
+          Les processuces archivés
         </div>
       </div>
       <div class="containerH" >
@@ -43,16 +43,17 @@
       </div>
     </div>
 
-    <div style="flex-basis:100px;flex-grow:0;flex-shrink:0">
+    <!--<div style="flex-basis:100px;flex-grow:0;flex-shrink:0">
       <div if={menu=='component' } onclick={showAddComponentClick} class="commandButtonImage containerV">
         <img src="./image/ajout_composant.svg" style="" height="40px" width="40px">
         <div style="text-align:center">ajouter un composant</div>
       </div>
-
-      <div if={menu=='user' } onclick={showShareClick} class="commandButtonImage containerV">
+-->
+    <!--  <div if={menu=='user' } onclick={showShareClick} class="commandButtonImage containerV">
         <img src="./image/ajout_composant.svg" style="" height="40px" width="40px">
         <div style="text-align:center">ajouter un utilisateur</div>
       </div>
+
       <div if={menu=='information' } onclick={persistClick} class="commandButtonImage containerV">
         <img src="./image/Super-Mono-png/PNG/sticker/icons/inbox.png" style="" height="40px" width="40px">
         <div style="text-align:center">valider</div>
@@ -65,13 +66,14 @@
         <img src="./image/Share.svg" style="" height="40px" width="40px">
         <div style="text-align:center">partager</div>
       </div>
+
       <div if={menu=='process' } onclick={shareClick} class="commandButtonImage containerV">
         <!--<img src="./image/Super-Mono-png/PNG/sticker/icons/bin.png" style="" height="40px" width="40px">
-        <div style="text-align:center">supprimer tous</div>-->
+        <div style="text-align:center">supprimer tous</div>
       </div>
     </div>
 
-  </div>
+  </div>-->
 
   <style></style>
   <script>

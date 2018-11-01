@@ -1,24 +1,25 @@
-<rest-get-json-editor>
-  <div>description du web service à intéroger</div>
-  <label>url</label>
-  <input type="text" ref="urlInput" value={data.specificData.url} onchange={urlInputChange}></input>
-  <label>content-type forcé</label>
-  <input type="text" ref="overidedContentTypeInput" value={data.specificData.overidedContentType} onchange={overidedContentTypeInputChange}></input>
+<rest-get-json-editor style="justify-content:center; align-items: center;">
+  <!-- Titre du composant -->
+  <div class="contenaireV title-component">REST GET JSON</div>
+  <!-- Description du composant -->
+  <label style="padding-top: 10px;">Intéroger une API REST avec une requete Get qui fourni un flux JSON, XML</label>
+  <!-- Champ du composant -->
+  <label style="padding-top: 10px;">url du web service à intéroger</label>
+  <input class="field" style="width:600px;"placeholder="champ libre" type="text" ref="urlInput" value={data.specificData.url} onchange={urlInputChange}></input>
+  <label style="padding-top: 10px;">content-type forcé</label>
+  <input class="field" style="width:600px;"placeholder="champ libre" type="text" ref="overidedContentTypeInput" value={data.specificData.overidedContentType} onchange={overidedContentTypeInputChange}></input>
 
-  <label>header</label>
+  <label style="padding-top: 10px;">header</label>
   <div class="commandBar containerH" style="justify-content:flex-end">
     <image class="commandButtonImage" src="./image/ajout_composant.svg" width="50" height="50" onclick={addRowClick}></image>
   </div>
   <zenTable ref="headerTable" style="flex:1" title="header de la requete" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
-    <yield to="header">
-      <div>key</div>
-      <div>value</div>
-    </yield>
     <yield to="row">
-      <input type="text" style="flex-basis:50%" value={key} data-field="key"/>
-      <input type="text" style="flex-basis:50%" value={value} data-field="value"/>
+      <input class="field" style="width:300px;" placeholder="Clé" type="text" style="flex-basis:50%" value={key} data-field="key"/>
+      <input class="field" style="width:300px;" placeholder="Valeur" type="text" style="flex-basis:50%" value={value} data-field="value"/>
     </yield>
   </zenTable>
+
   <script>
 
     this.data = {};

@@ -1,13 +1,13 @@
-<rest-get-editor>
-  <div>description du web service à intéroger</div>
-  <label>url</label>
-  <input type="text" ref="urlInput" onChange={changeUrl} value={data.specificData.url}></input>
-  <!-- <label>verbe</label>
-  <input type="text" ref="verbInput" onChange={changeVerb} value={data.specificData.verb}></input>
-  <label>corp</label>
-  <input type="text" ref="bodyInput" onChange={changeBody} value={data.specificData.body}></input> -->
-  <label>content-type</label>
-  <input type="text" ref="contentTypeInput" onChange={changeContentType} value={data.specificData? data.specificData.contentType : "test" }></input>
+<rest-get-editor style="justify-content:center; align-items: center;">
+  <!-- Titre du composant -->
+  <div class="contenaireV title-component">REST GET HTTP</div>
+  <!-- Description du composant -->
+  <label style="padding-top: 10px;">Intéroger un fichier mis à disposition sur une API REST avec une requete Get</label>
+  <!-- Champ du composant -->
+  <label style="padding-top: 10px;">url du web service à intéroger</label>
+  <input class="field" style="width:600px;"placeholder="champ libre"type="text" ref="urlInput" onChange={changeUrl} value={data.specificData.url}></input>
+  <label style="padding-top: 10px;">content-type</label>
+  <input class="field" style="width:600px;"placeholder="champ libre"type="text" ref="contentTypeInput" onChange={changeContentType} value={data.specificData? data.specificData.contentType : "test" }></input>
 
   <script>
     this.data = {}

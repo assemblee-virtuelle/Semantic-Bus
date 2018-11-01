@@ -1,49 +1,51 @@
-<scrapper-editor class="containerV">
-  <div class="containerH">
-    <div class="containerV" style="flex-grow:1">
+<scrapper-editor>
+  <!-- Titre du composant -->
+  <div class="contenaireV title-component">SCRAPPER</div>
+  <!-- Description du composant -->
+  <label style="padding-top: 10px;">Scrapper une page html</label>
+  <!-- Champ du composant -->
+  <div class="containerH"style="justify-content:center; align-items: center;flex-wrap: wrap;height:500px;">
+    <div class="containerV" style="justify-content:center; align-items: center; flex-wrap: wrap;flex-grow:1">
 
-      <label>User ( Sauce Lab )</label>
-      <input type="text" ref="user" class="form-controle" value={data.specificData.user}></input>
-      <label>Key ( Sauce Lab )
+      <label style="padding-top: 10px;">User ( Sauce Lab )</label>
+      <input class="field" style="width:300px;"placeholder="champ libre" type="text" ref="user" class="form-controle" value={data.specificData.user}></input>
+      <label style="padding-top: 10px;">Key ( Sauce Lab )
       </label>
-      <input type="text" ref="key" class="form-controle" value={data.specificData.key}></input>
+      <input class="field" style="width:300px;"placeholder="champ libre" type="text" ref="key" class="form-controle" value={data.specificData.key}></input>
     </div>
-    <div class="containerV" style="flex-grow:1">
-      <label>Name of Sauce Labs JOB
+    <div class="containerV" style="justify-content:center; align-items: center; flex-wrap: wrap;flex-grow:1">
+      <label style="padding-top: 10px;">Name of Sauce Labs JOB
       </label>
-      <input type="text" ref="saucelabname" class="form-controle" value={data.specificData.saucelabname}></input>
-      <label>URL
+      <input class="field" style="width:300px;"placeholder="champ libre" type="text" ref="saucelabname" class="form-controle" value={data.specificData.saucelabname}></input>
+      <label style="padding-top: 10px;">URL
       </label>
-      <input type="text" ref="url" class="form-controle" value={data.specificData.url}></input>
+      <input class="field" style="width:300px;"placeholder="champ libre" type="text" ref="url" class="form-controle" value={data.specificData.url}></input>
     </div>
   </div>
-  <!--  <select ref="actionType" style="flex-basis:50%" >
-      <option each={actionType in options}>{actionType}</option>
-    </select>  -->
+  <!--  tableau scrapper -->
   <div class="scenarioTable containerV">
     <div class="containerH commandBar" style="justify-content:flex-end">
       <image class="commandButtonImage" src="./image/ajout_composant.svg" width="50" height="50" onclick={addRowClick}></image>
     </div>
     <zenTable ref="scrapperRef" style="flex:1" drag={true} allowdirectedit={true} disallowselect={true} disallownavigation={true}>
       <yield to="header">
-        <div style="width:20%">Action</div>
-        <div style="width:20%">Name</div>
-        <div style="width:40%">Selector</div>
-        <div style="width:20%">Attribut</div>
-        <div style="width:20%">Value</div>
-        <div style="width:10%">ScrollX</div>
-        <div style="width:10%">ScrollY</div>
+        <div style="padding-left:120px">Action</div>
+        <div style="padding-left:150px">Selection</div>
+        <div style="padding-left:200px">Attribut</div>
+        <div style="padding-left:150px">Valeur</div>
+        <div style="padding-left:100px">ScrollX</div>
+        <div style="padding-left:2px">ScrollY</div>
       </yield>
       <yield to="row">
-        <select data-field="actionType" ref="actionType" style="flex-basis:20%">
+        <select data-field="actionType" ref="actionType" >
           <option each={optionValue in [" " , "getValue" , "getHtml" , "getAttr" , "setValue" , "click" , "scroll" ,"selectByValue","wait" ]} value={optionValue} selected={actionType==optionValue}>{optionValue}</option>
         </select>
-        <input type="text" style="width:20%" value={action} data-field="action"/>
-        <input type="text" style="width:40%" value={selector} data-field="selector"/>
-        <input type="text" style="width:20%" value={attribut} data-field="attribut"/>
-        <input type="text" style="width:20%" value={setValue} data-field="setValue"/>
-        <input type="text" style="width:10%" value={scrollX} data-field="scrollX"/>
-        <input type="text" style="width:10%" value={scrollY} data-field="scrollY"/>
+        <input class="field"type="text" style="width:20%" value={action} data-field="action"/>
+        <input class="field"type="text" style="width:30%" value={selector} data-field="selector"/>
+        <input class="field"type="text" style="width:20%" value={attribut} data-field="attribut"/>
+        <input class="field"type="text" style="width:20%" value={setValue} data-field="setValue"/>
+        <input class="field"type="text" style="width:5%" value={scrollX} data-field="scrollX"/>
+        <input class="field"type="text" style="width:5%" value={scrollY} data-field="scrollY"/>
       </yield>
     </zenTable>
   </div>

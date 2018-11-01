@@ -1,6 +1,6 @@
 <navigation>
-
-  <div id="containerLoaderDiv" if={userAuthentified!=true} class="containerV" style="justify-content:center">
+<!--  Barre de chargement  -->
+  <div id="containerLoaderDiv" if={userAuthentified!=true} class="containerV" style="">
     <div id="row">
       <div id="loaderDiv"></div>
       <h1 id="loaderText" class="containerV">
@@ -30,10 +30,21 @@
       <div onclick={closeError} class="commandButtonImage"><img src="./image/Super-Mono-png/PNG/basic/red/button-cross.png" height="20px"></div>
     </div>
   </div>
-
+</div>
+<!-- PAGE Principal -->
   <div class="containerV" style="bottom:0;top:0;right:0;left:0;position:absolute">
 
-    <div class="containerH header" style="background-color: rgb(33,150,243);flex-wrap:nowrap;flex-shrink : 0; flex-basis:140px;">
+<!--  Headers -->
+    <div class="background-header containerH header" style="flex-wrap:nowrap; flex-shrink : 0;">
+
+<!--  Logo Grappe  -->
+<div class="containerV" style="flex-grow:0;flex-shrink:0;">
+<img src="./image/grappe-web1.png" style="margin-left:20px;height:50px; width:75px;justify-content:center;">
+</div>
+        <div style="flex-grow:0;flex-shrink:0;">
+
+        </div>
+<!--  Titre headers -->
       <workspace-table-header if={isScrennToShow('myWorkspaces')}></workspace-table-header>
       <landing-header if={isScrennToShow('landing')}></landing-header>
       <workspace-share-table-header if={isScrennToShow('sharedWorkspaces')}></workspace-share-table-header>
@@ -41,43 +52,46 @@
       <workspace-editor-header if={isScrennToShow('workspace')}></workspace-editor-header>
       <workspace-component-editor-header if={isScrennToShow('component')}></workspace-component-editor-header>
       <json-previewer-header if={isScrennToShow('workPreview')}></json-previewer-header>
-
+<!-- Nom d'utilisateur -->
+<div style="flex-grow:0;flex-shrink:0;">
+  <h3 style="color:white; font-family: 'Open Sans', sans-serif;">Nom d'utilisateur</h3>
+</div>
+<!--  Bouton utilisateur -->
+<div style="flex-grow:0;flex-shrink:0;">
+  <a href="#profil//edit" class="commandButtonImage {selectedMenu:isScrennInHistory('profil')} containerV" style="">
+        <img src="./image/menu/user.png" style="margin: 25px; width:40px" >
+          <!--insert image user-->
+</div>
+      </a>
     </div>
+<!--  Menu de navigation   -->
+  <div class="containerH" style="flex-grow:1;flex-shrink:1;">
+      <div class="containerV" style="justify-content: space-between;background: linear-gradient(180deg, rgb(26,145,194) 20% ,rgb(41,181,237));flex-basis:80px;flex-shrink:0">
 
-    <div class="containerH" style="flex-grow:1;flex-shrink:1;">
-
-      <!--  NAVBAR   -->
-      <div class="containerV" style="justify-content: space-between;background: linear-gradient(180deg, rgb(33,150,243) 20% ,rgb(41,181,237));flex-basis:80px;flex-shrink:0">
-        <!--<div class="containerV" style="flex-grow:1">-->
         <div class="containerV" style="flex-grow:1;justify-content: flex-start">
-          <!--<div class={commandButtonImage:true,selectedMenu:isScrennInHistory('myWorkspaces'),containerV:true} onclick={workspaceSelectorClick} id="workspaceSelector" style="flex-basis:150px;justify-content:center;align-items:center">
-            <img src="./image/dossier.svg" style="margin-bottom:10px" width="40px">
-            <p show={isPrincipalMenu} style="color:white;font-size:12px">Worksapces</p>
-          </div>-->
-          <a href="#myWorkspaces" class="commandButtonImage {selectedMenu:isScrennInHistory('myWorkspaces')} containerV" id="workspaceSelector" style="flex-basis:100px;flex-grow:0;">
-            <img src="./image/dossier.svg" style="" width="40px">
-            <p show={isPrincipalMenu} style="color:white;font-size:12px">Worksapces</p>
+<!--  Workflow   -->
+<!--ajouter la couleur de selection -->
+          <a href="#myWorkspaces" class="commandButtonImage {selectedMenu:isScrennInHistory('myWorkspaces')}
+            {selectedMenu:isScrennInHistory('page component')}
+            containerV" id="workspaceSelector" style="flex-basis:100px;flex-grow:0;">
+            <img src="./image/dossier.svg" style="" width="35px">
+              <div style="text-align:center;padding-top: 5px;font-family: 'Open Sans', sans-serif;color:white;font-size:10px">WorkFlow</div>
           </a>
-
+<!--  Workflow Partagé   -->
           <a href="#sharedWorkspaces" class="commandButtonImage {selectedMenu:isScrennInHistory('sharedWorkspaces')} containerV" style="flex-basis:100px;flex-grow:0;">
-            <img src="./image/double_dossier.svg" style="" width="40px">
-            <p show={isPrincipalMenu} style="color:white;font-size:12px;text-align:center">Worksapces Partagé</p>
+            <img src="./image/double_dossier.svg" style="" width="35px">
+              <div style="text-align:center;padding-top: 5px;font-family: 'Open Sans', sans-serif;color:white;font-size:10px">WorkFlow Partagé</div>
           </a>
-          <a href="#profil//running" class="commandButtonImage {selectedMenu:isScrennInHistory('profil')} containerV" style="flex-basis:100px;flex-grow:0;">
-            <img src="./image/user.png" style="" width="40px">
-            <p show={isPrincipalMenu} style="color:white;font-size:12px">Profil</p>
-          </a>
-          <!--  ADMIN  -->
+<!--  Administrateur   -->
           <a href="#admin//scripts" class="commandButtonImage {selectedMenu:isScrennInHistory('admin')} containerV" if={showAdmin} style="flex-basis:100px;flex-grow:0;">
-            <img src="./image/Roulette_bus.svg" style="" width="40px">
-            <p style="color:white;font-size:12px">Paramêtres</p>
+            <img src="./image/menu/conf.png" style="" width="35px">
+            <div style="text-align:center;padding-top: 5px;font-family: 'Open Sans', sans-serif;color:white;font-size:10px">Paramètres</div>
           </a>
         </div>
       </div>
 
-      <!--  CONTENT   -->
-
-      <div class="containerV generalContainer" style="flex-grow:1">
+<!--  Contenu   -->
+      <div class="containerV generalContainer" style="flex-grow:1;flex-shrink:1;">
         <landing if={isScrennToShow('landing')}></landing>
         <workspace-table if={isScrennToShow('myWorkspaces')></workspace-table>
         <workspace-share-table if={isScrennToShow('sharedWorkspaces')></workspace-share-table>
@@ -88,11 +102,12 @@
         <admin if={isScrennToShow('admin')}></admin>
         <jsonPreviewer if={isScrennToShow('workPreview')}></jsonPreviewer>
       </div>
+</div>
+</div>
 
-    </div>
-  </div>
+
   <script>
-
+    this.data = {};
     this.persistInProgress = false;
     this.workInProgress = false;
     // this.isPrincipalMenu = true; this.workspaceName = "" this.actionReady = false; HEADER EVENT filterCards(e) {   RiotControl.trigger('nav_filterCards', e); } addRowClick(e) {   RiotControl.trigger('nav_addRowWorkspace') } persistClick(e) {
@@ -102,6 +117,8 @@
     // function () {   console.log("in hide");   $("#containerloaderDiv").hide();   this.update() }.bind(this));
     //
     // RiotControl.on("ajax_send", function () {   console.log("in show");   $("#containerloaderDiv").show();   this.update() }.bind(this)); //TEST LOGIN ////
+    /*Nom d'utilisateur*/
+
     this.isGoodUser = function () {
       RiotControl.trigger('is_token_valid?');
     }
@@ -217,9 +234,13 @@
       route.start(true);
       //RiotControl.trigger('screenHistoryInit');
     });
+
   </script>
   <style>
-
+  .background-header{
+    background-color: rgb(26,145,194);
+    background-image: linear-gradient(rgb(26,145,194), rgb(26,145,194));
+    }
     .AddButtonClick {
       opacity: 1;
     }
@@ -278,7 +299,7 @@
       padding: 0;
       margin: 0;
     }*/
-
+/*  Barre de chargement  */
     #containerSecureDiv {
       background-color: rgba(200,200,200,1);
       bottom: 0;
@@ -300,15 +321,7 @@
       z-index: 2;
       pointer-events: none;
     }
-    #containerErrorDiv {
-      background-color: rgba(200,200,200,0);
-      bottom: 0;
-      top: 0;
-      right: 0;
-      left: 0;
-      position: absolute;
-      z-index: 2;
-    }
+
     #containerLoaderDiv {
       background-color: rgba(200,200,200,0.6);
       bottom: 0;
@@ -342,7 +355,7 @@
     #loaderText {
       padding-top: 5%;
       color: #3498db;
-      font-family: 'Raleway', sans-serif;
+      font-family: Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
       text-align: center;
     }
     #loaderDiv {
@@ -370,9 +383,9 @@
       color: white;
       z-index: 999;
     }
-
+/* couleur de selection */
     .selectedMenu {
-      background-color: rgb(9,245,185);
+      background-color: rgb(124,195,232);
     }
 
     .progressContainer {

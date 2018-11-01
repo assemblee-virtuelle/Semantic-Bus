@@ -1,22 +1,27 @@
-<sql-connecteur-editor>
-  <div style ="padding: 5%;">
-      <div>Configuration de la base à interoger</div>
-      <label>driver</label>
-      <input type="text" ref="driver" value={data.specificData.driver}/>
-      <label>host</label>
-      <input type="text" ref="host" value={data.specificData.host}/>
-      <label>port</label>
-      <input type="text" ref="port" value={data.specificData.port}/>
-      <label>username</label>
-      <input type="text" ref="username" value={data.specificData.username}/>
-      <label>password</label>
-      <input type="text" ref="password" value={data.specificData.password}/>
-      <label>database</label>
-      <input type="text" ref="database" value={data.specificData.database}/>
-      <label>nom de la table</label>
-      <input type="text" ref="modelName" value={data.specificData.modelName}/>
-      <h5 style="margin-top:2%;"> Requete : Documentation requetes: http://sql.sh/cours</h5>
-      <textarea placeholder="exemple: SELECT * FROM 'users'" style="width: 100%;height: 50%; background-color: white;color: rgb(56, 131, 250);padding: 5px;border-radius: 10px;border: 1px solid rgb(56, 131, 250);"
+<sql-connecteur-editor style="justify-content:center; align-items: center;">
+  <!-- Titre du composant -->
+  <div class="contenaireV title-component">CONNECTEUR SQL</div>
+  <!-- Description du composant -->
+  <label style="padding-top: 10px;">Intéroger une base de donnée SQL</label>
+  <!-- Champ du composant -->
+  <div class="containerV"style="align-items:center;">
+      <div style="padding-top: 10px;">Configuration de la base à interoger</div>
+      <label style="padding-top: 10px;">Driver</label>
+      <input class="field" style="width:600px;"placeholder="Driver"type="text" ref="driver" value={data.specificData.driver}/>
+      <label style="padding-top: 10px;">Host</label>
+      <input class="field" style="width:600px;"placeholder="Host"type="text" ref="host" value={data.specificData.host}/>
+      <label style="padding-top: 10px;">Port</label>
+      <input class="field" style="width:600px;"placeholder="Port"type="text" ref="port" value={data.specificData.port}/>
+      <label style="padding-top: 10px;">User name</label>
+      <input class="field" style="width:600px;"placeholder="User name"type="text" ref="username" value={data.specificData.username}/>
+      <label style="padding-top: 10px;">Password</label>
+      <input class="field" style="width:600px;"placeholder="Password"type="text" ref="password" value={data.specificData.password}/>
+      <label style="padding-top: 10px;">Database</label>
+      <input class="field" style="width:600px;"placeholder="Database"type="text" ref="database" value={data.specificData.database}/>
+      <label style="padding-top: 10px;">Nom de la table</label>
+      <input class="field" style="width:600px;"placeholder="Nom de la table"type="text" ref="modelName" value={data.specificData.modelName}/>
+      <label >Documentation requêtes: <a style="padding-top: 10px;color: grey"ref="link" href={'http://sql.sh/cours'}>http://sql.sh/cours</a></label>
+      <textarea placeholder="exemple: SELECT * FROM 'users'" style="width: 90%;height: 50%; background-color: white;color: rgb(56, 131, 250);padding: 5px;border-radius: 10px;border: 1px solid rgb(56, 131, 250);"
           type="textarea" ref="querySelect" value={data.specificData.querySelect}>
           {data.specificData.querySelect}
       </textarea>

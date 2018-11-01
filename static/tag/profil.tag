@@ -1,4 +1,6 @@
-<profil class="containerH" style="flex-grow:1;flex-wrap:nowrap;">
+<profil class="containerU" style="justify-content: center;flex-grow:1;flex-wrap:nowrap;">
+
+<!-- Chargement paiement -->
   <div id="containerLoaderDiv" if={payment_in_progress == true} class="containerV" style="justify-content:center">
     <div id="row">
       <div id="loaderDiv"></div>
@@ -9,91 +11,96 @@
       </h1>
     </div>
   </div>
-  <div class="containerV" style="flex-basis: 70px; background-color: rgb(9,245,185);flex-shrink:0;">
-    <div class=" containerV" style="flex-basis:400px; background-color: rgb(9,245,185);flex-grow:0;">
-      <a href="#profil//running" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
-        <img src="./image/Stats.svg" style="margin-bottom: 10px;" height="40px" width="40px">
-        <p style="color:white;font-size:12px">Conso</p>
+<!-- Menu utilisateur -->
+  <div class="containerU" style="height:80px;background-color: rgb(124,195,232);flex-shrink:0;">
+<!-- ID editer-->
+    <div class=" containerH" style="padding-top: 5px;justify-content: space-around;flex-grow:1;flex-wrap:wrap;">
+      <a href="#profil//edit" class="commandButtonImage containerU" style="flex-basis:30px">
+      <img src="./image/menu/id-card.png" style="" height="40px" width="40px">
+        <p style="text-align:center;padding-top: 5px;font-family: 'Open Sans', sans-serif;color:white;font-size:10px">Editer</p>
       </a>
-      <a href="#profil//edit" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
-        <img src="./image/Autres.svg" style="margin-bottom: 10px;" height="40px" width="40px">
-        <p style="color:white;font-size:12px">Edition</p>
+<!-- Consommation-->
+      <a href="#profil//running" class="commandButtonImage containerU" style="flex-basis:30px">
+        <img src="./image/menu/chart-.png" style="" height="40px" width="40px">
+        <p style="text-align:center;padding-top: 5px;font-family: 'Open Sans', sans-serif;color:white;font-size:10px">Consommation</p>
       </a>
-       <a href="#profil//payement" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
-        <img src="./image/credit_card.png" style="margin-bottom: 10px;" height="40px" width="40px">
-        <p style="color:white;font-size:12px">Credits</p>
+<!-- crédit -->
+       <a href="#profil//payement" class="commandButtonImage {selectedMenu:isScrennInHistory('#profil//payement')} containerU" style="flex-basis:30px">
+        <img src="./image/menu/credit-card.png" style="" height="40px" width="40px">
+        <p style="text-align:center;padding-top: 5px;font-family: 'Open Sans', sans-serif;color:white;font-size:10px">Crédits</p>
       </a>
-      <a href="#profil//setting" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
-        <img src="./image/Roulette_bus.svg" style="margin-bottom: 10px;" height="40px" width="40px">
-        <p style="color:white;font-size:12px">Paramêtres</p>
+<!-- Paramètres
+      <a href="#profil//setting" class="commandButtonImage containerU" style="flex-basis:30px">
+        <img src="./image/menu/conf.png" style="" height="40px" width="40px">
+        <p style="text-align:center;padding-top: 5px;font-family: 'Open Sans', sans-serif;color:white;font-size:10px">Paramètres</p>
+      </a>-->
+<!-- Déconnexion -->
+      <a onclick={deconnexion} class="commandButtonImage containerU" style="flex-basis:30px">
+        <img src="./image/menu/log-out.png" style="" height="40px" width="40px">
+        <p style="text-align:center;padding-top: 5px;font-family: 'Open Sans', sans-serif;color:white;font-size:10px;">Déconnexion</p>
       </a>
+      </div>
     </div>
-  </div>
-
-  <div class="containerV" if={menu=='running'} style="background-color: rgb(238,242,249); flex-grow: 1;">
+<!-- Graphique consommation -->
+  <div class="containerV" if={menu=='running'} style="height: 300px;background-color: rgb(238,242,249); flex-grow: 1;">
     <graph-of-use-workspace></graph-of-use-workspace>
   </div>
+<!-- Page Editer -->
+  <div if={menu=='edit'} class="containerV" style="background-color: rgb(238, 242, 249);height: 300px;flex-grow: 1;">
 
-  <div if={menu=='edit'} class="containerH" style="background-color:rgb(238, 242, 249);flex-grow: 1;justify-content: center; align-items: center;">
-    <div class="containerV" style="flex-grow:0.25; margin-top:2em">
-      <div style="flex-basis:300pt; background-color:white; padding: 4vh;  border-radius: 5px;">
-
-        <div class="containerV" style="flex-grow: 1;background-color: rgb(250,250,250);"  >
-          <h3 style="color:rgb(33,151,242); font-family: 'Open Sans', sans-serif;">{profil.name}</h3>
-        </div>
-
-        <div class="containerV" >
+<!-- Formulaire utilisateur -->
+    <div class="containerV" style="align-items: center;">
+      <div style="background-color: rgb(238, 242, 249);padding: 3px;border-radius: 5px;">
+<!-- Nom d'utilisateur -->
+            <div class="containerV" style="justify-content: center;">
+                <h3 style="color:rgb(33,151,242); font-family: 'Open Sans', sans-serif;">{profil.name}</h3>
+            </div>
+<!-- Email -->
+        <div class="containerV" style="justify-content: center;">
           <label class="label-form">Email</label>
-          <!--  <input class="field" value="{profil.credentials.email}" ref="email" readOnly onchange={changeEmailInput}/>  -->
-          <input class="field" value="{profil.credentials.email}" ref="email" readOnly/>
-          <p style="color:rgba(0,0,0,0.5);text-align:center"> L'email ne peut être modifier pour le moment </p>
+          <input class="field" style="width: 300px;" value="{profil.credentials.email}" ref="email" readOnly/>
+          <div if={!profil.active} style="">
+            <div if={!mailsend}>
+              <div>Vous n'avez pas valider votre email ( consulter votre mail )</div>
+<!--boutons renvoyer mail -->
+              <div class="containerH" style="padding-top: 20px;justify-content:space-around;flex-wrap:wrap;">
+                <button class="commandButton" onclick={sendbackmail} type="button">{emailtext}</button>
+              </div>
+          </div>
         </div>
-
+<!-- info mail -->
+        <div class="containerV" >
+            <p style="color:rgba(0,0,0,0.5);"> L'email ne peut être modifier pour le moment </p>
+        </div>
+<!-- Société -->
         <div class="containerV">
           <label class="label-form">Société</label>
-          <input class="field" value="{profil.job}" placeholder="ajouter votre job" name="job" onchange={changeJobInput}/>
+          <input class="field" style="width: 300px;" value="{profil.society}" placeholder="ajouter votre société" name="society" onchange={changeSocietyInput}/>
           <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultSociety} </div>
         </div>
-
-        <div class="containerV">
+<!-- Emploi -->
+        <div class="containerV" >
           <label class="label-form">Poste actuel</label>
-          <input class="field" value="{profil.society}" placeholder="ajouter votre societé" name="society" onchange={changeSocietyInput}/>
+          <input class="field" style="width: 300px;" value="{profil.job}" placeholder="ajouter votre job" name="job" onchange={changeJobInput}/>
           <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultJob}</div>
         </div>
-      </div>
 
-      <div class="containerV" if={!profil.active} style=" justify-content: center; align-items: center;/* flex-grow: 1; */flex-basis: 105pt;">
-        <div if={!mailsend}>
-          <div>Vous n'avez pas valider votre email ( consulter votre mail )</div>
-          <button style="padding: 0.6em;
-                      border-radius: 25px;
-                      background-color:rgb(41,177,238);
-                      color: white;
-                      font-size: 20px;
-                      margin-top: 20px;
-                      text-align: center;
-                      border: none;" onclick={sendbackmail} type="button">{emailtext}</button>
+<!-- info mail -->
+          <div if={mailsend}>
+            <div>Un email à été envoyé, verifier votre boite mail </div>
+          </div>
         </div>
-        <div if={mailsend}>
-          <div>Un email à été envoyé, verifier votre boite mail </div>
+        <div class="containerH" style=" justify-content: center; align-items: center;/* flex-grow: 1; */flex-basis: 105pt;">
+          <div id={result? 'good-result-global' : 'bad-result-global' }>{resultGlobal}
+          </div>
+<!-- Bouton valider les modification -->
+           <button class="commandButton" onclick={updateUser} type="button" if={googleId ==null || googleId=='undefined' }>Valider modification</button>
         </div>
-      </div>
-      <div class="containerV" style=" justify-content: center; align-items: center;/* flex-grow: 1; */flex-basis: 105pt;">
-        <div id={result? 'good-result-global' : 'bad-result-global' }>{resultGlobal}
-        </div>
-         <button style="padding: 0.6em;
-                      border-radius: 25px;
-                      background-color:rgb(41,177,238);
-                      color: white;
-                      font-size: 20px;
-                      margin-top: 20px;
-                      text-align: center;
-                      border: none;" onclick={updateUser} type="button" if={googleId ==null || googleId=='undefined' }>Valider modification</button>
       </div>
     </div>
-  </div>
-
-  <div class="containerV" if={menu=='setting'} style="flex-grow: 1;background-color:rgb(238, 242, 249);">
+</div>
+<!-- Paramétre -->
+  <div class="containerV" if={menu=='setting'} style="height: 300px;flex-grow: 1;background-color:rgb(238, 242, 249);">
     <div class="containerV" style="flex-grow:1;justify-content:center;align-items: center;">
       <span class="title-profil">
         Nous esperons que votre expérience sur cet outil était satisfaisante ? à bientôt.</span>
@@ -107,9 +114,9 @@
                       border: none;" onclick={deconnexion} type="button">Déconnexion</button>
     </div>
   </div>
-
-  <div class="containerV" if={menu=='payement'} style="flex-grow: 1;background-color: white;">
-    <div class="containerV" style="flex-grow: 1;background-color: white;">
+<!-- Page paiement -->
+  <div class="containerV" if={menu=='payement'} style="height: 300px;flex-grow: 1;background-color: rgb(238, 242, 249);">
+    <div class="containerV" style="flex-grow: 1;background-color: rgb(238, 242, 249);">
       <stripe2-tag></stripe2-tag>
     </div>
   </div>
@@ -151,10 +158,11 @@
       RiotControl.trigger('stripe_payment',{ source: source, amount: amount, secret: client_secret});
     }
   }
-
+/*déconnexion*/
   deconnexion(e) {
     RiotControl.trigger('deconnexion');
   }
+
   changeEmailInput(e) {
     this.profil.credentials.email = e.currentTarget.value;
     console.log(this.profil.credentials.email);
@@ -283,18 +291,6 @@
 </script>
 <style scoped>
 
-  .field {
-    background-color: #f4f5f7;
-    border-radius: 3rem;
-    padding: 10px 20px 11px;
-    color: rgba(0,0,0,0.6);
-  }
-
-  .field:focus {
-    background-color:rgb(33,150,243);
-    color:white
-  }
-
   .title-profil {
     color:rgb(33,151,242)
   }
@@ -321,7 +317,7 @@
     margin-bottom: 1em;
     margin-top: 1em;
     color: rgb(120,120,120);
-    align-self: center;
+    /*align-self: center;*/
   }
   .title-number {
     font-size: 30px;
@@ -360,7 +356,10 @@
   #bad-result-global {
     display: none;
   }
-
+/* couleur de selection */
+  .selectedMenu {
+    background-color: rgb(213,218,224);/*rgb(124,195,232);*/
+  }
   .sub-title {
     text-align: center;
     margin-top: 0;

@@ -1,6 +1,13 @@
 <object-transformer>
-  <div>configuration d'un objet de transformation</div>
-  <jsonEditor ref="jsonSchema" title="Transform Schema" class="containerV" modes="['tree','text']"></jsonEditor>
+  <!-- Titre du composant -->
+  <div class="contenaireV title-component"> OBJECT TRANSFORMER</div>
+  <!-- Description du composant -->
+  <label style="padding-top: 10px;">Transformer un objet par mapping grâce à un objet transformation</label>
+  <label style="padding-top: 10px;">Ce composant est capable de transformer la structure des données. Il se paramètre grâce à un objet de transformation qui décrit comment transformer la structure.</label>
+
+<!-- Champ du composant -->
+  <div>Configuration d'un objet de transformation</div>
+  <jsonEditor ref="jsonSchema" title="Transform Schema" class="containerH" style="" modes="['tree','text']"></jsonEditor>
   <script>
     this.updateData = function (dataToUpdate) {
       this.data = dataToUpdate;

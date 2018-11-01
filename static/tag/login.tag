@@ -1,4 +1,5 @@
-<login class="containerV" style="bottom:0;top:0;right:0;left:0;position:absolute">
+<login class="containerV" style="background: linear-gradient(90deg, rgb(33,150,243) 20% ,rgb(41,181,237));bottom:0;top:0;right:0;left:0;position:absolute">
+<!-- Chargement connexion-->
   <div id="containerLoaderDiv" if={isScrennToShow('loading')}>
     <div id="row">
       <div id="loaderDiv"></div>
@@ -7,58 +8,82 @@
       </h2>
     </div>
   </div>
-  <div class="header containerH" style="flex-shrink:0" show={!isScrennToShow('loading')}>
-    <h1>
+<!-- Header-->
+  <div class="background-header containerH header" style="flex-wrap:nowrap; flex-shrink : 0;" show={!isScrennToShow('loading')}>
+<!--  Logo Grappe  -->
+    <div class="containerV" style="flex-grow:0;flex-shrink:0;">
+    <img src="./image/grappe-web1.png" style="margin-left:20px;height:50px; width:75px;justify-content:center;">
+    </div>
+    <h1 style="justify-content:center;align-items: center;">
       Bienvenue sur Grappe
     </h1>
   </div>
-  <div class="containerH" if={isScrennToShow('connexion')}>
-    <div class="containerV" style="flex-basis:800px">
-      <div class="containerH" style="flex-shrink:0">
-        <h2 style="color:rgb(117,117,117)">
-          Choisissez votre connexion
-        </h2>
-      </div>
+<!--  box  connexion-->
+  <div class="containerH" if={isScrennToShow('connexion')} style="justify-content: center; align-items: center;flex-grow:2">
+    <div class="containerV" style="width: 500px">
       <div class="containerH inscriptionChoice" style="flex-wrap:wrap;overflow:auto">
+<!--  Focus Connexion  -->
         <div class="containerV box" style="flex-grow:2">
-          <label>Email</label>
-          <input id="email" type="email" ref="email" placeholder="saisir email" class="email" onchange={emailChange} required/>
-          <label>Mot de passe</label>
-          <input type="password" ref="password" id="password" placeholder="saisir mot de passe" class="email" onchange={passwordChange} required/>
+          <div class="containerH"style="flex-wrap: wrap;">
+            <div onclick={showPage} class="containerV" style="justify-content: center;width: 50%;color:rgb(117,117,117);flex-shrink:0">
+                <h3>Connexion</h3>
+            </div>
+            <div onclick={hidePage} class="url containerV" style="justify-content: center;flex-grow:2">
+                <h3 style="">Inscription</h3>
+            </div>
+          </div>
+<!--  champs  Mail -->
+          <label>Email*</label>
+          <input id="email" type="email" ref="email" placeholder="saisir une adresse email" class="email" onchange={emailChange} required/>
+<!--  champs  Mdp -->
+          <label>Mot de passe*</label>
+          <input type="password" ref="password" id="password" placeholder="saisir un mot de passe" class="email" onchange={passwordChange} required/>
+<!--  spam erreur mdp or id  -->
           <div id="result-co">{resultConnexion}</div>
+          <!-- mdp oublié  -->
+          <div class="containerH" style=" flex-wrap:wrap">
+            <a onclick={f_password} class="url" style="color:grey;flex:1;flex-basis:40%;">
+              <span>Mot de passe oublié ?</span>
+            </a>
+          </div>
+
           <div class="containerV">
+<!--  Bouton connexion -->
             <div class="containerH">
-              <a onclick={login} class="btn containerH" id="btn2" style="flex:1">
+              <a onclick={login} class="btn containerH" id="btn2" style="justify-content: center; align-items: center;flex:1">
                 <span>Connexion</span>
               </a>
             </div>
-            <div class="containerH" style="flex-wrap:wrap">
-              <a onclick={f_password} class="btn containerH" style="flex:1;flex-basis:40%;">
-                <span>Mot de passe oublié ?</span>
-              </a>
-              <a onclick={hidePage} class="btn containerH" style="flex:1;flex-basis:40%;">
-                <span>Inscription</span>
-              </a>
-            </div>
-          </div>
-        </div>
-        <div class="containerV box" style="flex-grow:1">
-          <div class=containerH>
-            <a href="/auth/google" class="btn containerH" style="flex:1" id="btn-google"><img src="../ihm/image/google-plus.png" alt="" id="googleP"></a>
-          </div>
-        </div>
+
+<!--  Bouton Google  -->
+            <span></span>
+              <div class=containerH>
+                <a href="/auth/google" class="btn containerH" style="margin-bottom: 20px; justify-content: center; align-items: center;flex:1" id="btn-google"><img src="../ihm/image/google-plus.png" alt="" id="googleP"> Connexion avec un compte Google</a>
+              </div>
+
       </div>
     </div>
   </div>
-  <div class="containerH" if={isScrennToShow('inscription')}>
-    <div class="containerV" style="flex-basis:800px">
+</div>
+</div>
 
-      <div class="containerH" style="flex-shrink:0">
-        <h2 style="color:rgb(117,117,117)">
-          Inscription</h2>
-      </div>
-      <div class="containerV box"  style="flex-shrink:0">
-        <label>Nom</label>
+<!--Box inscription -->
+  <div class="containerH" if={isScrennToShow('inscription')} style="justify-content: center; align-items: center;flex-grow:2">
+    <div class="containerV" style="width: 500px">
+      <div class="containerH" style="flex-wrap:wrap;overflow:auto">
+<!--  Focus Inscription  -->
+  <div class="containerV box" style="flex-grow:2">
+          <div class="containerH"style="flex-wrap: wrap;">
+              <div onclick={showPage} class="url containerV" style="justify-content: center;width: 50%;flex-shrink:0">
+                <h3>Connexion</h3>
+              </div>
+              <div onclick={inscription} class="containerV" style="justify-content: center;color:rgb(117,117,117);flex-grow:2">
+                <h3>Inscription</h3>
+              </div>
+          </div>
+
+      <div class="containerV">
+        <label>Nom*</label>
         <input ref="nameInscription" id="test-nameInscription" onchange={nameInscriptionChange} placeholder="saisir name (*)"/>
         <div id="result">{resultName}</div>
 
@@ -70,33 +95,26 @@
         <input ref="societe" id="test-societeInscription" onchange={societeChange} placeholder="saisir societe"/>
         <div id="result">{resultSociete}</div>
 
-        <label>Email</label>
+        <label>Email*</label>
         <input type="email" id="test-emailInscription" onchange={emailInscriptionChange} ref="emailInscription" placeholder="saisir email (*)"/>
         <div id="result">{resultEmail}</div>
 
-        <label>Mot de passe</label>
+        <label>Mot de passe*</label>
         <input type="password" id="test-passwordInscription" onkeyup={passwordInscriptionKeyup} required ref="passwordInscription" placeholder="saisir mot de passe"/>
         <div id="result">{resultMdp}</div>
 
-        <label>Confirmer mot de passe</label>
+        <label>Confirmer mot de passe*</label>
         <input type="password" id="test-confirmepasswordInscription" onkeyup={confirmPasswordInscriptionKeyup} required ref="confirmPasswordInscription" placeholder="confirmer mot de passe"/>
 
         <div id="result">{resultMdpConfirme}</div>
-        <div class="containerH" style="flex-shrink:0">
+        <div class="containerH" style="justify-content: center;flex-shrink:0">
           <a onclick={inscription} class="btn" id="btn2">Inscription</a>
         </div>
-
-      </div>
-      <div class="containerH" style="flex-shrink:0">Vous avez deja un compte avec nous?</div>
-      <div class="containerH" style="flex-shrink:0">
-        <a onclick={showPage} class="btn" style="white-space: pre;">
-          <span>Connectez vous</span>
-        </a>
-      </div>
     </div>
-
-  </div>
-
+</div>
+</div>
+</div>
+</div>
   <div class="containerH" if={isScrennToShow('initiat')}>
     <div class="containerV" style="flex-basis:800px">
       <div class="containerH">
@@ -188,337 +206,340 @@
   </div>
 
   <script>
-    this.resultConnexion = "";
-    this.resultEmail = "";
-    this.resultSociete = "";
-    this.resultName = "";
-    this.resultJob = "";
-    this.resultMdp = "";
-    this.user = {};
-    this.newUser = {}
-    this.is_login = false;
-    this.boole = true
-    this.forgotpassword = false
-    this.password_code = false
-    this.change_password = false
-    this.result_email = ""
-    this.badcodechangepassword = ""
-    this.result_password = ""
-    this.isScrennAuthorizeBoolean = false
-    this.urls = [
-      '#loading',
-      '#forgot_password/changePassword',
-      '#forgot_password/changePassword',
-      '#enter_code',
-      '#initiat',
-      '#inscription',
-      '#connexion'
-    ]
+  <script>
+     this.resultConnexion = "";
+     this.resultEmail = "";
+     this.resultSociete = "";
+     this.resultName = "";
+     this.resultJob = "";
+     this.resultMdp = "";
+     this.user = {};
+     this.newUser = {}
+     this.is_login = false;
+     this.boole = true
+     this.forgotpassword = false
+     this.password_code = false
+     this.change_password = false
+     this.result_email = ""
+     this.badcodechangepassword = ""
+     this.result_password = ""
+     this.isScrennAuthorizeBoolean = false
+     this.urls = [
+       '#loading',
+       '#forgot_password/changePassword',
+       '#forgot_password/changePassword',
+       '#enter_code',
+       '#initiat',
+       '#inscription',
+       '#connexion'
+     ]
 
-    Object.defineProperty(this, 'data', {
-      set: function (data) {
-        this.user = data;
-        this.newUser = {}
-        this.update();
-      }.bind(this),
-      get: function () {
-        return this.user;
-      }
-    })
+     Object.defineProperty(this, 'data', {
+       set: function (data) {
+         this.user = data;
+         this.newUser = {}
+         this.update();
+       }.bind(this),
+       get: function () {
+         return this.user;
+       }
+     })
 
-    this.isScrennToShow = function (screenToTest) {
-      console.log(screenToTest == this.entity)
-      return screenToTest == this.entity;
-    }
+     this.isScrennToShow = function (screenToTest) {
+       //console.log(screenToTest == this.entity)
+       return screenToTest == this.entity;
+     }
 
-    this.isScrennAuthorize = function () {
-      RiotControl.trigger('is_authorize', window.location.href.split('?'));
-    }
+     this.isScrennAuthorize = function () {
+       RiotControl.trigger('is_authorize', window.location.href.split('?'));
+     }
 
-    RiotControl.on("is_authorize_true", function (data) {
-      this.isScrennAuthorizeBoolean = true
-      this.update()
-    }.bind(this));
+     RiotControl.on("is_authorize_true", function (data) {
+       this.isScrennAuthorizeBoolean = true
+       this.update()
+     }.bind(this));
 
-    RiotControl.on("is_authorize_false", function () {
-      this.isScrennAuthorizeBoolean = false
-      this.update()
-    }.bind(this));
+     RiotControl.on("is_authorize_false", function () {
+       this.isScrennAuthorizeBoolean = false
+       this.update()
+     }.bind(this));
 
-    RiotControl.on("error_change_code", function () {
-      this.result_code = "Le mot de passe entré n'est pas correct"
-      this.update()
-    }.bind(this));
+     RiotControl.on("error_change_code", function () {
+       this.result_code = "Le mot de passe entré n'est pas correct"
+       this.update()
+     }.bind(this));
 
-    RiotControl.on('back_send_mail', function () {
-      route('initiat')
-      this.result_email = "Une erreur est survenu veuillez recommencer l'opération"
-      this.update()
-    }.bind(this));
+     RiotControl.on('back_send_mail', function () {
+       route('initiat')
+       this.result_email = "Une erreur est survenu veuillez recommencer l'opération"
+       this.update()
+     }.bind(this));
 
-    RiotControl.on("ajax_receipt_login", function (routeParams) {
-      console.log("ajax-conexion", routeParams)
-      route(routeParams)
-      this.update()
-    }.bind(this));
+     RiotControl.on("ajax_receipt_login", function (routeParams) {
+       console.log("ajax-conexion", routeParams)
+       route(routeParams)
+       this.update()
+     }.bind(this));
 
-    RiotControl.on("ajax_send_login", function () {
-      this.is_login = true
-      route('/loading')
-      this.update()
-    }.bind(this));
+     RiotControl.on("ajax_send_login", function () {
+       this.is_login = true
+       route('/loading')
+       this.update()
+     }.bind(this));
 
-    this.isGoogleUser = function () {
-      if (location.search.split('google_token=')[1] != null) {
-        var googleToken = location.search.split('google_token=')[1]
-        RiotControl.trigger('google_connect', googleToken);
-      }
-    }
+     this.isGoogleUser = function () {
+       if (location.search.split('google_token=')[1] != null) {
+         var googleToken = location.search.split('google_token=')[1]
+         RiotControl.trigger('google_connect', googleToken);
+       }
+     }
 
-    f_password() {
-      route('initiat')
-    }
+     f_password() {
+       route('initiat')
+     }
 
-    returnlogin() {
-      route('connexion')
-    }
+     returnlogin() {
+       route('connexion')
+     }
 
-    validenewpassword() {
-      let userId = window.location.href.split('?')[1].split("&code=")[0].split("u=")[1]
-      if (userId && this.new_password) {
-        RiotControl.trigger('update_password', {
-          new_password: this.new_password,
-          id: userId
-        });
-      } else {
-        this.result_password = "Votre mot de passe est au mauvais format ( 6 caractères minimum )"
-      }
-    }
+     validenewpassword() {
+       let userId = window.location.href.split('?')[1].split("&code=")[0].split("u=")[1]
+       if (userId && this.new_password) {
+         RiotControl.trigger('update_password', {
+           new_password: this.new_password,
+           id: userId
+         });
+       } else {
+         this.result_password = "Votre mot de passe est au mauvais format ( 6 caractères minimum )"
+       }
+     }
 
-    sendpasswordbymail() {
-      RiotControl.trigger('forgot_password', this.emailforgotpassword);
-    }
+     sendpasswordbymail() {
+       RiotControl.trigger('forgot_password', this.emailforgotpassword);
+     }
 
-    verifecode() {
-      RiotControl.trigger('verife_code', {
-        code: this.codeforgotpassword,
-        user: this.user
-      });
-    }
+     verifecode() {
+       RiotControl.trigger('verife_code', {
+         code: this.codeforgotpassword,
+         user: this.user
+       });
+     }
 
-    RiotControl.on('error_send_mail_code', function (user) {
-      this.result_email = "Votre adresse email est introuvable"
-      this.update()
-    }.bind(this))
+     RiotControl.on('error_send_mail_code', function (user) {
+       this.result_email = "Votre adresse email est introuvable"
+       this.update()
+     }.bind(this))
 
-    RiotControl.on('good_code', function (user) {
-      route('forgot_password/changePassword?u=' + this.user._id + "&code=" + this.user.resetpasswordmdp)
-      this.update()
-    }.bind(this))
+     RiotControl.on('good_code', function (user) {
+       route('forgot_password/changePassword?u=' + this.user._id + "&code=" + this.user.resetpasswordmdp)
+       this.update()
+     }.bind(this))
 
-    RiotControl.on('password_update_error', function (user) {
-      this.result_password = "Votre mot de passe est au mauvais format ( 6 caractères minimum )"
-      this.update()
-    }.bind(this))
+     RiotControl.on('password_update_error', function (user) {
+       this.result_password = "Votre mot de passe est au mauvais format ( 6 caractères minimum )"
+       this.update()
+     }.bind(this))
 
-    RiotControl.on('password_update', function (user) {
-      route('connexion')
-      this.resultConnexion = "Votre mot de passe a bien été mis a jour"
-      this.update()
-    }.bind(this))
+     RiotControl.on('password_update', function (user) {
+       route('connexion')
+       this.resultConnexion = "Votre mot de passe a bien été mis a jour"
+       this.update()
+     }.bind(this))
 
-    RiotControl.on('token_expired', function (user) {
-      route('initiat')
-      this.result_email = "Token expiré renvoyé le mail ? "
-      this.update()
-    }.bind(this))
+     RiotControl.on('token_expired', function (user) {
+       route('initiat')
+       this.result_email = "Token expiré renvoyé le mail ? "
+       this.update()
+     }.bind(this))
 
-    //On recupere le user ici pour s'en servir pour construire les url par la suite
+     //On recupere le user ici pour s'en servir pour construire les url par la suite
 
-    RiotControl.on('enter_code', function (user) {
-      route('enter_code')
-      this.user = user
-      this.update()
-    }.bind(this))
+     RiotControl.on('enter_code', function (user) {
+       route('enter_code')
+       this.user = user
+       this.update()
+     }.bind(this))
 
-    this.isGoogleUser();
+     this.isGoogleUser();
 
-    inscription(e) {
-      if ((this.newUser.passwordInscription != undefined) && (this.newUser.confirmPasswordInscription != undefined) && (this.newUser.emailInscription != undefined)) {
-        var reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g;
-        if (this.newUser.emailInscription.match(reg) != null) {
-          //if(this.newUser.passwordInscription.split().length > 5){
-          if ((this.newUser.passwordInscription == this.newUser.confirmPasswordInscription) && (this.newUser.passwordInscription.split("").length > 5)) {
-            RiotControl.trigger('user_inscription', this.newUser);
-            RiotControl.on('google_user', function () {
-              this.resultEmail = "Votre compte est déja relier à un compte google"
-            }.bind(this));
-            RiotControl.on('email_already_exist', function () {
-              this.resultEmail = "L'email choisi existe déjà"
-            }.bind(this));
-            RiotControl.on('society_bad_format', function () {
-              this.resultSociete = "Entrez un format de sociéte valide [A-Z,a-z] max 20 caractères"
-            }.bind(this));
-            RiotControl.on('bad_email', function () {
-              this.resultEmail = "Entrez un format d'email valide lebusestmagique@dataplayer.com"
-            }.bind(this));
-            RiotControl.on('name_bad_format', function () {
-              this.resultName = "Entrez un format de nom valide [A-Z,a-z] max 20 caractères"
-            }.bind(this));
-          } else {
-            this.resultMdp = "mot de passe invalide 6 caracteres minimum"
-          }
-        } else {
-          this.resultEmail = "Veuillez entrez un email Valide"
-        }
-      } else {
-        console.log(this.newUser.emailInscription ,this.newUser.passwordInscription);
-        if (this.newUser.emailInscription == undefined) {
-          this.resultEmail = "Votre email n'est pas renseigné"
-        }
-        if (this.newUser.passwordInscription == undefined) {
-          this.resultMdp = "Votre mot de passe n'est pas renseigné"
-        }
-        if (this.newUser.confirmPasswordInscription == undefined) {
-          this.resultMdpConfirme = "Votre confirmation de mot de passe n'est pas renseigné"
-        }
+     inscription(e) {
+       if ((this.newUser.passwordInscription != undefined) && (this.newUser.confirmPasswordInscription != undefined) && (this.newUser.emailInscription != undefined)) {
+         var reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g;
+         if (this.newUser.emailInscription.match(reg) != null) {
+           //if(this.newUser.passwordInscription.split().length > 5){
+           if ((this.newUser.passwordInscription == this.newUser.confirmPasswordInscription) && (this.newUser.passwordInscription.split("").length > 5)) {
+
+             RiotControl.on('google_user', function () {
+               this.resultEmail = "Votre compte est déja relier à un compte google"
+             }.bind(this));
+             RiotControl.on('email_already_exist', function () {
+               this.resultEmail = "L'email choisi existe déjà"
+             }.bind(this));
+             RiotControl.on('society_bad_format', function () {
+               this.resultSociete = "Entrez un format de sociéte valide [A-Z,a-z] max 20 caractères"
+             }.bind(this));
+             RiotControl.on('bad_email', function () {
+               this.resultEmail = "Entrez un format d'email valide lebusestmagique@dataplayer.com"
+             }.bind(this));
+             RiotControl.on('name_bad_format', function () {
+               this.resultName = "Entrez un format de nom valide [A-Z,a-z] max 20 caractères"
+             }.bind(this));
+
+             RiotControl.trigger('user_inscription', this.newUser);
+           } else {
+             this.resultMdp = "mot de passe invalide 6 caracteres minimum"
+           }
+         } else {
+           this.resultEmail = "Veuillez entrez un email Valide"
+         }
+       } else {
+         console.log(this.newUser.emailInscription ,this.newUser.passwordInscription);
+         if (this.newUser.emailInscription == undefined) {
+           this.resultEmail = "Votre email n'est pas renseigné"
+         }
+         if (this.newUser.passwordInscription == undefined) {
+           this.resultMdp = "Votre mot de passe n'est pas renseigné"
+         }
+         if (this.newUser.confirmPasswordInscription == undefined) {
+           this.resultMdpConfirme = "Votre confirmation de mot de passe n'est pas renseigné"
+         }
 
 
-      }
-    }
+       }
+     }
 
-    showPage(e) {
-      route('connexion')
-      this.resultEmail = "";
-      this.resultConnexion = ""
-    }
+     showPage(e) {
+       route('connexion')
+       this.resultEmail = "";
+       this.resultConnexion = ""
+     }
 
-    hidePage(e) {
-      route('inscription')
-      this.resultEmail = "";
-      this.resultConnexion = ""
-    }
-    login(e) {
-      console.log(this.user.password)
-      if ((this.user.password != undefined) && (this.user.email != undefined) && (this.user.email != "") && (this.user.email != "")) {
-        RiotControl.trigger('user_connect', this.user);
-        RiotControl.on('google_user', function () {
-          console.log("Connectez vous avec Google")
-          this.resultConnexion = "Votre email est déjà utilisé par une connexion Google";
-          this.update();
-        }.bind(this))
-        RiotControl.on('bad_auth', function () {
-          this.resultConnexion = "Vous n'exister pas en base de donnée inscrivez vous :)"
-          this.update();
-        }.bind(this));
-        RiotControl.on('err_processus', function () {
-          this.resultConnexion = "Erreur verification mot de passe"
-          this.update();
-        }.bind(this));
-      } else {
-        this.resultConnexion = "Remplissez votre email et mot de passe"
-      }
-    }
+     hidePage(e) {
+       route('inscription')
+       this.resultEmail = "";
+       this.resultConnexion = ""
+     }
+     login(e) {
+       console.log(this.user.password)
+       if ((this.user.password != undefined) && (this.user.email != undefined) && (this.user.email != "") && (this.user.email != "")) {
+         RiotControl.trigger('user_connect', this.user);
+         RiotControl.on('google_user', function () {
+           console.log("Connectez vous avec Google")
+           this.resultConnexion = "Votre email est déjà utilisé par une connexion Google";
+           this.update();
+         }.bind(this))
+         RiotControl.on('bad_auth', function () {
+           this.resultConnexion = "Vous n'exister pas en base de donnée inscrivez vous :)"
+           this.update();
+         }.bind(this));
+         RiotControl.on('err_processus', function () {
+           this.resultConnexion = "Erreur verification mot de passe"
+           this.update();
+         }.bind(this));
+       } else {
+         this.resultConnexion = "Remplissez votre email et mot de passe"
+       }
+     }
 
-    this.emailChange = function (e) {
-      this.user.email = e.currentTarget.value;
-    }.bind(this);
+     this.emailChange = function (e) {
+       this.user.email = e.currentTarget.value;
+     }.bind(this);
 
-    this.passwordChange = function (e) {
-      this.user.password = e.currentTarget.value;
-    }.bind(this);
+     this.passwordChange = function (e) {
+       this.user.password = e.currentTarget.value;
+     }.bind(this);
 
-    this.new_passwordKeyup = function (e) {
-      if (e.currentTarget.value.split("").length < 5) {
-        this.result_password = "mot de passe invalide 6 caracteres minimum"
-      } else {
-        this.result_password = ""
-      }
-      this.new_password = e.currentTarget.value;
-    }.bind(this);
+     this.new_passwordKeyup = function (e) {
+       if (e.currentTarget.value.split("").length < 5) {
+         this.result_password = "mot de passe invalide 6 caracteres minimum"
+       } else {
+         this.result_password = ""
+       }
+       this.new_password = e.currentTarget.value;
+     }.bind(this);
 
-    this.emailforgotpasswordChange = function (e) {
-      this.emailforgotpassword = e.currentTarget.value;
-    }.bind(this);
+     this.emailforgotpasswordChange = function (e) {
+       this.emailforgotpassword = e.currentTarget.value;
+     }.bind(this);
 
-    this.emailInscriptionChange = function (e) {
-      this.resultEmail = ""
-      this.newUser.emailInscription = e.currentTarget.value;
-    }.bind(this);
+     this.emailInscriptionChange = function (e) {
+       this.resultEmail = ""
+       this.newUser.emailInscription = e.currentTarget.value;
+     }.bind(this);
 
-    this.codeforgotpasswordChange = function (e) {
-      this.codeforgotpassword = e.currentTarget.value;
-    }.bind(this);
+     this.codeforgotpasswordChange = function (e) {
+       this.codeforgotpassword = e.currentTarget.value;
+     }.bind(this);
 
-    this.societeChange = function (e) {
-      this.resultSociete = ""
-      this.newUser.societe = e.currentTarget.value;
-    }.bind(this);
+     this.societeChange = function (e) {
+       this.resultSociete = ""
+       this.newUser.societe = e.currentTarget.value;
+     }.bind(this);
 
-    this.nameInscriptionChange = function (e) {
-      this.resultName = ""
-      this.newUser.name = e.currentTarget.value;
-    }.bind(this);
+     this.nameInscriptionChange = function (e) {
+       this.resultName = ""
+       this.newUser.name = e.currentTarget.value;
+     }.bind(this);
 
-    this.jobInscriptionChange = function (e) {
-      this.resultJob = ""
-      this.newUser.job = e.currentTarget.value;
-    }.bind(this);
+     this.jobInscriptionChange = function (e) {
+       this.resultJob = ""
+       this.newUser.job = e.currentTarget.value;
+     }.bind(this);
 
-    this.passwordInscriptionKeyup = function (e) {
-      //console.log(e.currentTarget.value.split(""))
-      if (e.currentTarget.value.split("").length < 5) {
-        this.resultMdp = "mot de passe invalide 6 caracteres minimum"
-      } else {
-        this.resultMdp = ""
-      }
-      this.newUser.passwordInscription = e.currentTarget.value;
-    }.bind(this);
+     this.passwordInscriptionKeyup = function (e) {
+       //console.log(e.currentTarget.value.split(""))
+       if (e.currentTarget.value.split("").length < 5) {
+         this.resultMdp = "mot de passe invalide 6 caracteres minimum"
+       } else {
+         this.resultMdp = ""
+       }
+       this.newUser.passwordInscription = e.currentTarget.value;
+     }.bind(this);
 
-    this.confirmPasswordInscriptionKeyup = function (e) {
-      if (this.newUser.passwordInscription != null && e.currentTarget.value != this.newUser.passwordInscription) {
-        this.resultMdpConfirme = "confirmation mot de passe differntes"
-      } else {
-        this.resultMdpConfirme = ""
-      }
-      this.newUser.confirmPasswordInscription = e.currentTarget.value;
-    }.bind(this);
+     this.confirmPasswordInscriptionKeyup = function (e) {
+       if (this.newUser.passwordInscription != null && e.currentTarget.value != this.newUser.passwordInscription) {
+         this.resultMdpConfirme = "confirmation mot de passe differntes"
+       } else {
+         this.resultMdpConfirme = ""
+       }
+       this.newUser.confirmPasswordInscription = e.currentTarget.value;
+     }.bind(this);
 
-    loginGoogle(e) {
-      RiotControl.trigger('google_user_connect', this.user);
-    }
+     loginGoogle(e) {
+       RiotControl.trigger('google_user_connect', this.user);
+     }
 
-    $(document).ready(function () {
-      $('.box').hide().fadeIn(1000);
-      ///password
-    });
+     $(document).ready(function () {
+       $('.box').hide().fadeIn(1000);
+       ///password
+     });
 
-    $('a').click(function (event) {
-      event.preventDefault();
-    });
+     $('a').click(function (event) {
+       event.preventDefault();
+     });
 
-    this.on('mount', function () {
-      if (!window.location.href.split('login.html')[1]) {
-        route('connexion')
-      }
-      route(function (entity, id, action) {
-        if (entity == "forgot_password") {
-          this.isScrennAuthorize()
-        }
-        console.log(entity, id, action);
-        //this.routePath=path; this.routeHistory=history;
-        if (id == undefined && action == undefined) {
-          this.entity = entity;
-          this.update();
-        } else {
-          this.entity = entity + '/' + id;
-          this.update();
-        }
-        //console.log('ROUTE', path); console.log('history',history)
-      }.bind(this));
-      route.start(true);
+     this.on('mount', function () {
+       if (!window.location.href.split('login.html')[1]) {
+         route('connexion')
+       }
+       route(function (entity, id, action) {
+         if (entity == "forgot_password") {
+           this.isScrennAuthorize()
+         }
+         console.log(entity, id, action);
+         //this.routePath=path; this.routeHistory=history;
+         if (id == undefined && action == undefined) {
+           this.entity = entity;
+           this.update();
+         } else {
+           this.entity = entity + '/' + id;
+           this.update();
+         }
+         //console.log('ROUTE', path); console.log('history',history)
+       }.bind(this));
+       route.start(true);
 
-    }.bind(this));
+ }.bind(this));
   </script>
   <style scoped>
     .header {
@@ -539,6 +560,11 @@
       font-size: 1em;
       border-radius: 0;
       flex: 1;
+    }
+    .url {
+      color: rgb(41,177,238);
+      cursor: pointer;
+      text-decoration: underline;
     }
 
     .inscription-link {
@@ -711,7 +737,7 @@
 
     .box {
       /*background: white;*/
-      background: #e6ecff;
+      background: #f2f3f5; /*#e6ecff;
       /*width: 500px;*/
       margin-top: 5vh;
       border: 1px solid rgba(133,133,133,0.38);
@@ -773,28 +799,29 @@
       font-size: 0.8em;
       cursor: pointer;
     }*/
-
+/* Bouton Google */
     #googleP {
-      width: 100px;
-      height: 100px;
-      /*position: absolute;*/
+      width: 30px;
+      height: 30px;
     }
 
     #btn-google {
       background: #dc4e41;
     }
+
     .btn:hover {
       background: #2CC06B;
     }
-
+/* Bouton */
     .btn {
       /*text-align: center;
       width: 125px;*/
-      background: #2ecc71;
+      background: rgb(41,177,238);
       /*padding-top: 5px;
       padding-bottom: 5px;*/
       border-radius: 4px;
       border: #2980b9 1px solid;
+      width: 200px;
       margin: 10px;
       padding: 10px;
       /*margin-bottom: 20px;

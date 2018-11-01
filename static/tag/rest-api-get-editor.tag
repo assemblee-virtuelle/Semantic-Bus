@@ -1,15 +1,17 @@
-<rest-api-get-editor>
-  <div>description de l'api</div>
-  <label>key</label>
-  <input type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.url}></input>
-  <label>url</label>
+<rest-api-get-editor style="justify-content:center; align-items: center;">
+<!-- Titre du composant -->
+  <div class="contenaireV title-component">REST API GET</div>
+<!-- Description du composant -->
+  <label style="padding-top: 10px;">Exposition du flux de donnée sur une API http uniquement en GET</label>
+<!-- Champ du composant -->
+  <label style="padding-top: 10px;">Clé de l'API</label>
+  <input class="field" style="width:600px;"placeholder="champ libre"type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.url}></input>
+  <label style="padding-top: 10px;">url de l'API</label>
   <a ref="link" href={'http://semantic-bus.org/data/api/' +data.specificData.url}>{'http://semantic-bus.org/data/api/'+data.specificData.url}</a>
-  <label>content-type</label>
-  <input type="text" name="contentTypeInput" ref="contentTypeInput" onChange={contentTypeInputChanged} value={data.specificData.contentType}></input>
-  <!--<label>Sortie en xls (Boolean)</label>
-  <input type="text" name="xlsInput" ref="xlsInput"value={data.specificData.xls}></input>-->
-  <script>
+  <label style="padding-top: 10px;">Type de contenu</label>
+  <input class="field" style="width:600px;"placeholder="application/json" type="text" name="contentTypeInput" ref="contentTypeInput" onChange={contentTypeInputChanged} value={data.specificData.contentType}></input>
 
+  <script>
     this.data = {};
     this.test = function () {
       consol.log('test');

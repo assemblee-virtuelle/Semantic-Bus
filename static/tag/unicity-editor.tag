@@ -1,25 +1,24 @@
-<unicity-editor class="containerV">
-  <div>unicité</div>
-
-  <label>
-    champ de source
-  </label>
+<unicity-editor  style="justify-content:center; align-items: center;">
+<!-- Titre du composant -->
+<div class="contenaireV title-component">UNICITE</div>
+<!-- Description du composant -->
+<label style="padding-top: 10px;">Sctructurer les données en vérifiant l'unicité par champ et répartir les valeurs par source</label>
+<!-- Champ du composant -->
+  <label style="padding-top: 10px;">Champ de source</label>
   <input type="text" value={data.specificData.source} onkeyup={onSourceChange}>
-  <label>
-    champs d'unicité
-  </label>
-  <div class="unicityTable containerV">
+  <label style="padding-top: 10px;margin-bottom: 20px;">Champs d'unicité</label>
+  <div class="unicityTable containerV" style="width:90%;">
     <div class="containerH commandBar" style="justify-content:flex-end">
       <div class="commandGroup">
         <image src="./image/ajout_composant.svg" class="commandButtonImage" width="50" height="50" onclick={addRow}></image>
       </div>
     </div>
-    <zenTable ref="unicityTableRef" style="flex:1" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
+    <zenTable style="width:90%;"ref="unicityTableRef" style="flex:1" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
       <yield to="header">
-        <div>champ</div>
+        <div style="padding-left: 100px;">Champ</div>
       </yield>
       <yield to="row">
-        <input type="text" value={field} data-field="field"/>
+        <input class="field" style="width:800px;"type="text" value={field} data-field="field"/>
       </yield>
     </zenTable>
   </div>

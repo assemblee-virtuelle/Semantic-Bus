@@ -1,18 +1,10 @@
-<upload-editor >
-  <div class="containerH" style="flex-shrink:0">
-    <h2 >Uploader votre fichier</h2>
-  </div>
-  <div class="containerH" style="flex-shrink:0">
-    <h4 >Ce composant vous permet d'uploader un fichier avec une extension
-      <b>XLSX</b>
-      ou
-      <b>CSV</b>
-      et de le mapper en
-      <b>JSON</b>
-    </h4>
-  </div>
-  <!-- <div class="progress-bar" role="progressbar">{progress}</div>
-  <h3 class="{textloadclass}">{textload}</h3> -->
+<upload-editor style="justify-content:center; align-items: center;">
+  <!-- Titre du composant -->
+  <div class="contenaireV title-component">Uploader votre fichier</div>
+  <!-- Description du composant -->
+  <label style="padding-top: 10px;">Ce composant vous permet d'uploader un fichier avec une extension <b>XLSX</b> ou <b>CSV</b> et de le mapper en <b>JSON</b></label>
+  <!-- Champ du composant -->
+  <h3 class="{textloadclass}">{textload}</h3>
   <div class="containerH" style="flex-shrink:0">
     <button onclick={uploadClick} type="button" style="flex:1">Telecharger</button>
     <input id="upload-input" type="file" name="uploads[]">

@@ -1,9 +1,14 @@
-<framacalc-get-csv-editor>
-  <div>information de connexion à framacalc</div>
-  <label>key</label>
-  <input type="text" name="keyInput" ref="keyInput" value={data.specificData.key}></input>
-  <label>offset</label>
-  <input type="text" name="offsetInput" ref="offsetInput"  value={data.specificData.offset}></input>
+<framacalc-get-csv-editor style="justify-content:center; align-items: center;">
+  <!-- Titre du composant -->
+  <div class="contenaireV title-component">FRAMACALC CSV</div>
+  <!-- Description du composant -->
+  <label style="padding-top: 10px;">Intéroger une feuille de calcule Framacalc qui fourni un flux CSV</label>
+  <!-- Champ du composant -->
+  <div>Information de connexion à framacalc</div>
+  <label style="padding-top: 10px;">Clé</label>
+  <input class="field" style="width:600px;"placeholder="champ libre"type="text" name="keyInput" ref="keyInput" value={data.specificData.key}></input>
+  <label style="padding-top: 10px;">Offset</label>
+  <input class="field" style="width:600px;"placeholder="champ libre"type="text" name="offsetInput" ref="offsetInput"  value={data.specificData.offset}></input>
   <script>
 
     this.innerData={};

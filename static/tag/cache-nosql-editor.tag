@@ -1,21 +1,19 @@
-<cache-nosql-editor>
-
-  <div>mettre en cache les data et les réintéroger</div>
-  <label>Historisation</label>
+<cache-nosql-editor style="justify-content:center; align-items: center;">
+  <!-- Titre du composant -->
+  <div class="contenaireV title-component">CACHE NO SQL</div>
+  <!-- Description du composant -->
+  <label style="padding-top: 10px;width: 90%;">Ce composant permet de stocker les données traitées dans une base de données (cache). Cela permet d’avoir toujours des données finalisées à disposition sans avoir besoin de refaire tous les calculs. L’intérêt est un gain substantiel de performance. Ce stockage n’est pas considéré comme une base de donnée “métier” mais uniquement un stockage technique.</label>
+  <label style="padding-top: 10px;">Sauvegarder un flux et le réutiliser sans avoir besoin de requeter la source</label>
+  <!-- Champ du composant -->
+  <div>Mettre en cache les données et les réintéroger</div>
+  <label style="padding-top: 10px;">Historisation</label>
   <input ref="historyInput" type="checkbox" onchange={historyInputChanged} checked={data.specificData.history}></input>
-  <label>Sortie avec historique</label>
+  <label style="padding-top: 10px;">Sortie avec historique</label>
   <input ref="historyOutInput" type="checkbox" onchange={historyOutInputChanged} checked={data.specificData.historyOut}></input>
-  <!--<jsonEditor ref="cachedData" mode="view" style="flex-grow:1"></jsonEditor>-->
-  <!--<div id="containerJSTREE" ref="cachedDataView" class="containerV scrollable" style="flex-grow:1"></div>-->
-  <jsonFragViewer ref="jsonFragViewer"></jsonFragViewer>
+  <jsonFragViewer style="width: 90%;"ref="jsonFragViewer"></jsonFragViewer>
   <script>
 
     this.data = {};
-    // this.innerData = {};
-    //
-    // Object.defineProperty(this, 'data', {   set: function (data) {     this.innerData = data;     this.update();   }.bind(this),   get: function () {     return this.innerData;   },   configurable: true }); reloadCacheClick(e) {
-    // RiotControl.trigger('item_current_reloadCache'); } getCacheClick(e) {   RiotControl.trigger('item_current_getCache'); }
-
     historyInputChanged(e) {
       console.log(e);
       if (this.data != null && this.data.specificData != null) {

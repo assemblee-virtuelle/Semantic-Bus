@@ -16,10 +16,10 @@
             <g id="Group-2" transform="translate(1274.000000, 173.000000)">
                 <g id="Oval-4">
                     <use fill="black" fill-opacity="1" filter="url(#filter-2)" xlink:href="#path-1"></use>
-                    <use fill="#FFFFFF" fill-rule="evenodd" xlink:href="#path-1"></use>
+                    <use fill="rgb(41,177,238)" fill-rule="evenodd" xlink:href="#path-1"></use>
                 </g>
-                <rect id="Rectangle-3" fill="#CBC8C8" x="15" y="26" width="28" height="6" rx="3"></rect>
-                <path d="M32.375,17.625 L32.375,40.375 C32.375,41.8247475 31.0318542,43 29.375,43 C27.7181458,43 26.375,41.8247475 26.375,40.375 L26.375,17.625 C26.375,16.1752525 27.7181458,15 29.375,15 C31.0318542,15 32.375,16.1752525 32.375,17.625 Z" id="Rectangle-3" fill="#CBC8C8"></path>
+                <rect id="Rectangle-3" fill="#FFFFFF" x="15" y="26" width="28" height="6" rx="3"></rect>
+                <path d="M32.375,17.625 L32.375,40.375 C32.375,41.8247475 31.0318542,43 29.375,43 C27.7181458,43 26.375,41.8247475 26.375,40.375 L26.375,17.625 C26.375,16.1752525 27.7181458,15 29.375,15 C31.0318542,15 32.375,16.1752525 32.375,17.625 Z" id="Rectangle-3" fill="#FFFFFF"></path>
             </g>
         </g>
     </g>

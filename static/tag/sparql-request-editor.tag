@@ -1,9 +1,13 @@
-<sparql-request-editor class="containerV">
+<sparql-request-editor style="justify-content:center; align-items: center;">
+  <!-- Titre du composant -->
+<div class="contenaireV title-component">SPARQL REQUEST</div>
+<!-- Description du composant -->
+<label style="padding-top: 10px;">Requêter en SPARQL sur un fichier json ld</label>
+<!-- Champ du composant -->
   <div>
-    <div>description de la requete SPARQL</div>
-    <label>requete</label>
+    <div style="padding-top: 10px;">Description de la requête SPARQL</div>
   </div>
-  <div class="containerV">
+  <div class="containerV" style="width:90%">
     <textArea type="text" ref="requeteInput" style="flex-grow:1" onchange={requeteInputChanged}>{data.specificData.request}</textArea>
   </div>
   <script>

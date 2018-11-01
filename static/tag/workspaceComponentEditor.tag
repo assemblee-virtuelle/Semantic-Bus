@@ -1,16 +1,18 @@
 <workspace-component-editor class="containerV" style="flex-grow:1">
-  <div class="containerH info" style="flex-wrap:wrap;justify-content:space-around">
-    <div class="containerV">
+  <div class="containerH info" style="background: rgb(213,218,224);flex-wrap:wrap;">
+    <div class="containerV" style="">
       <label>
-        nom du composant
+        Nom du composant
       </label>
-      <input type="text" id="nameComponentInput" onchange={onNameChange} value={itemCurrent.name}></input>
+      <div class="containerH" style="justify-content:center;">
+      <input class="field" type="text" id="nameComponentInput" onchange={onNameChange} value={itemCurrent.name}></input>
     </div>
+  </div>
     <div class="containerV">
       <label >
-        persistance du process (payant)
+        Persistance du process (payant)
       </label>
-      <div class="containerH">
+      <div class="containerH" style="justify-content:center;">
         <label class="switch">
           <input type="checkbox" onchange={onPersistProcessChange} checked={itemCurrent.persistProcess}>
           <span class="slider round"></span>
@@ -19,10 +21,22 @@
     </div>
   </div>
   <div id="editionContainer" style="flex-grow:1; padding: 15pt;
-    background-color: rgb(238,242,249);" class="containerV"></div>
+    background-color: rgb(238,242,249);" class="containerV">
+  </div>
+<!-- bouton valider -->
+    <div class="containerH" style="height:45px;align-items: center;justify-content: center;flex-grow:0;flex-shrink:0">
+      <div onclick={saveClick} class="commandButton containerV">
+        <div style="text-align:center">valider</div>
+      </div>
+    </div>
+
   <script>
     this.itemCurrent = {};
+    this.data = {};
 
+    this.saveClick = function (e) {
+      RiotControl.trigger('item_current_persist');
+    }
     onNameChange(e) {
       this.itemCurrent.name = e.target.value;
     }
@@ -61,13 +75,14 @@
   </script>
   <style>
     .info {
+      justify-content: center;
       flex-shrink: 0;
+
     }
     .info > div {
-      padding: 5px;
-      border-style: solid;
-      border-width: 1px;
+      padding: 10px;
       flex-grow: 1;
+
     }
 
     .input {

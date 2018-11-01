@@ -1,15 +1,15 @@
-<deeper-focus-opening-bracket-editor>
-
-  <label>chemin à inspecter pour les traitements qui suivent (vide=racine)</label>
-  <input type="text" name="dfobPathInput" ref="dfobPathInput" value={data.specificData.dfobPath} onchange={dfobPathChange}></input>
-  <label>nombre de traitements parallèls</label>
-  <input type="text" name="pipeNbInput" ref="pipeNbInput" value={data.specificData.pipeNb} onchange={pipeNbChange}></input>
-
-
-    <label >
-      le chemin designe une structure de tableau à conserver en tableau (décomposé en objet par défaut)
-    </label>
-    <div class="containerH">
+<deeper-focus-opening-bracket-editor style="justify-content:center; align-items: center;">
+  <!-- Titre du composant -->
+  <div class="contenaireV title-component">Deeper Focus Opening Bracket</div>
+  <!-- Description du composant -->
+  <label style="padding-top: 10px;">Début de traitement d'un niveau de profondeur du flux </label>
+  <!-- Champ du composant -->
+  <label style="padding-top: 10px;">Chemin à inspecter pour les traitements qui suivent</label>
+  <input class="field" style="width:600px;"placeholder="vide=racine"type="text" name="dfobPathInput" ref="dfobPathInput" value={data.specificData.dfobPath} onchange={dfobPathChange}></input>
+  <label style="padding-top: 10px;">Nombre de traitements parallèles</label>
+  <input class="field" style="width:600px;"placeholder="champ libre"type="text" name="pipeNbInput" ref="pipeNbInput" value={data.specificData.pipeNb} onchange={pipeNbChange}></input>
+  <label style="padding-top: 10px;">Le chemin désigne une structure de tableau à conserver en tableau (décomposé en objet par défaut)</label>
+    <div class="containerH" style="justify-content:center; align-items: center;">
       <label class="switch">
         <input type="checkbox" onchange={keepArrayChange} checked={data.specificData.keepArray}>
         <span class="slider round"></span>
