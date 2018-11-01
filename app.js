@@ -37,7 +37,7 @@ var env = process.env;
 
 var httpGet = require('./webServices/workSpaceComponentDirectory/restGetJson.js');
 var fs = require('fs');
-const configUrl = env.CONFIG_URL || 'http://data-players.com/config/devOutOfDoker.json';
+const configUrl = env.CONFIG_URL || 'http://data-players.com/config/devOutOfDocker.json';
 //console.log("before http config",configUrl);
 httpGet.makeRequest('GET', {
   url: configUrl

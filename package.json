@@ -5,6 +5,10 @@
   "private": true,
   "main": "",
   "scripts": {
+    "mongoPull": "sudo docker pull mongo",
+    "premongoRun" : "sudo mkdir -p ./data",
+    "mongoRun": "sudo docker run -d -v data:/data/db -p 27017:27017 --name mongo mongo",
+    "mongoStop": "sudo docker stop mongo && sudo docker rm mongo",
     "amqpPull": "sudo docker pull semanticbus/rabbitmq-stomp",
     "amqpStop": "sudo docker stop rabbitmq && sudo docker rm rabbitmq",
     "amqpRun": "sudo docker run -d -p 15672:15672 -p 15674:15674 -p 5672:5672 --name rabbitmq semanticbus/rabbitmq-stomp",
