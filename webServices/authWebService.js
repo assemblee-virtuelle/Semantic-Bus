@@ -150,7 +150,7 @@ module.exports = function (router,stompClient) {
     console.log("is_authorize_component", req.body)
     let code = req.body[1].split("&code=")[1]
     let userId = req.body[1].split("&code=")[0].split("u=")[1]
-    console.log(userId, code)
+    //console.log(userId, code)
     user_lib.get({
       _id: userId
     }).then((user) => {
@@ -296,8 +296,7 @@ module.exports = function (router,stompClient) {
           })
         }
       }).catch((err) => {
-        console.log("error is token validde web service")
-        if (err)
+        console.log("error is token valid web service",err)
           res.send(false)
       })
     }
@@ -319,15 +318,15 @@ module.exports = function (router,stompClient) {
         password: req.body.passwordInscription
       }
     }).then(function (data) {
-      //console.log("inscription data ====>", data.token)
+      // console.log("inscription data ====>", data.token)
       sendMail(rand, req, req.body.emailInscription, data.token.user)
       res.send({
         user: data.user,
         token: data.token.token
       });
     }).catch(function (err) {
-      //console.log(err)
-      //console.log(" ----- error during connexion -----")
+      console.log(err)
+      // console.log(" ----- error during connexion -----")
       if (err == 'name_bad_format') {
         res.send({
           err: "name_bad_format"

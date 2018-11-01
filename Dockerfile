@@ -39,6 +39,7 @@ ENV PORT 80
 RUN node -v
 RUN npm -v
 
+RUN npm install pm2 -g
 
 # Install app dependencies
 # A wildcard is used to ensure both package.json AND package-lock.json are copied
@@ -56,4 +57,4 @@ COPY . .
 
 EXPOSE 80 443
 
-CMD [ "npm", "start" ]
+CMD [ "pm2", "start", "app.js", "--max-memory-restart", "800M" ,"--no-daemon"]

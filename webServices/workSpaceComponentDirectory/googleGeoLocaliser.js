@@ -46,7 +46,6 @@ module.exports = {
           postalCode: record[specificData.postalCodePath],
           country: record[specificData.countryPath],
         }
-        console.log();
         goePromises.push(
           new Promise((resolve, reject) => {
 

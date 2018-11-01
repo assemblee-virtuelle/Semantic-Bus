@@ -1,0 +1,9 @@
+config:
+  target: 'http://semantic-bus.org/data/api'
+  phases:
+    - duration: 60
+      arrivalRate: 1
+scenarios:
+  - flow:
+    - get:
+        url: '/PWA_One?id=LesAmoureuxaubanpublic-ClermontFerrand4578309'

@@ -36,7 +36,7 @@
   };
 
   this.updateData=function(dataToUpdate){
-    console.log('ALLO',dataToUpdate);
+    // console.log('ALLO',dataToUpdate);
     this.data = dataToUpdate;
     this.update();
   }.bind(this);

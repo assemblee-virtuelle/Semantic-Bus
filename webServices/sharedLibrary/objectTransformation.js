@@ -288,8 +288,8 @@ module.exports = {
             }
             //console.log('javascriptEvalString | ',javascriptEvalString);
             try {
-              console.log('**********************************');
-              console.log(javascriptEvalString);
+              //console.log('**********************************');
+              //console.log(javascriptEvalString);
               nodeOut[nodeInDataProperty] = eval(javascriptEvalString);
               //console.log('eval done');
             } catch (e) {

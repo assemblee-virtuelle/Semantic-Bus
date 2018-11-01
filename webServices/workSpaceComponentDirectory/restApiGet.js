@@ -43,35 +43,8 @@ module.exports = new function() {
 
 
     apiGetRouteur.get('/*', (req, res, next) => {
-      //console.log('req',req);
-      //console.log('query',req.query);
-      //console.log('params',req.params);
       let urlRequiered = req.params[0];
-      //console.log('urlRequiered',urlRequiered);
-      // for(let key in req.params){
-      //   urlRequiered=urlRequiered+req.params[key];
-      // }
-      //console.log(urlRequiered);
-
-      //console.log("in get")
-      // console.log('recursivPullResolvePromise',this.recursivPullResolvePromise);
-      //   console.log('pathToRegexp', this.pathToRegexp);
-      //var urlRequiered = req.params.join('');
-      //console.log(urlRequiered);
-      //this require is live because constructor require cause cyclic dependencies (recursivPullResolvePromise->restApiGet)
-      //TODO require use cache object  : need to build one engine per request
-      //this.recursivPullResolvePromiseDynamic = require('../engine')
       var targetedComponent;
-      //console.log('urlRequiered', urlRequiered)
-
-
-      // this.workspace_component_lib.get_all({module:'restApiGet'}).then(comps=>{
-      //   for(let comp of comps){
-      //       let route = new express.Route('', '/api/users/:username');
-      //   }
-      //
-      // })
-
 
       let matches;
       this.workspace_component_lib.get_all({
@@ -161,7 +134,8 @@ module.exports = new function() {
 
             } else if (targetedComponent.specificData.contentType.search('json') != -1) {
               res.setHeader('content-type', targetedComponent.specificData.contentType);
-              res.json(dataToSend.data);
+              var buf = Buffer.from(JSON.stringify(dataToSend.data));
+              res.send(buf);
             } else {
               next(new Error('no supported madiatype'));
               //res.send('type mime non géré')
@@ -172,7 +146,7 @@ module.exports = new function() {
           }
         }
       }).catch(err => {
-        console.log('FAIL', err);
+        console.log('Engine FAIL for API ',urlRequiered);
         if (err.code) {
           res.status(err.code).send(err.message);
         } else {

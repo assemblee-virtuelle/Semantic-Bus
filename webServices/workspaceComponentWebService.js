@@ -100,7 +100,7 @@ module.exports = function(router, amqpClient) {
 
 
   amqpClient.consume('work-ask', (msg) => {
-    console.log('ALLO');
+    // console.log('ALLO');
     var messageObject = JSON.parse(msg.content.toString());
     workspace_component_lib.get({
       _id: messageObject.id
@@ -109,7 +109,7 @@ module.exports = function(router, amqpClient) {
       var engine = require('./engine');
       return engine.execute(data, 'work', this.amqpClient, messageObject.callerId);
     }).then((data) => {
-      console.log('ENGINE work sucess');
+      //console.log('ENGINE work sucess');
       //console.log("IN WORKSPACE COMPONENT RETURN DATA |", data)
       //this.stompClient.send('/topic/work-response.'+token, JSON.stringify({processId:0}));
 
@@ -131,7 +131,7 @@ module.exports = function(router, amqpClient) {
     //var configuration = require('../configuration');
     if (configuration.saveLock == false) {
       //var id = req.body._id;
-      //var componentToUpdate = req.body;      
+      //var componentToUpdate = req.body;
       workspace_component_lib.update(req.body).then((componentUpdated) => {
         res.json(componentUpdated)
       }).catch(e => {

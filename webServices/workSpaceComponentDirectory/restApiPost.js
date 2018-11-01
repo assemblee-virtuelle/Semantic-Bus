@@ -41,6 +41,7 @@ module.exports = new function() {
             // } else {
             //console.log("in component", component)
             specificData = component.specificData;
+            console.log(req.body);
             return this.recursivPullResolvePromiseDynamic.execute(component, 'push',stompClient,undefined,{data:req.body})
               //return this.recursivPullResolvePromise.resolveComponentPull(data[0], false,req.query);
             // }
