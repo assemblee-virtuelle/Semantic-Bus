@@ -1,5 +1,7 @@
 "use strict";
 
+const ProcessNotifier = require('./ProcessNotifier')
+
 class Engine {
   constructor(component, requestDirection, amqpClient, callerId, pushData, queryParams) {
     this.technicalComponentDirectory = require("./technicalComponentDirectory.js");
@@ -109,30 +111,19 @@ class Engine {
                     //   this.trigger('ajax_fail', body.error);
                     // }
                     originComponentId: this.originComponent._id,
-                    steps: this.pathResolution.nodes.map(node => {
-                      return ({
-                        componentId: node.component._id
-                      });
-                    })
+                    steps: this.pathResolution.nodes.map(node => ({ componentId: node.component._id }))
                   }).then((process) => {
                     this.processId = process._id;
-                    this.keyStart = 'process-start.' + this.originComponent.workspaceId;
-                    this.keyProgress = 'process-progress.' + this.originComponent.workspaceId;
-                    this.keyError = 'process-error.' + this.originComponent.workspaceId;
-                    this.keyEnd = 'process-end.' + this.originComponent.workspaceId;
-                    this.keyPersist = 'process-persist.' + this.originComponent.workspaceId;
-                    this.keyProcessCleaned = 'workflow-processCleaned.' + this.originComponent.workspaceId;
-                    this.amqpClient.publish('amq.topic', this.keyStart, new Buffer(JSON.stringify({
+                    this.processNotifier = new ProcessNotifier(this.amqpClient, this.originComponent.workspaceId)
+                    this.processNotifier.start({
                       _id: this.processId,
                       callerId: this.callerId,
                       timeStamp: process.timeStamp,
-                      steps: this.pathResolution.nodes.map(node => {
-                        return ({
-                          componentId: node.component._id,
-                          status: node.status
-                        });
-                      })
-                    })));
+                      steps: this.pathResolution.nodes.map(node => ({
+                        componentId: node.component._id,
+                        status: node.status
+                      }))
+                    })
 
                     this.pathResolution.links.forEach(link => {
                       link.status = "waiting";
@@ -413,9 +404,7 @@ class Engine {
         );
 
         if (nodeOnError.length > 0) {
-          this.amqpClient.publish('amq.topic', this.keyError, new Buffer(JSON.stringify({
-            _id: this.processId
-          })));
+          this.processNotifier.error({ _id: this.processId })
 
           let errors = [];
           this.pathResolution.nodes.forEach(n => {
@@ -426,15 +415,11 @@ class Engine {
           this.RequestOrigineRejectMethode(errors);
           // }
         } else {
-          this.amqpClient.publish('amq.topic', this.keyEnd, new Buffer(JSON.stringify({
-            _id: this.processId
-          })));
+          this.processNotifier.end({ _id: this.processId })
         }
         this.workspace_lib.cleanOldProcess(this.workflow).then(processes => {
           // console.log(processes);
-          this.amqpClient.publish('amq.topic', this.keyProcessCleaned, new Buffer(JSON.stringify({
-            cleanedProcesses: processes
-          })));
+          this.processNotifier.processCleaned({ cleanedProcesses: processes })
         })
         if (this.config.quietLog != true) {
           console.log(
@@ -443,8 +428,11 @@ class Engine {
         }
       }
     } else {
-      let fullError = new Error("Vous n'avez pas assez de credit");
-      this.amqpClient.publish("amq.topic", this.keyError, new Buffer(JSON.stringify({error: fullError.message})))
+      const fullError = new Error("Vous n'avez pas assez de credit");
+      this.processNotifier.error({
+        _id: this.processId,
+        error: fullError.message
+      })
       this.RequestOrigineRejectMethode(fullError);
     }
   }
@@ -501,36 +489,36 @@ class Engine {
     }
     //console.log('BEFORE createHistoriqueEnd');
     this.workspace_lib.createHistoriqueEnd(historic_object).then(historiqueEnd => {
-      this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
+      this.processNotifier.progress({
         componentId: historiqueEnd.componentId,
         processId: historiqueEnd.processId,
         error: historiqueEnd.error
-      })));
+      });
       if (processingNode.component.persistProcess == true) {
         //console.log('persistFlow',persistFlow);
         this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id, persistFlow).then(frag => {
           //console.log('ALLO',frag);
-          this.amqpClient.publish('amq.topic', this.keyPersist, new Buffer(JSON.stringify({
+          this.processNotifier.persist({
             componentId: historiqueEnd.componentId,
             processId: historiqueEnd.processId,
             data: frag.data,
-          })));
+          })
         }).catch(e => {
-          this.amqpClient.publish('amq.topic', this.keyPersist, new Buffer(JSON.stringify({
+          this.processNotifier.persist({
             componentId: historiqueEnd.componentId,
             processId: historiqueEnd.processId,
             error: 'error persisting historic data'
-          })));
+          })
         });
       }
 
     }).catch(e => {
       console.log(e);
-      this.amqpClient.publish('amq.topic', this.keyProgress, new Buffer(JSON.stringify({
+      this.processNotifier.progress({
         componentId: processingNode.component._id,
         processId: this.processId,
         error: 'error writing historic'
-      })));
+      });
     });
 
     if (this.config.quietLog != true) {
