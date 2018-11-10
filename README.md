@@ -65,4 +65,4 @@ semantic data transformation &amp; semantic container crawling
 - `npm run amqpStop`
 - `npm run mongoStop`
 #### each time
-- `node start`
+- `node app.js`
