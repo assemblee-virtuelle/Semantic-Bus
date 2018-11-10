@@ -62,7 +62,7 @@ semantic data transformation &amp; semantic container crawling
 - `npm run amqpRun`
 - `npm run mongoRun`
 - if amqp or mongo ever run, you can reboot them
-- 'npm run amqpStop'
-- 'npm run mongoStop'
+- `npm run amqpStop`
+- `npm run mongoStop`
 #### each time
 - `node start`
