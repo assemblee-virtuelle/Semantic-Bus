@@ -1,125 +1,83 @@
-<workspace-editor-header class="containerH" style="flex-wrap:nowrap;flex-grow:1">
+<workspace-editor-header style="flex-grow:1">
 
-  <div class="commandBar containerH" style="flex-grow:1">
-    <div></div>
-    <div class="containerV">
-      <div if={menu=='component' } class="containerH">
-        <div>
-          modifier votre worflow
-        </div>
-      </div>
-      <div if={menu=='user' } class="containerH">
-        <div>
-          les utilisateurs qui ont acces au workflow
-        </div>
-      </div>
-      <div if={menu=='information' } class="containerH">
-        <div>
-          les informations du worflow
-        </div>
-      </div>
-      <div if={menu=='addComponent' } class="containerH">
-        <div>
-          ajouter un composant au workflow
-        </div>
-      </div>
-      <div if={menu=='share' } class="containerH">
-        <div>
-          ajouter un utilisateur au workflow
-        </div>
-      </div>
-      <div if={menu=='utilisation' } class="containerH">
-        <div>
-          consomation du workflow
-        </div>
-      </div>
-      <div if={menu=='process' } class="containerH">
-        <div>
-          les process
-        </div>
-      </div>
-      <div class="containerH" >
-        <div class="main-title">{data.name}</div>
-      </div>
-    </div>
+  <page-header
+    main-title="{data.name}"
+    sub-title="{pages[menu].title}"
+    actions={ pages[menu].actions }
+  ></page-header>
 
-    <div style="flex-basis:100px;flex-grow:0;flex-shrink:0">
-      <div if={menu=='component' } onclick={showAddComponentClick} class="commandButtonImage containerV">
-        <img src="./image/ajout_composant.svg" style="" height="40px" width="40px">
-        <div style="text-align:center">ajouter un composant</div>
-      </div>
-
-      <div if={menu=='user' } onclick={showShareClick} class="commandButtonImage containerV">
-        <img src="./image/ajout_composant.svg" style="" height="40px" width="40px">
-        <div style="text-align:center">ajouter un utilisateur</div>
-      </div>
-      <div if={menu=='information' } onclick={persistClick} class="commandButtonImage containerV">
-        <img src="./image/Super-Mono-png/PNG/sticker/icons/inbox.png" style="" height="40px" width="40px">
-        <div style="text-align:center">valider</div>
-      </div>
-      <div if={menu=='addComponent' } onclick={addComponentClick} class="commandButtonImage containerV">
-        <img src="./image/Super-Mono-png/PNG/sticker/icons/inbox.png" style="" height="40px" width="40px">
-        <div style="text-align:center">valider</div>
-      </div>
-      <div if={menu=='share' } onclick={shareClick} class="commandButtonImage containerV">
-        <img src="./image/Share.svg" style="" height="40px" width="40px">
-        <div style="text-align:center">partager</div>
-      </div>
-      <div if={menu=='process' } onclick={shareClick} class="commandButtonImage containerV">
-        <!--<img src="./image/Super-Mono-png/PNG/sticker/icons/bin.png" style="" height="40px" width="40px">
-        <div style="text-align:center">supprimer tous</div>-->
-      </div>
-    </div>
-
-  </div>
-
-  <style></style>
   <script>
     this.data = {};
-
-    this.persistClick = function (e) {
-      //console.log("--------- persistClick WORKSPACE TAG ----------------", this.innerData)
-      RiotControl.trigger('workspace_current_persist')
-    }.bind(this)
-
-    this.showAddComponentClick = function (e) {
-      route('workspace/' + this.data._id + '/addComponent');
-    }.bind(this)
-
-    this.showShareClick = function (e) {
-      route('workspace/' + this.data._id + '/share');
-    }.bind(this)
-
-    this.addComponentClick = function(e) {
-       //console.log("In navigation")
-       RiotControl.trigger("workspace_current_add_components")
+    /**
+     * @typedef {{title: string, actions: {icon: string, label: string, action: (function())}[]}} PageConfig
+     * @type {{component: PageConfig, user: PageConfig, information: PageConfig, addComponent: PageConfig, share: PageConfig, utilisation: PageConfig, process: PageConfig}}
+     */
+    this.pages = {
+      component: {
+        title: 'modifier votre worflow',
+        actions: [
+          { icon: 'ajout_composant', label: 'ajouter un composant', action: () => this.showAddComponentClick() },
+          { icon: 'download', label: 'exporter', action: () => this.exportWorkflow() }
+        ]
+      },
+      user: {
+        title: 'les utilisateurs qui ont acces au workflow',
+        actions: [{ icon: 'ajout_composant', label: 'ajouter un utilisateur', action: () => this.showShareClick() }]
+      },
+      information: {
+        title: 'les informations du worflow',
+        actions: [{ icon: 'inbox', label: 'valider', action: () => this.persistClick() }]
+      },
+      addComponent: {
+        title: 'ajouter un composant au workflow',
+        actions: [{ icon: 'inbox', label: 'valider', action: () => this.addComponentClick() }]
+      },
+      share: {
+        title: 'ajouter un utilisateur au workflow',
+        actions: [{ icon: 'share', label: 'partager', action: () => this.shareClick() }]
+      },
+      utilisation: {
+        title: 'consomation du workflow',
+        actions: []
+      },
+      process: {
+        title: 'les process',
+        actions: []
+      }
     }
 
-    this.shareClick = function(e) {
+    this.persistClick = () => RiotControl.trigger('workspace_current_persist')
+
+    this.showAddComponentClick = () => route('workspace/' + this.data._id + '/addComponent')
+
+    this.exportWorkflow = () => console.log('export workflow')
+
+    this.showShareClick = () => route('workspace/' + this.data._id + '/share')
+
+    this.addComponentClick = () => RiotControl.trigger("workspace_current_add_components")
+
+    this.shareClick = () => {
       console.log("user component share",this.workspace)
-      //if (this.workspace) {
-        RiotControl.trigger('share-workspace');
-      //};
+      RiotControl.trigger('share-workspace')
     }
 
-    RiotControl.on('workspace_editor_menu_changed', function (menu) {
-      this.menu = menu;
-      this.update();
-    }.bind(this));
+    RiotControl.on('workspace_editor_menu_changed', (menu) => {
+      this.menu = menu
+      this.update()
+    })
 
-    this.workspaceCurrentChanged = function (data) {
-      this.data = data;
-      this.update();
-    }.bind(this);
+    this.workspaceCurrentChanged = (data) => {
+      this.data = data
+      this.update()
+    }
 
-    this.on('mount', function () {
-      RiotControl.on('workspace_current_changed', this.workspaceCurrentChanged);
-      RiotControl.trigger('workspace_current_refresh');
-    });
+    this.on('mount', () => {
+      RiotControl.on('workspace_current_changed', this.workspaceCurrentChanged)
+      RiotControl.trigger('workspace_current_refresh')
+    })
 
-    this.on('unmount', function () {
-      RiotControl.off('workspace_current_changed', this.workspaceCurrentChanged);
-      //RiotControl.off('share_change', this.shareChange)
-    });
+    this.on('unmount', () => {
+      RiotControl.off('workspace_current_changed', this.workspaceCurrentChanged)
+    })
   </script>
 </workspace-editor-header>
