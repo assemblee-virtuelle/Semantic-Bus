@@ -13,19 +13,19 @@
     <div class=" containerV" style="flex-basis:400px; background-color: rgb(9,245,185);flex-grow:0;">
       <a href="#profil//running" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
         <img src="./image/Stats.svg" style="margin-bottom: 10px;" height="40px" width="40px">
-        <p style="color:white;font-size:12px">Conso</p>
+        <p style="color:white;font-size:12px"><i18n key="profile.running"></i18n></p>
       </a>
       <a href="#profil//edit" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
         <img src="./image/Autres.svg" style="margin-bottom: 10px;" height="40px" width="40px">
-        <p style="color:white;font-size:12px">Edition</p>
+        <p style="color:white;font-size:12px"><i18n key="profile.edit"></i18n></p>
       </a>
        <a href="#profil//payement" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
         <img src="./image/credit_card.png" style="margin-bottom: 10px;" height="40px" width="40px">
-        <p style="color:white;font-size:12px">Credits</p>
+        <p style="color:white;font-size:12px"><i18n key="profile.payment"></i18n></p>
       </a>
       <a href="#profil//setting" class="commandButtonImage containerV" style="justify-conte:center; align-tems:center;flex-basis:120px">
         <img src="./image/Roulette_bus.svg" style="margin-bottom: 10px;" height="40px" width="40px">
-        <p style="color:white;font-size:12px">Paramêtres</p>
+        <p style="color:white;font-size:12px"><i18n key="profile.settings"></i18n></p>
       </a>
     </div>
   </div>
