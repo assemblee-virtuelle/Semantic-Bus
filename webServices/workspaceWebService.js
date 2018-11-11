@@ -59,6 +59,39 @@ module.exports = function(router,stompClient) {
   })
   // --------------------------------------------------------------------------------
 
+  router.get('/workspace/:id/export', function (req, res, next) {
+    workspace_lib.getWorkspace(req.params.id)
+      .then((workspace) => {
+        res
+          .set('Content-Description', 'File Transfer')
+          .set('Content-Type', 'application/json')
+          .set('Content-Disposition', 'attachment; filename="' + workspace.name + '.json"')
+          .json(sanitizeWorkspace(workspace))
+      })
+      .catch(next)
+  });
+
+  function sanitizeWorkspace(databaseWorkspace) {
+    return {
+      name: databaseWorkspace.name,
+      description: databaseWorkspace.description,
+      limitHistoric: databaseWorkspace.limitHistoric,
+      components: databaseWorkspace.components.map(component => ({
+        id: component._id,
+        module: component.module,
+        type: component.type,
+        description: component.description,
+        editor: component.editor,
+        specificData: component.specificData,
+        connectionsBefore: component.connectionsBefore,
+        connectionsAfter: component.connectionsAfter,
+        graphPositionX: component.graphPositionX,
+        graphPositionY: component.graphPositionY,
+        pricing: component.pricing
+      }))
+    }
+  }
+
   router.get('/workspace/:id', function(req, res, next) {
     //console.log('Get On Workspace 1');
     workspace_lib.getWorkspace(req.params.id).then(function(workspace) {

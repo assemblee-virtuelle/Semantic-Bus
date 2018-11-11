@@ -50,7 +50,10 @@
 
     this.showAddComponentClick = () => route('workspace/' + this.data._id + '/addComponent')
 
-    this.exportWorkflow = () => console.log('export workflow')
+    this.exportWorkflow = () => {
+      // Server is set to force the download so the user actually does not change location
+      window.location.href = '/data/core/workspace/' + this.data._id + '/export?token=JTW ' + localStorage.token
+    }
 
     this.showShareClick = () => route('workspace/' + this.data._id + '/share')
 
