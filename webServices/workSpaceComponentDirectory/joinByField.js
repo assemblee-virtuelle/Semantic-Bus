@@ -36,8 +36,12 @@ module.exports = {
         let filter = {};
         filter[data.specificData.secondaryFlowId] = primaryRecord[data.specificData.primaryFlowFKId];
         //console.log(filter, secondaryFlowData.length);
+        if(data.specificData.multipleJoin==true){
+          primaryRecord[data.specificData.primaryFlowFKName] = this.sift(filter, secondaryFlowData);
+        }else{
+          primaryRecord[data.specificData.primaryFlowFKName] = this.sift(filter, secondaryFlowData)[0];
+        }
 
-        primaryRecord[data.specificData.primaryFlowFKName] = this.sift(filter, secondaryFlowData)[0];
 
         resolve(primaryRecord);
       }catch(e){

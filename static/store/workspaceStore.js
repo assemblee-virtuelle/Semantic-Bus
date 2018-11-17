@@ -635,6 +635,37 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
 
 
 
+  this.on('workspace_current_export', function(record) {
+
+    let exportObject = {
+      components: this.workspaceCurrent.components,
+      links: this.workspaceCurrent.links
+    }
+    let file = new File([JSON.stringify(exportObject)], this.workspaceCurrent.name.concat('.json'), {
+      type: 'application/json'
+    });
+    let exportUrl = URL.createObjectURL(file);
+    window.open(exportUrl);
+  });
+
+  this.on('workspace_current_import', function(file) {
+    //console.log('ALLO');
+    let reader = new FileReader();
+    reader.onload = function(e) {
+      let newWorkflow = JSON.parse(e.target.result);
+      this.utilStore.ajaxCall({
+        method: 'post',
+        url: '../data/core/workspace/' + this.workspaceCurrent._id + '/import',
+        data: JSON.stringify(newWorkflow),
+      }, true).then((updatedWorkspace)=>{
+        this.workspaceCurrent=updatedWorkspace;
+        route('workspace/' + this.workspaceCurrent._id + '/component');
+      })
+    }.bind(this);
+    reader.readAsText(file);
+  });
+
+
 
   // --------------------------------------------------------------------------------
 
@@ -833,7 +864,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
             this.subscription_workspace_current_process_persist = this.stompClient.subscribe('/topic/process-persist.' + this.workspaceCurrent._id, message => {
               console.log('message', JSON.parse(message.body));
               let body = JSON.parse(message.body);
-              console.log(this.currentProcess._id,body.processId,this.itemCurrent._id,body.componentId);
+              console.log(this.currentProcess._id, body.processId, this.itemCurrent._id, body.componentId);
               if (this.currentProcess._id == body.processId && this.itemCurrent._id == body.componentId) {
                 this.trigger('item_current_process_persist_changed', body.data);
               }
@@ -1138,19 +1169,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
 
 
   this.on('connect_components', function(source, target) {
-    //source.connectionsAfter.push(target);
-    // //target.connectionsBefore.push(source);
-    // let serialised = {
-    //   source: this.workspaceBusiness.serialiseWorkspaceComponent(source),
-    //   target: this.workspaceBusiness.serialiseWorkspaceComponent(target)
-    // }
-    // serialised.source.connectionsAfter.push({
-    //   _id: target._id
-    // });
-    // serialised.target.connectionsBefore.push({
-    //   _id: source._id
-    // });
-
     this.utilStore.ajaxCall({
       method: 'post',
       url: '../data/core/workspaceComponent/connection',
@@ -1357,11 +1375,26 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
   }); //<= item_current_select
 
   this.on('component_current_connections_refresh', function() {
-    let beforeLinks = sift({target:this.itemCurrent._id},this.workspaceCurrent.links);
-    let beforeComponents=sift({"_id":{"$in":beforeLinks.map(l=>l.source)}},this.workspaceCurrent.components);
-    let afterLinks = sift({source:this.itemCurrent._id},this.workspaceCurrent.links);
-    let afterComponents=sift({"_id":{"$in":beforeLinks.map(l=>l.target)}},this.workspaceCurrent.components);
-    this.trigger('component_current_connections_changed',{beforeComponents:beforeComponents,afterComponents:afterComponents});
+    let beforeLinks = sift({
+      target: this.itemCurrent._id
+    }, this.workspaceCurrent.links);
+    let beforeComponents = sift({
+      "_id": {
+        "$in": beforeLinks.map(l => l.source)
+      }
+    }, this.workspaceCurrent.components);
+    let afterLinks = sift({
+      source: this.itemCurrent._id
+    }, this.workspaceCurrent.links);
+    let afterComponents = sift({
+      "_id": {
+        "$in": beforeLinks.map(l => l.target)
+      }
+    }, this.workspaceCurrent.components);
+    this.trigger('component_current_connections_changed', {
+      beforeComponents: beforeComponents,
+      afterComponents: afterComponents
+    });
   });
 
 

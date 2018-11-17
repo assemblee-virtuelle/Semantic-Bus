@@ -74,7 +74,7 @@ function WorkspaceBusiness() {
 
 
   this.serialiseWorkspaceComponent = function(workspaceComponentIn) {
-    console.log("SERIALISE",workspaceComponentIn);
+    //console.log("SERIALISE",workspaceComponentIn);
     var out = {
       _id: workspaceComponentIn._id,
       specificData: workspaceComponentIn.specificData,
