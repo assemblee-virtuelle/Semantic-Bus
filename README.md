@@ -10,13 +10,13 @@ semantic data transformation &amp; semantic container crawling
 - Value correspondence (translation between taxonomy)
 - Join data by field
 - Data agregation from multiple source
-- Complex unnicity
+- Complex unicity
 - Geo data completion from address
 - Middle cache database for performance
 - Srapping & crawling
 - Filter
 - Workfow sharing & multi User Edition
-- Process parameters usable in workflow components
+- API parameters usable in workflow components
 
 
 
@@ -60,5 +60,9 @@ semantic data transformation &amp; semantic container crawling
 - `npm run amqpPull`
 #### each reboot
 - `npm run amqpRun`
+- `npm run mongoRun`
+- if amqp or mongo ever run, you can reboot them
+- `npm run amqpStop`
+- `npm run mongoStop`
 #### each time
-- `node start`
+- `node app.js`
