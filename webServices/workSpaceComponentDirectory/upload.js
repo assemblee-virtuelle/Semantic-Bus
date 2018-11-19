@@ -4,10 +4,10 @@
 
 module.exports = {
   type: 'Upload',
-  description: 'Uploader un fichier',
+  description: 'Importer un fichier.',
   workspace_component_lib: require('../../lib/core/lib/workspace_component_lib'),
   editor: 'upload-editor',
-  graphIcon: 'default.png',
+  graphIcon: 'Upload.png',
   tags: [
     'http://semantic-bus.org/data/tags/inComponents',
     'http://semantic-bus.org/data/tags/fileComponents'

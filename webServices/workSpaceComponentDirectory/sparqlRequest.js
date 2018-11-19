@@ -1,9 +1,9 @@
 "use strict";
 module.exports = {
-  type: 'Sparql request',
-  description: 'Requeter en sparql sur un fichier json ld',
+  type: 'SPARQL',
+  description: 'Requêter en SPARQL sur un fichier JSON ld.',
   editor: 'sparql-request-editor',
-  graphIcon: 'sparqlRequest.png',
+  graphIcon: 'Sparql.png',
   tags: [
     'http://semantic-bus.org/data/tags/middleComponents',
     'http://semantic-bus.org/data/tags/middleQueryingComponents'

@@ -1,34 +1,42 @@
-<workspace-component-editor class="containerV" style="flex-grow:1">
-  <div class="containerH info" style="background: rgb(213,218,224);flex-wrap:wrap;">
-    <div class="containerV" style="">
-      <label>
-        Nom du composant
-      </label>
-      <div class="containerH" style="justify-content:center;">
-      <input class="field" type="text" id="nameComponentInput" onchange={onNameChange} value={itemCurrent.name}></input>
-    </div>
-  </div>
-    <div class="containerV">
-      <label >
-        Persistance du process (payant)
-      </label>
-      <div class="containerH" style="justify-content:center;">
-        <label class="switch">
-          <input type="checkbox" onchange={onPersistProcessChange} checked={itemCurrent.persistProcess}>
-          <span class="slider round"></span>
+<workspace-component-editor class="containerV" style="flex-grow:1;justify-content:center">
+
+  <div class="containerH info" style="background: rgb(213,218,224);flex-wrap:wrap;flex-shrink:0;flex-grow:0;">
+    <div class="containerH" style="justify-content:center;">
+      <div class="containerV" style="justify-content:center;margin-right:10px;">
+        <label>Nom:
         </label>
       </div>
-    </div>
-  </div>
-  <div id="editionContainer" style="flex-grow:1; padding: 15pt;
-    background-color: rgb(238,242,249);" class="containerV">
-  </div>
-<!-- bouton valider -->
-    <div class="containerH" style="height:45px;align-items: center;justify-content: center;flex-grow:0;flex-shrink:0">
-      <div onclick={saveClick} class="commandButton containerV">
-        <div style="text-align:center">valider</div>
+      <div class="containerV" style="justify-content:center;">
+        <input style="height:30px;width:600px;" type="text" id="nameComponentInput" onchange={onNameChange} value={itemCurrent.name} required="required"></input>
       </div>
     </div>
+
+    <div class="containerH" style="justify-content:center">
+      <div class="containerV" style="justify-content:center;margin-right:10px;">
+        <label >
+          Persistance du process (payant)
+        </label>
+      </div>
+      <div class="containerH" style="justify-content:center;">
+        <div class="containerV" style="justify-content:center;">
+          <label class="switch">
+            <input type="checkbox" onchange={onPersistProcessChange} checked={itemCurrent.persistProcess}>
+            <span class="slider round"></span>
+          </label>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div style="flex-grow:1; background-color: rgb(238,242,249);" class="containerV">
+    <div id="editionContainer" class="box-flex containerV"></div>
+  </div>
+
+  <!-- Bouton valider -->
+  <div class="containerV" style="flex-shrink:0;flex-grow:0;flex-basis:65px;justify-content:center">
+    <div class="containerH" style="justify-content:center">
+      <button class="btn" onclick={saveClick} type="button">Valider</button>
+    </div>
+  </div>
 
   <script>
     this.itemCurrent = {};
@@ -75,7 +83,7 @@
   </script>
   <style>
     .info {
-      justify-content: center;
+      justify-content: flex-start;
       flex-shrink: 0;
 
     }
@@ -84,15 +92,14 @@
       flex-grow: 1;
 
     }
-
-    .input {
-      text-align: center;
+    .box-flex {
+      margin: 20px;
+      padding: 20px;
+      background-color: white;
+      border-radius: 5px;
+      border: 1px solid rgba(133,133,133,0.38);
+      box-shadow: 0 0 5px 0 rgba(133,133,133,0.38);
     }
-
-    label {
-      text-align: center;
-    }
-
   </style>
 
 </workspace-component-editor>

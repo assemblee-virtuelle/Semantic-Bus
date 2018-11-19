@@ -1,24 +1,25 @@
 <object-transformer>
+  <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Transform" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </div>
   <!-- Titre du composant -->
-  <div class="contenaireV title-component"> OBJECT TRANSFORMER</div>
-  <!-- Description du composant -->
-  <label style="padding-top: 10px;">Transformer un objet par mapping grâce à un objet transformation</label>
-  <label style="padding-top: 10px;">Ce composant est capable de transformer la structure des données. Il se paramètre grâce à un objet de transformation qui décrit comment transformer la structure.</label>
-
-<!-- Champ du composant -->
-  <div>Configuration d'un objet de transformation</div>
-  <jsonEditor ref="jsonSchema" title="Transform Schema" class="containerH" style="" modes="['tree','text']"></jsonEditor>
+  <div class="contenaireV title-component">Transform
+  </div>
+  <!-- Champ du composant -->
+  <div>Configuration d'un objet de transformation.</div>
+  <jsoneditor ref="jsonSchema" title="Transform Schema" class="containerV" modes="['tree','text']"></jsoneditor>
   <script>
     this.updateData = function (dataToUpdate) {
       this.data = dataToUpdate;
-      this.data.specificData=this.data.specificData||{};
-      this.data.specificData.transformObject=this.data.specificData.transformObject||{};
+      this.data.specificData = this.data.specificData || {};
+      this.data.specificData.transformObject = this.data.specificData.transformObject || {};
       this.refs.jsonSchema.data = this.data.specificData.transformObject;
       this.update();
     }.bind(this);
     this.on('mount', function () {
-      this.refs.jsonSchema.on('change',function(e){
-        this.data.specificData.transformObject=this.refs.jsonSchema.data;
+      this.refs.jsonSchema.on('change', function (e) {
+        this.data.specificData.transformObject = this.refs.jsonSchema.data;
       }.bind(this));
       RiotControl.on('item_current_changed', this.updateData);
     });

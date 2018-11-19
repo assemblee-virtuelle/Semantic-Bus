@@ -146,7 +146,7 @@ module.exports = function(router,stompClient) {
   }) //<= update_workspace;
 
   router.post('/workspace/:id/addComponents', function(req, res, next) {
-    //console.log('req.body', req.body)
+    console.log('req.body', req.body,req.params.id)
     if (req.body != null) {
       let components = req.body;
       components.forEach(c => {

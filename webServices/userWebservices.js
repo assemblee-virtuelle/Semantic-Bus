@@ -85,7 +85,7 @@ module.exports = function (router,stompClient) {
   // ---------------------------------------------------------------------------------
 
   router.get('/users/:id', function (req, res,next) {
-  //  console.log("LOADING USER",req.params.id)
+   // console.log("LOADING USER",req.params.id)
     user_lib.getWithWorkspace(
           req.params.id, "owner"
     ).then(function (result) {

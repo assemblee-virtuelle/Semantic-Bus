@@ -2,17 +2,25 @@
   <!-- Titre du composant -->
   <div class="contenaireV title-component">Uploader votre fichier</div>
   <!-- Description du composant -->
-  <label style="padding-top: 10px;">Ce composant vous permet d'uploader un fichier avec une extension <b>XLSX</b> ou <b>CSV</b> et de le mapper en <b>JSON</b></label>
+  <label style="padding-top: 10px;">Ce composant vous permet d'uploader un fichier avec une extension
+    <b>XLSX</b>
+    ou
+    <b>CSV</b>
+    et de le mapper en
+    <b>JSON</b>
+  </label>
   <!-- Champ du composant -->
   <h3 class="{textloadclass}">{textload}</h3>
   <div class="containerH" style="flex-shrink:0">
     <button onclick={uploadClick} type="button" style="flex:1">Telecharger</button>
     <input id="upload-input" type="file" name="uploads[]">
   </div>
+
   <div class="containerH" style="flex-shrink:0;margin-top:20px">
-    <progress max=100 value={progress} class={status} style="flex:1"></progress>
+    <progress max="100" value={progress} class={status} style="flex:1"></progress>
   </div>
-  <style scope>
+
+  <style scope="scope">
     progress {
       background: white;
     }
@@ -140,7 +148,6 @@
       width: 450px;
     }
   }*/
-
   </style>
   <script>
 
@@ -201,8 +208,7 @@
       })
     }.bind(this)
     this.on('mount', function () {
-      //this.progress = "";
-      //$('.progress-bar').width(0 + '%');
+      //this.progress = ""; $('.progress-bar').width(0 + '%');
       RiotControl.on('item_current_changed', this.updateData);
     });
     this.on('unmount', function () {

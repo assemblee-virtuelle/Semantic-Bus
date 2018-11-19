@@ -1,9 +1,9 @@
 "use strict";
 module.exports = {
-  type: 'Value Mapping',
-  description: 'remplacer les valeurs d une propriété par une autre',
+  type: 'Value mapping',
+  description: 'Remplacer les valeurs d\'une propriété par une autre.',
   editor: 'value-mapping-editor',
-  graphIcon: 'valueMapping.png',
+  graphIcon: 'Value_mapping.png',
   tags: [
     'http://semantic-bus.org/data/tags/middleComponents',
     'http://semantic-bus.org/data/tags/middleQueryingComponents'
@@ -23,7 +23,7 @@ module.exports = {
           valueOut.push({
             sourceValue: valueIn,
             translatedValue: atomicMapping.replacementValue
-          });  
+          });
         }
 
       }

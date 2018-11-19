@@ -29,7 +29,7 @@
   </div>
 <!--dockfooter-->
   <div class="containerU" style="height:85px;justify-content: center;">
-    <div onclick={addWorkflowClick} class="commandButtonImage containerV">
+    <div onclick={addWorkflowClick} class="commandButtonImage containerU">
       <img src="./image/ajout_composant.svg" style="" height="40px" width="40px">
       <span style="font-family: 'Open Sans', sans-serif";>Workflow</span>
     </div>

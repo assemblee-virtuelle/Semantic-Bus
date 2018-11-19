@@ -1,16 +1,15 @@
 <workspace-component-editor-header class="containerH" style="flex-wrap:nowrap;flex-grow:1">
-<!--  header éditer un composant   -->
-  <div class="commandBar containerH" style="flex-grow:1">
+  <!-- header éditer un composant -->
+  <div class="commandBar containerH" style="flex-grow:1; justify-content: center">
     <div></div>
-    <div class="containerV">
-      <div class="containerH title-header">
-        <div>
-          Editer votre composant
+    <div class="containerV" style="justify-content:center">
+      <div class="containerH">
+        <div class="main-title">
+          <h6>Composant</h6>
         </div>
       </div>
     </div>
   </div>
-
 
   <style></style>
   <script>

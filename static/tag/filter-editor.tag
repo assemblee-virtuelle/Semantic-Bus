@@ -1,8 +1,12 @@
 <filter-editor>
+  <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Filter" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </div>
   <!-- Titre du composant -->
-  <div class="contenaireV title-component">FILTRE</div>
+  <div class="contenaireV title-component">Filter</div>
   <!-- Description du composant -->
-  <label style="padding-top: 10px;">Filtrer le flux</label>
+  <div>Filtrer le flux:</div>
 
   <jsonEditor ref="filterObjectInput" title="Filter Schema" style="flex:1" modes="['tree','text']"></jsonEditor>
 

@@ -1,11 +1,11 @@
 "use strict";
 module.exports = {
-  type: 'Framacalc Get CSV',
-  description: 'intéroger une feuille de calcule Framacalc qui fourni un flux CSV',
+  type: 'Framacalc',
+  description: 'Interroger une feuille de calcule Framacalc qui fournit un flux CSV.',
   editor: 'framacalc-get-csv-editor',
   //  url: require('url'),
   //  http: require('http'),
-  graphIcon: 'framacalcCsv.png',
+  graphIcon: 'Framacalc.png',
   tags: [
     'http://semantic-bus.org/data/tags/inComponents',
     'http://semantic-bus.org/data/tags/APIComponents'

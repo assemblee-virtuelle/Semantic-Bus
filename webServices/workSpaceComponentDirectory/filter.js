@@ -1,10 +1,10 @@
 "use strict";
 module.exports = {
   type: 'Filter',
-  description: 'filter le flux',
+  description: 'Filtrer le flux.',
   editor: 'filter-editor',
   sift: require('sift'),
-  graphIcon:'filter.png',
+  graphIcon:'Filter.png',
   tags:[
     'http://semantic-bus.org/data/tags/middleComponents',
     'http://semantic-bus.org/data/tags/middleQueryingComponents'

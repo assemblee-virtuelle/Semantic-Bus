@@ -1,9 +1,9 @@
 "use strict";
 module.exports = {
-  type: 'data.gouv inverse geolocaliser',
-  description: 'interoge l api adresse .data.gouv pour retrouver une adresse + CP + Insee depuis latitude et longitude',
+  type: 'data.gouv reverse geocoding',
+  description: 'Interroger l\'API adresse.data.gouv.fr pour trouver la latitude et la longitude avec une adresse.',
   editor: 'data-gouv-inverse-geolocaliser-editor',
-  graphIcon:'dataGouvFrInvGeo.png',
+  graphIcon:'Data_gouv_reverse_geocoding.png',
   tags:[
     'http://semantic-bus.org/data/tags/middleComponents',
     'http://semantic-bus.org/data/tags/middleGeocodeComponents'

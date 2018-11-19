@@ -1,24 +1,24 @@
-<data-gouv-inverse-geolocaliser-editor style="justify-content:center; align-items: center;">
+<data-gouv-inverse-geolocaliser-editor>
+    <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-data.gouv-reverse-geocoding" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </div>
   <!-- Titre du composant -->
-  <div class="contenaireV title-component">adresse.data.gouv.fr geolocaliser inversé</div>
-  <!-- Description du composant -->
-  <label style="padding-top: 10px;width:90%">Ce composant permet d'interroger l’API de adresse.data.gouv pour trouver une adresse + code postal + code Insee à partir de la latitude et la longitude.</label>
-  <label style="padding-top: 10px;">Interroge l'API adresse.data.gouv pour retrouver une adresse + code postal + code Insee depuis la latitude et la longitude.</label>
+  <div class="contenaireV title-component">data.gouv.fr reverse geocoding
+</div>
+<div>Interroger l'API adresse.data.gouv.fr pour trouver la latitude et la longitude avec une adresse.</div>
   <!-- Champ du composant -->
-  <div class="contenaireH" style="justify-content:center; align-items: center;flex-wrap: wrap;width:600px;">
-    <div style="padding-top: 10px;">Champ de l'objet permettant de définir la position géographique</div>
-    <label style="padding-top: 10px;">Latitude</label>
-    <input class="field" style="width:600px;"placeholder="Latitude"type="text" ref="latInput" value={data.specificData.latitudePath}></input>
-    <label style="padding-top: 10px;">Longitude</label>
-    <input class="field" style="width:600px;"placeholder="Longitude"type="text" ref="lngInput" value={data.specificData.longitudePath}></input>
-  </div>
-  <div class="contenaireH" style="justify-content:center; align-items: center;flex-wrap: wrap;width:600px;">
-    <div style="padding-top: 10px;">Champ de l'objet qui recevront les informations de l'adresse</div>
-    <label style="padding-top: 10px;">Code postal</label>
-    <input class="field" style="width:600px;"placeholder="Code postal"type="text" ref="CPInput" value={data.specificData.CPPath}></input>
-    <label style="padding-top: 10px;">Code Insee</label>
-    <input class="field" style="width:600px;"placeholder="Code Insee"type="text" ref="INSEEInput" value={data.specificData.INSEEPath}></input>
-  </div>
+      <div>Champ de l'objet permettant de définir la position géographique.</div>
+      <label>Latitude:</label>
+    <input class="field" placeholder="Latitude"type="text" ref="latInput" value={data.specificData.latitudePath}></input>
+      <label>Longitude:</label>
+    <input class="field" placeholder="Longitude"type="text" ref="lngInput" value={data.specificData.longitudePath}></input>
+      <div>Champ de l'objet qui recevront les informations de l'adresse.</div>
+      <label>Code postal:</label>
+    <input class="field" placeholder="Code postal"type="text" ref="CPInput" value={data.specificData.CPPath}></input>
+      <label>Code Insee:</label>
+    <input class="field" placeholder="Code Insee"type="text" ref="INSEEInput" value={data.specificData.INSEEPath}></input>
+
   <script>
 
     this.innerData={};

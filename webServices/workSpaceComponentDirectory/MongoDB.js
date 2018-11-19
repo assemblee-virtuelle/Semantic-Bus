@@ -1,12 +1,12 @@
 "use strict";
 module.exports = {
-  type: 'MongoDB connector',
-  description: 'intéroger une base de donnée Mongo',
+  type: 'Mongo',
+  description: 'Interroger une base de donnée Mongo.',
   editor: 'mongo-connecteur-editor',
   mongoose: require('mongoose'),
   MongoClient: require('mongodb').MongoClient,
   //mLabPromise: require('../mLabPromise'),
-  graphIcon: 'mongoDbConnector.png',
+  graphIcon: 'Mongo.png',
   dotProp: require('dot-prop'),
   tags: [
     'http://semantic-bus.org/data/tags/inComponents',

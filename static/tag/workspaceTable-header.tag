@@ -6,7 +6,7 @@
     <div class="containerV" style="justify-content:center">
       <div class="containerH">
         <div class="main-title">
-          <h6 style="color:white; font-family: 'Open Sans', sans-serif;">Workflow</h6>
+          <h6>Workflow</h6>
         </div>
   </div>
 

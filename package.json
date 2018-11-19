@@ -5,7 +5,7 @@
   "private": true,
   "main": "",
   "scripts": {
-    "mongoPull": "sudo docker pull mongo",
+    "mongoPull": "sudo docker pull mongo:3.6",
     "premongoRun" : "sudo mkdir -p ./data",
     "mongoRun": "sudo docker run -d -v data:/data/db -p 27017:27017 --name mongo mongo",
     "mongoStop": "sudo docker stop mongo && sudo docker rm mongo",

@@ -1,20 +1,26 @@
-<deeper-focus-opening-bracket-editor style="justify-content:center; align-items: center;">
+<deeper-focus-opening-bracket-editor>
+  <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Deeper-focus" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </div>
   <!-- Titre du composant -->
-  <div class="contenaireV title-component">Deeper Focus Opening Bracket</div>
-  <!-- Description du composant -->
-  <label style="padding-top: 10px;">Début de traitement d'un niveau de profondeur du flux </label>
+  <div class="contenaireV title-component">Deeper focus
+  </div>
   <!-- Champ du composant -->
-  <label style="padding-top: 10px;">Chemin à inspecter pour les traitements qui suivent</label>
-  <input class="field" style="width:600px;"placeholder="vide=racine"type="text" name="dfobPathInput" ref="dfobPathInput" value={data.specificData.dfobPath} onchange={dfobPathChange}></input>
-  <label style="padding-top: 10px;">Nombre de traitements parallèles</label>
-  <input class="field" style="width:600px;"placeholder="champ libre"type="text" name="pipeNbInput" ref="pipeNbInput" value={data.specificData.pipeNb} onchange={pipeNbChange}></input>
-  <label style="padding-top: 10px;">Le chemin désigne une structure de tableau à conserver en tableau (décomposé en objet par défaut)</label>
-    <div class="containerH" style="justify-content:center; align-items: center;">
-      <label class="switch">
-        <input type="checkbox" onchange={keepArrayChange} checked={data.specificData.keepArray}>
-        <span class="slider round"></span>
-      </label>
-    </div>
+  <div>Début de traitement d'un niveau de profondeur du flux.</div>
+
+  <label>Chemin à inspecter pour les traitements qui suivent:</label>
+  <input class="field" placeholder="vide=racine" type="text" name="dfobPathInput" ref="dfobPathInput" value={data.specificData.dfobPath} onchange={dfobPathChange}></input>
+  <label style="padding-top: 10px;">Nombre de traitements parallèles:</label>
+  <input class="field" placeholder="champ libre" type="text" name="pipeNbInput" ref="pipeNbInput" value={data.specificData.pipeNb} onchange={pipeNbChange}></input>
+
+  <div class="containerH" style="align-items:center;">
+    <label>Le chemin désigne une structure de tableau à conserver en tableau (décomposé en objet par défaut):</label>
+    <label class="switch" style="margin-left:10px;">
+      <input type="checkbox" onchange={keepArrayChange} checked={data.specificData.keepArray}>
+      <span class="slider round"></span>
+    </label>
+  </div>
 
   <script>
 
@@ -27,7 +33,7 @@
       this.data.specificData.pipeNbChange = e.target.value;
     }.bind(this);
     this.keepArrayChange = function (e) {
-      console.log(e.target,e.target.checked);
+      console.log(e.target, e.target.checked);
       this.data.specificData.keepArray = e.target.checked;
     }.bind(this);
 

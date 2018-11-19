@@ -2,9 +2,9 @@
 
   <zenTable drag={false} disallownavigation={true} disallowdelete={true}  ref="processZenTable">
     <yield to="header">
-      <div style="width:200px">date</div>
-      <div style="width:200px">heure</div>
-      <div style="width:100%">etat</div>
+      <div style="padding-left: 60px; width:200px">Date</div>
+      <div style="margin-left: 10px;width:200px">Heure</div>
+      <div style="margin-left: 10px;width:100%">Etat</div>
     </yield>
     <yield to="row">
       <div style="width:200px" >{new Date(timeStamp).toLocaleDateString()}</div>

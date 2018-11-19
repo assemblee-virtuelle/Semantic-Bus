@@ -1,9 +1,9 @@
 "use strict";
 module.exports = {
-  type: 'REST Get JSON',
-  description: 'intéroger une API REST avec une requete Get qui fourni un flux JSON, XML',
+  type: 'HTTP flow consumer',
+  description: 'Intéroger une API REST avec une requete Get qui fourni un flux JSON, XML.',
   editor: 'rest-get-json-editor',
-  graphIcon: 'restGetJson.png',
+  graphIcon: 'Http_flow_consumer.png',
   tags: [
     'http://semantic-bus.org/data/tags/inComponents',
     'http://semantic-bus.org/data/tags/APIComponents'

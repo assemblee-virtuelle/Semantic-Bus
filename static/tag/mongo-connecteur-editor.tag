@@ -1,21 +1,25 @@
 <mongo-connecteur-editor>
-  <div style="padding: 5%;" class="containerV">
-    <label>serveur (sans la base de donnée)
-    </label>
-    <input type="text" ref="url" value={data.specificData.url}/>
-    <label>base de donnée
-    </label>
-    <input type="text" ref="database" value={data.specificData.database}/>
-    <label>nom de la collection</label>
-    <input type="text" ref="modelName" value={data.specificData.modelName}/>
-    <h3 >
-      Valeur( ne mettez pas le model seulement la query)
-    </h3>
-    <h5 >
-      Documentation requetes: http://mongoosejs.com/docs/queries.html</h5>
-    <div class=containerH style="flex-grow:1">
-      <textarea placeholder="exemple: findOne({ 'email': 'alexbocenty@hotmail.fr' });" type="textarea" ref="querySelect" value={data.specificData.querySelect} style="flex-grow:1">{data.specificData.querySelect}</textarea>
-    </div>
+  <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Mongo" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </div>
+  <!-- Titre du composant -->
+  <div class="contenaireV title-component">Mongo
+  </div>
+  <!-- Champ du composant -->
+  <label>Serveur (sans la base de donnée):
+  </label>
+  <input type="text" ref="url" value={data.specificData.url}/>
+  <label>Base de donnée:
+  </label>
+  <input type="text" ref="database" value={data.specificData.database}/>
+  <label>Nom de la collection:</label>
+  <input type="text" ref="modelName" value={data.specificData.modelName}/>
+  <label>Valeur( ne mettez pas le model seulement la query):
+    <a href="http://mongoosejs.com/docs/queries.html" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </label>
+  <div class="containerH">
+    <textarea placeholder="exemple: findOne({ 'email': 'alexbocenty@hotmail.fr' });" type="textarea" ref="querySelect" value={data.specificData.querySelect} style="flex-grow:1">{data.specificData.querySelect}</textarea>
   </div>
   <script>
 

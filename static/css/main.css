@@ -1,80 +1,114 @@
-a{
-  text-decoration: none;
-  color: white;
-}
-a:active{
+a {
   text-decoration: none;
   color: white;
 }
 
-a:visited{
+a:active {
   text-decoration: none;
   color: white;
 }
 
-a:hover{
+a:visited {
   text-decoration: none;
   color: white;
 }
-body{
+
+a:hover {
+  text-decoration: none;
+  color: white;
+}
+
+body {
   /*font-size: 1.2em;*/
 }
-
-.commandBar{
-  justify-content: space-between;
-  padding: 2px;
-  flex-shrink:0;
+/* Bouton components dans technical-component-table*/
+.commandBar {
+  justify-content:flex-end;
+  align-items: center;
+  color:grey;
+  flex-shrink: 0;
 }
+.header-login{
 
+  height: 80px;
+  font-family: Arial, Helvetica, "Liberation Sans", sans-serif;
+  align-items: center;
+}
 .header {
-background: rgb(26,145,194);
-height: 80px;
-color:white;
-font-family: Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
-align-items: center;
+  background: rgb(26, 145, 194);
+  height: 80px;
+  color: white;
+  font-family: Arial, Helvetica, "Liberation Sans", sans-serif;
+  align-items: center;
 }
 
+/*titres d'en-tete*/
 .main-title {
-  font-size:25pt
+  font-size: 35px;
+  color: white;
+  font-family: 'Open Sans', sans-serif;
 }
-/*titre d'en-tete*/
+
 .title-header {
   justify-content: center;
   text-align: center;
   padding-top: 5px;
   font-family: 'Open Sans', sans-serif;
-  color:white;
-  font-size:10px;
+  color: white;
+  font-size: 10px;
   width: 120px;
 }
+
 /*titre composant*/
 .title-component {
   text-align: center;
   justify-content: center;
-  font-size:20px;
+  font-size: 20px;
   font-family: 'Open Sans', sans-serif;
+  margin-bottom: 20px;
 }
 
 .tagSelected {
-  border: 3px solid rgb(124,195,232)!important;
-  background-color: rgb(124,195,232);
-  color:white;
+  border: 3px solid rgb(124, 195, 232) !important;
+  background-color: rgb(124, 195, 232);
+  color: white;
 }
+
 /*Menu selectionné*/
 .selected {
-  cursor:pointer;
-  border: 3px solid rgb(33,150,243)!important;
+  cursor: pointer;
+  border: 3px solid rgb(33, 150, 243) !important;
 }
+
+/*triangle Up*/
+.arrow-up {
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid rgb(238, 242, 249);
+}
+
+/*triangle left*/
+.arrow-left {
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-right: 10px solid rgb(238, 242, 249);
+}
+
 /* tableau Workflow*/
-.zentableWorkspace{
+.zentableWorkspace {
   padding: 10pt;
-  align-items:stretch;
-  background-color: rgb(240,240,240)
+  align-items: stretch;
+  background-color: rgb(240, 240, 240)
 }
+
 /* tableau utilisateur partagé*/
-.zentableUser{
+.zentableUser {
   padding: 10pt;
-  align-items:stretch;
+  align-items: stretch;
 }
 
 .buttonBus {
@@ -98,78 +132,101 @@ align-items: center;
   color: white;
   padding-right: 19pt;
   cursor: pointer;
-  opacity:0.3
+  opacity: 0.3
 }
 
-.commandGroup{
+.commandGroup {
   padding: 0px;
+  justify-content: center;
 }
+
 /*Bouton*/
-.commandButton{
+.commandButton {
   margin-left: 5pt;
-  padding-left:10px;
-  padding-right:10px;
-  padding-top:2px;
-  padding-bottom:2px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 2px;
+  padding-bottom: 2px;
   cursor: pointer;
   align-self: center;
-  border: 3px solid rgb(213,218,224);
+  border: 3px solid rgb(213, 218, 224);
   color: grey;
   border-radius: 20px;
 }
 
-.commandButton:hover{
-  border: 3px solid rgb(41,177,238)!important;
-  background-color: rgb(41,177,238);
-  color:white;
-}
-/*Bouton Ajout*/
-.commandButtonImage{
-  cursor: pointer;
-  /* align-self: flex-end; */
-  justify-content: center;
-  align-items: center;
-  color: grey;
-  /*display: flex;
-  flex: 0.05;
-  opacity: 1;*/
-}
-.commandButtonImage:focus{
-  outline:none!important;
-  /*opacity: 0.3;*/
-}
-.commandButtonImage:hover{
+.commandButton:hover {
+  border: 3px solid rgb(41, 177, 238) !important;
+  background-color: rgb(41, 177, 238);
+  color: white;
 }
 
-.selector{
+
+
+.selector {
   border-style: none;
   cursor: pointer;
-  margin:5px;
-  padding-left:10px;
-  padding-right:10px;
-  padding-top:2px;
-  padding-bottom:2px;
+  margin: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 2px;
+  padding-bottom: 2px;
   background-color: #cce2ff;
 }
-.mainSelector{
+
+.mainSelector {
   font-size: 30px;
   text-align: center;
   border-radius: 10px;
   /*flex-basis:35px;*/
 }
+
+/*Nom des champs*/
+label {
+  margin-top:10px;
+  margin-bottom:5px;
+  color: rgb(120, 120, 120);
+}
+
 /*Champ texte*/
 .field {
   background-color: #ffffff;
-  background-image: linear-gradient(#fff, #f2f3f5);
+  /*background-image: linear-gradient(#fff, #f2f3f5);*/
   border-radius: 5px;
   border-width: 1px;
   border-style: solid;
-  border-color: rgb(213,218,224);
-  height: 35px;
-
+  border-color: rgb(213, 218, 224);
+  margin: 10px;
+  padding: 10px;
 }
 
 .field:focus {
-  background-color:rgb(33,150,243);
-  color:black;
+  background-color: #f2f3f5;
+  color: black;
+}
+
+/*lien ext.*/
+.url {
+  color: rgb(37, 167, 239);
+  cursor: pointer;
+}
+
+.url:hover {
+  color: #3594D2;
+}
+
+/*Bouton formulaire*/
+.btn {
+  cursor: pointer;
+}
+
+.box{
+  width:90%;
+  flex-wrap: wrap;
+  background-color: white;
+  padding: 2%;
+  border-radius: 5px;
+  justify-content: center;
+  flex-grow: 0.5;
+  border: 1px solid rgba(133,133,133,0.38);
+  box-shadow: 0 0 5px 0 rgba(133,133,133,0.38);
 }

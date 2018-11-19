@@ -35,10 +35,10 @@
       <image  x="50" y="20" id="addComponentGraph" xlink:href="./image/fleche.svg" class="commandButtonImage" if={fullscreen == false} x="1400" y="20" width="40" height="40" onclick={back}></image>-->
     </svg>
 
-    
+
 <!--footerdocker -->
   </div>
-  <div class="containerH" style="flex-basis:80px; justify-content:center" >
+  <div class="containerU" style="flex-basis:80px; justify-content:center" >
       <div onclick={showAddComponentClick} class="commandButtonImage containerV">
         <img src="./image/ajout_composant.svg" style="" height="40px" width="40px">
         <span style="font-family: 'Open Sans', sans-serif"> Composant </span> </div>

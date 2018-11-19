@@ -1,9 +1,9 @@
 "use strict";
 module.exports = {
-  type: 'SQL connector',
-  description: 'intéroger une base de donnée SQL',
+  type: 'SQL',
+  description: 'Interroger une base de donnée SQL.',
   editor: 'sql-connecteur-editor',
-  graphIcon: 'sqlConnector.png',
+  graphIcon: 'Sql.png',
   Sequelize: require('sequelize'),
   mLabPromise: require('../mLabPromise'),
   tags:[

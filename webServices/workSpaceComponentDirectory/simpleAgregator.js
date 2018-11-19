@@ -1,9 +1,9 @@
 "use strict";
 module.exports = {
-  type: 'Flow Agregator',
-  description: 'agréger plusieurs flux pour n en former qu un',
+  type: 'Aggregate',
+  description: 'Agréger plusieurs flux pour n\'en former qu\'un seul.',
   editor: 'simple-agregator-editor',
-  graphIcon: 'flowAggregator.png',
+  graphIcon: 'Aggregate.png',
   sift: require('sift'),
   transform: require('jsonpath-object-transform'),
   tags: [

@@ -1,9 +1,9 @@
 "use strict";
 module.exports = {
-  type: 'Object Transformer',
-  description: 'transformer un objet par mapping grâce à un objet transformation',
+  type: 'Transform',
+  description: 'Transformer un objet par mapping grâce à un objet transformation.',
   editor: 'object-transformer',
-  graphIcon: 'objectTransformer.png',
+  graphIcon: 'Transform.png',
   //transform: require('jsonpath-object-transform'),
   objectTransformation: require('../sharedLibrary/objectTransformation.js'),
   tags: [

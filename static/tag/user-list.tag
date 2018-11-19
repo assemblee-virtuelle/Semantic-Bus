@@ -1,27 +1,30 @@
-<user-list class="containerV">
+<user-list class="containerV" style="justify-content:center;">
+<div class="containerH" style="justify-content:center;">
+  <!-- partager votre WorkFlow à un utilisateur -->
+  <div class="containerU box" style="justify-content:center;height: 600px">
 
-<!-- partager votre WorkFlow à un utilisateur -->
-  <div class="containerV" style="background-color:rgb(238,242,249);justify-content: center;align-items: center;">
-    <input id="users-list" class="awesomplete" placeholder="Entrez une adresse email..." value="{email}">
-    <p class="text-user-list">Saisissez une adresse e-mail pour partager votre Workflow</p>
-    <p class="text-user-list">{resultShare}</p>
-  </div>
-<!--   Bouton Partager -->
-<div class="containerH" style="flex-basis:80px;justify-content: center;">
-  <div onclick={shareClick} class="commandButton containerV">
-    <span>partager</span></div>
-  </div>
+      <div class="containerU" style="justify-content: center; align-items: center;">
+        <p class="text-user-list">Saisissez une adresse e-mail pour partager votre Workflow</p>
+        <input id="users-list" class="awesomplete" placeholder="Entrez une adresse email..." value="{email}">
 
+        <p style="color:red">{resultShare}</p>
+        <!-- Bouton Valider -->
+        <div class="containerV" style="justify-content: center; align-items: center;">
+          <button class="btn" onclick={shareClick} type="button">Valider</button>
+        </div>
+      </div>
+    </div>
+  </div>
   <script>
     this.resultShare = ""
     this.actionReady = false;
     this.email = "";
     this.data = {};
 
-    this.shareClick = function(e) {
-      console.log("user component share",this.workspace)
+    this.shareClick = function (e) {
+      console.log("user component share", this.workspace)
       //if (this.workspace) {
-        RiotControl.trigger('share-workspace');
+      RiotControl.trigger('share-workspace');
       //};
     }
     // this.share = function(){     console.log("user component share",this.workspace)     if (this.workspace) {       RiotControl.trigger('share-workspace', {         email: this.email,         worksapce_id: this.workspace._id       });     };
@@ -34,7 +37,7 @@
       input.addEventListener('awesomplete-selectcomplete', function (evt) {
         this.actionReady = true;
         this.email = evt.target.value;
-        RiotControl.trigger('set-email-to-share',this.email)
+        RiotControl.trigger('set-email-to-share', this.email)
         this.update();
       }.bind(this));
     }.bind(this);
@@ -43,7 +46,7 @@
       this.workspace = data
     }.bind(this);
 
-    this.shareChanged =function(data){
+    this.shareChanged = function (data) {
       console.log("share change")
       this.resultShare = "Votre workspace a été partagé";
       this.update();
@@ -83,7 +86,7 @@
       RiotControl.off('share_change', this.shareChanged);
     })
   </script>
-  <style scoped>
+  <style scoped="scoped">
 
     .share-btn {
       color: white;
@@ -96,7 +99,7 @@
       margin-top: 10vh;
       margin-left: 39%;
     }
-/*couleur du text partager workflow*/
+    /*couleur du text partager workflow*/
     .text-user-list {
       color: grey;
     }
@@ -129,7 +132,7 @@
 
     .awesomplete > ul {
       border-radius: 0.3em;
-      background: white!important;
+      background: rgb(238,242,249)!important;
       border: none!important;
       box-shadow: none!important;
       text-shadow: none;
@@ -185,6 +188,5 @@
       padding-right: 19pt;
       opacity: 0.3;
     }
-
   </style>
 </user-list>
