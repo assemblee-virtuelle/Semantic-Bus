@@ -10,9 +10,9 @@
   <div>Début de traitement d'un niveau de profondeur du flux.</div>
 
   <label>Chemin à inspecter pour les traitements qui suivent:</label>
-  <input class="field" placeholder="vide=racine" type="text" name="dfobPathInput" ref="dfobPathInput" value={data.specificData.dfobPath} onchange={dfobPathChange}></input>
-  <label style="padding-top: 10px;">Nombre de traitements parallèles:</label>
-  <input class="field" placeholder="champ libre" type="text" name="pipeNbInput" ref="pipeNbInput" value={data.specificData.pipeNb} onchange={pipeNbChange}></input>
+  <input placeholder="vide=racine" type="text" name="dfobPathInput" ref="dfobPathInput" value={data.specificData.dfobPath} onchange={dfobPathChange}></input>
+  <label>Nombre de traitements parallèles:</label>
+  <input placeholder="" type="text" name="pipeNbInput" ref="pipeNbInput" value={data.specificData.pipeNb} onchange={pipeNbChange}></input>
 
   <div class="containerH" style="align-items:center;">
     <label>Le chemin désigne une structure de tableau à conserver en tableau (décomposé en objet par défaut):</label>

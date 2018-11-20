@@ -9,16 +9,16 @@
   <div>Recontruire des objects à partir de plusieurs propriétés en liste.</div>
   <!-- Champ du composant -->
   <label>Attribut à générer:</label>
-  <input class="field" placeholder="Attribut" type="text" value={data.specificData.attribut} onkeyup={onAttributChange}>
+  <input placeholder="Attribut" type="text" value={data.specificData.attribut} onkeyup={onAttributChange}>
 
-  <div class="containerH commandBar" style="">
+  <div class="containerH commandBar">
     <div>Nouveau champ
       <image src="./image/ajout_composant.svg" class="commandButtonImage" width="30" height="30" onclick={addRow}></image>
     </div>
   </div>
   <zentable ref="fieldsTableRef" style="flex:1" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
     <yield to="row">
-      <input class="field" style="width: 90%" placeholder="Le champ source doit être un tableau" type="text" value={field} data-field="field"/>
+      <input style="width: 90%" placeholder="Le champ source doit être un tableau" type="text" value={field} data-field="field"/>
     </yield>
   </zentable>
 

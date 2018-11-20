@@ -1,11 +1,16 @@
-<query-params-creation-editor style="justify-content:center; align-items: center;">
+<query-params-creation-editor>
+  <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Query-params" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </div>
+  <!-- Titre du composant -->
 <!-- Titre du composant -->
-<div class="contenaireV title-component">QueryParamsCreation</div>
+<div class="contenaireV title-component">Query params</div>
 <!-- Description du composant -->
-<label style="padding-top: 10px;">Créer des paramètres de requête dand le flux</label>
+<div>Créer des paramètres de requête dand le flux.</div>
 <!-- Champ du composant -->
-  <div style="padding-top: 10px;">Configuration de la création de paramètre de query</div>
-  <jsonEditor style="width: 90%;"ref="jsonSchema" title="Transform Schema" class="containerV" modes="['tree','text']"></jsonEditor>
+  <label>Configuration de la création de paramètre de query:</label>
+  <jsonEditor ref="jsonSchema" title="Transform Schema" class="containerV" modes="['tree','text']"></jsonEditor>
   <script>
     this.updateData = function (dataToUpdate) {
       this.data = dataToUpdate;

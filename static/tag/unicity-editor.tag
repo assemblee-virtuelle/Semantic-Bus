@@ -1,16 +1,20 @@
-<unicity-editor  style="justify-content:center; align-items: center;">
+<unicity-editor>
+  <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Unicity" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </div>
 <!-- Titre du composant -->
-<div class="contenaireV title-component">UNICITE</div>
+<div class="contenaireV title-component">Unicity</div>
 <!-- Description du composant -->
-<label style="padding-top: 10px;">Sctructurer les données en vérifiant l'unicité par champ et répartir les valeurs par source</label>
+<div>Sctructurer les données en vérifiant l'unicité par champ et répartir les valeurs par source.</div>
 <!-- Champ du composant -->
-  <label style="padding-top: 10px;">Champ de source</label>
+  <label>Champ de source:</label>
   <input type="text" value={data.specificData.source} onkeyup={onSourceChange}>
-  <label style="padding-top: 10px;margin-bottom: 20px;">Champs d'unicité</label>
-  <div class="unicityTable containerV" style="width:90%;">
-    <div class="containerH commandBar" style="justify-content:flex-end">
+  <label>Champs d'unicité:</label>
+  <div class="unicityTable containerV">
+    <div class="containerH commandBar" style="justify-content:flex-start">
       <div class="commandGroup">
-        <image src="./image/ajout_composant.svg" class="commandButtonImage" width="50" height="50" onclick={addRow}></image>
+        <image src="./image/ajout_composant.svg" class="commandButtonImage" width="30" height="30" onclick={addRow}></image>
       </div>
     </div>
     <zenTable style="width:90%;"ref="unicityTableRef" style="flex:1" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
@@ -18,7 +22,7 @@
         <div style="padding-left: 100px;">Champ</div>
       </yield>
       <yield to="row">
-        <input class="field" style="width:800px;"type="text" value={field} data-field="field"/>
+        <input style="width:90%;"type="text" value={field} data-field="field"/>
       </yield>
     </zenTable>
   </div>

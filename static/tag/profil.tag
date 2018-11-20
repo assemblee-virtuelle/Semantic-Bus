@@ -75,11 +75,10 @@
         <!-- Nom d'utilisateur -->
         <h3 style="color:rgb(33,151,242); font-family: 'Open Sans', sans-serif;">{profil.name}</h3>
         <!-- Email -->
-        <div class="label-form">Email</div>
-        <input class="field" value="{profil.credentials.email}" ref="email" readonly="readOnly">
+        <label>Email</label>
+        <input value="{profil.credentials.email}" ref="email" readonly="readOnly">
         <!-- info mail -->
-        <div class="label-form">
-          L'email ne peut être modifier pour le moment</div>
+    <label>L'email ne peut être modifier pour le moment</label>
         <div if={!profil.active}>
           <div if={!mailsend}>
             <div id="bad-result">Vous n'avez pas valider votre email (consulter vos mails)</div>
@@ -96,12 +95,12 @@
         </div>
 
         <!-- Société -->
-        <div class="label-form">Société</div>
-        <input class="field" value="{profil.society}" placeholder="saisissez votre société" name="society" onchange={changeSocietyInput}>
+        <label>Société</label>
+        <input value="{profil.society}" placeholder="saisissez votre société" name="society" onchange={changeSocietyInput}>
 
         <!-- Emploi -->
-        <div class="label-form">Statut</div>
-        <input class="field" value="{profil.job}" placeholder="saisissez votre statut" name="job" onchange={changeJobInput}>
+        <label>Statut</label>
+        <input value="{profil.job}" placeholder="saisissez votre statut" name="job" onchange={changeJobInput}>
 
         <div class="containerV" style="justify-content: center; align-items: center;/* flex-grow: 1; */">
           <div id={result? 'good-result-global' : 'bad-result-global' }>{resultGlobal}

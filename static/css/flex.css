@@ -15,18 +15,7 @@
   align-items : stretch;
   flex-wrap: wrap;
 }
-/*midle screen
-@media all and (max-widht: 800px){
-    .containerU {
-    justify-content:space-around;
-    }
-  }
-/*smart screen
-@media all and (max-widht:500px){
-      .containerU {
-        flex-direction: column;
-      }
-}*/
+
 .containerV /*container vertical*/
 {
   display: flex;
@@ -51,18 +40,4 @@
   flex-grow: 1;
   flex-shrink : 1;
   /*flex-basis:100%;*/
-}
-
-.containerF /*dockfooter*/
-{
-  display: flex;
-  flex-direction: column;
-  flex-wrap: wrap;
-  align-items : stretch;
-  overflow-x: auto;
-  overflow-y: auto;
-  flex-basis: auto;
-  max-width: 100%;
-  height: 100px;
-  flex-grow:1;
 }

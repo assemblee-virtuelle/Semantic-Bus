@@ -9,9 +9,9 @@
   <div>Interroger un fichier mis à disposition sur une API REST avec une requête GET.</div>
   <!-- Champ du composant -->
   <label>URL du web service à interroger:</label>
-  <input class="field" placeholder="champ libre"type="text" ref="urlInput" onChange={changeUrl} value={data.specificData.url}></input>
-  <label>content-type:</label>
-  <input class="field" placeholder="champ libre"type="text" ref="contentTypeInput" onChange={changeContentType} value={data.specificData? data.specificData.contentType : "test" }></input>
+  <input placeholder=""type="text" ref="urlInput" onChange={changeUrl} value={data.specificData.url}></input>
+  <label>Content-type:</label>
+  <input placeholder=""type="text" ref="contentTypeInput" onChange={changeContentType} value={data.specificData? data.specificData.contentType : "test" }></input>
 
   <script>
     this.data = {}

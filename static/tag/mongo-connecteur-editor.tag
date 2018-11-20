@@ -7,11 +7,9 @@
   <div class="contenaireV title-component">Mongo
   </div>
   <!-- Champ du composant -->
-  <label>Serveur (sans la base de donnée):
-  </label>
+  <label>Serveur (sans la base de donnée):</label>
   <input type="text" ref="url" value={data.specificData.url}/>
-  <label>Base de donnée:
-  </label>
+  <label>Base de donnée:</label>
   <input type="text" ref="database" value={data.specificData.database}/>
   <label>Nom de la collection:</label>
   <input type="text" ref="modelName" value={data.specificData.modelName}/>

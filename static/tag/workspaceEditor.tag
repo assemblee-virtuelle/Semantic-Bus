@@ -27,7 +27,7 @@
     <!-- Bouton éditer -->
     <a href={'#workspace/' +innerData._id+'/information' } class={commandButtonImage:true,containerV:true} style="flex-basis:100px;flex-grow:0;position:relative;">
       <img src="./image/menu/tools.png" style="" height="40px" width="40px">
-      <p style="font-family: 'Open Sans', sans-serif;color:white;font-size:10px">Paramètrer</p>
+      <p style="font-family: 'Open Sans', sans-serif;color:white;font-size:10px">Paramétrer</p>
       <!--condition -->
       <div if={menu=='information'} class="containerV" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">
         <div class="containerH" style="justify-content:flex-end;">
@@ -57,6 +57,7 @@
         </div>
       </div>
     </a>
+
   </div>
     <!-- Page graph -->
   <div show={menu=='component'} class="containerH" style="flex-grow: 1;background-color:rgb(238,242,249)">
@@ -92,19 +93,21 @@
       <div class="containerV" style="padding-bottom:40px;">
 
         <label class="label-form">Nom de votre Workflow</label>
-        <input class="field" id="workspaceNameInput" type="text" ref="workspaceNameInput" placeholder="Workflow sans titre" value="{innerData.name}" onkeyup="{nameFieldChange}"></input>
+        <input id="workspaceNameInput" type="text" ref="workspaceNameInput" placeholder="Workflow sans titre" value="{innerData.name}" onkeyup="{nameFieldChange}"></input>
 
         <label class="label-form" style="padding-top:3vh">Description de votre Workflow</label>
-        <input class="field" readonly={innerData.mode=="read"
+        <input readonly={innerData.mode=="read"
             } ref="workspaceDescriptionInput" id="workspaceDescriptionInput" type="text" placeholder="Aucune description" value="{innerData.description}" onkeyup="{descriptionFieldChange}"></input>
 
         <label class="label-form" style="padding-top:3vh">Nombre d'exécution consultable</label>
-        <input class="field" type="number" readonly={innerData.mode=="read"} ref="workspaceLimitHistoricnput" id="workspaceLimitHistoricInput" type="text" placeholder="0" value="{innerData.limitHistoric}" onkeyup="{limitHistoricFieldChange}"></input>
+        <input type="number" readonly={innerData.mode=="read"} ref="workspaceLimitHistoricnput" id="workspaceLimitHistoricInput" type="text" placeholder="0" value="{innerData.limitHistoric}" onkeyup="{limitHistoricFieldChange}"></input>
       </div>
       <!-- bouton valider nouveau workflow -->
       <div class="containerU" style="justify-content: center; align-items: center;">
         <button class="btn" onclick={persistClick} type="button" if={menu=='information'}>Valider</button>
-
+        <button onclick={export}>Export</button>
+        <button onclick={importClick}>Import</button>
+        <input onchange={import} ref="import" type="file" style="display:none"/>
       </div>
     </div>
   </div>
@@ -171,97 +174,127 @@ RiotControl.trigger('workspace_current_updateField', {
 //this.innerData.description = e.target.value;
 }
 
-//script bouton ajouter un utilisateur
-showShareClick(e) {
-route('workspace/' + this.innerData._id + '/share');
-}
+  descriptionFieldChange(e) {
+    RiotControl.trigger('workspace_current_updateField', {
+      field: 'description',
+      data: e.target.value
+    });
+    //this.innerData.description = e.target.value;
+  }
+  limitHistoricFieldChange(e) {
+    RiotControl.trigger('workspace_current_updateField', {
+      field: 'limitHistoric',
+      data: e.target.value
+    });
+    //this.innerData.description = e.target.value;
+  }
 
-this.on('mount', function () {
-//console.log('wokspaceEditor | Mount |', this);
-RiotControl.on('store_persisteWorkspace', this.persistClick)
-RiotControl.on('workspace_current_changed', this.workspaceCurrentChanged);
-RiotControl.on('share_change', this.shareChange);
-RiotControl.on('workspace_editor_menu_changed', this.workspaceEditorMenuChanged);
-RiotControl.trigger('workspace_current_refresh');
-});
+  export(e){
+    RiotControl.trigger('workspace_current_export');
+  }
 
-this.on('unmount', function () {
-//console.log('UNMOUNT');
-RiotControl.off('store_persisteWorkspace', this.persistClick)
-RiotControl.off('workspace_current_changed', this.workspaceCurrentChanged);
-RiotControl.off('share_change', this.shareChange)
-RiotControl.off('workspace_editor_menu_changed', this.workspaceEditorMenuChanged);
-});
+  importClick(e){
+    this.refs.import.click();
+  }
+
+  import(e){
+    let file = e.target.files[0];
+    RiotControl.trigger('workspace_current_import',file);
+  }
+
+  //script bouton ajouter un utilisateur
+  showShareClick(e) {
+  route('workspace/' + this.innerData._id + '/share');
+  }
+
+  this.on('mount', function () {
+    //console.log('wokspaceEditor | Mount |', this);
+    RiotControl.on('store_persisteWorkspace', this.persistClick)
+    RiotControl.on('workspace_current_changed', this.workspaceCurrentChanged);
+    RiotControl.on('share_change', this.shareChange);
+    RiotControl.on('workspace_editor_menu_changed', this.workspaceEditorMenuChanged);
+    RiotControl.trigger('workspace_current_refresh');
+  });
+
+  this.on('unmount', function () {
+    //console.log('UNMOUNT');
+    RiotControl.off('store_persisteWorkspace', this.persistClick)
+    RiotControl.off('workspace_current_changed', this.workspaceCurrentChanged);
+    RiotControl.off('share_change', this.shareChange)
+    RiotControl.off('workspace_editor_menu_changed', this.workspaceEditorMenuChanged);
+  });
 </script>
 <style>
 
-.description-worksapce-input {
-text-align: left;
-border: none;
-padding: 10px;
-font-size: 20px;
-}
 
-.description-worksapce {
-display: flex;
-flex-direction: column;
-width: 60%;
-padding: 5%;
-}
+  .description-worksapce-input {
+    text-align: left;
+    border: none;
+    padding: 10px;
+    font-size: 20px;
+  }
 
-.title-bar {
-color: #3883fa;
-flex: 2;
-}
 
-.containerHWorkspace {
-display: flex;
-justify-content: center;
-flex-wrap: wrap;
-align-items: stretch;
-overflow-y: hidden;
-}
+  .description-worksapce {
+    display: flex;
+    flex-direction: column;
+    width: 60%;
+    padding: 5%;
+  }
 
-.commandBar2 {
-justify-content: flex-end;
-background-color: white;
-color: #3883fa;
-justify-content: space-between;
-padding: 2px;
-overflow-y: visible;
-}
+  .title-bar {
+    color: #3883fa;
+    flex: 2;
+  }
 
-.white-bar {
-background-color: white!important;
-}
-.white {
-width: 15%;
-text-align: center;
-border-bottom-style: solid;
-cursor: pointer;
-color: #3883fa;
-border: none;
-border-radius: 0;
-}
+  .containerHWorkspace {
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-items: stretch;
+    overflow-y: hidden;
+  }
 
-.blue {
-width: 15%;
-text-align: center;
-border-bottom-style: solid;
-border-bottom: 1.4px solid #3883fa !important;
-cursor: pointer;
-color: #3883fa;
-border: none;
-border-radius: 0;
-}
+  .commandBar2 {
+    justify-content: flex-end;
+    background-color: white;
+    color: #3883fa;
+    justify-content: space-between;
+    padding: 2px;
+    overflow-y: visible;
+  }
 
-.notSynchronized {
-background-color: orange !important;
-color: white;
-}
+  .white-bar {
+    background-color: white!important;
+  }
+  .white {
+    width: 15%;
+    text-align: center;
+    border-bottom-style: solid;
+    cursor: pointer;
+    color: #3883fa;
+    border: none;
+    border-radius: 0;
+  }
 
-.menuSelected {
-background-color: #cce2ff;
-}
+  .blue {
+    width: 15%;
+    text-align: center;
+    border-bottom-style: solid;
+    border-bottom: 1.4px solid #3883fa !important;
+    cursor: pointer;
+    color: #3883fa;
+    border: none;
+    border-radius: 0;
+  }
+
+  .notSynchronized {
+    background-color: orange !important;
+    color: white;
+  }
+
+  .menuSelected {
+    background-color: #cce2ff;
+  }
 </style>
 </workspace-editor>

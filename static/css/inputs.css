@@ -62,7 +62,7 @@ input {
   border-width: 1px;
   border-style: solid;
   border-color: rgb(213, 218, 224);
-  padding: 5px;
+  padding: 10px;
 }
 
 input:focus {

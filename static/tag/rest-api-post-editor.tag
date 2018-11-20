@@ -9,13 +9,12 @@
   <div>Exposition du flux de donnée sur une API HTTP uniquement en POST.</div>
   <!-- Champ du composant -->
   <label>Clé de l'API:</label>
-  <input class="field" placeholder="champ libre" type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.url}></input>
+  <input placeholder="" type="text" name="urlInput" ref="urlInput" onchange={urlInputChanged} value={data.specificData.url}></input>
   <label>URL de l'API:</label>
   <a ref="link" target="_blank" href={'http://semantic-bus.org/data/api/' +data.specificData.url}>{'http://semantic-bus.org/data/api/'+data.specificData.url}</a>
   <label>Content-type:</label>
-  <input class="field" placeholder="champ libre" type="text" name="contentTypeInput" ref="contentTypeInput" onChange={contentTypeInputChanged} value={data.specificData.contentType}></input>
-  <!--<label>Sortie en xls (Boolean)</label>
-  <input type="text" name="xlsInput" ref="xlsInput"value={data.specificData.xls}></input>-->
+  <input placeholder="" type="text" name="contentTypeInput" ref="contentTypeInput" onchange={contentTypeInputChanged} value={data.specificData.contentType}></input>
+  <!--<label>Sortie en xls (Boolean)</label> <input type="text" name="xlsInput" ref="xlsInput"value={data.specificData.xls}></input>-->
   <script>
 
     this.data = {};
@@ -49,4 +48,20 @@
       RiotControl.off('item_current_changed', this.updateData);
     });
   </script>
+  <style>
+    a {
+      color: blue;
+    }
+    a:active {
+      color: blue;
+    }
+
+    a:visited {
+      color: blue;
+    }
+
+    a:hover {
+      color: blue;
+    }
+  </style>
 </rest-api-post-editor>

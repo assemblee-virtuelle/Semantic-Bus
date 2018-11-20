@@ -1,8 +1,12 @@
-<upload-editor style="justify-content:center; align-items: center;">
+<upload-editor>
+  <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Upload" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </div>
   <!-- Titre du composant -->
-  <div class="contenaireV title-component">Uploader votre fichier</div>
+  <div class="contenaireV title-component">Upload</div>
   <!-- Description du composant -->
-  <label style="padding-top: 10px;">Ce composant vous permet d'uploader un fichier avec une extension
+  <label>Ce composant vous permet d'uploader un fichier avec une extension
     <b>XLSX</b>
     ou
     <b>CSV</b>
@@ -11,12 +15,14 @@
   </label>
   <!-- Champ du composant -->
   <h3 class="{textloadclass}">{textload}</h3>
-  <div class="containerH" style="flex-shrink:0">
-    <button onclick={uploadClick} type="button" style="flex:1">Telecharger</button>
-    <input id="upload-input" type="file" name="uploads[]">
+  <div class="containerH" style="align-items: center;justify-content: center;flex-shrink:0">
+    <div class="contenaireV">
+      <button onclick={uploadClick} type="button" style="flex:1">Importer</button>
+      <input id="upload-input" type="file" name="uploads[]">
+    </div>
   </div>
 
-  <div class="containerH" style="flex-shrink:0;margin-top:20px">
+  <div class="containerH" style="justify-content: center;flex-shrink:0;margin-top:20px">
     <progress max="100" value={progress} class={status} style="flex:1"></progress>
   </div>
 

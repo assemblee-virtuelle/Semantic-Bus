@@ -11,18 +11,18 @@
   <!-- Champ du composant -->
   <div>Champ de l'objet permettant de définir la position géographique.</div>
   <label>Rue:</label>
-  <input class="field" placeholder="Rue" type="text" ref="streetInput" value={data.specificData.streetPath}></input>
+  <input placeholder="Rue" type="text" ref="streetInput" value={data.specificData.streetPath}></input>
   <label>Ville:</label>
-  <input class="field" placeholder="Ville" type="text" ref="townInput" value={data.specificData.townPath}></input>
+  <input placeholder="Ville" type="text" ref="townInput" value={data.specificData.townPath}></input>
   <label>Code postal:</label>
-  <input class="field" placeholder="Code postal" type="text" ref="postalCodeInput" value={data.specificData.postalCodePath}></input>
+  <input placeholder="Code postal" type="text" ref="postalCodeInput" value={data.specificData.postalCodePath}></input>
   <label>Pays:</label>
-  <input class="field" placeholder="Pays" type="text" ref="countryInput" value={data.specificData.countryPath}></input>
+  <input placeholder="Pays" type="text" ref="countryInput" value={data.specificData.countryPath}></input>
   <div>Champ de l'objet qui recevront les informations de géolocalisation.</div>
   <label>Latitude:</label>
-  <input class="field" placeholder="Latitude" type="text" ref="latitudeInput" value={data.specificData.latitudePath}></input>
+  <input placeholder="Latitude" type="text" ref="latitudeInput" value={data.specificData.latitudePath}></input>
   <label>Longitude:</label>
-  <input class="field" placeholder="Longitude" type="text" ref="longitudeInput" value={data.specificData.longitudePath}></input>
+  <input placeholder="Longitude" type="text" ref="longitudeInput" value={data.specificData.longitudePath}></input>
 
   <script>
 

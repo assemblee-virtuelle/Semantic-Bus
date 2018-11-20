@@ -8,11 +8,11 @@
   <!-- Description du composant -->
   <div>Interroger une feuille de calcule Framacalc qui fournit un flux CSV.</div>
   <!-- Champ du composant -->
-  <div>Information de connexion à framacalc.</div>
+  <div>Information de connexion à Framacalc.</div>
   <label>Clé:</label>
-  <input class="field" placeholder="champ libre"type="text" name="keyInput" ref="keyInput" value={data.specificData.key}></input>
+  <input placeholder=""type="text" name="keyInput" ref="keyInput" value={data.specificData.key}></input>
   <label>Commencer à partir de la ligne (offset):</label>
-  <input class="field" placeholder="champ libre"type="text" name="offsetInput" ref="offsetInput"  value={data.specificData.offset}></input>
+  <input placeholder=""type="text" name="offsetInput" ref="offsetInput"  value={data.specificData.offset}></input>
   <script>
 
     this.innerData={};

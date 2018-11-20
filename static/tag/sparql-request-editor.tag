@@ -1,15 +1,15 @@
-<sparql-request-editor style="justify-content:center; align-items: center;">
+<sparql-request-editor>
+  <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-SPARQL" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </div>
   <!-- Titre du composant -->
-<div class="contenaireV title-component">SPARQL REQUEST</div>
+<div class="contenaireV title-component">SPARQL</div>
 <!-- Description du composant -->
-<label style="padding-top: 10px;">Requêter en SPARQL sur un fichier json ld</label>
+<div>Requêter en SPARQL sur un fichier JSON ld</div>
 <!-- Champ du composant -->
-  <div>
-    <div style="padding-top: 10px;">Description de la requête SPARQL</div>
-  </div>
-  <div class="containerV" style="width:90%">
+    <label>Description de la requête SPARQL</label>
     <textArea type="text" ref="requeteInput" style="flex-grow:1" onchange={requeteInputChanged}>{data.specificData.request}</textArea>
-  </div>
   <script>
 
     this.innerData={};

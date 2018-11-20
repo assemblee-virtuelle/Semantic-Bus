@@ -37,10 +37,10 @@
           </div>-->
           <!-- champs Mail -->
           <label class="label-form">Email</label>
-          <input id="email" type="email" ref="email" placeholder="saisissez une adresse email" class="field" onchange={emailChange} required="required"/>
+          <input id="email" type="email" ref="email" placeholder="saisissez une adresse email" onchange={emailChange} required="required"/>
           <!-- champs Mdp -->
           <label class="label-form">Mot de passe</label>
-          <input type="password" ref="password" id="password" placeholder="saisissez un mot de passe" class="field" onchange={passwordChange} required="required"/>
+          <input type="password" ref="password" id="password" placeholder="saisissez un mot de passe" onchange={passwordChange} required="required"/>
           <!-- spam erreur mdp or id -->
           <div id="result-co">{resultConnexion}</div>
           <!-- mdp oublié -->
@@ -87,27 +87,27 @@
           </div>-->
           <!-- champs Nom -->
           <label class="label-form">Nom *</label>
-          <input class="field" ref="nameInscription" id="test-nameInscription" onchange={nameInscriptionChange} placeholder="saisissez votre nom" required="required">
+          <input ref="nameInscription" id="test-nameInscription" onchange={nameInscriptionChange} placeholder="saisissez votre nom" required="required">
           <div id="result">{resultName}</div>
           <!-- champs Statut -->
           <label class="label-form">Statut</label>
-          <input class="field" ref="jobInscription" id="test-jobInscription" onchange={jobInscriptionChange} placeholder="saisissez votre statut"/>
+          <input ref="jobInscription" id="test-jobInscription" onchange={jobInscriptionChange} placeholder="saisissez votre statut"/>
           <div id="result">{resultJob}</div>
           <!-- Champs société -->
           <label class="label-form">Société</label>
-          <input class="field" type="text" ref="societe" id="test-societeInscription" onchange={societeChange} placeholder="saisissez votre société"/>
+          <input type="text" ref="societe" id="test-societeInscription" onchange={societeChange} placeholder="saisissez votre société"/>
           <div id="result">{resultSociete}</div>
           <!-- Champs mail -->
           <label class="label-form">Email *</label>
-          <input class="field" type="email" id="test-emailInscription" onchange={emailInscriptionChange} ref="emailInscription" placeholder="saisissez votre Email"/>
+          <input type="email" id="test-emailInscription" onchange={emailInscriptionChange} ref="emailInscription" placeholder="saisissez votre Email"/>
           <div id="result">{resultEmail}</div>
           <!-- Champs mdp -->
           <label class="label-form">Mot de passe *</label>
-          <input class="field" type="password" id="test-passwordInscription" onkeyup={passwordInscriptionKeyup} required="required" ref="passwordInscription" placeholder="saisissez votre mot de passe"/>
+          <input type="password" id="test-passwordInscription" onkeyup={passwordInscriptionKeyup} required="required" ref="passwordInscription" placeholder="saisissez votre mot de passe"/>
           <div id="result">{resultMdp}</div>
           <!-- Champs mdp2 -->
           <label class="label-form">Confirmer mot de passe *</label>
-          <input class="field" type="password" id="test-confirmepasswordInscription" onkeyup={confirmPasswordInscriptionKeyup} required="required" ref="confirmPasswordInscription" placeholder="confirmer votre mot de passe"/>
+          <input type="password" id="test-confirmepasswordInscription" onkeyup={confirmPasswordInscriptionKeyup} required="required" ref="confirmPasswordInscription" placeholder="confirmer votre mot de passe"/>
           <!-- bouton Inscription -->
           <div id="result">{resultMdpConfirme}</div>
           <div onclick={inscription} id="btn" class="btn containerH" style="justify-content: center; align-items: center;flex:1">
@@ -134,7 +134,7 @@
             <h3>Réinitialisation mot de passe</h3>
           </div>
           <label class="label-form">Email</label>
-          <input ref="emailforgotpassword" onchange={emailforgotpasswordChange} id="test-nameInscription" placeholder="saisissez votre Email" class="field" required="required">
+          <input ref="emailforgotpassword" onchange={emailforgotpasswordChange} id="test-nameInscription" placeholder="saisissez votre Email" required="required">
           <p style="color:red">{result_email}</p>
           <!--bouton envoyer + annuler -->
           <div onclick={sendpasswordbymail} class=" btn containerH" style="justify-content: center; align-items: center;flex-wrap:wrap">
@@ -159,7 +159,7 @@
             <h3>Entrez le code envoyé par mail</h3>
           </div>
           <label class="label-form">Code</label>
-          <input ref="codeforgotpassword" onchange={codeforgotpasswordChange} id="test-nameInscription" placeholder="saisissez le code" class="field" required="required"/>
+          <input ref="codeforgotpassword" onchange={codeforgotpasswordChange} id="test-nameInscription" placeholder="saisissez le code" required="required"/>
           <p>{result_code}</p>
           <!--bouton envoyer + annuler -->
           <div onclick={verifecode} class=" btn containerH" style="justify-content: center; align-items: center;flex-wrap:wrap">
@@ -184,7 +184,7 @@
             <h3>Changer votre mot de passe</h3>
           </div>
           <label class="label-form">Nouveau mot de passe</label>
-          <input type="password" ref="new_password" onkeyup={new_passwordKeyup} id="password" placeholder="saisissez le nouveau mot de passe" class="field" required="required"/>
+          <input type="password" ref="new_password" onkeyup={new_passwordKeyup} id="password" placeholder="saisissez le nouveau mot de passe" required="required"/>
           <p>{result_password}</p>}
           <!--bouton envoyer + annuler -->
           <div onclick={verifecode} class=" btn containerH" style="justify-content: center; align-items: center;flex-wrap:wrap">

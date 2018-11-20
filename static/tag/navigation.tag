@@ -37,7 +37,8 @@
     <div class="background-header containerH header" style="flex-wrap:nowrap; flex-shrink : 0;">
 
       <!-- Logo Grappe -->
-      <div class="containerV" style="flex-grow:0;flex-shrink:0;"><!--height:50px; width:75px;justify-content:center;height:70px; width:105px;-->
+      <div class="containerV" style="flex-grow:0;flex-shrink:0;">
+        <!--height:50px; width:75px;justify-content:center;height:70px; width:105px;-->
         <img src="./image/logo-grappe-web.png" style="margin-left:5px;height:36,488px;width: 167,174px;">
       </div>
       <div style="flex-grow:0;flex-shrink:0;"></div>

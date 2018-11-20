@@ -1,11 +1,15 @@
-<value-from-path-editor  style="justify-content:center; align-items: center;">
+<value-from-path-editor>
+  <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Root-from-path" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </div>
 <!-- Titre du composant -->
-<div class="contenaireV title-component">VALEUR DU CHEMIN</div>
+<div class="contenaireV title-component">Root from path</div>
 <!-- Description du composant -->
-<label style="padding-top: 10px;">Extraire une valeur par son chemin</label>
+<div>Extraire une valeur par son chemin.</div>
 <!-- Champ du composant -->
-  <label style="padding-top: 10px;">Chemin vers la valeur à récupérer et la mettre à la racine</label>
-  <input class="field" style="width:600px;"type="text" name="pathInput" ref="pathInput" value={data.specificData.path} onChange={pathInputChange}></input>
+  <label>Chemin vers la valeur à récupérer et la mettre à la racine:</label>
+  <input type="text" name="pathInput" ref="pathInput" value={data.specificData.path} onChange={pathInputChange}></input>
 
   <script>
 

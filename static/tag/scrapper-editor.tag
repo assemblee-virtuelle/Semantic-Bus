@@ -1,54 +1,59 @@
 <scrapper-editor>
+  <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Scrapper" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </div>
   <!-- Titre du composant -->
-  <div class="contenaireV title-component">SCRAPPER</div>
+  <div class="contenaireV title-component">Scrapper</div>
   <!-- Description du composant -->
-  <label style="padding-top: 10px;">Scrapper une page html</label>
+  <div>Scrapper une page HTLM.</div>
   <!-- Champ du composant -->
-  <div class="containerH"style="justify-content:center; align-items: center;flex-wrap: wrap;height:500px;">
+  <div class="containerH" style="justify-content:center; align-items: center;flex-wrap: wrap;height:500px;">
     <div class="containerV" style="justify-content:center; align-items: center; flex-wrap: wrap;flex-grow:1">
 
-      <label style="padding-top: 10px;">User ( Sauce Lab )</label>
-      <input class="field" style="width:300px;"placeholder="champ libre" type="text" ref="user" class="form-controle" value={data.specificData.user}></input>
-      <label style="padding-top: 10px;">Key ( Sauce Lab )
-      </label>
-      <input class="field" style="width:300px;"placeholder="champ libre" type="text" ref="key" class="form-controle" value={data.specificData.key}></input>
+      <label>User ( Sauce Lab )</label>
+      <input placeholder="" type="text" ref="user" value={data.specificData.user}></input>
+      <label>Key ( Sauce Lab )</label>
+      <input placeholder="" type="text" ref="key" value={data.specificData.key}></input>
     </div>
     <div class="containerV" style="justify-content:center; align-items: center; flex-wrap: wrap;flex-grow:1">
-      <label style="padding-top: 10px;">Name of Sauce Labs JOB
+      <label>Name of Sauce Labs JOB
       </label>
-      <input class="field" style="width:300px;"placeholder="champ libre" type="text" ref="saucelabname" class="form-controle" value={data.specificData.saucelabname}></input>
-      <label style="padding-top: 10px;">URL
+      <input placeholder="" type="text" ref="saucelabname" value={data.specificData.saucelabname}></input>
+      <label>URL
       </label>
-      <input class="field" style="width:300px;"placeholder="champ libre" type="text" ref="url" class="form-controle" value={data.specificData.url}></input>
+      <input placeholder="" type="text" ref="url" value={data.specificData.url}></input>
     </div>
   </div>
-  <!--  tableau scrapper -->
-  <div class="scenarioTable containerV">
-    <div class="containerH commandBar" style="justify-content:flex-end">
-      <image class="commandButtonImage" src="./image/ajout_composant.svg" width="50" height="50" onclick={addRowClick}></image>
+  <!-- tableau scrapper -->
+  <div class="containerH commandBar" style="justify-content:flex-start">
+    <div>Scénario
+      <image class="commandButtonImage" src="./image/ajout_composant.svg" width="30" height="30" onclick={addRowClick}></image>
     </div>
-    <zenTable ref="scrapperRef" style="flex:1" drag={true} allowdirectedit={true} disallowselect={true} disallownavigation={true}>
-      <yield to="header">
-        <div style="padding-left:120px">Action</div>
-        <div style="padding-left:150px">Selection</div>
-        <div style="padding-left:200px">Attribut</div>
-        <div style="padding-left:150px">Valeur</div>
-        <div style="padding-left:100px">ScrollX</div>
-        <div style="padding-left:2px">ScrollY</div>
-      </yield>
-      <yield to="row">
-        <select data-field="actionType" ref="actionType" >
-          <option each={optionValue in [" " , "getValue" , "getHtml" , "getAttr" , "setValue" , "click" , "scroll" ,"selectByValue","wait" ]} value={optionValue} selected={actionType==optionValue}>{optionValue}</option>
-        </select>
-        <input class="field"type="text" style="width:20%" value={action} data-field="action"/>
-        <input class="field"type="text" style="width:30%" value={selector} data-field="selector"/>
-        <input class="field"type="text" style="width:20%" value={attribut} data-field="attribut"/>
-        <input class="field"type="text" style="width:20%" value={setValue} data-field="setValue"/>
-        <input class="field"type="text" style="width:5%" value={scrollX} data-field="scrollX"/>
-        <input class="field"type="text" style="width:5%" value={scrollY} data-field="scrollY"/>
-      </yield>
-    </zenTable>
   </div>
+  <zentable ref="scrapperRef" style="flex:1" drag={true} allowdirectedit={true} disallowselect={true} disallownavigation={true}>
+    <yield to="header">
+      <div style="margin-left:80px">Action</div>
+      <div style="margin-left:40px">Nom</div>
+      <div style="margin-left:160px">Selection</div>
+      <div style="margin-left:160px">Attribut</div>
+      <div style="margin-left:180px">Valeur</div>
+      <div style="margin-left:140px">ScrollX</div>
+      <div style="margin-left:5px">ScrollY</div>
+    </yield>
+    <yield to="row">
+      <select data-field="actionType" ref="actionType">
+        <option each={optionValue in [" " , "getValue" , "getHtml" , "getAttr" , "setValue" , "click" , "scroll" ,"selectByValue","wait" ]} value={optionValue} selected={actionType==optionValue}>{optionValue}</option>
+      </select>
+      <input type="text" style="width:20%" value={action} data-field="action"/>
+      <input type="text" style="width:30%" value={selector} data-field="selector"/>
+      <input type="text" style="width:20%" value={attribut} data-field="attribut"/>
+      <input type="text" style="width:20%" value={setValue} data-field="setValue"/>
+      <input type="text" style="width:5%" value={scrollX} data-field="scrollX"/>
+      <input type="text" style="width:5%" value={scrollY} data-field="scrollY"/>
+    </yield>
+  </zentable>
+
   <style>
     .form-controle {
       display: block;
@@ -93,11 +98,6 @@
       /* angles arrondis */
       box-shadow: inset 0 1px 3px rgba(0,0,0,.3);
     }
-    .scenarioTable {
-      border-style: solid;
-      border-width: 1px;
-    }
-
   </style>
 
   <script>
@@ -122,9 +122,9 @@
     }.bind(this);
 
     // recalculateHeader() {   var headers = this.refs.scrapperRef.refs.tableHeader.children;   console.log("HEADER", headers)   for (var row of this.root.querySelectorAll('.tableRow')) {     for (var headerkey in headers) {       var numkey =
-    // parseInt(headerkey);       if (!isNaN(numkey)) {         //console.log(row.children[numkey].getBoundingClientRect().width);         var width = row.children[numkey].getBoundingClientRect().width;         var cssWidth = width + 'px';
+    // parseInt(headerkey);       if (!isNaN(numkey)) {         console.log(row.children[numkey].getBoundingClientRect().width);         var width = row.children[numkey].getBoundingClientRect().width;         var cssWidth = width + 'px';
     // headers[headerkey].style.width = cssWidth ;         headers[headerkey].style.maxWidth = cssWidth ;         headers[headerkey].style.minWidth = cssWidth ;         headers[headerkey].style.flexBasis = cssWidth ;
-    // //console.log(headers[headerkey].style);       }     }     break;   } }
+    // console.log(headers[headerkey].style);       }     }     break;   } }
 
     this.on('unmount', function () {
       RiotControl.off('item_current_changed', this.updateData);

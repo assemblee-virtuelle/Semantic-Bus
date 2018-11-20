@@ -1,31 +1,34 @@
-<sql-connecteur-editor style="justify-content:center; align-items: center;">
-  <!-- Titre du composant -->
-  <div class="contenaireV title-component">CONNECTEUR SQL</div>
-  <!-- Description du composant -->
-  <label style="padding-top: 10px;">Intéroger une base de donnée SQL</label>
-  <!-- Champ du composant -->
-  <div class="containerV"style="align-items:center;">
-      <div style="padding-top: 10px;">Configuration de la base à interoger</div>
-      <label style="padding-top: 10px;">Driver</label>
-      <input class="field" style="width:600px;"placeholder="Driver"type="text" ref="driver" value={data.specificData.driver}/>
-      <label style="padding-top: 10px;">Host</label>
-      <input class="field" style="width:600px;"placeholder="Host"type="text" ref="host" value={data.specificData.host}/>
-      <label style="padding-top: 10px;">Port</label>
-      <input class="field" style="width:600px;"placeholder="Port"type="text" ref="port" value={data.specificData.port}/>
-      <label style="padding-top: 10px;">User name</label>
-      <input class="field" style="width:600px;"placeholder="User name"type="text" ref="username" value={data.specificData.username}/>
-      <label style="padding-top: 10px;">Password</label>
-      <input class="field" style="width:600px;"placeholder="Password"type="text" ref="password" value={data.specificData.password}/>
-      <label style="padding-top: 10px;">Database</label>
-      <input class="field" style="width:600px;"placeholder="Database"type="text" ref="database" value={data.specificData.database}/>
-      <label style="padding-top: 10px;">Nom de la table</label>
-      <input class="field" style="width:600px;"placeholder="Nom de la table"type="text" ref="modelName" value={data.specificData.modelName}/>
-      <label >Documentation requêtes: <a style="padding-top: 10px;color: grey"ref="link" href={'http://sql.sh/cours'}>http://sql.sh/cours</a></label>
-      <textarea placeholder="exemple: SELECT * FROM 'users'" style="width: 90%;height: 50%; background-color: white;color: rgb(56, 131, 250);padding: 5px;border-radius: 10px;border: 1px solid rgb(56, 131, 250);"
-          type="textarea" ref="querySelect" value={data.specificData.querySelect}>
-          {data.specificData.querySelect}
-      </textarea>
+<sql-connecteur-editor>
+  <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-SQL" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
+  <!-- Titre du composant -->
+  <div class="contenaireV title-component">SQL</div>
+  <!-- Description du composant -->
+  <div>Interroger une base de donnée SQL.</div>
+  <!-- Champ du composant -->
+  <div>Configuration de la base à interoger</div>
+  <label>Driver:</label>
+  <input placeholder="Driver" type="text" ref="driver" value={data.specificData.driver}/>
+  <label>Host:</label>
+  <input placeholder="Host" type="text" ref="host" value={data.specificData.host}/>
+  <label>Port:</label>
+  <input placeholder="Port" type="text" ref="port" value={data.specificData.port}/>
+  <label>User name:</label>
+  <input placeholder="User name" type="text" ref="username" value={data.specificData.username}/>
+  <label>Password:</label>
+  <input placeholder="Password" type="text" ref="password" value={data.specificData.password}/>
+  <label>Database:</label>
+  <input placeholder="Database" type="text" ref="database" value={data.specificData.database}/>
+  <label>Nom de la table:</label>
+  <input placeholder="Nom de la table" type="text" ref="modelName" value={data.specificData.modelName}/>
+  <label >Documentation requêtes:
+    <a href={'http://sql.sh/cours'} target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </label>
+  <textarea placeholder="exemple: SELECT * FROM 'users'" style="color: rgb(56, 131, 250);padding: 5px;border-radius: 10px;border: 1px solid rgb(56, 131, 250);" type="textarea" ref="querySelect" value={data.specificData.querySelect}>
+    {data.specificData.querySelect}
+  </textarea>
 
   <script>
 
@@ -37,8 +40,8 @@
     this.editionModel = false;
     this.queryMode = false;
 
-    this.updateData=function(dataToUpdate){
-      console.log("datatoupdate",dataToUpdate)
+    this.updateData = function (dataToUpdate) {
+      console.log("datatoupdate", dataToUpdate)
       this.data = dataToUpdate;
       this.update();
     }.bind(this);
@@ -82,10 +85,10 @@
         this.data.specificData.querySelect = e.currentTarget.value;
       }.bind(this));
 
-      RiotControl.on('item_current_changed',this.updateData);
+      RiotControl.on('item_current_changed', this.updateData);
     });
     this.on('unmount', function () {
-      RiotControl.off('item_current_changed',this.updateData);
+      RiotControl.off('item_current_changed', this.updateData);
     });
   </script>
 

@@ -32,7 +32,7 @@
   </div>
 
   <!-- Bouton valider -->
-  <div class="containerV" style="flex-shrink:0;flex-grow:0;flex-basis:65px;justify-content:center">
+  <div class="containerV" style="flex-shrink:0;flex-grow:0;flex-basis:45px;justify-content:flex-start">
     <div class="containerH" style="justify-content:center">
       <button class="btn" onclick={saveClick} type="button">Valider</button>
     </div>

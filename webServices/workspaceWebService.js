@@ -11,9 +11,9 @@ var sift = require('sift');
 // --------------------------------------------------------------------------------
 
 
-module.exports = function(router,stompClient) {
+module.exports = function(router, stompClient) {
   //TODO Ugly
-  this.stompClient=stompClient;
+  this.stompClient = stompClient;
   // ---------------------------------------  ALL USERS  -----------------------------------------
 
   router.get('/workspaceByUser/:userId', function(req, res, next) {
@@ -43,8 +43,10 @@ module.exports = function(router,stompClient) {
   router.get('/workspace/:id/graph', function(req, res, next) {
     //console.log(" WEB SERVICE GRAPH", req.params.id);
     //console.log(" WEB SERVICE GRAPH");
-    workspace_lib.get_workspace_graph_data(req.params.id).then((workspaceGraph)=>{
-      res.json({workspaceGraph})
+    workspace_lib.get_workspace_graph_data(req.params.id).then((workspaceGraph) => {
+      res.json({
+        workspaceGraph
+      })
     }).catch(e => {
       next(e);
     });
@@ -146,19 +148,20 @@ module.exports = function(router,stompClient) {
   }) //<= update_workspace;
 
   router.post('/workspace/:id/addComponents', function(req, res, next) {
-    console.log('req.body', req.body,req.params.id)
+    //console.log('req.body', req.body,req.params.id)
     if (req.body != null) {
       let components = req.body;
       components.forEach(c => {
+        c._id = undefined;
         c.workspaceId = req.params.id;
-        c.specificData = {};
+        c.specificData = c.specificData || {};
         c.connectionsBefore = [];
         c.connectionsAfter = [];
         c.consumption_history = [];
       })
       workspace_component_lib.create(components).then(function(workspaceComponents) {
         workspace_lib.getWorkspace(req.params.id).then((workspace) => {
-          workspace.components=workspace.components.concat(workspaceComponents);
+          workspace.components = workspace.components.concat(workspaceComponents);
           workspace_lib.update(workspace).then(workspaceUpdated => {
             for (var c of components) {
               if (technicalComponentDirectory[c.module] != null) {
@@ -171,12 +174,15 @@ module.exports = function(router,stompClient) {
             }
             res.send(components);
           }).catch(e => {
+            console.log('e1', e);
             next(e);
           });
         }).catch(e => {
+          console.log('e2', e);
           next(e);
         });
       }).catch(e => {
+        console.log('e3', e);
         next(e);
       });
     } else {
