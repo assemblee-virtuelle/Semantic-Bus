@@ -13,6 +13,7 @@ module.exports = {
   https: require('follow-redirects').https,
   //https: require('https'),
   dataTraitment: require("../dataTraitmentLibrary/index.js"),
+  propertyNormalizer : require("../sharedLibrary/propertyNormalizer.js"),
 
 
   makeRequest: function (methodRest, urlString, contentType) {
@@ -52,9 +53,11 @@ module.exports = {
           //console.log('end',response.headers['content-disposition']);
           let responseContentType=response.headers['content-type'];
           responseContentType=responseContentType||contentType;
-          this.dataTraitment.type.type_file(response.headers['content-disposition'],responseBody, responseBodyExel, undefined,  responseContentType).then(function(result){
-            resolve(result)
-          }, function(err){
+          this.dataTraitment.type.type_file(response.headers['content-disposition'],responseBody, responseBodyExel, undefined,  responseContentType).then((result)=>{
+            let normalized = this.propertyNormalizer.execute(result);
+            //console.log(normalized);
+            resolve(normalized)
+          }, (err)=>{
             //console.log('FILE ERROR',err);
             let fullError = new Error(err);
             fullError.displayMessage = "HTTP GET : Erreur lors du traitement de votre fichier";

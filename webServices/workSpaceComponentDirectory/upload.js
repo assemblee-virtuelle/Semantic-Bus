@@ -15,6 +15,7 @@ module.exports = {
   busboy: require('busboy'),
   mLabPromise: require('../mLabPromise'),
   dataTraitment: require("../dataTraitmentLibrary/index.js"),
+  propertyNormalizer : require("../sharedLibrary/propertyNormalizer.js"),
   readable: require('stream').Readable,
   configuration: require('../../configuration.js'),
   stepNode: false,
@@ -71,7 +72,9 @@ module.exports = {
         }).on('finish', ()=>{
           console.log('finish');
           this.dataTraitment.type.type_file(fileName, string, buffer).then((result) => {
-            resolve(result)
+            let normalized = this.propertyNormalizer.execute(result);
+            //console.log(normalized);
+            resolve(normalized);
           }, (err) => {
             //console.log("in error ")
             let fullError = new Error(err);
