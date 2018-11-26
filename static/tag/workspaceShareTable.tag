@@ -1,35 +1,34 @@
 <!-- Worklow partagé -->
-<workspace-share-table class="containerV">
+<workspace-share-table class="containerV" style="flex-grow:1">
   <!-- Barre de recherche -->
   <div class="containerH" style="height:80px;justify-content: center; align-items: center;flex-shrink:0;">
     <input class="searchbox" type="text" name="inputSearch" ref="inputSearch" placeholder="Rechercher" onkeyup={filterCards}/></div>
-<!-- Tableau de WorkFlow partagé  -->
-  <zenTable show={!isEmpty} drag={false} disallowselect={true} style="background-color: rgb(238,242,249);">
-<!-- nom des colonnes -->
-        <yield to="header">
-          <div style="margin-left: 50px;width:40%">Nom</div>
-          <div style="width:60%">Description</div>
-        </yield>
-    <yield to="row">
-      <div style="width:40%">{name}</div>
-      <div style="width:60%">{description}</div>
+  <!-- Tableau de WorkFlow partagé -->
+  <zentable show={!isEmpty} drag={false} disallowselect={true} style="background-color: rgb(238,242,249);">
+    <!-- nom des colonnes -->
+    <yield to="header">
+      <div class="table-title" style="margin-left: 50px;width: 200px;flex-grow:1">Nom</div>
+      <div class="table-title" style="margin-right: 60px;width: 500px;flex-grow:1">Description</div>
     </yield>
-  </zenTable>
-  <div if={isEmpty} class="containerH" style="flex-grow:1;justify-content:center;background:rgb(238,242,249)">
-    <div class="containerV" style="flex-basis:1;justify-content:center;margin:50px">
+    <yield to="row">
+      <div style="flex-grow:1;width: 200px;">{name}</div>
+      <div style="flex-grow:1;width: 500px; word-break: normal;">{description}</div>
+    </yield>
+  </zentable>
+  <div if={isEmpty} class="containerH" style="flex-grow:1;justify-content:center;">
+    <div class="containerV"  style="flex-basis:1;justify-content:center;margin:50px">
 
       <h1 style="text-align: center;color: rgb(119,119,119);">
-        Vous n'avez pas encore de workflows partagés, ils apparaitront si d'autres utilisateurs decident de vous partager leurs workspaces
+        Vous n'avez pas de Workflow partagé.
       </h1>
     </div>
   </div>
 
-
   <script>
-  //search
-      this.data = {};
+    //search
+    this.data = {};
 
-  //search
+    //search
     /*  this.data = {};
 
       filterCards (e) {
@@ -52,8 +51,8 @@
     }.bind(this);
 
     this.on('mount', function (args) {
-//Search
-    /*  RiotControl.on("filterCards", function (e) {
+      //Search
+      /*  RiotControl.on("filterCards", function (e) {
         console.log("in filtercard trigger")
         if (e.code == "Backspace") {
           this.tags.zentable.data = this.data
@@ -90,9 +89,8 @@
     });
   </script>
   <style>
-  /*barre de recherche*/
-      .searchbox
-  {
+    /*barre de recherche*/
+    .searchbox {
       background-color: #ffffff;
       background-image: linear-gradient(#fff, #f2f3f5);
       border-radius: 35px;
@@ -101,6 +99,6 @@
       border-color: rgb(213,218,224);
       width: 300px;
       height: 35px;
-  }
+    }
   </style>
 </workspace-share-table>

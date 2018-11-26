@@ -7,7 +7,6 @@
   <div class="contenaireV title-component">Google Sheets</div>
   <!-- Description du composant -->
   <div>Interroger une feuille de calcule Google Sheets qui fournit un flux JSON.</div>
-  <div>Ce composant est à paramétrer avec l’adresse d’une feuille de calcul Google Sheet. Il interroge l’API de Google pour récupérer les données et les transforme en objet.</div>
   <!-- Champ du composant -->
   <label>Insérer la clé du Google Sheets:</label>
   <input placeholder="ex. 1ii9hG1_x-wQXFas1_K2ijy4FLY5eYh6XXKgj_mnvSQ8/edit#gid=0" type="text" id="keyInput" onkeyup={changeKeyInput} ref="keyInput" value={data?data.specificData.key: null }></input>

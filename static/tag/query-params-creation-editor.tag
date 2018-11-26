@@ -1,11 +1,11 @@
 <query-params-creation-editor>
   <!-- bouton aide -->
   <div class="contenaireH" style="margin-left:97%">
-    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Query-params" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Params-creation" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
   <!-- Titre du composant -->
 <!-- Titre du composant -->
-<div class="contenaireV title-component">Query params</div>
+<div class="contenaireV title-component">Params creation</div>
 <!-- Description du composant -->
 <div>Créer des paramètres de requête dand le flux.</div>
 <!-- Champ du composant -->

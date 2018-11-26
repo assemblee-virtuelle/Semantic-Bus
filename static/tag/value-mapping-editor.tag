@@ -9,16 +9,14 @@
   <!-- Description du composant -->
   <div>Remplacer les valeurs d'une propriété par une autre.</div>
   <!-- Champ du composant -->
-  <div class="commandBar containerH" style="justify-content:flex-start">
-    <label>
-      Nouvelle valeur</label>
-    <image class="commandButtonImage" src="./image/ajout_composant.svg" width="30" height="30" onclick={addRowClick}></image>
+  <div class="containerH table-title" style="margin-top: 5px;align-items: center;justify-content:flex-end;">
+    <div>Ajouter une valeur</div>
+    <image class="commandButtonImage" placeholder="Nouvelle valeur" src="./image/ajout_composant.svg" width="30" height="30" onclick={addRowClick}></image>
   </div>
-  <zentable ref="mappingTable" style="width: 800px;flex:1" drag={true} title="vos changement de valeurs" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
+  <zentable ref="mappingTable" style="flex:1" drag={true} title="vos changement de valeurs" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
     <yield to="header">
-      <div style="margin-left: 70px;width:50%;">Valeur d'entrée</div>
-      <div style="width:10%"></div>
-      <div style="width:70%;">Valeur de sortie</div>
+      <div class="table-title"style="padding-left: 70px;width:50%;">Valeur d'entrée</div>
+      <div class="table-title"style="width:50%;">Valeur de sortie</div>
     </yield>
     <yield to="row">
       <input style="width:50%" placeholder="Valeur initial" type="text" value={flowValue} data-field="flowValue"/>

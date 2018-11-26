@@ -1,11 +1,12 @@
 <graph-of-use-workspace>
-  <!--ancienne margin top <div class="containerH" style="margin-top:5em">-->
 <!--  Titre  CONSO  -->
     <div class="containerH" style="flex-grow:0;margin-top:2em;flex:0.7;;background:white;padding: 2em;">
       <span style="margin-bottom:2em;text-align: center;font-size:1.3em;"> Vos données globales (30 jours) </span>
-<!--  Nombre de WorkFlow  -->
+<!--    -->
       <div class="containerH" style="justify-content:space-between">
+  <!--  Nombre de WorkFlow  -->
         <div class="card" >
+          <!--  Nombre de WorkFlow  -->
           <span style="font-size:2em;color:rgb(14,33,89)">{this.numberWorkspace}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  WorkFlow</span>
         </div>
 <!--  Nombre de MégaOctet  -->

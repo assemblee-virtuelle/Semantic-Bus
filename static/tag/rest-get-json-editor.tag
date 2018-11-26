@@ -12,15 +12,14 @@
   <input placeholder="" type="text" ref="urlInput" value={data.specificData.url} onchange={urlInputChange}></input>
   <label>Content-type forcé:</label>
   <input placeholder="" type="text" ref="overidedContentTypeInput" value={data.specificData.overidedContentType} onchange={overidedContentTypeInputChange}></input>
-  <div class="containerH commandBar">
-    <div>Header
-      <image src="./image/ajout_composant.svg" class="commandButtonImage" width="30" height="30" onclick={addRowClick}></image>
-    </div>
+  <div class="containerH table-title" style="margin-top: 5px;align-items: center;justify-content:flex-end;" >
+    <div>Header</div>
+      <image src="./image/ajout_composant.svg" placeholder="Nouveau header" class="commandButtonImage" width="30" height="30" onclick={addRowClick}></image>
   </div>
   <zentable ref="headerTable" style="flex:1" title="header de la requete" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
     <yield to="row">
-      <input placeholder="Clé" type="text" style="flex-basis:50%" value={key} data-field="key"/>
-      <input placeholder="Valeur" type="text" style="flex-basis:50%" value={value} data-field="value"/>
+      <input placeholder="Clé" type="text" style="flex-grow: 1;flex-basis:50%" value={key} data-field="key"/>
+      <input placeholder="Valeur" type="text" style="flex-grow: 1;flex-basis:50%" value={value} data-field="value"/>
     </yield>
   </zentable>
   <script>

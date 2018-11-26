@@ -5,7 +5,7 @@
     <div class="containerV" style="justify-content:center">
       <div class="containerH">
         <div class="main-title">
-          <h6>Composant</h6>
+          <h6>Paramètre du composant</h6>
         </div>
       </div>
     </div>

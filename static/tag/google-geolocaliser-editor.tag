@@ -5,6 +5,7 @@
   </div>
   <!-- Titre du composant -->
   <div class="contenaireV title-component">Google geocoding</div>
+  <hr/>
   <!-- Description du composant -->
   <div>Interroger l'API Google geocode pour trouver une adresse avec la latitude et la longitude.</div>
   <!-- Champ du composant -->

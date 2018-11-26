@@ -1,39 +1,38 @@
-<technical-component-table class="containerV" style="flex-grow:1">
-  <!-- tableau des composants -->
-  <div class="commandBar containerH">
-    <div class="containerH commandGroup" style="flex-grow:1;">
-      <div each={item in firstLevelCriteria} class={commandButton:true,tagSelected:isTagInSelectedTags(item)} onclick={firstLevelCriteriaClick}>
-        {item['skos:prefLabel']}
+<technical-component-table class="containerV" style="flex-grow:1;">
+
+    <!-- tableau des composants -->
+    <div class="containerH" style="flex-shrink:0;padding:10px">
+      <div class="containerH" style="flex-grow:1;justify-content: center;">
+        <div each={item in firstLevelCriteria} class={commandButton:true,tagSelected:isTagInSelectedTags(item)} onclick={firstLevelCriteriaClick}>
+          {item['skos:prefLabel']}
+        </div>
       </div>
     </div>
-  </div>
-  <div class="commandBar containerH">
-    <div class="containerH commandGroup" style="flex-grow:1">
-      <div each={item in secondLevelCriteria} class={commandButton:true,tagSelected:isTagInSelectedTags(item)} onclick={secondLevelCriteriaClick}>
-        {item['skos:prefLabel']}
+    <div class="containerH"style="flex-shrink:0;padding:10px">
+      <div class="containerH" style="flex-grow:1;justify-content: center;">
+        <div each={item in secondLevelCriteria} class={commandButton:true,tagSelected:isTagInSelectedTags(item)} onclick={secondLevelCriteriaClick}>
+          {item['skos:prefLabel']}
+        </div>
       </div>
     </div>
-  </div>
 
-  <zentable style="flex:1" ref="technicalComponentTable" disallowdelete={true} disallownavigation={true}>
-    <yield to="header">
-      <div style="padding-left: 70px;flex-basis:30%">Composants</div>
-      <div style="flex-basis:70%">description</div>
-    </yield>
-    <yield to="row">
-      <div style="flex-basis:30%">{type}</div>
-      <div style="flex-basis:70%">{description}</div>
-    </yield>
-  </zentable>
+    <zentable style="flex:1" ref="technicalComponentTable" disallowdelete={true} disallownavigation={true}>
+      <yield to="header">
+        <div class="table-title" style="margin-left: 50px;width: 200px;flex-grow:1">Composant</div>
+        <div class="table-title" style="margin-right:60px;width: 500px;flex-grow:1">Description</div>
+      </yield>
+      <yield to="row">
+        <div style="width: 200px;flex-grow:1">{type}</div>
+        <div style="width: 500px;flex-grow:1">{description}</div>
+      </yield>
+    </zentable>
 
-  <!--dockfooter-->
-  <!--dockfooter-->
-  <div class="containerU" style="height:85px;justify-content: center;">
-    <div onclick={addComponentClick} class="commandButtonImage containerU">
-      <img src="./image/ajout_composant.svg" style="" height="40px" width="40px">
-      <span style="font-family: 'Open Sans', sans-serif" ;=";">Ajouter</span>
+    <!-- Bouton valider -->
+    <div class="containerH" style="padding-top:20px;flex-basis:45px;justify-content: center;align-items: flex-start; flex-shrink:0;flex-grow:0;">
+      <div onclick={addComponentClick} class="commandButtonImage">
+        <img src="./image/check.png" title="Valider la sélection" height="35px" width="35px">
+      </div>
     </div>
-  </div>
 
   <script>
     this.data = {};

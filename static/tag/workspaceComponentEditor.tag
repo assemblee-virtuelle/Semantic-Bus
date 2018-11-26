@@ -7,10 +7,9 @@
         </label>
       </div>
       <div class="containerV" style="justify-content:center;">
-        <input style="height:30px;width:600px;" type="text" id="nameComponentInput" onchange={onNameChange} value={itemCurrent.name} required="required"></input>
+        <input placeholder="Sans-titre" type="text" id="nameComponentInput" onchange={onNameChange} value={itemCurrent.name} required="required"></input>
       </div>
     </div>
-
     <div class="containerH" style="justify-content:center">
       <div class="containerV" style="justify-content:center;margin-right:10px;">
         <label >
@@ -32,9 +31,9 @@
   </div>
 
   <!-- Bouton valider -->
-  <div class="containerV" style="flex-shrink:0;flex-grow:0;flex-basis:45px;justify-content:flex-start">
-    <div class="containerH" style="justify-content:center">
-      <button class="btn" onclick={saveClick} type="button">Valider</button>
+  <div class="containerH" style="flex-basis:45px;justify-content: center;align-items: flex-start; flex-shrink:0;flex-grow:0;">
+    <div onclick={saveClick} class="commandButtonImage">
+      <img src="./image/check.png" title="Valider les paramètres" height="35px" width="35px">
     </div>
   </div>
 
@@ -90,16 +89,8 @@
     .info > div {
       padding: 10px;
       flex-grow: 1;
+    }
 
-    }
-    .box-flex {
-      margin: 20px;
-      padding: 20px;
-      background-color: white;
-      border-radius: 5px;
-      border: 1px solid rgba(133,133,133,0.38);
-      box-shadow: 0 0 5px 0 rgba(133,133,133,0.38);
-    }
   </style>
 
 </workspace-component-editor>

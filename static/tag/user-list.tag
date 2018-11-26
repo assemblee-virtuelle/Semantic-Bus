@@ -1,20 +1,18 @@
-<user-list class="containerV" style="justify-content:center;">
-<div class="containerH" style="justify-content:center;">
+<user-list class="containerV" style="flex-grow:1;">
+
   <!-- partager votre WorkFlow à un utilisateur -->
-  <div class="containerU box" style="justify-content:center;height: 600px">
-
-      <div class="containerU" style="justify-content: center; align-items: center;">
-        <p class="text-user-list">Saisissez une adresse e-mail pour partager votre Workflow</p>
-        <input id="users-list" class="awesomplete" placeholder="Entrez une adresse email..." value="{email}">
-
-        <p style="color:red">{resultShare}</p>
-        <!-- Bouton Valider -->
-        <div class="containerV" style="justify-content: center; align-items: center;">
-          <button class="btn" onclick={shareClick} type="button">Valider</button>
-        </div>
-      </div>
+  <div class="containerV box-flex">
+      <label>Saisissez une adresse e-mail pour partager votre Workflow:</label>
+      <input id="users-list" style="width: 98%"placeholder="Entrez une adresse email..." value="{email}">
+      <div style="color:red">{resultShare}</div>
+  </div>
+  <!-- Bouton valider -->
+  <div class="containerH" style="flex-basis:45px;justify-content: center;align-items: flex-start; flex-shrink:0;flex-grow:0;">
+    <div onclick={shareClick} class="commandButtonImage">
+      <img src="./image/check.png" title="Valider le partage" height="35px" width="35px">
     </div>
   </div>
+
   <script>
     this.resultShare = ""
     this.actionReady = false;
@@ -99,7 +97,7 @@
       margin-top: 10vh;
       margin-left: 39%;
     }
-    /*couleur du text partager workflow*/
+    /*couleur du text partager workflow
     .text-user-list {
       color: grey;
     }
@@ -113,7 +111,7 @@
       width: 100%;
       background-color: #3883fa;
       color: white;
-      padding: 5vh;
+      padding: 5vh;*/
     }
     .ui-menu .ui-menu-item a {
       color: rgb(238,242,249);
@@ -131,7 +129,7 @@
     }
 
     .awesomplete > ul {
-      border-radius: 0.3em;
+      /*border-radius: 0.3em;*/
       background: rgb(238,242,249)!important;
       border: none!important;
       box-shadow: none!important;
@@ -153,7 +151,7 @@
       position: absolute;
       left: 0;
       z-index: 1;
-      min-width: 100%;
+      /*min-width: 100%;*/
       box-sizing: border-box;
       list-style: none;
       padding: 0;
@@ -162,7 +160,7 @@
     }
 
     .awesomplete {
-      display: inline!important;
+      /*display: inline!important;
       position: relative;
       background-color: #ffffff;
       background-image: linear-gradient(#fff, #f2f3f5);
@@ -171,7 +169,7 @@
       border-style: solid;
       border-color: rgb(213,218,224);
       width: 400px;
-      height: 35px;
+      height: 35px;*/
     }
 
     .notSynchronized {

@@ -4,34 +4,30 @@
     <div class="containerH" style="height:80px;justify-content: center; align-items: center;flex-shrink:0;">
       <input class="searchbox" type="text" name="inputSearch" ref="inputSearch" placeholder="Rechercher" onkeyup={filterCards}/></div>
 <!-- Tableau de WorkFlow -->
-  <zenTable style="background-color: rgb(213,218,224)" show={!isEmpty}  drag={false} disallowselect={true} ref="workspaceZenTable">
-<!-- nom des colonnes -->
+  <zenTable show={!isEmpty}  drag={false} disallowselect={true} ref="workspaceZenTable">
     <yield to="header">
-      <div style="margin-left: 50px;width:40%">Nom</div>
-      <div style="width:60%">Description</div>
+      <div class="table-title" style="margin-left: 50px;width: 200px;flex-grow:1">Nom</div>
+      <div class="table-title" style="margin-right: 60px;width: 500px;flex-grow:1">Description</div>
     </yield>
-<!-- contenu des colonnes -->
     <yield to="row">
-      <div style="width:40%" >{name}</div> <!-- police a modifier ! -->
-      <div style="width:60%; word-break: normal;">{description}</div> <!-- police a modifier ! -->
+      <div style="flex-grow:1;width: 200px;">{name}</div>
+      <div style="flex-grow:1;width: 500px; word-break: normal;">{description}</div>
     </yield>
   </zenTable>
 
 <!-- Tableau si vide -->
-    <div if={isEmpty} class="containerH" style="flex-grow:1;justify-content:center;background:rgb(213,218,224)"><!--rgb(238,242,249)-->
+    <div if={isEmpty} class="containerH" style="flex-grow:1;justify-content:center;">
     <div class="containerV" style="flex-basis:1;justify-content:center;margin:50px">
 
       <h1 style="text-align: center;color: rgb(119,119,119);">
-        Aucun WorkFlow trouvé !
-        Cliquer sur le bouton "+" pour en créer un.
+        Cliquer sur le bouton "+" pour en créer un Worklow.
       </h1>
     </div>
   </div>
 <!--dockfooter-->
-  <div class="containerU" style="height:85px;justify-content: center;">
-    <div onclick={addWorkflowClick} class="commandButtonImage containerU">
-      <img src="./image/ajout_composant.svg" style="" height="40px" width="40px">
-      <span style="font-family: 'Open Sans', sans-serif";>Workflow</span>
+  <div class="containerV" style="flex-basis: 45px;justify-content: flex-start;;flex-grow:0;flex-shrink:0">
+    <div onclick={addWorkflowClick} class="commandButtonImage containerV"style="flex-grow:0;flex-shrink:0">
+      <img src="./image/ajout_composant.svg" title="Créer un Workflow" height="40px" width="40px">
     </div>
   </div>
 <!-- Tableau si non vide -->

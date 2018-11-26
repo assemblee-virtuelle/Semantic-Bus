@@ -92,7 +92,7 @@ module.exports = function(router, stompClient) {
 
   router.get('/processByWorkflow/:id', function(req, res, next) {
     //console.log('Get On Workspace 1');
-    workspace_lib.get_process_byWorkflow(req.params.id).then((workspaceProcess)=>{
+    workspace_lib.get_process_byWorkflow(req.params.id).then((workspaceProcess) => {
       res.json(workspaceProcess);
     }).catch(e => {
       next(e);
@@ -189,8 +189,62 @@ module.exports = function(router, stompClient) {
       next(new Error('empty body'))
     }
   })
-
   // --------------------------------------------------------------------------------
+
+  router.post('/workspace/:id/import', function(req, res, next) {
+
+    console.log('import', req.body, req.params.id)
+    let newWorkspace = req.body;
+    let newComponents = newWorkspace.components.map(c => {
+      return {
+        workspaceId: req.params.id,
+        specificData: c.specificData || {},
+        module: c.module,
+        type: c.type,
+        description: c.description,
+        editor: c.editor,
+        graphPositionX:c.graphPositionX,
+        graphPositionY:c.graphPositionY,
+      }
+    })
+
+
+    workspace_lib.getWorkspace(req.params.id).then(async function(workspace) {
+      let workspaceComponents = await workspace_component_lib.create(newComponents);
+      workspace.components = workspaceComponents;
+      let idMapping = {};
+      for (i = 0; i < newWorkspace.components.length; i++) {
+        idMapping[newWorkspace.components[i]._id] = workspace.components[i]._id;
+      }
+      let newLinks = newWorkspace.links.map(l => {
+        return {
+          source: idMapping[l.source],
+          target: idMapping[l.target]
+        }
+      });
+      let workspaceLinks;
+      for (let link of newLinks) {
+        workspaceLinks = await workspace_lib.addConnection(workspace._id, link.source, link.target);
+      }
+      workspace.links = workspaceLinks;
+      workspace = await workspace_lib.update(workspace);
+
+      for (var c of workspace.components) {
+        if (technicalComponentDirectory[c.module] != null) {
+          //console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
+          c.graphIcon = technicalComponentDirectory[c.module].graphIcon;
+        } else {
+          c.graphIcon = "default"
+        }
+      }
+      res.send(workspace);
+    }).catch(e => {
+      next(e);
+    })
+
+
+  })
+
 
   router.post('/workspace/:userId', function(req, res, next) {
     if (req.body.components) {
@@ -248,7 +302,9 @@ module.exports = function(router, stompClient) {
   router.get('/processState/:id', function(req, res, next) {
     //console.log('WORK');
     var id = req.params.id;
-    res.send({state:'inprogress'});
+    res.send({
+      state: 'inprogress'
+    });
     // console.log(id);
     // workspace_lib.get_process_result(id).then((historiqueEnd)=>{
     //   if(historiqueEnd!=null){
@@ -271,7 +327,8 @@ module.exports = function(router, stompClient) {
     configuration = require('../configuration');
     let body = req.body;
     if (configuration.saveLock == false) {
-      workspace_lib.addConnection(req.body.workspaceId,req.body.source,req.body.target).then(links=>{
+      workspace_lib.addConnection(req.body.workspaceId, req.body.source, req.body.target).then(links => {
+        console.log(links);
         res.json(links)
       }).catch(e => {
         next(e);
@@ -286,7 +343,7 @@ module.exports = function(router, stompClient) {
     configuration = require('../configuration');
     let body = req.body;
     if (configuration.saveLock == false) {
-      workspace_lib.removeConnection(req.body.workspaceId,req.body.linkId).then(links=>{
+      workspace_lib.removeConnection(req.body.workspaceId, req.body.linkId).then(links => {
         res.json(links)
       }).catch(e => {
         next(e);

@@ -11,14 +11,14 @@
   <label>Attribut à générer:</label>
   <input placeholder="Attribut" type="text" value={data.specificData.attribut} onkeyup={onAttributChange}>
 
-  <div class="containerH commandBar">
-    <div>Nouveau champ
-      <image src="./image/ajout_composant.svg" class="commandButtonImage" width="30" height="30" onclick={addRow}></image>
-    </div>
+  <div class="containerH table-title" style="margin-top: 5px;align-items: center;justify-content:flex-end;">
+    <div>Ajouter un champ</div>
+      <image src="./image/ajout_composant.svg" placeholder="Nouveau Champ" class="commandButtonImage" width="30" height="30" onclick={addRow}></image>
+
   </div>
-  <zentable ref="fieldsTableRef" style="flex:1" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
+  <zentable ref="fieldsTableRef" style="flex:1;" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
     <yield to="row">
-      <input style="width: 90%" placeholder="Le champ source doit être un tableau" type="text" value={field} data-field="field"/>
+      <input style="flex-grow:1;width:90%" placeholder="Le champ source doit être un tableau" type="text" value={field} data-field="field"/>
     </yield>
   </zentable>
 

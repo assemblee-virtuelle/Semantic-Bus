@@ -5,12 +5,10 @@
   </div>
   <!-- Titre du composant -->
   <div class="contenaireV title-component">Timer</div>
-  <!-- Description du composant -->
-  <div>Ce composant va déclencher à intervalles de temps réguliers le traitement des données afin de maintenir des données à jour dans le cache (composant suivant). L’intervalle de temps est paramétrable.</div>
   <!-- Champ du composant -->
   <label>Exécuter un flux selon la planification suivante :</label>
   <label>Intervalle:</label>
-  <input style="width:300px;" placeholder="Valeur en minute" type="text" id="intervalInput" onchange={changeIntervalInput} ref="keyInput" value={data.specificData?data.specificData.interval: null }></input>
+  <input placeholder="Valeur en minute" type="text" id="intervalInput" onchange={changeIntervalInput} ref="keyInput" value={data.specificData?data.specificData.interval: null }></input>
   <label>Dernière exécution :</label>
   <div>{data.specificData?data.specificData.last: null }</div>
 

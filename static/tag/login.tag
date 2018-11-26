@@ -10,10 +10,15 @@
   </div>
   <!-- Header <div class="containerV" style="flex-grow:0;flex-shrink:0;"> <img src="./image/grappe-web1.png" style="margin-left:20px;height:50px; width:75px;justify-content:center;"> </div> <div class="header containerH" style="flex-shrink:0"
   show={!isScrennToShow('loading')}> <h1> Bienvenue sur Grappe </h1> </div> -->
-  <div class="containerH header-login" show={!isScrennToShow('loading')} style="background-color: white; justify-content: flex-start;">
-    <img src="./image/logo-grappe-web-c.png" style="margin-left:5px;display: flex;"></img>
-
+  <div class="containerH header-login" show={!isScrennToShow('loading')} style="background-color: white; ">
+    <img src="./image/grappe-log-01.png" height="50px"style="margin-left:5px;display: flex;"></img>
+    <div class="containerH header-login"style="flex-grow:1;justify-content:center;">
+      <img src="./image/grappe-title-01.png" height="25px"style="display: flex;"></img>
+    </div>
+    <div class="containerH header-login" style="padding-right:105px;">
+    </div>
   </div>
+
 <!--   <div class="containerH" if={isScrennToShow('connexion')} style="color:rgb(26,145,194);justify-content: center;flex-wrap:wrap;">
     <div class="containerv">
       <h3>Une solution de traitement de données open-source pour piloter et maîtriser l'interopérabilité entre les données.</h3>

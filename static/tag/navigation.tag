@@ -1,6 +1,6 @@
 <navigation>
   <!-- Barre de chargement -->
-  <div id="containerLoaderDiv" if={userAuthentified!=true} class="containerV" style="">
+  <div id="containerLoaderDiv" if={userAuthentified!=true} class="containerV" style="justify-content:center;">
     <div id="row">
       <div id="loaderDiv"></div>
       <h1 id="loaderText" class="containerV">
@@ -39,7 +39,7 @@
       <!-- Logo Grappe -->
       <div class="containerV" style="flex-grow:0;flex-shrink:0;">
         <!--height:50px; width:75px;justify-content:center;height:70px; width:105px;-->
-        <img src="./image/logo-grappe-web.png" style="margin-left:5px;height:36,488px;width: 167,174px;">
+        <img src="./image/grappe-log-02.png" height="50px"style="margin-left:5px;display: flex;"></img>
       </div>
       <div style="flex-grow:0;flex-shrink:0;"></div>
       <!-- Titre headers -->
@@ -62,11 +62,11 @@
               <img class="contentV" style="padding-top: 15px;width:45px;" src="./image/menu/user.png">
             </div>
           </div>
-          <div if={isScrennInHistory('profil')} class="containerH" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">
+        <!--  <div if={isScrennInHistory('profil')} class="containerH" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">
             <div class="containerV" style="justify-content:flex-end;">
               <div class="arrow-up"></div>
             </div>
-          </div>
+          </div> -->
         </a>
       </div>
 
@@ -109,7 +109,7 @@
       </div>
 
       <!-- Contenu -->
-      <div class="containerU generalContainer" style="flex-grow:1;flex-shrink:1;">
+      <div class="containerV generalContainer" style="flex-grow:1;flex-shrink:1;">
         <landing if={isScrennToShow('landing')}></landing>
         <workspace-table if={isScrennToShow('myWorkspaces')></workspace-table>
         <workspace-share-table if={isScrennToShow('sharedWorkspaces')></workspace-share-table>

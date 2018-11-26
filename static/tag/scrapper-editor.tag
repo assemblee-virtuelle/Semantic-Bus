@@ -26,31 +26,30 @@
     </div>
   </div>
   <!-- tableau scrapper -->
-  <div class="containerH commandBar" style="justify-content:flex-start">
-    <div>Scénario
-      <image class="commandButtonImage" src="./image/ajout_composant.svg" width="30" height="30" onclick={addRowClick}></image>
-    </div>
+  <div class="containerH table-title" style="margin-top: 5px;align-items: center;justify-content:flex-end;">
+    <div>Ajouter un Scénario </div>
+      <image class="commandButtonImage" placeholder="Nouveau Scénario" src="./image/ajout_composant.svg" width="30" height="30" onclick={addRowClick}></image>
   </div>
   <zentable ref="scrapperRef" style="flex:1" drag={true} allowdirectedit={true} disallowselect={true} disallownavigation={true}>
     <yield to="header">
-      <div style="margin-left:80px">Action</div>
-      <div style="margin-left:40px">Nom</div>
-      <div style="margin-left:160px">Selection</div>
-      <div style="margin-left:160px">Attribut</div>
-      <div style="margin-left:180px">Valeur</div>
-      <div style="margin-left:140px">ScrollX</div>
-      <div style="margin-left:5px">ScrollY</div>
+      <div class="table-title"style="padding-left: 80px;flex-grow:1">Action</div>
+      <div class="table-title"style="width:10%;flex-grow:1">Nom</div>
+      <div class="table-title"style="width:10%;flex-grow:1">Selection</div>
+      <div class="table-title"style="width:10%;flex-grow:1">Attribut</div>
+      <div class="table-title"style="width:10%;flex-grow:1">Valeur</div>
+      <div class="table-title"style="flex-grow:1">X</div>
+      <div class="table-title"style="padding-right: 90px;flex-grow:1">Y</div>
     </yield>
     <yield to="row">
       <select data-field="actionType" ref="actionType">
         <option each={optionValue in [" " , "getValue" , "getHtml" , "getAttr" , "setValue" , "click" , "scroll" ,"selectByValue","wait" ]} value={optionValue} selected={actionType==optionValue}>{optionValue}</option>
       </select>
-      <input type="text" style="width:20%" value={action} data-field="action"/>
-      <input type="text" style="width:30%" value={selector} data-field="selector"/>
-      <input type="text" style="width:20%" value={attribut} data-field="attribut"/>
-      <input type="text" style="width:20%" value={setValue} data-field="setValue"/>
-      <input type="text" style="width:5%" value={scrollX} data-field="scrollX"/>
-      <input type="text" style="width:5%" value={scrollY} data-field="scrollY"/>
+      <input type="text" style="width:20%;flex-grow:1" placeholder="Nom"value={action} data-field="action"/>
+      <input type="text" style="width:30%;flex-grow:1" placeholder="Selection"value={selector} data-field="selector"/>
+      <input type="text" style="width:20%;flex-grow:1" placeholder="Attribut"value={attribut} data-field="attribut"/>
+      <input type="text" style="width:20%;flex-grow:1" placeholder="Valeur"value={setValue} data-field="setValue"/>
+      <input type="text" style="width:5%;flex-grow:1" placeholder="X"value={scrollX} data-field="scrollX"/>
+      <input type="text" style="width:5%;flex-grow:1" placeholder="Y"value={scrollY} data-field="scrollY"/>
     </yield>
   </zentable>
 

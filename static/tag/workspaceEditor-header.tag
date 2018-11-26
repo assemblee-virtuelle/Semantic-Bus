@@ -1,57 +1,18 @@
 <workspace-editor-header class="containerH" style="flex-wrap:nowrap;flex-grow:1">
 
- <!-- <div class="commandBar containerH" style="justify-content: center;flex-grow:1">
-    <div></div>
-    <div class="containerV">
-      <div if={menu=='component' } class="containerH">
-        <div>
-          Modifier votre worflow
-        </div>
-      </div>
-      <div if={menu=='user' } class="containerH">
-        <div>
-          Les utilisateurs qui ont acces au workflow
-        </div>
-      </div>
-      <div if={menu=='information' } class="containerH">
-        <div>
-          Les informations du worflow
-        </div>
-      </div>
-      <div if={menu=='addComponent' } class="containerH">
-        <div>
-          Ajouter un composant au workflow
-        </div>
-      </div>
-      <div if={menu=='share' } class="containerH">
-        <div>
-          Ajouter un utilisateur au workflow
-        </div>
-      </div>
-      <div if={menu=='utilisation' } class="containerH">
-        <div>
-          Consomation du workflow
-        </div>
-      </div>
-      <div if={menu=='process' } class="containerH">
-        <div>
-          Les processuces archivés
-        </div>
-      </div>
-      Nom du Workflow
-      <div class="main-title">
-        <h6>{data.name}</h6>
-      </div>
-    </div>
-  </div>-->
+  <!-- <div class="commandBar containerH" style="justify-content: center;flex-grow:1"> <div></div> <div class="containerV"> <div if={menu=='component' } class="containerH"> <div> Modifier votre worflow </div> </div> <div if={menu=='user' }
+  class="containerH"> <div> Les utilisateurs qui ont acces au workflow </div> </div> <div if={menu=='information' } class="containerH"> <div> Les informations du worflow </div> </div> <div if={menu=='addComponent' } class="containerH"> <div> Ajouter un
+  composant au workflow </div> </div> <div if={menu=='share' } class="containerH"> <div> Ajouter un utilisateur au workflow </div> </div> <div if={menu=='utilisation' } class="containerH"> <div> Consomation du workflow </div> </div> <div
+  if={menu=='process' } class="containerH"> <div> Les processuces archivés </div> </div> Nom du Workflow <div class="main-title"> <h6>{data.name}</h6> </div> </div> </div>-->
 
   <div class="commandBar containerH" style="flex-grow:1; justify-content: center">
-    <div></div>
     <div class="containerV" style="justify-content:center">
       <div class="containerH">
         <div class="main-title">
           <h6>{data.name}</h6>
         </div>
+      </div>
+    </div>
   </div>
   <!--<div style="flex-basis:100px;flex-grow:0;flex-shrink:0"> <div if={menu=='component' } onclick={showAddComponentClick} class="commandButtonImage containerV"> <img src="./image/ajout_composant.svg" style="" height="40px" width="40px"> <div
   style="text-align:center">ajouter un composant</div> </div> -->
@@ -84,8 +45,7 @@
     }
 
     this.shareClick = function (e) {
-      //console.log("user component share", this.workspace)
-      //if (this.workspace) {
+      //console.log("user component share", this.workspace) if (this.workspace) {
       RiotControl.trigger('share-workspace');
       //};
     }

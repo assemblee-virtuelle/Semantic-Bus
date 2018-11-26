@@ -1,53 +1,50 @@
-<zenTable class="containerV {opts.zentableClass}" style="flex-grow:1;">
+<zentable class="containerV {opts.zentableClass}" style="flex-grow:1;">
   <div class="containerH tableHeader" style="justify-content:center">
     <yield from="Search"/>
   </div>
   <!-- header -->
   <div class="containerH tableHeader" ref="tableHeader" style="flex-shrink:0;">
     <yield from="header"/>
-    <div style="flex-basis:50px"></div>
   </div>
 
   <div class="containerV scrollable tableBody" ref="tableBodyContainer">
     <!--<div class="table scrollable" name="tableBody" ref="tableBody" ondragover={on_drag_over} ondrop={on_drop}>-->
     <div class="containerV" each={indexedData} style="margin-right: 50px;margin-left: 50px;flex-grow:0;flex-shrink:0;">
-      <div class="dropTarget" draggable="true" ondragenter={drag_enter} ondragover={drag_over} ondragleave={drag_leave} ondrop={drag_drop} data-insert="before">
-      </div>
+      <div class="dropTarget" draggable="true" ondragenter={drag_enter} ondragover={drag_over} ondragleave={drag_leave} ondrop={drag_drop} data-insert="before"></div>
 
       <div
         class="tableRow containerH {selected:selected==true && opts.disallowselect!=true} {mainSelected:mainSelected==true && opts.disallowselect!=true}"
-        data-rowId={rowId}
+        data-rowid={rowId}
         data-id={_id}
         ondragstart={drag_start}
         onclick={rowClic}
         style="justify-content: space-between;flex-shrink:0;">
-<!-- ?? -->
+        <!-- draganddrop -->
         <div if={opts.drag} draggable="true" class="containerV" style="background-color:grey;flex-shrink:0;justify-content: space-between;">
           <img src="./image/Super-Mono-png/PNG/sticker/icons/navigation-up-button.png" height="20px" width="20px" draggable="false">
           <img src="./image/Super-Mono-png/PNG/sticker/icons/navigation-down-button.png" height="20px" width="20px" draggable="false">
         </div>
-<!-- ?? -->
-        <div class="containerH tableRowContent" style="flex-grow:1;" onkeyup={rowKeyUp} onchange={onChange} draggable="false">
+        <!-- content -->
+        <div class="containerH tableRowContent" style="flex-grow:1" onkeyup={rowKeyUp} onchange={onChange} draggable="false">
           <yield from="row"/>
         </div>
-<!-- zone bouton -->
+        <!-- zone bouton -->
         <div class="containerV" style="flex-basis:120px;" draggable="false">
-          <div class="containerH"style="justify-content:space-around;padding-top:10px;align-items: center;">
-<!-- Bouton éditer -->
-                        <div onclick={navigationClick} if={!(opts.disallownavigation==true)} data-rowId={rowId} style="flex-basis:10px;">
-                          <img class="commandButtonImage" src="./image/edit.png" height="20px" draggable={false}>
-                        </div>
-<!-- Bouton supprimer -->
-            <div onclick={delRowClick} data-rowId={rowId} if={!(opts.disallowdelete==true)} style="flex-basis:10px;">
+          <div class="containerH" style="justify-content:space-around;padding-top:10px;align-items: center;">
+            <!-- Bouton éditer -->
+            <div onclick={navigationClick} if={!(opts.disallownavigation==true)} data-rowid={rowId} style="flex-basis:10px;">
+              <img class="commandButtonImage" src="./image/edit.png" height="20px" draggable={false}>
+            </div>
+            <!-- Bouton supprimer -->
+            <div onclick={delRowClick} data-rowid={rowId} if={!(opts.disallowdelete==true)} style="flex-basis:10px;">
               <img class="commandButtonImage" src="./image/poubelle.png" height="20px" draggable={false}>
             </div>
 
           </div>
         </div>
       </div>
-<!-- déplacer un workflow -->
-      <div class="dropTarget" draggable="true" ondragenter={drag_enter} ondragover={drag_over} ondragleave={drag_leave} ondrop={drag_drop} data-insert="after">
-      </div>
+      <!-- déplacer un workflow -->
+      <div class="dropTarget" draggable="true" ondragenter={drag_enter} ondragover={drag_over} ondragleave={drag_leave} ondrop={drag_drop} data-insert="after"></div>
     </div>
 
   </div>
@@ -76,52 +73,44 @@
       //console.log(event.target.parentElement);
       event.dataTransfer.setData('application/json', JSON.stringify(event.item));
       event.dataTransfer.setDragImage(event.target.parentElement, 0, 0);
-      //console.log("drag_start");
-      // this.dragged = event;
-      // return true;
+      //console.log("drag_start"); this.dragged = event; return true;
     }
     drag_drop(event) {
       event.preventDefault();
       event.target.classList.remove('dropFocus');
       event.target.classList.add('dropTarget');
-      let insertDirection=event.target.getAttribute('data-insert');
+      let insertDirection = event.target.getAttribute('data-insert');
       //console.log("insertDirection",insertDirection);
-      console.log("item",event.item);
+      console.log("item", event.item);
       //console.log("event",JSON.parse(event.dataTransfer.getData('application/json')));
-      let source=JSON.parse(event.dataTransfer.getData('application/json'));
-      console.log('source',source);
-      //console.log(event.target);
-      // this.placeholder.remove();
-      console.log('origin',this.data);
+      let source = JSON.parse(event.dataTransfer.getData('application/json'));
+      console.log('source', source);
+      //console.log(event.target); this.placeholder.remove();
+      console.log('origin', this.data);
       // this.data.splice(source.rowId, 1);
-      let insertPosition=event.item.rowId;
+      let insertPosition = event.item.rowId;
       console.log(insertDirection);
 
       this.data.splice(source.rowId, 1);
 
-      if(insertDirection=='before'){
+      if (insertDirection == 'before') {
         insertPosition--;
       }
-      if(source.rowId>insertPosition){
+      if (source.rowId > insertPosition) {
         insertPosition++;
       }
       //let newData=this.data.slice(0,insertPosition)
-      insertPosition=Math.max(0,insertPosition);
+      insertPosition = Math.max(0, insertPosition);
       console.log(insertPosition);
 
-      this.data.splice(insertPosition, 0,source);
+      this.data.splice(insertPosition, 0, source);
 
       // RiotControl.trigger('workspace_list_persist', this.dragged.item)
-      console.log('result',this.data);
+      console.log('result', this.data);
       this.update();
     }
 
-    //input drop can't be diseable. this stop propagation to body
-    // row_over(event) {
-    //   console.log("ROWOVER");
-    //   event.preventDefault();
-    //   event.stopPropagation();
-    // }
+    //input drop can't be diseable. this stop propagation to body row_over(event) {   console.log("ROWOVER");   event.preventDefault();   event.stopPropagation(); }
 
     rowClic(e) {
       //console.log("in row click", this.opts)
@@ -152,35 +141,13 @@
       }
     }
 
-    // var arrayChangeHandler = {
-    //   tag: this,
-    //   get: function (target, property, third, fourth) {
-    //     switch (property) {
-    //       case 'push':
-    //       case 'unshift':
-    //         return function (data) {
-    //           target[property](data);
-    //           console.log('update')
-    //           this.tag.update();
-    //         }.bind(this);
-    //         break;
-    //       default:
-    //         return target[property];
-    //     }
-    //   },
-    //   set: function (target, property, value, receiver) {
-    //     //console.log('setting ' + property + ' for ' + target + ' with value ' + value);
-    //     target[property] = value;
-    //     // you have to return true to accept the changes
-    //     return true;
-    //   }
-    // };
-
-    //  this.data = new Proxy([], arrayChangeHandler);
+    // var arrayChangeHandler = {   tag: this,   get: function (target, property, third, fourth) {     switch (property) {       case 'push':       case 'unshift':         return function (data) {           target[property](data);
+    // console.log('update')           this.tag.update();         }.bind(this);         break;       default:         return target[property];     }   },   set: function (target, property, value, receiver) {     console.log('setting ' + property + ' for
+    // ' + target + ' with value ' + value);     target[property] = value;      you have to return true to accept the changes     return true;   } };  this.data = new Proxy([], arrayChangeHandler);
 
     this.data = [];
     this.background = ""
-    // arrayChangeHandler.tag=this; Object.defineProperty(this, 'data', {   set: function (data) {     //this.data=new Proxy(data, arrayChangeHandler);     this.data = data;     this.update();     //this.reportCss(); this.reportFlex();
+    // arrayChangeHandler.tag=this; Object.defineProperty(this, 'data', {   set: function (data) {     this.data=new Proxy(data, arrayChangeHandler);     this.data = data;     this.update();     this.reportCss(); this.reportFlex();
     // console.log(this.items,data);   }.bind(this),   get: function () {     return this.data;   },   configurable: true });
 
     Object.defineProperty(this, 'indexedData', {
@@ -249,23 +216,15 @@
       this.trigger('dataChanged', this.data)
     }
 
-    // recalculateHeader() {   //console.log(this.refs.tableHeader)   var headers = this.refs.tableHeader.children;   for (var row of this.root.querySelectorAll('.tableRow')) {     for (var headerkey in headers) {       var numkey = parseInt(headerkey);
-    //  if (!isNaN(numkey)) {         //console.log(row.children[numkey].getBoundingClientRect().width);         var width = row.children[numkey].getBoundingClientRect().width;         var cssWidth = width + 'px'; headers[headerkey].style.width =
-    // cssWidth;         headers[headerkey].style.maxWidth = cssWidth;         headers[headerkey].style.minWidth = cssWidth;         headers[headerkey].style.flexBasis = cssWidth; //console.log(headers[headerkey].style);       }     }     break;   } }
+    // recalculateHeader() {   console.log(this.refs.tableHeader)   var headers = this.refs.tableHeader.children;   for (var row of this.root.querySelectorAll('.tableRow')) {     for (var headerkey in headers) {       var numkey = parseInt(headerkey);
+    // if (!isNaN(numkey)) {         console.log(row.children[numkey].getBoundingClientRect().width);         var width = row.children[numkey].getBoundingClientRect().width;         var cssWidth = width + 'px'; headers[headerkey].style.width = cssWidth;
+    // headers[headerkey].style.maxWidth = cssWidth;         headers[headerkey].style.minWidth = cssWidth;         headers[headerkey].style.flexBasis = cssWidth; console.log(headers[headerkey].style);       }     }     break;   } }
 
     this.on('mount', function () {
-      // this.refs.tableBodyContainer.addEventListener('dragenter', e => {
-      //   //console.log('dragenter');
-      //   this.drag_enter(e);
-      // }, true)
+      // this.refs.tableBodyContainer.addEventListener('dragenter', e => {   console.log('dragenter');   this.drag_enter(e); }, true)
       //
-      // this.refs.tableBodyContainer.addEventListener('dragover', e => {
-      //   //console.log('dragover');
-      //   this.drag_over(e);
-      // }, true)
-      // this.placeholder = document.createElement("div");
-      // this.placeholder.className = "placeholder";
-      // this.reportCss(); addResizeListener(this.refs.tableBody, function () {   //this.recalculateHeader() }.bind(this)); this.refs.tableBodyContainer.addEventListener('scroll', function (e) {   //console.log(this.tableBodyContainer.scrollLeft);
+      // this.refs.tableBodyContainer.addEventListener('dragover', e => {   console.log('dragover');   this.drag_over(e); }, true) this.placeholder = document.createElement("div"); this.placeholder.className = "placeholder"; this.reportCss();
+      // addResizeListener(this.refs.tableBody, function () {   this.recalculateHeader() }.bind(this)); this.refs.tableBodyContainer.addEventListener('scroll', function (e) {   console.log(this.tableBodyContainer.scrollLeft);
       // this.refs.tableHeader.scrollLeft = this.refs.tableBodyContainer.scrollLeft; }.bind(this));
 
     });
@@ -276,12 +235,12 @@
       -khtml-user-drag: element;
       -webkit-user-drag: element;
     }*/
-    .dropTarget{
-      flex-basis:5px;
+    .dropTarget {
+      flex-basis: 5px;
     }
-    .dropFocus{
+    .dropFocus {
       background-color: rgb(213,218,224);
-      flex-basis:40px;
+      flex-basis: 40px;
     }
     .tableBody {
       background-color: rgb(238,242,249);
@@ -294,20 +253,20 @@
       background-color: white;
     }
 
-    .tableHeader {
+    /*.tableHeader {
       color: rgb(110,110,110);
       background-color: rgb(238,242,249);
       justify-content: start;
-    }
+    }*/
 
     .placeholder {
-      margin: 10px 10px 10px 10px;
+      margin: 10px;
       border-width: 2px;
       border-style: solid;
       border-radius: 4px;
       border-color: #3883fa;
     }
-/* ligne Workflow*/
+    /* ligne table*/
     .tableRow {
       background-color: #ffffff;
       background-image: linear-gradient(#fff, #f2f3f5);
@@ -337,12 +296,13 @@
     .tableHeader > * {
       padding: 10px;
       border-width: 1px;
-
     }
+
     .tableHeader > *:last-child {
       border-right-style: none;
 
     }
+
     .tableRow > *:last-child {
       border-right-style: none;
 
@@ -351,7 +311,6 @@
     .selected {
       border-color: blue;
     }
-
   </style>
 
-</zenTable>
+</zentable>
