@@ -22,7 +22,7 @@ module.exports = {
       componentId: data.specificData.primaryComponentId
     }, flowData);
     //console.log("---------PRIMARY FLOW--------", primaryFlow)
-    return primaryFlow;
+    return primaryFlow[0];
   },
   join:function(primaryRecord,secondaryFlowData, data){
     //console.log('join1');
@@ -34,10 +34,16 @@ module.exports = {
         //console.log('join3',data);
         //console.log('join',data.specificData.secondaryFlowId,data.specificData.primaryFlowFKId);
         let filter = {};
+        // console.log(primaryRecord,data.specificData.primaryFlowFKId);
         filter[data.specificData.secondaryFlowId] = primaryRecord[data.specificData.primaryFlowFKId];
-        //console.log(filter, secondaryFlowData.length);
+        let result=this.sift(filter, secondaryFlowData);
+        // console.log(filter, secondaryFlowData.length,result);
+        if(data.specificData.multipleJoin==true){
+          primaryRecord[data.specificData.primaryFlowFKName] = result;
+        }else{
+          primaryRecord[data.specificData.primaryFlowFKName] = result[0];
+        }
 
-        primaryRecord[data.specificData.primaryFlowFKName] = this.sift(filter, secondaryFlowData)[0];
 
         resolve(primaryRecord);
       }catch(e){
@@ -52,7 +58,7 @@ module.exports = {
     //console.log('Join by Field | pull : ', data, ' | ', flowData);
     return new Promise((resolve, reject) => {
       try {
-        //console.log("flowData",data.specificData.secondaryComponentId,flowData);
+        // console.log("flowData",data.specificData.secondaryComponentId,flowData);
         var secondaryFlowData = this.sift({
           componentId: data.specificData.secondaryComponentId
         }, flowData)[0].data;

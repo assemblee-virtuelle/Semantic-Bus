@@ -11,9 +11,9 @@ var sift = require('sift');
 // --------------------------------------------------------------------------------
 
 
-module.exports = function(router,stompClient) {
+module.exports = function(router, stompClient) {
   //TODO Ugly
-  this.stompClient=stompClient;
+  this.stompClient = stompClient;
   // ---------------------------------------  ALL USERS  -----------------------------------------
 
   router.get('/workspaceByUser/:userId', function(req, res, next) {
@@ -43,8 +43,10 @@ module.exports = function(router,stompClient) {
   router.get('/workspace/:id/graph', function(req, res, next) {
     //console.log(" WEB SERVICE GRAPH", req.params.id);
     //console.log(" WEB SERVICE GRAPH");
-    workspace_lib.get_workspace_graph_data(req.params.id).then((workspaceGraph)=>{
-      res.json({workspaceGraph})
+    workspace_lib.get_workspace_graph_data(req.params.id).then((workspaceGraph) => {
+      res.json({
+        workspaceGraph
+      })
     }).catch(e => {
       next(e);
     });
@@ -90,7 +92,7 @@ module.exports = function(router,stompClient) {
 
   router.get('/processByWorkflow/:id', function(req, res, next) {
     //console.log('Get On Workspace 1');
-    workspace_lib.get_process_byWorkflow(req.params.id).then((workspaceProcess)=>{
+    workspace_lib.get_process_byWorkflow(req.params.id).then((workspaceProcess) => {
       res.json(workspaceProcess);
     }).catch(e => {
       next(e);
@@ -146,19 +148,20 @@ module.exports = function(router,stompClient) {
   }) //<= update_workspace;
 
   router.post('/workspace/:id/addComponents', function(req, res, next) {
-    //console.log('req.body', req.body)
+    //console.log('req.body', req.body,req.params.id)
     if (req.body != null) {
       let components = req.body;
       components.forEach(c => {
+        c._id = undefined;
         c.workspaceId = req.params.id;
-        c.specificData = {};
+        c.specificData = c.specificData || {};
         c.connectionsBefore = [];
         c.connectionsAfter = [];
         c.consumption_history = [];
       })
       workspace_component_lib.create(components).then(function(workspaceComponents) {
         workspace_lib.getWorkspace(req.params.id).then((workspace) => {
-          workspace.components=workspace.components.concat(workspaceComponents);
+          workspace.components = workspace.components.concat(workspaceComponents);
           workspace_lib.update(workspace).then(workspaceUpdated => {
             for (var c of components) {
               if (technicalComponentDirectory[c.module] != null) {
@@ -171,20 +174,77 @@ module.exports = function(router,stompClient) {
             }
             res.send(components);
           }).catch(e => {
+            console.log('e1', e);
             next(e);
           });
         }).catch(e => {
+          console.log('e2', e);
           next(e);
         });
       }).catch(e => {
+        console.log('e3', e);
         next(e);
       });
     } else {
       next(new Error('empty body'))
     }
   })
-
   // --------------------------------------------------------------------------------
+
+  router.post('/workspace/:id/import', function(req, res, next) {
+
+    console.log('import', req.body, req.params.id)
+    let newWorkspace = req.body;
+    let newComponents = newWorkspace.components.map(c => {
+      return {
+        workspaceId: req.params.id,
+        specificData: c.specificData || {},
+        module: c.module,
+        type: c.type,
+        description: c.description,
+        editor: c.editor,
+        graphPositionX:c.graphPositionX,
+        graphPositionY:c.graphPositionY,
+      }
+    })
+
+
+    workspace_lib.getWorkspace(req.params.id).then(async function(workspace) {
+      let workspaceComponents = await workspace_component_lib.create(newComponents);
+      workspace.components = workspaceComponents;
+      let idMapping = {};
+      for (i = 0; i < newWorkspace.components.length; i++) {
+        idMapping[newWorkspace.components[i]._id] = workspace.components[i]._id;
+      }
+      let newLinks = newWorkspace.links.map(l => {
+        return {
+          source: idMapping[l.source],
+          target: idMapping[l.target]
+        }
+      });
+      let workspaceLinks;
+      for (let link of newLinks) {
+        workspaceLinks = await workspace_lib.addConnection(workspace._id, link.source, link.target);
+      }
+      workspace.links = workspaceLinks;
+      workspace = await workspace_lib.update(workspace);
+
+      for (var c of workspace.components) {
+        if (technicalComponentDirectory[c.module] != null) {
+          //console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
+          c.graphIcon = technicalComponentDirectory[c.module].graphIcon;
+        } else {
+          c.graphIcon = "default"
+        }
+      }
+      res.send(workspace);
+    }).catch(e => {
+      next(e);
+    })
+
+
+  })
+
 
   router.post('/workspace/:userId', function(req, res, next) {
     if (req.body.components) {
@@ -242,7 +302,9 @@ module.exports = function(router,stompClient) {
   router.get('/processState/:id', function(req, res, next) {
     //console.log('WORK');
     var id = req.params.id;
-    res.send({state:'inprogress'});
+    res.send({
+      state: 'inprogress'
+    });
     // console.log(id);
     // workspace_lib.get_process_result(id).then((historiqueEnd)=>{
     //   if(historiqueEnd!=null){
@@ -265,7 +327,8 @@ module.exports = function(router,stompClient) {
     configuration = require('../configuration');
     let body = req.body;
     if (configuration.saveLock == false) {
-      workspace_lib.addConnection(req.body.workspaceId,req.body.source,req.body.target).then(links=>{
+      workspace_lib.addConnection(req.body.workspaceId, req.body.source, req.body.target).then(links => {
+        console.log(links);
         res.json(links)
       }).catch(e => {
         next(e);
@@ -280,7 +343,7 @@ module.exports = function(router,stompClient) {
     configuration = require('../configuration');
     let body = req.body;
     if (configuration.saveLock == false) {
-      workspace_lib.removeConnection(req.body.workspaceId,req.body.linkId).then(links=>{
+      workspace_lib.removeConnection(req.body.workspaceId, req.body.linkId).then(links => {
         res.json(links)
       }).catch(e => {
         next(e);

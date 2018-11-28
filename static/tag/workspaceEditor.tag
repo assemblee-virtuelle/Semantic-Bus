@@ -77,6 +77,8 @@
             value="{innerData.limitHistoric}"
             onkeyup="{limitHistoricFieldChange}">
           </input>
+          <button onclick={export}>export</button>
+          <button onclick={importClick}>import</button><input onchange={import} ref="import" type="file" style="display:none"/>
 
       </div>
     </div>
@@ -132,6 +134,19 @@
       data: e.target.value
     });
     //this.innerData.description = e.target.value;
+  }
+
+  export(e){
+    RiotControl.trigger('workspace_current_export');
+  }
+
+  importClick(e){
+    this.refs.import.click();
+  }
+
+  import(e){
+    let file = e.target.files[0];
+    RiotControl.trigger('workspace_current_import',file);
   }
 
 
