@@ -24,10 +24,13 @@ module.exports = {
       //console.log(pullParams,urlString);
       let urlString = specificData.url;
       //console.log(urlString);
-      for (let param in pullParams) {
-        //console.log(param);
-        urlString = urlString.replace('<%' + param + '%>', pullParams[param]);
+      if(pullParams !=undefined && pullParams.query!=undefined){
+        for (let param in pullParams.query) {
+          urlString = urlString.replace('{£.' + param + '}', pullParams.query[param]);
+        }
       }
+      console.log('urlString',urlString);
+
       let headers = {}
       if (specificData.headers != undefined) {
         for (let header of specificData.headers) {
