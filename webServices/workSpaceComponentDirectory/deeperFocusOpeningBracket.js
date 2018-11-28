@@ -13,6 +13,7 @@ module.exports = {
   pull: function(data,flowData) {
 
     return new Promise((resolve, reject) => {
+      // console.log('dfob specific data',data.specificData);
       //console.log('dfob | pull : ',data,' | ',flowData);
       var dfob = flowData[0].dfob==undefined?[]:flowData.dfob;
       let dfobPath=data.specificData.dfobPath==undefined?'':data.specificData.dfobPath
