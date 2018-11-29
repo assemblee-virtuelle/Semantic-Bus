@@ -14,7 +14,7 @@ class Engine {
     this.promiseOrchestrator = new PromiseOrchestrator();
     this.fackCounter = 0;
     this.amqpClient = amqpClient,
-    this.callerId = callerId;
+      this.callerId = callerId;
     this.originComponent = component;
     this.requestDirection = requestDirection;
     this.pushData = pushData;
@@ -148,7 +148,9 @@ class Engine {
                       let originNode = this.sift({
                         "component._id": this.originComponent._id
                       }, this.pathResolution.nodes)[0];
-                      originNode.dataResolution = {data:this.pushData};
+                      originNode.dataResolution = {
+                        data: this.pushData
+                      };
                       originNode.status = 'resolved';
                       //console.log(originNode);
                       this.historicEndAndCredit(originNode, new Date(), undefined)
@@ -174,7 +176,7 @@ class Engine {
 
   processNextBuildPath() {
     //console.log('processNextBuildPath 1');
-    setTimeout(this.processNextBuildPathDelayed.bind(this),100);
+    setTimeout(this.processNextBuildPathDelayed.bind(this), 100);
   }
   processNextBuildPathDelayed() {
     if (this.owner.credit >= 0) {
@@ -225,18 +227,9 @@ class Engine {
             return true;
           }
         })
-        //console.log(processingNode);
-        // if (nodeWithAllIncomingResolved.length > 0) {
-        //
-        //   processingNode = nodeWithAllIncomingResolved[0];
-        // }
       }
       //console.log('processingNode', processingNode);
       if (processingNode != undefined) {
-        //console.log('PROCESS', processingNode.component._id);
-        // processingNode.sources.forEach(s => {
-        //   console.log(s.source.component._id + ' : ' + s.source.status);
-        // })
         let startTime = new Date();
         //processingLink.status = 'processing';
         let nodesProcessingInputs = this.sift({
@@ -245,7 +238,6 @@ class Engine {
           },
           this.pathResolution.nodes
         );
-
 
         let module = this.technicalComponentDirectory[
           processingNode.component.module
@@ -273,74 +265,36 @@ class Engine {
           secondaryFlow = secondaryFlow.concat(dataFlow);
           secondaryFlow.splice(secondaryFlow.indexOf(primaryflow), 1);
         }
-        //console.log("dataFlow", dataFlow);
-        if (dataFlow != undefined && primaryflow.dfob != undefined) {
-          try {
-            //console.log("DFOB");
-            var dfobTab = primaryflow.dfob[0].path.length > 0 ? primaryflow.dfob[0].path.split(".") : [];
-            //console.log('dfob',dfobTab,primaryflow.dfob[0].keepArray);
-            var dfobFinalFlow = this.buildDfobFlow(
-              primaryflow.data,
-              dfobTab,
-              undefined,
-              primaryflow.dfob[0].keepArray
-            );
-            //console.log('dfobFinalFlow',dfobFinalFlow);
 
-            if (this.config.quietLog != true) {
-              //console.log('dfobFinalFlow | ', dfobFinalFlow);
-            }
+        //console.log("primaryflow", primaryflow);
+        if (dataFlow != undefined && primaryflow == undefined) {
+          let err = new Error("primary flow could not be identified");
+          processingNode.status = "error";
+          processingNode.dataResolution = {
+            error: err
+          };
+          this.historicEndAndCredit(processingNode, startTime, err)
+          this.processNextBuildPath('flow ko');
+        } else {
+          if (dataFlow != undefined && primaryflow.dfob != undefined) {
+            try {
+              //console.log("DFOB", primaryflow.dfob);
+              var dfobTab = primaryflow.dfob[0].path.length > 0 ? primaryflow.dfob[0].path.split(".") : [];
+              //console.log('dfob',dfobTab,primaryflow.dfob[0].keepArray);
+              var dfobFinalFlow = this.buildDfobFlow(
+                primaryflow.data,
+                dfobTab,
+                undefined,
+                primaryflow.dfob[0].keepArray
+              );
+              //console.log('dfobFinalFlow',dfobFinalFlow);
 
-            if (dfobFinalFlow.length == 0) {
-              processingNode.dataResolution = {
-                data: primaryflow.data
-              };
-              processingNode.status = "resolved";
-              this.historicEndAndCredit(processingNode, startTime, undefined)
-              if (
-                processingNode.component._id == this.originComponent._id
-              ) {
-                this.RequestOrigineResolveMethode(
-                  processingNode.dataResolution
-                );
-
+              if (this.config.quietLog != true) {
+                //console.log('dfobFinalFlow | ', dfobFinalFlow);
               }
-              this.processNextBuildPath('dfob empty');
-            } else {
 
-              let paramArray = dfobFinalFlow.map(finalItem => {
-                var recomposedFlow = [];
-                //console.log(finalItem.objectToProcess,finalItem.key);
-                recomposedFlow = recomposedFlow.concat([{
-                  data: finalItem.objectToProcess[finalItem.key],
-                  componentId: primaryflow.componentId
-                }]);
-                recomposedFlow = recomposedFlow.concat(secondaryFlow);
-                //console.log('recomposedFlow',recomposedFlow);
-                return [
-                  processingNode.component,
-                  recomposedFlow,
-                  processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams
-                ];
-              });
-
-              //console.log('paramArray',JSON.stringify(paramArray));
-
-              this.promiseOrchestrator.execute(module, module.pull, paramArray, {
-                beamNb: 1
-              },this.config).then((componentFlowDfob) => {
-                //console.log('componentFlowDfob',componentFlowDfob);
-                for (var componentFlowDfobKey in componentFlowDfob) {
-                  //console.log(componentFlowDfobKey);
-                  dfobFinalFlow[componentFlowDfobKey].objectToProcess[
-                      dfobFinalFlow[componentFlowDfobKey].key
-                    ] =
-                    componentFlowDfob[componentFlowDfobKey].data;
-                }
-                //console.log('dfobFinalFlow',dfobFinalFlow);
+              if (dfobFinalFlow.length == 0) {
                 processingNode.dataResolution = {
-                  //componentId: processingNode.component._id,
-                  //data: dfobFinalFlow.map(FF=>FF.objectToProcess),
                   data: primaryflow.data
                 };
                 processingNode.status = "resolved";
@@ -353,52 +307,103 @@ class Engine {
                   );
 
                 }
+                this.processNextBuildPath('dfob empty');
+              } else {
 
-                this.processNextBuildPath('dfob ok');
-              }).catch(e => {
-                console.log('CATCH dfob', e);
-                processingNode.dataResolution = {
-                  error: e
-                };
-                this.historicEndAndCredit(processingNode, startTime, e)
-                processingNode.status = "error";
-                this.processNextBuildPath('dfob ko');
-              });
+                let paramArray = dfobFinalFlow.map(finalItem => {
+                  var recomposedFlow = [];
+                  //console.log(finalItem.objectToProcess,finalItem.key);
+                  recomposedFlow = recomposedFlow.concat([{
+                    data: finalItem.objectToProcess[finalItem.key],
+                    componentId: primaryflow.componentId
+                  }]);
+                  recomposedFlow = recomposedFlow.concat(secondaryFlow);
+                  //console.log('recomposedFlow',recomposedFlow);
+                  return [
+                    processingNode.component,
+                    recomposedFlow,
+                    processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams
+                  ];
+                });
+
+                //console.log('paramArray',JSON.stringify(paramArray));
+
+                this.promiseOrchestrator.execute(module, module.pull, paramArray, {
+                  beamNb: 1
+                }, this.config).then((componentFlowDfob) => {
+                  //console.log('componentFlowDfob',componentFlowDfob);
+                  for (var componentFlowDfobKey in componentFlowDfob) {
+                    //console.log(componentFlowDfobKey);
+                    dfobFinalFlow[componentFlowDfobKey].objectToProcess[
+                        dfobFinalFlow[componentFlowDfobKey].key
+                      ] =
+                      componentFlowDfob[componentFlowDfobKey].data;
+                  }
+                  //console.log('dfobFinalFlow',dfobFinalFlow);
+                  processingNode.dataResolution = {
+                    //componentId: processingNode.component._id,
+                    //data: dfobFinalFlow.map(FF=>FF.objectToProcess),
+                    data: primaryflow.data
+                  };
+                  processingNode.status = "resolved";
+                  this.historicEndAndCredit(processingNode, startTime, undefined)
+                  if (
+                    processingNode.component._id == this.originComponent._id
+                  ) {
+                    this.RequestOrigineResolveMethode(
+                      processingNode.dataResolution
+                    );
+
+                  }
+
+                  this.processNextBuildPath('dfob ok');
+                }).catch(e => {
+                  console.log('CATCH dfob', e);
+                  processingNode.dataResolution = {
+                    error: e
+                  };
+                  this.historicEndAndCredit(processingNode, startTime, e)
+                  processingNode.status = "error";
+                  this.processNextBuildPath('dfob ko');
+                });
+              }
+
+            } catch (e) {
+              console.log('CATCH dfob', e);
+              processingNode.dataResolution = {
+                error: e
+              };
+              this.historicEndAndCredit(processingNode, startTime, e)
+              processingNode.status = "error";
+              this.processNextBuildPath('dfob ko');
             }
-
-          } catch (e) {
-            console.log('CATCH dfob', e);
-            processingNode.dataResolution = {
-              error: e
-            };
-            this.historicEndAndCredit(processingNode, startTime, e)
-            processingNode.status = "error";
-            this.processNextBuildPath('dfob ko');
+          } else {
+            //console.log("NORMAL", processingNode.component._id);
+            module.pull(processingNode.component, dataFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams).then(componentFlow => {
+              processingNode.dataResolution = componentFlow;
+              processingNode.status = "resolved";
+              this.historicEndAndCredit(processingNode, startTime, undefined)
+              if (processingNode.component._id == this.originComponent._id) {
+                this.RequestOrigineResolveMethode(
+                  processingNode.dataResolution
+                );
+              }
+              this.processNextBuildPath('normal ok');
+            }).catch(e => {
+              console.log('CATCH normal', processingNode.component._id, e);
+              processingNode.dataResolution = {
+                error: e
+              };
+              processingNode.status = "error";
+              //console.log('HIST')
+              this.historicEndAndCredit(processingNode, startTime, e)
+              //console.log('NEXT');
+              this.processNextBuildPath('normal ko');
+            });
           }
-        } else {
-          //console.log("NORMAL", processingNode.component._id);
-          module.pull(processingNode.component, dataFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams).then(componentFlow => {
-            processingNode.dataResolution = componentFlow;
-            processingNode.status = "resolved";
-            this.historicEndAndCredit(processingNode, startTime, undefined)
-            if (processingNode.component._id == this.originComponent._id) {
-              this.RequestOrigineResolveMethode(
-                processingNode.dataResolution
-              );
-            }
-            this.processNextBuildPath('normal ok');
-          }).catch(e => {
-            console.log('CATCH normal', processingNode.component._id, e);
-            processingNode.dataResolution = {
-              error: e
-            };
-            processingNode.status = "error";
-            //console.log('HIST')
-            this.historicEndAndCredit(processingNode, startTime, e)
-            //console.log('NEXT');
-            this.processNextBuildPath('normal ko');
-          });
         }
+
+
       } else {
         //console.log('END');
         let nodeOnError = this.sift({
@@ -591,9 +596,9 @@ class Engine {
     }
   }
   buildDfobFlow(currentFlow, dfobPathTab, key, keepArray) {
-
+    //console.log(dfobPathTab);
     if (dfobPathTab.length > 0) {
-      //console.log('buildDfobFlow',dfobPathTab,keepArray);
+      //console.log('buildDfobFlow', dfobPathTab, keepArray);
 
 
       if (Array.isArray(currentFlow)) {
@@ -614,7 +619,7 @@ class Engine {
         if (newDfobPathTab.length > 0) {
           return (this.buildDfobFlow(flowOfKey, newDfobPathTab, currentdFob, keepArray));
         } else {
-          if (Array.isArray(flowOfKey) && keepArray!=true) {
+          if (Array.isArray(flowOfKey) && keepArray != true) {
             return (this.buildDfobFlow(flowOfKey, newDfobPathTab, currentdFob, keepArray));
           } else {
             return (this.buildDfobFlow(currentFlow, newDfobPathTab, currentdFob, keepArray));
@@ -624,7 +629,7 @@ class Engine {
     } else {
       //let flowOfKey = currentFlow[currentdFob];
       let out;
-      if (Array.isArray(currentFlow) && keepArray!=true) {
+      if (Array.isArray(currentFlow) && keepArray != true) {
         //console.log('buildDfobFlow final ARRAY',keepArray,currentFlow);
         out = currentFlow.map((r, i) => {
           return {
