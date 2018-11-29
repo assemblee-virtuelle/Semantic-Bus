@@ -1,27 +1,49 @@
-<workspace-component-editor class="containerV" style="flex-grow:1">
-  <div class="containerH info" style="flex-wrap:wrap;justify-content:space-around">
-    <div class="containerV">
-      <label>
-        nom du composant
-      </label>
-      <input type="text" id="nameComponentInput" onchange={onNameChange} value={itemCurrent.name}></input>
-    </div>
-    <div class="containerV">
-      <label >
-        persistance du process (payant)
-      </label>
-      <div class="containerH">
-        <label class="switch">
-          <input type="checkbox" onchange={onPersistProcessChange} checked={itemCurrent.persistProcess}>
-          <span class="slider round"></span>
+<workspace-component-editor class="containerV" style="flex-grow:1;justify-content:center">
+
+  <div class="containerH info" style="background: rgb(213,218,224);flex-wrap:wrap;flex-shrink:0;flex-grow:0;">
+    <div class="containerH" style="justify-content:center;">
+      <div class="containerV" style="justify-content:center;margin-right:10px;">
+        <label>Nom:
         </label>
+      </div>
+      <div class="containerV" style="justify-content:center;">
+        <input placeholder="Sans-titre" type="text" id="nameComponentInput" onchange={onNameChange} value={itemCurrent.name} required="required"></input>
+      </div>
+    </div>
+    <div class="containerH" style="justify-content:center">
+      <div class="containerV" style="justify-content:center;margin-right:10px;">
+        <label >
+          Persistance du process (payant)
+        </label>
+      </div>
+      <div class="containerH" style="justify-content:center;">
+        <div class="containerV" style="justify-content:center;">
+          <label class="switch">
+            <input type="checkbox" onchange={onPersistProcessChange} checked={itemCurrent.persistProcess}>
+            <span class="slider round"></span>
+          </label>
+        </div>
       </div>
     </div>
   </div>
-  <div id="editionContainer" style="flex-grow:1; padding: 15pt; background-color: rgb(238,242,249);" class="containerV"></div>
+  <div style="flex-grow:1; background-color: rgb(238,242,249);" class="containerV">
+    <div id="editionContainer" class="box-flex containerV"></div>
+  </div>
+
+  <!-- Bouton valider -->
+  <div class="containerH" style="flex-basis:45px;justify-content: center;align-items: flex-start; flex-shrink:0;flex-grow:0;">
+    <div onclick={saveClick} class="commandButtonImage">
+      <img src="./image/check.png" title="Valider les paramètres" height="35px" width="35px">
+    </div>
+  </div>
+
   <script>
     this.itemCurrent = {};
+    this.data = {};
 
+    this.saveClick = function (e) {
+      RiotControl.trigger('item_current_persist');
+    }
     onNameChange(e) {
       this.itemCurrent.name = e.target.value;
     }
@@ -60,22 +82,15 @@
   </script>
   <style>
     .info {
+      justify-content: flex-start;
       flex-shrink: 0;
+
     }
     .info > div {
-      padding: 5px;
-      border-style: solid;
-      border-width: 1px;
+      padding: 10px;
       flex-grow: 1;
     }
 
-    .input {
-      text-align: center;
-    }
-
-    label {
-      text-align: center;
-    }
   </style>
 
 </workspace-component-editor>

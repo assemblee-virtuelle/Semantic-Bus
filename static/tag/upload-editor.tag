@@ -1,26 +1,32 @@
-<upload-editor >
-  <div class="containerH" style="flex-shrink:0">
-    <h2 >Uploader votre fichier</h2>
+<upload-editor>
+  <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Upload" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
-  <div class="containerH" style="flex-shrink:0">
-    <h4 >Ce composant vous permet d'uploader un fichier avec une extension
-      <b>XLSX</b>
-      ou
-      <b>CSV</b>
-      et de le mapper en
-      <b>JSON</b>
-    </h4>
+  <!-- Titre du composant -->
+  <div class="contenaireV title-component">Upload</div>
+  <!-- Description du composant -->
+  <label>Ce composant vous permet d'uploader un fichier avec une extension
+    <b>XLSX</b>
+    ou
+    <b>CSV</b>
+    et de le mapper en
+    <b>JSON</b>
+  </label>
+  <!-- Champ du composant -->
+  <h3 class="{textloadclass}">{textload}</h3>
+  <div class="containerH" style="align-items: center;justify-content: center;flex-shrink:0">
+    <div class="contenaireV">
+      <button onclick={uploadClick} type="button" style="flex:1">Importer</button>
+      <input id="upload-input" type="file" name="uploads[]">
+    </div>
   </div>
-  <!-- <div class="progress-bar" role="progressbar">{progress}</div>
-  <h3 class="{textloadclass}">{textload}</h3> -->
-  <div class="containerH" style="flex-shrink:0">
-    <button onclick={uploadClick} type="button" style="flex:1">Telecharger</button>
-    <input id="upload-input" type="file" name="uploads[]">
+
+  <div class="containerH" style="justify-content: center;flex-shrink:0;margin-top:20px">
+    <progress max="100" value={progress} class={status} style="flex:1"></progress>
   </div>
-  <div class="containerH" style="flex-shrink:0;margin-top:20px">
-    <progress max=100 value={progress} class={status} style="flex:1"></progress>
-  </div>
-  <style scope>
+
+  <style scope="scope">
     progress {
       background: white;
     }
@@ -148,7 +154,6 @@
       width: 450px;
     }
   }*/
-
   </style>
   <script>
 
@@ -209,8 +214,7 @@
       })
     }.bind(this)
     this.on('mount', function () {
-      //this.progress = "";
-      //$('.progress-bar').width(0 + '%');
+      //this.progress = ""; $('.progress-bar').width(0 + '%');
       RiotControl.on('item_current_changed', this.updateData);
     });
     this.on('unmount', function () {

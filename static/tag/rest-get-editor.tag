@@ -1,13 +1,17 @@
 <rest-get-editor>
-  <div>description du web service à intéroger</div>
-  <label>url</label>
-  <input type="text" ref="urlInput" onChange={changeUrl} value={data.specificData.url}></input>
-  <!-- <label>verbe</label>
-  <input type="text" ref="verbInput" onChange={changeVerb} value={data.specificData.verb}></input>
-  <label>corp</label>
-  <input type="text" ref="bodyInput" onChange={changeBody} value={data.specificData.body}></input> -->
-  <label>content-type</label>
-  <input type="text" ref="contentTypeInput" onChange={changeContentType} value={data.specificData? data.specificData.contentType : "test" }></input>
+  <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-HTTP-file-consumer" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </div>
+<!-- Titre du composant -->
+  <div class="contenaireV title-component">HTTP file consumer</div>
+  <!-- Description du composant -->
+  <div>Interroger un fichier mis à disposition sur une API REST avec une requête GET.</div>
+  <!-- Champ du composant -->
+  <label>URL du web service à interroger:</label>
+  <input placeholder=""type="text" ref="urlInput" onChange={changeUrl} value={data.specificData.url}></input>
+  <label>Content-type:</label>
+  <input placeholder=""type="text" ref="contentTypeInput" onChange={changeContentType} value={data.specificData? data.specificData.contentType : "test" }></input>
 
   <script>
     this.data = {}

@@ -1,37 +1,41 @@
-<technical-component-table class="containerV" >
-  <!--  <div class="commandBar containerH header" style="align-items: center;">
-    <div></div>
-    <div>Add Componnent</div>
-    <image if={actionReady} style="margin-left: -1px;
-    color: white; cursor: pointer;" src="./image/ajout_composant.svg" class="commandButtonImage" width="50" height="50" onclick={addComponent}></image>
-  </div>  -->
-  <div class="commandBar containerH">
-    <div class="containerH commandGroup " style="flex-grow:1;">
-      <div each={item in firstLevelCriteria} class={commandButton:true,tagSelected:isTagInSelectedTags(item)} onclick={firstLevelCriteriaClick}>
-        {item['skos:prefLabel']}
-      </div>
-    </div>
-  </div>
-  <div class="commandBar containerH">
-    <div class="containerH commandGroup" style="flex-grow:1">
-      <div each={item in secondLevelCriteria} class={commandButton:true,tagSelected:isTagInSelectedTags(item)} onclick={secondLevelCriteriaClick}>
-        {item['skos:prefLabel']}
-      </div>
-    </div>
-  </div>
+<technical-component-table class="containerV" style="flex-grow:1;">
 
-  <zenTable style="flex:1" ref="technicalComponentTable" disallowdelete={true} disallownavigation={true}>
-    <yield to="header">
-      <div>type</div>
-      <div>description</div>
-    </yield>
-    <yield to="row">
-      <div style="flex-basis:30%">{type}</div>
-      <div style="flex-basis:70%">{description}</div>
-    </yield>
-  </zenTable>
+    <!-- tableau des composants -->
+    <div class="containerH" style="flex-shrink:0;padding:10px">
+      <div class="containerH" style="flex-grow:1;justify-content: center;">
+        <div each={item in firstLevelCriteria} class={commandButton:true,tagSelected:isTagInSelectedTags(item)} onclick={firstLevelCriteriaClick}>
+          {item['skos:prefLabel']}
+        </div>
+      </div>
+    </div>
+    <div class="containerH"style="flex-shrink:0;padding:10px">
+      <div class="containerH" style="flex-grow:1;justify-content: center;">
+        <div each={item in secondLevelCriteria} class={commandButton:true,tagSelected:isTagInSelectedTags(item)} onclick={secondLevelCriteriaClick}>
+          {item['skos:prefLabel']}
+        </div>
+      </div>
+    </div>
+
+    <zentable style="flex:1" ref="technicalComponentTable" disallowdelete={true} disallownavigation={true}>
+      <yield to="header">
+        <div class="table-title" style="margin-left: 50px;width: 200px;flex-grow:1">Composant</div>
+        <div class="table-title" style="margin-right:60px;width: 500px;flex-grow:1">Description</div>
+      </yield>
+      <yield to="row">
+        <div style="width: 200px;flex-grow:1">{type}</div>
+        <div style="width: 500px;flex-grow:1">{description}</div>
+      </yield>
+    </zentable>
+
+    <!-- Bouton valider -->
+    <div class="containerH" style="padding-top:20px;flex-basis:45px;justify-content: center;align-items: flex-start; flex-shrink:0;flex-grow:0;">
+      <div onclick={addComponentClick} class="commandButtonImage">
+        <img src="./image/check.png" title="Valider la sélection" height="35px" width="35px">
+      </div>
+    </div>
 
   <script>
+    this.data = {};
 
     //this.actionReady = false;
     this.firstLevelCriteria = [];
@@ -50,6 +54,10 @@
       return out;
     }
 
+    this.addComponentClick = function (e) {
+      console.log("clic sauve")
+      RiotControl.trigger("workspace_current_add_components")
+    }
 
     firstLevelCriteriaClick(e) {
       //console.log(e); console.log(e.item.item['@id']);
@@ -100,7 +108,7 @@
       }
     }
 
-    this.updateData = function (dataToUpdate){
+    this.updateData = function (dataToUpdate) {
       this.tags.zentable.data = dataToUpdate;
       this.rawData = dataToUpdate;
       this.update();
@@ -117,40 +125,21 @@
       this.update();
     }.bind(this);
 
-    // this.addComponent = function(){
-    //   console.log("In technical components",this.tags)
-    //     RiotControl.trigger('workspace_current_add_components', sift({
-    //       selected: {
-    //         $eq: true
-    //       }
-    //     }, this.tags.zentable.data)
-    //   )
-    // }.bind(this)
-
-
+    // this.addComponent = function(){   console.log("In technical components",this.tags)     RiotControl.trigger('workspace_current_add_components', sift({       selected: {         $eq: true       }     }, this.tags.zentable.data)   ) }.bind(this)
 
     this.on('mount', function () {
-      this.actionReady=false;
-      this.tags.zentable.on('rowsSelected',function(selecetedRows){
+      this.actionReady = false;
+      this.tags.zentable.on('rowsSelected', function (selecetedRows) {
         RiotControl.trigger('set_componentSelectedToAdd', selecetedRows);
       }.bind(this));
-      // this.tags.zentable.on('addRow', function () {
-      //   //console.log(data);
-      //   RiotControl.trigger('technicalComponent_current_init');
-      // }.bind(this));
-
-      // this.tags.zentable.on('delRow', function (data) {
-      //   //console.log(data);
-      //   RiotControl.trigger('technicalComponent_delete', data);
+      // this.tags.zentable.on('addRow', function () {   console.log(data);   RiotControl.trigger('technicalComponent_current_init'); }.bind(this)); this.tags.zentable.on('delRow', function (data) {   console.log(data);
+      // RiotControl.trigger('technicalComponent_delete', data);
       //
-      // }.bind(this));
-      // this.tags.zentable.on('cancel', function (data) {
-      //   //console.log(data);
-      //   RiotControl.trigger('workspace_current_add_component_cancel');
+      // }.bind(this)); this.tags.zentable.on('cancel', function (data) {   console.log(data);   RiotControl.trigger('workspace_current_add_component_cancel');
       //
       // }.bind(this));
       RiotControl.on('technicalComponent_collection_changed', this.updateData);
-       RiotControl.on('add_component_button_select', this.addComponent)
+      RiotControl.on('add_component_button_select', this.addComponent)
       RiotControl.on('componentsCategoriesTree_changed', this.updateComponentsCategoriesTree);
       RiotControl.trigger('componentsCategoriesTree_refresh');
       RiotControl.trigger('technicalComponent_collection_load');
@@ -168,17 +157,12 @@
       background-color: orange !important;
       color: white;
     }
-//TODO migrate ti zentable tag
-  .zentableScrollable {
+    //TODO migrate ti zentable tag
+    .zentableScrollable {
       padding: 10pt;
-      align-items:stretch;
+      align-items: stretch;
       background-color: rgb(240,240,240);
-      overflow:scroll
+      overflow: scroll;
     }
-
-
-
-
-
   </style>
 </technical-component-table>

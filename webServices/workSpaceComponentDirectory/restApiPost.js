@@ -1,9 +1,9 @@
 "use strict";
 module.exports = new function() {
-    this.type = 'REST API POST';
-    this.description = 'exposition du flux de donnée sur une API http uniquement en POST';
+    this.type = 'Post provider';
+    this.description = `Déclencher un flux de donnée sur une API http POST.`;
     this.editor = 'rest-api-post-editor';
-    this.graphIcon = 'apiPostInput.png';
+    this.graphIcon = 'Post_provider.png';
     this.tags = [
       'http://semantic-bus.org/data/tags/inComponents',
       'http://semantic-bus.org/data/tags/APIComponents'

@@ -1,15 +1,21 @@
 <rest-api-get-editor>
-  <div>description de l'api</div>
-  <label>key</label>
-  <input type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.url}></input>
-  <label>url</label>
-  <a ref="link" href={'http://semantic-bus.org/data/api/' +data.specificData.url}>{'http://semantic-bus.org/data/api/'+data.specificData.url}</a>
-  <label>content-type</label>
-  <input type="text" name="contentTypeInput" ref="contentTypeInput" onChange={contentTypeInputChanged} value={data.specificData.contentType}></input>
-  <!--<label>Sortie en xls (Boolean)</label>
-  <input type="text" name="xlsInput" ref="xlsInput"value={data.specificData.xls}></input>-->
-  <script>
+  <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-HTTP-input-provideur" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </div>
+<!-- Titre du composant -->
+  <div class="contenaireV title-component">HTTP input provideur</div>
+<!-- Description du composant -->
+  <div>Exposition du flux de donnée sur une API HTTP uniquement en GET.</div>
+<!-- Champ du composant -->
+  <label>Clé de l'API:</label>
+  <input placeholder=""type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.url}></input>
+  <label>URL de l'API:</label>
+  <a ref="link" target="_blank" href={'http://semantic-bus.org/data/api/' +data.specificData.url}>{'http://semantic-bus.org/data/api/'+data.specificData.url}</a>
+  <label>Content-type:</label>
+  <input placeholder="application/json" type="text" name="contentTypeInput" ref="contentTypeInput" onChange={contentTypeInputChanged} value={data.specificData.contentType}></input>
 
+  <script>
     this.data = {};
     this.test = function () {
       consol.log('test');
@@ -41,20 +47,20 @@
       RiotControl.off('item_current_changed', this.updateData);
     });
   </script>
-  <style>
-  a{
+<style>
+  a {
     color: blue;
   }
-  a:active{
-    color: blue;
-  }
-
-  a:visited{
+  a:active {
     color: blue;
   }
 
-  a:hover{
+  a:visited {
     color: blue;
   }
-  </style>
+
+  a:hover {
+    color: blue;
+  }
+</style>
 </rest-api-get-editor>

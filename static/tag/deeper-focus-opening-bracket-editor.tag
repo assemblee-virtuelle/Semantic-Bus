@@ -1,20 +1,26 @@
 <deeper-focus-opening-bracket-editor>
+  <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Deeper-focus" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </div>
+  <!-- Titre du composant -->
+  <div class="contenaireV title-component">Deeper focus
+  </div>
+  <!-- Champ du composant -->
+  <div>Début de traitement d'un niveau de profondeur du flux.</div>
 
-  <label>chemin à inspecter pour les traitements qui suivent (vide=racine)</label>
-  <input type="text" name="dfobPathInput" ref="dfobPathInput" value={data.specificData.dfobPath} onchange={dfobPathChange}></input>
-  <label>nombre de traitements parallèls</label>
-  <input type="text" name="pipeNbInput" ref="pipeNbInput" value={data.specificData.pipeNb} onchange={pipeNbChange}></input>
+  <label>Chemin à inspecter pour les traitements qui suivent:</label>
+  <input placeholder="vide=racine" type="text" name="dfobPathInput" ref="dfobPathInput" value={data.specificData.dfobPath} onchange={dfobPathChange}></input>
+  <label>Nombre de traitements parallèles:</label>
+  <input placeholder="" type="text" name="pipeNbInput" ref="pipeNbInput" value={data.specificData.pipeNb} onchange={pipeNbChange}></input>
 
-
-    <label >
-      le chemin designe une structure de tableau à conserver en tableau (décomposé en objet par défaut)
+  <div class="containerH" style="align-items:center;">
+    <label>Le chemin désigne une structure de tableau à conserver en tableau (décomposé en objet par défaut):</label>
+    <label class="switch" style="margin-left:10px;">
+      <input type="checkbox" onchange={keepArrayChange} checked={data.specificData.keepArray}>
+      <span class="slider round"></span>
     </label>
-    <div class="containerH">
-      <label class="switch">
-        <input type="checkbox" onchange={keepArrayChange} checked={data.specificData.keepArray}>
-        <span class="slider round"></span>
-      </label>
-    </div>
+  </div>
 
   <script>
 
@@ -27,7 +33,7 @@
       this.data.specificData.pipeNbChange = e.target.value;
     }.bind(this);
     this.keepArrayChange = function (e) {
-      console.log(e.target,e.target.checked);
+      console.log(e.target, e.target.checked);
       this.data.specificData.keepArray = e.target.checked;
     }.bind(this);
 

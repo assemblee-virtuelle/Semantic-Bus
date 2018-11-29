@@ -1,77 +1,106 @@
-a{
-  text-decoration: none;
-  color: white;
-}
-a:active{
+a {
   text-decoration: none;
   color: white;
 }
 
-a:visited{
+a:active {
   text-decoration: none;
   color: white;
 }
 
-a:hover{
+a:visited {
   text-decoration: none;
   color: white;
 }
 
-body{
-  font-size: 1.2em;
+a:hover {
+  text-decoration: none;
+  color: white;
 }
 
+body {
+  /*font-size: 1.2em;*/
+}
 
-.commandBar{
-  justify-content: space-between;
-  padding: 2px;
-  flex-shrink:0;
+/* header table*/
+.table-title {
+  color: white;
+  flex-shrink: 0;
+  background-color: rgb(26, 145, 194);
+}
+
+.header-login {
+  height: 80px;
+  font-family: Arial, Helvetica, "Liberation Sans", sans-serif;
+  align-items: center;
 }
 
 .header {
-/*height: 90pt;*/
-/* text-align: center; */
-/*display: flex;*/
-/*flex-direction:column;*/
-/*justify-content: center;*/
-background: linear-gradient(90deg, rgb(33,150,243) 20% ,rgb(41,181,237));
-color:white
+  background: rgb(26, 145, 194);
+  height: 80px;
+  color: white;
+  font-family: Arial, Helvetica, "Liberation Sans", sans-serif;
+  align-items: center;
 }
 
+/*titres d'en-tete*/
 .main-title {
-  font-size:25pt
+  font-size: 35px;
+  color: white;
+  font-family: 'Open Sans', sans-serif;
 }
 
-
-/*.headerComponent {height: 15%;
-   text-align: center; 
-  display: flex;
-  flex-direction:column;
+.title-header {
   justify-content: center;
-  background-color: rgb(33,150,243);
-  color:white
-}*/
+  text-align: center;
+  padding-top: 5px;
+  font-family: 'Open Sans', sans-serif;
+  color: white;
+  font-size: 10px;
+  width: 120px;
+}
 
+/*titre composant*/
+.title-component {
+  font-size: 20px;
+  /*font-family: 'Open Sans', sans-serif;*/
+  margin-bottom: 5px;
+  border-top: 0px;
+  border-left: 0px;
+  border-right: 0px;
+  border-bottom: 2px rgb(213, 218, 224) solid;
+
+}
+
+/*menu selectionné*/
 .tagSelected {
-  border: 3px solid rgb(9,245,185)!important;
-  background-color: rgb(9,245,185);
-  color:white;
+  border: 3px solid rgb(124, 195, 232) !important;
+  background-color: rgb(124, 195, 232);
+  color: white;
 }
 
+/*Menu selectionné*/
 .selected {
-  cursor:pointer;
-  border: 3px solid rgb(33,150,243)!important;
+  cursor: pointer;
+  border: 3px solid rgb(33, 150, 243) !important;
 }
 
-.zentableWorkspace{
-  padding: 10pt;
-  align-items:stretch;
-  background-color: rgb(240,240,240)
+/*triangle Up*/
+.arrow-up {
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid rgb(238, 242, 249);
 }
 
-.zentableUser{
-  padding: 10pt;
-  align-items:stretch;
+/*triangle left*/
+.arrow-left {
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-right: 10px solid rgb(238, 242, 249);
 }
 
 .buttonBus {
@@ -88,71 +117,88 @@ color:white
 
 .buttonBus:target {
   margin-left: -1px;
-  height: 38px;
+  height: 38pt;
   padding-left: 19pt;
   border-radius: 15pt;
   border: 3px solid white;
   color: white;
   padding-right: 19pt;
   cursor: pointer;
-  opacity:0.3
+  opacity: 0.3
 }
 
-.commandGroup{
+/*.commandGroup {
   padding: 0px;
-}
-.commandButton{
+  justify-content: center;
+}*/
+/*Bouton*/
+.commandButton {
   margin-left: 5pt;
-  padding-left:10px;
-  padding-right:10px;
-  padding-top:2px;
-  padding-bottom:2px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 2px;
+  padding-bottom: 2px;
   cursor: pointer;
-  align-self: flex-end;
-  border: 3px solid rgb(240,240,240);
-  color: rgb(210,210,210);
+  align-self: center;
+  border: 3px solid rgb(213, 218, 224);
+  color: grey;
   border-radius: 20px;
 }
 
-.commandButton:hover{
-  /*color:#1a1a1a;*/
-  border: 3px solid rgb(9,245,185)!important;
-  background-color: rgb(9,245,185);
-  color:white;
+.commandButton:hover {
+  border: 3px solid rgb(41, 177, 238) !important;
+  background-color: rgb(41, 177, 238);
+  color: white;
 }
 
-.commandButtonImage{
-  cursor: pointer;
-  /* align-self: flex-end; */
-  justify-content: center;
-  align-items: center;
-  /*display: flex;
-  flex: 0.05;
-  opacity: 1;*/
-}
-.commandButtonImage:focus{
-  outline:none!important;
-  /*opacity: 0.3;*/
-}
-
-
-.commandButtonImage:hover{
-
-}
-
-.selector{
+.selector {
   border-style: none;
   cursor: pointer;
-  margin:5px;
-  padding-left:10px;
-  padding-right:10px;
-  padding-top:2px;
-  padding-bottom:2px;
+  margin: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 2px;
+  padding-bottom: 2px;
   background-color: #cce2ff;
 }
 
-.mainSelector{
+.mainSelector {
   font-size: 30px;
   text-align: center;
+  border-radius: 10px;
   /*flex-basis:35px;*/
+}
+
+/*Nom des champs*/
+label {
+  margin-top: 10px;
+  margin-bottom: 5px;
+  color: rgb(120, 120, 120);
+}
+
+/*lien ext.*/
+.url {
+  color: rgb(37, 167, 239);
+  cursor: pointer;
+}
+
+.url:hover {
+  color: #3594D2;
+}
+
+/*Bouton formulaire*/
+.btn {
+  cursor: pointer;
+}
+
+.box {
+  width: 90%;
+  flex-wrap: wrap;
+  background-color: white;
+  padding: 2%;
+  border-radius: 5px;
+  justify-content: center;
+  flex-grow: 0.5;
+  border: 1px solid rgba(133, 133, 133, 0.38);
+  box-shadow: 0 0 5px 0 rgba(133, 133, 133, 0.38);
 }

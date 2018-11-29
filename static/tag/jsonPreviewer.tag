@@ -1,43 +1,42 @@
-<jsonPreviewer class="containerV">
-  <div class="containerV" style="flex-grow:1;flex-shrink:0">
-    <div class="containerH info" style="flex-grow:1">
-      <div class="containerV">
-        <label>Nom du composant</label>
-        <input type="text" readonly="true" value={data.componentName}></input>
-      </div>
-      <div class="containerV">
-        <label>Date debut</label>
-        <input type="text" readonly="true" value={new Date(data.startTime).toLocaleDateString()}></input>
-      </div>
-      <div class="containerV">
-        <label>Heure debut</label>
-        <input type="text" readonly="true" value={new Date(data.startTime).toLocaleTimeString()}></input>
-      </div>
-      <div class="containerV">
-        <label>Module</label>
-        <input type="text" readonly="true" value={data.componentModule}></input>
-      </div>
+<jsonpreviewer class="containerV">
+  <div class="containerH info">
+    <div class="containerV">
+      <label>Nom du composant:</label>
+      <input type="text" readonly="true" value={data.componentName}></input>
     </div>
-    <div class="containerH info" style="flex-grow:1">
-      <div class="containerV">
-        <label>Duree (ms)</label>
-        <input type="text" readonly="true" value={(new Date(data.timeStamp)-new Date(data.startTime))}></input>
-      </div>
-      <div class="containerV">
-        <label>Nombre de record</label>
-        <input type="text" readonly="true" value={data.recordCount}></input>
-      </div>
-      <div class="containerV">
-        <label>Nombre d'octet</label>
-        <input type="text" readonly="true" value={data.moCount*1000}></input>
-      </div>
-      <div class="containerV">
-        <label>Prix en credit</label>
-        <input type="text" readonly="true" value={data.totalPrice*1000}></input>
-      </div>
+    <div class="containerV">
+      <label>Date debut:</label>
+      <input type="text" readonly="true" value={new Date(data.startTime).toLocaleDateString()}></input>
+    </div>
+    <div class="containerV">
+      <label>Heure debut:</label>
+      <input type="text" readonly="true" value={new Date(data.startTime).toLocaleTimeString()}></input>
+    </div>
+    <div class="containerV">
+      <label>Module:</label>
+      <input type="text" readonly="true" value={data.componentModule}></input>
     </div>
   </div>
-  <jsonFragViewer show={data.persistProcess||data.error} ref="jsonFragViewer" style="flex-grow:100;"></jsonFragViewer>
+  <div class="containerH info">
+    <div class="containerV">
+      <label>Duree (ms):</label>
+      <input type="text" readonly="true" value={(new Date(data.timeStamp)-new Date(data.startTime))}></input>
+    </div>
+    <div class="containerV">
+      <label>Nombre de record:</label>
+      <input type="text" readonly="true" value={data.recordCount}></input>
+    </div>
+    <div class="containerV">
+      <label>Nombre d'octet:</label>
+      <input type="text" readonly="true" value={data.moCount*1000}></input>
+    </div>
+    <div class="containerV">
+      <label>Prix en credit:</label>
+      <input type="text" readonly="true" value={data.totalPrice*1000}></input>
+    </div>
+  </div>
+    <jsonfragviewer show={data.persistProcess||data.error} ref="jsonFragViewer" style="flex-grow:100;"></jsonfragviewer>
+
   <script>
     this.data = {};
     this.updateData = function (data) {
@@ -91,6 +90,7 @@
     .info > div {
       padding: 5px;
       border-style: solid;
+      border-color: rgb(213, 218, 224);
       border-width: 1px;
       flex-grow: 1;
     }
@@ -102,6 +102,5 @@
     label {
       text-align: center;
     }
-
   </style>
-</jsonPreviewer>
+</jsonpreviewer>

@@ -1,24 +1,31 @@
 <join-by-field-editor>
-  <div>jointure entre un flux principale et un flux secondaire</div>
-  <label>composant qui contient le flux principale</label>
+  <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Join" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </div>
+  <!-- Titre du composant -->
+  <div class="contenaireV title-component">Join</div>
+  <!-- Champ du composant -->
+  <div>Jointure entre un flux principale et un flux secondaire.</div>
+  <label>Composant qui contient le flux principale:</label>
   <select name="primaryComponentIdInput" ref="primaryComponentIdInput">
-    <option value="undefined">non défini</option>
+    <option value="undefined">non-défini</option>
     <option each={option in linkedComponents.beforeComponents} value={option._id} selected={parent.innerData.specificData.primaryComponentId ==option._id}>{option.type} : {option.name}</option>
   </select>
-  <label>champ du composant principale qui contient l'identifiant du flux secondaire</label>
+  <label>Champ du composant principale qui contient l'identifiant du flux secondaire:</label>
   <input type="text" name="primaryFlowFKIdInput" value={innerData.specificData.primaryFlowFKId} ref="primaryFlowFKIdInput"></input>
-  <label>composant qui contient le flux secondaire</label>
+  <label>Composant qui contient le flux secondaire:</label>
   <select name="secondaryComponentIdInput" ref="secondaryComponentIdInput">
-    <option value="undefined">non défini</option>
+    <option value="undefined">non-défini</option>
     <option each={option in linkedComponents.beforeComponents} value={option._id} selected={parent.innerData.specificData.secondaryComponentId ==option._id}>{option.type} : {option.name}</option>
   </select>
-  <label>champ du composant secondaire qui défini son identifiant</label>
+  <label>Champ du composant secondaire qui défini son identifiant:</label>
   <input type="text" name="secondaryFlowIdInput" ref="secondaryFlowIdInput" value={innerData.specificData.secondaryFlowId}></input>
-  <label>nom de la propriété accueillant le flux secondaire</label>
+  <label>Nom de la propriété accueillant le flux secondaire:</label>
   <input type="text" name="primaryFlowFKNameInput" ref="primaryFlowFKNameInput" value={innerData.specificData.primaryFlowFKName}></input>
-  <label>relation multiple</label>
-  <div class="containerH">
-    <label class="switch">
+  <div class="containerH" style="align-items:center;">
+    <label>Relation multiple:</label>
+    <label class="switch" style="margin-left:10px;">
       <input type="checkbox" onchange={onMultipleJoinChange} checked={innerData.specificData.multipleJoin}>
       <span class="slider round"></span>
     </label>
@@ -39,11 +46,11 @@
 
     this.updateConnections = function (connections) {
 
-      if(this.innerData.specificData.primaryComponentId==undefined){
-        this.innerData.specificData.primaryComponentId=connections.beforeComponents[0]._id;
+      if (this.innerData.specificData.primaryComponentId == undefined) {
+        this.innerData.specificData.primaryComponentId = connections.beforeComponents[0]._id;
       }
-      if(this.innerData.specificData.secondaryComponentId==undefined){
-        this.innerData.specificData.secondaryComponentId=connections.beforeComponents[0]._id;
+      if (this.innerData.specificData.secondaryComponentId == undefined) {
+        this.innerData.specificData.secondaryComponentId = connections.beforeComponents[0]._id;
       }
       this.linkedComponents = connections;
       this.update();
@@ -86,7 +93,7 @@
 
     });
     this.on('unmount', function () {
-      RiotControl.off('item_current_changed',this.updateData);
+      RiotControl.off('item_current_changed', this.updateData);
       RiotControl.off('component_current_connections_changed', this.updateConnections);
     });
   </script>

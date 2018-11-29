@@ -1,9 +1,9 @@
 "use strict";
 module.exports = {
-  type: 'adresse.data.gouv.fr geolocaliser',
-  description: 'interroger l api adresse.data.gouv pour transo une adresse en latitude et longitude',
+  type: 'data.gouv geocoding',
+  description: 'Interroger l\'API adresse.data.gouv.fr pour trouver une adresse avec la latitude et la longitude.',
   editor: 'data-gouv-geolocaliser-editor',
-  graphIcon: 'dataGouvFrGeolocaliser.png',
+  graphIcon: 'Data_gouv_geocoding.png',
   tags:[
     'http://semantic-bus.org/data/tags/middleComponents',
     'http://semantic-bus.org/data/tags/middleGeocodeComponents'

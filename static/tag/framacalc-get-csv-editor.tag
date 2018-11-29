@@ -1,9 +1,18 @@
 <framacalc-get-csv-editor>
-  <div>information de connexion à framacalc</div>
-  <label>key</label>
-  <input type="text" name="keyInput" ref="keyInput" value={data.specificData.key}></input>
-  <label>offset</label>
-  <input type="text" name="offsetInput" ref="offsetInput"  value={data.specificData.offset}></input>
+  <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Framacalc" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </div>
+  <!-- Titre du composant -->
+  <div class="contenaireV title-component">Framacalc</div>
+  <!-- Description du composant -->
+  <div>Interroger une feuille de calcule Framacalc qui fournit un flux CSV.</div>
+  <!-- Champ du composant -->
+  <div>Information de connexion à Framacalc.</div>
+  <label>Clé:</label>
+  <input placeholder=""type="text" name="keyInput" ref="keyInput" value={data.specificData.key}></input>
+  <label>Commencer à partir de la ligne (offset):</label>
+  <input placeholder=""type="text" name="offsetInput" ref="offsetInput"  value={data.specificData.offset}></input>
   <script>
 
     this.innerData={};

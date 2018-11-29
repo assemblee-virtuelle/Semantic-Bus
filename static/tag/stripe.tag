@@ -12,7 +12,7 @@
         font-size: 40px;
         text-align:center;
         color:rgb(100,100,100);"/>
-            <div style="justify-content:center;align-items:center;display:flex">
+            <div style="justify-content:center;align-items:center;">
             <h4 style="margin-left:30px;text-align: center;font-family: 'Open Sans', sans-serif;color: rgb(130,130,130);">
                     = {this.precisionRound((euros*1000),1)} crédits + {this.precisionRound((euros * 1000 * 0.2), 1)}  offert pendant la Beta Test
             </h4>
@@ -40,7 +40,7 @@
                 <h3 style="text-align: center;font-family: 'Open Sans', sans-serif;color: rgb(130,130,130);">
                     Offre de 20% de crédit pendant la beta Test
                 </h3>
-                
+
         </div>
     </div>
     <div class="containerV"style="justify-content:center;" if={(payment_error == true) && (payment_done == false)}>
@@ -51,12 +51,12 @@
         <h3 style="text-align: center;font-family: 'Open Sans', sans-serif;color: rgb(130,130,130);">
             Payement réalisé avec succés vous beneficier de {credits} credits
         </h3>
-        <image class="" src="./image/checked.png" width="50" height="50" ></image>  
+        <image class="" src="./image/checked.png" width="50" height="50" ></image>
     </div>
 
     <script>
         var stripe = Stripe(localStorage.stripe_public_key);
-       
+
 
         plusClick(e){
             this.euros += 0.10
@@ -99,7 +99,7 @@
             this.error = "Votre compte n'est pas validé, veuillez le valider avant de recharger vos credits"
             this.update()
         }.bind(this))
-         
+
         changeValue(e){
             if(parseInt(e.currentTarget.value) && parseInt(e.currentTarget.value) > 0.50){
                 console.log("in if", e.currentTarget.value)
@@ -107,16 +107,16 @@
                  this.update()
             }else{
                 console.log("in else", e.currentTarget.value)
-                this.euros = 0.50   
+                this.euros = 0.50
                  this.update()
             }
-        }.bind(this) 
+        }.bind(this)
         this.payment_error = false
         this.payment_done = false
 
 
-        this.on('mount', function () {     
-  
+        this.on('mount', function () {
+
             this.euros = 0.50
             var elements = stripe.elements();
             var style = {
@@ -203,7 +203,7 @@
 </stripe-tag>
 
 
-<!--  
+<!--
  stripe.createToken(card).then(function(result) {
     console.log(result)
     if (result.error) {

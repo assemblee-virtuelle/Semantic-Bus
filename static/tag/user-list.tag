@@ -1,17 +1,30 @@
-<user-list class="containerV">
+<user-list class="containerV" style="flex-grow:1;">
 
-  <div class="containerV" style="height: 85%;background-color:rgb(238,242,249);justify-content: center;
-    align-items: center;">
-    <input id="users-list" class="awesomplete champ" placeholder="entrez un email..." value="{email}">
-    <!--<a class="share-btn" onclick={share}>Partager</a>-->
-    <p class="text-user-list">{resultShare}</p>
-    <p class="text-user-list">Saisissez une adresse e-mail pour partager votre Workspace</p>
+  <!-- partager votre WorkFlow à un utilisateur -->
+  <div class="containerV box-flex">
+      <label>Saisissez une adresse e-mail pour partager votre Workflow:</label>
+      <input id="users-list" style="width: 98%"placeholder="Entrez une adresse email..." value="{email}">
+      <div style="color:red">{resultShare}</div>
   </div>
+  <!-- Bouton valider -->
+  <div class="containerH" style="flex-basis:45px;justify-content: center;align-items: flex-start; flex-shrink:0;flex-grow:0;">
+    <div onclick={shareClick} class="commandButtonImage">
+      <img src="./image/check.png" title="Valider le partage" height="35px" width="35px">
+    </div>
+  </div>
+
   <script>
     this.resultShare = ""
     this.actionReady = false;
     this.email = "";
+    this.data = {};
 
+    this.shareClick = function (e) {
+      console.log("user component share", this.workspace)
+      //if (this.workspace) {
+      RiotControl.trigger('share-workspace');
+      //};
+    }
     // this.share = function(){     console.log("user component share",this.workspace)     if (this.workspace) {       RiotControl.trigger('share-workspace', {         email: this.email,         worksapce_id: this.workspace._id       });     };
     // }.bind(this) cancelClick(e) {   RiotControl.trigger('workspace_current_add_user_cancel');   this.actionReady=false; }
 
@@ -22,7 +35,7 @@
       input.addEventListener('awesomplete-selectcomplete', function (evt) {
         this.actionReady = true;
         this.email = evt.target.value;
-        RiotControl.trigger('set-email-to-share',this.email)
+        RiotControl.trigger('set-email-to-share', this.email)
         this.update();
       }.bind(this));
     }.bind(this);
@@ -31,11 +44,11 @@
       this.workspace = data
     }.bind(this);
 
-    this.shareChanged =function(data){
+    this.shareChanged = function (data) {
       console.log("share change")
       this.resultShare = "Votre workspace a été partagé";
       this.update();
-    
+
       //data = null;
 
     }.bind(this);
@@ -71,7 +84,7 @@
       RiotControl.off('share_change', this.shareChanged);
     })
   </script>
-  <style scoped>
+  <style scoped="scoped">
 
     .share-btn {
       color: white;
@@ -84,9 +97,9 @@
       margin-top: 10vh;
       margin-left: 39%;
     }
+    /*couleur du text partager workflow
     .text-user-list {
-      margin-top: 20vh;
-      color: rgb(200,200,200);
+      color: grey;
     }
     .flex-container {
       display: flex;
@@ -98,7 +111,7 @@
       width: 100%;
       background-color: #3883fa;
       color: white;
-      padding: 5vh;
+      padding: 5vh;*/
     }
     .ui-menu .ui-menu-item a {
       color: rgb(238,242,249);
@@ -116,8 +129,8 @@
     }
 
     .awesomplete > ul {
-      border-radius: 0.3em;
-      background: white!important;
+      /*border-radius: 0.3em;*/
+      background: rgb(238,242,249)!important;
       border: none!important;
       box-shadow: none!important;
       text-shadow: none;
@@ -138,7 +151,7 @@
       position: absolute;
       left: 0;
       z-index: 1;
-      min-width: 100%;
+      /*min-width: 100%;*/
       box-sizing: border-box;
       list-style: none;
       padding: 0;
@@ -147,8 +160,16 @@
     }
 
     .awesomplete {
-      display: inline!important;
+      /*display: inline!important;
       position: relative;
+      background-color: #ffffff;
+      background-image: linear-gradient(#fff, #f2f3f5);
+      border-radius: 35px;
+      border-width: 1px;
+      border-style: solid;
+      border-color: rgb(213,218,224);
+      width: 400px;
+      height: 35px;*/
     }
 
     .notSynchronized {
@@ -165,6 +186,5 @@
       padding-right: 19pt;
       opacity: 0.3;
     }
-
   </style>
 </user-list>

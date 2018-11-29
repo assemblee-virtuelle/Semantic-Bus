@@ -1,44 +1,38 @@
-<value-mapping-editor class="containerV">
-  <div>mapping de valeur</div>
-  <div class="commandBar containerH" style="justify-content:flex-end">
-    <!--<div class="containerH">
-      <div>
-        <label>
-          valeur du flux
-        </label>
-        <input if="fieldEditing" type="text" value={flowValue} onkeyup={flowValueChange}>
-      </div>
-      <div>
-        <label>
-          valeur de remplacement
-        </label>
-        <input if="fieldEditing" type="text" value={replacementdValue} onkeyup={replacementValueChange}>
-      </div>
-    </div>-->
-
-    <image class="commandButtonImage" src="./image/ajout_composant.svg" width="50" height="50" onclick={addRowClick}></image>
-
+<value-mapping-editor>
+  <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Value-mapping" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
 
-  <zenTable ref="mappingTable" style="flex:1" drag={true} title="vos changement de valeurs" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
+  <!-- Titre du composant -->
+  <div class="contenaireV title-component">Value mapping</div>
+  <!-- Description du composant -->
+  <div>Remplacer les valeurs d'une propriété par une autre.</div>
+  <!-- Champ du composant -->
+  <div class="containerH table-title" style="margin-top: 5px;align-items: center;justify-content:flex-end;">
+    <div>Ajouter une valeur</div>
+    <image class="commandButtonImage" placeholder="Nouvelle valeur" src="./image/ajout_composant.svg" width="30" height="30" onclick={addRowClick}></image>
+  </div>
+  <zentable ref="mappingTable" style="flex:1" drag={true} title="vos changement de valeurs" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
     <yield to="header">
-      <div style="width:50%">flux</div>
-      <div style="width:20px"></div>
-      <div style="width:50%">remplacement</div>
+      <div class="table-title"style="padding-left: 70px;width:50%;">Valeur d'entrée</div>
+      <div class="table-title"style="width:50%;">Valeur de sortie</div>
     </yield>
     <yield to="row">
-      <input type="text" style="width:50%" value={flowValue} data-field="flowValue"/>
-      <div style="width:20px;height:15px;"> -> </div>
-      <input type="text" style="width:50%" value={replacementValue} data-field="replacementValue"/>
+      <input style="width:50%" placeholder="Valeur initial" type="text" value={flowValue} data-field="flowValue"/>
+      <div style="width:50px;height:15px;">
+        --->
+      </div>
+      <input style="width:50%" placeholder="Remplacer par..." type="text" value={replacementValue} data-field="replacementValue"/>
     </yield>
-  </zenTable>
+  </zentable>
 
   <script>
     this.data = {};
 
     this.updateData = function (dataToUpdate) {
       this.data = dataToUpdate;
-      this.refs.mappingTable.data = this.data.specificData.mappingTable|| [];
+      this.refs.mappingTable.data = this.data.specificData.mappingTable || [];
       this.update();
     }.bind(this);
 
@@ -47,10 +41,10 @@
     }
 
     this.on('mount', function () {
-      this.refs.mappingTable.on('dataChanged',data=>{
-        this.data.specificData.mappingTable=data;
+      this.refs.mappingTable.on('dataChanged', data => {
+        this.data.specificData.mappingTable = data;
       })
-      this.refs.mappingTable.on('delRow', row=>{
+      this.refs.mappingTable.on('delRow', row => {
         console.log(row);
         this.refs.mappingTable.data.splice(row.rowId, 1);
       });
@@ -61,5 +55,5 @@
       RiotControl.off('item_current_changed', this.updateData);
     });
   </script>
-  <style scoped></style>
+  <style scoped="scoped"></style>
 </value-mapping-editor>

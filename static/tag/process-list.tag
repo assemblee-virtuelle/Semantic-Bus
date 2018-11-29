@@ -1,15 +1,15 @@
-<process-list class="containerV">
+<process-list class="containerV" style="padding:20px">
 
   <zenTable drag={false} disallownavigation={true} disallowdelete={true}  ref="processZenTable">
     <yield to="header">
-      <div style="width:200px">date</div>
-      <div style="width:200px">heure</div>
-      <div style="width:100%">etat</div>
+      <div class="table-title"style="margin-left: 50px;width: 100px;flex-grow:1">Date</div>
+      <div class="table-title"style="width: 100px;flex-grow:2">Heure</div>
+      <div class="table-title"style="margin-right: 60px;width: 500px;flex-grow:3">Etat</div>
     </yield>
     <yield to="row">
-      <div style="width:200px" >{new Date(timeStamp).toLocaleDateString()}</div>
-      <div style="width:200px" >{new Date(timeStamp).toLocaleTimeString()}</div>
-      <div style="width:100%">
+      <div style="width: 100px;flex-grow:1" >{new Date(timeStamp).toLocaleDateString()}</div>
+      <div style="width: 100px;flex-grow:2" >{new Date(timeStamp).toLocaleTimeString()}</div>
+      <div style="width: 500px;flex-grow:3">
         <progress max={steps.length}  value={stepFinished} class={status}></progress>
       </div>
     </yield>

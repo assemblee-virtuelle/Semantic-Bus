@@ -1,26 +1,29 @@
 # Semantic-Bus
-semantic data transformation &amp; semantic container crawling
 
-## features
+Semantic data transformation & semantic container crawling
+
+
+## Features
+
 - Ready for 100 MO / 100000 Item per process
-- Multiple source protocole
-- Multiple destination protocole
+- Multiple source protocol
+- Multiple destination protocol
 - Rich API creation
 - Data transformation without coding
 - Value correspondence (translation between taxonomy)
 - Join data by field
-- Data agregation from multiple source
-- Complex unicity
+- Data aggregation from multiple source
+- Complex uniqueness
 - Geo data completion from address
 - Middle cache database for performance
-- Srapping & crawling
+- Scrapping & crawling
 - Filter
-- Workfow sharing & multi User Edition
+- Workflow sharing & multi User Edition
 - API parameters usable in workflow components
 
 
-
 ## Road map
+
 - Data completion from linked field (semantic web)
 - Automatic Ontology transformation (semantic web)
 - OAuth Support throw API
@@ -31,38 +34,57 @@ semantic data transformation &amp; semantic container crawling
 - R Component
 - Workflow sharing by Google Drive
 
-## install
+
+## Install
 
 - `ssh-keygen -t rsa`
-- ajouter la clef publique généré (.ssh/id_rsa.pub) dans l'admin de github
+- Add the generated public key (`.ssh/id_rsa.pub`) in Github admin
 
-### GIT
-#### option 1
+See https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/
 
-- `git clone --recursive git@github.com:assemblee-virtuelle/Semantic-Bus.git`
 
-#### option 2
+### Git
 
-- `git clone git@github.com:assemblee-virtuelle/Semantic-Bus.git`
-- `git submodule init`
-- `git submodule update`
+#### Option 1
+
+```bash
+git clone --recursive git@github.com:assemblee-virtuelle/Semantic-Bus.git
+```
+
+
+#### Option 2
+
+```bash
+git clone git@github.com:assemblee-virtuelle/Semantic-Bus.git
+git submodule init
+git submodule update
+```
+
 
 ### nvm & npm
 
-- `sudo apt-get install g++ build-essential`
-- `curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash`
-- redemarer console
-- `nvm install 7.10`
-- `npm install`
+```bash
+sudo apt-get install g++ build-essential
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
 
-### launhing
-#### one time
-- `npm run amqpPull`
-#### each reboot
-- `npm run amqpRun`
-- `npm run mongoRun`
-- if amqp or mongo ever run, you can reboot them
-- `npm run amqpStop`
-- `npm run mongoStop`
-#### each time
-- `node app.js`
+# Restart console
+
+nvm install 7.10
+npm install
+```
+
+
+## Launch
+
+### Docker
+
+```bash
+docker-compose up
+```
+
+
+### Application
+
+```bash
+node app.js
+```

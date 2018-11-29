@@ -1,9 +1,9 @@
 "use strict";
 module.exports = {
-  type: 'REST Get HTPP',
-  description: 'intéroger un fichier mis à disposition sur une API REST avec une requete Get',
+  type: 'File consumer',
+  description: 'Interroger un fichier mis à disposition sur une API REST avec une requete GET.',
   editor: 'rest-get-editor',
-  graphIcon:'restGetHttp.png',
+  graphIcon:'File_consumer.png',
   tags:[
     'http://semantic-bus.org/data/tags/inComponents',
     'http://semantic-bus.org/data/tags/fileComponents'

@@ -1,9 +1,9 @@
 "use strict";
 module.exports = {
-  type: 'Property Matrix',
-  description: 'recontruire des objects à partir de plusieurs propriétés en liste',
+  type: 'Property matrix',
+  description: 'Recontruire des objects à partir de plusieurs propriétés en liste.',
   editor: 'properties-matrix-editor',
-  graphIcon: 'default.png',
+  graphIcon: 'Property_matrix.png',
   sift: require('sift'),
   transform: require('jsonpath-object-transform'),
   dotProp: require('dot-prop'),

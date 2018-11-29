@@ -1,9 +1,9 @@
 'use strict'
 module.exports = {
-  type: 'Scrapper ',
-  description: 'Scrapper page html',
+  type: 'Scrapper',
+  description: 'Scrapper une page html.',
   editor: 'scrapper-editor',
-  graphIcon: 'scrapper.png',
+  graphIcon: 'Scrapper.png',
   tags: [
     'http://semantic-bus.org/data/tags/inComponents',
     'http://semantic-bus.org/data/tags/scrapperComponents'

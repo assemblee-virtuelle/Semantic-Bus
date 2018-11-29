@@ -100,9 +100,9 @@ class UnicityExecutor {
 
 module.exports = {
   type: 'Unicity',
-  description: 'sctructurer les données en vérifiant l\'unicité par champ et répartir les valeurs par source',
+  description: 'Sctructurer les données en vérifiant l\'unicité par champ et répartir les valeurs par source.',
   editor: 'unicity-editor',
-  graphIcon: 'default.png',
+  graphIcon: 'Unicity.png',
   sift: require('sift'),
   transform: require('jsonpath-object-transform'),
   dotProp: require('dot-prop'),

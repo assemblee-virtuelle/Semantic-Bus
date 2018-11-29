@@ -287,8 +287,9 @@ module.exports = function (router,stompClient) {
     //console.log(this);
     //console.log('stompClient 1',this.stompClient);
     if (req.body.token) {
+      //console.log("isTokenValid",req.body.token);
       jwtService.require_token(req.body.token).then(function (token_result) {
-        //console.log('stompClient 2',this.stompClient);
+        //console.log('isTokenValid',token_result);
         if (token_result != false) {
           user_lib.getWithWorkspace(token_result.iss).then(u=>{
             token_result.profil=u;

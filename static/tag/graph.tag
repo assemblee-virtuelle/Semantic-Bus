@@ -1,36 +1,5 @@
 <graph class="containerV">
-  <!--
-  <div class="commandBar containerH">
-    <div class="containerH commandGroup" if={selectedNodes.length>0}>
-      <div id="editButton" onclick={editClick} class="commandButton" }>
-        edit
-      </div>
-      <div id="connectBeforeButton" onclick={connectBeforeClick} class="{commandButton:true,activConnection:modeConnectBefore}">
-        connect Before
-      </div>
-      <div id="connectAfterButton" onclick={connectAfterClick} class="{commandButton:true,activConnection:modeConnectAfter}" }>
-        connect After
-      </div>
-      <div onclick={removeClick} class="commandButton" }>
-        remove
-      </div>
-      <div id="workButton" onclick={workComponentClick} class="commandButton" }>
-        run this component
-      </div>
-    </div>
-    <div class="containerH commandGroup" if={selectedLines.length>0}>
-      <div id="removeLinkButton" onclick={removeLinkClick} class="commandButton" }>
-        remove
-      </div>
-    </div>
-    <div></div>
-    <div class="containerH commandGroup">
-      <div id="addComponent" onclick={addComponentClick} class="commandButtonImage">
-        <img src="./image/Super-Mono-png/PNG/basic/blue/toggle-expand-alt.png" height="40px">
-      </div>
-    </div>
-  </div>
--->
+  <!-- page graph -->
   <div id="graphContainer" style="background-color: rgb(238,242,249); flex-grow:1;" class="containerH">
     <svg viewBox="0 0 1500 900" ref="graphSvgCanvas" style="flex-grow:1;">
       <!--width="1000" height="600"-->
@@ -65,8 +34,13 @@
       <image  x="1290" y="20" id="addComponentGraph" xlink:href="./image/fullscreen-button.svg" class="commandButtonImage" if={fullscreen == true} x="1400" y="20" width="60" height="60" onclick={graphClick}></image>
       <image  x="50" y="20" id="addComponentGraph" xlink:href="./image/fleche.svg" class="commandButtonImage" if={fullscreen == false} x="1400" y="20" width="40" height="40" onclick={back}></image>-->
     </svg>
-
   </div>
+    <!-- Bouton ajouter un composant -->
+  <div class="containerH" style="flex-basis:45px; justify-content:center;flex-shrink:0;flex-grow:0;" >
+      <div onclick={showAddComponentClick} title="Ajouter un composant" class="commandButtonImage">
+        <img src="./image/ajout_composant.svg" height="40px" width="40px">
+  </div>
+
   <!--graphContainer-->
   <script>
     this.selectedNodes = [];
@@ -77,7 +51,8 @@
     this.modeConnectBefore = false;
     this.fullscreen = true
 
-    // addComponentClick(e) {   //RiotControl.trigger('workspace_current_add_component_show', e);   route('workspace/'+this.graph.workspace._id+'/addComponent'); } back(e) {   RiotControl.trigger('back'); } graphClick(e) {   //console.log('EDIT');
+
+    // addComponentClick(e) { // RiotControl.trigger('workspace_current_add_component_show', e);   route('workspace/'+this.graph.workspace._id+'/addComponent'); } back(e) {   RiotControl.trigger('back'); } graphClick(e) {   //console.log('EDIT');
     // RiotControl.trigger('workspace_current_graph');   this.update() }
 
     editClick(e) {
@@ -108,6 +83,9 @@
       RiotControl.trigger('disconnect_components', this.selectedLines[0].source.component, this.selectedLines[0].target.component);
     }
 
+    showAddComponentClick(e) {
+      route('workspace/' + this.graph.workspace._id + '/addComponent');
+    }
     //this.selectedNodes={}; source urile : https://bl.ocks.org/mbostock/1095795 Constants for the SVG var width = 1500,   height = 900; // utilisé dans le script en bas
 
     /*
@@ -566,6 +544,7 @@
       RiotControl.off('workspace_graph_selection_changed', this.drawSelected);
       RiotControl.off('workspace_graph_compute_done', this.drawGraph);
     });
+
   </script>
 
   <style scoped>

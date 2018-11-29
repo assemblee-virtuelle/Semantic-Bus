@@ -1,21 +1,29 @@
 <cache-nosql-editor>
+  <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Cache-NoSQL" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </div>
+  <!-- Titre du composant -->
+  <div class="contenaireV title-component">Cache NoSQL
+  </div>
+  <!-- Champ du composant -->
+  <fieldset id="containerJSTREE">
+    <legend>Options</legend>
+    <div>
+      <input ref="historyInput" type="checkbox" onchange={historyInputChanged} checked={data.specificData.history}>
+      <label>Historisation</label>
+    </div>
+    <div>
+      <input ref="historyOutInput" type="checkbox" onchange={historyOutInputChanged} checked={data.specificData.historyOut}>
+      <label>Sortie avec historique</label>
+    </div>
+  </fieldset>
 
-  <div>mettre en cache les data et les réintéroger</div>
-  <label>Historisation</label>
-  <input ref="historyInput" type="checkbox" onchange={historyInputChanged} checked={data.specificData.history}></input>
-  <label>Sortie avec historique</label>
-  <input ref="historyOutInput" type="checkbox" onchange={historyOutInputChanged} checked={data.specificData.historyOut}></input>
-  <!--<jsonEditor ref="cachedData" mode="view" style="flex-grow:1"></jsonEditor>-->
-  <!--<div id="containerJSTREE" ref="cachedDataView" class="containerV scrollable" style="flex-grow:1"></div>-->
-  <jsonFragViewer ref="jsonFragViewer"></jsonFragViewer>
+  <jsonfragviewer ref="jsonFragViewer"></jsonfragviewer>
+
   <script>
 
     this.data = {};
-    // this.innerData = {};
-    //
-    // Object.defineProperty(this, 'data', {   set: function (data) {     this.innerData = data;     this.update();   }.bind(this),   get: function () {     return this.innerData;   },   configurable: true }); reloadCacheClick(e) {
-    // RiotControl.trigger('item_current_reloadCache'); } getCacheClick(e) {   RiotControl.trigger('item_current_getCache'); }
-
     historyInputChanged(e) {
       console.log(e);
       if (this.data != null && this.data.specificData != null) {
@@ -36,8 +44,8 @@
 
     this.refreshFrag = function (data, nodeId) {
       this.refs.jsonFragViewer.refreshNode(data, nodeId);
-      //   console.log(data,nodeId);   let ref=$('#containerJSTREE').jstree(true)   var node = ref.get_node(nodeId);   //console.log(node);   node.data['_frag']=undefined;   var children = ref.get_node(nodeId).children;   ref.delete_node(children);   let
-      // jsTreeNodes= this.jsonToJsTree(data); //  console.log(jsTreeNodes);   jsTreeNodes[0].children.forEach(c=>{     ref.create_node(nodeId,c,'last',function(e){       console.log(e);     });   })
+      // console.log(data,nodeId);   let ref=$('#containerJSTREE').jstree(true)   var node = ref.get_node(nodeId);   console.log(node);   node.data['_frag']=undefined;   var children = ref.get_node(nodeId).children;   ref.delete_node(children);   let
+      // jsTreeNodes= this.jsonToJsTree(data);   console.log(jsTreeNodes);   jsTreeNodes[0].children.forEach(c=>{     ref.create_node(nodeId,c,'last',function(e){       console.log(e);     });   })
       //
       //   ref.open_node(nodeId); console.log($('#containerJSTREE').jstree(true).last_error());
 
@@ -47,8 +55,8 @@
       this.refs.jsonFragViewer.data = cachedData;
       // let treeData = this.jsonToJsTree(cachedData); console.log('tree DIV', treeData); $('#containerJSTREE').jstree({   'core': {     data: treeData,     themes: {       icons: false,       dots: false     },     check_callback :jsonfrageditor true   }
       // }); $('#containerJSTREE').on("before_open.jstree", (e, node) => {   console.log('OPEN',node);   if (node.node.data['_frag']!=undefined){     RiotControl.trigger("cache_frag_load",node.node.data['_frag'],node.node.id)   }
-      // //console.log(data.instance.get_selected(true)[0].text);   //console.log(data.instance.get_node(data.selected[0]).text); }); $('#containerJSTREE').jstree({   'core': {     'data': [       {         "text": "Root node",         "children": [
-      //    {             "text": "Child node 1"           }, {             "text": "Child node 2"           }         ]       } ] } });
+      // console.log(data.instance.get_selected(true)[0].text);   console.log(data.instance.get_node(data.selected[0]).text); }); $('#containerJSTREE').jstree({   'core': {     'data': [       {         "text": "Root node",         "children": [    {
+      // "text": "Child node 1"           }, {             "text": "Child node 2"           }         ]       } ] } });
       this.update();
     }.bind(this);
 
@@ -75,6 +83,5 @@
       border-style: solid;
       border-width: 1px;
     }
-
   </style>
 </cache-nosql-editor>

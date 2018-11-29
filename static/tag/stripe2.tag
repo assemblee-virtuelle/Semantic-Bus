@@ -1,10 +1,10 @@
-<stripe2-tag style="flex-grow: 1;display: flex;">
-    <div class="containerV" style="flex-grow: 1;">
+<stripe2-tag style="flex-grow: 1;">
+    <div class="containerV" style="overflow-x: hidden;flex-grow: 1;">
         <div class="containerH" style="flex-grow: 1;flex: 1; justify-content:space-around;background:rgb(238, 242, 249)"  if={(payment_error == false) && (payment_done == false)} >
-            <div class="containerV" style="justify-content:center;align-items:center;background:rgb(238, 242, 249);flex: 0.35;">
-                <span class="title-payement"> Vous disposez de : </span> 
-                <span if={profil != null} style="font-size:3em;color:rgb(14,33,89)"> {this.precisionRound((profil.credit),1)} crédits</span> 
-                <span if={profil != null} style="font-size:2em;color:rgb(141,141,141)">  {this.precisionRound((profil.credit/1000),1)} Euros </span> 
+            <div class="containerV" style="overflow-x: hidden;justify-content:center;align-items:center;background:rgb(238, 242, 249);flex: 0.35;">
+                <span class="title-payement"> Vous disposez de : </span>
+                <span if={profil != null} style="font-size:3em;color:rgb(14,33,89)"> {this.precisionRound((profil.credit),1)} crédits</span>
+                <span if={profil != null} style="font-size:2em;color:rgb(141,141,141)">  {this.precisionRound((profil.credit/1000),1)} Euros </span>
                 <a href="#profil//transaction" style=
                 "border-radius: 25px;
                 padding:1em;
@@ -14,22 +14,22 @@
                 margin-top: 20px;
                 text-align: center;"> Historique </a>
             </div>
-            <div class="containerV" style="flex: 0.003;justify-content:center;align-items:center">
+            <div class="containerV" style="overflow-x: hidden;flex: 0.003;justify-content:center;align-items:center">
                 <div class="row-vertical"></div>
             </div>
-            <div class="containerV" style="flex: 0.45;justify-content:center">
+            <div class="containerV" style="overflow-x: hidden;flex: 0.45;justify-content:center">
                 <div class="stripeContainer">
                     <div class="stripeSubContainer" style="flex-grow: 1;padding: 2em;">
                         <h3 class="title-payement" style="text-align: left;font-family: 'Open Sans', sans-serif;">Recharger vos crédits </h3>
-                        
-                        <div class="containerH" style="justify-content:flex-start;"> 
-                            <div class="containerV" style="align-items: center;margin-top: 0.6em;">
+
+                        <div class="containerH" style="justify-content:flex-start;">
+                            <div class="containerV" style="overflow-x: hidden;align-items: center;margin-top: 0.6em;">
                                 <input type='button' value='+'  style="background:white" onclick={plusClick}/>
                                 <input type='button' value='-'  style="background:white" onclick={moinsClick}/>
                             </div>
                             <div class="first-infos-payement-block" style="width: 20%">
                                 <span class="sub-title-payement">Euros €</span>
-                                <input onkeypress='return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 8' 
+                                <input onkeypress='return event.charCode >= 48 && event.charCode <= 57 || event.charCode == 8'
                                 onChange={changeValue} value={precisionRound(euros,1)}
                                 class="field"
                                 />
@@ -47,7 +47,7 @@
                                 <input readonly="readonly" value={this.precisionRound((euros * 1000 * 0.2), 1)} class="field"/>
                             </div>
                         </div>
-                        <div class="containerV" style="justify-content:flex-start;">
+                        <div class="containerV" style="overflow-x: hidden;justify-content:flex-start;">
                             <h3 class="title-payement" style="text-align: left;font-family: 'Open Sans', sans-serif;"> Informations de paiement </h3>
                             <div class="first-infos-payement">
                                 <form>
@@ -55,7 +55,7 @@
                                         <div class="first-infos-payement-block"
                                                 style="width:87%">
                                             <span class="sub-title-payement">Nom du proprietaire</span>
-                                            <input 
+                                            <input
                                                     id="card-proprietaire"
                                                     placeholder="Emma Berger"
                                                     class="field empty first-width"
@@ -105,7 +105,7 @@
                                     </div>
                                 </form>
                             </div>
-                            <div class="containerH" style="justify-content:center;"> 
+                            <div class="containerH" style="justify-content:center;">
                                 <button style="padding: 0.6em;
                                     border-radius: 25px;
                                     background-color:rgb(41,177,238);
@@ -124,11 +124,11 @@
             </div>
         </div>
 
-        <div class="containerV"style="justify-content:center;" if={(payment_error == true) && (payment_done == false)}>
+        <div class="containerV"style="overflow-x: hidden;justify-content:center;" if={(payment_error == true) && (payment_done == false)}>
             <h3 style="text-align: center;font-family: 'Open Sans', sans-serif;color: rgb(130,130,130);">{error}</h3>
         </div>
 
-        <div class="containerV"style="justify-content:center;align-items:center;background:white" if={(payment_done == true) && (payment_error == false)}>
+        <div class="containerV"style="overflow-x: hidden;justify-content:center;align-items:center;background:white" if={(payment_done == true) && (payment_error == false)}>
             <h3 class="title-payement">
                 Payement réalisé avec succés vous beneficier de {credits} credits
             </h3>
@@ -142,7 +142,7 @@
                                     text-align: center;
                                     margin-top: 10%;"> Retour </a>
         </div>
-    </div>    
+    </div>
 <script>
     let stripe = Stripe(localStorage.stripe_public_key);
     let cardNumber;
@@ -230,10 +230,10 @@
             this.euros = parseInt(e.currentTarget.value);
             this.update()
         }else{
-            this.euros = 0.50   
+            this.euros = 0.50
             this.update()
         }
-    }.bind(this) 
+    }.bind(this)
 
     plusClick(e){
         this.euros += 0.10
@@ -256,7 +256,7 @@
         console.log("profil loaded", data)
         this.profil = data;
         this.update()
-    }.bind(this)) 
+    }.bind(this))
 
     RiotControl.on('payment_good', function(credits){
         console.log("ON PAYEMENT GOOD")
@@ -286,7 +286,7 @@
     this.on('mount', function () {
         this.refs.name.addEventListener('change', function (e) {
             this.name = e.currentTarget.value;
-        }.bind(this));  
+        }.bind(this));
         addPaiment(){
             console.log(this.name)
             let formClass = '.stripeContainer'
@@ -342,7 +342,7 @@
         cardCvc.mount('#stripeContainer-card-cvc')
 
         registerElements([cardExpiry, cardNumber, cardCvc], 'stripeContainer')
-    })   
+    })
 </script>
 <style>
 
@@ -355,14 +355,14 @@
         color:rgb(124,124,124);
         font-size:0.6em
     }
-    
+
     .first-infos-payement-block {
         display: flex;
         flex-direction: column;
     }
-    
+
     /* UTILS  */
-    
+
     .title-payement-loader {
         font-family: 'Gotham Rounded Medium';
         font-size: 3rem;
@@ -392,19 +392,19 @@
         overflow: hidden;
     }
     /*-------------- */
-    
+
     /* row dashed */
-    
+
     .row-vertical {
         border: 0.7px solid #e8ebf0;
         border-style: dashed;
         flex:0.3;
     }
-    
+
     /*-------------- */
-    
+
     /* Stripe element CSS */
-    
+
     .first-payment-stripe {
         flex:0.5
     }
@@ -412,14 +412,13 @@
         flex:0.5
     }
     .stripeSubContainer {
-        display:flex;
+
         flex-direction:column;
         background-color: white;
         flex:0.5
     }
     .stripeContainer {
         justify-content:center;
-        display:flex;
         flex-direction:column;
         background-color: white;
     }
@@ -463,11 +462,11 @@
     .stripeContainer input {
         color: #203f6a;
     }
-    
+
     /*-------------- */
-    
+
     /* Error  css */
-    
+
     .visible {
         opacity: 1!important;
     }
@@ -488,7 +487,7 @@
     .stripeContainer .error .message {
         color: #203f6a;
     }
-    
+
     /*-------------- */
 </style>
 </stripe2-tag>

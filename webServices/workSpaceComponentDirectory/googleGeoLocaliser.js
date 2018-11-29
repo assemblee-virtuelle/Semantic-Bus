@@ -1,11 +1,11 @@
 "use strict";
 module.exports = {
-  type: 'Google geolocaliser',
-  description: 'interoge l api google geocode pour transo une adresse en latitude et longitude',
+  type: 'Google geocoding',
+  description: 'Interroger l\'API Google geocode pour trouver une adresse avec la latitude et la longitude.',
   editor: 'google-geolocaliser-editor',
   url: require('url'),
   https: require('https'),
-  graphIcon: 'googleGeolocaliser.png',
+  graphIcon: 'Google_geocoding.png',
   tags: [
     'http://semantic-bus.org/data/tags/middleComponents',
     'http://semantic-bus.org/data/tags/middleGeocodeComponents'

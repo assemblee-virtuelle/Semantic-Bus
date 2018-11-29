@@ -1,9 +1,9 @@
 "use strict";
 module.exports = {
-  type: 'GOOGLE calc Get JSON',
-  description: 'intéroger une feuille de calcule GOOGLE calc qui fourni un flux JSON',
+  type: 'Google Sheets',
+  description: 'Interroger une feuille de calcule Google Sheets qui fournit un flux JSON.',
   editor: 'google-get-json-editor',
-  graphIcon: 'googleSheetsGetJson.png',
+  graphIcon: 'Google_sheets.png',
   tags: [
     'http://semantic-bus.org/data/tags/inComponents',
     'http://semantic-bus.org/data/tags/APIComponents'

@@ -1,10 +1,10 @@
 "use strict";
 module.exports = {
-  type: 'Cache NoSql',
-  description: 'sauvegarder un flux et le réutiliser sans avoir besoin de requeter la source',
+  type: 'Cache NoSQL',
+  description: 'Sauvegarder un flux et le réutiliser sans avoir besoin de requêter la source.',
   editor: 'cache-nosql-editor',
   mLabPromise: require('../mLabPromise'),
-  graphIcon: 'cacheNosql.png',
+  graphIcon: 'Cache_nosql.png',
   tags: [
     'http://semantic-bus.org/data/tags/persistComponents',
     'http://semantic-bus.org/data/tags/persistCacheComponents'

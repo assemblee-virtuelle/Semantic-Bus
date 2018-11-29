@@ -1,4 +1,5 @@
-<login class="containerV" style="bottom:0;top:0;right:0;left:0;position:absolute">
+<login class="containerV" style="background-color: rgb(238,242,249);background-size: cover; bottom:0;top:0;right:0;left:0;position:absolute">
+  <!-- Chargement connexion  background-image: url(./image/log-f.jpg);-->
   <div id="containerLoaderDiv" if={isScrennToShow('loading')}>
     <div id="row">
       <div id="loaderDiv"></div>
@@ -7,162 +8,202 @@
       </h2>
     </div>
   </div>
-  <div class="header containerH" style="flex-shrink:0" show={!isScrennToShow('loading')}>
-    <h1>
-      Bienvenue sur Grappe
-    </h1>
+  <!-- Header <div class="containerV" style="flex-grow:0;flex-shrink:0;"> <img src="./image/grappe-web1.png" style="margin-left:20px;height:50px; width:75px;justify-content:center;"> </div> <div class="header containerH" style="flex-shrink:0"
+  show={!isScrennToShow('loading')}> <h1> Bienvenue sur Grappe </h1> </div> -->
+  <div class="containerH header-login" show={!isScrennToShow('loading')} style="background-color: white; ">
+    <img src="./image/grappe-log-01.png" height="50px"style="margin-left:5px;display: flex;"></img>
+    <div class="containerH header-login"style="flex-grow:1;justify-content:center;">
+      <img src="./image/grappe-title-01.png" height="25px"style="display: flex;"></img>
+    </div>
+    <div class="containerH header-login" style="padding-right:105px;">
+    </div>
   </div>
-  <div class="containerH" if={isScrennToShow('connexion')}>
-    <div class="containerV" style="flex-basis:800px">
-      <div class="containerH" style="flex-shrink:0">
-        <h2 style="color:rgb(117,117,117)">
-          Choisissez votre connexion
-        </h2>
+
+<!--   <div class="containerH" if={isScrennToShow('connexion')} style="color:rgb(26,145,194);justify-content: center;flex-wrap:wrap;">
+    <div class="containerv">
+      <h3>Une solution de traitement de données open-source pour piloter et maîtriser l'interopérabilité entre les données.</h3>
+    </div>
+  </div>
+      <div class="containerH" if={isScrennToShow('connexion')} style="justify-content: center;flex-wrap:wrap;">
+        <div class="containerv">
+        <span>Connecter, traiter et exposer vos données en quelques clics.</span>
       </div>
-      <div class="containerH inscriptionChoice" style="flex-wrap:wrap;overflow:auto">
+    </div>-->
+
+  <!-- box connexion-->
+  <div class="containerH" if={isScrennToShow('connexion')} style="flex-wrap: wrap;overflow:auto;justify-content: center; align-items: center;flex-grow:2">
+    <div class="containerV" style="justify-content: center;width: 600px;">
+      <div class="containerH" style="flex-wrap:wrap;">
+
         <div class="containerV box" style="flex-grow:2">
-          <label>Email</label>
-          <input id="email" type="email" ref="email" placeholder="saisir email" class="email" onchange={emailChange} required/>
-          <label>Mot de passe</label>
-          <input type="password" ref="password" id="password" placeholder="saisir mot de passe" class="email" onchange={passwordChange} required/>
+<!-- Focus Connexion
+          <div class="containerH" style="justify-content: center; align-items: center;">
+            <h3>Connexion</h3>
+          </div>-->
+          <!-- champs Mail -->
+          <label class="label-form">Email</label>
+          <input id="email" type="email" ref="email" placeholder="saisissez une adresse email" onchange={emailChange} required="required"/>
+          <!-- champs Mdp -->
+          <label class="label-form">Mot de passe</label>
+          <input type="password" ref="password" id="password" placeholder="saisissez un mot de passe" onchange={passwordChange} required="required"/>
+          <!-- spam erreur mdp or id -->
           <div id="result-co">{resultConnexion}</div>
+          <!-- mdp oublié -->
+          <div class="containerH" style="padding-left: 10px;flex-wrap:wrap">
+            <a onclick={f_password} class="url" style="flex:1;flex-basis:40%;">
+              <span>Mot de passe oublié ?</span>
+            </a>
+          </div>
           <div class="containerV">
+            <!-- Bouton connexion -->
             <div class="containerH">
-              <a onclick={login} class="btn containerH" id="btn2" style="flex:1">
-                <span>Connexion</span>
+              <a onclick={login} class="btn containerH" id="btn2" style="justify-content: center; align-items: center;flex:1">
+                <span style="">Connexion</span>
               </a>
             </div>
-            <div class="containerH" style="flex-wrap:wrap">
-              <a onclick={f_password} class="btn containerH" style="flex:1;flex-basis:40%;">
-                <span>Mot de passe oublié ?</span>
-              </a>
-              <a onclick={hidePage} class="btn containerH" style="flex:1;flex-basis:40%;">
-                <span>Inscription</span>
-              </a>
+            <!-- Bouton Google -->
+            <span></span>
+            <div class="containerH">
+              <a href="/auth/google" class="btn containerH" style=" justify-content: center; align-items: center;flex:1" id="btn-google">
+                <img src="../ihm/image/google-plus.png" alt="" id="googleP" style="padding-right: 10px;height: 25px; width:25px;">
+                Connexion avec un compte Google</a>
             </div>
+            <!-- Bouton inscription -->
+            <label style="margin-bottom:20px;" class="label-form">Vous n'avez pas de compte Grappe ?
+              <a class="url" onclick={hidePage}>
+                Inscrivez-vous</a>
+            </label>
           </div>
         </div>
-        <div class="containerV box" style="flex-grow:1">
-          <div class=containerH>
-            <a href="/auth/google" class="btn containerH" style="flex:1" id="btn-google"><img src="../ihm/image/google-plus.png" alt="" id="googleP"></a>
+      </div>
+    </div>
+  </div>
+
+  <!-- box inscription -->
+
+  <div class="containerH" if={isScrennToShow('inscription')} style="flex-wrap: wrap;justify-content: center; align-items: center;overflow:auto;flex-grow:2">
+    <div class="containerV" style="width: 600px;">
+      <div class="containerH" style="flex-wrap:wrap;overflow:auto">
+
+        <div class="containerV box" style="flex-grow:2">
+            <!-- Focus Inscription
+          <div class="containerH" style="justify-content: center; align-items: center;">
+            <h3>Inscription</h3>
+          </div>-->
+          <!-- champs Nom -->
+          <label class="label-form">Nom *</label>
+          <input ref="nameInscription" id="test-nameInscription" onchange={nameInscriptionChange} placeholder="saisissez votre nom" required="required">
+          <div id="result">{resultName}</div>
+          <!-- champs Statut -->
+          <label class="label-form">Statut</label>
+          <input ref="jobInscription" id="test-jobInscription" onchange={jobInscriptionChange} placeholder="saisissez votre statut"/>
+          <div id="result">{resultJob}</div>
+          <!-- Champs société -->
+          <label class="label-form">Société</label>
+          <input type="text" ref="societe" id="test-societeInscription" onchange={societeChange} placeholder="saisissez votre société"/>
+          <div id="result">{resultSociete}</div>
+          <!-- Champs mail -->
+          <label class="label-form">Email *</label>
+          <input type="email" id="test-emailInscription" onchange={emailInscriptionChange} ref="emailInscription" placeholder="saisissez votre Email"/>
+          <div id="result">{resultEmail}</div>
+          <!-- Champs mdp -->
+          <label class="label-form">Mot de passe *</label>
+          <input type="password" id="test-passwordInscription" onkeyup={passwordInscriptionKeyup} required="required" ref="passwordInscription" placeholder="saisissez votre mot de passe"/>
+          <div id="result">{resultMdp}</div>
+          <!-- Champs mdp2 -->
+          <label class="label-form">Confirmer mot de passe *</label>
+          <input type="password" id="test-confirmepasswordInscription" onkeyup={confirmPasswordInscriptionKeyup} required="required" ref="confirmPasswordInscription" placeholder="confirmer votre mot de passe"/>
+          <!-- bouton Inscription -->
+          <div id="result">{resultMdpConfirme}</div>
+          <div onclick={inscription} id="btn" class="btn containerH" style="justify-content: center; align-items: center;flex:1">
+            <a>Inscription</a>
+          </div>
+          <!-- bouton connexion -->
+          <label style="margin-bottom:20px;" class="label-form">Vous avez déjà un compte Grappe ?
+            <a class="url" onclick={showPage}>
+              Connectez-vous</a>
+          </label>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- box mot de passe oublié -->
+  <div class="containerH" if={isScrennToShow('initiat')} style="justify-content: center; align-items: center;flex-grow:2">
+    <div class="containerV" style="justify-content: center;width: 600px; height: 600px">
+      <div class="containerH" style="flex-wrap:wrap;overflow:auto">
+        <!-- Focus MDP -->
+        <div class="containerV box" style="flex-grow:2">
+          <div class="containerH" style="justify-content: center; align-items: center;">
+            <h3>Réinitialisation mot de passe</h3>
+          </div>
+          <label class="label-form">Email</label>
+          <input ref="emailforgotpassword" onchange={emailforgotpasswordChange} id="test-nameInscription" placeholder="saisissez votre Email" required="required">
+          <p style="color:red">{result_email}</p>
+          <!--bouton envoyer + annuler -->
+          <div onclick={sendpasswordbymail} class=" btn containerH" style="justify-content: center; align-items: center;flex-wrap:wrap">
+            <a>Envoyer</a>
+          </div>
+          <div onclick={returnlogin} class="btn containerH" id="btn2" style="justify-content: center; align-items: center;flex-wrap:wrap">
+            <a>Annuler</a>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- code d'activation mail-->
+  <div class="containerH" if={isScrennToShow('enter_code')} style="justify-content: center; align-items: center;flex-grow:2">
+    <div class="containerV" style="justify-content: center;width: 600px; height: 600px">
+      <div class="containerH" style="flex-wrap:wrap;overflow:auto">
+        <!-- Focus Code -->
+        <div class="containerV box" style="flex-grow:2">
+          <div class="containerH" style="justify-content: center; align-items: center;">
+            <h3>Entrez le code envoyé par mail</h3>
+          </div>
+          <label class="label-form">Code</label>
+          <input ref="codeforgotpassword" onchange={codeforgotpasswordChange} id="test-nameInscription" placeholder="saisissez le code" required="required"/>
+          <p>{result_code}</p>
+          <!--bouton envoyer + annuler -->
+          <div onclick={verifecode} class=" btn containerH" style="justify-content: center; align-items: center;flex-wrap:wrap">
+            <a>Envoyer</a>
+          </div>
+          <div onclick={returnlogin} class="btn containerH" id="btn2" style="justify-content: center; align-items: center;flex-wrap:wrap">
+            <a>Annuler</a>
           </div>
         </div>
       </div>
     </div>
   </div>
-  <div class="containerH" if={isScrennToShow('inscription')}>
-    <div class="containerV" style="flex-basis:800px">
 
-      <div class="containerH" style="flex-shrink:0">
-        <h2 style="color:rgb(117,117,117)">
-          Inscription</h2>
-      </div>
-      <div class="containerV box"  style="flex-shrink:0">
-        <label>Nom</label>
-        <input ref="nameInscription" id="test-nameInscription" onchange={nameInscriptionChange} placeholder="saisir name (*)"/>
-        <div id="result">{resultName}</div>
+  <!-- Changer de mot de passe -->
 
-        <label>Job</label>
-        <input ref="jobInscription" id="test-jobInscription" onchange={jobInscriptionChange} placeholder="saisir job"/>
-        <div id="result">{resultJob}</div>
-
-        <label>Société</label>
-        <input ref="societe" id="test-societeInscription" onchange={societeChange} placeholder="saisir societe"/>
-        <div id="result">{resultSociete}</div>
-
-        <label>Email</label>
-        <input type="email" id="test-emailInscription" onchange={emailInscriptionChange} ref="emailInscription" placeholder="saisir email (*)"/>
-        <div id="result">{resultEmail}</div>
-
-        <label>Mot de passe</label>
-        <input type="password" id="test-passwordInscription" onkeyup={passwordInscriptionKeyup} required ref="passwordInscription" placeholder="saisir mot de passe"/>
-        <div id="result">{resultMdp}</div>
-
-        <label>Confirmer mot de passe</label>
-        <input type="password" id="test-confirmepasswordInscription" onkeyup={confirmPasswordInscriptionKeyup} required ref="confirmPasswordInscription" placeholder="confirmer mot de passe"/>
-
-        <div id="result">{resultMdpConfirme}</div>
-        <div class="containerH" style="flex-shrink:0">
-          <a onclick={inscription} class="btn" id="btn2">Inscription</a>
-        </div>
-
-      </div>
-      <div class="containerH" style="flex-shrink:0">Vous avez deja un compte avec nous?</div>
-      <div class="containerH" style="flex-shrink:0">
-        <a onclick={showPage} class="btn" style="white-space: pre;">
-          <span>Connectez vous</span>
-        </a>
-      </div>
-    </div>
-
-  </div>
-
-  <div class="containerH" if={isScrennToShow('initiat')}>
-    <div class="containerV" style="flex-basis:800px">
-      <div class="containerH">
-        <h2 style="color:rgb(117,117,117)">
-          Réinitialisation mot de passe par mail
-        </h2>
-      </div>
-      <div class=" containerV box">
-        <label>Email</label>
-        <input ref="emailforgotpassword" onChange={emailforgotpasswordChange} id="test-nameInscription" placeholder="saisir email" class="email"/>
-
-        <div class="containerH" style="flex-wrap:wrap">
-          <a onclick={sendpasswordbymail} class="btn">
-            evoyer mail</a>
-          <a onclick={returnlogin} class="btn">
-            annuler</a>
+  <div class="containerH" if={isScrennToShow('forgot_password/changePassword') && isScrennAuthorizeBoolean} style="justify-content: center; align-items: center;flex-grow:2">
+    <div class="containerV" style="justify-content: center;width: 600px; height: 600px">
+      <div class="containerH" style="flex-wrap:wrap;overflow:auto">
+        <!-- Focus Code -->
+        <div class="containerV box" style="flex-grow:2">
+          <div class="containerH" style="justify-content: center; align-items: center;">
+            <h3>Changer votre mot de passe</h3>
+          </div>
+          <label class="label-form">Nouveau mot de passe</label>
+          <input type="password" ref="new_password" onkeyup={new_passwordKeyup} id="password" placeholder="saisissez le nouveau mot de passe" required="required"/>
+          <p>{result_password}</p>}
+          <!--bouton envoyer + annuler -->
+          <div onclick={verifecode} class=" btn containerH" style="justify-content: center; align-items: center;flex-wrap:wrap">
+            <a>Envoyer</a>
+          </div>
+          <div onclick={returnlogin} class="btn containerH" id="btn2" style="justify-content: center; align-items: center;flex-wrap:wrap">
+            <a>Annuler</a>
+          </div>
         </div>
       </div>
-      <p>{result_email}</p>
     </div>
   </div>
 
-  <div class="containerH" if={isScrennToShow('enter_code')}>
-    <div class="containerV" style="flex-basis:800px">
-      <div class="containerH">
-        <h2>
-          Entrez le code envoyé par mail
-        </h2>
-      </div>
-      <div class="containerV box">
-
-        <label>Code</label>
-        <input ref="codeforgotpassword" onChange={codeforgotpasswordChange} id="test-nameInscription" placeholder="saisir code" class="email"/>
-
-        <div class="containerH" style="flex-wrap:wrap">
-          <a onclick={verifecode} class="btn">
-            confirmer code</a>
-          <a onclick={returnlogin} class="btn">
-            annuler</a>
-        </div>
-      </div>
-      <p>{result_code}</p>
-    </div>
-  </div>
-
-  <div class="containerH" if={isScrennToShow('forgot_password/changePassword') && isScrennAuthorizeBoolean}>
-    <div class="containerV" style="flex-basis:800px">
-      <div class="containerH">
-        <h2 style="color:rgb(117,117,117)">
-          Changer votre mot de passe
-        </h2>
-      </div>
-      <div class="containerV box">
-        <label style="color: rgb(161,161,161);align-self: left;">nouveau mot de passe</label>
-        <input type="password" ref="new_password" onkeyup={new_passwordKeyup} id="password" placeholder="saisir mot de passe" class="email" required/>
-
-        <div class="containerH" style="flex-wrap:wrap">
-          <a onclick={validenewpassword} class="btn">
-            Valider</a>
-          <a onclick={returnlogin} class="btn">
-            annuler</a>
-        </div>
-      </div>
-      <p>{result_password}</p>
-    </div>
-  </div>
+  <!-- A quoi sert cette page ? -->
 
   <div class="containerH" show={isScrennToShow('forgot_password/changePassword') && !isScrennAuthorizeBoolean}>
     <div class="containerV">
@@ -176,6 +217,8 @@
     </div>
   </div>
 
+  <!-- A quoi sert cette page ? -->
+
   <div class="containerH" show={isScrennToShow(window.location.href.split('login.html#')[1]) && (urls.indexOf(window.location.href.split('login.html')[1]) == -1)}>
     <div class="containerV">
       <div class="box">
@@ -184,6 +227,15 @@
             404 Composants!! Vous tenter d'aller sur une url qui n'existe pas :/</h2>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!--footer-->
+  <div class="containerH" show={!isScrennToShow('loading')} style="justify-content: flex-end;height: 50px;margin-bottom:20px">
+    <div class="containerV" style="justify-content: flex-end;margin-right:20px">
+      <span style="font-size: 0.75em;color:rgb(26,145,194)">Grappe v0.3 Copyright 2018
+        <a link="link" href="https://data-players.com/" style="color:rgb(26,145,194)">Data Players</a>
+      </span>
     </div>
   </div>
 
@@ -374,7 +426,7 @@
           this.resultEmail = "Veuillez entrez un email Valide"
         }
       } else {
-        console.log(this.newUser.emailInscription ,this.newUser.passwordInscription);
+        console.log(this.newUser.emailInscription, this.newUser.passwordInscription);
         if (this.newUser.emailInscription == undefined) {
           this.resultEmail = "Votre email n'est pas renseigné"
         }
@@ -384,7 +436,6 @@
         if (this.newUser.confirmPasswordInscription == undefined) {
           this.resultMdpConfirme = "Votre confirmation de mot de passe n'est pas renseigné"
         }
-
 
       }
     }
@@ -522,9 +573,10 @@
 
     }.bind(this));
   </script>
-  <style scoped>
+
+  <style scoped="scoped">
     .header {
-      background: linear-gradient(90deg, rgb(33,150,243) 20% ,rgb(41,181,237));
+      /*background: linear-gradient(90deg, rgb(33,150,243) 20% ,rgb(41,181,237));*/
       color: white;
     }
     label {
@@ -712,8 +764,8 @@
     }*/
 
     .box {
-      /*background: white;*/
-      background: #e6ecff;
+      /*background: white;*#e6ecff;*/
+      background: rgb(255,255,255);
       /*width: 500px;*/
       margin-top: 5vh;
       border: 1px solid rgba(133,133,133,0.38);
@@ -818,6 +870,5 @@
     #btn2:hover {
       background: #3594D2;
     }
-
   </style>
 </login>
