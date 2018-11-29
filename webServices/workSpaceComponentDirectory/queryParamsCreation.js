@@ -1,9 +1,9 @@
 "use strict";
 module.exports = {
-  type: 'Params creation',
+  type: 'Params transform',
   description: 'Créer des paramètres de requête dand le flux.',
   editor:'query-params-creation-editor',
-  graphIcon:'Params_creation.png',
+  graphIcon:'Params_transform.png',
   objectTransformation: require('../sharedLibrary/objectTransformation.js'),
   tags:[
     'http://semantic-bus.org/data/tags/middleComponents',

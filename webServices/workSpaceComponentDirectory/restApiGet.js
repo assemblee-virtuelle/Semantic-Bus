@@ -1,9 +1,9 @@
 "use strict";
 module.exports = new function() {
-  this.type = 'HTTP input provideur';
-  this.description = 'Exposition du flux de donnée sur une API http uniquement en GET.';
+  this.type = 'Get provider';
+  this.description = 'Exposer un flux de donnée sur une API http GET.';
   this.editor = 'rest-api-get-editor';
-  this.graphIcon = 'Http_input_provideur.png';
+  this.graphIcon = 'Get_provider.png';
   this.tags = [
       'http://semantic-bus.org/data/tags/outComponents',
       'http://semantic-bus.org/data/tags/APIComponents'

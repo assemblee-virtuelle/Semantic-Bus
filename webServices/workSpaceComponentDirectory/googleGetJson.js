@@ -1,6 +1,6 @@
 "use strict";
 module.exports = {
-  type: 'GOOGLE Sheets',
+  type: 'Google Sheets',
   description: 'Interroger une feuille de calcule Google Sheets qui fournit un flux JSON.',
   editor: 'google-get-json-editor',
   graphIcon: 'Google_sheets.png',
