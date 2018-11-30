@@ -59,7 +59,7 @@
         <a href="#profil//edit" class="commandButtonImage {selectedMenu:isScrennInHistory('profil')} containerV" style="flex-grow:0;">
           <div class="contentV" style="justify-content:center;width:80px;height:80px ">
             <div class="containerH" style="justify-content:center;">
-              <img class="contentV" style="padding-top: 15px;width:45px;" src="./image/menu/user.png">
+              <img class="contentV" style="padding-top: 15px;width:45px;height:45px;" src="./image/menu/user.png">
             </div>
           </div>
         <!--  <div if={isScrennInHistory('profil')} class="containerH" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">

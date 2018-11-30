@@ -366,7 +366,6 @@
       color: red;
       font-size: 18px;
       font-family: 'Raleway', sans-serif;
-      padding-top: 4%;
     }
 
     #bad-result-global {
