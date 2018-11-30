@@ -61,7 +61,7 @@
   </div>
   <!-- Page graph -->
   <div show={menu=='component'} class="containerH" style="flex-grow: 1;background-color:rgb(238,242,249)">
-    <graph></graph>
+    <graph style="flex-grow:1"></graph>
     <!-- graph si vide -->
   </div>
   <!-- liste des partages -->
