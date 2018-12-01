@@ -115,6 +115,9 @@
       <div onclick={persistClick} if={menu=='information'} class="commandButtonImage">
         <img src="./image/check.png" title="Valider les paramètres" height="35px" width="35px">
       </div>
+      <div>
+        <a ref="export-anchor">export anchor</a>
+      </div>
     </div>
   </div>
 
@@ -193,7 +196,7 @@
     }
 
     export(e) {
-      RiotControl.trigger('workspace_current_export');
+      RiotControl.trigger('workspace_current_export',this.refs["export-anchor"]);
     }
 
     importClick(e) {

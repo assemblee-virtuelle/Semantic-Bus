@@ -635,7 +635,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
 
 
 
-  this.on('workspace_current_export', function(record) {
+  this.on('workspace_current_export', function(anchor) {
 
     let exportObject = {
       components: this.workspaceCurrent.components,
@@ -645,7 +645,14 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
       type: 'application/json'
     });
     let exportUrl = URL.createObjectURL(file);
-    window.open(exportUrl);
+
+    console.log(anchor);
+    //anchor.prop('href', exportUrl);
+    anchor.setAttribute('href', exportUrl);
+    anchor.setAttribute('download', this.workspaceCurrent.name.concat('.json'));
+    anchor.click();
+
+    //window.open(exportUrl);
   });
 
   this.on('workspace_current_import', function(file) {
@@ -657,8 +664,8 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
         method: 'post',
         url: '../data/core/workspace/' + this.workspaceCurrent._id + '/import',
         data: JSON.stringify(newWorkflow),
-      }, true).then((updatedWorkspace)=>{
-        this.workspaceCurrent=updatedWorkspace;
+      }, true).then((updatedWorkspace) => {
+        this.workspaceCurrent = updatedWorkspace;
         route('workspace/' + this.workspaceCurrent._id + '/component');
       })
     }.bind(this);
