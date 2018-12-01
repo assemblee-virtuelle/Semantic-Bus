@@ -114,7 +114,6 @@
         <workspace-table if={isScrennToShow('myWorkspaces')></workspace-table>
         <workspace-share-table if={isScrennToShow('sharedWorkspaces')></workspace-share-table>
         <workspace-editor if={isScrennToShow('workspace')}></workspace-editor>
-        <graph if={isScrennToShow('graph')}></graph>
         <workspace-component-editor if={isScrennToShow('component')}></workspace-component-editor>
         <profil if={isScrennToShow('profil')}></profil>
         <admin if={isScrennToShow('admin')}></admin>

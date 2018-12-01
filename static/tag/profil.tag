@@ -27,7 +27,7 @@
       </a>
       <!-- Consommation-->
       <a href="#profil//running" class="commandButtonImage containerV" style="flex-grow:1;flex-basis:30px;position:relative;">
-        <img src="./image/menu/chart-.png" style="" height="40px" width="40px">
+        <img src="./image/menu/chart.png" style="" height="40px" width="40px">
         <p style="font-family: 'Open Sans', sans-serif;color:white;font-size:10px">Consommation</p>
         <!--condition -->
         <div if={menu=='running'} class="containerH" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">
