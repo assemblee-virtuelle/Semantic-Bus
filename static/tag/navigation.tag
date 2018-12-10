@@ -44,7 +44,6 @@
       <div style="flex-grow:0;flex-shrink:0;"></div>
       <!-- Titre headers -->
       <workspace-table-header if={isScrennToShow('myWorkspaces')}></workspace-table-header>
-      <landing-header if={isScrennToShow('landing')}></landing-header>
       <workspace-share-table-header if={isScrennToShow('sharedWorkspaces')}></workspace-share-table-header>
       <profil-header if={isScrennToShow('profil')}></profil-header>
       <workspace-editor-header if={isScrennToShow('workspace')}></workspace-editor-header>
@@ -110,7 +109,6 @@
 
       <!-- Contenu -->
       <div class="containerV generalContainer" style="flex-grow:1;flex-shrink:1;">
-        <landing if={isScrennToShow('landing')}></landing>
         <workspace-table if={isScrennToShow('myWorkspaces')></workspace-table>
         <workspace-share-table if={isScrennToShow('sharedWorkspaces')></workspace-share-table>
         <workspace-editor if={isScrennToShow('workspace')}></workspace-editor>
@@ -170,11 +168,6 @@
         : undefined;
       return screenToTest == entity;
     }
-
-    // this.isScrennHide = function () {   return sift({     show: false   }, this.screenHistory).length > 0; } RiotControl.on('newScreenHistory', function (newScreenHistory) {   console.log('newScreenHistory', newScreenHistory[newScreenHistory.length
-    // -1].screen);workspaceAddComponent   this.screenHistory = newScreenHistory;   if (newScreenHistory[newScreenHistory.length - 1].screen == "workspaceAddComponent" || newScreenHistory[newScreenHistory.length - 1].screen == "landing" ||
-    // newScreenHistory[newScreenHistory.length - 1].screen == "myWorkspaces" || newScreenHistory[newScreenHistory.length - 1].screen == "sharedWorkspaces") {     console.log("IN IF")     this.isPrincipalMenu = true   } else {     this.isPrincipalMenu
-    // = false   }   this.update(); }.bind(this));
 
     RiotControl.on('user_authentified', function (data) {
       console.log('user_authentified', localStorage.user_id);
@@ -284,41 +277,7 @@
     .generalContainer {
       background-color: rgb(238,242,249);
     }
-    /*LANDING CSS */
-    /*
-    #landingTitle {
-      text-align: center;
-      margin-top: 15vh;
-    }
 
-    #landingText {
-      text-align: center;
-      margin-top: 15vh;
-    }
-
-    .containerflexlanding {
-      background-color: white;
-      width: 100%;
-      height: 125vh;
-      padding: 0;
-      margin: 0;
-      display: -webkit-box;
-      display: -moz-box;
-      display: -ms-flexbox;
-      display: -webkit-flex;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-    }
-
-    .containerlanding {
-      height: 90vh!important;
-      background-color: white;
-      width: 100%;
-      height: 100%;
-      padding: 0;
-      margin: 0;
-    }*/
     /*  Barre de chargement  */
     #containerSecureDiv {
       background-color: rgba(200,200,200,1);

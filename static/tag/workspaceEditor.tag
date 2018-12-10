@@ -47,9 +47,9 @@
       </div>
     </a>
     <!-- Bouton Process -->
-    <a if={innerData.mode=="edit" } href={'#workspace/' +innerData._id+'/process' } class={commandButtonImage:true,containerV:true} style="flex-basis:100px;flex-grow:0;position:relative;">
-      <img src="./image/menu/inbox.png" title="Exécuter un processus" height="40px" width="40px">
-      <p style="font-family: 'Open Sans', sans-serif; color:white;font-size:10px">Exécuter</p>
+    <a if={innerData.mode=="edit"} href={'#workspace/' +innerData._id+'/process' } class={commandButtonImage:true,containerV:true} style="flex-basis:100px;flex-grow:0;position:relative;">
+      <img src="./image/menu/inbox.png" title="Superviser les processus" height="40px" width="40px">
+      <p style="font-family: 'Open Sans', sans-serif; color:white;font-size:10px">Superviser</p>
       <!--condition -->
       <div if={menu=='process'} class="containerV" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">
         <div class="containerH" style="justify-content:flex-end;">
@@ -90,33 +90,36 @@
   <!-- Page créer un workflow -->
   <div show={menu=='information' } class="containerV" id="description" style="justify-content: center;background-color: rgb(238,242,249);flex-grow: 1;">
     <div class="containerV box-flex">
-      <label>Nom de votre Workflow:</label>
-      <input id="workspaceNameInput" type="text" ref="workspaceNameInput" placeholder="Sans-titre" value="{innerData.name}" onkeyup="{nameFieldChange}"></input>
-      <label>Description de votre Workflow:</label>
-      <input readonly={innerData.mode=="read"
-            } ref="workspaceDescriptionInput" id="workspaceDescriptionInput" type="text" placeholder="Aucune description" value="{innerData.description}" onkeyup="{descriptionFieldChange}"></input>
-      <label>Nombre d'exécution consultable:</label>
-      <input type="text" readonly={innerData.mode=="read"} ref="workspaceLimitHistoricnput" id="workspaceLimitHistoricInput" placeholder="1" value="{innerData.limitHistoric}" onkeyup="{limitHistoricFieldChange}"></input>
-
-      <!-- bouton importer workflow -->
-      <div class="containerH" style="margin-top: 20px;justify-content: flex-end;flex-grow:0;flex-shrink:0">
-        <div onclick={importClick} class="commandButtonImage" style="margin-right:20px;">
-          <img src="./image/upload.png" title="Importer un Workflow" style="" height="40px" width="40px">
-          <input onchange={import} ref="import" type="file" style="display:none;"/>
-        </div>
-        <!-- bouton Exporter workflow -->
-        <div onclick={export} class="commandButtonImage">
-          <img src="./image/save.png" title="Exporter le Workflow" style="" height="35px" width="35px">
+      <div class="containerV">
+        <label>Nom de votre Workflow:</label>
+        <input id="workspaceNameInput" type="text" ref="workspaceNameInput" placeholder="Sans-titre" value="{innerData.name}" onkeyup="{nameFieldChange}"></input>
+        <label>Description de votre Workflow:</label>
+        <input readonly={innerData.mode=="read"} ref="workspaceDescriptionInput" id="workspaceDescriptionInput" type="text" placeholder="Aucune description" value="{innerData.description}" onkeyup="{descriptionFieldChange}"></input>
+        <label>Nombre d'exécution consultable:</label>
+        <input type="text" readonly={innerData.mode=="read"} ref="workspaceLimitHistoricnput" id="workspaceLimitHistoricInput" placeholder="1" value="{innerData.limitHistoric}" onkeyup="{limitHistoricFieldChange}"></input>
+      </div>
+      <div class="containerH" style="justify-content: center">
+        <div if={innerData.mode=="edit"} class="containerH" >
+          <div onclick={importClick} class="commandButtonImage" style="margin-right:20px;">
+            <img src="./image/upload.png" title="Importer un Workflow" style="" height="40px" width="40px">
+            <input onchange={import} ref="import" type="file" style="display:none;"/>
+          </div>
+          <!-- bouton Exporter workflow -->
+          <div onclick={export} class="commandButtonImage">
+            <img src="./image/save.png" title="Exporter le Workflow" style="" height="35px" width="35px">
+            <a ref="export-anchor" style="display:none;"></a>
+          </div>
         </div>
       </div>
+
+      <!-- bouton importer workflow -->
+
+
     </div>
     <!-- Bouton valider -->
     <div class="containerH" style="justify-content: center;flex-basis:45px;align-items: flex-start; flex-shrink:0;flex-grow:0;">
       <div onclick={persistClick} if={menu=='information'} class="commandButtonImage">
         <img src="./image/check.png" title="Valider les paramètres" height="35px" width="35px">
-      </div>
-      <div>
-        <a ref="export-anchor">export anchor</a>
       </div>
     </div>
   </div>
