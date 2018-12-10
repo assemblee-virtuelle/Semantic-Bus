@@ -23,25 +23,6 @@ module.exports = new function() {
     let apiGetRouteur = this.express.Router();
     apiGetRouteur.use(this.cors());
 
-
-    // this.workspace_component_lib.get_all({
-    //   module: 'restApiGet'
-    // }).then(comps => {
-    //
-    //   for (let comp of comps) {
-    //     if (comp.specificData.url != undefined) {
-    //       console.log('API comp | ', comp.specificData.url);
-    //       apiGetRouteur.get('/' + comp.specificData.url, function(req, res, next) {
-    //         console.log('API TRIGGERED');
-    //         res.json('API TRIGGERED');
-    //       });
-    //     }
-    //
-    //   }
-    // })
-    // console.log('routes', app._router.map);
-
-
     apiGetRouteur.get('/*', (req, res, next) => {
       let urlRequiered = req.params[0];
       var targetedComponent;

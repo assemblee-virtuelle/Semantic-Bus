@@ -61,7 +61,7 @@
   </div>
   <!-- Page graph -->
   <div show={menu=='component'} class="containerH" style="flex-grow: 1;background-color:rgb(238,242,249)">
-    <graph></graph>
+    <graph style="flex-grow:1"></graph>
     <!-- graph si vide -->
   </div>
   <!-- liste des partages -->
@@ -114,6 +114,9 @@
     <div class="containerH" style="justify-content: center;flex-basis:45px;align-items: flex-start; flex-shrink:0;flex-grow:0;">
       <div onclick={persistClick} if={menu=='information'} class="commandButtonImage">
         <img src="./image/check.png" title="Valider les paramètres" height="35px" width="35px">
+      </div>
+      <div>
+        <a ref="export-anchor">export anchor</a>
       </div>
     </div>
   </div>
@@ -193,7 +196,7 @@
     }
 
     export(e) {
-      RiotControl.trigger('workspace_current_export');
+      RiotControl.trigger('workspace_current_export',this.refs["export-anchor"]);
     }
 
     importClick(e) {
