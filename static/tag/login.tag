@@ -33,47 +33,44 @@
   <!-- box connexion-->
   <div class="containerH" if={isScrennToShow('connexion')} style="flex-wrap: wrap;overflow:auto;justify-content: center; align-items: center;flex-grow:2">
     <div class="containerV" style="justify-content: center;width: 600px;">
-      <div class="containerH" style="flex-wrap:wrap;">
+      <form class="containerV box" style="flex-grow:2" onsubmit={login}>
+        <!-- champs Mail -->
+        <label class="label-form" for="email">Email</label>
+        <input id="email" type="email" ref="email" placeholder="saisissez une adresse email" onchange={emailChange} required/>
 
-        <div class="containerV box" style="flex-grow:2">
-<!-- Focus Connexion
-          <div class="containerH" style="justify-content: center; align-items: center;">
-            <h3>Connexion</h3>
-          </div>-->
-          <!-- champs Mail -->
-          <label class="label-form">Email</label>
-          <input id="email" type="email" ref="email" placeholder="saisissez une adresse email" onchange={emailChange} required="required"/>
-          <!-- champs Mdp -->
-          <label class="label-form">Mot de passe</label>
-          <input type="password" ref="password" id="password" placeholder="saisissez un mot de passe" onchange={passwordChange} required="required"/>
-          <!-- spam erreur mdp or id -->
-          <div id="result-co">{resultConnexion}</div>
-          <!-- mdp oublié -->
-          <div class="containerH" style="padding-left: 10px;flex-wrap:wrap">
-            <a onclick={f_password} class="url" style="flex:1;flex-basis:40%;">
-              <span>Mot de passe oublié ?</span>
-            </a>
+        <!-- champs Mdp -->
+        <label class="label-form" for="password">Mot de passe</label>
+        <input type="password" ref="password" id="password" placeholder="saisissez un mot de passe" onchange={passwordChange} required/>
+
+        <!-- spam erreur mdp or id -->
+        <div id="result-co">{resultConnexion}</div>
+
+        <!-- mdp oublié -->
+        <div class="containerH" style="padding-left: 10px;flex-wrap:wrap">
+          <a onclick={f_password} class="url" style="flex:1;flex-basis:40%;">
+            <span>Mot de passe oublié ?</span>
+          </a>
+        </div>
+
+        <div class="containerV">
+          <!-- Bouton connexion -->
+          <div class="containerH">
+            <button type="submit" class="btn secondary">Connexion</button>
           </div>
-          <div class="containerV">
-            <!-- Bouton connexion -->
-            <div class="containerH">
-              <a onclick={login} class="btn containerH" id="btn2" style="justify-content: center; align-items: center;flex:1">
-                <span style="">Connexion</span>
-              </a>
-            </div>
-            <!-- Bouton Google -->
-            <span></span>
-            <div class="containerH">
-              <a href="/auth/google" class="btn containerH" style=" justify-content: center; align-items: center;flex:1" id="btn-google">
-                <img src="../ihm/image/google-plus.png" alt="" id="googleP" style="padding-right: 10px;height: 25px; width:25px;">
-                Connexion avec un compte Google</a>
-            </div>
-            <!-- Bouton inscription -->
-            <label style="margin-bottom:20px;" class="label-form">Vous n'avez pas de compte Grappe ?
-              <a class="url" onclick={hidePage}>
-                Inscrivez-vous</a>
-            </label>
+
+          <!-- Bouton Google -->
+          <span></span>
+          <div class="containerH">
+            <a href="/auth/google" class="btn google">
+              <img src="../ihm/image/google-plus.png" alt="" id="googleP" style="padding-right: 10px;height: 25px; width:25px;">
+              Connexion avec un compte Google</a>
           </div>
+
+          <!-- Bouton inscription -->
+          <label style="margin-bottom:20px;" class="label-form">Vous n'avez pas de compte Grappe ?
+            <a class="url" onclick={hidePage}>
+              Inscrivez-vous</a>
+          </label>
         </div>
       </form>
     </div>
@@ -84,8 +81,6 @@
   <div class="containerH" if={isScrennToShow('inscription')} style="flex-wrap: wrap;justify-content: center; align-items: center;overflow:auto;flex-grow:2">
     <div class="containerV" style="width: 600px;">
       <div class="containerH" style="flex-wrap:wrap;overflow:auto">
-        <!-- box Inscription -->
-        <div class="containerV box" style="flex-grow:2">
 
         <div class="containerV box" style="flex-grow:2">
             <!-- Focus Inscription
@@ -454,7 +449,6 @@
       this.resultConnexion = ""
     }
     login(e) {
-      console.log(this.user.password)
       if ((this.user.password != undefined) && (this.user.email != undefined) && (this.user.email != "") && (this.user.email != "")) {
         RiotControl.trigger('user_connect', this.user);
         RiotControl.on('google_user', function () {
@@ -836,32 +830,47 @@
       /*position: absolute;*/
     }
 
-    #btn-google {
-      background: #dc4e41;
-    }
     .btn:hover {
       background: #2CC06B;
     }
 
     .btn {
-      /*text-align: center;
-      width: 125px;*/
       background: #2ecc71;
-      /*padding-top: 5px;
-      padding-bottom: 5px;*/
       border-radius: 4px;
       border: #2980b9 1px solid;
       margin: 10px;
       padding: 10px;
-      /*margin-bottom: 20px;
-      margin-left: 10px;*/
       font-weight: 800;
       font-size: 0.8em;
       cursor: pointer;
+
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex: 1;
     }
 
-    #btn4 {
-      background: #3498db;
+    .btn.primary {
+      border: #2980b9 1px solid;
+      background: #2ecc71;
+      color: white;
+    }
+
+    .btn.primary:hover {
+      background: #2CC06B;
+    }
+
+    .btn.secondary {
+      background: rgb(37,167,239);
+      color: white;
+    }
+
+    .btn.secondary:hover {
+      background: #3594D2;
+    }
+
+    .btn.google {
+      background: #dc4e41;
       color: white;
     }
 
