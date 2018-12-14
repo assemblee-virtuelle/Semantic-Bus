@@ -32,6 +32,7 @@ module.exports = {
   valueFromPath:require('./workSpaceComponentDirectory/valueFromPath.js'),
   unicity:require('./workSpaceComponentDirectory/unicity.js'),
   propertiesMatrix:require('./workSpaceComponentDirectory/propertiesMatrix.js'),
+  webhook: require('./workSpaceComponentDirectory/webhook.js'),
 
   /* some other modules you want */
 
