@@ -13,23 +13,25 @@ module.exports = {
   http: require('follow-redirects').http,
   //https: require('https'),
   https: require('follow-redirects').https,
-
+  stringReplacer: require('../sharedLibrary/stringReplacer.js'),
   xml2js: require('xml2js'),
   //waterfall: require('promise-waterfall'),
 
-  makeRequest: function(methodRest, specificData, pullParams) {
+  makeRequest: function(methodRest, specificData, pullParams, flowdata) {
 
     // create a new Promise
     return new Promise((resolve, reject) => {
       //console.log(pullParams,urlString);
       let urlString = specificData.url;
       //console.log(urlString);
-      if(pullParams !=undefined && pullParams.query!=undefined){
-        for (let param in pullParams.query) {
-          urlString = urlString.replace('{£.' + param + '}', pullParams.query[param]);
-        }
-      }
-      console.log('urlString',urlString);
+      // if(pullParams !=undefined && pullParams.query!=undefined){
+      //   for (let param in pullParams.query) {
+      //     urlString = urlString.replace('{£.' + param + '}', pullParams.query[param]);
+      //   }
+      // }
+
+      urlString=this.stringReplacer.execute(urlString,pullParams,flowdata);
+      // console.log('urlString',urlString);
 
       let headers = {}
       if (specificData.headers != undefined) {
@@ -142,7 +144,7 @@ module.exports = {
   pull: function(data, flowdata, pullParams) {
     //console.log('REST Get JSON | pull : ',data);
     //console.log(data.specificData);
-    return this.makeRequest('GET', data.specificData, pullParams);
+    return this.makeRequest('GET', data.specificData, pullParams, flowdata==undefined?undefined: flowdata[0].data);
 
   }
 };

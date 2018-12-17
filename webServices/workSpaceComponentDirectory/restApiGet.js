@@ -59,24 +59,18 @@ module.exports = new function() {
                 try {
                   req.query[queryKey] = JSON.parse(req.query[queryKey]);
                 } catch (e) {
-                  console.log(e);
+                  console.log('restApiGet : error parsing query', queryKey ,req.query[queryKey],e);
                 }
               }
               //console.log('QUERY',req.query);
               break;
             }
-            // matches = re.exec(urlRequiered);
-            // console.log(matches);
-            // if(matches.length>1){
-            //   matched=true;
-            //   break;
-            // }
           }
         }
         if (!matched) {
           return new Promise((resolve, reject) => {
             reject({
-              code: 404,
+              codeHTTP: 404,
               message: "no API for this url"
             })
           })
@@ -91,7 +85,9 @@ module.exports = new function() {
         //console.log('AALLOO',dataToSend);
         if (targetedComponent.specificData != undefined) { // exception in previous promise
           if (targetedComponent.specificData.contentType != undefined) {
-            if (targetedComponent.specificData.contentType.search('application/vnd.ms-excel') != -1) {
+            if(dataToSend.data==undefined){
+                next(new Error('data in flow is not defined. please chack your configuration'));
+            } else  if (targetedComponent.specificData.contentType.search('application/vnd.ms-excel') != -1) {
               res.setHeader('content-type', targetedComponent.specificData.contentType);
               var responseBodyExel = []
               console.log('data.contentType XLS', targetedComponent.specificData);
@@ -115,6 +111,7 @@ module.exports = new function() {
 
             } else if (targetedComponent.specificData.contentType.search('json') != -1) {
               res.setHeader('content-type', targetedComponent.specificData.contentType);
+              //console.log('restApiGet json data',dataToSend.data);
               var buf = Buffer.from(JSON.stringify(dataToSend.data));
               res.send(buf);
             } else {
@@ -127,8 +124,9 @@ module.exports = new function() {
           }
         }
       }).catch(err => {
-        console.log('Engine FAIL for API ',urlRequiered);
-        if (err.code) {
+        // console.log('Engine FAIL for API ',urlRequiered, err);
+        // console.log('err.codeHTTP',err.codeHTTP);
+        if (err.codeHTTP) {
           res.status(err.code).send(err.message);
         } else {
           next(err)

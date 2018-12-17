@@ -22,7 +22,7 @@ module.exports = {
   filter: require('./workSpaceComponentDirectory/filter.js'),
   upload: require('./workSpaceComponentDirectory/upload.js'),
   scrapper: require('./workSpaceComponentDirectory/scrapper.js'),
-  httpGet: require('./workSpaceComponentDirectory/httpGet.js'),
+  httpGet: require('./workSpaceComponentDirectory/restGetFile.js'),
   sqlConnector: require('./workSpaceComponentDirectory/sqlConnecteur.js'),
   mongoConnector: require('./workSpaceComponentDirectory/MongoDB.js'),
   sparqlRequest: require('./workSpaceComponentDirectory/sparqlRequest.js'),

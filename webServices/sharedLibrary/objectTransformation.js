@@ -260,7 +260,10 @@ module.exports = {
               var evalParamValue = nodeInData[nodeInDataProperty][evalParam];
               //console.log('evalParam |',evalParam,' | evalParamValue | ',evalParamValue);
               //console.log('typeof evalParamValue',typeof evalParamValue);
-              if (typeof evalParamValue == 'string') {
+              console.log('evalParamValue',typeof evalParamValue);
+              if (evalParamValue == undefined) {
+                evalParamValue = 'undefined';
+              } else if(typeof evalParamValue == 'string') {
 
                 // evalParamValue = evalParamValue.replace(/\\/g, '\\\\')
                 //evalParamValue = evalParamValue.replace(/"/g, '\\"')
@@ -271,13 +274,12 @@ module.exports = {
                 //console.log('**********************************');
                 //console.log(evalParamValue);
                 evalParamValue = '`' + evalParamValue + '`';
-              }
-              if (typeof evalParamValue == 'object') {
+              } else if (typeof evalParamValue == 'object') {
                 //evalParamValue= 'JSON.parse(\''+JSON.stringify(evalParamValue)+'\')';
                 evalParamValue = JSON.stringify(evalParamValue);
                 evalParamValue = evalParamValue.replace(/\\/g, "\\\\");
-                evalParamValue = evalParamValue.replace(/'/g, "\\'");
-                evalParamValue = "JSON.parse('" + evalParamValue + "')";
+                // evalParamValue = evalParamValue.replace(/'/g, "\\'");
+                evalParamValue = "JSON.parse(`" + evalParamValue + "`)";
                 //evalParamValue = evalParamValue.replace("'", "X");
                 //evalParamValue=evalParamValue.replace(":","X");
                 //console.log('evalParamValue |', evalParamValue);
@@ -286,12 +288,12 @@ module.exports = {
               let regExpValue = new RegExp('({\\' + evalParam + '})', 'g');
               javascriptEvalString = javascriptEvalString.replace(regExpValue, evalParamValue)
             }
-            //console.log('javascriptEvalString | ',javascriptEvalString);
+            console.log('javascriptEvalString | ',javascriptEvalString);
             try {
               //console.log('**********************************');
               //console.log(javascriptEvalString);
               nodeOut[nodeInDataProperty] = eval(javascriptEvalString);
-              //console.log('eval done');
+              //console.log('eval done',nodeOut[nodeInDataProperty]);
             } catch (e) {
               nodeOut[nodeInDataProperty]={error:'Javascript Eval failed ',evalString:javascriptEvalString,cause:e.message};
               //console.log('Javascript Eval failed ', javascriptEvalString, e.message);
@@ -341,7 +343,7 @@ module.exports = {
       if (nodeIn[key] == undefined && jsonTransformPattern != undefined) {
 
         if (typeof jsonTransformPattern[key] == 'string' && jsonTransformPattern[key].indexOf('$') != -1) {
-          nodeOut[key] = '';
+          nodeOut[key] = undefined;
         } else {
           //console.log('unresolveProcess | ',key,'|',jsonTransformPattern[key]);
           nodeOut[key] = jsonTransformPattern[key];
