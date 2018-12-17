@@ -6,7 +6,7 @@
         <label>Nom:
         </label>
       </div>
-      <div class="containerV" style="justify-content:center;">
+      <div class="containerV" style="justify-content:center;flex-grow:1;">
         <input placeholder="Sans-titre" type="text" id="nameComponentInput" onchange={onNameChange} value={itemCurrent.name} required="required"></input>
       </div>
     </div>

@@ -101,6 +101,7 @@
     "xml2js": "^0.4.19"
   },
   "devDependencies": {
+    "@types/amqplib": "^0.5.9",
     "chromedriver": "^2.37.0",
     "mocha-junit-reporter": "^1.13.0",
     "wdio-chromedriver-service": "^0.1.2"
