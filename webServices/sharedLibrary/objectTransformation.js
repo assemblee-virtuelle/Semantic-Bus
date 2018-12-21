@@ -3,14 +3,64 @@
 
 module.exports = {
   transform: require('jsonpath-object-transform'),
-  execute : function(source, jsonTransformPattern) {
+  executeWithParams: function(source, pullParams, jsonTransformPattern) {
+    let out = this.execute(source, jsonTransformPattern);
+    // console.log('out',out);
+    if (pullParams != undefined) {
+      let newJsonTransformPattern = this.convertOperatorParams(jsonTransformPattern);
+      // console.log("newJsonTransformPattern", newJsonTransformPattern, pullParams);
+      let out2 = this.execute(pullParams, newJsonTransformPattern);
+      console.log('out1', out);
+      console.log('out2', out2);
+      out = this.mergeParams(out, out2);
+      console.log('mergeParams', out);
+    }
+    console.log('executeWithParams',out);
+    return out;
+  },
+  convertOperatorParams(newJsonTransformPattern) {
+
+    if (typeof newJsonTransformPattern == 'string') {
+      newJsonTransformPattern = newJsonTransformPattern.replace(/£./g, '$.');
+    } else if (typeof newJsonTransformPattern == 'object') {
+      for (let key in newJsonTransformPattern) {
+        newJsonTransformPattern[key] = this.convertOperatorParams(newJsonTransformPattern[key]);
+      }
+    }
+
+    return newJsonTransformPattern;
+  },
+
+  mergeParams(pushFlow, pullFlow) {
+    console.log('ALLO1111111111111111111111');
+    // console.log('pushFlow',typeof pushFlow ,pushFlow );
+    if (typeof pushFlow == 'object') {
+      for (let key in pushFlow) {
+        // console.log('pushFlow[key]',pushFlow[key]);
+        // console.log('pullFlow[key]',pullFlow[key]);
+        if (pushFlow[key] == undefined && pullFlow[key] != undefined) {
+          pushFlow[key] = pullFlow[key];
+        }else if (pushFlow[key] != undefined && pullFlow[key] == undefined) {
+          //noting todo
+        } else if (pushFlow[key] != undefined) {
+          pushFlow[key] = this.mergeParams(pushFlow[key], pullFlow[key]);
+        }
+      }
+    }
+      console.log('ALLO2222222222222222222222');
+    return pushFlow;
+  },
+
+  execute: function(source, jsonTransformPattern) {
     //console.log("source", source,'jsonTransformPattern', jsonTransformPattern )
     //console.log('Object Transformer | source',source,' | pattern | ',jsonTransformPattern);
     //console.log(source);
     //console.log(jsonTransformPattern);
     //console.log(jsonSchema);
     //source={root:source};
-    jsonTransformPattern ={root:jsonTransformPattern};
+    jsonTransformPattern = {
+      root: jsonTransformPattern
+    };
     // var array = true;
     // for (var propertyKey in source) {
     //   //console.log(parseInt(propertyKey));
@@ -48,16 +98,16 @@ module.exports = {
 
     var dissociatePatternResolvable = this.dissociatePatternResolvable(jsonTransformPattern);
     var dissociatePatternPostProcess = this.dissociatePatternPostProcess(jsonTransformPattern);
-    // console.log('resolvable | ', JSON.stringify(dissociatePatternResolvable));
+    //console.log('resolvable | ', JSON.stringify(dissociatePatternResolvable));
     // console.log('postProcess | ', JSON.stringify(dissociatePatternPostProcess));
     //console.log('resolvable | ', dissociatePatternResolvable);
     //console.log('postProcess | ', dissociatePatternPostProcess);
-    // console.log('source | ', JSON.stringify(source));
+    //console.log('source | ', JSON.stringify(source));
     //console.log('source | ', source);
     var postProcessResult;
     try {
       var transformResult = this.transform(source, dissociatePatternResolvable);
-      // console.log('jsonTransform | resultBeforUnresolved |', transformResult);
+      // console.log('jsonTransform | resultBeforUnresolved |', JSON.stringify(transformResult));
       //TODO documentation why (seems for array)
       if (Object.keys(transformResult)[0] == 'undefined') {
         transformResult = transformResult['undefined'];
@@ -99,10 +149,10 @@ module.exports = {
     //   nodeOut = [];
     //   everArrayPath = true;
     // } else {
-      if (Array.isArray(nodeIn)) {
-        arrayHack = true;
-      }
-      nodeOut = {};
+    if (Array.isArray(nodeIn)) {
+      arrayHack = true;
+    }
+    nodeOut = {};
     // }
 
     //console.log(nodeOut);
@@ -169,10 +219,10 @@ module.exports = {
     //   nodeOut = [];
     //   everArrayPath = true;
     // } else {
-      if (Array.isArray(nodeIn)) {
-        arrayHack = true;
-      }
-      nodeOut = {};
+    if (Array.isArray(nodeIn)) {
+      arrayHack = true;
+    }
+    nodeOut = {};
 
     // }
 
@@ -261,7 +311,7 @@ module.exports = {
               //console.log('evalParam |',evalParam,' | evalParamValue | ',evalParamValue);
               //console.log('typeof evalParamValue',typeof evalParamValue);
               //console.log('evalParamValue',typeof evalParamValue);
-              if(typeof evalParamValue == 'string') {
+              if (typeof evalParamValue == 'string') {
 
                 // evalParamValue = evalParamValue.replace(/\\/g, '\\\\')
                 //evalParamValue = evalParamValue.replace(/"/g, '\\"')
@@ -293,7 +343,11 @@ module.exports = {
               nodeOut[nodeInDataProperty] = eval(javascriptEvalString);
               //console.log('eval done',nodeOut[nodeInDataProperty]);
             } catch (e) {
-              nodeOut[nodeInDataProperty]={error:'Javascript Eval failed ',evalString:javascriptEvalString,cause:e.message};
+              nodeOut[nodeInDataProperty] = {
+                error: 'Javascript Eval failed ',
+                evalString: javascriptEvalString,
+                cause: e.message
+              };
               //console.log('Javascript Eval failed ', javascriptEvalString, e.message);
             }
           } else if (nodeInPostProcess[nodeInDataProperty].process == 'arrayHack') {
@@ -340,7 +394,7 @@ module.exports = {
       //console.log(key);
       if (nodeIn[key] == undefined && jsonTransformPattern != undefined) {
 
-        if (typeof jsonTransformPattern[key] == 'string' && jsonTransformPattern[key].indexOf('$') != -1) {
+        if (typeof jsonTransformPattern[key] == 'string' && (jsonTransformPattern[key].indexOf('$') != -1 || jsonTransformPattern[key].indexOf('£') != -1)) {
           nodeOut[key] = undefined;
         } else {
           //console.log('unresolveProcess | ',key,'|',jsonTransformPattern[key]);

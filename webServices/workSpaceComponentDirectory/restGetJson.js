@@ -23,14 +23,15 @@ module.exports = {
     return new Promise((resolve, reject) => {
       //console.log(pullParams,urlString);
       let urlString = specificData.url;
-      //console.log(urlString);
+
       // if(pullParams !=undefined && pullParams.query!=undefined){
       //   for (let param in pullParams.query) {
       //     urlString = urlString.replace('{£.' + param + '}', pullParams.query[param]);
       //   }
       // }
 
-      urlString=this.stringReplacer.execute(urlString,pullParams,flowdata);
+      urlString=this.stringReplacer.execute(urlString,pullParams,flowdata,true);
+      console.log('restGetJson',urlString);
       // console.log('urlString',urlString);
 
       let headers = {}
@@ -70,12 +71,14 @@ module.exports = {
       var lib = urlString.indexOf('https') != -1 ? this.https : this.http;
       //console.log('before',requestOptions.path);
       let request = this.http.request(requestOptions, response => {
+        // console.log('ALLO');
         let hasResponseFailed = response.statusCode >= 400;
-        //console.log('REST Get JSON | header |',response.headers);
-        //console.log('REST Get JSON | statusCode: |',response.statusCode);
+        // console.log('REST Get JSON | header |',response.headers);
+        // console.log('REST Get JSON | statusCode: |',response.statusCode);
         var responseBody = '';
         response.resume();
         if (hasResponseFailed) {
+          // console.log('error body',response);
           reject(new Error('Request failed for url '+urlString+' with status ' + response.statusCode));
         } else {
           /* the response stream's (an instance of Stream) current data. See:
