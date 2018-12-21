@@ -48,16 +48,16 @@ module.exports = {
 
     var dissociatePatternResolvable = this.dissociatePatternResolvable(jsonTransformPattern);
     var dissociatePatternPostProcess = this.dissociatePatternPostProcess(jsonTransformPattern);
-    //console.log('resolvable | ', JSON.stringify(dissociatePatternResolvable));
-    //console.log('postProcess | ', JSON.stringify(dissociatePatternPostProcess));
+    // console.log('resolvable | ', JSON.stringify(dissociatePatternResolvable));
+    // console.log('postProcess | ', JSON.stringify(dissociatePatternPostProcess));
     //console.log('resolvable | ', dissociatePatternResolvable);
     //console.log('postProcess | ', dissociatePatternPostProcess);
-    //console.log('source | ', JSON.stringify(source));
+    // console.log('source | ', JSON.stringify(source));
     //console.log('source | ', source);
     var postProcessResult;
     try {
       var transformResult = this.transform(source, dissociatePatternResolvable);
-      //console.log('jsonTransform | resultBeforUnresolved |', transformResult);
+      // console.log('jsonTransform | resultBeforUnresolved |', transformResult);
       //TODO documentation why (seems for array)
       if (Object.keys(transformResult)[0] == 'undefined') {
         transformResult = transformResult['undefined'];
@@ -260,10 +260,8 @@ module.exports = {
               var evalParamValue = nodeInData[nodeInDataProperty][evalParam];
               //console.log('evalParam |',evalParam,' | evalParamValue | ',evalParamValue);
               //console.log('typeof evalParamValue',typeof evalParamValue);
-              console.log('evalParamValue',typeof evalParamValue);
-              if (evalParamValue == undefined) {
-                evalParamValue = 'undefined';
-              } else if(typeof evalParamValue == 'string') {
+              //console.log('evalParamValue',typeof evalParamValue);
+              if(typeof evalParamValue == 'string') {
 
                 // evalParamValue = evalParamValue.replace(/\\/g, '\\\\')
                 //evalParamValue = evalParamValue.replace(/"/g, '\\"')
@@ -288,7 +286,7 @@ module.exports = {
               let regExpValue = new RegExp('({\\' + evalParam + '})', 'g');
               javascriptEvalString = javascriptEvalString.replace(regExpValue, evalParamValue)
             }
-            console.log('javascriptEvalString | ',javascriptEvalString);
+            //console.log('javascriptEvalString | ',javascriptEvalString);
             try {
               //console.log('**********************************');
               //console.log(javascriptEvalString);

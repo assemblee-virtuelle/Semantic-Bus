@@ -22,6 +22,7 @@ module.exports = {
       }
     }
     if(flow!=undefined){
+      //console.log('flow',flow);
       const regex = /{(\$.*?)}/g;
       const elementsRaw = processingRawString.match(regex);
       if (elementsRaw != null) {
@@ -36,7 +37,7 @@ module.exports = {
         }
       }
     }
-    //console.log(processingRawString);
+    //console.log('processingRawString',processingRawString);
     return processingRawString;
   }
 }

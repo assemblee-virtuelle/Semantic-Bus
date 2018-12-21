@@ -59,7 +59,7 @@ module.exports = new function() {
                 try {
                   req.query[queryKey] = JSON.parse(req.query[queryKey]);
                 } catch (e) {
-                  console.log('restApiGet : error parsing query', queryKey ,req.query[queryKey],e);
+                  //console.warn('restApiGet : error parsing query', queryKey ,req.query[queryKey],e);
                 }
               }
               //console.log('QUERY',req.query);

@@ -65,8 +65,13 @@ module.exports = {
         var primaryFlowData = this.sift({
           componentId: data.specificData.primaryComponentId
         }, flowData)[0].data;
-        if (!Array.isArray(secondaryFlowData)) {
-          reject(new Error('secondary Flow have to be an array'));
+
+        if (!Array.isArray(secondaryFlowData) || !Array.isArray(primaryFlowData)) {
+          reject(new Error('Flows have to be an array'));
+        } else if(primaryFlowData.length==0){
+          resolve({
+            data: []
+          });
         } else {
           var secondaryFlowData = JSON.parse(JSON.stringify(secondaryFlowData)) //in case primary and secandary is the same source
           let paramArray=primaryFlowData.map(r=>{return [

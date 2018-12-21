@@ -91,8 +91,8 @@ module.exports = {
 
           // once all the data has been read, resolve the Promise
           response.on('end', () => {
-            //console.log('end response');
-            //console.log(responseBody);
+            console.log('end response');
+            console.log(responseBody);
 
             try {
               //console.log('CONTENT-TYPE',response.headers['content-type']);
@@ -135,7 +135,7 @@ module.exports = {
       /* if there's an error, then reject the Promise
        * (can be handled with Promise.prototype.catch) */
       request.on('error', function(e) {
-        //console.log('error request:', e);
+        console.log('error request:', e);
         reject(e);
       });
       request.end();
