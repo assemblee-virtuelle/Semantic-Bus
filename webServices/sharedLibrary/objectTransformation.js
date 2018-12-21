@@ -10,12 +10,12 @@ module.exports = {
       let newJsonTransformPattern = this.convertOperatorParams(jsonTransformPattern);
       // console.log("newJsonTransformPattern", newJsonTransformPattern, pullParams);
       let out2 = this.execute(pullParams, newJsonTransformPattern);
-      console.log('out1', out);
-      console.log('out2', out2);
+      // console.log('out1', out);
+      // console.log('out2', out2);
       out = this.mergeParams(out, out2);
-      console.log('mergeParams', out);
+      // console.log('mergeParams', out);
     }
-    console.log('executeWithParams',out);
+    // console.log('executeWithParams',out);
     return out;
   },
   convertOperatorParams(newJsonTransformPattern) {
@@ -32,7 +32,6 @@ module.exports = {
   },
 
   mergeParams(pushFlow, pullFlow) {
-    console.log('ALLO1111111111111111111111');
     // console.log('pushFlow',typeof pushFlow ,pushFlow );
     if (typeof pushFlow == 'object') {
       for (let key in pushFlow) {
@@ -47,7 +46,6 @@ module.exports = {
         }
       }
     }
-      console.log('ALLO2222222222222222222222');
     return pushFlow;
   },
 

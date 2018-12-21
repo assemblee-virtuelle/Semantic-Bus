@@ -31,7 +31,7 @@ module.exports = {
       // }
 
       urlString=this.stringReplacer.execute(urlString,pullParams,flowdata,true);
-      console.log('restGetJson',urlString);
+      // console.log('restGetJson',urlString);
       // console.log('urlString',urlString);
 
       let headers = {}
@@ -94,8 +94,8 @@ module.exports = {
 
           // once all the data has been read, resolve the Promise
           response.on('end', () => {
-            console.log('end response');
-            console.log(responseBody);
+            // console.log('end response');
+            // console.log(responseBody);
 
             try {
               //console.log('CONTENT-TYPE',response.headers['content-type']);
