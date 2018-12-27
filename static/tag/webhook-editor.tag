@@ -9,23 +9,22 @@
   <div>Envoyer les données en push sur une URL externe.</div>
 <!-- Champ du composant -->
   <label>URL externe à appeler:</label>
-  <input placeholder=""type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.url}></input>
+  <input placeholder="" type="text" name="urlInput" ref="urlInput" onChange={this.urlInputChanged} value={data.specificData.url}></input>
   <label>Content-type:</label>
-  <input placeholder="application/json" type="text" name="contentTypeInput" ref="contentTypeInput" onChange={contentTypeInputChanged} value={data.specificData.contentType}></input>
+  <input placeholder="application/json" type="text" name="contentTypeInput" ref="contentTypeInput" onChange={this.contentTypeInputChanged} value={data.specificData.contentType}></input>
 
   <script>
     this.data = {};
-    urlInputChanged(e) {
+    this.urlInputChanged = e => {
       this.data.specificData.url = e.currentTarget.value;
-    }
-    contentTypeInputChanged(e) {
+    };
+    this.contentTypeInputChanged = e => {
       this.data.specificData.contentType = e.currentTarget.value;
-    }
-    this.updateData = function (dataToUpdate) {
+    };
+    this.updateData = dataToUpdate => {
       this.data = dataToUpdate;
       this.update();
-    }.bind(this);
-
+    };
     this.on('mount', function () {
       RiotControl.on('item_current_changed', this.updateData);
     });
