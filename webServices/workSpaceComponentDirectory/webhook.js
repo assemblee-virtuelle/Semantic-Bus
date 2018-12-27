@@ -14,29 +14,22 @@ module.exports = {
 
   // Function called when another component push to this component
   pull: function(data, flowData, queryParams) {
-    return new Promise((resolve, reject) => {
+    const componentConfig = data.specificData;
+    let body;
 
-      const componentData = data.specificData;
-      let body;
+    switch (componentConfig.contentType) {
+      case 'application/json':
+        body = JSON.stringify(flowData[0].data);
+        break;
 
-      switch (componentData.contentType) {
-        case 'application/json':
-          body = JSON.stringify(flowData[0].data);
-          break;
+      default:
+        return Promise.reject(new Error('Only application/json contentType is currently supported for Webhook component'));
+    }
 
-        default:
-          return reject(new Error('Only application/json contentType is currently supported for Webhook component'));
-      }
-
-      return this.fetch(componentData.url, {
-        method: 'POST',
-        body: body,
-        headers: { 'Content-Type': componentData.contentType }
-      }).then(() => {
-        resolve({ data: flowData[0].data });
-      }).catch(e => {
-        reject(e);
-      });
-    });
+    return this.fetch(componentConfig.url, {
+      method: 'POST',
+      body: body,
+      headers: {'Content-Type': componentConfig.contentType}
+    }).then(() => ({data: flowData[0].data}));
   }
 };
