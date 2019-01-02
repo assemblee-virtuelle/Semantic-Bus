@@ -32,6 +32,7 @@ module.exports = {
   valueFromPath:require('./workSpaceComponentDirectory/valueFromPath.js'),
   unicity:require('./workSpaceComponentDirectory/unicity.js'),
   propertiesMatrix:require('./workSpaceComponentDirectory/propertiesMatrix.js'),
+  postConsumer: require('./workSpaceComponentDirectory/postConsumer.js'),
 
   /* some other modules you want */
 
