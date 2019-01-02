@@ -47,9 +47,8 @@ module.exports = {
 
               console.log(`Webhook post to ${url} failed, trying again in ${retryInterval}s...`);
 
-              return this.sleep(retryInterval * 1000).then(() => {
-                  this.call_webhook(url, options, numRetry+1);
-              });
+              return this.sleep(retryInterval * 1000)
+                  .then(() => this.call_webhook(url, options, numRetry+1));
           }
       });
   },
