@@ -1,14 +1,14 @@
-<webhook-editor>
+<post-consumer-editor>
   <!-- bouton aide -->
   <div class="contenaireH" style="margin-left:97%">
-    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Webhook" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Post-Consumer" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
 <!-- Titre du composant -->
-  <div class="contenaireV title-component">Webhook</div>
+  <div class="contenaireV title-component">Post Consumer</div>
 <!-- Description du composant -->
-  <div>Envoyer les données en push sur une URL externe.</div>
+  <div>Envoyer les données en post vers une URL externe.</div>
 <!-- Champ du composant -->
-  <label>URL externe à appeler:</label>
+  <label>URL externe où envoyer les données:</label>
   <input placeholder="" type="text" name="urlInput" ref="urlInput" onChange={this.urlInputChanged} value={data.specificData.url}></input>
   <label>Content-type:</label>
   <input placeholder="application/json" type="text" name="contentTypeInput" ref="contentTypeInput" onChange={this.contentTypeInputChanged} value={data.specificData.contentType}></input>
@@ -32,4 +32,4 @@
       RiotControl.off('item_current_changed', this.updateData);
     });
   </script>
-</webhook-editor>
+</post-consumer-editor>

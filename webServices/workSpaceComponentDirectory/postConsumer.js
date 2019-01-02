@@ -1,10 +1,10 @@
 "use strict";
 module.exports = {
   // Generic components data
-  type: 'Webhook',
-  description: 'Envoyer les données en POST sur une URL externe.',
-  editor: 'webhook-editor',
-  graphIcon: 'Webhook.png',
+  type: 'Post Consumer',
+  description: 'Envoyer les données en POST vers une URL externe.',
+  editor: 'post-consumer-editor',
+  graphIcon: 'Post_consumer.png',
   tags: [
     'http://semantic-bus.org/data/tags/outComponents',
     'http://semantic-bus.org/data/tags/APIComponents'
@@ -23,17 +23,17 @@ module.exports = {
         break;
 
       default:
-        return Promise.reject(new Error('Only application/json contentType is currently supported for Webhook component'));
+        return Promise.reject(new Error('Only application/json contentType is currently supported for Post Consumer component'));
     }
 
-    return this.call_webhook(componentConfig.url, {
+    return this.call_url(componentConfig.url, {
         method: 'POST',
         body: body,
         headers: {'Content-Type': componentConfig.contentType}
     });
   },
 
-  call_webhook: function(url, options, numRetry) {
+  call_url: function(url, options, numRetry) {
       if( numRetry === undefined ) numRetry = 0;
 
       return this.fetch(url, options).catch(error => {
@@ -45,10 +45,10 @@ module.exports = {
               // This will retry after 5s, 25s, 2m, 10m, 50m, 4h, 21h
               const retryInterval = Math.pow(5, numRetry+1);
 
-              console.log(`Webhook post to ${url} failed, trying again in ${retryInterval}s...`);
+              console.log(`Post Consumer component post to ${url} failed, trying again in ${retryInterval}s...`);
 
               return this.sleep(retryInterval * 1000)
-                  .then(() => this.call_webhook(url, options, numRetry+1));
+                  .then(() => this.call_url(url, options, numRetry+1));
           }
       });
   },
