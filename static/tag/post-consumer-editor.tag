@@ -1,10 +1,10 @@
 <post-consumer-editor>
   <!-- bouton aide -->
   <div class="contenaireH" style="margin-left:97%">
-    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Post-Consumer" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Post-consumer" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
 <!-- Titre du composant -->
-  <div class="contenaireV title-component">Post Consumer</div>
+  <div class="contenaireV title-component">Post consumer</div>
 <!-- Description du composant -->
   <div>Envoyer les données en post vers une URL externe.</div>
 <!-- Champ du composant -->

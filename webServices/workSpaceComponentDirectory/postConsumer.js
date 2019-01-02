@@ -1,7 +1,7 @@
 "use strict";
 module.exports = {
   // Generic components data
-  type: 'Post Consumer',
+  type: 'Post consumer',
   description: 'Envoyer les données en POST vers une URL externe.',
   editor: 'post-consumer-editor',
   graphIcon: 'Post_consumer.png',
@@ -23,7 +23,7 @@ module.exports = {
         break;
 
       default:
-        return Promise.reject(new Error('Only application/json contentType is currently supported for Post Consumer component'));
+        return Promise.reject(new Error('Only application/json contentType is currently supported for Post consumer component'));
     }
 
     return this.call_url(componentConfig.url, {
@@ -38,14 +38,14 @@ module.exports = {
 
       return this.fetch(url, options).catch(error => {
           if( numRetry >= 7 ) {
-              // TODO log the failed webhook posts somewhere ?
+              // TODO log the failed posts somewhere ?
               console.error(error);
           } else {
               // Exponentially increment retry interval at every failure
               // This will retry after 5s, 25s, 2m, 10m, 50m, 4h, 21h
               const retryInterval = Math.pow(5, numRetry+1);
 
-              console.log(`Post Consumer component post to ${url} failed, trying again in ${retryInterval}s...`);
+              console.log(`Post consumer component post to ${url} failed, trying again in ${retryInterval}s...`);
 
               return this.sleep(retryInterval * 1000)
                   .then(() => this.call_url(url, options, numRetry+1));
