@@ -8,12 +8,12 @@
   </div>
   <div>Interroger l'API adresse.data.gouv.fr pour trouver la latitude et la longitude avec une adresse.</div>
   <!-- Champ du composant -->
-  <div>Champ de l'objet permettant de définir la position géographique.</div>
+  <div>Champs de l'objet permettant de définir la position géographique.</div>
   <label>Latitude:</label>
   <input placeholder="Latitude" type="text" ref="latInput" value={data.specificData.latitudePath}></input>
   <label>Longitude:</label>
   <input placeholder="Longitude" type="text" ref="lngInput" value={data.specificData.longitudePath}></input>
-  <div>Champ de l'objet qui recevront les informations de l'adresse.</div>
+  <div>Champs de l'objet qui recevront les informations de géolocalisation.</div>
   <label>Code postal:</label>
   <input placeholder="Code postal" type="text" ref="CPInput" value={data.specificData.CPPath}></input>
   <label>Code Insee:</label>

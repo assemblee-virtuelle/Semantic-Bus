@@ -100,7 +100,7 @@ class UnicityExecutor {
 
 module.exports = {
   type: 'Unicity',
-  description: 'Sctructurer les données en vérifiant l\'unicité par champ et répartir les valeurs par source.',
+  description: 'Structurer les données en vérifiant l\'unicité par champ et répartir les valeurs par source.',
   editor: 'unicity-editor',
   graphIcon: 'Unicity.png',
   sift: require('sift'),

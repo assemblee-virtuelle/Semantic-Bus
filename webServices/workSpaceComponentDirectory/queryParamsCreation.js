@@ -1,7 +1,7 @@
 "use strict";
 module.exports = {
   type: 'Params transform',
-  description: 'Créer des paramètres de requête dand le flux.',
+  description: 'Créer des paramètres de requête dans le flux.',
   editor:'query-params-creation-editor',
   graphIcon:'Params_transform.png',
   objectTransformation: require('../sharedLibrary/objectTransformation.js'),

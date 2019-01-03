@@ -1,7 +1,7 @@
 "use strict";
 module.exports = {
   type: 'Property matrix',
-  description: 'Recontruire des objects à partir de plusieurs propriétés en liste.',
+  description: 'Reconstruire des objets à partir de plusieurs propriétés en liste.',
   editor: 'properties-matrix-editor',
   graphIcon: 'Property_matrix.png',
   sift: require('sift'),

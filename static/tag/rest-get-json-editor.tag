@@ -1,10 +1,10 @@
 <rest-get-json-editor>
   <!-- bouton aide -->
   <div class="contenaireH" style="margin-left:97%">
-    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-HTTP-flow-consumer" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Flow-consumer" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
   <!-- Titre du composant -->
-  <div class="contenaireV title-component">HTTP flow consumer</div>
+  <div class="contenaireV title-component">Flow consumer</div>
   <!-- Description du composant -->
   <div>Interroger une API REST avec une requête GET qui fournit un flux JSON, XML.</div>
   <!-- Champ du composant -->

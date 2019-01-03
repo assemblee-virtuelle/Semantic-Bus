@@ -1,7 +1,7 @@
 'use strict'
 module.exports = {
   type: 'Scrapper',
-  description: 'Scrapper une page html.',
+  description: 'Scrapper une page HTML.',
   editor: 'scrapper-editor',
   graphIcon: 'Scrapper.png',
   tags: [

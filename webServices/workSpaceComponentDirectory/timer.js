@@ -1,7 +1,7 @@
 "use strict";
 module.exports = {
   type: 'Timer',
-  description: 'Déclencher un traitement à interval régulier par minute.',
+  description: 'Déclencher un traitement à intervalle régulier par minute.',
   editor: 'timer-editor',
   graphIcon:'Timer.png',
   // workspace_component_lib : require('../../lib/core/lib/workspace_component_lib'),

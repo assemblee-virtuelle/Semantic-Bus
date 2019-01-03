@@ -1,7 +1,7 @@
 "use strict";
 module.exports = {
   type: 'Join',
-  description: 'Completer un flux par un second en se basant sur un champ du 1er et un identifiant du 2nd.',
+  description: 'Compléter un flux par un second en se basant sur un champ du 1er et un identifiant du 2nd.',
   editor: 'join-by-field-editor',
   graphIcon: 'Join.png',
   PromiseOrchestrator : require("../../lib/core/helpers/promiseOrchestrator.js"),

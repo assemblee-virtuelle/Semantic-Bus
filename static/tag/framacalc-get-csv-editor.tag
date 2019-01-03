@@ -6,7 +6,7 @@
   <!-- Titre du composant -->
   <div class="contenaireV title-component">Framacalc</div>
   <!-- Description du composant -->
-  <div>Interroger une feuille de calcule Framacalc qui fournit un flux CSV.</div>
+  <div>Interroger une feuille de calcul Framacalc qui fournit un flux CSV.</div>
   <!-- Champ du composant -->
   <div>Information de connexion à Framacalc.</div>
   <label>Clé:</label>

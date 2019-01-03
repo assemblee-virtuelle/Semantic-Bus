@@ -6,7 +6,7 @@
 <!-- Titre du composant -->
 <div class="contenaireV title-component">Agregate</div>
 <!-- Description du composant -->
-<div>Agrége plusieurs flux pour n'en former qu'un seul.</div>
+<div>Agrège plusieurs flux pour n'en former qu'un seul.</div>
   <!--<div class="containerV">
     <div class="containerH">
       <div>

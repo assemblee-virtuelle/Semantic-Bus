@@ -6,7 +6,7 @@
   <!-- Titre du composant -->
   <div class="contenaireV title-component">Property matrix</div>
   <!-- Description du composant -->
-  <div>Recontruire des objects à partir de plusieurs propriétés en liste.</div>
+  <div>Reconstruire des objects à partir de plusieurs propriétés en liste.</div>
   <!-- Champ du composant -->
   <label>Attribut à générer:</label>
   <input placeholder="Attribut" type="text" value={data.specificData.attribut} onkeyup={onAttributChange}>

@@ -7,7 +7,7 @@
 <!-- Titre du composant -->
 <div class="contenaireV title-component">Params creation</div>
 <!-- Description du composant -->
-<div>Créer des paramètres de requête dand le flux.</div>
+<div>Créer des paramètres de requête dans le flux.</div>
 <!-- Champ du composant -->
   <label>Configuration de la création de paramètre de query:</label>
   <jsonEditor ref="jsonSchema" title="Transform Schema" class="containerV" modes="['tree','text']"></jsonEditor>

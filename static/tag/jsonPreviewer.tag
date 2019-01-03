@@ -5,11 +5,11 @@
       <input type="text" readonly="true" value={data.componentName}></input>
     </div>
     <div class="containerV">
-      <label>Date debut:</label>
+      <label>Date début:</label>
       <input type="text" readonly="true" value={new Date(data.startTime).toLocaleDateString()}></input>
     </div>
     <div class="containerV">
-      <label>Heure debut:</label>
+      <label>Heure début:</label>
       <input type="text" readonly="true" value={new Date(data.startTime).toLocaleTimeString()}></input>
     </div>
     <div class="containerV">
@@ -19,7 +19,7 @@
   </div>
   <div class="containerH info">
     <div class="containerV">
-      <label>Duree (ms):</label>
+      <label>Durée (ms):</label>
       <input type="text" readonly="true" value={(new Date(data.timeStamp)-new Date(data.startTime))}></input>
     </div>
     <div class="containerV">
@@ -31,7 +31,7 @@
       <input type="text" readonly="true" value={data.moCount*1000}></input>
     </div>
     <div class="containerV">
-      <label>Prix en credit:</label>
+      <label>Prix en crédit:</label>
       <input type="text" readonly="true" value={data.totalPrice*1000}></input>
     </div>
   </div>

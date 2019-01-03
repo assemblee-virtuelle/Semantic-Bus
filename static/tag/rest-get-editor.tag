@@ -1,10 +1,10 @@
 <rest-get-editor>
   <!-- bouton aide -->
   <div class="contenaireH" style="margin-left:97%">
-    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-HTTP-file-consumer" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-File-consumer" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
 <!-- Titre du composant -->
-  <div class="contenaireV title-component">HTTP file consumer</div>
+  <div class="contenaireV title-component">File consumer</div>
   <!-- Description du composant -->
   <div>Interroger un fichier mis à disposition sur une API REST avec une requête GET.</div>
   <!-- Champ du composant -->

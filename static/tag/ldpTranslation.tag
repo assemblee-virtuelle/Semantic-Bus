@@ -5,7 +5,7 @@
       <div>nom</div>
       <div>description</div>
       <div>adresse</div>
-      <div>categorie</div>
+      <div>catégorie</div>
       <div>tags</div>
     </yield>
     <yield to="row">

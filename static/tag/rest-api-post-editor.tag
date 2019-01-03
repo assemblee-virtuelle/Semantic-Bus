@@ -1,10 +1,10 @@
 <rest-api-post-editor>
   <!-- bouton aide -->
   <div class="contenaireH" style="margin-left:97%">
-    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-HTTP-output-provider" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Post-provider" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
   <!-- Titre du composant -->
-  <div class="contenaireV title-component">HTTP output provider</div>
+  <div class="contenaireV title-component">Post provider</div>
   <!-- Description du composant -->
   <div>Exposition du flux de donnée sur une API HTTP uniquement en POST.</div>
   <!-- Champ du composant -->

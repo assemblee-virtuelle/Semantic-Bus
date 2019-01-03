@@ -9,7 +9,7 @@
   <!-- Description du composant style="justify-content:center; align-items: center;flex-wrap: wrap;-->
 <div>Interroger l'API adresse.data.gouv.fr pour trouver une adresse avec la latitude et la longitude.</div>
   <!-- Champ du composant -->
-  <div>Champ de l'objet permettant de définir la position géographique.</div>
+  <div>Champs de l'objet permettant de définir la position géographique.</div>
   <label>Rue:</label>
   <input placeholder="Rue" type="text" ref="streetInput" value={data.specificData.streetPath}></input>
   <label>Ville:</label>
@@ -18,7 +18,7 @@
   <input placeholder="Code postal" type="text" ref="postalCodeInput" value={data.specificData.postalCodePath}></input>
   <label>Pays:</label>
   <input placeholder="Pays" type="text" ref="countryInput" value={data.specificData.countryPath}></input>
-  <div>Champ de l'objet qui recevront les informations de géolocalisation.</div>
+  <div>Champs de l'objet qui recevront les informations de géolocalisation.</div>
   <label>Latitude:</label>
   <input placeholder="Latitude" type="text" ref="latitudeInput" value={data.specificData.latitudePath}></input>
   <label>Longitude:</label>
