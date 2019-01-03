@@ -13,23 +13,26 @@ module.exports = {
   http: require('follow-redirects').http,
   //https: require('https'),
   https: require('follow-redirects').https,
-
+  stringReplacer: require('../sharedLibrary/stringReplacer.js'),
   xml2js: require('xml2js'),
   //waterfall: require('promise-waterfall'),
 
-  makeRequest: function(methodRest, specificData, pullParams) {
+  makeRequest: function(methodRest, specificData, pullParams, flowdata) {
 
     // create a new Promise
     return new Promise((resolve, reject) => {
       //console.log(pullParams,urlString);
       let urlString = specificData.url;
-      //console.log(urlString);
-      if(pullParams !=undefined && pullParams.query!=undefined){
-        for (let param in pullParams.query) {
-          urlString = urlString.replace('{£.' + param + '}', pullParams.query[param]);
-        }
-      }
-      console.log('urlString',urlString);
+
+      // if(pullParams !=undefined && pullParams.query!=undefined){
+      //   for (let param in pullParams.query) {
+      //     urlString = urlString.replace('{£.' + param + '}', pullParams.query[param]);
+      //   }
+      // }
+
+      urlString=this.stringReplacer.execute(urlString,pullParams,flowdata,true);
+      // console.log('restGetJson',urlString);
+      // console.log('urlString',urlString);
 
       let headers = {}
       if (specificData.headers != undefined) {
@@ -68,12 +71,14 @@ module.exports = {
       var lib = urlString.indexOf('https') != -1 ? this.https : this.http;
       //console.log('before',requestOptions.path);
       let request = this.http.request(requestOptions, response => {
+        // console.log('ALLO');
         let hasResponseFailed = response.statusCode >= 400;
-        //console.log('REST Get JSON | header |',response.headers);
-        //console.log('REST Get JSON | statusCode: |',response.statusCode);
+        // console.log('REST Get JSON | header |',response.headers);
+        // console.log('REST Get JSON | statusCode: |',response.statusCode);
         var responseBody = '';
         response.resume();
         if (hasResponseFailed) {
+          // console.log('error body',response);
           reject(new Error('Request failed for url '+urlString+' with status ' + response.statusCode));
         } else {
           /* the response stream's (an instance of Stream) current data. See:
@@ -89,8 +94,8 @@ module.exports = {
 
           // once all the data has been read, resolve the Promise
           response.on('end', () => {
-            //console.log('end response');
-            //console.log(responseBody);
+            // console.log('end response');
+            // console.log(responseBody);
 
             try {
               //console.log('CONTENT-TYPE',response.headers['content-type']);
@@ -133,7 +138,7 @@ module.exports = {
       /* if there's an error, then reject the Promise
        * (can be handled with Promise.prototype.catch) */
       request.on('error', function(e) {
-        //console.log('error request:', e);
+        console.log('error request:', e);
         reject(e);
       });
       request.end();
@@ -142,7 +147,7 @@ module.exports = {
   pull: function(data, flowdata, pullParams) {
     //console.log('REST Get JSON | pull : ',data);
     //console.log(data.specificData);
-    return this.makeRequest('GET', data.specificData, pullParams);
+    return this.makeRequest('GET', data.specificData, pullParams, flowdata==undefined?undefined: flowdata[0].data);
 
   }
 };
