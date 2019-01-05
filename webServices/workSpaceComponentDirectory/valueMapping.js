@@ -12,6 +12,11 @@ module.exports = {
   //http: require('http'),
   //waterfall: require('promise-waterfall'),
 
+  /**
+   * @param {*} valueIn
+   * @param {SpecificData} specificData
+   * @return {Array<MapValueResult>}
+   */
   mapValue: function(valueIn, specificData) {
     let valueInString = valueIn.toString()
     var valueOut = [];
@@ -33,9 +38,14 @@ module.exports = {
     // }
     return valueOut;
   },
+
+  /**
+   * @param {*} source
+   * @param {SpecificData} specificData
+   * @return {MapValuesResult}
+   */
   mapValues: function(source, specificData) {
 
-    return new Promise((resolve, reject) => {
       var out;
       if (source == undefined) {
         out = {
@@ -50,17 +60,17 @@ module.exports = {
       } else {
         out = this.mapValue(source, specificData);
       }
-      resolve({
+      return {
         data: out
-      });
+      };
 
 
 
-    })
 
   },
+
   pull: function(data, flowData) {
     //console.log('Object Transformer | pull : ',data,' | ',flowData[0].length);
-    return this.mapValues(flowData[0].data, data.specificData);
+    return Promise.resolve(this.mapValues(flowData[0].data, data.specificData));
   }
 }
