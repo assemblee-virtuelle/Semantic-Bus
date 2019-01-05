@@ -1,5 +1,6 @@
 export interface SpecificData {
   mappingTable: Array<MappingValue>
+  forgetOriginalValue?: boolean
 }
 
 export interface MappingValue {

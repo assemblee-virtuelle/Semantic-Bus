@@ -37,6 +37,17 @@ function buildSpecificData(...mappingValues) {
   }
 }
 
+/**
+ * @param {MappingValue} mappingValues
+ * @return {SpecificData}
+ */
+function buildSpecificDataForgetOriginalValue(...mappingValues) {
+  return {
+    mappingTable: mappingValues,
+    forgetOriginalValue: true
+  }
+}
+
 describe('valueMapping.mapValue', () => {
   jsc.property(
     'should always transform an empty string to the empty value mapping',
@@ -175,6 +186,32 @@ describe('valueMapping.mapValue', () => {
       return R.equals(result.length, 1)
     }
   )
+
+  jsc.property(
+    'should return an array with one element having only the replacement without the source value when setting `forgetOriginalValue` to `true`',
+    jsc.string, jsc.nestring,
+    (valueIn, replacement) => {
+      const specificData = buildSpecificDataForgetOriginalValue(buildMappingValue(0, valueIn, replacement))
+      const result = valueMapping.mapValue(valueIn, specificData)
+
+      return R.equals(result, [replacement])
+    }
+  )
+
+  jsc.property(
+    'should return an array with only replacements without the source value when setting `forgetOriginalValue` to `true`',
+    jsc.nestring, jsc.nestring, jsc.nestring, jsc.nestring,
+    (flowValue1, replacementValue1, flowValue2, replacementValue2) => {
+      const valueIn = flowValue1 + flowValue2
+      const specificData = buildSpecificDataForgetOriginalValue(
+        buildMappingValue(0, flowValue1, replacementValue1),
+        buildMappingValue(1, flowValue2, replacementValue2)
+      )
+      const result = valueMapping.mapValue(valueIn, specificData)
+
+      return R.equals(result, [replacementValue1, replacementValue2])
+    }
+  )
 });
 
 describe('valueMapping.mapValues', () => {
@@ -257,6 +294,18 @@ describe('valueMapping.mapValues', () => {
       const result = valueMapping.mapValues(source, specificData)
 
       return R.equals(result, { data: [{ sourceValue: source, translatedValue: replacementValue }] })
+    }
+  )
+
+  jsc.property(
+    'should return an array with only replacements without the source value when setting `forgetOriginalValue` to `true`',
+    jsc.nestring, jsc.nestring,
+    (flowValue, replacementValue) => {
+      const source = flowValue
+      const specificData = buildSpecificDataForgetOriginalValue(buildMappingValue(0, flowValue, replacementValue))
+      const result = valueMapping.mapValues(source, specificData)
+
+      return R.equals(result, { data: [replacementValue] })
     }
   )
 });

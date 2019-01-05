@@ -22,10 +22,14 @@ module.exports = {
     const valueInString = valueIn.toString()
     return arrays.flatMap(specificData.mappingTable, atomicMapping => {
       if (valueInString.includes(atomicMapping.flowValue) && strings.nonEmpty(atomicMapping.replacementValue)) {
-        return [{
-          sourceValue: valueIn,
-          translatedValue: atomicMapping.replacementValue
-        }]
+        if (specificData.forgetOriginalValue) {
+          return [atomicMapping.replacementValue]
+        } else {
+          return [{
+            sourceValue: valueIn,
+            translatedValue: atomicMapping.replacementValue
+          }]
+        }
       } else {
         return []
       }
