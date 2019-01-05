@@ -52,37 +52,6 @@
     this.fullscreen = true
 
 
-    // addComponentClick(e) { // RiotControl.trigger('workspace_current_add_component_show', e);   route('workspace/'+this.graph.workspace._id+'/addComponent'); } back(e) {   RiotControl.trigger('back'); } graphClick(e) {   //console.log('EDIT');
-    // RiotControl.trigger('workspace_current_graph');   this.update() }
-
-    editClick(e) {
-      //console.log('graph edit Component | ', this.selectedNodes[0].component);
-      route('component/' + this.selectedNodes[0].component._id);
-      //RiotControl.trigger('component_current_show'); RiotControl.trigger('component_current_select', this.selectedNodes[0].component);
-    }
-
-    removeClick(e) {
-      RiotControl.trigger('workspace_current_delete_component', this.selectedNodes[0].component);
-      //   RiotControl.trigger('workspace_current_persist'); RiotControl.trigger('component_current_select', this.selectedNodes);
-    }
-
-    connectBeforeClick(e) {
-      RiotControl.trigger('item_current_connect_before_show');
-    }
-
-    connectAfterClick(e) {
-      RiotControl.trigger('item_current_connect_after_show');
-    }
-
-    workComponentClick(e) {
-      RiotControl.trigger('item_current_work');
-    }
-
-    removeLinkClick(e) {
-      //console.log('removeLink |', this.selectedLines[0].source.component, this.selectedLines[0].target.component);
-      RiotControl.trigger('disconnect_components', this.selectedLines[0].source.component, this.selectedLines[0].target.component);
-    }
-
     showAddComponentClick(e) {
       route('workspace/' + this.graph.workspace._id + '/addComponent');
     }
@@ -173,7 +142,7 @@
         }).attr("data-id", function (d) {
           return d.id;
         }).on("click", function (d) {
-          route('component/' + d.component._id);
+          route(`workspace/${d.component.workspaceId}/component/${d.component._id}`);
           //RiotControl.trigger('component_current_select', d.component);
         });
 
