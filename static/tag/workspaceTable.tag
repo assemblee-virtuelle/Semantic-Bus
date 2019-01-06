@@ -1,26 +1,9 @@
 <workspace-table class="containerV" style="flex-grow:1">
-  <div class="containerH" style="height:80px;justify-content: center; align-items: center;flex-shrink:0;">
-    <input class="searchbox" type="text" name="inputSearch" ref="inputSearch" placeholder="Rechercher" />
-  </div>
-
-  <zenTable show={!isEmpty} drag={false} disallowselect={true} ref="workspaceZenTable">
-    <yield to="header">
-      <div class="table-title" style="margin-left: 50px;width: 200px;flex-grow:1">Nom</div>
-      <div class="table-title" style="margin-right: 60px;width: 500px;flex-grow:1">Description</div>
-    </yield>
-    <yield to="row">
-      <div style="flex-grow:1;width: 200px;">{name}</div>
-      <div style="flex-grow:1;width: 500px; word-break: normal;">{description}</div>
-    </yield>
-  </zenTable>
-
-  <div if={isEmpty} class="containerH" style="flex-grow:1;justify-content:center;">
-    <div class="containerV" style="flex-basis:1;justify-content:center;margin:50px">
-      <h1 style="text-align: center;color: rgb(119,119,119);">
-        Cliquer sur le bouton "+" pour en créer un Worklow.
-      </h1>
-    </div>
-  </div>
+  <workspace-zen-table
+    data={data}
+    empty-text={'Cliquer sur le bouton "+" pour en créer un Worklow.'}
+    ref="table"
+  />
 
   <div class="containerV" style="flex-basis: 45px;justify-content: flex-start;;flex-grow:0;flex-shrink:0">
     <div onclick={addWorkflowClick} class="commandButtonImage containerV" style="flex-grow:0;flex-shrink:0">
@@ -29,31 +12,11 @@
   </div>
 
   <script>
-    this.data = {}
-    this.isEmpty = false
-    this.filter = ''
+    this.data = []
 
     this.refreshData = (data) => {
       this.data = data
-      this.reload()
-    }
-
-    this.reload = () => {
-      const filteredData = this.filteredData()
-      this.tags.zentable.data = filteredData
-      this.isEmpty = filteredData.length === 0
       this.update()
-    }
-
-    this.filteredData = () => {
-      if (this.filter === undefined || this.filter === null || this.filter === '') {
-        return this.data
-      } else {
-        return sift(
-          { name: { $regex: new RegExp(this.filter, 'gi') } },
-          this.data
-        )
-      }
     }
 
     this.addWorkflowClick = () => {
@@ -61,14 +24,7 @@
     }
 
     this.on('mount', () => {
-      this.refs.inputSearch.addEventListener('input', (event) => {
-        this.filter = event.target.value
-        this.reload()
-      })
-
-      this.tags.zentable.on('rowNavigation', (data) => route('workspace/' + data._id + '/component'))
-      this.tags.zentable.on('delRow', (data) => RiotControl.trigger('workspace_delete', data))
-
+      this.refs.table.on('deleteRow', (data) => RiotControl.trigger('workspace_delete', data))
       RiotControl.on('workspace_collection_changed', this.refreshData)
       RiotControl.trigger('workspace_collection_load')
     })
@@ -77,17 +33,4 @@
       RiotControl.off('workspace_collection_changed', this.refreshData)
     })
   </script>
-
-  <style>
-    .searchbox {
-      background-color: #ffffff;
-      background-image: linear-gradient(#fff, #f2f3f5);
-      border-radius: 35px;
-      border-width: 1px;
-      border-style: solid;
-      border-color: rgb(213, 218, 224);
-      width: 300px;
-      height: 35px;
-    }
-  </style>
 </workspace-table>
