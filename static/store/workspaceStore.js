@@ -561,14 +561,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
       this.trigger('workspace_collection_changed', this.workspaceCollection);
     }
   }); // <= workspace_collection_load
-  this.on('workspace_collection_filter', function(filter) {
-    var re = new RegExp(filter, 'gi');
-    this.trigger('workspace_collection_changed', sift({
-      name: {
-        $regex: re
-      }
-    }, this.workspaceCollection));
-  });
   // --------------------------------------------------------------------------------
 
 
