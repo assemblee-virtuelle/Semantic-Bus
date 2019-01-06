@@ -38,7 +38,7 @@
         return data
       } else {
         return sift(
-          { name: { $regex: new RegExp(this.filter, 'gi') } },
+          { name: { $regex: new RegExp(this.filter, 'i') } },
           data
         )
       }
