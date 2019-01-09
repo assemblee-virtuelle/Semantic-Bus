@@ -41,14 +41,13 @@ module.exports = {
     })
   },
   mongoRequest: function(client, querysTable, database, collectionName, queryParams) {
-    console.log('ALLO');
     return new Promise((resolve, reject) => {
       try {
         const db = client.db(database)
         //console.log(db);
         const collection = db.collection(collectionName)
         const normalizedQuerysTable = this.normalizeQuerysTable(querysTable, queryParams);
-        console.log(normalizedQuerysTable);
+        // console.log(normalizedQuerysTable);
         const evaluation = eval("collection." + normalizedQuerysTable);
         let mongoPromise;
         //console.log(evaluation);
@@ -213,7 +212,7 @@ module.exports = {
     })
   },
   mongoInsertPromise: function(collection, data) {
-    console.log("mongoInsertPromise",collection,data.length);
+    // console.log("mongoInsertPromise",collection,data.length);
     return collection.insertMany(data)
   },
 

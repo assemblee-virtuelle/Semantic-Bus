@@ -193,7 +193,7 @@ module.exports = function(router, stompClient) {
 
   router.post('/workspace/:id/import', function(req, res, next) {
 
-    console.log('import', req.body, req.params.id)
+    // console.log('import', req.body, req.params.id)
     let newWorkspace = req.body;
     let newComponents = newWorkspace.components.map(c => {
       return {
@@ -328,7 +328,7 @@ module.exports = function(router, stompClient) {
     let body = req.body;
     if (configuration.saveLock == false) {
       workspace_lib.addConnection(req.body.workspaceId, req.body.source, req.body.target).then(links => {
-        console.log(links);
+        // console.log(links);
         res.json(links)
       }).catch(e => {
         next(e);

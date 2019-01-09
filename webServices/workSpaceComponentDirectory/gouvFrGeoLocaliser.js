@@ -74,7 +74,7 @@ module.exports = {
             }
 
             if(!Array.isArray(rawSource)){
-              console.log(result);
+              // console.log(result);
               result=result[0];
             }
             resolve({

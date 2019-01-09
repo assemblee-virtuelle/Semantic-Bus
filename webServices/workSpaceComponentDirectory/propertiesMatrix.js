@@ -31,10 +31,10 @@ module.exports = {
         let maxLength=0;
         for(let fieldObject of data.specificData.fields){
           let field=fieldObject.field;
-          console.log(flowData[0].data,field);
+          // console.log(flowData[0].data,field);
           maxLength=Math.max(maxLength,flowData[0].data[field].length);
         }
-        console.log('maxLength',maxLength);
+        // console.log('maxLength',maxLength);
         for(let i=0;i<maxLength;i++){
           let currentOject={};
           for(let fieldObject of data.specificData.fields){
