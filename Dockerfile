@@ -57,4 +57,4 @@ COPY . .
 
 EXPOSE 80 443
 
-CMD [ "pm2", "start", "app.js", "--max-memory-restart", "800M" ,"--no-daemon"]
+CMD [ "pm2", "start", "app.js", "--max-memory-restart", "1500M" ,"--no-daemon"]

@@ -43,7 +43,8 @@ class Engine {
             .getWorkspace(this.originComponent.workspaceId)
             .then(workflow => {
               this.workflow = workflow;
-              console.log('engine workflow',this.workflow);
+              //console.log('engine workflow',this.workflow);
+              console.log('engine workflow user | name',this.workflow.users,this.workflow.name);
               let ownerUserMail = this.sift({
                   role: "owner"
                 },
