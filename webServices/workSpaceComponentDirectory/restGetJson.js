@@ -78,7 +78,7 @@ module.exports = {
         var responseBody = '';
         response.resume();
         if (hasResponseFailed) {
-          // console.log('error body',response);
+          //console.log('error body',response);
           reject(new Error('Request failed for url '+urlString+' with status ' + response.statusCode));
         } else {
           /* the response stream's (an instance of Stream) current data. See:

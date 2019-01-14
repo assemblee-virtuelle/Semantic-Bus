@@ -52,9 +52,9 @@ module.exports = {
           }
 
 
-          console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
+          // console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
           file.on('data', (data) => {
-            console.log('data', typeof(data));
+            // console.log('data', typeof(data));
             if (buffer == undefined) {
               buffer =  Buffer.from(data);
             } else {
@@ -65,12 +65,12 @@ module.exports = {
             //string += data
           });
           file.on('end', () => {
-            console.log('end');
+            // console.log('end');
             //console.log('File [' + fieldname + '] Finished');
             string = buffer.toString("utf-8");
           });
         }).on('finish', ()=>{
-          console.log('finish');
+          // console.log('finish');
           this.dataTraitment.type.type_file(fileName, string, buffer).then((result) => {
             let normalized = this.propertyNormalizer.execute(result);
             //console.log(normalized);
@@ -119,7 +119,7 @@ module.exports = {
         }).then(data => {
           //console.log('ALLO',req);
           let token = req.headers['authorization'];
-          console.log('token |', token);
+          // console.log('token |', token);
           let user;
           let jwtSimple = require('jwt-simple');
           if (token != undefined) {

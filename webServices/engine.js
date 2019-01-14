@@ -25,9 +25,7 @@ class Engine {
 
   resolveComponent() {
 
-    if (this.config.quietLog != true) {
-      console.log(" ---------- resolveComponent -----------" + this.originComponent._id);
-    }
+
     return new Promise((resolve, reject) => {
       this.workspace_component_lib
         .get_all({
@@ -45,7 +43,8 @@ class Engine {
             .getWorkspace(this.originComponent.workspaceId)
             .then(workflow => {
               this.workflow = workflow;
-              //console.log(this.workflow);
+              //console.log('engine workflow',this.workflow);
+              console.log('engine workflow user | name',this.workflow.users,this.workflow.name);
               let ownerUserMail = this.sift({
                   role: "owner"
                 },
@@ -72,7 +71,9 @@ class Engine {
                     this.componentsResolving
                   )[0];
 
-
+                  // if (this.config.quietLog != true) {
+                    console.log(" ---------- Resolve Workflow -----------" , this.workflow.name , this.originComponent._id);
+                  // }
                   this.pathResolution = this.buildPathResolution(
                     workflow,
                     this.originComponent,
@@ -422,9 +423,7 @@ class Engine {
           this.processNotifier.processCleaned({ cleanedProcesses: processes })
         })
         if (this.config.quietLog != true) {
-          console.log(
-            "--------------  End of Worksapce processing --------------"
-          );
+          console.log("--------------  End of Worksapce processing --------------");
         }
       }
     } else {

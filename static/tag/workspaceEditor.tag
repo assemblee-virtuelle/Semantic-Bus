@@ -48,8 +48,8 @@
     </a>
     <!-- Bouton Process -->
     <a if={innerData.mode=="edit"} href={'#workspace/' +innerData._id+'/process' } class={commandButtonImage:true,containerV:true} style="flex-basis:100px;flex-grow:0;position:relative;">
-      <img src="./image/menu/inbox.png" title="Superviser les processus" height="40px" width="40px">
-      <p style="font-family: 'Open Sans', sans-serif; color:white;font-size:10px">Superviser</p>
+      <img src="./image/menu/inbox.png" title="Consulter les exécutions" height="40px" width="40px">
+      <p style="font-family: 'Open Sans', sans-serif; color:white;font-size:10px">Consulter</p>
       <!--condition -->
       <div if={menu=='process'} class="containerV" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">
         <div class="containerH" style="justify-content:flex-end;">

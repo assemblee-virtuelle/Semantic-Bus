@@ -6,7 +6,7 @@
   <!-- Titre du composant -->
   <div class="contenaireV title-component">Unicity</div>
   <!-- Description du composant -->
-  <div>Sctructurer les données en vérifiant l'unicité par champ et répartir les valeurs par source.</div>
+  <div>Structurer les données en vérifiant l'unicité par champ et répartir les valeurs par source.</div>
   <!-- Champ du composant -->
   <label>Champ de source:</label>
   <input type="text" value={data.specificData.source} onkeyup={onSourceChange}>

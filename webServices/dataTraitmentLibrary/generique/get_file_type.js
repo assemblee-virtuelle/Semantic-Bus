@@ -12,7 +12,7 @@ module.exports = {
 
 
 function _extension(filename, contentType) {
-  console.log("contentType", contentType, "filename", filename)
+  // console.log("contentType", contentType, "filename", filename)
   return new Promise(function(resolve, reject) {
 
     if (filename != null) {
@@ -40,7 +40,7 @@ function _extension(filename, contentType) {
 
 function _buildFile(filename, dataString, dataBuffer, out, contentType) {
   return _extension(undefined, contentType).then(function(extension) {
-    console.log("extension |", extension)
+    // console.log("extension |", extension)
     return new Promise(function(resolve, reject) {
       switch (extension) {
         case ("vnd.ms-excel"):
@@ -60,7 +60,7 @@ function _buildFile(filename, dataString, dataBuffer, out, contentType) {
 function _type_file(filename, dataString, dataBuffer, out, contentType) {
   //console.log("in aggregate function")
   return _extension(filename, contentType).then(function(extension) {
-    console.log("extension |", extension)
+    // console.log("extension |", extension)
     return new Promise(function(resolve, reject) {
       if (out == true || out == 'true') {
         //console.log(out)
@@ -159,7 +159,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
                 data: result
               })
             }, function(err) {
-              console.log('err', err);
+              // console.log('err', err);
               reject("votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
             })
             break;

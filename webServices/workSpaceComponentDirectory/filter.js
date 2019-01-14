@@ -25,10 +25,10 @@ module.exports = {
       let filterString=data.specificData.filterString;
       filterString = filterString.replace(/£./g,'$.')
       let filter=JSON.parse(filterString);
-      console.log('Filter pullParams',pullParams);
-      console.log('Filter filter',filter);
+      // console.log('Filter pullParams',pullParams);
+      // console.log('Filter filter',filter);
       let filterResult=this.objectTransformation.execute(pullParams,filter);
-      console.log('Filter',JSON.stringify(filterResult));
+      // console.log('Filter',JSON.stringify(filterResult));
       //console.log('Filter',data.specificData.filterString,pullParams);
       // data.specificData.filterString=this.stringReplacer.execute(data.specificData.filterString,pullParams,usableData)
       // console.log('Filter',filter,usableData);

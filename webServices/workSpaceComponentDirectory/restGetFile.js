@@ -21,7 +21,7 @@ module.exports = {
     var _self = this
     return new Promise((resolve, reject) => {
       urlString=this.stringReplacer.execute(urlString,pullParams,undefined);
-      console.log(encodeURIComponent(urlString));
+      // console.log(encodeURIComponent(urlString));
       const parsedUrl = this.url.parse(urlString);
       const requestOptions = {
         hostname: parsedUrl.hostname,

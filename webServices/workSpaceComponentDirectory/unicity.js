@@ -68,12 +68,12 @@ class UnicityExecutor {
         if (Object.keys(filter.key).length !== 0) {
           let everExistingData = this.sift(filter, this.globalOut);
           if (everExistingData.length > 0) {
-            console.log('everExistingData', this.globalOut.indexOf(everExistingData[0]), filter);
+            // console.log('everExistingData', this.globalOut.indexOf(everExistingData[0]), filter);
             for (let key in sourcedData) {
               //console.log('ALLO',key,everExistingData[0].data);
 
               if (everExistingData[0].data[key] == undefined) {
-                console.log('new key in data', recordKey, key);
+                // console.log('new key in data', recordKey, key);
                 everExistingData[0].data[key] = [];
               }
               everExistingData[0].data[key].push(sourcedData[key][0]);

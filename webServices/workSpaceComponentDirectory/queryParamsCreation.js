@@ -11,7 +11,7 @@ module.exports = {
   ],
 
   buildQueryParam:function(previousQueryParam, specificData){
-    console.log('QUERY INITIAL',previousQueryParam);
+    // console.log('QUERY INITIAL',previousQueryParam);
     let stringPattern=JSON.stringify(specificData.queryParamsCreationObject);
     //console.log(stringPattern);
     stringPattern = stringPattern.replace(/£./g,'$.')
@@ -23,7 +23,7 @@ module.exports = {
     // for (let key in specificData.queryParamsCreationObject){
     //   out[key]=specificData.queryParamsCreationObject[key];
     // }
-    console.log('BUILD QUERY PARAM',previousQueryParam,out);
+    // console.log('BUILD QUERY PARAM',previousQueryParam,out);
     return out;
   },
   pull: function(data,flowData) {

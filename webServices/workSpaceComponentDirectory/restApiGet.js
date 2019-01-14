@@ -126,8 +126,8 @@ module.exports = new function() {
       }).catch(err => {
         // console.log('Engine FAIL for API ',urlRequiered, err);
         // console.log('err.codeHTTP',err.codeHTTP);
-        if (err.codeHTTP) {
-          res.status(err.code).send(err.message);
+        if (err.codeHTTP!=undefined) {
+          res.status(err.codeHTTP).send(err.message);
         } else {
           next(err)
           //res.status(500).send("serveur error");

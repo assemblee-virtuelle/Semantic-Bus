@@ -233,7 +233,7 @@ module.exports = {
       return new Promise((resolve, reject) => {
         //console.log(" ------  deeth  ------- ", deeth);
         //console.log('------   tour restant -------- ', (actions.length) - deeth);
-        console.log('action',actions[deeth].actionType);
+        // console.log('action',actions[deeth].actionType);
         let effectivSelector=actions[deeth].selector||'body';
         client.waitForExist(effectivSelector, 60000)
           .then(function(visible) {
@@ -267,14 +267,14 @@ module.exports = {
             }
             return scrappingFunction(actions[deeth], client, deeth);
           }).then(res => {
-            console.log("----- END Of Action");
+            // console.log("----- END Of Action");
             //console.log("----- DATA INJECTION");
             data[actions[deeth].action] = res;
             return new Promise((resolve, reject) => {
               resolve(true);
             });
           }).catch(err => {
-            console.log("----- CATCH Of Action");
+            // console.log("----- CATCH Of Action");
             data[actions[deeth].action] = {
               error: err,
             };
@@ -287,7 +287,7 @@ module.exports = {
             });
           }).then((continueDepth) => {
             if(continueDepth){
-              console.log('----- DEPTH++');
+              // console.log('----- DEPTH++');
               deeth++;
             }
 
@@ -312,7 +312,7 @@ module.exports = {
       if (user == null || key == null) {
         reject("Scrapper: no connection data")
       }
-      console.log('client Init',url);
+      // console.log('client Init',url);
       client
         .init()
         .url(url)
@@ -321,7 +321,7 @@ module.exports = {
         });
       // console.log("before aggregate fonction", actions, client, deeth, data);
       _aggregateAction(actions, client, deeth, data).then(function(res) {
-        console.log("--traitmeent terminé final ----", res)
+        // console.log("--traitmeent terminé final ----", res)
         resolve({
           data: res
         })
