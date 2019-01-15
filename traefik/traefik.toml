@@ -1,6 +1,7 @@
 # defaultEntryPoints must be at the top 
 # because it should not be in any table below
 defaultEntryPoints = ["https","http"]
+logLevel = "DEBUG"
 
 [web]
 # Port for the status page

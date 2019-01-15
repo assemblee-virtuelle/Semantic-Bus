@@ -60,11 +60,7 @@ httpGet.makeRequest('GET', {
 
       let url;
       console.log('Starting Environnement', process.env.NODE_ENV);
-      if(process.env.NODE_ENV === "production"  || process.env.NODE_ENV === "docker"){
-        url = "amqp://rabbitmq:5672";
-      }else {
-        url = configJson.socketServer
-      }
+      url = configJson.socketServer
       
       amqp.connect(url + '/' + configJson.amqpHost, function(err, conn) {
         console.log('AMQP status : ', conn? "connected": "no connected", err? "error": "no error");
