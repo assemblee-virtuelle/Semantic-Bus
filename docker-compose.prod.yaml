@@ -3,7 +3,7 @@ services:
     
     proxy:
       image: traefik
-      command: --api --docker
+      command: --api --docker --logLevel=DEBUG
       ports:
         - "80:80"
         - "443:443"
