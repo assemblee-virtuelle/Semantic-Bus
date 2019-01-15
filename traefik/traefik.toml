@@ -16,12 +16,12 @@ defaultEntryPoints = ["https","http"]
 
 [docker]
 endpoint = "unix:///var/run/docker.sock"
-domain = "my-awesome-app.org"
+domain = "semantic-bus.org"
 watch = true
 exposedByDefault = false
 
 [acme]
-email = "your-email-here@my-awesome-app.org"
+email = "semanticbusdev@gmail.com"
 storage = "acme.json"
 entryPoint = "https"
 onHostRule = true

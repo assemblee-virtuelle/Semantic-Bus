@@ -22,16 +22,18 @@ services:
       environment:
           - CONFIG_URL=https://data-players.github.io/StrongBox/public/OVH-deployement.json
           - NODE_ENV=production
+      ports:
+        - 9001:9001
+      restart: always
+      expose:
+        - 9001
       networks:
-        - proxy  
         - internal 
       volumes:
         - ./main/lib:/data/app/lib
       restart: always
       labels:
-        - "traefik.port=80"
-        - "traefik.backend=semanticbus"
-        - "traefik.frontend.rule=Host:semanticbus.timer"   
+        - "traefik.enable=true"
     
     semanticbus_front:
       build: ./main
@@ -39,6 +41,7 @@ services:
       environment:
           - ENGINE=false
           - PORT= 80
+          - TIMER_URL=http://timer:9001
           - NODE_ENV=production
           - CONFIG_URL=https://data-players.github.io/StrongBox/public/OVH-deployement.json
       volumes:
@@ -56,12 +59,13 @@ services:
       labels:
         - "traefik.port=80"
         - "traefik.backend=semanticbus"
-        - "traefik.frontend.rule=Host:semanticbus.docker"
+        - "traefik.frontend.rule=Host:semantic-bus.org"
 
     semanticbus_engine_1:
       build: ./main
       container_name: semanticbus_engine_1
       environment:
+          - TIMER_URL=http://timer:9001
           - ENGINE=true
           - PORT= 80
           - NODE_ENV=production
@@ -81,12 +85,13 @@ services:
       labels:
         - "traefik.port=80"
         - "traefik.backend=semanticbus"
-        - "traefik.frontend.rule=Host:semanticbus.docker"
+        - "traefik.frontend.rule=Host:semantic-bus.org"
     
     semanticbus_engine_2:
       build: ./main
       container_name: semanticbus_engine_2
       environment:
+          - TIMER_URL=http://timer:9001
           - ENGINE=true
           - PORT= 80
           - NODE_ENV=production
@@ -106,7 +111,7 @@ services:
       labels:
         - "traefik.port=80"
         - "traefik.backend=semanticbus"
-        - "traefik.frontend.rule=Host:semanticbus.docker"
+        - "traefik.frontend.rule=Host:semantic-bus.org"
 
     rabbitmq:
       image: semanticbus/rabbitmq-stomp
@@ -124,7 +129,7 @@ services:
         - proxy  
         - internal  
       labels:
-        - "traefik.frontend.rule=Host:semanticbus.rabbit"
+        - "traefik.frontend.rule=Host:rabbit.semantic-bus.org"
         - "traefik.port=15672"
         - "traefik.backend=rabbitmq"
         - "traefik.frontend.entryPoints=http"
@@ -184,7 +189,7 @@ services:
       labels:
         - "traefik.port=3000"
         - "traefik.backend=grafana"
-        - "traefik.frontend.rule=Host:semanticbus.grafana"
+        - "traefik.frontend.rule=Host:grafana.semantic-bus.org"
 
 networks: 
   proxy:

@@ -48,6 +48,6 @@ ADD . /data/app/
 
 RUN cd /data/app && ls && npm install
 
-EXPOSE 80
+EXPOSE 9001
 
 CMD [ "npm", "run", "start" ]
