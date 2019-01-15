@@ -24,7 +24,7 @@ address = ":443"
 
 [docker]
 endpoint = "unix:///var/run/docker.sock"
-domain = "test2.semantic-bus.org"
+domain = "semantic-bus.org"
 watch = true
 exposedByDefault = true
 
