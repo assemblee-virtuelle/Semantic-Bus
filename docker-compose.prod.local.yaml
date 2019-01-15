@@ -47,7 +47,6 @@ services:
       networks:
         - traefik
       links:
-          # - mongodb
           - rabbitmq
       depends_on:
           - rabbitmq
@@ -57,66 +56,63 @@ services:
         - "traefik.backend=semanticbus"
         - "traefik.frontend.rule=Host:semanticbus.docker"
 
-    #engine scalling
-    semanticbus_engine_1:
-      build: ./main
-      container_name: semanticbus_engine_1
-      environment:
-          - ENGINE=true
-          - PORT= 80
-          - NODE_ENV=production
-          - CONFIG_URL=https://data-players.github.io/StrongBox/public/OVH-deployement.json
-      volumes:
-        - ./main:/data/app/
-      restart: always
-      networks:
-        - traefik
-      links:
-          # - mongodb
-          - rabbitmq
-      depends_on:
-          - rabbitmq
-      command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "npm", "run", "start"]
-      labels:
-        - "traefik.port=80"
-        - "traefik.backend=semanticbus"
-        - "traefik.frontend.rule=Host:semanticbus.docker"
+    # #engine scalling
+    # semanticbus_engine_1:
+    #   build: ./main
+    #   container_name: semanticbus_engine_1
+    #   environment:
+    #       - ENGINE=true
+    #       - PORT= 80
+    #       - NODE_ENV=production
+    #       - CONFIG_URL=https://data-players.github.io/StrongBox/public/OVH-deployement.json
+    #   volumes:
+    #     - ./main:/data/app/
+    #   restart: always
+    #   networks:
+    #     - traefik
+    #   links:
+    #       # - mongodb
+    #       - rabbitmq
+    #   depends_on:
+    #       - rabbitmq
+    #   command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "npm", "run", "start"]
+    #   labels:
+    #     - "traefik.port=80"
+    #     - "traefik.backend=semanticbus"
+    #     - "traefik.frontend.rule=Host:semanticbus.docker"
     
-    semanticbus_engine_2:
-      build: ./main
-      container_name: semanticbus_engine_2
-      environment:
-          - ENGINE=true
-          - PORT= 80
-          - NODE_ENV=production
-          - CONFIG_URL=https://data-players.github.io/StrongBox/public/OVH-deployement.json
-      volumes:
-        - ./main:/data/app/
-      restart: always
-      networks:
-        - traefik
-      links:
-          # - mongodb
-          - rabbitmq
-      depends_on:
-          - rabbitmq
-      command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "npm", "run", "start"]
-      labels:
-        - "traefik.port=80"
-        - "traefik.backend=semanticbus"
-        - "traefik.frontend.rule=Host:semanticbus.docker"
+    # semanticbus_engine_2:
+      # build: ./main
+      # container_name: semanticbus_engine_2
+      # environment:
+      #     - ENGINE=true
+      #     - PORT= 80
+      #     - NODE_ENV=production
+      #     - CONFIG_URL=https://data-players.github.io/StrongBox/public/OVH-deployement.json
+      # volumes:
+      #   - ./main:/data/app/
+      # restart: always
+      # networks:
+      #   - traefik
+      # links:
+      #     # - mongodb
+      #     - rabbitmq
+      # depends_on:
+      #     - rabbitmq
+      # command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "npm", "run", "start"]
+      # labels:
+      #   - "traefik.port=80"
+      #   - "traefik.backend=semanticbus"
+      #   - "traefik.frontend.rule=Host:semanticbus.docker"
 
     rabbitmq:
       image: semanticbus/rabbitmq-stomp
       hostname: rabbitmq
+      container_name: rabbit
       ports:
         - 5672:5672
         - 15674:15674
         - 15672:15672
-      expose:
-        - 5672
-      labels:
-        NAME: "rabbitmq"
       networks:
         - traefik  
       labels:
@@ -139,7 +135,7 @@ services:
       expose:
         - "8090"
         - "8099"
-      volumes:
+      # volumes:
         # Mount for influxdb data directory
         # - ./influxdb/data:/var/lib/influxdb
         # # Mount for influxdb configuration
@@ -162,13 +158,15 @@ services:
     
     #graph representation
     grafana:
+      container_name: grafana
+      hostname: grafana
       build:
         context: ./grafana
       restart: always
+      networks:
+        - traefik
       links:
         - influxdb:influxsrv
-      ports:
-        - "3000:3000"
       environment:
         - HTTP_USER=admin
         - HTTP_PASS=admin

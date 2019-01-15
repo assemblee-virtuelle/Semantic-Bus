@@ -10,6 +10,7 @@ services:
         - "8080:8080"
       networks:
         - proxy  
+        - internal  
       labels:
         - "traefik.enabled=true"
         - "traefik.backend=dashboard"
@@ -131,7 +132,6 @@ services:
       restart: always
       expose:
         - 5672
-        - 80
       labels:
         NAME: "rabbitmq"
       networks:
@@ -139,7 +139,7 @@ services:
         - internal  
       labels:
         - "traefik.frontend.rule=Host:rabbit.semantic-bus.org"
-        - "traefik.port=80"
+        - "traefik.port=15672"
         - "traefik.backend=rabbitmq"
         - "traefik.frontend.entryPoints=http"
         - "traefik.enable=true"
@@ -190,6 +190,11 @@ services:
       restart: always
       links:
         - influxdb:influxsrv
+      networks:
+        - proxy  
+        - internal 
+      ports:
+        - "8080:8080"
       environment:
         - HTTP_USER=admin
         - HTTP_PASS=admin
@@ -199,7 +204,7 @@ services:
         - INFLUXDB_USER=root
         - INFLUXDB_PASS=root
       labels:
-        - "traefik.port=80"
+        - "traefik.port=8080"
         - "traefik.backend=grafana"
         - "traefik.frontend.rule=Host:grafana.semantic-bus.org"
         - "traefik.enable=true"
