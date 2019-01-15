@@ -59,7 +59,7 @@ services:
       labels:
         - "traefik.port=80"
         - "traefik.backend=semanticbus"
-        - "traefik.frontend.rule=Host:semantic-bus.org"
+        - "traefik.frontend.rule=Host:test2.semantic-bus.org"
         - "traefik.enable=true"
 
     semanticbus_engine_1:
@@ -86,7 +86,7 @@ services:
       labels:
         - "traefik.port=80"
         - "traefik.backend=semanticbus"
-        - "traefik.frontend.rule=Host:semantic-bus.org"
+        - "traefik.frontend.rule=Host:test2.semantic-bus.org"
         - "traefik.enable=true"
     
     semanticbus_engine_2:
@@ -113,7 +113,7 @@ services:
       labels:
         - "traefik.port=80"
         - "traefik.backend=semanticbus"
-        - "traefik.frontend.rule=Host:semantic-bus.org"
+        - "traefik.frontend.rule=Host:test2.semantic-bus.org"
         - "traefik.enable=true"
 
     rabbitmq:
