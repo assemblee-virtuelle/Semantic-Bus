@@ -138,7 +138,7 @@ services:
         - internal  
       labels:
         - "traefik.frontend.rule=Host:rabbit.semantic-bus.org"
-        - "traefik.port=15672"
+        - "traefik.port=80"
         - "traefik.backend=rabbitmq"
         - "traefik.frontend.entryPoints=http"
         - "traefik.enable=true"
@@ -189,8 +189,6 @@ services:
       restart: always
       links:
         - influxdb:influxsrv
-      ports:
-        - "3000:3000"
       environment:
         - HTTP_USER=admin
         - HTTP_PASS=admin
@@ -200,7 +198,7 @@ services:
         - INFLUXDB_USER=root
         - INFLUXDB_PASS=root
       labels:
-        - "traefik.port=3000"
+        - "traefik.port=80"
         - "traefik.backend=grafana"
         - "traefik.frontend.rule=Host:grafana.semantic-bus.org"
         - "traefik.enable=true"
