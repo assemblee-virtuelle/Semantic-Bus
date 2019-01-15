@@ -33,7 +33,7 @@ services:
         - ./main/lib:/data/app/lib
       restart: always
       labels:
-        - "traefik.enable=true"
+        - "traefik.enable=false"
     
     semanticbus_front:
       build: ./main
@@ -60,6 +60,7 @@ services:
         - "traefik.port=80"
         - "traefik.backend=semanticbus"
         - "traefik.frontend.rule=Host:semantic-bus.org"
+        - "traefik.enable=true"
 
     semanticbus_engine_1:
       build: ./main
@@ -86,6 +87,7 @@ services:
         - "traefik.port=80"
         - "traefik.backend=semanticbus"
         - "traefik.frontend.rule=Host:semantic-bus.org"
+        - "traefik.enable=false"
     
     semanticbus_engine_2:
       build: ./main
@@ -93,7 +95,7 @@ services:
       environment:
           - TIMER_URL=http://timer:9001
           - ENGINE=true
-          - PORT= 80
+          - PORT=80
           - NODE_ENV=production
           - CONFIG_URL=https://data-players.github.io/StrongBox/public/OVH-deployement.json
       volumes:
@@ -112,6 +114,7 @@ services:
         - "traefik.port=80"
         - "traefik.backend=semanticbus"
         - "traefik.frontend.rule=Host:semantic-bus.org"
+        - "traefik.enable=false"
 
     rabbitmq:
       image: semanticbus/rabbitmq-stomp
@@ -133,6 +136,7 @@ services:
         - "traefik.port=15672"
         - "traefik.backend=rabbitmq"
         - "traefik.frontend.entryPoints=http"
+        - "traefik.enable=false"
 
     #monitoring
 
@@ -190,6 +194,7 @@ services:
         - "traefik.port=3000"
         - "traefik.backend=grafana"
         - "traefik.frontend.rule=Host:grafana.semantic-bus.org"
+        - "traefik.enable=false"
 
 networks: 
   proxy:
