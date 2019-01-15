@@ -16,6 +16,7 @@ services:
         - "traefik.backend=dashboard"
         - "traefik.frontend.rule=Host:dashboard.semantic-bus.org"
         - "traefik.port=8080"
+        - "traefik.frontend.entryPoints=https"
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
         - "$PWD/traefik/traefik.toml:/traefik.toml"
