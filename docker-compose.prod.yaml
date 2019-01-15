@@ -1,0 +1,136 @@
+version: '3.0'
+services:
+    
+    proxy:
+      image: traefik
+      command: --api --docker
+      ports:
+        - "80:80"
+        - "443:443"
+        - "8080:8080"
+      networks:
+        - proxy  
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+        - /traefik/traefik.toml:/traefik.toml
+        - /traefik/acme.json:/acme.json
+      restart: unless-stopped
+
+    timer:
+      build: ./timer
+      container_name: timer
+      environment:
+          - CONFIG_URL=https://data-players.github.io/StrongBox/public/OVH-deployement.json
+          - NODE_ENV=production
+      networks:
+        - proxy  
+        - internal 
+      volumes:
+        - ./main/lib:/data/app/lib
+      restart: always
+      labels:
+        - "traefik.port=80"
+        - "traefik.backend=semanticbus"
+        - "traefik.frontend.rule=Host:semanticbus.timer"   
+    
+    semanticbus_front:
+      build: ./main
+      container_name: semanticbus_front
+      environment:
+          - ENGINE=false
+          - PORT= 80
+          - NODE_ENV=production
+          - CONFIG_URL=https://data-players.github.io/StrongBox/public/OVH-deployement.json
+      volumes:
+        - ./main:/data/app/
+      restart: always
+      networks:
+        - proxy  
+        - internal  
+      links:
+          # - mongodb
+          - rabbitmq
+      depends_on:
+          - rabbitmq
+      command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "npm", "run", "start"]
+      labels:
+        - "traefik.port=80"
+        - "traefik.backend=semanticbus"
+        - "traefik.frontend.rule=Host:semanticbus.docker"
+
+    semanticbus_engine_1:
+      build: ./main
+      container_name: semanticbus_engine_1
+      environment:
+          - ENGINE=true
+          - PORT= 80
+          - NODE_ENV=production
+          - CONFIG_URL=https://data-players.github.io/StrongBox/public/OVH-deployement.json
+      volumes:
+        - ./main:/data/app/
+      restart: always
+      networks:
+        - proxy  
+        - internal  
+      links:
+          # - mongodb
+          - rabbitmq
+      depends_on:
+          - rabbitmq
+      command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "npm", "run", "start"]
+      labels:
+        - "traefik.port=80"
+        - "traefik.backend=semanticbus"
+        - "traefik.frontend.rule=Host:semanticbus.docker"
+    
+    semanticbus_engine_2:
+      build: ./main
+      container_name: semanticbus_engine_2
+      environment:
+          - ENGINE=true
+          - PORT= 80
+          - NODE_ENV=production
+          - CONFIG_URL=https://data-players.github.io/StrongBox/public/OVH-deployement.json
+      volumes:
+        - ./main:/data/app/
+      restart: always
+      networks:
+        - proxy  
+        - internal  
+      links:
+          # - mongodb
+          - rabbitmq
+      depends_on:
+          - rabbitmq
+      command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "npm", "run", "start"]
+      labels:
+        - "traefik.port=80"
+        - "traefik.backend=semanticbus"
+        - "traefik.frontend.rule=Host:semanticbus.docker"
+
+    rabbitmq:
+      image: semanticbus/rabbitmq-stomp
+      hostname: rabbitmq
+      ports:
+        - 5672:5672
+        - 15674:15674
+        - 15672:15672
+      restart: always
+      expose:
+        - 5672
+      labels:
+        NAME: "rabbitmq"
+      networks:
+        - proxy  
+        - internal  
+      labels:
+        - "traefik.frontend.rule=Host:semanticbus.rabbit"
+        - "traefik.port=15672"
+        - "traefik.backend=rabbitmq"
+        - "traefik.frontend.entryPoints=http"
+
+networks: 
+  proxy:
+    external: true
+  internal:
+    external: false

@@ -1,0 +1,75 @@
+version: '3.0'
+services:
+    
+    proxy:
+      image: traefik
+      command: --api --docker
+      ports:
+        - "80:80"
+        - "8080:8080"
+      volumes:
+        - /var/run/docker.sock:/var/run/docker.sock
+      restart: unless-stopped
+             
+    semanticbus:
+      build: .
+      container_name: semanticbus
+      image: debian/latest
+      environment:
+          - NODE_ENV=development_docker
+      volumes:
+        - ./webServices:/data/app/webServices
+        - ./lib:/data/app/lib
+        - ./static:/data/app/static
+      networks:
+        - traefik  
+      links:
+          - mongodb
+          - rabbitmq
+      depends_on:
+          - mongodb
+          - rabbitmq
+      command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "npm", "run", "start"]
+      labels:
+        - "traefik.port=80"
+        - "traefik.backend=semanticbus"
+        - "traefik.frontend.rule=Host:semanticbus.docker"
+
+    rabbitmq:
+      image: semanticbus/rabbitmq-stomp
+      hostname: rabbitmq
+      ports:
+        - 5672:5672
+        - 15674:15674
+        - 15672:15672
+      expose:
+        - 5672
+      labels:
+        NAME: "rabbitmq"
+      networks:
+        - traefik  
+      # volumes:
+      #   - ./rabbitmq-isolated.conf:/etc/rabbitmq/rabbitmq.config
+      labels:
+        - "traefik.frontend.rule=Host:semanticbus.rabbit"
+        - "traefik.port=15672"
+        - "traefik.backend=rabbitmq"
+        - "traefik.frontend.entryPoints=http"
+     
+    mongodb:
+        hostname: rabbitmq
+        image: mongo:latest
+        container_name: "mongodb"
+        environment:
+          - MONGO_DATA_DIR=/data/db
+          - MONGO_LOG_DIR=/dev/null
+        volumes:
+          - ./data/db:/data/db
+        ports:
+            - 27017:27017
+        expose:
+          - "27017"
+        command: mongod --smallfiles --logpath=/dev/null # --quiet
+
+networks: 
+  traefik: 
