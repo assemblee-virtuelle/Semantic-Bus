@@ -4,40 +4,32 @@ debug = true
 logLevel = "DEBUG"
 defaultEntryPoints = ["https","http"]
 
-[web]
-# Port for the status page
-address = ":8080"
-
-# Entrypoints, http and https
+# Entrypoints
 [entryPoints]
+    [entryPoints.http]
+    address = ":80"
+        [entryPoints.http.redirect]
+        entryPoint = "https"
+    [entryPoints.https]
+    address = ":443"
+        [entryPoints.https.tls]
 
-# http should be redirected to https
-[entryPoints.http]
-address = ":80"
-[entryPoints.http.redirect]
-entryPoint = "https"
+[api]
+# Port for the status page
+address = ":8080"    
 
-# https is the default
-[entryPoints.https]
-address = ":443"
-[retry]
-
-[docker]
-endpoint = "unix:///var/run/docker.sock"
-domain = "semantic-bus.org"
-watch = true
-exposedByDefault = true
-
+# Let's Encrypt settings
 [acme]
 email = "semanticbusdev@gmail.com"
-storage = "/traefik/acme/account"
-storageFile = "/acme.json"
+storage = "/etc/traefik/letsencrypt.json"
 entryPoint = "https"
-[acme.httpChallenge]
-  entryPoint = "http"
-OnHostRule = true
-[[acme.domains]]
-  main = "*.semantic-bus.org"
-[[acme.domains]]
-  main = "test2.semantic-bus.org"
+acmeLogging = true
+onDemand = false
+onHostRule = true
 
+# Let's Encrypt domains
+[[acme.domains]]
+main = "*.semantic-bus.org"
+
+# Reload is file modified
+watch = true
