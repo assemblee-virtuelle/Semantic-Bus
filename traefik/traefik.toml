@@ -1,7 +1,10 @@
-debug = false
-
-logLevel = "ERROR"
+# defaultEntryPoints must be at the top 
+# because it should not be in any table below
 defaultEntryPoints = ["https","http"]
+
+[web]
+# Port for the status page
+address = ":8080"
 
 # Entrypoints, http and https
 [entryPoints]

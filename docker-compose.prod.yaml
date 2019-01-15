@@ -10,6 +10,11 @@ services:
         - "8080:8080"
       networks:
         - proxy  
+      labels:
+        - "traefik.enabled=true"
+        - "traefik.backend=dashboard"
+        - "traefik.frontend.rule=Host:dashboard.semantic-bus.org"
+        - "traefik.port=8080"
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
         - /traefik/traefik.toml:/traefik.toml
@@ -157,6 +162,8 @@ services:
         # - ./influxdb/data:/var/lib/influxdb
         # # Mount for influxdb configuration
         # - ./influxdb/config/:/etc/influxdb/
+      labels:
+        - "traefik.enable=false"
     
     #listen docker
     cadvisor:
@@ -172,6 +179,8 @@ services:
         - /var/run:/var/run:rw
         - /sys:/sys:ro
         - /var/lib/docker/:/var/lib/docker:ro
+      labels:
+        - "traefik.enable=false"
     
     #graph representation
     grafana:
