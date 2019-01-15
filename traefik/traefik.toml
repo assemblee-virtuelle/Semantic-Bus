@@ -21,7 +21,7 @@ address = ":8080"
 # Let's Encrypt settings
 [acme]
 email = "semanticbusdev@gmail.com"
-storage = "/etc/traefik/letsencrypt.json"
+storage = "/acme.json"
 entryPoint = "https"
 acmeLogging = true
 onDemand = false
