@@ -17,7 +17,6 @@ services:
         - "traefik.frontend.rule=Host:dashboard.semantic-bus.org"
         - "traefik.port=8080"
         - "traefik.frontend.entryPoints=https"
-        - "traefik.wss.protocol=https"
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
         - "$PWD/traefik/traefik.toml:/traefik.toml"
@@ -70,7 +69,6 @@ services:
         - "traefik.frontend.rule=Host:test2.semantic-bus.org"
         - "traefik.enable=true"
         - "traefik.frontend.entryPoints=https"
-        - "traefik.wss.protocol=https"
 
     semanticbus_engine_1:
       build: ./main
