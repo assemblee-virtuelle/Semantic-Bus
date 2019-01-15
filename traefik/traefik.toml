@@ -30,7 +30,8 @@ exposedByDefault = true
 
 [acme]
 email = "semanticbusdev@gmail.com"
-storage = "/acme.json"
+storage = "/traefik/acme/account"
+storageFile = "/acme.json"
 entryPoint = "https"
 [acme.httpChallenge]
   entryPoint = "http"
