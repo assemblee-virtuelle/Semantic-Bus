@@ -29,7 +29,7 @@ onHostRule = true
 
 # Let's Encrypt domains
 [[acme.domains]]
-main = "*.semantic-bus.org"
+main = "test2.semantic-bus.org"
 
 # Reload is file modified
 watch = true
