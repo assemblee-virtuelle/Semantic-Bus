@@ -26,7 +26,8 @@ entryPoint = "https"
 acmeLogging = true
 onDemand = false
 onHostRule = true
-
+[acme.httpChallenge]
+  entryPoint = "http"
 # Let's Encrypt domains
 [[acme.domains]]
 main = "test2.semantic-bus.org"
