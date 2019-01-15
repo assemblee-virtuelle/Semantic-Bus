@@ -148,7 +148,7 @@ services:
       expose:
         - "8090"
         - "8099"
-      volumes:
+      # volumes:
         # Mount for influxdb data directory
         # - ./influxdb/data:/var/lib/influxdb
         # # Mount for influxdb configuration
