@@ -32,7 +32,11 @@ exposedByDefault = true
 email = "semanticbusdev@gmail.com"
 storage = "/acme.json"
 entryPoint = "https"
-onHostRule = true
 [acme.httpChallenge]
-entryPoint = "http"
+  entryPoint = "http"
+OnHostRule = true
+[[acme.domains]]
+  main = "*.semantic-bus.org"
+[[acme.domains]]
+  main = "test2.semantic-bus.org"
 
