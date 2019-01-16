@@ -131,22 +131,34 @@ services:
     rabbitmq:
       image: semanticbus/rabbitmq-stomp
       hostname: rabbitmq
-      # ports:
-      #   - 5672:5672
-      #   - 15674:15674
-      #   - 15672:15672
+      ports:
+        - 5672:5672
+        - 15674:15674
+        - 15672:15672
       restart: always
+      expose:
+        - 5672
       labels:
         NAME: "rabbitmq"
       networks:
         - proxy  
         - internal  
       labels:
-        - "traefik.frontend.rule=Host:rabbit.semantic-bus.org"
-        - "traefik.port=15672"
+        - "traefik.admin.frontend.rule=Host:rabbit.semantic-bus.org"
+        - "traefik.admin.port=15672"
+        - "traefik.admin.backend=rabbitmq"
+
+        - "traefik.admin.frontend.rule=Host:stomp.semantic-bus.org"
+        - "traefik.port=15674"
         - "traefik.backend=rabbitmq"
+
+        # - "traefik.admin.frontend.rule=Host:amqp.semantic-bus.org"
+        # - "traefik.port=5672"
+        # - "traefik.backend=rabbitmq"
+
         - "traefik.enable=true"
         - "traefik.docker.network=proxy"
+        # - "traefik.frontend.entryPoints=https"
 
     #monitoring
 
