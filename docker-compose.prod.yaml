@@ -146,10 +146,10 @@ services:
         - proxy  
         - internal  
       labels:
-        - "traefik.admin.port=15672"
-        - "traefik.admin.frontend.rule=Host:rabbit.semantic-bus.org"
-        - "traefik.admin.backend=rabbitmq"
-        - "traefik.admin.enable=true"
+        - "traefik.rabbit.port=15672"
+        - "traefik.rabbit.frontend.rule=Host:rabbit.semantic-bus.org"
+        - "traefik.rabbit.backend=rabbitmq"
+        - "traefik.rabbit.enable=true"
 
         - "traefik.stomp.port=15674"
         - "traefik.stomp.frontend.rule=Host:stomp.semantic-bus.org"
