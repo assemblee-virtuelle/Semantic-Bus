@@ -221,15 +221,15 @@
 
     this.on('mount', function () {
       //this.router = route.create()
-      route(function (entity, id, action) {
-        console.log(entity, id, action);
+      route(function (...parts) {
+        const [entity, id, action] = parts
         //this.routePath=path; this.routeHistory=history;
         if (id == undefined && action == undefined) {
           this.entity = entity;
           this.update();
         } else {
           //console.log('ALLO');
-          RiotControl.trigger('navigation', entity, id, action)
+          RiotControl.trigger('navigation', ...parts)
         }
         //console.log('ROUTE', path); console.log('history',history)
       }.bind(this));
