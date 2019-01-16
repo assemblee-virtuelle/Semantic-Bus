@@ -23,7 +23,6 @@ address = ":8080"
 email = "semanticbusdev@gmail.com"
 storage = "/acme.json"
 entryPoint = "https"
-caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
 onHostRule = true
 # Let's Encrypt domains
 [acme.dnsChallenge]
