@@ -9,6 +9,16 @@
   <!-- Description du composant -->
   <div>Remplacer les valeurs d'une propriété par une autre.</div>
   <!-- Champ du composant -->
+
+  <label class="containerH" style="align-items: center;min-height:30px">
+    Ignorer la valeur source:
+    <span class="switch" style="margin-left:10px;">
+      <input type="checkbox" name="forgetOriginalValueInput" ref="forgetOriginalValueInput" checked={data.specificData.forgetOriginalValue} />
+      <span class="slider round"></span>
+    </span>
+
+  </label>
+
   <div class="containerH table-title" style="margin-top: 5px;align-items: center;justify-content:flex-end;">
     <div>Ajouter une valeur</div>
     <image class="commandButtonImage" placeholder="Nouvelle valeur" src="./image/ajout_composant.svg" width="30" height="30" onclick={addRowClick}></image>
@@ -49,6 +59,10 @@
         this.refs.mappingTable.data.splice(row.rowId, 1);
       });
       RiotControl.on('item_current_changed', this.updateData);
+
+      this.refs.forgetOriginalValueInput.addEventListener('change', event => {
+        this.data.specificData.forgetOriginalValue = event.target.checked
+      });
     });
 
     this.on('unmount', function () {

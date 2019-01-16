@@ -1,4 +1,8 @@
-"use strict";
+"use strict"
+
+const arrays = require('../../utils/arrays')
+const strings = require('../../utils/strings')
+
 module.exports = {
   type: 'Value mapping',
   description: 'Remplacer les valeurs d\'une propriété par une autre.',
@@ -8,59 +12,46 @@ module.exports = {
     'http://semantic-bus.org/data/tags/middleComponents',
     'http://semantic-bus.org/data/tags/middleQueryingComponents'
   ],
-  //url: require('url'),
-  //http: require('http'),
-  //waterfall: require('promise-waterfall'),
 
+  /**
+   * @param {*} valueIn
+   * @param {SpecificData} specificData
+   * @return {Array<MapValueResult>}
+   */
   mapValue: function(valueIn, specificData) {
-    let valueInString = valueIn.toString()
-    var valueOut = [];
-    for (var atomicMapping of specificData.mappingTable || []) {
-      if (valueInString.indexOf != undefined && valueInString.indexOf(atomicMapping.flowValue) != -1) {
-        //console.log('MAP',valueIn,atomicMapping.flowValue,atomicMapping.replacementValue);
-        //valueOut = valueIn.replace(atomicMapping.flowValue,atomicMapping.replacementValue);
-        if(atomicMapping.replacementValue!=undefined && atomicMapping.replacementValue!=null && atomicMapping.replacementValue.length>0){
-          valueOut.push({
+    const valueInString = valueIn.toString()
+    return arrays.flatMap(specificData.mappingTable, atomicMapping => {
+      if (valueInString.includes(atomicMapping.flowValue) && strings.nonEmpty(atomicMapping.replacementValue)) {
+        if (specificData.forgetOriginalValue) {
+          return [atomicMapping.replacementValue]
+        } else {
+          return [{
             sourceValue: valueIn,
             translatedValue: atomicMapping.replacementValue
-          });
+          }]
         }
-
-      }
-    }
-    // if(valueOut.length==0){
-    //   valueOut.push(valueIn)
-    // }
-    return valueOut;
-  },
-  mapValues: function(source, specificData) {
-
-    return new Promise((resolve, reject) => {
-      var out;
-      if (source == undefined) {
-        out = {
-          error: 'no incoming data'
-        };
-      } else if (Array.isArray(source)) {
-        out = [];
-        for (let valueIn of source) {
-          out = out.concat(this.mapValue(valueIn, specificData));
-        }
-        //out=source.map(valueIn=>this.mapValue(valueIn, specificData));
       } else {
-        out = this.mapValue(source, specificData);
+        return []
       }
-      resolve({
-        data: out
-      });
-
-
-
     })
-
   },
+
+  /**
+   * @param {*} source
+   * @param {SpecificData} specificData
+   * @return {MapValuesResult}
+   */
+  mapValues: function(source, specificData) {
+    if (source === undefined || source === null) {
+      return { data: { error: 'no incoming data' } }
+    } else if (Array.isArray(source)) {
+      return { data: arrays.flatMap(source, valueIn => this.mapValue(valueIn, specificData)) }
+    } else {
+      return { data: this.mapValue(source, specificData) }
+    }
+  },
+
   pull: function(data, flowData) {
-    //console.log('Object Transformer | pull : ',data,' | ',flowData[0].length);
-    return this.mapValues(flowData[0].data, data.specificData);
+    return Promise.resolve(this.mapValues(flowData[0].data, data.specificData))
   }
 }
