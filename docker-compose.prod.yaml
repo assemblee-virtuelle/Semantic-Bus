@@ -154,6 +154,7 @@ services:
         - "traefik.stomp.port=15674"
         - "traefik.stomp.frontend.rule=Host:stomp.semantic-bus.org"
         # - "traefik.stomp.backend=rabbitmq"
+        - "traefik.stomp.frontend.entryPoints=https"
         - "traefik.stomp.enable=true"
         - "traefik.stomp.network=proxy"
 
