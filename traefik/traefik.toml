@@ -24,12 +24,9 @@ email = "semanticbusdev@gmail.com"
 storage = "/acme.json"
 StorageFile= "/acme.json"
 entryPoint = "https"
-acmeLogging = true
 onDemand = false
 caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
 onHostRule = true
-[acme.httpChallenge]
-  entryPoint = "http"
 # Let's Encrypt domains
 [acme.dnsChallenge]
   provider = "gandiv5" # DNS Provider name (cloudflare, OVH, gandi...)
