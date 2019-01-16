@@ -70,7 +70,7 @@ services:
         - "traefik.backend=semanticbus"
         - "traefik.frontend.rule=Host:test2.semantic-bus.org"
         - "traefik.enable=true"
-        - "traefik.frontend.entryPoints=https"
+        # - "traefik.frontend.entryPoints=https"
 
     semanticbus_engine_1:
       build: ./main
@@ -98,7 +98,7 @@ services:
         - "traefik.backend=semanticbus"
         - "traefik.frontend.rule=Host:test2.semantic-bus.org"
         - "traefik.enable=true"
-        - "traefik.frontend.entryPoints=https"
+        # - "traefik.frontend.entryPoints=https"
     
     semanticbus_engine_2:
       build: ./main
@@ -126,7 +126,7 @@ services:
         - "traefik.backend=semanticbus"
         - "traefik.frontend.rule=Host:test2.semantic-bus.org"
         - "traefik.enable=true"
-        - "traefik.frontend.entryPoints=https"
+        # - "traefik.frontend.entryPoints=https"
   
     rabbitmq:
       image: semanticbus/rabbitmq-stomp
@@ -149,7 +149,7 @@ services:
         - "traefik.backend=rabbitmq"
         - "traefik.enable=true"
         - "traefik.docker.network=proxy"
-        - "traefik.frontend.entryPoints=https"
+        # - "traefik.frontend.entryPoints=https"
 
     #monitoring
 
@@ -245,7 +245,7 @@ networks:
 #         - "traefik.backend=dashboard"
 #         - "traefik.frontend.rule=Host:dashboard.semantic-bus.org"
 #         - "traefik.port=8080"
-#         # - "traefik.frontend.entryPoints=https"
+        # - "traefik.frontend.entryPoints=https"
 #       volumes:
 #         - /var/run/docker.sock:/var/run/docker.sock
 #         - "$PWD/traefik/traefik.toml:/traefik.toml"
