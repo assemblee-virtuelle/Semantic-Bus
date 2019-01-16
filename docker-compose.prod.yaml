@@ -148,9 +148,9 @@ services:
         - "traefik.admin.port=15672"
         - "traefik.admin.backend=rabbitmq"
 
-        - "traefik.admin.frontend.rule=Host:stomp.semantic-bus.org"
-        - "traefik.port=15674"
-        - "traefik.backend=rabbitmq"
+        - "traefik.stomp.frontend.rule=Host:stomp.semantic-bus.org"
+        - "traefik.stomp.port=15674"
+        - "traefik.stomp.backend=rabbitmq"
 
         # - "traefik.admin.frontend.rule=Host:amqp.semantic-bus.org"
         # - "traefik.port=5672"
