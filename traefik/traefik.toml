@@ -2,7 +2,7 @@
 # because it should not be in any table below
 debug = true
 logLevel = "DEBUG"
-defaultEntryPoints = ["https","http"]
+defaultEntryPoints = ["https","http","wss"]
 
 # Entrypoints
 [entryPoints]
