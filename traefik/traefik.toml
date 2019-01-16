@@ -22,14 +22,12 @@ address = ":8080"
 [acme]
 email = "semanticbusdev@gmail.com"
 storage = "/acme.json"
-StorageFile= "/acme.json"
 entryPoint = "https"
-onDemand = false
 caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
 onHostRule = true
 # Let's Encrypt domains
 [acme.dnsChallenge]
-  provider = "gandiv5" # DNS Provider name (cloudflare, OVH, gandi...)
+  provider = "gandiv5"
   delayBeforeCheck = 0
 [[acme.domains]]
 main = "*.semantic-bus.org"
