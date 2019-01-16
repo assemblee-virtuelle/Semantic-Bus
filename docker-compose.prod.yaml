@@ -137,7 +137,6 @@ services:
         - 15672:15672
       restart: always
       expose:
-        - 5672
         - 15674
         - 15672
       labels:
@@ -150,17 +149,19 @@ services:
         - "traefik.rabbit.frontend.rule=Host:rabbit.semantic-bus.org"
         - "traefik.rabbit.backend=rabbitmq"
         - "traefik.rabbit.enable=true"
+        - "traefik.rabbit.network=proxy"
 
         - "traefik.stomp.port=15674"
         - "traefik.stomp.frontend.rule=Host:stomp.semantic-bus.org"
         - "traefik.stomp.backend=rabbitmq"
         - "traefik.stomp.enable=true"
+        - "traefik.stomp.network=proxy"
 
         # - "traefik.admin.frontend.rule=Host:amqp.semantic-bus.org"
         # - "traefik.port=5672"
         # - "traefik.backend=rabbitmq"
 
-        # - "traefik.enable=true"
+        - "traefik.enable=true"
         - "traefik.docker.network=proxy"
         # - "traefik.frontend.entryPoints=https"
 
