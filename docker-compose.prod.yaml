@@ -147,7 +147,6 @@ services:
         - "traefik.frontend.rule=Host:rabbit.semantic-bus.org"
         - "traefik.port=15672"
         - "traefik.backend=rabbitmq"
-        - "traefik.frontend.entryPoints=http"
         - "traefik.enable=true"
         - "traefik.docker.network=proxy"
         # - "traefik.frontend.entryPoints=https"
