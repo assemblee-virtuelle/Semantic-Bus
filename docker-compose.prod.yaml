@@ -11,6 +11,8 @@ services:
       networks:
         - proxy  
         - internal  
+      environment:
+        - GANDIV5_API_KEY=sK63VBOo8ezDrSZtldDNRSdb
       labels:
         - "traefik.enabled=true"
         - "traefik.backend=dashboard"
