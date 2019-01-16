@@ -147,13 +147,13 @@ services:
       labels:
         - "traefik.rabbit.port=15672"
         - "traefik.rabbit.frontend.rule=Host:rabbit.semantic-bus.org"
-        - "traefik.rabbit.backend=rabbitmq"
+        # - "traefik.rabbit.backend=rabbitmq"
         - "traefik.rabbit.enable=true"
         - "traefik.rabbit.network=proxy"
 
         - "traefik.stomp.port=15674"
         - "traefik.stomp.frontend.rule=Host:stomp.semantic-bus.org"
-        - "traefik.stomp.backend=rabbitmq"
+        # - "traefik.stomp.backend=rabbitmq"
         - "traefik.stomp.enable=true"
         - "traefik.stomp.network=proxy"
 
