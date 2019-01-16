@@ -149,6 +149,7 @@ services:
         - "traefik.backend=rabbitmq"
         - "traefik.enable=true"
         - "traefik.docker.network=proxy"
+        - "traefik.wss.protocol=https"
         # - "traefik.frontend.entryPoints=https"
 
     #monitoring
