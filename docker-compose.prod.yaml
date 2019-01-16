@@ -138,6 +138,8 @@ services:
       restart: always
       expose:
         - 5672
+        - 15674
+        - 15672
       labels:
         NAME: "rabbitmq"
       networks:
