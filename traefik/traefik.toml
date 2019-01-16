@@ -28,7 +28,6 @@ onHostRule = true
 # Let's Encrypt domains
 [acme.dnsChallenge]
   provider = "gandiv5"
-  delayBeforeCheck = 500
 [[acme.domains]]
 main = "*.semantic-bus.org"
 
