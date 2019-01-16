@@ -131,10 +131,10 @@ services:
     rabbitmq:
       image: semanticbus/rabbitmq-stomp
       hostname: rabbitmq
-      ports:
-        - 5672:5672
-        - 15674:15674
-        - 15672:15672
+      # ports:
+      #   - 5672:5672
+      #   - 15674:15674
+      #   - 15672:15672
       restart: always
       labels:
         NAME: "rabbitmq"
