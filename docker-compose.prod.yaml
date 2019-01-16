@@ -18,7 +18,7 @@ services:
         - "traefik.backend=dashboard"
         - "traefik.frontend.rule=Host:dashboard.semantic-bus.org"
         - "traefik.port=8080"
-        # - "traefik.frontend.entryPoints=https"
+        - "traefik.frontend.entryPoints=https"
       volumes:
         - /var/run/docker.sock:/var/run/docker.sock
         - "$PWD/traefik/traefik.toml:/traefik.toml"
@@ -70,7 +70,7 @@ services:
         - "traefik.backend=semanticbus"
         - "traefik.frontend.rule=Host:test2.semantic-bus.org"
         - "traefik.enable=true"
-        # - "traefik.frontend.entryPoints=https"
+        - "traefik.frontend.entryPoints=https"
 
     semanticbus_engine_1:
       build: ./main
@@ -98,7 +98,7 @@ services:
         - "traefik.backend=semanticbus"
         - "traefik.frontend.rule=Host:test2.semantic-bus.org"
         - "traefik.enable=true"
-        # - "traefik.frontend.entryPoints=https"
+        - "traefik.frontend.entryPoints=https"
     
     semanticbus_engine_2:
       build: ./main
@@ -126,8 +126,8 @@ services:
         - "traefik.backend=semanticbus"
         - "traefik.frontend.rule=Host:test2.semantic-bus.org"
         - "traefik.enable=true"
-        # - "traefik.frontend.entryPoints=https"
-
+        - "traefik.frontend.entryPoints=https"
+  
     rabbitmq:
       image: semanticbus/rabbitmq-stomp
       hostname: rabbitmq
@@ -137,34 +137,19 @@ services:
         - 15672:15672
       restart: always
       expose:
-        - 15674
-        - 15672
+        - 5672
       labels:
         NAME: "rabbitmq"
       networks:
         - proxy  
         - internal  
       labels:
-        - "traefik.rabbit.port=15672"
-        - "traefik.rabbit.frontend.rule=Host:rabbit.semantic-bus.org"
-        # - "traefik.rabbit.backend=rabbitmq"
-        - "traefik.rabbit.enable=true"
-        - "traefik.rabbit.network=proxy"
-
-        - "traefik.stomp.port=15674"
-        - "traefik.stomp.frontend.rule=Host:stomp.semantic-bus.org"
-        # - "traefik.stomp.backend=rabbitmq"
-        - "traefik.stomp.frontend.entryPoints=wss"
-        - "traefik.stomp.enable=true"
-        - "traefik.stomp.network=proxy"
-
-        # - "traefik.admin.frontend.rule=Host:amqp.semantic-bus.org"
-        # - "traefik.port=5672"
-        # - "traefik.backend=rabbitmq"
-
+        - "traefik.frontend.rule=Host:rabbit.semantic-bus.org"
+        - "traefik.port=15672"
+        - "traefik.backend=rabbitmq"
         - "traefik.enable=true"
         - "traefik.docker.network=proxy"
-        # - "traefik.frontend.entryPoints=https"
+        - "traefik.frontend.entryPoints=https"
 
     #monitoring
 
@@ -237,3 +222,245 @@ networks:
     external: true
   internal:
     external: false
+
+
+
+#     version: '3.0'
+# services:
+    
+#     proxy:
+#       image: traefik
+#       command: --api --docker --logLevel=DEBUG
+#       ports:
+#         - "80:80"
+#         - "443:443"
+#         - "8080:8080"
+#       networks:
+#         - proxy  
+#         - internal  
+#       environment:
+#         - GANDIV5_API_KEY=sK63VBOo8ezDrSZtldDNRSdb
+#       labels:
+#         - "traefik.enabled=true"
+#         - "traefik.backend=dashboard"
+#         - "traefik.frontend.rule=Host:dashboard.semantic-bus.org"
+#         - "traefik.port=8080"
+#         # - "traefik.frontend.entryPoints=https"
+#       volumes:
+#         - /var/run/docker.sock:/var/run/docker.sock
+#         - "$PWD/traefik/traefik.toml:/traefik.toml"
+#         - "$PWD/traefik/acme.json:/acme.json"
+#       restart: unless-stopped
+
+#     timer:
+#       build: ./timer
+#       container_name: timer
+#       environment:
+#           - CONFIG_URL=https://data-players.github.io/StrongBox/public/OVH-deployement.json
+#           - NODE_ENV=production
+#       ports:
+#         - 9001:9001
+#       restart: always
+#       expose:
+#         - 9001
+#       networks:
+#         - internal 
+#       volumes:
+#         - ./main/lib:/data/app/lib
+#       restart: always
+#       labels:
+#         - "traefik.enable=false"
+    
+#     semanticbus_front:
+#       build: ./main
+#       container_name: semanticbus_front
+#       environment:
+#           - ENGINE=false
+#           - PORT= 80
+#           - TIMER_URL=http://timer:9001
+#           - NODE_ENV=production
+#           - CONFIG_URL=https://data-players.github.io/StrongBox/public/OVH-deployement.json
+#       volumes:
+#         - ./main:/data/app/
+#       restart: always
+#       networks:
+#         - proxy  
+#         - internal  
+#       links:
+#           # - mongodb
+#           - rabbitmq
+#       depends_on:
+#           - rabbitmq
+#       command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "npm", "run", "start"]
+#       labels:
+#         - "traefik.port=80"
+#         - "traefik.backend=semanticbus"
+#         - "traefik.frontend.rule=Host:test2.semantic-bus.org"
+#         - "traefik.enable=true"
+#         # - "traefik.frontend.entryPoints=https"
+
+#     semanticbus_engine_1:
+#       build: ./main
+#       container_name: semanticbus_engine_1
+#       environment:
+#           - TIMER_URL=http://timer:9001
+#           - ENGINE=true
+#           - PORT= 80
+#           - NODE_ENV=production
+#           - CONFIG_URL=https://data-players.github.io/StrongBox/public/OVH-deployement.json
+#       volumes:
+#         - ./main:/data/app/
+#       restart: always
+#       networks:
+#         - proxy  
+#         - internal  
+#       links:
+#           # - mongodb
+#           - rabbitmq
+#       depends_on:
+#           - rabbitmq
+#       command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "npm", "run", "start"]
+#       labels:
+#         - "traefik.port=80"
+#         - "traefik.backend=semanticbus"
+#         - "traefik.frontend.rule=Host:test2.semantic-bus.org"
+#         - "traefik.enable=true"
+#         # - "traefik.frontend.entryPoints=https"
+    
+#     semanticbus_engine_2:
+#       build: ./main
+#       container_name: semanticbus_engine_2
+#       environment:
+#           - TIMER_URL=http://timer:9001
+#           - ENGINE=true
+#           - PORT=80
+#           - NODE_ENV=production
+#           - CONFIG_URL=https://data-players.github.io/StrongBox/public/OVH-deployement.json
+#       volumes:
+#         - ./main:/data/app/
+#       restart: always
+#       networks:
+#         - proxy  
+#         - internal  
+#       links:
+#           # - mongodb
+#           - rabbitmq
+#       depends_on:
+#           - rabbitmq
+#       command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "npm", "run", "start"]
+#       labels:
+#         - "traefik.port=80"
+#         - "traefik.backend=semanticbus"
+#         - "traefik.frontend.rule=Host:test2.semantic-bus.org"
+#         - "traefik.enable=true"
+#         # - "traefik.frontend.entryPoints=https"
+
+#     rabbitmq:
+#       image: semanticbus/rabbitmq-stomp
+#       hostname: rabbitmq
+#       ports:
+#         - 5672:5672
+#         - 15674:15674
+#         - 15672:15672
+#       restart: always
+#       expose:
+#         - 15674
+#         - 15672
+#       labels:
+#         NAME: "rabbitmq"
+#       networks:
+#         - proxy  
+#         - internal  
+#       labels:
+#         - "traefik.rabbit.port=15672"
+#         - "traefik.rabbit.frontend.rule=Host:rabbit.semantic-bus.org"
+#         # - "traefik.rabbit.backend=rabbitmq"
+#         - "traefik.rabbit.enable=true"
+#         - "traefik.rabbit.network=proxy"
+
+#         - "traefik.stomp.port=15674"
+#         - "traefik.stomp.frontend.rule=Host:stomp.semantic-bus.org"
+#         # - "traefik.stomp.backend=rabbitmq"
+#         - "traefik.stomp.frontend.entryPoints=wss"
+#         - "traefik.stomp.enable=true"
+#         - "traefik.stomp.network=proxy"
+
+#         # - "traefik.admin.frontend.rule=Host:amqp.semantic-bus.org"
+#         # - "traefik.port=5672"
+#         # - "traefik.backend=rabbitmq"
+
+#         - "traefik.enable=true"
+#         - "traefik.docker.network=proxy"
+#         # - "traefik.frontend.entryPoints=https"
+
+#     #monitoring
+
+#     #stockage cadvisor data
+#     influxdb:
+#       image: tutum/influxdb:0.9
+#       restart: always
+#       environment:
+#         - PRE_CREATE_DB=cadvisor
+#       ports:
+#         - "8083:8083"
+#         - "8086:8086"
+#       expose:
+#         - "8090"
+#         - "8099"
+#       # volumes:
+#         # Mount for influxdb data directory
+#         # - ./influxdb/data:/var/lib/influxdb
+#         # # Mount for influxdb configuration
+#         # - ./influxdb/config/:/etc/influxdb/
+#       labels:
+#         - "traefik.enable=false"
+    
+#     #listen docker
+#     cadvisor:
+#       image: google/cadvisor:v0.29.0
+#       links:
+#         - influxdb:influxsrv
+#       command: -storage_driver=influxdb -storage_driver_db=cadvisor -storage_driver_host=influxsrv:8086
+#       restart: always
+#       ports:
+#         - "9000:9000"
+#       volumes:
+#         - /:/rootfs:ro
+#         - /var/run:/var/run:rw
+#         - /sys:/sys:ro
+#         - /var/lib/docker/:/var/lib/docker:ro
+#       labels:
+#         - "traefik.enable=false"
+    
+#     #graph representation
+#     grafana:
+#       build:
+#         context: ./grafana
+#       restart: always
+#       links:
+#         - influxdb:influxsrv
+#       networks:
+#         - proxy  
+#         - internal 
+#       ports:
+#         - "3000:3000"
+#       environment:
+#         - HTTP_USER=admin
+#         - HTTP_PASS=admin
+#         - INFLUXDB_HOST=influxsrv
+#         - INFLUXDB_PORT=8086
+#         - INFLUXDB_NAME=cadvisor
+#         - INFLUXDB_USER=root
+#         - INFLUXDB_PASS=root
+#       labels:
+#         - "traefik.port=3000"
+#         - "traefik.backend=grafana"
+#         - "traefik.frontend.rule=Host:grafana.semantic-bus.org"
+#         - "traefik.enable=true"
+#         - "traefik.docker.network=proxy"
+
+# networks: 
+#   proxy:
+#     external: true
+#   internal:
+#     external: false
