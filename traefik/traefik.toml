@@ -29,7 +29,6 @@ acmeLogging = true
   delayBeforeCheck = 0
 [[acme.domains]]
 main = "*.semantic-bus.org"
-sans = ["test2.semantic-bus.org", "rabbit.semantic-bus.org", "grafana.semantic-bus.org"]
 
 [api]
 # Port for the status page
