@@ -12,10 +12,8 @@ defaultEntryPoints = ["https","http"]
         entryPoint = "https"
     [entryPoints.https]
     address = ":443"
+        [entryPoints.https.tls]
 
-[api]
-# Port for the status page
-address = ":8080"    
 
 # Let's Encrypt settings
 [acme]
@@ -24,12 +22,17 @@ storage = "/acme.json"
 entryPoint = "https"
 caServer = "https://acme-staging-v02.api.letsencrypt.org/directory"
 onHostRule = true
+acmeLogging = true
 # Let's Encrypt domains
 [acme.dnsChallenge]
   provider = "gandiv5"
   delayBeforeCheck = 0
 [[acme.domains]]
 main = "*.semantic-bus.org"
+
+[api]
+# Port for the status page
+address = ":8080"    
 
 # Reload is file modified
 watch = true
