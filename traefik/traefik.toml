@@ -2,7 +2,7 @@
 # because it should not be in any table below
 debug = true
 logLevel = "DEBUG"
-defaultEntryPoints = ["https","http"]
+defaultEntryPoints = ["https","http", "wss"]
 
 # Entrypoints
 [entryPoints]
@@ -13,6 +13,9 @@ defaultEntryPoints = ["https","http"]
     [entryPoints.https]
     address = ":443"
         [entryPoints.https.tls]
+    [entryPoints.wss]
+    address = ":443"
+        [entryPoints.wss.tls]
 
 [api]
 # Port for the status page
