@@ -12,7 +12,7 @@ class Engine {
     this.workspace_lib = require("../lib/core/lib/workspace_lib");
     this.user_lib = require("../lib/core/lib/user_lib");
     this.config = require("../configuration.js");
-    let PromiseOrchestrator = require("../lib/corehelpers/promiseOrchestrator.js")
+    let PromiseOrchestrator = require("../lib/core/helpers/promiseOrchestrator.js")
     this.promiseOrchestrator = new PromiseOrchestrator();
     this.fackCounter = 0;
     this.amqpClient = amqpClient,
