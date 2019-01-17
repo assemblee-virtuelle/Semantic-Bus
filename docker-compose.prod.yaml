@@ -169,7 +169,7 @@ services:
         # - "traefik.admin.frontend.rule=Host:amqp.semantic-bus.org"
         # - "traefik.port=5672"
         # - "traefik.backend=rabbitmq"
-        - "traefik.backend=rabbitmq"
+        # - "traefik.backend=rabbitmq"
         - "traefik.frontend.entryPoints=https"
         - "traefik.enable=true"
         - "traefik.docker.network=proxy"
