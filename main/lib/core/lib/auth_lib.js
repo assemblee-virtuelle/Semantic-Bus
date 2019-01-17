@@ -110,7 +110,7 @@ class AuthLib {
       subject: user.googleid,
 
     }
-    //console.log("in authentification")
+    console.log("in authentification", config)
     const token = jwt.encode(payload, config.secret);
 
     const authenticationModelInstance = authenticationModel.getInstance().model;
