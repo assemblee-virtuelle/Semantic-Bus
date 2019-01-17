@@ -155,13 +155,13 @@ services:
 
 
         - "traefik.rabbit.port=15672"
-        - "traefik.rabbit.frontend.rule=Host:test2.semantic-bus.org/;PathPrefixStrip:/rabbit"
+        - "traefik.rabbit.frontend.rule=Host:test2.semantic-bus.org;PathPrefixStrip:/rabbit"
         # - "traefik.rabbit.backend=rabbitmq"
         - "traefik.rabbit.enable=true"
         - "traefik.rabbit.network=proxy"
 
         - "traefik.stomp.port=15674"
-        - "traefik.stomp.frontend.rule=Host:test2.semantic-bus.org/;PathPrefixStrip:/stomp"
+        - "traefik.stomp.frontend.rule=Host:test2.semantic-bus.org;PathPrefixStrip:/stomp"
         # - "traefik.stomp.frontend.rule=Host:test2.semantic-bus.org/stomp"
         # - "traefik.stomp.backend=rabbitmq"
         - "traefik.stomp.frontend.entryPoints=wss"
