@@ -59,11 +59,11 @@ httpGet.makeRequest('GET', {
 
 
       let url;
-      console.log('Starting Environnement', process.env.NODE_ENV);
+      console.log('Starting Environnement ',configJson.socketServer, process.env.NODE_ENV);
       url = configJson.socketServer
       
       amqp.connect(url + '/' + configJson.amqpHost, function(err, conn) {
-        console.log('AMQP status : ', conn? "connected": "no connected", err? "error": "no error");
+        console.log('AMQP status : ', conn? "connected": "no connected", err? err: "no error");
         conn.createChannel(function(err, ch) {
           onConnect(ch);
           if(process.env.ENGINE === true){

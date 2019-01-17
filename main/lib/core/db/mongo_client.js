@@ -17,6 +17,7 @@ class MongoClient {
     this.mongoose = require('mongoose');
     this.mongoose.Promise = Promise;
     const conStr = this.config2.mlabDB;
+    // console.log()
     const db = this.mongoose.createConnection(conStr);
     // CONNECTION EVENTS
     // When successfully connected
