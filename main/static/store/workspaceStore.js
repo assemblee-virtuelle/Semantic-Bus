@@ -40,6 +40,260 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
 
   // ----------------------------------------- FUNCTION  -----------------------------------------
 
+  // Navigation and workspace initializer
+
+  this.on('navigation', function (entity, id, action, secondId, secondAction) {
+    if (entity === 'workspace') {
+      if (id === 'new') {
+        this.initializeNewWorkspace(entity, action)
+        this.trigger('navigation_control_done', entity, action);
+      } else if (this.workspaceCurrent !== undefined && this.workspaceCurrent._id === id) {
+        this.reloadWorkspace(entity, action)
+
+        if (action === 'component' && secondId !== undefined) {
+          this.loadComponentPart(secondId, secondAction)
+          this.trigger('navigation_control_done', 'component');
+        } else {
+          this.trigger('navigation_control_done', entity, action);
+        }
+      } else {
+        this.unsubscribeToPreviousSubscription()
+        this.select({ _id: id }).then(() => {
+          this.subscribeToComponents(entity, action)
+
+          if (action === 'component' && secondId !== undefined) {
+            this.loadComponentPart(secondId, secondAction)
+            this.trigger('navigation_control_done', 'component');
+          } else {
+            this.trigger('navigation_control_done', entity, action);
+          }
+        });
+        this.loadProcesses()
+      }
+    }
+  });
+
+  this.initializeNewWorkspace = function (entity, action) {
+    this.workspaceCurrent = {
+      name: "",
+      description: "",
+      components: [],
+      users: [],
+      links: []
+    };
+    this.action = action;
+    this.workspaceCurrent.mode = 'init';
+  }
+
+  this.reloadWorkspace = function (entity, action) {
+    this.action = action;
+    this.trigger('workspace_current_process_changed', this.processCollection);
+  }
+
+  this.unsubscribeToPreviousSubscription = function () {
+    [
+      this.subscription_workspace_current_move_component,
+      this.subscription_workspace_current_updateComponentField,
+      this.subscription_workspace_current_process_start,
+      this.subscription_workspace_current_process_end,
+      this.subscription_workspace_current_process_error,
+      this.subscription_workspace_current_process_progress,
+      this.subscription_workspace_current_process_persist,
+      this.subscription_workflow_processCleaned
+    ].forEach(component => {
+      if (component !== undefined && component !== null && typeof component.unsubscribe === 'function') {
+        component.unsubscribe()
+      }
+    })
+  }
+
+  this.subscribeToComponents = function (entity, action) {
+    this.action = action;
+    this.subscription_workspace_current_move_component = this.stompClient.subscribe('/topic/workspace_current_move_component.' + this.workspaceCurrent._id, message => {
+      //console.log('message', JSON.parse(message.body));
+      let body = JSON.parse(message.body);
+      if (body.token !== localStorage.token) {
+        let componentToUpdate = sift({
+          _id: body.componentId
+        }, this.workspaceCurrent.components)[0];
+        componentToUpdate.graphPositionX = body.x;
+        componentToUpdate.graphPositionY = body.y;
+        this.computeGraph();
+      }
+    });
+    this.subscription_workspace_current_updateComponentField = this.stompClient.subscribe('/topic/workspace_current_updateComponentField.' + this.workspaceCurrent._id, message => {
+      console.log('message', JSON.parse(message.body));
+      let body = JSON.parse(message.body);
+      if (body.token !== localStorage.token) {
+        //console.log('body',body);
+        let updatingComponent = sift({
+          _id: body.componentId
+        }, this.workspaceCurrent.components)[0];
+        utilStore.objectSetFieldValue(updatingComponent, body.field, body.data);
+        //this.itemCurrent.specificData[body.field] = body.data;
+        //console.log('this.itemCurrent',this.itemCurrent);
+        if (this.itemCurrent._id === updatingComponent._id) {
+          this.trigger('item_current_changed', updatingComponent);
+        }
+      }
+    });
+    this.subscription_workspace_current_process_start = this.stompClient.subscribe('/topic/process-start.' + this.workspaceCurrent._id, message => {
+      console.log('subscription_workspace_current_process_start', JSON.parse(message.body));
+      let body = JSON.parse(message.body);
+      if (body.error === undefined) {
+        let process = {
+          _id: body._id,
+          status: 'processing',
+          steps: body.steps,
+          timeStamp: body.timeStamp,
+          stepFinished: 0
+        }
+        this.processCollection.unshift(process);
+        if (body.callerId === localStorage.user_id) {
+          //console.log('IT IS ME');
+          this.currentProcess = process;
+          this.computeGraph();
+        }
+        this.trigger('workspace_current_process_changed', this.processCollection);
+      } else {
+        this.trigger('ajax_fail', body.error);
+      }
+    });
+    this.subscription_workspace_current_process_end = this.stompClient.subscribe('/topic/process-end.' + this.workspaceCurrent._id, message => {
+      //console.log('message', JSON.parse(message.body));
+      let body = JSON.parse(message.body);
+      if (body.error === undefined) {
+        let targetProcess = sift({
+          _id: body._id
+        }, this.processCollection)[0];
+        console.log(targetProcess);
+        if (targetProcess !== undefined) {
+          targetProcess.status = 'resolved';
+          this.trigger('workspace_current_process_changed', this.processCollection);
+        }
+      } else {
+        this.trigger('ajax_fail', body.error);
+      }
+    });
+    this.subscription_workspace_current_process_error = this.stompClient.subscribe('/topic/process-error.' + this.workspaceCurrent._id, message => {
+      //console.log('message', JSON.parse(message.body));
+      let body = JSON.parse(message.body);
+      if (body.error === undefined) {
+        let targetProcess = sift({
+          _id: body._id
+        }, this.processCollection)[0];
+        if (targetProcess !== undefined) {
+          targetProcess.status = 'error';
+          this.trigger('workspace_current_process_changed', this.processCollection);
+        }
+      } else {
+        this.trigger('ajax_fail', body.error);
+      }
+    });
+    this.subscription_workspace_current_process_progress = this.stompClient.subscribe('/topic/process-progress.' + this.workspaceCurrent._id, message => {
+      //console.log('message', JSON.parse(message.body));
+
+      let body = JSON.parse(message.body);
+
+      // if (body.error == undefined) {
+      let targetProcess = sift({
+        _id: body.processId
+      }, this.processCollection)[0];
+
+      if (targetProcess !== undefined) {
+        //console.log('process Finded');
+        let targetStep = sift({
+          componentId: body.componentId
+        }, targetProcess.steps)[0];
+        if (targetStep !== undefined) {
+          //console.log('step Finded');
+          if (body.error === undefined) {
+            targetStep.status = 'resolved';
+          } else {
+            targetStep.status = 'error';
+            //  targetProcess.status = 'error';
+          }
+        }
+        targetProcess.stepFinished = sift({
+          status: {
+            '$ne': 'waiting'
+          }
+        }, targetProcess.steps).length
+        this.trigger('workspace_current_process_changed', this.processCollection);
+        //console.log('ALLO',this.currentProcessId,body.processId);
+        if (this.currentProcess && this.currentProcess._id === body.processId) {
+          //console.log('ALLO2');
+          this.computeGraph();
+        }
+      }
+      //console.log(this.processCollection);
+      // } else {
+      //   this.trigger('ajax_fail', body.error);
+      // }
+    });
+    this.subscription_workflow_processCleaned = this.stompClient.subscribe('/topic/workflow-processCleaned.' + this.workspaceCurrent._id, message => {
+      let body = JSON.parse(message.body);
+      this.processCollection = sift({
+          _id: {
+            $in: body.cleanedProcesses.map(p => p._id)
+          }
+        },
+        this.processCollection
+      );
+      this.trigger('workspace_current_process_changed', this.processCollection);
+    });
+    this.subscription_workspace_current_process_persist = this.stompClient.subscribe('/topic/process-persist.' + this.workspaceCurrent._id, message => {
+      console.log('message', JSON.parse(message.body));
+      let body = JSON.parse(message.body);
+      console.log(this.currentProcess._id, body.processId, this.itemCurrent._id, body.componentId);
+      if (this.currentProcess._id === body.processId && this.itemCurrent._id === body.componentId) {
+        this.trigger('item_current_process_persist_changed', body.data);
+      }
+    });
+  }
+
+  this.loadProcesses = function (id) {
+    this.utilStore.ajaxCall({
+      method: 'get',
+      url: '../data/core/processByWorkflow/' + id
+    }, true)
+      .then(data => {
+        this.processCollection = data;
+
+        this.processCollection.forEach(process => {
+          let waitingNB = sift({
+            status: 'waiting'
+          }, process.steps).length;
+          let errorNB = sift({
+            status: 'error'
+          }, process.steps).length;
+          if (errorNB > 0) {
+            process.status = 'error';
+          } else {
+            if (waitingNB > 0) {
+              process.status = 'waiting';
+            } else {
+              process.status = 'resolved';
+            }
+          }
+          process.stepFinished = process.steps.length - waitingNB;
+        });
+
+        this.trigger('workspace_current_process_changed', this.processCollection);
+      });
+  }
+
+  this.loadComponentPart = function (id, action) {
+    this.action = action
+    if (this.workspaceCurrent !== undefined) {
+      this.itemCurrent = sift({ _id: id }, this.workspaceCurrent.components)[0];
+      if (this.itemCurrent === undefined) {
+        this.trigger('ajax_fail', 'no component existing with this id un current workspace');
+      }
+    } else {
+      this.trigger('ajax_fail', 'the component can not be loaded without first loading its workspace');
+    }
+  }
 
   this.load = function() {
     //console.log('load workspace to ||', localStorage.user_id);
@@ -561,14 +815,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
       this.trigger('workspace_collection_changed', this.workspaceCollection);
     }
   }); // <= workspace_collection_load
-  this.on('workspace_collection_filter', function(filter) {
-    var re = new RegExp(filter, 'gi');
-    this.trigger('workspace_collection_changed', sift({
-      name: {
-        $regex: re
-      }
-    }, this.workspaceCollection));
-  });
   // --------------------------------------------------------------------------------
 
 
@@ -684,233 +930,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
   //     //this.trigger('workspace_current_changed', workspace);
   //   })
   // }); // <= workspace_current_select
-
-  this.on('navigation', function(entity, id, action) {
-    //console.log('WARNING');
-    if (entity == "workspace") {
-      //console.log('ALLO');
-      if (id == 'new') {
-        this.workspaceCurrent = {
-          name: "",
-          description: "",
-          components: [],
-          users: [],
-          links: []
-        };
-        this.action = action;
-        this.workspaceCurrent.mode = 'init';
-        this.trigger('navigation_control_done', entity, action);
-      } else {
-        if (this.workspaceCurrent != undefined && this.workspaceCurrent._id == id) {
-          this.action = action;
-          //console.log('processCollection Nav',this.processCollection.map(r=>r._id));
-          this.trigger('workspace_current_process_changed', this.processCollection);
-          this.trigger('navigation_control_done', entity, action);
-        } else {
-          if (this.subscription_workspace_current_move_component != undefined) {
-            this.subscription_workspace_current_move_component.unsubscribe();
-          }
-          if (this.subscription_workspace_current_updateComponentField != undefined) {
-            this.subscription_workspace_current_updateComponentField.unsubscribe();
-          }
-          if (this.subscription_workspace_current_process_start != undefined) {
-            this.subscription_workspace_current_process_start.unsubscribe();
-          }
-          if (this.subscription_workspace_current_process_end != undefined) {
-            this.subscription_workspace_current_process_end.unsubscribe();
-          }
-          if (this.subscription_workspace_current_process_error != undefined) {
-            this.subscription_workspace_current_process_error.unsubscribe();
-          }
-          if (this.subscription_workspace_current_process_progress != undefined) {
-            this.subscription_workspace_current_process_progress.unsubscribe();
-          }
-          if (this.subscription_workspace_current_process_persist != undefined) {
-            this.subscription_workspace_current_process_persist.unsubscribe();
-          }
-          if (this.subscription_workflow_processCleaned != undefined) {
-            this.subscription_workflow_processCleaned.unsubscribe();
-          }
-          this.select({
-            _id: id
-          }).then(workspace => {
-            this.action = action;
-            this.subscription_workspace_current_move_component = this.stompClient.subscribe('/topic/workspace_current_move_component.' + this.workspaceCurrent._id, message => {
-              //console.log('message', JSON.parse(message.body));
-              let body = JSON.parse(message.body);
-              if (body.token != localStorage.token) {
-                let componentToUpdate = sift({
-                  _id: body.componentId
-                }, this.workspaceCurrent.components)[0];
-                componentToUpdate.graphPositionX = body.x;
-                componentToUpdate.graphPositionY = body.y;
-                this.computeGraph();
-              }
-            });
-            this.subscription_workspace_current_updateComponentField = this.stompClient.subscribe('/topic/workspace_current_updateComponentField.' + this.workspaceCurrent._id, message => {
-              console.log('message', JSON.parse(message.body));
-              let body = JSON.parse(message.body);
-              if (body.token != localStorage.token) {
-                //console.log('body',body);
-                let updatingComponent = sift({
-                  _id: body.componentId
-                }, this.workspaceCurrent.components)[0];
-                utilStore.objectSetFieldValue(updatingComponent, body.field, body.data);
-                //this.itemCurrent.specificData[body.field] = body.data;
-                //console.log('this.itemCurrent',this.itemCurrent);
-                if (this.itemCurrent._id == updatingComponent._id) {
-                  this.trigger('item_current_changed', updatingComponent);
-                }
-              }
-            });
-            this.subscription_workspace_current_process_start = this.stompClient.subscribe('/topic/process-start.' + this.workspaceCurrent._id, message => {
-              console.log('subscription_workspace_current_process_start', JSON.parse(message.body));
-              let body = JSON.parse(message.body);
-              if (body.error == undefined) {
-                let process = {
-                  _id: body._id,
-                  status: 'processing',
-                  steps: body.steps,
-                  timeStamp: body.timeStamp,
-                  stepFinished: 0
-                }
-                this.processCollection.unshift(process);
-                if (body.callerId == localStorage.user_id) {
-                  //console.log('IT IS ME');
-                  this.currentProcess = process;
-                  this.computeGraph();
-                }
-                this.trigger('workspace_current_process_changed', this.processCollection);
-              } else {
-                this.trigger('ajax_fail', body.error);
-              }
-            });
-            this.subscription_workspace_current_process_end = this.stompClient.subscribe('/topic/process-end.' + this.workspaceCurrent._id, message => {
-              //console.log('message', JSON.parse(message.body));
-              let body = JSON.parse(message.body);
-              if (body.error == undefined) {
-                let targetProcess = sift({
-                  _id: body._id
-                }, this.processCollection)[0];
-                console.log(targetProcess);
-                if (targetProcess != undefined) {
-                  targetProcess.status = 'resolved';
-                  this.trigger('workspace_current_process_changed', this.processCollection);
-                }
-              } else {
-                this.trigger('ajax_fail', body.error);
-              }
-            });
-            this.subscription_workspace_current_process_error = this.stompClient.subscribe('/topic/process-error.' + this.workspaceCurrent._id, message => {
-              //console.log('message', JSON.parse(message.body));
-              let body = JSON.parse(message.body);
-              if (body.error == undefined) {
-                let targetProcess = sift({
-                  _id: body._id
-                }, this.processCollection)[0];
-                if (targetProcess != undefined) {
-                  targetProcess.status = 'error';
-                  this.trigger('workspace_current_process_changed', this.processCollection);
-                }
-              } else {
-                this.trigger('ajax_fail', body.error);
-              }
-            });
-            this.subscription_workspace_current_process_progress = this.stompClient.subscribe('/topic/process-progress.' + this.workspaceCurrent._id, message => {
-              //console.log('message', JSON.parse(message.body));
-
-              let body = JSON.parse(message.body);
-
-              // if (body.error == undefined) {
-              let targetProcess = sift({
-                _id: body.processId
-              }, this.processCollection)[0];
-
-              if (targetProcess != undefined) {
-                //console.log('process Finded');
-                let targetStep = sift({
-                  componentId: body.componentId
-                }, targetProcess.steps)[0];
-                if (targetStep != undefined) {
-                  //console.log('step Finded');
-                  if (body.error == undefined) {
-                    targetStep.status = 'resolved';
-                  } else {
-                    targetStep.status = 'error';
-                    //  targetProcess.status = 'error';
-                  }
-                }
-                targetProcess.stepFinished = sift({
-                  status: {
-                    '$ne': 'waiting'
-                  }
-                }, targetProcess.steps).length
-                this.trigger('workspace_current_process_changed', this.processCollection);
-                //console.log('ALLO',this.currentProcessId,body.processId);
-                if (this.currentProcess && this.currentProcess._id == body.processId) {
-                  //console.log('ALLO2');
-                  this.computeGraph();
-                }
-              }
-              //console.log(this.processCollection);
-              // } else {
-              //   this.trigger('ajax_fail', body.error);
-              // }
-            });
-            this.subscription_workflow_processCleaned = this.stompClient.subscribe('/topic/workflow-processCleaned.' + this.workspaceCurrent._id, message => {
-              let body = JSON.parse(message.body);
-              this.processCollection = sift({
-                  _id: {
-                    $in: body.cleanedProcesses.map(p => p._id)
-                  }
-                },
-                this.processCollection
-              );
-              this.trigger('workspace_current_process_changed', this.processCollection);
-            });
-            this.subscription_workspace_current_process_persist = this.stompClient.subscribe('/topic/process-persist.' + this.workspaceCurrent._id, message => {
-              console.log('message', JSON.parse(message.body));
-              let body = JSON.parse(message.body);
-              console.log(this.currentProcess._id, body.processId, this.itemCurrent._id, body.componentId);
-              if (this.currentProcess._id == body.processId && this.itemCurrent._id == body.componentId) {
-                this.trigger('item_current_process_persist_changed', body.data);
-              }
-            });
-
-
-            this.trigger('navigation_control_done', entity, action);
-          });
-          this.utilStore.ajaxCall({
-            method: 'get',
-            url: '../data/core/processByWorkflow/' + id
-          }, true).then(data => {
-            this.processCollection = data;
-
-            this.processCollection.forEach(process => {
-              let waitingNB = sift({
-                status: 'waiting'
-              }, process.steps).length;
-              let errorNB = sift({
-                status: 'error'
-              }, process.steps).length;
-              if (errorNB > 0) {
-                process.status = 'error';
-              } else {
-                if (waitingNB > 0) {
-                  process.status = 'waiting';
-                } else {
-                  process.status = 'resolved';
-                }
-              }
-              process.stepFinished = process.steps.length - waitingNB;
-            });
-
-            this.trigger('workspace_current_process_changed', this.processCollection);
-          });
-        }
-      }
-    }
-  });
 
   this.on('item_current_work', function(message) {
     this.stompClient.send('/queue/work-ask', JSON.stringify({
@@ -1402,27 +1421,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
       beforeComponents: beforeComponents,
       afterComponents: afterComponents
     });
-  });
-
-
-  this.on('navigation', function(entity, id, action) {
-    //console.log('WARNING');
-    if (entity == 'component') {
-      this.action = action
-      if (this.workspaceCurrent != undefined) {
-        this.itemCurrent = sift({
-          _id: id
-        }, this.workspaceCurrent.components)[0];
-        if (this.itemCurrent != undefined) {
-          this.trigger('navigation_control_done', entity);
-
-        } else {
-          this.trigger('ajax_fail', 'no component existing whith this id un current workspace');
-        }
-      } else {
-        this.trigger('ajax_fail', 'the component can not be loaded without first loading its workspace');
-      }
-    }
   });
 
   this.refreshComponent = function(triggerConnections) {

@@ -34,11 +34,9 @@
 
     this.addRow = function (e) {
       this.refs.fieldsTableRef.data.push({})
-      //console.log(this.tags.zentable.data)
     }.bind(this);
 
     this.onAttributChange = function (e) {
-      //console.log('ALLO');
       this.data.specificData.attribut = e.target.value;
     }.bind(this);
 
@@ -47,13 +45,14 @@
       this.refs.fieldsTableRef.on('dataChanged', data => {
         this.data.specificData.fields = data;
       });
+      this.refs.fieldsTableRef.on('delRow', item => {
+        const fields = this.data.specificData.fields
+        fields.splice(fields.findIndex(_ => _.rowId === item.rowId), 1)
+      });
     });
     this.on('unmount', function () {
       RiotControl.off('item_current_changed', this.updateData);
     });
-
-    // this.fieldValueChange = function (e) {   console.log(e.target.value);   this.fieldValue = e.target.value;   console.log(this.currentRowId)   this.data.specificData.unicityFields[this.currentRowId]={field:this.fieldValue};   console.log("value
-    // change", this.data.specificData.unicityFields)   this.tags.zentable.data = this.data.specificData.unicityFields; }.bind(this);
   </script>
   <style scoped="scoped"></style>
 </properties-matrix-editor>

@@ -9,7 +9,7 @@
   <div>Interroger une feuille de calcul Framacalc qui fournit un flux CSV.</div>
   <!-- Champ du composant -->
   <div>Information de connexion à Framacalc.</div>
-  <label>Clé:</label>
+  <label>URL framacalc / Ethercalc:</label>
   <input placeholder=""type="text" name="keyInput" ref="keyInput" value={data.specificData.key}></input>
   <label>Commencer à partir de la ligne (offset):</label>
   <input placeholder=""type="text" name="offsetInput" ref="offsetInput"  value={data.specificData.offset}></input>
