@@ -14,8 +14,6 @@ defaultEntryPoints = ["https","http", "wss"]
     address = ":443"
         [entryPoints.https.tls]
     [entryPoints.wss]
-    address = ":443"
-        [entryPoints.wss.tls]
 
 [api]
 # Port for the status page

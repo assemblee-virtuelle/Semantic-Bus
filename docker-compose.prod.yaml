@@ -144,12 +144,35 @@ services:
         - proxy  
         - internal  
       labels:
-        - "traefik.frontend.rule=Host:rabbit.semantic-bus.org"
-        - "traefik.port=15672"
-        - "traefik.backend=rabbitmq"
+        # - "traefik.frontend.rule=Host:rabbit.semantic-bus.org"
+        
+        # - "traefik.port=15672"
+        # - "traefik.backend=rabbitmq"
+        # - "traefik.enable=true"
+        # - "traefik.docker.network=proxy"
+        # - "traefik.wss.protocol=https"
+        # - "traefik.frontend.entryPoints=https"
+
+
+        - "traefik.rabbit.port=15672"
+        - "traefik.rabbit.frontend.rule=Host:test2.semantic-bus.org/rabbit"
+        # - "traefik.rabbit.backend=rabbitmq"
+        - "traefik.rabbit.enable=true"
+        - "traefik.rabbit.network=proxy"
+
+        - "traefik.stomp.port=15674"
+        - "traefik.stomp.frontend.rule=Host:test2.semantic-bus.org/stomp"
+        # - "traefik.stomp.backend=rabbitmq"
+        - "traefik.stomp.frontend.entryPoints=wss"
+        - "traefik.stomp.enable=true"
+        - "traefik.stomp.network=proxy"
+
+        # - "traefik.admin.frontend.rule=Host:amqp.semantic-bus.org"
+        # - "traefik.port=5672"
+        # - "traefik.backend=rabbitmq"
+
         - "traefik.enable=true"
         - "traefik.docker.network=proxy"
-        - "traefik.wss.protocol=https"
         # - "traefik.frontend.entryPoints=https"
 
     #monitoring
