@@ -106,6 +106,7 @@
   },
   "devDependencies": {
     "@types/amqplib": "^0.5.9",
+    "@types/node-fetch": "2.1.4",
     "chromedriver": "^2.37.0",
     "jsverify": "0.8.4",
     "mocha-junit-reporter": "^1.13.0",

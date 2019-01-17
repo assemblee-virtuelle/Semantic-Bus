@@ -1,99 +1,87 @@
 "use strict";
+
+const csvToJson = require('csvtojson')
+const fetch = require('node-fetch')
+
 module.exports = {
   type: 'Framacalc',
-  description: 'Interroger une feuille de calcule Framacalc qui fournit un flux CSV.',
+  description: 'Interroger une feuille de calcul Framacalc/Ethercalc qui fournit un flux CSV.',
   editor: 'framacalc-get-csv-editor',
-  //  url: require('url'),
-  //  http: require('http'),
   graphIcon: 'Framacalc.png',
   tags: [
     'http://semantic-bus.org/data/tags/inComponents',
     'http://semantic-bus.org/data/tags/APIComponents'
   ],
-  url: require('url'),
-  http: require('http'),
-  https: require('https'),
-  csv: require('csvtojson'),
 
-  makeRequest: function(key, offset, provider) {
-
-    return new Promise((resolve, reject) => {
-      var urlString = 'https://framacalc.org/' + key + '.csv'
-      const parsedUrl = this.url.parse(urlString);
-      //console.log('REST Get JSON | makerequest | port',parsedUrl.port);
-      //  console.log('REST Get JSON | makerequest | host',parsedUrl.hostname);
-      const requestOptions = {
-        hostname: parsedUrl.hostname,
-        path: parsedUrl.path,
-        port: parsedUrl.port,
-        method: 'get',
-        headers: {
-          Accept: 'text/csv',
-          'user-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0'
-        }
-      }
-      //console.log(requestOptions);
-
-      var lib = urlString.indexOf('htts') != -1 ? this.http : this.https;
-
-      const request = lib.request(requestOptions, response => {
-
-        const hasResponseFailed = response.status >= 400;
-        //console.log('REST Get JSON | header |',response.headers);
-        var responseBody = '';
-
-        if (hasResponseFailed) {
-          reject(`Request to ${response.url} failed with HTTP ${response.status}`);
-        }
-
-        /* the response stream's (an instance of Stream) current data. See:
-         * https://nodejs.org/api/stream.html#stream_event_data */
-        response.on('data', chunk => {
-          //console.log(chunk.toString());
-          responseBody += chunk.toString()
-        });
-
-        // once all the data has been read, resolve the Promise
-        response.on('end', () => {
-          //console.log('responseBody | ', responseBody);
-          this.csv({
-            noheader: true
-          }).fromString(responseBody).on('json', (jsonObj) => {
-            //console.log('CSV', jsonObj)
-          }).on('end', () => {
-            //console.log('end')
-          }).on('end_parsed', (jsonArr) => {
-            //console.log(offset);
-            jsonArr.splice(0, offset);
-            //console.log(jsonArr);
-            resolve({
-              data: jsonArr
-            });
-          })
-          //resolve(JSON.parse(responseBody));
-        });
-      });
-
-      /* if there's an error, then reject the Promise
-       * (can be handled with Promise.prototype.catch) */
-      request.on('error', reject);
-      request.on('socket', (s) => {
-        s.setTimeout(120000, () => {
-          s.destroy();
-        })
-      });
-      request.end();
-    });
+  /**
+   * @param {string} url
+   * @param {number} offset
+   * @return {Promise}
+   */
+  makeRequest: function (url, offset) {
+    return this.fetchCSV(url)
+      .then(rawCSV => this.processCSV(rawCSV, offset))
   },
-  pull: function(data) {
-    //console.log('GOOGLE Get JSON | pull : ', data);
-    return this.makeRequest(data.specificData.key, data.specificData.offset, data.specificData.provider);
-    /*this.makeRequest('GET', data.specificData.url).then(data => {
-      //console.log('ALLO', data);
-      res.json(data);
-    });*/
-    /*    res.json({
-          url: data.url
-        });*/
+
+  /**
+   * @param {string} url
+   * @return {Promise<string>}
+   */
+  fetchCSV: function (url) {
+    return fetch(this.normalizeUrl(url))
+      .then(response => {
+        const hasResponseFailed = response.status >= 400;
+        if (hasResponseFailed) {
+          return Promise.reject(`Request to ${response.url} failed with HTTP ${response.status}`);
+        } else {
+          return response.text()
+        }
+      })
+  },
+
+  /**
+   * @param {string} url
+   * @return {string}
+   */
+  normalizeUrl: function (url) {
+    if (url.startsWith('http')) {
+      if (url.endsWith('.csv')) {
+        return url
+      } else {
+        return `${url}.csv`
+      }
+    } else {
+      if (url.endsWith('.csv')) {
+        return `https://framacalc.org/${url}`
+      } else {
+        return `https://framacalc.org/${url}.csv`
+      }
+    }
+  },
+
+  /**
+   * @param {string} rawCSV
+   * @param {number} offset
+   * @return {Promise<FramacalcResult>}
+   */
+  processCSV: function (rawCSV, offset) {
+    return new Promise((resolve, reject) => {
+      csvToJson({ noheader: true })
+        .fromString(rawCSV)
+        .on('end_parsed', (jsonArr) => {
+          jsonArr.splice(0, offset);
+
+          resolve({ data: jsonArr });
+        })
+        .on('error', error => reject({ data: error }))
+    })
+  },
+
+  /**
+   * @param {FramacalcData} data
+   * @return {Promise<FramacalcResult>}
+   */
+  pull: function (data) {
+    return this.makeRequest(data.specificData.key, data.specificData.offset);
   }
 }
