@@ -24,13 +24,19 @@
   jobs:
     e2e:
       working_directory: ~/project/
+      branches:
+        ignore: 
+          - production
+          - master
       <<: *e2e
 
     # deployement
     deploy:
       machine:
         enabled: true
-        docker_layer_caching: true 
+        docker_layer_caching: true    # default - false
+      branches:
+          only: production
       steps:
         - run:
             name: Deploy Over SSH
@@ -43,14 +49,9 @@
     
     test:
       jobs:
-        e2e:
-          branches:
-            ignore: 
-              - production
-              - master
+        - e2e
+        
+    
     deploy:
       jobs:
-        - deploy: 
-            filters:
-              branches:
-                only: production
+        - deploy
