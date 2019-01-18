@@ -32,4 +32,4 @@ test-build:
 	$(DOCKER_COMPOSE_TEST) build --no-cache
 
 test-start: 
-	$(DOCKER_COMPOSE_TEST) up --force-recreate
+	$(DOCKER_COMPOSE_TEST) up 
