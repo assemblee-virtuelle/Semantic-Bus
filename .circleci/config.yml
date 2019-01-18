@@ -14,14 +14,14 @@
     e2e: &e2e
       machine: true
       steps:
-        # - checkout:
-        #     path: ~/project
+        - checkout:
+            path: ~/project
         # - *build_e2e
         - *run_e2e
     
   jobs:
     e2e:
-      # working_directory: ~/project/
+      working_directory: ~/project/
       <<: *e2e
 
   workflows:
