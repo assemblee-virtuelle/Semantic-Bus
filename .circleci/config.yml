@@ -47,7 +47,7 @@
     
     deploy:
       jobs:
-        - build: 
+        - deploy: 
             filters:
               branches:
                 only: production
