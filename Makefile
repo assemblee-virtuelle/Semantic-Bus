@@ -29,4 +29,5 @@ stop: docker-stop ## Stop the project
 restart: docker-clean docker-build docker-up ## Reinstall everything
 
 test-start: 
+	$(DOCKER_COMPOSE_TEST) down -v --remove-orphans
 	$(DOCKER_COMPOSE_TEST) up --force-recreate
