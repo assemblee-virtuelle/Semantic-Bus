@@ -14,7 +14,9 @@
     
   jobs:
     e2e:
-      docker:
+      machine:
+        enabled: true
+        docker_layer_caching: true    # default - false
         - image: node:8.9
       working_directory: ~/project/
       <<: *e2e
