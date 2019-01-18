@@ -11,6 +11,7 @@ services:
         - CONFIG_URL=https://data-players.github.io/StrongBox/public/dev-docker-mac.json
     volumes:
       - ./main:/data/app/
+      - /main/node_modules
     networks:
       - back  
     ports:
