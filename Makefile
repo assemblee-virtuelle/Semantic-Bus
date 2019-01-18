@@ -31,6 +31,7 @@ restart: docker-clean docker-build docker-up ## Reinstall everything
 test-build:
 	$(DOCKER_COMPOSE_TEST) build --no-cache
 	$(DOCKER_COMPOSE_TEST) up semanticbus rabbitmq mongodb seleniume2e
+ 	docker run --network container:semanticbus  appropriate/curl --retry 10 --retry-delay 1 --retry-connrefused http://localhost
 
 test-start: 
 	$(DOCKER_COMPOSE_TEST) up e2e
