@@ -1,5 +1,5 @@
 {
-  "name": "SemanticBus ",
+  "name": "SemanticBus",
   "version": "0.9.1",
   "description": "ETL style data middlware transformation embended in an ESB for all kind of data",
   "private": true,
@@ -53,9 +53,10 @@
     "express": "^4.16.3",
     "follow-redirects": "^1.4.1",
     "formidable": "^1.1.1",
+    "growl": "1.10.2",
     "helmet": "^3.6.1",
     "http": "0.0.0",
-    "jquery": "latest",
+    "jquery": "3.0.0",
     "json2yaml": "^1.1.0",
     "jsonpath-object-transform": "^1.0.4",
     "jsonwebtoken": "^7.4.1",
