@@ -10,7 +10,7 @@ docker-build:
 	$(DOCKER_COMPOSE) build
 
 docker-up:
-	$(DOCKER_COMPOSE) up -d --remove-orphans semanticbus proxy rabbitmq mongodb
+	$(DOCKER_COMPOSE) up -d --remove-orphans amqp mongo
 
 docker-stop:
 	$(DOCKER_COMPOSE) kill
@@ -30,7 +30,7 @@ restart: docker-clean docker-build docker-up ## Reinstall everything
 
 test-build:
 	$(DOCKER_COMPOSE_TEST) build --no-cache
-	$(DOCKER_COMPOSE_TEST) up -d semanticbus rabbitmq mongodb seleniume2e 
+	$(DOCKER_COMPOSE_TEST) up -d semanticbus rabbitmq mongodb seleniume2e
 
-test-start: 
+test-start:
 	$(DOCKER_COMPOSE_TEST) up e2e
