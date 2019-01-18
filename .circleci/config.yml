@@ -1,92 +1,53 @@
-version: 2
-
-references:
-  # Project
-  jslint: &jslint
-    run:
-      name: JS lint
-      command: yarn js-lint
-
-  sasslint: &sasslint
-    run:
-      name: SASS lint
-      command: yarn sass-lint
-
-  yarn_install: &yarn_install
-    run:
-      name: Install yarn dependencies
-      command: yarn install
-  
-  yarn_save: &yarn_save
-    save_cache:
-      name: Save yarn node modules
-      key: yarn-v1-{{ checksum "yarn.lock" }}
-      paths:
-        - node_modules
-        - ~/.cache/yarn
-  
-  yarn_restore: &yarn_restore
-    restore_cache:
-      name: Restore yarn node modules
-      keys:
-        - yarn-v1-{{ checksum "yarn.lock" }}
-
-  run_e2e: &run_e2e_local
-    restore_cache:
-      name: Run e2e
-      command: make test-start
-
-  job_js: &job_js
-    steps:
-      - checkout:
-          path: ~/project
-      - *yarn_restore
-      - *yarn_install
-      # - *jslint
-      # - *sasslint
-      - *yarn_save
-
-  e2e: &e2e
-    steps:
-      - checkout:
-          path: ~/project
-      - *run_e2e
-  
-# Jobs
-jobs:
-  # front ( for after )
-  front_js:
-    docker:
-      - image: node:8.9
-    working_directory: ~/project/t4f-client
-    <<: *job_js
-
-  e2e:
-    docker:
-      - image: node:8.9
-    working_directory: ~/project/t4f-client
-    <<: *e2e
-
-  
-workflows:
   version: 2
-  # Commit CI
-  test:
-    jobs:
-      # Step 1: lint tests
-      # - front_js
-      - e2e
 
-  deploy:
-    jobs:
-      - build: 
-          filters:
-            branches:
-              only: production
+  references:
+    build_e2e: &build_e2e
+      run:
+        name: Start container and verify it is working
+        command: |
+          make test-build
+          # docker run --network container:semanticbus  appropriate/curl --retry 10 --retry-delay 1 --retry-connrefused http://localhost
+    
+    run_e2e: &run_e2e
+      run:
+        name: Run e2e
+        command: make test-start
 
-      - deploy:
-          requires: 
-            - build 
-          filters:
-            branches:
-              only: production
+    e2e: &e2e
+      machine: true
+      steps:
+        - checkout:
+            path: ~/project
+        - *build_e2e
+        - *run_e2e
+    
+  jobs:
+    e2e:
+      working_directory: ~/project/
+      <<: *e2e
+
+    # deployement
+    deploy:
+      machine:
+        enabled: true
+        docker_layer_caching: true    # default - false
+      steps:
+        - run:
+            name: Deploy Over SSH
+            command: |
+              echo 'deploying master branch'
+              ssh ubuntu@51.68.86.92 "cd ~/prod/production/ && bash ./deploy.sh"
+
+  workflows:
+    version: 2
+    
+    test:
+      jobs:
+        - e2e
+    
+    deploy:
+      jobs:
+        - build: 
+            filters:
+              branches:
+                only: production
