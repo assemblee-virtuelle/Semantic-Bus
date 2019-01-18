@@ -23,7 +23,7 @@ services:
     depends_on:
         - mongodb
         - rabbitmq
-    command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "npm", "run", "start"]
+    command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "ls", "&&", "npm", "run", "start"]
 
   rabbitmq:
     image: semanticbus/rabbitmq-stomp
