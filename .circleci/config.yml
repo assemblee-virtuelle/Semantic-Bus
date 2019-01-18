@@ -1,6 +1,11 @@
   version: 2
 
   references:
+    build_e2e: &build_e2e
+      run:
+        name: Build e2e
+        command: make test-build
+
     run_e2e: &run_e2e
       run:
         name: Run e2e
@@ -11,6 +16,7 @@
       steps:
         - checkout:
             path: ~/project
+        - *build_e2e
         - *run_e2e
     
   jobs:
