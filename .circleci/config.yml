@@ -44,14 +44,14 @@
               echo 'deploying master branch'
               ssh ubuntu@51.68.86.92 "cd ~/prod/production/ && bash ./deploy.sh"
 
-  workflows:
-    version: 2
+  # workflows:
+  #   version: 2
     
-    test:
-      jobs:
-        - e2e
+  #   test:
+  #     jobs:
+  #       - e2e
         
     
-    deploy:
-      jobs:
-        - deploy
+  #   deploy:
+  #     jobs:
+  #       - deploy
