@@ -9,9 +9,6 @@ services:
         - PORT=80
         - NODE_ENV=development_docker
         - CONFIG_URL=https://data-players.github.io/StrongBox/public/dev-docker-mac.json
-    # volumes:
-    #   - ./main:/data/app/
-    #   - /main/node_modules
     networks:
       - back  
     ports:
@@ -61,7 +58,7 @@ services:
         # configure selenium host
         - SELENIUM_HOST=seleniume2e
         - SELENIUM_PORT=4444
-        - APP_URL=http://192.168.99.100
+        - APP_URL=http://localhost
         # configure app to test
     volumes:
         - ./tests/e2e:/tests:ro
