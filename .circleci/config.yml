@@ -32,8 +32,7 @@ references:
       keys:
         - yarn-v1-{{ checksum "yarn.lock" }}
 
-  run_e2e: &run_e2e
-    restore_cache:
+    run_e2e:
       name: Run e2e
       command: make test-start
   
