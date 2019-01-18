@@ -141,7 +141,7 @@ httpGet.makeRequest('GET', {
         });
 
         app.listen(process.env.PORT || 8080, function(err) {
-          console.log('~~ server started at ', err, ':', this.address())
+          console.log('~~ server started at ',process.env.PORT || 8080, err, ':', this.address())
           //console.log('ALLO');
           require('./lib/core/timerScheduler').run();
         })
