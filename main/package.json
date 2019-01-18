@@ -93,7 +93,7 @@
     "stripe": "^5.4.0",
     "threads": "^0.10.0",
     "url-parse": "^1.1.9",
-    "wdio-junit-reporter": "^0.3.0",
+    "wdio-junit-reporter": "^0.4.4",
     "wdio-mocha-framework": "^0.5.10",
     "wdio-sauce-service": "^0.4.0",
     "wdio-spec-reporter": "0.0.3",
