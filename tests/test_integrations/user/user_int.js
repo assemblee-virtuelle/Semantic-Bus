@@ -1,7 +1,7 @@
 
 var should = require('should');
-var user = require('../lib/core/lib/user_lib');
-var User = require('../lib/core/models/user_model');
+var user = require('../../../lib/core/lib/user_lib');
+var User = require('../../../lib/core/models/user_model');
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

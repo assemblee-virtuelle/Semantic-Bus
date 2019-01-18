@@ -2,6 +2,7 @@
 .PHONY: docker-build docker-up start stop restart up-test-container launch-test
 
 DOCKER_COMPOSE=docker-compose -f docker-compose.local.yaml
+DOCKER_COMPOSE_TEST=docker-compose -f docker-compose.test.yaml
 
 
 # Docker
@@ -28,4 +29,4 @@ stop: docker-stop ## Stop the project
 restart: docker-clean docker-build docker-up ## Reinstall everything
 
 test-start: 
-	$(DOCKER_COMPOSE) up --remove-orphans  e2e
+	$(DOCKER_COMPOSE_TEST) up --remove-orphans
