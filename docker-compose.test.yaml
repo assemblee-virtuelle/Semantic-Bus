@@ -89,7 +89,7 @@ services:
           - semanticbus
       image: codeception/codeceptjs
       build:
-          context: ./tests/e2e
+          context: ./test/e2e
       environment:
           # configure selenium host
           - SELENIUM_HOST=seleniume2e

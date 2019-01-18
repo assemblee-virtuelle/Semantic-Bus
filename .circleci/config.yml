@@ -1,0 +1,109 @@
+version: 2
+
+references:
+  # Project
+  jslint: &jslint
+    run:
+      name: JS lint
+      command: yarn js-lint
+
+  sasslint: &sasslint
+    run:
+      name: SASS lint
+      command: yarn sass-lint
+
+  yarn_install: &yarn_install
+    run:
+      name: Install yarn dependencies
+      command: yarn install
+  
+  yarn_save: &yarn_save
+    save_cache:
+      name: Save yarn node modules
+      key: yarn-v1-{{ checksum "yarn.lock" }}
+      paths:
+        - node_modules
+        - ~/.cache/yarn
+  
+  yarn_restore: &yarn_restore
+    restore_cache:
+      name: Restore yarn node modules
+      keys:
+        - yarn-v1-{{ checksum "yarn.lock" }}
+
+  # Jobs
+  job_js: &job_js
+    steps:
+      - checkout:
+          path: ~/project
+      - *yarn_restore
+      - *yarn_install
+      # - *jslint
+      # - *sasslint
+      - *yarn_save
+  
+jobs:
+  # front
+  front_js:
+    docker:
+      - image: node:8.9
+    working_directory: ~/project/t4f-client
+    <<: *job_js
+
+  e2e:
+    docker:
+      - image: node:8.9
+    working_directory: ~/project/t4f-client
+    <<: *job_js
+
+  # deployement
+  # deploy:
+  #   machine:
+  #     enabled: true
+  #     docker_layer_caching: true    # default - false
+    
+  #   steps:
+  #     - run:
+  #         name: Deploy Over SSH
+  #         command: |
+  #           echo 'deploying master branch'
+  #           ssh preprod@139.59.58.15 "cd ~/app/t4f/ && bash ./deploy.sh"
+
+  # build:
+  #   machine:
+  #     enabled: true
+  #   steps:
+  #     - run:
+  #         name: Build Over SSH
+  #         command: |
+  #           echo 'deploying master branch'
+  #           ssh preprod@139.59.58.15 "cd ~/app/t4f/ && git checkout -f master && git pull origin master && bash ./build.sh"
+
+workflows:
+  version: 2
+  # Commit CI
+  test:
+    jobs:
+      # Step 1: lint tests
+      - front_js
+
+  deploy:
+    jobs:
+      - front_js:
+          filters:
+            branches:
+              only: master
+
+      - build: 
+          requires: 
+            - front_js 
+          filters:
+            branches:
+              only: master
+
+      - deploy:
+          requires: 
+            - build 
+          filters:
+            branches:
+              only: master
