@@ -28,7 +28,7 @@ safe.use(bodyParser.json()); // used to parse JSON object given in the request b
 var env = process.env;
 var httpGet = require('./webServices/workSpaceComponentDirectory/restGetJson.js');
 var fs = require('fs');
-const configUrl = env.CONFIG_URL || 'http://data-players.com/config/devOutOfDocker.json';
+const configUrl = env.CONFIG_URL || 'https://data-players.github.io/StrongBox/public/dev-docker.json';
 
 httpGet.makeRequest('GET', {
   url: configUrl
@@ -59,14 +59,14 @@ httpGet.makeRequest('GET', {
 
 
       let url;
-      console.log('Starting Environnement ',configJson.socketServer, process.env.NODE_ENV);
+      console.log('Starting Environnement ', configJson.socketServer, process.env.NODE_ENV);
       url = configJson.socketServer
-      
+
       amqp.connect(url + '/' + configJson.amqpHost, function(err, conn) {
-        console.log('AMQP status : ', conn? "connected": "no connected", err? err: "no error");
+        console.log('AMQP status : ', conn ? "connected" : "no connected", err ? err : "no error");
         conn.createChannel(function(err, ch) {
           onConnect(ch);
-          if(process.env.ENGINE === true){
+          if (process.env.NOTENGINE != true) {
             ch.assertQueue('work-ask', {
               durable: true
             });
@@ -88,18 +88,21 @@ httpGet.makeRequest('GET', {
 
         ///OTHER APP COMPONENT
         ///SECURISATION DES REQUETES
-        app.get('/', function(req, res, next) {
-          res.redirect('/ihm/application.html#myWorkspaces');
-        });
+
         app.use('/auth', express.static('static'));
         app.use('/auth', unSafeRouteur);
         app.use('/configuration', unSafeRouteur);
         app.use('/data/specific', unSafeRouteur);
         app.use('/data/api', unSafeRouteur);
         app.use('/data/core', safe);
+
+        app.get('/', function(req, res, next) {
+          res.redirect('/ihm/application.html#myWorkspaces');
+        });
         app.use('/ihm', express.static('static', {
           etag: false
         }));
+
         app.use('/browserify', express.static('browserify'));
         app.use('/npm', express.static('node_modules'));
 
@@ -137,7 +140,7 @@ httpGet.makeRequest('GET', {
           //able to centralise response using res.data ans res.send(res.data)
         });
 
-        app.listen(80, function(err) {
+        app.listen(process.env.PORT || 8080, function(err) {
           console.log('~~ server started at ', err, ':', this.address())
           //console.log('ALLO');
           require('./lib/core/timerScheduler').run();

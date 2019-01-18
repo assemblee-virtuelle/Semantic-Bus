@@ -16,7 +16,9 @@ module.exports = function(router, amqpClient) {
   // --------------------------------------------------------------------------------
   // --------------------------------------------------------------------------------
 
-  if(process.env.ENGINE === true){
+
+  if(process.env.NOTENGINE != true){
+    console.log('listen work-ask');
     amqpClient.consume('work-ask', (msg) => {
       var messageObject = JSON.parse(msg.content.toString());
       workspace_component_lib.get({
@@ -41,7 +43,7 @@ module.exports = function(router, amqpClient) {
 
   router.put('/workspaceComponent/', function(req, res, next) {
     //var configuration = require('../configuration');
-    if (configuration.saveLock == false) {
+    // if (configuration.saveLock == false) {
       //var id = req.body._id;
       //var componentToUpdate = req.body;
       workspace_component_lib.update(req.body).then((componentUpdated) => {
@@ -49,16 +51,16 @@ module.exports = function(router, amqpClient) {
       }).catch(e => {
         next(e);
       });
-    } else {
-      next(new Error('save forbiden'));
-    }
+    // } else {
+    //   next(new Error('save forbiden'));
+    // }
   });
 
 
 
   router.delete('/workspaceComponent/:id', function(req, res, next) {
     //var configuration = require('../configuration');
-    if (configuration.saveLock == false) {
+    // if (configuration.saveLock == false) {
       //var id = req.body._id;
       //var componentToUpdate = req.body;
       //console.log('workspaceComponent',componentToUpdate);
@@ -69,9 +71,9 @@ module.exports = function(router, amqpClient) {
       }).catch(e => {
         next(e);
       });
-    } else {
-      next(new Error('save forbiden'));
-    }
+    // } else {
+    //   next(new Error('save forbiden'));
+    // }
   });
 
 

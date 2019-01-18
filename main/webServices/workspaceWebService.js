@@ -189,7 +189,7 @@ module.exports = function(router, stompClient) {
       next(new Error('empty body'))
     }
   })
-  
+
   // --------------------------------------------------------------------------------
 
   router.post('/workspace/:id/import', function(req, res, next) {
@@ -326,31 +326,31 @@ module.exports = function(router, stompClient) {
   router.post('/workspaceComponent/connection', function(req, res, next) {
     configuration = require('../configuration');
     let body = req.body;
-    if (configuration.saveLock == false) {
+    // if (configuration.saveLock == false) {
       workspace_lib.addConnection(req.body.workspaceId, req.body.source, req.body.target).then(links => {
         // console.log(links);
         res.json(links)
       }).catch(e => {
         next(e);
       });
-    } else {
-      next(new Error('save forbiden'));
-    }
+    // } else {
+    //   next(new Error('save forbiden'));
+    // }
   });
 
   //return updated Links
   router.delete('/workspaceComponent/connection', function(req, res, next) {
     configuration = require('../configuration');
     let body = req.body;
-    if (configuration.saveLock == false) {
+    // if (configuration.saveLock == false) {
       workspace_lib.removeConnection(req.body.workspaceId, req.body.linkId).then(links => {
         res.json(links)
       }).catch(e => {
         next(e);
       });
-    } else {
-      next(new Error('save forbiden'));
-    }
+    // } else {
+    //   next(new Error('save forbiden'));
+    // }
   });
 
 }
