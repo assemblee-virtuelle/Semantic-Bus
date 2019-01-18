@@ -30,7 +30,6 @@ restart: docker-clean docker-build docker-up ## Reinstall everything
 
 test-build:
 	$(DOCKER_COMPOSE_TEST) build --no-cache
-	$(DOCKER_COMPOSE_TEST) down -v --remove-orphans
 
 test-start: 
 	$(DOCKER_COMPOSE_TEST) up --force-recreate
