@@ -1,31 +1,32 @@
 version: 2
 
 references:
+  # JS QUALITY 
   # Project
-  jslint: &jslint
-    run:
-      name: JS lint
-      command: yarn js-lint
+  # jslint: &jslint
+  #   run:
+  #     name: JS lint
+  #     command: yarn js-lint
 
-  sasslint: &sasslint
-    run:
-      name: SASS lint
-      command: yarn sass-lint
+  # sasslint: &sasslint
+  #   run:
+  #     name: SASS lint
+  #     command: yarn sass-lint
 
-  yarn_install: &yarn_install
-    run:
-      name: Install yarn dependencies
-      command: yarn install
+  # yarn_install: &yarn_install
+  #   run:
+  #     name: Install yarn dependencies
+  #     command: yarn install
   
-  yarn_save: &yarn_save
-    save_cache:
-      name: Save yarn node modules
-      key: yarn-v1-{{ checksum "yarn.lock" }}
-      paths:
-        - node_modules
-        - ~/.cache/yarn
+  # yarn_save: &yarn_save
+  #   save_cache:
+  #     name: Save yarn node modules
+  #     key: yarn-v1-{{ checksum "yarn.lock" }}
+  #     paths:
+  #       - node_modules
+  #       - ~/.cache/yarn
   
-  yarn_restore: &yarn_restore
+  # yarn_restore: &yarn_restore
     restore_cache:
       name: Restore yarn node modules
       keys:
@@ -35,16 +36,17 @@ references:
     restore_cache:
       name: Run e2e
       command: make test-start
-
-  job_js: &job_js
-    steps:
-      - checkout:
-          path: ~/project
-      - *yarn_restore
-      - *yarn_install
-      # - *jslint
-      # - *sasslint
-      - *yarn_save
+  
+  # JS QUALITY 
+  # job_js: &job_js
+  #   steps:
+  #     - checkout:
+  #         path: ~/project
+  #     - *yarn_restore
+  #     - *yarn_install
+  #     # - *jslint
+  #     # - *sasslint
+  #     - *yarn_save
 
   e2e: &e2e
     steps:
@@ -54,12 +56,12 @@ references:
   
 # Jobs
 jobs:
-  # front ( for after )
-  front_js:
-    docker:
-      - image: node:8.9
-    working_directory: ~/project/t4f-client
-    <<: *job_js
+  # JS QUALITY 
+  # front_js:
+  #   docker:
+  #     - image: node:8.9
+  #   working_directory: ~/project/t4f-client
+  #   <<: *job_js
 
   e2e:
     docker:
