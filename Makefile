@@ -30,7 +30,7 @@ restart: docker-clean docker-build docker-up ## Reinstall everything
 
 test-build:
 	$(DOCKER_COMPOSE_TEST) build --no-cache
-	$(DOCKER_COMPOSE_TEST) up semanticbus rabbitmq mongodb seleniume2e -d 
+	$(DOCKER_COMPOSE_TEST) up -d semanticbus rabbitmq mongodb seleniume2e 
 
 test-start: 
-	$(DOCKER_COMPOSE_TEST) up e2e -d
+	$(DOCKER_COMPOSE_TEST) up -d e2e
