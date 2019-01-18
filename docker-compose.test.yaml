@@ -58,7 +58,7 @@ services:
         # configure selenium host
         - SELENIUM_HOST=seleniume2e
         - SELENIUM_PORT=4444
-        - APP_URL=http://localhost
+        - APP_URL=http://semanticbus
         # configure app to test
     volumes:
         - ./tests/e2e:/tests:ro
@@ -69,14 +69,14 @@ services:
     command: ["/data/scripts/wait-for-it.sh", "semanticbus:80", "-t", "25", "--", "codeceptjs", "run", "--grep", "@local", "--verbose"]
 
   seleniume2e:
-        container_name: seleniume2e
-        image: selenium/standalone-chrome
-        ports:
-          - '4444:4444'
-          - '5900:5900'
-        networks:
-          - back
-          - selenium-grid
+    container_name: seleniume2e
+    image: selenium/standalone-chrome
+    ports:
+      - '4444:4444'
+      - '5900:5900'
+    networks:
+      - back
+      - selenium-grid
 
 volumes:
   data:

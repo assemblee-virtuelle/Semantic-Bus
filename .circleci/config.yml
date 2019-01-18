@@ -24,8 +24,28 @@
       working_directory: ~/project/
       <<: *e2e
 
+    # deployement
+    deploy:
+      machine:
+        enabled: true
+        docker_layer_caching: true    # default - false
+      steps:
+        - run:
+            name: Deploy Over SSH
+            command: |
+              echo 'deploying master branch'
+              ssh ubuntu@51.68.86.92 "cd ~/prod/production/ && bash ./deploy.sh"
+
   workflows:
     version: 2
+    
     test:
       jobs:
         - e2e
+    
+    deploy:
+      jobs:
+        - build: 
+            filters:
+              branches:
+                only: production
