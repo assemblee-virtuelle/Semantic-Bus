@@ -50,7 +50,7 @@ ADD ./wait-for-it.sh /data/scripts/
 
 RUN cd /data/app && ls && npm cache clean --force &&  npm install
 
-RUN ls ./node_modules && cd  && ls 
+RUN ls 
 
 EXPOSE 80
 
