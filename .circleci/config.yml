@@ -16,7 +16,7 @@
       steps:
         - checkout:
             path: ~/project
-        # - *build_e2e
+        - *build_e2e
         - *run_e2e
     
   jobs:
