@@ -15,13 +15,13 @@
       machine: true
       steps:
         - checkout:
-            path: ~/project
-        - *build_e2e
+            path: ~/
+        # - *build_e2e
         - *run_e2e
     
   jobs:
     e2e:
-      working_directory: ~/project/
+      working_directory: ~/
       <<: *e2e
 
   workflows:
