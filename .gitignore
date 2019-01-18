@@ -30,13 +30,13 @@ bower_components
 .lock-wscript
 
 # Compiled binary addons (http://nodejs.org/api/addons.html)
-build/Release
+main/build/Release
 
 #mongoDB local data
 data/
 
 # Dependency directories
-node_modules/
+main/node_modules/
 jspm_packages/
 
 # Typescript v1 declaration files

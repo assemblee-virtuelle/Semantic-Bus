@@ -2,6 +2,7 @@
 .PHONY: docker-build docker-up start stop restart up-test-container launch-test
 
 DOCKER_COMPOSE=docker-compose -f docker-compose.local.yaml
+DOCKER_COMPOSE_TEST=docker-compose -f docker-compose.test.yaml
 
 
 # Docker
@@ -9,7 +10,7 @@ docker-build:
 	$(DOCKER_COMPOSE) build
 
 docker-up:
-	$(DOCKER_COMPOSE) up -d --remove-orphans semanticbus proxy rabbitmq mongodb
+	$(DOCKER_COMPOSE) up -d --remove-orphans amqp mongo
 
 docker-stop:
 	$(DOCKER_COMPOSE) kill
@@ -27,5 +28,9 @@ stop: docker-stop ## Stop the project
 
 restart: docker-clean docker-build docker-up ## Reinstall everything
 
-test-start: 
-	$(DOCKER_COMPOSE) up --remove-orphans  e2e
+test-build:
+	$(DOCKER_COMPOSE_TEST) build --no-cache
+	$(DOCKER_COMPOSE_TEST) up -d semanticbus rabbitmq mongodb seleniume2e
+
+test-start:
+	$(DOCKER_COMPOSE_TEST) up e2e

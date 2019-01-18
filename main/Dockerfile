@@ -48,7 +48,7 @@ ADD . /data/app/
 
 ADD ./wait-for-it.sh /data/scripts/
 
-RUN cd /data/app && ls && npm install
+RUN cd /data/app && ls && npm cache clean --force &&  npm install
 
 EXPOSE 80
 
