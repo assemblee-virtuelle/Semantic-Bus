@@ -16,7 +16,7 @@
     e2e:
       docker:
         - image: node:8.9
-      working_directory: ~/project/t4f-client
+      working_directory: ~/project/
       <<: *e2e
 
   workflows:
