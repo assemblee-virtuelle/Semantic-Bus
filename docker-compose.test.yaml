@@ -9,9 +9,9 @@ services:
         - PORT=80
         - NODE_ENV=development_docker
         - CONFIG_URL=https://data-players.github.io/StrongBox/public/dev-docker-mac.json
-    volumes:
-      - ./main:/data/app/
-      - /main/node_modules
+    # volumes:
+    #   - ./main:/data/app/
+    #   - /main/node_modules
     networks:
       - back  
     ports:
