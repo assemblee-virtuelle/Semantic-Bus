@@ -43,12 +43,11 @@
     
     test:
       jobs:
-        - e2e:
-          filters:
-            branches:
-              ignore: 
-                - production
-                - master
+        e2e:
+          branches:
+            ignore: 
+              - production
+              - master
     deploy:
       jobs:
         - deploy: 
