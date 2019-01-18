@@ -68,6 +68,7 @@
     "rdf-serializer-jsonld-ext": "git://github.com/rdf-ext/rdf-serializer-jsonld-ext.git#c81a3dbbbe6b8c3134070ee305c7cb6317a36e90",
     "rdfstore": "^0.9.17",
     "recluster": "^0.4.5",
+    "sequelize": "^4.3.2",
     "sheetrock": "^1.1.4",
     "should": "^11.2.1",
     "sift": "^5.1.0",

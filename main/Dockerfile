@@ -50,6 +50,8 @@ ADD ./wait-for-it.sh /data/scripts/
 
 RUN cd /data/app && ls && npm cache clean --force &&  npm install
 
+RUN cat ./package.json
+
 EXPOSE 80
 
 CMD [ "npm", "run", "start" ]
