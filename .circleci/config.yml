@@ -2,8 +2,9 @@
 
   references:
     run_e2e: &run_e2e
-      name: Run e2e
-      command: make test-start
+      run:
+        name: Run e2e
+        command: make test-start
 
     e2e: &e2e
       steps:
