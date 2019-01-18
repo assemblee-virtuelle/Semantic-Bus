@@ -1,118 +1,88 @@
 version: '3.0'
 services:
-    
-    proxy:
-      image: traefik
-      command: --api --docker
-      ports:
-        - "80:80"
-        - "8080:8080"
-      volumes:
-        - /var/run/docker.sock:/var/run/docker.sock
-      restart: unless-stopped
-      networks:
-        traefik:
-          aliases:
-              - semanticbus.docker
-             
-    semanticbus:
-      build: .
-      container_name: semanticbus
-      image: debian/latest
-      environment:
-          - NODE_ENV=docker
-      volumes:
-        - ./webServices:/data/app/webServices
-        - ./lib:/data/app/lib
-        - ./static:/data/app/static
-      networks:
-        - traefik  
-      links:
-          - mongodb
-          - rabbitmq
-      depends_on:
-          - mongodb
-          - rabbitmq
-      command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "npm", "run", "start"]
-      labels:
-        - "traefik.port=80"
-        - "traefik.backend=semanticbus"
-        - "traefik.frontend.rule=Host:semanticbus.docker"
+                 
+  semanticbus:
+    build: ./main
+    container_name: semanticbus
+    image: debian/latest
+    environment:
+        - PORT=80
+        - NODE_ENV=development_docker
+        - CONFIG_URL=https://data-players.github.io/StrongBox/public/dev-docker-mac.json
+    volumes:
+      - ./main:/data/app/
+    networks:
+      - back  
+    ports:
+      - "80:80"
+    expose:
+      - "80"
+    links:
+        - mongodb
+        - rabbitmq
+    depends_on:
+        - mongodb
+        - rabbitmq
+    command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "npm", "run", "start"]
 
-    rabbitmq:
-      image: semanticbus/rabbitmq-stomp
-      hostname: rabbitmq
-      ports:
-        - 5672:5672
-        - 15674:15674
-        - 15672:15672
-      expose:
-        - 5672
-      labels:
-        NAME: "rabbitmq"
-      networks:
-        - traefik  
-      # volumes:
-      #   - ./rabbitmq-isolated.conf:/etc/rabbitmq/rabbitmq.config
-      labels:
-        - "traefik.frontend.rule=Host:semanticbus.rabbit"
-        - "traefik.port=15672"
-        - "traefik.backend=rabbitmq"
-        - "traefik.frontend.entryPoints=http"
-      # networks:
-      #   - grappe
-      #   - traefik
-     
-    mongodb:
-        hostname: rabbitmq
-        image: mongo:latest
-        container_name: "mongodb"
-        environment:
-          - MONGO_DATA_DIR=/data/db
-          - MONGO_LOG_DIR=/dev/null
-        volumes:
-          - ./data/db:/data/db
-        ports:
-            - 27017:27017
-        expose:
-          - "27017"
-        command: mongod --smallfiles --logpath=/dev/null # --quiet
-        networks:
-          - traefik  
-        # networks:
-        #     - grappe
+  rabbitmq:
+    image: semanticbus/rabbitmq-stomp
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15674:15674
+      - 15672:15672
+    networks:
+      - back  
+      
+  mongodb:
+    image: mongo
+    restart: always
+    networks:
+      - back  
+    ports:
+      - "27017:27017"
+    expose:
+      - "27017"
+    volumes:
+      - data:/data/db
+    command: --smallfiles
 
-    e2e:
-      container_name: e2e
-      depends_on:
-          - seleniume2e
-          - semanticbus
-      image: codeception/codeceptjs
-      build:
-          context: ./test/e2e
-      environment:
-          # configure selenium host
-          - SELENIUM_HOST=seleniume2e
-          - SELENIUM_PORT=4444
-          - APP_URL=http://semanticbus.docker
-          # configure app to test
-      volumes:
-          - ./tests/e2e:/tests:ro
-          - ./tests/logs:/tmp/output:rw
-      networks:
-        - traefik
-        - selenium-grid
+  e2e:
+    container_name: e2e
+    depends_on:
+        - seleniume2e
+        - semanticbus
+    image: codeception/codeceptjs
+    build:
+        context: ./tests/e2e
+    environment:
+        # configure selenium host
+        - SELENIUM_HOST=seleniume2e
+        - SELENIUM_PORT=4444
+        - APP_URL=http://192.168.99.100
+        # configure app to test
+    volumes:
+        - ./tests/e2e:/tests:ro
+        - ./tests/logs:/tmp/output:rw
+    networks:
+      - back
+      - selenium-grid
+    command: ["/data/scripts/wait-for-it.sh", "semanticbus:80", "-t", "25", "--", "codeceptjs", "run", "--grep", "@local", "--verbose"]
 
-    seleniume2e:
+  seleniume2e:
         container_name: seleniume2e
         image: selenium/standalone-chrome
         ports:
           - '4444:4444'
           - '5900:5900'
         networks:
-          - traefik
+          - back
           - selenium-grid
 
+volumes:
+  data:
+
 networks: 
-  traefik: 
+  back: 
   selenium-grid: 

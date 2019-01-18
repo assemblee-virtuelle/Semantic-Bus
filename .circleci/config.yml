@@ -31,7 +31,11 @@ references:
       keys:
         - yarn-v1-{{ checksum "yarn.lock" }}
 
-  # Jobs
+  run_e2e: &run_e2e_local
+    restore_cache:
+      name: Run e2e
+      command: make test-start
+
   job_js: &job_js
     steps:
       - checkout:
@@ -41,9 +45,16 @@ references:
       # - *jslint
       # - *sasslint
       - *yarn_save
+
+  e2e: &e2e
+    steps:
+      - checkout:
+          path: ~/project
+      - *run_e2e
   
+# Jobs
 jobs:
-  # front
+  # front ( for after )
   front_js:
     docker:
       - image: node:8.9
@@ -54,56 +65,28 @@ jobs:
     docker:
       - image: node:8.9
     working_directory: ~/project/t4f-client
-    <<: *job_js
+    <<: *e2e
 
-  # deployement
-  # deploy:
-  #   machine:
-  #     enabled: true
-  #     docker_layer_caching: true    # default - false
-    
-  #   steps:
-  #     - run:
-  #         name: Deploy Over SSH
-  #         command: |
-  #           echo 'deploying master branch'
-  #           ssh preprod@139.59.58.15 "cd ~/app/t4f/ && bash ./deploy.sh"
-
-  # build:
-  #   machine:
-  #     enabled: true
-  #   steps:
-  #     - run:
-  #         name: Build Over SSH
-  #         command: |
-  #           echo 'deploying master branch'
-  #           ssh preprod@139.59.58.15 "cd ~/app/t4f/ && git checkout -f master && git pull origin master && bash ./build.sh"
-
+  
 workflows:
   version: 2
   # Commit CI
   test:
     jobs:
       # Step 1: lint tests
-      - front_js
+      # - front_js
+      - e2e
 
   deploy:
     jobs:
-      - front_js:
-          filters:
-            branches:
-              only: master
-
       - build: 
-          requires: 
-            - front_js 
           filters:
             branches:
-              only: master
+              only: production
 
       - deploy:
           requires: 
             - build 
           filters:
             branches:
-              only: master
+              only: production
