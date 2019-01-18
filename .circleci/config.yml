@@ -30,7 +30,7 @@
     deploy:
       machine:
         enabled: true
-        docker_layer_caching: true    # default - false
+        docker_layer_caching: true 
       steps:
         - run:
             name: Deploy Over SSH
