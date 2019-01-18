@@ -140,8 +140,8 @@ httpGet.makeRequest('GET', {
           //able to centralise response using res.data ans res.send(res.data)
         });
 
-        app.listen(process.env.PORT || 8080, function(err) {
-          console.log('~~ server started at ', "port",  process.env,  process.env.PORT || 8080, err, ':', this.address())
+        app.listen(process.env.APP_PORT || 80, function(err) {
+          console.log('~~ server started at ', "port",  process.env,  process.env.APP_PORT || 8080, err, ':', this.address())
           //console.log('ALLO');
           require('./lib/core/timerScheduler').run();
         })
