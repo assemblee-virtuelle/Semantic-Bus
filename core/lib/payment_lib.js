@@ -13,7 +13,6 @@ module.exports = {
   addStripePayement: _addStripePayement
 };
 
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -56,7 +55,6 @@ function _getAllTransactionList(userID) {
     })
   })
 }
-
 
 function _initStripePayement(userId, user_infos, amount) {
   return new Promise((resolve, reject) => {
