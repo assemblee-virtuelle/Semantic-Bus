@@ -6,8 +6,8 @@ module.exports = function(router, amqpClient) {
   var recursivPullResolvePromise = require('./engine');
   var workspaceComponentPromise = require('./workspaceComponentPromise.js');
   var workspaceBusiness = require('./workspaceBusiness.js');
-  var workspace_component_lib = require('../lib/core/lib/workspace_component_lib');
-  var fragment_lib = require('../lib/core/lib/fragment_lib');
+  var workspace_component_lib = require('../../core/lib/workspace_component_lib');
+  var fragment_lib = require('../../core/lib/fragment_lib');
   var configuration = require('../configuration');
 
 

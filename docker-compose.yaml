@@ -2,15 +2,18 @@ version: '3.0'
 services:         
   
   semanticbus:
-    build: ./main
+    build:
+      context: .
+      dockerfile: ./main/Dockerfile
     container_name: semanticbus
     image: debian/latest
     environment:
-        - PORT=80
+        - APP_PORT=80
         - NODE_ENV=development_docker
         - CONFIG_URL=https://data-players.github.io/StrongBox/public/dev-docker.json
-    volumes:
-      - ./main:/data/app/
+    # volumes:
+      # - ./main:/data/app/
+      # - ./core:/data/core/
     networks:
       - back  
     ports:

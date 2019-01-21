@@ -1,4 +1,4 @@
-var userModel = require('../lib/core/models/user_model')
+var userModel = require('../core/models/user_model')
 var exec = require("child_process").exec;
 var mLabPromise = require('../webServices/mLabPromise')
 mLabPromise.cloneDatabaseMigration().then(data => {

@@ -4,8 +4,8 @@ module.exports = {
   description: 'Déclencher un traitement à intervalle régulier par minute.',
   editor: 'timer-editor',
   graphIcon:'Timer.png',
-  // workspace_component_lib : require('../../lib/core/lib/workspace_component_lib'),
-  // cache_lib : require('../../lib/core/lib/cache_lib'),
+  // workspace_component_lib : require('../../core/lib/workspace_component_lib'),
+  // cache_lib : require('../../core/lib/cache_lib'),
   stepNode: false,
   tags:[
     'http://semantic-bus.org/data/tags/middleComponents',

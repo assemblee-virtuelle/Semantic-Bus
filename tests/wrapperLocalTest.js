@@ -1,4 +1,4 @@
-var userModel = require('../lib/core/models').user
+var userModel = require('../core/models').user
 var child_process = require("child_process");
 var proc = child_process.exec('wdio test/wdio.conf.local.js',
   function(error, stdout, stderr) {

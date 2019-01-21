@@ -10,7 +10,7 @@ const userModel = require('../models/user_model');
 const authenticationModel = require('../models/auth_model');
 
 /** @type Configuration */
-const config = require('../../../configuration');
+const config = require('../../main/configuration');
 
 /** @typedef {{authentication: AuthenticationParam}} BodyParam */
 /** @typedef {{email: string, password: string}} AuthenticationParam */

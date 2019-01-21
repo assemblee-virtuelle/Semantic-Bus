@@ -2,8 +2,8 @@
 
 module.exports = {
 
-  workspace_model: require('../lib/core/models').workspace,
-  workspaceComponent_model: require('../lib/core/models').workspaceComponent,
+  workspace_model: require('../../core/models').workspace,
+  workspaceComponent_model: require('../../core/models').workspaceComponent,
   config: require('../configuration'),
 
 

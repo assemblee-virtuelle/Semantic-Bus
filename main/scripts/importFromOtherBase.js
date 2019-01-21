@@ -3,9 +3,9 @@
 module.exports = {
   mongoose: require('mongoose'),
   config: require('../configuration.js'),
-  workspaceSchema: require('../lib/core/model_schemas/workspace_schema'),
-  workspaceComponentSchema: require('../lib/core/model_schemas/workspace_component_schema'),
-  userSchema: require('../lib/core/model_schemas/user_schema'),
+  workspaceSchema: require('../../core/model_schemas/workspace_schema'),
+  workspaceComponentSchema: require('../../core/model_schemas/workspace_component_schema'),
+  userSchema: require('../../core/model_schemas/user_schema'),
 
   work: function(userId) {
 

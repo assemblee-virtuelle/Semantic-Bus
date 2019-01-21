@@ -6,7 +6,7 @@ FROM debian:latest
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
 # define app folder
-WORKDIR /data/app
+WORKDIR /data/main
 
 # update the repository sources list
 # and install dependencies
@@ -44,9 +44,13 @@ RUN npm -v
 
 # Bundle app source
 
-ADD . /data/app/
 
-RUN cd /data/app && ls && npm install
+ADD ./main /data/main/
+ADD ./core /data/core/
+
+RUN cd /data/core && ls && npm cache clean --force &&  npm install
+
+RUN cd /data/main && ls && npm install
 
 EXPOSE 9001
 

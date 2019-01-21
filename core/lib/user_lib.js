@@ -3,10 +3,10 @@
 let userModel = require("../models/user_model");
 let workspaceModel = require("../models/workspace_model");
 let pattern = require("../helpers").patterns;
-let config = require("../../../configuration.js");
+let config = require("../../main/configuration.js");
 let bcrypt = require("bcryptjs");
 let sift = require("sift");
-let graphTraitement = require("../../../utils/graph-traitment");
+let graphTraitement = require("../../main/utils/graph-traitment");
 let historiqueModel = require("../models").historiqueEnd;
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

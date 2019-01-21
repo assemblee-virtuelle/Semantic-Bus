@@ -1,8 +1,8 @@
 var mLabPromise = require('./mLabPromise');
 var workspaceComponentPromise = require('./workspaceComponentPromise.js');
 var workspaceBusiness = require('./workspaceBusiness.js');
-var workspace_lib = require('../lib/core/lib/workspace_lib');
-var workspace_component_lib = require('../lib/core/lib/workspace_component_lib');
+var workspace_lib = require('../../core/lib/workspace_lib');
+var workspace_component_lib = require('../../core/lib/workspace_component_lib');
 var technicalComponentDirectory = require('./technicalComponentDirectory.js');
 var sift = require('sift');
 
