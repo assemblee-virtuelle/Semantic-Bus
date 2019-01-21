@@ -50,6 +50,7 @@ services:
 
   e2e:
     container_name: e2e
+    tty: true
     depends_on:
         - seleniume2e
         - semanticbus

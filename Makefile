@@ -33,4 +33,4 @@ test-build:
 	$(DOCKER_COMPOSE_TEST) up -d semanticbus rabbitmq mongodb seleniume2e
 
 test-start:
-	$(DOCKER_COMPOSE_TEST) run e2e "codeceptjs run --grep @local --verbose"
+	$(DOCKER_COMPOSE_TEST) up e2e 
