@@ -33,5 +33,5 @@ test-build:
 	$(DOCKER_COMPOSE_TEST) up -d semanticbus rabbitmq mongodb seleniume2e
 
 test-start:
-	bash ./wait-for-it.sh rabbitmq:5672 -t 25
+	$(DOCKER_COMPOSE_TEST) run bash ./wait-for-it.sh rabbitmq:5672 -t 25
 	$(DOCKER_COMPOSE_TEST) run e2e xvfb-run -a codeceptjs run --grep @local --steps
