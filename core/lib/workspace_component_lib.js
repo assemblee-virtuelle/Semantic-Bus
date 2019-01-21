@@ -3,9 +3,9 @@ var workspaceComponentModel = require('../models/workspace_component_model');
 var workspaceModel = require('../models/workspace_model');
 var historiqueEndModel = require("../models/historiqueEnd_model");
 var historiqueStartModel = require("../models/historiqueStart_model");
-var config = require('../../../configuration.js');
+var config = require('../../main/configuration.js');
 var sift = require('sift');
-//var workspaceBusiness = require('../../../webServices/workspaceBusiness')
+
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

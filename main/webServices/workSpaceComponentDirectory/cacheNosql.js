@@ -9,9 +9,9 @@ module.exports = {
     'http://semantic-bus.org/data/tags/persistComponents',
     'http://semantic-bus.org/data/tags/persistCacheComponents'
   ],
-  workspace_component_lib: require('../../lib/core/lib/workspace_component_lib'),
-  cache_lib: require('../../lib/core/lib/cache_lib'),
-  fragment_lib: require('../../lib/core/lib/fragment_lib'),
+  workspace_component_lib: require('../../../core/lib/workspace_component_lib'),
+  cache_lib: require('../../../core/lib/cache_lib'),
+  fragment_lib: require('../../../core/lib/fragment_lib'),
   stepNode: true,
 
 

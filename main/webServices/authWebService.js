@@ -1,11 +1,11 @@
 var jwtService = require('./jwtService');
-var inscription_lib_user = require('../lib/core/lib/inscription_lib')
-var auth_lib_user = require('../lib/core/lib/auth_lib');
-var user_lib = require('../lib/core/lib/auth_lib');
+var inscription_lib_user = require('../../core/lib/inscription_lib')
+var auth_lib_user = require('../../core/lib/auth_lib');
+var user_lib = require('../../core/lib/auth_lib');
 var configuration = require('../configuration')
 var nodemailer = require("nodemailer");
 var url = './login.html?google_token='
-var user_lib = require('../lib/core/lib/user_lib');
+var user_lib = require('../../core/lib/user_lib');
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

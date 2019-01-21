@@ -5,7 +5,7 @@ module.exports = {
   moment: require('moment'),
   http: require('http'),
   url: require('url'),
-  config: require('../../configuration.js'),
+  config: require('../main/configuration.js'),
   runTimers: function(dedicaded) {
     this.componentLib.get_all_withConsomation({
       module: 'timer'
