@@ -11,7 +11,9 @@
     run_e2e: &run_e2e
       run:
         name: Run e2e
-        command: make test-start
+        command: | 
+          set -e
+          make test-start
 
     e2e: &e2e
       machine: true

@@ -33,4 +33,4 @@ test-build:
 	$(DOCKER_COMPOSE_TEST) up -d semanticbus rabbitmq mongodb seleniume2e
 
 test-start:
-	$(DOCKER_COMPOSE_TEST) up e2e 
+	$(DOCKER_COMPOSE_TEST) up e2e
