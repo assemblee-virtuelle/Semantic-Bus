@@ -1,6 +1,6 @@
 var user_lib = require('./user_lib')
-var secret_stripe = require('../../../configuration').secret_stripe_private
-var stripe_redirect_url = require('../../../configuration').stripe_redirect_url
+var secret_stripe = require('../../main/configuration').secret_stripe_private
+var stripe_redirect_url = require('../../main/configuration').stripe_redirect_url
 var stripe = require('stripe')(secret_stripe);
 
 // --------------------------------------------------------------------------------
@@ -12,7 +12,6 @@ module.exports = {
   getAllTransactionList: _getAllTransactionList,
   addStripePayement: _addStripePayement
 };
-
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -56,7 +55,6 @@ function _getAllTransactionList(userID) {
     })
   })
 }
-
 
 function _initStripePayement(userId, user_infos, amount) {
   return new Promise((resolve, reject) => {

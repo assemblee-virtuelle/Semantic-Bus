@@ -1,4 +1,4 @@
-var auth_lib_jwt = require('../lib/core/lib/auth_lib')
+var auth_lib_jwt = require('../../core/lib/auth_lib')
 
 
 // --------------------------------------------------------------------------------

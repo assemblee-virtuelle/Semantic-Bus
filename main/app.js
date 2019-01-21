@@ -42,7 +42,7 @@ httpGet.makeRequest('GET', {
       throw err;
     } else {
 
-      require('./lib/core/Oauth/google_auth_strategy')(passport);
+      require('../core/Oauth/google_auth_strategy')(passport);
 
       var jwtService = require('./webServices/jwtService')
 
@@ -106,7 +106,7 @@ httpGet.makeRequest('GET', {
         app.use('/browserify', express.static('browserify'));
         app.use('/npm', express.static('node_modules'));
 
-        let errorLib = require('./lib/core/lib/error_lib');
+        let errorLib = require('../core/lib/error_lib');
         let jwtSimple = require('jwt-simple');
         let errorParser = require('error-stack-parser');
         app.use(function(err, req, res, next) {
@@ -141,9 +141,8 @@ httpGet.makeRequest('GET', {
         });
 
         app.listen(process.env.APP_PORT || 8080, function(err) {
-          console.log('~~ server started at ', "port",  process.env,  process.env.APP_PORT || 8080, err, ':', this.address())
-          //console.log('ALLO');
-          require('./lib/core/timerScheduler').run();
+          console.log('~~ server started at ', "port", process.env.APP_PORT || 8080, err, ':', this.address())
+          require('../core/timerScheduler').run();
         })
 
         server.on('error', function(err) {

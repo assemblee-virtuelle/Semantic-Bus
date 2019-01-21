@@ -6,13 +6,13 @@ var fragment_lib = require('./fragment_lib.js');
 var workspaceModel = require("../models/workspace_model");
 var userModel = require("../models/user_model");
 var workspaceComponentModel = require("../models/workspace_component_model");
-var config = require("../../../configuration.js");
+var config = require("../../main/configuration.js");
 var historiqueEndModel = require("../models/historiqueEnd_model");
 var historiqueStartModel = require("../models/historiqueStart_model");
 var processModel = require("../models/process_model");
 var mongoose = require("mongoose");
 var sift = require("sift");
-var graphTraitement = require("../../../utils/graph-traitment");
+var graphTraitement = require("../../main/utils/graph-traitment");
 
 
 // --------------------------------------------------------------------------------

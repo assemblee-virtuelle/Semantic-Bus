@@ -1,9 +1,4 @@
-let user_model = require("../lib/core/models").user;
-let workspace_model = require("../lib/core/models").workspace;
-let workspaceComponent_model = require("../lib/core/models").workspaceComponent;
-let historiqueModel = require("../lib/core/models").historique;
-let cache_model = require("../lib/core/models").cache;
-let config = require("../configuration");
+let historiqueModel = require("../../core/models").historique;
 let graphTraitement = require("../utils/graph-traitment");
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -212,5 +207,3 @@ workspaceGraph = function(userId) {
       })
     })
   }
-
-// workspaceGraph('5944649a1041c10021f97722')

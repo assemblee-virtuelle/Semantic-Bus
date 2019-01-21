@@ -16,8 +16,8 @@ module.exports = {
   schema: null,
   modelShema: null,
   stepNode: true,
-  PromiseOrchestrator: require("../../lib/core/helpers/promiseOrchestrator.js"),
-  ArraySegmentator: require("../../lib/core/helpers/ArraySegmentator.js"),
+  PromiseOrchestrator: require("../../../core/helpers/promiseOrchestrator.js"),
+  ArraySegmentator: require("../../../core/helpers/ArraySegmentator.js"),
 
   mongoInitialise: function(url) {
     //var MongoClient = require('mongodb').MongoClient;

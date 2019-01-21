@@ -34,6 +34,14 @@ Semantic data transformation & semantic container crawling
 - R Component
 - Workflow sharing by Google Drive
 
+## Archi
+
+- Main ( ./main ) ( principal app )
+- Services
+    - Timer (./timer) ( service for schedule workflow )
+    - Core (./core) ( principal traitment for all services ( include main ))
+
+
 
 ## Install
 
@@ -48,16 +56,7 @@ See https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-t
 #### Option 1
 
 ```bash
-git clone --recursive git@github.com:assemblee-virtuelle/Semantic-Bus.git
-```
-
-
-#### Option 2
-
-```bash
 git clone git@github.com:assemblee-virtuelle/Semantic-Bus.git
-git submodule init
-git submodule update
 ```
 
 
@@ -70,7 +69,9 @@ curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | b
 # Restart console
 
 nvm install 7.10
-npm install
+cd core && npm install
+cd main && npm install
+
 ```
 
 

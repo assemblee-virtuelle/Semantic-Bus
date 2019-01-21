@@ -1,7 +1,7 @@
 'use strict';
 
-var user_lib = require('../lib/core/lib/user_lib');
-var payment_lib = require('../lib/core/lib/payment_lib');
+var user_lib = require('../../core/lib/user_lib');
+var payment_lib = require('../../core/lib/payment_lib');
 var test = require('../scripts/requestTest')
 
 

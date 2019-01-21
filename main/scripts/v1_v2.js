@@ -1,10 +1,10 @@
 'use strict';
 
 module.exports = {
-user_model : require('../lib/core/models').user,
-workspace_model : require('../lib/core/models').workspace,
-workspaceComponent_model : require('../lib/core/models').workspaceComponent,
-cache_model : require('../lib/core/models').cache,
+user_model : require('../../core/models').user,
+workspace_model : require('../../core/models').workspace,
+workspaceComponent_model : require('../../core/models').workspaceComponent,
+cache_model : require('../../core/models').cache,
 config : require('../configuration'),
 
 

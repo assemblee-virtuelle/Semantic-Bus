@@ -1,11 +1,11 @@
 "use strict";
 //var mLabPromise = require('../mLabPromise');
-//var workspace_component_lib = require('../../lib/core/lib/workspace_component_lib');
+//var workspace_component_lib = require('../../core/lib/workspace_component_lib');
 
 module.exports = {
   type: 'Upload',
   description: 'Importer un fichier.',
-  workspace_component_lib: require('../../lib/core/lib/workspace_component_lib'),
+  workspace_component_lib: require('../../../core/lib/workspace_component_lib'),
   editor: 'upload-editor',
   graphIcon: 'Upload.png',
   tags: [
