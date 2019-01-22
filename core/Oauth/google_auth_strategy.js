@@ -1,4 +1,3 @@
-var passport = require('passport');
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var UserModel = require('../models').user;
 var config = require('../../main/configuration');
@@ -7,7 +6,7 @@ var config = require('../../main/configuration');
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-module.exports = () => {
+module.exports = (passport) => {
   passport.use(new GoogleStrategy({
       clientID: config.googleAuth.clientID,
       clientSecret: config.googleAuth.clientSecret,

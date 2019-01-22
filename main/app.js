@@ -31,8 +31,6 @@ httpGet.makeRequest('GET', {
   const content = 'module.exports = ' + JSON.stringify(result.data);
   const jwtService = require('./webServices/jwtService')
 
-  require('../core/Oauth/google_auth_strategy');
-
   fs.writeFile("configuration.js", content, 'utf8', function(err) {
     if (err) {
       throw err;
