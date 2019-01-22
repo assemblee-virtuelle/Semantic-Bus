@@ -62,10 +62,7 @@ module.exports = function (router,stompClient) {
     });
   });
 
-
-
-
-
+  
   router.get('/users/transactions/:id', function (req, res,next) {
     console.log("in web service transaction", req.params.id)
     payment_lib.getAllTransactionList(req.params.id).then(function (user_charges) {

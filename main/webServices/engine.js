@@ -16,7 +16,7 @@ class Engine {
     this.promiseOrchestrator = new PromiseOrchestrator();
     this.fackCounter = 0;
     this.amqpClient = amqpClient,
-      this.callerId = callerId;
+    this.callerId = callerId;
     this.originComponent = component;
     this.requestDirection = requestDirection;
     this.pushData = pushData;
