@@ -11,7 +11,7 @@ const bodyParser = require("body-parser");
 const env = process.env;
 const httpGet = require('./webServices/workSpaceComponentDirectory/restGetJson.js');
 const fs = require('fs');
-const configUrl = env.CONFIG_URL || 'https://data-players.github.io/StrongBox/public/dev-docker.json';
+const url = env.CONFIG_URL || 'https://data-players.github.io/StrongBox/public/dev-docker.json';
 
 app.use(cors());
 app.use(bodyParser.json({
@@ -24,17 +24,19 @@ app.use(bodyParser.urlencoded({
 safe.use(bodyParser.json()); // used to parse JSON object given in the request body
 http.globalAgent.maxSockets = 1000000000;
 httpGet.makeRequest('GET', {
-  url: configUrl
+  url
 }).then(result => {
 
   const configJson = result.data;
   const content = 'module.exports = ' + JSON.stringify(result.data);
-  const jwtService = require('./webServices/jwtService')
 
   fs.writeFile("configuration.js", content, 'utf8', function(err) {
     if (err) {
       throw err;
     } else {
+      
+      const jwtService = require('./webServices/jwtService')
+
       safe.use(function(req, res, next) {
         jwtService.securityAPI(req, res, next);
       })
