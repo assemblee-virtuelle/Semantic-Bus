@@ -2,11 +2,13 @@ version: '3.0'
 services:
                  
   semanticbus:
-    build: ./main
+    build:
+      context: .
+      dockerfile: ./main/Dockerfile
     container_name: semanticbus
     image: debian/latest
     environment:
-        - PORT=80
+        - APP_PORT=80
         - NODE_ENV=development_docker
         - CONFIG_URL=https://data-players.github.io/StrongBox/public/dev-docker-mac.json
     networks:
@@ -48,6 +50,7 @@ services:
 
   e2e:
     container_name: e2e
+    tty: true
     depends_on:
         - seleniume2e
         - semanticbus

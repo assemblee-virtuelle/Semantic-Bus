@@ -8,11 +8,11 @@ class Engine {
     this.sift = require("sift");
     //this.config_component = require("../configuration");
     this.objectSizeOf = require("object-sizeof");
-    this.workspace_component_lib = require("../lib/core/lib/workspace_component_lib");
-    this.workspace_lib = require("../lib/core/lib/workspace_lib");
-    this.user_lib = require("../lib/core/lib/user_lib");
+    this.workspace_component_lib = require("../../core/lib/workspace_component_lib");
+    this.workspace_lib = require("../../core/lib/workspace_lib");
+    this.user_lib = require("../../core/lib/user_lib");
     this.config = require("../configuration.js");
-    let PromiseOrchestrator = require("../lib/core/helpers/promiseOrchestrator.js")
+    let PromiseOrchestrator = require("../../core/helpers/promiseOrchestrator.js")
     this.promiseOrchestrator = new PromiseOrchestrator();
     this.fackCounter = 0;
     this.amqpClient = amqpClient,

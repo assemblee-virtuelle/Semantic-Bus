@@ -1,4 +1,4 @@
-var error_lib = require('../lib/core').error;
+var error_lib = require('../../core').error;
 var mLabPromise = require('./mLabPromise');
 var configuration = require('../configuration');
 var sift = require('sift');

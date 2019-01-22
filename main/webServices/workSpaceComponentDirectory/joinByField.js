@@ -4,7 +4,7 @@ module.exports = {
   description: 'Compléter un flux par un second en se basant sur un champ du 1er et un identifiant du 2nd.',
   editor: 'join-by-field-editor',
   graphIcon: 'Join.png',
-  PromiseOrchestrator : require("../../lib/core/helpers/promiseOrchestrator.js"),
+  PromiseOrchestrator : require("../../../core/helpers/promiseOrchestrator.js"),
   tags: [
     'http://semantic-bus.org/data/tags/middleComponents',
     'http://semantic-bus.org/data/tags/middleComponentsAgregation'
