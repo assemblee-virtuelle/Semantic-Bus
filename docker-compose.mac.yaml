@@ -10,7 +10,7 @@ services:
     environment:
         - APP_PORT=80
         - NODE_ENV=development_docker
-        - CONFIG_URL=https://data-players.github.io/StrongBox/public/dev-docker-mac.json
+        - CONFIG_URL=https://data-players.github.io/StrongBox/public/dev-docker.json
     volumes:
       - ./main:/data/app/
     networks:
