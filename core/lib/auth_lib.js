@@ -8,7 +8,7 @@ const bcrypt = require('bcryptjs');
 const passport = require('passport');
 const userModel = require('../models/user_model');
 const authenticationModel = require('../models/auth_model');
-
+require('../Oauth/google_auth_strategy')(passport);
 /** @type Configuration */
 const config = require('../../main/configuration');
 
