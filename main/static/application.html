@@ -55,7 +55,7 @@
   <script src="./store/mainController.js"></script>
   <script src="./store/sqlStore.js"></script>
   <script src="./store/utilStore.js"></script>
-
+  
   <script type="riot/tag" src="tag/zenTable.tag"></script>
   <script type="riot/tag" src="tag/navigation.tag"></script>
   <script type="riot/tag" src="tag/workspaceTable.tag"></script>
@@ -83,8 +83,6 @@
   <script type="riot/tag" src="tag/stripe2.tag"></script>
   <script type="riot/tag" src="tag/transactions-list.tag"></script>
   <script type="riot/tag" src="tag/process-list.tag"></script>
-
-
   <script type="riot/tag" src="tag/no-editor.tag"></script>
   <script type="riot/tag" src="tag/scrapper-editor.tag"></script>
   <script type="riot/tag" src="tag/rest-get-json-editor.tag"></script>
@@ -115,7 +113,6 @@
   <script type="riot/tag" src="tag/unicity-editor.tag"></script>
   <script type="riot/tag" src="tag/properties-matrix-editor.tag"></script>
   <script type="riot/tag" src="tag/post-consumer-editor.tag"></script>
-
   <script type="riot/tag" src="tag/workspace/workspace-zen-table.tag"></script>
 
 
@@ -125,15 +122,7 @@
       method: 'get',
       url: '/configuration/configurationMessageQueue',
     }).done(configurationMessageQueue => {
-      //console.log("configurationAmqpHost", amqpHost)
-      // var onMessage = function(message) {
-      //   console.log('message', JSON.parse(message.body));
-      // };
-      //console.log(amqpHost);
-
       var onConnect = function(client) {
-        //console.log('connected',stompClient,client);
-
         let allStore = {};
         let utilStore = new UtilStore();
         RiotControl.addStore(utilStore);
@@ -209,11 +198,7 @@
       var onError = function(err) {
         console.log('disconnected ', err);
       };
-
-      //var url = 'wss://stomp-rabitmq-stomp.b9ad.pro-us-east-1.openshiftapps.com:443/ws';
-      //var url = 'wss://semantic-bus.org:443/stomp/ws/';
       var url = configurationMessageQueue.socketClient;
-      //var url = 'ws://35.187.66.2:15674/ws/';
       var login = 'guest';
       var password = 'guest';
       var stompClient = webstomp.client(configurationMessageQueue.url, {
@@ -225,12 +210,9 @@
       })
       if (configurationMessageQueue.host != undefined && configurationMessageQueue.host.length > 0) {
         stompClient.connect(login, password, onConnect, onError, configurationMessageQueue.host);
-        //stompClient.connect(login, password, onConnect, onError);
-
       } else {
         stompClient.connect(login, password, onConnect, onError);
       }
-
     })
   </script>
   <style>

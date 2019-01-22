@@ -44,7 +44,7 @@ RUN npm -v
 
 # Bundle app source
 
-ADD ./main /data/main/
+ADD ./stripe /data/main/
 ADD ./core /data/core/
 
 RUN cd /data/core && ls && npm cache clean --force &&  npm install

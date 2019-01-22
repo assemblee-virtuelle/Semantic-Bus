@@ -96,9 +96,6 @@ var UserStore = function() {
     });
   });
 
-
-
-
   this.on('is_authorize', function (data) {
     console.log("is_authorize", data)
     if(data.length > 1){
@@ -136,7 +133,6 @@ var UserStore = function() {
     })
   })
 
-
   this.on('verife_code', function (data) {
     console.log("verifecode", data)
     if(data.user._id){
@@ -159,7 +155,6 @@ var UserStore = function() {
     }
   })
 
-
   this.on('update_password', function (data) {
     console.log("update_password", JSON.stringify(data))
     $.ajax({
@@ -180,8 +175,6 @@ var UserStore = function() {
       }
     })
   })
-
-
 
   this.on('user_inscription', function (user) {
     console.log(user);

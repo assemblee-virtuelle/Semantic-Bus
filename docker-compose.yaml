@@ -1,0 +1,59 @@
+version: '3.0'
+services:         
+  
+  semanticbus:
+    build:
+      context: .
+      dockerfile: ./main/Dockerfile
+    container_name: semanticbus
+    image: debian/latest
+    environment:
+        - APP_PORT=80
+        - NODE_ENV=development_docker
+        - CONFIG_URL=https://data-players.github.io/StrongBox/public/dev-docker.json
+    # volumes:
+      # - ./main:/data/app/
+      # - ./core:/data/core/
+    networks:
+      - back  
+    ports:
+      - "80:80"
+    expose:
+      - "80"
+    links:
+        - mongodb
+        - rabbitmq
+    depends_on:
+        - mongodb
+        - rabbitmq
+    command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "npm", "run", "start"]
+
+  rabbitmq:
+    image: semanticbus/rabbitmq-stomp
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15674:15674
+      - 15672:15672
+    networks:
+      - back  
+      
+  mongodb:
+    image: mongo
+    container_name: mongodb
+    restart: always
+    networks:
+      - back  
+    ports:
+      - "27017:27017"
+    expose:
+      - "27017"
+    volumes:
+      - data:/data/db
+    command: --smallfiles
+
+volumes:
+  data:
+
+networks: 
+  back: 
