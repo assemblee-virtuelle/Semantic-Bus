@@ -1,5 +1,4 @@
-function MainController(allStore,stompClient) {
-  console.log(allStore);
+function MainController(allStore) {
   riot.observable(this) // Riot provides our event emitter.
   for(store in allStore){
     allStore[store].mainController = this;
@@ -7,38 +6,19 @@ function MainController(allStore,stompClient) {
   }
 
   this.on('https_force?', function() {
-    console.log("https_force")
     $.ajax({
       method: 'get',
       url: '/configuration/configurationhttps',
     }).done(data => {
-      console.log("in return HTTPS", data)
-      console.log(window.location.href)
       if (data == "force") {
         if (window.location.href.substr(0, 5) != "https") {
-          console.log(window.location.href)
           window.location.replace("https" + window.location.href.substr(4, window.location.href.split("").length - 1))
-          // window.location.replace("https" + window.location.href.substr(5, window.location.href.split("").length -1))
         }
       }
-      //return data
-    })
-  })
-
-  this.on('init_stripe', function() {
-    console.log("https_force")
-    $.ajax({
-      method: 'get',
-      url: '/configuration/stripePublicKey',
-    }).done(data => {
-      console.log("in return STRIPE PUBLIC KEY", data)
-      localStorage.stripe_public_key = data
-      //return data
     })
   })
 
   this.on('is_token_valid?', function() {
-    console.log(localStorage.token)
     if (localStorage.token == 'null' || localStorage.token == null) {
       this.trigger('login_redirect');
     } else {
@@ -78,35 +58,11 @@ function MainController(allStore,stompClient) {
     }
   });
 
-  // this.workspaceStore.on('navigation_control_done', function(message) {
-  //   //console.log('workspace_current_changed', this, message);
-  //   this.workspaceCurrent = this.workspaceStore.workspaceCurrent;
-  //   this.genericStore.workspaceCurrent = this.workspaceStore.workspaceCurrent;
-  // }.bind(this));
-  //
-  // this.genericStore.on('navigation_control_done', function(message) {
-  //   //console.log('workspace_current_changed', this, message);
-  //   this.itemCurrent = this.genericStore.itemCurrent;
-  //   this.workspaceStore.itemCurrent = this.genericStore.itemCurrent;
-  // }.bind(this));
-
   this.workspaceStore.on('workspace_current_add_components_done', function(message) {
-    //this.navigatePrevious();
     route('workspace/'+message._id+'/component')
   }.bind(this));
 
-  // //update current component because it can be change after wokspace persist
-  // this.workspaceStore.on('workspace_current_persist_done', function(message) {
-  //   if (this.genericStore.itemCurrent != undefined) {
-  //     this.genericStore.itemCurrent = sift({
-  //       _id: this.genericStore.itemCurrent._id
-  //     }, message.components)[0];
-  //     //this.genericStore.trigger('component_current_select', );
-  //   }
-  // }.bind(this));
-
   this.workspaceStore.on('process_result', function(message) {
-    //console.log('ROUTE');
     route('workPreview')
   }.bind(this));
 

@@ -135,7 +135,7 @@
   <!-- Page paiement -->
   <div class="containerV" if={menu=='payement'} style="height: 300px;flex-grow: 1;background-color: rgb(238, 242, 249);">
     <div class="containerV" style="flex-grow: 1;background-color: rgb(238, 242, 249);">
-      <stripe2-tag></stripe2-tag>
+      <stripe-component-tag></stripe-component-tag>
     </div>
   </div>
   <div if={menu=='transaction'} style="flex-grow: 1;background-color: rgb(238, 242, 249);">
@@ -292,6 +292,7 @@
 
     RiotControl.on('profil_loaded', function (data) {
       this.profil = data;
+      console.log("profil loaded")
       this.update()
     }.bind(this))
 
@@ -302,7 +303,6 @@
 
     this.on('mount', function () {
       this.menu = 'running'
-      console.log("MENU", this.menu)
       this.isIn3DSecurePayement()
       RiotControl.on('profil_menu_changed', this.profilMenuChanged);
       RiotControl.trigger('load_profil');
@@ -389,17 +389,5 @@
       font-family: 'Raleway', sans-serif;
     }
 
-    /*div.tooltip {
-  position: absolute;
-  text-align: left;
-  width: 200px;
-  height: 70px;
-  padding: 10px;
-  font: 12px sans-serif;
-  background: lightsteelblue;
-  border: 0;
-  border-radius: 8px;
-  pointer-events: none;
-}*/
   </style>
 </profil>
