@@ -34,7 +34,7 @@ httpGet.makeRequest('GET', {
     if (err) {
       throw err;
     } else {
-      
+
       const jwtService = require('./webServices/jwtService')
 
       safe.use(function(req, res, next) {
@@ -42,7 +42,7 @@ httpGet.makeRequest('GET', {
       })
       app.disable('etag'); //add this in RP ( traeffik )
       unSafeRouteur.use(cors());
-      
+
       amqp.connect(configJson.socketServer + '/' + configJson.amqpHost, function(err, conn) {
         console.log('AMQP status : ', conn ? "connected" : "no connected", err ? err : "no error");
         conn.createChannel(function(err, ch) {
@@ -73,6 +73,7 @@ httpGet.makeRequest('GET', {
         app.use('/auth', unSafeRouteur);
         app.use('/configuration', unSafeRouteur);
         app.use('/data/specific', unSafeRouteur);
+        console.log('------------- express api delaration');
         app.use('/data/api', unSafeRouteur);
         app.use('/data/core', safe);
 
