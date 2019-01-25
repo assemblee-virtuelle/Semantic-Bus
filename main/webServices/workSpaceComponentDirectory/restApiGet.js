@@ -30,7 +30,7 @@ module.exports = {
         let matched = false;
         for (let component of components) {
           if (component.specificData.url != undefined) {
-            //console.log(component.specificData.url,urlRequiered);
+            console.log(component.specificData.url,urlRequiered);
             let keys = [];
             let regexp = pathToRegexp(component.specificData.url, keys);
             //console.log(keys);
