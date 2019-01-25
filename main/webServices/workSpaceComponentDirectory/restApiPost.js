@@ -1,5 +1,5 @@
 "use strict";
-module.exports = new function() {
+module.exports = {
     this.type = 'Post provider';
     this.description = `Déclencher un flux de donnée sur une API http POST.`;
     this.editor = 'rest-api-post-editor';

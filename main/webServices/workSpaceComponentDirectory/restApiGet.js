@@ -1,5 +1,5 @@
 "use strict";
-module.exports = new function() {
+module.exports = {
   this.type = 'Get provider';
   this.description = 'Exposer un flux de donnée sur une API http GET.';
   this.editor = 'rest-api-get-editor';
