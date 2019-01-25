@@ -37,6 +37,7 @@ data/
 
 # Dependency directories
 main/node_modules/
+core/node_modules/
 jspm_packages/
 
 # Typescript v1 declaration files

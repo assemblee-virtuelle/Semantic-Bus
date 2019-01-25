@@ -436,7 +436,6 @@ class Engine {
     }
   }
 
-
   historicEndAndCredit(processingNode, startTime, error) {
 
     // console.log('historicEndAndCredit',error);
@@ -529,48 +528,7 @@ class Engine {
     this.user_lib.update(this.owner);
   }
 
-
-  // //TODO don't work if flow is array at fisrt depth
-  // buildDfobFlow(currentFlow, dfobPathTab) {
-  //   var currentDfob = dfobPathTab.shift();
-  //   if (dfobPathTab.length > 0) {
-  //     if (Array.isArray(currentFlow)) {
-  //       var deepArray = currentFlow.map(currentInspectObject =>
-  //         this.buildDfobFlow(
-  //           currentInspectObject[currentDfob],
-  //           dfobPathTab.slice(0)
-  //         )
-  //       );
-  //       return [].concat.apply([], deepArray); // flatten array
-  //     } else {
-  //       return this.buildDfobFlow(
-  //         currentFlow[currentDfob],
-  //         dfobPathTab.slice(0)
-  //       );
-  //     }
-  //   } else {
-  //     var out = [];
-  //     if (Array.isArray(currentFlow)) {
-  //       out = out.concat(
-  //         currentFlow.map(o => {
-  //           return {
-  //             objectToProcess: o,
-  //             key: currentDfob
-  //           };
-  //         })
-  //       );
-  //     } else {
-  //       out = out.concat({
-  //         objectToProcess: currentFlow,
-  //         key: currentDfob
-  //       });
-  //     }
-  //     return out;
-  //   }
-  // }
-
   buildDfobFlowArray(currentFlow, dfobPathTab, key, keepArray) {
-    //console.log('buildDfobFlowArray',currentFlow);
     if (Array.isArray(currentFlow)) {
       let flatOut = [];
       currentFlow.forEach((f, i) => {
@@ -582,6 +540,7 @@ class Engine {
       return (this.buildDfobFlow(currentFlow, dfobPathTab, key, keepArray));
     }
   }
+
   buildDfobFlow(currentFlow, dfobPathTab, key, keepArray) {
     //console.log(dfobPathTab);
     if (dfobPathTab.length > 0) {
@@ -676,8 +635,6 @@ class Engine {
     //   return out;
     // }
   }
-
-
 
   buildPathResolution(workspace, component, requestDirection, depth, usableComponents, buildPath, queryParams, buildPathCauseLink) {
     //buildPath = buildPath || [];

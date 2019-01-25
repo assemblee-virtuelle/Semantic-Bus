@@ -11,7 +11,7 @@ const bodyParser = require("body-parser");
 const env = process.env;
 const httpGet = require('./webServices/workSpaceComponentDirectory/restGetJson.js');
 const fs = require('fs');
-const url = env.CONFIG_URL || 'https://data-players.github.io/StrongBox/public/dev-docker.json';
+const url = env.CONFIG_URL || 'https://data-players.github.io/StrongBox/public/dev-local-mac.json';
 
 app.use(cors());
 app.use(bodyParser.json({
@@ -55,7 +55,15 @@ httpGet.makeRequest('GET', {
         });
       });
       const onConnect = function(amqpClient) {
-        //TODO it's ugly!!!! sytem function is increment with stompClient
+
+
+        app.use('/auth', express.static('static'));
+        app.use('/auth', unSafeRouteur);
+        app.use('/configuration', unSafeRouteur);
+        app.use('/data/specific', unSafeRouteur);
+        app.use('/data/api', unSafeRouteur);
+        app.use('/data/core', safe);
+
         require('./webServices/initialise')(unSafeRouteur, amqpClient);
         require('./webServices/authWebService')(unSafeRouteur, amqpClient);
         require('./webServices/workspaceWebService')(safe, amqpClient);
@@ -66,16 +74,7 @@ httpGet.makeRequest('GET', {
         require('./webServices/adminWebService')(safe, amqpClient);
         require('./webServices/fragmentWebService')(safe, amqpClient);
 
-        ///OTHER APP COMPONENT
         ///SECURISATION DES REQUETES
-
-        app.use('/auth', express.static('static'));
-        app.use('/auth', unSafeRouteur);
-        app.use('/configuration', unSafeRouteur);
-        app.use('/data/specific', unSafeRouteur);
-        console.log('------------- express api delaration');
-        app.use('/data/api', unSafeRouteur);
-        app.use('/data/core', safe);
 
         app.get('/', function(req, res, next) {
           res.redirect('/ihm/application.html#myWorkspaces');
