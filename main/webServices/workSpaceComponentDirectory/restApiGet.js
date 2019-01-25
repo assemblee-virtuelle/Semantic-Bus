@@ -18,9 +18,7 @@ module.exports = {
     ],
   stepNode :false,
   initialise :(router, app, stompClient) => {
-    console.log('------------- before initialise', router)
     router.get('*', (req, res, next) => {
-      console.log('------------- RestApiGet initialise');
       const urlRequiered = req.params[0].split("/")[1];
       let targetedComponent;
 
@@ -30,10 +28,8 @@ module.exports = {
         let matched = false;
         for (let component of components) {
           if (component.specificData.url != undefined) {
-            console.log(component.specificData.url,urlRequiered);
             let keys = [];
             let regexp = pathToRegexp(component.specificData.url, keys);
-            console.log(regexp, regexp.test(urlRequiered));
             if (regexp.test(urlRequiered)) {
               matched = true;
               targetedComponent = component;
@@ -64,7 +60,6 @@ module.exports = {
             })
           })
         } else {
-          //console.log(recursivPullResolvePromise);
           return recursivPullResolvePromise.execute(targetedComponent, 'work', stompClient, undefined, undefined, {
             query: req.query,
             body: req.body
