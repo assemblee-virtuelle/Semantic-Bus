@@ -21,7 +21,7 @@ module.exports = {
     console.log('------------- before initialise', router)
     router.get('*', (req, res, next) => {
       console.log('------------- RestApiGet initialise');
-      const urlRequiered = req.params[0];
+      const urlRequiered = req.params[0].split("/")[1];
       let targetedComponent;
 
       workspace_component_lib.get_all({
@@ -33,18 +33,13 @@ module.exports = {
             console.log(component.specificData.url,urlRequiered);
             let keys = [];
             let regexp = pathToRegexp(component.specificData.url, keys);
-            //console.log(keys);
-            //console.log(re);
+            console.log(regexp, regexp.test(urlRequiered));
             if (regexp.test(urlRequiered)) {
               matched = true;
-              //console.log('MATCHING',component.specificData.url,urlRequiered);
-              //component.specificData.url
               targetedComponent = component;
               let values = regexp.exec(urlRequiered)
-              //console.log(keys,values);
               let valueIndex = 1;
               for (let key of keys) {
-                //console.log(key);
                 let value = values[valueIndex];
                 req.query[key.name] = value;
                 valueIndex++;
@@ -54,10 +49,9 @@ module.exports = {
                 try {
                   req.query[queryKey] = JSON.parse(req.query[queryKey]);
                 } catch (e) {
-                  //console.warn('restApiGet : error parsing query', queryKey ,req.query[queryKey],e);
+
                 }
               }
-              //console.log('QUERY',req.query);
               break;
             }
           }
