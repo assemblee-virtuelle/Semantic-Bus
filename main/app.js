@@ -1,22 +1,19 @@
 "use strict";
-//memory leak tool, code is here to don't forget
-// var memwatch = require('memwatch-next');
-// var hd = new memwatch.HeapDiff();
-// var diff = hd.end();
-// var WebSocket = require('ws');
-var express = require('express')
-var cors = require('cors')
-var app = express();
-app.use(cors());
 
-var passport = require('passport');
-var http = require('http');
-http.globalAgent.maxSockets = 1000000000;
-var server = http.Server(app);
-var amqp = require('amqplib/callback_api');
-var safe = express.Router();
-var unSafeRouteur = express.Router();
-var bodyParser = require("body-parser");
+const express = require('express')
+const cors = require('cors')
+const app = express();
+const http = require('http');
+const amqp = require('amqplib/callback_api');
+const safe = express.Router();
+const unSafeRouteur = express.Router();
+const bodyParser = require("body-parser");
+const env = process.env;
+const httpGet = require('./webServices/workSpaceComponentDirectory/restGetJson.js');
+const fs = require('fs');
+const url = env.CONFIG_URL || 'https://data-players.github.io/StrongBox/public/dev-local-mac.json';
+
+app.use(cors());
 app.use(bodyParser.json({
   limit: '10mb'
 }));
@@ -25,44 +22,28 @@ app.use(bodyParser.urlencoded({
   extended: true
 }));
 safe.use(bodyParser.json()); // used to parse JSON object given in the request body
-var env = process.env;
-var httpGet = require('./webServices/workSpaceComponentDirectory/restGetJson.js');
-var fs = require('fs');
-const configUrl = env.CONFIG_URL || 'https://data-players.github.io/StrongBox/public/dev-docker.json';
-
+http.globalAgent.maxSockets = 1000000000;
 httpGet.makeRequest('GET', {
-  url: configUrl
+  url
 }).then(result => {
+
   const configJson = result.data;
   const content = 'module.exports = ' + JSON.stringify(result.data);
-
 
   fs.writeFile("configuration.js", content, 'utf8', function(err) {
     if (err) {
       throw err;
     } else {
 
-      require('../core/Oauth/google_auth_strategy')(passport);
+      const jwtService = require('./webServices/jwtService')
 
-      var jwtService = require('./webServices/jwtService')
-
-
-      //Sécurisation des route de data
       safe.use(function(req, res, next) {
         jwtService.securityAPI(req, res, next);
       })
-
-
-      app.disable('etag'); //what is that? cache desactivation in HTTP Header
-
+      app.disable('etag'); //add this in RP ( traeffik )
       unSafeRouteur.use(cors());
 
-
-      let url;
-      console.log('Starting Environnement ', configJson.socketServer, process.env.NODE_ENV);
-      url = configJson.socketServer
-
-      amqp.connect(url + '/' + configJson.amqpHost, function(err, conn) {
+      amqp.connect(configJson.socketServer + '/' + configJson.amqpHost, function(err, conn) {
         console.log('AMQP status : ', conn ? "connected" : "no connected", err ? err : "no error");
         conn.createChannel(function(err, ch) {
           onConnect(ch);
@@ -72,10 +53,17 @@ httpGet.makeRequest('GET', {
             });
           }
         });
-
       });
-      var onConnect = function(amqpClient) {
-        //TODO it's ugly!!!! sytem function is increment with stompClient
+      const onConnect = function(amqpClient) {
+
+
+        app.use('/auth', express.static('static'));
+        app.use('/auth', unSafeRouteur);
+        app.use('/configuration', unSafeRouteur);
+        app.use('/data/specific', unSafeRouteur);
+        app.use('/data/api', unSafeRouteur);
+        app.use('/data/core', safe);
+
         require('./webServices/initialise')(unSafeRouteur, amqpClient);
         require('./webServices/authWebService')(unSafeRouteur, amqpClient);
         require('./webServices/workspaceWebService')(safe, amqpClient);
@@ -86,15 +74,7 @@ httpGet.makeRequest('GET', {
         require('./webServices/adminWebService')(safe, amqpClient);
         require('./webServices/fragmentWebService')(safe, amqpClient);
 
-        ///OTHER APP COMPONENT
         ///SECURISATION DES REQUETES
-
-        app.use('/auth', express.static('static'));
-        app.use('/auth', unSafeRouteur);
-        app.use('/configuration', unSafeRouteur);
-        app.use('/data/specific', unSafeRouteur);
-        app.use('/data/api', unSafeRouteur);
-        app.use('/data/core', safe);
 
         app.get('/', function(req, res, next) {
           res.redirect('/ihm/application.html#myWorkspaces');
@@ -110,10 +90,8 @@ httpGet.makeRequest('GET', {
         let jwtSimple = require('jwt-simple');
         let errorParser = require('error-stack-parser');
         app.use(function(err, req, res, next) {
-          //console.log('PROXY');
           if (err) {
-            //console.log('ERROR MANAGEMENT');
-            var token = req.body.token || req.query.token || req.headers['authorization'];
+            const token = req.body.token || req.query.token || req.headers['authorization'];
             //console.log('token |',token);
             let user;
             if (token != undefined) {
@@ -143,10 +121,6 @@ httpGet.makeRequest('GET', {
         app.listen(process.env.APP_PORT || 8080, function(err) {
           console.log('~~ server started at ', "port", process.env.APP_PORT || 8080, err, ':', this.address())
           require('../core/timerScheduler').run();
-        })
-
-        server.on('error', function(err) {
-          console.log(err)
         })
       }
     }

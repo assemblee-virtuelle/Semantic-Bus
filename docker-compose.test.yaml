@@ -69,7 +69,6 @@ services:
     networks:
       - back
       - selenium-grid
-    command: ["/data/scripts/wait-for-it.sh", "semanticbus:80", "-t", "25", "--", "codeceptjs", "run", "--grep", "@local", "--verbose"]
 
   seleniume2e:
     container_name: seleniume2e
