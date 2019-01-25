@@ -19,7 +19,7 @@ module.exports = {
   stepNode :false,
   initialise :(router, app, stompClient) => {
     console.log('------------- before initialise', router)
-    router.get('/data/api/*', (req, res, next) => {
+    router.get('*', (req, res, next) => {
       console.log('------------- RestApiGet initialise');
       const urlRequiered = req.params[0];
       let targetedComponent;

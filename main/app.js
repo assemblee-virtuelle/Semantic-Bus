@@ -61,7 +61,7 @@ httpGet.makeRequest('GET', {
         app.use('/auth', unSafeRouteur);
         app.use('/configuration', unSafeRouteur);
         app.use('/data/specific', unSafeRouteur);
-        // app.use('/data/api', unSafeRouteur);
+        app.use('/data/api', unSafeRouteur);
         app.use('/data/core', safe);
 
         require('./webServices/initialise')(unSafeRouteur, amqpClient);
