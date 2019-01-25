@@ -37,8 +37,6 @@ httpGet.makeRequest('GET', {
       
       const jwtService = require('./webServices/jwtService')
 
-      const jwtService = require('./webServices/jwtService')
-
       safe.use(function(req, res, next) {
         jwtService.securityAPI(req, res, next);
       })
