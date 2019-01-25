@@ -33,7 +33,7 @@ httpGet.makeRequest('GET', {
     if (err) {
       throw err;
     } else {
-      
+
       const jwtService = require('./webServices/jwtService')
 
       safe.use(function(req, res, next) {
@@ -41,7 +41,7 @@ httpGet.makeRequest('GET', {
       })
       app.disable('etag'); //add this in RP ( traeffik )
       unSafeRouteur.use(cors());
-      
+
       amqp.connect(configJson.socketServer + '/' + configJson.amqpHost, function(err, conn) {
         console.log('AMQP status : ', conn ? "connected" : "no connected", err ? err : "no error");
         conn.createChannel(function(err, ch) {
@@ -54,7 +54,15 @@ httpGet.makeRequest('GET', {
         });
       });
       const onConnect = function(amqpClient) {
-        //TODO it's ugly!!!! sytem function is increment with stompClient
+
+
+        app.use('/auth', express.static('static'));
+        app.use('/auth', unSafeRouteur);
+        app.use('/configuration', unSafeRouteur);
+        app.use('/data/specific', unSafeRouteur);
+        app.use('/data/api', unSafeRouteur);
+        app.use('/data/core', safe);
+
         require('./webServices/initialise')(unSafeRouteur, amqpClient);
         require('./webServices/authWebService')(unSafeRouteur, amqpClient);
         require('./webServices/workspaceWebService')(safe, amqpClient);
@@ -65,15 +73,7 @@ httpGet.makeRequest('GET', {
         require('./webServices/adminWebService')(safe, amqpClient);
         require('./webServices/fragmentWebService')(safe, amqpClient);
 
-        ///OTHER APP COMPONENT
         ///SECURISATION DES REQUETES
-
-        app.use('/auth', express.static('static'));
-        app.use('/auth', unSafeRouteur);
-        app.use('/configuration', unSafeRouteur);
-        app.use('/data/specific', unSafeRouteur);
-        app.use('/data/api', unSafeRouteur);
-        app.use('/data/core', safe);
 
         app.get('/', function(req, res, next) {
           res.redirect('/ihm/application.html#myWorkspaces');
