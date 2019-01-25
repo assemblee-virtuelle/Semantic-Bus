@@ -24,6 +24,8 @@ module.exports = new function() {
     apiGetRouteur.use(this.cors());
 
     apiGetRouteur.get('/*', (req, res, next) => {
+
+      console.log('------------- RestApiGet initialise');
       let urlRequiered = req.params[0];
       var targetedComponent;
 
