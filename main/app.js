@@ -11,11 +11,7 @@ const bodyParser = require("body-parser");
 const env = process.env;
 const httpGet = require('./webServices/workSpaceComponentDirectory/restGetJson.js');
 const fs = require('fs');
-<<<<<<< HEAD
-const url = env.CONFIG_URL || 'https://data-players.github.io/StrongBox/public/dev-local-mac.json';
-=======
 const url = env.CONFIG_URL || 'https://data-players.github.io/StrongBox/public/dev-docker.json';
->>>>>>> 457d31aaec46dc07a2fba08203785657a072bb0e
 
 app.use(cors());
 app.use(bodyParser.json({
