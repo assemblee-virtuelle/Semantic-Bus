@@ -55,7 +55,7 @@ module.exports = {
     return directory;
   },
   initialise: function ( unSafeRouteur, app,stompClient) {
-    console.log('------------- initialise',this.restApiGet);
+    console.log('------------- initialise',this.restApiGet );
     this.restApiPost.initialise(unSafeRouteur,stompClient); //NO SECURE CHANGE ROUTER
     this.restApiGet.initialise(unSafeRouteur,app,stompClient); //NO SECURE CHANGE ROUTER
     this.upload.initialise(unSafeRouteur,stompClient);
