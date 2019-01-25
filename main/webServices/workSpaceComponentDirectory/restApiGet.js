@@ -1,5 +1,5 @@
 "use strict";
-module.exports = new function() {
+module.exports = () => {
   this.type = 'Get provider';
   this.description = 'Exposer un flux de donnée sur une API http GET.';
   this.editor = 'rest-api-get-editor';
@@ -18,7 +18,7 @@ module.exports = new function() {
   this.pathToRegexp = require('path-to-regexp');
   this.recursivPullResolvePromise = require('../engine.js');
 
-  this.initialise = function(router, app, stompClient) {
+  this.initialise = (router, app, stompClient) => {
     console.log('------------- before initialise');
     router.get('/*', (req, res, next) => {
       console.log('------------- RestApiGet initialise');
