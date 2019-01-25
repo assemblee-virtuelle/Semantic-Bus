@@ -61,7 +61,7 @@ httpGet.makeRequest('GET', {
         app.use('/auth', unSafeRouteur);
         app.use('/configuration', unSafeRouteur);
         app.use('/data/specific', unSafeRouteur);
-        app.use('/data/api', unSafeRouteur);
+        // app.use('/data/api', unSafeRouteur);
         app.use('/data/core', safe);
 
         require('./webServices/initialise')(unSafeRouteur, amqpClient);
@@ -73,7 +73,7 @@ httpGet.makeRequest('GET', {
         require('./webServices/rightsManagementWebService')(safe, amqpClient);
         require('./webServices/adminWebService')(safe, amqpClient);
         require('./webServices/fragmentWebService')(safe, amqpClient);
-        
+
         ///SECURISATION DES REQUETES
 
         app.get('/', function(req, res, next) {
