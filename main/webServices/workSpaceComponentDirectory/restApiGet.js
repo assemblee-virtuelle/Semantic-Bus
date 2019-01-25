@@ -1,32 +1,30 @@
 "use strict";
-module.exports = () => {
-  this.type = 'Get provider';
-  this.description = 'Exposer un flux de donnée sur une API http GET.';
-  this.editor = 'rest-api-get-editor';
-  this.graphIcon = 'Get_provider.png';
-  this.tags = [
+let workspace_component_lib = require('../../../core/lib/workspace_component_lib');
+let data2xml = require('data2xml');
+let dataTraitment = require("../dataTraitmentLibrary/index.js");
+let json2yaml = require('json2yaml');
+let pathToRegexp = require('path-to-regexp');
+let recursivPullResolvePromise  = require('../engine.js');
+
+module.exports = {
+  type :'Get provider',
+  description :'Exposer un flux de donnée sur une API http GET.',
+  editor :'rest-api-get-editor',
+  graphIcon :'Get_provider.png',
+  tags :[
       'http://semantic-bus.org/data/tags/outComponents',
       'http://semantic-bus.org/data/tags/APIComponents'
     ],
-    this.stepNode = false;
-  this.workspace_component_lib = require('../../../core/lib/workspace_component_lib');
-  this.data2xml = require('data2xml');
-  this.dataTraitment = require("../dataTraitmentLibrary/index.js");
-  this.json2yaml = require('json2yaml');
-  this.express = require('express');
-  this.cors = require('cors');
-  this.pathToRegexp = require('path-to-regexp');
-  this.recursivPullResolvePromise = require('../engine.js');
-
-  this.initialise = (router, app, stompClient) => {
-    console.log('------------- before initialise');
+  stepNode :false,
+  initialise :(router, app, stompClient) => {
+    console.log('------------- before initialise')
     router.get('/*', (req, res, next) => {
       console.log('------------- RestApiGet initialise');
       let urlRequiered = req.params[0];
       var targetedComponent;
 
       let matches;
-      this.workspace_component_lib.get_all({
+      workspace_component_lib.get_all({
         module: 'restApiGet'
       }).then(components => {
         var matched = false;
@@ -34,7 +32,7 @@ module.exports = () => {
           if (component.specificData.url != undefined) {
             //console.log(component.specificData.url,urlRequiered);
             let keys = [];
-            let regexp = this.pathToRegexp(component.specificData.url, keys);
+            let regexp = pathToRegexp(component.specificData.url, keys);
             //console.log(keys);
             //console.log(re);
             if (regexp.test(urlRequiered)) {
@@ -72,8 +70,8 @@ module.exports = () => {
             })
           })
         } else {
-          //console.log(this.recursivPullResolvePromise);
-          return this.recursivPullResolvePromise.execute(targetedComponent, 'work', stompClient, undefined, undefined, {
+          //console.log(recursivPullResolvePromise);
+          return recursivPullResolvePromise.execute(targetedComponent, 'work', stompClient, undefined, undefined, {
             query: req.query,
             body: req.body
           });
@@ -88,14 +86,14 @@ module.exports = () => {
               res.setHeader('content-type', targetedComponent.specificData.contentType);
               var responseBodyExel = []
               console.log('data.contentType XLS', targetedComponent.specificData);
-              this.dataTraitment.type.buildFile(undefined, JSON.stringify(dataToSend.data), undefined,true, targetedComponent.specificData.contentType).then((result)=>{
+              dataTraitment.type.buildFile(undefined, JSON.stringify(dataToSend.data), undefined,true, targetedComponent.specificData.contentType).then((result)=>{
                 //console.log(result)
                 res.setHeader('Content-disposition', 'attachment; filename='+targetedComponent.specificData.url+'.xlsx');
                 res.send(result)
               })
             } else if (targetedComponent.specificData.contentType.search('xml') != -1) {
               res.setHeader('content-type', targetedComponent.specificData.contentType);
-              var convert = this.data2xml();
+              var convert = data2xml();
               var out = "";
               for (let key in dataToSend.data) {
                 out += convert(key, dataToSend.data[key]);
@@ -104,7 +102,7 @@ module.exports = () => {
               res.send(out);
             } else if (targetedComponent.specificData.contentType.search('yaml') != -1) {
               res.setHeader('content-type', targetedComponent.specificData.contentType);
-              res.send(this.json2yaml.stringify(dataToSend.data));
+              res.send(json2yaml.stringify(dataToSend.data));
 
             } else if (targetedComponent.specificData.contentType.search('json') != -1) {
               res.setHeader('content-type', targetedComponent.specificData.contentType);
@@ -131,14 +129,10 @@ module.exports = () => {
         }
       });
     });
-  }
-
-
-  this.pull = function(data, flowData) {
-    //console.log('Flow Agregator | pull : ',data,' | ',flowData);
+  },
+  pull: (data, flowData) => {
     return new Promise((resolve, reject) => {
       if (flowData != undefined) {
-        //console.log('api data | ',flowData);
         resolve({
           data: flowData[0].data
         })
