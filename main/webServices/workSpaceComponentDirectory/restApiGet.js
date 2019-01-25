@@ -19,12 +19,8 @@ module.exports = new function() {
   this.recursivPullResolvePromise = require('../engine.js');
 
   this.initialise = function(router, app, stompClient) {
-
-    let apiGetRouteur = this.express.Router();
-    apiGetRouteur.use(this.cors());
-
-    apiGetRouteur.get('/*', (req, res, next) => {
-
+    console.log('------------- before initialise');
+    router.get('/*', (req, res, next) => {
       console.log('------------- RestApiGet initialise');
       let urlRequiered = req.params[0];
       var targetedComponent;
@@ -33,7 +29,6 @@ module.exports = new function() {
       this.workspace_component_lib.get_all({
         module: 'restApiGet'
       }).then(components => {
-        //console.log(component);
         var matched = false;
         for (let component of components) {
           if (component.specificData.url != undefined) {
@@ -136,8 +131,6 @@ module.exports = new function() {
         }
       });
     });
-
-    app.use('/data/api', apiGetRouteur);
   }
 
 
