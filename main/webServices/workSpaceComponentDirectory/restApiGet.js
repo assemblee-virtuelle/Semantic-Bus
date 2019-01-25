@@ -20,14 +20,13 @@ module.exports = {
     console.log('------------- before initialise')
     router.get('/*', (req, res, next) => {
       console.log('------------- RestApiGet initialise');
-      let urlRequiered = req.params[0];
-      var targetedComponent;
+      const urlRequiered = req.params[0];
+      let targetedComponent;
 
-      let matches;
       workspace_component_lib.get_all({
         module: 'restApiGet'
       }).then(components => {
-        var matched = false;
+        let matched = false;
         for (let component of components) {
           if (component.specificData.url != undefined) {
             //console.log(component.specificData.url,urlRequiered);
@@ -77,7 +76,6 @@ module.exports = {
           });
         }
       }).then(dataToSend => {
-        //console.log('AALLOO',dataToSend);
         if (targetedComponent.specificData != undefined) { // exception in previous promise
           if (targetedComponent.specificData.contentType != undefined) {
             if(dataToSend.data==undefined){
@@ -87,7 +85,6 @@ module.exports = {
               var responseBodyExel = []
               console.log('data.contentType XLS', targetedComponent.specificData);
               dataTraitment.type.buildFile(undefined, JSON.stringify(dataToSend.data), undefined,true, targetedComponent.specificData.contentType).then((result)=>{
-                //console.log(result)
                 res.setHeader('Content-disposition', 'attachment; filename='+targetedComponent.specificData.url+'.xlsx');
                 res.send(result)
               })
@@ -119,13 +116,10 @@ module.exports = {
           }
         }
       }).catch(err => {
-        // console.log('Engine FAIL for API ',urlRequiered, err);
-        // console.log('err.codeHTTP',err.codeHTTP);
         if (err.codeHTTP!=undefined) {
           res.status(err.codeHTTP).send(err.message);
         } else {
           next(err)
-          //res.status(500).send("serveur error");
         }
       });
     });
