@@ -55,7 +55,15 @@ httpGet.makeRequest('GET', {
         });
       });
       const onConnect = function(amqpClient) {
-        //TODO it's ugly!!!! sytem function is increment with stompClient
+
+
+        app.use('/auth', express.static('static'));
+        app.use('/auth', unSafeRouteur);
+        app.use('/configuration', unSafeRouteur);
+        app.use('/data/specific', unSafeRouteur);
+        app.use('/data/api', unSafeRouteur);
+        app.use('/data/core', safe);
+
         require('./webServices/initialise')(unSafeRouteur, amqpClient);
         require('./webServices/authWebService')(unSafeRouteur, amqpClient);
         require('./webServices/workspaceWebService')(safe, amqpClient);
@@ -65,17 +73,8 @@ httpGet.makeRequest('GET', {
         require('./webServices/rightsManagementWebService')(safe, amqpClient);
         require('./webServices/adminWebService')(safe, amqpClient);
         require('./webServices/fragmentWebService')(safe, amqpClient);
-
-        ///OTHER APP COMPONENT
+        
         ///SECURISATION DES REQUETES
-
-        app.use('/auth', express.static('static'));
-        app.use('/auth', unSafeRouteur);
-        app.use('/configuration', unSafeRouteur);
-        app.use('/data/specific', unSafeRouteur);
-        console.log('------------- express api delaration');
-        app.use('/data/api', unSafeRouteur);
-        app.use('/data/core', safe);
 
         app.get('/', function(req, res, next) {
           res.redirect('/ihm/application.html#myWorkspaces');

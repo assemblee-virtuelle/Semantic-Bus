@@ -1,4 +1,5 @@
 "use strict";
+
 let workspace_component_lib = require('../../../core/lib/workspace_component_lib');
 let data2xml = require('data2xml');
 let dataTraitment = require("../dataTraitmentLibrary/index.js");
