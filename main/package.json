@@ -19,7 +19,9 @@
     "dockerStop": "sudo docker stop semanticbus-app && sudo docker rm semanticbus-app",
     "dockerRun": "sudo docker run -i -P -p 8080:80 --link rabbitmq --name semanticbus-app semanticbus-app",
     "dockerRun2": "sudo docker run -i -P -p 8080:80 --link rabbitmq --name semanticbus-app -e CONFIG_URL='http://data-players.com/config/devButProd.json' semanticbus-app",
-    "dockerRunProd": "sudo docker run -i -P -p 8080:80 --link rabbitmq --name semanticbus-app -e CONFIG_URL='http://data-players.com/config/prod.json' semanticbus-app"
+    "dockerRunProd": "sudo docker run -i -P -p 8080:80 --link rabbitmq --name semanticbus-app -e CONFIG_URL='http://data-players.com/config/prod.json' semanticbus-app",
+    "lint": "./node_modules/.bin/eslint *.js scripts/**/*.js utils/**/*.js webServices/**/*.js",
+    "fix": "./node_modules/.bin/eslint --fix *.js scripts/**/*.js utils/**/*.js webServices/**/*.js"
   },
   "author": "Simon Louvet <simon.louvet.zen@gmail.com> && Boceno Alexandre <bocenoalex@gmail.com>",
   "license": "GNUV3",
@@ -85,6 +87,12 @@
     "@types/amqplib": "^0.5.9",
     "@types/node-fetch": "2.1.4",
     "chromedriver": "^2.37.0",
+    "eslint": "5.12.1",
+    "eslint-config-standard": "12.0.0",
+    "eslint-plugin-import": "2.14.0",
+    "eslint-plugin-node": "8.0.1",
+    "eslint-plugin-promise": "4.0.1",
+    "eslint-plugin-standard": "4.0.0",
     "mocha-junit-reporter": "^1.13.0",
     "wdio-chromedriver-service": "^0.1.2"
   }
