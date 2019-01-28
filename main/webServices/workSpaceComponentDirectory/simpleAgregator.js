@@ -1,4 +1,4 @@
-"use strict";
+'use strict'
 module.exports = {
   type: 'Aggregate',
   description: 'Agréger plusieurs flux pour n\'en former qu\'un seul.',
@@ -11,18 +11,17 @@ module.exports = {
     'http://semantic-bus.org/data/tags/middleComponentsAgregation'
   ],
 
-
-  pull: function(data, flowData) {
-    //console.log('Flow Agregator | pull : ',data,' | ',flowData);
+  pull: function (data, flowData) {
+    // console.log('Flow Agregator | pull : ',data,' | ',flowData);
     return new Promise((resolve, reject) => {
-      var resultFlow = [];
-      //console.log('TOTAL',flowData.length);
+      var resultFlow = []
+      // console.log('TOTAL',flowData.length);
 
       for (let flow of flowData) {
-        //console.log('stotal',flow.data.length,flow.componentId);
-        //console.log('flow.data',flow.data);
+        // console.log('stotal',flow.data.length,flow.componentId);
+        // console.log('flow.data',flow.data);
         if (!Array.isArray(flow.data)) {
-          reject(new Error('input flow have to be an array'));
+          reject(new Error('input flow have to be an array'))
         } else {
           for (let record of flow.data) {
             // var filter = {};
@@ -59,20 +58,19 @@ module.exports = {
             //   }
             //   resultFlow[resultFlow.indexOf(everExistingData[0])] = oldRecord;
             // } else {
-              resultFlow.push(record);
+            resultFlow.push(record)
             // }
           }
         }
 
-
-        //console.log('Flow Agregator | result flow |  ',flow);
-        //resultFlow = resultFlow.concat(flow.data)
+        // console.log('Flow Agregator | result flow |  ',flow);
+        // resultFlow = resultFlow.concat(flow.data)
       }
-      //console.log('RESOLVE!!!!!!!!!!!!!!!');
-      //console.log('Flow Agregator | result total |  ',resultFlow);
+      // console.log('RESOLVE!!!!!!!!!!!!!!!');
+      // console.log('Flow Agregator | result total |  ',resultFlow);
       resolve({
         data: resultFlow
-      });
+      })
     })
   }
 }

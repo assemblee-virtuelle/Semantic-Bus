@@ -1,4 +1,4 @@
-"use strict"
+'use strict'
 
 const arrays = require('../../utils/arrays')
 const strings = require('../../utils/strings')
@@ -18,7 +18,7 @@ module.exports = {
    * @param {SpecificData} specificData
    * @return {Array<MapValueResult>}
    */
-  mapValue: function(valueIn, specificData) {
+  mapValue: function (valueIn, specificData) {
     const valueInString = valueIn.toString()
     return arrays.flatMap(specificData.mappingTable, atomicMapping => {
       if (valueInString.includes(atomicMapping.flowValue) && strings.nonEmpty(atomicMapping.replacementValue)) {
@@ -41,7 +41,7 @@ module.exports = {
    * @param {SpecificData} specificData
    * @return {MapValuesResult}
    */
-  mapValues: function(source, specificData) {
+  mapValues: function (source, specificData) {
     if (source === undefined || source === null) {
       return { data: { error: 'no incoming data' } }
     } else if (Array.isArray(source)) {
@@ -51,7 +51,7 @@ module.exports = {
     }
   },
 
-  pull: function(data, flowData) {
+  pull: function (data, flowData) {
     return Promise.resolve(this.mapValues(flowData[0].data, data.specificData))
   }
 }

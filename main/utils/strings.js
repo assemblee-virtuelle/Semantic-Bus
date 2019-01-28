@@ -7,7 +7,7 @@ module.exports = {
  * @param {string | null | undefined} string
  * @return {boolean}
  */
-function isEmpty(string) {
+function isEmpty (string) {
   return string === undefined || string === null || string === ''
 }
 
@@ -15,6 +15,6 @@ function isEmpty(string) {
  * @param {string | null | undefined} string
  * @return {boolean}
  */
-function nonEmpty(string) {
+function nonEmpty (string) {
   return !isEmpty(string)
 }

@@ -1,19 +1,19 @@
-"use strict";
+'use strict'
 module.exports = {
   type: 'data.gouv geocoding',
   description: 'Interroger l\'API adresse.data.gouv.fr pour trouver une adresse avec la latitude et la longitude.',
   editor: 'data-gouv-geolocaliser-editor',
   graphIcon: 'Data_gouv_geocoding.png',
-  tags:[
+  tags: [
     'http://semantic-bus.org/data/tags/middleComponents',
     'http://semantic-bus.org/data/tags/middleGeocodeComponents'
   ],
   url: require('url'),
   http: require('http'),
-  RequestCount :0,
+  RequestCount: 0,
 
-  initComponent: function(entity) {
-    return entity;
+  initComponent: function (entity) {
+    return entity
   },
   // buildWaterFall: function(promisesTab) {
   //   return new Promise((resolve, reject) => {
@@ -35,99 +35,98 @@ module.exports = {
   //     }
   //   });
   // },
-  geoLocalise: function(rawSource, specificData) {
-    //console.log('adress.data.gouv geoLocalise',specificData.countryPath);
+  geoLocalise: function (rawSource, specificData) {
+    // console.log('adress.data.gouv geoLocalise',specificData.countryPath);
 
-    let source= rawSource;
-    if(!Array.isArray(rawSource)){
-      source=[source];
+    let source = rawSource
+    if (!Array.isArray(rawSource)) {
+      source = [source]
     }
 
     return new Promise((resolve, reject) => {
-
-      var goePromises = [];
-      var sourceKey = 0;
-      var interval = setInterval(function() {
+      var goePromises = []
+      var sourceKey = 0
+      var interval = setInterval(function () {
         if (sourceKey >= source.length) {
-          clearInterval(interval);
+          clearInterval(interval)
 
           Promise.all(goePromises).then(geoLocalisations => {
-            var result = [];
-            //console.log('geoLocalise | geoLocalisations result |', geoLocalisations);
+            var result = []
+            // console.log('geoLocalise | geoLocalisations result |', geoLocalisations);
             for (var geoLocalisationKey in geoLocalisations) {
-              //console.log(geoLocalisations[geoLocalisationKey]);
-              let record = source[geoLocalisationKey];
-              if (geoLocalisations[geoLocalisationKey].error == undefined && geoLocalisations[geoLocalisationKey].features!=undefined && geoLocalisations[geoLocalisationKey].features[0] != undefined) {
-                //console.log('geoLocalise | geoLocalisations line |',geoLocalisations[geoLocalisationKey]);
-                //console.log('geoLocalise | geoLocalisations key |', geoLocalisationKey);
-                record[specificData.latitudePath] = geoLocalisations[geoLocalisationKey].features[0].geometry.coordinates[1];
-                record[specificData.longitudePath] = geoLocalisations[geoLocalisationKey].features[0].geometry.coordinates[0];
+              // console.log(geoLocalisations[geoLocalisationKey]);
+              let record = source[geoLocalisationKey]
+              if (geoLocalisations[geoLocalisationKey].error == undefined && geoLocalisations[geoLocalisationKey].features != undefined && geoLocalisations[geoLocalisationKey].features[0] != undefined) {
+                // console.log('geoLocalise | geoLocalisations line |',geoLocalisations[geoLocalisationKey]);
+                // console.log('geoLocalise | geoLocalisations key |', geoLocalisationKey);
+                record[specificData.latitudePath] = geoLocalisations[geoLocalisationKey].features[0].geometry.coordinates[1]
+                record[specificData.longitudePath] = geoLocalisations[geoLocalisationKey].features[0].geometry.coordinates[0]
 
-                result.push(record);
+                result.push(record)
               } else {
-                //console.log();
-                record[specificData.latitudePath] = {error:geoLocalisations[geoLocalisationKey].error} ;
-                record[specificData.longitudePath] = {error:geoLocalisations[geoLocalisationKey].error} ;
-                result.push(record);
-                //console.log(geoLocalisations[geoLocalisationKey]);
+                // console.log();
+                record[specificData.latitudePath] = { error: geoLocalisations[geoLocalisationKey].error }
+                record[specificData.longitudePath] = { error: geoLocalisations[geoLocalisationKey].error }
+                result.push(record)
+                // console.log(geoLocalisations[geoLocalisationKey]);
               }
             }
 
-            if(!Array.isArray(rawSource)){
+            if (!Array.isArray(rawSource)) {
               // console.log(result);
-              result=result[0];
+              result = result[0]
             }
             resolve({
               data: result
-            });
-          });
+            })
+          })
         } else {
-          this.RequestCount++;
-          //console.log('RequestCount',this.RequestCount);
-          var record = source[sourceKey];
+          this.RequestCount++
+          // console.log('RequestCount',this.RequestCount);
+          var record = source[sourceKey]
 
-          if(record==undefined){
+          if (record == undefined) {
             resolve({
               error: 'undefined data'
-            });
-          }else{
+            })
+          } else {
             var address = {
               street: record[specificData.streetPath],
               town: record[specificData.townPath],
               postalCode: record[specificData.postalCodePath],
-              country: record[specificData.countryPath],
+              country: record[specificData.countryPath]
             }
 
-            var postalCodeString = address.postalCode + '';
+            var postalCodeString = address.postalCode + ''
             if (postalCodeString.length == 4) {
-              address.postalCode = '0' + postalCodeString;
+              address.postalCode = '0' + postalCodeString
             }
 
             var addressGouvFrFormated = ''
-            addressGouvFrFormated = addressGouvFrFormated + (address.street ? address.street + ' ' : '');
-            addressGouvFrFormated = addressGouvFrFormated + (address.town ? address.town + ' ' : '');
-            addressGouvFrFormated = addressGouvFrFormated + (address.postalCode ? address.postalCode + ' ' : '');
-            //TODO notify user the adresse is too long (200)
-            addressGouvFrFormated=addressGouvFrFormated.substr(0,199);
-            //addressGouvFrFormated = addressGouvFrFormated + (address.country ? address.country + ' ' : '');
+            addressGouvFrFormated = addressGouvFrFormated + (address.street ? address.street + ' ' : '')
+            addressGouvFrFormated = addressGouvFrFormated + (address.town ? address.town + ' ' : '')
+            addressGouvFrFormated = addressGouvFrFormated + (address.postalCode ? address.postalCode + ' ' : '')
+            // TODO notify user the adresse is too long (200)
+            addressGouvFrFormated = addressGouvFrFormated.substr(0, 199)
+            // addressGouvFrFormated = addressGouvFrFormated + (address.country ? address.country + ' ' : '');
             if (addressGouvFrFormated.length > 0) {
               goePromises.push(
                 new Promise((resolve, reject) => {
-                  //var apiKey = 'AIzaSyBAg94NXmqVLFeIWGBcQ4cweA7YXC3ndLI'
-                  //var apiKey = 'AIzaSyAGHo04gqJWKF8uVYhsWVRY_zo61YtemMQ'
-                  var urlString = 'http://api-adresse.data.gouv.fr/search/?q=';
-                  urlString = urlString + encodeURI(addressGouvFrFormated);
-                  //urlString = urlString + '&key='+apiKey;
+                  // var apiKey = 'AIzaSyBAg94NXmqVLFeIWGBcQ4cweA7YXC3ndLI'
+                  // var apiKey = 'AIzaSyAGHo04gqJWKF8uVYhsWVRY_zo61YtemMQ'
+                  var urlString = 'http://api-adresse.data.gouv.fr/search/?q='
+                  urlString = urlString + encodeURI(addressGouvFrFormated)
+                  // urlString = urlString + '&key='+apiKey;
 
-                  //console.log('geoLocalise | urlString |', urlString);
+                  // console.log('geoLocalise | urlString |', urlString);
 
-                  const parsedUrl = this.url.parse(urlString);
-                  //console.log('geoLocalise | parsedUrl |', parsedUrl);
-                  //console.log('REST Get JSON | makerequest | port',parsedUrl.port);
+                  const parsedUrl = this.url.parse(urlString)
+                  // console.log('geoLocalise | parsedUrl |', parsedUrl);
+                  // console.log('REST Get JSON | makerequest | port',parsedUrl.port);
                   //  console.log('REST Get JSON | makerequest | host',parsedUrl.hostname);
                   let keepAliveAgent = new this.http.Agent({
                     keepAlive: true
-                  });
+                  })
                   const requestOptions = {
                     hostname: parsedUrl.hostname,
                     path: parsedUrl.path,
@@ -138,11 +137,11 @@ module.exports = {
                   //          console.log(requestOptions);
                   // console.log('JUST before adresse.data.gouv request', specificData.countryPath);
                   try {
-                    //resolve({error:'dummy'})
+                    // resolve({error:'dummy'})
                     const request = this.http.request(requestOptions, response => {
-                        // console.log('JUST after adresse.data.gouv request', specificData.countryPath);
-                      const hasResponseFailed = response.statusCode >= 400;
-                      var responseBody = '';
+                      // console.log('JUST after adresse.data.gouv request', specificData.countryPath);
+                      const hasResponseFailed = response.statusCode >= 400
+                      var responseBody = ''
 
                       if (hasResponseFailed) {
                         // console.log({
@@ -150,73 +149,65 @@ module.exports = {
                         // });
                         resolve({
                           error: 'Request to ${response.url} failed with HTTP ${response.status}'
-                        });
+                        })
                       }
 
                       response.on('data', chunk => {
-                        //console.log(chunk.toString());
+                        // console.log(chunk.toString());
                         responseBody += chunk.toString()
-                      });
+                      })
 
                       // once all the data has been read, resolve the Promise
-                      response.on('end', function() {
+                      response.on('end', function () {
                         try {
-                          //console.log(responseBody);
-                          //console.log('try');
-                          resolve(JSON.parse(responseBody));
-                          //console.log('ok',sourceKey);
+                          // console.log(responseBody);
+                          // console.log('try');
+                          resolve(JSON.parse(responseBody))
+                          // console.log('ok',sourceKey);
                         } catch (e) {
-                          //console.log('parse fail');
+                          // console.log('parse fail');
                           resolve({
                             error: e
-                          });
-                          //throw e;
+                          })
+                          // throw e;
                         }
-                      }.bind(this));
+                      })
+                    })
 
-                    });
-
-
-
-
-                    request.on('error', function(e) {
-                      //console.log('request fail :', e);
+                    request.on('error', function (e) {
+                      // console.log('request fail :', e);
                       resolve({
                         error: e
-                      });
-                    });
-                    //console.log('start');
-                    request.end();
+                      })
+                    })
+                    // console.log('start');
+                    request.end()
                   } catch (e) {
-                    //console.log('global socket adress.data.gouv fail', e);
+                    // console.log('global socket adress.data.gouv fail', e);
                     resolve({
                       error: e
-                    });
+                    })
                   }
                 })
-              );
+              )
             } else {
               goePromises.push(
                 new Promise((resolve, reject) => {
                   resolve({
                     error: 'no adresse'
-                  });
+                  })
                 })
-              );
+              )
             }
           }
 
-
-
-          sourceKey++;
+          sourceKey++
         }
-
-      }.bind(this), 200);
-
+      }.bind(this), 200)
     })
   },
-  pull: function(data, flowData) {
-    //console.log('Object Transformer | pull : ',data,' | ',flowData[0].length);
-    return this.geoLocalise(flowData[0].data, data.specificData);
+  pull: function (data, flowData) {
+    // console.log('Object Transformer | pull : ',data,' | ',flowData[0].length);
+    return this.geoLocalise(flowData[0].data, data.specificData)
   }
 }

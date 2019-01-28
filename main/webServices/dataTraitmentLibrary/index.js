@@ -1,11 +1,11 @@
-'use strict';
-//console.log("Datatraitment module initialize")
-var type = require('./generique/get_file_type.js');
+'use strict'
+// console.log("Datatraitment module initialize")
+var type = require('./generique/get_file_type.js')
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 module.exports = {
-  type:type
-};
+  type: type
+}

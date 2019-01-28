@@ -1,4 +1,4 @@
-"use strict";
+'use strict'
 
 const csvToJson = require('csvtojson')
 const fetch = require('node-fetch')
@@ -30,9 +30,9 @@ module.exports = {
   fetchCSV: function (url) {
     return fetch(this.normalizeUrl(url))
       .then(response => {
-        const hasResponseFailed = response.status >= 400;
+        const hasResponseFailed = response.status >= 400
         if (hasResponseFailed) {
-          return Promise.reject(`Request to ${response.url} failed with HTTP ${response.status}`);
+          return Promise.reject(`Request to ${response.url} failed with HTTP ${response.status}`)
         } else {
           return response.text()
         }
@@ -69,9 +69,9 @@ module.exports = {
       csvToJson({ noheader: true })
         .fromString(rawCSV)
         .on('end_parsed', (jsonArr) => {
-          jsonArr.splice(0, offset);
+          jsonArr.splice(0, offset)
 
-          resolve({ data: jsonArr });
+          resolve({ data: jsonArr })
         })
         .on('error', error => reject({ data: error }))
     })
@@ -82,6 +82,6 @@ module.exports = {
    * @return {Promise<FramacalcResult>}
    */
   pull: function (data) {
-    return this.makeRequest(data.specificData.key, data.specificData.offset);
+    return this.makeRequest(data.specificData.key, data.specificData.offset)
   }
 }

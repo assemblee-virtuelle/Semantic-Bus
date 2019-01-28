@@ -9,7 +9,7 @@ module.exports = {
  * @param {Array<A> | null | undefined} array
  * @return {boolean}
  */
-function isEmpty(array) {
+function isEmpty (array) {
   return array === undefined || array === null || array.length === 0
 }
 
@@ -18,7 +18,7 @@ function isEmpty(array) {
  * @param {Array<A> | null | undefined} array
  * @return {boolean}
  */
-function nonEmpty(array) {
+function nonEmpty (array) {
   return !isEmpty(array)
 }
 
@@ -28,7 +28,7 @@ function nonEmpty(array) {
  * @param {function(A): Array<B>} op
  * @return {Array<B>}
  */
-function flatMap(array, op) {
+function flatMap (array, op) {
   if (nonEmpty(array)) {
     return array.map(op).reduce((acc, current) => [...acc, ...current], [])
   } else {

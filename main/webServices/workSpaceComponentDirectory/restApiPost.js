@@ -1,51 +1,45 @@
-"use strict";
-module.exports = new function() {
-    this.type = 'Post provider';
-    this.description = `Déclencher un flux de donnée sur une API http POST.`;
-    this.editor = 'rest-api-post-editor';
-    this.graphIcon = 'Post_provider.png';
-    this.tags = [
-      'http://semantic-bus.org/data/tags/inComponents',
-      'http://semantic-bus.org/data/tags/APIComponents'
-    ],
-    this.stepNode = false;
-    this.workspace_component_lib = require('../../../core/lib/workspace_component_lib');
-    this.data2xml = require('data2xml');
-    this.dataTraitment = require("../dataTraitmentLibrary/index.js");
-    this.json2yaml = require('json2yaml');
+'use strict'
+module.exports = new function () {
+  this.type = 'Post provider'
+  this.description = `Déclencher un flux de donnée sur une API http POST.`
+  this.editor = 'rest-api-post-editor'
+  this.graphIcon = 'Post_provider.png'
+  this.tags = [
+    'http://semantic-bus.org/data/tags/inComponents',
+    'http://semantic-bus.org/data/tags/APIComponents'
+  ],
+  this.stepNode = false
+  this.workspace_component_lib = require('../../../core/lib/workspace_component_lib')
+  this.data2xml = require('data2xml')
+  this.dataTraitment = require('../dataTraitmentLibrary/index.js')
+  this.json2yaml = require('json2yaml')
 
+  this.initialise = function (router, stompClient) {
+    router.post('/:urlRequiered', function (req, res, next) {
+      // console.log("IN POST", req.body);
+      var urlRequiered = req.params.urlRequiered
+      // this require is live because constructor require cause cyclic dependencies (recursivPullResolvePromise->restApiGet)
+      // TODO require use cache object  : need to build one engine per request
+      this.recursivPullResolvePromiseDynamic = require('../engine')
+      var specificData
 
-
-    this.initialise = function(router,stompClient) {
-      router.post('/:urlRequiered', function(req, res, next) {
-        //console.log("IN POST", req.body);
-        var urlRequiered = req.params.urlRequiered;
-        //this require is live because constructor require cause cyclic dependencies (recursivPullResolvePromise->restApiGet)
-        //TODO require use cache object  : need to build one engine per request
-        this.recursivPullResolvePromiseDynamic = require('../engine')
-        var specificData;
-
-        //console.log('urlRequiered', urlRequiered)
-        this.workspace_component_lib.get({
-          "specificData.url": urlRequiered
-        }).then(component => {
-
+      // console.log('urlRequiered', urlRequiered)
+      this.workspace_component_lib.get({
+        'specificData.url': urlRequiered
+      }).then(component => {
         //   if (component != undefined) {
 
-
-
-            // if (component.specificData.contentType == undefined) {
-            //   return new Promise((resolve, reject) => {
-            //     reject(new Error("API without content-type"));
-            //   })
-            // } else {
-            //console.log("in component", component)
-            specificData = component.specificData;
-            console.log(req.body);
-            return this.recursivPullResolvePromiseDynamic.execute(component, 'push',stompClient,undefined,{data:req.body})
-              //return this.recursivPullResolvePromise.resolveComponentPull(data[0], false,req.query);
-            // }
-
+        // if (component.specificData.contentType == undefined) {
+        //   return new Promise((resolve, reject) => {
+        //     reject(new Error("API without content-type"));
+        //   })
+        // } else {
+        // console.log("in component", component)
+        specificData = component.specificData
+        console.log(req.body)
+        return this.recursivPullResolvePromiseDynamic.execute(component, 'push', stompClient, undefined, { data: req.body })
+        // return this.recursivPullResolvePromise.resolveComponentPull(data[0], false,req.query);
+        // }
 
         //   } else {
         //     return new Promise((resolve, reject) => {
@@ -55,12 +49,12 @@ module.exports = new function() {
         //       })
         //     })
         //   }
-        }).then(dataToSend => {
-          // console.log('API data', specificData);
-          // console.log('ALLO');
-          // console.log('API component');
-          // console.log('ALLO2');
-          res.send({data: dataToSend.data});
+      }).then(dataToSend => {
+        // console.log('API data', specificData);
+        // console.log('ALLO');
+        // console.log('API component');
+        // console.log('ALLO2');
+        res.send({ data: dataToSend.data })
         //   if (specificData != undefined) { // exception in previous promise
         //     if (specificData.contentType.search('application/vnd.ms-excel') != -1) {
         //       res.setHeader('content-type', specificData.contentType);
@@ -91,24 +85,24 @@ module.exports = new function() {
         //       //res.send('type mime non géré')
         //     }
         //   }
-        }).catch(err => {
-          //console.log('FAIL', err);
-          if (err.code) {
-            res.status(err.code).send(err.message);
-          } else {
-            next(err)
-            //res.status(500).send("serveur error");
-          }
-        });
-      }.bind(this));
-    }
-
-    this.pull = function(data, flowData) {
-      //console.log('Flow Agregator | pull : ',data,' | ',flowData);
-      return new Promise((resolve, reject) => {
-          resolve({
-            data: null
-          })
+      }).catch(err => {
+        // console.log('FAIL', err);
+        if (err.code) {
+          res.status(err.code).send(err.message)
+        } else {
+          next(err)
+          // res.status(500).send("serveur error");
+        }
       })
-    }
-  };
+    }.bind(this))
+  }
+
+  this.pull = function (data, flowData) {
+    // console.log('Flow Agregator | pull : ',data,' | ',flowData);
+    return new Promise((resolve, reject) => {
+      resolve({
+        data: null
+      })
+    })
+  }
+}()
