@@ -28,7 +28,7 @@ module.exports = function(router, amqpClient) {
 
   // --------------------------------------------------------------------------------
 
-  router.put('/workspaceComponent/', function(req, res, next) {
+  router.put('/workspaceComponent', function(req, res, next) {
       workspace_component_lib.update(req.body).then((componentUpdated) => {
         res.json(componentUpdated)
       }).catch(e => {
