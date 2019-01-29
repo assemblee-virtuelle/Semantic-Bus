@@ -6,7 +6,6 @@ module.exports = function(router, unSafeRouteur) {
 
   router.get('/technicalComponent/', function(req, res) {
     var directory = [];
-    //console.log(technicalComponentDirectory)
     for (var technicalComponent in technicalComponentDirectory) {
       if (technicalComponent != 'initialise') {
         directory.push({
@@ -17,22 +16,7 @@ module.exports = function(router, unSafeRouteur) {
         });
       }
     }
-    //console.log(directory);
     res.json(directory);
-
-    /*var source = "https://api.mlab.com/api/1/databases/semantic_bus/collections/technicalComponent/?apiKey=ue_eHVRDWSW0r2YZuTLCi1BxVB_zXnOI";
-    var bodyChunks;
-    var mlabReq = https.get(source, function(httpsReturn) {
-      httpsReturn.on('data', (chunk) => {
-        //console.log(chunk);
-        bodyChunks = JSON.parse(chunk);
-
-      });
-      httpsReturn.on('end', function() {
-        res.json(bodyChunks);
-      });
-    });
-    mlabReq.end();*/
   });
 
   router.put('/technicalComponent/', function(req, res) {
@@ -72,12 +56,10 @@ module.exports = function(router, unSafeRouteur) {
     }
     var mlabReq = https.request(options, function(httpsReturn) {
       httpsReturn.on('data', (chunk) => {
-        //console.log(chunk);
         bodyChunks = JSON.parse(chunk);
 
       });
       httpsReturn.on('end', function() {
-        //console.log('mlab return', bodyChunks);
         res.json(bodyChunks);
       });
     });

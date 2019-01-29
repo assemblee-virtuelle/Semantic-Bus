@@ -20,6 +20,7 @@ class CacheNosql {
     router.get('/getCache/:compId', function(req, res,next) {
       var compId = req.params.compId;
       //console.log(compId);
+
       this.workspace_component_lib.get({
         _id: compId
       }).then(component => {

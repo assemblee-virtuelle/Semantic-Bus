@@ -5,7 +5,6 @@ module.exports = {
   editor: 'mongo-connecteur-editor',
   mongoose: require('mongoose'),
   MongoClient: require('mongodb').MongoClient,
-  //mLabPromise: require('../mLabPromise'),
   graphIcon: 'Mongo.png',
   dotProp: require('dot-prop'),
   tags: [
