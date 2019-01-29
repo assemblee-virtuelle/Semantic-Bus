@@ -3,7 +3,6 @@ module.exports = {
   type: 'Cache NoSQL',
   description: 'Sauvegarder un flux et le réutiliser sans avoir besoin de requêter la source.',
   editor: 'cache-nosql-editor',
-  mLabPromise: require('../mLabPromise'),
   graphIcon: 'Cache_nosql.png',
   tags: [
     'http://semantic-bus.org/data/tags/persistComponents',

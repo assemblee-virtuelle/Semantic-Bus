@@ -9,7 +9,8 @@ function ProfilStore() {
   }
 
   this.on('load_profil', function (message) {
-    if (this.userCurrrent == undefined) {
+    console.log("LOAD PROFIL")
+    // if (this.userCurrrent == undefined) {
       $.ajax({
         method: 'get',
         url: '../data/core/users/' + localStorage.user_id,
@@ -19,11 +20,11 @@ function ProfilStore() {
         contentType: 'application/json'
       }).done(function (data) {
         this.setUserCurrent(data);
-
+        console.log("LOAD PROFIL", data)
       }.bind(this));
-    } else {
-      this.setUserCurrent(this.userCurrrent);
-    }
+    // } else {
+    //   this.setUserCurrent(this.userCurrrent);
+    // }
     this.trigger('profil_menu_changed', this.menu);
   })
 
@@ -103,6 +104,7 @@ function ProfilStore() {
         this.trigger('bad_format_society')
       }
       if (data.err == null) {
+        this.trigger('ajax_sucess', `Votre profil à été mis à jour`)
         this.trigger('update_profil_done', data)
       }
     }.bind(this));

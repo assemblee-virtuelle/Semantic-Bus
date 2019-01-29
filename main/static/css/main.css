@@ -3,6 +3,19 @@ a {
   color: white;
 }
 
+.button-profil {
+    border-radius: 3px;
+    padding-right: 40px;
+    padding-left: 40px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-color: rgb(26, 145, 194);
+    color: white;
+    font-size: 20px;
+    text-align: center;
+    cursor:pointer;
+}
+
 a:active {
   text-decoration: none;
   color: white;

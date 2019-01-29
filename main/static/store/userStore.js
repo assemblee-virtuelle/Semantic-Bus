@@ -184,15 +184,11 @@ var UserStore = function() {
       contentType: 'application/json',
       url: '/auth/inscription',
       beforeSend: function () {
-        //console.log("before send")
         this.trigger('ajax_send_login');
       }.bind(this),
     }).done(data => {
-      console.log(data.err);
-      console.log('XXXXXXXXXXXXXx',data);
       if (data != null && data.token != null) {
         localStorage.token = data.token
-        // window.open("../ihm/application.html", "_self");
         this.trigger('application_redirect')
         this.sleep(2000).then(function () {
           this.trigger('ajax_receipt_login', "/inscription");
@@ -203,7 +199,6 @@ var UserStore = function() {
           this.trigger('ajax_receipt_login', "/inscription");
         }.bind(this))
       }else if (data.err == "user_exist"){
-        console.log("IN IF USER EXIST")
         this.trigger('email_already_exist')
         this.sleep(2000).then(function () {
           this.trigger('ajax_receipt_login', "/inscription");

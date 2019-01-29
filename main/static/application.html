@@ -79,7 +79,6 @@
   <script type="riot/tag" src="tag/graph_of_use_workspace.tag"></script>
   <script type="riot/tag" src="tag/jsonPreviewer.tag"></script>
   <script type="riot/tag" src="tag/jsonPreviewer-header.tag"></script>
-  <script type="riot/tag" src="tag/transactions-list.tag"></script>
   <script type="riot/tag" src="tag/process-list.tag"></script>
   <script type="riot/tag" src="tag/no-editor.tag"></script>
   <script type="riot/tag" src="tag/scrapper-editor.tag"></script>
@@ -118,29 +117,35 @@
       method: 'get',
       url: '/configuration/frontend-configuration',
     }).done(configuration => {
+      console.log(configuration)
       if (configuration.https == "force") {
         if (window.location.href.substr(0, 5) != "https") {
           window.location.replace("https" + window.location.href.substr(4, window.location.href.split("").length - 1))
         }
       }
-      if(configuration.privateScript) {
+      if (configuration.privateScript) {
         configuration.privateScript.forEach((src)=>{
-          const x = document.createElement("script");
-          /.[tag]+$/.test(src)? x.type = "riot/tag" : x.type = "text/javascript";
-          x.src = src
-          document.body.appendChild(x);
+          console.log(src)
+          let a = document.createElement("script");
+          /.[tag]+$/.test(src)? a.type = "riot/tag" : a.type = "text/javascript";
+          a.src = src
+          document.body.appendChild(a);
         })
-      } else {
+      }  else {
         const x = document.createElement("script");
         x.type = "riot/tag";
         x.src = "tag/stripe-component.tag"
         document.body.appendChild(x);
+
+        const y = document.createElement("script");
+        y.type = "riot/tag";
+        y.src = "tag/transactions-list.tag"
+        document.body.appendChild(y);
       }
 
       var onConnect = (client) => {
         // no more r&d for private incrementation because 
         // react refonte will change all this mechanisme
-
         if(configuration.privateScript) {
           let stripeStore = new StripeStore();
           RiotControl.addStore(stripeStore);
@@ -194,6 +199,8 @@
         riot.compile(function() {
           riot.mount('*');
         });
+
+        console.log("compile done")
       };
 
       const login = 'guest';
