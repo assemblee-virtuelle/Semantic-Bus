@@ -45,12 +45,12 @@ RUN npm -v
 # Bundle app source
 
 
-ADD ./main /data/main/
+ADD ./timer /data/timer/
 ADD ./core /data/core/
 
 RUN cd /data/core && ls && npm cache clean --force &&  npm install
 
-RUN cd /data/main && ls && npm install
+RUN cd /data/timer && ls && npm cache clean --force && npm install
 
 EXPOSE 9001
 

@@ -26,6 +26,7 @@ http.globalAgent.maxSockets = 1000000000;
 httpGet.makeRequest('GET', {
   url
 }).then(result => {
+
   const configJson = result.data;
   const content = 'module.exports = ' + JSON.stringify(result.data);
 
@@ -33,7 +34,7 @@ httpGet.makeRequest('GET', {
     if (err) {
       throw err;
     } else {
-      
+
       const jwtService = require('./webServices/jwtService')
 
       safe.use(function(req, res, next) {
@@ -41,6 +42,7 @@ httpGet.makeRequest('GET', {
       })
       app.disable('etag'); //add this in RP ( traeffik )
       unSafeRouteur.use(cors());
+
       amqp.connect(configJson.socketServer + '/' + configJson.amqpHost, function(err, conn) {
         console.log('AMQP status : ', conn ? "connected" : "no connected", err ? err : "no error");
         conn.createChannel(function(err, ch) {

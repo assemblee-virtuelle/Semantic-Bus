@@ -9,7 +9,6 @@ function ProfilStore() {
   }
 
   this.on('load_profil', function (message) {
-    console.log("LOAD PROFIL")
     // if (this.userCurrrent == undefined) {
       $.ajax({
         method: 'get',

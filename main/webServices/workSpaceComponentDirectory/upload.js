@@ -1,24 +1,24 @@
 "use strict";
+class Upload {
+  constructor() {
+    this.type= 'Upload';
+    this.description= 'Importer un fichier.';
+    this.workspace_component_lib= require('../../../core/lib/workspace_component_lib');
+    this.editor= 'upload-editor';
+    this.graphIcon= 'Upload.png';
+    this.tags= [
+      'http://semantic-bus.org/data/tags/inComponents',
+      'http://semantic-bus.org/data/tags/fileComponents'
+    ];
+    this.busboy= require('busboy');
+    this.dataTraitment= require("../dataTraitmentLibrary/index.js");
+    this.propertyNormalizer = require("../sharedLibrary/propertyNormalizer.js");
+    this.readable= require('stream').Readable;
+    this.configuration= require('../../configuration.js');
+    this.stepNode= false;
+  }
 
-module.exports = {
-  type: 'Upload',
-  description: 'Importer un fichier.',
-  workspace_component_lib: require('../../../core/lib/workspace_component_lib'),
-  editor: 'upload-editor',
-  graphIcon: 'Upload.png',
-  tags: [
-    'http://semantic-bus.org/data/tags/inComponents',
-    'http://semantic-bus.org/data/tags/fileComponents'
-  ],
-  busboy: require('busboy'),
-  dataTraitment: require("../dataTraitmentLibrary/index.js"),
-  propertyNormalizer : require("../sharedLibrary/propertyNormalizer.js"),
-  readable: require('stream').Readable,
-  configuration: require('../../configuration.js'),
-  stepNode: false,
-
-  initialise: function(router, stompClient) {
-    //this.stompClient=stompClient;
+  initialise(router, stompClient) {
     router.post('/upload/:compId', (req, res, next) => {
 
       var compId = req.params.compId;
@@ -145,13 +145,13 @@ module.exports = {
       })
       // })
     })
-  },
+  }
 
-
-
-  pull: function(data, flowData) {
+  pull(data, flowData) {
     return new Promise((resolve, reject) => {
       resolve({});
     })
   }
 }
+
+module.exports = new Upload();
