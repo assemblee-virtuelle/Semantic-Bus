@@ -11,7 +11,7 @@ const bodyParser = require("body-parser");
 const env = process.env;
 const httpGet = require('./webServices/workSpaceComponentDirectory/restGetJson.js');
 const fs = require('fs');
-const url = env.CONFIG_URL || 'https://data-players.github.io/StrongBox/public/dev-local-mac.json';
+const url = env.CONFIG_URL || 'https://data-players.github.io/StrongBox/public/dev-docker.json';
 
 app.use(cors());
 app.use(bodyParser.json({
@@ -33,7 +33,7 @@ httpGet.makeRequest('GET', {
     if (err) {
       throw err;
     } else {
-
+      
       const jwtService = require('./webServices/jwtService')
 
       safe.use(function(req, res, next) {
@@ -41,7 +41,6 @@ httpGet.makeRequest('GET', {
       })
       app.disable('etag'); //add this in RP ( traeffik )
       unSafeRouteur.use(cors());
-
       amqp.connect(configJson.socketServer + '/' + configJson.amqpHost, function(err, conn) {
         console.log('AMQP status : ', conn ? "connected" : "no connected", err ? err : "no error");
         conn.createChannel(function(err, ch) {
