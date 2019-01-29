@@ -1,32 +1,31 @@
 "use strict";
-module.exports = {
-  type: 'Transform',
-  description: 'Transformer un objet par mapping grâce à un objet transformation.',
-  editor: 'object-transformer',
-  graphIcon: 'Transform.png',
-  //transform: require('jsonpath-object-transform'),
-  objectTransformation: require('../sharedLibrary/objectTransformation.js'),
-  tags: [
-    'http://semantic-bus.org/data/tags/middleComponents',
-    'http://semantic-bus.org/data/tags/middleQueryingComponents'
-  ],
+class ObjectTransformer{
+  constructor(){
+    this.type= 'Transform';
+    this.description= 'Transformer un objet par mapping grâce à un objet transformation.';
+    this.editor= 'object-transformer';
+    this.graphIcon= 'Transform.png';
+    this.objectTransformation= require('../sharedLibrary/objectTransformation.js');
+    this.tags= [
+      'http://semantic-bus.org/data/tags/middleComponents',
+      'http://semantic-bus.org/data/tags/middleQueryingComponents'
+    ];
+  }
 
-
-  initComponent: function(entity) {
+  initComponent(entity) {
     //console.log('Object Transformer | initComponent : ',entity);
 
     if (entity.specificData.transformObject == undefined) {
       entity.specificData.transformObject = {};
     }
     return entity;
-  },
-  jsonTransform: function(source, jsonTransformPattern,pullParams) {
-    return this.objectTransformation.executeWithParams(source,pullParams, jsonTransformPattern);
-  },
-  pull: function(data, flowData,pullParams) {
-    //console.log('Object Transformer | pull : ',data,' | ',flowData[0].data);
-    //console.log('XXXXXXXXXXXXXXXXXXXX',encodeURI(data.specificData.transformObject.desc));
+  }
 
+  jsonTransform(source, jsonTransformPattern,pullParams) {
+    return this.objectTransformation.executeWithParams(source,pullParams, jsonTransformPattern);
+  }
+
+  pull(data, flowData,pullParams) {
     return new Promise((resolve, reject) => {
       if (flowData != undefined) {
         resolve({
@@ -40,3 +39,4 @@ module.exports = {
     })
   }
 }
+module.exports= new ObjectTransformer();

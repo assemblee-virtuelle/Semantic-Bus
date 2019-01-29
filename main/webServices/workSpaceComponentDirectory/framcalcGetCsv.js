@@ -1,34 +1,35 @@
 "use strict";
 
-const csvToJson = require('csvtojson')
-const fetch = require('node-fetch')
-
-module.exports = {
-  type: 'Framacalc',
-  description: 'Interroger une feuille de calcul Framacalc/Ethercalc qui fournit un flux CSV.',
-  editor: 'framacalc-get-csv-editor',
-  graphIcon: 'Framacalc.png',
-  tags: [
-    'http://semantic-bus.org/data/tags/inComponents',
-    'http://semantic-bus.org/data/tags/APIComponents'
-  ],
+class FramcalcGetCsv{
+  constructor(){
+    this.type= 'Framacalc';
+    this.description= 'Interroger une feuille de calcul Framacalc/Ethercalc qui fournit un flux CSV.';
+    this.editor= 'framacalc-get-csv-editor';
+    this.graphIcon= 'Framacalc.png';
+    this.tags= [
+      'http://semantic-bus.org/data/tags/inComponents',
+      'http://semantic-bus.org/data/tags/APIComponents'
+    ];
+    this.csvToJson = require('csvtojson');
+    this.fetch = require('node-fetch');
+  }
 
   /**
    * @param {string} url
    * @param {number} offset
    * @return {Promise}
    */
-  makeRequest: function (url, offset) {
+  makeRequest(url, offset) {
     return this.fetchCSV(url)
       .then(rawCSV => this.processCSV(rawCSV, offset))
-  },
+  }
 
   /**
    * @param {string} url
    * @return {Promise<string>}
    */
-  fetchCSV: function (url) {
-    return fetch(this.normalizeUrl(url))
+  fetchCSV(url) {
+    return this.fetch(this.normalizeUrl(url))
       .then(response => {
         const hasResponseFailed = response.status >= 400;
         if (hasResponseFailed) {
@@ -37,13 +38,13 @@ module.exports = {
           return response.text()
         }
       })
-  },
+  }
 
   /**
    * @param {string} url
    * @return {string}
    */
-  normalizeUrl: function (url) {
+  normalizeUrl(url) {
     if (url.startsWith('http')) {
       if (url.endsWith('.csv')) {
         return url
@@ -57,16 +58,16 @@ module.exports = {
         return `https://framacalc.org/${url}.csv`
       }
     }
-  },
+  }
 
   /**
    * @param {string} rawCSV
    * @param {number} offset
    * @return {Promise<FramacalcResult>}
    */
-  processCSV: function (rawCSV, offset) {
+  processCSV(rawCSV, offset) {
     return new Promise((resolve, reject) => {
-      csvToJson({ noheader: true })
+      this.csvToJson({ noheader: true })
         .fromString(rawCSV)
         .on('end_parsed', (jsonArr) => {
           jsonArr.splice(0, offset);
@@ -75,13 +76,15 @@ module.exports = {
         })
         .on('error', error => reject({ data: error }))
     })
-  },
+  }
 
   /**
    * @param {FramacalcData} data
    * @return {Promise<FramacalcResult>}
    */
-  pull: function (data) {
+  pull(data) {
     return this.makeRequest(data.specificData.key, data.specificData.offset);
   }
 }
+
+module.exports= new FramcalcGetCsv();

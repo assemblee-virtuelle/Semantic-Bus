@@ -1,18 +1,20 @@
 "use strict";
-module.exports = {
-  type: 'Timer',
-  description: 'Déclencher un traitement à intervalle régulier par minute.',
-  editor: 'timer-editor',
-  graphIcon:'Timer.png',
-  // workspace_component_lib : require('../../core/lib/workspace_component_lib'),
-  // cache_lib : require('../../core/lib/cache_lib'),
-  stepNode: false,
-  tags:[
-    'http://semantic-bus.org/data/tags/middleComponents',
-    'http://semantic-bus.org/data/tags/middleUtilitiesComponents'
-  ],
+class Timer {
+  constructor() {
+    this.type= 'Timer';
+    this.description= 'Déclencher un traitement à intervalle régulier par minute.';
+    this.editor= 'timer-editor';
+    this.graphIcon='Timer.png';
+    // workspace_component_lib : require('../../core/lib/workspace_component_lib');
+    // cache_lib : require('../../core/lib/cache_lib');
+    this.stepNode= false;
+    this.tags=[
+      'http://semantic-bus.org/data/tags/middleComponents',
+      'http://semantic-bus.org/data/tags/middleUtilitiesComponents'
+    ];
+  }
 
-  pull: function(data, flowData, undefined) {
+  pull(data, flowData, undefined) {
     //console.log('--------- cash data START --------  : ');
     return new Promise((resolve, reject) => {
       if (flowData!=undefined && flowData[0].data != undefined) {
@@ -27,3 +29,5 @@ module.exports = {
     })
   }
 }
+
+module.exports= new Timer();

@@ -1,24 +1,27 @@
 "use strict";
-module.exports = {
-  type: 'Mongo',
-  description: 'Interroger une base de donnée Mongo.',
-  editor: 'mongo-connecteur-editor',
-  mongoose: require('mongoose'),
-  MongoClient: require('mongodb').MongoClient,
-  graphIcon: 'Mongo.png',
-  dotProp: require('dot-prop'),
-  tags: [
-    'http://semantic-bus.org/data/tags/inComponents',
-    'http://semantic-bus.org/data/tags/outComponents',
-    'http://semantic-bus.org/data/tags/BDDComponents'
-  ],
-  schema: null,
-  modelShema: null,
-  stepNode: true,
-  PromiseOrchestrator: require("../../../core/helpers/promiseOrchestrator.js"),
-  ArraySegmentator: require("../../../core/helpers/ArraySegmentator.js"),
+class MongoConnector {
+  constructor() {
+    this.type= 'Mongo';
+    this.description= 'Interroger une base de donnée Mongo.';
+    this.editor= 'mongo-connecteur-editor';
+    this.mongoose= require('mongoose');
+    this.MongoClient= require('mongodb').MongoClient;
+    //mLabPromise= require('../mLabPromise');
+    this.graphIcon= 'Mongo.png';
+    this.dotProp= require('dot-prop');
+    this.tags= [
+      'http://semantic-bus.org/data/tags/inComponents',
+      'http://semantic-bus.org/data/tags/outComponents',
+      'http://semantic-bus.org/data/tags/BDDComponents'
+    ];
+    this.schema= null;
+    this.modelShema= null;
+    this.stepNode= true;
+    this.PromiseOrchestrator= require("../../../core/helpers/promiseOrchestrator.js");
+    this.ArraySegmentator= require("../../../core/helpers/ArraySegmentator.js");
+  }
 
-  mongoInitialise: function(url) {
+  mongoInitialise(url) {
     //var MongoClient = require('mongodb').MongoClient;
     //var url = "mongodb://localhost:27017/mydb";
     return new Promise((resolve, reject) => {
@@ -38,8 +41,9 @@ module.exports = {
       }
 
     })
-  },
-  mongoRequest: function(client, querysTable, database, collectionName, queryParams) {
+  }
+
+  mongoRequest(client, querysTable, database, collectionName, queryParams) {
     return new Promise((resolve, reject) => {
       try {
         const db = client.db(database)
@@ -70,14 +74,15 @@ module.exports = {
         //client.close();
       }
     })
-  },
-  mongoClose: function(client) {
+  }
+
+  mongoClose(client) {
     return new Promise((resolve, reject) => {
       return client.close();
     })
-  },
+  }
 
-  initialise: function(url) {
+  initialise(url) {
     //console.log("----- create uri connexion -----")
     return new Promise(function(resolve, reject) {
       if (url) {
@@ -88,10 +93,9 @@ module.exports = {
         reject(fullError)
       }
     }.bind(this))
-  },
+  }
 
-
-  createmodel: function(modelName, data, url) {
+  createmodel(modelName, data, url) {
     //  console.log('createmodel');
     //console.log("----- create model mongoose -----")
     return new Promise(function(resolve, reject) {
@@ -117,9 +121,9 @@ module.exports = {
         }
       });
     }.bind(this))
-  },
+  }
 
-  request: function(querysTable, modelShema, queryParams) {
+  request(querysTable, modelShema, queryParams) {
     //console.log('REQUEST', queryParams);
     if (querysTable == null || querysTable.length == 0) {
       return modelShema.model
@@ -152,9 +156,9 @@ module.exports = {
         }
       }
     }
-  },
+  }
 
-  normalizeQuerysTable: function(querysTable, queryParams) {
+  normalizeQuerysTable(querysTable, queryParams) {
     let processingQuerysTable = querysTable
     const regex = /{(\£.*?)}/g;
     const elementsRaw = processingQuerysTable.match(regex);
@@ -168,9 +172,9 @@ module.exports = {
       //console.log(processingQuerysTable);
     }
     return processingQuerysTable;
-  },
+  }
 
-  insert: function(dataFlow, modelShema) {
+  insert(dataFlow, modelShema) {
     return modelShema.model
       .remove({})
       .exec()
@@ -183,8 +187,9 @@ module.exports = {
           beamNb: 10
         })
       })
-  },
-  mongoInsert: function(client, database, collectionName, dataFlow) {
+  }
+
+  mongoInsert(client, database, collectionName, dataFlow) {
     return new Promise((resolve, reject) => {
       try {
         const db = client.db(database)
@@ -209,18 +214,19 @@ module.exports = {
         //client.close();
       }
     })
-  },
-  mongoInsertPromise: function(collection, data) {
+  }
+
+  mongoInsertPromise(collection, data) {
     // console.log("mongoInsertPromise",collection,data.length);
     return collection.insertMany(data)
-  },
+  }
 
-  insertPromise: function(modelShema, data) {
+  insertPromise(modelShema, data) {
     return modelShema.model.insertMany(data).exec()
-  },
+  }
 
 
-  pull: function(data, dataFlow, queryParams) {
+  pull(data, dataFlow, queryParams) {
     if (dataFlow === undefined) {
       return new Promise(async (resolve, reject) => {
         const client = await this.mongoInitialise(data.specificData.url);
@@ -249,4 +255,6 @@ module.exports = {
       })
     }
   }
-};
+}
+
+module.exports = new MongoConnector();

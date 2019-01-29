@@ -1,6 +1,5 @@
 "use strict";
 
-
 class UnicityExecutor {
   constructor(flowData,specificData) {
     this.flowData=flowData;
@@ -98,44 +97,27 @@ class UnicityExecutor {
   }
 }
 
-module.exports = {
-  type: 'Unicity',
-  description: 'Structurer les données en vérifiant l\'unicité par champ et répartir les valeurs par source.',
-  editor: 'unicity-editor',
-  graphIcon: 'Unicity.png',
-  sift: require('sift'),
-  transform: require('jsonpath-object-transform'),
-  dotProp: require('dot-prop'),
-  tags: [
-    'http://semantic-bus.org/data/tags/middleComponents',
-    'http://semantic-bus.org/data/tags/middleComponentsAgregation'
-  ],
-  //
-  // nextStep: function(recordKey, flowData, resultFlow) {
-  //     let lastrecord=false;
-  //     while(lastrecord==false){
-  //       this.processRecord(recordKey, flowData, resultFlow).then((result)=>{
-  //         return()
-  //       })
-  //     }
-  //     if (recordKey >= flowData.length) {
-  //       this.processRecord(recordKey, flowData, resultFlow).then((result)=>{
-  //         return()
-  //       })
-  //     } else {
-  //       resolve(resultFlow);
-  //     }
-  //
-  // },
+class Unicity {
+  constructor() {
+    this.type= 'Unicity';
+    this.description= 'Structurer les données en vérifiant l\'unicité par champ et répartir les valeurs par source.';
+    this.editor= 'unicity-editor';
+    this.graphIcon= 'Unicity.png';
+    this.sift= require('sift');
+    this.transform= require('jsonpath-object-transform');
+    this.dotProp= require('dot-prop');
+    this.tags= [
+      'http://semantic-bus.org/data/tags/middleComponents',
+      'http://semantic-bus.org/data/tags/middleComponentsAgregation'
+    ];
+  }
 
-  pull: function(data, flowData) {
-    //console.log('Flow Agregator | pull : ',data,' | ',flowData);
+  pull(data, flowData) {
     return new Promise((resolve, reject) => {
       if (!Array.isArray(flowData[0].data)) {
         reject(new Error('input flow have to be an array'));
       } else {
         let unicityExecutor= new UnicityExecutor(flowData[0].data,data.specificData);
-        //console.log(unicityExecutor.execute);
         unicityExecutor.execute().then((result)=>{
           resolve({data:result});
         })

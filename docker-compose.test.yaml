@@ -1,6 +1,6 @@
 version: '3.0'
 services:
-                 
+
   semanticbus:
     build:
       context: .
@@ -10,9 +10,9 @@ services:
     environment:
         - APP_PORT=80
         - NODE_ENV=development_docker
-        - CONFIG_URL=https://data-players.github.io/StrongBox/public/dev-docker-mac.json
+        - CONFIG_URL=https://data-players.github.io/StrongBox/public/dev-docker.json
     networks:
-      - back  
+      - back
     ports:
       - "80:80"
     expose:
@@ -33,13 +33,13 @@ services:
       - 15674:15674
       - 15672:15672
     networks:
-      - back  
-      
+      - back
+
   mongodb:
     image: mongo
     restart: always
     networks:
-      - back  
+      - back
     ports:
       - "27017:27017"
     expose:
@@ -83,6 +83,6 @@ services:
 volumes:
   data:
 
-networks: 
-  back: 
-  selenium-grid: 
+networks:
+  back:
+  selenium-grid:

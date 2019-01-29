@@ -1,23 +1,24 @@
 "use strict";
-module.exports = {
-  type: 'File consumer',
-  description: 'Interroger un fichier mis à disposition sur une API REST avec une requete GET.',
-  editor: 'rest-get-editor',
-  graphIcon:'File_consumer.png',
-  tags:[
-    'http://semantic-bus.org/data/tags/inComponents',
-    'http://semantic-bus.org/data/tags/fileComponents'
-  ],
-  url: require('url'),
-  http: require('http'),
-  https: require('follow-redirects').https,
-  //https: require('https'),
-  dataTraitment: require("../dataTraitmentLibrary/index.js"),
-  propertyNormalizer : require("../sharedLibrary/propertyNormalizer.js"),
-  stringReplacer: require('../sharedLibrary/stringReplacer.js'),
+class HttpGet {
+  constructor() {
+    this.type= 'File consumer';
+    this.description= 'Interroger un fichier mis à disposition sur une API REST avec une requete GET.';
+    this.editor= 'rest-get-editor';
+    this.graphIcon='File_consumer.png';
+    this.tags=[
+      'http://semantic-bus.org/data/tags/inComponents',
+      'http://semantic-bus.org/data/tags/fileComponents'
+    ];
+    this.url= require('url');
+    this.http= require('http');
+    this.https= require('follow-redirects').https;
+    //https: require('https'),
+    this.dataTraitment= require("../dataTraitmentLibrary/index.js");
+    this.propertyNormalizer = require("../sharedLibrary/propertyNormalizer.js");
+    this.stringReplacer= require('../sharedLibrary/stringReplacer.js');
+  }
 
-
-  makeRequest: function (methodRest, urlString, contentType,pullParams) {
+  makeRequest(methodRest, urlString, contentType,pullParams) {
     var _self = this
     return new Promise((resolve, reject) => {
       urlString=this.stringReplacer.execute(urlString,pullParams,undefined);
@@ -78,10 +79,11 @@ module.exports = {
       });
       request.end();
     });
-  },
+  }
 
-  pull: function (data,flowdata,pullParams) {
+  pull(data,flowdata,pullParams) {
     //console.log('REST Get JSON | pull : ',data);
     return this.makeRequest('GET', data.specificData.url, data.specificData.contentType,pullParams);
   }
-};
+}
+module.exports = new HttpGet();
