@@ -116,7 +116,7 @@ function _create_preprocess(userParams) {
           if (!userParams.email) {
             reject("no_email_provided");
           }
-          ! _check_email(userParams.email) ? reject("bad_email"): resolve(userParams.email)
+          !_check_email(userParams.email) ? reject("bad_email"): resolve(userParams.email)
         });
         var job = new Promise(function(resolve, reject) {
           if (!userParams.job) {
