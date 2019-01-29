@@ -1125,7 +1125,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
     console.log('share-workspace |', data, localStorage.token);
     $.ajax({
       method: 'put',
-      url: '../data/core/share/workspace/',
+      url: '../data/core/share/workspace',
       data: JSON.stringify({
         email: this.emailToShare,
         worksapce_id: this.workspaceCurrent._id

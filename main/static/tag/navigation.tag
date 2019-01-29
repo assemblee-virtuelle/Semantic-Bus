@@ -24,10 +24,16 @@
       </h1>
     </div>
   </div>
-  <div id="containerErrorDiv" class="containerV">
-    <div class="containerH commandBar errorMessage" if={errorMessage} style="pointer-events:auto;">
+  <div id="containerErrorDiv" class="containerV" if={errorMessage}>
+    <div class="containerH commandBar errorMessage"  style="pointer-events:auto;">
       <div>{errorMessage}</div>
-      <div onclick={closeError} class="commandButtonImage"><img src="./image/Super-Mono-png/PNG/basic/red/button-cross.png" height="20px"></div>
+      <div onclick={closeError} style="margin-left: 50px; cursor:pointer"><img src="./image/cross.svg" height="20px"></div>
+    </div>
+  </div>
+  <div id="containerErrorDiv" class="containerV" if={sucessMessage} >
+    <div class="containerH commandBar successMessage" style="pointer-events:auto;">
+      <div>{sucessMessage}</div>
+      <div onclick={closeSuccess} style="margin-left: 50px; cursor:pointer"><img src="./image/cross.svg" height="20px"></div>
     </div>
   </div>
   <!-- PAGE Principal -->
@@ -153,6 +159,10 @@
       this.errorMessage = undefined;
     }
 
+    closeSuccess(e) {
+      this.sucessMessage = undefined;
+    }
+
     this.isScrennToShow = function (screenToTest) {
       // let out=false; console.log(this.routePath); if(this.screen!=undefined && this.screen.indexOf(screenToTest)!=-1){   out=true; }
       let entity = this.userAuthentified
@@ -174,7 +184,6 @@
       RiotControl.trigger('load_profil');
       this.userAuthentified = true;
       this.update();
-      //RiotControl.trigger('load_profil');
     }.bind(this));
 
     // RiotControl.on('profil_loaded', function (data) {   console.log('profil_loaded navigation');   this.showAdmin = data.admin;   this.update(); }.bind(this));
@@ -206,8 +215,12 @@
     // RiotControl.on('item_current_work_fail', function () {   this.workInProgress = false;   this.update(); }.bind(this));
 
     RiotControl.on('ajax_fail', function (message) {
-      console.log('navigation.tag | ajax_fail', message);
       this.errorMessage = message;
+      this.update();
+    }.bind(this));
+
+    RiotControl.on('ajax_sucess', function (message) {
+      this.sucessMessage = message;
       this.update();
     }.bind(this));
 
@@ -358,9 +371,23 @@
     }
 
     .errorMessage {
-      background-color: orange !important;
+      background-color: rgb(255,116,0) !important;
       color: white;
       z-index: 999;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .successMessage {
+          background-color: rgb(41,171,135) !important;
+          color: white;
+          z-index: 999;
+          height: 50px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
     }
     /* couleur de selection */
     .selectedMenu {

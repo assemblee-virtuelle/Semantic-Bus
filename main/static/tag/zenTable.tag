@@ -29,7 +29,7 @@
           <yield from="row"/>
         </div>
         <!-- zone bouton -->
-        <div class="containerV" style="flex-basis:120px;" draggable="false">
+        <div class="containerV" style="flex-basis:120px;" draggable="false"  if={!(opts.disallownavigation==true) || !(opts.disallowdelete==true)}>
           <div class="containerH" style="justify-content:space-around;padding-top:10px;align-items: center;">
             <!-- Bouton éditer -->
             <div onclick={navigationClick} if={!(opts.disallownavigation==true)} data-rowid={rowId} style="flex-basis:10px;">
@@ -273,6 +273,7 @@
       border-radius: 5px;
       border-top-width: 1px;
       border-left-width: 1px;
+      border-bottom-width: 1px;
       border-right-width: 1px;
       border-style: solid;
       border-color: #f2f3f5 rgb(213,218,224) rgb(213,218,224);

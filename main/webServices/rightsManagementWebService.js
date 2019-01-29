@@ -1,4 +1,3 @@
-const mLabPromise = require('./mLabPromise');
 var user_lib = require('../../core').user;
 var workspace_lib = require('../../core').workspace;
 var technicalComponentDirectory = require('./technicalComponentDirectory.js');
