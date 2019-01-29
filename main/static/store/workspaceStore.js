@@ -68,7 +68,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
             this.trigger('navigation_control_done', entity, action);
           }
         });
-        this.loadProcesses()
+        this.loadProcesses(id);
       }
     }
   });

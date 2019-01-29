@@ -1,19 +1,20 @@
 'use strict'
-module.exports = {
-  type: 'Scrapper',
-  description: 'Scrapper une page HTML.',
-  editor: 'scrapper-editor',
-  graphIcon: 'Scrapper.png',
-  tags: [
-    'http://semantic-bus.org/data/tags/inComponents',
-    'http://semantic-bus.org/data/tags/scrapperComponents'
-  ],
-  //phantom: require('phantom'),
-  sift: require('sift'),
-  webdriverio: require('webdriverio'),
-  base: require('../../wdio.conf.base'),
+class Scrapper {
+  constructor() {
+    this.type = 'Scrapper';
+    this.description = 'Scrapper une page HTML.';
+    this.editor = 'scrapper-editor';
+    this.graphIcon = 'Scrapper.png';
+    this.tags = [
+      'http://semantic-bus.org/data/tags/inComponents',
+      'http://semantic-bus.org/data/tags/scrapperComponents'
+    ];
+    this.sift = require('sift');
+    this.webdriverio = require('webdriverio');
+    this.base = require('../../wdio.conf.base');
+  }
 
-  getPriceState: function(specificData, moPrice, recordPrice) {
+  getPriceState(specificData, moPrice, recordPrice) {
     if (specificData.sauceLabToken != null) {
       return {
         moPrice: moPrice,
@@ -25,26 +26,9 @@ module.exports = {
         recordPrice: recordPrice
       };
     }
-  },
+  }
 
-  makeRequest: function(user, key, actions, url, saucelabname, flowData) {
-    //console.log("scrapper start", actions)
-
-
-    // var config = Object.assign(this.base.config, {
-    //     capabilities: [{
-    //         browserName: 'chrome',
-    //         platform: 'Windows 10',
-    //         version: 'latest'
-    //     }],
-    //     services: ['sauce'],
-    //     waitforTimeout:5000,
-    //     user: "semanticbusdev@gmail.com",
-    //     key: "882170ce-1971-4aa8-9b2d-0d7f89ec7b71",
-    // })
-
-
-
+  makeRequest(user, key, actions, url, saucelabname, flowData) {
     var client = this.webdriverio.remote(Object.assign(this.base.config, {
       desiredCapabilities: {
         browserName: 'chrome',
@@ -104,11 +88,11 @@ module.exports = {
     function simulateClick(action, client) {
       //console.log(" ------ simulateClick function ----", action)
       return new Promise(function(resolve, reject) {
-        client.element(action.selector).click().then(elem=>{
+        client.element(action.selector).click().then(elem => {
           //console.log('resolve',elem);
           //console.log('resolve');
           resolve('click done');
-        }).catch(e=>{
+        }).catch(e => {
           // console.log('reject',e);
           //console.log('reject');
           reject(e);
@@ -118,11 +102,7 @@ module.exports = {
     };
 
     function _getAttr(action, client) {
-      //console.log("in action", action)
-      //console.log("--- in get Attr -----")
       return new Promise(function(resolve, reject) {
-        //console.log("BEFOREEEEEE action", action)
-        //client.elements(action.selector).getAttribut(action.attribut).then(function (elem) {
         client.getAttribute(action.selector, action.attribut).then(function(elem) {
           if (!Array.isArray(elem)) {
             elem = [elem];
@@ -151,8 +131,6 @@ module.exports = {
       })
     }
 
-
-
     function _getText(action, client) {
       return new Promise(function(resolve, reject) {
         //console.log("--- in get text ----- ")
@@ -165,7 +143,6 @@ module.exports = {
         })
       })
     }
-
 
     function _selectByValue(action, client) {
       return new Promise(function(resolve, reject) {
@@ -234,7 +211,7 @@ module.exports = {
         //console.log(" ------  deeth  ------- ", deeth);
         //console.log('------   tour restant -------- ', (actions.length) - deeth);
         // console.log('action',actions[deeth].actionType);
-        let effectivSelector=actions[deeth].selector||'body';
+        let effectivSelector = actions[deeth].selector || 'body';
         client.waitForExist(effectivSelector, 60000)
           .then(function(visible) {
             let scrappingFunction;
@@ -279,14 +256,14 @@ module.exports = {
               error: err,
             };
             return new Promise((resolve, reject) => {
-              if(err.seleniumStack && err.seleniumStack.type == 'UnknownError'){
+              if (err.seleniumStack && err.seleniumStack.type == 'UnknownError') {
                 resolve(false);
-              } else{
+              } else {
                 resolve(true);
               }
             });
           }).then((continueDepth) => {
-            if(continueDepth){
+            if (continueDepth) {
               // console.log('----- DEPTH++');
               deeth++;
             }
@@ -300,8 +277,6 @@ module.exports = {
               resolve(data);
             }
           });
-
-
       })
     }
 
@@ -329,9 +304,10 @@ module.exports = {
         reject(err)
       })
     })
-  },
+  }
 
-  pull: function(data, flowData) {
+
+  pull(data, flowData) {
     //console.log("before scrapping start", data)
     let url = data.specificData.url;
 
@@ -341,5 +317,7 @@ module.exports = {
     let usableFlowData = flowData == undefined ? undefined : flowData[0].data;
     // console.log('scrapp url', url);
     return this.makeRequest(data.specificData.user, data.specificData.key, data.specificData.scrapperRef, url, data.specificData.saucelabname, usableFlowData)
-  },
+  }
 }
+
+module.exports = new Scrapper();

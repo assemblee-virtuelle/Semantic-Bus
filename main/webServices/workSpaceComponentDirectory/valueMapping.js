@@ -1,27 +1,30 @@
 "use strict"
 
-const arrays = require('../../utils/arrays')
-const strings = require('../../utils/strings')
 
-module.exports = {
-  type: 'Value mapping',
-  description: 'Remplacer les valeurs d\'une propriété par une autre.',
-  editor: 'value-mapping-editor',
-  graphIcon: 'Value_mapping.png',
-  tags: [
-    'http://semantic-bus.org/data/tags/middleComponents',
-    'http://semantic-bus.org/data/tags/middleQueryingComponents'
-  ],
+
+class ValueMapping {
+  constructor() {
+    this.type= 'Value mapping';
+    this.description= 'Remplacer les valeurs d\'une propriété par une autre.';
+    this.editor= 'value-mapping-editor';
+    this.graphIcon= 'Value_mapping.png';
+    this.tags= [
+      'http://semantic-bus.org/data/tags/middleComponents',
+      'http://semantic-bus.org/data/tags/middleQueryingComponents'
+    ];
+    this.arrays = require('../../utils/arrays');
+    this.strings = require('../../utils/strings');
+  }
 
   /**
    * @param {*} valueIn
    * @param {SpecificData} specificData
    * @return {Array<MapValueResult>}
    */
-  mapValue: function(valueIn, specificData) {
+  mapValue(valueIn, specificData) {
     const valueInString = valueIn.toString()
-    return arrays.flatMap(specificData.mappingTable, atomicMapping => {
-      if (valueInString.includes(atomicMapping.flowValue) && strings.nonEmpty(atomicMapping.replacementValue)) {
+    return this.arrays.flatMap(specificData.mappingTable, atomicMapping => {
+      if (valueInString.includes(atomicMapping.flowValue) && this.strings.nonEmpty(atomicMapping.replacementValue)) {
         if (specificData.forgetOriginalValue) {
           return [atomicMapping.replacementValue]
         } else {
@@ -34,24 +37,26 @@ module.exports = {
         return []
       }
     })
-  },
+  }
 
   /**
    * @param {*} source
    * @param {SpecificData} specificData
    * @return {MapValuesResult}
    */
-  mapValues: function(source, specificData) {
+  mapValues(source, specificData) {
     if (source === undefined || source === null) {
       return { data: { error: 'no incoming data' } }
     } else if (Array.isArray(source)) {
-      return { data: arrays.flatMap(source, valueIn => this.mapValue(valueIn, specificData)) }
+      return { data: this.arrays.flatMap(source, valueIn => this.mapValue(valueIn, specificData)) }
     } else {
       return { data: this.mapValue(source, specificData) }
     }
-  },
+  }
 
-  pull: function(data, flowData) {
+  pull(data, flowData) {
     return Promise.resolve(this.mapValues(flowData[0].data, data.specificData))
   }
 }
+
+module.exports= new ValueMapping();
