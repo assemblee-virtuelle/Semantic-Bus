@@ -55,10 +55,10 @@ module.exports = {
     return directory;
   },
 
-  initialise: function ( unSafeRouteur, app,stompClient) {
+  initialise: function (router, unSafeRouteur, stompClient) {
     this.restApiPost.initialise(unSafeRouteur,stompClient); //NO SECURE CHANGE ROUTER
-    this.restApiGet.initialise(unSafeRouteur,app,stompClient); //NO SECURE CHANGE ROUTER
+    this.restApiGet.initialise(unSafeRouteur,stompClient); //NO SECURE CHANGE ROUTER
     this.upload.initialise(unSafeRouteur,stompClient);
-    this.cacheNosql.initialise(unSafeRouteur); //NO SECURE CHANGE ROUTER
+    this.cacheNosql.initialise(router); //NO SECURE CHANGE ROUTER
   }
 }

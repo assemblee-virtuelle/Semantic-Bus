@@ -1,44 +1,25 @@
 "use strict";
-module.exports = {
-  type: 'Cache NoSQL',
-  description: 'Sauvegarder un flux et le réutiliser sans avoir besoin de requêter la source.',
-  editor: 'cache-nosql-editor',
-  mLabPromise: require('../mLabPromise'),
-  graphIcon: 'Cache_nosql.png',
-  tags: [
-    'http://semantic-bus.org/data/tags/persistComponents',
-    'http://semantic-bus.org/data/tags/persistCacheComponents'
-  ],
-  workspace_component_lib: require('../../../core/lib/workspace_component_lib'),
-  cache_lib: require('../../../core/lib/cache_lib'),
-  fragment_lib: require('../../../core/lib/fragment_lib'),
-  stepNode: true,
+class CacheNosql {
+  constructor() {
+    this.type = 'Cache NoSQL';
+    this.description = 'Sauvegarder un flux et le réutiliser sans avoir besoin de requêter la source.';
+    this.editor = 'cache-nosql-editor';
+    this.mLabPromise = require('../mLabPromise');
+    this.graphIcon = 'Cache_nosql.png';
+    this.tags = [
+      'http://semantic-bus.org/data/tags/persistComponents',
+      'http://semantic-bus.org/data/tags/persistCacheComponents'
+    ];
+    this.workspace_component_lib = require('../../../core/lib/workspace_component_lib');
+    this.cache_lib = require('../../../core/lib/cache_lib');
+    this.fragment_lib = require('../../../core/lib/fragment_lib');
+    this.stepNode = true;
+  }
 
-
-
-  initialise: function(router) {
-    //this.recursivPullResolvePromise = require('../engine'),;
-    //console.log('INIT',router);
-    // router.get('/reloadcache/:compId', function(req, res) {
-    //   var compId = req.params.compId;
-    //   //console.log(compId);
-    //   this.workspace_component_lib.get({
-    //     _id: compId
-    //   }).then(component => {
-    //     //console.log('Cache NoSql | reload |', component);
-    //     this.recursivPullResolvePromise.execute(component, 'work',stompClient).then(data => {
-    //       //console.log('CACHE LOADED');
-    //     });
-    //     res.json({
-    //       message: 'in progress'
-    //     });
-    //   });
-    // }.bind(this));
-
+  initialise(router) {
     router.get('/getCache/:compId', function(req, res,next) {
       var compId = req.params.compId;
       //console.log(compId);
-
       this.workspace_component_lib.get({
         _id: compId
       }).then(component => {
@@ -53,9 +34,9 @@ module.exports = {
         })
       });
     }.bind(this));
-  },
+  }
 
-  pull: function(data, flowData, queryParams) {
+  pull(data, flowData, queryParams) {
     //console.log("cache queryParams",queryParams);
     //console.log('--------- cash data START --------  : ', data);
     return new Promise((resolve, reject) => {
@@ -84,3 +65,5 @@ module.exports = {
     })
   }
 }
+
+module.exports = new CacheNosql();

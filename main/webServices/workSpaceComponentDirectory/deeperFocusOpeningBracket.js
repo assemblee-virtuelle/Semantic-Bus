@@ -1,16 +1,17 @@
 "use strict";
-module.exports = {
-  type: 'Deeper Focus',
-  description: 'Début de traitement d\'un niveau de profondeur du flux.',
-  editor:'deeper-focus-opening-bracket-editor',
-  graphIcon:'Deeper_focus.png',
-  tags:[
-    'http://semantic-bus.org/data/tags/middleComponents',
-    'http://semantic-bus.org/data/tags/middleUtilitiesComponents'
-  ],
+class DeeperFocusOpeningBracket {
+  constructor() {
+    this.type= 'Deeper Focus';
+    this.description= 'Début de traitement d\'un niveau de profondeur du flux.';
+    this.editor='deeper-focus-opening-bracket-editor';
+    this.graphIcon='Deeper_focus.png';
+    this.tags=[
+      'http://semantic-bus.org/data/tags/middleComponents',
+      'http://semantic-bus.org/data/tags/middleUtilitiesComponents'
+    ];
+  }
 
-
-  pull: function(data,flowData) {
+  pull(data,flowData) {
 
     return new Promise((resolve, reject) => {
       // console.log('dfob specific data',data.specificData);
@@ -24,3 +25,4 @@ module.exports = {
     })
   }
 }
+module.exports = new DeeperFocusOpeningBracket();

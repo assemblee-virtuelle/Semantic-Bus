@@ -1,63 +1,42 @@
 "use strict";
-module.exports = {
-  type: 'data.gouv geocoding',
-  description: 'Interroger l\'API adresse.data.gouv.fr pour trouver une adresse avec la latitude et la longitude.',
-  editor: 'data-gouv-geolocaliser-editor',
-  graphIcon: 'Data_gouv_geocoding.png',
-  tags:[
-    'http://semantic-bus.org/data/tags/middleComponents',
-    'http://semantic-bus.org/data/tags/middleGeocodeComponents'
-  ],
-  url: require('url'),
-  http: require('http'),
-  RequestCount :0,
+class GouvFrGeoLocaliser{
+  constructor(){
+    this.type = 'data.gouv geocoding';
+    this.description = 'Interroger l\'API adresse.data.gouv.fr pour trouver une adresse avec la latitude et la longitude.';
+    this.editor = 'data-gouv-geolocaliser-editor';
+    this.graphIcon = 'Data_gouv_geocoding.png';
+    this.tags = [
+      'http://semantic-bus.org/data/tags/middleComponents',
+      'http://semantic-bus.org/data/tags/middleGeocodeComponents'
+    ];
+    this.url = require('url');
+    this.http = require('http');
+    this.RequestCount = 0;
+  }
 
-  initComponent: function(entity) {
+  initComponent(entity) {
     return entity;
-  },
-  // buildWaterFall: function(promisesTab) {
-  //   return new Promise((resolve, reject) => {
-  //     var currentPromise = promisesTab[promisesTab.lenth - 1];
-  //     //console.log(promisesTab.lenth);
-  //     if (promisesTab.lenth > 1) {
-  //       var previousPromises = promisesTab.slice(0, promisesTab - 2);
-  //       buildWaterFall(previousPromises).then(previousData => {
-  //         /*currentPromise.then(currentData => {
-  //           previousData.push(currentData);
-  //           resolve(previousData);
-  //         })*/
-  //         resolve(previousData);
-  //       })
-  //     } else {
-  //       currentPromise.then(currentData => {
-  //         resolve([currentData]);
-  //       })
-  //     }
-  //   });
-  // },
-  geoLocalise: function(rawSource, specificData) {
-    //console.log('adress.data.gouv geoLocalise',specificData.countryPath);
+  }
 
-    let source= rawSource;
-    if(!Array.isArray(rawSource)){
-      source=[source];
+  geoLocalise(rawSource, specificData) {
+    let source = rawSource;
+    if (!Array.isArray(rawSource)) {
+      source = [source];
     }
 
     return new Promise((resolve, reject) => {
-
       var goePromises = [];
       var sourceKey = 0;
       var interval = setInterval(function() {
         if (sourceKey >= source.length) {
           clearInterval(interval);
-
           Promise.all(goePromises).then(geoLocalisations => {
             var result = [];
             //console.log('geoLocalise | geoLocalisations result |', geoLocalisations);
             for (var geoLocalisationKey in geoLocalisations) {
               //console.log(geoLocalisations[geoLocalisationKey]);
               let record = source[geoLocalisationKey];
-              if (geoLocalisations[geoLocalisationKey].error == undefined && geoLocalisations[geoLocalisationKey].features!=undefined && geoLocalisations[geoLocalisationKey].features[0] != undefined) {
+              if (geoLocalisations[geoLocalisationKey].error == undefined && geoLocalisations[geoLocalisationKey].features != undefined && geoLocalisations[geoLocalisationKey].features[0] != undefined) {
                 //console.log('geoLocalise | geoLocalisations line |',geoLocalisations[geoLocalisationKey]);
                 //console.log('geoLocalise | geoLocalisations key |', geoLocalisationKey);
                 record[specificData.latitudePath] = geoLocalisations[geoLocalisationKey].features[0].geometry.coordinates[1];
@@ -66,16 +45,20 @@ module.exports = {
                 result.push(record);
               } else {
                 //console.log();
-                record[specificData.latitudePath] = {error:geoLocalisations[geoLocalisationKey].error} ;
-                record[specificData.longitudePath] = {error:geoLocalisations[geoLocalisationKey].error} ;
+                record[specificData.latitudePath] = {
+                  error: geoLocalisations[geoLocalisationKey].error
+                };
+                record[specificData.longitudePath] = {
+                  error: geoLocalisations[geoLocalisationKey].error
+                };
                 result.push(record);
                 //console.log(geoLocalisations[geoLocalisationKey]);
               }
             }
 
-            if(!Array.isArray(rawSource)){
+            if (!Array.isArray(rawSource)) {
               // console.log(result);
-              result=result[0];
+              result = result[0];
             }
             resolve({
               data: result
@@ -85,12 +68,11 @@ module.exports = {
           this.RequestCount++;
           //console.log('RequestCount',this.RequestCount);
           var record = source[sourceKey];
-
-          if(record==undefined){
+          if (record == undefined) {
             resolve({
               error: 'undefined data'
             });
-          }else{
+          } else {
             var address = {
               street: record[specificData.streetPath],
               town: record[specificData.townPath],
@@ -108,7 +90,7 @@ module.exports = {
             addressGouvFrFormated = addressGouvFrFormated + (address.town ? address.town + ' ' : '');
             addressGouvFrFormated = addressGouvFrFormated + (address.postalCode ? address.postalCode + ' ' : '');
             //TODO notify user the adresse is too long (200)
-            addressGouvFrFormated=addressGouvFrFormated.substr(0,199);
+            addressGouvFrFormated = addressGouvFrFormated.substr(0, 199);
             //addressGouvFrFormated = addressGouvFrFormated + (address.country ? address.country + ' ' : '');
             if (addressGouvFrFormated.length > 0) {
               goePromises.push(
@@ -117,14 +99,7 @@ module.exports = {
                   //var apiKey = 'AIzaSyAGHo04gqJWKF8uVYhsWVRY_zo61YtemMQ'
                   var urlString = 'http://api-adresse.data.gouv.fr/search/?q=';
                   urlString = urlString + encodeURI(addressGouvFrFormated);
-                  //urlString = urlString + '&key='+apiKey;
-
-                  //console.log('geoLocalise | urlString |', urlString);
-
                   const parsedUrl = this.url.parse(urlString);
-                  //console.log('geoLocalise | parsedUrl |', parsedUrl);
-                  //console.log('REST Get JSON | makerequest | port',parsedUrl.port);
-                  //  console.log('REST Get JSON | makerequest | host',parsedUrl.hostname);
                   let keepAliveAgent = new this.http.Agent({
                     keepAlive: true
                   });
@@ -135,12 +110,10 @@ module.exports = {
                     method: 'GET',
                     agent: keepAliveAgent
                   }
-                  //          console.log(requestOptions);
-                  // console.log('JUST before adresse.data.gouv request', specificData.countryPath);
                   try {
                     //resolve({error:'dummy'})
                     const request = this.http.request(requestOptions, response => {
-                        // console.log('JUST after adresse.data.gouv request', specificData.countryPath);
+                      // console.log('JUST after adresse.data.gouv request', specificData.countryPath);
                       const hasResponseFailed = response.statusCode >= 400;
                       var responseBody = '';
 
@@ -175,10 +148,6 @@ module.exports = {
                       }.bind(this));
 
                     });
-
-
-
-
                     request.on('error', function(e) {
                       //console.log('request fail :', e);
                       resolve({
@@ -205,18 +174,18 @@ module.exports = {
               );
             }
           }
-
-
-
           sourceKey++;
         }
 
       }.bind(this), 200);
 
     })
-  },
-  pull: function(data, flowData) {
-    //console.log('Object Transformer | pull : ',data,' | ',flowData[0].length);
+  }
+
+  pull(data, flowData) {
     return this.geoLocalise(flowData[0].data, data.specificData);
   }
+
 }
+
+module.exports = new GouvFrGeoLocaliser();

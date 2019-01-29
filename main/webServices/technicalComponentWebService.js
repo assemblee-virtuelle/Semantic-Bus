@@ -7,10 +7,10 @@ const componentsCategoriesTree = require('./componentsCategoriesTree')
 // --------------------------------------------------------------------------------
 
 
-module.exports = (router, unsafeRouter, app,stompClient) => {
+module.exports = (router, unsafeRouter, stompClient) => {
   const technicalComponentDirectory = require('./technicalComponentDirectory');
-  technicalComponentDirectory.initialise(unsafeRouter, app, stompClient);
-  
+  technicalComponentDirectory.initialise(router,unsafeRouter, stompClient);
+
   router.get('/technicalComponent', function(req, res) {
     res.json(technicalComponentDirectory.buildDictionnaryArray());
   });

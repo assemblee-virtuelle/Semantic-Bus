@@ -1,25 +1,23 @@
 "use strict";
-module.exports = {
-  type: 'data.gouv reverse geocoding',
-  description: 'Interroger l\'API adresse.data.gouv.fr pour trouver la latitude et la longitude avec une adresse.',
-  editor: 'data-gouv-inverse-geolocaliser-editor',
-  graphIcon:'Data_gouv_reverse_geocoding.png',
-  tags:[
-    'http://semantic-bus.org/data/tags/middleComponents',
-    'http://semantic-bus.org/data/tags/middleGeocodeComponents'
-  ],
-  url: require('url'),
-  http: require('http'),
-  initComponent: function(entity) {
-    //console.log('Object Transformer | initComponent : ',entity);
+class GouvFrInverseGeo {
+  constructor() {
+    this.type = 'data.gouv reverse geocoding';
+    this.description = 'Interroger l\'API adresse.data.gouv.fr pour trouver la latitude et la longitude avec une adresse.';
+    this.editor = 'data-gouv-inverse-geolocaliser-editor';
+    this.graphIcon = 'Data_gouv_reverse_geocoding.png';
+    this.tags = [
+      'http://semantic-bus.org/data/tags/middleComponents',
+      'http://semantic-bus.org/data/tags/middleGeocodeComponents'
+    ];
+    this.url = require('url');
+    this.http = require('http');
+  }
 
-    /*if (entity.specificData.transformObject == undefined) {
-      entity.specificData.transformObject = {};
-    }*/
+  initComponent(entity) {
     return entity;
-  },
+  }
 
-  inverseGeoLocalise: function(source, specificData) {
+  inverseGeoLocalise(source, specificData) {
 
     return new Promise((resolve, reject) => {
 
@@ -34,32 +32,14 @@ module.exports = {
 
         goePromises.push(
           new Promise((resolve, reject) => {
-
-/*            var apiKey = 'AIzaSyBAg94NXmqVLFeIWGBcQ4cweA7YXC3ndLI'
-            //var apiKey = 'AIzaSyAGHo04gqJWKF8uVYhsWVRY_zo61YtemMQ'
-            var addressGoogleFormated = 'address='
-            addressGoogleFormated = addressGoogleFormated + (address.street ? address.street + ',+' : '');
-            addressGoogleFormated = addressGoogleFormated + (address.town ? address.town + ',+' : '');
-            addressGoogleFormated = addressGoogleFormated + (address.postalCode ? address.postalCode + ',+' : '');
-            addressGoogleFormated = addressGoogleFormated + (address.country ? address.country + ',+' : '');
-            var urlString = 'https://maps.googleapis.com/maps/api/geocode/json?';
-            urlString = urlString + addressGoogleFormated;
-            urlString = urlString + '&key='+apiKey;*/
-            urlString = 'http://api-adresse.data.gouv.fr/reverse/?lon='+geoLoc.lng+'&lat='+geoLoc.lat;
-
-            //console.log('geoLocalise | urlString |', urlString);
-
+            urlString = 'http://api-adresse.data.gouv.fr/reverse/?lon=' + geoLoc.lng + '&lat=' + geoLoc.lat;
             const parsedUrl = this.url.parse(urlString);
-            //console.log('gouvInverse | request |',urlString);
-            //console.log('REST Get JSON | makerequest | port',parsedUrl.port);
-            //  console.log('REST Get JSON | makerequest | host',parsedUrl.hostname);
             const requestOptions = {
-                hostname: parsedUrl.hostname,
-                path: parsedUrl.path,
-                port: parsedUrl.port,
-                method: 'GET'
-              }
-              //          console.log(requestOptions);
+              hostname: parsedUrl.hostname,
+              path: parsedUrl.path,
+              port: parsedUrl.port,
+              method: 'GET'
+            }
             const request = this.http.request(requestOptions, response => {
               const hasResponseFailed = response.status >= 400;
               //console.log('gouvInverse | headers |',response.headers)
@@ -68,24 +48,13 @@ module.exports = {
               if (hasResponseFailed) {
                 reject(`Request to ${response.url} failed with HTTP ${response.status}`);
               }
-
-              /* the response stream's (an instance of Stream) current data. See:
-               * https://nodejs.org/api/stream.html#stream_event_data */
               response.on('data', chunk => {
-                //console.log('gouvInverse | chunk |', chunk.toString());
                 responseBody += chunk.toString();
               });
-
-              // once all the data has been read, resolve the Promise
               response.on('end', () => {
-                //console.log('gouvInverse | response |',responseBody);
-                resolve(responseBody==""?undefined:JSON.parse(responseBody));
-                //resolve({});
+                resolve(responseBody == "" ? undefined : JSON.parse(responseBody));
               });
             });
-
-            /* if there's an error, then reject the Promise
-             * (can be handled with Promise.prototype.catch) */
             request.on('error', reject);
             request.end();
           })
@@ -93,26 +62,26 @@ module.exports = {
       }
 
       Promise.all(goePromises).then(geoLocalisations => {
-        //console.log('gouvInverse | ALL DONE');
-        var result= [];
-        //console.log('geoLocalise | geoLocalisations result |', geoLocalisations);
+        var result = [];
         for (var geoLocalisationKey in geoLocalisations) {
-          //console.log('geoLocalise | geoLocalisations line |',geoLocalisations[geoLocalisationKey],' | ',geoLocalisations[geoLocalisationKey].features[0].properties);
-          if (geoLocalisations[geoLocalisationKey]!= undefined) {
+          if (geoLocalisations[geoLocalisationKey] != undefined) {
             var record = source[geoLocalisationKey];
             record[specificData.CPPath] = geoLocalisations[geoLocalisationKey].features[0].properties.postcode;
             record[specificData.INSEEPath] = geoLocalisations[geoLocalisationKey].features[0].properties.citycode;
             result.push(record);
           }
         }
-        //console.log('gouvInverse | result |',result);
-        resolve({data:result});
+        resolve({
+          data: result
+        });
       });
-
     })
-  },
-  pull: function(data, flowData) {
-    //console.log('Object Transformer | pull : ',data,' | ',flowData[0].length);
+  }
+
+  pull(data, flowData) {
     return this.inverseGeoLocalise(flowData[0].data, data.specificData);
   }
+
 }
+
+module.exports = new GouvFrInverseGeo();
