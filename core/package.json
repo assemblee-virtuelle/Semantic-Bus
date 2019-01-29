@@ -21,7 +21,6 @@
     "error-stack-parser": "^2.0.1",
     "passport-jwt": "^4.0.0",
     "sift": "^5.1.0",
-    "sift-date": "0.0.1",
-    "stripe": "^5.4.0"
+    "sift-date": "0.0.1"
   }
 }

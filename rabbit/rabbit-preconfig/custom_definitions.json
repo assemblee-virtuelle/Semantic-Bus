@@ -1,0 +1,54 @@
+{
+  "rabbit_version": "3.7.5",
+  "users": [{
+    "name": "guest",
+    "password_hash": "OcNlGlJ0SE4SKwMPtIMXeq6Q9aqAOd9J65TW1PH+c8lVoF25",
+    "hashing_algorithm": "rabbit_password_hashing_sha256",
+    "tags": "administrator"
+  }],
+  "vhosts": [{
+    "name": "dataPlayersProd"
+  }, {
+    "name": "devLocal"
+  }, {
+    "name": "/"
+  }],
+  "permissions": [{
+    "user": "guest",
+    "vhost": "/",
+    "configure": ".*",
+    "write": ".*",
+    "read": ".*"
+  }, {
+    "user": "guest",
+    "vhost": "dataPlayersProd",
+    "configure": ".*",
+    "write": ".*",
+    "read": ".*"
+  }, {
+    "user": "guest",
+    "vhost": "devLocal",
+    "configure": ".*",
+    "write": ".*",
+    "read": ".*"
+  }],
+  "topic_permissions": [],
+  "parameters": [],
+  "global_parameters": [],
+  "policies": [],
+  "queues": [{
+    "name": "work-ask",
+    "vhost": "dataPlayersProd",
+    "durable": true,
+    "auto_delete": false,
+    "arguments": {}
+  }, {
+    "name": "work-ask",
+    "vhost": "devLocal",
+    "durable": true,
+    "auto_delete": false,
+    "arguments": {}
+  }],
+  "exchanges": [],
+  "bindings": []
+}

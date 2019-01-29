@@ -64,7 +64,7 @@ module.exports = {
       //requestOptions.headers.Host='www.communecter.org';
       //requestOptions.headers['Upgrade-Insecure-Requests']=1;
       requestOptions.headers['User-Agent'] = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/62.0.3202.94 Chrome/62.0.3202.94 Safari/537.36';
-
+      requestOptions.headers['Cache-Control'] = 'private, no-cache, no-store, must-revalidate'
       //console.log(requestOptions);
       //console.log(urlString.indexOf('https') != -1);
 
@@ -79,7 +79,7 @@ module.exports = {
         response.resume();
         if (hasResponseFailed) {
           //console.log('error body',response);
-          reject(new Error('Request failed for url '+urlString+' with status ' + response.statusCode));
+          reject(new Error('Request failed for url '+ urlString+' with status ' + response.statusCode));
         } else {
           /* the response stream's (an instance of Stream) current data. See:
            * https://nodejs.org/api/stream.html#stream_event_data */

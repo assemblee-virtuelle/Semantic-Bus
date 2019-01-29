@@ -22,6 +22,7 @@ module.exports = function (router,stompClient) {
       console.log("SEND MAIL", email + " : " + id)
       link = "http://" + req.get('host') + "/auth/verify?id=" + rand + '&userid=' + id;
       // Create a SMTP transporter object
+      console.log("SEND MAIL", link)
       let transporter = nodemailer.createTransport({
         service: 'Gmail',
         auth: {
@@ -308,6 +309,7 @@ module.exports = function (router,stompClient) {
 
   router.post('/inscription', function (req, res) {
     let rand = Math.floor((Math.random() * 100) + 54);
+    console.log("BODY", req.body)
     inscription_lib_user.create({
       user: {
         mailid: rand,
@@ -326,8 +328,6 @@ module.exports = function (router,stompClient) {
         token: data.token.token
       });
     }).catch(function (err) {
-      console.log(err)
-      // console.log(" ----- error during connexion -----")
       if (err == 'name_bad_format') {
         res.send({
           err: "name_bad_format"
@@ -344,7 +344,6 @@ module.exports = function (router,stompClient) {
         })
       }
       if (err == "user_exist") {
-        console.log("IN WEB SERVICE USER EXIST")
         res.send({
           err: "user_exist"
         })

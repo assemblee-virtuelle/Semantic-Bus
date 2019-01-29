@@ -1,6 +1,4 @@
 "use strict";
-//var mLabPromise = require('../mLabPromise');
-//var workspace_component_lib = require('../../core/lib/workspace_component_lib');
 
 module.exports = {
   type: 'Upload',
@@ -13,7 +11,6 @@ module.exports = {
     'http://semantic-bus.org/data/tags/fileComponents'
   ],
   busboy: require('busboy'),
-  mLabPromise: require('../mLabPromise'),
   dataTraitment: require("../dataTraitmentLibrary/index.js"),
   propertyNormalizer : require("../sharedLibrary/propertyNormalizer.js"),
   readable: require('stream').Readable,
