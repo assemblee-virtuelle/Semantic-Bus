@@ -10,7 +10,7 @@ var server = http.Server(requestHandler);
 var env = process.env;
 var url = require('url');
 var fs = require('fs');
-const configUrl = env.CONFIG_URL
+const configUrl = env.CONFIG_URL|| 'https://data-players.github.io/StrongBox/public/dev-docker.json'
 const parsedUrl = url.parse(configUrl);
 const requestOptions = {
   hostname: parsedUrl.hostname,
@@ -36,7 +36,7 @@ https.get(requestOptions, function(res) {
     fs.writeFile("configuration.js", content, 'utf8', function(err) {
       server.listen(JSON.parse(responseBody).timer.port || 8080, function () {
         console.log('~~ server started at ', this.address().address, ':', this.address().port)
-        require('./lib/core/timerScheduler').run(true);
+        require('../core/timerScheduler').run(true);
       })
     });
   });
