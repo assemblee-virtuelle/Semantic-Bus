@@ -509,6 +509,11 @@
       this.newUser.name = e.currentTarget.value;
     }.bind(this);
 
+    this.lastNameInscriptionChange = function (e) {
+      this.resultName = ""
+      this.newUser.lastName = e.currentTarget.value;
+    }.bind(this);
+
     this.jobInscriptionChange = function (e) {
       this.resultJob = ""
       this.newUser.job = e.currentTarget.value;
@@ -753,7 +758,7 @@
     .btn {
       background: #2ecc71;
       border-radius: 4px;
-      border: #2980b9 1px solid;
+      border:none;
       margin: 10px;
       padding: 10px;
       font-weight: 800;

@@ -1,7 +1,6 @@
 "use strict";
 
 let userModel = require("../models/user_model");
-let workspaceModel = require("../models/workspace_model");
 let pattern = require("../helpers").patterns;
 let config = require("../../main/configuration.js");
 let bcrypt = require("bcryptjs");
@@ -103,9 +102,6 @@ function _create_mainprocess(preData) {
 } // <= _create_mainprocess
 
 function _create_preprocess(userParams) {
-  if (config.quietLog != true) {
-    //console.log(" ------- _create_preprocess -----", userParams);
-  }
   var user_final = {};
   return new Promise(function(resolve, reject) {
     _get({
@@ -114,21 +110,13 @@ function _create_preprocess(userParams) {
       if (config.quietLog != true) {
         console.log("User start ----", user);
       }
+      console.log("User start ----", user);
       if (user == null) {
         var email = new Promise(function(resolve, reject) {
           if (!userParams.email) {
             reject("no_email_provided");
           }
-          _check_email(userParams.email).then(function(boolean) {
-            if (config.quietLog != true) {
-              //console.log("email:", userParams.email, "check email :", boolean);
-            }
-            if (!boolean) {
-              reject("bad_email");
-            } else {
-              resolve(userParams.email);
-            }
-          });
+          ! _check_email(userParams.email) ? reject("bad_email"): resolve(userParams.email)
         });
         var job = new Promise(function(resolve, reject) {
           if (!userParams.job) {
@@ -194,21 +182,13 @@ function _create_preprocess(userParams) {
             user_final["job"] = user[3];
             user_final["society"] = user[4];
             user_final["mailid"] = user[5];
-            if (config.quietLog != true) {
-              //console.log('---- promise all ---', user);
-            }
+            console.log(user_final)
             resolve(user_final);
           })
           .catch(function(err) {
-            if (config.quietLog != true) {
-              //console.log('---- promise all error---', err);
-            }
             reject(err);
           });
       } else {
-        if (config.quietLog != true) {
-          //console.log(" ---------- User exist ------");
-        }
         reject("user_exist");
       }
     });
@@ -646,292 +626,132 @@ function _update_mainprocess(preData) {
 
 // --------------------------------------------------------------------------------
 
-function _update_preprocess(userParams, mailChange) {
+function _update_preprocess(userParams) {
   //controler les regles métier
   return new Promise(function(resolve, reject) {
-    if (config.quietLog != true) {
-      //console.log("update preprocess : userParams || ", "mailChange : ", mailChange);
-    }
-    if (mailChange) {
-      userModel.getInstance().model
-        .findOne({
-          "credentials.email": userParams.credentials.email
-        })
-        .lean()
-        .exec(function(user) {
-          //console.log(" ---------- find one --------");
-          if (!user) {
-            var email = new Promise(function(resolve, reject) {
-              if (!userParams.credentials.email) {
-                resolve(null);
-              } else {
-                _check_email(userParams.credentials.email).then(function(
-                  boolean
-                ) {
-                  if (config.quietLog != true) {
-                    //console.log(boolean);
-                  }
-                  if (!boolean) {
-                    reject("bad_format_email");
-                  } else {
-                    resolve(userParams.credentials.email);
-                  }
-                });
-              }
-            });
-            var job = new Promise(function(resolve, reject) {
-              if (!userParams.job) {
-                resolve(null);
-              } else {
-                _check_job(userParams.job).then(function(boolean) {
-                  if (!boolean) reject("bad_format_job");
-                  else resolve(userParams.job);
-                });
-              }
-            });
+    var credit = new Promise(function(resolve, reject) {
+      if (!userParams.credit) {
+        resolve(null);
+      } else resolve(userParams.credit);
+    });
 
-            var name = new Promise(function(resolve, reject) {
-              if (!userParams.name) {
-                resolve(null);
-              } else {
-                _check_name(userParams.name).then(function(boolean) {
-                  if (!boolean) reject("bad_format_name");
-                  else resolve(userParams.name);
-                });
-              }
-            });
-
-            var society = new Promise(function(resolve, reject) {
-              if (!userParams.society) {
-                resolve(null);
-              } else {
-                _check_job(userParams.society).then(function(boolean) {
-                  if (!boolean) reject("bad_format_society");
-                  else resolve(userParams.society);
-                });
-              }
-            });
-
-            var workspace = new Promise(function(resolve, reject) {
-              if (!userParams.workspaces) {
-                resolve(null);
-              } else resolve(userParams.workspaces);
-            });
-
-            var resetpasswordtoken = new Promise(function(resolve, reject) {
-              if (!userParams.resetpasswordtoken) {
-                resolve(null);
-              } else resolve(userParams.resetpasswordtoken);
-            });
-
-            var hash_password = new Promise(function(resolve, reject) {
-              if (userParams.new_password) {
-                _hash_password(userParams.new_password)
-                  .then(function(hashedPassword) {
-                    resolve(hashedPassword);
-                  })
-                  .catch(function(err) {
-                    reject({
-                      err: "bad_format_password"
-                    });
-                  });
-              } else {
-                resolve(null);
-              }
-            });
-
-            Promise.all([
-                email,
-                job,
-                society,
-                workspace,
-                name,
-                resetpasswordtoken,
-                hash_password
-              ])
-              .then(function(user_update_data) {
-                var o = {};
-                o["email"] = user_update_data[0];
-                o["job"] = user_update_data[1];
-                o["society"] = user_update_data[2];
-                o["workspaces"] = user_update_data[3];
-                o["name"] = user_update_data[4];
-                o["resetpasswordtoken"] = user_update_data[5];
-                o["hash_password"] = user_update_data[6];
-                o._id = userParams._id;
-                //console.log("final update preprocess data")
-                resolve(o);
-              })
-              .catch(function(err) {
-                reject(err);
-              });
-          } else {
-            reject("email_already_use");
-          }
-        });
-    } else {
-      //console.log("IN UPDATE USER PARAMS")
-      var stripeID = new Promise(function(resolve, reject) {
-        if (!userParams.stripeID) {
-          resolve(null);
-        } else resolve(userParams.stripeID);
-      });
-
-      var secret_stripe = new Promise(function(resolve, reject) {
-        if (!userParams.secret_stripe) {
-          resolve(null);
-        } else resolve(userParams.secret_stripe);
-      });
-
-      var credit = new Promise(function(resolve, reject) {
-        if (!userParams.credit) {
-          resolve(null);
-        } else resolve(userParams.credit);
-      });
-
-      var job = new Promise(function(resolve, reject) {
-        if (!userParams.job) {
-          resolve(null);
-        } else {
-          _check_job(userParams.job).then(function(boolean) {
-            if (!boolean) reject("bad_format_job");
-            else resolve(userParams.job);
-          });
-        }
-      });
-
-      var society = new Promise(function(resolve, reject) {
-        if (!userParams.society) {
-          resolve(null);
-        } else {
-          _check_job(userParams.society).then(function(boolean) {
-            if (!boolean) reject("bad_format_society");
-            else resolve(userParams.society);
-          });
-        }
-      });
-
-      var name = new Promise(function(resolve, reject) {
-        if (!userParams.name) {
-          resolve(null);
-        } else {
-          _check_name(userParams.name).then(function(boolean) {
-            if (!boolean) reject("bad_format_name");
-            else resolve(userParams.name);
-          });
-        }
-      });
-
-      var workspace = new Promise(function(resolve, reject) {
-        if (!userParams.workspaces) {
-          resolve(null);
-        } else resolve(userParams.workspaces);
-      });
-
-      var active = new Promise(function(resolve, reject) {
-        if (userParams.active) {
-          resolve(userParams.active);
-        } else {
-          resolve(null);
-        }
-      });
-
-      var resetpasswordtoken = new Promise(function(resolve, reject) {
-        if (!userParams.resetpasswordtoken) {
-          resolve(null);
-        } else resolve(userParams.resetpasswordtoken);
-      });
-
-      var resetpasswordmdp = new Promise(function(resolve, reject) {
-        if (!userParams.resetpasswordmdp) {
-          resolve(null);
-        } else resolve(userParams.resetpasswordmdp);
-      });
-
-      var hash_password = new Promise(function(resolve, reject) {
-        if (userParams.new_password) {
-          _hash_password(userParams.new_password)
-            .then(function(hashedPassword) {
-              console.log("PASSWORD", userParams.new_password, hashedPassword);
-              resolve(hashedPassword);
-            })
-            .catch(function(err) {
-              reject({
-                err: "bad_format_password"
-              });
-            });
-        } else {
-          resolve(null);
-        }
-      });
-
-      Promise.all([
-          job,
-          society,
-          workspace,
-          name,
-          active,
-          resetpasswordtoken,
-          resetpasswordmdp,
-          hash_password,
-          stripeID,
-          credit,
-          secret_stripe
-        ])
-        .then(function(user_update_data) {
-          let o = {};
-          o["email"] = userParams.credentials.email;
-          o["job"] = user_update_data[0];
-          o["society"] = user_update_data[1];
-          o["workspaces"] = user_update_data[2];
-          o["name"] = user_update_data[3];
-          o["active"] = user_update_data[4];
-          o["resetpasswordtoken"] = user_update_data[5];
-          o["resetpasswordmdp"] = user_update_data[6];
-          o["hash_password"] = user_update_data[7];
-          o["stripeID"] = user_update_data[8];
-          o["credit"] = user_update_data[9];
-          o["secret_stripe"] = user_update_data[10];
-          o._id = userParams._id;
-          if (config.quietLog != true) {
-            //console.log("final update preprocess data");
-          }
-          resolve(o);
-        })
-        .catch(function(err) {
-          reject(err);
-        });
-    }
-  });
-} // <= _update_preprocess
-
-function _checkUserCredits(userId) {
-  return new Promise((resolve, reject) => {
-    user_lib.get({
-      _id: userId
-    }).then(user => {
-      if (user.credit > 100) {
-        resolve(true);
+    var job = new Promise(function(resolve, reject) {
+      if (!userParams.job) {
+        resolve(null);
       } else {
-        resolve(false);
+        _check_job(userParams.job).then(function(boolean) {
+          if (!boolean) reject("bad_format_job");
+          else resolve(userParams.job);
+        });
       }
     });
-  });
-}
+
+    var society = new Promise(function(resolve, reject) {
+      if (!userParams.society) {
+        resolve(null);
+      } else {
+        _check_job(userParams.society).then(function(boolean) {
+          if (!boolean) reject("bad_format_society");
+          else resolve(userParams.society);
+        });
+      }
+    });
+
+    var name = new Promise(function(resolve, reject) {
+      if (!userParams.name) {
+        resolve(null);
+      } else {
+        _check_name(userParams.name).then(function(boolean) {
+          if (!boolean) reject("bad_format_name");
+          else resolve(userParams.name);
+        });
+      }
+    });
+
+    var workspace = new Promise(function(resolve, reject) {
+      if (!userParams.workspaces) {
+        resolve(null);
+      } else resolve(userParams.workspaces);
+    });
+
+    var active = new Promise(function(resolve, reject) {
+      if (userParams.active) {
+        resolve(userParams.active);
+      } else {
+        resolve(null);
+      }
+    });
+
+    var resetpasswordtoken = new Promise(function(resolve, reject) {
+      if (!userParams.resetpasswordtoken) {
+        resolve(null);
+      } else resolve(userParams.resetpasswordtoken);
+    });
+
+    var resetpasswordmdp = new Promise(function(resolve, reject) {
+      if (!userParams.resetpasswordmdp) {
+        resolve(null);
+      } else resolve(userParams.resetpasswordmdp);
+    });
+
+    var hash_password = new Promise(function(resolve, reject) {
+      if (userParams.new_password) {
+        _hash_password(userParams.new_password)
+          .then(function(hashedPassword) {
+            console.log("PASSWORD", userParams.new_password, hashedPassword);
+            resolve(hashedPassword);
+          })
+          .catch(function(err) {
+            reject({
+              err: "bad_format_password"
+            });
+          });
+      } else {
+        resolve(null);
+      }
+    });
+
+    Promise.all([
+        job,
+        society,
+        workspace,
+        name,
+        active,
+        resetpasswordtoken,
+        resetpasswordmdp,
+        hash_password,
+        credit,
+      ])
+      .then(function(user_update_data) {
+        let o = {};
+        o["email"] = userParams.credentials.email;
+        o["job"] = user_update_data[0];
+        o["society"] = user_update_data[1];
+        o["workspaces"] = user_update_data[2];
+        o["name"] = user_update_data[3];
+        o["active"] = user_update_data[4];
+        o["resetpasswordtoken"] = user_update_data[5];
+        o["resetpasswordmdp"] = user_update_data[6];
+        o["hash_password"] = user_update_data[7];
+        o["credit"] = user_update_data[8];
+        o._id = userParams._id;
+        if (config.quietLog != true) {
+          //console.log("final update preprocess data");
+        }
+        resolve(o);
+      })
+      .catch(function(err) {
+        reject(err);
+      });
+  })
+} // <= _update_preprocess
 
 // --------------------------------------------------------------------------------
 
 function _check_email(email) {
-  return new Promise(function(resolve, reject) {
-    if (pattern.email.test(email)) {
-      if (config.quietLog != true) {
-        //console.log("email", true);
-      }
-      resolve(true);
-    } else {
-      resolve(false);
-    }
-  });
+  console.log("TEST CCE FILS DE PUTE D EMAIL")
+  console.log("TEST CCE FILS DE PUTE D EMAIL", pattern.email.test(email) )
+    return pattern.email.test(email) 
 } // <= _check_email
 
 function _check_name(name) {

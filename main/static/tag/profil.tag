@@ -1,16 +1,5 @@
-<profil class="containerV" style="justify-content: center;flex-grow:1;flex-wrap:nowrap;">
+<profil class="containerV" style="flex-grow:1;flex-wrap:nowrap;">
 
-  <!-- Chargement paiement -->
-  <div id="containerLoaderDiv" if={payment_in_progress == true} class="containerV" style="justify-content:center">
-    <div id="row">
-      <div id="loaderDiv"></div>
-      <h1 id="loaderText" class="containerV">
-        <span>
-          Paiement en cours
-        </span>
-      </h1>
-    </div>
-  </div>
   <!-- Menu utilisateur -->
   <div class="containerV" style="height:80px;background-color: rgb(124,195,232);flex-shrink:0;flex-grow:0;">
     <!-- ID editer-->
@@ -61,6 +50,7 @@
       </a>
     </div>
   </div>
+
   <!-- Graphique consommation -->
   <div class="containerV" if={menu=='running'} style="height: 300px;background-color: rgb(238,242,249); flex-grow: 1;">
     <graph-of-use-workspace></graph-of-use-workspace>
@@ -71,17 +61,11 @@
       <!-- Formulaire utilisateur -->
 
       <!-- Nom d'utilisateur -->
-      <h3 style="color:rgb(33,151,242); font-family: 'Open Sans', sans-serif;">{profil.name}</h3>
+      <label>Nom d'utilisateur</label>
+      <input value="{profil.name}" ref="name" onchange={changeNameInput}>
       <!-- Email -->
       <label>Email</label>
       <input value="{profil.credentials.email}" ref="email" readonly="readOnly">
-      <!-- info mail -->
-      <label>L'email ne peut être modifier pour le moment</label>
-      <div if={!profil.active}>
-        <div if={!mailsend}>
-          <div id="bad-result">Vous n'avez pas valider votre email (consulter vos mails)</div>
-        </div>
-      </div>
       <!-- Société -->
       <label>Société</label>
       <input value="{profil.society}" placeholder="saisissez votre société" name="society" onchange={changeSocietyInput}>
@@ -93,26 +77,28 @@
         <div>Un email à été envoyé, verifier votre boite mail.</div>
       </div>
       <!--boutons renvoyer mail -->
-      <div class="containerH" style="justify-content:center;margin-top:5px;">
-        <button class="btn" onclick={sendbackmail} type="button">{emailtext}</button>
+      <span style="padding:20px">** L'email ne peut être modifier pour le moment veuillez recreer un compte et vous partager vos workflow en cas de changement</span>
+      <div if={!profil.active}>
+        <div if={!mailsend}>
+            <span style="padding:20px" id="bad-mail">!!!! Vous n'avez pas valider votre email (consulter vos mails / spam ) Vous ne pourrez utiliser l'outils sans un mail confirmer !!!!</span >
+            </div>
+              <div class="containerH" if={profil.googleId == null || profil.googleId=='undefined' } style="margin-top:20px;">
+              <button class="button-profil" onclick={sendbackmail} type="button">{emailtext}</button>
+            </div>
+        </div>
       </div>
       <!-- Validation modifications-->
       <div class="containerV" style="justify-content: center; align-items: center;/* flex-grow: 1; */">
-        <div id={result? 'good-result-global' : 'bad-result-global' }>{resultGlobal}
-        </div>
         <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultSociety}
         </div>
         <div if={!result} id={ result? 'good-result' : 'bad-result' }>{resultJob}
         </div>
       </div>
-    </div>
-    <!-- Bouton valider -->
-    <div class="containerH" style="flex-basis:45px;justify-content: center;align-items: flex-start; flex-shrink:0;flex-grow:0;">
-      <div onclick={updateUser} if={googleId ==null || googleId=='undefined' } class="commandButtonImage">
-        <img src="./image/check.png" title="Valider les informations" height="35px" width="35px">
+      <!-- Bouton valider -->
+      <div class="containerH" style="justify-content:center;margin-bottom:50px;">
+        <button class="button-profil" onclick={updateUser} type="button">Mettre à jour</button>
       </div>
     </div>
-  </div>
 
   <!-- Paramétre -->
   <div class="containerV" if={menu=='setting'} style="height: 300px;flex-grow: 1;background-color:rgb(238, 242, 249);">
@@ -135,30 +121,16 @@
   <!-- Page paiement -->
   <div class="containerV" if={menu=='payement'} style="height: 300px;flex-grow: 1;background-color: rgb(238, 242, 249);">
     <div class="containerV" style="flex-grow: 1;background-color: rgb(238, 242, 249);">
-      <stripe2-tag></stripe2-tag>
+      <stripe-component-tag></stripe-component-tag>
     </div>
   </div>
+
   <div if={menu=='transaction'} style="flex-grow: 1;background-color: rgb(238, 242, 249);">
     <transactions-list></transactions-list>
-    <div class="containerV" style="flex-grow:1;justify-content:center;align-items:center">
-      <a
-        href="#profil//running"
-        class="commandButtonImage containerV"
-        style="border-radius: 25px;
-          padding: 0.6em;
-          background-color: rgb(9,245,185);
-          color: white;
-          font-size: 20px;
-          margin-top: 20px;
-          text-align: center;">
-        Retour
-      </a>
-    </div>
   </div>
 
   <script>
     this.resultEmail = ""
-    this.googleId = localStorage.googleid
     this.modeUserResume = true
     this.modeUserEdition = false
     this.modeSetting = false
@@ -168,20 +140,7 @@
     this.emailtext = "Renvoyer un email"
     this.menu = 'running'
 
-    this.isIn3DSecurePayement = function () {
-      console.log("IN this.isIn3DSecurePayement", location.search.split('client_secret='))
-      this.addCredit = false
-      if (location.search.split('client_secret=').length > 1) {
-        var client_secret = location.search.split('client_secret=')[1].split('&livemode')[0]
-        var source = location.search.split('source=')[1]
-        var amount = location.search.split('amount=')[1].split('&client_secret')[0]
-        RiotControl.trigger('stripe_payment', {
-          source: source,
-          amount: amount,
-          secret: client_secret
-        });
-      }
-    }
+
     /*déconnexion*/
     deconnexion(e) {
       RiotControl.trigger('deconnexion');
@@ -201,7 +160,6 @@
     }
     changeNameInput(e) {
       this.profil.name = e.currentTarget.value;
-      console.log(this.profil.name);
     }
     updateUser(e) {
       console.log(this.refs.email.value, this.profil.credentials.email)
@@ -231,30 +189,6 @@
       this.update()
     }.bind(this));
 
-    RiotControl.on('payment_in_progress', function () {
-      console.log("payment in progress")
-      this.payment_in_progress = true
-      this.update()
-    }.bind(this));
-
-    RiotControl.on('payment_done', function () {
-      this.payment_in_progress = false
-      this.consultTransactionBoolean = false
-      this.update()
-    }.bind(this));
-
-    RiotControl.on('email_already_use', function () {
-      this.result = false;
-      this.resultEmail = "L'email choisi exsite déjà";
-      this.update();
-    }.bind(this));
-
-    RiotControl.on('bad_format_email', function () {
-      this.result = false;
-      this.resultEmail = "L'email n'est pas au bond format";
-      this.update();
-    }.bind(this));
-
     RiotControl.on('google_user', function () {
       this.result = false;
       this.resultEmail = "vous ne pouvez pas modifier votre email en tant q'utilisateur google";
@@ -279,17 +213,6 @@
       this.update();
     }.bind(this));
 
-    RiotControl.on('update_profil_done', function () {
-      this.result = true;
-      this.resultGlobal = "Votre profil à bien était mis à jour";
-      setTimeout(function () {
-        console.log("SET TIME OUT")
-        this.resultGlobal = ""
-        this.update()
-      }.bind(this), 2000);
-      this.update();
-    }.bind(this));
-
     RiotControl.on('profil_loaded', function (data) {
       this.profil = data;
       this.update()
@@ -302,8 +225,6 @@
 
     this.on('mount', function () {
       this.menu = 'running'
-      console.log("MENU", this.menu)
-      this.isIn3DSecurePayement()
       RiotControl.on('profil_menu_changed', this.profilMenuChanged);
       RiotControl.trigger('load_profil');
       this.googleId = localStorage.googleid
@@ -318,6 +239,13 @@
       color: rgb(33,151,242);
     }
 
+    #bad-mail {
+      color: red!important;
+    }
+
+    input {
+      font-size: 1em
+    }
     #containerLoaderDiv {
       background-color: rgba(200,200,200,0.6);
       bottom: 0;
@@ -389,17 +317,5 @@
       font-family: 'Raleway', sans-serif;
     }
 
-    /*div.tooltip {
-  position: absolute;
-  text-align: left;
-  width: 200px;
-  height: 70px;
-  padding: 10px;
-  font: 12px sans-serif;
-  background: lightsteelblue;
-  border: 0;
-  border-radius: 8px;
-  pointer-events: none;
-}*/
   </style>
 </profil>

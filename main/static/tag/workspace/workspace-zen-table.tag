@@ -1,6 +1,6 @@
 <workspace-zen-table class="containerV" style="flex-grow:1">
   <div class="containerH" style="height:80px;justify-content: center; align-items: center;flex-shrink:0;">
-    <input class="searchbox" type="text" name="inputSearch" ref="inputSearch" placeholder="Rechercher"
+    <input class="searchbox" type="text" name="inputSearch" ref="inputSearch" placeholder="Rechercher vos workspaces..."
            oninput={updateSearch}
     />
   </div>
@@ -66,11 +66,10 @@
     .searchbox {
       background-color: #ffffff;
       background-image: linear-gradient(#fff, #f2f3f5);
-      border-radius: 35px;
       border-width: 1px;
       border-style: solid;
       border-color: rgb(213, 218, 224);
-      width: 300px;
+      width: 600px;
       height: 35px;
     }
   </style>
