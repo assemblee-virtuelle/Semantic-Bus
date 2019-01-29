@@ -84,7 +84,7 @@ module.exports = function(router, stompClient) {
 
   // --------------------------------------------------------------------------------
 
-  router.put('/workspace/', function(req, res, next) {
+  router.put('/workspace', function(req, res, next) {
     if (req.body != null) {
       workspace_lib.update(req.body).then(workspaceUpdate => {
 
