@@ -5,7 +5,6 @@ module.exports = {
   editor: 'sql-connecteur-editor',
   graphIcon: 'Sql.png',
   Sequelize: require('sequelize'),
-  mLabPromise: require('../mLabPromise'),
   tags:[
     'http://semantic-bus.org/data/tags/inComponents',
     'http://semantic-bus.org/data/tags/BDDComponents'

@@ -1,7 +1,6 @@
 'use strict';
 module.exports = {
   cacheModel: require('../models/cache_model'),
-  middle_service_workspace: require('../../main/webServices/workspaceComponentPromise'),
   fragment_lib: require('./fragment_lib.js'),
   PromiseOrchestrator: require('../helpers/promiseOrchestrator.js'),
   //mongoose: require('mongoose'),

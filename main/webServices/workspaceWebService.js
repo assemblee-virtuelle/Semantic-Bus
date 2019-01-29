@@ -1,10 +1,6 @@
-var mLabPromise = require('./mLabPromise');
-var workspaceComponentPromise = require('./workspaceComponentPromise.js');
-var workspaceBusiness = require('./workspaceBusiness.js');
 var workspace_lib = require('../../core/lib/workspace_lib');
 var workspace_component_lib = require('../../core/lib/workspace_component_lib');
 var technicalComponentDirectory = require('./technicalComponentDirectory.js');
-var sift = require('sift');
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -17,10 +13,7 @@ module.exports = function(router, stompClient) {
   // ---------------------------------------  ALL USERS  -----------------------------------------
 
   router.get('/workspaceByUser/:userId', function(req, res, next) {
-    //next(new Error('Whoops!'));
-    //console.log('ALLO');
     workspace_lib.getAll(req.params.userId, "owner").then(function(workspaces) {
-      //console.log('stompClient',stompClient);
       res.json(workspaces);
     }).catch(e => {
       next(e);
@@ -41,8 +34,6 @@ module.exports = function(router, stompClient) {
   // ---------------------------------------------------------------------------------
 
   router.get('/workspace/:id/graph', function(req, res, next) {
-    //console.log(" WEB SERVICE GRAPH", req.params.id);
-    //console.log(" WEB SERVICE GRAPH");
     workspace_lib.get_workspace_graph_data(req.params.id).then((workspaceGraph) => {
       res.json({
         workspaceGraph
@@ -52,26 +43,10 @@ module.exports = function(router, stompClient) {
     });
   }); //<= graph workspace
 
-
-  router.post('/workspace/:id/addHistorique', function(req, res, next) {
-    // if (req.body != null) {
-    //   console.log(req.params.id)
-    //   console.log(req.body)
-    // }
-  })
   // --------------------------------------------------------------------------------
 
   router.get('/workspace/:id', function(req, res, next) {
-    //console.log('Get On Workspace 1');
     workspace_lib.getWorkspace(req.params.id).then(function(workspace) {
-      //console.log("RENDER ", req.params.id)
-      //console.log('workspace | getWorkspace',workspace.users);
-      //console.log(technicalComponentDirectory);
-      // workspace.components.forEach(c => {
-      //   //console.log(technicalComponentDirectory);
-      //   console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
-      //   c.graphIcon = technicalComponentDirectory[c.module].graphIcon;
-      // })
 
       for (var c of workspace.components) {
 
@@ -131,17 +106,6 @@ module.exports = function(router, stompClient) {
       }).catch(e => {
         next(e);
       });
-      // if (req.body.component) {
-      //   workspace_component_lib.create(req.body.component).then(function (workspaceComponent) {
-      //     workspace_lib.update(req.body.workspace, workspaceComponent._id).then(function (workspaceUpdate) {
-      //       res.send(workspaceUpdate)
-      //     })
-      //   })
-      // } else {
-      //   workspace_lib.update(req.body).then(function (workspaceUpdate) {
-      //     res.send(workspaceUpdate)
-      //   })
-      // }
     } else {
       next(new Error('empty body'))
     }
@@ -305,20 +269,6 @@ module.exports = function(router, stompClient) {
     res.send({
       state: 'inprogress'
     });
-    // console.log(id);
-    // workspace_lib.get_process_result(id).then((historiqueEnd)=>{
-    //   if(historiqueEnd!=null){
-    //     res.send(historiqueEnd)
-    //   }else {
-    //     next(new Error("no process "+id))
-    //   }
-    //   //this.stompClient.send('/topic/work-response.'+data.callerId, JSON.stringify({processId:0}));
-    // }).catch(e => {
-    //   console.log(e);
-    //   next(e);
-    //   // console.log("IN ERROR WEB SERVICE",e.message);
-    //   // this.stompClient.send('/topic/work-response.'+data.callerId, JSON.stringify({error:e.message}));
-    // });
   }.bind(this)); //<= process
 
 
@@ -333,9 +283,6 @@ module.exports = function(router, stompClient) {
       }).catch(e => {
         next(e);
       });
-    // } else {
-    //   next(new Error('save forbiden'));
-    // }
   });
 
   //return updated Links

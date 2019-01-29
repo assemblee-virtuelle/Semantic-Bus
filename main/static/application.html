@@ -39,7 +39,6 @@
   <script src="./js/jszip/dist/jszip.js"></script>
   <script src="./js/awesomplete-gh-pages/awesomplete.min.js"></script>
   <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.10.5/xlsx.min.js"></script>
-  <script src="https://js.stripe.com/v3/"></script>
   <script src="./js/spin.min.js"></script>
   <script src="./js/RiotControl/riotcontrol.js"></script>
   <script src="https://d3js.org/d3.v4.min.js"></script>
@@ -56,7 +55,7 @@
   <script src="./store/mainController.js"></script>
   <script src="./store/sqlStore.js"></script>
   <script src="./store/utilStore.js"></script>
-
+  
   <script type="riot/tag" src="tag/zenTable.tag"></script>
   <script type="riot/tag" src="tag/navigation.tag"></script>
   <script type="riot/tag" src="tag/workspaceTable.tag"></script>
@@ -80,12 +79,7 @@
   <script type="riot/tag" src="tag/graph_of_use_workspace.tag"></script>
   <script type="riot/tag" src="tag/jsonPreviewer.tag"></script>
   <script type="riot/tag" src="tag/jsonPreviewer-header.tag"></script>
-  <script type="riot/tag" src="tag/stripe.tag"></script>
-  <script type="riot/tag" src="tag/stripe2.tag"></script>
-  <script type="riot/tag" src="tag/transactions-list.tag"></script>
   <script type="riot/tag" src="tag/process-list.tag"></script>
-
-
   <script type="riot/tag" src="tag/no-editor.tag"></script>
   <script type="riot/tag" src="tag/scrapper-editor.tag"></script>
   <script type="riot/tag" src="tag/rest-get-json-editor.tag"></script>
@@ -116,122 +110,114 @@
   <script type="riot/tag" src="tag/unicity-editor.tag"></script>
   <script type="riot/tag" src="tag/properties-matrix-editor.tag"></script>
   <script type="riot/tag" src="tag/post-consumer-editor.tag"></script>
-
   <script type="riot/tag" src="tag/workspace/workspace-zen-table.tag"></script>
-
-
 
   <script>
     $.ajax({
       method: 'get',
-      url: '/configuration/configurationMessageQueue',
-    }).done(configurationMessageQueue => {
-      //console.log("configurationAmqpHost", amqpHost)
-      // var onMessage = function(message) {
-      //   console.log('message', JSON.parse(message.body));
-      // };
-      //console.log(amqpHost);
+      url: '/configuration/frontend-configuration',
+    }).done(configuration => {
+      console.log(configuration)
+      if (configuration.https == "force") {
+        if (window.location.href.substr(0, 5) != "https") {
+          window.location.replace("https" + window.location.href.substr(4, window.location.href.split("").length - 1))
+        }
+      }
+      if (configuration.privateScript) {
+        configuration.privateScript.forEach((src)=>{
+          console.log(src)
+          let a = document.createElement("script");
+          /.[tag]+$/.test(src)? a.type = "riot/tag" : a.type = "text/javascript";
+          a.src = src
+          document.body.appendChild(a);
+        })
+      }  else {
+        const x = document.createElement("script");
+        x.type = "riot/tag";
+        x.src = "tag/stripe-component.tag"
+        document.body.appendChild(x);
 
-      var onConnect = function(client) {
-        //console.log('connected',stompClient,client);
+        const y = document.createElement("script");
+        y.type = "riot/tag";
+        y.src = "tag/transactions-list.tag"
+        document.body.appendChild(y);
+      }
 
-        let allStore = {};
-        let utilStore = new UtilStore();
+      var onConnect = (client) => {
+        // no more r&d for private incrementation because 
+        // react refonte will change all this mechanisme
+        if(configuration.privateScript) {
+          let stripeStore = new StripeStore();
+          RiotControl.addStore(stripeStore);
+        }
+
+        const allStore = {};
+        const utilStore = new UtilStore();
         RiotControl.addStore(utilStore);
         allStore['utilStore'] = utilStore;
 
-        var profilStore = new ProfilStore();
+        const profilStore = new ProfilStore();
         RiotControl.addStore(profilStore);
         allStore['profilStore'] = profilStore;
 
-        var technicalComponentStore = new TechnicalComponentStore(utilStore);
+        const technicalComponentStore = new TechnicalComponentStore(utilStore);
         RiotControl.addStore(technicalComponentStore);
         allStore['technicalComponentStore'] = technicalComponentStore;
 
-        var specificStoreList = [];
+        const specificStoreList = [];
 
-        let cacheNosqlStore = new CacheNosqlStore(utilStore)
+        const cacheNosqlStore = new CacheNosqlStore(utilStore)
         RiotControl.addStore(cacheNosqlStore);
         specificStoreList.push(cacheNosqlStore)
         allStore['cacheNosqlStore'] = cacheNosqlStore;
 
-        let uploadStore = new UploadStore(utilStore);
+        const uploadStore = new UploadStore(utilStore);
         RiotControl.addStore(uploadStore);
         specificStoreList.push(uploadStore)
         allStore['uploadStore'] = uploadStore;
 
-        let sqlStore = new SqlStore();
+        const sqlStore = new SqlStore();
         RiotControl.addStore(sqlStore);
         specificStoreList.push(sqlStore)
         allStore['sqlStore'] = sqlStore;
 
-        // var genericStore = new GenericStore(utilStore, specificStoreList, stompClient);
-        // RiotControl.addStore(genericStore);
-        // allStore['genericStore'] = genericStore;
-
-        var workspaceStore = new WorkspaceStore(utilStore, stompClient,specificStoreList); // Create a store instance.
+        const workspaceStore = new WorkspaceStore(utilStore, stompClient,specificStoreList); // Create a store instance.
         RiotControl.addStore(workspaceStore); // Register the store in central dispatch.
         allStore['workspaceStore'] = workspaceStore;
 
-        var adminStore = new AdminStore(utilStore);
+        const adminStore = new AdminStore(utilStore);
         RiotControl.addStore(adminStore);
         allStore['adminStore'] = adminStore;
 
-        var mainController = new MainController(allStore, stompClient);
+        const mainController = new MainController(allStore, stompClient);
         RiotControl.addStore(mainController);
 
         RiotControl.on('login_redirect', function() {
           window.open("../auth/login.html", "_self");
         })
-        //console.log(window.location.href)
-        RiotControl.trigger('https_force?')
-
-        RiotControl.trigger('init_stripe')
 
         riot.compile(function() {
-          // here tags are compiled and riot.mount works synchronously
-          var tags = riot.mount('*');
-          /*RiotControl.on('previewJSON',function(message){
-            tags[2].data=message.data;
-          }.bind(this));*/
+          riot.mount('*');
         });
 
-        // for (store in this.allStore){
-        //   if(store.setStompClient!=undefined){
-        //       store.setStompClient(this.stompClient);
-        //   }
-        // }
-
-        // stompClient.subscribe('/topic/work-response', this.onMessage);
-        // // this.stompClient.subscribe('/queue/work-response', this.onMessage);
-        // stompClient.send('/queue/work-ask',JSON.stringify({message:'c est le navigateur qui te parle!!!'}));
-      }.bind(this);
-
-      var onError = function(err) {
-        console.log('disconnected ', err);
+        console.log("compile done")
       };
 
-      //var url = 'wss://stomp-rabitmq-stomp.b9ad.pro-us-east-1.openshiftapps.com:443/ws';
-      //var url = 'wss://semantic-bus.org:443/stomp/ws/';
-      var url = configurationMessageQueue.socketClient;
-      //var url = 'ws://35.187.66.2:15674/ws/';
-      var login = 'guest';
-      var password = 'guest';
-      var stompClient = webstomp.client(configurationMessageQueue.url, {
+      const login = 'guest';
+      const password = 'guest';
+      const stompClient = webstomp.client(configuration.url, {
         heartbeat: {
           incoming: 10000,
           outgoing: 10000
         },
         debug: true
       })
-      if (configurationMessageQueue.host != undefined && configurationMessageQueue.host.length > 0) {
-        stompClient.connect(login, password, onConnect, onError, configurationMessageQueue.host);
-        //stompClient.connect(login, password, onConnect, onError);
 
+      if (configuration.host != undefined && configuration.host.length > 0) {
+        stompClient.connect(login, password, onConnect, null, configuration.host);
       } else {
         stompClient.connect(login, password, onConnect, onError);
       }
-
     })
   </script>
   <style>
