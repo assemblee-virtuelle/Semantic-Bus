@@ -42,6 +42,30 @@ module.exports = function(router, stompClient) {
 
   // --------------------------------------------------------------------------------
 
+  router.put('/workspace', function(req, res, next) {
+    if (req.body != null) {
+      workspace_lib.update(req.body).then(workspaceUpdate => {
+
+        for (var c of workspaceUpdate.components) {
+          if (technicalComponentDirectory[c.module] != null) {
+            c.graphIcon = technicalComponentDirectory[c.module].graphIcon;
+          } else {
+            c.graphIcon = "default"
+          }
+        }
+        res.send(workspaceUpdate);
+      }).catch(e => {
+        res.status(500).send(e);
+      }).catch(e => {
+        next(e);
+      });
+    } else {
+      next(new Error('empty body'))
+    }
+  }) //<= update_workspace;
+    
+  // --------------------------------------------------------------------------------
+  
   router.get('/workspace/:id', function(req, res, next) {
     workspace_lib.getWorkspace(req.params.id).then(function(workspace) {
 
@@ -81,30 +105,6 @@ module.exports = function(router, stompClient) {
       })
     }
   })// <= put workspacerowId
-
-  // --------------------------------------------------------------------------------
-
-  router.put('/workspace', function(req, res, next) {
-    if (req.body != null) {
-      workspace_lib.update(req.body).then(workspaceUpdate => {
-
-        for (var c of workspaceUpdate.components) {
-          if (technicalComponentDirectory[c.module] != null) {
-            c.graphIcon = technicalComponentDirectory[c.module].graphIcon;
-          } else {
-            c.graphIcon = "default"
-          }
-        }
-        res.send(workspaceUpdate);
-      }).catch(e => {
-        res.status(500).send(e);
-      }).catch(e => {
-        next(e);
-      });
-    } else {
-      next(new Error('empty body'))
-    }
-  }) //<= update_workspace;
 
   // --------------------------------------------------------------------------------
 

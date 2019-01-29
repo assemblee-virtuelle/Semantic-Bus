@@ -354,30 +354,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
         reject(error);
       });
     });
-    // return new Promise((resolve, reject) => {
-    //   this.trigger('persist_start');
-    //   $.ajax({
-    //     method: 'post',
-    //     url: '../data/core/workspace/' + localStorage.user_id,
-    //     data: JSON.stringify(this.workspaceCurrent),
-    //     contentType: 'application/json',
-    //     headers: {
-    //       "Authorization": "JTW" + " " + localStorage.token
-    //     },
-    //   }).done(function(data) {
-    //     this.trigger('persist_end', data);
-    //     //data.mode = 'init';
-    //     //his.menu='information'
-    //     this.workspaceBusiness.connectWorkspaceComponent(data.components);
-    //     this.workspaceCurrent = data;
-    //     //console.log('update data ||', data);
-    //     this.trigger('workspace_current_persist_done', data);
-    //     this.trigger('workspace_current_changed', this.workspaceCurrent);
-    //     this.menu = 'component';
-    //     this.trigger('workspace_editor_menu_changed', 'component');
-    //     resolve(data);
-    //   }.bind(this));
-    // });
   }; //<= create
 
   // --------------------------------------------------------------------------------
@@ -430,17 +406,9 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
     })
   }; //<= updateList
 
-  //
-  // this.on('workspace_list_persist', function(workspaceCurrent) {
-  //   // this.updateList(workspaceCurrent).then(data => {
-  //   //   console.log("UPDATE DONE")
-  //   // }); // <= workspace_current_persist
-  // })
-
   // --------------------------------------------------------------------------------
 
   this.delete = function(record) {
-    console.log('delete row', record);
     this.trigger('persist_start');
     $.ajax({
       method: 'delete',
@@ -450,7 +418,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
         "Authorization": "JTW" + " " + localStorage.token
       },
     }).done(function(data) {
-      console.log("delete done", record);
       this.globalWorkspaceCollection = sift({
         'workspace._id': {
           $ne: record._id
@@ -459,11 +426,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
       this.setGlobalWorkspaceCollection(this.globalWorkspaceCollection);
       this.trigger('persist_end', data);
       this.trigger('workspace_collection_changed', this.workspaceCollection);
-      //this.trigger('workspace_collection_changed', this.workspaceCollection);
-      // this.load(function() {
-      //   this.trigger('persist_end', data);
-      //   this.trigger('workspace_collection_changed', this.workspaceCollection);
-      // }.bind(this));
     }.bind(this));
   }; //<= delete
 
@@ -829,6 +791,8 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
       this.trigger('workspace_share_collection_changed', this.workspaceShareCollection);
     }
   }); // <= workspace_collection_share_load
+
+
   this.on('workspace_collection_share_filter', function(filter) {
     var re = new RegExp(filter, 'gi');
     this.trigger('workspace_share_collection_changed', sift({
@@ -1007,16 +971,13 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
 
 
   this.on('workspace_current_refresh', function() {
-    //console.log('workspace_current_refresh || ', this.workspaceCurrent);
     this.trigger('workspace_editor_menu_changed', this.action);
     this.trigger('workspace_current_changed', this.workspaceCurrent);
   }); // <= workspace_current_refresh
 
   // --------------------------------------------------------------------------------
 
-
   this.on('workspace_current_persist', function() {
-    console.log('Workspace STORE persist FINAL', this.workspaceCurrent);
     var mode = this.workspaceCurrent.mode;
     if (mode == 'init') {
       this.create().then(ws => {
@@ -1029,37 +990,12 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
     }
   }.bind(this)); // <= workspace_current_persist
 
-
   RiotControl.on('persistClick', function(data) {
-    // console.log("WORKSPACE STORE PERSIST START");
-    // this.componentView = true;
-    // this.userView = true;
-    // this.DescriptionView = true;
-    // RiotControl.trigger('workspace_current_updateField', {
-    //   field: 'name',
-    //   data: data.name
-    // });
-    // RiotControl.trigger('workspace_current_updateField', {
-    //   field: 'description',
-    //   data: data.description
-    // });
     RiotControl.trigger('workspace_current_persist');
   }.bind(this));
 
-
   // --------------------------------------------------------------------------------
 
-  // this.on('workspace_current_add_component', function(data) {
-  //   console.log("workspace_current_add_component ||", data)
-  //   data.workspaceId = this.workspaceCurrent._id;
-  //   data.specificData = {};
-  //   this.workspaceCurrent.components.push(data);
-  //   // this.trigger('save_auto', {
-  //   //   compoenent:data,
-  //   //   workspace: this.workspaceCurrent,
-  //   // })
-  //   this.trigger('save_auto')
-  // });
   this.on('set_componentSelectedToAdd', function(message) {
     //console.log('set_componentSelectedToAdd',message);
     this.componentSelectedToAdd = message;
@@ -1081,7 +1017,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   this.on('workspace_current_delete_component', function(record) {
-    console.log("workspace_current_delete_component ||", record);
     this.utilStore.ajaxCall({
       method: 'delete',
       url: '../data/core/workspaceComponent/' + record._id,
@@ -1113,8 +1048,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
       token: localStorage.token
     }));
   });
-
-
 
   ///GESTION DES DROIT DE USER
   this.on('set-email-to-share', function(email) {
@@ -1158,7 +1091,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
     }.bind(this));
   });
 
-
   this.on('item_current_connect_before_show', function(data) {
     this.modeConnectBefore = !this.modeConnectBefore;
     this.modeConnectAfter = false;
@@ -1193,7 +1125,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
     this.trigger('workspace_graph_selection_changed', this.graph);
   });
 
-
   this.on('connect_components', function(source, target) {
     this.utilStore.ajaxCall({
       method: 'post',
@@ -1217,17 +1148,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
   });
 
   this.on('disconnect_components', function(link) {
-    // let serialised = {
-    //   source: this.workspaceBusiness.serialiseWorkspaceComponent(source),
-    //   target: this.workspaceBusiness.serialiseWorkspaceComponent(target)
-    // }
-    // serialised.source.connectionsAfter.splice(serialised.source.connectionsAfter.indexOf(sift({
-    //   _id: target._id
-    // }, serialised.source.connectionsAfter)[0]), 1);
-    // serialised.target.connectionsBefore.splice(serialised.source.connectionsBefore.indexOf(sift({
-    //   _id: source._id
-    // }, serialised.source.connectionsBefore)[0]), 1);
-
     this.utilStore.ajaxCall({
       method: 'delete',
       url: '../data/core/workspaceComponent/connection',
@@ -1245,22 +1165,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
     })
   });
 
-  //it is here because genericStore manage the current item and drad&drop impact others
-  // this.on('item_updateField', function(message) {
-  //   console.log('item_current_updateField ', message);
-  //   let item = sift({
-  //     _id: message.id
-  //   }, this.workspaceCurrent.components)[0];
-  //   item[message.field] = message.data;
-  //   this.trigger('workspace_current_changed', this.workspaceCurrent);
-  // });
-
   this.on('item_persist', function(item) {
-    // console.log(message);
-    // let item = sift({
-    //   _id: message.id
-    // }, this.workspaceCurrent.components)[0];
-
     this.utilStore.ajaxCall({
       method: 'put',
       url: '../data/core/workspaceComponent',
@@ -1304,17 +1209,12 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   this.persistComponent = function() {
-    console.log('GenericStore || persist', this.itemCurrent);
     this.updateComponent().then(data => {
       route('workspace/' + data.workspaceId + '/component')
     })
   } //<= persist
 
-
-
-
   this.on('item_current_updateField', function(message) {
-    console.log('item_current_updateField ', message);
     utilStore.objectSetFieldValue(this.itemCurrent, message.field, message.data);
     //this.itemCurrent[message.field] = message.data;
     this.trigger('item_current_changed', this.itemCurrent);
@@ -1328,75 +1228,33 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
 
   // --------------------------------------------------------------------------------
 
-
-
   this.on('item_current_persist', function(message) {
-    console.log('item_current_persist', this.workspaceBusiness.serialiseWorkspaceComponent(this.itemCurrent));
     this.persistComponent();
   }); //<=  item_current_persist
 
   this.on('component_preview', () => {
-    //console.log('component_preview', this.itemCurrent._id, this.currentProcess.processId);
     this.utilStore.ajaxCall({
       method: 'get',
       url: '../data/core/componentData/' + this.itemCurrent._id + '/' + this.currentProcess._id
     }, true).then(data => {
       this.currentPreview = data;
-      //console.log('DATA',data);
       this.trigger('process_result', this.currentPreview);
     })
   });
 
   this.on('item_current_cancel', function(data) {
-    console.log('item_current_cancel :', this.itemCurrent);
     if (this.itemCurrent) {
       this.itemCurrent.mode = undefined;
     }
   });
 
-
-  // this.computeAvailableConnetions = function() {
-  //   let beforeConnectionAvailable = sift({
-  //     $and: [{
-  //       _id: {
-  //         $nin: this.itemCurrent.connectionsBefore.map(c => c._id)
-  //       }
-  //     }, {
-  //       _id: {
-  //         $ne: this.itemCurrent._id
-  //       }
-  //     }]
-  //     //workspace of component should filled but is'nt (should be filled in workspace load/deserialized)
-  //   }, this.workspaceCurrent.components);
-  //
-  //   let afterConnectionAvailable = sift({
-  //     $and: [{
-  //       _id: {
-  //         $nin: this.itemCurrent.connectionsAfter.map(c => c._id)
-  //       }
-  //     }, {
-  //       _id: {
-  //         $ne: this.itemCurrent._id
-  //       }
-  //     }]
-  //     //workspace of component should filled but is'nt (should be filled in workspace load/deserialized)
-  //   }, this.workspaceCurrent.components);
-  //   let out = {
-  //     before: beforeConnectionAvailable,
-  //     after: afterConnectionAvailable
-  //   };
-  //
-  //   return out;
-  // }
   this.on('component_current_set', function(data) {
     //console.log('component_current_set 1');
     this.itemCurrent = data;
   });
 
   this.on('component_current_select', function(data) {
-    //console.log('WARNING');
     this.itemCurrent = data;
-    //this.trigger('item_current_edit_mode','generic', this.itemCurrent);
     this.trigger('component_current_select_done');
   }); //<= item_current_select
 
@@ -1431,14 +1289,10 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
       before: this.modeConnectBefore,
       after: this.modeConnectAfter
     });
-    //this.trigger('item_curent_available_connections', this.computeAvailableConnetions());
-    console.log('genericStore | component_current_select |', this.itemCurrent);
     this.trigger('item_current_changed', this.itemCurrent);
   }
 
   this.on('component_current_refresh', function() {
-    //console.log('WARNING');
-    //this.trigger('item_current_edit_mode','generic', this.itemCurrent);
     this.refreshComponent();
   }); //<= item_current_select
 
