@@ -116,7 +116,7 @@ function _create_preprocess(userParams) {
           if (!userParams.email) {
             reject("no_email_provided");
           }
-          ! _check_email(userParams.email) ? reject("bad_email"): resolve(userParams.email)
+          !_check_email(userParams.email) ? reject("bad_email"): resolve(userParams.email)
         });
         var job = new Promise(function(resolve, reject) {
           if (!userParams.job) {
@@ -533,14 +533,6 @@ function _update_mainprocess(preData) {
       toUpdate["$set"]["credentials.hashed_password"] = preData.hash_password;
     }
 
-    if (preData.stripeID) {
-      if (!toUpdate["$set"]) {
-        toUpdate["$set"] = {};
-      }
-
-      toUpdate["$set"]["stripeID"] = preData.stripeID;
-    }
-
     if (preData.credit) {
       if (!toUpdate["$set"]) {
         toUpdate["$set"] = {};
@@ -556,12 +548,6 @@ function _update_mainprocess(preData) {
       toUpdate["$set"]["job"] = preData.job;
     }
 
-    if (preData.secret_stripe) {
-      if (!toUpdate["$set"]) {
-        toUpdate["$set"] = {};
-      }
-      toUpdate["$set"]["secret_stripe"] = preData.secret_stripe;
-    }
 
     if (preData.name) {
       if (!toUpdate["$set"]) {

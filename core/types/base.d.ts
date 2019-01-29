@@ -15,10 +15,7 @@ interface Configuration {
   quietLog: any
   saveLock: any
   secret: any
-  secret_stripe_private: any
-  secret_stripe_public: any
   socketClient: any
   socketServer: any
-  stripe_redirect_url: any
   timer: any
 }
