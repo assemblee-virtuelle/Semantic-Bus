@@ -533,14 +533,6 @@ function _update_mainprocess(preData) {
       toUpdate["$set"]["credentials.hashed_password"] = preData.hash_password;
     }
 
-    if (preData.stripeID) {
-      if (!toUpdate["$set"]) {
-        toUpdate["$set"] = {};
-      }
-
-      toUpdate["$set"]["stripeID"] = preData.stripeID;
-    }
-
     if (preData.credit) {
       if (!toUpdate["$set"]) {
         toUpdate["$set"] = {};
@@ -556,12 +548,6 @@ function _update_mainprocess(preData) {
       toUpdate["$set"]["job"] = preData.job;
     }
 
-    if (preData.secret_stripe) {
-      if (!toUpdate["$set"]) {
-        toUpdate["$set"] = {};
-      }
-      toUpdate["$set"]["secret_stripe"] = preData.secret_stripe;
-    }
 
     if (preData.name) {
       if (!toUpdate["$set"]) {
