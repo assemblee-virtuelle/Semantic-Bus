@@ -428,8 +428,8 @@ class Engine {
     historic_object.componentPrice = current_component_price.moPrice;
     console.log("COMPONENT PRICE", (historic_object.moCount * historic_object.componentPrice), "SIZE FLOW", historic_object.moCount)
     historic_object.totalPrice =
-      (historic_object.recordCount * historic_object.recordPrice) / 1000 +
-      (historic_object.moCount * historic_object.componentPrice) / 1000;
+      (historic_object.recordCount * historic_object.recordPrice) +
+      (historic_object.moCount * historic_object.componentPrice);
     historic_object.componentModule = module
     //TODO pas besoin de stoquer le name du component, on a l'id. ok si grosse perte de perf pour histogramme
     historic_object.componentName = processingNode.component.name;
