@@ -21,7 +21,6 @@ docker-clean:
 	$(DOCKER_COMPOSE) rm -fv
 
 # Start
-
 start: docker-up ## Start the project
 
 stop: docker-stop ## Stop the project
