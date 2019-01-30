@@ -1,4 +1,5 @@
 "use strict";
+
 class Upload {
   constructor() {
     this.type= 'Upload';
@@ -19,6 +20,7 @@ class Upload {
   }
 
   initialise(router, stompClient) {
+    //this.stompClient=stompClient;
     router.post('/upload/:compId', (req, res, next) => {
 
       var compId = req.params.compId;
@@ -48,8 +50,6 @@ class Upload {
 
           }
 
-
-          // console.log('File [' + fieldname + ']: filename: ' + filename + ', encoding: ' + encoding + ', mimetype: ' + mimetype);
           file.on('data', (data) => {
             // console.log('data', typeof(data));
             if (buffer == undefined) {
@@ -88,28 +88,13 @@ class Upload {
           reject(fullError)
         });
 
-        // busboy.on('finish', () => {
-        //
-        //   //res.statusCode = 200;
-        //   this.dataTraitment.type.type_file(fileName, string, buffer).then((result) => {
-        //     resolve(result)
-        //   }, (err) => {
-        //     //console.log("in error ")
-        //     let fullError = new Error(err);
-        //     fullError.displayMessage = "Upload : " + err;
-        //     reject(fullError);
-        //   })
-        // });
-
         req.pipe(busboy);
 
       }).then((resultatTraite) => {
         res.json({
           message: 'file upload ok'
         });
-        //console.log('HTTP OK');
-        //console.log('ALLO');
-        //console.log(this);
+
         var recursivPullResolvePromiseDynamic = require('../engine');
         this.workspace_component_lib.get({
           _id: compId

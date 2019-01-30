@@ -1,23 +1,22 @@
 "use strict";
-module.exports = {
-  type: 'Flow consumer',
-  description: 'Interroger une API REST avec une requête GET qui fournit un flux JSON, XML.',
-  editor: 'rest-get-json-editor',
-  graphIcon: 'Flow_consumer.png',
-  tags: [
-    'http://semantic-bus.org/data/tags/inComponents',
-    'http://semantic-bus.org/data/tags/APIComponents'
-  ],
-  url: require('url'),
-  //http: require('http'),
-  http: require('follow-redirects').http,
-  //https: require('https'),
-  https: require('follow-redirects').https,
-  stringReplacer: require('../sharedLibrary/stringReplacer.js'),
-  xml2js: require('xml2js'),
-  //waterfall: require('promise-waterfall'),
+class RestGetJson {
+  constructor() {
+    this.type= 'Flow consumer';
+    this.description= 'Interroger une API REST avec une requête GET qui fournit un flux JSON; XML.';
+    this.editor= 'rest-get-json-editor';
+    this.graphIcon= 'Flow_consumer.png';
+    this.tags= [
+      'http://semantic-bus.org/data/tags/inComponents',
+      'http://semantic-bus.org/data/tags/APIComponents'
+    ];
+    this.url= require('url');
+    this.http= require('follow-redirects').http;
+    this.https= require('follow-redirects').https;
+    this.stringReplacer= require('../sharedLibrary/stringReplacer.js');
+    this.xml2js= require('xml2js');
+  }
 
-  makeRequest: function(methodRest, specificData, pullParams, flowdata) {
+  makeRequest(methodRest, specificData, pullParams, flowdata) {
 
     // create a new Promise
     return new Promise((resolve, reject) => {
@@ -143,11 +142,14 @@ module.exports = {
       });
       request.end();
     });
-  },
-  pull: function(data, flowdata, pullParams) {
+  }
+
+  pull(data, flowdata, pullParams) {
     //console.log('REST Get JSON | pull : ',data);
     //console.log(data.specificData);
     return this.makeRequest('GET', data.specificData, pullParams, flowdata==undefined?undefined: flowdata[0].data);
 
   }
-};
+
+}
+module.exports = new RestGetJson();
