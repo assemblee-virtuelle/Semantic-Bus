@@ -26,7 +26,7 @@ http.globalAgent.maxSockets = 1000000000;
 httpGet.makeRequest('GET', {
   url
 }).then(result => {
-
+  
   const configJson = result.data;
   const content = 'module.exports = ' + JSON.stringify(result.data);
 
