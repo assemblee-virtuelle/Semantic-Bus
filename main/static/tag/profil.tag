@@ -244,7 +244,11 @@
     }
 
     input {
-      font-size: 1em
+      box-sizing: border-box;
+      font-size: 1em;
+      font-family: 'Open Sans', sans-serif;
+      width: 80%;
+      color: rgb(100,100,100)
     }
     #containerLoaderDiv {
       background-color: rgba(200,200,200,0.6);

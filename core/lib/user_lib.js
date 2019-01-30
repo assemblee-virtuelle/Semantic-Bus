@@ -106,17 +106,17 @@ function _create_preprocess(userParams) {
   return new Promise(function(resolve, reject) {
     _get({
       "credentials.email": userParams.email
-    }).then(function(user) {
-      if (config.quietLog != true) {
-        console.log("User start ----", user);
-      }
-      console.log("User start ----", user);
+    }).then((user) => {
       if (user == null) {
-        var email = new Promise(function(resolve, reject) {
-          if (!userParams.email) {
+        var mail = new Promise(function(resolve, reject) {
+          const Usermail = Object.assign({}, userParams)
+          if (!Usermail.email) {
             reject("no_email_provided");
+          }  else if(!_check_email(Usermail.email)) {
+            reject("bad_email")
+          } else {
+            resolve(Usermail.email)
           }
-          !_check_email(userParams.email) ? reject("bad_email"): resolve(userParams.email)
         });
         var job = new Promise(function(resolve, reject) {
           if (!userParams.job) {
@@ -173,19 +173,18 @@ function _create_preprocess(userParams) {
           }
         });
         // return new Promise(function (resolve, reject) {
-        Promise.all([email, name, hash_password, job, society, mailid])
-          .then(function(user) {
+        Promise.all([mail, name, hash_password, job, society, mailid])
+          .then((userPromise) =>{
             //console.log('XXXXXXXXXXXXXXXXXX',user);
-            user_final["email"] = user[0];
-            user_final["name"] = user[1];
-            user_final["hashedPassword"] = user[2];
-            user_final["job"] = user[3];
-            user_final["society"] = user[4];
-            user_final["mailid"] = user[5];
-            console.log(user_final)
+            user_final["email"] = userPromise[0];
+            user_final["name"] = userPromise[1];
+            user_final["hashedPassword"] = userPromise[2];
+            user_final["job"] = userPromise[3];
+            user_final["society"] = userPromise[4];
+            user_final["mailid"] = userPromise[5];
             resolve(user_final);
           })
-          .catch(function(err) {
+          .catch((err)=>{
             reject(err);
           });
       } else {
@@ -735,8 +734,6 @@ function _update_preprocess(userParams) {
 // --------------------------------------------------------------------------------
 
 function _check_email(email) {
-  console.log("TEST CCE FILS DE PUTE D EMAIL")
-  console.log("TEST CCE FILS DE PUTE D EMAIL", pattern.email.test(email) )
     return pattern.email.test(email) 
 } // <= _check_email
 

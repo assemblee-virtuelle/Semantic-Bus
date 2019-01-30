@@ -19,37 +19,20 @@ module.exports = function (router,stompClient) {
   let sendMail = function (rand, req, email, id, res) {
     return new Promise(function (resolve, reject) {
       host = req.get('host');
-      console.log("SEND MAIL", email + " : " + id)
       link = "http://" + req.get('host') + "/auth/verify?id=" + rand + '&userid=' + id;
-      // Create a SMTP transporter object
-      console.log("SEND MAIL", link)
-      let transporter = nodemailer.createTransport({
-        service: 'Gmail',
-        auth: {
-          type: 'OAuth2',
-          user: "semanticbusdev@gmail.com",
-          clientId: "497545161510-jevr8h52tl51j5gsd208icp5bbbi9suq.apps.googleusercontent.com",
-          clientSecret: "e-0uRyWiFqkbpCVWQGMh-EpW",
-          refreshToken: "1/Xv9sWJCgiCUVX9q_9iYBQs4sMsi4wvxS35kfqudJW9A",
-          expires: 12345
-        },
-        debug: true // include SMTP traffic in the logs
-      }, {
-        // default message fields
-        // sender info
-        from: 'Le bus, Confirmer votre email <semanticbusdev@gmail.com>',
+       let transporter = nodemailer.createTransport(configuration.smtp, {
+        from: 'Grappe, Confirmer votre email <tech@data-players.com>',
         headers: {
-          // 'X-Laziness-level': 1000 // just an example header, no need to use this
+          'X-Laziness-level': 1000 // just an example header, no need to use this
         }
       });
       var mailOptions = {
         to: email,
-        subject: "Please confirm your Email account",
-        html: "Hello,<br> Please Click on the link to verify your email.<br><a href=" + link + ">Click here to verify</a>"
+        subject: "Confirmer Votre compte",
+        html: "Bonjour,<br> Merci de cliquer sur le lien suivant pour confirmer votre compte. <br><a href=" + link + ">Ici </a>"
       }
-      transporter.sendMail(mailOptions, function (error, response) {
+      transporter.sendMail(mailOptions, function (error) {
         if (error) {
-          console.log(error);
           reject(error)
         } else {
           resolve("mail sent");
@@ -58,42 +41,27 @@ module.exports = function (router,stompClient) {
     })
   } //<-- sendMail
 
-
-
   let sendMailPassword = function (rand, req, email, id, res, user) {
     return new Promise(function (resolve, reject) {
       host = req.get('host');
-      console.log("SEND MAIL", email + " : " + id)
-      //
       link = "http://" + req.get('host') + '/auth/login.html#forgot_password/changePassword?u=' + id + '&code=' + rand
+      
       // Create a SMTP transporter object
-      let transporter = nodemailer.createTransport({
-        service: 'Gmail',
-        auth: {
-          type: 'OAuth2',
-          user: "semanticbusdev@gmail.com",
-          clientId: "497545161510-jevr8h52tl51j5gsd208icp5bbbi9suq.apps.googleusercontent.com",
-          clientSecret: "e-0uRyWiFqkbpCVWQGMh-EpW",
-          refreshToken: "1/Xv9sWJCgiCUVX9q_9iYBQs4sMsi4wvxS35kfqudJW9A",
-          expires: 12345
-        },
-        debug: true // include SMTP traffic in the logs
-      }, {
-        // default message fields
-        // sender info
-        from: 'Le bus, Confirmer votre email <semanticbusdev@gmail.com>',
+      const transporter = nodemailer.createTransport(configuration.smtp, {
+        from: 'Grappe, Mettez à jour votre mot de Passe <tech@data-players.com>',
         headers: {
-          // 'X-Laziness-level': 1000 // just an example header, no need to use this
+          'X-Laziness-level': 1000 // just an example header, no need to use this
         }
       });
+
       var mailOptions = {
         to: email,
-        subject: "Please click here for reset your password",
-        html: "Hello,<br> Please Click on the link to verify your email.<br> <br> Votre code est le suivant <h2>" + rand + "</h1><br><a href=" + link + ">Click here to verify</a>"
+        subject: "Mettez à jour votre mot de Passe",
+        html: "Bonjour ,<br> Mettez à jour votre mot de Passe, <br> <br> Votre code est le suivant <h2>" + rand + "</h1><br><a href=" + link + ">Cliquez ici </a>"
       }
+
       transporter.sendMail(mailOptions, function (error, response) {
         if (error) {
-          console.log(error);
           reject(error)
         } else {
           resolve("mail sent");
@@ -111,6 +79,7 @@ module.exports = function (router,stompClient) {
       //console.log(user, req.query.id, user.mailid)
       if (req.query.id == user.mailid) {
         user.active = true
+        user.credits = 2000
         user_lib.update(user, null).then(function (result) {
           res.redirect('https://semantic-bus.org/ihm/application.html')
         }).catch(function (err) {
@@ -125,30 +94,7 @@ module.exports = function (router,stompClient) {
   }); //<-- mailVerification
 
 
-  router.get('/payement', function (req, res) {
-    console.log("IN PAEMENT WEBHOOK", req.query)
-    // user_lib.get({
-    //   _id: req.query.userid
-    // }).then((user) => {
-    //   console.log(user, req.query.id, user.mailid)
-    //   if (req.query.id == user.mailid) {
-    //     user.active = true
-    //     user_lib.update(user, null).then(function (result) {
-    //       res.redirect('https://semantic-bus.org/ihm/application.html')
-    //     }).catch(function (err) {
-    //       if (err) {
-    //         res.send({
-    //           err: "load error"
-    //         })
-    //       }
-    //     })
-    //   }
-    // })
-  }); //<-- mailVerification
-
-
   router.post('/is_authorize_component', function (req, res) {
-    console.log("is_authorize_component", req.body)
     let code = req.body[1].split("&code=")[1]
     let userId = req.body[1].split("&code=")[0].split("u=")[1]
     //console.log(userId, code)
@@ -179,7 +125,6 @@ module.exports = function (router,stompClient) {
     user_lib.get({
       _id: req.body.id
     }).then((user) => {
-      console.log("UPDATE START", user)
       if (Date.now() < user.resetpasswordtoken + 600000) {
         user.new_password = req.body.new_password
         user_lib.update(user, null).then(function (result) {
@@ -240,7 +185,6 @@ module.exports = function (router,stompClient) {
       _id: req.params.id
     }).then((user) => {
       sendMail(user.mailid, req, user.credentials.email, user._id, res).then((result) => {
-        console.log("MAIL SENT", result)
         res.send('mail_sent')
       }).catch((err) => {
         res.send({
@@ -253,7 +197,6 @@ module.exports = function (router,stompClient) {
 
 
   router.get('/passwordforget/:email', function (req, res) {
-    console.log("IN SEND BACK END PASSWORD -", req.params.email)
     user_lib.get({
       "credentials.email": req.params.email
     }).then((user) => {
@@ -261,9 +204,7 @@ module.exports = function (router,stompClient) {
       user.resetpasswordtoken = Date.now()
       user.resetpasswordmdp = rand
       user_lib.update(user, null).then(function (result) {
-        console.log("user update ===>", result)
         sendMailPassword(rand, req, user.credentials.email, user._id, res).then((result) => {
-          console.log("MAIL SENT", result)
           res.send({
             user: user,
             state: 'mail_sent'
@@ -286,7 +227,6 @@ module.exports = function (router,stompClient) {
 
   router.post('/isTokenValid', function (req, res) {
     //console.log(this);
-    //console.log('stompClient 1',this.stompClient);
     if (req.body.token) {
       //console.log("isTokenValid",req.body.token);
       jwtService.require_token(req.body.token).then(function (token_result) {
@@ -296,9 +236,9 @@ module.exports = function (router,stompClient) {
             token_result.profil=u;
             res.send(token_result);
           })
+          
         }
       }).catch((err) => {
-        console.log("error is token valid web service",err)
           res.send(false)
       })
     }
@@ -309,7 +249,6 @@ module.exports = function (router,stompClient) {
 
   router.post('/inscription', function (req, res) {
     let rand = Math.floor((Math.random() * 100) + 54);
-    console.log("BODY", req.body)
     inscription_lib_user.create({
       user: {
         mailid: rand,
