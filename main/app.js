@@ -11,7 +11,7 @@ const bodyParser = require("body-parser");
 const env = process.env;
 const httpGet = require('./webServices/workSpaceComponentDirectory/restGetJson.js');
 const fs = require('fs');
-const url = env.CONFIG_URL || 'https://data-players.github.io/StrongBox/public/dev-docker.json';
+const url = env.CONFIG_URL || 'https://data-players.github.io/StrongBox/public/dev-local-mac.json';
 
 app.use(cors());
 app.use(bodyParser.json({
@@ -59,7 +59,7 @@ httpGet.makeRequest('GET', {
 
         app.use('/auth', express.static('static'));
         app.use('/auth', unSafeRouteur);
-        //app.use('/configuration', unSafeRouteur);
+        app.use('/configuration', unSafeRouteur);
         app.use('/data/specific', safe);
         app.use('/data/api', unSafeRouteur);
         app.use('/data/core', safe);
