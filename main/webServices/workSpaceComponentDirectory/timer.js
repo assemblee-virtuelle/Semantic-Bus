@@ -5,8 +5,6 @@ class Timer {
     this.description= 'Déclencher un traitement à intervalle régulier par minute.';
     this.editor= 'timer-editor';
     this.graphIcon='Timer.png';
-    // workspace_component_lib : require('../../core/lib/workspace_component_lib');
-    // cache_lib : require('../../core/lib/cache_lib');
     this.stepNode= false;
     this.tags=[
       'http://semantic-bus.org/data/tags/middleComponents',
@@ -29,5 +27,4 @@ class Timer {
     })
   }
 }
-
-module.exports= new Timer();
+module.exports = new Timer();
