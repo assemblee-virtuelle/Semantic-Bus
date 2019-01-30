@@ -59,7 +59,7 @@ httpGet.makeRequest('GET', {
 
         app.use('/auth', express.static('static'));
         app.use('/auth', unSafeRouteur);
-        //app.use('/configuration', unSafeRouteur);
+        app.use('/configuration', unSafeRouteur);
         app.use('/data/specific', safe);
         app.use('/data/api', unSafeRouteur);
         app.use('/data/core', safe);

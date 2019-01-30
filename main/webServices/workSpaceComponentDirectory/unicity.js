@@ -9,6 +9,7 @@ class UnicityExecutor {
     this.globalOut = [];
     this.sift= require('sift');
   }
+  
   execute() {
     return new Promise((resolve, reject) => {
       this.initialPromiseResolve = resolve;
@@ -125,3 +126,4 @@ class Unicity {
     })
   }
 }
+module.exports = new Unicity();

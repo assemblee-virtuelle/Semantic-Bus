@@ -24,6 +24,19 @@ module.exports = function(router, amqpClient) {
     }, {
       noAck: true
     });
+
+    router.get('/work-ask/:componentId', function(req, res, next) {
+      //var messageObject = JSON.parse(msg.content.toString());
+      var componentId = req.params.componentId;
+      workspace_component_lib.get({
+        _id: componentId
+      }).then(function(data) {
+        var engine = require('./engine');
+        return engine.execute(data, 'work', this.amqpClient, undefined);
+      }).then((data) => {
+      }).catch(e => {
+      });
+    });
   }
 
   // --------------------------------------------------------------------------------
@@ -49,7 +62,7 @@ module.exports = function(router, amqpClient) {
   });
 
   // --------------------------------------------------------------------------------
-  
+
   router.get('/componentData/:componentId/:processId', function(req, res, next) {
     var componentId = req.params.componentId;
     var processId = req.params.processId;
