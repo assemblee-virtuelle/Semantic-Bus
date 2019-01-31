@@ -1,0 +1,23 @@
+{
+    "extends": "standard",
+    "rules": {
+      "camelcase": "warn",
+      "eqeqeq": "warn",
+      "handle-callback-err": "warn",
+      "indent": ["error", 2],
+      "new-cap": "warn",
+      "no-eval": "warn",
+      "no-irregular-whitespace": "warn",
+      "no-new": "warn",
+      "no-redeclare": "warn",
+      "no-sequences": "warn",
+      "no-shadow-restricted-names": "warn",
+      "no-template-curly-in-string": "warn",
+      "no-undef": "warn",
+      "no-unused-expressions": "warn",
+      "no-unused-vars": "warn",
+      "no-useless-escape": "warn",
+      "no-use-before-define": "warn",
+      "prefer-promise-reject-errors": "warn"
+    }
+  } 

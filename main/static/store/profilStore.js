@@ -51,9 +51,9 @@ function ProfilStore() {
       contentType: 'application/json'
     }).done(function (data) {
       if (data == "mail_sent") {
-        this.trigger('email_send')
+        this.trigger('ajax_sucess', `Un mail vous a  été envoyé, consultez votre boite mail`)
       } else {
-        this.trigger('error_email_send')
+        this.trigger('ajax_fail', `Erreur lors de l'envoie de mail contactez nous si cela persiste`)
       }
     }.bind(this))
   });

@@ -80,13 +80,6 @@ function TechnicalComponentStore(utilStore) {
     this.trigger('technicalComponent_current_changed',this.technicalComponentCurrent);
   });
 
-  // this.on('technicalComponent_current_select',function(data){
-  //   console.log('store select');
-  //   this.technicalComponentCurrent=data;
-  //   this.technicalComponentCurrent.mode='read';
-  //   this.trigger('technicalComponent_current_changed',this.technicalComponentCurrent);
-  // });
-
   this.on('technicalComponent_current_edit',function(data){
     console.log('store edit',data);
     this.technicalComponentCurrent=data;

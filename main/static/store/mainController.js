@@ -5,19 +5,6 @@ function MainController(allStore) {
     this[store]=allStore[store];
   }
 
-  this.on('https_force?', function() {
-    $.ajax({
-      method: 'get',
-      url: '/configuration/configurationhttps',
-    }).done(data => {
-      if (data == "force") {
-        if (window.location.href.substr(0, 5) != "https") {
-          window.location.replace("https" + window.location.href.substr(4, window.location.href.split("").length - 1))
-        }
-      }
-    })
-  })
-
   this.on('is_token_valid?', function() {
     if (localStorage.token == 'null' || localStorage.token == null) {
       this.trigger('login_redirect');

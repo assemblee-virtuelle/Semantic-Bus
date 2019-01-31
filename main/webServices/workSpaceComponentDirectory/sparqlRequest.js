@@ -1,16 +1,18 @@
 "use strict";
-module.exports = {
-  type: 'SPARQL',
-  description: 'Requêter en SPARQL sur un fichier JSON ld.',
-  editor: 'sparql-request-editor',
-  graphIcon: 'Sparql.png',
-  tags: [
-    'http://semantic-bus.org/data/tags/middleComponents',
-    'http://semantic-bus.org/data/tags/middleQueryingComponents'
-  ],
-  rdfstore: require('rdfstore'),
+class SparqlRequest {
+  constructor() {
+    this.type= 'SPARQL';
+    this.description= 'Requêter en SPARQL sur un fichier JSON ld.';
+    this.editor= 'sparql-request-editor';
+    this.graphIcon= 'Sparql.png';
+    this.tags= [
+      'http://semantic-bus.org/data/tags/middleComponents',
+      'http://semantic-bus.org/data/tags/middleQueryingComponents'
+    ];
+    this.rdfstore= require('rdfstore');
+  }
 
-  makeRequest: function(flowData, request) {
+  makeRequest(flowData, request) {
     return new Promise((resolve, reject) => {
 
       //var query = request;
@@ -53,10 +55,11 @@ module.exports = {
       }
 
     })
-  },
-  pull: function(data, flowData) {
-    //console.log('REST Get JSON | pull : ',data);
-    // console.log("flowDataAAAAAAAAA", flowData[0].data)
+  }
+
+  pull(data, flowData) {
     return this.makeRequest(flowData[0].data, data.specificData.request);
   }
-};
+
+}
+module.exports = new SparqlRequest();

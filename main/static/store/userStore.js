@@ -9,7 +9,6 @@ var UserStore = function() {
   }
 
   this.on('https_force?', function () {
-  console.log("https_force")
     $.ajax({
       method: 'get',
       url: '/configuration/configurationhttps',

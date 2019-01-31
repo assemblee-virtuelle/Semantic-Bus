@@ -88,7 +88,7 @@ class Engine {
                   this.workspace_lib.createProcess({
                     workflowId: this.originComponent.workspaceId,
                     ownerId: this.owner._id,
-                    callerId: this.callerId, 
+                    callerId: this.callerId,
                     originComponentId: this.originComponent._id,
                     steps: this.pathResolution.nodes.map(node => ({ componentId: node.component._id }))
                   }).then((process) => {
@@ -136,9 +136,10 @@ class Engine {
   processNextBuildPath() {
     setTimeout(this.processNextBuildPathDelayed.bind(this), 100);
   }
-  
+
   processNextBuildPathDelayed() {
-    if (this.owner.credit >= 0) {
+    // console.log('privateScript',this.config.privateScript);
+    if (this.owner.credit >= 0 || this.config.privateScript==undefined) {
 
       this.fackCounter++;
       if (this.config.quietLog != true) {
@@ -545,7 +546,7 @@ class Engine {
       }
 
       let module = this.technicalComponentDirectory[component.module];
-  
+
       if (module.buildQueryParam != undefined) {
         queryParams = {
           origin: component._id,

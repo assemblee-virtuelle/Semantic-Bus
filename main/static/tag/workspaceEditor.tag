@@ -249,6 +249,14 @@
       padding: 5%;
     }
 
+    #description input {
+      box-sizing: border-box;
+      font-size: 1em;
+      font-family: 'Open Sans', sans-serif;
+      width: 80%;
+      color: rgb(100,100,100)
+    }
+
     .title-bar {
       color: #3883fa;
       flex: 2;
