@@ -23,13 +23,13 @@
         <g id="stateLayer"></g>
         <g id="shapeSelector"></g>
         <g id="shapeLayer"></g>
-      </g>
         <svg id="textLayer">
           <rect class="tooltip" width="220" height="30"></rect>
           <text x="10" y="20" width="200" height="20"></text>
         </svg>
         <g id="lineCommandLayer"></g>
         <g id="shapeCommandLayer"></g>
+      </g>
 
     </svg>
   <div class="containerV" style="padding:20px" >
