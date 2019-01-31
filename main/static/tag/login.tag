@@ -187,7 +187,7 @@
           </div>
           <label class="label-form">Nouveau mot de passe</label>
           <input type="password" ref="new_password" onkeyup={new_passwordKeyup} id="password" placeholder="saisissez le nouveau mot de passe" required="required"/>
-          <p>{result_password}</p>}
+          <p>{result_password}</p>
           <!--bouton envoyer + annuler -->
           <div onclick={verifecode} class=" btn containerH" style="justify-content: center; align-items: center;flex-wrap:wrap">
             <a>Envoyer</a>

@@ -41,7 +41,7 @@ ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 RUN node -v
 RUN npm -v
 
-
+RUN npm install pm2 -g
 # Bundle app source
 
 ADD ./main /data/main/
@@ -55,4 +55,4 @@ RUN cd /data/main && ls && npm cache clean --force &&  npm install
 
 EXPOSE 80
 
-CMD [ "npm", "run", "start" ]
+CMD [ "pm2", "start", "app.js", "--max-memory-restart", "1500M" ,"--no-daemon"]
