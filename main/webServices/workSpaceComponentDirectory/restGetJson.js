@@ -28,7 +28,7 @@ class RestGetJson {
       //     urlString = urlString.replace('{£.' + param + '}', pullParams.query[param]);
       //   }
       // }
-
+      // console.log(JSON.stringify(pullParams));
       urlString=this.stringReplacer.execute(urlString,pullParams,flowdata,true);
       // console.log('restGetJson',urlString);
       // console.log('urlString',urlString);
@@ -43,6 +43,7 @@ class RestGetJson {
       //console.log(headers);
       //console.log(urlString);
       let parsedUrl = this.url.parse(urlString);
+      // console.log('parsedUrl',parsedUrl);
       // console.log('REST Get JSON | makerequest | port', parsedUrl.port);
       // console.log('REST Get JSON | makerequest | host', parsedUrl.hostname);
       var requestOptions = {};
@@ -70,14 +71,13 @@ class RestGetJson {
       var lib = urlString.indexOf('https') != -1 ? this.https : this.http;
       //console.log('before',requestOptions.path);
       let request = this.http.request(requestOptions, response => {
-        // console.log('ALLO');
         let hasResponseFailed = response.statusCode >= 400;
         // console.log('REST Get JSON | header |',response.headers);
         // console.log('REST Get JSON | statusCode: |',response.statusCode);
         var responseBody = '';
         response.resume();
         if (hasResponseFailed) {
-          //console.log('error body',response);
+          // console.log('error body',response);
           reject(new Error('Request failed for url '+ urlString+' with status ' + response.statusCode));
         } else {
           /* the response stream's (an instance of Stream) current data. See:
@@ -93,8 +93,8 @@ class RestGetJson {
 
           // once all the data has been read, resolve the Promise
           response.on('end', () => {
-            // console.log('end response');
-            // console.log(responseBody);
+             // console.log('end response');
+             // console.log(responseBody);
 
             try {
               //console.log('CONTENT-TYPE',response.headers['content-type']);
@@ -115,7 +115,7 @@ class RestGetJson {
                 });
               } else if (contentType.search('json') != -1) {
                 let responseObject = JSON.parse(responseBody);
-                //console.log('response length',responseObject.length,parsedUrl.href);
+                // console.log('response length',responseObject.length,parsedUrl.href);
                 resolve({
                   data: JSON.parse(responseBody)
                 });

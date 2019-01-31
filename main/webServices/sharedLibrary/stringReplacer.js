@@ -16,7 +16,9 @@ module.exports = {
           // processingRawString = processingRawString.replace(match, JSON.stringify(this.dotProp.get(params, objectKey)));
           if (stringifyOption == true) {
             try {
-              value = JSON.stringify(value);
+              if (typeof value != 'string'){
+                value = JSON.stringify(value);
+              }
             } catch (e) {
 
             }
