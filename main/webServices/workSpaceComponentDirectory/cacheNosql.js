@@ -65,3 +65,5 @@ class CacheNosql {
     })
   }
 }
+
+module.exports = new CacheNosql();
