@@ -41,12 +41,13 @@ class RestGetJson{
                 req.query[key.name] = value;
                 valueIndex++;
               }
-
+              // console.log('ALLO');
               for (let queryKey in req.query) {
                 try {
+                  // console.log('1',req.query[queryKey]);
                   req.query[queryKey] = JSON.parse(req.query[queryKey]);
                 } catch (e) {
-
+                  // console.log('2',req.query[queryKey]);
                 }
               }
               break;
@@ -70,7 +71,7 @@ class RestGetJson{
         if (targetedComponent.specificData != undefined) { // exception in previous promise
           if (targetedComponent.specificData.contentType != undefined) {
             if(dataToSend.data==undefined){
-                next(new Error('data in flow is not defined. please chack your configuration'));
+                next(new Error('data in flow is not defined. please check your configuration'));
             } else  if (targetedComponent.specificData.contentType.search('application/vnd.ms-excel') != -1) {
               res.setHeader('content-type', targetedComponent.specificData.contentType);
               var responseBodyExel = []
