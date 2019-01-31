@@ -476,7 +476,7 @@ class Engine {
         error: 'error writing historic'
       });
     });
-    console.log("--------------  End of component processing --------------",  this.owner.credit);
+    // console.log("--------------  End of component processing --------------",  this.owner.credit);
     this.owner.credit -= historic_object.totalPrice;
   }
 
