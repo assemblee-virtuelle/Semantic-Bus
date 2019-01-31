@@ -1,7 +1,7 @@
 <graph class="containerV">
   <!-- page graph -->
   <div id="graphContainer" style="background-color: rgb(238,242,249); flex-grow:1;" class="containerH">
-    <svg viewBox="0 0 1500 900" ref="graphSvgCanvas" style="flex-grow:1;">
+    <svg viewBox={'0 0' + ' ' + viewboxSize + ' ' + '900'} ref="graphSvgCanvas" style="flex-grow:1;">
       <!--width="1000" height="600"-->
       <filter id="dropshadow" x="1%" y="1%" width="110%" height="110%">
         <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
@@ -17,28 +17,38 @@
         </feMerge>
       </filter>
       <g id="background">
-        <rect width="1500" height="900" class="background"></rect>
+        <rect width="1500" height="900" class="background draggable" ref"graph"></rect>
+        <g id="lineSelector"></g>
+        <g id="lineLayer"></g>
+        <g id="stateLayer"></g>
+        <g id="shapeSelector"></g>
+        <g id="shapeLayer"></g>
       </g>
-      <g id="lineSelector"></g>
-      <g id="lineLayer"></g>
-      <g id="stateLayer"></g>
-      <g id="shapeSelector"></g>
-      <g id="shapeLayer"></g>
-      <svg id="textLayer">
-        <rect class="tooltip" width="220" height="30"></rect>
-        <text x="10" y="20" width="200" height="20"></text>
-      </svg>
-      <g id="lineCommandLayer"></g>
-      <g id="shapeCommandLayer"></g>
-      <!--<image id="addComponentGraph" xlink:href="./image/ajout_composant.svg" class="commandButtonImage" x="1400" y="20" width="60" height="60" onclick={addComponentClick}></image>
-      <image  x="1290" y="20" id="addComponentGraph" xlink:href="./image/fullscreen-button.svg" class="commandButtonImage" if={fullscreen == true} x="1400" y="20" width="60" height="60" onclick={graphClick}></image>
-      <image  x="50" y="20" id="addComponentGraph" xlink:href="./image/fleche.svg" class="commandButtonImage" if={fullscreen == false} x="1400" y="20" width="40" height="40" onclick={back}></image>-->
+        <svg id="textLayer">
+          <rect class="tooltip" width="220" height="30"></rect>
+          <text x="10" y="20" width="200" height="20"></text>
+        </svg>
+        <g id="lineCommandLayer"></g>
+        <g id="shapeCommandLayer"></g>
+
     </svg>
+  <div class="containerV" style="padding:20px" >
+    <div onclick={zoom}  >
+       <img height="30px" src="https://img.icons8.com/color/48/000000/expand.png">
+    </div>
+    <div onclick={unZoom} >
+      <img height="30px" src="https://img.icons8.com/color/48/000000/collapse.png">
+    </div>
+    <div onclick={reset} >
+      <img height="30px" src="https://img.icons8.com/color/48/000000/resize-diagonal.png">
+    </div>
+  </div>
   </div>
     <!-- Bouton ajouter un composant -->
   <div class="containerH" style="flex-basis:45px; justify-content:center;flex-shrink:0;flex-grow:0;" >
-      <div onclick={showAddComponentClick} title="Ajouter un composant" class="commandButtonImage">
-        <img src="./image/ajout_composant.svg" height="40px" width="40px">
+    <div onclick={showAddComponentClick} title="Ajouter un composant" class="commandButtonImage">
+      <img src="./image/ajout_composant.svg" height="40px" width="40px">
+    </div>
   </div>
 
   <!--graphContainer-->
@@ -49,17 +59,34 @@
     this.selectorsLines = [];
     this.modeConnectAfter = false;
     this.modeConnectBefore = false;
-    this.fullscreen = true
+    this.fullscreen = true;
+    this.viewboxSize = 1500;
+    this.selectedElement;
+    this.offset;
+    this.transform;
 
+    zoom(){
+      this.viewboxSize -= 100
+    }
+    unZoom(){
+     this.viewboxSize += 100
+    }
+    reset(){
+      this.viewboxSize = 1500
+    }
 
     showAddComponentClick(e) {
       route('workspace/' + this.graph.workspace._id + '/addComponent');
     }
-    //this.selectedNodes={}; source urile : https://bl.ocks.org/mbostock/1095795 Constants for the SVG var width = 1500,   height = 900; // utilisé dans le script en bas
 
-    /*
-    Fonctions
-  */
+    var dragcontainer = d3.drag()
+      .on("drag", (d, i) => {
+        console.log("DRAG", d, i)
+        d3.select("#background").attr("transform", "translate(" + (d.x = d3.event.x) + "," + (d.y = d3.event.y) + ")");
+      });
+    
+
+
     this.drawSelected = function () {
       this.selectedNodes = sift({
         'selected': true
@@ -272,7 +299,6 @@
         }).attr("y", function (d) {
           return 0;
         }).on("click", function (d) {
-          console.log(d);
           RiotControl.trigger('disconnect_components', d);
 
         });
@@ -403,21 +429,9 @@
         this.svg = d3.select("svg");
 
         d3.select("#background").on("click", function (d) {
-          //console.log('CLICK ON main',d3.select(this)); RiotControl.trigger('connection_current_set');
           RiotControl.trigger('selection_reset');
-
-          // this.selectedNodes = []; this.selectedLines = []; //RiotControl.trigger('component_current_set', undefined); this.drawSelected(); this.drawSelectedLines(); this.update();
         }.bind(this));
       }
-
-      // if (this.simulation == undefined) {   /*   this.simulation = d3.forceSimulation(this.graph.nodes).force("charge", d3.forceManyBody().strength(-1000)).force("link", d3.forceLink([]).id(function (d) {     return d.id // cela semble désigner l'id des
-      // noeud (comment les liens retrouvent la propriété id des noeud) ne pas toujours chercher a comprendre comment d3 marche, mais c est necessaire )   }).distance(200)).force("x", d3.forceX()).force("y", d3.forceY()).alphaTarget(1).on("tick",
-      // this.ticked);   */
-      //
-      //   this.simulation = d3.forceSimulation(this.graph.nodes).velocityDecay(0.9).force('link', d3.forceLink(this.graph.links).id(function (d) {     return d.id // ( ne pas toujours chercher a comprendre comment d3 marche, mais c est necessaire )
-      // })).force("collide", d3.forceCollide().radius(30).iterations(2)).on("tick", this.ticked);
-      //
-      // }
 
       this.links = this.svg.select("#lineLayer").selectAll('line').data(graph.links, function (d) {
         return d.id;
@@ -495,21 +509,13 @@
     }.bind(this)
 
     this.on('mount', function () { // mount du composant riot
-      //RiotControl.on('workspace_current_changed', this.refreshGraph);
-      if (this.parent != undefined && this.parent.title == "Workspace") {
-        this.fullscreen = true
-      } else {
-        this.fullscreen = false
-      }
       RiotControl.on('workspace_graph_selection_changed', this.drawSelected);
       RiotControl.on('workspace_graph_compute_done', this.drawGraph);
-      //RiotControl.trigger('workspace_current_refresh'); console.log(this.refs.graphSvgCanvas.viewBox.baseVal);
       RiotControl.trigger('workspace_graph_compute', this.refs.graphSvgCanvas.viewBox.baseVal);
-
+      d3.select("#background").datum({x: 0, y: 0}).call(dragcontainer)
     }); // fin mount
 
     this.on('unmount', function () {
-      //RiotControl.off('workspace_current_changed', this.refreshGraph);
       RiotControl.off('workspace_graph_selection_changed', this.drawSelected);
       RiotControl.off('workspace_graph_compute_done', this.drawGraph);
     });

@@ -79,7 +79,7 @@ module.exports = function (router,stompClient) {
       //console.log(user, req.query.id, user.mailid)
       if (req.query.id == user.mailid) {
         user.active = true
-        user.credits = 2000
+        user.credit = 2000
         user_lib.update(user, null).then(function (result) {
           res.redirect('https://semantic-bus.org/ihm/application.html')
         }).catch(function (err) {
