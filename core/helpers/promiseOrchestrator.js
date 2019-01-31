@@ -60,7 +60,7 @@ class PromisesExecutor {
           setTimeout(this.incrementExecute.bind(this),1)
           //this.incrementExecute();
         }).catch((e) => {
-          //console.log('Promise Error');
+          console.log('Promise Orchestrator Error',e);
           //this.globalOut[currentOut.index]=currentOut.value;
           this.globalOut[currentOut.index] = currentOut.value;
           this.incrementResolved++;
