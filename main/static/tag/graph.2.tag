@@ -16,7 +16,6 @@
       <g class="axis axis--x"></g>
       <g class="axis axis--y"></g>
       <g id="main-container">
-        <rect width="1500"  height="900" id="background" class="background" ref"graph"></rect>
         <g id="lineSelector"></g>
         <g id="lineLayer"></g>
         <g id="stateLayer"></g>
@@ -418,15 +417,6 @@
         this.svg = d3.select("svg");
       }      
 
-      d3.select(".axis").on("click", function (d) {
-        RiotControl.trigger('selection_reset');
-      }.bind(this));
-
-
-      d3.select(".axis").on("click", function (d) {
-        RiotControl.trigger('selection_reset');
-      }.bind(this));
-
       this.links = this.svg.select("#lineLayer").selectAll('line').data(graph.links, function (d) {
         return d.id;
       });
@@ -497,7 +487,6 @@
 
       this.drawSelected();
       this.tooltip = this.svg.select("#textLayer").classed("tooltipHide", true);
-
     }.bind(this)
 
 
@@ -513,21 +502,22 @@
           //// AXES /////
   
       var xScale = d3.scaleLinear()
-          .domain([-width , width ])
+          .domain([-width / 2, width / 2])
           .range([0, width]);
 
       var yScale = d3.scaleLinear()
-          .domain([-height, height ])
+          .domain([-height / 2, height / 2])
           .range([height, 0]);
 
       var xAxis = d3.axisBottom(xScale)
-          .ticks(50)
+          .ticks((width + 2) / (height + 2) * 10)
+          .tickSize(height)
           .tickSize(height)
           .tickPadding(8 - height)
           .tickFormat("");
 
       var yAxis = d3.axisRight(yScale)
-            .ticks(50)
+          .ticks(10)
           .tickSize(width)
           .tickPadding(8 - width)
           .tickFormat("");
@@ -536,6 +526,12 @@
           .call(xAxis);
       gY = d3.select(".axis--y")
           .call(yAxis);
+
+
+      d3.select("#deselect").on("click", (d) => {
+        console.log("CLICK")
+        RiotControl.trigger('selection_reset');
+      });
 
       /// ZOOOM ////
       var zoom = d3.zoom()
@@ -583,7 +579,9 @@
 
 
     line {
-      stroke: rgb(202, 202, 202);
+      stroke: rgb(212, 212, 212);
+      stroke-width: 1px;
+      shape-rendering: crispEdges;
     }
 
     #shapeLayer image {
@@ -604,10 +602,10 @@
 
     #lineLayer line {
       stroke: #555;
-      stroke-width: 3;
+      stroke-width: 6;
       cursor: pointer;
-      animation: dash 1s linear;
       stroke-dasharray: 500 2;
+      animation: dash 1s linear;
       animation-iteration-count: infinite;
     }
     @keyframes dash {
@@ -618,7 +616,8 @@
 
     #shapeSelector rect {
       /*filter:url(#dropshadow);*/
-      fill-opacity: 0.1;
+      fill: #649DF9;
+      fill-opacity: 0.2;
     }
 
     #lineSelector line {
@@ -628,7 +627,7 @@
     }
 
     .background {
-      fill: none;
+      fill: transparent;
       fill-opacity: 1;
       stroke: #000;
       stroke-width: 0;
@@ -660,6 +659,7 @@
 
     .axis line {
         stroke-opacity: 0.3;
+        shape-rendering: crispEdges;
     }
     input[type="range"] {
         right: 0;

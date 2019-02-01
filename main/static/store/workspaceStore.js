@@ -525,7 +525,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
   }; // <= select
 
   this.computeGraph = function(viewBox) {
-    //console.log('COMPUTE');
     let componentsId = this.workspaceCurrent.components.map(c => c._id);
     this.workspaceCurrent.links = sift({
       $and: [{
@@ -546,13 +545,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
     var selectedLinks = [];
 
     if (this.graph != undefined) {
-
-      // console.log("selectedNodes |", this.graph.nodes);
-      // console.log("selectedNodes |", sift({
-      //   selected: true
-      // }, this.graph.nodes));
-      // //console.log("selectedNodes |", selectedNodes);
-
       selectedNodes = sift({
         selected: true
       }, this.graph.nodes).map(n => n.id);
@@ -592,9 +584,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
       }
     }
 
-    //console.log('counts', inputs, outputs, middles);
-
-    // console.log(inputs, outputs); calcule une distance type pour positionner les inputs et outputs du graphe
     var inputsOffset = this.viewBox.height / (inputs + 1);
     var outputsOffset = this.viewBox.height / (outputs + 1);
     var middlesOffset = this.viewBox.height / (middles + 1);
@@ -603,9 +592,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
     var outputCurrentOffset = outputsOffset;
     var middleCurrentOffset = middlesOffset;
 
-    //console.log("automatic repartition", inputs, inputsOffset, middles, middlesOffset, outputs, outputsOffset);
-
-    //console.log(inputsOffset, outputsOffset);
 
     for (record of this.workspaceCurrent.components) {
       let connectionsBefore = sift({
@@ -649,7 +635,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
         node.selected = true;
       }
       this.graph.nodes.push(node);
-      //console.log(this.graph.nodes);
     }
 
     for (link of this.workspaceCurrent.links) {
@@ -664,23 +649,8 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
         id: id,
         selected: selectedLinks.indexOf(id) != -1
       })
-
-      // for (connection of record.connectionsAfter) {
-      //   let id = record._id + '-' + connection._id;
-      //   this.graph.links.push({
-      //     source: sift({
-      //       id: record._id
-      //     }, this.graph.nodes)[0],
-      //     target: sift({
-      //       id: connection._id
-      //     }, this.graph.nodes)[0],
-      //     id: id,
-      //     selected: selectedLinks.indexOf(id) != -1
-      //   }) // creation de tous les links
-      // }
     }
 
-    //console.log(this.graph);
     this.trigger('workspace_graph_compute_done', this.graph);
 
   }
