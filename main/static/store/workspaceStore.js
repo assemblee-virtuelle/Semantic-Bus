@@ -455,7 +455,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   this.on('load_workspace_graph', function(data) {
-    console.log('show_WORKSPACE GRAPH', data);
     // console.log(localStorage.user_id);
     $.ajax({
       method: 'get',
@@ -467,39 +466,8 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
     }).done(function(data) {
       console.log("WORKSPACE LOADED", data)
       this.trigger('graph_workspace_data_loaded', data)
-      // this.setUserCurrent(data);
-      // this.userCurrrent = data;
-      // console.log("load profil |", this.userCurrrent);
-      // this.trigger('profil_menu_changed', this.menu);
     }.bind(this))
   })
-
-
-  // --------------------------------------------------------------------------------
-
-
-  // this.updateComponentListe = function(data) {
-  //   console.log('update Component Liste', data);
-  //   $.ajax({
-  //     method: 'get',
-  //     url: '../data/core/workspace/' + data._id,
-  //     headers: {
-  //       "Authorization": "JTW" + " " + localStorage.token
-  //     },
-  //     contentType: 'application/json'
-  //   }).done(function(data) {
-  //     console.log("update Component Liste Done ||", data)
-  //     if (data != false) {
-  //       if (this.workspaceCurrent) {
-  //         this.workspaceCurrent = data
-  //         this.workspaceCurrent.mode = "edit"
-  //         this.trigger('all_component_by_workspace_loaded', data)
-  //         this.trigger('workspace_current_changed', data);
-  //       }
-  //     }
-  //   }.bind(this));
-  // }; // <= updateComponentList
-
 
   // --------------------------------------------------------------------------------
 
@@ -525,7 +493,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
   }; // <= select
 
   this.computeGraph = function(viewBox) {
-    //console.log('COMPUTE');
     let componentsId = this.workspaceCurrent.components.map(c => c._id);
     this.workspaceCurrent.links = sift({
       $and: [{
@@ -546,13 +513,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
     var selectedLinks = [];
 
     if (this.graph != undefined) {
-
-      // console.log("selectedNodes |", this.graph.nodes);
-      // console.log("selectedNodes |", sift({
-      //   selected: true
-      // }, this.graph.nodes));
-      // //console.log("selectedNodes |", selectedNodes);
-
       selectedNodes = sift({
         selected: true
       }, this.graph.nodes).map(n => n.id);
@@ -564,11 +524,12 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
 
 
     this.graph = {};
+    this.graph.transform = this.workspaceCurrent.transform   
     this.graph.nodes = [];
     this.graph.links = [];
     this.graph.workspace = this.workspaceCurrent;
-
-
+    this.graph.test1 = 1500
+    this.graph.test2 = 1500
     var inputs = 0;
     var outputs = 0;
     var middles = 0;
@@ -592,9 +553,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
       }
     }
 
-    //console.log('counts', inputs, outputs, middles);
-
-    // console.log(inputs, outputs); calcule une distance type pour positionner les inputs et outputs du graphe
     var inputsOffset = this.viewBox.height / (inputs + 1);
     var outputsOffset = this.viewBox.height / (outputs + 1);
     var middlesOffset = this.viewBox.height / (middles + 1);
@@ -603,9 +561,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
     var outputCurrentOffset = outputsOffset;
     var middleCurrentOffset = middlesOffset;
 
-    //console.log("automatic repartition", inputs, inputsOffset, middles, middlesOffset, outputs, outputsOffset);
-
-    //console.log(inputsOffset, outputsOffset);
 
     for (record of this.workspaceCurrent.components) {
       let connectionsBefore = sift({
@@ -643,14 +598,38 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
         if (record.graphPositionY == undefined) {
           middleCurrentOffset += middlesOffset;
         }
-
       }
+      // console.log(node.x ,  node.y, node.component)
+      if(this.graph.startPositionX
+        && this.graph.startPositionX.y < -node.y
+        ){
+        this.graph.startPositionX =  {x: -node.x, y: -node.y}
+      } else if(!this.graph.startPositionX ){
+        this.graph.startPositionX =  {x: -node.x, y: -node.y}
+      }
+      console.log( -node.x, -node.y,  node.component.editor )
+      this.graph.test1 += -node.x
+      this.graph.test2 += -node.y
+      if(this.graph.startPositionY && this.graph.startPositionY.x > -node.x 
+        ){
+        console.log(-this.graph.startPositionY.x < -node.x, node.component.editor )
+        this.graph.startPositionY =  {x: -node.x, y: -node.y}
+      } else if(!this.graph.startPositionY ){
+        this.graph.startPositionY =  {x: -node.x, y: -node.y}
+      }
+
+      
       if (selectedNodes.indexOf(node.id) != -1) {
         node.selected = true;
       }
+      
       this.graph.nodes.push(node);
-      //console.log(this.graph.nodes);
     }
+    let x = this.graph.test1/  this.graph.nodes.length
+    let y = this.graph.test2/  this.graph.nodes.length
+    let middle = { x, y }
+    console.log("MIDDLE", middle)
+    this.graph.startPosition  = middle
 
     for (link of this.workspaceCurrent.links) {
       let id = link._id;
@@ -664,25 +643,9 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
         id: id,
         selected: selectedLinks.indexOf(id) != -1
       })
-
-      // for (connection of record.connectionsAfter) {
-      //   let id = record._id + '-' + connection._id;
-      //   this.graph.links.push({
-      //     source: sift({
-      //       id: record._id
-      //     }, this.graph.nodes)[0],
-      //     target: sift({
-      //       id: connection._id
-      //     }, this.graph.nodes)[0],
-      //     id: id,
-      //     selected: selectedLinks.indexOf(id) != -1
-      //   }) // creation de tous les links
-      // }
     }
 
-    //console.log(this.graph);
     this.trigger('workspace_graph_compute_done', this.graph);
-
   }
 
   this.on('workspace_graph_compute', function(viewBox) {
@@ -803,37 +766,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
   });
 
 
-
-  // --------------------------------------------------------------------------------
-
-
-  // this.on('workspace_synchoniseFromServer_byId', function(id) {
-  //   console.log('workspace_synchoniseFromServer_workspace_byId', id);
-  //   $.ajax({
-  //     method: 'get',
-  //     url: '../data/core/workspace/' + id,
-  //     headers: {
-  //       "Authorization": "JTW" + " " + localStorage.token
-  //     }
-  //   }).done(function(data) {
-  //     var synchronizedWorkspaceCollection = [];
-  //     for (var workspace of this.workspaceCollection) {
-  //       if (workspace._id == data._id) {
-  //         // data.components = this.workspaceBusiness.connectWorkspaceComponent(data.components);
-  //         synchronizedWorkspaceCollection.push(data);
-  //         console.log('workspace_synchoniseFromServer_workspace_byId | workspaceCurrent | ', this.workspaceCurrent);
-  //         console.log('workspace_synchoniseFromServer_workspace_byId | New workspaceCurrent | ', data);
-  //         this.workspaceCurrent = data;
-  //       } else {
-  //         synchronizedWorkspaceCollection.push(workspace);
-  //       }
-  //     }
-  //     this.workspaceCollection = synchronizedWorkspaceCollection;
-  //     this.trigger('workspace_synchoniseFromServer_done', this.workspaceCollection);
-  //     this.trigger('workspace_collection_changed', this.workspaceCollection);
-  //   }.bind(this));
-  // }); // <= workspace_synchoniseFromServer_byId
-
   // --------------------------------------------------------------------------------
 
   this.on('workspace_current_updateField', function(message) {
@@ -883,18 +815,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
   });
 
 
-
-  // --------------------------------------------------------------------------------
-
-  // this.on('workspace_current_select', function(record) {
-  //
-  //   this.select(record).then(workspace => {
-  //     console.log('workspace_current_select ||', record)
-  //     this.trigger('workspace_current_select_done', workspace);
-  //     //this.trigger('workspace_current_changed', workspace);
-  //   })
-  // }); // <= workspace_current_select
-
   this.on('item_current_work', function(message) {
     this.stompClient.send('/queue/work-ask', JSON.stringify({
       id: this.itemCurrent._id,
@@ -903,23 +823,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
     }));
   }); //<= item_current_work
 
-  // this.on('process_state', (processId) => {
-  //   //console.log(processId);
-  //   this.utilStore.ajaxCall({
-  //     method: 'get',
-  //     url: '../data/core/processState/' + processId
-  //   }, true).then(data => {
-  //     for (let component of data) {
-  //       let componentOfWorkspace = sift({
-  //         _id: component.componentId
-  //       }, this.workspaceCurrent.components)[0];
-  //       if (componentOfWorkspace != undefined) {
-  //         componentOfWorkspace.state = component.state;
-  //       }
-  //     }
-  //     this.computeGraph();
-  //   });
-  // });
 
   this.on('previewJSON_refresh', function() {
     //console.log('workspace_current_refresh || ', this.workspaceCurrent);
@@ -937,7 +840,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
   })
 
   this.on('workspace_current_cancel', function(record) {
-    console.log('workspace_current_cancel ||', this.workspaceCurrent)
     this.workspaceCurrent.mode = 'read'
     this.select(this.workspaceCurrent);
   }); // <= workspace_current_cancel
@@ -949,23 +851,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
     this.trigger('workspace_current_changed', this.workspaceCurrent);
 
   }); // <= workspace_current_edit
-
-  // --------------------------------------------------------------------------------
-
-  // this.on('workspace_current_init', function() {
-  //   //console.log('model : workspace_current_init');
-  //   this.workspaceCurrent = {
-  //     name: "",
-  //     description: "",
-  //     components: [],
-  //     users: []
-  //   };
-  //   this.workspaceCurrent.mode = 'init';
-  //   this.menu = 'information';
-  //   this.trigger('workspace_current_select_done', this.workspaceCurrent);
-  //   //this.trigger('workspace_editor_menu_changed', this.menu);
-  //   //this.trigger('workspace_current_changed', this.workspaceCurrent);
-  // }); // <= workspace_current_init
 
   // --------------------------------------------------------------------------------
 

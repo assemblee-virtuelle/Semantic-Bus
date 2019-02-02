@@ -1,44 +1,42 @@
-<graph class="containerV">
+<graph class="containerV background-grill">
   <!-- page graph -->
-  <div id="graphContainer" style="background-color: rgb(238,242,249); flex-grow:1;" class="containerH">
-    <svg viewBox="0 0 1500 900" ref="graphSvgCanvas" style="flex-grow:1;">
-      <!--width="1000" height="600"-->
+  <div id="graphContainer" style="flex-grow:1;" class="containerH background-grill">
+    <svg ref="graphSvgCanvas" style="flex-grow:1;">
       <filter id="dropshadow" x="1%" y="1%" width="110%" height="110%">
         <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
-        <!-- stdDeviation is how much to blur -->
         <feOffset dx="-2" dy="-1" result="offsetblur1"/>
         <feColorMatrix type="luminanceToAlpha"/>
         <feOffset dx="2" dy="2" result="offsetblur2"/>
         <feMerge>
-          <!--used to combine filters-->
           <feMergeNode in="offsetblur1"/>
           <feMergeNode in="offsetblur2"/>
           <feMergeNode in="SourceGraphic"/>
         </feMerge>
       </filter>
-      <g id="background">
-        <rect width="1500" height="900" class="background"></rect>
+      <g class="axis axis--x"></g>
+      <g class="axis axis--y"></g>
+      <g id="main-container">
+        <rect width="1500"  height="900" id="background" class="background" ref"graph"></rect>
+        <g id="lineSelector"></g>
+        <g id="lineLayer"></g>
+        <g id="stateLayer"></g>
+        <g id="shapeSelector"></g>
+        <g id="shapeLayer"></g>
+        <svg id="textLayer">
+          <rect class="tooltip" width="220" height="30"></rect>
+          <text x="10" y="20" width="200" height="20"></text>
+        </svg>
+        <g id="lineCommandLayer"></g>
+        <g id="shapeCommandLayer"></g>
       </g>
-      <g id="lineSelector"></g>
-      <g id="lineLayer"></g>
-      <g id="stateLayer"></g>
-      <g id="shapeSelector"></g>
-      <g id="shapeLayer"></g>
-      <svg id="textLayer">
-        <rect class="tooltip" width="220" height="30"></rect>
-        <text x="10" y="20" width="200" height="20"></text>
-      </svg>
-      <g id="lineCommandLayer"></g>
-      <g id="shapeCommandLayer"></g>
-      <!--<image id="addComponentGraph" xlink:href="./image/ajout_composant.svg" class="commandButtonImage" x="1400" y="20" width="60" height="60" onclick={addComponentClick}></image>
-      <image  x="1290" y="20" id="addComponentGraph" xlink:href="./image/fullscreen-button.svg" class="commandButtonImage" if={fullscreen == true} x="1400" y="20" width="60" height="60" onclick={graphClick}></image>
-      <image  x="50" y="20" id="addComponentGraph" xlink:href="./image/fleche.svg" class="commandButtonImage" if={fullscreen == false} x="1400" y="20" width="40" height="40" onclick={back}></image>-->
+
     </svg>
   </div>
     <!-- Bouton ajouter un composant -->
   <div class="containerH" style="flex-basis:45px; justify-content:center;flex-shrink:0;flex-grow:0;" >
-      <div onclick={showAddComponentClick} title="Ajouter un composant" class="commandButtonImage">
-        <img src="./image/ajout_composant.svg" height="40px" width="40px">
+    <div onclick={showAddComponentClick} title="Ajouter un composant" class="commandButtonImage">
+      <img src="./image/ajout_composant.svg" height="40px" width="40px">
+    </div>
   </div>
 
   <!--graphContainer-->
@@ -49,17 +47,17 @@
     this.selectorsLines = [];
     this.modeConnectAfter = false;
     this.modeConnectBefore = false;
-    this.fullscreen = true
-
-
+    this.fullscreen = true;
+    this.cubeResolution = 50;
+    this.selectedElement;
+    this.offset;
+    this.initGraphDone = false;
+    this.transform
+    
     showAddComponentClick(e) {
       route('workspace/' + this.graph.workspace._id + '/addComponent');
     }
-    //this.selectedNodes={}; source urile : https://bl.ocks.org/mbostock/1095795 Constants for the SVG var width = 1500,   height = 900; // utilisé dans le script en bas
 
-    /*
-    Fonctions
-  */
     this.drawSelected = function () {
       this.selectedNodes = sift({
         'selected': true
@@ -272,7 +270,6 @@
         }).attr("y", function (d) {
           return 0;
         }).on("click", function (d) {
-          console.log(d);
           RiotControl.trigger('disconnect_components', d);
 
         });
@@ -287,21 +284,36 @@
       d.yOrigin = d.y;
     };
 
+    function snapToGrid(p, r) {
+      return Math.round(p / r) * r;
+    }
+
     this.dragged = function (dragged) {
+      let containerStyle = document.querySelector('#graphContainer').getBoundingClientRect();
+      let width = containerStyle.width ;
+      let height = containerStyle.height;
+      var boxSize = width/this.cubeResolution;
+
       dragged.x = d3.event.x;
       dragged.y = d3.event.y;
+      var start_x = d3.event.x;
+      var start_y = d3.event.y;
+
+      let gridX = snapToGrid(d3.event.x, this.cubeResolution);
+      let gridY = snapToGrid(d3.event.y, this.cubeResolution)
+
       RiotControl.trigger('workspace_current_move_component', dragged);
-      //d3.select(this).attr("x", dragged.x).attr("y", dragged.y); //this représente le DOM
+
       this.nodes = this.svg.select("#shapeLayer").selectAll("image").data([dragged], function (d) {
         return d.id;
-      }).attr("x", dragged.x).attr("y", dragged.y);
+      }).attr("x", gridX).attr("y", gridY);
       this.selectorsNodes = this.svg.select("#shapeSelector").selectAll("rect").data([dragged], function (d) {
         return d.id;
-      }).attr("x", dragged.x - 30).attr("y", dragged.y - 30);
+      }).attr("x", gridX - 30).attr("y", gridY - 30);
 
       this.selectorsShapeCommandeBar = this.svg.select("#shapeCommandLayer").selectAll("svg").data([dragged], function (d) {
         return d.id;
-      }).attr("x", dragged.x - 30).attr("y", dragged.y - 30);
+      }).attr("x", gridX - 30).attr("y", gridY - 30);
 
       let beforeLinks = sift({
         "target.id": dragged.id
@@ -309,40 +321,40 @@
       //console.log('beforeLinks', beforeLinks);
       this.links = this.svg.select("#lineLayer").selectAll("line").data(beforeLinks, function (d) {
         return d.id;
-      }).attr("x2", dragged.x + 110).attr("y2", dragged.y + 35);
+      }).attr("x2", gridX + 110).attr("y2", gridY + 35);
       let beforeLinksSelected = sift({
         "target.id": dragged.id
       }, this.selectedLines);
       this.selectorsLines = this.svg.select("#lineSelector").selectAll("line").data(beforeLinksSelected, function (d) {
         return d.id;
-      }).attr("x2", dragged.x + 110).attr("y2", dragged.y + 35);
+      }).attr("x2", gridX + 110).attr("y2", gridY + 35);
       this.selectorsLineCommandeBar = this.svg.select("#lineCommandLayer").selectAll("svg").data(beforeLinksSelected, function (d) {
         return d.id;
       }).attr('x', function (d) {
         return ((d.source.x + dragged.x) / 2) + 95;
       }).attr('y', function (d) {
-        return ((d.source.y + dragged.y) / 2) + 10;
+        return ((d.source.y + gridY) / 2) + 10;
       });
 
       let afterLinks = sift({
         "source.id": dragged.id
       }, this.graph.links);
-      //console.log('afterLinks', afterLinks);
+
       this.links = this.svg.select("#lineLayer").selectAll("line").data(afterLinks, function (d) {
         return d.id;
-      }).attr("x1", dragged.x + 110).attr("y1", dragged.y + 35);
+      }).attr("x1", gridX + 110).attr("y1", gridY + 35)
       let afterLinksSelected = sift({
         "source.id": dragged.id
       }, this.selectedLines);
       this.selectorsLines = this.svg.select("#lineSelector").selectAll("line").data(afterLinksSelected, function (d) {
         return d.id;
-      }).attr("x1", dragged.x + 110).attr("y1", dragged.y + 35);
+      }).attr("x1", gridX + 110).attr("y1", gridY + 35);
       this.selectorsLineCommandeBar = this.svg.select("#lineCommandLayer").selectAll("svg").data(afterLinksSelected, function (d) {
         return d.id;
       }).attr('x', function (d) {
-        return ((dragged.x + d.target.x) / 2) + 95;
+        return ((gridX + d.target.x) / 2) + 95;
       }).attr('y', function (d) {
-        return ((dragged.y + d.target.y) / 2) + 10;
+        return ((gridY + d.target.y) / 2) + 10;
       });
 
       let nodesWithStatus = sift({
@@ -356,13 +368,13 @@
           }
         ]
       }, this.graph.nodes);
-      console.log('status', nodesWithStatus);
+
       this.status = this.svg.select("#stateLayer").selectAll("circle").data(nodesWithStatus, function (d) {
         return d.id;
       }).attr('cx', function (d) {
-        return dragged.x + 105;
+        return gridX + 105;
       }).attr('cy', function (d) {
-        return dragged.y + 5;
+        return gridY + 5;
       });
 
     }.bind(this);
@@ -393,37 +405,25 @@
         d.component.graphPositionX = d.x;
         d.component.graphPositionY = d.y;
         RiotControl.trigger('item_persist', d.component);
+
         // this.updateBoundObject(d); this.drawSelected(); if (!d3.event.active) {   this.simulation.alphaTarget(0.1); }
       }
     }.bind(this);
 
     this.drawGraph = function (graph) {
       this.graph = graph;
+      
       if (this.svg == undefined) {
         this.svg = d3.select("svg");
-
-        d3.select("#background").on("click", function (d) {
-          //console.log('CLICK ON main',d3.select(this)); RiotControl.trigger('connection_current_set');
-          RiotControl.trigger('selection_reset');
-
-          // this.selectedNodes = []; this.selectedLines = []; //RiotControl.trigger('component_current_set', undefined); this.drawSelected(); this.drawSelectedLines(); this.update();
-        }.bind(this));
-      }
-
-      // if (this.simulation == undefined) {   /*   this.simulation = d3.forceSimulation(this.graph.nodes).force("charge", d3.forceManyBody().strength(-1000)).force("link", d3.forceLink([]).id(function (d) {     return d.id // cela semble désigner l'id des
-      // noeud (comment les liens retrouvent la propriété id des noeud) ne pas toujours chercher a comprendre comment d3 marche, mais c est necessaire )   }).distance(200)).force("x", d3.forceX()).force("y", d3.forceY()).alphaTarget(1).on("tick",
-      // this.ticked);   */
-      //
-      //   this.simulation = d3.forceSimulation(this.graph.nodes).velocityDecay(0.9).force('link', d3.forceLink(this.graph.links).id(function (d) {     return d.id // ( ne pas toujours chercher a comprendre comment d3 marche, mais c est necessaire )
-      // })).force("collide", d3.forceCollide().radius(30).iterations(2)).on("tick", this.ticked);
-      //
-      // }
+      } 
 
       this.links = this.svg.select("#lineLayer").selectAll('line').data(graph.links, function (d) {
         return d.id;
       });
       this.links.exit().remove();
-      this.links = this.links.enter().append('line').merge(this.links).attr('x1', function (d) {
+
+      this.links = this.links.enter().append('line').merge(this.links)
+      .attr('x1', function (d) {
         //return d.source.x + 165;
         return d.source.x + 110;
       }).attr('y1', function (d) {
@@ -435,7 +435,8 @@
       }).attr('y2', function (d) {
         //return d.target.y + 35;
         return d.target.y + 35;
-      }).on("click", function (d) {
+      })
+      .on("click", function (d) {
         //console.log('click line |', d); this.selectedNodes = []; this.drawSelected(); this.selectedLines = [d]; this.drawSelectedLines(); this.update();
         RiotControl.trigger('connection_current_set', d.source.component, d.target.component);
       }.bind(this));
@@ -489,27 +490,75 @@
 
       this.drawSelected();
       this.tooltip = this.svg.select("#textLayer").classed("tooltipHide", true);
-
-      console.log('tooltip', this.tooltip);
+      if(!this.initGraphDone){
+        this.initGraph();
+      }
 
     }.bind(this)
 
-    this.on('mount', function () { // mount du composant riot
-      //RiotControl.on('workspace_current_changed', this.refreshGraph);
-      if (this.parent != undefined && this.parent.title == "Workspace") {
-        this.fullscreen = true
-      } else {
-        this.fullscreen = false
+    this.initGraph = function() {
+      this.initGraphDone = true
+      let svg = d3.select('svg');
+      let view = d3.select('#main-container');
+      let containerStyle = document.querySelector('#main-container').getBoundingClientRect();
+      let width = containerStyle.width;
+      let height = containerStyle.height;
+      
+      //// AXES /////
+      let xScale = d3.scaleLinear()
+          .domain([-width , width ])
+          .range([0, width]);
+
+      let yScale = d3.scaleLinear()
+          .domain([-height, height ])
+          .range([height, 0]);
+
+      let xAxis = d3.axisBottom(xScale)
+          .ticks(this.cubeResolution*2)
+          .tickSize(height)
+          .tickPadding(8 - height)
+          .tickFormat("");
+
+      let yAxis = d3.axisRight(yScale)
+          .ticks(this.cubeResolution*2.5)
+          .tickSize(width)
+          .tickPadding(8 - width)
+          .tickFormat("");
+  
+      gX = d3.select(".axis--x")
+          .call(xAxis);
+      gY = d3.select(".axis--y")
+          .call(yAxis);
+     
+      /// ZOOOM ////
+      var zoom = d3.zoom()
+        .scaleExtent([0.5, 5])
+        .translateExtent([
+            [-width * 2, -height * 2],
+            [width * 2, height * 2]
+        ])
+        .on("zoom", zoomed);
+
+      function zoomed() {
+        currentTransform = d3.event.transform;
+        view.attr("transform", currentTransform);
+        gX.call(xAxis.scale(d3.event.transform.rescaleX(xScale)));
+        gY.call(yAxis.scale(d3.event.transform.rescaleY(yScale)));
       }
+      svg.transition().duration(1000).call(zoom.scaleBy, 0.5);
+      svg.transition().duration(1000).call(zoom.translateBy, this.graph.startPosition.x,    this.graph.startPosition.y);
+
+      svg.call(zoom)
+    }.bind(this)
+
+    this.on('mount', function () { // mount du composant riot
       RiotControl.on('workspace_graph_selection_changed', this.drawSelected);
       RiotControl.on('workspace_graph_compute_done', this.drawGraph);
-      //RiotControl.trigger('workspace_current_refresh'); console.log(this.refs.graphSvgCanvas.viewBox.baseVal);
+      RiotControl.trigger('initialize_view', this.refs.graphSvgCanvas.viewBox.baseVal);
       RiotControl.trigger('workspace_graph_compute', this.refs.graphSvgCanvas.viewBox.baseVal);
-
     }); // fin mount
 
     this.on('unmount', function () {
-      //RiotControl.off('workspace_current_changed', this.refreshGraph);
       RiotControl.off('workspace_graph_selection_changed', this.drawSelected);
       RiotControl.off('workspace_graph_compute_done', this.drawGraph);
     });
@@ -517,8 +566,16 @@
   </script>
 
   <style scoped>
+    
     svg {
-      /*background-color: rgb(238,242,249);*/
+      box-sizing: border-box;
+      background:rgb(238,242,249);
+      border: 1px solid rgb(212, 212, 212);
+    }
+
+
+    line {
+      stroke: rgb(202, 202, 202);
     }
 
     #shapeLayer image {
@@ -539,10 +596,10 @@
 
     #lineLayer line {
       stroke: #555;
-      stroke-width: 6;
+      stroke-width: 3;
       cursor: pointer;
-      stroke-dasharray: 500 2;
       animation: dash 1s linear;
+      stroke-dasharray: 500 2;
       animation-iteration-count: infinite;
     }
     @keyframes dash {
@@ -553,8 +610,7 @@
 
     #shapeSelector rect {
       /*filter:url(#dropshadow);*/
-      fill: #649DF9;
-      fill-opacity: 0.2;
+      fill-opacity: 0.1;
     }
 
     #lineSelector line {
@@ -564,7 +620,7 @@
     }
 
     .background {
-      fill: rgb(238,242,249);
+      fill: none;
       fill-opacity: 1;
       stroke: #000;
       stroke-width: 0;
@@ -585,13 +641,22 @@
       fill: grey;
       fill-opacity: 0.5;
     }
-    /*.tooltipShow {
-      fill-opacity: 0.5;
-    }*/
 
     .tooltipHide {
-      /*fill-opacity: 0;*/
       display: none;
+    }
+
+    .axis path {
+    display: none;
+    }
+
+    .axis line {
+        stroke-opacity: 0.3;
+    }
+    input[type="range"] {
+        right: 0;
+        top: 0;
+        position: absolute;
     }
 
   </style>

@@ -16,6 +16,16 @@ a {
     cursor:pointer;
 }
 
+.button-graph {
+  border-radius: 50%;
+  padding: 10px;
+  background-color: rgb(26, 145, 194);
+  color: white;
+  font-size: 14px;
+  text-align: center;
+  cursor:pointer;
+}
+
 a:active {
   text-decoration: none;
   color: white;
