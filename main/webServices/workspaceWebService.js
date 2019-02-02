@@ -31,13 +31,14 @@ module.exports = function(router, stompClient) {
   // ---------------------------------------------------------------------------------
 
   router.get('/workspace/:id/graph', function(req, res, next) {
-    workspace_lib.get_workspace_graph_data(req.params.id).then((workspaceGraph) => {
-      res.json({
-        workspaceGraph
-      })
-    }).catch(e => {
-      next(e);
-    });
+    res.send([]);
+    // workspace_lib.get_workspace_graph_data(req.params.id).then((workspaceGraph) => {
+    //   res.json({
+    //     workspaceGraph
+    //   })
+    // }).catch(e => {
+    //   next(e);
+    // });
   }); //<= graph workspace
 
   // --------------------------------------------------------------------------------
@@ -130,19 +131,15 @@ module.exports = function(router, stompClient) {
               } else {
                 c.graphIcon = "default"
               }
-              //console.log('-->',c);
             }
             res.send(components);
           }).catch(e => {
-            console.log('e1', e);
             next(e);
           });
         }).catch(e => {
-          console.log('e2', e);
           next(e);
         });
       }).catch(e => {
-        console.log('e3', e);
         next(e);
       });
     } else {
