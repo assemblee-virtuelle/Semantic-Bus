@@ -492,6 +492,7 @@ function _update_mainprocess(preData) {
           if (config.quietLog != true) {
             //console.log('after Update', componentUpdated);
           }
+          console.log("UPDATE", componentUpdated)
           resolve(componentUpdated);
         }
       });

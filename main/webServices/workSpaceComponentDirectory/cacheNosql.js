@@ -4,7 +4,7 @@ class CacheNosql {
     this.type = 'Cache NoSQL';
     this.description = 'Sauvegarder un flux et le réutiliser sans avoir besoin de requêter la source.';
     this.editor = 'cache-nosql-editor';
-    this.graphIcon = 'cacheNoSql.svg';
+    this.graphIcon = 'Cache_nosql.png';
     this.tags = [
       'http://semantic-bus.org/data/tags/persistComponents',
       'http://semantic-bus.org/data/tags/persistCacheComponents'

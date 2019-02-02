@@ -48,11 +48,10 @@
     this.modeConnectAfter = false;
     this.modeConnectBefore = false;
     this.fullscreen = true;
-    this.viewboxSize = 1500;
-    this.viewboxSizeX = 0;
-    this.viewboxSizeY = 0;
+    this.cubeResolution = 50;
     this.selectedElement;
     this.offset;
+    this.initGraphDone = false;
     this.transform
     
     showAddComponentClick(e) {
@@ -293,16 +292,15 @@
       let containerStyle = document.querySelector('#graphContainer').getBoundingClientRect();
       let width = containerStyle.width ;
       let height = containerStyle.height;
-      var numBoxes = 50;
-      var boxSize = width/numBoxes;
+      var boxSize = width/this.cubeResolution;
 
       dragged.x = d3.event.x;
       dragged.y = d3.event.y;
       var start_x = d3.event.x;
       var start_y = d3.event.y;
 
-      let gridX = snapToGrid(d3.event.x, numBoxes);
-      let gridY = snapToGrid(d3.event.y, numBoxes)
+      let gridX = snapToGrid(d3.event.x, this.cubeResolution);
+      let gridY = snapToGrid(d3.event.y, this.cubeResolution)
 
       RiotControl.trigger('workspace_current_move_component', dragged);
 
@@ -341,10 +339,10 @@
       let afterLinks = sift({
         "source.id": dragged.id
       }, this.graph.links);
-      //console.log('afterLinks', afterLinks);
+
       this.links = this.svg.select("#lineLayer").selectAll("line").data(afterLinks, function (d) {
         return d.id;
-      }).attr("x1", gridX + 110).attr("y1", gridY + 35);
+      }).attr("x1", gridX + 110).attr("y1", gridY + 35)
       let afterLinksSelected = sift({
         "source.id": dragged.id
       }, this.selectedLines);
@@ -407,6 +405,7 @@
         d.component.graphPositionX = d.x;
         d.component.graphPositionY = d.y;
         RiotControl.trigger('item_persist', d.component);
+
         // this.updateBoundObject(d); this.drawSelected(); if (!d3.event.active) {   this.simulation.alphaTarget(0.1); }
       }
     }.bind(this);
@@ -416,22 +415,15 @@
       
       if (this.svg == undefined) {
         this.svg = d3.select("svg");
-      }      
-
-      d3.select(".axis").on("click", function (d) {
-        RiotControl.trigger('selection_reset');
-      }.bind(this));
-
-
-      d3.select(".axis").on("click", function (d) {
-        RiotControl.trigger('selection_reset');
-      }.bind(this));
+      } 
 
       this.links = this.svg.select("#lineLayer").selectAll('line').data(graph.links, function (d) {
         return d.id;
       });
       this.links.exit().remove();
-      this.links = this.links.enter().append('line').merge(this.links).attr('x1', function (d) {
+
+      this.links = this.links.enter().append('line').merge(this.links)
+      .attr('x1', function (d) {
         //return d.source.x + 165;
         return d.source.x + 110;
       }).attr('y1', function (d) {
@@ -443,7 +435,8 @@
       }).attr('y2', function (d) {
         //return d.target.y + 35;
         return d.target.y + 35;
-      }).on("click", function (d) {
+      })
+      .on("click", function (d) {
         //console.log('click line |', d); this.selectedNodes = []; this.drawSelected(); this.selectedLines = [d]; this.drawSelectedLines(); this.update();
         RiotControl.trigger('connection_current_set', d.source.component, d.target.component);
       }.bind(this));
@@ -497,46 +490,46 @@
 
       this.drawSelected();
       this.tooltip = this.svg.select("#textLayer").classed("tooltipHide", true);
+      if(!this.initGraphDone){
+        this.initGraph();
+      }
 
     }.bind(this)
 
-
     this.initGraph = function() {
+      this.initGraphDone = true
       let svg = d3.select('svg');
       let view = d3.select('#main-container');
-      var containerStyle = document.querySelector('#main-container').getBoundingClientRect();
-      var selected;
-      var cubeResolution = 50;
-      var width = containerStyle.width;
-      var height = containerStyle.height;
-
-          //// AXES /////
-  
-      var xScale = d3.scaleLinear()
+      let containerStyle = document.querySelector('#main-container').getBoundingClientRect();
+      let width = containerStyle.width;
+      let height = containerStyle.height;
+      
+      //// AXES /////
+      let xScale = d3.scaleLinear()
           .domain([-width , width ])
           .range([0, width]);
 
-      var yScale = d3.scaleLinear()
+      let yScale = d3.scaleLinear()
           .domain([-height, height ])
           .range([height, 0]);
 
-      var xAxis = d3.axisBottom(xScale)
-          .ticks(50)
+      let xAxis = d3.axisBottom(xScale)
+          .ticks(this.cubeResolution*2)
           .tickSize(height)
           .tickPadding(8 - height)
           .tickFormat("");
 
-      var yAxis = d3.axisRight(yScale)
-            .ticks(50)
+      let yAxis = d3.axisRight(yScale)
+          .ticks(this.cubeResolution*2.5)
           .tickSize(width)
           .tickPadding(8 - width)
           .tickFormat("");
-
+  
       gX = d3.select(".axis--x")
           .call(xAxis);
       gY = d3.select(".axis--y")
           .call(yAxis);
-
+     
       /// ZOOOM ////
       var zoom = d3.zoom()
         .scaleExtent([0.5, 5])
@@ -552,17 +545,16 @@
         gX.call(xAxis.scale(d3.event.transform.rescaleX(xScale)));
         gY.call(yAxis.scale(d3.event.transform.rescaleY(yScale)));
       }
+      svg.transition().duration(1000).call(zoom.scaleBy, 0.5);
+      svg.transition().duration(1000).call(zoom.translateBy, this.graph.startPosition.x,    this.graph.startPosition.y);
 
-      function snapToGrid(p, r) {
-        return Math.round(p / r) * r;
-      }
       svg.call(zoom)
     }.bind(this)
 
     this.on('mount', function () { // mount du composant riot
       RiotControl.on('workspace_graph_selection_changed', this.drawSelected);
-      this.initGraph()
       RiotControl.on('workspace_graph_compute_done', this.drawGraph);
+      RiotControl.trigger('initialize_view', this.refs.graphSvgCanvas.viewBox.baseVal);
       RiotControl.trigger('workspace_graph_compute', this.refs.graphSvgCanvas.viewBox.baseVal);
     }); // fin mount
 
