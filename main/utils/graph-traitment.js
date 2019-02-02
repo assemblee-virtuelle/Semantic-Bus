@@ -35,7 +35,7 @@ exports.formatDataUserGraph = function (data) {
     var lasttab = {}
     var golbalConsumption = 0
     var dataT = []
-    return new Promise(function (resolve, reject) {
+    return new Promise(function (resolve) {
       for (var i = 30; i >= 0; i--) {
         if (AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] == null) {
           AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] = {}
