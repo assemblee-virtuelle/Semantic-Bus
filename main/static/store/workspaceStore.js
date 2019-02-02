@@ -522,14 +522,13 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
     }
 
 
-
     this.graph = {};
     this.graph.transform = this.workspaceCurrent.transform   
     this.graph.nodes = [];
     this.graph.links = [];
     this.graph.workspace = this.workspaceCurrent;
-    this.graph.test1 = 1500
-    this.graph.test2 = 1500
+    this.graph.x = (window.screen.height + (0.2 * window.screen.height)) / 2
+    this.graph.y = (window.screen.height - (0.1 * window.screen.height)) / 2
     var inputs = 0;
     var outputs = 0;
     var middles = 0;
@@ -553,9 +552,9 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
       }
     }
 
-    var inputsOffset = this.viewBox.height / (inputs + 1);
-    var outputsOffset = this.viewBox.height / (outputs + 1);
-    var middlesOffset = this.viewBox.height / (middles + 1);
+    var inputsOffset = this.viewBox.height.baseVal.value / (inputs + 1);
+    var outputsOffset = this.viewBox.height.baseVal.value / (outputs + 1);
+    var middlesOffset = this.viewBox.height.baseVal.value / (middles + 1);
 
     var inputCurrentOffset = inputsOffset;
     var outputCurrentOffset = outputsOffset;
@@ -589,47 +588,41 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
         node.y = inputCurrentOffset;
         inputCurrentOffset += inputsOffset;
       } else if (connectionsAfter.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) {
-        node.x = this.viewBox.width - 250;
+        node.x = this.viewBox.width.baseVal.value - 250;
         node.y = outputCurrentOffset;
         outputCurrentOffset += outputsOffset;
       } else { // tous ceux du milieu
-        node.x = record.graphPositionX || this.viewBox.width / 2;
+        node.x = record.graphPositionX || this.viewBox.width.baseVal.value / 2;
         node.y = record.graphPositionY || middleCurrentOffset;
         if (record.graphPositionY == undefined) {
           middleCurrentOffset += middlesOffset;
         }
       }
-      // console.log(node.x ,  node.y, node.component)
-      if(this.graph.startPositionX
-        && this.graph.startPositionX.y < -node.y
-        ){
-        this.graph.startPositionX =  {x: -node.x, y: -node.y}
-      } else if(!this.graph.startPositionX ){
-        this.graph.startPositionX =  {x: -node.x, y: -node.y}
-      }
-      console.log( -node.x, -node.y,  node.component.editor )
-      this.graph.test1 += -node.x
-      this.graph.test2 += -node.y
-      if(this.graph.startPositionY && this.graph.startPositionY.x > -node.x 
-        ){
-        console.log(-this.graph.startPositionY.x < -node.x, node.component.editor )
-        this.graph.startPositionY =  {x: -node.x, y: -node.y}
-      } else if(!this.graph.startPositionY ){
-        this.graph.startPositionY =  {x: -node.x, y: -node.y}
-      }
-
-      
+      this.graph.x += -node.x
+      this.graph.y += -node.y
+      console.log("NODE", -node.x, -node.y)
       if (selectedNodes.indexOf(node.id) != -1) {
         node.selected = true;
       }
       
       this.graph.nodes.push(node);
     }
-    let x = this.graph.test1/  this.graph.nodes.length
-    let y = this.graph.test2/  this.graph.nodes.length
-    let middle = { x, y }
-    console.log("MIDDLE", middle)
-    this.graph.startPosition  = middle
+    if(this.graph.nodes.length > 0){
+      console.log("middle", this.graph.x, this.graph.y)
+      let x = this.graph.x /  this.graph.nodes.length
+      let y = this.graph.y /  this.graph.nodes.length
+      let middle = { x, y }
+      console.log("middle", middle)
+      this.graph.startPosition  = middle
+    } else {
+
+      let x = 100;
+      let y = 100;
+      console.log("NO NODE", x, y)
+      this.graph.startPosition  = {x, y}
+    }
+    
+
 
     for (link of this.workspaceCurrent.links) {
       let id = link._id;
@@ -649,6 +642,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
   }
 
   this.on('workspace_graph_compute', function(viewBox) {
+    console.log("VIEW BOX", viewBox)
     this.computeGraph(viewBox);
   });
 
@@ -896,7 +890,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
       this.workspaceCurrent.components = this.workspaceCurrent.components.concat(data);
       route('workspace/' + this.workspaceCurrent._id + '/component');
     })
-
   }.bind(this));
 
   // --------------------------------------------------------------------------------

@@ -40,7 +40,6 @@ function _create(user_infos) {
       reject("no user data")
     }else{
       userLib.create(user_infos).then((userLibResult)=>{
-        console.log(payuser_infos)
         return authenticationPromise(user_infos);
       }).then(token=>{
         resolve({
