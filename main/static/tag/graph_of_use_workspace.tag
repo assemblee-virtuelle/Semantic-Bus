@@ -1,29 +1,31 @@
 <graph-of-use-workspace>
-<!--  Titre  CONSO  -->
-    <div class="containerH" style="flex-grow:0;margin-top:2em;flex:0.7;;background:white;padding: 2em;">
-      <span style="margin-bottom:2em;text-align: center;font-size:1.3em;"> Vos données globales (30 jours) </span>
-<!--    -->
-      <div class="containerH" style="justify-content:space-between">
-  <!--  Nombre de WorkFlow  -->
+   <div class="containerV" style="flex-grow:0;margin-top:2em;flex:0.7;padding: 1em;">
+      <span class="title-space">  Résumé générale de votre consomation sur les 30 derniers jours </span>
+      <!--    -->
+      <div class="containerH  box-flex" style="justify-content:space-between">
+        <!--  Nombre de composants  -->
         <div class="card" >
-          <!--  Nombre de WorkFlow  -->
-          <span style="font-size:2em;color:rgb(14,33,89)">{this.numberWorkspace}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  WorkFlow</span>
+          <span style="font-size:2em;color:rgb(41,181,237)">{numberWorkspace}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  Composants</span>
         </div>
-<!--  Nombre de MégaOctet  -->
+        <!--  Nombre de Moctet  -->
         <div class="card" >
-          <span style="font-size:2em;color:rgb(14,33,89)">{decimalAdjust('round', this.globalMo, -2)}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  Mo</span>
+          <span style="font-size:2em;color:rgb(41,181,237)">{decimalAdjust('round', globalMo, -2)}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  Mo </span>
         </div>
-<!--  Montant en Euro  -->
+        <!--  Montant en Euro  -->
         <div class="card">
-          <span style="font-size:2em;color:rgb(14,33,89)">{decimalAdjust('round', this.globalPrice, -2)}</span><span style="font-size:0.8em;color:rgb(141,141,141)"> Euros</span>
+          <span style="font-size:2em;color:rgb(41,181,237)">{decimalAdjust('round', globalPrice, -2)}</span><span style="font-size:0.8em;color:rgb(141,141,141)"> Crédit(s) </span>
         </div>
       </div>
-    </div>
+
   </div>
-<!--  Graphique de consommation  -->
-  <div class="containerH" style="padding:5vh">
-    <div class="item-flex">
-      <svg viewBox="0 0 1000 600" id="stacked" style="background-color:rgb(250,250,250);"></svg>
+  <!--  Graphique de consommation  -->
+  <div class="containerH " style="justify-content:center;padding:5vh">
+  
+    <div class="item-flex box-flex">
+      <div class="containerH" style="justify-content:center;padding:1vh">
+        <span class="title-space">Graphique de la consomation de vos crédit par jours </span>
+      </div>
+      <svg viewBox="0 0 1000 60O" id="stacked" style="background-color:rgb(250,250,250);"></svg>
     </div>
   </div>
 </div>
@@ -180,7 +182,7 @@
 <script>
   this.resultEmail = "";
   this.result = true;
-  this.numberWorkspace = ""
+  this.numberWorkspace = 0
 
   decimalAdjust(type, value, exp) {
     // Si la valeur de exp n'est pas définie ou vaut zéro...
@@ -191,7 +193,7 @@
     exp = +exp;
     // Si la valeur n'est pas un nombre ou si exp n'est pas un entier...
     if (isNaN(value) || !(typeof exp === 'number' && exp % 1 === 0)) {
-      return NaN;
+      return 0;
     }
     // Si la valeur est négative
     if (value < 0) {
@@ -312,7 +314,6 @@
   this.initgraph = function (data) {
     console.log('initgraph',initgraph);
     this.tableId = data.tableId
-    this.numberWorkspace = data.numberWorkspace
     this.numberWorkspace = data.numberWorkspace
     this.globalMo = data.globalMo
     this.globalPrice = data.globalPrice

@@ -14,7 +14,7 @@
         </div>
         <!--  Montant en Euro  -->
         <div class="card">
-          <span style="font-size:2em;color:rgb(41,181,237)">{decimalAdjust('round', globalPrice, -2)}</span><span style="font-size:0.8em;color:rgb(141,141,141)"> Euros </span>
+          <span style="font-size:2em;color:rgb(41,181,237)">{decimalAdjust('round', globalPrice, -2)}</span><span style="font-size:0.8em;color:rgb(141,141,141)"> Crédit(s) </span>
         </div>
       </div>
 

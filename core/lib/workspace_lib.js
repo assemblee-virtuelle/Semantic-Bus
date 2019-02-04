@@ -68,13 +68,10 @@ const decimalAdjust = function(type, value, exp) {
 
 
 function _createHistoriqueEnd(historique) {
-  //console.log("historiqueEndObject", historiqueEndObject)
   return new Promise((resolve, reject) => {
-    //console.log("_createHistoriqueEnd", historique)
     var historiqueEndObject = historiqueEndModel.getInstance().model(historique);
 
     if (historiqueEndObject.error != undefined) {
-      //console.log('ERROR',historiqueEndObject.error);
       historiqueEndObject.error = {
         message: historiqueEndObject.error.message
       };
@@ -120,7 +117,6 @@ function _addDataHistoriqueEnd(historicId, data) {
 }
 
 function _createProcess(process) {
-  //console.log("process creation", process)
   var processModelObject = processModel.getInstance().model({
     workflowId: process.workflowId,
     roundDate: process.roundDate,
@@ -232,7 +228,6 @@ function _get_process_byWorkflow(workflowId) {
             } else {
               let historicPromises = [];
               for (let process of processes) {
-                //console.log(processes);
                 historicPromises.push(new Promise((resolve, reject) => {
                   historiqueEndModel.getInstance().model.find({
                     processId: process._id
@@ -243,11 +238,9 @@ function _get_process_byWorkflow(workflowId) {
                       reject(err);
                     } else {
                       for (let step of process.steps) {
-                        //console.log('step',step);
                         let historiqueEndFinded = sift({
                           componentId: step.componentId
                         }, historiqueEnd)[0];
-                        //console.log('historiqueEndFinded',historiqueEndFinded);
                         if (historiqueEndFinded != undefined) {
                           if (historiqueEndFinded.error != undefined) {
                             step.status = 'error';
@@ -281,7 +274,6 @@ function _get_process_byWorkflow(workflowId) {
 function _update_simple(workspaceupdate) {
   return new Promise((resolve, reject) => {
     if (config.quietLog != true) {
-      //console.log("update workspace |");
     }
     workspaceModel.getInstance().model
       .findOneAndUpdate({
@@ -297,7 +289,6 @@ function _update_simple(workspaceupdate) {
           reject(err);
         } else {
           if (config.quietLog != true) {
-            //console.log("in resolve");
           }
           resolve(workspaceUpdate);
         }
@@ -344,7 +335,6 @@ function _create(userId, workspaceData) {
 
 function _destroy(userId, workspaceId) {
   if (config.quietLog != true) {
-    //console.log("destroy : userid ||", userId, "workspaceId ||", workspaceId);
   }
   return new Promise(function(resolve, reject) {
     userModel.getInstance().model.findByIdAndUpdate({
@@ -358,7 +348,6 @@ function _destroy(userId, workspaceId) {
       },
       function(err, user) {
         if (config.quietLog != true) {
-          //console.log('workspace USER', user.workspaces.length);
         }
         if (err) throw TypeError(err);
         else {
@@ -375,7 +364,6 @@ function _destroy(userId, workspaceId) {
                   ) {
                     workspace[0].components.forEach(function(workspaceComp) {
                       if (config.quietLog != true) {
-                        //console.log("for each workspaceComp ||", workspaceComp);
                       }
                       workspaceComponentModel.getInstance().model
                         .remove({
@@ -410,7 +398,6 @@ function _destroy(userId, workspaceId) {
 
 function _get_all(userID, role) {
   var workspaces_owner = [];
-  //console.log(role);
   return new Promise(function(resolve, reject) {
     userModel.getInstance().model
       .findOne({
@@ -436,7 +423,6 @@ function _get_all(userID, role) {
             role: r.role
           };
         });
-        //  console.log(role);
         let workspaces = sift({
             role: role
           },
@@ -450,7 +436,6 @@ function _get_all(userID, role) {
 // --------------------------------------------------------------------------------
 
 function _update(workspace) {
-  ////console.log("WORKSAPCE UPDATE", workspace)
   return new Promise(function(resolve, reject) {
     _update_mainprocess(workspace)
       .then(function(data) {
@@ -465,7 +450,6 @@ function _update(workspace) {
 function _update_mainprocess(preData) {
   //preData.components = preData.components.map(c => c._id);
   if (config.quietLog != true) {
-    //console.log('before Update', preData);
   }
   return new Promise(function(resolve, reject) {
     workspaceModel.getInstance().model
@@ -490,7 +474,6 @@ function _update_mainprocess(preData) {
           reject(err);
         } else {
           if (config.quietLog != true) {
-            //console.log('after Update', componentUpdated);
           }
           resolve(componentUpdated);
         }
@@ -502,7 +485,6 @@ function _update_mainprocess(preData) {
 
 function _get_workspace(workspace_id) {
   if (config.quietLog != true) {
-    //console.log("=============== getworkspace ===========", workspace_id)
   }
   return new Promise(function(resolve, reject) {
     let workspace;
@@ -531,7 +513,6 @@ function _get_workspace(workspace_id) {
         });
         // for (let comp of workspace.components) {
         //   if(comp.specificData.transformObject!=undefined && comp.specificData.transformObject.desc!=undefined){
-        //     //console.log('ZZZZZZZZZZZZZZ',encodeURI(comp.specificData.transformObject.desc));
         //   }
         // }
         //protection against link but not component
@@ -578,7 +559,6 @@ function _get_workspace(workspace_id) {
 
 // --------------------------------------------------------------------------------
 function _get_workspace_graph_data(workspaceId) {
-  console.log("RESULT", workspaceId)
   return new Promise((resolve, reject) => {
     historiqueEndModel.getInstance().model.aggregate(
       [{
@@ -630,10 +610,8 @@ function _get_workspace_graph_data(workspaceId) {
     //   ],
       function(err, result) {
         if (err) {
-          console.log(err);
         } else {
           graphTraitement.formatDataWorkspaceGraph(result).then(resultat => {
-            console.log("GRAPH DATA DONE")
             let final_graph = [];
             let globalPrice = 0;
             let tableId = [];
@@ -714,7 +692,6 @@ function _addConnection(workspaceId, source, target) {
 }
 
 function _removeConnection(workspaceId, linkId) {
-  //console.log(workspaceId, linkId);
   return new Promise((resolve, reject) => {
     workspaceModel.getInstance().model.findOne({
       _id: workspaceId

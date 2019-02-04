@@ -427,7 +427,6 @@ class Engine {
     historic_object.recordPrice = current_component_price.record_price || 0;
     historic_object.moCount = dataFlow == undefined || dataFlow.data == undefined ? 0 : this.objectSizeOf(dataFlow) / 1000000;
     historic_object.componentPrice = current_component_price.moPrice;
-    console.log("COMPONENT PRICE", (historic_object.moCount * historic_object.componentPrice), "SIZE FLOW", historic_object.moCount)
     historic_object.totalPrice =
       (historic_object.recordCount * historic_object.recordPrice) +
       (historic_object.moCount * historic_object.componentPrice);

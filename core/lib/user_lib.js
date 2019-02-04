@@ -305,6 +305,7 @@ function _userGraph(userId) {
           console.log(err);
           reject(err);
         } else {
+          console.log("RESULT", result)
           graphTraitement.formatDataUserGraph().then(graphData => {
             let final_graph = [];
             let globalPrice = 0;
