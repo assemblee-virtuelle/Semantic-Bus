@@ -31,14 +31,13 @@ module.exports = function(router, stompClient) {
   // ---------------------------------------------------------------------------------
 
   router.get('/workspace/:id/graph', function(req, res, next) {
-    res.send([]);
-    // workspace_lib.get_workspace_graph_data(req.params.id).then((workspaceGraph) => {
-    //   res.json({
-    //     workspaceGraph
-    //   })
-    // }).catch(e => {
-    //   next(e);
-    // });
+    workspace_lib.get_workspace_graph_data(req.params.id).then((workspaceGraph) => {
+      res.json({
+        workspaceGraph
+      })
+    }).catch(e => {
+      next(e);
+    });
   }); //<= graph workspace
 
   // --------------------------------------------------------------------------------

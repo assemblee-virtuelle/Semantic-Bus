@@ -1,27 +1,31 @@
 <graph-of-use>
 <!--  page superviser -->
-    <div class="containerH" style="flex-grow:0;margin-top:2em;flex:0.7;;background:white;padding: 2em;">
-      <span style="margin-bottom:2em;text-align: center;font-size:1.3em;">  Consomation (30 jours) </span>
+    <div class="containerV" style="flex-grow:0;margin-top:2em;flex:0.7;padding: 1em;">
+      <span class="title-space">  Résumé de votre consomation sur les 30 derniers jours </span>
       <!--    -->
-      <div class="containerH" style="justify-content:space-between">
+      <div class="containerH  box-flex" style="justify-content:space-between">
         <!--  Nombre de composants  -->
         <div class="card" >
-          <span style="font-size:2em;color:rgb(14,33,89)">{componentNumber}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  Composants</span>
+          <span style="font-size:2em;color:rgb(41,181,237)">{componentNumber}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  Composants</span>
         </div>
         <!--  Nombre de Moctet  -->
         <div class="card" >
-          <span style="font-size:2em;color:rgb(14,33,89)">{decimalAdjust('round', globalMo, -2)}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  Mo </span>
+          <span style="font-size:2em;color:rgb(41,181,237)">{decimalAdjust('round', globalMo, -2)}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  Mo </span>
         </div>
         <!--  Montant en Euro  -->
         <div class="card">
-          <span style="font-size:2em;color:rgb(14,33,89)">{decimalAdjust('round', globalPrice, -2)}</span><span style="font-size:0.8em;color:rgb(141,141,141)"> Euros </span>
+          <span style="font-size:2em;color:rgb(41,181,237)">{decimalAdjust('round', globalPrice, -2)}</span><span style="font-size:0.8em;color:rgb(141,141,141)"> Euros </span>
         </div>
       </div>
 
   </div>
   <!--  Graphique de consommation  -->
-  <div class="containerH" style="padding:5vh">
-    <div class="item-flex">
+  <div class="containerH " style="justify-content:center;padding:5vh">
+  
+    <div class="item-flex box-flex">
+      <div class="containerH" style="justify-content:center;padding:1vh">
+        <span class="title-space">Graphique de la consomation de vos crédit par jours </span>
+      </div>
       <svg viewBox="0 0 1000 60O" id="stacked" style="background-color:rgb(250,250,250);"></svg>
     </div>
   </div>
@@ -59,8 +63,6 @@
         overflow-x:scroll
     }
   }
-
-
 
   .title-number {
     font-size: 30px;
@@ -232,20 +234,19 @@
 
   /// D3 JS INITIALIZE
 
-  this.initD3js = function (data, tableID) {
-
+  this.initD3js = function (data) {
     var marginStackChart = {
-      top: 20,
-      right: 200,
-      bottom: 30,
+      top: 50,
+      right: 30,
+      bottom: 50,
       left: 30
     },
-    widthStackChart = 1000,
-    heightStackChart = 600 - marginStackChart.top - marginStackChart.bottom;
+    widthStackChart = window.screen.width - 0.2*window.screen.width,
+    heightStackChart = window.screen.height*0.66 - marginStackChart.top - marginStackChart.bottom;
 
     var xStackChart = d3.scaleBand().range([0, widthStackChart]).padding(.4);
 
-    var yStackChart = d3.scaleLinear().range([heightStackChart, 0]);
+    var yStackChart = d3.scaleLinear().domain([ 0, data.total ]).range([heightStackChart, 0])
 
     var xAxis = d3.axisBottom().scale(xStackChart)
 
@@ -253,21 +254,19 @@
 
     var colorStackChart = d3.scaleOrdinal(d3.schemeSet3);
 
-    var canvasStackChart = d3.select("#stacked").attr("width", widthStackChart + marginStackChart.left + marginStackChart.right).attr("height", heightStackChart + marginStackChart.top + marginStackChart.bottom).append("g").attr("transform", "translate(" + marginStackChart.left + "," + marginStackChart.top + ")");
 
-    xStackChart.domain(data.map(function (d) {;
+    var canvasStackChart = d3.select("#stacked").attr("width", widthStackChart + marginStackChart.left + marginStackChart.right)
+    .attr("height", heightStackChart + marginStackChart.top + marginStackChart.bottom)
+    .append("g").attr("transform", "translate(" + marginStackChart.left + "," + marginStackChart.top + ")");
+
+    xStackChart.domain(data.data.map(function (d) {
       return d.Day.split("-")[0] + "-" + d.Day.split("-")[1];
     }));
-    yStackChart.domain([
-      0,
-      d3.max(data, function (d) {
-        return d.total;
-      })
-    ]);
+
 
     function make_y_gridlines() {
-        return d3.axisLeft(yStackChart)
-            .ticks(5)
+      return d3.axisLeft(yStackChart)
+        .ticks(5)
     }
 
     canvasStackChart.append("g")
@@ -281,25 +280,30 @@
 
     canvasStackChart.append("g").attr("class", "x axis").attr("transform", "translate(0," + heightStackChart + ")").call(d3.axisBottom(xStackChart));
 
-    canvasStackChart.append("text").attr("class", "x label").attr("text-anchor", "end").attr("x", widthStackChart + 5).attr("y", heightStackChart + 30).attr("font-size", "12px").text("jours");
+    canvasStackChart.append("text").attr("class", "x label").attr("text-anchor", "end").attr("x", widthStackChart + 5).attr("y", heightStackChart + 30).attr("font-size", "12px").text("Jours");
 
     canvasStackChart.append("g").attr("class", "y axis").call(d3.axisLeft(yStackChart)).append("text").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", ".71em").style("text-anchor", "end")
 
-    canvasStackChart.append("text").attr("class", "y label").attr("text-anchor", "end").attr("y", 6).attr("dy", ".75em").attr("transform", "rotate(-90)").attr("font-size", "12px").text("Consomation( € )");
+    canvasStackChart.append("text").attr("class", "y label").attr("text-anchor", "end").attr("y", 6).attr("dy", ".75em").attr("transform", "rotate(-90)").attr("font-size", "12px").text("Crédit");
 
-    var state = canvasStackChart.selectAll(".Day").data(data).enter().append("g").attr("class", "g").attr("transform", function (d) {
-      return "translate(" + xStackChart(d.Day.split("-")[0] + "-" + d.Day.split("-")[1]) + ",0)";
-    })
-
-
-    state.selectAll("rect").data(function (d) {
-      return d.ages;
-    }).enter().append("rect").attr("width", xStackChart.bandwidth()).attr("y", function (d) {
-      return yStackChart(d.y1);
+    let state = canvasStackChart.selectAll(".Day").data(data.data)
+      .enter()
+      .append("g")
+      .attr("class", "g")
+      .attr("transform", function (d) {
+        return "translate(" + xStackChart(d.Day.split("-")[0] + "-" + d.Day.split("-")[1]) + ",0)";
+      })
+  
+    state.selectAll("g").data(function (d) {
+      return d.components
+    }).enter().append("rect")
+    .attr("width", xStackChart.bandwidth())
+    .attr("y", function (d) {
+      return yStackChart(d.y1)
     }).attr("height", function (d) {
-      return yStackChart(d.y0) - yStackChart(d.y1);
+      return yStackChart(d.y0) -  yStackChart(d.y1)
     }).style("fill", function (d) {
-      return colorStackChart(d.ID);
+      return colorStackChart(d.id);
     }).on("mouseover", function (d) {
       d3.select(this).style("opacity", .6)
       div.transition().duration(200).style("opacity", .9);
@@ -307,11 +311,12 @@
       if(d.name){
         nom = "Nom:" + d.name + "<br/>"
       }
-      div.html(nom + "Module: "
-      + d.module + "<br/>Consomation : "
-      + d.flow + "Mo<br/>Prix du flux : "
-      + d.price + "€ <br/>Prix composant: "
-      + d.componentPrice/1000 + "€ / Mo").style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 28 + "px");
+      div.html(
+        nom + "Module: "
+      + d.label + "<br/>Consomation : "
+      + d.datasize + " Mo<br/>Prix du flux : "
+      + d.price + " Crédit <br/>Prix composant: "
+      + d.pricing + "Credit / Mo").style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 28 + "px");
     }).on("mouseout", function (d) {
       d3.select(this).style("opacity", .9)
       div.transition().duration(500).style("opacity", 0);
@@ -319,13 +324,11 @@
   };
 
 
-
-
   this.on('mount', function () {
     this.dataLoaded = false
     RiotControl.on('graph_workspace_data_loaded',(data)=>{
       if(!this.dataLoaded){
-        this.initD3js(data.workspaceGraph.data, data.workspaceGraph.tableId);
+        this.initD3js(data.workspaceGraph);
         this.dataLoaded = true
         this.componentNumber = data.workspaceGraph.componentNumber
         this.globalPrice = data.workspaceGraph.globalPrice

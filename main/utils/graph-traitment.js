@@ -129,9 +129,14 @@ exports.formatDataUserGraph = function (data) {
     var compteurCompoflow = {}
     var day = []
     var lasttab = {},
-    Allday = [],
     AllDayObject = {}
 
+    var data = {};
+    data.data = []
+    data.componentNumber = 0;
+    data.globalPrice = 0
+    data.globalMo = 0
+    data.total = 0
     return new Promise(function (resolve, reject) {
       for (var i = 30; i >= 0; i--) {
         if (AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] == null) {
@@ -141,40 +146,43 @@ exports.formatDataUserGraph = function (data) {
           AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1][moment().subtract(i, 'days')._d.getUTCMonth() + 1 + "-" + moment().subtract(i, 'days')._d.getUTCDate() + "-" + moment().subtract(i, 'days')._d.getFullYear()] = []
         }
       }
-      dataInner.components.forEach(function (component) {
-        if (component.consumption_history && component.consumption_history.length > 0) {
+      dataInner.forEach((wrokflowByDay)=>{
+        let total = 0;
+        wrokflowByDay.components.forEach(function (component) {
+          console.log("COMPONENT", component)
+          total += component.totalPrice;
+          data.componentNumber ++
+          data.globalMo += component.moCount
+          data.globalPrice += component.totalPrice
           compteurCompoflow[component.module] = 0
-          component.consumption_history.forEach(function (consumption_history) {
-            var d = new Date(consumption_history.dates.created_at);
+            var d = new Date(component.roundDate);
             for (month in AllDayObject) {
               for (b in AllDayObject[month]) {
                 if ((d.getUTCMonth() + 1) == month && d.getUTCDate() == b.split("-")[1]) {
-                  //  if(Allday.indexOf(d.getUTCDate() + d.getUTCMonth() + 1) != -1){
                   var c = {}
                   if (component.name) {
                     var name = component.name
                   } else {
                     var name = "no name"
                   }
-                  //console.log("FUCKING COMPONENT", component)
                   AllDayObject[month][b].push({
                     day: d.getDate(),
                     fullDate: d,
-                    pricing: component.pricing,
-                    price: consumption_history.price,
-                    data: consumption_history.flow_size,
-                    id: component._id,
-                    label: component.module,
+                    pricing: component.componentPrice,
+                    price: component.totalPrice,
+                    data: component.moCount,
+                    id: component.componentId,
+                    label: component.componentModule,
                     name: name,
-                    date: consumption_history.dates.created_at
+                    date: component.roundDate
                   })
 
                 }
               }
             }
-          })
-        }
       })
+      if(total> data.total) data.total = total
+    })
 
       for (var month in AllDayObject) {
         lasttab[month] = {}
@@ -205,27 +213,31 @@ exports.formatDataUserGraph = function (data) {
         }
       };
 
-      var data = []
+      console.log("LAST TAB", lasttab)
+
       for (var month in lasttab) {
         for (var conso in lasttab[month]) {
           var c = {}
-          c["Day"] = conso
+          let y0 = 0;
+          c.components =[];
+          c["Day"] = conso;
           for (var consoFinal in lasttab[month][conso]) {
-
-            c[consoFinal] = {
+            console.log("CONSO", consoFinal, lasttab[month][conso][consoFinal].pricing)
+            c.components.push({
               pricing: lasttab[month][conso][consoFinal].pricing,
               label: lasttab[month][conso][consoFinal].label,
               price: lasttab[month][conso][consoFinal].price,
               datasize: lasttab[month][conso][consoFinal].data,
               name: lasttab[month][conso][consoFinal].name,
-              id: lasttab[month][conso][consoFinal].id,
-              fullDate: lasttab[month][conso][consoFinal].fullDate
-            }
+              id: consoFinal,
+              fullDate: lasttab[month][conso][consoFinal].fullDate,
+              y0: +y0,
+              y1: (y0 += lasttab[month][conso][consoFinal].price)
+            })
           }
-          data.push(c)
+          data.data.push(c)
         }
       }
-      //console.log(data)
       resolve(data)
     })
   }
