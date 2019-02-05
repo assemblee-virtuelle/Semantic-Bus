@@ -584,77 +584,10 @@ function _get_workspace_graph_data(workspaceId) {
           }
         }
       ],
-    // historiqueEndModel.getInstance().model.aggregate(
-    //   [{
-    //       $match: {
-    //         workflowId: workspaceId
-    //       },
-    //           {
-    //       // $group: {
-    //       //   _id: {
-    //       //     workflowComponentId: "$workflowComponentId",
-    //       //     roundDate: "$roundDate"
-    //       //   },
-    //       //   totalPrice: {
-    //       //     $sum: "$totalPrice"
-    //       //   },
-    //       //   totalMo: {
-    //       //     $sum: "$moCount"
-    //       //   },
-    //       //   workspaces: {
-    //       //     $push: "$$ROOT"
-    //       //   }
-    //       // }
-    //     }
-    //     }
-    //   ],
       function(err, result) {
         if (err) {
         } else {
           graphTraitement.formatDataWorkspaceGraph(result).then(resultat => {
-            let final_graph = [];
-            let globalPrice = 0;
-            let tableId = [];
-            let componentNumber = 0;
-            let globalMo = 0;
-            let c = {};
-            // for (let month in graphData) {
-            //   for (let day in graphData[month]) {
-            //     let y0 = 0;
-            //     let final_data_object = {};
-            //     final_data_object.Day = day;
-            //     final_data_object.total = 0;
-            //     final_data_object.ages = [];
-            //     let i = 0;
-            //     result.forEach(res => {
-            //       let key;
-            //       if (
-            //         new Date(parseInt(res._id.roundDate)).getUTCMonth() + 1 ==
-            //         month &&
-            //         new Date(parseInt(res._id.roundDate)).getUTCDate() ==
-            //         day.split("-")[1]
-            //       ) {
-            //         tableId.push(res.data[0].workflowComponentId);
-            //         final_data_object.ages.push({
-            //           name: res.workspaces[res.workspaces.length - 1].componentName,
-            //           ID: res.workspaces[0].workflowComponentId,
-            //           module: res.workspaces[res.workspaces.length - 1].componentModule,
-            //           componentPrice: res.workspaces[res.workspaces.length - 1].componentPrice,
-            //           price: decimalAdjust("round", res.totalPrice, -3),
-            //           flow: decimalAdjust("round", res.totalMo, -3),
-            //           y0: +y0,
-            //           y1: (y0 += res.totalPrice)
-            //         });
-
-            //         final_data_object.total += res.totalPrice;
-            //         componentNumber += 1;
-            //         globalPrice += res.totalPrice;
-            //         globalMo += res.totalMo;
-            //       }
-            //     });
-            //     final_graph.push(final_data_object);
-            //   }
-            // }
             resolve(resultat);
           });
         }

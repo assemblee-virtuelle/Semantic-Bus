@@ -7,6 +7,7 @@ let bcrypt = require("bcryptjs");
 let sift = require("sift");
 let graphTraitement = require("../../main/utils/graph-traitment");
 let historiqueModel = require("../models").historiqueEnd;
+let workspaceModel = require("../models").workspace;
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -23,7 +24,7 @@ module.exports = {
   userGraph: _userGraph
 };
 
-const decimalAdjust = function(type, value, exp) {
+const decimalAdjust = function (type, value, exp) {
   // Si la valeur de exp n'est pas définie ou vaut zéro...
   if (typeof exp === "undefined" || +exp === 0) {
     return Math[type](value);
@@ -59,24 +60,24 @@ function _create(bodyParams) {
   if (config.quietLog != true) {
     //console.log(bodyParams)
   }
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     _create_preprocess(bodyParams.user).then((preData) => {
       return _create_mainprocess(preData);
 
     }).then(user => {
       resolve(user);
-    }).catch(function(err) {
+    }).catch(function (err) {
       reject(err);
     });
   });
 } // <= _create
 
 function _create_mainprocess(preData) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     if (config.quietLog != true) {
       //console.log(" ------ Predata mainProcess ------- ", preData)
     }
-    const userModelInstance= userModel.getInstance().model;
+    const userModelInstance = userModel.getInstance().model;
     var user = new userModelInstance({
       credentials: {
         email: preData.email,
@@ -91,7 +92,7 @@ function _create_mainprocess(preData) {
         updated_at: new Date()
       }
     });
-    user.save(function(err, userData) {
+    user.save(function (err, userData) {
       if (err) {
         resolve(err);
       } else {
@@ -103,26 +104,26 @@ function _create_mainprocess(preData) {
 
 function _create_preprocess(userParams) {
   var user_final = {};
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     _get({
       "credentials.email": userParams.email
     }).then((user) => {
       if (user == null) {
-        var mail = new Promise(function(resolve, reject) {
+        var mail = new Promise(function (resolve, reject) {
           const Usermail = Object.assign({}, userParams)
           if (!Usermail.email) {
             reject("no_email_provided");
-          }  else if(!_check_email(Usermail.email)) {
+          } else if (!_check_email(Usermail.email)) {
             reject("bad_email")
           } else {
             resolve(Usermail.email)
           }
         });
-        var job = new Promise(function(resolve, reject) {
+        var job = new Promise(function (resolve, reject) {
           if (!userParams.job) {
             resolve(null);
           }
-          _check_job(userParams.job).then(function(boolean) {
+          _check_job(userParams.job).then(function (boolean) {
             if (config.quietLog != true) {
               //console.log("job:", userParams.job, "check job :", boolean);
             }
@@ -133,11 +134,11 @@ function _create_preprocess(userParams) {
             }
           });
         });
-        var name = new Promise(function(resolve, reject) {
+        var name = new Promise(function (resolve, reject) {
           if (!userParams.name) {
             resolve(null);
           }
-          _check_name(userParams.name).then(function(boolean) {
+          _check_name(userParams.name).then(function (boolean) {
             if (config.quietLog != true) {
               //console.log("name:", userParams.name, "check name :", boolean);
             }
@@ -149,15 +150,15 @@ function _create_preprocess(userParams) {
           });
         });
 
-        var hash_password = new Promise(function(resolve, reject) {
+        var hash_password = new Promise(function (resolve, reject) {
           _hash_password(userParams.password, userParams.passwordConfirm).then(
-            function(hashedPassword) {
+            function (hashedPassword) {
               resolve(hashedPassword);
             }
           );
         });
 
-        var society = new Promise(function(resolve, reject) {
+        var society = new Promise(function (resolve, reject) {
           if (userParams.society) {
             resolve(userParams.society);
           } else {
@@ -165,7 +166,7 @@ function _create_preprocess(userParams) {
           }
         });
 
-        var mailid = new Promise(function(resolve, reject) {
+        var mailid = new Promise(function (resolve, reject) {
           if (userParams.mailid) {
             resolve(userParams.mailid);
           } else {
@@ -174,7 +175,7 @@ function _create_preprocess(userParams) {
         });
         // return new Promise(function (resolve, reject) {
         Promise.all([mail, name, hash_password, job, society, mailid])
-          .then((userPromise) =>{
+          .then((userPromise) => {
             //console.log('XXXXXXXXXXXXXXXXXX',user);
             user_final["email"] = userPromise[0];
             user_final["name"] = userPromise[1];
@@ -184,7 +185,7 @@ function _create_preprocess(userParams) {
             user_final["mailid"] = userPromise[5];
             resolve(user_final);
           })
-          .catch((err)=>{
+          .catch((err) => {
             reject(err);
           });
       } else {
@@ -198,7 +199,7 @@ function _get_all(options) {
   if (config.quietLog != true) {
     //console.log("get_all");
   }
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     userModel.getInstance().model
       .find(options.filters)
       .limit(options.limit)
@@ -206,7 +207,7 @@ function _get_all(options) {
       .skip(options.skip)
       .sort(options.sort)
       .lean()
-      .exec(function(err, users) {
+      .exec(function (err, users) {
         if (err) {
           reject(err);
         } else {
@@ -220,11 +221,11 @@ function _get_all(options) {
 } // <= _get_all
 
 function _get(filter) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     userModel.getInstance().model
       .findOne(filter)
       .lean()
-      .exec(function(err, userData) {
+      .exec(function (err, userData) {
         if (err) {
           reject(err);
         } else {
@@ -235,8 +236,8 @@ function _get(filter) {
 } // <= _get
 
 function _getWithWorkspace(userID, role) {
-  return new Promise(function(resolve, reject) {
-    try{
+  return new Promise(function (resolve, reject) {
+    try {
       //console.log(userID);
       userModel.getInstance().model
         .findOne({
@@ -266,7 +267,7 @@ function _getWithWorkspace(userID, role) {
           //let workspaces=sift({role:role},data.workspaces).map(r=>r.workspace);
           resolve(data);
         });
-    }catch(e){
+    } catch (e) {
       reject(e);
     }
 
@@ -278,217 +279,80 @@ function _userGraph(userId) {
   return new Promise((resolve, reject) => {
     historiqueModel.getInstance().model.aggregate(
       [{
-          $match: {
-            userId: userId
-          }
-        },
-        {
-          $group: {
-            _id: {
-              workspaceId: "$workspaceId",
-              roundDate: "$roundDate"
-            },
-            totalPrice: {
-              $sum: "$totalPrice"
-            },
-            totalMo: {
-              $sum: "$moCount"
-            },
-            workspaces: {
-              $push: "$$ROOT"
-            }
+        $match: {
+          userId: userId
+        }
+      },
+      {
+        $group: {
+          _id: {
+            workspaceId: "$workspaceId",
+            roundDate: "$roundDate"
+          },
+          totalPrice: {
+            $sum: "$totalPrice"
+          },
+          totalMo: {
+            $sum: "$moCount"
+          },
+          workspaces: {
+            $push: "$$ROOT"
           }
         }
-      ],
-      function(err, result) {
+      }],
+      function (err, result) {
         if (err) {
-          console.log(err);
+          console.log('error', err);
           reject(err);
         } else {
-          console.log("RESULT", result)
-          graphTraitement.formatDataUserGraph().then(graphData => {
-            let final_graph = [];
-            let globalPrice = 0;
-            let tableId = [];
-            let workspaceNumber = 0;
-            let globalMo = 0;
-            let c = {};
-            for (var month in graphData) {
-              for (var day in graphData[month]) {
-                let y0 = 0;
-                let final_data_object = {};
-                final_data_object.Day = day;
-                final_data_object.total = 0;
-                final_data_object.ages = [];
-                let i = 0;
-                result.forEach(res => {
-                  let key;
-                  if (
-                    new Date(parseInt(res._id.roundDate)).getUTCMonth() + 1 == month &&
-                    new Date(parseInt(res._id.roundDate)).getUTCDate() ==
-                    day.split("-")[1]
-                  ) {
-                    tableId.push(res._id.workspaceId);
-                    final_data_object.ages.push({
-                      ID: res._id.workspaceId,
-                      name: res.workspaces[res.workspaces.length - 1].workspaceName,
-                      price: decimalAdjust("round", res.totalPrice, -2),
-                      flow: decimalAdjust("round", res.totalMo, -2),
-                      y0: +y0,
-                      y1: (y0 += res.totalPrice)
-                    });
-                    final_data_object.total += res.totalPrice;
-                    workspaceNumber += 1;
-                    globalPrice += res.totalPrice;
-                    globalMo += res.totalMo;
-                  }
-                });
-                final_graph.push(final_data_object);
-              }
+          let c = {}
+          result[0].workspaces.forEach((histo) => {
+            // console.log(histo)
+            if (c[histo.workflowId]) {
+              c[histo.workflowId].totalPrice += histo.totalPrice;
+              c[histo.workflowId].totalMo += histo.moCount
+            } else {
+              c[histo.workflowId] = {};
+              c[histo.workflowId].totalPrice = histo.totalPrice
+              c[histo.workflowId].totalMo = histo.moCount
+              c[histo.workflowId].id = histo.workflowId
             }
-            resolve({
-              tableId: tableId,
-              globalPrice: globalPrice,
-              data: final_graph,
-              globalMo: globalMo,
-              numberWorkspace: workspaceNumber
-            });
-          });
+          })
+
+          const array = []
+          for (const workspaceId in c) {
+            console.log("ID :", workspaceId)
+            array.push(new Promise(resolve => {
+              workspaceModel.getInstance().model.find({ _id: workspaceId })
+                .then((result) => {
+                  // console.log('result find ', result[0]);
+                  c[workspaceId].name = result[0].name
+                  c[workspaceId].componentNumber = result[0].components ? result[0].components.length : 0
+                  c[workspaceId].description = result[0].description
+                  console.log('new object ', c);
+                  resolve(c[workspaceId])
+                });
+            }))
+          }
+          // console.log("array :", workspaceId)
+          Promise.all(array).then((res) => {
+            console.log('Array promise ===>', res);
+            if (res) {
+              // resolve(res)s
+              graphTraitement.formatDataUserGraph(result).then(resultat => {
+                // resolve(resultat);
+              });
+            }
+          })
         }
       }
     );
   });
 } // <= _userGraph
 
-// function _getUserWorkspaceGraphData(userID, role) {
-//   return new Promise(function(resolve, reject) {
-//     userModel.getInstance().model.findOne({
-//         _id: userID
-//       })
-//       .populate({path: 'workspaces._id'})
-//       .lean()
-//       .exec((error, data) => {
-//         //console.log(data);
-//         //null wokspace protection
-//         data.workspaces=sift({'_id':{$ne:null}}, data.workspaces);
-//         //console.log(data.workspaces);
-//         data.workspaces = data.workspaces.map(r => {
-//           return {
-//             workspace: r._id,
-//             role: r.role
-//           }
-//         })
-//         //  console.log(role);
-//         //let workspaces=sift({role:role},data.workspaces).map(r=>r.workspace);
-//         workspaceGraphUserTraitement.formatDataUserGraph(data).then((workspaceAfterTraitment)=>{
-//           resolve(workspaceAfterTraitment)
-//         })
-//       })
-//   });
-
-// var workspaces_owner = [];
-// return new Promise(function (resolve, reject) {
-//   _get({
-//     _id: userID
-//   }).then(function (user) {
-//     if (user.workspaces.length > 0) {
-//       user.workspaces.forEach(function (workspace) {
-//         if (workspace.role == role) {
-//           workspaces_owner.push(workspace._id);
-//         }
-//       })
-//       workspaceModel.find({
-//           '_id': {
-//             $in: workspaces_owner
-//           }
-//         },
-//         function (err, workspaces) {
-//           if (workspaces) {
-//             resolve({
-//               user: user,
-//               workspaces: workspaces
-//             })
-//           } else {
-//             reject(err)
-//           }
-//         });
-//     } else {
-//       resolve({
-//         user: user,
-//         workspaces: []
-//       })
-//     }
-//   })
-// })
-// <= _userGraph
-
-// --------------------------------------------------------------------------------
-
-// function _getUserWorkspaceGraphData(userID, role) {
-//   return new Promise(function(resolve, reject) {
-//     userModel.getInstance().model.findOne({
-//         _id: userID
-//       })
-//       .populate({path: 'workspaces._id'})
-//       .lean()
-//       .exec((error, data) => {
-//         //console.log(data);
-//         //null wokspace protection
-//         data.workspaces=sift({'_id':{$ne:null}}, data.workspaces);
-//         //console.log(data.workspaces);
-//         data.workspaces = data.workspaces.map(r => {
-//           return {
-//             workspace: r._id,
-//             role: r.role
-//           }
-//         })
-//         //  console.log(role);
-//         //let workspaces=sift({role:role},data.workspaces).map(r=>r.workspace);
-//         workspaceGraphUserTraitement.formatDataUserGraph(data).then((workspaceAfterTraitment)=>{
-//           resolve(workspaceAfterTraitment)
-//         })
-//       })
-//   });
-
-// var workspaces_owner = [];
-// return new Promise(function (resolve, reject) {
-//   _get({
-//     _id: userID
-//   }).then(function (user) {
-//     if (user.workspaces.length > 0) {
-//       user.workspaces.forEach(function (workspace) {
-//         if (workspace.role == role) {
-//           workspaces_owner.push(workspace._id);
-//         }
-//       })
-//       workspaceModel.find({
-//           '_id': {
-//             $in: workspaces_owner
-//           }
-//         },
-//         function (err, workspaces) {
-//           if (workspaces) {
-//             resolve({
-//               user: user,
-//               workspaces: workspaces
-//             })
-//           } else {
-//             reject(err)
-//           }
-//         });
-//     } else {
-//       resolve({
-//         user: user,
-//         workspaces: []
-//       })
-//     }
-//   })
-// })
-// <= _getWithWorkspace
-
 function _update(user, mailChange) {
-  return new Promise(function(resolve, reject) {
-    _is_google_user(user).then(function(boolean) {
+  return new Promise(function (resolve, reject) {
+    _is_google_user(user).then(function (boolean) {
       if (boolean == true) {
         if (config.quietLog != true) {
           //console.log("google user");
@@ -501,7 +365,7 @@ function _update(user, mailChange) {
       return _update_mainprocess(preData);
     }).then((user) => {
       resolve(user);
-    }).catch(function(err) {
+    }).catch(function (err) {
       reject(err);
     });;
   });
@@ -511,7 +375,7 @@ function _update(user, mailChange) {
 
 function _update_mainprocess(preData) {
   //transformer le model business en model de persistance
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     if (config.quietLog != true) {
       //console.log("update_mainprocess data");
     }
@@ -595,7 +459,7 @@ function _update_mainprocess(preData) {
       toUpdate, {
         new: true
       },
-      function(err, userData) {
+      function (err, userData) {
         if (err) {
           reject("errorr_save");
         } else {
@@ -613,53 +477,53 @@ function _update_mainprocess(preData) {
 
 function _update_preprocess(userParams) {
   //controler les regles métier
-  return new Promise(function(resolve, reject) {
-    var credit = new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
+    var credit = new Promise(function (resolve, reject) {
       if (!userParams.credit) {
         resolve(null);
       } else resolve(userParams.credit);
     });
 
-    var job = new Promise(function(resolve, reject) {
+    var job = new Promise(function (resolve, reject) {
       if (!userParams.job) {
         resolve(null);
       } else {
-        _check_job(userParams.job).then(function(boolean) {
+        _check_job(userParams.job).then(function (boolean) {
           if (!boolean) reject("bad_format_job");
           else resolve(userParams.job);
         });
       }
     });
 
-    var society = new Promise(function(resolve, reject) {
+    var society = new Promise(function (resolve, reject) {
       if (!userParams.society) {
         resolve(null);
       } else {
-        _check_job(userParams.society).then(function(boolean) {
+        _check_job(userParams.society).then(function (boolean) {
           if (!boolean) reject("bad_format_society");
           else resolve(userParams.society);
         });
       }
     });
 
-    var name = new Promise(function(resolve, reject) {
+    var name = new Promise(function (resolve, reject) {
       if (!userParams.name) {
         resolve(null);
       } else {
-        _check_name(userParams.name).then(function(boolean) {
+        _check_name(userParams.name).then(function (boolean) {
           if (!boolean) reject("bad_format_name");
           else resolve(userParams.name);
         });
       }
     });
 
-    var workspace = new Promise(function(resolve, reject) {
+    var workspace = new Promise(function (resolve, reject) {
       if (!userParams.workspaces) {
         resolve(null);
       } else resolve(userParams.workspaces);
     });
 
-    var active = new Promise(function(resolve, reject) {
+    var active = new Promise(function (resolve, reject) {
       if (userParams.active) {
         resolve(userParams.active);
       } else {
@@ -667,26 +531,26 @@ function _update_preprocess(userParams) {
       }
     });
 
-    var resetpasswordtoken = new Promise(function(resolve, reject) {
+    var resetpasswordtoken = new Promise(function (resolve, reject) {
       if (!userParams.resetpasswordtoken) {
         resolve(null);
       } else resolve(userParams.resetpasswordtoken);
     });
 
-    var resetpasswordmdp = new Promise(function(resolve, reject) {
+    var resetpasswordmdp = new Promise(function (resolve, reject) {
       if (!userParams.resetpasswordmdp) {
         resolve(null);
       } else resolve(userParams.resetpasswordmdp);
     });
 
-    var hash_password = new Promise(function(resolve, reject) {
+    var hash_password = new Promise(function (resolve, reject) {
       if (userParams.new_password) {
         _hash_password(userParams.new_password)
-          .then(function(hashedPassword) {
+          .then(function (hashedPassword) {
             console.log("PASSWORD", userParams.new_password, hashedPassword);
             resolve(hashedPassword);
           })
-          .catch(function(err) {
+          .catch(function (err) {
             reject({
               err: "bad_format_password"
             });
@@ -697,17 +561,17 @@ function _update_preprocess(userParams) {
     });
 
     Promise.all([
-        job,
-        society,
-        workspace,
-        name,
-        active,
-        resetpasswordtoken,
-        resetpasswordmdp,
-        hash_password,
-        credit,
-      ])
-      .then(function(user_update_data) {
+      job,
+      society,
+      workspace,
+      name,
+      active,
+      resetpasswordtoken,
+      resetpasswordmdp,
+      hash_password,
+      credit,
+    ])
+      .then(function (user_update_data) {
         let o = {};
         o["email"] = userParams.credentials.email;
         o["job"] = user_update_data[0];
@@ -725,7 +589,7 @@ function _update_preprocess(userParams) {
         }
         resolve(o);
       })
-      .catch(function(err) {
+      .catch(function (err) {
         reject(err);
       });
   })
@@ -734,11 +598,11 @@ function _update_preprocess(userParams) {
 // --------------------------------------------------------------------------------
 
 function _check_email(email) {
-    return pattern.email.test(email) 
+  return pattern.email.test(email)
 } // <= _check_email
 
 function _check_name(name) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     // if (pattern.name.test(name)) {
     // //console.log("name", true)
     resolve(true);
@@ -749,7 +613,7 @@ function _check_name(name) {
 } // <= _check_name
 
 function _check_job(job) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     if (pattern.job.test(job)) {
       if (config.quietLog != true) {
         //console.log("job", true);
@@ -764,7 +628,7 @@ function _check_job(job) {
 // --------------------------------------------------------------------------------
 
 function _hash_password(password, passwordConfirm) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     if (passwordConfirm) {
       if (password != passwordConfirm) {
         if (config.quietLog != true) {
@@ -780,11 +644,11 @@ function _hash_password(password, passwordConfirm) {
       reject(403);
     }
 
-    bcrypt.genSalt(10, function(err, salt) {
+    bcrypt.genSalt(10, function (err, salt) {
       if (err) {
         throw err;
       }
-      bcrypt.hash(password, salt, function(err, hash) {
+      bcrypt.hash(password, salt, function (err, hash) {
         if (err) {
           throw err;
         } else {
@@ -798,12 +662,12 @@ function _hash_password(password, passwordConfirm) {
 // --------------------------------------------------------------------------------
 
 function _is_google_user(user) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     userModel.getInstance().model
       .findOne({
         "credentials.email": user.email
       })
-      .exec(function(err, userData) {
+      .exec(function (err, userData) {
         if (userData) {
           if (userData.googleId != null) {
             if (config.quietLog != true) {

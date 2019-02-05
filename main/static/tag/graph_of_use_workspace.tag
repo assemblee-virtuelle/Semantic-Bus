@@ -312,12 +312,12 @@
   };
 
   this.initgraph = function (data) {
-    console.log('initgraph',initgraph);
+    console.log('initgraph',data);
     this.tableId = data.tableId
-    this.numberWorkspace = data.numberWorkspace
-    this.globalMo = data.globalMo
-    this.globalPrice = data.globalPrice
-    this.initD3js(data.data, this.tableId)
+//    this.numberWorkspace = data.numberWorkspace
+  //  this.globalMo = data.globalMo
+    //this.globalPrice = data.globalPrice
+    this.initD3js(data, this.tableId)
     this.update()
   }.bind(this)
 
