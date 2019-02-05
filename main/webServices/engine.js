@@ -15,11 +15,12 @@ class Engine {
     this.promiseOrchestrator = new PromiseOrchestrator();
     this.fackCounter = 0;
     this.amqpClient = amqpClient,
-    this.callerId = callerId;
+      this.callerId = callerId;
     this.originComponent = component;
     this.requestDirection = requestDirection;
     this.pushData = pushData;
     this.originQueryParams = queryParams;
+    this.owner=null
   }
 
   resolveComponent() {
@@ -35,8 +36,8 @@ class Engine {
             .then(workflow => {
               this.workflow = workflow;
               let ownerUserMail = this.sift({
-                  role: "owner"
-                },
+                role: "owner"
+              },
                 this.workflow.users
               )[0];
 
@@ -51,12 +52,12 @@ class Engine {
                   });
 
                   this.originComponent = this.sift({
-                      _id: this.originComponent._id
-                    },
+                    _id: this.originComponent._id
+                  },
                     this.componentsResolving
                   )[0];
 
-                  console.log(" ---------- Resolve Workflow -----------" , this.workflow.name , this.originComponent._id);
+                  console.log(" ---------- Resolve Workflow -----------", this.workflow.name, this.originComponent._id);
                   this.pathResolution = this.buildPathResolution(
                     workflow,
                     this.originComponent,
@@ -120,7 +121,7 @@ class Engine {
                         data: this.pushData
                       };
                       originNode.status = 'resolved';
-                      this.historicEndAndCredit(originNode, new Date(), undefined)
+                      this.historicEndAndCredit(originNode, new Date(), undefined, this.owner)
 
                       resolve(this.pushData);
                     }
@@ -133,13 +134,13 @@ class Engine {
     });
   }
 
-  processNextBuildPath() {
+  processNextBuildPath(owner) {
     setTimeout(this.processNextBuildPathDelayed.bind(this), 100);
   }
 
-  processNextBuildPathDelayed() {
+  processNextBuildPathDelayed(owner) {
     // console.log('privateScript',this.config.privateScript);
-    if (this.owner.credit >= 0 || this.config.privateScript==undefined) {
+    if (this.owner.credit >= 0 || this.config.privateScript == undefined) {
 
       this.fackCounter++;
       if (this.config.quietLog != true) {
@@ -150,25 +151,25 @@ class Engine {
       }
       let processingNode = undefined;
       let nodeWithoutIncoming = this.sift({
-          $and: [{
-              sources: {
-                $size: 0
-              }
-            },
-            {
-              status: 'waiting'
-            }
-          ]
+        $and: [{
+          sources: {
+            $size: 0
+          }
         },
-        this.pathResolution.nodes
+        {
+          status: 'waiting'
+        }
+        ]
+      },
+      this.pathResolution.nodes
       );
       if (nodeWithoutIncoming.length > 0) {
         //console.log('source component', nodeWithoutIncoming[0]);
         processingNode = nodeWithoutIncoming[0];
       } else {
         let nodeWithAllIncomingResolved = this.sift({
-            status: 'waiting'
-          },
+          status: 'waiting'
+        },
           this.pathResolution.nodes
         );
         nodeWithAllIncomingResolved.every(n => {
@@ -190,9 +191,9 @@ class Engine {
         let startTime = new Date();
         //processingLink.status = 'processing';
         let nodesProcessingInputs = this.sift({
-            "targets.target.component._id": processingNode.component._id,
-            //  status: "processing"
-          },
+          "targets.target.component._id": processingNode.component._id,
+          //  status: "processing"
+        },
           this.pathResolution.nodes
         );
 
@@ -230,7 +231,7 @@ class Engine {
           processingNode.dataResolution = {
             error: err
           };
-          this.historicEndAndCredit(processingNode, startTime, err)
+          this.historicEndAndCredit(processingNode, startTime, err, owner)
           this.processNextBuildPath('flow ko');
         } else {
           if (dataFlow != undefined && primaryflow.dfob != undefined) {
@@ -292,8 +293,8 @@ class Engine {
                   for (var componentFlowDfobKey in componentFlowDfob) {
                     //console.log(componentFlowDfobKey);
                     dfobFinalFlow[componentFlowDfobKey].objectToProcess[
-                        dfobFinalFlow[componentFlowDfobKey].key
-                      ] =
+                      dfobFinalFlow[componentFlowDfobKey].key
+                    ] =
                       componentFlowDfob[componentFlowDfobKey].data;
                   }
                   //console.log('dfobFinalFlow',dfobFinalFlow);
@@ -364,8 +365,8 @@ class Engine {
       } else {
         //console.log('END');
         let nodeOnError = this.sift({
-            status: "error"
-          },
+          status: "error"
+        },
           this.pathResolution.nodes
         );
 
@@ -386,7 +387,7 @@ class Engine {
         this.workspace_lib.cleanOldProcess(this.workflow).then(processes => {
           // console.log(processes);
           this.processNotifier.processCleaned({ cleanedProcesses: processes });
-          console.log("--------------  End of Worksapce processing --------------",  this.owner.credit);
+          console.log("--------------  End of Worksapce processing --------------", this.owner.credit);
           this.user_lib.update(this.owner);
         })
       }
@@ -427,6 +428,7 @@ class Engine {
     historic_object.recordPrice = current_component_price.record_price || 0;
     historic_object.moCount = dataFlow == undefined || dataFlow.data == undefined ? 0 : this.objectSizeOf(dataFlow) / 1000000;
     historic_object.componentPrice = current_component_price.moPrice;
+    historic_object.userId = this.owner._id;
     historic_object.totalPrice =
       (historic_object.recordCount * historic_object.recordPrice) +
       (historic_object.moCount * historic_object.componentPrice);
@@ -588,9 +590,9 @@ class Engine {
           buildPathNode.targets.push(buildPathCauseLink);
           buildPathCauseLink.source = buildPathNode;
         } else if (requestDirection == 'push') {
-        buildPathNode.sources.push(buildPathCauseLink);
-        buildPathCauseLink.target = buildPathNode;
-      }
+          buildPathNode.sources.push(buildPathCauseLink);
+          buildPathCauseLink.target = buildPathNode;
+        }
 
       let connectionsBefore = this.sift({
         target: component._id
@@ -608,8 +610,8 @@ class Engine {
           for (var beforelink of connectionsBefore) {
             //console.log(beforeComponent);
             var beforeComponentObject = this.sift({
-                _id: beforelink.source
-              },
+              _id: beforelink.source
+            },
               usableComponents
             )[0];
 
@@ -664,8 +666,8 @@ class Engine {
           for (var afterlink of connectionsAfter) {
             //console.log(beforeComponent);
             var afterComponentObject = this.sift({
-                _id: afterlink.target
-              },
+              _id: afterlink.target
+            },
               usableComponents
             )[0];
             //console.log("beforeComponentObject",beforeComponentObject);
@@ -722,7 +724,7 @@ class Engine {
 }
 
 module.exports = {
-  execute: function(component, requestDirection, stompClient, callerId, pushData, queryParams) {
+  execute: function (component, requestDirection, stompClient, callerId, pushData, queryParams) {
     let engine = new Engine(component, requestDirection, stompClient, callerId, pushData, queryParams);
     return engine.resolveComponent();
   }

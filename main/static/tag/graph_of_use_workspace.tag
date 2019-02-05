@@ -5,7 +5,7 @@
       <div class="containerH  box-flex" style="justify-content:space-between">
         <!--  Nombre de composants  -->
         <div class="card" >
-          <span style="font-size:2em;color:rgb(41,181,237)">{numberWorkspace}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  Composants</span>
+          <span style="font-size:2em;color:rgb(41,181,237)">{numberWorkspace}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  Workspaces</span>
         </div>
         <!--  Nombre de Moctet  -->
         <div class="card" >
@@ -19,7 +19,7 @@
 
   </div>
   <!--  Graphique de consommation  -->
-  <div class="containerH " style="justify-content:center;padding:5vh">
+  <div if={dataLoaded} class="containerH " style="justify-content:center;padding:5vh">
   
     <div class="item-flex box-flex">
       <div class="containerH" style="justify-content:center;padding:1vh">
@@ -214,7 +214,7 @@
 
   /// D3 JS INITIALIZE
 
-  this.initD3js = function (data, tableId) {
+  this.initD3js = data => {
 
     var marginStackChart = {
         top: 20,
@@ -243,27 +243,15 @@
 
     var div = d3.select(".item-flex").append("div").attr("class", "tooltip").style("opacity", 0);
 
-    colorStackChart.domain(tableId)
 
-
-
-    xStackChart.domain(data.map(function (d) {
+    xStackChart.domain(data.data.map(function (d) {
       return d.Day.split("-")[0] + "-" + d.Day.split("-")[1];
     }));
 
     yStackChart.domain([
       0,
-      d3.max(data, function (d) {
-        console.log(d.total)
-          return d.total;
-      })
+      data.golbalConsumption
     ]);
-
-    // gridlines in x axis function
-    function make_x_gridlines() {
-        return d3.axisBottom(xStackChart)
-            .ticks(5)
-    }
 
     // gridlines in y axis function
     function make_y_gridlines() {
@@ -280,7 +268,7 @@
 
     canvasStackChart.append("text").attr("class", "y label").attr("text-anchor", "end").attr("y", 6).attr("dy", ".75em").attr("transform", "rotate(-90)").attr("font-size", "12px").text("Consomation( € )");
 
-    var state = canvasStackChart.selectAll(".Day").data(data).enter().append("g").attr("class", "g").attr("transform", function (d) {
+    var state = canvasStackChart.selectAll(".Day").data(data.data).enter().append("g").attr("class", "g").attr("transform", function (d) {
       return "translate(" + xStackChart(d.Day.split("-")[0] + "-" + d.Day.split("-")[1]) + ",0)";
     })
 
@@ -291,40 +279,40 @@
           .tickSize(-widthStackChart)
         .tickFormat("")
       )
-
     state.selectAll("rect").data(function (d) {
-      return d.ages;
+      return d.workspaces;
     }).enter().append("rect").attr("width", xStackChart.bandwidth()).attr("y", function (d) {
       return yStackChart(d.y1);
     }).attr("height", function (d) {
       return yStackChart(d.y0) - yStackChart(d.y1);
     }).style("fill", function (d) {
-      return colorStackChart(d.ID);
+      return colorStackChart(d.id);
     }).on("mouseover", function (d) {
       d3.select(this).style("opacity", .6)
       div.transition().duration(200).style("opacity", .9);
       let name = d.name ? "Nom:" + d.name : ''
-      div.html( name + "<br/>ID : " + d.ID + "<br/>Conso : " + d.flow + "Mo<br/>Prix : " + d.price + "€<br/>").style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 28 + "px");
+      div.html( name + "<br/>"+ "<br/>Conso : " + d.flow + "Mo<br/>Prix : " + d.price + "Crédit(s)<br/>").style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 28 + "px");
     }).on("mouseout", function (d) {
       d3.select(this).style("opacity", .9)
       div.transition().duration(500).style("opacity", 0);
     })
   };
 
-  this.initgraph = function (data) {
-    console.log('initgraph',initgraph);
-    this.tableId = data.tableId
-    this.numberWorkspace = data.numberWorkspace
-    this.globalMo = data.globalMo
-    this.globalPrice = data.globalPrice
-    this.initD3js(data.data, this.tableId)
-    this.update()
-  }.bind(this)
+  this.initgraph = (data) => {
+      if(data){
+        this.dataLoaded = true
+        this.numberWorkspace = data.workspaceNumber
+        this.globalPrice = data.golbalConsumption
+        this.globalMo = data.golbalConsumptionMo
+        this.update()
+        this.initD3js(data)
+      }
+    }
 
 
 
   this.on('mount', function () {
-    console.log('ALLO');
+    this.dataLoaded= false
     RiotControl.on('load_user_workspace_graph_done', this.initgraph)
     RiotControl.trigger('load_user_workspace_graph');
   }.bind(this))
