@@ -84,6 +84,17 @@ body {
 }
 
 /*titre composant*/
+.title-space {
+  justify-content: center;
+  text-align: center;
+  padding-top: 5px;
+  font-family: 'Open Sans', sans-serif;
+  color: rgb(141,141,141);
+  font-size: 20px;
+
+}
+
+/*titre composant*/
 .title-component {
   font-size: 20px;
   /*font-family: 'Open Sans', sans-serif;*/
