@@ -141,14 +141,16 @@
     text-align: left;
     width: 200px;
     height: 70px;
-    padding: 10px;
+    padding: 20px;
     font: 12px sans-serif;
     background: lightsteelblue;
     border: 0;
     border-radius: 8px;
     pointer-events: none;
-    background-color:rgb(41,177,238);
-    color:white;
+    background-color: white;
+    color: lightsteelblue;
+    /* border: 0.5px solid rgb(41,177,238); */
+    box-shadow: 0 0 5px 0 rgba(133,133,133,0.38);
   }
 
   .x.axis path {
