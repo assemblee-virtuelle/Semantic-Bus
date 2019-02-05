@@ -26,6 +26,10 @@ var HistoriqueEndSchema = mongoose.Schema({
         type: String,
         //required: true
     },
+    userId: {
+      type: String,
+      //required: true
+    },
     componentModule: {
         type: String,
         //required: true

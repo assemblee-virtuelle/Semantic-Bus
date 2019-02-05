@@ -464,7 +464,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
       },
       contentType: 'application/json'
     }).done(function(data) {
-      console.log("WORKSPACE LOADED", data)
       this.trigger('graph_workspace_data_loaded', data)
     }.bind(this))
   })
@@ -642,7 +641,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
   }
 
   this.on('workspace_graph_compute', function(viewBox) {
-    console.log("VIEW BOX", viewBox)
     this.computeGraph(viewBox);
   });
 
