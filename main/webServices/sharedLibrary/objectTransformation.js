@@ -3,6 +3,7 @@
 
 module.exports = {
   transform: require('jsonpath-object-transform'),
+  Intl : require("intl"),
   executeWithParams: function(source, pullParams, jsonTransformPattern) {
     let out = this.execute(source, jsonTransformPattern);
     // console.log('out',out);
@@ -283,6 +284,7 @@ module.exports = {
   postProcess: function(nodeInData, nodeInPostProcess) {
     //console.log('********'+JSON.stringify(nodeInData),nodeInPostProcess);
     var nodeOut;
+    Intl=this.Intl;
 
     if (Array.isArray(nodeInData)) {
       nodeOut = [];
