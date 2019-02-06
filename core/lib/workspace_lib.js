@@ -587,9 +587,13 @@ function _get_workspace_graph_data(workspaceId) {
       function(err, result) {
         if (err) {
         } else {
-          graphTraitement.formatDataWorkspaceGraph(result).then(resultat => {
-            resolve(resultat);
-          });
+          if(result && result.length === 0){
+            resolve(null);
+          }else {
+            graphTraitement.formatDataWorkspaceGraph(result).then(resultat => {
+              resolve(resultat);
+            });
+          }
         }
       }
     );

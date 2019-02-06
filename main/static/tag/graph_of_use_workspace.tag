@@ -135,6 +135,7 @@
   }
 
   div.tooltip {
+    top: 0;
     position: absolute;
     text-align: left;
     width: 200px;
