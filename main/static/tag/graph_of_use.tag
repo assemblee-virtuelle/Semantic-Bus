@@ -97,7 +97,6 @@
     font-family: 'Raleway', sans-serif;
     padding-top: 4%;
   }
-
   .sub-title {
     text-align: center;
     margin-top: 30%;
@@ -130,13 +129,12 @@
     max-width: 25%;
     margin-top: 10%;
   }
-
   h3 {
     text-align: center;
     font-family: 'Raleway', sans-serif;
   }
-
   div.tooltip {
+    top: 0;
     position: absolute;
     text-align: left;
     width: 200px;
@@ -152,14 +150,12 @@
     /* border: 0.5px solid rgb(41,177,238); */
     box-shadow: 0 0 5px 0 rgba(133,133,133,0.38);
   }
-
   .x.axis path {
     display: none;
   }
   .axis {
     font: 10px sans-serif;
   }
-
   .axis line,
   .axis path {
     fill: none;

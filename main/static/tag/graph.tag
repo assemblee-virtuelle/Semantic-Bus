@@ -271,7 +271,6 @@
           return 0;
         }).on("click", function (d) {
           RiotControl.trigger('disconnect_components', d);
-
         });
       });
 
@@ -462,7 +461,7 @@
           //console.log("mouseover",d);
           if (!d.selected == true && d.component.name!=undefined) {
             this.tooltip.classed("tooltipHide", false);
-            this.tooltip.attr('x', d.x).attr('y', d.y + 100).select('text').html(d.component.name);
+            this.tooltip.attr('x', d.x).attr('y', d.y + 70).select('text').html(d.component.name);
           }
         }).on('mouseout', (d) => {
           this.tooltip.classed("tooltipHide", true);
@@ -646,11 +645,10 @@
     .tooltip {
       fill: grey;
       fill-opacity: 0.5;
-      padding:20px;
     }
 
     .tooltipHide {
-      display: inline ;
+      display: none ;
     }
 
     .axis path {
