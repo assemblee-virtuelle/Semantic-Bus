@@ -13,6 +13,7 @@ class RestGetJson {
     this.http= require('follow-redirects').http;
     this.https= require('follow-redirects').https;
     this.stringReplacer= require('../sharedLibrary/stringReplacer.js');
+    this.propertyNormalizer = require("../sharedLibrary/propertyNormalizer.js");
     this.xml2js= require('xml2js');
   }
 
@@ -94,7 +95,7 @@ class RestGetJson {
           // once all the data has been read, resolve the Promise
           response.on('end', () => {
              // console.log('end response');
-             // console.log(responseBody);
+             //console.log(responseBody);
 
             try {
               //console.log('CONTENT-TYPE',response.headers['content-type']);
@@ -110,14 +111,15 @@ class RestGetJson {
                   "trim": true
                 }, function(err, result) {
                   resolve({
-                    data: result
+                    data: this.propertyNormalizer.execute(result)
                   });
                 });
               } else if (contentType.search('json') != -1) {
                 let responseObject = JSON.parse(responseBody);
                 // console.log('response length',responseObject.length,parsedUrl.href);
+                console.log(responseObject);
                 resolve({
-                  data: JSON.parse(responseBody)
+                  data: this.propertyNormalizer.execute(responseObject)
                 });
               } else {
                 reject(new Error('unsuported content-type :' + contentType))

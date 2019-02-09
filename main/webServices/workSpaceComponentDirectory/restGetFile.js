@@ -54,7 +54,9 @@ class HttpGet {
         });
 
         response.on('end', function () {
-          //console.log('end',response.headers['content-disposition']);
+          // console.log("response.headers['content-disposition']'",response.headers['content-disposition']);
+          // console.log("contentType",contentType);
+          // console.log("response.headers['content-type']",response.headers['content-type']);
           let responseContentType=response.headers['content-type'];
           responseContentType=responseContentType||contentType;
           this.dataTraitment.type.type_file(response.headers['content-disposition'],responseBody, responseBodyExel, undefined,  responseContentType).then((result)=>{
