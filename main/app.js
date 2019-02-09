@@ -39,7 +39,8 @@ httpGet.makeRequest('GET', {
       safe.use(function(req, res, next) {
         jwtService.securityAPI(req, res, next);
       })
-      app.disable('etag'); //add this in RP ( traeffik )
+      // app.disable('etag'); //add this in RP ( traeffik )
+      app.set('etag', false);//add this in RP ( traeffik )
       unSafeRouteur.use(cors());
 
       amqp.connect(configJson.socketServer + '/' + configJson.amqpHost, function(err, conn) {

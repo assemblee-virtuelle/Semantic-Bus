@@ -33,6 +33,7 @@ module.exports = {
   unicity:require('./workSpaceComponentDirectory/unicity.js'),
   propertiesMatrix:require('./workSpaceComponentDirectory/propertiesMatrix.js'),
   postConsumer: require('./workSpaceComponentDirectory/postConsumer.js'),
+  keyToArray: require('./workSpaceComponentDirectory/keyToArray.js'),
 
   /* some other modules you want */
 

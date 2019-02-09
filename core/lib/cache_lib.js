@@ -61,7 +61,7 @@ module.exports = {
         .lean()
         .exec()
         .then(cachedData => {
-          //console.log("cachedData",cachedData);
+          // console.log("cachedData",cachedData);
           if (cachedData != undefined) {
             if (component.specificData.historyOut != true) {
               if (cachedData.frag != undefined) {
@@ -82,8 +82,9 @@ module.exports = {
               // })
             }
           } else {
-            return new Promise(undefined);
-            //resolve(undefined);
+            // console.log('ALLO');
+            //return new Promise((resolve,reject)=>{resolve(undefined)});
+            resolve(undefined);// direct resolve to Empty Cache (cacheNosql.js)
           }
 
         }).then((frag) => {

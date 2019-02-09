@@ -54,6 +54,7 @@
     }
 
     this.mountEdition = function (editor) {
+      console.log('editor',editor);
       this.editionContainer = riot.mount('#editionContainer', editor)[0];
     };
 
