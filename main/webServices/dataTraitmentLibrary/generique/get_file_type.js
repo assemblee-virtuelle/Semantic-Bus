@@ -12,17 +12,21 @@ module.exports = {
 
 
 function _extension(filename, contentType) {
-  // console.log("contentType", contentType, "filename", filename)
+  console.log("contentType", contentType)
+  console.log("filename", filename)
   return new Promise(function(resolve, reject) {
 
     if (filename != null) {
       //console.log(filename.match(reg)[0])
       //let matchArray=filename.match(reg);
       //console.log(filename.match(reg));
-      var regex = /\.(.+)/g;
-      var reg = new RegExp(regex, 'g');
-      let regResult = reg.exec(filename)
-      resolve(regResult.pop())
+      var regex = /\.([^\.]*)/g;
+      let matches = filename.match(regex);
+      // var reg = new RegExp(regex, 'g');
+      // let regResult = reg.exec(filename)
+      let extention =matches.pop();
+      extention = extention.replace(';','').replace('.','')
+      resolve(extention);
     } else {
       if (contentType) {
         //console.log(contentType)
@@ -60,7 +64,6 @@ function _buildFile(filename, dataString, dataBuffer, out, contentType) {
 function _type_file(filename, dataString, dataBuffer, out, contentType) {
   //console.log("in aggregate function")
   return _extension(filename, contentType).then(function(extension) {
-    // console.log("extension |", extension)
     return new Promise(function(resolve, reject) {
       if (out == true || out == 'true') {
         //console.log(out)
@@ -75,7 +78,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
             break;
           default:
             //console.log("in default")
-            reject("erreur, votre fichier n'est pas au bon format")
+            reject("erreur, votre fichier n'est pas au bon format "+extension)
 
             break;
         }
@@ -100,20 +103,20 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
                 data: result
               })
             }, function(err) {
-              reject("votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
+              reject("votre fichier n'est pas au norme ou pas du bon format "+ extension+" , n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
             })
             break;
 
             // RDF XML DONE IF TEST PARSE
           case ("rdf"):
           case ("owl"):
-            //console.log('allo');
+            console.log('allo');
             rdf.rdf_traitmentXML(dataString).then(result => {
-              // console.log("RDF", reusltat)
+              // console.log("RDF", result)
               //console.log(JSON.stringify(reusltat))
               resolve(result)
             }, function(err) {
-              reject("votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
+              reject("votre fichier n'est pas au norme ou pas du bon format "+ extension+", n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
             })
             break;
 
@@ -135,7 +138,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
               // })
             }, function(err) {
               console.log(err);
-              reject("votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
+              reject("votre fichier n'est pas au norme ou pas du bon format "+ extension+", n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
             })
             break;
 
@@ -148,7 +151,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
                 data: reusltat
               })
             }, function(err) {
-              reject("votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
+              reject("votre fichier n'est pas au norme ou pas du bon format "+ extension+", n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
             })
             break;
           case ("csv"):
@@ -160,12 +163,12 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
               })
             }, function(err) {
               // console.log('err', err);
-              reject("votre fichier n'est pas au norme ou pas du bon format, n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
+              reject("votre fichier n'est pas au norme ou pas du bon format "+ extension+", n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
             })
             break;
           default:
             //console.log("in default")
-            reject("erreur, votre fichier n'est pas au bon format")
+            reject("erreur, le format du fichier n'est pas supporté ("+ extension+")")
 
             break;
         }

@@ -55,7 +55,7 @@
   <script src="./store/mainController.js"></script>
   <script src="./store/sqlStore.js"></script>
   <script src="./store/utilStore.js"></script>
-  
+
   <script type="riot/tag" src="tag/zenTable.tag"></script>
   <script type="riot/tag" src="tag/navigation.tag"></script>
   <script type="riot/tag" src="tag/workspaceTable.tag"></script>
@@ -110,7 +110,9 @@
   <script type="riot/tag" src="tag/unicity-editor.tag"></script>
   <script type="riot/tag" src="tag/properties-matrix-editor.tag"></script>
   <script type="riot/tag" src="tag/post-consumer-editor.tag"></script>
+  <script type="riot/tag" src="tag/key-to-array-editor.tag"></script>
   <script type="riot/tag" src="tag/workspace/workspace-zen-table.tag"></script>
+
 
   <script>
     $.ajax({
@@ -143,7 +145,7 @@
       }
 
       var onConnect = (client) => {
-        // no more r&d for private incrementation because 
+        // no more r&d for private incrementation because
         // react refonte will change all this mechanisme
         if(configuration.privateScript && configuration.privateScript.length > 0) {
           let stripeStore = new StripeStore();

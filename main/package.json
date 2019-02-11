@@ -43,6 +43,7 @@
     "follow-redirects": "^1.4.1",
     "helmet": "^3.6.1",
     "http": "0.0.0",
+    "intl": "^1.2.5",
     "jquery": "3.0.0",
     "json2yaml": "^1.1.0",
     "jsonpath-object-transform": "^1.0.4",
@@ -72,6 +73,7 @@
     "should": "^11.2.1",
     "sift": "^5.1.0",
     "sift-date": "0.0.1",
+    "sshpk": "^1.7.0",
     "threads": "^0.10.0",
     "wdio-mocha-framework": "^0.5.10",
     "wdio-sauce-service": "^0.4.0",
@@ -79,8 +81,7 @@
     "webstomp-client": "^1.2.0",
     "ws": "^4.0.0",
     "xlsx": "^0.10.5",
-    "xml2js": "^0.4.19",
-    "sshpk": "^1.7.0"
+    "xml2js": "^0.4.19"
   },
   "devDependencies": {
     "@types/amqplib": "^0.5.9",

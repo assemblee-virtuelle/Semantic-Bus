@@ -59,8 +59,8 @@ class HttpGet {
           responseContentType=responseContentType||contentType;
           this.dataTraitment.type.type_file(response.headers['content-disposition'],responseBody, responseBodyExel, undefined,  responseContentType).then((result)=>{
             let normalized = this.propertyNormalizer.execute(result);
-            //console.log(normalized);
-            resolve(normalized)
+            // console.log("normalized",normalized);
+            resolve({data:normalized})
           }, (err)=>{
             //console.log('FILE ERROR',err);
             let fullError = new Error(err);
