@@ -63,9 +63,9 @@ module.exports = function(router, stompClient) {
       next(new Error('empty body'))
     }
   }) //<= update_workspace;
-    
+
   // --------------------------------------------------------------------------------
-  
+
   router.get('/workspace/:id', function(req, res, next) {
     workspace_lib.getWorkspace(req.params.id).then(function(workspace) {
 
@@ -87,7 +87,7 @@ module.exports = function(router, stompClient) {
   }); // <= get one workspace
 
   // --------------------------------------------------------------------------------
-  
+
   router.get('/processByWorkflow/:id', function(req, res, next) {
     workspace_lib.get_process_byWorkflow(req.params.id).then((workspaceProcess) => {
       res.json(workspaceProcess);
@@ -176,9 +176,10 @@ module.exports = function(router, stompClient) {
           target: idMapping[l.target]
         }
       });
-      let workspaceLinks;
+      let workspaceLinks=[];
       for (let link of newLinks) {
-        workspaceLinks = await workspace_lib.addConnection(workspace._id, link.source, link.target);
+        //addConnection return all connection and not only last created
+        workspaceLinks = await workspace_lib.addConnection(workspace._id, link.source, link.target)
       }
       workspace.links = workspaceLinks;
       workspace = await workspace_lib.update(workspace);
@@ -250,7 +251,7 @@ module.exports = function(router, stompClient) {
   }) //<= get_ConnectBeforeConnectAfter
 
   // --------------------------------------------------------------------------------
-  
+
   router.get('/processState/:id', function(req, res, next) {
     var id = req.params.id;
     res.send({
@@ -259,7 +260,7 @@ module.exports = function(router, stompClient) {
   }.bind(this)); //<= process
 
   // --------------------------------------------------------------------------------
-  
+
   //return updated Links
   router.post('/workspaceComponent/connection', function(req, res, next) {
     configuration = require('../configuration');
@@ -273,7 +274,7 @@ module.exports = function(router, stompClient) {
   });
 
   // --------------------------------------------------------------------------------
-  
+
   //return updated Links
   router.delete('/workspaceComponent/connection', function(req, res, next) {
     configuration = require('../configuration');

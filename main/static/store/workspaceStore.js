@@ -49,7 +49,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
         this.trigger('navigation_control_done', entity, action);
       } else if (this.workspaceCurrent !== undefined && this.workspaceCurrent._id === id) {
         this.reloadWorkspace(entity, action)
-
         if (action === 'component' && secondId !== undefined) {
           this.loadComponentPart(secondId, secondAction)
           this.trigger('navigation_control_done', 'component');
@@ -60,7 +59,6 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
         this.unsubscribeToPreviousSubscription()
         this.select({ _id: id }).then(() => {
           this.subscribeToComponents(entity, action)
-
           if (action === 'component' && secondId !== undefined) {
             this.loadComponentPart(secondId, secondAction)
             this.trigger('navigation_control_done', 'component');
@@ -522,7 +520,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
 
 
     this.graph = {};
-    this.graph.transform = this.workspaceCurrent.transform   
+    this.graph.transform = this.workspaceCurrent.transform
     this.graph.nodes = [];
     this.graph.links = [];
     this.graph.workspace = this.workspaceCurrent;
@@ -603,7 +601,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
       if (selectedNodes.indexOf(node.id) != -1) {
         node.selected = true;
       }
-      
+
       this.graph.nodes.push(node);
     }
     if(this.graph.nodes.length > 0){
@@ -620,7 +618,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
       console.log("NO NODE", x, y)
       this.graph.startPosition  = {x, y}
     }
-    
+
 
 
     for (link of this.workspaceCurrent.links) {
@@ -800,6 +798,7 @@ function WorkspaceStore(utilStore, stompClient, specificStoreList) {
         data: JSON.stringify(newWorkflow),
       }, true).then((updatedWorkspace) => {
         this.workspaceCurrent = updatedWorkspace;
+        this.workspaceCurrent.mode = 'edit';
         route('workspace/' + this.workspaceCurrent._id + '/component');
       })
     }.bind(this);
