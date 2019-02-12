@@ -76,7 +76,7 @@
       });
       this.selectorsNodes.exit().remove();
       this.selectorsNodes = this.selectorsNodes.enter().append("rect").merge(this.selectorsNodes).attr("width", function (d) { // width et height definis plus haut par bbox
-        return 280;
+        return 130;
       }).attr("height", function (d) {
         return 130;
       }).attr("rx", function (d) {
@@ -114,9 +114,9 @@
           }
           return image;
         }).attr("width", function (d) {
-          return 30;
+          return 20;
         }).attr("height", function (d) {
-          return 30;
+          return 20;
         }).attr("x", function (d) {
           return 0;
         }).attr("y", function (d) {
@@ -128,11 +128,11 @@
         d3.select(this).append("image").attr("xlink:href", function (d) {
           return "./image/Super-Mono-png/PNG/basic/blue/document-edit.png";
         }).attr("width", function (d) {
-          return 30;
+          return 20;
         }).attr("height", function (d) {
-          return 30;
+          return 20;
         }).attr("x", function (d) {
-          return 60;
+          return 30;
         }).attr("y", function (d) {
           return 100;
         }).attr("class", function (d) {
@@ -147,11 +147,11 @@
         d3.select(this).append("image").attr("xlink:href", function (d) {
           return "./image/Super-Mono-png/PNG/basic/blue/button-play.png";
         }).attr("width", function (d) {
-          return 30;
+          return 20;
         }).attr("height", function (d) {
-          return 30;
+          return 20;
         }).attr("x", function (d) {
-          return 120;
+          return 60;
         }).attr("y", function (d) {
           return 100;
         }).attr("class", function (d) {
@@ -166,11 +166,11 @@
           d3.select(this).append("image").attr("xlink:href", function (d) {
             return "./image/Super-Mono-png/PNG/sticker/icons/outbox.png";
           }).attr("width", function (d) {
-            return 30;
+            return 20;
           }).attr("height", function (d) {
-            return 30;
+            return 20;
           }).attr("x", function (d) {
-            return 120;
+            return 60;
           }).attr("y", function (d) {
             return 0;
           }).attr("class", function (d) {
@@ -185,11 +185,11 @@
         d3.select(this).append("image").attr("xlink:href", function (d) {
           return "./image/Super-Mono-png/PNG/basic/red/bin.png";
         }).attr("width", function (d) {
-          return 30;
+          return 20;
         }).attr("height", function (d) {
-          return 30;
+          return 20;
         }).attr("x", function (d) {
-          return 180;
+          return 90;
         }).attr("y", function (d) {
           return 100;
         }).attr("class", function (d) {
@@ -209,11 +209,11 @@
           }
           return image;
         }).attr("width", function (d) {
-          return 30;
+          return 20;
         }).attr("height", function (d) {
-          return 30;
+          return 20;
         }).attr("x", function (d) {
-          return 250;
+          return 110;
         }).attr("y", function (d) {
           return 50;
         }).attr("class", function (d) {
@@ -225,9 +225,6 @@
         });
       });
 
-      // }
-      //
-      // this.drawSelectedLines = function (selectedLines) {
       this.selectedLines = sift({
         'selected': true
       }, this.graph.links);
@@ -238,13 +235,13 @@
       this.selectorsLines.exit().remove();
       this.selectorsLines = this.selectorsLines.enter().append("line").merge(this.selectorsLines).attr('x1', function (d) {
         //return d.source.x + 165;
-        return d.source.x + 110;
+        return d.source.x + 35;
       }).attr('y1', function (d) {
         //return d.source.y + 35;
         return d.source.y + 35;
       }).attr('x2', function (d) {
         // return d.target.x + 55;
-        return d.target.x + 110;
+        return d.target.x + 35;
       }).attr('y2', function (d) {
         //return d.target.y + 35;
         return d.target.y + 35;
@@ -293,19 +290,22 @@
       let height = containerStyle.height;
       var boxSize = width/this.cubeResolution;
 
-      dragged.x = d3.event.x;
-      dragged.y = d3.event.y;
+     //let containerStyle = document.querySelector('#graphContainer').getBoundingClientRect();
+
       var start_x = d3.event.x;
       var start_y = d3.event.y;
 
       let gridX = snapToGrid(d3.event.x, this.cubeResolution);
       let gridY = snapToGrid(d3.event.y, this.cubeResolution)
-
+      dragged.x = gridX;
+      dragged.y = gridY;
+      
       RiotControl.trigger('workspace_current_move_component', dragged);
 
       this.nodes = this.svg.select("#shapeLayer").selectAll("image").data([dragged], function (d) {
         return d.id;
       }).attr("x", gridX).attr("y", gridY);
+      
       this.selectorsNodes = this.svg.select("#shapeSelector").selectAll("rect").data([dragged], function (d) {
         return d.id;
       }).attr("x", gridX - 30).attr("y", gridY - 30);
@@ -320,13 +320,13 @@
       //console.log('beforeLinks', beforeLinks);
       this.links = this.svg.select("#lineLayer").selectAll("line").data(beforeLinks, function (d) {
         return d.id;
-      }).attr("x2", gridX + 110).attr("y2", gridY + 35);
+      }).attr("x2", gridX + 35).attr("y2", gridY + 35);
       let beforeLinksSelected = sift({
         "target.id": dragged.id
       }, this.selectedLines);
       this.selectorsLines = this.svg.select("#lineSelector").selectAll("line").data(beforeLinksSelected, function (d) {
         return d.id;
-      }).attr("x2", gridX + 110).attr("y2", gridY + 35);
+      }).attr("x2", gridX + 35).attr("y2", gridY + 35);
       this.selectorsLineCommandeBar = this.svg.select("#lineCommandLayer").selectAll("svg").data(beforeLinksSelected, function (d) {
         return d.id;
       }).attr('x', function (d) {
@@ -341,13 +341,13 @@
 
       this.links = this.svg.select("#lineLayer").selectAll("line").data(afterLinks, function (d) {
         return d.id;
-      }).attr("x1", gridX + 110).attr("y1", gridY + 35)
+      }).attr("x1", gridX + 35).attr("y1", gridY + 35)
       let afterLinksSelected = sift({
         "source.id": dragged.id
       }, this.selectedLines);
       this.selectorsLines = this.svg.select("#lineSelector").selectAll("line").data(afterLinksSelected, function (d) {
         return d.id;
-      }).attr("x1", gridX + 110).attr("y1", gridY + 35);
+      }).attr("x1", gridX + 35).attr("y1", gridY + 35);
       this.selectorsLineCommandeBar = this.svg.select("#lineCommandLayer").selectAll("svg").data(afterLinksSelected, function (d) {
         return d.id;
       }).attr('x', function (d) {
@@ -368,12 +368,13 @@
         ]
       }, this.graph.nodes);
 
-      this.status = this.svg.select("#stateLayer").selectAll("circle").data(nodesWithStatus, function (d) {
+      this.status = this.svg.select("#stateLayer").selectAll("circle")
+      .data(nodesWithStatus, function (d) {
         return d.id;
       }).attr('cx', function (d) {
-        return gridX + 105;
+        return gridX + 35;
       }).attr('cy', function (d) {
-        return gridY + 5;
+        return gridY + 35;
       });
 
     }.bind(this);
@@ -416,42 +417,20 @@
         if (this.svg == undefined) {
           this.svg = d3.select("svg");
         } 
-
-        this.links = this.svg.select("#lineLayer").selectAll('line').data(graph.links, function (d) {
-          return d.id;
-        });
-        this.links.exit().remove();
-
-        this.links = this.links.enter().append('line').merge(this.links)
-        .attr('x1', function (d) {
-          //return d.source.x + 165;
-          return d.source.x + 110;
-        }).attr('y1', function (d) {
-          //return d.source.y + 35;
-          return d.source.y + 35;
-        }).attr('x2', function (d) {
-          // return d.target.x + 55;
-          return d.target.x + 110;
-        }).attr('y2', function (d) {
-          //return d.target.y + 35;
-          return d.target.y + 35;
-        })
-        .on("click", function (d) {
-          //console.log('click line |', d); this.selectedNodes = []; this.drawSelected(); this.selectedLines = [d]; this.drawSelectedLines(); this.update();
-          RiotControl.trigger('connection_current_set', d.source.component, d.target.component);
-        }.bind(this));
-
+  
         this.nodes = this.svg.select("#shapeLayer").selectAll("image").data(graph.nodes, function (d) {
           return d.id;
         });
         this.nodes.exit().remove();
-        this.nodes = this.nodes.enter().append("image").merge(this.nodes).attr("xlink:href", function (d) {
-          return 'image/components/' + d.graphIcon;
+        this.nodes = this.nodes.enter()
+        .append("image").attr('class', 'component').merge(this.nodes).attr("xlink:href", function (d) {
+          return 'image/components/' + 'sqlTest.svg';
         }).attr("width", function (d) {
-          return 220;
+          return 70;
         }).attr("height", function (d) {
           return 70;
-        }).attr('x', function (d) {
+        })
+        .attr('x', function (d) {
           return d.x;
         }).attr('y', function (d) {
           return d.y;
@@ -467,6 +446,80 @@
           this.tooltip.classed("tooltipHide", true);
         }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
 
+
+        this.links = this.svg.select("#lineLayer").selectAll('line').data(graph.links, function (d) {
+          return d.id;
+        });
+       
+        this.links.exit().remove();
+
+
+       var createElements = function (svg, nodes, elementRadius) {
+         let circleNode = []
+         let radius = 40,
+             angle,
+             x,
+             y,
+             i;
+         nodes.forEach(node=>{
+          //angle = (i / (numNodes/2)) * Math.PI; // Calculate the angle at which the element will be placed.
+                                                // For a semicircle, we would use (i / numNodes) * Math.PI.
+          // x = (radius * Math.cos(angle)) + (width/2); // Calculate the x position of the element.
+          //y = (radius * Math.sin(angle)) + (width/2); // Calculate the y position of the element.
+           for (var i = 0; i < node.connectionsBefore; i++) {
+              angle = (i / (node.connectionsBefore)) * Math.PI; // Calculate the angle at which the element will be placed.
+                                                    // For a semicircle, we would use (i / numNodes) * Math.PI.
+              x = (radius * Math.cos(angle)) + (node.x+35); // Calculate the x position of the element.
+              y = (radius * Math.sin(angle)) + (node.y+35); // Calculate the y position of the element.
+              circleNode.push({'id': i, 'x': x, 'y': y, class:'circle-before'});
+            }
+             for (var i = 0; i < node.connectionsAfter; i++) {
+              angle = (i / (node.connectionsAfter)) * Math.PI; // Calculate the angle at which the element will be placed.
+                                                    // For a semicircle, we would use (i / numNodes) * Math.PI.
+              x = (radius * Math.cos(angle)) + (node.x+35); // Calculate the x position of the element.
+              y = (radius * Math.sin(angle)) + (node.y+35); // Calculate the y position of the element.
+              circleNode.push({'id': i, 'x': x, 'y': y, class:'circle-after'});
+            }
+         })
+
+          elementBefore = svg.selectAll('circle')
+            .data(circleNode)
+            .enter().append('svg:circle')
+            .attr('r', elementRadius)
+            .attr('class',(d) => (d.class))
+            .attr('cx', function (d, i) {
+              return d.x;
+            })
+            .attr('cy', function (d, i) {
+              return d.y;
+            });
+        }
+
+        createElements(this.svg.select("#lineLayer"),graph.nodes, 5)
+
+        this.links = this.links.enter()
+        .append('line')
+        .merge(this.links)
+        .attr('x1', function (d) {
+          //return d.source.x + 165;
+          return d.source.x + 35;
+        }).attr('y1', function (d) {
+          //return d.source.y + 35;
+          return d.source.y + 35;
+        }).attr('x2', function (d) {
+          // return d.target.x + 55;
+          return d.target.x + 35;
+        }).attr('y2', function (d) {
+          //return d.target.y + 35;
+          return d.target.y + 35;
+        })
+        .on("click", function (d) {
+          //console.log('click line |', d); this.selectedNodes = []; this.drawSelected(); this.selectedLines = [d]; this.drawSelectedLines(); this.update();
+          RiotControl.trigger('connection_current_set', d.source.component, d.target.component);
+        }.bind(this));
+
+
+
         let nodesWithStatus = sift({
           status: {
             $exists: true
@@ -479,11 +532,11 @@
         this.status = this.status.enter().append("circle").merge(this.status).attr("r", function (d) {
           return 40;
         }).attr('cx', function (d) {
-          return d.x + 105;
+          return d.x + 35;
         }).attr('class', function (d) {
           return d.status;
         }).attr('cy', function (d) {
-          return d.y + 5;
+          return d.y + 35;
         }).attr('data-id', function (d) {
           return d.id;
         }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
@@ -504,6 +557,9 @@
         let width = containerStyle.width;
         let height = containerStyle.height;
 
+        let Square = document.querySelector('.component').getBoundingClientRect();
+        let widthSquare = Square.width;
+
         //// AXES /////
         let xScale = d3.scaleLinear()
             .domain([-width * 2 , width *2 ])
@@ -514,13 +570,13 @@
             .range([height, 0]);
 
         let xAxis = d3.axisBottom(xScale)
-            .ticks(this.cubeResolution*2)
+            .ticks(widthSquare/2)
             .tickSize(height)
             .tickPadding(8 - height)
             .tickFormat("");
 
         let yAxis = d3.axisRight(yScale)
-            .ticks(this.cubeResolution*2.5)
+            .ticks(widthSquare/4)
             .tickSize(width)
             .tickPadding(8 - width)
             .tickFormat("");
@@ -580,7 +636,7 @@
 
 
     line {
-      stroke: rgb(202, 202, 202);
+      stroke: transparent;
     }
 
     #shapeLayer image {
@@ -588,15 +644,26 @@
     }
 
     #stateLayer circle.resolved {
-      fill: green;
+      fill: #88d8b0;
     }
 
     #stateLayer circle.waiting {
-      fill: orange;
+      fill: #ffcc5c;
+    }
+
+    .circle-before {
+      fill: red; 
+      stroke-width: 2
+    }
+
+
+    .circle-after {
+      fill: blue; 
+      stroke-width: 2
     }
 
     #stateLayer circle.error {
-      fill: red;
+      fill: #ff6f69;
     }
 
     #lineLayer line {
@@ -615,7 +682,7 @@
 
     #shapeSelector rect {
       /*filter:url(#dropshadow);*/
-      fill-opacity: 0.1;
+      fill-opacity: 0;
     }
 
     #lineSelector line {
@@ -637,7 +704,6 @@
       -ms-user-select: none; // pas necessaire pour ms edge  ?
       user-select: none;
     }
-
     .activConnection {
       background-color: orange !important;
       color: white;
@@ -646,11 +712,9 @@
       fill: grey;
       fill-opacity: 0.5;
     }
-
     .tooltipHide {
       display: none ;
     }
-
     .axis path {
     display: none;
     }
