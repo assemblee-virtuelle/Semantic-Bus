@@ -457,14 +457,12 @@
         .append('line')
         .merge(this.links)
         .attr('x1', function (d) {
-          //return d.source.x + 165;
-          return d.source.x + 35;
+          return d.source.x + 75;
         }).attr('y1', function (d) {
-          //return d.source.y + 35;
           return d.source.y + 35;
         }).attr('x2', function (d) {
           // return d.target.x + 55;
-          return d.target.x + 35;
+          return d.target.x - 10;
         }).attr('y2', function (d) {
           //return d.target.y + 35;
           return d.target.y + 35;
