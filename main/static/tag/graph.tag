@@ -453,50 +453,6 @@
        
         this.links.exit().remove();
 
-
-       var createElements = function (svg, nodes, elementRadius) {
-         let circleNode = []
-         let radius = 40,
-             angle,
-             x,
-             y,
-             i;
-         nodes.forEach(node=>{
-          //angle = (i / (numNodes/2)) * Math.PI; // Calculate the angle at which the element will be placed.
-                                                // For a semicircle, we would use (i / numNodes) * Math.PI.
-          // x = (radius * Math.cos(angle)) + (width/2); // Calculate the x position of the element.
-          //y = (radius * Math.sin(angle)) + (width/2); // Calculate the y position of the element.
-           for (var i = 0; i < node.connectionsBefore; i++) {
-              angle = (i / (node.connectionsBefore)) * Math.PI; // Calculate the angle at which the element will be placed.
-                                                    // For a semicircle, we would use (i / numNodes) * Math.PI.
-              x = (radius * Math.cos(angle)) + (node.x+35); // Calculate the x position of the element.
-              y = (radius * Math.sin(angle)) + (node.y+35); // Calculate the y position of the element.
-              circleNode.push({'id': i, 'x': x, 'y': y, class:'circle-before'});
-            }
-             for (var i = 0; i < node.connectionsAfter; i++) {
-              angle = (i / (node.connectionsAfter)) * Math.PI; // Calculate the angle at which the element will be placed.
-                                                    // For a semicircle, we would use (i / numNodes) * Math.PI.
-              x = (radius * Math.cos(angle)) + (node.x+35); // Calculate the x position of the element.
-              y = (radius * Math.sin(angle)) + (node.y+35); // Calculate the y position of the element.
-              circleNode.push({'id': i, 'x': x, 'y': y, class:'circle-after'});
-            }
-         })
-
-          elementBefore = svg.selectAll('circle')
-            .data(circleNode)
-            .enter().append('svg:circle')
-            .attr('r', elementRadius)
-            .attr('class',(d) => (d.class))
-            .attr('cx', function (d, i) {
-              return d.x;
-            })
-            .attr('cy', function (d, i) {
-              return d.y;
-            });
-        }
-
-        createElements(this.svg.select("#lineLayer"),graph.nodes, 5)
-
         this.links = this.links.enter()
         .append('line')
         .merge(this.links)
