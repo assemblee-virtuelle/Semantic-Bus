@@ -498,7 +498,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
     var selectedNodes = []
     var selectedLinks = []
-
+    console.log("this.graph", this.graph)
     if (this.graph != undefined) {
       selectedNodes = sift({
         selected: true
@@ -506,9 +506,12 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       selectedLinks = sift({
         selected: true
       }, this.graph.links).map(n => n.id)
+    } else {
+      this.graph = {}
     }
 
-    this.graph = {}
+    console.log("this.graph", this.graph)
+
     this.graph.transform = this.workspaceCurrent.transform
     this.graph.nodes = []
     this.graph.links = []
@@ -600,16 +603,19 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
       this.graph.nodes.push(node)
     }
-
-    if (this.graph.nodes.length > 0) {
-      let x = this.graph.x / this.graph.nodes.length
-      let y = this.graph.y / this.graph.nodes.length
-      let middle = { x, y }
-      this.graph.startPosition = middle
+    if (!this.graph) {
+      if (this.graph.nodes.length > 0) {
+        let x = this.graph.x / this.graph.nodes.length
+        let y = this.graph.y / this.graph.nodes.length
+        let middle = { x, y }
+        this.graph.startPosition = middle
+      } else {
+        let x = 100
+        let y = 100
+        this.graph.startPosition = { x, y }
+      }
     } else {
-      let x = 100
-      let y = 100
-      this.graph.startPosition = { x, y }
+      console.log('START', this.graph)
     }
 
     for (let link of this.workspaceCurrent.links) {
@@ -628,7 +634,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
         tca: CompteConnexion[link.target].connectionsAfter,
         selected: selectedLinks.indexOf(id) !== -1
       })
-      
     }
 
     this.trigger('workspace_graph_compute_done', this.graph)
@@ -770,7 +775,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   })
 
   this.on('workspace_current_import', function (file) {
-    // console.log('ALLO');
     let reader = new FileReader()
     reader.onload = function (e) {
       let newWorkflow = JSON.parse(e.target.result)

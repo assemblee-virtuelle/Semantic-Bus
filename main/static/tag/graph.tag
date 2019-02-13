@@ -20,11 +20,12 @@
         <g id="lineSelector"></g>
         <g id="lineLayer"></g>
         <g id="stateLayer"></g>
+        <g id="roundLayer"></g>
         <g id="shapeSelector"></g>
         <g id="shapeLayer"></g>
+        <g id="nodeTitleLayer"></g>
         <svg id="textLayer">
-          <rect class="tooltip" width="220" height="30"></rect>
-          <text x="10" y="20" width="200" height="20"></text>
+          <text class="tooltip" x="20" y="30" width="200" height="20"></text>
         </svg>
         <g id="lineCommandLayer"></g>
         <g id="shapeCommandLayer"></g>
@@ -41,28 +42,32 @@
 
   <!--graphContainer-->
   <script>
+    this.currentX;
+    this.currentY;
     this.selectedNodes = [];
     this.selectorsNodes = [];
     this.selectedLines = [];
     this.selectorsLines = [];
     this.modeConnectAfter = false;
     this.modeConnectBefore = false;
-    this.fullscreen = true;
-    this.cubeResolution = 50;
     this.selectedElement;
-    this.offset;
     this.initGraphDone = false;
-    this.transform
     
     showAddComponentClick(e) {
+      this.currentX;
+      this.currentY;
       route('workspace/' + this.graph.workspace._id + '/addComponent');
     }
 
+    function snapToGrid(p, r) {
+      return Math.round(p / r) * r;
+    }
+
+    // draw selected elemnt around select element
     this.drawSelected = function () {
       this.selectedNodes = sift({
         'selected': true
       }, this.graph.nodes);
-
       this.modeConnectAfter = sift({
         'connectAfterMode': true
       }, this.graph.nodes).length > 0;
@@ -70,7 +75,7 @@
         'connectBeforeMode': true
       }, this.graph.nodes).length > 0;
 
-      //console.log(this.selectedNodes);
+      // node
       this.selectorsNodes = this.svg.select("#shapeSelector").selectAll("rect").data(this.selectedNodes, function (d) {
         return d.id + '-selected';
       });
@@ -92,9 +97,9 @@
       }).attr("data-id", function (d) {
         return d.id;
       }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
-      //
-      // var cloneString = d3.select("#componentCommandBarModel").node().cloneNode(true).outerHTML; console.log(cloneString);
+     
 
+      // commande bar
       this.selectorsShapeCommandeBar = this.svg.select("#shapeCommandLayer").selectAll("svg").data(this.selectedNodes, function (d) {
         return d.id + '-shapeCommandBarComponent';
       });
@@ -118,7 +123,7 @@
         }).attr("height", function (d) {
           return 20;
         }).attr("x", function (d) {
-          return 0;
+          return 10;
         }).attr("y", function (d) {
           return 50;
         }).on("click", function (d) {
@@ -213,7 +218,7 @@
         }).attr("height", function (d) {
           return 20;
         }).attr("x", function (d) {
-          return 110;
+          return 100;
         }).attr("y", function (d) {
           return 50;
         }).attr("class", function (d) {
@@ -225,43 +230,45 @@
         });
       });
 
+      // line overlay
       this.selectedLines = sift({
         'selected': true
       }, this.graph.links);
-      //console.log(this.selectedNodes);
       this.selectorsLines = this.svg.select("#lineSelector").selectAll("line").data(this.selectedLines, function (d) {
         return d.id + 'selected';
       });
       this.selectorsLines.exit().remove();
-      this.selectorsLines = this.selectorsLines.enter().append("line").merge(this.selectorsLines).attr('x1', function (d) {
+      this.selectorsLines = this.selectorsLines.enter().append("line").merge(this.selectorsLines)
+      .attr('x1', function (d) {
         //return d.source.x + 165;
-        return d.source.x + 35;
+        return d.source.x + 75;
       }).attr('y1', function (d) {
         //return d.source.y + 35;
         return d.source.y + 35;
       }).attr('x2', function (d) {
         // return d.target.x + 55;
-        return d.target.x + 35;
+        return d.target.x - 10;
       }).attr('y2', function (d) {
         //return d.target.y + 35;
         return d.target.y + 35;
       });
 
+      // line commande bar
       this.selectorsLineCommandeBar = this.svg.select("#lineCommandLayer").selectAll("svg").data(this.selectedLines, function (d) {
         return d.id + '-lineCommandBarComponent';
       });
       this.selectorsLineCommandeBar.exit().remove();
       this.selectorsLineCommandeBar = this.selectorsLineCommandeBar.enter().append("svg").merge(this.selectorsLineCommandeBar).attr('x', function (d) {
-        return ((d.source.x + d.target.x) / 2) + 95;
+        return ((d.source.x + d.target.x) / 2) + 35;
       }).attr('y', function (d) {
         return ((d.source.y + d.target.y) / 2) + 10;
       }).each(function (d) {
         d3.select(this).append("image").attr("xlink:href", function (d) {
           return "./image/Super-Mono-png/PNG/basic/red/bin.png";
         }).attr("width", function (d) {
-          return 30;
+          return 15;
         }).attr("height", function (d) {
-          return 30;
+          return 15;
         }).attr("x", function (d) {
           return 0;
         }).attr("y", function (d) {
@@ -274,29 +281,25 @@
       this.update();
     }.bind(this);
 
-    // fonctions déplacements ( glissé )
-    this.dragstarted = function (d) { // d le est le noeud, this est le composant riot js graph
+    // track deplacement 
+    this.dragstarted = function (d) {
       d.xOrigin = d.x;
       d.yOrigin = d.y;
     };
 
-    function snapToGrid(p, r) {
-      return Math.round(p / r) * r;
-    }
-
+    // drag calcule for all elements of dragged node
     this.dragged = function (dragged) {
       let containerStyle = document.querySelector('#graphContainer').getBoundingClientRect();
       let width = containerStyle.width ;
       let height = containerStyle.height;
-      var boxSize = width/this.cubeResolution;
 
      //let containerStyle = document.querySelector('#graphContainer').getBoundingClientRect();
 
       var start_x = d3.event.x;
       var start_y = d3.event.y;
 
-      let gridX = snapToGrid(d3.event.x, this.cubeResolution);
-      let gridY = snapToGrid(d3.event.y, this.cubeResolution)
+      let gridX = snapToGrid(d3.event.x, 40);
+      let gridY = snapToGrid(d3.event.y, 40)
       dragged.x = gridX;
       dragged.y = gridY;
       
@@ -317,23 +320,46 @@
       let beforeLinks = sift({
         "target.id": dragged.id
       }, this.graph.links);
-      //console.log('beforeLinks', beforeLinks);
       this.links = this.svg.select("#lineLayer").selectAll("line").data(beforeLinks, function (d) {
         return d.id;
-      }).attr("x2", gridX + 35).attr("y2", gridY + 35);
+      })
+      .attr("x2", gridX -10)
+      .attr("y2", gridY + 35);
       let beforeLinksSelected = sift({
         "target.id": dragged.id
       }, this.selectedLines);
       this.selectorsLines = this.svg.select("#lineSelector").selectAll("line").data(beforeLinksSelected, function (d) {
         return d.id;
-      }).attr("x2", gridX + 35).attr("y2", gridY + 35);
+      }).attr("x2", gridX -10)
+      .attr("y2", gridY + 35);
+
       this.selectorsLineCommandeBar = this.svg.select("#lineCommandLayer").selectAll("svg").data(beforeLinksSelected, function (d) {
         return d.id;
       }).attr('x', function (d) {
-        return ((d.source.x + dragged.x) / 2) + 95;
+        return ((d.source.x + dragged.x) / 2) + 35;
       }).attr('y', function (d) {
         return ((d.source.y + gridY) / 2) + 10;
       });
+
+      // Connect Before / After
+      this.subNode = this.svg.select("#roundLayer").selectAll("svg").data([dragged], function (d) {
+        return d.id;
+      });
+      this.subNode = this.subNode
+        .attr('x', function (d) {
+          return dragged.x - 30;  
+        }).attr('y', function (d) {
+          return dragged.y - 30;
+        })
+
+       this.nodesTitle = this.svg.select("#nodeTitleLayer").selectAll("text").data([dragged], function (d) {
+          return d.id;
+        });
+        this.nodesTitle.attr('x', function (d) {
+          return dragged.x - 20;  
+        }).attr('y', function (d) {
+          return dragged.y - 35;
+        })
 
       let afterLinks = sift({
         "source.id": dragged.id
@@ -341,7 +367,9 @@
 
       this.links = this.svg.select("#lineLayer").selectAll("line").data(afterLinks, function (d) {
         return d.id;
-      }).attr("x1", gridX + 35).attr("y1", gridY + 35)
+      })
+      .attr("x1", gridX + 75)
+      .attr("y1", gridY + 35)
       let afterLinksSelected = sift({
         "source.id": dragged.id
       }, this.selectedLines);
@@ -379,37 +407,29 @@
 
     }.bind(this);
 
+    // drag end, save current position or save connect before/after
     this.dragended = function (d) {
 
       if (d.x == d.xOrigin && d.y == d.yOrigin) {
-        //console.log('CLICK'); let selectedNode = d; selectedNode.mainObjectId = d.id;
         if (this.modeConnectBefore || this.modeConnectAfter) {
           if (this.modeConnectBefore) {
-            //console.log(d.component,this.selectedNodes[0].component);
             RiotControl.trigger('connect_components', d.component, this.selectedNodes[0].component);
           }
           if (this.modeConnectAfter) {
-            //console.log(d.component, this.selectedNodes[0].component);
             RiotControl.trigger('connect_components', this.selectedNodes[0].component, d.component);
           }
         } else {
-          //this.selectedLines = []; this.drawSelectedLines(); this.selectedNodes = [d];
           RiotControl.trigger('component_current_set', d.component);
           this.tooltip.classed("tooltipHide", true);
-          //this.drawSelected(); this.update();
         }
-        //RiotControl.trigger('component_current_show'); RiotControl.trigger('component_current_select', d.component);
       } else {
-        console.log('dragended');
-        // RiotControl.trigger('item_updateField', {   id: d.id,   field: "graphPositionX",   data: d.x }); RiotControl.trigger('item_updateField', {   id: d.id,   field: "graphPositionY",   data: d.y });
         d.component.graphPositionX = d.x;
         d.component.graphPositionY = d.y;
         RiotControl.trigger('item_persist', d.component);
-
-        // this.updateBoundObject(d); this.drawSelected(); if (!d3.event.active) {   this.simulation.alphaTarget(0.1); }
       }
     }.bind(this);
 
+    // init all element of content graph
     this.drawGraph = function (graph) {
       this.graph = graph;
       if(this.graph.startPosition.x ){
@@ -417,9 +437,10 @@
         if (this.svg == undefined) {
           this.svg = d3.select("svg");
         } 
-  
+
+        // Node 
         this.nodes = this.svg.select("#shapeLayer").selectAll("image").data(graph.nodes, function (d) {
-          return d.id;
+          return d.id + '-node-component';;
         });
         this.nodes.exit().remove();
         this.nodes = this.nodes.enter()
@@ -437,22 +458,37 @@
         }).attr('data-id', function (d) {
           return d.id;
         }).on('mouseover', (d) => {
-          //console.log("mouseover",d);
           if (!d.selected == true && d.component.name!=undefined) {
             this.tooltip.classed("tooltipHide", false);
-            this.tooltip.attr('x', d.x).attr('y', d.y + 70).select('text').html(d.component.name);
+            this.tooltip.attr('x', d.x).attr('y', d.y + 70).select('text').style('fill', 'grey').html(d.component.name);
           }
         }).on('mouseout', (d) => {
           this.tooltip.classed("tooltipHide", true);
         }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
 
+        
+        // Node Title
+        this.nodesTitle = this.svg.select("#nodeTitleLayer").selectAll("text").data(graph.nodes, function (d) {
+          return d.id + '-node-title';
+        });
+        this.nodesTitle.exit().remove();
+        this.nodesTitle = this.nodesTitle.enter()
+        .append("text")
+        .attr('class', 'title-component-graph')
+        .attr('x', function (d) {
+          return d.x - 20;
+        }).attr('y', function (d) {
+          return d.y - 35;
+        }).attr("dy", ".35em")
+        .style('fill', 'grey')
+        .text(function(d) { return d.text; });
 
+
+        // Link
         this.links = this.svg.select("#lineLayer").selectAll('line').data(graph.links, function (d) {
           return d.id;
         });
-       
         this.links.exit().remove();
-
         this.links = this.links.enter()
         .append('line')
         .merge(this.links)
@@ -468,9 +504,57 @@
           return d.target.y + 35;
         })
         .on("click", function (d) {
-          //console.log('click line |', d); this.selectedNodes = []; this.drawSelected(); this.selectedLines = [d]; this.drawSelectedLines(); this.update();
           RiotControl.trigger('connection_current_set', d.source.component, d.target.component);
         }.bind(this));
+
+        // Connect Before / After
+        this.subNode = this.svg.select("#roundLayer").selectAll("svg").data(graph.nodes, function (d) {
+          return d.id;
+        });
+        this.subNode.exit().remove();
+        this.subNode = this.subNode.enter().append("svg").merge(this.subNode).attr('x', function (d) {
+          return d.x - 30;
+          }).attr('y', function (d) {
+            return d.y - 30;
+          }).each(function (d) {
+            d3.select(this).selectAll("image").remove();
+            if(d.connectionsBefore){
+              d3.select(this).append("image").attr("xlink:href", function (d) {
+                return "./image/plus_disable.svg";
+                }).attr("width", function (d) {
+                  return 15;
+                }).attr("height", function (d) {
+                  return 15;
+                }).attr("x", function (d) {
+                  return 10;
+                }).attr("y", function (d) {
+                  return 55;
+                }).attr("class", function (d) {
+                  return 'connectBeforeButtonGraph';
+                }).attr("data-id", function (d) {
+                  return d.id;
+                })
+            }
+            if(d.connectionsAfter){
+              d3.select(this).append("image").attr("xlink:href", function (d) {
+                let image = "";
+                return "./image/plus_disable.svg";
+                }).attr("width", function (d) {
+                  return 15;
+                }).attr("height", function (d) {
+                  return 15;
+                }).attr("x", function (d) {
+                  return 100;
+                }).attr("y", function (d) {
+                  return 55;
+                }).attr("class", function (d) {
+                  return 'connectAfterButtonGraph';
+                }).attr("data-id", function (d) {
+                  return d.id;
+                })
+            }
+          })
+
 
 
 
@@ -502,74 +586,73 @@
         }
       }
     }.bind(this)
-
+    
+    // init grid and grid's function
     this.initGraph = function() {
-        this.initGraphDone = true
-        let svg = d3.select('svg');
-        let view = d3.select('#main-container');
-        let containerStyle = document.querySelector('#main-container').getBoundingClientRect();
-        let width = containerStyle.width;
-        let height = containerStyle.height;
+      this.initGraphDone = true
+      let svg = d3.select('svg');
+      let view = d3.select('#main-container');
+      let containerStyle = document.querySelector('#main-container').getBoundingClientRect();
+      let width = containerStyle.width;
+      let height = containerStyle.height;
 
-        let Square = document.querySelector('.component').getBoundingClientRect();
-        let widthSquare = Square.width;
+      let Square = document.querySelector('.component').getBoundingClientRect();
+      let widthSquare = Square.width;
 
-        //// AXES /////
-        let xScale = d3.scaleLinear()
-            .domain([-width * 2 , width *2 ])
-            .range([0, width]);
+      //// AXES /////
+      let xScale = d3.scaleLinear()
+          .domain([-width * 2 , width *2 ])
+          .range([0, width]);
 
-        let yScale = d3.scaleLinear()
-            .domain([-height * 2, height * 2 ])
-            .range([height, 0]);
+      let yScale = d3.scaleLinear()
+          .domain([-height * 2, height * 2 ])
+          .range([height, 0]);
 
-        let xAxis = d3.axisBottom(xScale)
-            .ticks(widthSquare/2)
-            .tickSize(height)
-            .tickPadding(8 - height)
-            .tickFormat("");
+      let xAxis = d3.axisBottom(xScale)
+          .ticks(widthSquare/2)
+          .tickSize(height)
+          .tickPadding(8 - height)
+          .tickFormat("");
 
-        let yAxis = d3.axisRight(yScale)
-            .ticks(widthSquare/4)
-            .tickSize(width)
-            .tickPadding(8 - width)
-            .tickFormat("");
+      let yAxis = d3.axisRight(yScale)
+          .ticks(widthSquare/4)
+          .tickSize(width)
+          .tickPadding(8 - width)
+          .tickFormat("");
+  
+      gX = d3.select(".axis--x")
+          .call(xAxis);
+      gY = d3.select(".axis--y")
+          .call(yAxis);
     
-        gX = d3.select(".axis--x")
-            .call(xAxis);
-        gY = d3.select(".axis--y")
-            .call(yAxis);
+      /// ZOOOM ////
+      var zoom = d3.zoom()
+        .scaleExtent([0.3, 5])
+        .translateExtent([
+            [-width * 2, -height * 2],
+            [width * 2, height * 2]
+        ])
+        .on("zoom", zoomed.bind(this));
+
+      function zoomed() {
+        currentTransform = d3.event.transform;
+        if(currentTransform && !isNaN(currentTransform.k)){
       
-        /// ZOOOM ////
-        var zoom = d3.zoom()
-          .scaleExtent([0.5, 5])
-          .translateExtent([
-              [-width * 2, -height * 2],
-              [width * 2, height * 2]
-          ])
-          .on("zoom", zoomed);
-
-        function zoomed() {
-          currentTransform = d3.event.transform;
-          if(currentTransform && !isNaN(currentTransform.k)){
-            
-            view.attr("transform", currentTransform);
-            gX.call(xAxis.scale(d3.event.transform.rescaleX(xScale)));
-            gY.call(yAxis.scale(d3.event.transform.rescaleY(yScale)));
-          }
+          view.attr("transform", currentTransform);
+          gX.call(xAxis.scale(d3.event.transform.rescaleX(xScale)));
+          gY.call(yAxis.scale(d3.event.transform.rescaleY(yScale)));
         }
+      }
+      
+  
         
-    
-          svg.transition().duration(1000).call(zoom.scaleBy, 0.5);
-          svg.transition().duration(1000).call(zoom.translateBy, this.graph.startPosition.x,    this.graph.startPosition.y);
-        
-        svg.call(zoom)
+      
+      svg.call(zoom)
     }.bind(this)
 
     this.on('mount', function () { // mount du composant riot
       RiotControl.on('workspace_graph_selection_changed', this.drawSelected);
       RiotControl.on('workspace_graph_compute_done', this.drawGraph);
-      console.log("canvas", this.refs.graphSvgCanvas)
       RiotControl.trigger('workspace_graph_compute', this.refs.graphSvgCanvas);
     }); // fin mount
 
@@ -621,8 +704,8 @@
     }
 
     #lineLayer line {
-      stroke: #555;
-      stroke-width: 3;
+      stroke: rgb(26,145,194);
+      stroke-width: 2;
       cursor: pointer;
       animation: dash 1s linear;
       stroke-dasharray: 500 2;
@@ -639,10 +722,16 @@
       fill-opacity: 0;
     }
 
+    .title-component-graph-graph {
+      font-size: 1em;
+
+    }
+
     #lineSelector line {
-      stroke-width: 36;
+      stroke-width: 15px;
       stroke: #649DF9;
-      stroke-opacity: 0.2;
+      stroke-opacity: 0.1;
+
     }
 
     .background {
