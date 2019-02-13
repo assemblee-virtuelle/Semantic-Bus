@@ -42,8 +42,6 @@
 
   <!--graphContainer-->
   <script>
-    this.currentX;
-    this.currentY;
     this.selectedNodes = [];
     this.selectorsNodes = [];
     this.selectedLines = [];
@@ -54,8 +52,6 @@
     this.initGraphDone = false;
     
     showAddComponentClick(e) {
-      this.currentX;
-      this.currentY;
       route('workspace/' + this.graph.workspace._id + '/addComponent');
     }
 
@@ -442,7 +438,7 @@
       this.nodes.exit().remove();
       this.nodes = this.nodes.enter()
       .append("image").attr('class', 'component').merge(this.nodes).attr("xlink:href", function (d) {
-        return 'image/components/' + 'sqlTest.svg';
+        return 'image/components/' + 'sqltest.svg';
       }).attr("width", function (d) {
         return 70;
       }).attr("height", function (d) {
@@ -641,9 +637,6 @@
       }
       if(!this.graph.startPosition)(this.graph.startPosition ={})
       svg.call(zoom.transform, d3.zoomIdentity.translate(this.graph.startPosition.y || 0, this.graph.startPosition.x || 0).scale(this.graph.startPosition.k || 0.3))
-      
-      //svg.transition().duration(500).call(zoom.translateBy, this.graph.startPosition.x, this.graph.startPosition.y);
-      
       svg.call(zoom)
     }.bind(this)
 
@@ -667,7 +660,6 @@
       background:rgb(238,242,249);
       border: 1px solid rgb(212, 212, 212);
     }
-
 
     line {
       stroke: transparent;
@@ -756,9 +748,8 @@
       display: none ;
     }
     .axis path {
-    display: none;
+      display: none;
     }
-
     .axis line {
         stroke-opacity: 0.3;
     }
