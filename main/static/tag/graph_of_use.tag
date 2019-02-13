@@ -233,99 +233,101 @@
   /// D3 JS INITIALIZE
 
   this.initD3js = function (data) {
-    var marginStackChart = {
-      top: 50,
-      right: 30,
-      bottom: 50,
-      left: 30
-    },
-    widthStackChart = window.screen.width - 0.2*window.screen.width,
-    heightStackChart = window.screen.height*0.66 - marginStackChart.top - marginStackChart.bottom;
+    if(data){
+      var marginStackChart = {
+        top: 50,
+        right: 30,
+        bottom: 50,
+        left: 30
+      },
+      widthStackChart = window.screen.width - 0.2*window.screen.width,
+      heightStackChart = window.screen.height*0.66 - marginStackChart.top - marginStackChart.bottom;
 
-    var xStackChart = d3.scaleBand().range([0, widthStackChart]).padding(.4);
+      var xStackChart = d3.scaleBand().range([0, widthStackChart]).padding(.4);
 
-    var yStackChart = d3.scaleLinear().domain([ 0, data.total ]).range([heightStackChart, 0])
+      var yStackChart = d3.scaleLinear().domain([ 0, data.total ]).range([heightStackChart, 0])
 
-    var xAxis = d3.axisBottom().scale(xStackChart)
+      var xAxis = d3.axisBottom().scale(xStackChart)
 
-    var parser = d3.timeFormat("%d-%b-%y").parse;
+      var parser = d3.timeFormat("%d-%b-%y").parse;
 
-    var colorStackChart = d3.scaleOrdinal(d3.schemeSet3);
-
-
-    var canvasStackChart = d3.select("#stacked").attr("width", widthStackChart + marginStackChart.left + marginStackChart.right)
-    .attr("height", heightStackChart + marginStackChart.top + marginStackChart.bottom)
-    .append("g").attr("transform", "translate(" + marginStackChart.left + "," + marginStackChart.top + ")");
-
-    xStackChart.domain(data.data.map(function (d) {
-      return d.Day.split("-")[0] + "-" + d.Day.split("-")[1];
-    }));
+      var colorStackChart = d3.scaleOrdinal(d3.schemeSet3);
 
 
-    function make_y_gridlines() {
-      return d3.axisLeft(yStackChart)
-        .ticks(5)
-    }
+      var canvasStackChart = d3.select("#stacked").attr("width", widthStackChart + marginStackChart.left + marginStackChart.right)
+      .attr("height", heightStackChart + marginStackChart.top + marginStackChart.bottom)
+      .append("g").attr("transform", "translate(" + marginStackChart.left + "," + marginStackChart.top + ")");
 
-    canvasStackChart.append("g")
-      .attr("class", "grid")
-      .call(make_y_gridlines()
-          .tickSize(-widthStackChart)
-        .tickFormat("")
-      )
+      xStackChart.domain(data.data.map(function (d) {
+        return d.Day.split("-")[0] + "-" + d.Day.split("-")[1];
+      }));
 
-    var div = d3.select(".item-flex").append("div").attr("class", "tooltip").style("opacity", 0);
 
-    canvasStackChart.append("g").attr("class", "x axis").attr("transform", "translate(0," + heightStackChart + ")").call(d3.axisBottom(xStackChart));
-
-    canvasStackChart.append("text").attr("class", "x label").attr("text-anchor", "end").attr("x", widthStackChart + 5).attr("y", heightStackChart + 30).attr("font-size", "12px").text("Jours");
-
-    canvasStackChart.append("g").attr("class", "y axis").call(d3.axisLeft(yStackChart)).append("text").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", ".71em").style("text-anchor", "end")
-
-    canvasStackChart.append("text").attr("class", "y label").attr("text-anchor", "end").attr("y", 6).attr("dy", ".75em").attr("transform", "rotate(-90)").attr("font-size", "12px").text("Crédit");
-
-    let state = canvasStackChart.selectAll(".Day").data(data.data)
-      .enter()
-      .append("g")
-      .attr("class", "g")
-      .attr("transform", function (d) {
-        return "translate(" + xStackChart(d.Day.split("-")[0] + "-" + d.Day.split("-")[1]) + ",0)";
-      })
-  
-    state.selectAll("g").data(function (d) {
-      return d.components
-    }).enter().append("rect")
-    .attr("width", xStackChart.bandwidth())
-    .attr("y", function (d) {
-      return yStackChart(d.y1)
-    }).attr("height", function (d) {
-      return yStackChart(d.y0) -  yStackChart(d.y1)
-    }).style("fill", function (d) {
-      return colorStackChart(d.id);
-    }).on("mouseover", function (d) {
-      d3.select(this).style("opacity", .6)
-      div.transition().duration(200).style("opacity", .9);
-      let nom = '';
-      if(d.name){
-        nom = "Nom:" + d.name + "<br/>"
+      function make_y_gridlines() {
+        return d3.axisLeft(yStackChart)
+          .ticks(5)
       }
-      div.html(
-        nom + "Module: "
-      + d.label + "<br/>Consomation : "
-      + d.datasize + " Mo<br/>Prix du flux : "
-      + d.price + " Crédit <br/>Prix composant: "
-      + d.pricing + "Credit / Mo").style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 28 + "px");
-    }).on("mouseout", function (d) {
-      d3.select(this).style("opacity", .9)
-      div.transition().duration(500).style("opacity", 0);
-    })
+
+      canvasStackChart.append("g")
+        .attr("class", "grid")
+        .call(make_y_gridlines()
+            .tickSize(-widthStackChart)
+          .tickFormat("")
+        )
+
+      var div = d3.select(".item-flex").append("div").attr("class", "tooltip").style("opacity", 0);
+
+      canvasStackChart.append("g").attr("class", "x axis").attr("transform", "translate(0," + heightStackChart + ")").call(d3.axisBottom(xStackChart));
+
+      canvasStackChart.append("text").attr("class", "x label").attr("text-anchor", "end").attr("x", widthStackChart + 5).attr("y", heightStackChart + 30).attr("font-size", "12px").text("Jours");
+
+      canvasStackChart.append("g").attr("class", "y axis").call(d3.axisLeft(yStackChart)).append("text").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", ".71em").style("text-anchor", "end")
+
+      canvasStackChart.append("text").attr("class", "y label").attr("text-anchor", "end").attr("y", 6).attr("dy", ".75em").attr("transform", "rotate(-90)").attr("font-size", "12px").text("Crédit");
+
+      let state = canvasStackChart.selectAll(".Day").data(data.data)
+        .enter()
+        .append("g")
+        .attr("class", "g")
+        .attr("transform", function (d) {
+          return "translate(" + xStackChart(d.Day.split("-")[0] + "-" + d.Day.split("-")[1]) + ",0)";
+        })
+    
+      state.selectAll("g").data(function (d) {
+        return d.components
+      }).enter().append("rect")
+      .attr("width", xStackChart.bandwidth())
+      .attr("y", function (d) {
+        return yStackChart(d.y1)
+      }).attr("height", function (d) {
+        return yStackChart(d.y0) -  yStackChart(d.y1)
+      }).style("fill", function (d) {
+        return colorStackChart(d.id);
+      }).on("mouseover", function (d) {
+        d3.select(this).style("opacity", .6)
+        div.transition().duration(200).style("opacity", .9);
+        let nom = '';
+        if(d.name){
+          nom = "Nom:" + d.name + "<br/>"
+        }
+        div.html(
+          nom + "Module: "
+        + d.label + "<br/>Consomation : "
+        + d.datasize + " Mo<br/>Prix du flux : "
+        + d.price + " Crédit <br/>Prix composant: "
+        + d.pricing + "Credit / Mo").style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 28 + "px");
+      }).on("mouseout", function (d) {
+        d3.select(this).style("opacity", .9)
+        div.transition().duration(500).style("opacity", 0);
+      })
+    }
   };
 
 
   this.on('mount', function () {
     this.dataLoaded = false
     RiotControl.on('graph_workspace_data_loaded',(data)=>{
-      if(!this.dataLoaded){
+      if(!this.dataLoaded && data && data.workspaceGraph){
         this.initD3js(data.workspaceGraph);
         this.dataLoaded = true
         this.componentNumber = data.workspaceGraph.componentNumber

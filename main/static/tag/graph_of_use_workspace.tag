@@ -218,87 +218,88 @@
   /// D3 JS INITIALIZE
 
   this.initD3js = data => {
+    if(data){
+      var marginStackChart = {
+          top: 20,
+          right: 200,
+          bottom: 30,
+          left: 30
+        },
+        widthStackChart = 1000,
+        heightStackChart = 600 - marginStackChart.top - marginStackChart.bottom;
 
-    var marginStackChart = {
-        top: 20,
-        right: 200,
-        bottom: 30,
-        left: 30
-      },
-      widthStackChart = 1000,
-      heightStackChart = 600 - marginStackChart.top - marginStackChart.bottom;
+      var xStackChart = d3.scaleBand().range([0, widthStackChart]).padding(.4);
 
-    var xStackChart = d3.scaleBand().range([0, widthStackChart]).padding(.4);
+      var yStackChart = d3.scaleLinear().range([heightStackChart, 0]);
 
-    var yStackChart = d3.scaleLinear().range([heightStackChart, 0]);
+      var xAxis = d3.axisBottom().scale(xStackChart)
 
-    var xAxis = d3.axisBottom().scale(xStackChart)
+      var parser = d3.timeFormat("%d-%b-%y").parse;
 
-    var parser = d3.timeFormat("%d-%b-%y").parse;
+      var colorStackChart = d3.scaleOrdinal(d3.schemeSet3);
 
-    var colorStackChart = d3.scaleOrdinal(d3.schemeSet3);
+      var canvasStackChart =
+        d3.select("#stacked")
+          .attr("width", widthStackChart + marginStackChart.left + marginStackChart.right)
+          .attr("height", heightStackChart + marginStackChart.top + marginStackChart.bottom)
+          .append("g").attr("transform", "translate(" + marginStackChart.left + "," + marginStackChart.top + ")");
 
-    var canvasStackChart =
-      d3.select("#stacked")
-        .attr("width", widthStackChart + marginStackChart.left + marginStackChart.right)
-        .attr("height", heightStackChart + marginStackChart.top + marginStackChart.bottom)
-        .append("g").attr("transform", "translate(" + marginStackChart.left + "," + marginStackChart.top + ")");
-
-    var div = d3.select(".item-flex").append("div").attr("class", "tooltip").style("opacity", 0);
+      var div = d3.select(".item-flex").append("div").attr("class", "tooltip").style("opacity", 0);
 
 
-    xStackChart.domain(data.data.map(function (d) {
-      return d.Day.split("-")[0] + "-" + d.Day.split("-")[1];
-    }));
+      xStackChart.domain(data.data.map(function (d) {
+        return d.Day.split("-")[0] + "-" + d.Day.split("-")[1];
+      }));
 
-    yStackChart.domain([
-      0,
-      data.golbalConsumption
-    ]);
+      yStackChart.domain([
+        0,
+        data.golbalConsumption
+      ]);
 
-    // gridlines in y axis function
-    function make_y_gridlines() {
-        return d3.axisLeft(yStackChart)
-            .ticks(5)
+      // gridlines in y axis function
+      function make_y_gridlines() {
+          return d3.axisLeft(yStackChart)
+              .ticks(5)
+      }
+
+
+      canvasStackChart.append("g").attr("class", "x axis").attr("transform", "translate(0," + heightStackChart + ")").call(xAxis);
+
+      canvasStackChart.append("text").attr("class", "x label").attr("text-anchor", "end").attr("x", widthStackChart + 40).attr("y", heightStackChart + 15).attr("font-size", "12px").text("Jours");
+
+      canvasStackChart.append("g").attr("class", "y axis").call(d3.axisLeft(yStackChart)).append("text").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", ".71em").style("text-anchor", "end")
+
+      canvasStackChart.append("text").attr("class", "y label").attr("text-anchor", "end").attr("y", 6).attr("dy", ".75em").attr("transform", "rotate(-90)").attr("font-size", "12px").text("Consomation( € )");
+
+      var state = canvasStackChart.selectAll(".Day").data(data.data).enter().append("g").attr("class", "g").attr("transform", function (d) {
+        return "translate(" + xStackChart(d.Day.split("-")[0] + "-" + d.Day.split("-")[1]) + ",0)";
+      })
+
+      // add the Y gridlines
+      canvasStackChart.append("g")
+        .attr("class", "grid")
+        .call(make_y_gridlines()
+            .tickSize(-widthStackChart)
+          .tickFormat("")
+        )
+      state.selectAll("rect").data(function (d) {
+        return d.workspaces;
+      }).enter().append("rect").attr("width", xStackChart.bandwidth()).attr("y", function (d) {
+        return yStackChart(d.y1);
+      }).attr("height", function (d) {
+        return yStackChart(d.y0) - yStackChart(d.y1);
+      }).style("fill", function (d) {
+        return colorStackChart(d.id);
+      }).on("mouseover", function (d) {
+        d3.select(this).style("opacity", .6)
+        div.transition().duration(200).style("opacity", .9);
+        let name = d.name ? "Nom:" + d.name : ''
+        div.html( name + "<br/>"+ "<br/>Conso : " + d.flow + "Mo<br/>Prix : " + d.price + "Crédit(s)<br/>").style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 28 + "px");
+      }).on("mouseout", function (d) {
+        d3.select(this).style("opacity", .9)
+        div.transition().duration(500).style("opacity", 0);
+      })
     }
-
-
-    canvasStackChart.append("g").attr("class", "x axis").attr("transform", "translate(0," + heightStackChart + ")").call(xAxis);
-
-    canvasStackChart.append("text").attr("class", "x label").attr("text-anchor", "end").attr("x", widthStackChart + 40).attr("y", heightStackChart + 15).attr("font-size", "12px").text("Jours");
-
-    canvasStackChart.append("g").attr("class", "y axis").call(d3.axisLeft(yStackChart)).append("text").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", ".71em").style("text-anchor", "end")
-
-    canvasStackChart.append("text").attr("class", "y label").attr("text-anchor", "end").attr("y", 6).attr("dy", ".75em").attr("transform", "rotate(-90)").attr("font-size", "12px").text("Consomation( € )");
-
-    var state = canvasStackChart.selectAll(".Day").data(data.data).enter().append("g").attr("class", "g").attr("transform", function (d) {
-      return "translate(" + xStackChart(d.Day.split("-")[0] + "-" + d.Day.split("-")[1]) + ",0)";
-    })
-
-    // add the Y gridlines
-    canvasStackChart.append("g")
-      .attr("class", "grid")
-      .call(make_y_gridlines()
-          .tickSize(-widthStackChart)
-        .tickFormat("")
-      )
-    state.selectAll("rect").data(function (d) {
-      return d.workspaces;
-    }).enter().append("rect").attr("width", xStackChart.bandwidth()).attr("y", function (d) {
-      return yStackChart(d.y1);
-    }).attr("height", function (d) {
-      return yStackChart(d.y0) - yStackChart(d.y1);
-    }).style("fill", function (d) {
-      return colorStackChart(d.id);
-    }).on("mouseover", function (d) {
-      d3.select(this).style("opacity", .6)
-      div.transition().duration(200).style("opacity", .9);
-      let name = d.name ? "Nom:" + d.name : ''
-      div.html( name + "<br/>"+ "<br/>Conso : " + d.flow + "Mo<br/>Prix : " + d.price + "Crédit(s)<br/>").style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 28 + "px");
-    }).on("mouseout", function (d) {
-      d3.select(this).style("opacity", .9)
-      div.transition().duration(500).style("opacity", 0);
-    })
   };
 
   this.initgraph = (data) => {

@@ -154,7 +154,6 @@
     }.bind(this);
 
     this.workspaceCurrentChanged = function (data) {
-      console.log('workspaceEditor | workspaceCurrentChanged | ', data);
       this.innerData = data;
       this.refs.userZenTable.data = data.users;
       this.tags['graph-of-use'].data = data
@@ -217,7 +216,6 @@
     }
 
     this.on('mount', function () {
-      //console.log('wokspaceEditor | Mount |', this);
       RiotControl.on('store_persisteWorkspace', this.persistClick)
       RiotControl.on('workspace_current_changed', this.workspaceCurrentChanged);
       RiotControl.on('share_change', this.shareChange);
@@ -226,7 +224,6 @@
     });
 
     this.on('unmount', function () {
-      //console.log('UNMOUNT');
       RiotControl.off('store_persisteWorkspace', this.persistClick)
       RiotControl.off('workspace_current_changed', this.workspaceCurrentChanged);
       RiotControl.off('share_change', this.shareChange)

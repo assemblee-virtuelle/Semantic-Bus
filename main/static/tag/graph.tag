@@ -310,11 +310,11 @@
       }).attr("x", gridX).attr("y", gridY);
       
       this.selectorsNodes = this.svg.select("#shapeSelector").selectAll("rect").data([dragged], function (d) {
-        return d.id;
+        return d.id + '-shapeSelector';;
       }).attr("x", gridX - 30).attr("y", gridY - 30);
 
       this.selectorsShapeCommandeBar = this.svg.select("#shapeCommandLayer").selectAll("svg").data([dragged], function (d) {
-        return d.id;
+        return d.id + '-shapeCommandLayer';
       }).attr("x", gridX - 30).attr("y", gridY - 30);
 
       let beforeLinks = sift({
@@ -595,8 +595,8 @@
       let containerStyle = document.querySelector('#main-container').getBoundingClientRect();
       let width = containerStyle.width;
       let height = containerStyle.height;
-
-      let Square = document.querySelector('.component').getBoundingClientRect();
+      let Square;
+      document.querySelector('.component') ?  Square = document.querySelector('.component').getBoundingClientRect(): Square = {width:40};
       let widthSquare = Square.width;
 
       //// AXES /////
@@ -637,7 +637,8 @@
       function zoomed() {
         currentTransform = d3.event.transform;
         if(currentTransform && !isNaN(currentTransform.k)){
-      
+          this.graph.startPosition.x =  currentTransform.x
+          this.graph.startPosition.y = currentTransform.y
           view.attr("transform", currentTransform);
           gX.call(xAxis.scale(d3.event.transform.rescaleX(xScale)));
           gY.call(yAxis.scale(d3.event.transform.rescaleY(yScale)));
@@ -645,7 +646,8 @@
       }
       
   
-        
+      svg.transition().duration(500).call(zoom.scaleBy, 0.3);
+      svg.transition().duration(500).call(zoom.translateBy, this.graph.startPosition.x,    this.graph.startPosition.y);
       
       svg.call(zoom)
     }.bind(this)

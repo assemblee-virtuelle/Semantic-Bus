@@ -481,6 +481,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
   this.computeGraph = function (viewBox) {
     let componentsId = this.workspaceCurrent.components.map(c => c._id)
+    console.log(this.workspaceCurrent)
     this.workspaceCurrent.links = sift({
       $and: [{
         source: {
@@ -498,7 +499,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
     var selectedNodes = []
     var selectedLinks = []
-    console.log("this.graph", this.graph)
     if (this.graph != undefined) {
       selectedNodes = sift({
         selected: true
@@ -509,8 +509,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     } else {
       this.graph = {}
     }
-
-    console.log("this.graph", this.graph)
 
     this.graph.transform = this.workspaceCurrent.transform
     this.graph.nodes = []
@@ -577,9 +575,10 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
           node.status = step.status
         }
       }
-      if (connectionsBefore.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) { // si rien n est connecte avant
+      if (connectionsBefore.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) { 
+        // si rien n est connecte avant
         node.x = 30
-        node.y = inputCurrentOffset
+        node.y = 0
         inputCurrentOffset += inputsOffset
       } else if (connectionsAfter.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) {
         node.x = this.viewBox.width.baseVal.value - 250
@@ -587,8 +586,8 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
         outputCurrentOffset += outputsOffset
       } else { // tous ceux du milieu
         node.x = record.graphPositionX || this.viewBox.width.baseVal.value / 2
-        node.y = record.graphPositionY || middleCurrentOffset
-        if (record.graphPositionY == undefined) {
+        node.y = record.graphPositionY || 0
+        if (record.graphPositionY === undefined) {
           middleCurrentOffset += middlesOffset
         }
         node.connectionsBefore = connectionsBefore.length
@@ -603,7 +602,8 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
       this.graph.nodes.push(node)
     }
-    if (!this.graph) {
+    console.log(this.graph.nodes)
+    if (this.graph && !this.graph.startPosition) {
       if (this.graph.nodes.length > 0) {
         let x = this.graph.x / this.graph.nodes.length
         let y = this.graph.y / this.graph.nodes.length
@@ -991,7 +991,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
         target: target._id
       })
     }, true).then(links => {
-      console.log('connectedComps', links)
       // source.connectionsAfter.push(connectedComps.target);
       // target.connectionsBefore.push(connectedComps.source);
       // this.workspaceBusiness.connectWorkspaceComponent(this.workspaceCurrent.components);
@@ -1004,6 +1003,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   })
 
   this.on('disconnect_components', function (link) {
+    console.log("disconnect component", link)
     this.utilStore.ajaxCall({
       method: 'delete',
       url: '../data/core/workspaceComponent/connection',
@@ -1012,7 +1012,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
         linkId: link.id
       })
     }, true).then(links => {
-      console.log('connectedComps', links)
       this.workspaceCurrent.links = links
       this.trigger('workspace_current_changed', this.workspaceCurrent)
       if (this.viewBox) {
@@ -1028,6 +1027,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(item))
     }, true).then(data => {
       item = data
+      console.log("item persiste", item)
       // this.workspaceBusiness.connectWorkspaceComponent(this.workspaceCurrent.components);
       this.trigger('workspace_current_changed', this.workspaceCurrent)
       if (this.viewBox) {
