@@ -581,11 +581,11 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
         node.y = 0
         inputCurrentOffset += inputsOffset
       } else if (connectionsAfter.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) {
-        node.x = this.viewBox.width.baseVal.value - 250
-        node.y = outputCurrentOffset
+        node.x = 0
+        node.y = 0
         outputCurrentOffset += outputsOffset
       } else { // tous ceux du milieu
-        node.x = record.graphPositionX || this.viewBox.width.baseVal.value / 2
+        node.x = record.graphPositionX || 0
         node.y = record.graphPositionY || 0
         if (record.graphPositionY === undefined) {
           middleCurrentOffset += middlesOffset
@@ -602,21 +602,21 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
       this.graph.nodes.push(node)
     }
-    console.log(this.graph.nodes)
-    if (this.graph && !this.graph.startPosition) {
-      if (this.graph.nodes.length > 0) {
-        let x = this.graph.x / this.graph.nodes.length
-        let y = this.graph.y / this.graph.nodes.length
-        let middle = { x, y }
-        this.graph.startPosition = middle
-      } else {
-        let x = 100
-        let y = 100
-        this.graph.startPosition = { x, y }
-      }
-    } else {
-      console.log('START', this.graph)
-    }
+    // console.log(this.graph.nodes)
+    // if (this.graph && !this.graph.startPosition) {
+    //   if (this.graph.nodes.length > 0) {
+    //     let x = this.graph.x / this.graph.nodes.length
+    //     let y = this.graph.y / this.graph.nodes.length
+    //     let middle = { x, y }
+    //     this.graph.startPosition = middle
+    //   } else {
+    //     let x = 100
+    //     let y = 100
+    //     this.graph.startPosition = { x, y }
+    //   }
+    // } else {
+    //   console.log('START', this.graph)
+    // }
 
     for (let link of this.workspaceCurrent.links) {
       let id = link._id

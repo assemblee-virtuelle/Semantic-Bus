@@ -432,158 +432,152 @@
     // init all element of content graph
     this.drawGraph = function (graph) {
       this.graph = graph;
-      if(this.graph.startPosition.x ){
-      
-        if (this.svg == undefined) {
-          this.svg = d3.select("svg");
-        } 
-
-        // Node 
-        this.nodes = this.svg.select("#shapeLayer").selectAll("image").data(graph.nodes, function (d) {
-          return d.id + '-node-component';;
-        });
-        this.nodes.exit().remove();
-        this.nodes = this.nodes.enter()
-        .append("image").attr('class', 'component').merge(this.nodes).attr("xlink:href", function (d) {
-          return 'image/components/' + 'sqlTest.svg';
-        }).attr("width", function (d) {
-          return 70;
-        }).attr("height", function (d) {
-          return 70;
-        })
-        .attr('x', function (d) {
-          return d.x;
-        }).attr('y', function (d) {
-          return d.y;
-        }).attr('data-id', function (d) {
-          return d.id;
-        }).on('mouseover', (d) => {
-          if (!d.selected == true && d.component.name!=undefined) {
-            this.tooltip.classed("tooltipHide", false);
-            this.tooltip.attr('x', d.x).attr('y', d.y + 70).select('text').style('fill', 'grey').html(d.component.name);
-          }
-        }).on('mouseout', (d) => {
-          this.tooltip.classed("tooltipHide", true);
-        }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
+      if (this.svg == undefined) {
+        this.svg = d3.select("svg");
+      } 
+      // Node 
+      this.nodes = this.svg.select("#shapeLayer").selectAll("image").data(graph.nodes, function (d) {
+        return d.id + '-node-component';;
+      });
+      this.nodes.exit().remove();
+      this.nodes = this.nodes.enter()
+      .append("image").attr('class', 'component').merge(this.nodes).attr("xlink:href", function (d) {
+        return 'image/components/' + 'sqlTest.svg';
+      }).attr("width", function (d) {
+        return 70;
+      }).attr("height", function (d) {
+        return 70;
+      })
+      .attr('x', function (d) {
+        return d.x;
+      }).attr('y', function (d) {
+        return d.y;
+      }).attr('data-id', function (d) {
+        return d.id;
+      }).on('mouseover', (d) => {
+        if (!d.selected == true && d.component.name!=undefined) {
+          this.tooltip.classed("tooltipHide", false);
+          this.tooltip.attr('x', d.x).attr('y', d.y + 70).select('text').style('fill', 'grey').html(d.component.name);
+        }
+      }).on('mouseout', (d) => {
+        this.tooltip.classed("tooltipHide", true);
+      }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
 
         
-        // Node Title
-        this.nodesTitle = this.svg.select("#nodeTitleLayer").selectAll("text").data(graph.nodes, function (d) {
-          return d.id + '-node-title';
-        });
-        this.nodesTitle.exit().remove();
-        this.nodesTitle = this.nodesTitle.enter()
-        .append("text")
-        .attr('class', 'title-component-graph')
-        .attr('x', function (d) {
-          return d.x - 20;
+      // Node Title
+      this.nodesTitle = this.svg.select("#nodeTitleLayer").selectAll("text").data(graph.nodes, function (d) {
+        return d.id + '-node-title';
+      });
+      this.nodesTitle.exit().remove();
+      this.nodesTitle = this.nodesTitle.enter()
+      .append("text")
+      .attr('class', 'title-component-graph')
+      .attr('x', function (d) {
+        return d.x - 20;
+      }).attr('y', function (d) {
+        return d.y - 35;
+      }).attr("dy", ".35em")
+      .style('fill', 'grey')
+      .text(function(d) { return d.text; });
+
+
+      // Link
+      this.links = this.svg.select("#lineLayer").selectAll('line').data(graph.links, function (d) {
+        return d.id;
+      });
+      this.links.exit().remove();
+      this.links = this.links.enter()
+      .append('line')
+      .merge(this.links)
+      .attr('x1', function (d) {
+        return d.source.x + 75;
+      }).attr('y1', function (d) {
+        return d.source.y + 35;
+      }).attr('x2', function (d) {
+        // return d.target.x + 55;
+        return d.target.x - 10;
+      }).attr('y2', function (d) {
+        //return d.target.y + 35;
+        return d.target.y + 35;
+      })
+      .on("click", function (d) {
+        RiotControl.trigger('connection_current_set', d.source.component, d.target.component);
+      }.bind(this));
+
+    // Connect Before / After
+      this.subNode = this.svg.select("#roundLayer").selectAll("svg").data(graph.nodes, function (d) {
+        return d.id;
+      });
+      this.subNode.exit().remove();
+      this.subNode = this.subNode.enter().append("svg").merge(this.subNode).attr('x', function (d) {
+        return d.x - 30;
         }).attr('y', function (d) {
-          return d.y - 35;
-        }).attr("dy", ".35em")
-        .style('fill', 'grey')
-        .text(function(d) { return d.text; });
-
-
-        // Link
-        this.links = this.svg.select("#lineLayer").selectAll('line').data(graph.links, function (d) {
-          return d.id;
-        });
-        this.links.exit().remove();
-        this.links = this.links.enter()
-        .append('line')
-        .merge(this.links)
-        .attr('x1', function (d) {
-          return d.source.x + 75;
-        }).attr('y1', function (d) {
-          return d.source.y + 35;
-        }).attr('x2', function (d) {
-          // return d.target.x + 55;
-          return d.target.x - 10;
-        }).attr('y2', function (d) {
-          //return d.target.y + 35;
-          return d.target.y + 35;
-        })
-        .on("click", function (d) {
-          RiotControl.trigger('connection_current_set', d.source.component, d.target.component);
-        }.bind(this));
-
-        // Connect Before / After
-        this.subNode = this.svg.select("#roundLayer").selectAll("svg").data(graph.nodes, function (d) {
-          return d.id;
-        });
-        this.subNode.exit().remove();
-        this.subNode = this.subNode.enter().append("svg").merge(this.subNode).attr('x', function (d) {
-          return d.x - 30;
-          }).attr('y', function (d) {
-            return d.y - 30;
-          }).each(function (d) {
-            d3.select(this).selectAll("image").remove();
-            if(d.connectionsBefore){
-              d3.select(this).append("image").attr("xlink:href", function (d) {
-                return "./image/plus_disable.svg";
-                }).attr("width", function (d) {
-                  return 15;
-                }).attr("height", function (d) {
-                  return 15;
-                }).attr("x", function (d) {
-                  return 10;
-                }).attr("y", function (d) {
-                  return 55;
-                }).attr("class", function (d) {
-                  return 'connectBeforeButtonGraph';
-                }).attr("data-id", function (d) {
-                  return d.id;
-                })
-            }
-            if(d.connectionsAfter){
-              d3.select(this).append("image").attr("xlink:href", function (d) {
-                let image = "";
-                return "./image/plus_disable.svg";
-                }).attr("width", function (d) {
-                  return 15;
-                }).attr("height", function (d) {
-                  return 15;
-                }).attr("x", function (d) {
-                  return 100;
-                }).attr("y", function (d) {
-                  return 55;
-                }).attr("class", function (d) {
-                  return 'connectAfterButtonGraph';
-                }).attr("data-id", function (d) {
-                  return d.id;
-                })
-            }
-          })
-
-
-
-
-        let nodesWithStatus = sift({
-          status: {
-            $exists: true
+          return d.y - 30;
+        }).each(function (d) {
+          d3.select(this).selectAll("image").remove();
+          if(d.connectionsBefore){
+            d3.select(this).append("image").attr("xlink:href", function (d) {
+              return "./image/plus_disable.svg";
+              }).attr("width", function (d) {
+                return 15;
+              }).attr("height", function (d) {
+                return 15;
+              }).attr("x", function (d) {
+                return 10;
+              }).attr("y", function (d) {
+                return 55;
+              }).attr("class", function (d) {
+                return 'connectBeforeButtonGraph';
+              }).attr("data-id", function (d) {
+                return d.id;
+              })
           }
-        }, graph.nodes);
-        this.status = this.svg.select("#stateLayer").selectAll("circle").data(nodesWithStatus, function (d) {
-          return d.id;
-        });
-        this.status.exit().remove();
-        this.status = this.status.enter().append("circle").merge(this.status).attr("r", function (d) {
-          return 40;
-        }).attr('cx', function (d) {
-          return d.x + 35;
-        }).attr('class', function (d) {
-          return d.status;
-        }).attr('cy', function (d) {
-          return d.y + 35;
-        }).attr('data-id', function (d) {
-          return d.id;
-        }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
+          if(d.connectionsAfter){
+            d3.select(this).append("image").attr("xlink:href", function (d) {
+              let image = "";
+              return "./image/plus_disable.svg";
+              }).attr("width", function (d) {
+                return 15;
+              }).attr("height", function (d) {
+                return 15;
+              }).attr("x", function (d) {
+                return 100;
+              }).attr("y", function (d) {
+                return 55;
+              }).attr("class", function (d) {
+                return 'connectAfterButtonGraph';
+              }).attr("data-id", function (d) {
+                return d.id;
+              })
+          }
+        })
 
-        this.drawSelected();
-        this.tooltip = this.svg.select("#textLayer").classed("tooltipHide", true);
-        if(!this.initGraphDone){
-          this.initGraph();
+      // Status
+      let nodesWithStatus = sift({
+        status: {
+          $exists: true
         }
+      }, graph.nodes);
+      this.status = this.svg.select("#stateLayer").selectAll("circle").data(nodesWithStatus, function (d) {
+        return d.id;
+      });
+      this.status.exit().remove();
+      this.status = this.status.enter().append("circle").merge(this.status).attr("r", function (d) {
+        return 40;
+      }).attr('cx', function (d) {
+        return d.x + 35;
+      }).attr('class', function (d) {
+        return d.status;
+      }).attr('cy', function (d) {
+        return d.y + 35;
+      }).attr('data-id', function (d) {
+        return d.id;
+      }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
+
+      this.drawSelected();
+      this.tooltip = this.svg.select("#textLayer").classed("tooltipHide", true);
+      if(!this.initGraphDone){
+        this.initGraph();
       }
     }.bind(this)
     
@@ -639,15 +633,16 @@
         if(currentTransform && !isNaN(currentTransform.k)){
           this.graph.startPosition.x =  currentTransform.x
           this.graph.startPosition.y = currentTransform.y
+          this.graph.startPosition.k = currentTransform.k
           view.attr("transform", currentTransform);
           gX.call(xAxis.scale(d3.event.transform.rescaleX(xScale)));
           gY.call(yAxis.scale(d3.event.transform.rescaleY(yScale)));
         }
       }
+      if(!this.graph.startPosition)(this.graph.startPosition ={})
+      svg.call(zoom.transform, d3.zoomIdentity.translate(this.graph.startPosition.y || 0, this.graph.startPosition.x || 0).scale(this.graph.startPosition.k || 0.3))
       
-  
-      svg.transition().duration(500).call(zoom.scaleBy, 0.3);
-      svg.transition().duration(500).call(zoom.translateBy, this.graph.startPosition.x,    this.graph.startPosition.y);
+      //svg.transition().duration(500).call(zoom.translateBy, this.graph.startPosition.x, this.graph.startPosition.y);
       
       svg.call(zoom)
     }.bind(this)
