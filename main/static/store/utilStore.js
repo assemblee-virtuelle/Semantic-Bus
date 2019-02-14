@@ -30,6 +30,10 @@ function UtilStore (specificStoreList) {
           this.trigger('persist_end')
           window.location = '/ihm/application.html#myWorkspaces'
         }
+        if (error.status == 400) {
+          this.trigger('ajax_fail', 'Erreur lors de la suppression de l\'utilisateur: ' + error.responseJSON.message)
+          this.trigger('persist_end')
+        }
         if (error.status == 401) {
           window.location = '/auth/login.html'
         }

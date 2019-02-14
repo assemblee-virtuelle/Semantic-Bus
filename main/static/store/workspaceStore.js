@@ -1,5 +1,4 @@
 function WorkspaceStore (utilStore, stompClient, specificStoreList) {
-
   riot.observable(this)
   for (specificStore of specificStoreList) {
     specificStore.genericStore = this
@@ -164,155 +163,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   this.reloadWorkspace = function (entity, action) {
     this.action = action
     this.trigger('workspace_current_process_changed', this.processCollection)
-  }
-
-  // --------------------------------------------------------------------------------
-
-  this.unsubscribeToPreviousSubscription = function () {
-    [
-      this.subscription_workspace_current_move_component,
-      this.subscription_workspace_current_updateComponentField,
-      this.subscription_workspace_current_process_start,
-      this.subscription_workspace_current_process_end,
-      this.subscription_workspace_current_process_error,
-      this.subscription_workspace_current_process_progress,
-      this.subscription_workspace_current_process_persist,
-      this.subscription_workflow_processCleaned
-    ].forEach(component => {
-      if (component !== undefined && component !== null && typeof component.unsubscribe === 'function') {
-        component.unsubscribe()
-      }
-    })
-  }
-
-  // --------------------------------------------------------------------------------
-
-  this.subscribeToComponents = function (entity, action) {
-    this.action = action
-    this.subscription_workspace_current_move_component = this.stompClient.subscribe('/topic/workspace_current_move_component.' + this.workspaceCurrent._id, message => {
-      let body = JSON.parse(message.body)
-      if (body.token !== localStorage.token) {
-        let componentToUpdate = sift({
-          _id: body.componentId
-        }, this.workspaceCurrent.components)[0]
-        componentToUpdate.graphPositionX = body.x
-        componentToUpdate.graphPositionY = body.y
-        this.computeGraph()
-      }
-    })
-    this.subscription_workspace_current_updateComponentField = this.stompClient.subscribe('/topic/workspace_current_updateComponentField.' + this.workspaceCurrent._id, message => {
-      let body = JSON.parse(message.body)
-      if (body.token !== localStorage.token) {
-        let updatingComponent = sift({
-          _id: body.componentId
-        }, this.workspaceCurrent.components)[0]
-        utilStore.objectSetFieldValue(updatingComponent, body.field, body.data)
-        // this.itemCurrent.specificData[body.field] = body.data;
-        if (this.itemCurrent._id === updatingComponent._id) {
-          this.trigger('item_current_changed', updatingComponent)
-        }
-      }
-    })
-    this.subscription_workspace_current_process_start = this.stompClient.subscribe('/topic/process-start.' + this.workspaceCurrent._id, message => {
-      let body = JSON.parse(message.body)
-      if (body.error === undefined) {
-        let process = {
-          _id: body._id,
-          status: 'processing',
-          steps: body.steps,
-          timeStamp: body.timeStamp,
-          stepFinished: 0
-        }
-        this.processCollection.unshift(process)
-        if (body.callerId === localStorage.user_id) {
-          this.currentProcess = process
-          this.computeGraph()
-        }
-        this.trigger('workspace_current_process_changed', this.processCollection)
-      } else {
-        this.trigger('ajax_fail', body.error)
-      }
-    })
-    this.subscription_workspace_current_process_end = this.stompClient.subscribe('/topic/process-end.' + this.workspaceCurrent._id, message => {
-      let body = JSON.parse(message.body)
-      if (body.error === undefined) {
-        let targetProcess = sift({
-          _id: body._id
-        }, this.processCollection)[0]
-        if (targetProcess !== undefined) {
-          targetProcess.status = 'resolved'
-          this.trigger('workspace_current_process_changed', this.processCollection)
-        }
-      } else {
-        this.trigger('ajax_fail', body.error)
-      }
-    })
-    this.subscription_workspace_current_process_error = this.stompClient.subscribe('/topic/process-error.' + this.workspaceCurrent._id, message => {
-      let body = JSON.parse(message.body)
-      if (body.error === undefined) {
-        let targetProcess = sift({
-          _id: body._id
-        }, this.processCollection)[0]
-        if (targetProcess !== undefined) {
-          targetProcess.status = 'error'
-          this.trigger('workspace_current_process_changed', this.processCollection)
-        }
-      } else {
-        this.trigger('ajax_fail', body.error)
-      }
-    })
-    this.subscription_workspace_current_process_progress = this.stompClient.subscribe('/topic/process-progress.' + this.workspaceCurrent._id, message => {
-
-      let body = JSON.parse(message.body)
-
-      // if (body.error == undefined) {
-      let targetProcess = sift({
-        _id: body.processId
-      }, this.processCollection)[0]
-
-      if (targetProcess !== undefined) {
-        let targetStep = sift({
-          componentId: body.componentId
-        }, targetProcess.steps)[0]
-        if (targetStep !== undefined) {
-          if (body.error === undefined) {
-            targetStep.status = 'resolved'
-          } else {
-            targetStep.status = 'error'
-            //  targetProcess.status = 'error';
-          }
-        }
-        targetProcess.stepFinished = sift({
-          status: {
-            '$ne': 'waiting'
-          }
-        }, targetProcess.steps).length
-        this.trigger('workspace_current_process_changed', this.processCollection)
-        if (this.currentProcess && this.currentProcess._id === body.processId) {
-          this.computeGraph()
-        }
-      }
-      // } else {
-      //   this.trigger('ajax_fail', body.error);
-      // }
-    })
-    this.subscription_workflow_processCleaned = this.stompClient.subscribe('/topic/workflow-processCleaned.' + this.workspaceCurrent._id, message => {
-      let body = JSON.parse(message.body)
-      this.processCollection = sift({
-        _id: {
-          $in: body.cleanedProcesses.map(p => p._id)
-        }
-      },
-      this.processCollection
-      )
-      this.trigger('workspace_current_process_changed', this.processCollection)
-    })
-    this.subscription_workspace_current_process_persist = this.stompClient.subscribe('/topic/process-persist.' + this.workspaceCurrent._id, message => {
-      let body = JSON.parse(message.body)
-      if (this.currentProcess._id === body.processId && this.itemCurrent._id === body.componentId) {
-        this.trigger('item_current_process_persist_changed', body.data)
-      }
-    })
   }
 
   // --------------------------------------------------------------------------------
@@ -586,6 +436,26 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
         route('workspace/' + data.workspace._id + '/user')
       }
     }.bind(this))
+  })
+
+  // --------------------------------------------------------------------------------
+
+  this.on('delete-share-workspace', (data) => {
+    this.utilStore.ajaxCall({
+      method: 'delete',
+      url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/share',
+      data: JSON.stringify({
+        email: data.email
+      }),
+      headers: {
+        'Authorization': 'JTW' + ' ' + localStorage.token
+      },
+      contentType: 'application/json'
+    }).then((data) => {
+      this.workspaceCurrent.users = data.workspace.users
+      this.workspaceCurrent.mode = 'edit'
+      this.trigger('workspace_current_changed', this.workspaceCurrent)
+    })
   })
 
   // ----------------------------------------- EVENT  -----------------------------------------
@@ -1005,4 +875,152 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       token: localStorage.token
     }))
   })
+
+  // --------------------------------------------------------------------------------
+
+  this.subscribeToComponents = function (entity, action) {
+    this.action = action
+    this.subscription_workspace_current_move_component = this.stompClient.subscribe('/topic/workspace_current_move_component.' + this.workspaceCurrent._id, message => {
+      let body = JSON.parse(message.body)
+      if (body.token !== localStorage.token) {
+        let componentToUpdate = sift({
+          _id: body.componentId
+        }, this.workspaceCurrent.components)[0]
+        componentToUpdate.graphPositionX = body.x
+        componentToUpdate.graphPositionY = body.y
+        this.computeGraph()
+      }
+    })
+    this.subscription_workspace_current_updateComponentField = this.stompClient.subscribe('/topic/workspace_current_updateComponentField.' + this.workspaceCurrent._id, message => {
+      let body = JSON.parse(message.body)
+      if (body.token !== localStorage.token) {
+        let updatingComponent = sift({
+          _id: body.componentId
+        }, this.workspaceCurrent.components)[0]
+        utilStore.objectSetFieldValue(updatingComponent, body.field, body.data)
+        // this.itemCurrent.specificData[body.field] = body.data;
+        if (this.itemCurrent._id === updatingComponent._id) {
+          this.trigger('item_current_changed', updatingComponent)
+        }
+      }
+    })
+    this.subscription_workspace_current_process_start = this.stompClient.subscribe('/topic/process-start.' + this.workspaceCurrent._id, message => {
+      let body = JSON.parse(message.body)
+      if (body.error === undefined) {
+        let process = {
+          _id: body._id,
+          status: 'processing',
+          steps: body.steps,
+          timeStamp: body.timeStamp,
+          stepFinished: 0
+        }
+        this.processCollection.unshift(process)
+        if (body.callerId === localStorage.user_id) {
+          this.currentProcess = process
+          this.computeGraph()
+        }
+        this.trigger('workspace_current_process_changed', this.processCollection)
+      } else {
+        this.trigger('ajax_fail', body.error)
+      }
+    })
+    this.subscription_workspace_current_process_end = this.stompClient.subscribe('/topic/process-end.' + this.workspaceCurrent._id, message => {
+      let body = JSON.parse(message.body)
+      if (body.error === undefined) {
+        let targetProcess = sift({
+          _id: body._id
+        }, this.processCollection)[0]
+        if (targetProcess !== undefined) {
+          targetProcess.status = 'resolved'
+          this.trigger('workspace_current_process_changed', this.processCollection)
+        }
+      } else {
+        this.trigger('ajax_fail', body.error)
+      }
+    })
+    this.subscription_workspace_current_process_error = this.stompClient.subscribe('/topic/process-error.' + this.workspaceCurrent._id, message => {
+      let body = JSON.parse(message.body)
+      if (body.error === undefined) {
+        let targetProcess = sift({
+          _id: body._id
+        }, this.processCollection)[0]
+        if (targetProcess !== undefined) {
+          targetProcess.status = 'error'
+          this.trigger('workspace_current_process_changed', this.processCollection)
+        }
+      } else {
+        this.trigger('ajax_fail', body.error)
+      }
+    })
+    this.subscription_workspace_current_process_progress = this.stompClient.subscribe('/topic/process-progress.' + this.workspaceCurrent._id, message => {
+      let body = JSON.parse(message.body)
+
+      // if (body.error == undefined) {
+      let targetProcess = sift({
+        _id: body.processId
+      }, this.processCollection)[0]
+
+      if (targetProcess !== undefined) {
+        let targetStep = sift({
+          componentId: body.componentId
+        }, targetProcess.steps)[0]
+        if (targetStep !== undefined) {
+          if (body.error === undefined) {
+            targetStep.status = 'resolved'
+          } else {
+            targetStep.status = 'error'
+            //  targetProcess.status = 'error';
+          }
+        }
+        targetProcess.stepFinished = sift({
+          status: {
+            '$ne': 'waiting'
+          }
+        }, targetProcess.steps).length
+        this.trigger('workspace_current_process_changed', this.processCollection)
+        if (this.currentProcess && this.currentProcess._id === body.processId) {
+          this.computeGraph()
+        }
+      }
+      // } else {
+      //   this.trigger('ajax_fail', body.error);
+      // }
+    })
+    this.subscription_workflow_processCleaned = this.stompClient.subscribe('/topic/workflow-processCleaned.' + this.workspaceCurrent._id, message => {
+      let body = JSON.parse(message.body)
+      this.processCollection = sift({
+        _id: {
+          $in: body.cleanedProcesses.map(p => p._id)
+        }
+      },
+      this.processCollection
+      )
+      this.trigger('workspace_current_process_changed', this.processCollection)
+    })
+    this.subscription_workspace_current_process_persist = this.stompClient.subscribe('/topic/process-persist.' + this.workspaceCurrent._id, message => {
+      let body = JSON.parse(message.body)
+      if (this.currentProcess._id === body.processId && this.itemCurrent._id === body.componentId) {
+        this.trigger('item_current_process_persist_changed', body.data)
+      }
+    })
+  }
+
+  // --------------------------------------------------------------------------------
+
+  this.unsubscribeToPreviousSubscription = function () {
+    [
+      this.subscription_workspace_current_move_component,
+      this.subscription_workspace_current_updateComponentField,
+      this.subscription_workspace_current_process_start,
+      this.subscription_workspace_current_process_end,
+      this.subscription_workspace_current_process_error,
+      this.subscription_workspace_current_process_progress,
+      this.subscription_workspace_current_process_persist,
+      this.subscription_workflow_processCleaned
+    ].forEach(component => {
+      if (component !== undefined && component !== null && typeof component.unsubscribe === 'function') {
+        component.unsubscribe()
+      }
+    })
+  }
 }

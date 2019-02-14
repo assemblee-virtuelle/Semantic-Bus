@@ -123,7 +123,6 @@
       </div>
     </div>
   </div>
-
   <!-- Page consommation -->
   <div if={menu=='running' } class="containerV" style="flex-grow: 1;">
     <graph-of-use></graph-of-use>
@@ -148,6 +147,7 @@
     persistClick = function (e) {
       RiotControl.trigger('workspace_current_persist')
     }
+
     this.workspaceEditorMenuChanged = function (menu) {
       this.menu = menu;
       this.update();
@@ -174,6 +174,7 @@
       });
       //this.innerData.description = e.target.value;
     }
+
     limitHistoricFieldChange(e) {
       RiotControl.trigger('workspace_current_updateField', {
         field: 'limitHistoric',
@@ -189,6 +190,7 @@
       });
       //this.innerData.description = e.target.value;
     }
+
     limitHistoricFieldChange(e) {
       RiotControl.trigger('workspace_current_updateField', {
         field: 'limitHistoric',
@@ -210,12 +212,20 @@
       RiotControl.trigger('workspace_current_import', file);
     }
 
-    //script bouton ajouter un utilisateur
     showShareClick(e) {
       route('workspace/' + this.innerData._id + '/share');
     }
 
+    updateShareUser(data){
+      console.log(data)
+      RiotControl.trigger('delete-share-workspace',data);
+
+    }
+
     this.on('mount', function () {
+      //user delete
+      console.log("tag", this.tags.zentable)
+      this.tags.zentable.on('delRow',this.updateShareUser);
       RiotControl.on('store_persisteWorkspace', this.persistClick)
       RiotControl.on('workspace_current_changed', this.workspaceCurrentChanged);
       RiotControl.on('share_change', this.shareChange);

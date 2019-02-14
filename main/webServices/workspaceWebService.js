@@ -16,7 +16,7 @@ function contains (a, obj) {
     while (i--) {
       // console.log(a[i]);
       // console.log(obj._id);
-      if (a[i]._id === obj._id) {
+      if (a[i]._id == obj._id) {
         return true
       }
     }
@@ -380,6 +380,62 @@ module.exports = function (router, amqpClient) {
       next(e)
     })
   }) // <= delete_connexion
+
+  // --------------------------------------------------------------------------------
+
+  router.delete('/workspaces/:id/share', (req, res, next) => securityService.wrapperSecurity(req, res, next, 'owner'), function (req, res, next) {
+    var workspace_id = req.params.id
+
+    user_lib.get({
+      'credentials.email': req.body.email
+    }).then(function (user) {
+      if (user && UserIdFromToken(req) != user._id) {
+        user.workspaces = user.workspaces || []
+        if (contains(user.workspaces, {
+          _id: workspace_id
+        })) {
+          let newArray = []
+          user.workspaces.forEach((wp) => {
+            if (wp._id != workspace_id) {
+              newArray.push(wp)
+            }
+          })
+
+          user.workspaces = newArray
+
+          user_lib.update(user).then(function (updateUser) {
+            workspace_lib.getWorkspace(workspace_id).then(updatedWS => {
+              for (var c of updatedWS.components) {
+                if (technicalComponentDirectory[c.module] != null) {
+                  // console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
+                  c.graphIcon = technicalComponentDirectory[c.module].graphIcon
+                } else {
+                  c.graphIcon = 'default'
+                }
+                // console.log('-->',c);
+              }
+              res.send({
+                user: updateUser,
+                workspace: updatedWS
+              })
+            })
+          })
+        } else {
+          res.status(400).send({
+            success: false,
+            message: 'not_in_user'
+          })
+        }
+      } else {
+        res.status(400).send({
+          success: false,
+          message: 'no_delete_owner'
+        })
+      }
+    }).catch(e => {
+      next(e)
+    })
+  }) // <= delete_share/workspace
 
   // --------------------------------------------------------------------------------
 

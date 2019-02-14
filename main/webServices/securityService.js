@@ -23,7 +23,7 @@ const securityWorksapce = (req, role) => {
       if (role === 'owner') {
         isAuthorized =
           result.workspaces.filter((l) => l.workspace._id == workspaceId).length &&
-          result.workspaces.filter((l) => l.workspace._id == workspaceId).role === 'owner'
+          result.workspaces.filter((l) => l.workspace._id == workspaceId)[0].role == 'owner'
       } else {
         isAuthorized = result.workspaces.filter((l) => l.workspace._id == workspaceId).length > 0
       }
