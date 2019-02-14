@@ -1,14 +1,22 @@
 'use strict'
 
 var user_lib = require('../../core/lib/user_lib')
-
+const auth_lib_jwt = require('../../core/lib/auth_lib')
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
+function UserIdFromToken (req) {
 
-module.exports = function (router, stompClient) {
+  const token = req.body.token || req.query.token || req.headers['authorization']
+  token.split('')
+  let tokenAfter = token.substring(4, token.length)
+  const decodeToken = auth_lib_jwt.get_decoded_jwt(tokenAfter)
+  return decodeToken.iss
+}
+
+module.exports = function (router) {
   // ---------------------------------------  ALL USERS  -----------------------------------------
 
   router.get('/users', function (req, res, next) {
@@ -21,9 +29,9 @@ module.exports = function (router, stompClient) {
 
   // ---------------------------------------------------------------------------------
 
-  router.get('/users/:id', function (req, res, next) {
+  router.get('/me', function (req, res, next) {
     user_lib.getWithWorkspace(
-      req.params.id, 'owner'
+      UserIdFromToken(req), 'owner'
     ).then(function (result) {
       res.send(result)
     }).catch(e => {
@@ -33,9 +41,9 @@ module.exports = function (router, stompClient) {
 
   // ---------------------------------------------------------------------------------
 
-  router.get('/users/:id/workspaces', function (req, res, next) {
+  router.get('/users/:id/graph', function (req, res, next) {
     user_lib.userGraph(req.params.id).then(workspaceGraph => {
-      res.json({workspaceGraph})
+      res.json({ workspaceGraph })
     }).catch(e => {
       next(e)
     })

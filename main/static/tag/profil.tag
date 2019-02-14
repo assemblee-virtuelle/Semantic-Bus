@@ -26,7 +26,7 @@
         </div>
       </a>
       <!-- crédit -->
-      <a href="#profil//payement" class="commandButtonImage {selectedMenu:isScrennInHistory('#profil//payement')} containerV" style="flex-grow:1;flex-basis:30px;position:relative;">
+      <a href="#profil//payement" class="commandButtonImage containerV" style="flex-grow:1;flex-basis:30px;position:relative;">
         <img src="./image/menu/credit-card.png" style="" height="40px" width="40px">
         <p style="font-family: 'Open Sans', sans-serif;color:white;font-size:10px">Crédits</p>
         <!--condition -->
@@ -138,31 +138,29 @@
     this.payment_in_progress = false
     this.consultTransactionBoolean = false
     this.emailtext = "Renvoyer un email"
-    this.menu = 'running'
+    this.menu = 'edit'
 
-
-    /*déconnexion*/
     deconnexion(e) {
       RiotControl.trigger('deconnexion');
     }
 
     changeEmailInput(e) {
       this.profil.credentials.email = e.currentTarget.value;
-      console.log(this.profil.credentials.email);
     }
+
     changeJobInput(e) {
       this.profil.job = e.currentTarget.value;
-      console.log(this.profil.job);
     }
+
     changeSocietyInput(e) {
       this.profil.society = e.currentTarget.value;
-      console.log(this.profil.society);
     }
+
     changeNameInput(e) {
       this.profil.name = e.currentTarget.value;
     }
+
     updateUser(e) {
-      console.log(this.refs.email.value, this.profil.credentials.email)
       var regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g
       if (this.profil.credentials.email.match(regex)) {
         if (this.profil.credentials.email != this.refs.email.value) {
@@ -181,9 +179,11 @@
         this.resultEmail = "L'email n'est pas au bond format";
       }
     }
+
     sendbackmail(e) {
       RiotControl.trigger('send_back_email', {user: this.profil})
     }
+    
     RiotControl.on('email_send', function () {
       this.mailsend = true
       this.update()
@@ -213,12 +213,13 @@
       this.update();
     }.bind(this));
 
-    RiotControl.on('profil_loaded', function (data) {
+
+    this.userFromStorage = function(profil){
       this.profil = data;
       this.update()
-    }.bind(this))
+    }.bind(this);
 
-    this.profilMenuChanged = function (menu) {
+     this.profilMenuChanged = function (menu) {
       this.menu = menu;
       this.update();
     }.bind(this);
@@ -227,12 +228,11 @@
       this.menu = 'running'
       RiotControl.on('profil_menu_changed', this.profilMenuChanged);
       RiotControl.trigger('load_profil');
+      RiotControl.trigger('get_user_from_storage')
+      RiotControl.on('user_from_storage', this.userFromSTorage);
       this.googleId = localStorage.googleid
     })
 
-    this.on('unmount', function () {
-      RiotControl.off('profil_menu_changed', this.profilMenuChanged);
-    })
   </script>
   <style scoped="scoped">
     .title-profil {

@@ -132,7 +132,7 @@ function _get_connectBefore_connectAfter(filter) {
 
 // --------------------------------------------------------------------------------
 
-function _update(componentToUpdate) {
+function _update(id, componentToUpdate) {
   ////console.log('ALLLO',componentToUpdate);
   return new Promise((resolve, reject) => {
     if (config.quietLog != true) {

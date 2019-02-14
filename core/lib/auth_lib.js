@@ -228,7 +228,6 @@ class AuthLib {
   get_decoded_jwt(token) {
     try {
       const decodedToken = jwt.decode(token, config.secret);
-
       if (token.exp <= Date.now()) {
         return false;
       }

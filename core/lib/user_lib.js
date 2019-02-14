@@ -211,10 +211,9 @@ function _get(filter) {
   });
 } // <= _get
 
-function _getWithWorkspace(userID, role) {
+function _getWithWorkspace(userID) {
   return new Promise(function (resolve, reject) {
     try {
-      //console.log(userID);
       userModel.getInstance().model
         .findOne({
           _id: userID
@@ -225,22 +224,17 @@ function _getWithWorkspace(userID, role) {
         })
         .lean()
         .exec((error, data) => {
-          //console.log("_getWithWorkspace error",error,data);
-          //null wokspace protection
           data.workspaces = sift({
             _id: {
               $ne: null
             }
           }, data.workspaces);
-          //console.log(data.workspaces);
           data.workspaces = data.workspaces.map(r => {
             return {
               workspace: r._id,
               role: r.role
             };
           });
-          //  console.log(role);
-          //let workspaces=sift({role:role},data.workspaces).map(r=>r.workspace);
           resolve(data);
         });
     } catch (e) {
@@ -251,7 +245,6 @@ function _getWithWorkspace(userID, role) {
 } // <= _getWithWorkspace
 
 function _userGraph(userId) {
-  //console.log("LOADING USER1 bis")
   return new Promise(resolve => {
     historiqueModel.getInstance().model.aggregate(
       [{
@@ -276,7 +269,7 @@ function _userGraph(userId) {
           }
         }
       }],
-      (err, result) => {
+      (_err, result) => {
         if(result && result[0]){
           const c = {}
           const array = []
@@ -293,15 +286,18 @@ function _userGraph(userId) {
               c[histo.workflowId].id = histo.workflowId
             }
           })
-
           for (const workspaceId in c) {
             array.push(new Promise(resolve => {
               workspaceModel.getInstance().model.find({ _id: workspaceId })
                 .then((workspace) => {
-                  c[workspaceId].name = workspace[0].name
-                  c[workspaceId].componentNumber = workspace[0].components ? workspace[0].components.length : 0
-                  c[workspaceId].description = workspace[0].description
-                  resolve(c[workspaceId])
+                    if(c[workspaceId] && workspace[0]){
+                      c[workspaceId].name = workspace[0].name
+                      c[workspaceId].componentNumber = workspace[0].components ? workspace[0].components.length : 0
+                      c[workspaceId].description = workspace[0].description
+                      resolve(c[workspaceId])
+                    }else {
+                      resolve(c)
+                    }
                 });
             }))
           }

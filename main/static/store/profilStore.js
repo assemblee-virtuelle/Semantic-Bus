@@ -1,43 +1,23 @@
 function ProfilStore () {
   riot.observable(this) // Riot provides our event emitter.
   /// /LE USER STORE EST RELIE A LOGIN EST NON A APPLICATION
-  this.userCurrrent
-
   this.setUserCurrent = function (user) {
     this.userCurrrent = user
-    this.trigger('profil_loaded', this.userCurrrent)
   }
 
-  this.on('load_profil', function (message) {
-    // if (this.userCurrrent == undefined) {
-    $.ajax({
-      method: 'get',
-      url: '../data/core/users/' + localStorage.user_id,
-      headers: {
-        'Authorization': 'JTW' + ' ' + localStorage.token
-      },
-      contentType: 'application/json'
-    }).done(function (data) {
-      this.setUserCurrent(data)
-      console.log('LOAD PROFIL', data)
-    }.bind(this))
-    // } else {
-    //   this.setUserCurrent(this.userCurrrent);
-    // }
-    this.trigger('profil_menu_changed', this.menu)
+  this.on('get_user_from_storage', () => {
+    this.trigger('user_from_storage', this.userCurrrent)
   })
 
   this.on('load_user_workspace_graph', () => {
     $.ajax({
       method: 'get',
-      url: '../data/core/users/' + localStorage.user_id + '/workspaces',
+      url: '../data/core/users/' + localStorage.user_id + '/graph',
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
       },
       contentType: 'application/json'
-    }).done(data =>{
-      console.log('AJAX DONE',data);
-      this.trigger('profil_menu_changed', this.menu)
+    }).done(data => {
       this.trigger('load_user_workspace_graph_done', data.workspaceGraph)
     })
   })
@@ -111,7 +91,8 @@ function ProfilStore () {
   })
 
   this.on('navigation', function (entity, id, action) {
-    if (entity == 'profil') {
+    console.log("navigation start")
+    if (entity === 'profil') {
       this.menu = action
       this.trigger('navigation_control_done', entity, action)
     }

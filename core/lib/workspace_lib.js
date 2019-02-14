@@ -1,14 +1,11 @@
 "use strict";
 
-var user_lib = require("./user_lib");
-var workspace_component_lib = require("./workspace_component_lib");
 var fragment_lib = require('./fragment_lib.js');
 var workspaceModel = require("../models/workspace_model");
 var userModel = require("../models/user_model");
 var workspaceComponentModel = require("../models/workspace_component_model");
 var config = require("../../main/configuration.js");
 var historiqueEndModel = require("../models/historiqueEnd_model");
-var historiqueStartModel = require("../models/historiqueStart_model");
 var processModel = require("../models/process_model");
 var mongoose = require("mongoose");
 var sift = require("sift");
@@ -26,6 +23,7 @@ module.exports = {
   updateSimple: _update_simple,
   getAll: _get_all,
   getWorkspace: _get_workspace,
+  get_workspace_simple: _get_workspace_simple,
   get_workspace_graph_data: _get_workspace_graph_data,
   // createHistoriqueStart: _createHistoriqueStart,
   createHistoriqueEnd: _createHistoriqueEnd,
@@ -41,31 +39,6 @@ module.exports = {
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
-
-const decimalAdjust = function(type, value, exp) {
-  // Si la valeur de exp n'est pas définie ou vaut zéro...
-  if (typeof exp === "undefined" || +exp === 0) {
-    return Math[type](value);
-  }
-  value = +value;
-  exp = +exp;
-  // Si la valeur n'est pas un nombre ou si exp n'est pas un entier...
-  if (isNaN(value) || !(typeof exp === "number" && exp % 1 === 0)) {
-    return NaN;
-  }
-  // Si la valeur est négative
-  if (value < 0) {
-    return this.decimalAdjust(type, -value, exp);
-  }
-
-  // Décalage
-  value = value.toString().split("e");
-  value = Math[type](+(value[0] + "e" + (value[1] ? +value[1] - exp : -exp)));
-  // Décalage inversé
-  value = value.toString().split("e");
-  return +(value[0] + "e" + (value[1] ? +value[1] + exp : exp));
-};
-
 
 function _createHistoriqueEnd(historique) {
   return new Promise((resolve, reject) => {
@@ -268,7 +241,6 @@ function _get_process_byWorkflow(workflowId) {
   })
 }
 
-
 // --------------------------------------------------------------------------------
 
 function _update_simple(workspaceupdate) {
@@ -334,6 +306,7 @@ function _create(userId, workspaceData) {
 // --------------------------------------------------------------------------------
 
 function _destroy(userId, workspaceId) {
+  console.log(userId, workspaceId)
   if (config.quietLog != true) {
   }
   return new Promise(function(resolve, reject) {
@@ -342,7 +315,7 @@ function _destroy(userId, workspaceId) {
       }, {
         $pull: {
           workspaces: {
-            _id: mongoose.Types.ObjectId(workspaceId)
+            _id: workspaceId
           }
         }
       },
@@ -397,7 +370,6 @@ function _destroy(userId, workspaceId) {
 // --------------------------------------------------------------------------------
 
 function _get_all(userID, role) {
-  var workspaces_owner = [];
   return new Promise(function(resolve, reject) {
     userModel.getInstance().model
       .findOne({
@@ -408,7 +380,7 @@ function _get_all(userID, role) {
         select: "name description"
       })
       .lean()
-      .exec((error, data) => {
+      .exec((_error, data) => {
 
         data.workspaces = sift({
             _id: {
@@ -431,7 +403,7 @@ function _get_all(userID, role) {
         resolve(workspaces);
       });
   });
-} // <= _get_all_owner
+} // <= _get_all_by_role
 
 // --------------------------------------------------------------------------------
 
@@ -482,10 +454,24 @@ function _update_mainprocess(preData) {
 } // <= _update_mainprocess
 
 // --------------------------------------------------------------------------------
+function _get_workspace_simple(workspace_id) {
+  return new Promise(function(resolve, reject) {
+    let workspace;
+    workspaceModel.getInstance().model.findOne({
+        _id: workspace_id
+      })
+      .then((workspaceIn) => {
+        workspace = workspaceIn;
+        console.log(workspace)
+        resolve(workspace);
+      })
+      .catch(e => {
+        reject(e);
+      })
+  });
+} // <= _get_workspace
 
 function _get_workspace(workspace_id) {
-  if (config.quietLog != true) {
-  }
   return new Promise(function(resolve, reject) {
     let workspace;
     workspaceModel.getInstance().model.findOne({
@@ -511,11 +497,7 @@ function _get_workspace(workspace_id) {
           c.specificData = c.specificData || {};
           return c;
         });
-        // for (let comp of workspace.components) {
-        //   if(comp.specificData.transformObject!=undefined && comp.specificData.transformObject.desc!=undefined){
-        //   }
-        // }
-        //protection against link but not component
+
         let componentsId = workspace.components.map(c => c._id);
         workspace.links = sift({
           $and: [{
@@ -555,9 +537,10 @@ function _get_workspace(workspace_id) {
         reject(e);
       })
   });
-} // <= _get_workspace_component
+} // <= _get_workspace
 
 // --------------------------------------------------------------------------------
+
 function _get_workspace_graph_data(workspaceId) {
   return new Promise((resolve, reject) => {
     historiqueEndModel.getInstance().model.aggregate(
@@ -600,6 +583,8 @@ function _get_workspace_graph_data(workspaceId) {
   });
 } // <= _get_workspace_graph_data
 
+// --------------------------------------------------------------------------------
+
 function _addConnection(workspaceId, source, target) {
   return new Promise((resolve, reject) => {
     workspaceModel.getInstance().model.findOne({
@@ -626,7 +611,9 @@ function _addConnection(workspaceId, source, target) {
       reject(e);
     })
   })
-}
+}// <= _addConnection
+
+// --------------------------------------------------------------------------------
 
 function _removeConnection(workspaceId, linkId) {
   return new Promise((resolve, reject) => {
@@ -659,5 +646,5 @@ function _removeConnection(workspaceId, linkId) {
       reject(e);
     });
   })
-}
+}// <= _removeConnection
 // --------------------------------------------------------------------------------

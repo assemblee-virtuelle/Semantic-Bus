@@ -246,7 +246,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   this.loadProcesses = function (id) {
     this.utilStore.ajaxCall({
       method: 'get',
-      url: '../data/core/processByWorkflow/' + id
+      url: '../data/core/workspaces/' + id + '/process'
     }, true)
       .then(data => {
         this.processCollection = data
@@ -291,9 +291,8 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     return new Promise((resolve, reject) => {
       this.utilStore.ajaxCall({
         method: 'get',
-        url: '../data/core/workspaceByUser/' + localStorage.user_id
+        url: '../data/core/workspaces/owner'
       }, true).then(data => {
-        console.log('load workspace', data)
         this.workspaceCollection = data
         resolve(this.workspaceCollection)
       }).catch(error => {
@@ -310,7 +309,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     return new Promise((resolve, reject) => {
       this.utilStore.ajaxCall({
         method: 'get',
-        url: '../data/core/workspaces/share/' + localStorage.user_id
+        url: '../data/core/workspaces/shared'
       }, true).then(data => {
         // console.log('load workspace', data);
         this.workspaceShareCollection = data
@@ -329,15 +328,14 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     return new Promise((resolve, reject) => {
       this.utilStore.ajaxCall({
         method: 'post',
-        url: '../data/core/workspace/' + localStorage.user_id,
-        data: JSON.stringify(this.workspaceCurrent)
+        url: '../data/core/workspaces/',
+        data: JSON.stringify({ workspace: this.workspaceCurrent, userId: localStorage.user_id })
       }, true).then(data => {
         this.globalWorkspaceCollection.push({
           role: 'owner',
           workspace: data
         })
         this.setGlobalWorkspaceCollection(this.globalWorkspaceCollection)
-        // this.workspaceBusiness.connectWorkspaceComponent(data.components);
         this.workspaceCurrent = data
         this.workspaceCurrent.mode = 'edit'
         resolve(this.workspaceCurrent)
@@ -357,7 +355,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       this.trigger('persist_start')
       $.ajax({
         method: 'put',
-        url: '../data/core/workspace',
+        url: '../data/core/workspaces',
         data: ajax_data,
         contentType: 'application/json',
         headers: {
@@ -379,31 +377,13 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     })
   } // <= update
 
-  this.updateList = function (data) {
-    console.log('data update', data)
-    return new Promise((resolve, reject) => {
-      var ajax_data = JSON.stringify(data)
-      $.ajax({
-        method: 'put',
-        url: '../data/core/workspacerowId',
-        data: ajax_data,
-        contentType: 'application/json',
-        headers: {
-          'Authorization': 'JTW' + ' ' + localStorage.token
-        }
-      }).done(function (data) {
-        console.log('update done', data)
-      })
-    })
-  } // <= updateList
-
   // --------------------------------------------------------------------------------
 
   this.delete = function (record) {
     this.trigger('persist_start')
     $.ajax({
       method: 'delete',
-      url: '../data/core/workspace/' + record._id + '/' + localStorage.user_id,
+      url: '../data/core/workspaces/' + record._id + '-' + localStorage.user_id,
       contentType: 'application/json',
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
@@ -422,32 +402,10 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
   // --------------------------------------------------------------------------------
 
-  this.updateUserListe = function (data) {
-    console.log('updateUserListe', data)
-    $.ajax({
-      method: 'get',
-      url: '../data/core/workspaces/' + data._id + '/user/' + localStorage.user_id,
-      headers: {
-        'Authorization': 'JTW' + ' ' + localStorage.token
-      },
-      contentType: 'application/json'
-    }).done(function (data) {
-      console.log('updateUserListeDone', data)
-      if (data != false) {
-        this.trigger('all_profil_by_workspace_loaded', data)
-      } else {
-        this.trigger('no_profil')
-      }
-    }.bind(this))
-  } // <= updateUserListe
-
-  // --------------------------------------------------------------------------------
-
   this.on('load_workspace_graph', function (data) {
-    // console.log(localStorage.user_id);
     $.ajax({
       method: 'get',
-      url: '../data/core/workspace/' + data._id + '/graph',
+      url: '../data/core/workspaces/' + data._id + '/graph',
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
       },
@@ -463,10 +421,8 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     return new Promise((resolve, reject) => {
       this.utilStore.ajaxCall({
         method: 'get',
-        url: '../data/core/workspace/' + record._id
+        url: '../data/core/workspaces/' + record._id
       }, true).then(data => {
-        // console.log(data);
-        // this.workspaceBusiness.connectWorkspaceComponent(data.components);
         this.workspaceCurrent = data
         this.workspaceCurrent.mode = 'edit'
         this.menu = 'component'
@@ -479,7 +435,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
   this.computeGraph = function (viewBox) {
     let componentsId = this.workspaceCurrent.components.map(c => c._id)
-    console.log(this.workspaceCurrent)
     this.workspaceCurrent.links = sift({
       $and: [{
         source: {
@@ -514,37 +469,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     this.graph.workspace = this.workspaceCurrent
     this.graph.x = (window.screen.height + (0.2 * window.screen.height)) / 2
     this.graph.y = (window.screen.height - (0.1 * window.screen.height)) / 2
-    var inputs = 0
-    var outputs = 0
-    var middles = 0
-
-    // determine le nombre d inputs et d outputs
-
-    // for (let record of this.workspaceCurrent.components) {
-    //   let connectionsBefore = sift({
-    //     target: record._id
-    //   }, this.workspaceCurrent.links)
-
-    //   let connectionsAfter = sift({
-    //     source: record._id
-    //   }, this.workspaceCurrent.links)
-
-    //   if (connectionsBefore.length === 0 && record.graphPositionX === undefined && record.graphPositionY === undefined) {
-    //     inputs++
-    //   } else if (connectionsAfter.length === 0 && record.graphPositionX === undefined && record.graphPositionY === undefined) {
-    //     outputs++
-    //   } else if (record.graphPositionX === undefined && record.graphPositionY === undefined) {
-    //     middles++
-    //   }
-    // }
-
-    var inputsOffset = this.viewBox.height.baseVal.value / (inputs + 1)
-    var outputsOffset = this.viewBox.height.baseVal.value / (outputs + 1)
-    var middlesOffset = this.viewBox.height.baseVal.value / (middles + 1)
-
-    var inputCurrentOffset = inputsOffset
-    var outputCurrentOffset = outputsOffset
-    var middleCurrentOffset = middlesOffset
 
     let CompteConnexion = {}
     for (let record of this.workspaceCurrent.components) {
@@ -564,8 +488,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       CompteConnexion[record._id].connectionsBefore = connectionsBefore.length
       CompteConnexion[record._id].connectionsAfter = connectionsAfter.length
 
-      if (this.currentProcess != undefined) {
-        // console.log('Status SET',record._id,this.currentProcess.steps);
+      if (this.currentProcess !== undefined) {
         let step = sift({
           componentId: record._id
         }, this.currentProcess.steps)[0]
@@ -577,17 +500,12 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
         // si rien n est connecte avant
         node.x = 30
         node.y = 0
-        inputCurrentOffset += inputsOffset
       } else if (connectionsAfter.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) {
         node.x = 0
         node.y = 0
-        outputCurrentOffset += outputsOffset
       } else { // tous ceux du milieu
         node.x = record.graphPositionX || 0
         node.y = record.graphPositionY || 0
-        if (record.graphPositionY === undefined) {
-          middleCurrentOffset += middlesOffset
-        }
         node.connectionsBefore = connectionsBefore.length
         node.connectionsAfter = connectionsAfter.length
       }
@@ -600,22 +518,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
       this.graph.nodes.push(node)
     }
-    // console.log(this.graph.nodes)
-    // if (this.graph && !this.graph.startPosition) {
-    //   if (this.graph.nodes.length > 0) {
-    //     let x = this.graph.x / this.graph.nodes.length
-    //     let y = this.graph.y / this.graph.nodes.length
-    //     let middle = { x, y }
-    //     this.graph.startPosition = middle
-    //   } else {
-    //     let x = 100
-    //     let y = 100
-    //     this.graph.startPosition = { x, y }
-    //   }
-    // } else {
-    //   console.log('START', this.graph)
-    // }
-
     for (let link of this.workspaceCurrent.links) {
       let id = link._id
       this.graph.links.push({
@@ -777,7 +679,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       let newWorkflow = JSON.parse(e.target.result)
       this.utilStore.ajaxCall({
         method: 'post',
-        url: '../data/core/workspace/' + this.workspaceCurrent._id + '/import',
+        url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/import',
         data: JSON.stringify(newWorkflow)
       }, true).then((updatedWorkspace) => {
         this.workspaceCurrent = updatedWorkspace
@@ -858,7 +760,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   this.on('workspace_current_add_components', function () {
     this.utilStore.ajaxCall({
       method: 'post',
-      url: '../data/core/workspace/' + this.workspaceCurrent._id + '/addComponents',
+      url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/component',
       data: JSON.stringify(this.componentSelectedToAdd.map((c) => {
         return this.workspaceBusiness.serialiseWorkspaceComponent(c)
       }))
@@ -873,7 +775,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   this.on('workspace_current_delete_component', function (record) {
     this.utilStore.ajaxCall({
       method: 'delete',
-      url: '../data/core/workspaceComponent/' + record._id,
+      url: '../data/core/workspaces/' + record.workspaceId + '/components',
       data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(record))
     }, true).then(data => {
       sift({
@@ -909,31 +811,22 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   })
 
   this.on('share-workspace', function (data) {
-    console.log('share-workspace |', data, localStorage.token)
     $.ajax({
       method: 'put',
-      url: '../data/core/share/workspace',
+      url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/share',
       data: JSON.stringify({
-        email: this.emailToShare,
-        worksapce_id: this.workspaceCurrent._id
+        email: this.emailToShare
       }),
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
       },
-      // beforeSend: function() {
-      //   this.trigger('share_change_send');
-      // }.bind(this),
       contentType: 'application/json'
     }).done(function (data) {
-      console.log('in share data', data)
       if (data == false) {
         this.trigger('share_change_no_valide')
       } else if (data == 'already') {
         this.trigger('share_change_already')
       } else {
-        // this.userCurrrent = data,
-        console.log('share-workspace', data)
-        // this.workspaceBusiness.connectWorkspaceComponent(data.workspace.components);
         this.workspaceCurrent = data.workspace
         this.workspaceCurrent.mode = 'edit'
         this.trigger('share_change', {
@@ -982,9 +875,8 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   this.on('connect_components', function (source, target) {
     this.utilStore.ajaxCall({
       method: 'post',
-      url: '../data/core/workspaceComponent/connection',
+      url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/components/connection',
       data: JSON.stringify({
-        workspaceId: this.workspaceCurrent._id,
         source: source._id,
         target: target._id
       })
@@ -1001,12 +893,10 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   })
 
   this.on('disconnect_components', function (link) {
-    console.log("disconnect component", link)
     this.utilStore.ajaxCall({
       method: 'delete',
-      url: '../data/core/workspaceComponent/connection',
+      url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/components/connection',
       data: JSON.stringify({
-        workspaceId: this.workspaceCurrent._id,
         linkId: link.id
       })
     }, true).then(links => {
@@ -1021,12 +911,10 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   this.on('item_persist', function (item) {
     this.utilStore.ajaxCall({
       method: 'put',
-      url: '../data/core/workspaceComponent',
+      url: '../data/core/workspaces/' + item.workspaceId + '/components',
       data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(item))
     }, true).then(data => {
       item = data
-      console.log("item persiste", item)
-      // this.workspaceBusiness.connectWorkspaceComponent(this.workspaceCurrent.components);
       this.trigger('workspace_current_changed', this.workspaceCurrent)
       if (this.viewBox) {
         this.computeGraph()
@@ -1088,7 +976,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   this.on('component_preview', () => {
     this.utilStore.ajaxCall({
       method: 'get',
-      url: '../data/core/componentData/' + this.itemCurrent._id + '/' + this.currentProcess._id
+      url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/components/' + this.itemCurrent._id + '/process' + this.currentProcess._id
     }, true).then(data => {
       this.currentPreview = data
       this.trigger('process_result', this.currentPreview)
