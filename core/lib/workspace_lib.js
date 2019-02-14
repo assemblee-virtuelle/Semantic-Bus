@@ -25,7 +25,6 @@ module.exports = {
   getWorkspace: _get_workspace,
   get_workspace_simple: _get_workspace_simple,
   get_workspace_graph_data: _get_workspace_graph_data,
-  // createHistoriqueStart: _createHistoriqueStart,
   createHistoriqueEnd: _createHistoriqueEnd,
   addDataHistoriqueEnd: _addDataHistoriqueEnd,
   createProcess: _createProcess,
@@ -65,6 +64,8 @@ function _createHistoriqueEnd(historique) {
   });
 } // <= _createHistoriqueEnd
 
+// --------------------------------------------------------------------------------
+
 function _addDataHistoriqueEnd(historicId, data) {
   return new Promise((resolve, reject) => {
       let frag;
@@ -89,6 +90,8 @@ function _addDataHistoriqueEnd(historicId, data) {
   });
 }
 
+// --------------------------------------------------------------------------------
+
 function _createProcess(process) {
   var processModelObject = processModel.getInstance().model({
     workflowId: process.workflowId,
@@ -110,6 +113,7 @@ function _createProcess(process) {
   });
 } // <= _createHistoriqueEnd
 
+// --------------------------------------------------------------------------------
 
 function _cleanOldProcess(workflow) {
   return new Promise((resolve, reject) => {
@@ -164,6 +168,8 @@ function _cleanOldProcess(workflow) {
   })
 }
 
+// --------------------------------------------------------------------------------
+
 function _get_process_result(processId) {
   return new Promise((resolve, reject) => {
     historiqueEndModel.getInstance().model.find({
@@ -179,6 +185,8 @@ function _get_process_result(processId) {
       })
   })
 }
+
+// --------------------------------------------------------------------------------
 
 function _get_process_byWorkflow(workflowId) {
   return new Promise((resolve, reject) => {
@@ -467,6 +475,8 @@ function _get_workspace_simple(workspace_id) {
       })
   });
 } // <= _get_workspace
+
+// --------------------------------------------------------------------------------
 
 function _get_workspace(workspace_id) {
   return new Promise(function(resolve, reject) {

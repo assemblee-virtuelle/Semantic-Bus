@@ -88,6 +88,7 @@ function _get_all(filter) {
   })
 } // <= _get_all
 
+// --------------------------------------------------------------------------------
 
 function _get_all_withConsomation(filter) {
   return new Promise(function(resolve, reject) {
@@ -108,7 +109,6 @@ function _get_all_withConsomation(filter) {
 
 
 // --------------------------------------------------------------------------------
-
 
 
 function _get_connectBefore_connectAfter(filter) {
@@ -169,6 +169,8 @@ function _update(id, componentToUpdate) {
   });
 
 } // <= _update
+
+// --------------------------------------------------------------------------------
 
 function _remove(componentToDelete) {
   return new Promise((resolve, reject) => {

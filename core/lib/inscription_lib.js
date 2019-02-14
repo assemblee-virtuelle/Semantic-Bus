@@ -32,7 +32,6 @@ function authenticationPromise(user) {
   });
 }
 
-
 function _create(user_infos) {
   //console.log("---- user lib connection ---", user_infos)
   return new Promise(function (resolve, reject) {
@@ -47,7 +46,6 @@ function _create(user_infos) {
           user: user_infos
         })
       }).catch(function (err) {
-        console.log("IN ERROR", err)
         reject(err)
       })
     }
