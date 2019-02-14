@@ -306,9 +306,6 @@ function _create(userId, workspaceData) {
 // --------------------------------------------------------------------------------
 
 function _destroy(userId, workspaceId) {
-  console.log(userId, workspaceId)
-  if (config.quietLog != true) {
-  }
   return new Promise(function(resolve, reject) {
     userModel.getInstance().model.findByIdAndUpdate({
         _id: userId
@@ -569,14 +566,11 @@ function _get_workspace_graph_data(workspaceId) {
       ],
       function(err, result) {
         if (err) {
+          reject(err)
         } else {
-          if(result && result.length === 0){
-            resolve(null);
-          }else {
-            graphTraitement.formatDataWorkspaceGraph(result).then(resultat => {
-              resolve(resultat);
-            });
-          }
+          graphTraitement.formatDataWorkspaceGraph(result).then(resultat => {
+            resolve(resultat);
+          });
         }
       }
     );

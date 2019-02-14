@@ -30,9 +30,6 @@ class AuthLib {
   create(bodyParams) {
     return this._is_google_user(bodyParams.authentication).then((boolean) => {
       if (boolean == true) {
-        if (config.quietLog != true) {
-          //console.log("google user");
-        }
         return Promise.reject("google_user");
       } else {
         return this._create_preprocess(bodyParams.authentication);
@@ -103,13 +100,14 @@ class AuthLib {
    * @private
    */
   _create_mainprocess(user, authenticationParams) {
+
     const payload = {
       exp: moment().add(14, 'days').unix(),
       iat: moment().unix(),
       iss: user._id,
       subject: user.googleid,
-
     }
+    
     console.log("in authentification", config)
     const token = jwt.encode(payload, config.secret);
 
@@ -148,7 +146,6 @@ class AuthLib {
       failureRedirect: '/login.html',
       session: false
     }), (req, res) => {
-      //console.log('final request',req);
       res.redirect(redirect_url + res.req.user.googleToken);
     });
   }
@@ -160,10 +157,6 @@ class AuthLib {
    */
   google_auth_statefull_verification(router) {
     router.post('/google_auth_statefull_verification', (req, res) => {
-      if (config.quietLog != true) {
-        //console.log("in callback")
-        //console.log(req.body)
-      }
       if (req.body.token != null) {
         userModel.getInstance().model
           .findOne({
@@ -189,20 +182,19 @@ class AuthLib {
                 subject: user.googleid,
               }
               const token = jwt.encode(payload, config.secret);
-              if (config.quietLog != true) {
-                //console.log("--- token user ---", token)
-              }
+
               res.send({
                 user: user_update,
                 token: token
               });
             });
           })
-          .catch(() => res.send("create account please"))
+          .catch(() => res.sendStatus('401'))
+      } else {
+        res.sendStatus('401');
       }
     })
   }
-
 
   // <-------------------------------------------  Security  ------------------------------------------->
 
@@ -228,9 +220,6 @@ class AuthLib {
   get_decoded_jwt(token) {
     try {
       const decodedToken = jwt.decode(token, config.secret);
-      if (token.exp <= Date.now()) {
-        return false;
-      }
       return decodedToken;
     } catch (err) {
       return false;
@@ -273,26 +262,27 @@ class AuthLib {
    */
   security_API(req, res, next) {
     const token = req.body.token || req.query.token || req.headers['authorization']
-    if (token != undefined) {
-      token.split("");
-      const decodedToken = jwt.decode(token.substring(4, token.length), config.secret);
-      if (decodedToken.iss == null) {
-        res.json({
-          success: false,
-          message: 'Failed to authenticate token.'
-        });
-      } else {
-        req.decoded = decodedToken;
-        next();
-      }
+    let decodedToken;
+    if (!token) {
+      res.statusMessage = 'Unauthorized: Token not found';
+      res.sendStatus('401').end();
     } else {
-      if (config.quietLog != true) {
-        //console.log('No token provided');
+      try {
+        token.split("");
+        decodedToken = jwt.decode(token.substring(4, token.length), config.secret);
+        if (!decodedToken.iss || new Date(decodedToken.exp*1000) < Date.now()) {
+          res.statusMessage = 'Unauthorized : Token is either invalid or expired';
+          res.sendStatus('401');
+        } else {
+          next()
+        }
+      } catch(e) {
+        res.statusMessage = 'Unauthorized: Invalid token';
+        res.sendStatus('401');
+        return;
       }
-      return res.status(403).send({
-        success: false,
-        message: 'No token provided'
-      });
+      
+
     }
   }
 }

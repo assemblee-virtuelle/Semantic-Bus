@@ -142,7 +142,6 @@
           return d.id;
         }).on("click", function (d) {
           route(`workspace/${d.component.workspaceId}/component/${d.component._id}`);
-          //RiotControl.trigger('component_current_select', d.component);
         });
 
         d3.select(this).append("image").attr("xlink:href", function (d) {
@@ -636,7 +635,7 @@
         }
       }
       if(!this.graph.startPosition)(this.graph.startPosition ={})
-      svg.call(zoom.transform, d3.zoomIdentity.translate(this.graph.startPosition.y || 0, this.graph.startPosition.x || 0).scale(this.graph.startPosition.k || 0.3))
+      svg.call(zoom.transform, d3.zoomIdentity.translate(this.graph.startPosition.y || 0, this.graph.startPosition.x || 0).scale(this.graph.startPosition.k || 0.5))
       svg.call(zoom)
     }.bind(this)
 

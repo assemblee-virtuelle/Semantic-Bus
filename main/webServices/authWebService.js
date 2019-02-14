@@ -208,26 +208,6 @@ module.exports = function (router, stompClient) {
     })
   }) // <-- passwordforget
 
-  // -------------------------------------------------------------------------------
-
-  router.post('/isTokenValid', function (req, res) {
-    // console.log(this);
-    if (req.body.token) {
-      // console.log("isTokenValid",req.body.token);
-      securityService.require_token(req.body.token).then(function (token_result) {
-        // console.log('isTokenValid',token_result);
-        if (token_result != false) {
-          user_lib.getWithWorkspace(token_result.iss).then(u => {
-            token_result.profil = u
-            res.send(token_result)
-          })
-        }
-      }).catch((err) => {
-        res.send(false)
-      })
-    }
-  }) // <= isTokenValid
-
   // --------------------------------------------------------------------------------
 
   router.post('/inscription', function (req, res) {

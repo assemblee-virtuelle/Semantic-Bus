@@ -67,7 +67,7 @@ module.exports = function (router, amqpClient) {
 
   // Get workspaces
 
-  router.get('/workspaces/owner', function (req, res, next) {
+  router.get('/workspaces/me/owner', function (req, res, next) {
     workspace_lib.getAll(UserIdFromToken(req), 'owner').then(function (workspaces) {
       res.json(workspaces)
     }).catch(e => {
@@ -77,7 +77,7 @@ module.exports = function (router, amqpClient) {
 
   // ---------------------------------------------------------------------------------
 
-  router.get('/workspaces/shared', function (req, res, next) {
+  router.get('/workspaces/me/shared', function (req, res, next) {
     workspace_lib.getAll(UserIdFromToken(req), 'editor').then(function (workspaces) {
       res.json(workspaces)
     }).catch(e => {
@@ -212,7 +212,7 @@ module.exports = function (router, amqpClient) {
 
   // ---------------------------------------------------------------------------------
 
-  router.put('/workspaces', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+  router.put('/workspaces/:id', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
     if (req.body != null) {
       workspace_lib.update(req.body).then(workspaceUpdate => {
         for (var c of workspaceUpdate.components) {
@@ -329,7 +329,7 @@ module.exports = function (router, amqpClient) {
 
   router.post('/workspaces/', function (req, res, next) {
     let workspaceBody = req.body.workspace
-    let userIdBody = req.body.userId
+    let userIdBody = UserIdFromToken(req)
 
     if (workspaceBody.components) {
       // dans le cas ou il n'y a pas de save à la création : save du WS et des comp
@@ -383,8 +383,8 @@ module.exports = function (router, amqpClient) {
 
   // --------------------------------------------------------------------------------
 
-  router.delete('/workspaces/:id-:userId', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
-    workspace_lib.destroy(req.params.userId, req.params.id).then(function (workspace) {
+  router.delete('/workspaces/:id', (req, res, next) => securityService.wrapperSecurity(req, res, next, 'owner'), function (req, res, next) {
+    workspace_lib.destroy(UserIdFromToken(req), req.params.id).then(function (workspace) {
       res.json(workspace)
     }).catch(e => {
       next(e)

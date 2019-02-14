@@ -139,6 +139,11 @@
     this.consultTransactionBoolean = false
     this.emailtext = "Renvoyer un email"
     this.menu = 'edit'
+    this.profil = {
+      credentials : {
+        email: '',
+      }
+    }
 
     deconnexion(e) {
       RiotControl.trigger('deconnexion');
@@ -213,9 +218,8 @@
       this.update();
     }.bind(this));
 
-
     this.userFromStorage = function(profil){
-      this.profil = data;
+      profil? this.profil = profil:  this.profil = { credentials : { email: ''}}
       this.update()
     }.bind(this);
 
@@ -225,13 +229,16 @@
     }.bind(this);
 
     this.on('mount', function () {
-      this.menu = 'running'
+      RiotControl.on('user_from_storage', this.userFromStorage);
       RiotControl.on('profil_menu_changed', this.profilMenuChanged);
-      RiotControl.trigger('load_profil');
       RiotControl.trigger('get_user_from_storage')
-      RiotControl.on('user_from_storage', this.userFromSTorage);
-      this.googleId = localStorage.googleid
+    }.bind(this))
+
+    this.on('unmount', function () {
+      RiotControl.off('profil_menu_changed', this.profilMenuChanged);
+      RiotControl.off('user_from_storage', this.profilMenuChanged);
     })
+
 
   </script>
   <style scoped="scoped">

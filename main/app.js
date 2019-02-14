@@ -64,13 +64,11 @@ httpGet.makeRequest('GET', {
         app.use('/data/api', unSafeRouteur)
         app.use('/data/core', safe)
 
-        require('./webServices/initialise')(unSafeRouteur, amqpClient)
+        require('./webServices/initialiseWebService')(unSafeRouteur, amqpClient)
         require('./webServices/authWebService')(unSafeRouteur, amqpClient)
         require('./webServices/workspaceWebService')(safe, amqpClient)
-        require('./webServices/workspaceComponentWebService')(safe, amqpClient)
         require('./webServices/technicalComponentWebService')(safe, unSafeRouteur, amqpClient)
         require('./webServices/userWebservices')(safe, amqpClient)
-        require('./webServices/adminWebService')(safe, amqpClient)
         require('./webServices/fragmentWebService')(safe, amqpClient)
 
         /// SECURISATION DES REQUETES

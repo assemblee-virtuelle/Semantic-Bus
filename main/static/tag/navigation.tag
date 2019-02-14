@@ -57,7 +57,7 @@
       <json-previewer-header if={isScrennToShow('workPreview')}></json-previewer-header>
       <!-- Nom d'utilisateur -->
       <div style="flex-grow:0;flex-shrink:0; padding-right:10px;">
-        <h3 style="color:white; font-family: 'Open Sans', sans-serif;">{userConnected.name}</h3>
+        <h3 style="color:white; font-family: 'Open Sans', sans-serif;">{CurrentName}</h3>
       </div>
       <!-- Bouton utilisateur -->
       <div class="containerV" style="flex-grow:0;flex-shrink:0;position:relative;">
@@ -164,14 +164,19 @@
     }.bind(this));
 
     RiotControl.on('navigation_control_done', (entity, action) => {
-       console.log("navigation done")
-        console.log("update  menu")
         this.entity = undefined;
         this.update();
         this.entity = entity;
         this.action = action;
         this.update();
     });
+
+    this.reload_name = function(profil){
+      this.CurrentName = profil? profil.name: '';
+      this.update()
+    }.bind(this);
+
+    RiotControl.on('user_from_storage', this.reload_name);
 
     this.on('mount', function () {
       route(function (...parts) {
@@ -184,6 +189,7 @@
         }
       }.bind(this));
       RiotControl.trigger('bootstrap')
+
       route.start(true);
     });
   </script>
@@ -304,7 +310,7 @@
 
     .errorMessage {
       background-color: rgb(255,116,0) !important;
-      color: white;
+      color: white ! important;
       z-index: 999;
       height: 50px;
       display: flex;
@@ -314,7 +320,7 @@
 
     .successMessage {
           background-color: rgb(41,171,135) !important;
-          color: white;
+          color: white !important;
           z-index: 999;
           height: 50px;
           display: flex;

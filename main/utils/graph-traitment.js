@@ -197,6 +197,8 @@ exports.formatDataWorkspaceGraph = function (dataInner) {
         data.data.push(c)
       }
     }
+
+    if (data.data.length === 0) data.data = AllDayObject
     resolve(data)
   })
 }

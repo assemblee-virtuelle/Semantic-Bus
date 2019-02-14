@@ -8,7 +8,6 @@ const auth_lib_jwt = require('../../core/lib/auth_lib')
 // --------------------------------------------------------------------------------
 
 function UserIdFromToken (req) {
-
   const token = req.body.token || req.query.token || req.headers['authorization']
   token.split('')
   let tokenAfter = token.substring(4, token.length)
@@ -41,8 +40,8 @@ module.exports = function (router) {
 
   // ---------------------------------------------------------------------------------
 
-  router.get('/users/:id/graph', function (req, res, next) {
-    user_lib.userGraph(req.params.id).then(workspaceGraph => {
+  router.get('/me/graph', function (req, res, next) {
+    user_lib.userGraph(UserIdFromToken(req)).then(workspaceGraph => {
       res.json({ workspaceGraph })
     }).catch(e => {
       next(e)
@@ -51,7 +50,8 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.put('/users/:id', function (req, res) {
+  router.put('/me', function (req, res) {
+    req.body.user._id = UserIdFromToken(req)
     user_lib.update(req.body.user, req.body.mailChange).then(function (result) {
       res.send(result)
     }).catch(function (err) {

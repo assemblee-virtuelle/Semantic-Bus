@@ -1,27 +1,21 @@
 function WorkspaceStore (utilStore, stompClient, specificStoreList) {
-  // --------------------------------------------------------------------------------
-  // --------------------------------------------------------------------------------
-  // --------------------------------------------------------------------------------
 
   riot.observable(this)
   for (specificStore of specificStoreList) {
     specificStore.genericStore = this
   }
-
   this.globalWorkspaceCollection
   this.workspaceCollection
   this.workspaceShareCollection
   this.workspaceCurrent
   this.workspaceBusiness = new WorkspaceBusiness()
   this.componentSelectedToAdd = []
-  // this.cancelRequire = false;
   this.modeConnectBefore = false
   this.modeConnectAfter = false
   this.utilStore = utilStore
   this.stompClient = stompClient
   this.processCollection = []
   this.currentProcess = undefined
-
   this.itemCurrent
   this.connectMode
   this.modeConnectBefore = false
@@ -32,406 +26,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   // ----------------------------------------- FUNCTION  -----------------------------------------
-
-  // Navigation and workspace initializer
-
-  this.on('navigation', function (entity, id, action, secondId, secondAction) {
-    if (entity === 'workspace') {
-      if (id === 'new') {
-        this.initializeNewWorkspace(entity, action)
-        this.trigger('navigation_control_done', entity, action)
-      } else if (this.workspaceCurrent !== undefined && this.workspaceCurrent._id === id) {
-        this.reloadWorkspace(entity, action)
-        if (action === 'component' && secondId !== undefined) {
-          this.loadComponentPart(secondId, secondAction)
-          this.trigger('navigation_control_done', 'component')
-        } else {
-          this.trigger('navigation_control_done', entity, action)
-        }
-      } else {
-        this.unsubscribeToPreviousSubscription()
-        this.select({ _id: id }).then(() => {
-          this.subscribeToComponents(entity, action)
-          if (action === 'component' && secondId !== undefined) {
-            this.loadComponentPart(secondId, secondAction)
-            this.trigger('navigation_control_done', 'component')
-          } else {
-            this.trigger('navigation_control_done', entity, action)
-          }
-        })
-        this.loadProcesses(id)
-      }
-    }
-  })
-
-  this.initializeNewWorkspace = function (entity, action) {
-    this.workspaceCurrent = {
-      name: '',
-      description: '',
-      components: [],
-      users: [],
-      links: []
-    }
-    this.action = action
-    this.workspaceCurrent.mode = 'init'
-  }
-
-  this.reloadWorkspace = function (entity, action) {
-    this.action = action
-    this.trigger('workspace_current_process_changed', this.processCollection)
-  }
-
-  this.unsubscribeToPreviousSubscription = function () {
-    [
-      this.subscription_workspace_current_move_component,
-      this.subscription_workspace_current_updateComponentField,
-      this.subscription_workspace_current_process_start,
-      this.subscription_workspace_current_process_end,
-      this.subscription_workspace_current_process_error,
-      this.subscription_workspace_current_process_progress,
-      this.subscription_workspace_current_process_persist,
-      this.subscription_workflow_processCleaned
-    ].forEach(component => {
-      if (component !== undefined && component !== null && typeof component.unsubscribe === 'function') {
-        component.unsubscribe()
-      }
-    })
-  }
-
-  this.subscribeToComponents = function (entity, action) {
-    this.action = action
-    this.subscription_workspace_current_move_component = this.stompClient.subscribe('/topic/workspace_current_move_component.' + this.workspaceCurrent._id, message => {
-      // console.log('message', JSON.parse(message.body));
-      let body = JSON.parse(message.body)
-      if (body.token !== localStorage.token) {
-        let componentToUpdate = sift({
-          _id: body.componentId
-        }, this.workspaceCurrent.components)[0]
-        componentToUpdate.graphPositionX = body.x
-        componentToUpdate.graphPositionY = body.y
-        this.computeGraph()
-      }
-    })
-    this.subscription_workspace_current_updateComponentField = this.stompClient.subscribe('/topic/workspace_current_updateComponentField.' + this.workspaceCurrent._id, message => {
-      console.log('message', JSON.parse(message.body))
-      let body = JSON.parse(message.body)
-      if (body.token !== localStorage.token) {
-        // console.log('body',body);
-        let updatingComponent = sift({
-          _id: body.componentId
-        }, this.workspaceCurrent.components)[0]
-        utilStore.objectSetFieldValue(updatingComponent, body.field, body.data)
-        // this.itemCurrent.specificData[body.field] = body.data;
-        // console.log('this.itemCurrent',this.itemCurrent);
-        if (this.itemCurrent._id === updatingComponent._id) {
-          this.trigger('item_current_changed', updatingComponent)
-        }
-      }
-    })
-    this.subscription_workspace_current_process_start = this.stompClient.subscribe('/topic/process-start.' + this.workspaceCurrent._id, message => {
-      console.log('subscription_workspace_current_process_start', JSON.parse(message.body))
-      let body = JSON.parse(message.body)
-      if (body.error === undefined) {
-        let process = {
-          _id: body._id,
-          status: 'processing',
-          steps: body.steps,
-          timeStamp: body.timeStamp,
-          stepFinished: 0
-        }
-        this.processCollection.unshift(process)
-        if (body.callerId === localStorage.user_id) {
-          // console.log('IT IS ME');
-          this.currentProcess = process
-          this.computeGraph()
-        }
-        this.trigger('workspace_current_process_changed', this.processCollection)
-      } else {
-        this.trigger('ajax_fail', body.error)
-      }
-    })
-    this.subscription_workspace_current_process_end = this.stompClient.subscribe('/topic/process-end.' + this.workspaceCurrent._id, message => {
-      // console.log('message', JSON.parse(message.body));
-      let body = JSON.parse(message.body)
-      if (body.error === undefined) {
-        let targetProcess = sift({
-          _id: body._id
-        }, this.processCollection)[0]
-        console.log(targetProcess)
-        if (targetProcess !== undefined) {
-          targetProcess.status = 'resolved'
-          this.trigger('workspace_current_process_changed', this.processCollection)
-        }
-      } else {
-        this.trigger('ajax_fail', body.error)
-      }
-    })
-    this.subscription_workspace_current_process_error = this.stompClient.subscribe('/topic/process-error.' + this.workspaceCurrent._id, message => {
-      // console.log('message', JSON.parse(message.body));
-      let body = JSON.parse(message.body)
-      if (body.error === undefined) {
-        let targetProcess = sift({
-          _id: body._id
-        }, this.processCollection)[0]
-        if (targetProcess !== undefined) {
-          targetProcess.status = 'error'
-          this.trigger('workspace_current_process_changed', this.processCollection)
-        }
-      } else {
-        this.trigger('ajax_fail', body.error)
-      }
-    })
-    this.subscription_workspace_current_process_progress = this.stompClient.subscribe('/topic/process-progress.' + this.workspaceCurrent._id, message => {
-      // console.log('message', JSON.parse(message.body));
-
-      let body = JSON.parse(message.body)
-
-      // if (body.error == undefined) {
-      let targetProcess = sift({
-        _id: body.processId
-      }, this.processCollection)[0]
-
-      if (targetProcess !== undefined) {
-        // console.log('process Finded');
-        let targetStep = sift({
-          componentId: body.componentId
-        }, targetProcess.steps)[0]
-        if (targetStep !== undefined) {
-          // console.log('step Finded');
-          if (body.error === undefined) {
-            targetStep.status = 'resolved'
-          } else {
-            targetStep.status = 'error'
-            //  targetProcess.status = 'error';
-          }
-        }
-        targetProcess.stepFinished = sift({
-          status: {
-            '$ne': 'waiting'
-          }
-        }, targetProcess.steps).length
-        this.trigger('workspace_current_process_changed', this.processCollection)
-        // console.log('ALLO',this.currentProcessId,body.processId);
-        if (this.currentProcess && this.currentProcess._id === body.processId) {
-          // console.log('ALLO2');
-          this.computeGraph()
-        }
-      }
-      // console.log(this.processCollection);
-      // } else {
-      //   this.trigger('ajax_fail', body.error);
-      // }
-    })
-    this.subscription_workflow_processCleaned = this.stompClient.subscribe('/topic/workflow-processCleaned.' + this.workspaceCurrent._id, message => {
-      let body = JSON.parse(message.body)
-      this.processCollection = sift({
-        _id: {
-          $in: body.cleanedProcesses.map(p => p._id)
-        }
-      },
-      this.processCollection
-      )
-      this.trigger('workspace_current_process_changed', this.processCollection)
-    })
-    this.subscription_workspace_current_process_persist = this.stompClient.subscribe('/topic/process-persist.' + this.workspaceCurrent._id, message => {
-      console.log('message', JSON.parse(message.body))
-      let body = JSON.parse(message.body)
-      console.log(this.currentProcess._id, body.processId, this.itemCurrent._id, body.componentId)
-      if (this.currentProcess._id === body.processId && this.itemCurrent._id === body.componentId) {
-        this.trigger('item_current_process_persist_changed', body.data)
-      }
-    })
-  }
-
-  this.loadProcesses = function (id) {
-    this.utilStore.ajaxCall({
-      method: 'get',
-      url: '../data/core/workspaces/' + id + '/process'
-    }, true)
-      .then(data => {
-        this.processCollection = data
-
-        this.processCollection.forEach(process => {
-          let waitingNB = sift({
-            status: 'waiting'
-          }, process.steps).length
-          let errorNB = sift({
-            status: 'error'
-          }, process.steps).length
-          if (errorNB > 0) {
-            process.status = 'error'
-          } else {
-            if (waitingNB > 0) {
-              process.status = 'waiting'
-            } else {
-              process.status = 'resolved'
-            }
-          }
-          process.stepFinished = process.steps.length - waitingNB
-        })
-
-        this.trigger('workspace_current_process_changed', this.processCollection)
-      })
-  }
-
-  this.loadComponentPart = function (id, action) {
-    this.action = action
-    if (this.workspaceCurrent !== undefined) {
-      this.itemCurrent = sift({ _id: id }, this.workspaceCurrent.components)[0]
-      if (this.itemCurrent === undefined) {
-        this.trigger('ajax_fail', 'no component existing with this id un current workspace')
-      }
-    } else {
-      this.trigger('ajax_fail', 'the component can not be loaded without first loading its workspace')
-    }
-  }
-
-  this.load = function () {
-    // console.log('load workspace to ||', localStorage.user_id);
-    return new Promise((resolve, reject) => {
-      this.utilStore.ajaxCall({
-        method: 'get',
-        url: '../data/core/workspaces/owner'
-      }, true).then(data => {
-        this.workspaceCollection = data
-        resolve(this.workspaceCollection)
-      }).catch(error => {
-        reject(error)
-      })
-    })
-  } // <= load_workspace
-
-  // --------------------------------------------------------------------------------
-
-  this.loadShareWorkspace = function () {
-    console.log('load share workspace')
-
-    return new Promise((resolve, reject) => {
-      this.utilStore.ajaxCall({
-        method: 'get',
-        url: '../data/core/workspaces/shared'
-      }, true).then(data => {
-        // console.log('load workspace', data);
-        this.workspaceShareCollection = data
-        resolve(this.workspaceShareCollection)
-      }).catch(error => {
-        reject(error)
-      })
-    })
-  } // <= load_share_workspace
-
-  // --------------------------------------------------------------------------------
-  // TODO passer par le proxy client
-  this.create = function () {
-    console.log('create')
-
-    return new Promise((resolve, reject) => {
-      this.utilStore.ajaxCall({
-        method: 'post',
-        url: '../data/core/workspaces/',
-        data: JSON.stringify({ workspace: this.workspaceCurrent, userId: localStorage.user_id })
-      }, true).then(data => {
-        this.globalWorkspaceCollection.push({
-          role: 'owner',
-          workspace: data
-        })
-        this.setGlobalWorkspaceCollection(this.globalWorkspaceCollection)
-        this.workspaceCurrent = data
-        this.workspaceCurrent.mode = 'edit'
-        resolve(this.workspaceCurrent)
-      }).catch(error => {
-        reject(error)
-      })
-    })
-  } // <= create
-
-  // --------------------------------------------------------------------------------
-  // TODO passer par le proxy client
-  this.update = function (data) {
-    // console.log("data update", data)
-    return new Promise((resolve, reject) => {
-      var ajax_data = JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent))
-      // console.log('ajax_data',ajax_data);
-      this.trigger('persist_start')
-      $.ajax({
-        method: 'put',
-        url: '../data/core/workspaces',
-        data: ajax_data,
-        contentType: 'application/json',
-        headers: {
-          'Authorization': 'JTW' + ' ' + localStorage.token
-        }
-      }).done(function (data) {
-        this.trigger('persist_end', data)
-        data.mode = 'edit'
-        // this.workspaceBusiness.connectWorkspaceComponent(data.components);
-        this.workspaceCurrent = data
-        // console.log('update data ||', data);
-        this.trigger('workspace_current_persist_done', this.workspaceCurrent)
-        this.trigger('workspace_current_changed', this.workspaceCurrent)
-        if (this.viewBox) {
-          this.computeGraph()
-        }
-        resolve(data)
-      }.bind(this))
-    })
-  } // <= update
-
-  // --------------------------------------------------------------------------------
-
-  this.delete = function (record) {
-    this.trigger('persist_start')
-    $.ajax({
-      method: 'delete',
-      url: '../data/core/workspaces/' + record._id + '-' + localStorage.user_id,
-      contentType: 'application/json',
-      headers: {
-        'Authorization': 'JTW' + ' ' + localStorage.token
-      }
-    }).done(function (data) {
-      this.globalWorkspaceCollection = sift({
-        'workspace._id': {
-          $ne: record._id
-        }
-      }, this.globalWorkspaceCollection)
-      this.setGlobalWorkspaceCollection(this.globalWorkspaceCollection)
-      this.trigger('persist_end', data)
-      this.trigger('workspace_collection_changed', this.workspaceCollection)
-    }.bind(this))
-  } // <= delete
-
-  // --------------------------------------------------------------------------------
-
-  this.on('load_workspace_graph', function (data) {
-    $.ajax({
-      method: 'get',
-      url: '../data/core/workspaces/' + data._id + '/graph',
-      headers: {
-        'Authorization': 'JTW' + ' ' + localStorage.token
-      },
-      contentType: 'application/json'
-    }).done(function (data) {
-      this.trigger('graph_workspace_data_loaded', data)
-    }.bind(this))
-  })
-
-  // --------------------------------------------------------------------------------
-
-  this.select = function (record) {
-    return new Promise((resolve, reject) => {
-      this.utilStore.ajaxCall({
-        method: 'get',
-        url: '../data/core/workspaces/' + record._id
-      }, true).then(data => {
-        this.workspaceCurrent = data
-        this.workspaceCurrent.mode = 'edit'
-        this.menu = 'component'
-        resolve(data)
-      }).catch(error => {
-        reject(error)
-      })
-    })
-  } // <= select
 
   this.computeGraph = function (viewBox) {
     let componentsId = this.workspaceCurrent.components.map(c => c._id)
@@ -496,7 +90,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
           node.status = step.status
         }
       }
-      if (connectionsBefore.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) { 
+      if (connectionsBefore.length == 0 && record.graphPositionX == undefined && record.graphPositionY == undefined) {
         // si rien n est connecte avant
         node.x = 30
         node.y = 0
@@ -539,9 +133,499 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     this.trigger('workspace_graph_compute_done', this.graph)
   }
 
+  // --------------------------------------------------------------------------------
+
+  this.initializeNewWorkspace = function (entity, action) {
+    this.workspaceCurrent = {
+      name: '',
+      description: '',
+      components: [],
+      users: [],
+      links: []
+    }
+    this.action = action
+    this.workspaceCurrent.mode = 'init'
+  }
+
+  // --------------------------------------------------------------------------------
+
+  this.setGlobalWorkspaceCollection = function (data) {
+    this.globalWorkspaceCollection = data
+    this.workspaceCollection = sift({
+      role: 'owner'
+    }, data).map(r => r.workspace)
+    this.workspaceShareCollection = sift({
+      role: 'editor'
+    }, data).map(r => r.workspace)
+  }
+
+  // --------------------------------------------------------------------------------
+
+  this.reloadWorkspace = function (entity, action) {
+    this.action = action
+    this.trigger('workspace_current_process_changed', this.processCollection)
+  }
+
+  // --------------------------------------------------------------------------------
+
+  this.unsubscribeToPreviousSubscription = function () {
+    [
+      this.subscription_workspace_current_move_component,
+      this.subscription_workspace_current_updateComponentField,
+      this.subscription_workspace_current_process_start,
+      this.subscription_workspace_current_process_end,
+      this.subscription_workspace_current_process_error,
+      this.subscription_workspace_current_process_progress,
+      this.subscription_workspace_current_process_persist,
+      this.subscription_workflow_processCleaned
+    ].forEach(component => {
+      if (component !== undefined && component !== null && typeof component.unsubscribe === 'function') {
+        component.unsubscribe()
+      }
+    })
+  }
+
+  // --------------------------------------------------------------------------------
+
+  this.subscribeToComponents = function (entity, action) {
+    this.action = action
+    this.subscription_workspace_current_move_component = this.stompClient.subscribe('/topic/workspace_current_move_component.' + this.workspaceCurrent._id, message => {
+      let body = JSON.parse(message.body)
+      if (body.token !== localStorage.token) {
+        let componentToUpdate = sift({
+          _id: body.componentId
+        }, this.workspaceCurrent.components)[0]
+        componentToUpdate.graphPositionX = body.x
+        componentToUpdate.graphPositionY = body.y
+        this.computeGraph()
+      }
+    })
+    this.subscription_workspace_current_updateComponentField = this.stompClient.subscribe('/topic/workspace_current_updateComponentField.' + this.workspaceCurrent._id, message => {
+      let body = JSON.parse(message.body)
+      if (body.token !== localStorage.token) {
+        let updatingComponent = sift({
+          _id: body.componentId
+        }, this.workspaceCurrent.components)[0]
+        utilStore.objectSetFieldValue(updatingComponent, body.field, body.data)
+        // this.itemCurrent.specificData[body.field] = body.data;
+        if (this.itemCurrent._id === updatingComponent._id) {
+          this.trigger('item_current_changed', updatingComponent)
+        }
+      }
+    })
+    this.subscription_workspace_current_process_start = this.stompClient.subscribe('/topic/process-start.' + this.workspaceCurrent._id, message => {
+      let body = JSON.parse(message.body)
+      if (body.error === undefined) {
+        let process = {
+          _id: body._id,
+          status: 'processing',
+          steps: body.steps,
+          timeStamp: body.timeStamp,
+          stepFinished: 0
+        }
+        this.processCollection.unshift(process)
+        if (body.callerId === localStorage.user_id) {
+          this.currentProcess = process
+          this.computeGraph()
+        }
+        this.trigger('workspace_current_process_changed', this.processCollection)
+      } else {
+        this.trigger('ajax_fail', body.error)
+      }
+    })
+    this.subscription_workspace_current_process_end = this.stompClient.subscribe('/topic/process-end.' + this.workspaceCurrent._id, message => {
+      let body = JSON.parse(message.body)
+      if (body.error === undefined) {
+        let targetProcess = sift({
+          _id: body._id
+        }, this.processCollection)[0]
+        if (targetProcess !== undefined) {
+          targetProcess.status = 'resolved'
+          this.trigger('workspace_current_process_changed', this.processCollection)
+        }
+      } else {
+        this.trigger('ajax_fail', body.error)
+      }
+    })
+    this.subscription_workspace_current_process_error = this.stompClient.subscribe('/topic/process-error.' + this.workspaceCurrent._id, message => {
+      let body = JSON.parse(message.body)
+      if (body.error === undefined) {
+        let targetProcess = sift({
+          _id: body._id
+        }, this.processCollection)[0]
+        if (targetProcess !== undefined) {
+          targetProcess.status = 'error'
+          this.trigger('workspace_current_process_changed', this.processCollection)
+        }
+      } else {
+        this.trigger('ajax_fail', body.error)
+      }
+    })
+    this.subscription_workspace_current_process_progress = this.stompClient.subscribe('/topic/process-progress.' + this.workspaceCurrent._id, message => {
+
+      let body = JSON.parse(message.body)
+
+      // if (body.error == undefined) {
+      let targetProcess = sift({
+        _id: body.processId
+      }, this.processCollection)[0]
+
+      if (targetProcess !== undefined) {
+        let targetStep = sift({
+          componentId: body.componentId
+        }, targetProcess.steps)[0]
+        if (targetStep !== undefined) {
+          if (body.error === undefined) {
+            targetStep.status = 'resolved'
+          } else {
+            targetStep.status = 'error'
+            //  targetProcess.status = 'error';
+          }
+        }
+        targetProcess.stepFinished = sift({
+          status: {
+            '$ne': 'waiting'
+          }
+        }, targetProcess.steps).length
+        this.trigger('workspace_current_process_changed', this.processCollection)
+        if (this.currentProcess && this.currentProcess._id === body.processId) {
+          this.computeGraph()
+        }
+      }
+      // } else {
+      //   this.trigger('ajax_fail', body.error);
+      // }
+    })
+    this.subscription_workflow_processCleaned = this.stompClient.subscribe('/topic/workflow-processCleaned.' + this.workspaceCurrent._id, message => {
+      let body = JSON.parse(message.body)
+      this.processCollection = sift({
+        _id: {
+          $in: body.cleanedProcesses.map(p => p._id)
+        }
+      },
+      this.processCollection
+      )
+      this.trigger('workspace_current_process_changed', this.processCollection)
+    })
+    this.subscription_workspace_current_process_persist = this.stompClient.subscribe('/topic/process-persist.' + this.workspaceCurrent._id, message => {
+      let body = JSON.parse(message.body)
+      if (this.currentProcess._id === body.processId && this.itemCurrent._id === body.componentId) {
+        this.trigger('item_current_process_persist_changed', body.data)
+      }
+    })
+  }
+
+  // --------------------------------------------------------------------------------
+
+  this.loadComponentPart = function (id, action) {
+    this.action = action
+    if (this.workspaceCurrent !== undefined) {
+      this.itemCurrent = sift({ _id: id }, this.workspaceCurrent.components)[0]
+      if (this.itemCurrent === undefined) {
+        this.trigger('ajax_fail', 'no component existing with this id un current workspace')
+      }
+    } else {
+      this.trigger('ajax_fail', 'the component can not be loaded without first loading its workspace')
+    }
+  }
+
+  // --------------------------------------------------------------------------------
+
+  this.refreshComponent = function (triggerConnections) {
+    this.trigger('item_current_editor_changed', this.itemCurrent.editor)
+    this.modeConnectBefore = false
+    this.modeConnectAfter = false
+    this.trigger('item_curent_connect_show_changed', {
+      before: this.modeConnectBefore,
+      after: this.modeConnectAfter
+    })
+    this.trigger('item_current_changed', this.itemCurrent)
+  }
+
+  // --------------------------------------------------------------------------------
+
+  this.persistComponent = function () {
+    this.updateComponent().then(data => {
+      route('workspace/' + data.workspaceId + '/component')
+    })
+  } // <= persist
+
+  // ----------------------------------------- API CALL  -----------------------------------------
+
+  this.loadProcesses = function (id) {
+    this.utilStore.ajaxCall({
+      method: 'get',
+      url: '../data/core/workspaces/' + id + '/process'
+    }, true)
+      .then(data => {
+        this.processCollection = data
+
+        this.processCollection.forEach(process => {
+          let waitingNB = sift({
+            status: 'waiting'
+          }, process.steps).length
+          let errorNB = sift({
+            status: 'error'
+          }, process.steps).length
+          if (errorNB > 0) {
+            process.status = 'error'
+          } else {
+            if (waitingNB > 0) {
+              process.status = 'waiting'
+            } else {
+              process.status = 'resolved'
+            }
+          }
+          process.stepFinished = process.steps.length - waitingNB
+        })
+
+        this.trigger('workspace_current_process_changed', this.processCollection)
+      })
+  }
+
+  // --------------------------------------------------------------------------------
+
+  this.load = function () {
+    return new Promise((resolve, reject) => {
+      this.utilStore.ajaxCall({
+        method: 'get',
+        url: '../data/core/workspaces/me/owner'
+      }, true).then(data => {
+        this.workspaceCollection = data
+        resolve(this.workspaceCollection)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  } // <= load_workspace
+
+  // --------------------------------------------------------------------------------
+
+  this.loadShareWorkspace = function () {
+    return new Promise((resolve, reject) => {
+      this.utilStore.ajaxCall({
+        method: 'get',
+        url: '../data/core/workspaces/me/shared'
+      }, true).then(data => {
+        this.workspaceShareCollection = data
+        resolve(this.workspaceShareCollection)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  } // <= load_share_workspace
+
+  // --------------------------------------------------------------------------------
+
+  this.create = function () {
+    return new Promise((resolve, reject) => {
+      this.utilStore.ajaxCall({
+        method: 'post',
+        url: '../data/core/workspaces/',
+        data: JSON.stringify({ workspace: this.workspaceCurrent })
+      }, true).then(data => {
+        this.globalWorkspaceCollection.push({
+          role: 'owner',
+          workspace: data
+        })
+        this.setGlobalWorkspaceCollection(this.globalWorkspaceCollection)
+        this.workspaceCurrent = data
+        this.workspaceCurrent.mode = 'edit'
+        resolve(this.workspaceCurrent)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  } // <= create
+
+  // --------------------------------------------------------------------------------
+
+  this.update = function (data) {
+    return new Promise((resolve, reject) => {
+      const fetchData = JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent))
+      this.trigger('persist_start')
+      this.utilStore.ajaxCall({
+        method: 'put',
+        url: '../data/core/workspaces/' + this.workspaceCurrent._id,
+        data: fetchData,
+        contentType: 'application/json',
+        headers: {
+          'Authorization': 'JTW' + ' ' + localStorage.token
+        }
+      }).then(function (data) {
+        this.trigger('persist_end', data)
+        data.mode = 'edit'
+        this.workspaceCurrent = data
+        this.trigger('workspace_current_persist_done', this.workspaceCurrent)
+        this.trigger('workspace_current_changed', this.workspaceCurrent)
+        if (this.viewBox) {
+          this.computeGraph()
+        }
+        resolve(data)
+      }.bind(this))
+    })
+  } // <= update
+
+  // --------------------------------------------------------------------------------
+
+  this.delete = function (record) {
+    this.trigger('persist_start')
+    this.utilStore.ajaxCall({
+      method: 'delete',
+      url: '../data/core/workspaces/' + record._id,
+      contentType: 'application/json',
+      headers: {
+        'Authorization': 'JTW' + ' ' + localStorage.token
+      }
+    }).then(function (data) {
+      this.globalWorkspaceCollection = sift({
+        'workspace._id': {
+          $ne: record._id
+        }
+      }, this.globalWorkspaceCollection)
+      this.setGlobalWorkspaceCollection(this.globalWorkspaceCollection)
+      this.trigger('persist_end', data)
+      this.trigger('workspace_collection_changed', this.workspaceCollection)
+    }.bind(this))
+  } // <= delete
+
+  // --------------------------------------------------------------------------------
+
+  this.select = function (record) {
+    console.log(record)
+    return new Promise((resolve, reject) => {
+      this.utilStore.ajaxCall({
+        method: 'get',
+        url: '../data/core/workspaces/' + record._id
+      }, true).then(data => {
+        this.workspaceCurrent = data
+        this.workspaceCurrent.mode = 'edit'
+        this.menu = 'component'
+        resolve(data)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  } // <= select
+
+  // --------------------------------------------------------------------------------
+
+  this.updateComponent = function () {
+    return new Promise((resolve, reject) => {
+      utilStore.ajaxCall({
+        method: 'put',
+        url: '../data/core/workspaces/' + this.itemCurrent.workspaceId + '/components',
+        data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(this.itemCurrent))
+      }, true).then(data => {
+        this.itemCurrent = data
+        resolve(this.itemCurrent)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  } // <= update
+
+  // --------------------------------------------------------------------------------
+
+  this.on('load_workspace_graph', function () {
+    this.utilStore.ajaxCall({
+      method: 'get',
+      url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/graph',
+      headers: {
+        'Authorization': 'JTW' + ' ' + localStorage.token
+      },
+      contentType: 'application/json'
+    }).then(function (data) {
+      this.trigger('graph_workspace_data_loaded', data)
+    }.bind(this))
+  })
+
+  // --------------------------------------------------------------------------------
+
+  this.on('item_persist', function (item) {
+    this.utilStore.ajaxCall({
+      method: 'put',
+      url: '../data/core/workspaces/' + item.workspaceId + '/components',
+      data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(item))
+    }, true).then(data => {
+      item = data
+      this.trigger('workspace_current_changed', this.workspaceCurrent)
+      if (this.viewBox) {
+        this.computeGraph()
+      }
+    }).catch(error => {
+      throw error
+    })
+  })
+
+  // --------------------------------------------------------------------------------
+
+  this.on('share-workspace', function (data) {
+    this.utilStore.ajaxCall({
+      method: 'put',
+      url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/share',
+      data: JSON.stringify({
+        email: this.emailToShare
+      }),
+      headers: {
+        'Authorization': 'JTW' + ' ' + localStorage.token
+      },
+      contentType: 'application/json'
+    }).then(function (data) {
+      if (data == false) {
+        this.trigger('share_change_no_valide')
+      } else if (data == 'already') {
+        this.trigger('share_change_already')
+      } else {
+        this.workspaceCurrent = data.workspace
+        this.workspaceCurrent.mode = 'edit'
+        this.trigger('share_change', {
+          user: data.user,
+          workspace: data.workspace
+        })
+        route('workspace/' + data.workspace._id + '/user')
+      }
+    }.bind(this))
+  })
+
+  // ----------------------------------------- EVENT  -----------------------------------------
+
+  this.on('navigation', function (entity, id, action, secondId, secondAction) {
+    if (entity === 'workspace') {
+      if (id === 'new') {
+        this.initializeNewWorkspace(entity, action)
+        this.trigger('navigation_control_done', entity, action)
+      } else if (this.workspaceCurrent !== undefined && this.workspaceCurrent._id === id) {
+        this.reloadWorkspace(entity, action)
+        if (action === 'component' && secondId !== undefined) {
+          this.loadComponentPart(secondId, secondAction)
+          this.trigger('navigation_control_done', 'component')
+        } else {
+          this.trigger('navigation_control_done', entity, action)
+        }
+      } else {
+        this.unsubscribeToPreviousSubscription()
+        this.select({ _id: id }).then(() => {
+          this.subscribeToComponents(entity, action)
+          if (action === 'component' && secondId !== undefined) {
+            this.loadComponentPart(secondId, secondAction)
+            this.trigger('navigation_control_done', 'component')
+          } else {
+            this.trigger('navigation_control_done', entity, action)
+          }
+        })
+        this.loadProcesses(id)
+      }
+    }
+  })
+
+  // --------------------------------------------------------------------------------
+
   this.on('workspace_graph_compute', function (viewBox) {
     this.computeGraph(viewBox)
   })
+
+  // --------------------------------------------------------------------------------
 
   this.on('component_current_set', function (data) {
     this.graph.nodes.forEach(n => {
@@ -560,19 +644,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     this.trigger('workspace_graph_selection_changed', this.graph)
   })
 
-  this.on('selection_reset', function () {
-    this.graph.links.forEach(l => {
-      l.selected = false
-      l.connectAfterMode = false
-      l.connectBeforeMode = false
-    })
-    this.graph.nodes.forEach(n => {
-      n.selected = false
-      n.connectAfterMode = false
-      n.connectBeforeMode = false
-    })
-    this.trigger('workspace_graph_selection_changed', this.graph)
-  })
+  // --------------------------------------------------------------------------------
 
   this.on('connection_current_set', function (source, target) {
     this.graph.nodes.forEach(n => {
@@ -595,28 +667,15 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     this.trigger('workspace_graph_selection_changed', this.graph)
   })
 
-  // ----------------------------------------- EVENT  -----------------------------------------
+  // --------------------------------------------------------------------------------
 
   this.on('workspace_delete', function (record) {
-    console.log('ON workspace_delete ||', record)
     this.delete(record)
   }) // <= workspace_delete
 
   // --------------------------------------------------------------------------------
 
-  this.setGlobalWorkspaceCollection = function (data) {
-    // console.log('setGlobalWorkspaceCollection',data.map(r=>r.workspace));
-    this.globalWorkspaceCollection = data
-    this.workspaceCollection = sift({
-      role: 'owner'
-    }, data).map(r => r.workspace)
-    this.workspaceShareCollection = sift({
-      role: 'editor'
-    }, data).map(r => r.workspace)
-  }
-
   this.on('workspace_collection_load', function (record) {
-    console.log('workspace_collection_load', this.workspaceCollection)
     if (this.workspaceCollection == undefined) {
       this.load(this.workspaceCurrent).then(data => {
         this.trigger('workspace_collection_changed', this.workspaceCollection)
@@ -625,6 +684,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       this.trigger('workspace_collection_changed', this.workspaceCollection)
     }
   }) // <= workspace_collection_load
+
   // --------------------------------------------------------------------------------
 
   this.on('workspace_collection_share_load', function (record) {
@@ -637,23 +697,15 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     }
   }) // <= workspace_collection_share_load
 
-  this.on('workspace_collection_share_filter', function (filter) {
-    var re = new RegExp(filter, 'gi')
-    this.trigger('workspace_share_collection_changed', sift({
-      name: {
-        $regex: re
-      }
-    }, this.workspaceShareCollection))
-  })
-
   // --------------------------------------------------------------------------------
 
   this.on('workspace_current_updateField', function (message) {
-    console.log('workspace_current_updateField ||', message)
     this.workspaceCurrent[message.field] = message.data
     this.workspaceCurrent.synchronized = false
     this.trigger('workspace_current_changed', this.workspaceCurrent)
   }) // <= workspace_current_updateField
+
+  // --------------------------------------------------------------------------------
 
   this.on('workspace_current_export', function (anchor) {
     let exportObject = {
@@ -673,6 +725,8 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     // window.open(exportUrl);
   })
 
+  // --------------------------------------------------------------------------------
+
   this.on('workspace_current_import', function (file) {
     let reader = new FileReader()
     reader.onload = function (e) {
@@ -690,40 +744,24 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     reader.readAsText(file)
   })
 
-  this.on('item_current_work', function (message) {
-    this.stompClient.send('/queue/work-ask', JSON.stringify({
-      id: this.itemCurrent._id,
-      workspaceId: this.itemCurrent.workspaceId,
-      callerId: localStorage.user_id
-    }))
-  }) // <= item_current_work
+  // --------------------------------------------------------------------------------
 
   this.on('previewJSON_refresh', function () {
-    // console.log('workspace_current_refresh || ', this.workspaceCurrent);
     this.trigger('previewJSON', this.currentPreview)
   }) //
+
   // --------------------------------------------------------------------------------
+
   this.on('workspace_current_process_refresh', function () {
-    // console.log('workspace_current_refresh || ', this.workspaceCurrent);
     this.trigger('workspace_current_process_changed', this.processCollection)
   }) // <= workspace_current_refresh
+
+  // --------------------------------------------------------------------------------
 
   this.on('workspace_current_process_select', function (process) {
     this.currentProcess = process
     route('workspace/' + this.workspaceCurrent._id + '/component')
   })
-
-  this.on('workspace_current_cancel', function (record) {
-    this.workspaceCurrent.mode = 'read'
-    this.select(this.workspaceCurrent)
-  }) // <= workspace_current_cancel
-
-  // --------------------------------------------------------------------------------
-
-  this.on('workspace_current_edit', function (data) {
-    this.workspaceCurrent.mode = 'edit'
-    this.trigger('workspace_current_changed', this.workspaceCurrent)
-  }) // <= workspace_current_edit
 
   // --------------------------------------------------------------------------------
 
@@ -747,20 +785,18 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     }
   }.bind(this)) // <= workspace_current_persist
 
-  RiotControl.on('persistClick', function (data) {
-    RiotControl.trigger('workspace_current_persist')
-  })
-
   // --------------------------------------------------------------------------------
 
   this.on('set_componentSelectedToAdd', function (message) {
-    // console.log('set_componentSelectedToAdd',message);
     this.componentSelectedToAdd = message
   }) // <= workspace_current_updateField
+
+  // --------------------------------------------------------------------------------
+
   this.on('workspace_current_add_components', function () {
     this.utilStore.ajaxCall({
       method: 'post',
-      url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/component',
+      url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/components',
       data: JSON.stringify(this.componentSelectedToAdd.map((c) => {
         return this.workspaceBusiness.serialiseWorkspaceComponent(c)
       }))
@@ -796,47 +832,13 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     })
   }) // <= workspace_current_delete_component
 
-  this.on('workspace_current_move_component', function (component) {
-    this.stompClient.send('/topic/workspace_current_move_component.' + this.workspaceCurrent._id, JSON.stringify({
-      componentId: component.id,
-      x: component.x,
-      y: component.y,
-      token: localStorage.token
-    }))
-  })
+  // --------------------------------------------------------------------------------
 
-  /// GESTION DES DROIT DE USER
   this.on('set-email-to-share', function (email) {
     this.emailToShare = email
   })
 
-  this.on('share-workspace', function (data) {
-    $.ajax({
-      method: 'put',
-      url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/share',
-      data: JSON.stringify({
-        email: this.emailToShare
-      }),
-      headers: {
-        'Authorization': 'JTW' + ' ' + localStorage.token
-      },
-      contentType: 'application/json'
-    }).done(function (data) {
-      if (data == false) {
-        this.trigger('share_change_no_valide')
-      } else if (data == 'already') {
-        this.trigger('share_change_already')
-      } else {
-        this.workspaceCurrent = data.workspace
-        this.workspaceCurrent.mode = 'edit'
-        this.trigger('share_change', {
-          user: data.user,
-          workspace: data.workspace
-        })
-        route('workspace/' + data.workspace._id + '/user')
-      }
-    }.bind(this))
-  })
+  // --------------------------------------------------------------------------------
 
   this.on('item_current_connect_before_show', function (data) {
     this.modeConnectBefore = !this.modeConnectBefore
@@ -853,6 +855,8 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     })
     this.trigger('workspace_graph_selection_changed', this.graph)
   })
+
+  // --------------------------------------------------------------------------------
 
   this.on('item_current_connect_after_show', function (data) {
     // not used
@@ -871,6 +875,8 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     })
     this.trigger('workspace_graph_selection_changed', this.graph)
   })
+
+  // --------------------------------------------------------------------------------
 
   this.on('connect_components', function (source, target) {
     this.utilStore.ajaxCall({
@@ -892,6 +898,8 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     })
   })
 
+  // --------------------------------------------------------------------------------
+
   this.on('disconnect_components', function (link) {
     this.utilStore.ajaxCall({
       method: 'delete',
@@ -908,70 +916,13 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     })
   })
 
-  this.on('item_persist', function (item) {
-    this.utilStore.ajaxCall({
-      method: 'put',
-      url: '../data/core/workspaces/' + item.workspaceId + '/components',
-      data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(item))
-    }, true).then(data => {
-      item = data
-      this.trigger('workspace_current_changed', this.workspaceCurrent)
-      if (this.viewBox) {
-        this.computeGraph()
-      }
-    }).catch(error => {
-      throw error
-    })
-  })
-
-  this.on('workspace_editor_change_menu', function (menu) {
-    this.menu = menu
-    this.trigger('workspace_editor_menu_changed', this.menu)
-  })
-
-  // -----------------------------------  COMPONENT
-
-  this.updateComponent = function () {
-    return new Promise((resolve, reject) => {
-      utilStore.ajaxCall({
-        method: 'put',
-        url: '../data/core/workspaceComponent',
-        data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(this.itemCurrent))
-      }, true).then(data => {
-        this.itemCurrent = data
-        // this.trigger('item_current_persist_done', this.itemCurrent);
-        resolve(this.itemCurrent)
-      }).catch(error => {
-        reject(error)
-      })
-    })
-  } // <= update
-
-  // --------------------------------------------------------------------------------
-
-  this.persistComponent = function () {
-    this.updateComponent().then(data => {
-      route('workspace/' + data.workspaceId + '/component')
-    })
-  } // <= persist
-
-  this.on('item_current_updateField', function (message) {
-    utilStore.objectSetFieldValue(this.itemCurrent, message.field, message.data)
-    // this.itemCurrent[message.field] = message.data;
-    this.trigger('item_current_changed', this.itemCurrent)
-    this.stompClient.send('/topic/workspace_current_updateComponentField.' + this.workspaceCurrent._id, JSON.stringify({
-      field: message.field,
-      data: message.data,
-      componentId: this.itemCurrent._id,
-      token: localStorage.token
-    }))
-  }) // <= item_current_updateField
-
   // --------------------------------------------------------------------------------
 
   this.on('item_current_persist', function (message) {
     this.persistComponent()
   }) // <=  item_current_persist
+
+  // --------------------------------------------------------------------------------
 
   this.on('component_preview', () => {
     this.utilStore.ajaxCall({
@@ -983,21 +934,13 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     })
   })
 
-  this.on('item_current_cancel', function (data) {
-    if (this.itemCurrent) {
-      this.itemCurrent.mode = undefined
-    }
-  })
+  // --------------------------------------------------------------------------------
 
   this.on('component_current_set', function (data) {
-    // console.log('component_current_set 1');
     this.itemCurrent = data
   })
 
-  this.on('component_current_select', function (data) {
-    this.itemCurrent = data
-    this.trigger('component_current_select_done')
-  }) // <= item_current_select
+  // --------------------------------------------------------------------------------
 
   this.on('component_current_connections_refresh', function () {
     let beforeLinks = sift({
@@ -1022,18 +965,44 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     })
   })
 
-  this.refreshComponent = function (triggerConnections) {
-    this.trigger('item_current_editor_changed', this.itemCurrent.editor)
-    this.modeConnectBefore = false
-    this.modeConnectAfter = false
-    this.trigger('item_curent_connect_show_changed', {
-      before: this.modeConnectBefore,
-      after: this.modeConnectAfter
-    })
-    this.trigger('item_current_changed', this.itemCurrent)
-  }
+  // --------------------------------------------------------------------------------
 
   this.on('component_current_refresh', function () {
     this.refreshComponent()
   }) // <= item_current_select
+
+  // ----------------------------------------- WEB STOMP CALL  -----------------------------------------
+
+  this.on('item_current_work', function (message) {
+    this.stompClient.send('/queue/work-ask', JSON.stringify({
+      id: this.itemCurrent._id,
+      workspaceId: this.itemCurrent.workspaceId,
+      callerId: localStorage.user_id
+    }))
+  }) // <= item_current_work
+
+  // --------------------------------------------------------------------------------
+
+  this.on('item_current_updateField', function (message) {
+    utilStore.objectSetFieldValue(this.itemCurrent, message.field, message.data)
+    // this.itemCurrent[message.field] = message.data;
+    this.trigger('item_current_changed', this.itemCurrent)
+    this.stompClient.send('/topic/workspace_current_updateComponentField.' + this.workspaceCurrent._id, JSON.stringify({
+      field: message.field,
+      data: message.data,
+      componentId: this.itemCurrent._id,
+      token: localStorage.token
+    }))
+  }) // <= item_current_updateField
+
+  // --------------------------------------------------------------------------------
+
+  this.on('workspace_current_move_component', function (component) {
+    this.stompClient.send('/topic/workspace_current_move_component.' + this.workspaceCurrent._id, JSON.stringify({
+      componentId: component.id,
+      x: component.x,
+      y: component.y,
+      token: localStorage.token
+    }))
+  })
 }

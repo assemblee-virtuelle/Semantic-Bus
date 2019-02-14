@@ -1,24 +1,23 @@
-'use strict';
-//console.log("Datatraitment module initialize")
+'use strict'
 
 module.exports = {
-  execute: function(treeSource) {
-    let out;
+  execute: function (treeSource) {
+    let out
 
     if (Array.isArray(treeSource)) {
-      out = treeSource.map(r => this.execute(r));
+      out = treeSource.map(r => this.execute(r))
     } else if (treeSource instanceof Object) {
-      out = {};
+      out = {}
       for (let key in treeSource) {
-        let newKey = key.replace(/\./g, "_");
+        let newKey = key.replace(/\./g, '_')
         // console.log(key, newKey);
-        out[newKey] = this.execute(treeSource[key]);
+        out[newKey] = this.execute(treeSource[key])
       }
     } else {
-      out = treeSource;
+      out = treeSource
     }
     // console.log(out);
 
-    return out;
+    return out
   }
 }

@@ -49,7 +49,6 @@
   <script src="./store/workspaceStore.js"></script>
   <script src="./store/technicalComponentStore.js"></script>
   <script src="./store/genericStore.js"></script>
-  <script src="./store/adminStore.js"></script>
   <script src="./store/cacheNosqlStore.js"></script>
   <script src="./store/uploadFileStore.js"></script>
   <script src="./store/profilStore.js"></script>
@@ -68,7 +67,6 @@
   <script type="riot/tag" src="tag/workspaceComponentEditor.tag"></script>
   <script type="riot/tag" src="tag/workspaceComponentEditor-header.tag"></script>
   <script type="riot/tag" src="tag/technicalComponentTable.tag"></script>
-  <script type="riot/tag" src="tag/admin.tag"></script>
   <script type="riot/tag" src="tag/jsonEditor.tag"></script>
   <script type="riot/tag" src="tag/jsonFragViewer.tag"></script>
   <script type="riot/tag" src="tag/user-list.tag"></script>
@@ -186,10 +184,6 @@
         const workspaceStore = new WorkspaceStore(utilStore, stompClient,specificStoreList); // Create a store instance.
         RiotControl.addStore(workspaceStore); // Register the store in central dispatch.
         allStore['workspaceStore'] = workspaceStore;
-
-        const adminStore = new AdminStore(utilStore);
-        RiotControl.addStore(adminStore);
-        allStore['adminStore'] = adminStore;
 
         const mainController = new MainController(allStore, stompClient);
         RiotControl.addStore(mainController);

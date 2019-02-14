@@ -1,33 +1,40 @@
 const auth_lib_jwt = require('../../core/lib/auth_lib')
-const workspace_lib = require('../../core/lib/workspace_lib')
 const user_lib = require('../../core/lib/user_lib')
-const jwt = require('jwt-simple')
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
-const securityWorksapce = req => {
+const securityWorksapce = (req, role) => {
   return new Promise(resolve => {
+    // here token is obligatory good because after first middleware
     const token = req.body.token || req.query.token || req.headers['authorization']
+    let workspaceId
     token.split('')
     let tokenAfter = token.substring(4, token.length)
     const decodeToken = auth_lib_jwt.get_decoded_jwt(tokenAfter)
-    let workspaceId
+   
     if (req.body && req.body.workspaceId) workspaceId = req.body.workspaceId
     if (req.params && req.params.id) workspaceId = req.params.id
     user_lib.getWithWorkspace(
       decodeToken.iss
     ).then((result) => {
-      // Don't use ===  here because workspace Id is noT same type than params
-      let isAuthorized = result.workspaces.filter((l) => l.workspace._id == workspaceId).length > 0;
+      // !!!!!! Don't use ===  here because workspace Id is noT same type than params !!!!!
+      let isAuthorized
+      if (role === 'owner') {
+        isAuthorized =
+          result.workspaces.filter((l) => l.workspace._id == workspaceId).length &&
+          result.workspaces.filter((l) => l.workspace._id == workspaceId).role === 'owner'
+      } else {
+        isAuthorized = result.workspaces.filter((l) => l.workspace._id == workspaceId).length > 0
+      }
       resolve(isAuthorized)
     })
   })
 }
 
 module.exports = {
-  wrapperSecurity: (req, res, next) => {
-    securityWorksapce(req)
+  wrapperSecurity: (req, res, next, role) => {
+    securityWorksapce(req, role)
       .then((authorized) => {
         if (authorized) {
           next()

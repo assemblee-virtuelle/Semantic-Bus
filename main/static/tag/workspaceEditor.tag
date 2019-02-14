@@ -125,7 +125,7 @@
   </div>
 
   <!-- Page consommation -->
-  <div show={menu=='running' } class="containerV" style="flex-grow: 1;">
+  <div if={menu=='running' } class="containerV" style="flex-grow: 1;">
     <graph-of-use></graph-of-use>
   </div>
   <!-- Page ajouter un composant -->
@@ -156,7 +156,7 @@
     this.workspaceCurrentChanged = function (data) {
       this.innerData = data;
       this.refs.userZenTable.data = data.users;
-      this.tags['graph-of-use'].data = data
+      //this.tags['graph-of-use'].data = data
       this.update();
     }.bind(this);
 

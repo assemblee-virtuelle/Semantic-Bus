@@ -6,18 +6,22 @@ function ProfilStore () {
   }
 
   this.on('get_user_from_storage', () => {
+    this.trigger('profil_menu_changed', this.menu)
     this.trigger('user_from_storage', this.userCurrrent)
   })
 
   this.on('load_user_workspace_graph', () => {
+    console.log("load_user_workspace_graph")
     $.ajax({
       method: 'get',
-      url: '../data/core/users/' + localStorage.user_id + '/graph',
+      url: '../data/core/me/graph',
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
       },
       contentType: 'application/json'
     }).done(data => {
+      this.trigger('profil_menu_changed', this.menu)
+      console.log("graph done")
       this.trigger('load_user_workspace_graph_done', data.workspaceGraph)
     })
   })
@@ -61,7 +65,7 @@ function ProfilStore () {
   this.on('update_user', function (data) {
     $.ajax({
       method: 'put',
-      url: '../data/core/users/' + localStorage.user_id,
+      url: '../data/core/me',
       data: JSON.stringify(data),
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
@@ -85,13 +89,12 @@ function ProfilStore () {
       }
       if (data.err == null) {
         this.trigger('ajax_sucess', `Votre profil à été mis à jour`)
-        this.trigger('update_profil_done', data)
+        this.trigger('user_from_storage', data)
       }
     }.bind(this))
   })
 
   this.on('navigation', function (entity, id, action) {
-    console.log("navigation start")
     if (entity === 'profil') {
       this.menu = action
       this.trigger('navigation_control_done', entity, action)

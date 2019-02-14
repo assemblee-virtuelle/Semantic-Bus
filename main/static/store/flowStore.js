@@ -1,147 +1,142 @@
 // TodoStore definition.
 // Flux stores house application logic and state that relate to a specific domain.
 // In this case, a list of todo items.
-function FlowStore() {
+function FlowStore () {
   riot.observable(this) // Riot provides our event emitter.
 
-  this.googleLinearFlowCollection =[];
-  this.googleLinearFlowCurrent =[];
+  this.googleLinearFlowCollection = []
+  this.googleLinearFlowCurrent = []
 
-  this.load=function(){
-    //console.log('load GLF');
+  this.load = function () {
+    // console.log('load GLF');
     $.ajax({
-      method:'get',
-      url:'../data/core/flow',
+      method: 'get',
+      url: '../data/core/flow',
       headers: {
-        "Authorization": "JTW" + " " + localStorage.token
-      },
-    }).done(function(data){
-      console.log('store load',data);
-      this.googleLinearFlowCollection=data;
-      this.trigger('GLF_collection_changed',this.googleLinearFlowCollection);
-    }.bind(this));
-  };
+        'Authorization': 'JTW' + ' ' + localStorage.token
+      }
+    }).done(function (data) {
+      console.log('store load', data)
+      this.googleLinearFlowCollection = data
+      this.trigger('GLF_collection_changed', this.googleLinearFlowCollection)
+    }.bind(this))
+  }
 
-  this.create=function(){
+  this.create = function () {
     $.ajax({
-      method:'post',
-      url:'http://localhost:3000/data/core/flow',
-      data:JSON.stringify(this.googleLinearFlowCurrent),
-      contentType : 'application/json',
+      method: 'post',
+      url: 'http://localhost:3000/data/core/flow',
+      data: JSON.stringify(this.googleLinearFlowCurrent),
+      contentType: 'application/json',
       headers: {
-        "Authorization": "JTW" + " " + localStorage.token
-      },
-    }).done(function(data){
-      this.googleLinearFlowCurrent.mode='edit';
-      this.load();
-    }.bind(this));
-  };
+        'Authorization': 'JTW' + ' ' + localStorage.token
+      }
+    }).done(function (data) {
+      this.googleLinearFlowCurrent.mode = 'edit'
+      this.load()
+    }.bind(this))
+  }
 
-  this.update=function(){
+  this.update = function () {
     $.ajax({
-      method:'put',
-      url:'http://localhost:3000/data/core/flow',
-      data:JSON.stringify(this.googleLinearFlowCurrent),
-      contentType : 'application/json',
+      method: 'put',
+      url: 'http://localhost:3000/data/core/flow',
+      data: JSON.stringify(this.googleLinearFlowCurrent),
+      contentType: 'application/json',
       headers: {
-        "Authorization": "JTW" + " " + localStorage.token
-      },
-    }).done(function(data){
-      this.load();
-      this.googleLinearFlowCurrent.mode='edit';
-    }.bind(this));
-  };
+        'Authorization': 'JTW' + ' ' + localStorage.token
+      }
+    }).done(function (data) {
+      this.load()
+      this.googleLinearFlowCurrent.mode = 'edit'
+    }.bind(this))
+  }
 
-  this.delete =function(record){
+  this.delete = function (record) {
     $.ajax({
-      method:'delete',
-      url:'http://localhost:3000/data/core/flow',
-      data:JSON.stringify(record),
+      method: 'delete',
+      url: 'http://localhost:3000/data/core/flow',
+      data: JSON.stringify(record),
       headers: {
-        "Authorization": "JTW" + " " + localStorage.token
+        'Authorization': 'JTW' + ' ' + localStorage.token
       },
-      contentType : 'application/json'
-    }).done(function(data){
-      this.load();
-    }.bind(this));
-  };
+      contentType: 'application/json'
+    }).done(function (data) {
+      this.load()
+    }.bind(this))
+  }
 
-  this.on('GLF_delete',function(record){
-    this.delete(record);
-  });
+  this.on('GLF_delete', function (record) {
+    this.delete(record)
+  })
 
-  this.on('GLF_collection_load',function(record){
-    this.load();
-  });
+  this.on('GLF_collection_load', function (record) {
+    this.load()
+  })
 
-  this.on('GLF_current_updateField',function(message){
-    console.log(message.data);
-    this.googleLinearFlowCurrent[message.field]=message.data;
-    console.log(this.googleLinearFlowCurrent);
-    this.trigger('GLF_current_changed',this.googleLinearFlowCurrent);
-  });
+  this.on('GLF_current_updateField', function (message) {
+    console.log(message.data)
+    this.googleLinearFlowCurrent[message.field] = message.data
+    console.log(this.googleLinearFlowCurrent)
+    this.trigger('GLF_current_changed', this.googleLinearFlowCurrent)
+  })
 
-  this.on('GLF_current_edit',function(data){
-    console.log('store edit',data);
-    this.googleLinearFlowCurrent=data;
-    this.googleLinearFlowCurrent.mode='edit';
-    this.trigger('GLF_current_changed',this.googleLinearFlowCurrent);
-  });
+  this.on('GLF_current_edit', function (data) {
+    console.log('store edit', data)
+    this.googleLinearFlowCurrent = data
+    this.googleLinearFlowCurrent.mode = 'edit'
+    this.trigger('GLF_current_changed', this.googleLinearFlowCurrent)
+  })
 
-  this.on('GLF_current_init',function(){
-    this.googleLinearFlowCurrent={
-      source:{type: 'googleSpreadSheet'},
-      transformer:{entities:["$..",{}]},
-      destination: {type: 'HttpApi'}
-    };
-    this.googleLinearFlowCurrent.mode='init';
-    this.trigger('GLF_current_changed',this.googleLinearFlowCurrent);
-  });
-
-  this.on('GLF_current_perist',function(message){
-    this.googleLinearFlowCurrent.selected=undefined;
-    this.googleLinearFlowCurrent.mainSelected=undefined;
-    var mode = this.googleLinearFlowCurrent.mode;
-    this.googleLinearFlowCurrent.mode=undefined;
-    if(mode=='init'){
-      this.create();
-    }else if (mode=='edit') {
-      this.update();
+  this.on('GLF_current_init', function () {
+    this.googleLinearFlowCurrent = {
+      source: { type: 'googleSpreadSheet' },
+      transformer: { entities: ['$..', {}] },
+      destination: { type: 'HttpApi' }
     }
-  });
+    this.googleLinearFlowCurrent.mode = 'init'
+    this.trigger('GLF_current_changed', this.googleLinearFlowCurrent)
+  })
 
-  this.on('GLF_currrent_testSource',function(){
+  this.on('GLF_current_perist', function (message) {
+    this.googleLinearFlowCurrent.selected = undefined
+    this.googleLinearFlowCurrent.mainSelected = undefined
+    var mode = this.googleLinearFlowCurrent.mode
+    this.googleLinearFlowCurrent.mode = undefined
+    if (mode == 'init') {
+      this.create()
+    } else if (mode == 'edit') {
+      this.update()
+    }
+  })
+
+  this.on('GLF_currrent_testSource', function () {
     $.ajax({
-      url: "/data/googleSpreadseetQuery/",
+      url: '/data/googleSpreadseetQuery/',
       type: 'get',
       headers: {
-        "Authorization": "JTW" + " " + localStorage.token
+        'Authorization': 'JTW' + ' ' + localStorage.token
       },
-      data:  this.googleLinearFlowCurrent.source,
-      timeout: 5000,
-    }).done(function(data) {
-      //console.log(datas, JSON.stringify(datas))
-      RiotControl.trigger('previewJSON',data)
-    }.bind(this)).fail(function(err) {
-      //$('#error').text(JSON.stringify(err));
-    });
-  }.bind(this));
+      data: this.googleLinearFlowCurrent.source,
+      timeout: 5000
+    }).done(function (data) {
+      RiotControl.trigger('previewJSON', data)
+    }).fail(function (_err) {
+    })
+  }.bind(this))
 
-  this.on('GLF_currrent_testApi',function(){
-    console.log('test api');
+  this.on('GLF_currrent_testApi', function () {
     $.ajax({
-      url: "/data/query/"+this.googleLinearFlowCurrent.destination.url,
+      url: '/data/query/' + this.googleLinearFlowCurrent.destination.url,
       type: 'get',
       timeout: 5000
-    }).done(function(data) {
-      //console.log(data, JSON.stringify(data))
-      RiotControl.trigger('previewJSON',data)
-    }.bind(this)).fail(function(err) {
+    }).done(function (data) {
+      RiotControl.trigger('previewJSON', data)
+    }).fail(function (err) {
+    })
+  }.bind(this))
 
-    });
-  }.bind(this));
-
-/*
+  /*
   this.todos = [
     { title: 'Task 1', done: false },
     { title: 'Task 2', done: false }
@@ -162,5 +157,4 @@ function FlowStore() {
   }.bind(this))
 */
   // The store emits change events to any listening views, so that they may react and redraw themselves.
-
 }
