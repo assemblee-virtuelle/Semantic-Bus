@@ -16,5 +16,4 @@ module.exports = (router, unsafeRouter, stompClient) => {
   router.get('/technicalComponent/componentsCategoriesTree', function (req, res, next) {
     res.json(componentsCategoriesTree)
   })
-
 }

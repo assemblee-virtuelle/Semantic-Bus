@@ -22,6 +22,10 @@ app.use(bodyParser.urlencoded({
   extended: true
 }))
 
+process.on('unhandledRejection', (reason) => {
+  console.log('Reason: ' + reason)
+})
+
 safe.use(bodyParser.json())
 
 http.globalAgent.maxSockets = 1000000000
