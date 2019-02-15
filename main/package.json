@@ -74,6 +74,7 @@
     "sift": "^5.1.0",
     "sift-date": "0.0.1",
     "sshpk": "^1.7.0",
+    "swagger-ui-express": "^4.0.2",
     "threads": "^0.10.0",
     "wdio-mocha-framework": "^0.5.10",
     "wdio-sauce-service": "^0.4.0",

@@ -797,7 +797,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   this.on('component_preview', () => {
     this.utilStore.ajaxCall({
       method: 'get',
-      url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/components/' + this.itemCurrent._id + '/process' + this.currentProcess._id
+      url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/components/' + this.itemCurrent._id + '/process/' + this.currentProcess._id
     }, true).then(data => {
       this.currentPreview = data
       this.trigger('process_result', this.currentPreview)
