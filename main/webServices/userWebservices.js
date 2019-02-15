@@ -1,14 +1,21 @@
 'use strict'
 
 var user_lib = require('../../core/lib/user_lib')
-
+const auth_lib_jwt = require('../../core/lib/auth_lib')
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
+function UserIdFromToken (req) {
+  const token = req.body.token || req.query.token || req.headers['authorization']
+  token.split('')
+  let tokenAfter = token.substring(4, token.length)
+  const decodeToken = auth_lib_jwt.get_decoded_jwt(tokenAfter)
+  return decodeToken.iss
+}
 
-module.exports = function (router, stompClient) {
+module.exports = function (router) {
   // ---------------------------------------  ALL USERS  -----------------------------------------
 
   router.get('/users', function (req, res, next) {
@@ -21,9 +28,9 @@ module.exports = function (router, stompClient) {
 
   // ---------------------------------------------------------------------------------
 
-  router.get('/users/:id', function (req, res, next) {
+  router.get('/me', function (req, res, next) {
     user_lib.getWithWorkspace(
-      req.params.id, 'owner'
+      UserIdFromToken(req), 'owner'
     ).then(function (result) {
       res.send(result)
     }).catch(e => {
@@ -33,9 +40,9 @@ module.exports = function (router, stompClient) {
 
   // ---------------------------------------------------------------------------------
 
-  router.get('/users/:id/workspaces', function (req, res, next) {
-    user_lib.userGraph(req.params.id).then(workspaceGraph => {
-      res.json({workspaceGraph})
+  router.get('/me/graph', function (req, res, next) {
+    user_lib.userGraph(UserIdFromToken(req)).then(workspaceGraph => {
+      res.json({ workspaceGraph })
     }).catch(e => {
       next(e)
     })
@@ -43,7 +50,8 @@ module.exports = function (router, stompClient) {
 
   // --------------------------------------------------------------------------------
 
-  router.put('/users/:id', function (req, res) {
+  router.put('/me', function (req, res) {
+    req.body.user._id = UserIdFromToken(req)
     user_lib.update(req.body.user, req.body.mailChange).then(function (result) {
       res.send(result)
     }).catch(function (err) {

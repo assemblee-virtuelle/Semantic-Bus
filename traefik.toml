@@ -1,7 +1,0 @@
-debug = true
-logLevel = "DEBUG"
-[docker]
-endpoint = "unix:///var/run/docker.sock"
-domain = "semanticbus"
-watch = true
-exposedbydefault = true

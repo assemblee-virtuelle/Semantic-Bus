@@ -306,7 +306,6 @@
     }.bind(this));
 
     RiotControl.on("ajax_receipt_login", function (routeParams) {
-      console.log("ajax-conexion", routeParams)
       route(routeParams)
       this.update()
     }.bind(this));

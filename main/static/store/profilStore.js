@@ -1,43 +1,27 @@
 function ProfilStore () {
   riot.observable(this) // Riot provides our event emitter.
   /// /LE USER STORE EST RELIE A LOGIN EST NON A APPLICATION
-  this.userCurrrent
-
   this.setUserCurrent = function (user) {
     this.userCurrrent = user
-    this.trigger('profil_loaded', this.userCurrrent)
   }
 
-  this.on('load_profil', function (message) {
-    // if (this.userCurrrent == undefined) {
-    $.ajax({
-      method: 'get',
-      url: '../data/core/users/' + localStorage.user_id,
-      headers: {
-        'Authorization': 'JTW' + ' ' + localStorage.token
-      },
-      contentType: 'application/json'
-    }).done(function (data) {
-      this.setUserCurrent(data)
-      console.log('LOAD PROFIL', data)
-    }.bind(this))
-    // } else {
-    //   this.setUserCurrent(this.userCurrrent);
-    // }
+  this.on('get_user_from_storage', () => {
     this.trigger('profil_menu_changed', this.menu)
+    this.trigger('user_from_storage', this.userCurrrent)
   })
 
   this.on('load_user_workspace_graph', () => {
+    console.log("load_user_workspace_graph")
     $.ajax({
       method: 'get',
-      url: '../data/core/users/' + localStorage.user_id + '/workspaces',
+      url: '../data/core/me/graph',
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
       },
       contentType: 'application/json'
-    }).done(data =>{
-      console.log('AJAX DONE',data);
+    }).done(data => {
       this.trigger('profil_menu_changed', this.menu)
+      console.log("graph done")
       this.trigger('load_user_workspace_graph_done', data.workspaceGraph)
     })
   })
@@ -81,7 +65,7 @@ function ProfilStore () {
   this.on('update_user', function (data) {
     $.ajax({
       method: 'put',
-      url: '../data/core/users/' + localStorage.user_id,
+      url: '../data/core/me',
       data: JSON.stringify(data),
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
@@ -105,13 +89,13 @@ function ProfilStore () {
       }
       if (data.err == null) {
         this.trigger('ajax_sucess', `Votre profil à été mis à jour`)
-        this.trigger('update_profil_done', data)
+        this.trigger('user_from_storage', data)
       }
     }.bind(this))
   })
 
   this.on('navigation', function (entity, id, action) {
-    if (entity == 'profil') {
+    if (entity === 'profil') {
       this.menu = action
       this.trigger('navigation_control_done', entity, action)
     }

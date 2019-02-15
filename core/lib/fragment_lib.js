@@ -304,7 +304,6 @@ module.exports = {
     }
     return object;
   },
-
   cleanFrag: function(id) {
     //console.log('cleanFrag', id);
     this.fragmentModel.getInstance().model.findOne({

@@ -1,82 +1,76 @@
-var jwtService = require('./jwtService');
-var inscription_lib_user = require('../../core/lib/inscription_lib')
-var auth_lib_user = require('../../core/lib/auth_lib');
-var user_lib = require('../../core/lib/auth_lib');
-var configuration = require('../configuration')
-var nodemailer = require("nodemailer");
-var url = './login.html?google_token='
-var user_lib = require('../../core/lib/user_lib');
+const securityService = require('./securityService')
+const inscription_lib_user = require('../../core/lib/inscription_lib')
+const auth_lib_user = require('../../core/lib/auth_lib')
+const configuration = require('../configuration')
+const nodemailer = require('nodemailer')
+const url = './login.html?google_token='
+const user_lib = require('../../core/lib/user_lib')
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
+module.exports = function (router, stompClient) {
+  // TODO ugly
+  this.stompClient = stompClient
 
-module.exports = function (router,stompClient) {
-
-  //TODO ugly
-  this.stompClient=stompClient;
-
-  let sendMail = function (rand, req, email, id, res) {
+  const sendMail = function (rand, req, email, id, res) {
     return new Promise(function (resolve, reject) {
-      host = req.get('host');
-      link = "http://" + req.get('host') + "/auth/verify?id=" + rand + '&userid=' + id;
-       let transporter = nodemailer.createTransport(configuration.smtp, {
+      const link = 'http://' + req.get('host') + '/auth/verify?id=' + rand + '&userid=' + id
+      let transporter = nodemailer.createTransport(configuration.smtp, {
         from: 'Grappe, Confirmer votre email <tech@data-players.com>',
         headers: {
           'X-Laziness-level': 1000 // just an example header, no need to use this
         }
-      });
+      })
       var mailOptions = {
         to: email,
-        subject: "Confirmer Votre compte",
-        html: "Bonjour,<br> Merci de cliquer sur le lien suivant pour confirmer votre compte. <br><a href=" + link + ">Ici </a>"
+        subject: 'Confirmer Votre compte',
+        html: 'Bonjour,<br> Merci de cliquer sur le lien suivant pour confirmer votre compte. <br><a href=' + link + '>Ici </a>'
       }
       transporter.sendMail(mailOptions, function (error) {
         if (error) {
           reject(error)
         } else {
-          resolve("mail sent");
+          resolve('mail sent')
         }
-      });
+      })
     })
-  } //<-- sendMail
+  } // <-- sendMail
 
-  let sendMailPassword = function (rand, req, email, id, res, user) {
+  const sendMailPassword = function (rand, req, email, id, res, user) {
     return new Promise(function (resolve, reject) {
-      host = req.get('host');
-      link = "http://" + req.get('host') + '/auth/login.html#forgot_password/changePassword?u=' + id + '&code=' + rand
-      
+      const link = 'http://' + req.get('host') + '/auth/login.html#forgot_password/changePassword?u=' + id + '&code=' + rand
+
       // Create a SMTP transporter object
       const transporter = nodemailer.createTransport(configuration.smtp, {
         from: 'Grappe, Mettez à jour votre mot de Passe <tech@data-players.com>',
         headers: {
           'X-Laziness-level': 1000 // just an example header, no need to use this
         }
-      });
+      })
 
       var mailOptions = {
         to: email,
-        subject: "Mettez à jour votre mot de Passe",
-        html: "Bonjour ,<br> Mettez à jour votre mot de Passe, <br> <br> Votre code est le suivant <h2>" + rand + "</h1><br><a href=" + link + ">Cliquez ici </a>"
+        subject: 'Mettez à jour votre mot de Passe',
+        html: 'Bonjour ,<br> Mettez à jour votre mot de Passe, <br> <br> Votre code est le suivant <h2>' + rand + '</h1><br><a href=' + link + '>Cliquez ici </a>'
       }
 
       transporter.sendMail(mailOptions, function (error, response) {
         if (error) {
           reject(error)
         } else {
-          resolve("mail sent");
+          resolve('mail sent')
         }
-      });
+      })
     })
-  } //<-- sendMailPassword
-
+  } // <-- sendMailPassword
 
   router.get('/verify', function (req, res) {
-    //console.log(req.query.userid)
+    // console.log(req.query.userid)
     user_lib.get({
       _id: req.query.userid
     }).then((user) => {
-      //console.log(user, req.query.id, user.mailid)
+      // console.log(user, req.query.id, user.mailid)
       if (req.query.id == user.mailid) {
         user.active = true
         user.credit = 2000
@@ -85,41 +79,39 @@ module.exports = function (router,stompClient) {
         }).catch(function (err) {
           if (err) {
             res.send({
-              err: "load error"
+              err: 'load error'
             })
           }
         })
       }
     })
-  }); //<-- mailVerification
-
+  }) // <-- mailVerification
 
   router.post('/is_authorize_component', function (req, res) {
-    let code = req.body[1].split("&code=")[1]
-    let userId = req.body[1].split("&code=")[0].split("u=")[1]
-    //console.log(userId, code)
+    let code = req.body[1].split('&code=')[1]
+    let userId = req.body[1].split('&code=')[0].split('u=')[1]
+    // console.log(userId, code)
     user_lib.get({
       _id: userId
     }).then((user) => {
       if (code == user.resetpasswordmdp) {
         res.send({
-          state: "authorize",
+          state: 'authorize',
           userId: userId
         })
       } else {
         res.send({
-          state: "unauthorize"
+          state: 'unauthorize'
         })
       }
     }).catch(function (err) {
       if (err) {
         res.send({
-          state: "no_user"
+          state: 'no_user'
         })
       }
     })
-  }); //<-- mailVerification
-
+  }) // <-- mailVerification
 
   router.post('/updatepassword', function (req, res) {
     user_lib.get({
@@ -128,32 +120,30 @@ module.exports = function (router,stompClient) {
       if (Date.now() < user.resetpasswordtoken + 600000) {
         user.new_password = req.body.new_password
         user_lib.update(user, null).then(function (result) {
-          console.log("UPDATE DONE", result)
+          console.log('UPDATE DONE', result)
           res.send({
-            state: "password_update"
+            state: 'password_update'
           })
         }).catch(function (err) {
           if (err) {
             res.send({
-              state: "bad_password"
+              state: 'bad_password'
             })
           }
         })
-      }else{
+      } else {
         res.send({
-          state: "token_expired"
+          state: 'token_expired'
         })
       }
     }).catch(function (err) {
       if (err) {
         res.send({
-          state: "no_user"
+          state: 'no_user'
         })
       }
     })
-  }); //<-- updatePassword
-
-
+  }) // <-- updatePassword
 
   router.get('/verifycode/:id/:code', function (req, res) {
     console.log(req.params.id)
@@ -163,22 +153,20 @@ module.exports = function (router,stompClient) {
       if (Date.now() < user.resetpasswordtoken + 600000) {
         if (req.params.code == user.resetpasswordmdp) {
           res.send({
-            state: "good_code"
+            state: 'good_code'
           })
         } else {
           res.send({
-            state: "bad_code"
+            state: 'bad_code'
           })
         }
       } else {
         res.send({
-          state: "token_expired"
+          state: 'token_expired'
         })
       }
     })
-  }); //<-- mailVerification
-
-
+  }) // <-- mailVerification
 
   router.get('/sendbackmail/:id', function (req, res) {
     user_lib.get({
@@ -188,19 +176,17 @@ module.exports = function (router,stompClient) {
         res.send('mail_sent')
       }).catch((err) => {
         res.send({
-          err: "mail_not_sent |" + err
+          err: 'mail_not_sent |' + err
         })
-      });
+      })
     })
-  }) //<-- sendbackmail
-
-
+  }) // <-- sendbackmail
 
   router.get('/passwordforget/:email', function (req, res) {
     user_lib.get({
-      "credentials.email": req.params.email
+      'credentials.email': req.params.email
     }).then((user) => {
-      let rand = Math.floor((Math.random() * 100000));
+      let rand = Math.floor((Math.random() * 100000))
       user.resetpasswordtoken = Date.now()
       user.resetpasswordmdp = rand
       user_lib.update(user, null).then(function (result) {
@@ -211,44 +197,21 @@ module.exports = function (router,stompClient) {
           })
         }).catch((err) => {
           res.send({
-            state: "mail_not_sent"
+            state: 'mail_not_sent'
           })
-        });
+        })
       })
     }).catch((err) => {
       res.send({
-        state: "no_user"
+        state: 'no_user'
       })
-    });
-  }) //<-- passwordforget
-
-
-  // -------------------------------------------------------------------------------
-
-  router.post('/isTokenValid', function (req, res) {
-    //console.log(this);
-    if (req.body.token) {
-      //console.log("isTokenValid",req.body.token);
-      jwtService.require_token(req.body.token).then(function (token_result) {
-        //console.log('isTokenValid',token_result);
-        if (token_result != false) {
-          user_lib.getWithWorkspace(token_result.iss).then(u=>{
-            token_result.profil=u;
-            res.send(token_result);
-          })
-          
-        }
-      }).catch((err) => {
-          res.send(false)
-      })
-    }
-  }.bind(this)); // <= isTokenValid
-
+    })
+  }) // <-- passwordforget
 
   // --------------------------------------------------------------------------------
 
   router.post('/inscription', function (req, res) {
-    let rand = Math.floor((Math.random() * 100) + 54);
+    let rand = Math.floor((Math.random() * 100) + 54)
     inscription_lib_user.create({
       user: {
         mailid: rand,
@@ -265,30 +228,30 @@ module.exports = function (router,stompClient) {
       res.send({
         user: data.user,
         token: data.token.token
-      });
+      })
     }).catch(function (err) {
       if (err == 'name_bad_format') {
         res.send({
-          err: "name_bad_format"
+          err: 'name_bad_format'
         })
       }
       if (err == 'job_bad_format') {
         res.send({
-          err: "job_bad_format"
+          err: 'job_bad_format'
         })
       }
       if (err == 'bad_email') {
         res.send({
-          err: "bad_email"
+          err: 'bad_email'
         })
       }
-      if (err == "user_exist") {
+      if (err == 'user_exist') {
         res.send({
-          err: "user_exist"
+          err: 'user_exist'
         })
       }
     })
-  }); // <= inscription
+  }) // <= inscription
 
   // --------------------------------------------------------------------------------
 
@@ -299,43 +262,39 @@ module.exports = function (router,stompClient) {
         password: req.body.password
       }
     }).then(function (data) {
-      //console.log("authenticate =====>", data)
+      // console.log("authenticate =====>", data)
       res.send({
         user: data.user,
         token: data.token
-      });
+      })
     }).catch(function (err) {
-      if (err == "google_user") {
+      if (err == 'google_user') {
         res.send({
-          err: "google_user"
+          err: 'google_user'
         })
-      } else if (err == "no_account_found") {
+      } else if (err == 'no_account_found') {
         res.send({
-          err: "no_account_found"
+          err: 'no_account_found'
         })
-      } else if (err = "compare_bcrypt") {
+      } else if (err = 'compare_bcrypt') {
         res.send({
-          err: "probleme_procesus"
+          err: 'probleme_procesus'
         })
       }
     })
-  }); // <= authentification
+  }) // <= authentification
 
-  //<-------------------------------------   GOOGLE AUTH   ------------------------------------->
+  // <-------------------------------------   GOOGLE AUTH   ------------------------------------->
 
   auth_lib_user.google_auth(router)
 
   // --------------------------------------------------------------------------------
 
-
   auth_lib_user.google_auth_callbackURL(router, url)
 
   // --------------------------------------------------------------------------------
 
-
   auth_lib_user.google_auth_statefull_verification(router)
 
   // --------------------------------------------------------------------------------
-
-
 }

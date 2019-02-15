@@ -1,6 +1,6 @@
 <navigation>
   <!-- Barre de chargement -->
-  <div id="containerLoaderDiv" if={userAuthentified!=true} class="containerV" style="justify-content:center;">
+  <!--  <div id="containerLoaderDiv" if={userAuthentified!=true} class="containerV" style="justify-content:center;">
     <div id="row">
       <div id="loaderDiv"></div>
       <h1 id="loaderText" class="containerV">
@@ -15,7 +15,7 @@
         </span>
       </h1>
     </div>
-  </div>
+  </div>  -->
   <div id="containerLoaderDiv" if={persistInProgress} class="containerV" style="justify-content:center">
     <div id="row">
       <div id="loaderDiv"></div>
@@ -57,7 +57,7 @@
       <json-previewer-header if={isScrennToShow('workPreview')}></json-previewer-header>
       <!-- Nom d'utilisateur -->
       <div style="flex-grow:0;flex-shrink:0; padding-right:10px;">
-        <h3 style="color:white; font-family: 'Open Sans', sans-serif;">{userConnected.name}</h3>
+        <h3 style="color:white; font-family: 'Open Sans', sans-serif;">{CurrentName}</h3>
       </div>
       <!-- Bouton utilisateur -->
       <div class="containerV" style="flex-grow:0;flex-shrink:0;position:relative;">
@@ -100,16 +100,6 @@
               </div>
             </div>
           </a>
-          <!-- Administrateur -->
-          <a href="#admin//scripts" class="commandButtonImage {selectedMenu:isScrennInHistory('admin')} containerV" if={showAdmin} style="flex-basis:100px;flex-grow:0;position:relative;">
-            <img src="./image/menu/conf.png" style="" width="35px">
-            <div style="text-align:center;padding-top: 5px;font-family: 'Open Sans', sans-serif;color:white;font-size:10px">Paramètres</div>
-            <div if={isScrennInHistory('admin')} class="containerV" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">
-              <div class="containerH" style="justify-content:flex-end;">
-                <div class="arrow-left"></div>
-              </div>
-            </div>
-          </a>
         </div>
       </div>
 
@@ -121,7 +111,6 @@
         <graph if={isScrennToShow('graph')}></graph>
         <workspace-component-editor if={isScrennToShow('component')}></workspace-component-editor>
         <profil if={isScrennToShow('profil')}></profil>
-        <admin if={isScrennToShow('admin')}></admin>
         <jsonpreviewer if={isScrennToShow('workPreview')}></jsonpreviewer>
       </div>
     </div>
@@ -131,29 +120,6 @@
     this.data = {};
     this.persistInProgress = false;
     this.workInProgress = false;
-    // this.isPrincipalMenu = true; this.workspaceName = "" this.actionReady = false; HEADER EVENT filterCards(e) {   RiotControl.trigger('nav_filterCards', e); } addRowClick(e) {   RiotControl.trigger('nav_addRowWorkspace') } persistClick(e) {
-    // RiotControl.trigger('nav_persisteWorkspace') } addComponent(e) {   console.log("In navigation")   RiotControl.trigger("add_component_click") } RiotControl.on("workspace_current_select_done", function (res) {   this.workspaceName = res.name
-    // this.update() }.bind(this)) share(e) {   console.log("share navigation")   RiotControl.trigger("nav_share_workspace")   this.update() }.bind(this) saveWorkspaceComponent(e) {   console.log("saveWorkspaceComponent nav tag")
-    // RiotControl.trigger("nav_component_workspace_editor") } RiotControl.on("row_add_component_select", function () {   console.log("row_add_component_select TEST")   this.actionReady = true;   this.update() }.bind(this)) RiotControl.on("ajax_receipt",
-    // function () {   console.log("in hide");   $("#containerloaderDiv").hide();   this.update() }.bind(this));
-    //
-    // RiotControl.on("ajax_send", function () {   console.log("in show");   $("#containerloaderDiv").show();   this.update() }.bind(this)); TEST LOGIN
-    /*Nom d'utilisateur*/
-
-    this.isGoodUser = function () {
-      RiotControl.trigger('is_token_valid?');
-    }
-
-    //don't work if is placed in mount
-    this.isGoodUser();
-
-    // profilSelectorClick(e) {   RiotControl.trigger('profil_show'); } workspaceSelectorClick(e) {   RiotControl.trigger('workspace_show'); }
-    //
-    // workspaceShareSelectorClick(e) {   RiotControl.trigger('workspace_share_show'); } technicalComponentSelectorClick(e) {   RiotControl.trigger('technicalComponent_show'); } adminSelectorClick(e) {   RiotControl.trigger('admin_show'); }
-    //
-    // showMenu(e) {   RiotControl.trigger('menu_show'); }
-    //
-    // back(e) {   RiotControl.trigger('back'); }
 
     closeError(e) {
       this.errorMessage = undefined;
@@ -163,37 +129,13 @@
       this.sucessMessage = undefined;
     }
 
-    this.isScrennToShow = function (screenToTest) {
-      // let out=false; console.log(this.routePath); if(this.screen!=undefined && this.screen.indexOf(screenToTest)!=-1){   out=true; }
-      let entity = this.userAuthentified
-        ? this.entity
-        : undefined;
-      return screenToTest == entity;
+    this.isScrennToShow =  (screenToTest) => {
+      return screenToTest == this.entity;
     }
 
-    this.isScrennInHistory = function (screenToTest) {
-      // let out = false; if (this.screenHistory != undefined) {   out = sift({     screen: screenToTest   }, this.screenHistory).length > 0; } return out;
-      let entity = this.userAuthentified
-        ? this.entity
-        : undefined;
-      return screenToTest == entity;
+    this.isScrennInHistory = (screenToTest) => {
+      return screenToTest == this.entity;
     }
-
-    RiotControl.on('user_authentified', function (data) {
-      console.log('user_authentified', localStorage.user_id);
-      RiotControl.trigger('load_profil');
-      this.userAuthentified = true;
-      this.update();
-    }.bind(this));
-
-    // RiotControl.on('profil_loaded', function (data) {   console.log('profil_loaded navigation');   this.showAdmin = data.admin;   this.update(); }.bind(this));
-
-    this.profilLoaded = function (data) {
-      console.log('profil_loaded navigation');
-      this.userConnected = data;
-      this.showAdmin = data.admin;
-      this.update();
-    }.bind(this);
 
     RiotControl.on('persist_start', function (data) {
       //console.log('persist_start | ',this.saveButton)
@@ -211,9 +153,6 @@
       this.update();
     });
 
-    // RiotControl.on('item_current_work_start', function (data) {   this.workInProgress = true;   this.update(); }.bind(this)); RiotControl.on('item_current_work_done', function (data) {   this.workInProgress = false;   this.update(); }.bind(this));
-    // RiotControl.on('item_current_work_fail', function () {   this.workInProgress = false;   this.update(); }.bind(this));
-
     RiotControl.on('ajax_fail', function (message) {
       this.errorMessage = message;
       this.update();
@@ -224,36 +163,35 @@
       this.update();
     }.bind(this));
 
-    RiotControl.on('navigation_control_done', function (entity, action) {
-      this.entity = undefined;
-      this.update(); // unmount existing screen to force mount in tags
-      this.entity = entity;
-      this.action = action;
-      this.update();
-    }.bind(this));
+    RiotControl.on('navigation_control_done', (entity, action) => {
+        this.entity = undefined;
+        this.update();
+        this.entity = entity;
+        this.action = action;
+        this.update();
+    });
+
+    this.reload_name = function(profil){
+      this.CurrentName = profil? profil.name: '';
+      this.update()
+    }.bind(this);
+
+    RiotControl.on('user_from_storage', this.reload_name);
 
     this.on('mount', function () {
-      //this.router = route.create()
       route(function (...parts) {
         const [entity, id, action] = parts
-        //this.routePath=path; this.routeHistory=history;
         if (id == undefined && action == undefined) {
           this.entity = entity;
           this.update();
         } else {
-          //console.log('ALLO');
           RiotControl.trigger('navigation', ...parts)
         }
-        //console.log('ROUTE', path); console.log('history',history)
       }.bind(this));
-      route.start(true);
-      RiotControl.on('profil_loaded', this.profilLoaded);
-      //RiotControl.trigger('screenHistoryInit');
-    });
+      RiotControl.trigger('bootstrap')
 
-    this.on('unmount', () => {
-      RiotControl.off('profil_loaded', this.profilLoaded);
-    })
+      route.start(true);
+    });
   </script>
   <style>
     .arrow-left {
@@ -372,7 +310,7 @@
 
     .errorMessage {
       background-color: rgb(255,116,0) !important;
-      color: white;
+      color: white ! important;
       z-index: 999;
       height: 50px;
       display: flex;
@@ -382,7 +320,7 @@
 
     .successMessage {
           background-color: rgb(41,171,135) !important;
-          color: white;
+          color: white !important;
           z-index: 999;
           height: 50px;
           display: flex;

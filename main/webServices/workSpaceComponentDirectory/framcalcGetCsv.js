@@ -1,17 +1,17 @@
-"use strict";
+'use strict';
 
-class FramcalcGetCsv{
-  constructor(){
-    this.type= 'Framacalc';
-    this.description= 'Interroger une feuille de calcul Framacalc/Ethercalc qui fournit un flux CSV.';
-    this.editor= 'framacalc-get-csv-editor';
-    this.graphIcon= 'Framacalc.png';
-    this.tags= [
+class FramcalcGetCsv {
+  constructor () {
+    this.type = 'Framacalc'
+    this.description = 'Interroger une feuille de calcul Framacalc/Ethercalc qui fournit un flux CSV.'
+    this.editor = 'framacalc-get-csv-editor'
+    this.graphIcon = 'Framacalc.png'
+    this.tags = [
       'http://semantic-bus.org/data/tags/inComponents',
       'http://semantic-bus.org/data/tags/APIComponents'
-    ];
-    this.csvToJson = require('csvtojson');
-    this.fetch = require('node-fetch');
+    ]
+    this.csvToJson = require('csvtojson')
+    this.fetch = require('node-fetch')
   }
 
   /**
@@ -19,7 +19,7 @@ class FramcalcGetCsv{
    * @param {number} offset
    * @return {Promise}
    */
-  makeRequest(url, offset) {
+  makeRequest (url, offset) {
     return this.fetchCSV(url)
       .then(rawCSV => this.processCSV(rawCSV, offset))
   }
@@ -28,12 +28,12 @@ class FramcalcGetCsv{
    * @param {string} url
    * @return {Promise<string>}
    */
-  fetchCSV(url) {
+  fetchCSV (url) {
     return this.fetch(this.normalizeUrl(url))
       .then(response => {
-        const hasResponseFailed = response.status >= 400;
+        const hasResponseFailed = response.status >= 400
         if (hasResponseFailed) {
-          return Promise.reject(`Request to ${response.url} failed with HTTP ${response.status}`);
+          return Promise.reject(`Request to ${response.url} failed with HTTP ${response.status}`)
         } else {
           return response.text()
         }
@@ -44,7 +44,7 @@ class FramcalcGetCsv{
    * @param {string} url
    * @return {string}
    */
-  normalizeUrl(url) {
+  normalizeUrl (url) {
     if (url.startsWith('http')) {
       if (url.endsWith('.csv')) {
         return url
@@ -65,14 +65,14 @@ class FramcalcGetCsv{
    * @param {number} offset
    * @return {Promise<FramacalcResult>}
    */
-  processCSV(rawCSV, offset) {
+  processCSV (rawCSV, offset) {
     return new Promise((resolve, reject) => {
       this.csvToJson({ noheader: true })
         .fromString(rawCSV)
         .on('end_parsed', (jsonArr) => {
-          jsonArr.splice(0, offset);
+          jsonArr.splice(0, offset)
 
-          resolve({ data: jsonArr });
+          resolve({ data: jsonArr })
         })
         .on('error', error => reject({ data: error }))
     })
@@ -82,9 +82,9 @@ class FramcalcGetCsv{
    * @param {FramacalcData} data
    * @return {Promise<FramacalcResult>}
    */
-  pull(data) {
-    return this.makeRequest(data.specificData.key, data.specificData.offset);
+  pull (data) {
+    return this.makeRequest(data.specificData.key, data.specificData.offset)
   }
 }
 
-module.exports= new FramcalcGetCsv();
+module.exports = new FramcalcGetCsv()

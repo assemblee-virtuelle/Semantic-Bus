@@ -123,9 +123,8 @@
       </div>
     </div>
   </div>
-
   <!-- Page consommation -->
-  <div show={menu=='running' } class="containerV" style="flex-grow: 1;">
+  <div if={menu=='running' } class="containerV" style="flex-grow: 1;">
     <graph-of-use></graph-of-use>
   </div>
   <!-- Page ajouter un composant -->
@@ -148,16 +147,16 @@
     persistClick = function (e) {
       RiotControl.trigger('workspace_current_persist')
     }
+
     this.workspaceEditorMenuChanged = function (menu) {
       this.menu = menu;
       this.update();
     }.bind(this);
 
     this.workspaceCurrentChanged = function (data) {
-      console.log('workspaceEditor | workspaceCurrentChanged | ', data);
       this.innerData = data;
       this.refs.userZenTable.data = data.users;
-      this.tags['graph-of-use'].data = data
+      //this.tags['graph-of-use'].data = data
       this.update();
     }.bind(this);
 
@@ -175,6 +174,7 @@
       });
       //this.innerData.description = e.target.value;
     }
+
     limitHistoricFieldChange(e) {
       RiotControl.trigger('workspace_current_updateField', {
         field: 'limitHistoric',
@@ -190,6 +190,7 @@
       });
       //this.innerData.description = e.target.value;
     }
+
     limitHistoricFieldChange(e) {
       RiotControl.trigger('workspace_current_updateField', {
         field: 'limitHistoric',
@@ -211,13 +212,20 @@
       RiotControl.trigger('workspace_current_import', file);
     }
 
-    //script bouton ajouter un utilisateur
     showShareClick(e) {
       route('workspace/' + this.innerData._id + '/share');
     }
 
+    updateShareUser(data){
+      console.log(data)
+      RiotControl.trigger('delete-share-workspace',data);
+
+    }
+
     this.on('mount', function () {
-      //console.log('wokspaceEditor | Mount |', this);
+      //user delete
+      console.log("tag", this.tags.zentable)
+      this.tags.zentable.on('delRow',this.updateShareUser);
       RiotControl.on('store_persisteWorkspace', this.persistClick)
       RiotControl.on('workspace_current_changed', this.workspaceCurrentChanged);
       RiotControl.on('share_change', this.shareChange);
@@ -226,7 +234,6 @@
     });
 
     this.on('unmount', function () {
-      //console.log('UNMOUNT');
       RiotControl.off('store_persisteWorkspace', this.persistClick)
       RiotControl.off('workspace_current_changed', this.workspaceCurrentChanged);
       RiotControl.off('share_change', this.shareChange)
