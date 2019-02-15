@@ -2,10 +2,8 @@
 var workspaceComponentModel = require('../models/workspace_component_model');
 var workspaceModel = require('../models/workspace_model');
 var historiqueEndModel = require("../models/historiqueEnd_model");
-var historiqueStartModel = require("../models/historiqueStart_model");
-var config = require('../../main/configuration.js');
 var sift = require('sift');
-
+const Error = require('../helpers/error.js');
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -37,8 +35,7 @@ function _create(workspaceComponents) {
     workspaceComponentModel.getInstance().model.collection.insertMany(componentArray).then(savedComponents => {
       resolve(savedComponents.ops)
     }).catch(e => {
-      console.log("workspaceComponents error",e);
-      reject(e)
+      return reject(new Error.DataBaseProcessError(e))
     });
   })
 }
@@ -51,14 +48,14 @@ function _get(filter) {
     workspaceComponentModel.getInstance().model.findOne(filter)
       .lean().exec(function(err, worksapceComponent) {
         if (err) {
-          reject(err)
+          reject(new Error.DataBaseProcessError(err))
         } else if (worksapceComponent == null) {
-          resolve(undefined);
+          reject(new Error.EntityNotFoundError('workspaceComponent'))
         } else {
           worksapceComponent.specificData = worksapceComponent.specificData || {}; //protection against empty specificData : corrupt data
           resolve(worksapceComponent);
         }
-      });
+      })
   })
 } // <= _get
 
@@ -72,19 +69,14 @@ function _get_all(filter) {
       .lean()
       .exec(function(err, workspaceComponents) {
         if (err) {
-          reject(err)
+          reject(new Error.DataBaseProcessError(err))
         } else {
           workspaceComponents.forEach(c => {
             c.specificData = c.specificData || {}
-          }); //protection against empty specificData : corrupt data
-          // for (let comp of workspaceComponents) {
-          //   if(comp.specificData.transformObject!=undefined && comp.specificData.transformObject.desc!=undefined){
-          //     console.log('YYYYYYYYYYYYYYYYY',encodeURI(comp.specificData.transformObject.desc));
-          //   }
-          // }
+          }); 
           resolve(workspaceComponents);
         }
-      });
+      })
   })
 } // <= _get_all
 
@@ -96,7 +88,7 @@ function _get_all_withConsomation(filter) {
     .lean()
     .exec(function(err, workspaceComponents) {
         if (err) {
-          reject(err)
+          reject(new Error.DataBaseProcessError(err))
         } else {
           workspaceComponents.forEach(c => {
             c.specificData = c.specificData || {}
@@ -120,10 +112,9 @@ function _get_connectBefore_connectAfter(filter) {
       .populate('connectionsAfter')
       .lean().exec(function(err, worksapceComponent) {
         if (err) {
-          reject(err)
+          reject(new Error.DataBaseProcessError(err))
         } else {
           worksapceComponent.specificData = worksapceComponent.specificData || {};
-          ////console.log("connectionBefore", worksapceComponent)
           resolve(worksapceComponent);
         }
       });
@@ -133,13 +124,7 @@ function _get_connectBefore_connectAfter(filter) {
 // --------------------------------------------------------------------------------
 
 function _update(id, componentToUpdate) {
-  ////console.log('ALLLO',componentToUpdate);
   return new Promise((resolve, reject) => {
-    if (config.quietLog != true) {
-      ////console.log("update component");
-    }
-    try {
-      //      resolve(componentToUpdate);
       workspaceComponentModel.getInstance().model.findOneAndUpdate({
         _id: componentToUpdate._id
       }, componentToUpdate, {
@@ -149,23 +134,11 @@ function _update(id, componentToUpdate) {
       .lean()
       .exec((err, componentUpdated) => {
         if (err) {
-          if (config.quietLog != true) {
-            ////console.log("update component failed");
-          }
-          reject(err);
+          reject(new Error.DataBaseProcessError(err))
         } else {
-          if (config.quietLog != true) {
-            //console.log("update component done", componentUpdated);
-          }
-          ////console.log("in resolve")
           resolve(componentUpdated)
         }
       });
-    } catch (e) {
-      if (config.quietLog != true) {
-        ////console.log('EXCEPTION');
-      }
-    }
   });
 
 } // <= _update
@@ -182,13 +155,13 @@ function _remove(componentToDelete) {
       })
     .exec((err, workspace) => {
         if (err || workspace == null) {
-          reject(err != undefined ? err : new Error('no worksapce for this component'));
+          reject(new Error.DataBaseProcessError(err))
         } else {
           workspaceComponentModel.getInstance().model.remove({
             _id: componentToDelete._id
           }).exec((err, res) => {
             if (err) {
-              reject(err)
+              reject(new Error.DataBaseProcessError(err))
             } else {
               workspace.links=sift({$and:[{source:{$ne:componentToDelete._id}},{target:{$ne:componentToDelete._id}}]},workspace.links);
               workspace.save();
@@ -210,7 +183,7 @@ function _get_component_result(componentId, processId) {
       .lean()
       .exec((err, historiqueEnd) => {
         if (err) {
-          reject(err);
+          reject(new Error.DataBaseProcessError(err))
         } else {
           resolve(historiqueEnd);
         }

@@ -28,7 +28,7 @@ module.exports = function (router) {
 
   // ---------------------------------------------------------------------------------
 
-  router.get('/me', function (req, res, next) {
+  router.get('/users/me', function (req, res, next) {
     user_lib.getWithWorkspace(
       UserIdFromToken(req), 'owner'
     ).then(function (result) {
@@ -40,7 +40,7 @@ module.exports = function (router) {
 
   // ---------------------------------------------------------------------------------
 
-  router.get('/me/graph', function (req, res, next) {
+  router.get('/users/me/graph', function (req, res, next) {
     user_lib.userGraph(UserIdFromToken(req)).then(workspaceGraph => {
       res.json({ workspaceGraph })
     }).catch(e => {
@@ -50,8 +50,13 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.put('/me', function (req, res) {
+  router.put('/users/me', function (req, res) {
     req.body.user._id = UserIdFromToken(req)
+    if (req.body.password) {
+      if (Date.now() < user.resetpasswordtoken + 600000) {
+        user.new_password = req.body.new_password
+      }
+    }
     user_lib.update(req.body.user, req.body.mailChange).then(function (result) {
       res.send(result)
     }).catch(function (err) {

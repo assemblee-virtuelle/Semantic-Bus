@@ -65,108 +65,7 @@ module.exports = function (router, stompClient) {
     })
   } // <-- sendMailPassword
 
-  router.get('/verify', function (req, res) {
-    // console.log(req.query.userid)
-    user_lib.get({
-      _id: req.query.userid
-    }).then((user) => {
-      // console.log(user, req.query.id, user.mailid)
-      if (req.query.id == user.mailid) {
-        user.active = true
-        user.credit = 2000
-        user_lib.update(user, null).then(function (result) {
-          res.redirect('https://semantic-bus.org/ihm/application.html')
-        }).catch(function (err) {
-          if (err) {
-            res.send({
-              err: 'load error'
-            })
-          }
-        })
-      }
-    })
-  }) // <-- mailVerification
-
-  router.post('/is_authorize_component', function (req, res) {
-    let code = req.body[1].split('&code=')[1]
-    let userId = req.body[1].split('&code=')[0].split('u=')[1]
-    // console.log(userId, code)
-    user_lib.get({
-      _id: userId
-    }).then((user) => {
-      if (code == user.resetpasswordmdp) {
-        res.send({
-          state: 'authorize',
-          userId: userId
-        })
-      } else {
-        res.send({
-          state: 'unauthorize'
-        })
-      }
-    }).catch(function (err) {
-      if (err) {
-        res.send({
-          state: 'no_user'
-        })
-      }
-    })
-  }) // <-- mailVerification
-
-  router.post('/updatepassword', function (req, res) {
-    user_lib.get({
-      _id: req.body.id
-    }).then((user) => {
-      if (Date.now() < user.resetpasswordtoken + 600000) {
-        user.new_password = req.body.new_password
-        user_lib.update(user, null).then(function (result) {
-          console.log('UPDATE DONE', result)
-          res.send({
-            state: 'password_update'
-          })
-        }).catch(function (err) {
-          if (err) {
-            res.send({
-              state: 'bad_password'
-            })
-          }
-        })
-      } else {
-        res.send({
-          state: 'token_expired'
-        })
-      }
-    }).catch(function (err) {
-      if (err) {
-        res.send({
-          state: 'no_user'
-        })
-      }
-    })
-  }) // <-- updatePassword
-
-  router.get('/verifycode/:id/:code', function (req, res) {
-    console.log(req.params.id)
-    user_lib.get({
-      _id: req.params.id
-    }).then((user) => {
-      if (Date.now() < user.resetpasswordtoken + 600000) {
-        if (req.params.code == user.resetpasswordmdp) {
-          res.send({
-            state: 'good_code'
-          })
-        } else {
-          res.send({
-            state: 'bad_code'
-          })
-        }
-      } else {
-        res.send({
-          state: 'token_expired'
-        })
-      }
-    })
-  }) // <-- mailVerification
+  // --------------------------------------------------------------------------------
 
   router.get('/sendbackmail/:id', function (req, res) {
     user_lib.get({
@@ -182,31 +81,42 @@ module.exports = function (router, stompClient) {
     })
   }) // <-- sendbackmail
 
-  router.get('/passwordforget/:email', function (req, res) {
+  // --------------------------------------------------------------------------------
+
+  router.get('/passwordforget?mail=:mail', function (req, res) {
     user_lib.get({
-      'credentials.email': req.params.email
-    }).then((user) => {
+      'credentials.email': req.params.mail
+    }).then(async (user) => {
       let rand = Math.floor((Math.random() * 100000))
-      user.resetpasswordtoken = Date.now()
-      user.resetpasswordmdp = rand
-      user_lib.update(user, null).then(function (result) {
-        sendMailPassword(rand, req, user.credentials.email, user._id, res).then((result) => {
-          res.send({
-            user: user,
-            state: 'mail_sent'
-          })
-        }).catch((err) => {
-          res.send({
-            state: 'mail_not_sent'
-          })
-        })
-      })
-    }).catch((err) => {
-      res.send({
-        state: 'no_user'
-      })
+      console.log("RAND", rand)
+      await user_lib.createUpdatePasswordEntity(req.params.mail, rand)
+      try {
+        await sendMailPassword(rand, req, user.credentials.mail, user._id, res)
+        res.send({ user })
+      } catch (e) {
+        console.log(e)
+        res.send(e)
+      }
     })
   }) // <-- passwordforget
+
+  // --------------------------------------------------------------------------------
+
+  router.post('/update-password?code=:code&mail=:mail', async (req, res) => {
+    let updatePasswordEntity = await user_lib.getPasswordEntity({ userMail: req.params.mail })
+    console.log('sds', req.params.code, updatePasswordEntity.token)
+    if (req.params.code === updatePasswordEntity.token && Date.now() < updatePasswordEntity.timeStamp + 600000) {
+      let user = await user_lib.get({ 'credentials.email': req.params.email })
+      user.new_password = req.body.new_password
+      await user_lib.update(user, null)
+      console.log('200')
+      res.send({
+        state: 'password_update'
+      })
+    } else {
+      console.log('401')
+    }
+  }) // <-- updatePassword
 
   // --------------------------------------------------------------------------------
 
@@ -222,7 +132,7 @@ module.exports = function (router, stompClient) {
         passwordConfirm: req.body.confirmPasswordInscription,
         password: req.body.passwordInscription
       }
-    }).then(function (data) {
+    }).then((data) => {
       // console.log("inscription data ====>", data.token)
       sendMail(rand, req, req.body.emailInscription, data.token.user)
       res.send({
@@ -230,6 +140,7 @@ module.exports = function (router, stompClient) {
         token: data.token.token
       })
     }).catch(function (err) {
+      console.log(err)
       if (err == 'name_bad_format') {
         res.send({
           err: 'name_bad_format'
@@ -295,6 +206,4 @@ module.exports = function (router, stompClient) {
   // --------------------------------------------------------------------------------
 
   auth_lib_user.google_auth_statefull_verification(router)
-
-  // --------------------------------------------------------------------------------
 }

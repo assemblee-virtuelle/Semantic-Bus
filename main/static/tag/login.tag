@@ -151,33 +151,9 @@
     </div>
   </div>
 
-  <!-- code d'activation mail-->
-  <div class="containerH" if={isScrennToShow('enter_code')} style="justify-content: center; align-items: center;flex-grow:2">
-    <div class="containerV" style="justify-content: center;width: 600px; height: 600px">
-      <div class="containerH" style="flex-wrap:wrap;overflow:auto">
-        <!-- Focus Code -->
-        <div class="containerV box" style="flex-grow:2">
-          <div class="containerH" style="justify-content: center; align-items: center;">
-            <h3>Entrez le code envoyé par mail</h3>
-          </div>
-          <label class="label-form">Code</label>
-          <input ref="codeforgotpassword" onchange={codeforgotpasswordChange} id="test-nameInscription" placeholder="saisissez le code" required="required"/>
-          <p>{result_code}</p>
-          <!--bouton envoyer + annuler -->
-          <div onclick={verifecode} class=" btn containerH" style="justify-content: center; align-items: center;flex-wrap:wrap">
-            <a>Envoyer</a>
-          </div>
-          <div onclick={returnlogin} class="btn containerH" id="btn2" style="justify-content: center; align-items: center;flex-wrap:wrap">
-            <a>Annuler</a>
-          </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
   <!-- Changer de mot de passe -->
 
-  <div class="containerH" if={isScrennToShow('forgot_password/changePassword') && isScrennAuthorizeBoolean} style="justify-content: center; align-items: center;flex-grow:2">
+  <div class="containerH" if={isScrennToShow('forgot_password/changePassword')} style="justify-content: center; align-items: center;flex-grow:2">
     <div class="containerV" style="justify-content: center;width: 600px; height: 600px">
       <div class="containerH" style="flex-wrap:wrap;overflow:auto">
         <!-- Focus Code -->
@@ -200,19 +176,6 @@
     </div>
   </div>
 
-  <!-- A quoi sert cette page ? -->
-
-  <div class="containerH" show={isScrennToShow('forgot_password/changePassword') && !isScrennAuthorizeBoolean}>
-    <div class="containerV">
-      <div class="box">
-        <div class="title-insc-block">
-          <h2 style="color:rgb(117,117,117)">
-            Vous ne devriez pas essayer d'acceder a cette url :o
-          </h2>
-        </div>
-      </div>
-    </div>
-  </div>
 
   <!-- A quoi sert cette page ? -->
 
@@ -253,10 +216,8 @@
     this.result_email = ""
     this.badcodechangepassword = ""
     this.result_password = ""
-    this.isScrennAuthorizeBoolean = false
     this.urls = [
       '#loading',
-      '#forgot_password/changePassword',
       '#forgot_password/changePassword',
       '#enter_code',
       '#initiat',
@@ -279,20 +240,6 @@
       //console.log(screenToTest == this.entity)
       return screenToTest == this.entity;
     }
-
-    this.isScrennAuthorize = function () {
-      RiotControl.trigger('is_authorize', window.location.href.split('?'));
-    }
-
-    RiotControl.on("is_authorize_true", function (data) {
-      this.isScrennAuthorizeBoolean = true
-      this.update()
-    }.bind(this));
-
-    RiotControl.on("is_authorize_false", function () {
-      this.isScrennAuthorizeBoolean = false
-      this.update()
-    }.bind(this));
 
     RiotControl.on("error_change_code", function () {
       this.result_code = "Le mot de passe entré n'est pas correct"
@@ -555,10 +502,6 @@
         route('connexion')
       }
       route(function (entity, id, action) {
-        if (entity == "forgot_password") {
-          this.isScrennAuthorize()
-        }
-        console.log(entity, id, action);
         //this.routePath=path; this.routeHistory=history;
         if (id == undefined && action == undefined) {
           this.entity = entity;

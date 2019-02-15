@@ -7,7 +7,10 @@ let bcrypt = require("bcryptjs");
 let sift = require("sift");
 let graphTraitement = require("../../main/utils/graph-traitment");
 let historiqueModel = require("../models").historiqueEnd;
+let passwordUpdate = require("../models/password_update");
 let workspaceModel = require("../models").workspace;
+const Error = require('../helpers/error.js');
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
@@ -21,7 +24,9 @@ module.exports = {
   get_all: _get_all,
   update: _update,
   getWithWorkspace: _getWithWorkspace,
-  userGraph: _userGraph
+  userGraph: _userGraph,
+  createUpdatePasswordEntity: _createUpdatePasswordEntity,
+  getPasswordEntity: _getPasswordEntity
 };
 
 // --------------------------------------------------------------------------------
@@ -42,7 +47,7 @@ function _create(bodyParams) {
 
     }).then(user => {
       resolve(user);
-    }).catch(function (err) {
+    }).catch((err) => {
       reject(err);
     });
   });
@@ -50,11 +55,8 @@ function _create(bodyParams) {
 
 function _create_mainprocess(preData) {
   return new Promise(function (resolve, reject) {
-    if (config.quietLog != true) {
-      //console.log(" ------ Predata mainProcess ------- ", preData)
-    }
     const userModelInstance = userModel.getInstance().model;
-    var user = new userModelInstance({
+    const user = new userModelInstance({
       credentials: {
         email: preData.email,
         hashed_password: preData.hashedPassword
@@ -70,7 +72,7 @@ function _create_mainprocess(preData) {
     });
     user.save(function (err, userData) {
       if (err) {
-        resolve(err);
+        if (err && err.code == 11000) return reject(new Error.UniqueEntityError("User"))
       } else {
         resolve(userData);
       }
@@ -79,95 +81,81 @@ function _create_mainprocess(preData) {
 } // <= _create_mainprocess
 
 function _create_preprocess(userParams) {
-  var user_final = {};
+  const user_final = {};
   return new Promise(function (resolve, reject) {
-    _get({
-      "credentials.email": userParams.email
-    }).then((user) => {
-      if (user == null) {
-        var mail = new Promise(function (resolve, reject) {
-          const Usermail = Object.assign({}, userParams)
-          if (!Usermail.email) {
-            reject("no_email_provided");
-          } else if (!_check_email(Usermail.email)) {
-            reject("bad_email")
-          } else {
-            resolve(Usermail.email)
-          }
-        });
-        var job = new Promise(function (resolve, reject) {
-          if (!userParams.job) {
-            resolve(null);
-          }
-          _check_job(userParams.job).then(function (boolean) {
-            if (config.quietLog != true) {
-              //console.log("job:", userParams.job, "check job :", boolean);
-            }
-            if (!boolean) {
-              reject("job_bad_format");
-            } else {
-              resolve(userParams.job);
-            }
-          });
-        });
-        var name = new Promise(function (resolve, reject) {
-          if (!userParams.name) {
-            resolve(null);
-          }
-          _check_name(userParams.name).then(function (boolean) {
-            if (config.quietLog != true) {
-              //console.log("name:", userParams.name, "check name :", boolean);
-            }
-            if (!boolean) {
-              reject("name_bad_format");
-            } else {
-              resolve(userParams.name);
-            }
-          });
-        });
-
-        var hash_password = new Promise(function (resolve, reject) {
-          _hash_password(userParams.password, userParams.passwordConfirm).then(
-            function (hashedPassword) {
-              resolve(hashedPassword);
-            }
-          );
-        });
-
-        var society = new Promise(function (resolve, reject) {
-          if (userParams.society) {
-            resolve(userParams.society);
-          } else {
-            resolve(null);
-          }
-        });
-
-        var mailid = new Promise(function (resolve, reject) {
-          if (userParams.mailid) {
-            resolve(userParams.mailid);
-          } else {
-            resolve(null);
-          }
-        });
-        // return new Promise(function (resolve, reject) {
-        Promise.all([mail, name, hash_password, job, society, mailid])
-          .then((userPromise) => {
-            //console.log('XXXXXXXXXXXXXXXXXX',user);
-            user_final["email"] = userPromise[0];
-            user_final["name"] = userPromise[1];
-            user_final["hashedPassword"] = userPromise[2];
-            user_final["job"] = userPromise[3];
-            user_final["society"] = userPromise[4];
-            user_final["mailid"] = userPromise[5];
-            resolve(user_final);
-          })
-          .catch((err) => {
-            reject(err);
-          });
+    let mail = new Promise(function (resolve, reject) {
+      const Usermail = Object.assign({}, userParams)
+      if (!_check_email(Usermail.email)) {
+        reject(new Error.PropertyValidationError('mail'))
       } else {
-        reject("user_exist");
+        resolve(Usermail.email)
       }
     });
+    let job = new Promise(function (resolve, reject) {
+      if (!userParams.job) {
+        resolve(null);
+      }
+      _check_job(userParams.job).then(function (boolean) {
+        if (config.quietLog != true) {
+          //console.log("job:", userParams.job, "check job :", boolean);
+        }
+        if (!boolean) {
+          reject(new Error.PropertyValidationError('job'))
+        } else {
+          resolve(userParams.job);
+        }
+      });
+    });
+    let name = new Promise(function (resolve, reject) {
+      if (!userParams.name) {
+        resolve(null);
+      }
+      _check_name(userParams.name).then(function (boolean) {
+        if (config.quietLog != true) {
+          //console.log("name:", userParams.name, "check name :", boolean);
+        }
+        if (!boolean) {
+          reject(new Error.PropertyValidationError('name'))
+        } else {
+          resolve(userParams.name);
+        }
+      });
+    });
+    let hash_password = new Promise(function (resolve) {
+      _hash_password(userParams.password, userParams.passwordConfirm).then(
+        function (hashedPassword) {
+          resolve(hashedPassword);
+        }
+      );
+    });
+    let society = new Promise(function (resolve, reject) {
+      if (userParams.society) {
+        resolve(userParams.society);
+      } else {
+        resolve(null);
+      }
+    });
+    let mailid = new Promise(function (resolve, reject) {
+      if (userParams.mailid) {
+        resolve(userParams.mailid);
+      } else {
+        resolve(null);
+      }
+    });
+
+    Promise.all([mail, name, hash_password, job, society, mailid])
+      .then((userPromise) => {
+        user_final["email"] = userPromise[0];
+        user_final["name"] = userPromise[1];
+        user_final["hashedPassword"] = userPromise[2];
+        user_final["job"] = userPromise[3];
+        user_final["society"] = userPromise[4];
+        user_final["mailid"] = userPromise[5];
+        resolve(user_final);
+      })
+      .catch((err) => {
+        reject(err);
+      });
   });
 } // <= _create_preprocess
 
@@ -648,3 +636,37 @@ function _is_google_user(user) {
 } // <= _is_google_user
 
 // --------------------------------------------------------------------------------
+
+function _createUpdatePasswordEntity(userMail, token ) {
+  return new Promise(function (resolve, reject) {
+    passwordUpdate.get()
+      .update({userMail}, {userMail, token}, {upsert: true, setDefaultsOnInsert: true})
+      .exec(function (err, userData) {
+        if(err){
+          return reject(new Error.DataBaseProcessError(err))
+        } else {
+          resolve(true);
+        }
+      });
+  });
+} // <= _createUpdatePasswordEntity
+
+
+// --------------------------------------------------------------------------------
+
+function _getPasswordEntity(mail) {
+  return new Promise(function (resolve, reject) {
+    passwordUpdate.get()
+      .find({userMail: mail})
+      .exec((err, data) => {
+        if(err){
+          return reject(new Error.DataBaseProcessError(err))
+        }
+        if( data == null){
+          reject(new Error.EntityNotFoundError(err))
+        } else {
+          resolve(data)
+        }
+      });
+  });
+} // <= _createUpdatePasswordEntity

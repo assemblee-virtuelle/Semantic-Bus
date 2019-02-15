@@ -9,7 +9,7 @@ function MainController (allStore) {
     $.ajax({
       method: 'get',
       contentType: 'application/json',
-      url: '../data/core/me',
+      url: '../data/core/users/me',
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
       },

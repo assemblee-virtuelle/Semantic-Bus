@@ -8,52 +8,24 @@ var mongoose = require('mongoose');
 
 
 
-var HistoriqueStartSchema = mongoose.Schema({
-  processId: {
-    type: String,
-  },
-  moPrice: {
-    type: Number
-  },
-  componentName: {
-    type: String,
-  },
-  componentPrice: {
-    type: Number,
-    default: null
-  },
-  componentModule: {
-    type: String,
-    default: "module"
-  },
-  moCount: {
-    type: Number
-  },
+var UpdatePasswordSchema = mongoose.Schema({
+
   timeStamp: {
     type: Date,
     default: Date.now,
+    required: true
   },
-  componentId: {
+  userMail: {
     type: String,
     required: true
   },
-  recordCount: {
-    type: Number,
-    default: 0,
+  token: {
+    type: String,
     required: true
   },
-  totalPrice: {
-    type: Number,
-    required: true
-  },
-  recordPrice: {
-    type: Number,
-    required: true
-  },
-
 });
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-module.exports = HistoriqueStartSchema;
+module.exports = UpdatePasswordSchema;

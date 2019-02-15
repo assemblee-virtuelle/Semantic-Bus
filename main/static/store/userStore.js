@@ -66,31 +66,12 @@ function UserStore () {
     })
   })
 
-  this.on('is_authorize', function (data) {
-    if (data.length > 1) {
-      $.ajax({
-        method: 'post',
-        data: JSON.stringify(data),
-        contentType: 'application/json',
-        url: '/auth/is_authorize_component'
-      }).done(data => {
-        if (data.state == 'authorize') {
-          this.trigger('is_authorize_true')
-        } else {
-          this.trigger('is_authorize_false')
-        }
-      })
-    } else {
-      this.trigger('is_authorize_false')
-    }
-  })
-
   this.on('forgot_password', function (email) {
     console.log(email)
     $.ajax({
       method: 'get',
       contentType: 'application/json',
-      url: '/auth/passwordforget/' + email
+      url: '/auth/passwordforget?mail=' + email
     }).done(data => {
       console.log('mail sent', data)
       if (data.state == 'mail_sent') {

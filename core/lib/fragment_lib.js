@@ -6,9 +6,8 @@ const Error = require('../helpers/error.js');
 const objectSizeOf = require("object-sizeof");
 
 class Fragment {
-  
-  async frag(frag, key) {
-    return new Promise((resolve, reject) => {
+  frag(frag, key) {
+    return new Promise(async (resolve, reject) => {
       if (Array.isArray(frag.data)) {
         if (objectSizeOf(frag.data) > 1000) {
           
@@ -114,12 +113,11 @@ class Fragment {
       }
     })
   };
-  async persist(datas, createOnly) {
-    return new Promise((resolve, reject) => {
+  persist(datas, createOnly) {
+    return new Promise(async (resolve, reject) => {
       if (datas instanceof Object) {
         let fragReadyPromises = [];
         let fragReadyFargs = [];
-        let persistReadyPromises = [];
 
         if (!Array.isArray(datas)) {
           datas = [datas];
@@ -225,13 +223,13 @@ class Fragment {
         .then((fragmentReturn) => {
           resolve(fragmentReturn)
         }).catch(err => {
-          return reject(new Error.DataBaseProcessError(e))
+          return reject(new Error.DataBaseProcessError(err))
         });
       });
   };
-  async getWithResolution(id) {
+  getWithResolution(id) {
     
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
   
       
       let fragmentReturn; 

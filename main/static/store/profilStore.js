@@ -14,7 +14,7 @@ function ProfilStore () {
     console.log("load_user_workspace_graph")
     $.ajax({
       method: 'get',
-      url: '../data/core/me/graph',
+      url: '../data/core/users/me/graph',
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
       },
@@ -65,7 +65,7 @@ function ProfilStore () {
   this.on('update_user', function (data) {
     $.ajax({
       method: 'put',
-      url: '../data/core/me',
+      url: '../data/core/users/me',
       data: JSON.stringify(data),
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
