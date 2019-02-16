@@ -17,14 +17,17 @@ class ValueFromPath {
     pathObject = JSON.parse(JSON.stringify(pathObject));
     // console.log('progress', pathArray,node, pathObject);
 
-    if (Array.isArray(node)) {
+    let index = parseInt(pathArray[0]);
+
+
+    if (Array.isArray(node)&&isNaN(index)) {
       let out=[];
       node.forEach(r => {
-        console.log('r before', r);
+        // console.log('r before', r);
         out.push(this.progress(r, pathArray, pathObject,currentKey));
         // console.log('r after', r);
       });
-      console.log('out',out);
+      // console.log('out',out);
       return out;
 
     } else {
@@ -58,6 +61,7 @@ class ValueFromPath {
 
   resolve(source, specificData) {
     let matches = specificData.path.split('.');
+    // console.log('matches',matches);
     let result = this.progress(source, matches, {},'root');
     // console.log('result',result);
     return (result)
@@ -68,7 +72,7 @@ class ValueFromPath {
     return new Promise((resolve, reject) => {
       //console.log(flowData[0],data.specificData.path);
       //let value=this.dotProp.get(flowData[0].data, data.specificData.path)
-      let value = this.resolve(flowData[0].data, data.specificData)
+      let value = this.resolve(flowData[0].data, data.specificData);
       resolve({
         data: value
       });
