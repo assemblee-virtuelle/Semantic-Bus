@@ -1,5 +1,6 @@
-function UserStore () {
+function UserStore (utilStore) {
   riot.observable(this)
+  this.utilStore = utilStore
   this.userCurrrent
 
   this.sleep = function (ms) {
@@ -7,11 +8,11 @@ function UserStore () {
   }
 
   this.on('user_connect', function (user) {
-    $.ajax({
+    this.utilStore.ajaxCall({
       method: 'post',
       data: JSON.stringify(user),
       contentType: 'application/json',
-      url: '/auth/authenticate',
+      url: '/data/auth/authenticate',
       beforeSend: function () {
         this.trigger('ajax_send_login')
       }.bind(this)
@@ -44,11 +45,11 @@ function UserStore () {
 
   this.on('google_connect', function (token) {
     var tokenObject = { token }
-    $.ajax({
+    this.utilStore.ajaxCall({
       method: 'post',
       data: JSON.stringify(tokenObject),
       contentType: 'application/json',
-      url: '/auth/google_auth_statefull_verification',
+      url: '/data/auth/google_auth_statefull_verification',
       beforeSend: function () {
         this.trigger('ajax_send_login')
       }.bind(this)
@@ -68,10 +69,10 @@ function UserStore () {
 
   this.on('forgot_password', function (email) {
     console.log(email)
-    $.ajax({
+    this.utilStore.ajaxCall({
       method: 'get',
       contentType: 'application/json',
-      url: '/auth/passwordforget?mail=' + email
+      url: '/data/auth/passwordforget?mail=' + email
     }).done(data => {
       console.log('mail sent', data)
       if (data.state == 'mail_sent') {
@@ -85,10 +86,10 @@ function UserStore () {
   this.on('verife_code', function (data) {
     console.log('verifecode', data)
     if (data.user._id) {
-      $.ajax({
+      this.utilStore.ajaxCall({
         method: 'get',
         contentType: 'application/json',
-        url: '/auth/verifycode/' + data.user._id + '/' + data.code
+        url: '/data/auth/verifycode/' + data.user._id + '/' + data.code
       }).done(data => {
         console.log('verif code done', data)
         if (data.state == 'good_code') {
@@ -106,12 +107,12 @@ function UserStore () {
 
   this.on('update_password', function (data) {
     console.log('update_password', JSON.stringify(data))
-    $.ajax({
+    this.utilStore.ajaxCall({
       method: 'post',
       contentType: 'application/json',
       data: JSON.stringify(data),
-      url: '/auth/updatepassword'
-    }).done(data => {s
+      url: '/data/auth/updatepassword'
+    }).done(data => {
       if (data.state == 'password_update') {
         this.trigger('password_update')
       } else if (data.state == 'token_expired') {
@@ -125,11 +126,11 @@ function UserStore () {
   })
 
   this.on('user_inscription', function (user) {
-    $.ajax({
+    this.utilStore.ajaxCall({
       method: 'post',
       data: JSON.stringify(user),
       contentType: 'application/json',
-      url: '/auth/inscription',
+      url: '/data/auth/inscription',
       beforeSend: function () {
         this.trigger('ajax_send_login')
       }.bind(this)
@@ -170,7 +171,7 @@ function UserStore () {
   })
 
   this.on('google_user_connect', function () {
-    $.ajax({
+    this.utilStore.ajaxCall({
       method: 'get',
       headers: {
         'Access-Control-Allow-Origin': '*',
@@ -181,7 +182,7 @@ function UserStore () {
         this.trigger('ajax_send_login')
       }.bind(this),
       contentType: 'text/html',
-      url: '/auth/google'
+      url: '/data/auth/google'
     }).done(data => {
       sleep(2000).then(function () {
         this.trigger('ajax_receipt_login', '/connexion')

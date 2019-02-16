@@ -28,6 +28,26 @@ module.exports = function (router) {
 
   // ---------------------------------------------------------------------------------
 
+  router.post('/users/mail?mail=:mail', async (req, res) => {
+    try {
+      let rand = Math.floor((Math.random() * 100000))
+      await user_lib.createUpdatePasswordEntity(req.params.mail, rand)
+      const link = 'http://' + req.get('host') + '/auth/secure?code=:' + rand + '&mail=' + req.params.mail
+      const mailOptions = {
+        from: 'Grappe, Confirmer votre email <tech@data-players.com>',
+        to: req.params.mail,
+        subject: 'Confirmer Votre compte',
+        html: 'Bonjour,<br> Merci de cliquer sur le lien suivant pour confirmer votre compte. <br><a href=' + link + '>Ici </a>'
+      }
+      await mailService.sendMail(req, res, mailOptions)
+      res.sendStatus(200)
+    } catch (e) {
+      res.sendStatus(500)
+    }
+  }) // <-- mail_user
+
+  // ---------------------------------------------------------------------------------
+
   router.get('/users/me', function (req, res, next) {
     user_lib.getWithWorkspace(
       UserIdFromToken(req), 'owner'

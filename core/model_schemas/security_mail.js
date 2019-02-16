@@ -8,7 +8,7 @@ var mongoose = require('mongoose');
 
 
 
-var UpdatePasswordSchema = mongoose.Schema({
+var SecureMail = mongoose.Schema({
 
   timeStamp: {
     type: Date,
@@ -28,4 +28,4 @@ var UpdatePasswordSchema = mongoose.Schema({
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-module.exports = UpdatePasswordSchema;
+module.exports = SecureMail;

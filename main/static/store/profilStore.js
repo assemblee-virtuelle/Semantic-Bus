@@ -21,15 +21,14 @@ function ProfilStore () {
       contentType: 'application/json'
     }).done(data => {
       this.trigger('profil_menu_changed', this.menu)
-      console.log("graph done")
       this.trigger('load_user_workspace_graph_done', data.workspaceGraph)
     })
   })
 
   this.on('send_back_email', function (data) {
     $.ajax({
-      method: 'get',
-      url: '../auth/sendbackmail/' + data.user._id,
+      method: 'post',
+      url: '../users/mail?=' + data.user.credentials.email,
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
       },
@@ -104,6 +103,6 @@ function ProfilStore () {
   this.on('deconnexion', function (message) {
     localStorage.token = null
     localStorage.user_id = null
-    window.open('../auth/login.html', '_self')
+    window.open('../ihm/login.html', '_self')
   })
 }

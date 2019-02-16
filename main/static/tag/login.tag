@@ -61,7 +61,7 @@
           <!-- Bouton Google -->
           <span></span>
           <div class="containerH">
-            <a href="/auth/google" class="btn google">
+            <a href="/data/auth/google" class="btn google">
               <img src="../ihm/image/google-plus.png" alt="" id="googleP" style="padding-right: 10px;height: 25px; width:25px;">
               Connexion avec un compte Google</a>
           </div>
@@ -533,6 +533,7 @@
       padding: 8px;
       color: rgb(161,161,161);
       margin-top: 5px;
+      width:90%;
       font-size: 1em;
       border-radius: 0;
       flex: 1;
@@ -627,11 +628,7 @@
       background: rgb(255,255,255);
       /*width: 500px;*/
       margin-top: 5vh;
-      border: 1px solid rgba(133,133,133,0.38);
       /*padding: 10px;*/
-      margin: 5px;
-      padding: 5px;
-      box-shadow: 0 0 5px 0 rgba(133,133,133,0.38);
     }
 
     /*.inscriptionChoice > div {

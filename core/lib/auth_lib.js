@@ -108,7 +108,6 @@ class AuthLib {
       subject: user.googleid,
     }
     
-    console.log("in authentification", config)
     const token = jwt.encode(payload, config.secret);
 
     const authenticationModelInstance = authenticationModel.getInstance().model;
@@ -141,12 +140,13 @@ class AuthLib {
    * @param {string} redirect_url
    * @public
    */
-  google_auth_callbackURL(router, redirect_url) {
-    router.get('/', passport.authenticate('google', {
-      failureRedirect: '/login.html',
+  google_auth_callbackURL(router) {
+    const url = '../../ihm/login.html?google_token='
+    router.get('/oauth-callback', passport.authenticate('google', {
+      failureRedirect: '../../ihm/login.html',
       session: false
     }), (req, res) => {
-      res.redirect(redirect_url + res.req.user.googleToken);
+      res.redirect(url + res.req.user.googleToken);
     });
   }
 

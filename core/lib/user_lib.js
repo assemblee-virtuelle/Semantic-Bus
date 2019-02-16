@@ -7,7 +7,7 @@ let bcrypt = require("bcryptjs");
 let sift = require("sift");
 let graphTraitement = require("../../main/utils/graph-traitment");
 let historiqueModel = require("../models").historiqueEnd;
-let passwordUpdate = require("../models/password_update");
+let SecureMailModel = require("../models/security_mail");
 let workspaceModel = require("../models").workspace;
 const Error = require('../helpers/error.js');
 
@@ -85,7 +85,7 @@ function _create_preprocess(userParams) {
   return new Promise(function (resolve, reject) {
     let mail = new Promise(function (resolve, reject) {
       const Usermail = Object.assign({}, userParams)
-      if (!_check_email(Usermail.email)) {
+      if (!_check_email(Usermail.email)|| !Usermail.email) {
         reject(new Error.PropertyValidationError('mail'))
       } else {
         resolve(Usermail.email)
@@ -582,26 +582,21 @@ function _hash_password(password, passwordConfirm) {
   return new Promise(function (resolve, reject) {
     if (passwordConfirm) {
       if (password != passwordConfirm) {
-        if (config.quietLog != true) {
-          //console.log("password != password confirme");
-        }
         reject(403);
+        return reject(new Error.PropertyValidationError("password"))
       }
     }
     if (!pattern.password.test(password)) {
-      if (config.quietLog != true) {
-        //console.log('password != password pattern');
-      }
-      reject(403);
+      return reject(new Error.PropertyValidationError("password"))
     }
 
     bcrypt.genSalt(10, function (err, salt) {
       if (err) {
-        throw err;
+        return reject(new Error.PropertyValidationError("password"))
       }
       bcrypt.hash(password, salt, function (err, hash) {
         if (err) {
-          throw err;
+          return reject(new Error.PropertyValidationError("password"))
         } else {
           resolve(hash);
         }
@@ -639,7 +634,7 @@ function _is_google_user(user) {
 
 function _createUpdatePasswordEntity(userMail, token ) {
   return new Promise(function (resolve, reject) {
-    passwordUpdate.get()
+    SecureMailModel.get()
       .update({userMail}, {userMail, token}, {upsert: true, setDefaultsOnInsert: true})
       .exec(function (err, userData) {
         if(err){
@@ -656,8 +651,8 @@ function _createUpdatePasswordEntity(userMail, token ) {
 
 function _getPasswordEntity(mail) {
   return new Promise(function (resolve, reject) {
-    passwordUpdate.get()
-      .find({userMail: mail})
+    SecureMailModel.get()
+      .findOne({userMail: mail})
       .exec((err, data) => {
         if(err){
           return reject(new Error.DataBaseProcessError(err))

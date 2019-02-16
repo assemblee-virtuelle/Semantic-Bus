@@ -61,15 +61,15 @@ httpGet.makeRequest('GET', {
         })
       })
       const onConnect = function (amqpClient) {
-        app.use('/auth', express.static('static'))
-        app.use('/auth', unSafeRouteur)
         app.use('/configuration', unSafeRouteur)
-        app.use('/data/specific', safe)
         app.use('/data/api', unSafeRouteur)
+        app.use('/data/specific', safe)
+
+        app.use('/data/auth', unSafeRouteur)
         app.use('/data/core', safe)
 
         require('./webServices/initialiseWebService')(unSafeRouteur, amqpClient)
-        require('./webServices/authWebService')(unSafeRouteur, amqpClient)
+        require('./webServices/authWebService')(unSafeRouteur)
         require('./webServices/workspaceWebService')(safe, amqpClient)
         require('./webServices/technicalComponentWebService')(safe, unSafeRouteur, amqpClient)
         require('./webServices/userWebservices')(safe, amqpClient)

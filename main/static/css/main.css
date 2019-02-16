@@ -230,9 +230,9 @@ label {
   flex-wrap: wrap;
   background-color: white;
   padding: 2%;
-  border-radius: 5px;
+  /* border-radius: 5px; */
   justify-content: center;
   flex-grow: 0.5;
-  border: 1px solid rgba(133, 133, 133, 0.38);
-  box-shadow: 0 0 5px 0 rgba(133, 133, 133, 0.38);
+  /* border: 1px solid rgba(133, 133, 133, 0.38);
+  box-shadow: 0 0 5px 0 rgba(133, 133, 133, 0.38); */
 }

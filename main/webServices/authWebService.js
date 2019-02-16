@@ -1,167 +1,154 @@
-const securityService = require('./securityService')
 const inscription_lib_user = require('../../core/lib/inscription_lib')
 const auth_lib_user = require('../../core/lib/auth_lib')
-const configuration = require('../configuration')
-const nodemailer = require('nodemailer')
-const url = './login.html?google_token='
 const user_lib = require('../../core/lib/user_lib')
+const mailService = require('./services/mail')
+const jwt = require('jwt-simple')
+const moment = require('moment')
+const config = require('../configuration')
+const Error = require('../../core/helpers/error')
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-module.exports = function (router, stompClient) {
-  // TODO ugly
-  this.stompClient = stompClient
+const encodeToken = (mail, action) => {
+  const payload = {
+    exp: moment().add(14, 'days').unix(),
+    iat: moment().unix(),
+    iss: mail,
+    subject: action
+  }
+  // const secret = action == 'recovery_password' ? config.scretMailPassword : config.secretMailVerify
+  const secret = action == 'recovery_password' ? 'password' : 'mail'
 
-  const sendMail = function (rand, req, email, id, res) {
-    return new Promise(function (resolve, reject) {
-      const link = 'http://' + req.get('host') + '/auth/verify?id=' + rand + '&userid=' + id
-      let transporter = nodemailer.createTransport(configuration.smtp, {
-        from: 'Grappe, Confirmer votre email <tech@data-players.com>',
-        headers: {
-          'X-Laziness-level': 1000 // just an example header, no need to use this
-        }
-      })
-      var mailOptions = {
-        to: email,
-        subject: 'Confirmer Votre compte',
-        html: 'Bonjour,<br> Merci de cliquer sur le lien suivant pour confirmer votre compte. <br><a href=' + link + '>Ici </a>'
-      }
-      transporter.sendMail(mailOptions, function (error) {
-        if (error) {
-          reject(error)
-        } else {
-          resolve('mail sent')
-        }
-      })
+  return jwt.encode(payload, secret)
+}
+
+const errorHandling = (e, res) => {
+  console.log(e instanceof Error.UniqueEntityError)
+  if (e instanceof Error.DataBaseProcessError) {
+    console.log('DataBaseProcessError', e)
+    res.status(500).send({
+      success: false,
+      message: 'Erreur Interne'
     })
-  } // <-- sendMail
-
-  const sendMailPassword = function (rand, req, email, id, res, user) {
-    return new Promise(function (resolve, reject) {
-      const link = 'http://' + req.get('host') + '/auth/login.html#forgot_password/changePassword?u=' + id + '&code=' + rand
-
-      // Create a SMTP transporter object
-      const transporter = nodemailer.createTransport(configuration.smtp, {
-        from: 'Grappe, Mettez à jour votre mot de Passe <tech@data-players.com>',
-        headers: {
-          'X-Laziness-level': 1000 // just an example header, no need to use this
-        }
-      })
-
-      var mailOptions = {
-        to: email,
-        subject: 'Mettez à jour votre mot de Passe',
-        html: 'Bonjour ,<br> Mettez à jour votre mot de Passe, <br> <br> Votre code est le suivant <h2>' + rand + '</h1><br><a href=' + link + '>Cliquez ici </a>'
-      }
-
-      transporter.sendMail(mailOptions, function (error, response) {
-        if (error) {
-          reject(error)
-        } else {
-          resolve('mail sent')
-        }
-      })
+  }
+  if (e instanceof Error.UniqueEntityError) {
+    console.log('UniqueEntityError', e)
+    res.status(400).send({
+      success: false,
+      message: 'Un ' + e.details + ' existe déjà'
     })
-  } // <-- sendMailPassword
+  }
+  if (e instanceof Error.PropertyValidationError) {
+    console.log('PropertyValidationError', e)
+    res.status(400).send({
+      success: false,
+      message: 'La propieté ' + e.details + ' n\'estpas correct'
+    })
+  }
+  if (e instanceof Error.EntityNotFoundError) {
+    console.log('EntityNotFoundError', e)
+    res.status(404).send({
+      success: false,
+      message: e.details + ' not found'
+    })
+  }
+  if (e instanceof Error.InternalProcessError) {
+    console.log('InternalProcessError', e)
+    res.status(500).send({
+      success: false,
+      message: 'Erreur Interne'
+    })
+  }
+}
 
-  // --------------------------------------------------------------------------------
-
-  router.get('/sendbackmail/:id', function (req, res) {
+module.exports = function (router) {
+  router.get('/passwordforget', function (req, res) {
     user_lib.get({
-      _id: req.params.id
-    }).then((user) => {
-      sendMail(user.mailid, req, user.credentials.email, user._id, res).then((result) => {
-        res.send('mail_sent')
-      }).catch((err) => {
-        res.send({
-          err: 'mail_not_sent |' + err
-        })
-      })
-    })
-  }) // <-- sendbackmail
-
-  // --------------------------------------------------------------------------------
-
-  router.get('/passwordforget?mail=:mail', function (req, res) {
-    user_lib.get({
-      'credentials.email': req.params.mail
+      'credentials.email': req.query.mail
     }).then(async (user) => {
       let rand = Math.floor((Math.random() * 100000))
-      console.log("RAND", rand)
-      await user_lib.createUpdatePasswordEntity(req.params.mail, rand)
+      await user_lib.createUpdatePasswordEntity(req.query.mail, rand)
       try {
-        await sendMailPassword(rand, req, user.credentials.mail, user._id, res)
-        res.send({ user })
+        const link = 'http://' + req.get('host') + '/auth/secure?code=:' + rand + '&mail=' + req.query.mail
+        const mailOptions = {
+          from: 'Grappe, Confirmer votre email <tech@data-players.com>',
+          to: user.credentials.mail,
+          subject: 'Confirmer Votre compte',
+          html: 'Bonjour,<br> Merci de cliquer sur le lien suivant pour confirmer votre compte. <br><a href=' + link + '>Ici </a>'
+        }
+        await mailService.sendMail(req, res, mailOptions)
+        res.sendStatus(200)
       } catch (e) {
-        console.log(e)
-        res.send(e)
+        res.sendStatus(500)
       }
     })
   }) // <-- passwordforget
 
   // --------------------------------------------------------------------------------
 
-  router.post('/update-password?code=:code&mail=:mail', async (req, res) => {
-    let updatePasswordEntity = await user_lib.getPasswordEntity({ userMail: req.params.mail })
-    console.log('sds', req.params.code, updatePasswordEntity.token)
-    if (req.params.code === updatePasswordEntity.token && Date.now() < updatePasswordEntity.timeStamp + 600000) {
-      let user = await user_lib.get({ 'credentials.email': req.params.email })
-      user.new_password = req.body.new_password
-      await user_lib.update(user, null)
-      console.log('200')
-      res.send({
-        state: 'password_update'
-      })
+  router.get('/secure', async (req, res) => {
+    let updatePasswordEntity = await user_lib.getPasswordEntity(req.query.mail)
+    let decodeToken
+    try {
+      decodeToken = jwt.decode(updatePasswordEntity.token, 'password')
+    } catch (e) {
+      decodeToken = jwt.decode(updatePasswordEntity.token, 'mail')
+    }
+    if (decodeToken.subject === 'recovery_password') {
+      if (req.params.code === updatePasswordEntity.token && Date.now() < updatePasswordEntity.timeStamp + 600000) {
+        let user = await user_lib.get({ 'credentials.email': req.query.email })
+        user.new_password = req.body.new_password
+        await user_lib.update(user, null)
+        res.status(200).redirect('/ihm/login.htmll#connexion')
+      } else {
+        res.status(403).redirect('/ihm/login.htmll#connexion')
+      }
     } else {
-      console.log('401')
+      try {
+        let user = await user_lib.get({ 'credentials.email': req.query.mail })
+        if (!user.active) {
+          user.active = true
+          user.credit = 2000
+        }
+        user_lib.update(user, null)
+        res.redirect('/ihm/application.html#profil//edit')
+      } catch (e) {
+        res.status(500).redirect('/ihm/application.html#profil//edit')
+      }
     }
   }) // <-- updatePassword
 
   // --------------------------------------------------------------------------------
 
-  router.post('/inscription', function (req, res) {
-    let rand = Math.floor((Math.random() * 100) + 54)
-    inscription_lib_user.create({
-      user: {
-        mailid: rand,
-        name: req.body.name,
-        job: req.body.job,
-        society: req.body.societe,
-        email: req.body.emailInscription,
-        passwordConfirm: req.body.confirmPasswordInscription,
-        password: req.body.passwordInscription
-      }
-    }).then((data) => {
-      // console.log("inscription data ====>", data.token)
-      sendMail(rand, req, req.body.emailInscription, data.token.user)
-      res.send({
-        user: data.user,
-        token: data.token.token
-      })
-    }).catch(function (err) {
-      console.log(err)
-      if (err == 'name_bad_format') {
-        res.send({
-          err: 'name_bad_format'
-        })
-      }
-      if (err == 'job_bad_format') {
-        res.send({
-          err: 'job_bad_format'
-        })
-      }
-      if (err == 'bad_email') {
-        res.send({
-          err: 'bad_email'
-        })
-      }
-      if (err == 'user_exist') {
-        res.send({
-          err: 'user_exist'
-        })
-      }
-    })
+  router.post('/inscription', async (req, res) => {
+    // change verify for slid token for production
+    const token = encodeToken(req.body.emailInscription, 'verify')
+    const link = ('http://' + req.get('host') + '/data/auth/secure?code=' + token + '&mail=' + encodeURIComponent(req.body.emailInscription))
+
+    const mailOptions = {
+      from: 'Grappe, Confirmer votre email <tech@data-players.com>',
+      to: req.body.emailInscription,
+      subject: 'Confirmer Votre compte',
+      html: 'Bonjour,<br> Merci de cliquer sur le lien suivant pour confirmer votre compte. <br><a href=' + link + '>Ici </a>'
+    }
+    const user = {
+      name: req.body.name,
+      job: req.body.job,
+      society: req.body.societe,
+      email: req.body.emailInscription,
+      passwordConfirm: req.body.confirmPasswordInscription,
+      password: req.body.passwordInscription
+    }
+    try {
+      let usercreate = await inscription_lib_user.create({ user })
+      await user_lib.createUpdatePasswordEntity(req.body.emailInscription, token)
+      await mailService.sendMail(req, res, mailOptions)
+      res.send({ user: usercreate.user, token: usercreate.token.token })
+    } catch (e) {
+      errorHandling(e, res)
+    }
   }) // <= inscription
 
   // --------------------------------------------------------------------------------
@@ -201,7 +188,7 @@ module.exports = function (router, stompClient) {
 
   // --------------------------------------------------------------------------------
 
-  auth_lib_user.google_auth_callbackURL(router, url)
+  auth_lib_user.google_auth_callbackURL(router)
 
   // --------------------------------------------------------------------------------
 

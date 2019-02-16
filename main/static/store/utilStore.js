@@ -35,7 +35,8 @@ function UtilStore (specificStoreList) {
           this.trigger('persist_end')
         }
         if (error.status == 401) {
-          window.location = '/auth/login.html'
+          console.log("401")
+          window.location = '/ihm/login.html'
         }
         reject(error)
       }.bind(this))

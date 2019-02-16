@@ -13,6 +13,7 @@
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.0.0/jquery.min.js"></script>
   <script src="./js/RiotControl/riotcontrol.js"></script>
   <script src="./store/userStore.js"></script>
+  <script src="./store/utilStore.js"></script>
   <script type="riot/tag" src="tag/login.tag"></script>
 
 </head>
@@ -29,9 +30,9 @@
   }</style>
 
   <script>
-
-  var userStore = new UserStore(); // Create a store instance.
-
+  const utilStore = new UtilStore();
+  const userStore = new UserStore(utilStore); // Create a store instance.
+  RiotControl.addStore(utilStore);
   RiotControl.addStore(userStore); // Register the store in central dispatch.
   RiotControl.on('application_redirect', function(){
     window.open("../ihm/application.html#myWorkspaces", "_self");
