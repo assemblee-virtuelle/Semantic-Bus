@@ -4,7 +4,7 @@ class ObjectTransformer{
     this.type= 'Transform';
     this.description= 'Transformer un objet par mapping grâce à un objet transformation.';
     this.editor= 'object-transformer';
-    this.graphIcon= 'Transform.png';
+    this.graphIcon= 'Transform.svg';
     this.objectTransformation= require('../sharedLibrary/objectTransformation.js');
     this.tags= [
       'http://semantic-bus.org/data/tags/middleComponents',

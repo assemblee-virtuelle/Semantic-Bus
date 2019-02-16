@@ -50,7 +50,7 @@
     this.modeConnectBefore = false;
     this.selectedElement;
     this.initGraphDone = false;
-    
+
     showAddComponentClick(e) {
       route('workspace/' + this.graph.workspace._id + '/addComponent');
     }
@@ -93,7 +93,7 @@
       }).attr("data-id", function (d) {
         return d.id;
       }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
-     
+
 
       // commande bar
       this.selectorsShapeCommandeBar = this.svg.select("#shapeCommandLayer").selectAll("svg").data(this.selectedNodes, function (d) {
@@ -276,7 +276,7 @@
       this.update();
     }.bind(this);
 
-    // track deplacement 
+    // track deplacement
     this.dragstarted = function (d) {
       d.xOrigin = d.x;
       d.yOrigin = d.y;
@@ -297,13 +297,13 @@
       let gridY = snapToGrid(d3.event.y, 40)
       dragged.x = gridX;
       dragged.y = gridY;
-      
+
       RiotControl.trigger('workspace_current_move_component', dragged);
 
       this.nodes = this.svg.select("#shapeLayer").selectAll("image").data([dragged], function (d) {
         return d.id;
       }).attr("x", gridX).attr("y", gridY);
-      
+
       this.selectorsNodes = this.svg.select("#shapeSelector").selectAll("rect").data([dragged], function (d) {
         return d.id + '-shapeSelector';;
       }).attr("x", gridX - 30).attr("y", gridY - 30);
@@ -342,7 +342,7 @@
       });
       this.subNode = this.subNode
         .attr('x', function (d) {
-          return dragged.x - 30;  
+          return dragged.x - 30;
         }).attr('y', function (d) {
           return dragged.y - 30;
         })
@@ -351,7 +351,7 @@
           return d.id;
         });
         this.nodesTitle.attr('x', function (d) {
-          return dragged.x - 20;  
+          return dragged.x - 20;
         }).attr('y', function (d) {
           return dragged.y - 35;
         })
@@ -429,15 +429,15 @@
       this.graph = graph;
       if (this.svg == undefined) {
         this.svg = d3.select("svg");
-      } 
-      // Node 
+      }
+      // Node
       this.nodes = this.svg.select("#shapeLayer").selectAll("image").data(graph.nodes, function (d) {
         return d.id + '-node-component';;
       });
       this.nodes.exit().remove();
       this.nodes = this.nodes.enter()
       .append("image").attr('class', 'component').merge(this.nodes).attr("xlink:href", function (d) {
-        return 'image/components/' + 'sqltest.svg';
+        return 'image/components/' + d.graphIcon;
       }).attr("width", function (d) {
         return 70;
       }).attr("height", function (d) {
@@ -458,7 +458,7 @@
         this.tooltip.classed("tooltipHide", true);
       }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
 
-        
+
       // Node Title
       this.nodesTitle = this.svg.select("#nodeTitleLayer").selectAll("text").data(graph.nodes, function (d) {
         return d.id + '-node-title';
@@ -575,7 +575,7 @@
         this.initGraph();
       }
     }.bind(this)
-    
+
     // init grid and grid's function
     this.initGraph = function() {
       this.initGraphDone = true
@@ -608,12 +608,12 @@
           .tickSize(width)
           .tickPadding(8 - width)
           .tickFormat("");
-  
+
       gX = d3.select(".axis--x")
           .call(xAxis);
       gY = d3.select(".axis--y")
           .call(yAxis);
-    
+
       /// ZOOOM ////
       var zoom = d3.zoom()
         .scaleExtent([0.3, 5])
@@ -653,7 +653,7 @@
   </script>
 
   <style scoped>
-    
+
     svg {
       box-sizing: border-box;
       background:rgb(238,242,249);
@@ -677,13 +677,13 @@
     }
 
     .circle-before {
-      fill: red; 
+      fill: red;
       stroke-width: 2
     }
 
 
     .circle-after {
-      fill: blue; 
+      fill: blue;
       stroke-width: 2
     }
 

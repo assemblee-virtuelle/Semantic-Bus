@@ -4,7 +4,7 @@ class SimpleAgregator{
     this.type= 'Aggregate';
     this.description= 'Agréger plusieurs flux pour n\'en former qu\'un seul.';
     this.editor= 'simple-agregator-editor';
-    this.graphIcon= 'Aggregate.png';
+    this.graphIcon= 'Aggregate.svg';
     this.sift= require('sift');
     this.transform= require('jsonpath-object-transform');
     this.tags= [

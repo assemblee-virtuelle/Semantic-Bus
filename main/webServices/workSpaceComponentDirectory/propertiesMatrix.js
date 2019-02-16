@@ -4,7 +4,7 @@ class PropertiesMatrix {
     this.type= 'Property matrix';
     this.description= 'Reconstruire des objets à partir de plusieurs propriétés en liste.';
     this.editor= 'properties-matrix-editor';
-    this.graphIcon= 'Property_matrix.png';
+    this.graphIcon= 'Property_matrix.svg';
     this.sift= require('sift');
     this.transform= require('jsonpath-object-transform');
     this.dotProp= require('dot-prop');

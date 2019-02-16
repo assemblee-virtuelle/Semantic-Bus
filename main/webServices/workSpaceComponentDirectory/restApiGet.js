@@ -4,7 +4,7 @@ class RestGetJson{
     this.type ='Get provider';
     this.description ='Exposer un flux de donnée sur une API http GET.';
     this.editor ='rest-api-get-editor';
-    this.graphIcon ='Get_provider.png';
+    this.graphIcon ='Get_provider.svg';
     this.tags =[
         'http://semantic-bus.org/data/tags/outComponents',
         'http://semantic-bus.org/data/tags/APIComponents'

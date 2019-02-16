@@ -4,7 +4,7 @@ class RestApiPost{
     this.type = 'Post provider';
     this.description = `Déclencher un flux de donnée sur une API http POST.`;
     this.editor = 'rest-api-post-editor';
-    this.graphIcon = 'Post_provider.png';
+    this.graphIcon = 'Post_provider.svg';
     this.tags = [
       'http://semantic-bus.org/data/tags/inComponents',
       'http://semantic-bus.org/data/tags/APIComponents'

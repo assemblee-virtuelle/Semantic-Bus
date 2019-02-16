@@ -6,7 +6,7 @@ class Upload {
     this.description = 'Importer un fichier.'
     this.workspace_component_lib = require('../../../core/lib/workspace_component_lib')
     this.editor = 'upload-editor'
-    this.graphIcon = 'Upload.png'
+    this.graphIcon = 'Upload.svg'
     this.tags = [
       'http://semantic-bus.org/data/tags/inComponents',
       'http://semantic-bus.org/data/tags/fileComponents'
