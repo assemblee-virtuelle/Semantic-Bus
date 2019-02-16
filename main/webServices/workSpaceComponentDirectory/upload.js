@@ -20,8 +20,10 @@ class Upload {
   }
 
   initialise (router, stompClient) {
+    console.log('ALLO-2');
     router.post('/upload/:compId', (req, res, next) => {
       var compId = req.params.compId
+      console.log('ALLO-1');
 
       new Promise((resolve, reject) => {
         var busboy = new this.busboy({
@@ -31,8 +33,9 @@ class Upload {
         var string = ''
         var fileName = null
         let buffer
-
+        console.log('ALLO0');
         busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
+          console.log('ALLO1');
           fileName = filename
           file.on('data', (data) => {
             if (buffer == undefined) {
@@ -45,6 +48,7 @@ class Upload {
             string = buffer.toString('utf-8')
           })
         }).on('finish', () => {
+          console.log('ALLO2');
           this.dataTraitment.type.type_file(fileName, string, buffer).then((result) => {
             let normalized = this.propertyNormalizer.execute(result)
             resolve(normalized)

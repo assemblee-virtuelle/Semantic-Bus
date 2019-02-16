@@ -58,7 +58,7 @@ module.exports = {
   initialise: function (router, unSafeRouteur, stompClient) {
     this.restApiPost.initialise(unSafeRouteur, stompClient) // NO SECURE CHANGE ROUTER
     this.restApiGet.initialise(unSafeRouteur, stompClient) // NO SECURE CHANGE ROUTER
-    this.upload.initialise(unSafeRouteur, stompClient)
+    this.upload.initialise(router, stompClient)
     this.cacheNosql.initialise(router) // NO SECURE CHANGE ROUTER
   }
 }
