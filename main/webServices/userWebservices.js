@@ -2,6 +2,9 @@
 
 var user_lib = require('../../core/lib/user_lib')
 const auth_lib_jwt = require('../../core/lib/auth_lib')
+const mailService = require('./services/mail')
+const jwt = require('jwt-simple')
+const moment = require('moment')
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -13,6 +16,19 @@ function UserIdFromToken (req) {
   let tokenAfter = token.substring(4, token.length)
   const decodeToken = auth_lib_jwt.get_decoded_jwt(tokenAfter)
   return decodeToken.iss
+}
+
+const encodeToken = (mail, action) => {
+  const payload = {
+    exp: moment().add(14, 'days').unix(),
+    iat: moment().unix(),
+    iss: mail,
+    subject: action
+  }
+  // const secret = action == 'recovery_password' ? config.scretMailPassword : config.secretMailVerify
+  const secret = action == 'recovery_password' ? 'password' : 'mail'
+
+  return jwt.encode(payload, secret)
 }
 
 module.exports = function (router) {
@@ -30,9 +46,10 @@ module.exports = function (router) {
 
   router.post('/users/mail?mail=:mail', async (req, res) => {
     try {
-      let rand = Math.floor((Math.random() * 100000))
-      await user_lib.createUpdatePasswordEntity(req.params.mail, rand)
-      const link = 'http://' + req.get('host') + '/auth/secure?code=:' + rand + '&mail=' + req.params.mail
+      const token = encodeToken(req.query.mail, 'recovery_password')
+      const link = ('http://' + req.get('host') + '/data/auth/secure?code=' + token + '&mail=' + encodeURIComponent(req.query.mail))
+      await user_lib.createUpdatePasswordEntity(req.params.mail, token)
+
       const mailOptions = {
         from: 'Grappe, Confirmer votre email <tech@data-players.com>',
         to: req.params.mail,

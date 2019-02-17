@@ -1,15 +1,26 @@
 <login class="containerV" style="background-color: rgb(238,242,249);background-size: cover; bottom:0;top:0;right:0;left:0;position:absolute">
   <!-- Chargement connexion  background-image: url(./image/log-f.jpg);-->
-  <div id="containerLoaderDiv" if={isScrennToShow('loading')}>
-    <div id="row">
-      <div id="loaderDiv"></div>
-      <h2 id="loaderText">
-        Connexion en cours
-      </h2>
+  <div id="containerErrorDiv" class="containerV" if={errorMessage}>
+    <div class="containerH commandBar errorMessage"  style="pointer-events:auto;">
+      <div>{errorMessage}</div>
+      <div onclick={closeError} style="margin-left: 50px; cursor:pointer"><img src="./image/cross.svg" height="20px"></div>
     </div>
   </div>
-  <!-- Header <div class="containerV" style="flex-grow:0;flex-shrink:0;"> <img src="./image/grappe-web1.png" style="margin-left:20px;height:50px; width:75px;justify-content:center;"> </div> <div class="header containerH" style="flex-shrink:0"
-  show={!isScrennToShow('loading')}> <h1> Bienvenue sur Grappe </h1> </div> -->
+  <div id="containerErrorDiv" class="containerV" if={sucessMessage} >
+    <div class="containerH commandBar successMessage" style="pointer-events:auto;">
+      <div>{sucessMessage}</div>
+      <div onclick={closeSuccess} style="margin-left: 50px; cursor:pointer"><img src="./image/cross.svg" height="20px"></div>
+    </div>
+  </div>
+  <div id="containerLoaderDiv" if={persistInProgress} class="containerV" style="justify-content:center">
+    <div id="row">
+      <div id="loaderDiv"></div>
+      <h1 id="loaderText">
+        synchronisation avec le serveur
+      </h1>
+    </div>
+  </div>
+
   <div class="containerH header-login" show={!isScrennToShow('loading')} style="background-color: white; ">
     <img src="./image/grappe-log-01.png" height="50px"style="margin-left:5px;display: flex;"></img>
     <div class="containerH header-login"style="flex-grow:1;justify-content:center;">
@@ -18,17 +29,6 @@
     <div class="containerH header-login" style="padding-right:105px;">
     </div>
   </div>
-
-<!--   <div class="containerH" if={isScrennToShow('connexion')} style="color:rgb(26,145,194);justify-content: center;flex-wrap:wrap;">
-    <div class="containerv">
-      <h3>Une solution de traitement de données open-source pour piloter et maîtriser l'interopérabilité entre les données.</h3>
-    </div>
-  </div>
-      <div class="containerH" if={isScrennToShow('connexion')} style="justify-content: center;flex-wrap:wrap;">
-        <div class="containerv">
-        <span>Connecter, traiter et exposer vos données en quelques clics.</span>
-      </div>
-    </div>-->
 
   <!-- box connexion-->
   <div class="containerH" if={isScrennToShow('connexion')} style="flex-wrap: wrap;overflow:auto;justify-content: center; align-items: center;flex-grow:2">
@@ -165,7 +165,7 @@
           <input type="password" ref="new_password" onkeyup={new_passwordKeyup} id="password" placeholder="saisissez le nouveau mot de passe" required="required"/>
           <p>{result_password}</p>
           <!--bouton envoyer + annuler -->
-          <div onclick={verifecode} class=" btn containerH" style="justify-content: center; align-items: center;flex-wrap:wrap">
+          <div onclick={updatePassword} class=" btn containerH" style="justify-content: center; align-items: center;flex-wrap:wrap">
             <a>Envoyer</a>
           </div>
           <div onclick={returnlogin} class="btn containerH" id="btn2" style="justify-content: center; align-items: center;flex-wrap:wrap">
@@ -219,7 +219,6 @@
     this.urls = [
       '#loading',
       '#forgot_password/changePassword',
-      '#enter_code',
       '#initiat',
       '#inscription',
       '#connexion'
@@ -241,10 +240,13 @@
       return screenToTest == this.entity;
     }
 
-    RiotControl.on("error_change_code", function () {
-      this.result_code = "Le mot de passe entré n'est pas correct"
-      this.update()
-    }.bind(this));
+    closeError(e) {
+      this.errorMessage = undefined;
+    }
+
+    closeSuccess(e) {
+      this.sucessMessage = undefined;
+    }
 
     RiotControl.on('back_send_mail', function () {
       route('initiat')
@@ -252,15 +254,14 @@
       this.update()
     }.bind(this));
 
-    RiotControl.on("ajax_receipt_login", function (routeParams) {
-      route(routeParams)
-      this.update()
+    RiotControl.on('ajax_fail', function (message) {
+      this.errorMessage = message;
+      this.update();
     }.bind(this));
 
-    RiotControl.on("ajax_send_login", function () {
-      this.is_login = true
-      route('/loading')
-      this.update()
+    RiotControl.on('ajax_sucess', function (message) {
+      this.sucessMessage = message;
+      this.update();
     }.bind(this));
 
     this.isGoogleUser = function () {
@@ -278,26 +279,13 @@
       route('connexion')
     }
 
-    validenewpassword() {
-      let userId = window.location.href.split('?')[1].split("&code=")[0].split("u=")[1]
-      if (userId && this.new_password) {
-        RiotControl.trigger('update_password', {
-          new_password: this.new_password,
-          id: userId
-        });
-      } else {
-        this.result_password = "Votre mot de passe est au mauvais format ( 6 caractères minimum )"
-      }
-    }
-
     sendpasswordbymail() {
       RiotControl.trigger('forgot_password', this.emailforgotpassword);
     }
 
-    verifecode() {
-      RiotControl.trigger('verife_code', {
-        code: this.codeforgotpassword,
-        user: this.user
+    updatePassword() {
+      RiotControl.trigger('updatePassword', {
+        user: {password: this.new_password}
       });
     }
 
@@ -306,29 +294,6 @@
       this.update()
     }.bind(this))
 
-    RiotControl.on('good_code', function (user) {
-      route('forgot_password/changePassword?u=' + this.user._id + "&code=" + this.user.resetpasswordmdp)
-      this.update()
-    }.bind(this))
-
-    RiotControl.on('password_update_error', function (user) {
-      this.result_password = "Votre mot de passe est au mauvais format ( 6 caractères minimum )"
-      this.update()
-    }.bind(this))
-
-    RiotControl.on('password_update', function (user) {
-      route('connexion')
-      this.resultConnexion = "Votre mot de passe a bien été mis a jour"
-      this.update()
-    }.bind(this))
-
-    RiotControl.on('token_expired', function (user) {
-      route('initiat')
-      this.result_email = "Token expiré renvoyé le mail ? "
-      this.update()
-    }.bind(this))
-
-    //On recupere le user ici pour s'en servir pour construire les url par la suite
 
     RiotControl.on('enter_code', function (user) {
       route('enter_code')
@@ -336,13 +301,11 @@
       this.update()
     }.bind(this))
 
-    this.isGoogleUser();
 
     inscription(e) {
       if ((this.newUser.passwordInscription != undefined) && (this.newUser.confirmPasswordInscription != undefined) && (this.newUser.emailInscription != undefined)) {
         var reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g;
         if (this.newUser.emailInscription.match(reg) != null) {
-          //if(this.newUser.passwordInscription.split().length > 5){
           if ((this.newUser.passwordInscription == this.newUser.confirmPasswordInscription) && (this.newUser.passwordInscription.split("").length > 5)) {
 
             RiotControl.on('google_user', function () {
@@ -369,7 +332,6 @@
           this.resultEmail = "Veuillez entrez un email Valide"
         }
       } else {
-        console.log(this.newUser.emailInscription, this.newUser.passwordInscription);
         if (this.newUser.emailInscription == undefined) {
           this.resultEmail = "Votre email n'est pas renseigné"
         }
@@ -394,6 +356,7 @@
       this.resultEmail = "";
       this.resultConnexion = ""
     }
+
     login(e) {
       if ((this.user.password != undefined) && (this.user.email != undefined) && (this.user.email != "") && (this.user.email != "")) {
         RiotControl.trigger('user_connect', this.user);
@@ -488,14 +451,7 @@
       RiotControl.trigger('google_user_connect', this.user);
     }
 
-    $(document).ready(function () {
-      $('.box').hide().fadeIn(1000);
-      ///password
-    });
-
-    $('a').click(function (event) {
-      event.preventDefault();
-    });
+    this.isGoogleUser();
 
     this.on('mount', function () {
       if (!window.location.href.split('login.html')[1]) {
@@ -518,6 +474,36 @@
   </script>
 
   <style scoped="scoped">
+
+    #containerErrorDiv {
+      background-color: rgba(200,200,200,0);
+      bottom: 0;
+      top: 0;
+      right: 0;
+      left: 0;
+      position: absolute;
+      z-index: 2;
+      pointer-events: none;
+    }
+    .errorMessage {
+      background-color: #fe4a49 !important;
+      color: white ! important;
+      z-index: 999;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+    }
+
+    .successMessage {
+          background-color: rgb(41,171,135) !important;
+          color: white !important;
+          z-index: 999;
+          height: 50px;
+          display: flex;
+          justify-content: center;
+          align-items: center;
+    }
     .header {
       /*background: linear-gradient(90deg, rgb(33,150,243) 20% ,rgb(41,181,237));*/
       color: white;

@@ -13,12 +13,11 @@ const Error = require('../../core/helpers/error')
 
 const encodeToken = (mail, action) => {
   const payload = {
-    exp: moment().add(14, 'days').unix(),
+    exp: moment().add(600, 'seconds').unix(),
     iat: moment().unix(),
     iss: mail,
     subject: action
   }
-  // const secret = action == 'recovery_password' ? config.scretMailPassword : config.secretMailVerify
   const secret = action == 'recovery_password' ? 'password' : 'mail'
 
   return jwt.encode(payload, secret)
@@ -35,16 +34,18 @@ const errorHandling = (e, res) => {
   }
   if (e instanceof Error.UniqueEntityError) {
     console.log('UniqueEntityError', e)
+    let message = ''
+    e.details === 'User' ? message = 'Un utilisateurs avec cette email existe déjà' : message = 'Un ' + e.details + ' existe déjà'
     res.status(400).send({
       success: false,
-      message: 'Un ' + e.details + ' existe déjà'
+      message
     })
   }
   if (e instanceof Error.PropertyValidationError) {
     console.log('PropertyValidationError', e)
     res.status(400).send({
       success: false,
-      message: 'La propieté ' + e.details + ' n\'estpas correct'
+      message: 'La propieté ' + e.details + ' n\'est pas correct'
     })
   }
   if (e instanceof Error.EntityNotFoundError) {
@@ -64,46 +65,56 @@ const errorHandling = (e, res) => {
 }
 
 module.exports = function (router) {
-  router.get('/passwordforget', function (req, res) {
-    user_lib.get({
-      'credentials.email': req.query.mail
-    }).then(async (user) => {
-      let rand = Math.floor((Math.random() * 100000))
-      await user_lib.createUpdatePasswordEntity(req.query.mail, rand)
-      try {
-        const link = 'http://' + req.get('host') + '/auth/secure?code=:' + rand + '&mail=' + req.query.mail
-        const mailOptions = {
-          from: 'Grappe, Confirmer votre email <tech@data-players.com>',
-          to: user.credentials.mail,
-          subject: 'Confirmer Votre compte',
-          html: 'Bonjour,<br> Merci de cliquer sur le lien suivant pour confirmer votre compte. <br><a href=' + link + '>Ici </a>'
-        }
-        await mailService.sendMail(req, res, mailOptions)
-        res.sendStatus(200)
-      } catch (e) {
-        res.sendStatus(500)
+  router.get('/passwordforget', async (req, res) => {
+    const token = encodeToken(req.query.mail, 'recovery_password')
+    const link = ('http://' + req.get('host') + '/ihm/login.html#forgot_password/changePassword?code=' + token + '&mail=' + encodeURIComponent(req.query.mail))
+    await user_lib.createUpdatePasswordEntity(req.query.mail, token)
+    try {
+      const mailOptions = {
+        from: 'Grappe, Mot de passe oublié <tech@data-players.com>',
+        to: req.query.mail,
+        subject: 'Confirmer Votre compte',
+        html: 'Bonjour,<br> Merci de cliquer sur le lien suivant pour resilier votre mot de passe. <br><a href=' + link + '>Ici </a>'
       }
-    })
+
+      await mailService.sendMail(req, res, mailOptions)
+      res.sendStatus(200)
+    } catch (e) {
+      console.log(e)
+      res.sendStatus(500)
+    }
   }) // <-- passwordforget
 
   // --------------------------------------------------------------------------------
 
-  router.get('/secure', async (req, res) => {
-    let updatePasswordEntity = await user_lib.getPasswordEntity(req.query.mail)
+  router.post('/secure', async (req, res) => {
     let decodeToken
+    let updatePasswordEntity
+    try {
+      updatePasswordEntity = await user_lib.getPasswordEntity(req.query.mail)
+    } catch (e) {
+      res.status(404)
+    }
+
     try {
       decodeToken = jwt.decode(updatePasswordEntity.token, 'password')
     } catch (e) {
-      decodeToken = jwt.decode(updatePasswordEntity.token, 'mail')
+      try {
+        decodeToken = jwt.decode(updatePasswordEntity.token, 'mail')
+      } catch (e) {
+        res.sendStatus(403)
+      }
     }
-    if (decodeToken.subject === 'recovery_password') {
-      if (req.params.code === updatePasswordEntity.token && Date.now() < updatePasswordEntity.timeStamp + 600000) {
-        let user = await user_lib.get({ 'credentials.email': req.query.email })
-        user.new_password = req.body.new_password
+
+    if (decodeToken.subject == 'recovery_password') {
+      if (Date.now() < decodeToken.exp * 1000) {
+        let user = await user_lib.get({ 'credentials.email': req.query.mail })
+        user.new_password = req.body.user.password
+        console.log(user)
         await user_lib.update(user, null)
-        res.status(200).redirect('/ihm/login.htmll#connexion')
+        res.sendStatus(200)
       } else {
-        res.status(403).redirect('/ihm/login.htmll#connexion')
+        res.sendStatus(403)
       }
     } else {
       try {
@@ -115,7 +126,7 @@ module.exports = function (router) {
         user_lib.update(user, null)
         res.redirect('/ihm/application.html#profil//edit')
       } catch (e) {
-        res.status(500).redirect('/ihm/application.html#profil//edit')
+        res.status(500)
       }
     }
   }) // <-- updatePassword
@@ -153,33 +164,16 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.post('/authenticate', function (req, res) {
-    auth_lib_user.create({
-      authentication: {
-        email: req.body.email,
-        password: req.body.password
-      }
-    }).then(function (data) {
-      // console.log("authenticate =====>", data)
+  router.post('/authenticate', async (req, res) => {
+    try {
+      const data = await auth_lib_user.create({ authentication: { email: req.body.email, password: req.body.password } })
       res.send({
         user: data.user,
         token: data.token
       })
-    }).catch(function (err) {
-      if (err == 'google_user') {
-        res.send({
-          err: 'google_user'
-        })
-      } else if (err == 'no_account_found') {
-        res.send({
-          err: 'no_account_found'
-        })
-      } else if (err = 'compare_bcrypt') {
-        res.send({
-          err: 'probleme_procesus'
-        })
-      }
-    })
+    } catch (e) {
+      errorHandling(e, res)
+    }
   }) // <= authentification
 
   // <-------------------------------------   GOOGLE AUTH   ------------------------------------->

@@ -87,38 +87,6 @@ httpGet.makeRequest('GET', {
         app.use('/browserify', express.static('browserify'))
         app.use('/npm', express.static('node_modules'))
 
-        let errorLib = require('../core/lib/error_lib')
-        let jwtSimple = require('jwt-simple')
-        let errorParser = require('error-stack-parser')
-        app.use(function (err, req, res, next) {
-          if (err) {
-            const token = req.body.token || req.query.token || req.headers['authorization']
-            // console.log('token |',token);
-            let user
-            if (token != undefined) {
-              token.split('')
-              let decodedToken = jwtSimple.decode(token.substring(4, token.length), configJson.secret)
-              user = decodedToken.iss
-              // console.log('user |',user);
-            }
-            errorLib.create(err, user)
-            if (!Array.isArray(err)) {
-              err = [err]
-            }
-            res.status(500).send(
-              err.map(e => {
-                console.log(e)
-                return {
-                  message: e.message,
-                  stack: errorParser.parse(e),
-                  displayMessage: e.displayMessage
-                }
-              })
-            )
-          }
-          // able to centralise response using res.data ans res.send(res.data)
-        })
-
         app.listen(process.env.APP_PORT || 8080, function (err) {
           console.log('~~ server started at ', 'port', process.env.APP_PORT || 8080, err, ':', this.address())
           require('../core/timerScheduler').run()

@@ -190,8 +190,10 @@ function _get(filter) {
       .findOne(filter)
       .lean()
       .exec(function (err, userData) {
-        if (err) {
-          reject(err);
+        if(err){
+          return reject(new Error.DataBaseProcessError(err))
+        } if( userData == null){
+          reject(new Error.EntityNotFoundError(err))
         } else {
           resolve(userData);
         }

@@ -28,14 +28,13 @@ function UtilStore (specificStoreList) {
         if (error.status === 403) {
           this.trigger('ajax_fail', 'Vous n\'avez pas les droit suffisant pour réaliser cette action')
           this.trigger('persist_end')
-          window.location = '/ihm/application.html#myWorkspaces'
         }
         if (error.status === 400) {
           this.trigger('ajax_fail', error.responseJSON.message)
           this.trigger('persist_end')
         }
         if (error.status === 401) {
-          window.location = '/ihm/login.html'
+          window.location = '/ihm/login.html#connexion'
         }
         reject(error)
       }.bind(this))
