@@ -141,7 +141,7 @@
         }).attr("data-id", function (d) {
           return d.id;
         }).on("click", function (d) {
-          route(`workspace/${d.component.workspaceId}/component/${d.component._id}`);
+          route(`workspace/${d.component.workspaceId}/component/${d.component._id}/edit-component`);
         });
 
         d3.select(this).append("image").attr("xlink:href", function (d) {
@@ -499,7 +499,7 @@
         RiotControl.trigger('connection_current_set', d.source.component, d.target.component);
       }.bind(this));
 
-    // Connect Before / After
+      // Connect Before / After
       this.subNode = this.svg.select("#roundLayer").selectAll("svg").data(graph.nodes, function (d) {
         return d.id;
       });
@@ -639,7 +639,7 @@
       svg.call(zoom)
     }.bind(this)
 
-    this.on('mount', function () { // mount du composant riot
+    this.on('mount', function () {
       RiotControl.on('workspace_graph_selection_changed', this.drawSelected);
       RiotControl.on('workspace_graph_compute_done', this.drawGraph);
       RiotControl.trigger('workspace_graph_compute', this.refs.graphSvgCanvas);
@@ -680,7 +680,6 @@
       fill: red;
       stroke-width: 2
     }
-
 
     .circle-after {
       fill: blue;

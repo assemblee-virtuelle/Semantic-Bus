@@ -21,6 +21,7 @@
 
   <script>
     this.workspaceCurrentProcesChanged=processCollection=>{
+      console.log("load process", processCollection)
       this.refs.processZenTable.data=processCollection;
       this.update();
     };
@@ -66,7 +67,6 @@
   progress.error::-webkit-progress-value {
     background:  #fe4a49;
   }
-
   progress.waiting::-moz-progress-bar {
     /*border-radius: 5px;*/
     background: #ffcf86;

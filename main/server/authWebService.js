@@ -17,7 +17,7 @@ const encodeToken = (mail, action) => {
     iss: mail,
     subject: action
   }
-  const secret = action == 'recovery_password' ? 'password' : 'mail'
+  const secret = action == 'recovery_password' ? config.recorvery_passwordToken || 'secret' : config.verify_mailToken || 'secret'
 
   return jwt.encode(payload, secret)
 }
@@ -38,7 +38,6 @@ module.exports = function (router) {
       await mailService.sendMail(req, res, mailOptions)
       res.sendStatus(200)
     } catch (e) {
-      console.log(e)
       res.sendStatus(500)
     }
   }) // <-- passwordforget

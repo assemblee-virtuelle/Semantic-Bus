@@ -49,12 +49,10 @@
     }
 
     onPersistProcessChange(e) {
-      console.log(e);
       this.itemCurrent.persistProcess = e.target.checked;
     }
 
     this.mountEdition = function (editor) {
-      console.log('editor',editor);
       this.editionContainer = riot.mount('#editionContainer', editor)[0];
     };
 
@@ -64,12 +62,12 @@
     }.bind(this);
 
     this.itemCurrentChanged = function (item) {
-      console.log('item_current_changed', item)
       this.itemCurrent = item;
       this.update();
     }.bind(this);
 
     this.on('mount', function () {
+      RiotControl.trigger('workspace_current_refresh');
       RiotControl.on('item_current_changed', this.itemCurrentChanged);
       RiotControl.on('item_current_editor_changed', this.itemCurrentEditorChanged);
       RiotControl.trigger('component_current_refresh');

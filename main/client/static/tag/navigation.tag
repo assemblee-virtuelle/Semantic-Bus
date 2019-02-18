@@ -52,8 +52,8 @@
       <workspace-table-header if={isScrennToShow('myWorkspaces')}></workspace-table-header>
       <workspace-share-table-header if={isScrennToShow('sharedWorkspaces')}></workspace-share-table-header>
       <profil-header if={isScrennToShow('profil')}></profil-header>
-      <workspace-editor-header if={isScrennToShow('workspace')}></workspace-editor-header>
-      <workspace-component-editor-header if={isScrennToShow('component')}></workspace-component-editor-header>
+      <workspace-editor-header if={isScrennToShow('workspace') || isScrennToShow('component')}></workspace-editor-header>
+      <!--  <workspace-component-editor-header if={isScrennToShow('component')}></workspace-component-editor-header>  -->
       <json-previewer-header if={isScrennToShow('workPreview')}></json-previewer-header>
       <!-- Nom d'utilisateur -->
       <div style="flex-grow:0;flex-shrink:0; padding-right:10px;">
@@ -109,7 +109,7 @@
         <workspace-share-table if={isScrennToShow('sharedWorkspaces')></workspace-share-table>
         <workspace-editor if={isScrennToShow('workspace')}></workspace-editor>
         <graph if={isScrennToShow('graph')}></graph>
-        <workspace-component-editor if={isScrennToShow('component')}></workspace-component-editor>
+        <!--  <workspace-component-editor if={isScrennToShow('component')}></workspace-component-editor>  -->
         <profil if={isScrennToShow('profil')}></profil>
         <jsonpreviewer if={isScrennToShow('workPreview')}></jsonpreviewer>
       </div>
@@ -163,7 +163,7 @@
       this.update();
     }.bind(this));
 
-    RiotControl.on('navigation_control_done', (entity, action) => {
+    RiotControl.on('navigation_control_done', (entity, action, secondAction) => {
         this.entity = undefined;
         this.update();
         this.entity = entity;
@@ -181,6 +181,8 @@
     this.on('mount', function () {
       route(function (...parts) {
         const [entity, id, action] = parts
+        const subparts = parts
+
         if (id == undefined && action == undefined) {
           this.entity = entity;
           this.update();

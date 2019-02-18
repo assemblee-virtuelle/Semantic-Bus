@@ -181,7 +181,6 @@ function _get_process_byWorkflow(workflowId) {
       .lean()
       .exec()
       .then(workflow => {
-        console.log(workflow)
         if(workflow == null) {
           return reject(new Error.EntityNotFoundError('workspaceModel'))
         }

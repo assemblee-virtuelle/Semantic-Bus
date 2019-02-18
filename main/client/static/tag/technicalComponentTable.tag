@@ -50,17 +50,14 @@
         '@id': item['@id']
       }, this.selectedTags).length > 0;
 
-      //console.log('isScrennToShow',screenToTest,out, this.screenHistory);
       return out;
     }
 
     this.addComponentClick = function (e) {
-      console.log("clic sauve")
       RiotControl.trigger("workspace_current_add_components")
     }
 
     firstLevelCriteriaClick(e) {
-      //console.log(e); console.log(e.item.item['@id']);
 
       let everSelected = this.isTagInSelectedTags(e.item.item);
       this.selectedTags = [];
@@ -75,7 +72,6 @@
     }
 
     secondLevelCriteriaClick(e) {
-      //console.log(e); console.log(e.item.item['@id']); this.secondLevelCriteria = sift({   broader:e.item.item['@id'] }, this.ComponentsCategoriesTree['@graph']);
       let everSelected = this.isTagInSelectedTags(e.item.item);
       this.selectedTags = sift({
         broader: {
@@ -88,13 +84,7 @@
       this.updateComponentsByTags();
     }
 
-    // refreshTechnicalComponents(data) {   console.log('technicalCompoents | this.refs |', this.refs);   this.tags.zentable.data = data;
-    //
-    // }
-
     this.updateComponentsByTags = function () {
-      console.log(this.rawData);
-      console.log(this.selectedTags.map(t => t['@id']));
       if (this.selectedTags.length > 0) {
         this.tags.zentable.data = sift({
           'tags': {
@@ -121,23 +111,15 @@
           $exists: false
         }
       }, tree['@graph']);
-      console.log(this.firstLevelCriteria);
       this.update();
     }.bind(this);
 
-    // this.addComponent = function(){   console.log("In technical components",this.tags)     RiotControl.trigger('workspace_current_add_components', sift({       selected: {         $eq: true       }     }, this.tags.zentable.data)   ) }.bind(this)
 
     this.on('mount', function () {
       this.actionReady = false;
       this.tags.zentable.on('rowsSelected', function (selecetedRows) {
         RiotControl.trigger('set_componentSelectedToAdd', selecetedRows);
       }.bind(this));
-      // this.tags.zentable.on('addRow', function () {   console.log(data);   RiotControl.trigger('technicalComponent_current_init'); }.bind(this)); this.tags.zentable.on('delRow', function (data) {   console.log(data);
-      // RiotControl.trigger('technicalComponent_delete', data);
-      //
-      // }.bind(this)); this.tags.zentable.on('cancel', function (data) {   console.log(data);   RiotControl.trigger('workspace_current_add_component_cancel');
-      //
-      // }.bind(this));
       RiotControl.on('technicalComponent_collection_changed', this.updateData);
       RiotControl.on('add_component_button_select', this.addComponent)
       RiotControl.on('componentsCategoriesTree_changed', this.updateComponentsCategoriesTree);

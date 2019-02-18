@@ -182,6 +182,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   this.refreshComponent = function (triggerConnections) {
+    console.log("refreshComponent")
     this.trigger('item_current_editor_changed', this.itemCurrent.editor)
     this.modeConnectBefore = false
     this.modeConnectAfter = false
@@ -194,10 +195,9 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
   // --------------------------------------------------------------------------------
 
-  this.persistComponent = function () {
-    this.updateComponent().then(data => {
-      route('workspace/' + data.workspaceId + '/component')
-    })
+  this.persistComponent = async () => {
+    let data = await this.updateComponent()
+    route('workspace/' + data.workspaceId + '/component')
   } // <= persist
 
   // ----------------------------------------- API CALL  -----------------------------------------
@@ -342,7 +342,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   this.select = function (record) {
-    console.log(record)
     return new Promise((resolve, reject) => {
       this.utilStore.ajaxCall({
         method: 'get',
@@ -369,8 +368,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       }, true).then(data => {
         this.itemCurrent = data
         resolve(this.itemCurrent)
-      }).catch(error => {
-        reject(error)
       })
     })
   } // <= update
@@ -469,9 +466,9 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
         this.reloadWorkspace(entity, action)
         if (action === 'component' && secondId !== undefined) {
           this.loadComponentPart(secondId, secondAction)
-          this.trigger('navigation_control_done', 'component')
+          this.trigger('navigation_control_done', 'workspace', secondAction)
         } else {
-          this.trigger('navigation_control_done', entity, action)
+          this.trigger('navigation_control_done', entity, action, secondAction)
         }
       } else {
         this.unsubscribeToPreviousSubscription()
@@ -479,9 +476,9 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
           this.subscribeToComponents(entity, action)
           if (action === 'component' && secondId !== undefined) {
             this.loadComponentPart(secondId, secondAction)
-            this.trigger('navigation_control_done', 'component')
+            this.trigger('navigation_control_done', 'workspace', secondAction)
           } else {
-            this.trigger('navigation_control_done', entity, action)
+            this.trigger('navigation_control_done', entity, action, secondAction)
           }
         })
         this.loadProcesses(id)

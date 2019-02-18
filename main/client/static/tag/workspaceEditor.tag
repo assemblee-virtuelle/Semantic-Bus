@@ -139,7 +139,10 @@
   <div show={menu=='process' } class="containerV" style="flex-grow: 1;">
     <process-list></process-list>
   </div>
-
+  <!-- Edition component -->
+  <div if={menu=='edit-component' } class="containerV" style="flex-grow: 1;">
+    <workspace-component-editor ></workspace-component-editor>
+  </div>
   <script>
     this.innerData = {};
     this.title = "Workspace"
@@ -215,16 +218,15 @@
     showShareClick(e) {
       route('workspace/' + this.innerData._id + '/share');
     }
+    
 
     updateShareUser(data){
-      console.log(data)
       RiotControl.trigger('delete-share-workspace',data);
 
     }
 
     this.on('mount', function () {
       //user delete
-      console.log("tag", this.tags.zentable)
       this.tags.zentable.on('delRow',this.updateShareUser);
       RiotControl.on('store_persisteWorkspace', this.persistClick)
       RiotControl.on('workspace_current_changed', this.workspaceCurrentChanged);
