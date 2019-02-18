@@ -14,7 +14,7 @@ module.exports = (passport) => {
       passReqToCallback: true,
       proxy: true
     },
-    function(request, token, refreshToken, profile, done) {
+    function(res, token, refreshToken, profile, done) {
       process.nextTick(function() {
         UserModel.getInstance().model.findOne({
           'googleId': profile.id
@@ -24,9 +24,10 @@ module.exports = (passport) => {
           }
           if (user) {
             user.googleToken = token
-            UserModel.getInstance().model.findByIdAndUpdate(user._id, user, function(err, res) {
+            UserModel.getInstance().model.findByIdAndUpdate(user._id, user, function(err, resp) {
               if (err) {
-                throw err;
+                // res.status(500).send()
+                return done('vous possedez déjà un compte associé a cette adresse');
               }
               return done(null, user);
             });
@@ -40,9 +41,9 @@ module.exports = (passport) => {
                 email: profile.emails[0].value
               }
             })
-            newUser.save(function(err, res) {
+            newUser.save(function(err, resp) {
               if (err) {
-                throw err;
+                return done('vous possedez déjà un compte associé a cette adresse');
               }
               return done(null, newUser);
             });

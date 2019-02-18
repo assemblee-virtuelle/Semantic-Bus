@@ -23,7 +23,7 @@ function UtilStore (specificStoreList) {
         }
         if (error.status === 500) {
           this.trigger('persist_end')
-          this.trigger('ajax_fail', error.responseJSON.displayMessage || error.responseJSON.message)
+          this.trigger('ajax_fail', 'Désolé nous rencontrons une erreur Interne')
         }
         if (error.status === 403) {
           this.trigger('ajax_fail', 'Vous n\'avez pas les droit suffisant pour réaliser cette action')

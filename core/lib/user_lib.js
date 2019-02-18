@@ -39,7 +39,6 @@ module.exports = {
 
 function _create(bodyParams) {
   if (config.quietLog != true) {
-    //console.log(bodyParams)
   }
   return new Promise(function (resolve, reject) {
     _create_preprocess(bodyParams.user).then((preData) => {
@@ -97,7 +96,6 @@ function _create_preprocess(userParams) {
       }
       _check_job(userParams.job).then(function (boolean) {
         if (config.quietLog != true) {
-          //console.log("job:", userParams.job, "check job :", boolean);
         }
         if (!boolean) {
           reject(new Error.PropertyValidationError('job'))
@@ -112,7 +110,6 @@ function _create_preprocess(userParams) {
       }
       _check_name(userParams.name).then(function (boolean) {
         if (config.quietLog != true) {
-          //console.log("name:", userParams.name, "check name :", boolean);
         }
         if (!boolean) {
           reject(new Error.PropertyValidationError('name'))
@@ -161,7 +158,6 @@ function _create_preprocess(userParams) {
 
 function _get_all(options) {
   if (config.quietLog != true) {
-    //console.log("get_all");
   }
   return new Promise(function (resolve, reject) {
     userModel.getInstance().model
@@ -176,7 +172,6 @@ function _get_all(options) {
           reject(err);
         } else {
           if (config.quietLog != true) {
-            //console.log("GET ALL", users);
           }
           resolve(users);
         }
@@ -264,7 +259,6 @@ function _userGraph(userId) {
           const c = {}
           const array = []
           result[0].workspaces.forEach((histo) => {
-            // console.log(histo)
             if (c[histo.workflowId]) {
               c[histo.workflowId].totalPrice += histo.totalPrice;
               c[histo.workflowId].totalMo += histo.moCount
@@ -308,7 +302,6 @@ function _update(user, mailChange) {
     _is_google_user(user).then(function (boolean) {
       if (boolean == true) {
         if (config.quietLog != true) {
-          //console.log("google user");
         }
         reject("google_user");
       } else {
@@ -330,7 +323,6 @@ function _update_mainprocess(preData) {
   //transformer le model business en model de persistance
   return new Promise(function (resolve, reject) {
     if (config.quietLog != true) {
-      //console.log("update_mainprocess data");
     }
     var toUpdate = {};
     if (preData.email) {
@@ -417,7 +409,6 @@ function _update_mainprocess(preData) {
           reject("errorr_save");
         } else {
           if (config.quietLog != true) {
-            //console.log("final update mainprocess data");
           }
           resolve(userData);
         }
@@ -500,7 +491,6 @@ function _update_preprocess(userParams) {
       if (userParams.new_password) {
         _hash_password(userParams.new_password)
           .then(function (hashedPassword) {
-            console.log("PASSWORD", userParams.new_password, hashedPassword);
             resolve(hashedPassword);
           })
           .catch(function (err) {
@@ -538,7 +528,6 @@ function _update_preprocess(userParams) {
         o["credit"] = user_update_data[8];
         o._id = userParams._id;
         if (config.quietLog != true) {
-          //console.log("final update preprocess data");
         }
         resolve(o);
       })
@@ -557,7 +546,6 @@ function _check_email(email) {
 function _check_name(name) {
   return new Promise(function (resolve, reject) {
     // if (pattern.name.test(name)) {
-    // //console.log("name", true)
     resolve(true);
     // } else {
     // resolve(false)
@@ -569,7 +557,6 @@ function _check_job(job) {
   return new Promise(function (resolve, reject) {
     if (pattern.job.test(job)) {
       if (config.quietLog != true) {
-        //console.log("job", true);
       }
       resolve(true);
     } else {
@@ -619,7 +606,6 @@ function _is_google_user(user) {
         if (userData) {
           if (userData.googleId != null) {
             if (config.quietLog != true) {
-              //console.log("googleID");
             }
             resolve(true);
           } else {

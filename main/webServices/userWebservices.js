@@ -5,7 +5,7 @@ const auth_lib_jwt = require('../../core/lib/auth_lib')
 const mailService = require('./services/mail')
 const jwt = require('jwt-simple')
 const moment = require('moment')
-
+const errorHandling = require('./errorHandling')
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -38,24 +38,25 @@ module.exports = function (router) {
     user_lib.get_all({}).then(function (users) {
       res.send(users)
     }).catch(e => {
-      next(e)
+      errorHandling(e, res)
     })
   })
 
   // ---------------------------------------------------------------------------------
 
-  router.post('/users/mail?mail=:mail', async (req, res) => {
+  router.post('/users/mail', async (req, res) => {
     try {
-      const token = encodeToken(req.query.mail, 'recovery_password')
+      const token = encodeToken(req.query.mail, 'verify')
       const link = ('http://' + req.get('host') + '/data/auth/secure?code=' + token + '&mail=' + encodeURIComponent(req.query.mail))
-      await user_lib.createUpdatePasswordEntity(req.params.mail, token)
+      await user_lib.createUpdatePasswordEntity(req.query.mail, token)
 
       const mailOptions = {
         from: 'Grappe, Confirmer votre email <tech@data-players.com>',
-        to: req.params.mail,
+        to: req.query.mail,
         subject: 'Confirmer Votre compte',
         html: 'Bonjour,<br> Merci de cliquer sur le lien suivant pour confirmer votre compte. <br><a href=' + link + '>Ici </a>'
       }
+
       await mailService.sendMail(req, res, mailOptions)
       res.sendStatus(200)
     } catch (e) {
@@ -71,7 +72,7 @@ module.exports = function (router) {
     ).then(function (result) {
       res.send(result)
     }).catch(e => {
-      next(e)
+      errorHandling(e, res)
     })
   })
 
@@ -81,37 +82,19 @@ module.exports = function (router) {
     user_lib.userGraph(UserIdFromToken(req)).then(workspaceGraph => {
       res.json({ workspaceGraph })
     }).catch(e => {
-      next(e)
+      errorHandling(e, res)
     })
   })
 
   // --------------------------------------------------------------------------------
 
+  // todo dont update workspace and password here
   router.put('/users/me', function (req, res) {
     req.body.user._id = UserIdFromToken(req)
-    if (req.body.password) {
-      if (Date.now() < user.resetpasswordtoken + 600000) {
-        user.new_password = req.body.new_password
-      }
-    }
     user_lib.update(req.body.user, req.body.mailChange).then(function (result) {
       res.send(result)
-    }).catch(function (err) {
-      if (err === 'google_user') {
-        res.send({ err: 'google_user' })
-      }
-      if (err === 'email_already_use') {
-        res.send({ err: 'email_already_use' })
-      }
-      if (err === 'bad_format_email') {
-        res.send({ err: 'bad_format_email' })
-      }
-      if (err === 'bad_format_job') {
-        res.send({ err: 'bad_format_job' })
-      }
-      if (err === 'bad_format_society') {
-        res.send({ err: 'bad_format_society' })
-      }
+    }).catch((e) => {
+      errorHandling(e, res)
     })
   })
 }

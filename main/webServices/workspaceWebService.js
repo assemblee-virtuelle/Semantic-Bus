@@ -5,6 +5,7 @@ const workspace_component_lib = require('../../core/lib/workspace_component_lib'
 const fragment_lib = require('../../core/lib/fragment_lib')
 const technicalComponentDirectory = require('./technicalComponentDirectory.js')
 const securityService = require('../webServices/securityService')
+const errorHandling = require('./errorHandling')
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -71,7 +72,7 @@ module.exports = function (router, amqpClient) {
     workspace_lib.getAll(UserIdFromToken(req), 'owner').then(function (workspaces) {
       res.json(workspaces)
     }).catch(e => {
-      next(e)
+      errorHandling(e, res)
     })
   }) // <= list_owned_workspace
 
@@ -81,7 +82,7 @@ module.exports = function (router, amqpClient) {
     workspace_lib.getAll(UserIdFromToken(req), 'editor').then(function (workspaces) {
       res.json(workspaces)
     }).catch(e => {
-      next(e)
+      errorHandling(e, res)
     })
   }) // <= list_shared_workspace
 
@@ -93,7 +94,7 @@ module.exports = function (router, amqpClient) {
         workspaceGraph
       })
     }).catch(e => {
-      next(e)
+      errorHandling(e, res)
     })
   }) // <= get_graph_workspace
 
@@ -113,7 +114,7 @@ module.exports = function (router, amqpClient) {
       // console.log(workspace);
       res.json(workspace)
     }).catch(e => {
-      next(e)
+      errorHandling(e, res)
     })
   }) // <= get_workspace
 
@@ -123,7 +124,7 @@ module.exports = function (router, amqpClient) {
     workspace_lib.get_process_byWorkflow(req.params.id).then((workspaceProcess) => {
       res.json(workspaceProcess)
     }).catch(e => {
-      next(e)
+      errorHandling(e, res)
     })
   }) // <= get_workspace_workflow
 
@@ -150,7 +151,7 @@ module.exports = function (router, amqpClient) {
         res.send(undefined)
       }
     }).catch(e => {
-      next(e)
+      errorHandling(e, res)
     })
   })
 
@@ -160,7 +161,7 @@ module.exports = function (router, amqpClient) {
     workspace_component_lib.update(req.params.id, req.body)
       .then((componentUpdated) => (res.json(componentUpdated)))
       .catch(e => {
-        next(e)
+        errorHandling(e, res)
       })
   })// <= update_component
 
@@ -206,7 +207,7 @@ module.exports = function (router, amqpClient) {
         res.send(false)
       }
     }).catch(e => {
-      next(e)
+      errorHandling(e, res)
     })
   }) // <= update_share/workspace
 
@@ -341,20 +342,20 @@ module.exports = function (router, amqpClient) {
             res.send(workspace)
           })
         }).catch(e => {
-          next(e)
+          errorHandling(e, res)
         })
       } else {
         workspace_lib.create(userIdBody, workspaceBody).then(function (workspace) {
           res.send(workspace)
         }).catch(e => {
-          next(e)
+          errorHandling(e, res)
         })
       }
     } else {
       workspace_lib.create(userIdBody, workspaceBody).then(function (workspace) {
         res.send(workspace)
       }).catch(e => {
-        next(e)
+        errorHandling(e, res)
       })
     }
   }) // <= create_workspace
@@ -365,7 +366,7 @@ module.exports = function (router, amqpClient) {
     workspace_lib.addConnection(req.params.id, req.body.source, req.body.target).then(links => {
       res.json(links)
     }).catch(e => {
-      next(e)
+      errorHandling(e, res)
     })
   })// <= create_workspace_component_connexion
 
@@ -377,7 +378,7 @@ module.exports = function (router, amqpClient) {
     workspace_lib.removeConnection(req.params.id, req.body.linkId).then(links => {
       res.json(links)
     }).catch(e => {
-      next(e)
+      errorHandling(e, res)
     })
   }) // <= delete_connexion
 
@@ -433,7 +434,7 @@ module.exports = function (router, amqpClient) {
         })
       }
     }).catch(e => {
-      next(e)
+      errorHandling(e, res)
     })
   }) // <= delete_share/workspace
 
@@ -443,7 +444,7 @@ module.exports = function (router, amqpClient) {
     workspace_lib.destroy(UserIdFromToken(req), req.params.id).then(function (workspace) {
       res.json(workspace)
     }).catch(e => {
-      next(e)
+      errorHandling(e, res)
     })
   }) // <= delete_workspace
 
@@ -455,7 +456,7 @@ module.exports = function (router, amqpClient) {
     }).then(() => {
       res.json(req.body)
     }).catch(e => {
-      next(e)
+      errorHandling(e, res)
     })
   })// <= delete_components
 }

@@ -1,6 +1,6 @@
-function ProfilStore () {
-  riot.observable(this) // Riot provides our event emitter.
-  /// /LE USER STORE EST RELIE A LOGIN EST NON A APPLICATION
+function ProfilStore (utilStore) {
+  riot.observable(this)
+  this.utilStore = utilStore
   this.setUserCurrent = function (user) {
     this.userCurrrent = user
   }
@@ -11,46 +11,41 @@ function ProfilStore () {
   })
 
   this.on('load_user_workspace_graph', () => {
-    console.log("load_user_workspace_graph")
-    $.ajax({
+    this.utilStore.ajaxCall({
       method: 'get',
       url: '../data/core/users/me/graph',
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
       },
       contentType: 'application/json'
-    }).done(data => {
+    }).then(data => {
       this.trigger('profil_menu_changed', this.menu)
       this.trigger('load_user_workspace_graph_done', data.workspaceGraph)
     })
   })
 
   this.on('send_back_email', function (data) {
-    $.ajax({
+    this.utilStore.ajaxCall({
       method: 'post',
-      url: '../users/mail?=' + data.user.credentials.email,
+      url: '../data/core/users/mail?mail=' + data.user.credentials.email,
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
       },
       contentType: 'application/json'
-    }).done(function (data) {
-      if (data == 'mail_sent') {
-        this.trigger('ajax_sucess', `Un mail vous a  été envoyé, consultez votre boite mail`)
-      } else {
-        this.trigger('ajax_fail', `Erreur lors de l'envoie de mail contactez nous si cela persiste`)
-      }
-    }.bind(this))
+    }).then(() => {
+      this.trigger('ajax_sucess', `Un mail vous a  été envoyé, consultez votre boite mail`)
+    })
   })
 
   this.on('load_all_profil_by_email', function (message) {
-    $.ajax({
+    this.utilStore.ajaxCall({
       method: 'get',
       url: '../data/core/users',
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
       },
       contentType: 'application/json'
-    }).done(function (data) {
+    }).then(function (data) {
       var emails = []
       data.forEach(function (user) {
         if (user.credentials) {
@@ -62,7 +57,7 @@ function ProfilStore () {
   })
 
   this.on('update_user', function (data) {
-    $.ajax({
+    this.utilStore.ajaxCall({
       method: 'put',
       url: '../data/core/users/me',
       data: JSON.stringify(data),
@@ -70,26 +65,9 @@ function ProfilStore () {
         'Authorization': 'JTW' + ' ' + localStorage.token
       },
       contentType: 'application/json'
-    }).done(function (data) {
-      if (data.err == 'google_user') {
-        this.trigger('google_user_update')
-      }
-      if (data.err == 'email_already_use') {
-        this.trigger('email_already_use')
-      }
-      if (data.err == 'bad_format_email') {
-        this.trigger('bad_format_email')
-      }
-      if (data.err == 'bad_format_job') {
-        this.trigger('bad_format_job')
-      }
-      if (data.err == 'bad_format_society') {
-        this.trigger('bad_format_society')
-      }
-      if (data.err == null) {
-        this.trigger('ajax_sucess', `Votre profil à été mis à jour`)
-        this.trigger('user_from_storage', data)
-      }
+    }).then(function (data) {
+      this.trigger('ajax_sucess', `Votre profil à été mis à jour`)
+      this.trigger('user_from_storage', data)
     }.bind(this))
   })
 

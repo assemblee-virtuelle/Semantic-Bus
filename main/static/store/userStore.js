@@ -66,7 +66,7 @@ function UserStore (utilStore) {
 
   this.on('updatePassword', function (data) {
     this.utilStore.ajaxCall({
-      method: 'post',
+      method: 'get',
       contentType: 'application/json',
       data: JSON.stringify(data),
       url: '/data/auth/secure?mail=' + window.location.hash.split('mail=')[1]

@@ -44,7 +44,6 @@ class AuthLib {
     })
   }
 
-
   /**
    * @param {AuthenticationParam} authenticationParams
    * @return {Promise<User>}
@@ -56,8 +55,12 @@ class AuthLib {
         'credentials.email': authenticationParams.email
       })
       .lean()
-      .exec()
-      .catch(() =>  new Error.PropertyValidationError('mail'))
+      .exec().then((res)=>{
+        if(res == null){
+          throw new Error.PropertyValidationError('mail')
+        }
+        return res
+      })
   }
 
   /**
@@ -72,7 +75,7 @@ class AuthLib {
         return isMatch
       })
       .catch(() => {
-        return new Error.PropertyValidationError('password')
+        throw new Error.PropertyValidationError('password')
       })
   }
 
@@ -85,7 +88,7 @@ class AuthLib {
     let userData
     return new Promise(async (resolve, reject)=>{
       try {
-        userData = await this._auth_find_promise(authenticationParams); 
+        userData = await this._auth_find_promise(authenticationParams);
       } catch (e) {
         return reject(e)
       }

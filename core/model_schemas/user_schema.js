@@ -24,7 +24,6 @@ var UserSchema = mongoose.Schema({
         },
         hashed_password: {
             type: String,
-            required: true,
         }
     },
     active: {

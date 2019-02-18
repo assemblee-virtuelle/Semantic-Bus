@@ -209,7 +209,6 @@
     .AddButtonClick {
       opacity: 1;
     }
-
     .AddButtonNoClick {
       opacity: 0.3;
     }
@@ -217,18 +216,15 @@
       padding: 10px;
       flex: 1 100%;
     }
-
     .wrapper {
       display: flex;
       flex-flow: row wrap;
       font-weight: bold;
       text-align: center;
     }
-
     .generalContainer {
       background-color: rgb(238,242,249);
     }
-
     /*  Barre de chargement  */
     #containerSecureDiv {
       background-color: rgba(200,200,200,1);
@@ -238,9 +234,7 @@
       left: 0;
       position: absolute;
       z-index: 3;
-
     }
-
     #containerErrorDiv {
       background-color: rgba(200,200,200,0);
       bottom: 0;
@@ -251,7 +245,6 @@
       z-index: 2;
       pointer-events: none;
     }
-
     #containerLoaderDiv {
       background-color: rgba(200,200,200,0.6);
       bottom: 0;
@@ -260,28 +253,12 @@
       left: 0;
       position: absolute;
       z-index: 1;
-      /*width: 100%;
-      height: 125vh;
-      position: absolute;
-      z-index: 1;
-      padding: 0;
-      margin: 0;
-      display: -webkit-box;
-      display: -moz-box;
-      display: -ms-flexbox;
-      display: -webkit-flex;
-      display: flex;
-      align-items: center;
-      justify-content: center;*/
     }
-
     #row {
       display: flex;
       flex-direction: column;
       align-items: center;
-
     }
-
     #loaderText {
       padding-top: 5%;
       color: #3498db;
@@ -307,9 +284,8 @@
     .persistInProgress {
       color: red;
     }
-
     .errorMessage {
-      background-color: rgb(255,116,0) !important;
+      background-color: #fe4a49 !important;
       color: white ! important;
       z-index: 999;
       height: 50px;
@@ -317,7 +293,6 @@
       justify-content: center;
       align-items: center;
     }
-
     .successMessage {
           background-color: rgb(41,171,135) !important;
           color: white !important;
@@ -331,7 +306,6 @@
     .selectedMenu {
       background-color: rgb(124,195,232);
     }
-
     .progressContainer {
       padding: 5px;
       flex-basis: 20px;

@@ -5,7 +5,7 @@ const mailService = require('./services/mail')
 const jwt = require('jwt-simple')
 const moment = require('moment')
 const config = require('../configuration')
-const Error = require('../../core/helpers/error')
+const errorHandling = require('./errorHandling')
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -21,47 +21,6 @@ const encodeToken = (mail, action) => {
   const secret = action == 'recovery_password' ? 'password' : 'mail'
 
   return jwt.encode(payload, secret)
-}
-
-const errorHandling = (e, res) => {
-  console.log(e instanceof Error.UniqueEntityError)
-  if (e instanceof Error.DataBaseProcessError) {
-    console.log('DataBaseProcessError', e)
-    res.status(500).send({
-      success: false,
-      message: 'Erreur Interne'
-    })
-  }
-  if (e instanceof Error.UniqueEntityError) {
-    console.log('UniqueEntityError', e)
-    let message = ''
-    e.details === 'User' ? message = 'Un utilisateurs avec cette email existe déjà' : message = 'Un ' + e.details + ' existe déjà'
-    res.status(400).send({
-      success: false,
-      message
-    })
-  }
-  if (e instanceof Error.PropertyValidationError) {
-    console.log('PropertyValidationError', e)
-    res.status(400).send({
-      success: false,
-      message: 'La propieté ' + e.details + ' n\'est pas correct'
-    })
-  }
-  if (e instanceof Error.EntityNotFoundError) {
-    console.log('EntityNotFoundError', e)
-    res.status(404).send({
-      success: false,
-      message: e.details + ' not found'
-    })
-  }
-  if (e instanceof Error.InternalProcessError) {
-    console.log('InternalProcessError', e)
-    res.status(500).send({
-      success: false,
-      message: 'Erreur Interne'
-    })
-  }
 }
 
 module.exports = function (router) {
@@ -87,7 +46,7 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.post('/secure', async (req, res) => {
+  router.get('/secure', async (req, res) => {
     let decodeToken
     let updatePasswordEntity
     try {
@@ -105,12 +64,10 @@ module.exports = function (router) {
         res.sendStatus(403)
       }
     }
-
     if (decodeToken.subject == 'recovery_password') {
       if (Date.now() < decodeToken.exp * 1000) {
         let user = await user_lib.get({ 'credentials.email': req.query.mail })
         user.new_password = req.body.user.password
-        console.log(user)
         await user_lib.update(user, null)
         res.sendStatus(200)
       } else {
@@ -118,7 +75,7 @@ module.exports = function (router) {
       }
     } else {
       try {
-        let user = await user_lib.get({ 'credentials.email': req.query.mail })
+        let user = await user_lib.get({ 'credentials.email': decodeToken.iss })
         if (!user.active) {
           user.active = true
           user.credit = 2000
