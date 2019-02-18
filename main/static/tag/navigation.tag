@@ -18,10 +18,10 @@
   </div>  -->
   <div id="containerLoaderDiv" if={persistInProgress} class="containerV" style="justify-content:center">
     <div id="row">
-      <div id="loaderDiv"></div>
-      <h1 id="loaderText">
-        synchronisation avec le serveur
-      </h1>
+      <!--  <div id="loaderDiv"></div>  -->
+      <!--  <h1 id="loaderText">  -->
+        <img id="loaderDiv" src="./image/grappe-log-02.png" height="50px" style="margin-left:5px;display: flex;">
+      <!--  </h1>  -->
     </div>
   </div>
   <div id="containerErrorDiv" class="containerV" if={errorMessage}>
@@ -266,19 +266,19 @@
       text-align: center;
     }
     #loaderDiv {
-      border: 16px solid #f3f3f3;
-      border-top: 16px solid #3498db;
-      border-radius: 50%;
-      width: 120px;
-      height: 120px;
-      animation: spin 2s linear infinite;
+      width: 100px;
+      animation: err 0.5s linear infinite;
+      animation-direction: alternate;
     }
-    @keyframes spin {
+    @keyframes err {
       0% {
-        transform: rotate(0deg);
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.2);
       }
       100% {
-        transform: rotate(360deg);
+        transform: scale(1.4);
       }
     }
     .persistInProgress {

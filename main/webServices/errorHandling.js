@@ -38,7 +38,7 @@ const errorHandling = (e, res) => {
       message: 'Erreur Interne'
     })
   }
-  res.
+  res.status(500).send()
 }
 
 module.exports = errorHandling
