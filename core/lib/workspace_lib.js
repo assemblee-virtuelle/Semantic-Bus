@@ -8,7 +8,7 @@ var config = require("../../main/configuration.js");
 var historiqueEndModel = require("../models/historiqueEnd_model");
 var processModel = require("../models/process_model");
 var sift = require("sift");
-var graphTraitement = require("../../main/utils/graph-traitment");
+var graphTraitement = require("../helpers/graph-traitment");
 const Error = require('../helpers/error.js');
 
 // --------------------------------------------------------------------------------

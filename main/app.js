@@ -9,7 +9,7 @@ const safe = express.Router()
 const unSafeRouteur = express.Router()
 const bodyParser = require('body-parser')
 const env = process.env
-const httpGet = require('./webServices/workSpaceComponentDirectory/restGetJson.js')
+const httpGet = require('./server/workspaceComponent/restGetJson.js')
 const fs = require('fs')
 const url = env.CONFIG_URL || 'https://data-players.github.io/StrongBox/public/dev-local-mac-without-stripe.json'
 
@@ -40,8 +40,7 @@ httpGet.makeRequest('GET', {
     if (err) {
       throw err
     } else {
-      const securityService = require('./webServices/securityService')
-
+      const securityService = require('./server/services/security')
       safe.use(function (req, res, next) {
         securityService.securityAPI(req, res, next)
       })
@@ -68,19 +67,19 @@ httpGet.makeRequest('GET', {
         app.use('/data/auth', unSafeRouteur)
         app.use('/data/core', safe)
 
-        require('./webServices/initialiseWebService')(unSafeRouteur, amqpClient)
-        require('./webServices/authWebService')(unSafeRouteur)
-        require('./webServices/workspaceWebService')(safe, amqpClient)
-        require('./webServices/technicalComponentWebService')(safe, unSafeRouteur, amqpClient)
-        require('./webServices/userWebservices')(safe, amqpClient)
-        require('./webServices/fragmentWebService')(safe, amqpClient)
+        require('./server/initialiseWebService')(unSafeRouteur, amqpClient)
+        require('./server/authWebService')(unSafeRouteur)
+        require('./server/workspaceWebService')(safe, amqpClient)
+        require('./server/technicalComponentWebService')(safe, unSafeRouteur, amqpClient)
+        require('./server/userWebservices')(safe, amqpClient)
+        require('./server/fragmentWebService')(safe, amqpClient)
 
         /// SECURISATION DES REQUETES
 
         app.get('/', function (req, res, next) {
           res.redirect('/ihm/application.html#myWorkspaces')
         })
-        app.use('/ihm', express.static('static', {
+        app.use('/ihm', express.static('client/static', {
           etag: false
         }))
 
