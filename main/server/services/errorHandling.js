@@ -38,10 +38,16 @@ const errorHandling = (e, res) => {
       message: 'Erreur Interne'
     })
   }
-  res.status(500).send({
-    success: false,
-    message: 'Erreur Interne'
-  })
+  if (e instanceof Error.OauthError) {
+    res.status(500).send({
+      success: false,
+      message: e.details
+    })
+  }
+  // res.status(500).send({
+  //   success: false,
+  //   message: 'Erreur Interne'
+  // })
 }
 
 module.exports = errorHandling

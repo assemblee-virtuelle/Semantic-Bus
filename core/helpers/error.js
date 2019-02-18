@@ -5,7 +5,13 @@ class PropertyValidationError extends Error {
     this.details = property;
   }
 }
-
+class OauthError extends Error {
+  constructor(property) {
+    super("No property: " + property);
+    this.name = 'Google Oauth';
+    this.details = 'vous possedez déjà un compte associé a cette adresse';
+  }
+}
 class InternalProcessError extends Error {
   constructor(details) {
     super("Error: " + details);
@@ -39,6 +45,8 @@ class UniqueEntityError extends Error {
   }
 }
 
+
+module.exports.OauthError = OauthError
 module.exports.DataBaseProcessError = DataBaseProcessError
 module.exports.UniqueEntityError = UniqueEntityError
 module.exports.PropertyValidationError = PropertyValidationError

@@ -220,6 +220,7 @@
 
     this.userFromStorage = function(profil){
       profil? this.profil = profil:  this.profil = { credentials : { email: ''}}
+      console.log(this.profil)
       this.update()
     }.bind(this);
 
@@ -229,6 +230,7 @@
     }.bind(this);
 
     this.on('mount', function () {
+      console.log()
       RiotControl.on('user_from_storage', this.userFromStorage);
       RiotControl.on('profil_menu_changed', this.profilMenuChanged);
       RiotControl.trigger('get_user_from_storage')
