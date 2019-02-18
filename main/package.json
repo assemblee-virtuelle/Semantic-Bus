@@ -7,7 +7,7 @@
   "scripts": {
     "lint": "./node_modules/.bin/eslint *.js scripts/**/*.js utils/**/*.js webServices/**/*.js",
     "fix": "./node_modules/.bin/eslint --fix *.js scripts/**/*.js utils/**/*.js webServices/**/*.js",
-    "start": "node cluster.js --max_old_space_size=3000",
+    "start": "node app.js",
     "mongoPull": "sudo docker pull mongo:3.6",
     "mongoClean": "sudo docker volume rm data",
     "mongoRun": "sudo docker run -d -v data:/data/db -p 27017:27017 --name mongo mongo:3.6",

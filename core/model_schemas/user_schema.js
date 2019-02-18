@@ -30,17 +30,6 @@ var UserSchema = mongoose.Schema({
         type: Boolean,
         default: false
     },
-    mailid : {
-        type: Number,
-    },
-    resetpasswordtoken :{
-        type: Number,
-        default: null
-    },
-    resetpasswordmdp :{
-        type: Number,
-        default: null
-    },
     job:{
          type: String,
     },
@@ -61,10 +50,6 @@ var UserSchema = mongoose.Schema({
         },
         role: String,
     }],
-    admin: {
-        type: Boolean,
-        default: false
-    },
     dates: {
         created_at: Date,
         updated_at: Date

@@ -1,9 +1,0 @@
-config:
-  target: 'http://localhost:8080/data/api'
-  phases:
-    - duration: 240
-      arrivalRate: 1
-scenarios:
-  - flow:
-    - get:
-        url: '/PWA_One?id=LesAmoureuxaubanpublic-ClermontFerrand4578309'

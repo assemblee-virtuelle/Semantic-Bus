@@ -1,0 +1,44 @@
+.noBorder
+{
+  border-style: none;
+}
+
+.containerH/*container horizontal*/
+{
+  display: flex;
+  align-items : stretch;
+  overflow: hidden;
+}
+
+.containerV /*container vertical*/
+{
+  display: flex;
+  flex-direction: column;
+  align-items : stretch;
+  overflow-x: hidden;
+}
+.containerV>.containerH
+{
+  color: rgb(141,141,141);
+  /*flex-shrink : 0;*/
+  /*flex-basis:100%;*/
+}
+.scrollable
+{
+  overflow-y: scroll;
+  overflow-x: auto;
+  height: 650px;
+}
+
+.containerV>.containerV
+{
+  flex-grow: 1;
+  flex-shrink : 1;
+  /*flex-basis:100%;*/
+}
+.box-flex {
+  margin: 20px;
+  padding: 20px;
+  background-color: white !important;
+  /* box-shadow: 0 0 5px 0 rgba(133,133,133,0.38); */
+}

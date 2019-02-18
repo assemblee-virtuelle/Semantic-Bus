@@ -1,0 +1,235 @@
+a {
+  text-decoration: none;
+  color: white;
+}
+
+.button-profil {
+    border-radius: 3px;
+    padding-right: 40px;
+    padding-left: 40px;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    background-color: rgb(26, 145, 194);
+    color: white;
+    font-size: 20px;
+    text-align: center;
+    cursor:pointer;
+}
+
+.button-graph {
+  border-radius: 50%;
+  padding: 10px;
+  background-color: rgb(26, 145, 194);
+  color: white;
+  font-size: 14px;
+  text-align: center;
+  cursor:pointer;
+}
+
+a:active {
+  text-decoration: none;
+  color: white;
+}
+
+a:visited {
+  text-decoration: none;
+  color: white;
+}
+
+a:hover {
+  text-decoration: none;
+  color: white;
+}
+
+body {
+  /*font-size: 1.2em;*/
+}
+
+/* header table*/
+.table-title {
+  color: white;
+  flex-shrink: 0;
+  background-color: rgb(26, 145, 194);
+}
+
+.header-login {
+  height: 80px;
+  font-family: Arial, Helvetica, "Liberation Sans", sans-serif;
+  align-items: center;
+}
+
+.header {
+  background: rgb(26, 145, 194);
+  height: 80px;
+  color: white;
+  font-family: Arial, Helvetica, "Liberation Sans", sans-serif;
+  align-items: center;
+}
+
+/*titres d'en-tete*/
+.main-title {
+  font-size: 35px;
+  color: white;
+  font-family: 'Open Sans', sans-serif;
+}
+
+.title-header {
+  justify-content: center;
+  text-align: center;
+  padding-top: 5px;
+  font-family: 'Open Sans', sans-serif;
+  color: white;
+  font-size: 10px;
+  width: 120px;
+}
+
+/*titre composant*/
+.title-space {
+  justify-content: center;
+  text-align: center;
+  padding-top: 5px;
+  font-family: 'Open Sans', sans-serif;
+  color: rgb(141,141,141);
+  font-size: 20px;
+
+}
+
+/*titre composant*/
+.title-component {
+  font-size: 20px;
+  /*font-family: 'Open Sans', sans-serif;*/
+  margin-bottom: 5px;
+  border-top: 0px;
+  border-left: 0px;
+  border-right: 0px;
+  border-bottom: 2px rgb(213, 218, 224) solid;
+
+}
+
+/*menu selectionné*/
+.tagSelected {
+  border: 3px solid rgb(124, 195, 232) !important;
+  background-color: rgb(124, 195, 232);
+  color: white;
+}
+
+/*Menu selectionné*/
+.selected {
+  cursor: pointer;
+  border: 3px solid rgb(33, 150, 243) !important;
+}
+
+/*triangle Up*/
+.arrow-up {
+  width: 0;
+  height: 0;
+  border-left: 10px solid transparent;
+  border-right: 10px solid transparent;
+  border-bottom: 10px solid rgb(238, 242, 249);
+}
+
+/*triangle left*/
+.arrow-left {
+  width: 0;
+  height: 0;
+  border-top: 10px solid transparent;
+  border-bottom: 10px solid transparent;
+  border-right: 10px solid rgb(238, 242, 249);
+}
+
+.buttonBus {
+  margin-left: -1px;
+  height: 38px;
+  padding-left: 19pt;
+  border-radius: 15pt;
+  border: 3px solid white;
+  color: white;
+  padding-right: 19pt;
+  cursor: pointer;
+  padding-top: 5px;
+}
+
+.buttonBus:target {
+  margin-left: -1px;
+  height: 38pt;
+  padding-left: 19pt;
+  border-radius: 15pt;
+  border: 3px solid white;
+  color: white;
+  padding-right: 19pt;
+  cursor: pointer;
+  opacity: 0.3
+}
+
+/*.commandGroup {
+  padding: 0px;
+  justify-content: center;
+}*/
+/*Bouton*/
+.commandButton {
+  margin-left: 5pt;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  cursor: pointer;
+  align-self: center;
+  border: 3px solid rgb(213, 218, 224);
+  color: grey;
+  border-radius: 20px;
+}
+
+.commandButton:hover {
+  border: 3px solid rgb(41, 177, 238) !important;
+  background-color: rgb(41, 177, 238);
+  color: white;
+}
+
+.selector {
+  border-style: none;
+  cursor: pointer;
+  margin: 5px;
+  padding-left: 10px;
+  padding-right: 10px;
+  padding-top: 2px;
+  padding-bottom: 2px;
+  background-color: #cce2ff;
+}
+
+.mainSelector {
+  font-size: 30px;
+  text-align: center;
+  border-radius: 10px;
+  /*flex-basis:35px;*/
+}
+
+/*Nom des champs*/
+label {
+  margin-top: 10px;
+  margin-bottom: 5px;
+  color:rgb(141,141,141);
+}
+
+/*lien ext.*/
+.url {
+  color: rgb(37, 167, 239);
+  cursor: pointer;
+}
+
+.url:hover {
+  color: #3594D2;
+}
+
+/*Bouton formulaire*/
+.btn {
+  cursor: pointer;
+}
+
+.box {
+  width: 90%;
+  flex-wrap: wrap;
+  background-color: white;
+  padding: 2%;
+  justify-content: center;
+  flex-grow: 0.5;
+}

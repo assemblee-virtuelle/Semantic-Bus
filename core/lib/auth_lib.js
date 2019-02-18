@@ -11,6 +11,7 @@ const authenticationModel = require('../models/auth_model');
 require('../Oauth/google_auth_strategy')(passport);
 /** @type Configuration */
 const config = require('../../main/configuration');
+const Error = require('../helpers/error.js');
 
 /** @typedef {{authentication: AuthenticationParam}} BodyParam */
 /** @typedef {{email: string, password: string}} AuthenticationParam */
@@ -28,17 +29,20 @@ class AuthLib {
    * @public
    */
   create(bodyParams) {
-    return this._is_google_user(bodyParams.authentication).then((boolean) => {
+    return this._is_google_user(bodyParams.authentication)
+    .then((boolean) => {
+      console.log('is google user', boolean)
       if (boolean == true) {
-        return Promise.reject("google_user");
+        throw new Error.PropertyValidationError('mail ( Utilisateur Google ) ')
       } else {
         return this._create_preprocess(bodyParams.authentication);
       }
     }).then(preData => {
       return this._create_mainprocess(preData, bodyParams.authentication)
+    }).catch((e)=>{
+      throw e
     })
   }
-
 
   /**
    * @param {AuthenticationParam} authenticationParams
@@ -51,8 +55,12 @@ class AuthLib {
         'credentials.email': authenticationParams.email
       })
       .lean()
-      .exec()
-      .catch(() => Promise.reject("no_account_found"))
+      .exec().then((res)=>{
+        if(res == null){
+          throw new Error.PropertyValidationError('mail')
+        }
+        return res
+      })
   }
 
   /**
@@ -64,12 +72,10 @@ class AuthLib {
   _bcrypt_promise(authenticationParams, userData) {
     return bcrypt.compare(authenticationParams.password, userData.credentials.hashed_password)
       .then(isMatch => {
-        console.log("isMatch")
         return isMatch
       })
       .catch(() => {
-        console.log("compare_bcrypt ERRO -------")
-        return Promise.reject("compare_bcrypt");
+        throw new Error.PropertyValidationError('password')
       })
   }
 
@@ -78,18 +84,21 @@ class AuthLib {
    * @return {Promise<User>}
    * @private
    */
-  _create_preprocess(authenticationParams) {
-    return this._auth_find_promise(authenticationParams)
-      .then(userData => {
-        return this._bcrypt_promise(authenticationParams, userData)
-          .then(result => {
-            if (result) {
-              return userData
-            } else {
-              return Promise.reject("compare_bcrypt")
-            }
-          })
-      })
+  async _create_preprocess(authenticationParams) {
+    let userData
+    return new Promise(async (resolve, reject)=>{
+      try {
+        userData = await this._auth_find_promise(authenticationParams);
+      } catch (e) {
+        return reject(e)
+      }
+      try {
+        let isMatch = await this._bcrypt_promise(authenticationParams, userData)
+        return isMatch ? resolve(userData) : reject(new Error.PropertyValidationError('password'))
+      } catch (e) {
+        return reject(e)
+      }
+    })
   }
 
 
@@ -99,7 +108,7 @@ class AuthLib {
    * @return {Promise<Authentication>}
    * @private
    */
-  _create_mainprocess(user, authenticationParams) {
+  _create_mainprocess(user) {
 
     const payload = {
       exp: moment().add(14, 'days').unix(),
@@ -108,7 +117,6 @@ class AuthLib {
       subject: user.googleid,
     }
     
-    console.log("in authentification", config)
     const token = jwt.encode(payload, config.secret);
 
     const authenticationModelInstance = authenticationModel.getInstance().model;
@@ -120,7 +128,6 @@ class AuthLib {
         created_at: new Date()
       }
     });
-    //console.log(authentication)
     return authentication.save()
       .catch(err => Promise.reject(TypeError(err)))
   }
@@ -141,12 +148,13 @@ class AuthLib {
    * @param {string} redirect_url
    * @public
    */
-  google_auth_callbackURL(router, redirect_url) {
-    router.get('/', passport.authenticate('google', {
-      failureRedirect: '/login.html',
+  google_auth_callbackURL(router) {
+    const url = '../../ihm/login.html?google_token='
+    router.get('/oauth-callback', passport.authenticate('google', {
+      failureRedirect: '../../ihm/login.html',
       session: false
     }), (req, res) => {
-      res.redirect(redirect_url + res.req.user.googleToken);
+      res.redirect(url + res.req.user.googleToken);
     });
   }
 

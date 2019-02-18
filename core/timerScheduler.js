@@ -67,7 +67,7 @@ module.exports = {
 
               } else if (dedicaded==undefined && this.config.timer == undefined) {
                 console.log('GO not dedidated!');
-                let engine = require('../../webServices/recursivPullResolvePromise');
+                let engine = require('../../server/recursivPullResolvePromise');
                 engine.getNewInstance().resolveComponent(c, 'work').then(() => {
                   //console.log('timer done');
                 })

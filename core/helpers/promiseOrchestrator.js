@@ -38,15 +38,7 @@ class PromisesExecutor {
 
   incrementExecute() {
     try {
-
-      //if (this.config != undefined && this.config.quietLog != true) {
-      //process.stdout.clearLine();
-      //process.stdout.cursorTo(0);
-      //process.stdout.write(this.incrementResolved,'/',this.increment); // end the line
-      //}
       if (this.incrementResolved == this.paramArray.length) {
-        //console.log('END',  this.globalOut);
-        //console.log('END
         this.initialPromiseResolve(this.globalOut);
       } else if (this.increment < this.paramArray.length) {
         //console.log('new PromiseExecutor',this.increment);
