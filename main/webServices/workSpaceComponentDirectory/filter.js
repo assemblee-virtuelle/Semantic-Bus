@@ -8,7 +8,7 @@ class Filter {
     this.siftDate = require('sift-date')
     this.stringReplacer = require('../sharedLibrary/stringReplacer.js')
     this.objectTransformation = require('../sharedLibrary/objectTransformation.js')
-    this.graphIcon = 'Filter.png'
+    this.graphIcon = 'Filter.svg'
     this.tags = [
       'http://semantic-bus.org/data/tags/middleComponents',
       'http://semantic-bus.org/data/tags/middleQueryingComponents'

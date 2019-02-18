@@ -4,7 +4,7 @@ class Scrapper {
     this.type = 'Scrapper';
     this.description = 'Scrapper une page HTML.';
     this.editor = 'scrapper-editor';
-    this.graphIcon = 'Scrapper.png';
+    this.graphIcon = 'Scrapper.svg';
     this.tags = [
       'http://semantic-bus.org/data/tags/inComponents',
       'http://semantic-bus.org/data/tags/scrapperComponents'

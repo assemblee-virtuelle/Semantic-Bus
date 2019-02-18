@@ -4,7 +4,7 @@ class QueryParamsCreation {
     this.type= 'Params transform';
     this.description= 'Créer des paramètres de requête dans le flux.';
     this.editor='query-params-creation-editor';
-    this.graphIcon='Params_transform.png';
+    this.graphIcon='Query_params.svg';
     this.objectTransformation= require('../sharedLibrary/objectTransformation.js');
     this.tags=[
       'http://semantic-bus.org/data/tags/middleComponents',

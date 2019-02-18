@@ -6,7 +6,7 @@ class Upload {
     this.description = 'Importer un fichier.'
     this.workspace_component_lib = require('../../../core/lib/workspace_component_lib')
     this.editor = 'upload-editor'
-    this.graphIcon = 'Upload.png'
+    this.graphIcon = 'Upload.svg'
     this.tags = [
       'http://semantic-bus.org/data/tags/inComponents',
       'http://semantic-bus.org/data/tags/fileComponents'
@@ -22,7 +22,6 @@ class Upload {
   initialise (router, stompClient) {
     router.post('/upload/:compId', (req, res, next) => {
       var compId = req.params.compId
-
       new Promise((resolve, reject) => {
         var busboy = new this.busboy({
           headers: req.headers
@@ -31,7 +30,6 @@ class Upload {
         var string = ''
         var fileName = null
         let buffer
-
         busboy.on('file', (fieldname, file, filename, encoding, mimetype) => {
           fileName = filename
           file.on('data', (data) => {

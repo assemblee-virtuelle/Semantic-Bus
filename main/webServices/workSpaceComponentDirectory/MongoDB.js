@@ -7,7 +7,7 @@ class MongoConnector {
     this.mongoose= require('mongoose');
     this.MongoClient= require('mongodb').MongoClient;
     //mLabPromise= require('../mLabPromise');
-    this.graphIcon= 'Mongo.png';
+    this.graphIcon= 'BDD.svg';
     this.dotProp= require('dot-prop');
     this.tags= [
       'http://semantic-bus.org/data/tags/inComponents',

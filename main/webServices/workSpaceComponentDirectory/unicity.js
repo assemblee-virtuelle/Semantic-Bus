@@ -9,7 +9,7 @@ class UnicityExecutor {
     this.globalOut = [];
     this.sift= require('sift');
   }
-  
+
   execute() {
     return new Promise((resolve, reject) => {
       this.initialPromiseResolve = resolve;
@@ -103,7 +103,7 @@ class Unicity {
     this.type= 'Unicity';
     this.description= 'Structurer les données en vérifiant l\'unicité par champ et répartir les valeurs par source.';
     this.editor= 'unicity-editor';
-    this.graphIcon= 'Unicity.png';
+    this.graphIcon= 'Unicity.svg';
     this.sift= require('sift');
     this.transform= require('jsonpath-object-transform');
     this.dotProp= require('dot-prop');

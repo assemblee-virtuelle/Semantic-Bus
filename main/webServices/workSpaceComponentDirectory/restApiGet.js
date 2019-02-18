@@ -4,7 +4,7 @@ class RestGetJson {
     this.type = 'Get provider'
     this.description = 'Exposer un flux de donnée sur une API http GET.'
     this.editor = 'rest-api-get-editor'
-    this.graphIcon = 'Get_provider.png'
+    this.graphIcon = 'Get_provider.svg'
     this.tags = [
       'http://semantic-bus.org/data/tags/outComponents',
       'http://semantic-bus.org/data/tags/APIComponents'
@@ -83,7 +83,7 @@ class RestGetJson {
             } else if (targetedComponent.specificData.contentType.search('xml') != -1) {
               res.setHeader('content-type', targetedComponent.specificData.contentType)
               var convert = this.data2xml()
-              var out = '';
+              var out = ''
               for (let key in dataToSend.data) {
                 out += convert(key, dataToSend.data[key])
               }
@@ -92,19 +92,18 @@ class RestGetJson {
             } else if (targetedComponent.specificData.contentType.search('yaml') != -1) {
               res.setHeader('content-type', targetedComponent.specificData.contentType)
               res.send(this.json2yaml.stringify(dataToSend.data))
-
             } else if (targetedComponent.specificData.contentType.search('json') != -1) {
               res.setHeader('content-type', targetedComponent.specificData.contentType)
-              //console.log('restApiGet json data',dataToSend.data);
+              // console.log('restApiGet json data',dataToSend.data);
               var buf = Buffer.from(JSON.stringify(dataToSend.data))
               res.send(buf)
             } else {
               next(new Error('no supported madiatype'))
-              //res.send('type mime non géré')
+              // res.send('type mime non géré')
             }
           } else {
             next(new Error('content-type have to be set'))
-            //res.send('type mime non géré')
+            // res.send('type mime non géré')
           }
         }
       }).catch(err => {

@@ -6,7 +6,7 @@ class GoogleGeoLocaliser {
     this.url = require('url')
     this.editor = 'google-geolocaliser-editor'
     this.https = require('https')
-    this.graphIcon = 'Google_geocoding.png'
+    this.graphIcon = 'Geocoding.svg'
     this.tags = [
       'http://semantic-bus.org/data/tags/middleComponents',
       'http://semantic-bus.org/data/tags/middleGeocodeComponents'
