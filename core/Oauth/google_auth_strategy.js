@@ -1,7 +1,7 @@
 var GoogleStrategy = require('passport-google-oauth').OAuth2Strategy;
 var UserModel = require('../models').user;
 var config = require('../../main/configuration');
-
+var error = require('../helpers/error')
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -27,7 +27,7 @@ module.exports = (passport) => {
             UserModel.getInstance().model.findByIdAndUpdate(user._id, user, function(err, resp) {
               if (err) {
                 // res.status(500).send()
-                return done('vous possedez déjà un compte associé a cette adresse');
+                return done(new error.OauthError());
               }
               return done(null, user);
             });
@@ -43,7 +43,7 @@ module.exports = (passport) => {
             })
             newUser.save(function(err, resp) {
               if (err) {
-                return done('vous possedez déjà un compte associé a cette adresse');
+                return done(new error.OauthError());
               }
               return done(null, newUser);
             });

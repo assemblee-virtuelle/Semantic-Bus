@@ -14,10 +14,10 @@
   </div>
   <div id="containerLoaderDiv" if={persistInProgress} class="containerV" style="justify-content:center">
     <div id="row">
-      <div id="loaderDiv"></div>
-      <h1 id="loaderText">
-        synchronisation avec le serveur
-      </h1>
+      <!--  <div id="loaderDiv"></div>  -->
+      <img id="loaderDiv" src="./image/grappe-log-02.png" height="50px" style="margin-left:5px;display: flex;">
+      <h1 id="loaderText"> Requete en cours </h1>
+      <!--  </h1>  -->
     </div>
   </div>
 
@@ -248,12 +248,6 @@
       this.sucessMessage = undefined;
     }
 
-    RiotControl.on('back_send_mail', function () {
-      route('initiat')
-      this.result_email = "Une erreur est survenu veuillez recommencer l'opération"
-      this.update()
-    }.bind(this));
-
     RiotControl.on('ajax_fail', function (message) {
       this.errorMessage = message;
       this.update();
@@ -264,8 +258,22 @@
       this.update();
     }.bind(this));
 
+
+    RiotControl.on('persist_start', function (data) {
+      //console.log('persist_start | ',this.saveButton)
+      this.persistInProgress = true;
+      this.update();
+    }.bind(this));
+
+    RiotControl.on('persist_end', function (data) {
+      this.persistInProgress = false;
+      this.update();
+    }.bind(this));
+
     this.isGoogleUser = function () {
+      
       if (location.search.split('google_token=')[1] != null) {
+        this.persistInProgress = true;
         var googleToken = location.search.split('google_token=')[1]
         RiotControl.trigger('google_connect', googleToken);
       }
@@ -532,49 +540,43 @@
     }
 
     #containerLoaderDiv {
-      background-color: rgba(200,200,200,0.6);
-      width: 100%;
-      height: 125vh;
-      padding: 0;
-      margin: 0;
-      display: -webkit-box;
-      display: -moz-box;
-      display: -ms-flexbox;
-      display: -webkit-flex;
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      background-color: rgb(26,145,194);
+      bottom: 0;
+      top: 0;
+      right: 0;
+      left: 0;
+      position: absolute;
+      z-index: 1;
     }
-
     #row {
-      width: auto;
-      margin-top: -35vh;
-
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+    #loaderDiv {
+      width: 100px;
+      animation: bounce 0.5s linear infinite;
+      animation-direction: alternate;
+    }
+    @keyframes bounce {
+      0% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.2);
+      }
+      100% {
+        transform: scale(1.4);
+      }
     }
 
     #loaderText {
-      padding-top: 5%;
-      color: #3498db;
+      padding-top: 3%;
+      color: white;
       font-family: 'Raleway', sans-serif;
       text-align: center;
     }
-    #loaderDiv {
-      border: 16px solid #f3f3f3;
-      border-top: 16px solid #3498db;
-      border-radius: 50%;
-      width: 120px;
-      height: 120px;
-      animation: spin 2s linear infinite;
-      margin-left: 4vw;
-    }
-    @keyframes spin {
-      0% {
-        transform: rotate(0deg);
-      }
-      100% {
-        transform: rotate(360deg);
-      }
-    }
+
     .persistInProgress {
       color: red;
     }

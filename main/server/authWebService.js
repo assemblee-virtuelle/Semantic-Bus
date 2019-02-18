@@ -54,14 +54,15 @@ module.exports = function (router) {
     }
 
     try {
-      decodeToken = jwt.decode(updatePasswordEntity.token, 'password')
+      decodeToken = jwt.decode(updatePasswordEntity.token, config.recorvery_passwordToken || 'secret')
     } catch (e) {
       try {
-        decodeToken = jwt.decode(updatePasswordEntity.token, 'mail')
+        decodeToken = jwt.decode(updatePasswordEntity.token, config.verify_mailToken || 'secret')
       } catch (e) {
         res.sendStatus(403)
       }
     }
+
     if (decodeToken.subject == 'recovery_password') {
       if (Date.now() < decodeToken.exp * 1000) {
         let user = await user_lib.get({ 'credentials.email': req.query.mail })
@@ -77,8 +78,8 @@ module.exports = function (router) {
         if (!user.active) {
           user.active = true
           user.credit = 2000
+          await user_lib.update(user, null)
         }
-        user_lib.update(user, null)
         res.redirect('/ihm/application.html#profil//edit')
       } catch (e) {
         res.status(500)
