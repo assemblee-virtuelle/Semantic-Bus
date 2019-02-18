@@ -2,9 +2,9 @@ Feature('Test acceptance ');
 
 Scenario('Test the admin panel in the admin dashboard @local', (I) => {
   // Access to the admin menu
-  I.amOnPage('/auth/login.html#connexion');
+  I.amOnPage('/ihm/login.html#connexion');
   // I.amOnPage('http://localhost:8080/dashboard/');
-  I.seeInCurrentUrl('/auth/login.html#connexion');
+  I.seeInCurrentUrl('/ihm/login.html#connexion');
   // I.seeInCurrentUrl('semanticbus.docker/');
   // I.grabBrowserLogs()
   //  .then((logs) => {
