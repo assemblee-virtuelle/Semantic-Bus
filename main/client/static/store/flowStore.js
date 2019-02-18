@@ -1,7 +1,8 @@
 // TodoStore definition.
 // Flux stores house application logic and state that relate to a specific domain.
 // In this case, a list of todo items.
-function FlowStore () {
+function FlowStore (utilStore) {
+  this.utilStore = utilStore
   riot.observable(this) // Riot provides our event emitter.
 
   this.googleLinearFlowCollection = []
@@ -9,13 +10,13 @@ function FlowStore () {
 
   this.load = function () {
     // console.log('load GLF');
-    $.ajax({
+    this.utilStore.ajaxCall({
       method: 'get',
       url: '../data/core/flow',
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
       }
-    }).done(function (data) {
+    }).then(function (data) {
       console.log('store load', data)
       this.googleLinearFlowCollection = data
       this.trigger('GLF_collection_changed', this.googleLinearFlowCollection)
@@ -23,7 +24,7 @@ function FlowStore () {
   }
 
   this.create = function () {
-    $.ajax({
+    this.utilStore.ajaxCall({
       method: 'post',
       url: 'http://localhost:3000/data/core/flow',
       data: JSON.stringify(this.googleLinearFlowCurrent),
@@ -31,14 +32,14 @@ function FlowStore () {
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
       }
-    }).done(function (data) {
+    }).then(function (data) {
       this.googleLinearFlowCurrent.mode = 'edit'
       this.load()
     }.bind(this))
   }
 
   this.update = function () {
-    $.ajax({
+    this.utilStore.ajaxCall({
       method: 'put',
       url: 'http://localhost:3000/data/core/flow',
       data: JSON.stringify(this.googleLinearFlowCurrent),
@@ -46,14 +47,14 @@ function FlowStore () {
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
       }
-    }).done(function (data) {
+    }).then(function (data) {
       this.load()
       this.googleLinearFlowCurrent.mode = 'edit'
     }.bind(this))
   }
 
   this.delete = function (record) {
-    $.ajax({
+    this.utilStore.ajaxCall({
       method: 'delete',
       url: 'http://localhost:3000/data/core/flow',
       data: JSON.stringify(record),
@@ -61,7 +62,7 @@ function FlowStore () {
         'Authorization': 'JTW' + ' ' + localStorage.token
       },
       contentType: 'application/json'
-    }).done(function (data) {
+    }).then(function (data) {
       this.load()
     }.bind(this))
   }
@@ -75,14 +76,11 @@ function FlowStore () {
   })
 
   this.on('GLF_current_updateField', function (message) {
-    console.log(message.data)
     this.googleLinearFlowCurrent[message.field] = message.data
-    console.log(this.googleLinearFlowCurrent)
     this.trigger('GLF_current_changed', this.googleLinearFlowCurrent)
   })
 
   this.on('GLF_current_edit', function (data) {
-    console.log('store edit', data)
     this.googleLinearFlowCurrent = data
     this.googleLinearFlowCurrent.mode = 'edit'
     this.trigger('GLF_current_changed', this.googleLinearFlowCurrent)
@@ -111,7 +109,7 @@ function FlowStore () {
   })
 
   this.on('GLF_currrent_testSource', function () {
-    $.ajax({
+    this.utilStore.ajaxCall({
       url: '/data/googleSpreadseetQuery/',
       type: 'get',
       headers: {
@@ -119,42 +117,18 @@ function FlowStore () {
       },
       data: this.googleLinearFlowCurrent.source,
       timeout: 5000
-    }).done(function (data) {
+    }).then((data) => {
       RiotControl.trigger('previewJSON', data)
-    }).fail(function (_err) {
     })
-  }.bind(this))
+  })
 
   this.on('GLF_currrent_testApi', function () {
-    $.ajax({
+    this.utilStore.ajaxCall({
       url: '/data/query/' + this.googleLinearFlowCurrent.destination.url,
       type: 'get',
       timeout: 5000
-    }).done(function (data) {
+    }).then((data) =>{
       RiotControl.trigger('previewJSON', data)
-    }).fail(function (err) {
     })
-  }.bind(this))
-
-  /*
-  this.todos = [
-    { title: 'Task 1', done: false },
-    { title: 'Task 2', done: false }
-  ]
-
-  this.on('todo_add', function(newTodo) {
-    this.todos.push(newTodo)
-    this.trigger('todos_changed', self.todos)
-  }.bind(this))
-
-  this.on('todo_remove', function() {
-    this.todos.pop()
-    this.trigger('todos_changed', self.todos)
-  }.bind(this))
-
-  this.on('todo_init', function() {
-    this.trigger('todos_changed', self.todos)
-  }.bind(this))
-*/
-  // The store emits change events to any listening views, so that they may react and redraw themselves.
+  })
 }

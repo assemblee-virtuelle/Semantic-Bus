@@ -6,6 +6,7 @@ const mailService = require('./services/mail')
 const jwt = require('jwt-simple')
 const moment = require('moment')
 const errorHandling = require('./services/errorHandling')
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -38,13 +39,13 @@ module.exports = function (router) {
     user_lib.get_all({}).then(function (users) {
       res.send(users)
     }).catch(e => {
-      errorHandling(e, res)
+      next(e)
     })
   })
 
   // ---------------------------------------------------------------------------------
 
-  router.post('/users/mail', async (req, res) => {
+  router.post('/users/mail', async (req, res, next) => {
     try {
       const token = encodeToken(req.query.mail, 'verify')
       const link = ('http://' + req.get('host') + '/data/auth/secure?code=' + token + '&mail=' + encodeURIComponent(req.query.mail))
@@ -72,7 +73,7 @@ module.exports = function (router) {
     ).then(function (result) {
       res.send(result)
     }).catch(e => {
-      errorHandling(e, res)
+      next(e)
     })
   })
 
@@ -82,19 +83,19 @@ module.exports = function (router) {
     user_lib.userGraph(UserIdFromToken(req)).then(workspaceGraph => {
       res.json({ workspaceGraph })
     }).catch(e => {
-      errorHandling(e, res)
+      next(e)
     })
   })
 
   // --------------------------------------------------------------------------------
 
   // todo dont update workspace and password here
-  router.put('/users/me', function (req, res) {
+  router.put('/users/me', function (req, res, next) {
     req.body.user._id = UserIdFromToken(req)
     user_lib.update(req.body.user, req.body.mailChange).then(function (result) {
       res.send(result)
     }).catch((e) => {
-      errorHandling(e, res)
+      next(e)
     })
   })
 }

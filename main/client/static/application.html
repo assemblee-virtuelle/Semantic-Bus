@@ -185,7 +185,7 @@
         RiotControl.addStore(workspaceStore); // Register the store in central dispatch.
         allStore['workspaceStore'] = workspaceStore;
 
-        const mainController = new MainController(allStore, stompClient);
+        const mainController = new MainController(allStore, stompClient, utilStore);
         RiotControl.addStore(mainController);
 
         RiotControl.on('login_redirect', function() {

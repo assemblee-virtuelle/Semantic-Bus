@@ -12,6 +12,7 @@ const env = process.env
 const httpGet = require('./server/workspaceComponent/restGetJson.js')
 const fs = require('fs')
 const url = env.CONFIG_URL || 'https://data-players.github.io/StrongBox/public/dev-local-mac-without-stripe.json'
+const errorHandling = require('./server/services/errorHandling')
 
 app.use(cors())
 app.use(bodyParser.json({
@@ -89,6 +90,11 @@ httpGet.makeRequest('GET', {
         app.listen(process.env.APP_PORT || 8080, function (err) {
           console.log('~~ server started at ', 'port', process.env.APP_PORT || 8080, err, ':', this.address())
           require('../core/timerScheduler').run()
+        })
+        app.use((_err, req, res, next) => {
+          if (_err) {
+            errorHandling(_err, res, next)
+          }
         })
       }
     }

@@ -1,4 +1,5 @@
-function MainController (allStore) {
+function MainController (allStore, utilStore) {
+  this.utilStore = utilStore
   riot.observable(this) // Riot provides our event emitter.
   for (store in allStore) {
     allStore[store].mainController = this
@@ -6,17 +7,14 @@ function MainController (allStore) {
   }
 
   this.on('bootstrap', function () {
-    $.ajax({
+    this.utilStore.ajaxCall({
       method: 'get',
       contentType: 'application/json',
       url: '../data/core/users/me',
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
-      },
-      beforeSend: function () {
-        this.trigger('ajax_send')
-      }.bind(this)
-    }).done(data => {
+      }
+    }).then(data => {
       this.profilStore.setUserCurrent(data)
       this.trigger('user_from_storage', data)
       this.workspaceStore.setGlobalWorkspaceCollection(data.workspaces)

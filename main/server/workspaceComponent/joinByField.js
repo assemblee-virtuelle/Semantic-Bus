@@ -19,7 +19,6 @@ class JoinByField {
     }, flowData)
     return primaryFlow[0]
   }
-
   join (primaryRecord, secondaryFlowData, data) {
     return new Promise((resolve, reject) => {
       try {
@@ -39,7 +38,6 @@ class JoinByField {
       }
     })
   }
-
   pull (data, flowData) {
     return new Promise((resolve, reject) => {
       try {

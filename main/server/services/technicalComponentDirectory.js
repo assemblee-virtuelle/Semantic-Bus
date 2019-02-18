@@ -21,7 +21,7 @@ module.exports = {
   deeperFocusOpeningBracket: require('../workspaceComponent/deeperFocusOpeningBracket.js'),
   filter: require('../workspaceComponent/filter.js'),
   upload: require('../workspaceComponent/upload.js'),
-  scrapper: require('../workspaceComponent/scrapper.js'),
+  scrapper: require('../workspaceComponent/scrapper/scrapper.js'),
   httpGet: require('../workspaceComponent/restGetFile.js'),
   sqlConnector: require('../workspaceComponent/sqlConnecteur.js'),
   mongoConnector: require('../workspaceComponent/MongoDB.js'),

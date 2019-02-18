@@ -375,9 +375,9 @@ class Engine {
         }
         this.workspace_lib.cleanOldProcess(this.workflow).then(processes => {
           // console.log(processes);
-          this.processNotifier.processCleaned({ cleanedProcesses: processes })
+          this.processNotifier.processCleaned({ cleanedProcesses: processes, workspaceId: this.workflow._id })
           console.log('--------------  End of Worksapce processing --------------', this.owner.credit)
-          this.user_lib.update(this.owner)
+          return this.user_lib.update(this.owner)
         })
       }
     } else {

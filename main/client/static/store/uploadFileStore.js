@@ -1,6 +1,6 @@
-function UploadStore () {
+function UploadStore (utilStore) {
   riot.observable(this) // Riot provides our event emitter.
-
+ 
   this.on('item_current_upload', function (data) {
     $.ajax({
       method: 'post',

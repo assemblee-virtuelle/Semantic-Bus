@@ -996,6 +996,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       this.processCollection
       )
       this.trigger('workspace_current_process_changed', this.processCollection)
+      route('workspace/' + body.workspaceId + '/process')
     })
     this.subscription_workspace_current_process_persist = this.stompClient.subscribe('/topic/process-persist.' + this.workspaceCurrent._id, message => {
       let body = JSON.parse(message.body)

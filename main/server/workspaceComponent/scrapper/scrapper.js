@@ -11,7 +11,7 @@ class Scrapper {
     ]
     this.sift = require('sift')
     this.webdriverio = require('webdriverio')
-    this.base = require('../wdio.conf.base')
+    this.base = require('./wdio.conf.base')
   }
 
   getPriceState (specificData, moPrice, recordPrice) {

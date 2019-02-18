@@ -594,20 +594,6 @@
       align-items: center;
       margin-top: 7pt;
     }
-    /*.Aligner {
-      height: 100%;
-      width: 100%;
-      display: flex;
-      align-items: center;
-      background-color: white;
-      justify-content: center;
-    }*/
-
-    /*h1 {
-      padding: 5%;
-      font-size: 1.5em;
-      color: white;
-    }*/
 
     .box {
       /*background: white;*#e6ecff;*/
@@ -616,59 +602,6 @@
       margin-top: 5vh;
       /*padding: 10px;*/
     }
-
-    /*.inscriptionChoice > div {
-      margin: 5px;
-      padding: 5px;
-      background: #e6ecff;
-    }*/
-    /*
-    .email {
-      border: none;
-      border-bottom: rgb(212,212,212) 1px solid;
-      padding: 8px;
-      color: rgb(161,161,161);
-      margin-top: 10px;
-      font-size: 1em;
-      border-radius: 0;
-      width: inherit;
-    }*/
-
-    /*.flex-container {
-      display: flex;
-      justify-content: space-around;
-      padding-top: 3vh;
-    }*/
-
-    /*.password {
-      border: none;
-      border-bottom: rgb(212,212,212) 1px solid;
-      color: rgb(161,161,161);
-      padding: 8px;
-      width: 250px;
-      font-size: 1em;
-      border-radius: 0;
-      width: 100%;
-      width: inherit;
-    }*/
-
-    /*.btn {
-      background: #2ecc71;
-      width: 125px;
-      padding-top: 5px;
-      padding-bottom: 5px;
-      color: white;
-      border-radius: 4px;
-      border: #27ae60 1px solid;
-
-      margin-top: 20px;
-      margin-bottom: 20px;
-      float: left;
-      margin-left: 16px;
-      font-weight: 800;
-      font-size: 0.8em;
-      cursor: pointer;
-    }*/
 
     #googleP {
       width: 100px;

@@ -5,7 +5,6 @@ const mailService = require('./services/mail')
 const jwt = require('jwt-simple')
 const moment = require('moment')
 const config = require('../configuration')
-const errorHandling = require('./services/errorHandling')
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -24,7 +23,7 @@ const encodeToken = (mail, action) => {
 }
 
 module.exports = function (router) {
-  router.get('/passwordforget', async (req, res) => {
+  router.get('/passwordforget', async (req, res, next) => {
     const token = encodeToken(req.query.mail, 'recovery_password')
     const link = ('http://' + req.get('host') + '/ihm/login.html#forgot_password/changePassword?code=' + token + '&mail=' + encodeURIComponent(req.query.mail))
     await user_lib.createUpdatePasswordEntity(req.query.mail, token)
@@ -46,7 +45,7 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.get('/secure', async (req, res) => {
+  router.get('/secure', async (req, res, next) => {
     let decodeToken
     let updatePasswordEntity
     try {
@@ -90,7 +89,7 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.post('/inscription', async (req, res) => {
+  router.post('/inscription', async (req, res, next) => {
     // change verify for slid token for production
     const token = encodeToken(req.body.emailInscription, 'verify')
     const link = ('http://' + req.get('host') + '/data/auth/secure?code=' + token + '&mail=' + encodeURIComponent(req.body.emailInscription))
@@ -115,13 +114,13 @@ module.exports = function (router) {
       await mailService.sendMail(req, res, mailOptions)
       res.send({ user: usercreate.user, token: usercreate.token.token })
     } catch (e) {
-      errorHandling(e, res)
+      next(e)
     }
   }) // <= inscription
 
   // --------------------------------------------------------------------------------
 
-  router.post('/authenticate', async (req, res) => {
+  router.post('/authenticate', async (req, res, next) => {
     try {
       const data = await auth_lib_user.create({ authentication: { email: req.body.email, password: req.body.password } })
       res.send({
@@ -129,7 +128,7 @@ module.exports = function (router) {
         token: data.token
       })
     } catch (e) {
-      errorHandling(e, res)
+      next(e)
     }
   }) // <= authentification
 

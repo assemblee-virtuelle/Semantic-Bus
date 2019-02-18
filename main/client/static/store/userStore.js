@@ -11,7 +11,7 @@ function UserStore (utilStore) {
       method: 'post',
       data: JSON.stringify(user),
       contentType: 'application/json',
-      url: '/data/auth/inscription',
+      url: '/data/auth/inscription'
     }).then(data => {
       if (data != null && data.token != null) {
         localStorage.token = data.token

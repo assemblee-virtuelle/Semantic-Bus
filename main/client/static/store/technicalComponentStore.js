@@ -8,17 +8,17 @@ function TechnicalComponentStore (utilStore) {
 
   this.load = function () {
     // console.log('load GLF');
-    $.ajax({
+    this.utilStore.ajaxCall({
       method: 'get',
       url: '../data/core/technicalComponent',
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
       }
-    }).done(function (data) {
+    }).then((data) => {
       // console.log('store load',data);
       this.technicalComponentCollection = data
       this.trigger('technicalComponent_collection_changed', this.technicalComponentCollection)
-    }.bind(this))
+    })
   }
 
   this.on('technicalComponent_collection_load', function (record) {
@@ -40,8 +40,6 @@ function TechnicalComponentStore (utilStore) {
       url: '../data/core/technicalComponent/componentsCategoriesTree'
     }, false).then(data => {
       this.trigger('componentsCategoriesTree_changed', data)
-    }).catch(error => {
-      this.trigger('componentsCategoriesTree_fail')
     })
   })
 }
