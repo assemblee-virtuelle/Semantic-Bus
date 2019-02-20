@@ -19,7 +19,7 @@ class RestGetJson {
   }
 
   initialise (router, stompClient) {
-    router.get('/data/api/*', (req, res, next) => {
+    router.get('*', (req, res, next) => {
       const urlRequiered = req.params[0].split('/')[1]
       let targetedComponent
 
