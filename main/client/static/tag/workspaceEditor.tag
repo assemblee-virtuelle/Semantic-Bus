@@ -2,11 +2,11 @@
   <!-- Menu edition worklow -->
   <div class="containerV" style="flex-basis:80px; flex-shrink:0; background-color: rgb(124,195,232);">
     <!-- Bouton graphe -->
-    <a if={innerData.mode=="edit" } href={'#workspace/' +innerData._id+'/component' } class={commandButtonImage:true,containerV:true} style="flex-basis:100px;flex-grow:0;position:relative;">
-      <img src="./image/menu/graph.png" title="Editer le graph" style="" height="40px" width="40px">
-      <p style="font-family: 'Open Sans', sans-serif;color:white;font-size:10px">Editer</p>
+    <a if={innerData.mode=="edit" } href={'#workspace/' +innerData._id+'/component' } class="containerSideBar commandButtonImage" style={this.backgroundActive("component")}>
+      <img src="./image/menu/graph.png" title="Editer le graph" height="40px" width="40px">
+      <p style="font-family: 'Open Sans', sans-serif;color:white;font-size:0.75em">Editer</p>
       <!--condition 1-->
-      <div if={menu=='component'} class="containerV" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">
+      <div if={menu=='component'} class="" style="position:absolute;right:0;">
         <div class="containerH" style="justify-content:flex-end;">
           <div class="arrow-left"></div>
           <!--condition 2- if={menu=='addComponent'} -->
@@ -14,44 +14,44 @@
       </div>
     </a>
     <!-- Bouton utilistaeur -->
-    <a if={innerData.mode=="edit" } href={'#workspace/' +innerData._id+'/user' } class={commandButtonImage:true,containerV:true} style="flex-basis:100px;flex-grow:0;position:relative;">
+    <a if={innerData.mode=="edit" } href={'#workspace/' +innerData._id+'/user' } class="containerSideBar commandButtonImage" style={this.backgroundActive("user")}>
       <img src="./image/menu/share.png" title="Partager le Workflow" height="40px" width="40px">
-      <p style="font-family: 'Open Sans', sans-serif;color:white;font-size:10px">Partager</p>
+      <p style="font-family: 'Open Sans', sans-serif;color:white;font-size:0.75em">Partager</p>
       <!--condition -->
-      <div if={menu=='user' } class="containerV" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">
+      <div if={menu=='user' } class="" style="position:absolute;right:0;">
         <div class="containerH" style="justify-content:flex-end;">
           <div class="arrow-left"></div>
         </div>
       </div>
     </a>
     <!-- Bouton éditer -->
-    <a href={'#workspace/' +innerData._id+'/information' } class={commandButtonImage:true,containerV:true} style="flex-basis:100px;flex-grow:0;position:relative;">
+    <a href={'#workspace/' +innerData._id+'/information' } class="containerSideBar commandButtonImage " style={this.backgroundActive("information")}>
       <img src="./image/menu/tools.png" title="Paramétrer le Workflow" height="40px" width="40px">
-      <p style="font-family: 'Open Sans', sans-serif;color:white;font-size:10px">Paramétrer</p>
+      <p style="font-family: 'Open Sans', sans-serif;color:white;font-size:0.75em">Paramétrer</p>
       <!--condition -->
-      <div if={menu=='information'} class="containerV" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">
+      <div if={menu=='information'} class="" style="position:absolute;right:0;">
         <div class="containerH" style="justify-content:flex-end;">
           <div class="arrow-left"></div>
         </div>
       </div>
     </a>
     <!-- Bouton consommation -->
-    <a if={innerData.mode=="edit" } href={'#workspace/' +innerData._id+'/running' } class={commandButtonImage:true,containerV:true} style="flex-basis:100px;flex-grow:0;position:relative;">
+    <a if={innerData.mode=="edit" } href={'#workspace/' +innerData._id+'/running' } class="containerSideBar commandButtonImage" style={this.backgroundActive("running")}>
       <img src="./image/menu/chart-.png" title="Superviser la consommation" height="40px" width="40px">
-      <p style="font-family: 'Open Sans', sans-serif;color:white;font-size:10px">Superviser</p>
+      <p style="font-family: 'Open Sans', sans-serif;color:white;font-size:0.75em">Superviser</p>
       <!--condition -->
-      <div if={menu=='running'} class="containerV" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">
+      <div if={menu=='running'} class="" style="position:absolute;right:0;">
         <div class="containerH" style="justify-content:flex-end;">
           <div class="arrow-left"></div>
         </div>
       </div>
     </a>
     <!-- Bouton Process -->
-    <a if={innerData.mode=="edit"} href={'#workspace/' +innerData._id+'/process' } class={commandButtonImage:true,containerV:true} style="flex-basis:100px;flex-grow:0;position:relative;">
+    <a if={innerData.mode=="edit"} href={'#workspace/' +innerData._id+'/process' } class="containerSideBar commandButtonImage" style={this.backgroundActive("process")}>
       <img src="./image/menu/inbox.png" title="Consulter les exécutions" height="40px" width="40px">
-      <p style="font-family: 'Open Sans', sans-serif; color:white;font-size:10px">Consulter</p>
+      <p style="font-family: 'Open Sans', sans-serif; color:white;font-size:0.75em">Consulter</p>
       <!--condition -->
-      <div if={menu=='process'} class="containerV" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">
+      <div if={menu=='process'} class="" style="position:absolute;right:0;">
         <div class="containerH" style="justify-content:flex-end;">
           <div class="arrow-left"></div>
         </div>
@@ -69,21 +69,22 @@
     <div class="containerV" style="flex-grow:1;padding-top:20px">
       <zentable title="" drag={false} disallownavigation={true} id="userliste" disallowcommand={innerData.mode=="read" } ref="userZenTable">
         <yield to="header">
-          <div class="table-title" style="margin-left:50px;width: 400px;flex-grow:1">Utilisateur</div>
-          <div class="table-title" style="margin-right:60px;width: 300px;flex-grow:3">Rôle</div>
+          <div class="containerTitle">
+            <div class="tableTitleName">UTILISATEUR</div>
+            <div class="tableTitleDescription">ROLE</div>
+            <div class="tableEmpty"/>
+          </div>
         </yield>
         <yield to="row">
-          <div style="width: 400px;flex-grow:1">{email}</div>
-          <div style="width: 300px;flex-grow:2">{role}</div>
+          <div class="textRowMail">{email}</div>
+          <div class="textRowOwner">{role}</div>
         </yield>
       </zentable>
     </div>
     <!-- Bouton ajouter un utilisateur -->
     <div class="containerH" style="padding-top:20px;justify-content:center; flex-basis: 45px;flex-shrink:0;flex-grow:0;">
       <div class="containerV" style="align-items: flex-start;">
-        <div onclick={showShareClick} class="commandButtonImage">
-          <img src="./image/ajout_composant.svg" title="Ajouter un utilisateur" height="40px" width="40px">
-        </div>
+        <img onclick={showShareClick} src="./image/ajout_composant.svg" class="commandButtonImage btnAddSize" title="Ajouter un utilisateur">
       </div>
     </div>
   </div>
@@ -91,36 +92,42 @@
   <div show={menu=='information' } class="containerV" id="description" style="justify-content: center;background-color: rgb(238,242,249);flex-grow: 1;">
     <div class="containerV box-flex">
       <div class="containerV">
-        <label>Nom de votre Workflow:</label>
-        <input id="workspaceNameInput" type="text" ref="workspaceNameInput" placeholder="Sans-titre" value="{innerData.name}" onkeyup="{nameFieldChange}"></input>
-        <label>Description de votre Workflow:</label>
-        <input readonly={innerData.mode=="read"} ref="workspaceDescriptionInput" id="workspaceDescriptionInput" type="text" placeholder="Aucune description" value="{innerData.description}" onkeyup="{descriptionFieldChange}"></input>
-        <label>Nombre d'exécution consultable:</label>
-        <input type="text" readonly={innerData.mode=="read"} ref="workspaceLimitHistoricnput" id="workspaceLimitHistoricInput" placeholder="1" value="{innerData.limitHistoric}" onkeyup="{limitHistoricFieldChange}"></input>
-      </div>
-      <div class="containerH" style="justify-content: center">
-        <div if={innerData.mode=="edit"} class="containerH" >
-          <div onclick={importClick} class="commandButtonImage" style="margin-right:20px;">
-            <img src="./image/upload.png" title="Importer un Workflow" style="" height="40px" width="40px">
+        <label class="labelFormStandard">Nom de votre Workflow</label>
+        <div class="cardParameter">
+          <input class="inputStandard" id="workspaceNameInput" type="text" ref="workspaceNameInput" placeholder="Sans-titre" value="{innerData.name}" onkeyup="{nameFieldChange}"></input>
+        </div>
+        <label class="labelFormStandard">Description de votre Workflow</label>
+        <div class="cardParameter">
+          <input class="inputStandard" readonly={innerData.mode=="read"} ref="workspaceDescriptionInput" id="workspaceDescriptionInput" type="text" placeholder="Aucune description" value="{innerData.description}" onkeyup="{descriptionFieldChange}"></input>
+        </div>
+        <label class="labelFormStandard">Nombre d'exécution consultable</label>
+        <div class="cardParameter">
+          <input defaultValue={1} class="inputStandard" type="number" readonly={innerData.mode=="read"} ref="workspaceLimitHistoricnput" id="workspaceLimitHistoricInput" placeholder="1" value="{innerData.limitHistoric}" onkeyup="{limitHistoricFieldChange}"></input>
+        </div>
+        <label class="labelFormStandard">Importer un graphique (JSON)</label>
+        <div class="cardParameter">
+          <div onclick={importClick} class="btnFil commandButtonImage">
+            Importer
+            <img class="imgFil" src="./image/upload.png" title="Importer un Workflow">
             <input onchange={import} ref="import" type="file" style="display:none;"/>
           </div>
-          <!-- bouton Exporter workflow -->
-          <div onclick={export} class="commandButtonImage">
-            <img src="./image/save.png" title="Exporter le Workflow" style="" height="35px" width="35px">
+        </div>
+        <label class="labelFormStandard">Exporter au format JSON</label>
+        <div class="cardParameter">
+          <div onclick={export} class="btnFil commandButtonImage">
+            Exporter
+            <img class="imgFil" src="./image/save.png" title="Exporter le Workflow">
             <a ref="export-anchor" style="display:none;"></a>
           </div>
         </div>
-      </div>
-
+      </div> 
       <!-- bouton importer workflow -->
 
 
     </div>
     <!-- Bouton valider -->
     <div class="containerH" style="justify-content: center;flex-basis:45px;align-items: flex-start; flex-shrink:0;flex-grow:0;">
-      <div onclick={persistClick} if={menu=='information'} class="commandButtonImage">
-        <img src="./image/check.png" title="Valider les paramètres" height="35px" width="35px">
-      </div>
+      <img onclick={persistClick} if={menu=='information'} class="commandButtonImage btnAddSize" src="./image/check.png" title="Valider les paramètres">
     </div>
   </div>
   <!-- Page consommation -->
@@ -156,6 +163,13 @@
       this.update();
     }.bind(this);
 
+    this.backgroundActive = function ( active) {
+      if(active == this.menu ) {
+        return {"background-color": "rgb(104,175,212)"}
+      }
+        return {"background-color": "rgb(124,195,232)"}
+    }
+    
     this.workspaceCurrentChanged = function (data) {
       this.innerData = data;
       this.refs.userZenTable.data = data.users;
@@ -179,22 +193,7 @@
     }
 
     limitHistoricFieldChange(e) {
-      RiotControl.trigger('workspace_current_updateField', {
-        field: 'limitHistoric',
-        data: e.target.value
-      });
-      //this.innerData.description = e.target.value;
-    }
-
-    descriptionFieldChange(e) {
-      RiotControl.trigger('workspace_current_updateField', {
-        field: 'description',
-        data: e.target.value
-      });
-      //this.innerData.description = e.target.value;
-    }
-
-    limitHistoricFieldChange(e) {
+      console.log("errr", e.target.value)
       RiotControl.trigger('workspace_current_updateField', {
         field: 'limitHistoric',
         data: e.target.value
@@ -243,20 +242,11 @@
     });
   </script>
   <style>
-
-    .description-worksapce-input {
-      text-align: left;
-      border: none;
-      padding: 10px;
-      font-size: 20px;
-    }
-
-    .description-worksapce {
-      display: flex;
-      flex-direction: column;
-      width: 60%;
-      padding: 5%;
-    }
+    input[type=number]::-webkit-inner-spin-button, 
+    input[type=number]::-webkit-outer-spin-button { 
+      -webkit-appearance: none; 
+      margin: 0; 
+    } 
 
     #description input {
       box-sizing: border-box;
@@ -265,60 +255,65 @@
       width: 80%;
       color: rgb(100,100,100)
     }
-
-    .title-bar {
-      color: #3883fa;
-      flex: 2;
-    }
-
-    .containerHWorkspace {
+    .containerSideBar {
       display: flex;
       justify-content: center;
-      flex-wrap: wrap;
-      align-items: stretch;
-      overflow-y: hidden;
+      align-items: center;
+      flex-direction: column;
+      position:relative;
+      flex-basis: 14vh;
     }
-
-    .commandBar2 {
-      justify-content: flex-end;
-      background-color: white;
-      color: #3883fa;
-      justify-content: space-between;
-      padding: 2px;
-      overflow-y: visible;
+    .btnFil {
+      justify-content: space-evenly;
+      display: flex;
+      flex-direction: row;
+      align-items: center;
+      border: solid;
+      border-width: 1px;
+      border-radius: 2px;
+      width: 15vw;
+      height: 5vh;
+      color: rgb(26,145,194);
     }
-
-    .white-bar {
-      background-color: white!important;
+    .imgFil {
+      width: 3vh;
+      height: 3vh
     }
-    .white {
-      width: 15%;
-      text-align: center;
-      border-bottom-style: solid;
-      cursor: pointer;
-      color: #3883fa;
-      border: none;
-      border-radius: 0;
+    .containerTitle {
+      border-radius: 2px;
+      width: 90%;
+      flex-direction: row;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgb(26, 145, 194);
     }
-
-    .blue {
-      width: 15%;
-      text-align: center;
-      border-bottom-style: solid;
-      border-bottom: 1.4px solid #3883fa !important;
-      cursor: pointer;
-      color: #3883fa;
-      border: none;
-      border-radius: 0;
-    }
-
-    .notSynchronized {
-      background-color: orange !important;
+    .tableTitleName {
+      font-size: 0.85em;
+      flex:0.425;
       color: white;
+      flex-shrink: 0;
+      padding-left:10px;
     }
-
-    .menuSelected {
-      background-color: #cce2ff;
+    .tableTitleDescription {
+      font-size: 0.85em;
+      flex:0.425;
+      color: white;
+      flex-shrink: 0;
+      padding-left:10px;
+    }
+    .tableEmpty {
+      flex:0.15;
+    }
+    .textRowMail {
+      font-size: 0.85em;
+      flex:0.5;
+      padding: 10px;
+    }
+    .textRowOwner {
+      font-size: 0.85em;
+      flex:0.5;
+      padding: 10px;
     }
   </style>
 </workspace-editor>

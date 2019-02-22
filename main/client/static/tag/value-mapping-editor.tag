@@ -21,7 +21,7 @@
 
   <div class="containerH table-title" style="margin-top: 5px;align-items: center;justify-content:flex-end;">
     <div>Ajouter une valeur</div>
-    <image class="commandButtonImage" placeholder="Nouvelle valeur" src="./image/ajout_composant.svg" width="30" height="30" onclick={addRowClick}></image>
+    <image class="commandButtonImage btnAddSize" placeholder="Nouvelle valeur" src="./image/ajout_composant.svg" onclick={addRowClick}></image>
   </div>
   <zentable ref="mappingTable" style="flex:1" drag={true} title="vos changement de valeurs" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
     <yield to="header">

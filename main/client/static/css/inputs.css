@@ -100,13 +100,9 @@ input.readOnly {
 /*Bouton Ajout*/
 .commandButtonImage {
   cursor: pointer;
-  /* align-self: flex-end; */
   justify-content: center;
   align-items: center;
   color: grey;
-  /*display: flex;
-  flex: 0.05;
-  opacity: 1;*/
 }
 
 .commandButtonImage:focus {

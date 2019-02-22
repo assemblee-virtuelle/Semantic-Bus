@@ -11,7 +11,7 @@ const bodyParser = require('body-parser')
 const env = process.env
 const httpGet = require('./server/workspaceComponent/restGetJson.js')
 const fs = require('fs')
-const url = env.CONFIG_URL || 'https://data-players.github.io/StrongBox/public/dev-docker.json'
+const url = env.CONFIG_URL || 'https://data-players.github.io/StrongBox/public/dev-local-mac-without-stripe.json'
 const errorHandling = require('./server/services/errorHandling')
 
 app.use(cors())

@@ -1,21 +1,4 @@
 <navigation>
-  <!-- Barre de chargement -->
-  <!--  <div id="containerLoaderDiv" if={userAuthentified!=true} class="containerV" style="justify-content:center;">
-    <div id="row">
-      <div id="loaderDiv"></div>
-      <h1 id="loaderText" class="containerV">
-        <span>
-          Sécurisation de l'application
-        </span>
-        <span>
-          &
-        </span>
-        <span>
-          Récupération des données personnelles
-        </span>
-      </h1>
-    </div>
-  </div>  -->
   <div id="containerLoaderDiv" if={persistInProgress} class="containerV" style="justify-content:center">
     <div id="row">
       <!--  <div id="loaderDiv"></div>  -->
@@ -76,6 +59,7 @@
       </div>
 
     </div>
+    
     <!-- Menu de navigation -->
     <div class="containerH" style="flex-grow:1;flex-shrink:1;">
       <div class="containerV" style="justify-content: space-between;background: linear-gradient(180deg, rgb(26,145,194) 20% ,rgb(41,181,237));flex-basis:80px;flex-shrink:0">
@@ -83,7 +67,7 @@
         <div class="containerV" style="flex-grow:1;justify-content: flex-start">
           <a href="#myWorkspaces" class="commandButtonImage {selectedMenu:isScrennInHistory('myWorkspaces')} containerV" id="workspaceSelector" style="flex-basis:100px;flex-grow:0;position:relative;">
             <img src="./image/dossier.svg" style="" width="35px">
-            <div style="text-align:center;padding-top: 5px;font-family: 'Open Sans', sans-serif;color:white;font-size:10px">WorkFlow</div>
+            <div style="text-align:center;padding-top: 5px;font-family: 'Open Sans', sans-serif;color:white;font-size:0.75em">WorkFlow</div>
             <div if={isScrennInHistory('myWorkspaces')} class="containerV" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">
               <div class="containerH" style="justify-content:flex-end;">
                 <div class="arrow-left"></div>
@@ -93,7 +77,7 @@
           <!-- Workflow Partagé -->
           <a href="#sharedWorkspaces" class="commandButtonImage {selectedMenu:isScrennInHistory('sharedWorkspaces')} containerV" style="flex-basis:100px;flex-grow:0;position:relative;">
             <img src="./image/double_dossier.svg" style="" width="35px">
-            <div style="text-align:center;padding-top: 5px;font-family: 'Open Sans', sans-serif;color:white;font-size:10px">WorkFlow Partagé</div>
+            <div style="text-align:center;padding-top: 5px;font-family: 'Open Sans', sans-serif;color:white;font-size:0.75em">WorkFlow Partagé</div>
             <div if={isScrennInHistory('sharedWorkspaces')} class="containerV" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">
               <div class="containerH" style="justify-content:flex-end;">
                 <div class="arrow-left"></div>
@@ -156,11 +140,19 @@
     RiotControl.on('ajax_fail', function (message) {
       this.errorMessage = message;
       this.update();
+      setTimeout(()=>{
+        this.errorMessage = null;
+        this.update();
+      },1800)
     }.bind(this));
 
     RiotControl.on('ajax_sucess', function (message) {
       this.sucessMessage = message;
       this.update();
+      setTimeout(()=>{
+        this.sucessMessage = null;
+        this.update();
+      },1800)
     }.bind(this));
 
     RiotControl.on('navigation_control_done', (entity, action, secondAction) => {

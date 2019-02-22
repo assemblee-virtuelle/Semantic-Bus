@@ -14,7 +14,7 @@
   <input placeholder="" type="text" ref="overidedContentTypeInput" value={data.specificData.overidedContentType} onchange={overidedContentTypeInputChange}></input>
   <div class="containerH table-title" style="margin-top: 5px;align-items: center;justify-content:flex-end;" >
     <div>Header</div>
-      <image src="./image/ajout_composant.svg" placeholder="Nouveau header" class="commandButtonImage" width="30" height="30" onclick={addRowClick}></image>
+      <image src="./image/ajout_composant.svg" placeholder="Nouveau header" class="commandButtonImage btnAddSize" onclick={addRowClick}></image>
   </div>
   <zentable ref="headerTable" style="flex:1" title="header de la requete" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
     <yield to="row">

@@ -8,9 +8,7 @@
   </div>
   <!-- Bouton valider -->
   <div class="containerH" style="flex-basis:45px;justify-content: center;align-items: flex-start; flex-shrink:0;flex-grow:0;">
-    <div onclick={shareClick} class="commandButtonImage">
-      <img src="./image/check.png" title="Valider le partage" height="35px" width="35px">
-    </div>
+      <img onclick={shareClick} class="commandButtonImage btnAddSize" src="./image/check.png" title="Valider le partage">
   </div>
 
   <script>

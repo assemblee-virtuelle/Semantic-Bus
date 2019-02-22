@@ -110,8 +110,12 @@ module.exports = function (router) {
     }
     try {
       let usercreate = await inscription_lib_user.create({ user })
-      await user_lib.createUpdatePasswordEntity(req.body.emailInscription, token)
-      await mailService.sendMail(req, res, mailOptions)
+      try {
+        await user_lib.createUpdatePasswordEntity(req.body.emailInscription, token)
+        await mailService.sendMail(req, res, mailOptions)
+      } catch (e) {
+        console.log("erreur lors de l'envoie de mail")
+      }
       res.send({ user: usercreate.user, token: usercreate.token.token })
     } catch (e) {
       next(e)

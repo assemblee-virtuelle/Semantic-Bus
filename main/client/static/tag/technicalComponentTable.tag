@@ -18,20 +18,21 @@
 
     <zentable style="flex:1" ref="technicalComponentTable" disallowdelete={true} disallownavigation={true}>
       <yield to="header">
-        <div class="table-title" style="margin-left: 50px;width: 200px;flex-grow:1">Composant</div>
-        <div class="table-title" style="margin-right:60px;width: 500px;flex-grow:1">Description</div>
+        <div class="containerTitle">
+          <div class="tableTitleName">COMPOSANT</div>
+          <div class="tableTitleDescription">DESCRIPTION</div>
+          <div class="tableEmpty"/>
+        </div>
       </yield>
       <yield to="row">
-        <div style="width: 200px;flex-grow:1">{type}</div>
-        <div style="width: 500px;flex-grow:1">{description}</div>
+        <div class="tableRowName"> <img class="rowImg"src={'image/components/'+ graphIcon}/> {type}</div>
+        <div class="tableRowDescription">{description.slice(0,100)}</div>
       </yield>
     </zentable>
 
     <!-- Bouton valider -->
     <div class="containerH" style="padding-top:20px;flex-basis:45px;justify-content: center;align-items: flex-start; flex-shrink:0;flex-grow:0;">
-      <div onclick={addComponentClick} class="commandButtonImage">
-        <img src="./image/check.png" title="Valider la sélection" height="35px" width="35px">
-      </div>
+      <img onclick={addComponentClick} class="commandButtonImage btnAddSize" src="./image/check.png" title="Valider la sélection">
     </div>
 
   <script>
@@ -134,17 +135,54 @@
       RiotControl.off('componentsCategoriesTree_changed', this.updateComponentsCategoriesTree);
     });
   </script>
-  <style>
-    .notSynchronized {
-      background-color: orange !important;
-      color: white;
+  <style> 
+    .rowImg {
+      height: 3vh;
+      width: 3vh;
+      margin-right: 1vh;
     }
-    //TODO migrate ti zentable tag
-    .zentableScrollable {
-      padding: 10pt;
-      align-items: stretch;
-      background-color: rgb(240,240,240);
-      overflow: scroll;
+    .tableRowName {
+      font-size: 0.85em;
+      flex: 0.3;
+      padding: 10px;
+      justify-content: flex-start;
+      display: flex;
+      align-items: center;
+    }
+    .tableRowDescription {
+      font-size: 0.85em;
+      flex:0.695;
+      padding: 10px;
+    }
+
+    .containerTitle {
+      border-radius: 2px;
+      width: 90%;
+      flex-direction: row;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgb(26, 145, 194);
+    }
+    .tableTitleName {
+      font-size: 0.85em;
+      flex:0.26;
+      color: white;
+      flex-shrink: 0;
+      padding-left:10px;
+    }
+    .tableTitleDescription {
+      font-size: 0.85em;
+      flex:0.595;
+      color: white;
+      flex-shrink: 0;
+      padding-left:10px;
+    }
+    .tableEmptyImg {
+      flex:0.05;
+    }
+    .tableEmpty {
+      flex:0.15;
     }
   </style>
 </technical-component-table>

@@ -1,59 +1,87 @@
 <graph-of-use-workspace>
-   <div class="containerV" style="flex-grow:0;margin-top:2em;flex:0.7;padding: 1em;">
-      <span class="title-space">  Résumé générale de votre consomation sur les 30 derniers jours </span>
+  <div class="mainContainerGraph">
+    <div class="containerV containerData">
+      <div class="cardTitle">
+        <span class="title-space">  Résumé générale de votre consomation sur les 30 derniers jours </span>
+      </div>
       <!--    -->
-      <div class="containerH  box-flex" style="justify-content:space-between">
+      <div class="containerH  contentData">
         <!--  Nombre de composants  -->
-        <div class="card" >
-          <span style="font-size:2em;color:rgb(41,181,237)">{numberWorkspace}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  Workspaces</span>
+        <div class="cardData" >
+          <span class="textNumber">{numberWorkspace}</span><span class="textBase">  Workspaces</span>
         </div>
         <!--  Nombre de Moctet  -->
-        <div class="card" >
-          <span style="font-size:2em;color:rgb(41,181,237)">{decimalAdjust('round', globalMo, -2)}</span><span style="font-size:0.8em;color:rgb(141,141,141)">  Mo </span>
+        <div class="cardData" >
+          <span class="textNumber">{decimalAdjust('round', globalMo, -2)}</span><span class="textBase">  Mo </span>
         </div>
         <!--  Montant en Euro  -->
-        <div class="card">
-          <span style="font-size:2em;color:rgb(41,181,237)">{decimalAdjust('round', globalPrice, -2)}</span><span style="font-size:0.8em;color:rgb(141,141,141)"> Crédit(s) </span>
+        <div class="cardData">
+          <span class="textNumber">{decimalAdjust('round', globalPrice, -2)}</span><span class="textBase"> Crédit(s) </span>
         </div>
       </div>
-
-  </div>
-  <!--  Graphique de consommation  -->
-  <div if={dataLoaded} class="containerH " style="justify-content:center;padding:5vh">
-  
-    <div class="item-flex box-flex">
-      <div class="containerH" style="justify-content:center;padding:1vh">
+    </div>
+    <!--  Graphique de consommation  -->
+    <div if={dataLoaded} class="containerH containerGraph">
+      <div class="cardTitle">
         <span class="title-space">Graphique de la consomation de vos crédit par jours </span>
       </div>
-      <svg viewBox="0 0 1000 60O" id="stacked" style="background-color:rgb(250,250,250);"></svg>
+      <div class="cardGraph">
+        <svg viewBox="0 0 1000 60O" id="stacked" style="background-color:rgb(255,255,255);"></svg>
+      </div>
     </div>
-  </div>
-</div>
 
 <style scoped>
-  @media screen and (max-width: 1200px) {
-      .card {
-      background: rgba(0,0,0,0.03);
-      border-radius: 5px;
-      font-family: Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 1em;
-    }
+    .mainContainerGraph {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
   }
-   @media screen and (min-width: 1200px) {
-      .card {
-      background: rgba(0,0,0,0.03);
-      border-radius: 5px;
-      font-family: Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      padding: 8vh;
-    }
+  .containerData {
+    width: 90%;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+  }
+  .cardGraph {
+    overflow-x: scroll;
+  }
+  .contentData {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .cardData {
+    background: white;
+    border-radius: 2px;
+    border: none;
+    display: flex;
+    flex:0.2;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 5vh;
+  }
+  .textNumber {
+    font-size:2em;
+    color:rgb(41,181,237);
+  }
+  .textBase {
+    font-size: 0.8em;
+    color: rgb(141,141,141);
+  }
+
+  .containerGraph {
+    display: flex;
+    justify-content: center;
+    flex-direction: column;
+    width: 90%;
+    margin-bottom: 5vh;
+  }
+  .cardTitle {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 12vh;
   }
 
   @media screen and (max-width: 1200px) {

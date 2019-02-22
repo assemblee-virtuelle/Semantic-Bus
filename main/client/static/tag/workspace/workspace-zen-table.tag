@@ -1,18 +1,28 @@
 <workspace-zen-table class="containerV" style="flex-grow:1">
   <div class="containerH" style="height:80px;justify-content: center; align-items: center;flex-shrink:0;">
-    <input class="searchbox" type="text" name="inputSearch" ref="inputSearch" placeholder="Rechercher vos workspaces..."
-           oninput={updateSearch}
+    <input 
+      class="searchbox inputStandard"
+      type="text"
+      name="inputSearch"
+      ref="inputSearch"
+      placeholder="Rechercher vos workspaces..."
+      oninput={updateSearch}
     />
   </div>
 
   <zenTable show={filteredData.length > 0} drag={false} disallowselect={true} ref="zentable" disallowdelete={opts.disallowdelete}>
     <yield to="header">
-      <div class="table-title" style="margin-left: 50px;width: 200px;flex-grow:1">Nom</div>
-      <div class="table-title" style="margin-right: 60px;width: 500px;flex-grow:1">Description</div>
+      <div class="containerTitle">
+        <div class="tableTitleName">NOM</div>
+        <div class="tableTitleDescription">DESCRITPION</div>
+        <div class="tableTitleDate">DATE DE MODIFICATION</div>
+        <div class="tableEmpty"/>
+      </div>
     </yield>
     <yield to="row">
-      <div style="flex-grow:1;width: 200px;">{name}</div>
-      <div style="flex-grow:1;width: 500px; word-break: normal;">{description}</div>
+      <div class="tableRowName">{name}</div>
+      <div class="tableRowDescription">{description.slice(0,20)}</div>
+      <div class="tableRowDate">{renderDate(updatedAt)}</div>
     </yield>
   </zenTable>
 
@@ -25,6 +35,20 @@
   </div>
 
   <script>
+    renderDate = (date) => (
+      `${new Date(date).getDate()} ${['janv.',
+        'févr.',
+        'mars',
+        'avr.',
+        'mai',
+        'juin',
+        'juil.',
+        'août',
+        'sept.',
+        'oct.',
+        'nov.',
+        'dec.'][new Date(date).getMonth()]} ${new Date(date).getFullYear()}`
+    ) 
     this.filter = ''
     this.filteredData = []
 
@@ -63,14 +87,57 @@
   </script>
 
   <style>
-    .searchbox {
-      background-color: #ffffff;
-      background-image: linear-gradient(#fff, #f2f3f5);
-      border-width: 1px;
-      border-style: solid;
-      border-color: rgb(213, 218, 224);
-      width: 600px;
-      height: 35px;
+    ::placeholder{
+      color: rgb(200,200,200);
+      font-style: italic;
+      opacity: 1; /* Firefox */
+    }
+    .tableRowName {
+      font-size: 0.85em;
+      flex:0.3;
+      padding: 10px;
+    }
+    .tableRowDescription {
+      font-size: 0.85em;
+      flex:0.4;
+      padding: 10px;
+    }
+    .tableRowDate {
+      font-size: 0.85em;
+      flex:0.3;
+      padding: 10px;
+    }
+    .containerTitle {
+      border-radius: 2px;
+      width: 90%;
+      flex-direction: row;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgb(26, 145, 194);
+    }
+    .tableTitleName {
+      font-size: 0.85em;
+      flex:0.255;
+      color: white;
+      flex-shrink: 0;
+      padding-left:10px;
+    }
+    .tableTitleDescription {
+      font-size: 0.85em;
+      flex:0.340;
+      color: white;
+      flex-shrink: 0;
+      padding-left:10px;
+    }
+    .tableTitleDate {
+      font-size: 0.85em;
+      flex:0.255;
+      color: white;
+      flex-shrink: 0;
+    }
+    .tableEmpty {
+      flex:0.15;
     }
   </style>
 </workspace-zen-table>

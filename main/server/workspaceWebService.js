@@ -224,7 +224,7 @@ module.exports = function (router, amqpClient) {
         }
         res.send(workspaceUpdate)
       }).catch(e => {
-        res.status(500).send(e)
+        next(e)
       }).catch(e => {
         next(e)
       })

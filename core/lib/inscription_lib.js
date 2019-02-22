@@ -23,10 +23,10 @@ function authenticationPromise(user) {
         email: user.user.email,
         password: user.user.password
       }
-    }).then(function (token) {
+    }).then((token) =>{
       ////console.log(token)
       resolve(token)
-    }).catch(function (err) {
+    }).catch( (err) => {
       reject(err)
     })
   });
