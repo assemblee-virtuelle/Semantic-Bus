@@ -32,27 +32,30 @@
 
   <!-- box connexion-->
   <div class="containerH" if={isScrennToShow('connexion')} style="flex-wrap: wrap;overflow:auto;justify-content: center; align-items: center;flex-grow:2">
-    <div class="containerV" style="justify-content: center;width: 600px;">
-      <form class="containerV box" style="flex-grow:2" onsubmit={login}>
+    <div class="containerV" style="justify-content: center;width: 600px; align-items:center">
+      <form class="containerV boxLogin" style="flex-grow:2" onsubmit={login}>
         <!-- champs Mail -->
-        <label class="label-form" for="email">Email</label>
-        <input id="email" type="email" ref="email" placeholder="saisissez une adresse email" onchange={emailChange} required/>
+        <div class="inputContent">
+          <label class="label-form" for="email">EMAIL</label>
+          <input id="email" type="email" ref="email" placeholder="saisissez une adresse email" onchange={emailChange} required/>
+        </div>
 
         <!-- champs Mdp -->
-        <label class="label-form" for="password">Mot de passe</label>
-        <input type="password" ref="password" id="password" placeholder="saisissez un mot de passe" onchange={passwordChange} required/>
-
+        <div class="inputContent">
+          <label class="label-form" for="password">MOT DE PASSE</label>
+          <input type="password" ref="password" id="password" placeholder="saisissez un mot de passe" onchange={passwordChange} required/>
+        </div>
         <!-- spam erreur mdp or id -->
         <div id="result-co">{resultConnexion}</div>
 
         <!-- mdp oublié -->
-        <div class="containerH" style="padding-left: 10px;flex-wrap:wrap">
+        <div class="containerH" style="flex-wrap:wrap">
           <a onclick={f_password} class="url" style="flex:1;flex-basis:40%;">
             <span>Mot de passe oublié ?</span>
           </a>
         </div>
 
-        <div class="containerV">
+        <div class="containerV" style="align-items: center">
           <!-- Bouton connexion -->
           <div class="containerH">
             <button type="submit" class="btn secondary">Connexion</button>
@@ -62,12 +65,12 @@
           <span></span>
           <div class="containerH">
             <a href="/data/auth/google" class="btn google">
-              <img src="../ihm/image/google-plus.png" alt="" id="googleP" style="padding-right: 10px;height: 25px; width:25px;">
-              Connexion avec un compte Google</a>
+              <img src="../ihm/image/google-plus.png" alt="" id="googleP" style="height:25px; width:25px; margin-top:-2px;">
+              Connexion Google</a>
           </div>
 
           <!-- Bouton inscription -->
-          <label style="margin-bottom:20px;" class="label-form">Vous n'avez pas de compte Grappe ?
+          <label style="margin-bottom:20px;" class="label-connexion">Vous n'avez pas de compte Grappe ?
             <a class="url" onclick={hidePage}>
               Inscrivez-vous</a>
           </label>
@@ -82,41 +85,55 @@
     <div class="containerV" style="width: 600px;">
       <div class="containerH" style="flex-wrap:wrap;overflow:auto">
 
-        <div class="containerV box" style="flex-grow:2">
+        <div class="containerV boxLogin" style="flex-grow:2">
             <!-- Focus Inscription
           <div class="containerH" style="justify-content: center; align-items: center;">
             <h3>Inscription</h3>
           </div>-->
           <!-- champs Nom -->
-          <label class="label-form">Nom *</label>
-          <input ref="nameInscription" id="test-nameInscription" onchange={nameInscriptionChange} placeholder="saisissez votre nom" required="required">
-          <div id="result">{resultName}</div>
+          <div class="inputContent">
+            <label class="label-form">NOM *</label>
+            <input ref="nameInscription" id="test-nameInscription" onchange={nameInscriptionChange} placeholder="saisissez votre nom" required="required">
+            <div id="result">{resultName}</div>
+          </div>
           <!-- champs Statut -->
-          <label class="label-form">Statut</label>
-          <input ref="jobInscription" id="test-jobInscription" onchange={jobInscriptionChange} placeholder="saisissez votre statut"/>
-          <div id="result">{resultJob}</div>
+          <div class="inputContent">
+            <label class="label-form">STATUT</label>
+            <input ref="jobInscription" id="test-jobInscription" onchange={jobInscriptionChange} placeholder="saisissez votre statut"/>
+            <div id="result">{resultJob}</div>
+          </div>
           <!-- Champs société -->
-          <label class="label-form">Société</label>
-          <input type="text" ref="societe" id="test-societeInscription" onchange={societeChange} placeholder="saisissez votre société"/>
-          <div id="result">{resultSociete}</div>
+          <div class="inputContent">
+            <label class="label-form">SOCIETE</label>
+            <input type="text" ref="societe" id="test-societeInscription" onchange={societeChange} placeholder="saisissez votre société"/>
+            <div id="result">{resultSociete}</div>
+          </div>
           <!-- Champs mail -->
-          <label class="label-form">Email *</label>
-          <input type="email" id="test-emailInscription" onchange={emailInscriptionChange} ref="emailInscription" placeholder="saisissez votre Email"/>
-          <div id="result">{resultEmail}</div>
+          <div class="inputContent">
+            <label class="label-form">EMAIL *</label>
+            <input type="email" id="test-emailInscription" onchange={emailInscriptionChange} ref="emailInscription" placeholder="saisissez votre Email"/>
+            <div id="result">{resultEmail}</div>
+          </div>
           <!-- Champs mdp -->
-          <label class="label-form">Mot de passe *</label>
-          <input type="password" id="test-passwordInscription" onkeyup={passwordInscriptionKeyup} required="required" ref="passwordInscription" placeholder="saisissez votre mot de passe"/>
-          <div id="result">{resultMdp}</div>
+          <div class="inputContent">
+            <label class="label-form">MOT DE PASSE *</label>
+            <input type="password" id="test-passwordInscription" onkeyup={passwordInscriptionKeyup} required="required" ref="passwordInscription" placeholder="saisissez votre mot de passe"/>
+            <div id="result">{resultMdp}</div>
+          </div>
           <!-- Champs mdp2 -->
-          <label class="label-form">Confirmer mot de passe *</label>
-          <input type="password" id="test-confirmepasswordInscription" onkeyup={confirmPasswordInscriptionKeyup} required="required" ref="confirmPasswordInscription" placeholder="confirmer votre mot de passe"/>
+          <div class="inputContent">
+            <label class="label-form">CONFIRMER MOT DE PASSE *</label>
+            <input type="password" id="test-confirmepasswordInscription" onkeyup={confirmPasswordInscriptionKeyup} required="required" ref="confirmPasswordInscription" placeholder="confirmer votre mot de passe"/>
+            <div id="result">{resultMdpConfirme}</div>  
+          </div>
           <!-- bouton Inscription -->
-          <div id="result">{resultMdpConfirme}</div>
-          <div onclick={inscription} id="btn" class="btn containerH" style="justify-content: center; align-items: center;flex:1">
-            <a>Inscription</a>
+          <div class="containerH">
+            <div onclick={inscription} id="btn" class="btn containerH" style="justify-content: center; align-items: center;flex:1">
+              <a>Inscription</a>
+            </div>
           </div>
           <!-- bouton connexion -->
-          <label style="margin-bottom:20px;" class="label-form">Vous avez déjà un compte Grappe ?
+          <label style="margin-bottom:20px;" class="label-connexion">Vous avez déjà un compte Grappe ?
             <a class="url" onclick={showPage}>
               Connectez-vous</a>
           </label>
@@ -131,12 +148,14 @@
     <div class="containerV" style="justify-content: center;width: 600px; height: 600px">
       <div class="containerH" style="flex-wrap:wrap;overflow:auto">
         <!-- Focus MDP -->
-        <div class="containerV box" style="flex-grow:2">
+        <div class="containerV boxLogin" style="flex-grow:2">
           <div class="containerH" style="justify-content: center; align-items: center;">
-            <h3>Réinitialisation mot de passe</h3>
+            <p>Réinitialisation mot de passe</p>
           </div>
-          <label class="label-form">Email</label>
-          <input ref="emailforgotpassword" onchange={emailforgotpasswordChange} id="test-nameInscription" placeholder="saisissez votre Email" required="required">
+          <div class="inputContent">
+            <label class="label-form">EMAIL</label>
+            <input ref="emailforgotpassword" onchange={emailforgotpasswordChange} id="test-nameInscription" placeholder="saisissez votre Email" required="required">
+          </div>
           <p style="color:red">{result_email}</p>
           <!--bouton envoyer + annuler -->
           <div onclick={sendpasswordbymail} class=" btn containerH" style="justify-content: center; align-items: center;flex-wrap:wrap">
@@ -157,11 +176,11 @@
     <div class="containerV" style="justify-content: center;width: 600px; height: 600px">
       <div class="containerH" style="flex-wrap:wrap;overflow:auto">
         <!-- Focus Code -->
-        <div class="containerV box" style="flex-grow:2">
+        <div class="containerV boxLogin" style="flex-grow:2">
           <div class="containerH" style="justify-content: center; align-items: center;">
             <h3>Changer votre mot de passe</h3>
           </div>
-          <label class="label-form">Nouveau mot de passe</label>
+          <label class="label-form">NOUVEAU MOT DE PASSE</label>
           <input type="password" ref="new_password" onkeyup={new_passwordKeyup} id="password" placeholder="saisissez le nouveau mot de passe" required="required"/>
           <p>{result_password}</p>
           <!--bouton envoyer + annuler -->
@@ -171,20 +190,6 @@
           <div onclick={returnlogin} class="btn containerH" id="btn2" style="justify-content: center; align-items: center;flex-wrap:wrap">
             <a>Annuler</a>
           </div>
-        </div>
-      </div>
-    </div>
-  </div>
-
-
-  <!-- A quoi sert cette page ? -->
-
-  <div class="containerH" show={isScrennToShow(window.location.href.split('login.html#')[1]) && (urls.indexOf(window.location.href.split('login.html')[1]) == -1)}>
-    <div class="containerV">
-      <div class="box">
-        <div class="title-insc-block">
-          <h2 style="color:rgb(117,117,117)">
-            404 Composants!! Vous tenter d'aller sur une url qui n'existe pas :/</h2>
         </div>
       </div>
     </div>
@@ -217,11 +222,10 @@
     this.badcodechangepassword = ""
     this.result_password = ""
     this.urls = [
-      '#loading',
-      '#forgot_password/changePassword',
-      '#initiat',
-      '#inscription',
-      '#connexion'
+      'forgot_password/changePassword',
+      'initiat',
+      'inscription',
+      'connexion'
     ]
 
     Object.defineProperty(this, 'data', {
@@ -236,7 +240,6 @@
     })
 
     this.isScrennToShow = function (screenToTest) {
-      //console.log(screenToTest == this.entity)
       return screenToTest == this.entity;
     }
 
@@ -260,7 +263,6 @@
 
 
     RiotControl.on('persist_start', function (data) {
-      //console.log('persist_start | ',this.saveButton)
       this.persistInProgress = true;
       this.update();
     }.bind(this));
@@ -315,23 +317,6 @@
         var reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g;
         if (this.newUser.emailInscription.match(reg) != null) {
           if ((this.newUser.passwordInscription == this.newUser.confirmPasswordInscription) && (this.newUser.passwordInscription.split("").length > 5)) {
-
-            RiotControl.on('google_user', function () {
-              this.resultEmail = "Votre compte est déja relier à un compte google"
-            }.bind(this));
-            RiotControl.on('email_already_exist', function () {
-              this.resultEmail = "L'email choisi existe déjà"
-            }.bind(this));
-            RiotControl.on('society_bad_format', function () {
-              this.resultSociete = "Entrez un format de sociéte valide [A-Z,a-z] max 20 caractères"
-            }.bind(this));
-            RiotControl.on('bad_email', function () {
-              this.resultEmail = "Entrez un format d'email valide lebusestmagique@dataplayer.com"
-            }.bind(this));
-            RiotControl.on('name_bad_format', function () {
-              this.resultName = "Entrez un format de nom valide [A-Z,a-z] max 20 caractères"
-            }.bind(this));
-
             RiotControl.trigger('user_inscription', this.newUser);
           } else {
             this.resultMdp = "mot de passe invalide 6 caracteres minimum"
@@ -437,7 +422,6 @@
     }.bind(this);
 
     this.passwordInscriptionKeyup = function (e) {
-      //console.log(e.currentTarget.value.split(""))
       if (e.currentTarget.value.split("").length < 5) {
         this.resultMdp = "mot de passe invalide 6 caracteres minimum"
       } else {
@@ -448,7 +432,7 @@
 
     this.confirmPasswordInscriptionKeyup = function (e) {
       if (this.newUser.passwordInscription != null && e.currentTarget.value != this.newUser.passwordInscription) {
-        this.resultMdpConfirme = "confirmation mot de passe differntes"
+        this.resultMdpConfirme = "confirmation mot de passe differentes"
       } else {
         this.resultMdpConfirme = ""
       }
@@ -465,8 +449,13 @@
       if (!window.location.href.split('login.html')[1]) {
         route('connexion')
       }
-      route(function (entity, id, action) {
-        //this.routePath=path; this.routeHistory=history;
+      route(function (entity, id, action) {    
+        console.log('inere', entity,this.urls,  this.urls.includes(entity))
+        if(this.urls.includes(entity) === false){
+          console.log('inere', !this.urls.includes(entity))
+          console.log('inere', entity)
+          window.location = "/ihm/login.html#connexion"
+        }
         if (id == undefined && action == undefined) {
           this.entity = entity;
           this.update();
@@ -474,7 +463,6 @@
           this.entity = entity + '/' + id;
           this.update();
         }
-        //console.log('ROUTE', path); console.log('history',history)
       }.bind(this));
       route.start(true);
 
@@ -482,7 +470,6 @@
   </script>
 
   <style scoped="scoped">
-
     #containerErrorDiv {
       background-color: rgba(200,200,200,0);
       bottom: 0;
@@ -502,40 +489,51 @@
       justify-content: center;
       align-items: center;
     }
-
+    .label-form {
+      font-size: 0.75em;
+    }
+    .label-connexion {
+      font-size: 1em;
+      font-weight: 300
+    }
     .successMessage {
-          background-color: rgb(41,171,135) !important;
-          color: white !important;
-          z-index: 999;
-          height: 50px;
-          display: flex;
-          justify-content: center;
-          align-items: center;
+      background-color: rgb(41,171,135) !important;
+      color: white !important;
+      z-index: 999;
+      height: 50px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
     }
     .header {
-      /*background: linear-gradient(90deg, rgb(33,150,243) 20% ,rgb(41,181,237));*/
       color: white;
     }
     label {
-      margin-top: 10px;
       flex: 1;
     }
 
     input {
-      border: none;
-      border-bottom: rgb(212,212,212) 1px solid;
+      border: rgb(212,212,212) 1px solid;
       padding: 8px;
       color: rgb(161,161,161);
-      margin-top: 5px;
       width:90%;
       font-size: 1em;
-      border-radius: 0;
+      border-radius: 2px;
       flex: 1;
+    }
+    ::placeholder{
+      color: rgb(200,200,200);
+      font-style: italic;
+      opacity: 1; /* Firefox */
+    }
+    .inputContent {
+      width: 100%;
+      padding: 5px;
+      display: flex;
+      flex-direction: column;
     }
 
     .inscription-link {
-      /*display: flex;
-      justify-content: center;*/
       color: rgb(161,161,161);
     }
 
@@ -582,13 +580,13 @@
     }
 
     #result {
-      color: #dc4e41;
+      color: #ff6f69;
       font-size: 12px;
       font-family: 'Raleway', sans-serif;
     }
 
     #result-co {
-      color: #dc4e41;
+      color: #ff6f69;
       font-size: 0.9em;
       font-family: 'Raleway', sans-serif;
       display: flex;
@@ -597,12 +595,15 @@
       margin-top: 7pt;
     }
 
-    .box {
-      /*background: white;*#e6ecff;*/
+    .boxLogin {
       background: rgb(255,255,255);
-      /*width: 500px;*/
-      margin-top: 5vh;
-      /*padding: 10px;*/
+      margin-top: 1vh;
+      width: 90%;
+      flex-wrap: wrap;
+      padding: 2%;
+      justify-content: center;
+      align-items: center;
+      flex-grow: 0.5;
     }
 
     #googleP {
@@ -620,15 +621,14 @@
       border-radius: 4px;
       border:none;
       margin: 10px;
-      padding: 10px;
       font-weight: 800;
       font-size: 0.8em;
       cursor: pointer;
-
       display: flex;
       justify-content: center;
       align-items: center;
-      flex: 1;
+      height: 40px;
+      width: 25vw;
     }
 
     .btn.primary {

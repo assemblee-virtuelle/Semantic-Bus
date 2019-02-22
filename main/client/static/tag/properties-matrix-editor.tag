@@ -13,8 +13,7 @@
 
   <div class="containerH table-title" style="margin-top: 5px;align-items: center;justify-content:flex-end;">
     <div>Ajouter un champ</div>
-      <image src="./image/ajout_composant.svg" placeholder="Nouveau Champ" class="commandButtonImage" width="30" height="30" onclick={addRow}></image>
-
+      <image src="./image/ajout_composant.svg" placeholder="Nouveau Champ" class="commandButtonImage btnAddSize" onclick={addRow}></image>
   </div>
   <zentable ref="fieldsTableRef" style="flex:1;" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
     <yield to="row">

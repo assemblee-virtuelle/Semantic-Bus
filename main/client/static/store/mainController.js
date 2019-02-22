@@ -17,7 +17,6 @@ function MainController (allStore, utilStore) {
     }).then(data => {
       this.profilStore.setUserCurrent(data)
       this.trigger('user_from_storage', data)
-      this.workspaceStore.setGlobalWorkspaceCollection(data.workspaces)
     })
   })
 

@@ -31,7 +31,6 @@ class AuthLib {
   create(bodyParams) {
     return this._is_google_user(bodyParams.authentication)
     .then((boolean) => {
-      console.log('is google user', boolean)
       if (boolean == true) {
         throw new Error.PropertyValidationError('mail ( Utilisateur Google ) ')
       } else {

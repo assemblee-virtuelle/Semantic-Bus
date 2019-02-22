@@ -3,7 +3,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   for (specificStore of specificStoreList) {
     specificStore.genericStore = this
   }
-  this.globalWorkspaceCollection
   this.workspaceCollection
   this.workspaceShareCollection
   this.workspaceCurrent
@@ -148,18 +147,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
   // --------------------------------------------------------------------------------
 
-  this.setGlobalWorkspaceCollection = function (data) {
-    this.globalWorkspaceCollection = data
-    this.workspaceCollection = sift({
-      role: 'owner'
-    }, data).map(r => r.workspace)
-    this.workspaceShareCollection = sift({
-      role: 'editor'
-    }, data).map(r => r.workspace)
-  }
-
-  // --------------------------------------------------------------------------------
-
   this.reloadWorkspace = function (entity, action) {
     this.action = action
     this.trigger('workspace_current_process_changed', this.processCollection)
@@ -181,8 +168,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
   // --------------------------------------------------------------------------------
 
-  this.refreshComponent = function (triggerConnections) {
-    console.log("refreshComponent")
+  this.refreshComponent = function () {
     this.trigger('item_current_editor_changed', this.itemCurrent.editor)
     this.modeConnectBefore = false
     this.modeConnectAfter = false
@@ -274,11 +260,9 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
         url: '../data/core/workspaces/',
         data: JSON.stringify({ workspace: this.workspaceCurrent })
       }, true).then(data => {
-        this.globalWorkspaceCollection.push({
-          role: 'owner',
-          workspace: data
-        })
-        this.setGlobalWorkspaceCollection(this.globalWorkspaceCollection)
+        console.log(data)
+        this.workspaceCollection.push(data)
+        console.log(this.workspaceCollection)
         this.workspaceCurrent = data
         this.workspaceCurrent.mode = 'edit'
         resolve(this.workspaceCurrent)
@@ -290,7 +274,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
   // --------------------------------------------------------------------------------
 
-  this.update = function (data) {
+  this.update = function () {
     return new Promise((resolve, reject) => {
       const fetchData = JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent))
       this.trigger('persist_start')
@@ -306,7 +290,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
         this.trigger('persist_end', data)
         data.mode = 'edit'
         this.workspaceCurrent = data
-        this.trigger('workspace_current_persist_done', this.workspaceCurrent)
+        this.trigger('ajax_sucess', `Votre workspace à été mis à jour`)
         this.trigger('workspace_current_changed', this.workspaceCurrent)
         if (this.viewBox) {
           this.computeGraph()
@@ -328,12 +312,11 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
         'Authorization': 'JTW' + ' ' + localStorage.token
       }
     }).then(function (data) {
-      this.globalWorkspaceCollection = sift({
-        'workspace._id': {
+      this.workspaceCollection = sift({
+        '_id': {
           $ne: record._id
         }
-      }, this.globalWorkspaceCollection)
-      this.setGlobalWorkspaceCollection(this.globalWorkspaceCollection)
+      }, this.workspaceCollection)
       this.trigger('persist_end', data)
       this.trigger('workspace_collection_changed', this.workspaceCollection)
     }.bind(this))
@@ -543,7 +526,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   this.on('workspace_collection_load', function (record) {
-    if (this.workspaceCollection == undefined) {
+    if (this.workspaceCollection === undefined) {
       this.load(this.workspaceCurrent).then(data => {
         this.trigger('workspace_collection_changed', this.workspaceCollection)
       })

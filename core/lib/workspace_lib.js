@@ -265,14 +265,51 @@ function _update_simple(workspaceupdate) {
   });
 } // <= _update_simple
 
+// //#endregion
+function check_workspace_data(workspaceData) {
+  let workspace_final = workspaceData;
+  return new Promise(function (resolve, reject) {
+    let name = new Promise(function (resolve, reject) {
+      if (!workspaceData.name) {
+        reject(new Error.PropertyValidationError('nom'))
+      } else {
+        resolve(workspaceData.name)
+      }
+    });
+    let limitHistoric = new Promise(function (resolve, reject) {
+        if(parseInt(workspaceData.limitHistoric) && parseInt(workspaceData.limitHistoric) > 0){
+          resolve(workspaceData.limitHistoric)
+        } else {
+          reject(new Error.PropertyValidationError('nombre de process enregistré'))
+        }
+    });
+
+    Promise.all([name, limitHistoric])
+      .then((workspacePromise) => {
+        workspace_final["name"] = workspacePromise[0];
+        workspace_final["limitHistoric"] = workspacePromise[1];
+        resolve(workspace_final);
+      })
+      .catch((err) => {
+        reject(err);
+      });
+  });
+}
 // --------------------------------------------------------------------------------
 
-function _create(userId, workspaceData) {
+async function _create(userId, workspaceData) {
+  let workspaceDataCheck
+  try {
+    workspaceDataCheck = await check_workspace_data(workspaceData)
+  } catch(e) {
+    throw e;
+  }
   const workspaceModelInstance= workspaceModel.getInstance().model;
-  var workspace = new workspaceModelInstance({
-    name: workspaceData.name,
-    description: workspaceData.description,
-    components: workspaceData.components[0]
+  const workspace = new workspaceModelInstance({
+    name: workspaceDataCheck.name,
+    limitHistoric: workspaceDataCheck.limitHistoric,
+    description: workspaceDataCheck.description,
+    components: workspaceDataCheck.components[0]
   });
 
   return new Promise(function(resolve, reject) {
@@ -369,11 +406,10 @@ function _get_all(userID, role) {
       })
       .populate({
         path: "workspaces._id",
-        select: "name description"
+        select: "name description updatedAt"
       })
       .lean()
       .exec((_error, data) => {
-
         data.workspaces = sift({
             _id: {
               $ne: null
@@ -382,9 +418,11 @@ function _get_all(userID, role) {
           data.workspaces
         );
         data.workspaces = data.workspaces.map(r => {
+          console.log(r)
           return {
             workspace: r._id,
-            role: r.role
+            role: r.role,
+            
           };
         });
         let workspaces = sift({
@@ -412,15 +450,20 @@ function _update(workspace) {
 } // <= _update
 
 function _update_mainprocess(preData) {
-  //preData.components = preData.components.map(c => c._id);
-  if (config.quietLog != true) {
-  }
-  return new Promise(function(resolve, reject) {
+  return new Promise(async (resolve, reject) => {
+    let workspaceCheck;
+    try {
+      workspaceCheck = await check_workspace_data(preData)
+    } catch (e) {
+      console.log(e)
+      return reject(e)
+    }
+    console.log(workspaceCheck)
     workspaceModel.getInstance().model
       .findOneAndUpdate({
-          _id: preData._id
+          _id: workspaceCheck._id
         },
-        preData, {
+        workspaceCheck, {
           upsert: true,
           new: true,
           fields: {
@@ -437,8 +480,6 @@ function _update_mainprocess(preData) {
         if (err) {
           return reject(new Error.DataBaseProcessError(e))
         } else {
-          if (config.quietLog != true) {
-          }
           resolve(componentUpdated);
         }
       });

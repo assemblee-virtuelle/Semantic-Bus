@@ -1,6 +1,6 @@
-<graph class="containerV background-grill">
+<graph class="containerV containerGrid">
   <!-- page graph -->
-  <div id="graphContainer" style="flex-grow:1;" class="containerH background-grill">
+  <div id="graphContainer" style="flex-grow:1;" class="containerH contentrGrid">
     <svg ref="graphSvgCanvas" style="flex-grow:1;">
       <filter id="dropshadow" x="1%" y="1%" width="110%" height="110%">
         <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
@@ -30,15 +30,14 @@
         <g id="lineCommandLayer"></g>
         <g id="shapeCommandLayer"></g>
       </g>
-
     </svg>
-  </div>
-    <!-- Bouton ajouter un composant -->
-  <div class="containerH" style="flex-basis:45px; justify-content:center;flex-shrink:0;flex-grow:0;" >
-    <div onclick={showAddComponentClick} title="Ajouter un composant" class="commandButtonImage">
-      <img src="./image/ajout_composant.svg" height="40px" width="40px">
+    <div class="containerH btnAdd" >
+      <div onclick={showAddComponentClick} title="Ajouter un composant" class="commandButtonImage">
+        <img src="./image/ajout_composant.svg" class="btnAddSize">
+      </div>
     </div>
   </div>
+    <!-- Bouton ajouter un composant -->
 
   <!--graphContainer-->
   <script>
@@ -653,11 +652,26 @@
   </script>
 
   <style scoped>
-
+    .containerGrid {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      flex: 1;
+    }
+    .contentrGrid {
+      flex: 1;
+      width: 100%;
+      justify-content: center;
+    }
+    .btnAdd {
+      display: flex;
+      justify-content: center;
+      position: absolute;
+      bottom: 0;
+    }
     svg {
       box-sizing: border-box;
       background:rgb(238,242,249);
-      border: 1px solid rgb(212, 212, 212);
     }
 
     line {

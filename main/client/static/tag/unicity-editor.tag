@@ -13,7 +13,7 @@
 
   <div class="containerH table-title" style="margin-top: 5px;align-items: center;justify-content:flex-end;">
     <div>Champs d'unicité </div>
-    <image src="./image/ajout_composant.svg" placeholder:"Nouveau champ"class="commandButtonImage" width="30" height="30" onclick={addRow}></image>
+    <image src="./image/ajout_composant.svg" placeholder:"Nouveau champ" class="commandButtonImage btnAddSize" onclick={addRow}></image>
   </div>
 
   <zentable style="flex:1" ref="unicityTableRef" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
