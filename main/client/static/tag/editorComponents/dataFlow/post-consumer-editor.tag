@@ -4,15 +4,25 @@
     <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Post-consumer" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
 <!-- Titre du composant -->
-  <div class="contenaireV title-component">Post consumer</div>
+  <div class="contenaireV title-component">Post consumer</div>  
+  <div>
+    <div class="bar"/>
+  </div>
 <!-- Description du composant -->
-  <div>Envoyer les données en post vers une URL externe.</div>
+  <div class="title-description-component">Envoyer les données en post vers une URL externe.</div>
+  <!-- Champ du composant -->
+  <div>
+    <div class="bar"/>
+  </div>
 <!-- Champ du composant -->
-  <label>URL externe où envoyer les données:</label>
-  <input placeholder="" type="text" name="urlInput" ref="urlInput" onChange={this.urlInputChanged} value={data.specificData.url}></input>
-  <label>Content-type:</label>
-  <input placeholder="application/json" type="text" name="contentTypeInput" ref="contentTypeInput" onChange={this.contentTypeInputChanged} value={data.specificData.contentType}></input>
-
+  <label class="labelFormStandard">URL externe où envoyer les données:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="" type="text" name="urlInput" ref="urlInput" onChange={this.urlInputChanged} value={data.specificData.url}></input>
+  </div>
+  <label class="labelFormStandard">Content-type:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="application/json" type="text" name="contentTypeInput" ref="contentTypeInput" onChange={this.contentTypeInputChanged} value={data.specificData.contentType}></input>
+  </div>
   <script>
     this.data = {};
     this.urlInputChanged = e => {

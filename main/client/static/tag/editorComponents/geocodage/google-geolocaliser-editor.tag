@@ -5,26 +5,42 @@
   </div>
   <!-- Titre du composant -->
   <div class="contenaireV title-component">Google geocoding</div>
-  <hr/>
+  <div>
+    <div class="bar"/>
+  </div>
   <!-- Description du composant -->
-  <div>Interroger l'API Google geocode pour trouver une adresse avec la latitude et la longitude.</div>
+  <div class="title-description-component">Interroger l'API Google geocode pour trouver une adresse avec la latitude et la longitude.</div>
   <!-- Champ du composant -->
-  <div >Champ de l'objet permettant de définir la position géographique.</div>
-  <label>Rue:</label>
-  <input placeholder="Rue" type="text" ref="streetInput" value={data.specificData.streetPath}></input>
-  <label>Ville:</label>
-  <input placeholder="Ville" type="text" ref="townInput" value={data.specificData.townPath}></input>
-  <label>Code postal:</label>
-  <input placeholder="Code postal" type="text" ref="postalCodeInput" value={data.specificData.postalCodePath}></input>
-  <label>Pays:</label>
-  <input placeholder="Pays" type="text" ref="countryInput" value={data.specificData.countryPath}></input>
+  <div>
+    <div class="bar"/>
+  </div>
 
-  <div>Champ de l'objet qui recevront les informations de géolocalisation.</div>
-  <label>Latitude:</label>
-  <input placeholder="Latitude" type="text" ref="latitudeInput" value={data.specificData.latitudePath}></input>
-  <label>Longitude:</label>
-  <input placeholder="Longitude" type="text" ref="longitudeInput" value={data.specificData.longitudePath}></input>
-
+  <div class="subtitle">Champ de l'objet permettant de définir la position géographique.</div>
+  <label class="labelFormStandard">Rue:</label>
+  <div class="cardInput">  
+    <input class="inputComponents" placeholder="Rue" type="text" ref="streetInput" value={data.specificData.streetPath}></input>
+  </div>
+  <label class="labelFormStandard">Ville:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="Ville" type="text" ref="townInput" value={data.specificData.townPath}></input>
+  </div>
+  <label class="labelFormStandard">Code postal:</label>
+  <div class="cardInput">
+    <input class="inputComponents"placeholder="Code postal" type="text" ref="postalCodeInput" value={data.specificData.postalCodePath}></input>
+  </div>
+  <label class="labelFormStandard">Pays:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="Pays" type="text" ref="countryInput" value={data.specificData.countryPath}></input>
+  </div>
+  <div class="subtitle"r>Champ de l'objet qui recevront les informations de géolocalisation.</div>
+  <label class="labelFormStandard">Latitude:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="Latitude" type="text" ref="latitudeInput" value={data.specificData.latitudePath}></input>
+  </div>
+  <label class="labelFormStandard">Longitude:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="Longitude" type="text" ref="longitudeInput" value={data.specificData.longitudePath}></input>
+  </div>
   <script>
 
     this.innerData = {};
@@ -66,4 +82,9 @@
       RiotControl.off('item_current_changed', this.updateData);
     });
   </script>
+  <style>
+    .subtitle {
+      padding: 3vh;
+    }
+  </style>
 </google-geolocaliser-editor>

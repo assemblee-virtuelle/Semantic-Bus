@@ -5,9 +5,15 @@
   </div>
   <!-- Titre du composant -->
   <div class="contenaireV title-component">Transform
+  <div>
+    <div class="bar"/>
   </div>
+  <!-- Description du composant -->
+  <div class="title-description-component">Configuration d'un objet de transformation.</div>
   <!-- Champ du composant -->
-  <div>Configuration d'un objet de transformation.</div>
+  <div>
+    <div class="bar"/>
+  </div>
   <jsoneditor ref="jsonSchema" title="Transform Schema" class="containerV" modes="['tree','text']"></jsoneditor>
   <script>
     this.updateData = function (dataToUpdate) {

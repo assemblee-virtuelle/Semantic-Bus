@@ -162,7 +162,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: rgb(26, 145, 194);
+      background-color: rgb(26,145,194);
     }
     .tableTitleName {
       font-size: 0.85em;

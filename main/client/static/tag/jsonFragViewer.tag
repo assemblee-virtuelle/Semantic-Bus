@@ -1,5 +1,5 @@
 <jsonfragviewer class="containerV">
-  <div id="jsonfrageditor" ref="jsonfrageditor" class="containerV scrollable"></div>
+  <div id="jsonfrageditor" ref="jsonfrageditor" class="containerV scrollable" style="margin: 1vh"></div>
   <script>
     //var tag = this
     this.title = "";

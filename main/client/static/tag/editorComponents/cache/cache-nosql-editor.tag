@@ -4,14 +4,16 @@
     <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Cache-NoSQL" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
   <!-- Titre du composant -->
-  <div class="contenaireV title-component">Cache NoSQL
+  <div class="contenaireV title-component">Cache NoSQL</div>
+  <div>
+    <div class="bar"/>
   </div>
   <!-- Champ du composant -->
-  <fieldset id="containerJSTREE">
-    <legend>Options</legend>
+  <fieldset id="containerJSTREE" style="margin: 1vh">
+    <legend class="labelFormStandard">Options</legend>
     <div>
       <input ref="historyInput" type="checkbox" onchange={historyInputChanged} checked={data.specificData.history}>
-      <label>Historisation</label>
+      <label >Historisation</label>
     </div>
     <div>
       <input ref="historyOutInput" type="checkbox" onchange={historyOutInputChanged} checked={data.specificData.historyOut}>

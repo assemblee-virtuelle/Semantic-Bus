@@ -5,14 +5,24 @@
   </div>
   <!-- Titre du composant -->
   <div class="contenaireV title-component">Framacalc</div>
+  <div>
+    <div class="bar"/>
+  </div>
   <!-- Description du composant -->
-  <div>Interroger une feuille de calcul Framacalc qui fournit un flux CSV.</div>
+  <div class="title-description-component">Interroger une feuille de calcul Framacalc qui fournit un flux CSV.</div>
   <!-- Champ du composant -->
+  <div>
+    <div class="bar"/>
+  </div>
   <div>Information de connexion à Framacalc.</div>
-  <label>URL framacalc / Ethercalc:</label>
-  <input placeholder=""type="text" name="keyInput" ref="keyInput" value={data.specificData.key}></input>
-  <label>Commencer à partir de la ligne (offset):</label>
-  <input placeholder=""type="text" name="offsetInput" ref="offsetInput"  value={data.specificData.offset}></input>
+  <label class="labelFormStandard">URL framacalc / Ethercalc:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder=""type="text" name="keyInput" ref="keyInput" value={data.specificData.key}></input>
+  </div>
+  <label class="labelFormStandard">Commencer à partir de la ligne (offset):</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder=""type="text" name="offsetInput" ref="offsetInput"  value={data.specificData.offset}></input>
+  </div>
   <script>
 
     this.innerData={};

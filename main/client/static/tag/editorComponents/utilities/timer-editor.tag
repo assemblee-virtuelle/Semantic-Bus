@@ -5,13 +5,24 @@
   </div>
   <!-- Titre du composant -->
   <div class="contenaireV title-component">Timer</div>
+  <div>
+    <div class="bar"/>
+  </div>
   <!-- Champ du composant -->
-  <label>Exécuter un flux selon la planification suivante :</label>
-  <label>Intervalle:</label>
-  <input placeholder="Valeur en minute" type="text" id="intervalInput" onchange={changeIntervalInput} ref="keyInput" value={data.specificData?data.specificData.interval: null }></input>
-  <label>Dernière exécution :</label>
-  <div>{data.specificData?data.specificData.last: null }</div>
-
+  <div class="title-description-component">Exécuter un flux selon la planification suivante.</div>
+  <!-- Champ du composant -->
+  <div>
+    <div
+     class="bar"/>
+  </div>
+  <label class="labelFormStandard">Intervalle:</label>
+  <div class="cardInput">
+    <input class="inputComponents"  placeholder="Valeur en minute" type="text" id="intervalInput" onchange={changeIntervalInput} ref="keyInput" value={data.specificData?data.specificData.interval: null }></input>
+  </div>
+  <label class="labelFormStandard">Dernière exécution :</label>
+  <div class="cardInput">
+    <div>{data.specificData?data.specificData.last: null }</div>
+  </div>
   <script>
 
     this.data = {};

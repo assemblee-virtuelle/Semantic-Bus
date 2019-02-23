@@ -6,21 +6,27 @@
   <!-- Titre du composant -->
   <div class="contenaireV title-component">Unicity</div>
   <!-- Description du composant -->
-  <div>Structurer les données en vérifiant l'unicité par champ et répartir les valeurs par source.</div>
-  <!-- Champ du composant -->
-  <label>Champ de source:</label>
-  <input type="text" value={data.specificData.source} onkeyup={onSourceChange}>
-
-  <div class="containerH table-title" style="margin-top: 5px;align-items: center;justify-content:flex-end;">
-    <div>Champs d'unicité </div>
-    <image src="./image/ajout_composant.svg" placeholder:"Nouveau champ" class="commandButtonImage btnAddSize" onclick={addRow}></image>
+  <div>
+    <div class="bar"/>
   </div>
-
-  <zentable style="flex:1" ref="unicityTableRef" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
-    <yield to="row">
-      <input style="flex-grow: 1;width:90%;" placeholder="Champ"type="text" value={field} data-field="field"/>
-    </yield>
-  </zentable>
+  <div class="title-description-component">Structurer les données en vérifiant l'unicité par champ et répartir les valeurs par source.</div>
+  <!-- Champ du composant -->
+  <div>
+    <div class="bar"/>
+  </div>
+  <label class="labelFormStandard">Champ de source:</label>
+  <div class="cardInput">
+    <input class="inputComponents" type="text" value={data.specificData.source} onkeyup={onSourceChange}>
+  </div>
+  <label class="labelFormStandard">Ajouter un champs d'unicité</label>
+  <div class="cardInput">
+    <image src="./image/ajout_composant.svg" class="commandButtonImage btnAddSize" onclick={addRow}/>
+  </div>
+    <zentable ref="unicityTableRef" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
+      <yield to="row">
+        <input style="width:90%;margin: 5px" placeholder="Champ" type="text" value={field} data-field="field"/>
+      </yield>
+    </zentable>
 
   <script>
 
@@ -54,5 +60,15 @@
       RiotControl.off('item_current_changed', this.updateData);
     });
   </script>
-  <style scoped="scoped"></style>
+  <style scoped="scoped">
+    .textArea {
+      color: rgb(26,145,194);
+      padding: 3vh;
+      border-radius: 10px;
+      border: 1px solid rgb(26,145,194);
+      height: 25vh;
+      width: 90%;
+      margin-left: 1vh;
+    }
+  </style>
 </unicity-editor>

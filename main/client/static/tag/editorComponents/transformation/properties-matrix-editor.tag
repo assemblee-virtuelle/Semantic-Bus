@@ -5,19 +5,29 @@
   </div>
   <!-- Titre du composant -->
   <div class="contenaireV title-component">Property matrix</div>
-  <!-- Description du composant -->
-  <div>Reconstruire des objects à partir de plusieurs propriétés en liste.</div>
-  <!-- Champ du composant -->
-  <label>Attribut à générer:</label>
-  <input placeholder="Attribut" type="text" value={data.specificData.attribut} onkeyup={onAttributChange}>
-
-  <div class="containerH table-title" style="margin-top: 5px;align-items: center;justify-content:flex-end;">
-    <div>Ajouter un champ</div>
-      <image src="./image/ajout_composant.svg" placeholder="Nouveau Champ" class="commandButtonImage btnAddSize" onclick={addRow}></image>
+    <!-- Description du composant -->
+  <div>
+    <div class="bar"/>
   </div>
+  <!-- Description du composant -->
+  <div class="title-description-component">Reconstruire des objects à partir de plusieurs propriétés en liste.</div>
+  <!-- Champ du composant -->
+  <div>
+    <div class="bar"/>
+  </div>
+
+  <label class="labelFormStandard">Attribut à générer:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="Attribut" type="text" value={data.specificData.attribut} onkeyup={onAttributChange}>
+  </div>
+  <label class="labelFormStandard">Ajouter un champ</label>
+  <div class="cardInput">
+    <image src="./image/ajout_composant.svg" placeholder="Nouveau Champ" class="commandButtonImage btnAddSize" onclick={addRow}></image>
+  </div>
+
   <zentable ref="fieldsTableRef" style="flex:1;" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
     <yield to="row">
-      <input style="flex-grow:1;width:90%" placeholder="Le champ source doit être un tableau" type="text" value={field} data-field="field"/>
+      <input style="width:90%;margin: 5px" placeholder="Le champ source doit être un tableau" type="text" value={field} data-field="field"/>
     </yield>
   </zentable>
 

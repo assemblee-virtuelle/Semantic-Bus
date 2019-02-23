@@ -5,16 +5,27 @@
   </div>
   <!-- Titre du composant -->
   <div class="contenaireV title-component">Google Sheets</div>
+  <div>
+    <div class="bar"/>
+  </div>
   <!-- Description du composant -->
-  <div>Interroger une feuille de calcule Google Sheets qui fournit un flux JSON.</div>
+  <div class="title-description-component">Interroger une feuille de calcule Google Sheets qui fournit un flux JSON.</div>
   <!-- Champ du composant -->
-  <label>Insérer la clé du Google Sheets:</label>
-  <input placeholder="ex. 1ii9hG1_x-wQXFas1_K2ijy4FLY5eYh6XXKgj_mnvSQ8/edit#gid=0" type="text" id="keyInput" onkeyup={changeKeyInput} ref="keyInput" value={data?data.specificData.key: null }></input>
-  <label>Selectionner les colonnes du Google Sheets:</label>
-  <input placeholder="ex. select A,B,C,D,..." type="text" id="selectInput" ref="selectInput" onkeyup={changeSelectInput} value={data?data.specificData.select: null}></input>
-  <label>Commencer à partir de la ligne (offset):
-  </label>
-  <input placeholder="ex. 1,2,.." type="text" id="offsetInput" ref="offsetInput" onkeyup={changeOffsetInput} value={data? data.specificData.offset: null}></input>
+  <div>
+    <div class="bar"/>
+  </div>
+  <label class="labelFormStandard">Insérer la clé du Google Sheets:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="ex. 1ii9hG1_x-wQXFas1_K2ijy4FLY5eYh6XXKgj_mnvSQ8/edit#gid=0" type="text" id="keyInput" onkeyup={changeKeyInput} ref="keyInput" value={data?data.specificData.key: null }></input>
+  </div>
+  <label class="labelFormStandard">Selectionner les colonnes du Google Sheets:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="ex. select A,B,C,D,..." type="text" id="selectInput" ref="selectInput" onkeyup={changeSelectInput} value={data?data.specificData.select: null}></input>
+  </div>
+  <label class="labelFormStandard">Commencer à partir de la ligne (offset):</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="ex. 1,2,.." type="text" id="offsetInput" ref="offsetInput" onkeyup={changeOffsetInput} value={data? data.specificData.offset: null}></input>
+  </div>
   <script>
 
     //// marche mais à changer je pense

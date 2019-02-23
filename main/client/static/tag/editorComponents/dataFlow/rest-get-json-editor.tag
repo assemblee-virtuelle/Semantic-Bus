@@ -5,21 +5,33 @@
   </div>
   <!-- Titre du composant -->
   <div class="contenaireV title-component">Flow consumer</div>
-  <!-- Description du composant -->
-  <div>Interroger une API REST avec une requête GET qui fournit un flux JSON, XML.</div>
-  <!-- Champ du composant -->
-  <label>URL du web service à interroger:</label>
-  <input placeholder="" type="text" ref="urlInput" value={data.specificData.url} onchange={urlInputChange}></input>
-  <label>Content-type forcé:</label>
-  <input placeholder="" type="text" ref="overidedContentTypeInput" value={data.specificData.overidedContentType} onchange={overidedContentTypeInputChange}></input>
-  <div class="containerH table-title" style="margin-top: 5px;align-items: center;justify-content:flex-end;" >
-    <div>Header</div>
-      <image src="./image/ajout_composant.svg" placeholder="Nouveau header" class="commandButtonImage btnAddSize" onclick={addRowClick}></image>
+  <div>
+    <div class="bar"/>
   </div>
-  <zentable ref="headerTable" style="flex:1" title="header de la requete" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
+  <!-- Description du composant -->
+    <div class="title-description-component">Interroger une API REST avec une requête GET qui fournit un flux JSON, XML.</div>
+  <!-- Champ du composant -->
+  <div>
+    <div class="bar"/>
+  </div>
+
+  <label class="labelFormStandard">URL du web service à interroger:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="" type="text" ref="urlInput" value={data.specificData.url} onchange={urlInputChange}></input>
+  </div>
+  <label class="labelFormStandard">Content-type forcé:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="" type="text" ref="overidedContentTypeInput" value={data.specificData.overidedContentType} onchange={overidedContentTypeInputChange}></input>
+  </div>
+
+  <label class="labelFormStandard">Header</label>
+  <div class="cardInput">
+    <image src="./image/ajout_composant.svg" class="commandButtonImage btnAddSize" onclick={addRowClick}/>
+  </div>
+  <zentable ref="headerTable" title="header de la requete" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
     <yield to="row">
-      <input placeholder="Clé" type="text" style="flex-grow: 1;flex-basis:50%" value={key} data-field="key"/>
-      <input placeholder="Valeur" type="text" style="flex-grow: 1;flex-basis:50%" value={value} data-field="value"/>
+      <input placeholder="Clé" type="text" style="flex-basis:50%; margin: 5px" value={key} data-field="key"/>
+      <input placeholder="Valeur" type="text" style="flex-basis:50%; margin: 5px" value={value} data-field="value"/>
     </yield>
   </zentable>
   <script>

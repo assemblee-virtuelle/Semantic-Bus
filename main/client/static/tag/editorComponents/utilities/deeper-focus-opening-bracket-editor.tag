@@ -4,23 +4,32 @@
     <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Deeper-focus" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
   <!-- Titre du composant -->
-  <div class="contenaireV title-component">Deeper focus
+  <div class="contenaireV title-component">Deeper focus</div>
+  <div>
+    <div class="bar"/>
   </div>
   <!-- Champ du composant -->
-  <div>Début de traitement d'un niveau de profondeur du flux.</div>
+  <div class="title-description-component">Début de traitement d'un niveau de profondeur du flux.</div>
+  <!-- Champ du composant -->
+  <div>
+    <div class="bar"/>
+  </div>
 
-  <label>Chemin à inspecter pour les traitements qui suivent:</label>
-  <input placeholder="vide=racine" type="text" name="dfobPathInput" ref="dfobPathInput" value={data.specificData.dfobPath} onchange={dfobPathChange}></input>
-  <label>Nombre de traitements parallèles:</label>
-  <input placeholder="" type="text" name="pipeNbInput" ref="pipeNbInput" value={data.specificData.pipeNb} onchange={pipeNbChange}></input>
-
-  <div class="containerH" style="align-items:center;">
-    <label>Le chemin désigne une structure de tableau à conserver en tableau (décomposé en objet par défaut):</label>
-    <label class="switch" style="margin-left:10px;">
+  <label class="labelFormStandard">Chemin à inspecter pour les traitements qui suivent:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="vide=racine" type="text" name="dfobPathInput" ref="dfobPathInput" value={data.specificData.dfobPath} onchange={dfobPathChange}></input>
+  </div>
+  <label class="labelFormStandard">Nombre de traitements parallèles:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="" type="text" name="pipeNbInput" ref="pipeNbInput" value={data.specificData.pipeNb} onchange={pipeNbChange}></input>
+</div>
+  <label class="labelFormStandard">Le chemin désigne une structure de tableau à conserver en tableau (décomposé en objet par défaut):</label>
+  <label class="cardInput">
+    <span class="switch">
       <input type="checkbox" onchange={keepArrayChange} checked={data.specificData.keepArray}>
       <span class="slider round"></span>
-    </label>
-  </div>
+    </span>
+  </label>
 
   <script>
 

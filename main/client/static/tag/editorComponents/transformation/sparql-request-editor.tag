@@ -5,11 +5,19 @@
   </div>
   <!-- Titre du composant -->
 <div class="contenaireV title-component">SPARQL</div>
+<div>
+  <div class="bar"/>
+</div>
 <!-- Description du composant -->
-<div>Requêter en SPARQL sur un fichier JSON ld</div>
+<div class="title-description-component">Requêter en SPARQL sur un fichier JSON ld</div>
+<div>
+  <div class="bar"/>
+</div>
 <!-- Champ du composant -->
-    <label>Description de la requête SPARQL</label>
-    <textArea type="text" ref="requeteInput" style="flex-grow:1" onchange={requeteInputChanged}>{data.specificData.request}</textArea>
+<label class="labelFormStandard">Description de la requête SPARQL</label>
+<div>
+  <textArea class="textArea" type="text" ref="requeteInput" style="flex-grow:1" onchange={requeteInputChanged}>{data.specificData.request}</textArea>
+</div>
   <script>
 
     this.innerData={};

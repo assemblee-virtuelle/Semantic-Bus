@@ -5,9 +5,15 @@
   </div>
   <!-- Titre du composant -->
   <div class="contenaireV title-component">Filter</div>
+  <div>
+    <div class="bar"/>
+  </div>
   <!-- Description du composant -->
-  <div>Filtrer le flux:</div>
-
+  <div class="title-description-component">Filtrer le flux</div>
+  <!-- Champ du composant -->
+  <div>
+    <div class="bar"/>
+  </div>
   <jsonEditor ref="filterObjectInput" title="Filter Schema" style="flex:1" modes="['tree','text']"></jsonEditor>
 
   <script>

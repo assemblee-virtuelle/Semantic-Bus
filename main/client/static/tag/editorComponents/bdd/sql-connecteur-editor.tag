@@ -5,30 +5,52 @@
   </div>
   <!-- Titre du composant -->
   <div class="contenaireV title-component">SQL</div>
+  <div>
+    <div class="bar"/>
+  </div>
   <!-- Description du composant -->
-  <div>Interroger une base de donnée SQL.</div>
+  <div class="title-description-component">Interroger une base de donnée SQL.</div>
   <!-- Champ du composant -->
+  <div>
+    <div class="bar"/>
+  </div>
   <div>Configuration de la base à interoger</div>
-  <label>Driver:</label>
-  <input placeholder="Driver" type="text" ref="driver" value={data.specificData.driver}/>
-  <label>Host:</label>
-  <input placeholder="Host" type="text" ref="host" value={data.specificData.host}/>
-  <label>Port:</label>
-  <input placeholder="Port" type="text" ref="port" value={data.specificData.port}/>
-  <label>User name:</label>
-  <input placeholder="User name" type="text" ref="username" value={data.specificData.username}/>
-  <label>Password:</label>
-  <input placeholder="Password" type="text" ref="password" value={data.specificData.password}/>
-  <label>Database:</label>
-  <input placeholder="Database" type="text" ref="database" value={data.specificData.database}/>
-  <label>Nom de la table:</label>
-  <input placeholder="Nom de la table" type="text" ref="modelName" value={data.specificData.modelName}/>
-  <label >Documentation requêtes:
-    <a href={'http://sql.sh/cours'} target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
-  </label>
-  <textarea placeholder="exemple: SELECT * FROM 'users'" style="color: rgb(56, 131, 250);padding: 5px;border-radius: 10px;border: 1px solid rgb(56, 131, 250);" type="textarea" ref="querySelect" value={data.specificData.querySelect}>
-    {data.specificData.querySelect}
-  </textarea>
+  <label class="labelFormStandard">Driver:</label>  
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="Driver" type="text" ref="driver" value={data.specificData.driver}/>
+  </div>
+  <label class="labelFormStandard">Host:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="Host" type="text" ref="host" value={data.specificData.host}/>
+  </div>
+  <label class="labelFormStandard">Port:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="Port" type="text" ref="port" value={data.specificData.port}/>
+  </div>
+  <label class="labelFormStandard">User name:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="User name" type="text" ref="username" value={data.specificData.username}/>
+  </div>
+  <label class="labelFormStandard">Password:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="Password" type="text" ref="password" value={data.specificData.password}/>
+  </div>
+  <label class="labelFormStandard">Database:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="Database" type="text" ref="database" value={data.specificData.database}/>
+  </div>
+  <label class="labelFormStandard">Nom de la table:</label>
+  <div class="cardInput">  
+    <input class="inputComponents" placeholder="Nom de la table" type="text" ref="modelName" value={data.specificData.modelName}/>
+  </div>
+  <label class="labelFormStandard">Documentation requêtes:
+    <a href={'http://sql.sh/cours'} target="_blank"><img src="./image/help.png" alt="Aide" width="15px" height="15px"></a>
+  </label class="labelFormStandard">
+  <div>
+    <textarea class="textArea" placeholder="exemple: SELECT * FROM 'users'" type="textarea" ref="querySelect" value={data.specificData.querySelect}>
+      {data.specificData.querySelect}
+    </textarea>
+  </div>
 
   <script>
 
@@ -91,5 +113,6 @@
       RiotControl.off('item_current_changed', this.updateData);
     });
   </script>
-
+  <style>
+  </style>
 </sql-connecteur-editor>

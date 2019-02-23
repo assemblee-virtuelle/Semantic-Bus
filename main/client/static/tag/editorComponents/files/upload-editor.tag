@@ -5,15 +5,21 @@
   </div>
   <!-- Titre du composant -->
   <div class="contenaireV title-component">Upload</div>
+    <div>
+    <div class="bar"/>
+  </div>
   <!-- Description du composant -->
-  <label>Ce composant vous permet d'uploader un fichier avec une extension
+  <div class="title-description-component">Ce composant vous permet d'uploader un fichier avec une extension
     <b>XLSX</b>
     ou
     <b>CSV</b>
     et de le mapper en
     <b>JSON</b>
-  </label>
+  </div>
   <!-- Champ du composant -->
+  <div>
+    <div class="bar"/>
+  </div>
   <h3 class="{textloadclass}">{textload}</h3>
   <div class="containerH" style="align-items: center;justify-content: center;flex-shrink:0">
     <div class="contenaireV">

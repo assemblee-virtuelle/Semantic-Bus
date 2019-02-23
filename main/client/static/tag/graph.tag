@@ -723,8 +723,8 @@
       fill-opacity: 0;
     }
 
-    .title-component-graph-graph {
-      font-size: 1em;
+    .title-component-graph {
+      font-size: 1.5em;
 
     }
 

@@ -6,25 +6,42 @@
   <!-- Titre du composant -->
   <div class="contenaireV title-component">Join</div>
   <!-- Champ du composant -->
-  <div>Jointure entre un flux principal et un flux secondaire.</div>
-  <label>Composant qui contient le flux principal:</label>
-  <select name="primaryComponentIdInput" ref="primaryComponentIdInput">
+  <div>
+    <div class="bar"/>
+  </div>
+  <div class="title-description-component">Jointure entre un flux principal et un flux secondaire.</div>
+  <div>
+    <div class="bar"/>
+  </div>
+
+  <label class="labelFormStandard">Composant qui contient le flux principal:</label>
+  <div class="cardInput">
+  <select class="inputComponents" name="primaryComponentIdInput" ref="primaryComponentIdInput">
     <option value="undefined">non-défini</option>
     <option each={option in linkedComponents.beforeComponents} value={option._id} selected={parent.innerData.specificData.primaryComponentId ==option._id}>{option.type} : {option.name}</option>
   </select>
-  <label>Champ du composant principal qui contient l'identifiant du flux secondaire:</label>
-  <input type="text" name="primaryFlowFKIdInput" value={innerData.specificData.primaryFlowFKId} ref="primaryFlowFKIdInput"></input>
-  <label>Composant qui contient le flux secondaire:</label>
-  <select name="secondaryComponentIdInput" ref="secondaryComponentIdInput">
+</div>
+  <label class="labelFormStandard">Champ du composant principal qui contient l'identifiant du flux secondaire:</label>
+  <div class="cardInput">
+  <input class="inputComponents" type="text" name="primaryFlowFKIdInput" value={innerData.specificData.primaryFlowFKId} ref="primaryFlowFKIdInput"></input>
+  </div>
+  <label class="labelFormStandard">Composant qui contient le flux secondaire:</label>
+  <div class="cardInput">
+  <select class="inputComponents" name="secondaryComponentIdInput" ref="secondaryComponentIdInput">
     <option value="undefined">non-défini</option>
     <option each={option in linkedComponents.beforeComponents} value={option._id} selected={parent.innerData.specificData.secondaryComponentId ==option._id}>{option.type} : {option.name}</option>
   </select>
-  <label>Champ du composant secondaire qui définit son identifiant:</label>
-  <input type="text" name="secondaryFlowIdInput" ref="secondaryFlowIdInput" value={innerData.specificData.secondaryFlowId}></input>
-  <label>Nom de la propriété accueillant le flux secondaire:</label>
-  <input type="text" name="primaryFlowFKNameInput" ref="primaryFlowFKNameInput" value={innerData.specificData.primaryFlowFKName}></input>
+  </div>
+  <label class="labelFormStandard">Champ du composant secondaire qui définit son identifiant:</label>
+  <div class="cardInput">
+  <input class="inputComponents" type="text" name="secondaryFlowIdInput" ref="secondaryFlowIdInput" value={innerData.specificData.secondaryFlowId}></input>
+  </div>
+  <label class="labelFormStandard">Nom de la propriété accueillant le flux secondaire:</label>
+  <div class="cardInput">
+  <input class="inputComponents" type="text" name="primaryFlowFKNameInput" ref="primaryFlowFKNameInput" value={innerData.specificData.primaryFlowFKName}></input>
+  </div>
   <div class="containerH" style="align-items:center;">
-    <label>Relation multiple:</label>
+    <label class="labelFormStandard">Relation multiple:</label>
     <label class="switch" style="margin-left:10px;">
       <input type="checkbox" onchange={onMultipleJoinChange} checked={innerData.specificData.multipleJoin}>
       <span class="slider round"></span>
@@ -68,6 +85,7 @@
       configurable: true
     });
     this.on('mount', function () {
+      console.log('errrrrr',linkedComponents)
       this.refs.primaryComponentIdInput.addEventListener('change', function (e) {
         this.innerData.specificData.primaryComponentId = e.currentTarget.value;
       }.bind(this));

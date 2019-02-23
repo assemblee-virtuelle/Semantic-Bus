@@ -4,17 +4,29 @@
     <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Get-provider" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
 <!-- Titre du composant -->
-  <div class="contenaireV title-component">Get provider</div>
+  <div class="contenaireV title-component">SQL</div>
+  <div>
+    <div class="bar"/>
+  </div>
 <!-- Description du composant -->
-  <div>Exposition du flux de donnée sur une API HTTP uniquement en GET.</div>
-<!-- Champ du composant -->
-  <label>Clé de l'API:</label>
-  <input placeholder=""type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.url}></input>
-  <label>URL de l'API:</label>
-  <a ref="link" target="_blank" href={'http://semantic-bus.org/data/api/' +data.specificData.url}>{'http://semantic-bus.org/data/api/'+data.specificData.url}</a>
-  <label>Content-type:</label>
-  <input placeholder="application/json" type="text" name="contentTypeInput" ref="contentTypeInput" onChange={contentTypeInputChanged} value={data.specificData.contentType}></input>
+  <div class="title-description-component">Exposition du flux de donnée sur une API HTTP uniquement en GET.</div>
+  <!-- Champ du composant -->
+  <div>
+    <div class="bar"/>
+  </div>
 
+  <label class="labelFormStandard">Clé de l'API:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder=""type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.url}></input>
+  </div>
+  <label class="labelFormStandard">URL de l'API:</label>
+  <div class="cardInput">
+    <a ref="link" target="_blank" href={'http://semantic-bus.org/data/api/' +data.specificData.url}>{'http://semantic-bus.org/data/api/'+data.specificData.url}</a>
+  </div>
+  <label class="labelFormStandard">Content-type:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="application/json" type="text" name="contentTypeInput" ref="contentTypeInput" onChange={contentTypeInputChanged} value={data.specificData.contentType}></input>
+  </div>
   <script>
     this.data = {};
     this.test = function () {

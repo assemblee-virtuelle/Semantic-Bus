@@ -5,8 +5,14 @@
   </div>
 <!-- Titre du composant -->
 <div class="contenaireV title-component">Agregate</div>
+<div>
+  <div class="bar"/>
+</div>
 <!-- Description du composant -->
 <div>Agrège plusieurs flux pour n'en former qu'un seul.</div>
+<div>
+  <div class="bar"/>
+</div>
   <!--<div class="containerV">
     <div class="containerH">
       <div>

@@ -6,7 +6,9 @@
   <!-- Titre du composant -->
   <div class="contenaireV title-component">Key To Array
   </div>
-
+  <div>
+    <div class="bar"/>
+  </div>
 
   <script>
     this.updateData = function (dataToUpdate) {

@@ -241,7 +241,6 @@
       flex-basis: 40px;
     }
     .tableBody {
-      background-color: rgb(238,242,249);
       word-break: break-all;
       overflow-wrap: break-word;
       align-items: center;

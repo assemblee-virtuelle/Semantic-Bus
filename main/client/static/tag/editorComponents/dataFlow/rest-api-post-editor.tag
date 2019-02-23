@@ -5,15 +5,28 @@
   </div>
   <!-- Titre du composant -->
   <div class="contenaireV title-component">Post provider</div>
+  <div>
+    <div class="bar"/>
+  </div>
   <!-- Description du composant -->
-  <div>Exposition du flux de donnée sur une API HTTP uniquement en POST.</div>
+  <div class="title-description-component">Exposition du flux de donnée sur une API HTTP uniquement en POST.</div>
   <!-- Champ du composant -->
-  <label>Clé de l'API:</label>
-  <input placeholder="" type="text" name="urlInput" ref="urlInput" onchange={urlInputChanged} value={data.specificData.url}></input>
-  <label>URL de l'API:</label>
-  <a ref="link" target="_blank" href={'http://semantic-bus.org/data/api/' +data.specificData.url}>{'http://semantic-bus.org/data/api/'+data.specificData.url}</a>
-  <label>Content-type:</label>
-  <input placeholder="" type="text" name="contentTypeInput" ref="contentTypeInput" onchange={contentTypeInputChanged} value={data.specificData.contentType}></input>
+  <div>
+    <div class="bar"/>
+  </div>
+
+  <label class="labelFormStandard">Clé de l'API:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="" type="text" name="urlInput" ref="urlInput" onchange={urlInputChanged} value={data.specificData.url}></input>
+  </div>
+  <label class="labelFormStandard">URL de l'API:</label>
+  <div class="cardInput">
+    <a ref="link" target="_blank" href={'http://semantic-bus.org/data/api/' +data.specificData.url}>{'http://semantic-bus.org/data/api/'+data.specificData.url}</a>
+  </div>
+  <label class="labelFormStandard">Content-type:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="" type="text" name="contentTypeInput" ref="contentTypeInput" onchange={contentTypeInputChanged} value={data.specificData.contentType}></input>
+  </div>
   <!--<label>Sortie en xls (Boolean)</label> <input type="text" name="xlsInput" ref="xlsInput"value={data.specificData.xls}></input>-->
   <script>
 

@@ -5,13 +5,23 @@
   </div>
 <!-- Titre du composant -->
   <div class="contenaireV title-component">File consumer</div>
+  <div>
+    <div class="bar"/>
+  </div>
   <!-- Description du composant -->
-  <div>Interroger un fichier mis à disposition sur une API REST avec une requête GET.</div>
+  <div class="title-description-component">Interroger un fichier mis à disposition sur une API REST avec une requête GET.</div>
   <!-- Champ du composant -->
-  <label>URL du web service à interroger:</label>
-  <input placeholder=""type="text" ref="urlInput" onChange={changeUrl} value={data.specificData.url}></input>
-  <label>Content-type:</label>
-  <input placeholder=""type="text" ref="contentTypeInput" onChange={changeContentType} value={data.specificData? data.specificData.contentType : "test" }></input>
+  <div>
+    <div class="bar"/>
+  </div>
+  <label class="labelFormStandard">URL du web service à interroger:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder=""type="text" ref="urlInput" onChange={changeUrl} value={data.specificData.url}></input>
+  </div>
+  <label class="labelFormStandard">Content-type:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder=""type="text" ref="contentTypeInput" onChange={changeContentType} value={data.specificData? data.specificData.contentType : "test" }></input>
+  </div>
 
   <script>
     this.data = {}
