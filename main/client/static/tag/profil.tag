@@ -1,6 +1,6 @@
 <profil class="containerV">
 
-  <!-- Menu utilisateur -->
+  <!-- Nav Bar -->
   <div class=" containerH containerNavBarTop">
     <a href="#profil//edit" class="commandButtonImage navBarTop containerV" style={this.backgroundActive("edit")}>
       <img src="./image/menu/id-card.png" height="40px" width="40px">
@@ -110,12 +110,10 @@
   </div>
   <!-- Page paiement -->
   <div class="containerV" if={menu=='payement'} style="margin-top: 10vh;">
-    <div class="containerV" style="flex-grow: 1;background-color: rgb(238, 242, 249);">
-      <stripe-component-tag></stripe-component-tag>
-    </div>
+    <stripe-component-tag></stripe-component-tag>
   </div>
 
-  <div if={menu=='transaction'} style="flex-grow: 1;background-color: rgb(238, 242, 249);">
+  <div class="containerV" if={menu=='transaction'} style="margin-top: 10vh;">
     <transactions-list></transactions-list>
   </div>
 

@@ -114,11 +114,11 @@
           }
           return image;
         }).attr("width", function (d) {
-          return 20;
+          return 25;
         }).attr("height", function (d) {
-          return 20;
+          return 25;
         }).attr("x", function (d) {
-          return 10;
+          return 1;
         }).attr("y", function (d) {
           return 50;
         }).on("click", function (d) {
@@ -128,11 +128,11 @@
         d3.select(this).append("image").attr("xlink:href", function (d) {
           return "./image/Super-Mono-png/PNG/basic/blue/document-edit.png";
         }).attr("width", function (d) {
-          return 20;
+          return 25;
         }).attr("height", function (d) {
-          return 20;
+          return 25;
         }).attr("x", function (d) {
-          return 30;
+          return 15;
         }).attr("y", function (d) {
           return 100;
         }).attr("class", function (d) {
@@ -146,11 +146,11 @@
         d3.select(this).append("image").attr("xlink:href", function (d) {
           return "./image/Super-Mono-png/PNG/basic/blue/button-play.png";
         }).attr("width", function (d) {
-          return 20;
+          return 25;
         }).attr("height", function (d) {
-          return 20;
+          return 25;
         }).attr("x", function (d) {
-          return 60;
+          return 51;
         }).attr("y", function (d) {
           return 100;
         }).attr("class", function (d) {
@@ -184,11 +184,11 @@
         d3.select(this).append("image").attr("xlink:href", function (d) {
           return "./image/Super-Mono-png/PNG/basic/red/bin.png";
         }).attr("width", function (d) {
-          return 20;
+          return 25;
         }).attr("height", function (d) {
-          return 20;
+          return 25;
         }).attr("x", function (d) {
-          return 90;
+          return 85;
         }).attr("y", function (d) {
           return 100;
         }).attr("class", function (d) {
@@ -208,9 +208,9 @@
           }
           return image;
         }).attr("width", function (d) {
-          return 20;
+          return 25;
         }).attr("height", function (d) {
-          return 20;
+          return 25;
         }).attr("x", function (d) {
           return 100;
         }).attr("y", function (d) {
@@ -260,13 +260,13 @@
         d3.select(this).append("image").attr("xlink:href", function (d) {
           return "./image/Super-Mono-png/PNG/basic/red/bin.png";
         }).attr("width", function (d) {
-          return 15;
+          return 25;
         }).attr("height", function (d) {
-          return 15;
+          return 25;
         }).attr("x", function (d) {
           return 0;
         }).attr("y", function (d) {
-          return 0;
+          return 10;
         }).on("click", function (d) {
           RiotControl.trigger('disconnect_components', d);
         });
@@ -350,9 +350,9 @@
           return d.id;
         });
         this.nodesTitle.attr('x', function (d) {
-          return dragged.x - 20;
+          return dragged.x +35;
         }).attr('y', function (d) {
-          return dragged.y - 35;
+          return dragged.y -15;
         })
 
       let afterLinks = sift({
@@ -438,9 +438,9 @@
       .append("image").attr('class', 'component').merge(this.nodes).attr("xlink:href", function (d) {
         return 'image/components/' + d.graphIcon;
       }).attr("width", function (d) {
-        return 70;
+        return 68;
       }).attr("height", function (d) {
-        return 70;
+        return 68;
       })
       .attr('x', function (d) {
         return d.x;
@@ -451,7 +451,12 @@
       }).on('mouseover', (d) => {
         if (!d.selected == true && d.component.name!=undefined) {
           this.tooltip.classed("tooltipHide", false);
-          this.tooltip.attr('x', d.x).attr('y', d.y + 70).select('text').style('fill', 'grey').html(d.component.name);
+          this.tooltip
+            .attr('x', d.x)
+            .attr('y', d.y + 68)
+            .select('text')
+            .style('fill', 'grey')
+            .html(d.component.name);
         }
       }).on('mouseout', (d) => {
         this.tooltip.classed("tooltipHide", true);
@@ -465,16 +470,16 @@
       this.nodesTitle.exit().remove();
       this.nodesTitle = this.nodesTitle.enter()
       .append("text")
+      .attr("text-align", "center")
       .attr('class', 'title-component-graph')
       .attr('x', function (d) {
-        return d.x - 20;
+        return d.x +35;
       }).attr('y', function (d) {
-        return d.y - 35;
+        return d.y -15;
       }).attr("dy", ".35em")
       .style('fill', 'grey')
+      .style('text-anchor', 'middle')
       .text(function(d) { return d.text; });
-
-
       // Link
       this.links = this.svg.select("#lineLayer").selectAll('line').data(graph.links, function (d) {
         return d.id;
@@ -706,10 +711,10 @@
 
     #lineLayer line {
       stroke: rgb(26,145,194);
-      stroke-width: 2;
+      stroke-width: 4;
       cursor: pointer;
-      animation: dash 1s linear;
-      stroke-dasharray: 500 2;
+      animation: dash 2s linear;
+      stroke-dasharray: 500 15;
       animation-iteration-count: infinite;
     }
     @keyframes dash {
@@ -724,8 +729,9 @@
     }
 
     .title-component-graph {
-      font-size: 1.5em;
-
+      font-weight: 400;
+      font-family: sans-serif;
+      text-transform: uppercase;
     }
 
     #lineSelector line {
@@ -736,7 +742,7 @@
     }
 
     .background {
-      fill: none;
+      fill: transparent;
       fill-opacity: 1;
       stroke: #000;
       stroke-width: 0;
