@@ -89,8 +89,8 @@
     </div>
   </div>
   <!-- Page créer un workflow -->
-  <div show={menu=='information' } class="containerV" id="description" style="justify-content: center;background-color: rgb(238,242,249);flex-grow: 1;">
-    <div class="containerV box-flex">
+  <div show={menu=='information' } class="containerV" id="description" style="justify-content: center; background-color: rgb(238,242,249); flex-grow: 1;">
+    <div class="containerV box-flex" style="background-color: rgb(255,255,255);">
       <div class="containerV">
         <label class="labelFormStandard">Nom de votre Workflow</label>
         <div class="cardParameter">
@@ -104,16 +104,16 @@
         <div class="cardParameter">
           <input defaultValue={1} class="inputStandard" type="number" readonly={innerData.mode=="read"} ref="workspaceLimitHistoricnput" id="workspaceLimitHistoricInput" placeholder="1" value="{innerData.limitHistoric}" onkeyup="{limitHistoricFieldChange}"></input>
         </div>
-        <label class="labelFormStandard">Importer un graphique (JSON)</label>
-        <div class="cardParameter">
+        <label if={innerData._id}  class="labelFormStandard">Importer un graphique (JSON)</label>
+        <div if={innerData._id} class="cardParameter">
           <div onclick={importClick} class="btnFil commandButtonImage">
             Importer
             <img class="imgFil" src="./image/upload.png" title="Importer un Workflow">
             <input onchange={import} ref="import" type="file" style="display:none;"/>
           </div>
         </div>
-        <label class="labelFormStandard">Exporter au format JSON</label>
-        <div class="cardParameter">
+        <label if={innerData._id}  class="labelFormStandard">Exporter au format JSON</label>
+        <div if={innerData._id}  class="cardParameter">
           <div onclick={export} class="btnFil commandButtonImage">
             Exporter
             <img class="imgFil" src="./image/save.png" title="Exporter le Workflow">
@@ -193,7 +193,6 @@
     }
 
     limitHistoricFieldChange(e) {
-      console.log("errr", e.target.value)
       RiotControl.trigger('workspace_current_updateField', {
         field: 'limitHistoric',
         data: e.target.value
@@ -218,7 +217,6 @@
       route('workspace/' + this.innerData._id + '/share');
     }
     
-
     updateShareUser(data){
       RiotControl.trigger('delete-share-workspace',data);
 

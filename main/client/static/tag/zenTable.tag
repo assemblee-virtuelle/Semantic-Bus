@@ -16,7 +16,7 @@
         ondragstart={drag_start}
         onclick={rowClic}>
         <!-- draganddrop -->
-        <div if={opts.drag} draggable="true" class="containerV" style="background-color:grey;flex-shrink:0;justify-content: space-between;">
+        <div if={opts.drag} draggable="true" class="containerV" style="flex-shrink:0;justify-content: space-between; cursor: pointer;">
           <img src="./image/Super-Mono-png/PNG/sticker/icons/navigation-up-button.png" height="20px" width="20px" draggable="false">
           <img src="./image/Super-Mono-png/PNG/sticker/icons/navigation-down-button.png" height="20px" width="20px" draggable="false">
         </div>

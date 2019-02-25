@@ -3,18 +3,17 @@
   <div class="contenaireH" style="margin-left:97%">
     <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Get-provider" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
-<!-- Titre du composant -->
-  <div class="contenaireV title-component">SQL</div>
+ <!-- Titre du composant -->
+  <div class="contenaireV title-component">{data.type}</div>
   <div>
     <div class="bar"/>
   </div>
-<!-- Description du composant -->
-  <div class="title-description-component">Exposition du flux de donnée sur une API HTTP uniquement en GET.</div>
+  <!-- Description du composant -->
+  <div class="title-description-component">{data.description}</div>
+  <div>
+    <div class="bar"/>
+  </div>
   <!-- Champ du composant -->
-  <div>
-    <div class="bar"/>
-  </div>
-
   <label class="labelFormStandard">Clé de l'API:</label>
   <div class="cardInput">
     <input class="inputComponents" placeholder=""type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.url}></input>
@@ -33,7 +32,7 @@
       consol.log('test');
     }
 
-    // Object.defineProperty(this, 'data', {    set: function (data) {      this.innerData=data;      this.update();    }.bind(this),    get: function () {     return this.innerData;   },   configurable: true });
+    // Object.defineProperty(this, 'data', {    set: function (data) {      this.data=data;      this.update();    }.bind(this),    get: function () {     return this.data;   },   configurable: true });
 
     urlInputChanged(e) {
       this.data.specificData.url = e.currentTarget.value;

@@ -4,17 +4,16 @@
     <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Timer" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
   <!-- Titre du composant -->
-  <div class="contenaireV title-component">Timer</div>
+  <div class="contenaireV title-component">{data.type}</div>
+  <div>
+    <div class="bar"/>
+  </div>
+  <!-- Description du composant -->
+  <div class="title-description-component">{data.description}</div>
   <div>
     <div class="bar"/>
   </div>
   <!-- Champ du composant -->
-  <div class="title-description-component">Exécuter un flux selon la planification suivante.</div>
-  <!-- Champ du composant -->
-  <div>
-    <div
-     class="bar"/>
-  </div>
   <label class="labelFormStandard">Intervalle:</label>
   <div class="cardInput">
     <input class="inputComponents"  placeholder="Valeur en minute" type="text" id="intervalInput" onchange={changeIntervalInput} ref="keyInput" value={data.specificData?data.specificData.interval: null }></input>

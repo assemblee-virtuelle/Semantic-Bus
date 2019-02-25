@@ -52,6 +52,7 @@ body {
 /* header table*/
 .table-title {
   color: white;
+  text-transform: capitalize;
   flex-shrink: 0;
   background-color: rgb(26, 145, 194);
 }
@@ -123,12 +124,14 @@ body {
 }
 /*titre composant*/
 .title-space {
+  font-weight: bold;
   justify-content: center;
   text-align: center;
   padding-top: 5px;
+  text-transform: uppercase;
   font-family: 'Open Sans', sans-serif;
   color: rgb(141,141,141);
-  font-size: 20px;
+  font-size: 15px;
 }
 .textArea {
   color: rgb(26,145,194);
@@ -141,6 +144,8 @@ body {
 }
 .cardInput {
   margin-left: 1vh;
+  margin-bottom: 1vh;
+  
 }
 /*titre composant*/
 .title-component {
@@ -150,6 +155,9 @@ body {
 .title-description-component {
   font-weight: 200;
   font-family: sans-serif;
+}
+.subtitle {
+  padding: 2vh;
 }
 .bar {
   width: 100%;

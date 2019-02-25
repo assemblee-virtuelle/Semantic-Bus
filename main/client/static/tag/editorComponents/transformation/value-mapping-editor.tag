@@ -3,19 +3,17 @@
   <div class="contenaireH" style="margin-left:97%">
     <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Value-mapping" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
-
-  <!-- Titre du composant -->
-  <div class="contenaireV title-component">Value mapping</div>
+ <!-- Titre du composant -->
+  <div class="contenaireV title-component">{data.type}</div>
   <div>
     <div class="bar"/>
   </div>
   <!-- Description du composant -->
-  <div class="title-description-component">Remplacer les valeurs d'une propriété par une autre.</div>
-  <!-- Champ du composant -->
+  <div class="title-description-component">{data.description}</div>
   <div>
     <div class="bar"/>
   </div>
-  
+  <!-- Champ du composant -->
   <label class="labelFormStandard">Ignorer la valeur source:</label>
   <label class="cardInput">
     <span class="switch" style="margin-left:10px;">
@@ -26,7 +24,11 @@
 
   <label class="labelFormStandard">Ajouter une valeur</label>
   <div class="cardInput">
-    <image class="commandButtonImage btnAddSize" placeholder="Nouvelle valeur" src="./image/ajout_composant.svg" onclick={addRowClick}></image>
+    <div onclick={addRowClick} class="btnFil commandButtonImage">
+      Ajouter
+      <img class="imgFil" src="./image/ajout_composant.svg" title="Importer un Workflow">
+      <input onchange={import} ref="import" type="file" style="display:none;"/>
+    </div>
   </div>
     
   <zentable ref="mappingTable" style="flex:1" drag={true} title="vos changement de valeurs" allowdirectedit={true} disallowselect={true} disallownavigation={true}>

@@ -1,37 +1,25 @@
 <graph-of-use>
-<!--  page superviser -->
+
   <div class="mainContainerGraph">
     <div class="containerV containerData">
-      <div class="cardTitle">
-      <span class="title-space">  Résumé de votre consomation sur les 30 derniers jours </span>
-      </div>
-      <div class="containerH contentData">
-        <!--  Nombre de composants  -->
+      <div class="containerH  contentData">
         <div class="cardData" >
           <span class="textNumber">{componentNumber}</span><span class="textBase">  Composants</span>
         </div>
-        <!--  Nombre de Moctet  -->
         <div class="cardData" >
           <span class="textNumber">{decimalAdjust('round', globalMo, -2)}</span><span class="textBase">  Mo </span>
         </div>
-        <!--  Montant en Euro  -->
         <div class="cardData">
           <span class="textNumber">{decimalAdjust('round', globalPrice, -2)}</span><span class="textBase"> Crédit(s) </span>
         </div>
       </div>
     </div>
-
-    <!--  Graphique de consommation  -->
-    <div class="containerH containerGraph">
-      <div class="cardTitle">
-        <span class="title-space">Graphique de la consomation de vos crédit par jours </span>
-      </div>
-      <div class="cardGraph">
-        <svg viewBox="0 0 1000 60O" id="stacked" style="background-color:rgb(255,255,255);"></svg>
+    <div class="containerH containerData">
+      <div class="item-flex"  style="background-color:rgb(255,255,255); flex: 1">
+        <svg viewBox="0 0 1000 60O" id="stacked"></svg>
       </div>
     </div>
   </div>
-
 
 <script>
   Object.defineProperty(this, 'data', {
@@ -40,8 +28,6 @@
       //this.innerData=new Proxy(data, arrayChangeHandler);
       this.innerData = data;
       this.update();
-
-      //this.reportCss(); this.reportFlex(); console.log(this.items,data);
     }.bind(this),
     get: function () {
       return this.innerData;
@@ -55,7 +41,6 @@
 
 
   decimalAdjust(type, value, exp) {
-    //console.log("DECIMAL ADJUSTE", value)
     // Si la valeur de exp n'est pas définie ou vaut zéro...
     if (typeof exp === 'undefined' || + exp === 0) {
       return Math[type](value);
@@ -88,31 +73,33 @@
   this.initD3js = function (data) {
     if(data){
       var marginStackChart = {
-        top: 50,
-        right: 30,
-        bottom: 50,
-        left: 30
+        top: 40,
+        right: 50,
+        bottom: 30,
+        left: 50
       },
-      widthStackChart = window.screen.width - 0.2*window.screen.width,
-      heightStackChart = window.screen.height*0.66 - marginStackChart.top - marginStackChart.bottom;
+        widthStackChart = 1050,
+        heightStackChart = 500;
 
-      var xStackChart = d3.scaleBand().range([0, widthStackChart]).padding(.4);
+      var xStackChart = d3.scaleBand().range([0, widthStackChart]).padding(0.4);
 
       var yStackChart = d3.scaleLinear().domain([ 0, data.total ]).range([heightStackChart, 0])
 
       var xAxis = d3.axisBottom().scale(xStackChart)
 
-      var parser = d3.timeFormat("%d-%b-%y").parse;
+      var yAxis = d3.axisLeft().scale(yStackChart)
 
       var colorStackChart = d3.scaleOrdinal(d3.schemeSet3);
 
-
-      var canvasStackChart = d3.select("#stacked").attr("width", widthStackChart + marginStackChart.left + marginStackChart.right)
-      .attr("height", heightStackChart + marginStackChart.top + marginStackChart.bottom)
-      .append("g").attr("transform", "translate(" + marginStackChart.left + "," + marginStackChart.top + ")");
+      var canvasStackChart = d3
+        .select("#stacked")
+        .attr("width", widthStackChart + marginStackChart.left + marginStackChart.right)
+        .attr("height", heightStackChart + marginStackChart.top + marginStackChart.bottom)
+        .append("g")
+        .attr("transform", "translate(" + marginStackChart.left + "," + marginStackChart.top + ")");
 
       xStackChart.domain(data.data.map(function (d) {
-        return d.Day.split("-")[0] + "-" + d.Day.split("-")[1];
+        return d.Day.split("-")[1];
       }));
 
 
@@ -121,57 +108,116 @@
           .ticks(5)
       }
 
-      canvasStackChart.append("g")
+      canvasStackChart
+        .append("g")
         .attr("class", "grid")
-        .call(make_y_gridlines()
-            .tickSize(-widthStackChart)
-          .tickFormat("")
-        )
+        .call(make_y_gridlines().tickSize(-widthStackChart).tickFormat(""))
 
-      var div = d3.select(".item-flex").append("div").attr("class", "tooltip").style("opacity", 0);
+      var div = d3
+        .select(".item-flex")
+        .append("div")
+        .attr("class", "tooltip")
+        .style("opacity", 0);
 
-      canvasStackChart.append("g").attr("class", "x axis").attr("transform", "translate(0," + heightStackChart + ")").call(d3.axisBottom(xStackChart));
+     canvasStackChart
+        .append("g")
+        .attr("class", "x axis")
+        .attr("transform", "translate(0," + heightStackChart + ")")
+        .style("font-weight", "200")
+        .style("font-size", "10px")
+        .style("text-transform", "uppercase")
+        .style("font-family", "sans-serif")
+        .call(xAxis);
 
-      canvasStackChart.append("text").attr("class", "x label").attr("text-anchor", "end").attr("x", widthStackChart + 5).attr("y", heightStackChart + 30).attr("font-size", "12px").text("Jours");
+      canvasStackChart
+        .append("g")
+        .attr("class", "y axis")
+        .attr("y", 6)
+        .attr("dy", ".71em")
+        .style("font-weight", "200")
+        .style("font-size", "10px")
+        .style("text-transform", "uppercase")
+        .style("font-family", "sans-serif")
+        .style("text-anchor", "end")
+        .call(yAxis)
+        .append("text")
 
-      canvasStackChart.append("g").attr("class", "y axis").call(d3.axisLeft(yStackChart)).append("text").attr("transform", "rotate(-90)").attr("y", 6).attr("dy", ".71em").style("text-anchor", "end")
+      canvasStackChart
+        .append("text")
+        .attr("x", 550)            
+        .attr("y", -10)
+        .attr("class", "title-space")
+        .attr("text-anchor", "middle")
+        .style("fill", "rgb(141,141,141)")
+        .text("Consomation de vos crédit par jours ( 30 derniers jours )");
+      canvasStackChart
+        .append("text")
+        .attr("class", "y label")
+        .attr("text-anchor", "end")
+        .attr("y", -10)
+        .attr("x", 0)
+        .attr("dy", ".75em")
+        .style("font-weight", "200")
+        .style("font-size", "10px")
+        .style("text-transform", "uppercase")
+        .style("font-family", "sans-serif")
+        .text("Credits");
 
-      canvasStackChart.append("text").attr("class", "y label").attr("text-anchor", "end").attr("y", 6).attr("dy", ".75em").attr("transform", "rotate(-90)").attr("font-size", "12px").text("Crédit");
-
+      canvasStackChart
+        .append("text")
+        .attr("class", "x label")
+        .attr("text-anchor", "end")
+        .attr("x", widthStackChart + 40)
+        .attr("y", heightStackChart + 15)
+        .style("font-weight", "200")
+        .style("font-size", "10px")
+        .style("text-transform", "uppercase")
+        .style("font-family", "sans-serif")
+        .text("Jours");  
       let state = canvasStackChart.selectAll(".Day").data(data.data)
         .enter()
         .append("g")
         .attr("class", "g")
         .attr("transform", function (d) {
-          return "translate(" + xStackChart(d.Day.split("-")[0] + "-" + d.Day.split("-")[1]) + ",0)";
+          return "translate(" + xStackChart(d.Day.split("-")[1]) + ",0)";
         })
     
-      state.selectAll("g").data(function (d) {
-        return d.components
-      }).enter().append("rect")
+      state
+      .selectAll("g")
+      .data(function (d) {return d.components})
+      .enter()
+      .append("rect")
       .attr("width", xStackChart.bandwidth())
-      .attr("y", function (d) {
-        return yStackChart(d.y1)
-      }).attr("height", function (d) {
-        return yStackChart(d.y0) -  yStackChart(d.y1)
-      }).style("fill", function (d) {
-        return colorStackChart(d.id);
-      }).on("mouseover", function (d) {
-        d3.select(this).style("opacity", .6)
-        div.transition().duration(200).style("opacity", .9);
-        let nom = '';
-        if(d.name){
-          nom = "Nom:" + d.name + "<br/>"
-        }
-        div.html(
-          nom + "Module: "
-        + d.label + "<br/>Consomation : "
-        + d.datasize + " Mo<br/>Prix du flux : "
-        + d.price + " Crédit <br/>Prix composant: "
-        + d.pricing + "Credit / Mo").style("left", d3.event.pageX + "px").style("top", d3.event.pageY - 28 + "px");
-      }).on("mouseout", function (d) {
-        d3.select(this).style("opacity", .9)
-        div.transition().duration(500).style("opacity", 0);
+      .attr("y", function (d) {return yStackChart(d.y1)})
+      .attr("height", function (d) {return yStackChart(d.y0) -  yStackChart(d.y1)})
+      .style("fill", function (d) {return colorStackChart(d.id)})
+      .on("mouseover", function (d) {
+        d3
+          .select(this)
+          .style("opacity", .6)
+        div
+          .transition()
+          .duration(200)
+          .style("opacity", 1);
+        let name = d.name ? "Nom: " + d.name : '';
+        div
+          .html(
+            name + 
+            "<br/>Module: "+ d.label +
+            "<br/>Consomation : "+ d.datasize +" Mo"+
+            "<br/>Prix du flux : "+ Math.round(d.price * 100) / 100 + " Crédit"+
+            "<br/>Prix composant: "+ Math.round(d.pricing * 100) / 100 + "Credit / Mo")
+          .style("left", d3.event.pageX-250 + "px")
+          .style("top", d3.event.pageY - 28 + "px");
+      })
+      .on("mouseout", function (d) {
+        d3
+          .select(this)
+          .style("opacity", 1)
+        div
+          .transition()
+          .duration(200)
+          .style("opacity", 0);
       })
     }
   };
@@ -199,6 +245,9 @@
 </script>
 
 <style scoped>
+  .domain {
+    stroke: none !important;
+  }
   .mainContainerGraph {
     display: flex;
     justify-content: center;
@@ -206,6 +255,7 @@
     flex-direction: column;
   }
   .containerData {
+    margin: 4vh 0;
     width: 90%;
     display: flex;
     justify-content: space-evenly;
@@ -251,19 +301,91 @@
     align-items: center;
     height: 12vh;
   }
-  @media screen and (max-width: 1200px) {
-      .item-flex {
-        overflow-x:scroll
-    }
+  
+  .item-flex {
+      overflow-x:scroll
   }
+
+  .title-number {
+    font-size: 30px;
+    text-align: center;
+  }
+
+  .container-top {
+    display: flex;
+    background-color: rgb(33,150,243);
+    color: white;
+    padding: 15pt;
+  }
+  #bad-result {
+    color: red;
+    font-size: 18px;
+    font-family: Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
+    padding-top: 4%;
+  }
+
+  .center-left-top {
+    text-align: left;
+    width: 30%;
+  }
+  .center-right-top {
+    display: flex;
+    justify-content: space-around;
+    width: 60%;
+  }
+  #good-result {
+    color: green;
+    font-size: 18px;
+    font-family: Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
+    padding-top: 4%;
+  }
+
+  .sub-title {
+    text-align: center;
+    margin-top: 30%;
+  }
+  .change-mail {
+    background-color: inherit !important;
+    border-bottom: 1px solid #3498db !important;
+    border: none;
+    color: #3498db;
+    text-align: center;
+    min-width: 40%;
+  }
+  .mail-btn {
+    color: #ffffff;
+    background-color: green;
+    border: none;
+    padding: 10px;
+    border-radius: 5px 5px 5px 5px;
+    text-align: center;
+    max-width: 25%;
+    margin-top: 10%;
+  }
+  .dec-btn {
+    color: #ffffff;
+    background-color: red;
+    border: none;
+    padding: 10px;
+    border-radius: 5px 5px 5px 5px;
+    text-align: center;
+    max-width: 25%;
+    margin-top: 10%;
+  }
+
+  h3 {
+    text-align: center;
+    font-family: Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
+  }
+
   div.tooltip {
     top: 0;
     position: absolute;
     text-align: left;
-    width: 200px;
+    width: 180px;
     height: 70px;
     padding: 20px;
-    font: 12px sans-serif;
+    font: 12px Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
     background: lightsteelblue;
     border: 0;
     border-radius: 8px;
@@ -273,22 +395,26 @@
     /* border: 0.5px solid rgb(41,177,238); */
     box-shadow: 0 0 5px 0 rgba(133,133,133,0.38);
   }
+
   .x.axis path {
     display: none;
   }
   .axis {
-    font: 10px sans-serif;
+    font: 10px Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
   }
-  .axis line,
+
+  .axis line {
+    stroke: none;
+  }
   .axis path {
     fill: none;
-    stroke: #000;
+    stroke: lightgrey;
     shape-rendering: crispEdges;
   }
   .line {
-  fill: none;
-  stroke: steelblue;
-  stroke-width: 2px;
+    fill: none;
+    stroke: steelblue;
+    stroke-width: 2px;
   }
 
   .grid line {
@@ -302,6 +428,5 @@
   }
 
 </style>
-
 
 </graph-of-use>

@@ -3,26 +3,28 @@
   <div class="contenaireH" style="margin-left:97%">
     <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Property-matrix" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
-  <!-- Titre du composant -->
-  <div class="contenaireV title-component">Property matrix</div>
-    <!-- Description du composant -->
+ <!-- Titre du composant -->
+  <div class="contenaireV title-component">{data.type}</div>
   <div>
     <div class="bar"/>
   </div>
   <!-- Description du composant -->
-  <div class="title-description-component">Reconstruire des objects à partir de plusieurs propriétés en liste.</div>
-  <!-- Champ du composant -->
+  <div class="title-description-component">{data.description}</div>
   <div>
     <div class="bar"/>
   </div>
-
+  <!-- Champ du composant -->
   <label class="labelFormStandard">Attribut à générer:</label>
   <div class="cardInput">
     <input class="inputComponents" placeholder="Attribut" type="text" value={data.specificData.attribut} onkeyup={onAttributChange}>
   </div>
   <label class="labelFormStandard">Ajouter un champ</label>
   <div class="cardInput">
-    <image src="./image/ajout_composant.svg" placeholder="Nouveau Champ" class="commandButtonImage btnAddSize" onclick={addRow}></image>
+    <div onclick={addRow} class="btnFil commandButtonImage">
+      Ajouter
+      <img class="imgFil" src="./image/ajout_composant.svg" title="Importer un Workflow">
+      <input onchange={import} ref="import" type="file" style="display:none;"/>
+    </div>
   </div>
 
   <zentable ref="fieldsTableRef" style="flex:1;" allowdirectedit={true} disallowselect={true} disallownavigation={true}>

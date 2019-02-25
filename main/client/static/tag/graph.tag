@@ -71,207 +71,195 @@
       }, this.graph.nodes).length > 0;
 
       // node
-      this.selectorsNodes = this.svg.select("#shapeSelector").selectAll("rect").data(this.selectedNodes, function (d) {
-        return d.id + '-selected';
-      });
-      this.selectorsNodes.exit().remove();
-      this.selectorsNodes = this.selectorsNodes.enter().append("rect").merge(this.selectorsNodes).attr("width", function (d) { // width et height definis plus haut par bbox
-        return 130;
-      }).attr("height", function (d) {
-        return 130;
-      }).attr("rx", function (d) {
-        return 10;
-      }).attr("ry", function (d) {
-        return 10;
-      }).attr('x', function (d) {
-        return d.x - 30;
-      }).attr('y', function (d) {
-        return d.y - 30;
-      }).attr("class", function (d) {
-        return 'connectBeforeButtonGraph';
-      }).attr("data-id", function (d) {
-        return d.id;
-      }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
+      this.selectorsNodes = this.svg
+        .select("#shapeSelector")
+        .selectAll("rect")
+        .data(this.selectedNodes, function (d) {return d.id + '-selected'})
+      
+      this.selectorsNodes
+        .exit()
+        .remove()
+
+      this.selectorsNodes = this.selectorsNodes
+        .enter()
+        .append("rect")
+        .merge(this.selectorsNodes)
+        .attr("width", function (d) {return 141})
+        .attr("height", function (d) {return 150})
+        .attr("rx", function (d) {return 10})
+        .attr("ry", function (d) {return 10})
+        .attr('x', function (d) {return d.x - 37})
+        .attr('y', function (d) {return d.y - 50})
+        //.style("stroke", "rgb(26,145,194)")  // colour the line
+        //.style("stroke-width", 2)  // colour the line
+        .attr("class", function (d) {return 'connectBeforeButtonGraph'})
+        .attr("data-id", function (d) {return d.id})
+        .call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
 
 
       // commande bar
-      this.selectorsShapeCommandeBar = this.svg.select("#shapeCommandLayer").selectAll("svg").data(this.selectedNodes, function (d) {
-        return d.id + '-shapeCommandBarComponent';
-      });
-      this.selectorsShapeCommandeBar.exit().remove();
-      this.selectorsShapeCommandeBar = this.selectorsShapeCommandeBar.enter().append("svg").merge(this.selectorsShapeCommandeBar).attr('x', function (d) {
-        return d.x - 30;
-      }).attr('y', function (d) {
-        return d.y - 30;
-      }).each(function (d) {
-        d3.select(this).selectAll("image").remove();
-        d3.select(this).append("image").attr("xlink:href", function (d) {
-          let image = "";
-          if (d.connectBeforeMode == true) {
-            image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand.png";
-          } else {
-            image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand-alt.png";
+      this.selectorsShapeCommandeBar = this.svg
+        .select("#shapeCommandLayer")
+        .selectAll("svg")
+        .data(this.selectedNodes, function (d) {return d.id + '-shapeCommandBarComponent'})
+      
+      this.selectorsShapeCommandeBar
+        .exit()
+        .remove()
+
+      this.selectorsShapeCommandeBar = this.selectorsShapeCommandeBar
+        .enter()
+        .append("svg")
+        .merge(this.selectorsShapeCommandeBar)
+        .attr('x', function (d) {return d.x - 30})
+        .attr('y', function (d) {return d.y - 50})
+        .each(function (d) {
+          d3
+            .select(this)
+            .selectAll("image")
+            .remove();
+          d3
+            .select(this)
+            .append("image")
+            .attr("xlink:href", function (d) {
+              let image = "";
+              if (d.connectBeforeMode == true) {
+                // image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand.png";
+                image = "./image/Super-Mono-svg/plus-select.svg";
+              } else {
+                // image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand-alt.png";
+                image = "./image/Super-Mono-svg/plus.svg";
+              }
+              return image;
+            })
+            .attr("width", function (d) {return 25})
+            .attr("height", function (d) {return 25})
+            .attr("x", function (d) {return 1})
+            .attr("y", function (d) {return 70})
+            .on("click", function (d) {RiotControl.trigger('item_current_connect_before_show')});
+
+          d3
+            .select(this)
+            .append("image")
+            .attr("xlink:href", function (d) {return "./image/Super-Mono-svg/edit.svg"})
+            .attr("width", function (d) {return 25})
+            .attr("height", function (d) {return 25})
+            .attr("x", function (d) {return 15})
+            .attr("y", function (d) {return 123})
+            .attr("class", function (d) {return 'editButtonGraph'})
+            .attr("data-id", function (d) {return d.id})
+            .on("click", function (d) {route(`workspace/${d.component.workspaceId}/component/${d.component._id}/edit-component`)})
+
+          d3
+            .select(this)
+            .append("image")
+            .attr("xlink:href", function (d) {return "./image/Super-Mono-svg/play.svg"})
+            .attr("width", function (d) {return 25})
+            .attr("height", function (d) {return 25})
+            .attr("x", function (d) {return 51})
+            .attr("y", function (d) {return 123})
+            .attr("class", function (d) {return 'workButtonGraph'})
+            .attr("data-id", function (d) {return d.id})
+            .on("click", function (d) {RiotControl.trigger('item_current_work')})
+
+          if (d.status && d.status != 'waiting') {
+            d3
+              .select(this)
+              .append("image")
+              .attr("xlink:href", function (d) {return "./image/Super-Mono-svg/upload.svg"})
+              .attr("width", function (d) {return 20})
+              .attr("height", function (d) {return 20})
+              .attr("x", function (d) {return 51})
+              .attr("y", function (d) {return 3})
+              .attr("class", function (d) {return 'workButtonGraph'})
+              .attr("data-id", function (d) {return d.id})
+              .on("click", function (d) {RiotControl.trigger('component_preview')})
           }
-          return image;
-        }).attr("width", function (d) {
-          return 25;
-        }).attr("height", function (d) {
-          return 25;
-        }).attr("x", function (d) {
-          return 1;
-        }).attr("y", function (d) {
-          return 50;
-        }).on("click", function (d) {
-          RiotControl.trigger('item_current_connect_before_show');
-        });
 
-        d3.select(this).append("image").attr("xlink:href", function (d) {
-          return "./image/Super-Mono-png/PNG/basic/blue/document-edit.png";
-        }).attr("width", function (d) {
-          return 25;
-        }).attr("height", function (d) {
-          return 25;
-        }).attr("x", function (d) {
-          return 15;
-        }).attr("y", function (d) {
-          return 100;
-        }).attr("class", function (d) {
-          return 'editButtonGraph';
-        }).attr("data-id", function (d) {
-          return d.id;
-        }).on("click", function (d) {
-          route(`workspace/${d.component.workspaceId}/component/${d.component._id}/edit-component`);
-        });
+          d3
+            .select(this)
+            .append("image")
+            .attr("xlink:href", function (d) {return "./image/Super-Mono-svg/trash.svg"})
+            .attr("width", function (d) {return 25})
+            .attr("height", function (d) {return 25})
+            .attr("x", function (d) {return 85})
+            .attr("y", function (d) {return 123})
+            .attr("class", function (d) {return 'deleteButtonGraph'})
+            .attr("data-id", function (d) {return d.id})
+            .on("click", function (d) {RiotControl.trigger('workspace_current_delete_component', d.component)})
 
-        d3.select(this).append("image").attr("xlink:href", function (d) {
-          return "./image/Super-Mono-png/PNG/basic/blue/button-play.png";
-        }).attr("width", function (d) {
-          return 25;
-        }).attr("height", function (d) {
-          return 25;
-        }).attr("x", function (d) {
-          return 51;
-        }).attr("y", function (d) {
-          return 100;
-        }).attr("class", function (d) {
-          return 'workButtonGraph';
-        }).attr("data-id", function (d) {
-          return d.id;
-        }).on("click", function (d) {
-          RiotControl.trigger('item_current_work');
-        });
-
-        if (d.status && d.status != 'waiting') {
-          d3.select(this).append("image").attr("xlink:href", function (d) {
-            return "./image/Super-Mono-png/PNG/sticker/icons/outbox.png";
-          }).attr("width", function (d) {
-            return 20;
-          }).attr("height", function (d) {
-            return 20;
-          }).attr("x", function (d) {
-            return 60;
-          }).attr("y", function (d) {
-            return 0;
-          }).attr("class", function (d) {
-            return 'workButtonGraph';
-          }).attr("data-id", function (d) {
-            return d.id;
-          }).on("click", function (d) {
-            RiotControl.trigger('component_preview');
-          });
-        }
-
-        d3.select(this).append("image").attr("xlink:href", function (d) {
-          return "./image/Super-Mono-png/PNG/basic/red/bin.png";
-        }).attr("width", function (d) {
-          return 25;
-        }).attr("height", function (d) {
-          return 25;
-        }).attr("x", function (d) {
-          return 85;
-        }).attr("y", function (d) {
-          return 100;
-        }).attr("class", function (d) {
-          return 'deleteButtonGraph';
-        }).attr("data-id", function (d) {
-          return d.id;
-        }).on("click", function (d) {
-          RiotControl.trigger('workspace_current_delete_component', d.component);
-        });
-
-        d3.select(this).append("image").attr("xlink:href", function (d) {
-          let image = "";
-          if (d.connectAfterMode == true) {
-            image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand.png";
-          } else {
-            image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand-alt.png";
-          }
-          return image;
-        }).attr("width", function (d) {
-          return 25;
-        }).attr("height", function (d) {
-          return 25;
-        }).attr("x", function (d) {
-          return 100;
-        }).attr("y", function (d) {
-          return 50;
-        }).attr("class", function (d) {
-          return 'connectAfterButtonGraph';
-        }).attr("data-id", function (d) {
-          return d.id;
-        }).on("click", function (d) {
-          RiotControl.trigger('item_current_connect_after_show');
-        });
-      });
+          d3
+            .select(this)
+            .append("image")
+            .attr("xlink:href", function (d) {
+              let image = "";
+              if (d.connectAfterMode == true) {
+                //image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand.png";
+                image = "./image/Super-Mono-svg/plus-select.svg";
+              } else {
+                //image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand-alt.png";
+                image = "./image/Super-Mono-svg/plus.svg";
+              }
+            return image
+            })
+            .attr("width", function (d) {return 25})
+            .attr("height", function (d) {return 25})
+            .attr("x", function (d) {return 102})
+            .attr("y", function (d) {return 70})
+            .attr("class", function (d) {return 'connectAfterButtonGraph'})
+            .attr("data-id", function (d) {return d.id})
+            .on("click", function (d) {RiotControl.trigger('item_current_connect_after_show')})
+      })
 
       // line overlay
       this.selectedLines = sift({
         'selected': true
       }, this.graph.links);
-      this.selectorsLines = this.svg.select("#lineSelector").selectAll("line").data(this.selectedLines, function (d) {
-        return d.id + 'selected';
-      });
-      this.selectorsLines.exit().remove();
-      this.selectorsLines = this.selectorsLines.enter().append("line").merge(this.selectorsLines)
-      .attr('x1', function (d) {
-        //return d.source.x + 165;
-        return d.source.x + 75;
-      }).attr('y1', function (d) {
-        //return d.source.y + 35;
-        return d.source.y + 35;
-      }).attr('x2', function (d) {
-        // return d.target.x + 55;
-        return d.target.x - 10;
-      }).attr('y2', function (d) {
-        //return d.target.y + 35;
-        return d.target.y + 35;
-      });
+      this.selectorsLines = this.svg
+        .select("#lineSelector")
+        .selectAll("line")
+        .data(this.selectedLines, function (d) {return d.id + 'selected'})
+
+      this.selectorsLines
+        .exit()
+        .remove()
+
+      this.selectorsLines = this.selectorsLines
+        .enter()
+        .append("line")
+        .merge(this.selectorsLines)
+        .attr('x1', function (d) {return d.source.x + 75})
+        .attr('y1', function (d) {return d.source.y + 35})
+        .attr('x2', function (d) {return d.target.x - 10})
+        .attr('y2', function (d) {return d.target.y + 35})      
 
       // line commande bar
-      this.selectorsLineCommandeBar = this.svg.select("#lineCommandLayer").selectAll("svg").data(this.selectedLines, function (d) {
-        return d.id + '-lineCommandBarComponent';
-      });
-      this.selectorsLineCommandeBar.exit().remove();
-      this.selectorsLineCommandeBar = this.selectorsLineCommandeBar.enter().append("svg").merge(this.selectorsLineCommandeBar).attr('x', function (d) {
-        return ((d.source.x + d.target.x) / 2) + 35;
-      }).attr('y', function (d) {
-        return ((d.source.y + d.target.y) / 2) + 10;
-      }).each(function (d) {
-        d3.select(this).append("image").attr("xlink:href", function (d) {
-          return "./image/Super-Mono-png/PNG/basic/red/bin.png";
-        }).attr("width", function (d) {
-          return 25;
-        }).attr("height", function (d) {
-          return 25;
-        }).attr("x", function (d) {
-          return 0;
-        }).attr("y", function (d) {
-          return 10;
-        }).on("click", function (d) {
-          RiotControl.trigger('disconnect_components', d);
+      this.selectorsLineCommandeBar = this.svg
+        .select("#lineCommandLayer")
+        .selectAll("svg")
+        .data(this.selectedLines, function (d) {return d.id + '-lineCommandBarComponent'})
+      
+      this.selectorsLineCommandeBar
+        .exit()
+        .remove()
+      
+      this.selectorsLineCommandeBar = this.selectorsLineCommandeBar
+        .enter()
+        .append("svg")
+        .merge(this.selectorsLineCommandeBar)
+        .attr('x', function (d) {return ((d.source.x + d.target.x) / 2) + 35})
+        .attr('y', function (d) {return ((d.source.y + d.target.y) / 2) + 10})
+        .each(function (d) {
+          d3
+            .select(this)
+            .append("image")
+            .attr("xlink:href", function (d) {return "./image/Super-Mono-svg/trash.svg"})
+            .attr("width", function (d) {return 25})
+            .attr("height", function (d) {return 25})
+            .attr("x", function (d) {return 0})
+            .attr("y", function (d) {return 10})
+            .on("click", function (d) {RiotControl.trigger('disconnect_components', d)})            
         });
-      });
-
       this.update();
     }.bind(this);
 
@@ -299,84 +287,100 @@
 
       RiotControl.trigger('workspace_current_move_component', dragged);
 
-      this.nodes = this.svg.select("#shapeLayer").selectAll("image").data([dragged], function (d) {
-        return d.id;
-      }).attr("x", gridX).attr("y", gridY);
+      this.nodes = this.svg
+        .select("#shapeLayer")
+        .selectAll("image")
+        .data([dragged], function (d) {return d.id})
+        .attr("x", gridX).attr("y", gridY)
 
-      this.selectorsNodes = this.svg.select("#shapeSelector").selectAll("rect").data([dragged], function (d) {
-        return d.id + '-shapeSelector';;
-      }).attr("x", gridX - 30).attr("y", gridY - 30);
+      this.selectorsNodes = this.svg
+        .select("#shapeSelector")
+        .selectAll("rect")
+        .data([dragged], function (d) {return d.id + '-shapeSelector'})
+        .attr("x", gridX - 30)
+        .attr("y", gridY - 30)
 
-      this.selectorsShapeCommandeBar = this.svg.select("#shapeCommandLayer").selectAll("svg").data([dragged], function (d) {
-        return d.id + '-shapeCommandLayer';
-      }).attr("x", gridX - 30).attr("y", gridY - 30);
+      this.selectorsShapeCommandeBar = this.svg
+        .select("#shapeCommandLayer")
+        .selectAll("svg")
+        .data([dragged], function (d) {return d.id + '-shapeCommandLayer'})
+        .attr("x", gridX - 30)
+        .attr("y", gridY - 50)
 
       let beforeLinks = sift({
         "target.id": dragged.id
       }, this.graph.links);
-      this.links = this.svg.select("#lineLayer").selectAll("line").data(beforeLinks, function (d) {
-        return d.id;
-      })
-      .attr("x2", gridX -10)
-      .attr("y2", gridY + 35);
+      this.links = this.svg
+        .select("#lineLayer")
+        .selectAll("line")
+        .data(beforeLinks, function (d) {return d.id})
+        .attr("x2", gridX -10)
+        .attr("y2", gridY + 35)
+
       let beforeLinksSelected = sift({
         "target.id": dragged.id
-      }, this.selectedLines);
-      this.selectorsLines = this.svg.select("#lineSelector").selectAll("line").data(beforeLinksSelected, function (d) {
-        return d.id;
-      }).attr("x2", gridX -10)
-      .attr("y2", gridY + 35);
+      }, this.selectedLines)
 
-      this.selectorsLineCommandeBar = this.svg.select("#lineCommandLayer").selectAll("svg").data(beforeLinksSelected, function (d) {
-        return d.id;
-      }).attr('x', function (d) {
-        return ((d.source.x + dragged.x) / 2) + 35;
-      }).attr('y', function (d) {
-        return ((d.source.y + gridY) / 2) + 10;
-      });
+      this.selectorsLines = this.svg
+        .select("#lineSelector")
+        .selectAll("line")
+        .data(beforeLinksSelected, function (d) {return d.id})
+        .attr("x2", gridX -10)
+        .attr("y2", gridY + 35)
+
+      this.selectorsLineCommandeBar = this.svg
+        .select("#lineCommandLayer")
+        .selectAll("svg")
+        .data(beforeLinksSelected, function (d) {return d.id})
+        .attr('x', function (d) {return ((d.source.x + dragged.x) / 2) + 35})
+        .attr('y', function (d) {return ((d.source.y + gridY) / 2) + 10})
 
       // Connect Before / After
-      this.subNode = this.svg.select("#roundLayer").selectAll("svg").data([dragged], function (d) {
-        return d.id;
-      });
-      this.subNode = this.subNode
-        .attr('x', function (d) {
-          return dragged.x - 30;
-        }).attr('y', function (d) {
-          return dragged.y - 30;
-        })
+      this.subNode = this.svg
+        .select("#roundLayer")
+        .selectAll("svg")
+        .data([dragged], function (d) {return d.id})
 
-       this.nodesTitle = this.svg.select("#nodeTitleLayer").selectAll("text").data([dragged], function (d) {
-          return d.id;
-        });
-        this.nodesTitle.attr('x', function (d) {
-          return dragged.x +35;
-        }).attr('y', function (d) {
-          return dragged.y -15;
-        })
+      this.subNode = this.subNode
+        .attr('x', function (d) {return dragged.x - 30})
+        .attr('y', function (d) {return dragged.y - 30})
+
+      this.nodesTitle = this.svg
+      .select("#nodeTitleLayer")
+      .selectAll("text")
+      .data([dragged], function (d) {return d.id})
+
+      this.nodesTitle
+        .attr('x', function (d) {return dragged.x +35})
+        .attr('y', function (d) {return dragged.y -15})
 
       let afterLinks = sift({
         "source.id": dragged.id
       }, this.graph.links);
 
-      this.links = this.svg.select("#lineLayer").selectAll("line").data(afterLinks, function (d) {
-        return d.id;
-      })
-      .attr("x1", gridX + 75)
-      .attr("y1", gridY + 35)
+      this.links = this.svg
+        .select("#lineLayer")
+        .selectAll("line")
+        .data(afterLinks, function (d) {return d.id})
+        .attr("x1", gridX + 75)
+        .attr("y1", gridY + 35)
+
       let afterLinksSelected = sift({
         "source.id": dragged.id
       }, this.selectedLines);
-      this.selectorsLines = this.svg.select("#lineSelector").selectAll("line").data(afterLinksSelected, function (d) {
-        return d.id;
-      }).attr("x1", gridX + 35).attr("y1", gridY + 35);
-      this.selectorsLineCommandeBar = this.svg.select("#lineCommandLayer").selectAll("svg").data(afterLinksSelected, function (d) {
-        return d.id;
-      }).attr('x', function (d) {
-        return ((gridX + d.target.x) / 2) + 95;
-      }).attr('y', function (d) {
-        return ((gridY + d.target.y) / 2) + 10;
-      });
+
+      this.selectorsLines = this.svg
+        .select("#lineSelector")
+        .selectAll("line")
+        .data(afterLinksSelected, function (d) {return d.id})
+        .attr("x1", gridX + 35).attr("y1", gridY + 35)
+
+      this.selectorsLineCommandeBar = this.svg
+        .select("#lineCommandLayer")
+        .selectAll("svg")
+        .data(afterLinksSelected, function (d) {return d.id})
+        .attr('x', function (d) {return ((gridX + d.target.x) / 2) + 95})
+        .attr('y', function (d) {return ((gridY + d.target.y) / 2) + 10})
 
       let nodesWithStatus = sift({
         $and: [
@@ -390,15 +394,12 @@
         ]
       }, this.graph.nodes);
 
-      this.status = this.svg.select("#stateLayer").selectAll("circle")
-      .data(nodesWithStatus, function (d) {
-        return d.id;
-      }).attr('cx', function (d) {
-        return gridX + 35;
-      }).attr('cy', function (d) {
-        return gridY + 35;
-      });
-
+      this.status = this.svg
+        .select("#stateLayer")
+        .selectAll("circle")
+        .data(nodesWithStatus, function (d) {return d.id})
+        .attr('cx', function (d) {return gridX + 34})
+        .attr('cy', function (d) {return gridY + 34})
     }.bind(this);
 
     // drag end, save current position or save connect before/after
@@ -430,124 +431,125 @@
         this.svg = d3.select("svg");
       }
       // Node
-      this.nodes = this.svg.select("#shapeLayer").selectAll("image").data(graph.nodes, function (d) {
-        return d.id + '-node-component';;
-      });
-      this.nodes.exit().remove();
-      this.nodes = this.nodes.enter()
-      .append("image").attr('class', 'component').merge(this.nodes).attr("xlink:href", function (d) {
-        return 'image/components/' + d.graphIcon;
-      }).attr("width", function (d) {
-        return 68;
-      }).attr("height", function (d) {
-        return 68;
-      })
-      .attr('x', function (d) {
-        return d.x;
-      }).attr('y', function (d) {
-        return d.y;
-      }).attr('data-id', function (d) {
-        return d.id;
-      }).on('mouseover', (d) => {
-        if (!d.selected == true && d.component.name!=undefined) {
-          this.tooltip.classed("tooltipHide", false);
-          this.tooltip
-            .attr('x', d.x)
-            .attr('y', d.y + 68)
-            .select('text')
-            .style('fill', 'grey')
-            .html(d.component.name);
-        }
-      }).on('mouseout', (d) => {
+      this.nodes = this.svg
+        .select("#shapeLayer")
+        .selectAll("image")
+        .data(graph.nodes, function (d) {return d.id + '-node-component'})
+      
+      this.nodes
+        .exit()
+        .remove();
+      this.nodes = this.nodes
+        .enter()
+        .append("image")
+        .attr('class', 'component')
+        .merge(this.nodes)
+        .attr("xlink:href", function (d) {return 'image/components/' + d.graphIcon})
+        .attr("width", function (d) {return 68})
+        .attr("height", function (d) {return 68})
+        .attr('x', function (d) {return d.x})
+        .attr('y', function (d) {return d.y})
+        .attr('data-id', function (d) {return d.id})
+        .on('mouseover', (d) => {
+          if (!d.selected == true && d.component.name!=undefined) {
+            this.tooltip.classed("tooltipHide", false);
+            this.tooltip
+              .attr('x', d.x)
+              .attr('y', d.y + 68)
+              .select('text')
+              .style('fill', 'grey')
+              .html(d.component.name);
+          }
+        })
+        .on('mouseout', (d) => {
         this.tooltip.classed("tooltipHide", true);
-      }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
+        })
+        .call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
 
 
       // Node Title
-      this.nodesTitle = this.svg.select("#nodeTitleLayer").selectAll("text").data(graph.nodes, function (d) {
-        return d.id + '-node-title';
-      });
-      this.nodesTitle.exit().remove();
-      this.nodesTitle = this.nodesTitle.enter()
-      .append("text")
-      .attr("text-align", "center")
-      .attr('class', 'title-component-graph')
-      .attr('x', function (d) {
-        return d.x +35;
-      }).attr('y', function (d) {
-        return d.y -15;
-      }).attr("dy", ".35em")
-      .style('fill', 'grey')
-      .style('text-anchor', 'middle')
-      .text(function(d) { return d.text; });
+      this.nodesTitle = this.svg
+        .select("#nodeTitleLayer")
+        .selectAll("text")
+        .data(graph.nodes, function (d) {return d.id + '-node-title'})
+      
+      this.nodesTitle
+        .exit()
+        .remove();
+      this.nodesTitle = this.nodesTitle
+        .enter()
+        .append("text")
+        .attr("text-align", "center")
+        .attr('class', 'title-component-graph')
+        .attr('x', function (d) {return d.x +35})
+        .attr('y', function (d) {return d.y -15})
+        .attr("dy", ".35em")
+        .style('fill', 'grey')
+        .style('text-anchor', 'middle')
+        .text(function(d) { return d.text; });
       // Link
-      this.links = this.svg.select("#lineLayer").selectAll('line').data(graph.links, function (d) {
-        return d.id;
-      });
-      this.links.exit().remove();
-      this.links = this.links.enter()
-      .append('line')
-      .merge(this.links)
-      .attr('x1', function (d) {
-        return d.source.x + 75;
-      }).attr('y1', function (d) {
-        return d.source.y + 35;
-      }).attr('x2', function (d) {
-        // return d.target.x + 55;
-        return d.target.x - 10;
-      }).attr('y2', function (d) {
-        //return d.target.y + 35;
-        return d.target.y + 35;
-      })
-      .on("click", function (d) {
-        RiotControl.trigger('connection_current_set', d.source.component, d.target.component);
-      }.bind(this));
+      this.links = this.svg
+        .select("#lineLayer")
+        .selectAll('line')
+        .data(graph.links, function (d) {return d.id})
+
+      this.links
+        .exit()
+        .remove();
+      this.links = this.links
+        .enter()
+        .append('line')
+        .merge(this.links)
+        .attr('x1', function (d) {return d.source.x + 75})
+        .attr('y1', function (d) {return d.source.y + 35})
+        .attr('x2', function (d) {return d.target.x - 10})
+        .attr('y2', function (d) {return d.target.y + 35})
+        .on("click", function (d) {RiotControl.trigger('connection_current_set', d.source.component, d.target.component)}.bind(this));
 
       // Connect Before / After
-      this.subNode = this.svg.select("#roundLayer").selectAll("svg").data(graph.nodes, function (d) {
-        return d.id;
-      });
-      this.subNode.exit().remove();
-      this.subNode = this.subNode.enter().append("svg").merge(this.subNode).attr('x', function (d) {
-        return d.x - 30;
-        }).attr('y', function (d) {
-          return d.y - 30;
-        }).each(function (d) {
-          d3.select(this).selectAll("image").remove();
+      this.subNode = this.svg
+        .select("#roundLayer")
+        .selectAll("svg")
+        .data(graph.nodes, function (d) {return d.id})
+
+      this.subNode
+        .exit()
+        .remove()
+        
+      this.subNode = this.subNode
+        .enter()
+        .append("svg")
+        .merge(this.subNode)
+        .attr('x', function (d) {return d.x - 30})
+        .attr('y', function (d) {return d.y - 30})
+        .each(function (d) {
+          d3
+            .select(this)
+            .selectAll("image")
+            .remove();
           if(d.connectionsBefore){
-            d3.select(this).append("image").attr("xlink:href", function (d) {
-              return "./image/plus_disable.svg";
-              }).attr("width", function (d) {
-                return 15;
-              }).attr("height", function (d) {
-                return 15;
-              }).attr("x", function (d) {
-                return 10;
-              }).attr("y", function (d) {
-                return 55;
-              }).attr("class", function (d) {
-                return 'connectBeforeButtonGraph';
-              }).attr("data-id", function (d) {
-                return d.id;
-              })
+            d3.select(this)
+              .append("image")
+              .attr("xlink:href", function (d) {return "./image/plus_disable.svg"})
+              .attr("width", function (d) {return 15})
+              .attr("height", function (d) {return 15})
+              .attr("x", function (d) {return 10})
+              .attr("y", function (d) {return 55})
+              .attr("class", function (d) {return 'connectBeforeButtonGraph'})
+              .attr("data-id", function (d) {return d.id})
+
           }
           if(d.connectionsAfter){
-            d3.select(this).append("image").attr("xlink:href", function (d) {
-              let image = "";
-              return "./image/plus_disable.svg";
-              }).attr("width", function (d) {
-                return 15;
-              }).attr("height", function (d) {
-                return 15;
-              }).attr("x", function (d) {
-                return 100;
-              }).attr("y", function (d) {
-                return 55;
-              }).attr("class", function (d) {
-                return 'connectAfterButtonGraph';
-              }).attr("data-id", function (d) {
-                return d.id;
-              })
+            d3
+              .select(this)
+              .append("image")
+              .attr("xlink:href", function (d) {let image = "";return "./image/plus_disable.svg"})
+              .attr("width", function (d) {return 15})
+              .attr("height", function (d) {return 15})
+              .attr("x", function (d) {return 102})
+              .attr("y", function (d) {return 55})
+              .attr("class", function (d) {return 'connectAfterButtonGraph'})
+              .attr("data-id", function (d) {return d.id})
           }
         })
 
@@ -557,24 +559,31 @@
           $exists: true
         }
       }, graph.nodes);
-      this.status = this.svg.select("#stateLayer").selectAll("circle").data(nodesWithStatus, function (d) {
-        return d.id;
-      });
-      this.status.exit().remove();
-      this.status = this.status.enter().append("circle").merge(this.status).attr("r", function (d) {
-        return 40;
-      }).attr('cx', function (d) {
-        return d.x + 35;
-      }).attr('class', function (d) {
-        return d.status;
-      }).attr('cy', function (d) {
-        return d.y + 35;
-      }).attr('data-id', function (d) {
-        return d.id;
-      }).call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
+      this.status = this.svg
+        .select("#stateLayer")
+        .selectAll("circle")
+        .data(nodesWithStatus, function (d) {return d.id})
+
+      this.status
+        .exit()
+        .remove()
+
+      this.status = this.status
+        .enter()
+        .append("circle")
+        .merge(this.status).attr("r", function (d) {return 37})
+        .attr('cx', function (d) {return d.x + 34})
+        .attr('class', function (d) {return d.status})
+        .attr('cy', function (d) {return d.y + 34})
+        .attr('data-id', function (d) {return d.id})
+        .call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
 
       this.drawSelected();
-      this.tooltip = this.svg.select("#textLayer").classed("tooltipHide", true);
+
+      this.tooltip = this.svg
+        .select("#textLayer")
+        .classed("tooltipHide", true)
+
       if(!this.initGraphDone){
         this.initGraph();
       }
@@ -593,29 +602,35 @@
       let widthSquare = Square.width;
 
       //// AXES /////
-      let xScale = d3.scaleLinear()
+      let xScale = d3
+          .scaleLinear()
           .domain([-width * 2 , width *2 ])
           .range([0, width]);
 
-      let yScale = d3.scaleLinear()
+      let yScale = d3
+          .scaleLinear()
           .domain([-height * 2, height * 2 ])
           .range([height, 0]);
 
-      let xAxis = d3.axisBottom(xScale)
+      let xAxis = d3
+          .axisBottom(xScale)
           .ticks(widthSquare/2)
           .tickSize(height)
           .tickPadding(8 - height)
           .tickFormat("");
 
-      let yAxis = d3.axisRight(yScale)
+      let yAxis = d3
+          .axisRight(yScale)
           .ticks(widthSquare/4)
           .tickSize(width)
           .tickPadding(8 - width)
           .tickFormat("");
 
-      gX = d3.select(".axis--x")
+      gX = d3
+          .select(".axis--x")
           .call(xAxis);
-      gY = d3.select(".axis--y")
+      gY = d3
+          .select(".axis--y")
           .call(yAxis);
 
       /// ZOOOM ////

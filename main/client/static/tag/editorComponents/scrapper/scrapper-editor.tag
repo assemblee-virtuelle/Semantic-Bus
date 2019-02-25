@@ -3,18 +3,17 @@
   <div class="contenaireH" style="margin-left:97%">
     <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Scrapper" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
-  <!-- Titre du composant -->
-  <div class="contenaireV title-component">Scrapper</div>
+ <!-- Titre du composant -->
+  <div class="contenaireV title-component">{data.type}</div>
   <div>
     <div class="bar"/>
   </div>
   <!-- Description du composant -->
-  <div class="title-description-component">Scrapper une page HTLM.</div>
-  <!-- Champ du composant -->
+  <div class="title-description-component">{data.description}</div>
   <div>
     <div class="bar"/>
   </div>
-
+  <!-- Champ du composant -->
   <label class="labelFormStandard">User ( Sauce Lab )</label>
   <div class="cardInput">
     <input class="inputComponents" placeholder="" type="text" ref="user" value={data.specificData.user}></input>
@@ -34,7 +33,11 @@
   <!-- tableau scrapper -->
   <label class="labelFormStandard">Ajouter un Scénario</label>
   <div class="cardInput">
-    <image class="commandButtonImage btnAddSize" placeholder="Nouveau Scénario" src="./image/ajout_composant.svg" onclick={addRowClick}></image>
+    <div onclick={addRowClick} class="btnFil commandButtonImage">
+      Ajouter
+      <img class="imgFil" src="./image/ajout_composant.svg" title="Importer un Workflow">
+      <input onchange={import} ref="import" type="file" style="display:none;"/>
+    </div>
   </div>
   <div>
     <zentable ref="scrapperRef" style="flex:1" drag={true} allowdirectedit={true} disallowselect={true} disallownavigation={true}>
@@ -80,8 +83,80 @@
       </yield>
     </zentable>
   </div>
+  <script>
 
-  <style>
+    //initialize
+    this.currentRowId = undefined;
+    this.getAttr = false
+    this.setValue = false
+    this.scroll = false
+    this.data = {};
+    this.data.specificData = {};
+
+    addRowClick(e) {
+      //var index=parseInt(e.currentTarget.dataset.rowid) console.log(index);
+      this.refs.scrapperRef.data.push({})
+    }
+
+    this.updateData = function (dataToUpdate) {
+      this.data = dataToUpdate;
+      this.refs.scrapperRef.data = this.data.specificData.scrapperRef || [];
+      this.update();
+    }.bind(this);
+
+    // recalculateHeader() {   var headers = this.refs.scrapperRef.refs.tableHeader.children;   console.log("HEADER", headers)   for (var row of this.root.querySelectorAll('.tableRow')) {     for (var headerkey in headers) {       var numkey =
+    // parseInt(headerkey);       if (!isNaN(numkey)) {         console.log(row.children[numkey].getBoundingClientRect().width);         var width = row.children[numkey].getBoundingClientRect().width;         var cssWidth = width + 'px';
+    // headers[headerkey].style.width = cssWidth ;         headers[headerkey].style.maxWidth = cssWidth ;         headers[headerkey].style.minWidth = cssWidth ;         headers[headerkey].style.flexBasis = cssWidth ;
+    // console.log(headers[headerkey].style);       }     }     break;   } }
+
+    this.on('unmount', function () {
+      RiotControl.off('item_current_changed', this.updateData);
+    });
+
+    this.on('mount', function () {
+      //this.recalculateHeader()
+      RiotControl.on('item_current_changed', this.updateData);
+
+      // this.refs.scrapperRef.on('onValueChange', (data) => {
+      //
+      // });
+
+      this.refs.scrapperRef.on('dataChanged', data => {
+        this.data.specificData.scrapperRef = data;
+      });
+
+      this.refs.scrapperRef.on('delRow', (row) => {
+        //console.log(row);
+        this.refs.scrapperRef.data.splice(row.rowId, 1);
+      });
+
+      RiotControl.on('item_current_changed', this.updateData);
+
+      this.refs.url.addEventListener('change', function (e) {
+        //this.url = e.currentTarget.value;
+        this.data.specificData.url = e.currentTarget.value;
+        //console.log(this.data.specificData)
+      }.bind(this));
+
+      this.refs.user.addEventListener('change', function (e) {
+        //this.user = e.target.value;
+        this.data.specificData.user = e.currentTarget.value;
+      }.bind(this));
+
+      this.refs.key.addEventListener('change', function (e) {
+        //this.key = e.target.value;
+        this.data.specificData.key = e.currentTarget.value;
+      }.bind(this));
+
+      this.refs.saucelabname.addEventListener('change', function (e) {
+        //this.key = e.target.value;
+        this.data.specificData.saucelabname = e.currentTarget.value;
+      }.bind(this));
+
+    });
+  </script>
+
+    <style>
     .containerTitle {
       border-radius: 2px;
       width: 90%;
@@ -251,76 +326,4 @@
     }
   </style>
 
-  <script>
-
-    //initialize
-    this.currentRowId = undefined;
-    this.getAttr = false
-    this.setValue = false
-    this.scroll = false
-    this.data = {};
-    this.data.specificData = {};
-
-    addRowClick(e) {
-      //var index=parseInt(e.currentTarget.dataset.rowid) console.log(index);
-      this.refs.scrapperRef.data.push({})
-    }
-
-    this.updateData = function (dataToUpdate) {
-      this.data = dataToUpdate;
-      this.refs.scrapperRef.data = this.data.specificData.scrapperRef || [];
-      this.update();
-    }.bind(this);
-
-    // recalculateHeader() {   var headers = this.refs.scrapperRef.refs.tableHeader.children;   console.log("HEADER", headers)   for (var row of this.root.querySelectorAll('.tableRow')) {     for (var headerkey in headers) {       var numkey =
-    // parseInt(headerkey);       if (!isNaN(numkey)) {         console.log(row.children[numkey].getBoundingClientRect().width);         var width = row.children[numkey].getBoundingClientRect().width;         var cssWidth = width + 'px';
-    // headers[headerkey].style.width = cssWidth ;         headers[headerkey].style.maxWidth = cssWidth ;         headers[headerkey].style.minWidth = cssWidth ;         headers[headerkey].style.flexBasis = cssWidth ;
-    // console.log(headers[headerkey].style);       }     }     break;   } }
-
-    this.on('unmount', function () {
-      RiotControl.off('item_current_changed', this.updateData);
-    });
-
-    this.on('mount', function () {
-      //this.recalculateHeader()
-      RiotControl.on('item_current_changed', this.updateData);
-
-      // this.refs.scrapperRef.on('onValueChange', (data) => {
-      //
-      // });
-
-      this.refs.scrapperRef.on('dataChanged', data => {
-        this.data.specificData.scrapperRef = data;
-      });
-
-      this.refs.scrapperRef.on('delRow', (row) => {
-        //console.log(row);
-        this.refs.scrapperRef.data.splice(row.rowId, 1);
-      });
-
-      RiotControl.on('item_current_changed', this.updateData);
-
-      this.refs.url.addEventListener('change', function (e) {
-        //this.url = e.currentTarget.value;
-        this.data.specificData.url = e.currentTarget.value;
-        //console.log(this.data.specificData)
-      }.bind(this));
-
-      this.refs.user.addEventListener('change', function (e) {
-        //this.user = e.target.value;
-        this.data.specificData.user = e.currentTarget.value;
-      }.bind(this));
-
-      this.refs.key.addEventListener('change', function (e) {
-        //this.key = e.target.value;
-        this.data.specificData.key = e.currentTarget.value;
-      }.bind(this));
-
-      this.refs.saucelabname.addEventListener('change', function (e) {
-        //this.key = e.target.value;
-        this.data.specificData.saucelabname = e.currentTarget.value;
-      }.bind(this));
-
-    });
-  </script>
 </scrapper-editor>
