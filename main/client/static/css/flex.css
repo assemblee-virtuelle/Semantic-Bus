@@ -37,8 +37,8 @@
   /*flex-basis:100%;*/
 }
 .box-flex {
+  background-color: white;
   margin: 20px;
   padding: 20px;
-  background-color: white !important;
   /* box-shadow: 0 0 5px 0 rgba(133,133,133,0.38); */
 }

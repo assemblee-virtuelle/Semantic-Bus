@@ -38,7 +38,6 @@
         'dec.'][new Date(date).getMonth()]} ${new Date(date).getFullYear()}`
     ) 
     this.workspaceCurrentProcesChanged=processCollection=>{
-      console.log("load process", processCollection)
       this.refs.processZenTable.data=processCollection;
       this.update();
     };
@@ -68,7 +67,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: rgb(26, 145, 194);
+      background-color: rgb(26,145,194);
     }
     .tableTitleDate {
       font-size: 0.85em;
@@ -124,6 +123,9 @@
       /*box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4), 0 2px 5px 0px rgba(0,0,0,0.3);*/
     }
     progress.resolved::-webkit-progress-value {
+      background: rgb(41,171,135);
+    }
+    progress.processing::-webkit-progress-value {
       background: rgb(41,171,135);
     }
     progress.error::-webkit-progress-value {

@@ -1,5 +1,5 @@
 <workspace-zen-table class="containerV" style="flex-grow:1">
-  <div class="containerH" style="height:80px;justify-content: center; align-items: center;flex-shrink:0;">
+  <div class="containerH containerSearch">
     <input 
       class="searchbox inputStandard"
       type="text"
@@ -22,7 +22,7 @@
     <yield to="row">
       <div class="tableRowName">{name}</div>
       <div class="tableRowDescription">{description.slice(0,20)}</div>
-      <div class="tableRowDate">{renderDate(updatedAt)}</div>
+      <div class="tableRowDate">{updatedAt? renderDate(updatedAt): '' }</div>
     </yield>
   </zenTable>
 
@@ -87,6 +87,12 @@
   </script>
 
   <style>
+    .containerSearch {
+      height:80px;
+      justify-content: center;
+      align-items: center;
+      flex-shrink:0;
+    }
     ::placeholder{
       color: rgb(200,200,200);
       font-style: italic;
@@ -114,7 +120,7 @@
       display: flex;
       justify-content: center;
       align-items: center;
-      background-color: rgb(26, 145, 194);
+      background-color: rgb(26,145,194);
     }
     .tableTitleName {
       font-size: 0.85em;

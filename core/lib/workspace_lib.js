@@ -507,6 +507,7 @@ function _get_workspace_simple(workspace_id) {
 // --------------------------------------------------------------------------------
 
 function _get_workspace(workspace_id) {
+  console.log("get worksapce", workspace_id)
   return new Promise(function(resolve, reject) {
     let workspace;
     workspaceModel.getInstance().model.findOne({
