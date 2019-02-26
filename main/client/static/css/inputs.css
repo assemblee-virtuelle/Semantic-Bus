@@ -56,14 +56,6 @@ input:checked + .slider:before {
   border-radius: 50%;
 }
 
-input {
-  background-color: #ffffff;
-  border-radius: 5px;
-  border-width: 1px;
-  border-style: solid;
-  border-color: rgb(213, 218, 224);
-  padding: 10px;
-}
 
 input:focus {
   background-color: #f2f3f5;

@@ -281,14 +281,6 @@
     #bad-mail {
       color: red!important;
     }
-
-    input {
-      -scroll-sizing: border--scroll;
-      font-size: 1em;
-      font-family: 'Open Sans', sans-serif;
-      width: 80%;
-      color: rgb(100,100,100)
-    }
     #containerLoaderDiv {
       background-color: rgba(200,200,200,0.6);
       bottom: 0;

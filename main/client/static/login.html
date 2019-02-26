@@ -23,21 +23,22 @@
 
 
   <style>
-      body{
-    font-family: 'Open Sans', sans-serif;
-    display: flex;
-    flex-direction: column;
-  }</style>
+    body {
+      font-family: 'Open Sans', sans-serif;
+      display: flex;
+      flex-direction: column;
+    }
+  </style>
 
   <script>
     const utilStore = new UtilStore();
     const userStore = new UserStore(utilStore); // Create a store instance.
     RiotControl.addStore(utilStore);
     RiotControl.addStore(userStore); // Register the store in central dispatch.
-    RiotControl.on('application_redirect', function(){
+    RiotControl.on('application_redirect', function () {
       window.open("../ihm/application.html#myWorkspaces", "_self");
     })
-    riot.compile(function() {
+    riot.compile(function () {
       var tags = riot.mount('*');
     });
   </script>

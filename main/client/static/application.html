@@ -14,7 +14,8 @@
   <link href='./js/jsonEditor/dist/jsoneditor.min.css' rel='stylesheet' type='text/css'>
   <link href="./image/grappe-log-01.png" rel="icon" type="image/png">
   <link rel="stylesheet" href="./js/awesomplete-gh-pages/awesomplete.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flexboxgrid/6.3.1/flexboxgrid.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flexboxgrid/6.3.1/flexboxgrid.min.css"
+    type="text/css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.5/themes/default/style.min.css" />
 </head>
 
@@ -42,7 +43,7 @@
   <script src="./js/spin.min.js"></script>
   <script src="./js/RiotControl/riotcontrol.js"></script>
   <script src="https://d3js.org/d3.v4.min.js"></script>
-  
+
   <script src="//d3js.org/d3-scale-chromatic.v0.3.min.js"></script>
 
   <script src="./store/workspaceBusiness.js"></script>
@@ -84,15 +85,15 @@
   <script type="riot/tag" src="tag/xml-property-to-object-editor.tag"></script>
   <script type="riot/tag" src="tag/data-gouv-geolocaliser-mass-editor.tag"></script>
   <script type="riot/tag" src="tag/workspace/workspace-zen-table.tag"></script>
-  
+
 
   <script type="riot/tag" src="tag/editorComponents/aggregation/simple-agregator-editor.tag"></script>
   <script type="riot/tag" src="tag/editorComponents/aggregation/join-by-field-editor.tag"></script>
   <script type="riot/tag" src="tag/editorComponents/aggregation/unicity-editor.tag"></script>
-  
+
   <script type="riot/tag" src="tag/editorComponents/bdd/sql-connecteur-editor.tag"></script>
   <script type="riot/tag" src="tag/editorComponents/bdd/mongo-connecteur-editor.tag"></script>
-  
+
   <script type="riot/tag" src="tag/editorComponents/cache/cache-nosql-editor.tag"></script>
 
   <script type="riot/tag" src="tag/editorComponents/dataFlow/rest-api-get-editor.tag"></script>
@@ -104,11 +105,11 @@
 
   <script type="riot/tag" src="tag/editorComponents/files/upload-editor.tag"></script>
   <script type="riot/tag" src="tag/editorComponents/files/rest-get-editor.tag"></script>
-  
+
   <script type="riot/tag" src="tag/editorComponents/geocodage/google-geolocaliser-editor.tag"></script>
   <script type="riot/tag" src="tag/editorComponents/geocodage/data-gouv-inverse-geolocaliser-editor.tag"></script>
   <script type="riot/tag" src="tag/editorComponents/geocodage/data-gouv-geolocaliser-editor.tag"></script>
-  
+
   <script type="riot/tag" src="tag/editorComponents/scrapper/scrapper-editor.tag"></script>
 
   <script type="riot/tag" src="tag/editorComponents/transformation/object-transformer.tag"></script>
@@ -134,13 +135,13 @@
       }
       if (configuration.pk_stripe) localStorage.pk_stripe = configuration.pk_stripe
       if (configuration.privateScript) {
-        configuration.privateScript.forEach((src)=>{
+        configuration.privateScript.forEach((src) => {
           let a = document.createElement("script");
-          /.[tag]+$/.test(src)? a.type = "riot/tag" : a.type = "text/javascript";
+          /.[tag]+$/.test(src) ? a.type = "riot/tag" : a.type = "text/javascript";
           a.src = src
           document.body.appendChild(a);
         })
-      }  else {
+      } else {
         const x = document.createElement("script");
         x.type = "riot/tag";
         x.src = "tag/stripe-component.tag"
@@ -155,7 +156,7 @@
       var onConnect = (client) => {
         // no more r&d for private incrementation because
         // react refonte will change all this mechanisme
-        if(configuration.privateScript && configuration.privateScript.length > 0) {
+        if (configuration.privateScript && configuration.privateScript.length > 0) {
           let stripeStore = new StripeStore();
           RiotControl.addStore(stripeStore);
         }
@@ -190,18 +191,18 @@
         specificStoreList.push(sqlStore)
         allStore['sqlStore'] = sqlStore;
 
-        const workspaceStore = new WorkspaceStore(utilStore, stompClient,specificStoreList); // Create a store instance.
+        const workspaceStore = new WorkspaceStore(utilStore, stompClient, specificStoreList); // Create a store instance.
         RiotControl.addStore(workspaceStore); // Register the store in central dispatch.
         allStore['workspaceStore'] = workspaceStore;
 
         const mainController = new MainController(allStore, stompClient, utilStore);
         RiotControl.addStore(mainController);
 
-        RiotControl.on('login_redirect', function() {
+        RiotControl.on('login_redirect', function () {
           window.open("../ihm/login.html", "_self");
         })
 
-        riot.compile(function() {
+        riot.compile(function () {
           riot.mount('*');
         });
       };
@@ -224,7 +225,7 @@
     })
   </script>
   <style>
-  /*  Modifier la police principal de Grappe  */
+    /*  Modifier la police principal de Grappe  */
     body {
       font-family: Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
     }
