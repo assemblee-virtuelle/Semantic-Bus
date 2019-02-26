@@ -350,6 +350,8 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
         data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(this.itemCurrent))
       }, true).then(data => {
         this.itemCurrent = data
+        console.log('after call', this.itemCurrent)
+        this.trigger('workspace_current_changed', this.workspaceCurrent)
         resolve(this.itemCurrent)
       })
     })

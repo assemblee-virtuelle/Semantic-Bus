@@ -125,6 +125,11 @@ function _get_connectBefore_connectAfter(filter) {
 
 function _update(id, componentToUpdate) {
   return new Promise((resolve, reject) => {
+
+    if(componentToUpdate.module === "restApiGet" 
+    && componentToUpdate.specificData 
+    && componentToUpdate.specificData.url)
+    (componentToUpdate.specificData.url = componentToUpdate._id +'-'+componentToUpdate.specificData.url)
       workspaceComponentModel.getInstance().model.findOneAndUpdate({
         _id: componentToUpdate._id
       }, componentToUpdate, {

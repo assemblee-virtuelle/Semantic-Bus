@@ -15,12 +15,13 @@
   </div>
   <!-- Champ du composant -->
   <label class="labelFormStandard">Clé de l'API:</label>
-  <div class="cardInput">
-    <input class="inputComponents" placeholder=""type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.url}></input>
+  <div class="cardInput cardInputApiId">
+    <div class="idApi">{data._id}-</div>
+    <input class="inputComponents inputApiId" placeholder="" type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.url}></input>
   </div>
   <label class="labelFormStandard">URL de l'API:</label>
   <div class="cardInput">
-    <a ref="link" target="_blank" href={'http://semantic-bus.org/data/api/' +data.specificData.url}>{'http://semantic-bus.org/data/api/'+data.specificData.url}</a>
+    <a class="linkApi" ref="link" target="_blank" href={window.location.origin +'/data/api/'+data._id + '-'+ data.specificData.url}>{window.location.origin +'/data/api/'+data._id + '-'+ data.specificData.url}</a>
   </div>
   <label class="labelFormStandard">Content-type:</label>
   <div class="cardInput">
@@ -40,12 +41,19 @@
     contentTypeInputChanged(e) {
       this.data.specificData.contentType = e.currentTarget.value;
     }
+
     this.updateData = function (dataToUpdate) {
-      this.data = dataToUpdate;
+      this.data = Object.assign({},dataToUpdate);
+      const regexUrl = `${this.data._id}-`;
+      const rx = new RegExp(regexUrl, 'i');
+      if(dataToUpdate.specificData.url.match(rx)){
+        this.data.specificData.url =  dataToUpdate.specificData.url.split(this.data._id+'-')[1]
+      }
       this.update();
     }.bind(this);
 
     this.on('mount', function () {
+      
       // this.refs.urlInput.addEventListener('change',function(e){   this.data.specificData.url=e.currentTarget.value; }.bind(this));
       //
       // this.refs.contentTypeInput.addEventListener('change',function(e){   this.data.specificData.contentType=e.currentTarget.value; }.bind(this));
@@ -59,19 +67,25 @@
     });
   </script>
 <style>
-  a {
-    color: blue;
-  }
-  a:active {
-    color: blue;
-  }
 
-  a:visited {
-    color: blue;
+  .cardInputApiId {
+    position: relative;
+    align-items: center;
+    justify-content: flex-start;
+    display: flex;
   }
-
-  a:hover {
-    color: blue;
+  .inputApiId {
+    padding-left: 250px;    
+  }
+  .idApi{
+    position: absolute;
+    padding-left: 1vw;
+    top: 1.4vh;
+    font-style: italic;
+    color: rgb(212,212,212);
+  }
+  .linkApi{
+    color:rgb(180,180,180);
   }
 </style>
 </rest-api-get-editor>

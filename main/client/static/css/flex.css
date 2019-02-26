@@ -37,9 +37,7 @@
   /*flex-basis:100%;*/
 }
 .box-flex {
-  overflow: visible;
   background-color: white;
   margin: 20px;
   padding: 2vh;
-  box-shadow: 0 0 5px 0 rgba(133,133,133,0.38);
 }
