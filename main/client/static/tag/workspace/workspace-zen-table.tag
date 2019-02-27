@@ -124,7 +124,7 @@
       align-items: center;
       display: flex;
     }
-    .stop {
+    .stoped {
       background-color: #ff6f69;
       border-radius: 5px;
       padding: 5px;

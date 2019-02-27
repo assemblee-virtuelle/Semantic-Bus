@@ -47,7 +47,6 @@
       this.refs.processZenTable.on('rowsSelected',records=>{
         selected=records[0];
         RiotControl.trigger('workspace_current_process_select',selected);
-
       });
       RiotControl.on('workspace_current_process_changed', this.workspaceCurrentProcesChanged);
       RiotControl.trigger('workspace_current_process_refresh');

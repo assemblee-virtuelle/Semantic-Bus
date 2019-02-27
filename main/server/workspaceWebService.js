@@ -44,9 +44,6 @@ module.exports = function (router, amqpClient) {
       }).then(function (data) {
         var engine = require('./services/engine.js')
         return engine.execute(data, 'work', this.amqpClient, messageObject.callerId)
-      }).then((data) => {
-      }).catch(e => {
-        console.log("error", e)
       })
     }, {
       noAck: true

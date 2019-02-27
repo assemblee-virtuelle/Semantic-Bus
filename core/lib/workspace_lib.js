@@ -653,13 +653,68 @@ function _get_workspace(workspace_id) {
           .lean()
           .exec();
 
-      }).then((users) => {
+      }).then(async (users) => {
         workspace.users = users.map(u => {
           return {
             email: u.credentials.email,
             role: u.workspaces[0].role
           };
         });
+        const ProcessPromise = new Promise((resolve, reject) => {
+          processModel.getInstance().model.find({
+              workflowId: workspace._id
+            }).sort({
+              timeStamp: -1
+            })
+            .limit(1)
+            .lean()
+            .exec((err, processes) => {
+              if (err) {
+                reject(new Error.DataBaseProcessError(err))
+              } else {
+                if (processes[0]) {
+                  historiqueEndModel.getInstance().model.find({
+                    processId: processes[0]._id
+                  }).select({
+                    data: 0
+                  }).lean().exec((err, historiqueEnd) => {
+                    if (err) {
+                      reject(new Error.DataBaseProcessError(err))
+                    } else {
+                      for (let step of processes[0].steps) {
+                        
+                        const historiqueEndFinded = sift({
+                          componentId: step.componentId
+                        }, historiqueEnd)[0];
+
+                        if(processes[0].state === "stop") {
+                        workspace.status = 'stoped'; 
+                        } else {
+                          if (historiqueEndFinded != undefined) {
+                            if (historiqueEndFinded.error != undefined) {
+                              workspace.status = 'error';
+                              return resolve(workspace)
+                              
+                            } else {
+                              workspace.status = 'resolved';
+                            }
+                          } else {
+                            workspace.status = 'running';
+                          }
+                        }
+                      }
+
+                      resolve(workspace)
+                    }
+                  })
+                } else {
+                  workspace.status = 'no-start';
+                  resolve(workspace)
+                }
+              }
+            })
+        })
+        await ProcessPromise
         resolve(workspace);
       })
       .catch(e => {

@@ -167,11 +167,19 @@ body {
 }
 /*menu selectionné*/
 .tagSelected {
-  border: 1px solid rgb(124, 195, 232) !important;
-  background-color: rgb(124, 195, 232);
-  color: white !important;
+  color:  rgb(41, 177, 238) !important;
+}
+/*Bouton*/
+.commandButton {
+  cursor: pointer;
+  align-self: center;
+  color: grey;
+  font-size: 10px
 }
 
+.commandButton:hover {
+  color: rgb(41, 177, 238);
+}
 /*Menu selectionné*/
 .selected {
   cursor: pointer;
@@ -224,24 +232,7 @@ body {
   padding: 0px;
   justify-content: center;
 }*/
-/*Bouton*/
-.commandButton {
-  margin-left: 5pt;
-  padding-left: 10px;
-  padding-right: 10px;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  cursor: pointer;
-  align-self: center;
-  border: 1px solid rgb(213, 218, 224);
-  color: grey;
-  border-radius: 2px;
-}
 
-.commandButton:hover {
-  background-color: rgb(41, 177, 238);
-  color: white;
-}
 
 .selector {
   border-style: none;
@@ -290,4 +281,11 @@ label {
   padding: 2%;
   justify-content: center;
   flex-grow: 0.5;
+}
+.mainContainerListGraph {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  height: 100%;
 }

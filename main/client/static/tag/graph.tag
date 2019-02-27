@@ -31,10 +31,16 @@
         <g id="shapeCommandLayer"></g>
       </g>
     </svg>
-
-     <div onclick={stoperrr} title="stoperr un composant" class="commandButtonImage">
-        <img src="./image/ajout_composant.svg" class="btnAddSize">
+    <div >
+      <h1>{  this.innerData.status} </h1>
     </div>
+    <div onClick={stopFlow}>
+      <h1>STOP</h1>
+    </div>
+    <div class="containerListComponents" >
+      <technical-component-table></technical-component-table>
+    </div>
+  
 
   </div>
     <!-- Bouton ajouter un composant -->
@@ -54,9 +60,10 @@
       route('workspace/' + this.graph.workspace._id + '/addComponent');
     }
 
-    stoperrr(e) {
+    stopFlow(e) {
       RiotControl.trigger('stop_current_process')
     }
+
     function snapToGrid(p, r) {
       return Math.round(p / r) * r;
     }
@@ -98,9 +105,6 @@
         .attr("class", function (d) {return 'connectBeforeButtonGraph'})
         .attr("data-id", function (d) {return d.id})
         .call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
-
-
-      // commande bar
       this.selectorsShapeCommandeBar = this.svg
         .select("#shapeCommandLayer")
         .selectAll("svg")
@@ -212,12 +216,12 @@
             .attr("class", function (d) {return 'connectAfterButtonGraph'})
             .attr("data-id", function (d) {return d.id})
             .on("click", function (d) {RiotControl.trigger('item_current_connect_after_show')})
-      })
+        })
 
       // line overlay
       this.selectedLines = sift({
         'selected': true
-      }, this.graph.links);
+        }, this.graph.links);
       this.selectorsLines = this.svg
         .select("#lineSelector")
         .selectAll("line")
@@ -661,10 +665,17 @@
       svg.call(zoom)
     }.bind(this)
 
+    this.updateData=function(dataToUpdate){
+      console.log(dataToUpdate)
+      this.innerData=dataToUpdate;
+      this.update();
+    }.bind(this);
+
     this.on('mount', function () {
       RiotControl.on('workspace_graph_selection_changed', this.drawSelected);
       RiotControl.on('workspace_graph_compute_done', this.drawGraph);
       RiotControl.trigger('workspace_graph_compute', this.refs.graphSvgCanvas);
+      RiotControl.on('workspace_current_changed', this.updateData)
     }); // fin mount
 
     this.on('unmount', function () {
@@ -675,6 +686,10 @@
   </script>
 
   <style scoped>
+    .containerListComponents {
+      width: 25%;
+      background-color: white;
+    }
     .containerGrid {
       display: flex;
       justify-content: center;

@@ -1,38 +1,37 @@
-<technical-component-table class="containerV" style="flex-grow:1;">
+<technical-component-table class="mainContainerListGraph">
 
     <!-- tableau des composants -->
-    <div class="containerH" style="flex-shrink:0;padding:10px">
-      <div class="containerH" style="flex-grow:1;justify-content: center;">
+    <div class="containerFilter">
+      <div class="containerH cardFilter">
         <div each={item in firstLevelCriteria} class={commandButton:true,tagSelected:isTagInSelectedTags(item)} onclick={firstLevelCriteriaClick}>
           {item['skos:prefLabel']}
         </div>
       </div>
-    </div>
-    <div class="containerH"style="flex-shrink:0;padding:10px">
-      <div class="containerH" style="flex-grow:1;justify-content: center;">
+      <div class="containerH cardFilter">
         <div each={item in secondLevelCriteria} class={commandButton:true,tagSelected:isTagInSelectedTags(item)} onclick={secondLevelCriteriaClick}>
           {item['skos:prefLabel']}
         </div>
       </div>
     </div>
-
-    <zentable style="flex:1" ref="technicalComponentTable" disallowdelete={true} disallownavigation={true}>
-      <yield to="header">
-        <div class="containerTitle">
-          <div class="tableTitleName">COMPOSANT</div>
-          <div class="tableTitleDescription">DESCRIPTION</div>
-          <div class="tableEmpty"/>
+    
+    <zentable ref="technicalComponentTable" disallowdelete={true} disallownavigation={true}>
+      <yield to="row">
+        <img class="rowImg"src={'image/components/'+ graphIcon}/>
+        <div>
+          <div class="tableRowName">{type}</div>
+          <div class="tableRowDescription">{description}</div>
         </div>
       </yield>
-      <yield to="row">
-        <div class="tableRowName"> <img class="rowImg"src={'image/components/'+ graphIcon}/> {type}</div>
-        <div class="tableRowDescription">{description.slice(0,100)}</div>
-      </yield>
     </zentable>
-
+    <div style="height: 10vh"/>
     <!-- Bouton valider -->
-    <div class="containerH" style="padding-top:20px;flex-basis:45px;justify-content: center;align-items: flex-start; flex-shrink:0;flex-grow:0;">
-      <img onclick={addComponentClick} class="commandButtonImage btnAddSize" src="./image/check.png" title="Valider la sélection">
+    <div class="containerH containerValidate">
+      <div onclick={addComponentClick} class="btnFil commandButtonImage">
+        Ajouter
+        <img class="imgFil" src="./image/ajout_composant.svg" title="Importer un Workflow">
+        <input onchange={import} ref="import" type="file" style="display:none;"/>
+      </div>
+      
     </div>
 
   <script>
@@ -135,24 +134,75 @@
       RiotControl.off('componentsCategoriesTree_changed', this.updateComponentsCategoriesTree);
     });
   </script>
-  <style> 
+  <style>
+    .rowContainer {
+      width: 100%;
+    }
+    .tableRowContent {
+      justify-content: start;
+      flex: 1;
+    }
+    .containerV {
+      width: 100%;
+    }
+    .tableRow {
+      border-color: transparent;
+      border-top-width: 2px;
+      border-top-color: rgb(238,242,249);
+      width: 100%;
+      padding: 1vh;
+    }
+      .technical-component-table {
+      overflow: visible;
+      width: 100%;
+    }
+    .mainContainerListGraph {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      height: 100%;
+    }
+    .cardFilter {
+      flex-wrap: wrap;
+      justify-content: space-evenly;
+      padding: 1vh;
+      align-items: center;
+    }
+    .dropTarget {
+      flex-basis: 0px;
+    }
+    .containerFilter {
+      height: 2vh;
+      width: 100%;
+    }
+    .containerValidate {
+      position: absolute;
+      bottom: 1vh;
+    }
     .rowImg {
       height: 3vh;
       width: 3vh;
-      margin-right: 1vh;
+      padding: 1vh;
     }
     .tableRowName {
-      font-size: 0.85em;
-      flex: 0.3;
-      padding: 10px;
+      font-weight: 400;
+      font-family: sans-serif;
       justify-content: flex-start;
-      display: flex;
-      align-items: center;
+      font-size: 15px;
+      padding:1vh;
     }
-    .tableRowDescription {
-      font-size: 0.85em;
-      flex:0.695;
-      padding: 10px;
+    .selected {
+      background-color: rgba(33, 150, 243,0.1) !important;      
+      border-top-color: rgba(33, 150, 243,0.1) !important;
+      border-top-width: 2px !important;
+      border: none !important;
+    }
+    .tableRowDescription { 
+      font-weight: 200;
+      font-family: sans-serif;
+      font-size: 10px;
+      padding:3px;
     }
 
     .containerTitle {

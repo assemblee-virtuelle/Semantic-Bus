@@ -26,7 +26,7 @@ class CacheNosql {
           if (cachedData != undefined) {
             res.json(cachedData)
           } else {
-            next(new Error('empty cache'))
+            res.json([])
           }
         }).catch(e => {
           next(e)
@@ -36,7 +36,6 @@ class CacheNosql {
   }
 
   pull (data, flowData, queryParams) {
-
     return new Promise((resolve, reject) => {
       if (flowData != undefined && flowData[0].data != undefined) {
         // resolve({data:flowData[0].data});
