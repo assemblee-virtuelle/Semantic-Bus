@@ -659,7 +659,9 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       }))
     }, true).then(data => {
       this.workspaceCurrent.components = this.workspaceCurrent.components.concat(data)
-      route('workspace/' + this.workspaceCurrent._id + '/component')
+      if (this.viewBox) {
+        this.computeGraph()
+      }
     })
   }.bind(this))
 

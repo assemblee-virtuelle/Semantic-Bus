@@ -135,9 +135,9 @@
     <graph-of-use></graph-of-use>
   </div>
   <!-- Page ajouter un composant -->
-  <div show={menu=='addComponent' } class="containerV" style="flex-grow: 1;">
+  <!--  <div show={menu=='addComponent' } class="containerV" style="flex-grow: 1;">
     <technical-component-table></technical-component-table>
-  </div>
+  </div>  -->
   <!-- Page utilisateurs -->
   <div show={menu=='share' } class="containerV" style="flex-grow: 1;">
     <user-list></user-list>

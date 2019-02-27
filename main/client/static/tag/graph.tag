@@ -31,12 +31,7 @@
         <g id="shapeCommandLayer"></g>
       </g>
     </svg>
-    <div class="containerH btnAdd" >
-      <div onclick={showAddComponentClick} title="Ajouter un composant" class="commandButtonImage">
-        <img src="./image/ajout_composant.svg" class="btnAddSize">
-      </div>
-    </div>
-    <div class="containerH " >
+    <div class="containerListComponents" >
       <technical-component-table></technical-component-table>
     </div>
   </div>
@@ -98,9 +93,6 @@
         .attr("class", function (d) {return 'connectBeforeButtonGraph'})
         .attr("data-id", function (d) {return d.id})
         .call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
-
-
-      // commande bar
       this.selectorsShapeCommandeBar = this.svg
         .select("#shapeCommandLayer")
         .selectAll("svg")
@@ -212,12 +204,12 @@
             .attr("class", function (d) {return 'connectAfterButtonGraph'})
             .attr("data-id", function (d) {return d.id})
             .on("click", function (d) {RiotControl.trigger('item_current_connect_after_show')})
-      })
+        })
 
       // line overlay
       this.selectedLines = sift({
         'selected': true
-      }, this.graph.links);
+        }, this.graph.links);
       this.selectorsLines = this.svg
         .select("#lineSelector")
         .selectAll("line")
@@ -675,6 +667,10 @@
   </script>
 
   <style scoped>
+    .containerListComponents {
+      width: 25%;
+      background-color: white;
+    }
     .containerGrid {
       display: flex;
       justify-content: center;
