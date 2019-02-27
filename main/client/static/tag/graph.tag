@@ -124,10 +124,8 @@
             .attr("xlink:href", function (d) {
               let image = "";
               if (d.connectBeforeMode == true) {
-                // image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand.png";
                 image = "./image/Super-Mono-svg/plus-select.svg";
               } else {
-                // image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand-alt.png";
                 image = "./image/Super-Mono-svg/plus.svg";
               }
               return image;
@@ -193,11 +191,9 @@
             .append("image")
             .attr("xlink:href", function (d) {
               let image = "";
-              if (d.connectAfterMode == true) {
-                //image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand.png";
+              if (d.connectAfterMode == true) {                
                 image = "./image/Super-Mono-svg/plus-select.svg";
               } else {
-                //image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand-alt.png";
                 image = "./image/Super-Mono-svg/plus.svg";
               }
             return image
