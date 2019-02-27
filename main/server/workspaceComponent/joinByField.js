@@ -33,7 +33,6 @@ class JoinByField {
 
         resolve(primaryRecord)
       } catch (e) {
-        // console.log(e);
         reject(e)
       }
     })

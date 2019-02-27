@@ -1,30 +1,30 @@
-"use strict";
+'use strict';
 class QueryParamsCreation {
-  constructor() {
-    this.type= 'Params transform';
-    this.description= 'Créer des paramètres de requête dans le flux.';
-    this.editor='query-params-creation-editor';
-    this.graphIcon='Query_params.svg';
-    this.objectTransformation= require('../utils/objectTransformation.js');
-    this.tags=[
+  constructor () {
+    this.type = 'Params transform'
+    this.description = 'Créer des paramètres de requête dans le flux.'
+    this.editor = 'query-params-creation-editor'
+    this.graphIcon = 'Query_params.svg'
+    this.objectTransformation = require('../utils/objectTransformation.js')
+    this.tags = [
       'http://semantic-bus.org/data/tags/middleComponents',
       'http://semantic-bus.org/data/tags/middleUtilitiesComponents'
-    ];
+    ]
   }
 
-  buildQueryParam(previousQueryParam, specificData){
-    let stringPattern=JSON.stringify(specificData.queryParamsCreationObject);
-    stringPattern = stringPattern.replace(/£./g,'$.')
-    let objectPattern = JSON.parse(stringPattern);
-    let out= this.objectTransformation.execute(previousQueryParam, objectPattern);
-    return out;
+  buildQueryParam (previousQueryParam, specificData) {
+    let stringPattern = JSON.stringify(specificData.queryParamsCreationObject)
+    stringPattern = stringPattern.replace(/£./g, '$.')
+    let objectPattern = JSON.parse(stringPattern)
+    let out = this.objectTransformation.execute(previousQueryParam, objectPattern)
+    return out
   }
 
-  pull(data,flowData) {
+  pull (data, flowData) {
     return new Promise((resolve, reject) => {
-      resolve({data:flowData[0].data});
+      resolve({ data: flowData[0].data })
     })
   }
 }
 
-module.exports = new QueryParamsCreation();
+module.exports = new QueryParamsCreation()

@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 class GouvFrGeoLocaliser {
   constructor () {
     this.type = 'data.gouv geocoding'
@@ -32,19 +32,14 @@ class GouvFrGeoLocaliser {
           clearInterval(interval)
           Promise.all(goePromises).then(geoLocalisations => {
             var result = []
-            //console.log('geoLocalise | geoLocalisations result |', geoLocalisations);
             for (var geoLocalisationKey in geoLocalisations) {
-              // console.log(geoLocalisations[geoLocalisationKey]);
               let record = source[geoLocalisationKey]
               if (geoLocalisations[geoLocalisationKey].error == undefined && geoLocalisations[geoLocalisationKey].features != undefined && geoLocalisations[geoLocalisationKey].features[0] != undefined) {
-                // console.log('geoLocalise | geoLocalisations line |',geoLocalisations[geoLocalisationKey]);
-                // console.log('geoLocalise | geoLocalisations key |', geoLocalisationKey);
                 record[specificData.latitudePath] = geoLocalisations[geoLocalisationKey].features[0].geometry.coordinates[1]
                 record[specificData.longitudePath] = geoLocalisations[geoLocalisationKey].features[0].geometry.coordinates[0]
 
                 result.push(record)
               } else {
-                // console.log();
                 record[specificData.latitudePath] = {
                   error: geoLocalisations[geoLocalisationKey].error
                 }
@@ -52,12 +47,10 @@ class GouvFrGeoLocaliser {
                   error: geoLocalisations[geoLocalisationKey].error
                 }
                 result.push(record)
-                //console.log(geoLocalisations[geoLocalisationKey]);
               }
             }
 
             if (!Array.isArray(rawSource)) {
-              // console.log(result);
               result = result[0]
             }
             resolve({
@@ -66,7 +59,6 @@ class GouvFrGeoLocaliser {
           })
         } else {
           this.RequestCount++
-          //console.log('RequestCount',this.RequestCount);
           var record = source[sourceKey]
           if (record == undefined) {
             resolve({
@@ -89,9 +81,9 @@ class GouvFrGeoLocaliser {
             addressGouvFrFormated = addressGouvFrFormated + (address.street ? address.street + ' ' : '')
             addressGouvFrFormated = addressGouvFrFormated + (address.town ? address.town + ' ' : '')
             addressGouvFrFormated = addressGouvFrFormated + (address.postalCode ? address.postalCode + ' ' : '')
-            //TODO notify user the adresse is too long (200)
+            // TODO notify user the adresse is too long (200)
             addressGouvFrFormated = addressGouvFrFormated.substr(0, 199)
-            //addressGouvFrFormated = addressGouvFrFormated + (address.country ? address.country + ' ' : '');
+            // addressGouvFrFormated = addressGouvFrFormated + (address.country ? address.country + ' ' : '');
             if (addressGouvFrFormated.length > 0) {
               goePromises.push(
                 new Promise((resolve, reject) => {
@@ -113,12 +105,10 @@ class GouvFrGeoLocaliser {
                   try {
                     // resolve({error:'dummy'})
                     const request = this.http.request(requestOptions, response => {
-                      // console.log('JUST after adresse.data.gouv request', specificData.countryPath);
                       const hasResponseFailed = response.statusCode >= 400
                       var responseBody = ''
 
                       if (hasResponseFailed) {
-                        // console.log({
                         //   error: 'request status fail'
                         // });
                         resolve({
@@ -127,37 +117,28 @@ class GouvFrGeoLocaliser {
                       }
 
                       response.on('data', chunk => {
-                        // console.log(chunk.toString());
                         responseBody += chunk.toString()
                       })
 
                       // once all the data has been read, resolve the Promise
                       response.on('end', function () {
                         try {
-                          // console.log(responseBody);
-                          // console.log('try');
                           resolve(JSON.parse(responseBody))
-                          //console.log('ok',sourceKey);
                         } catch (e) {
-                          // console.log('parse fail');
                           resolve({
                             error: e
                           })
-                          //throw e;
+                          // throw e;
                         }
                       })
-
                     })
                     request.on('error', function (e) {
-                      // console.log('request fail :', e);
                       resolve({
                         error: e
                       })
                     })
-                    //console.log('start');
                     request.end()
                   } catch (e) {
-                    // console.log('global socket adress.data.gouv fail', e);
                     resolve({
                       error: e
                     })
@@ -177,7 +158,6 @@ class GouvFrGeoLocaliser {
           sourceKey++
         }
       }.bind(this), 200)
-
     })
   }
 

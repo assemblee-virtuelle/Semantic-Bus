@@ -32,6 +32,14 @@ class ProcessNotifier {
   }
 
   /**
+   * @param {ProcessNotifier.Information} content
+   */
+  
+  information(content) {
+    this.publish(`process-information`, content)
+  }
+
+  /**
    * @param {ProcessNotifier.End} content
    */
   end(content) {

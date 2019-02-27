@@ -46,6 +46,7 @@ module.exports = function (router, amqpClient) {
         return engine.execute(data, 'work', this.amqpClient, messageObject.callerId)
       }).then((data) => {
       }).catch(e => {
+        console.log("error", e)
       })
     }, {
       noAck: true
@@ -121,6 +122,16 @@ module.exports = function (router, amqpClient) {
 
   router.get('/workspaces/:id/process', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
     workspace_lib.get_process_byWorkflow(req.params.id).then((workspaceProcess) => {
+      res.json(workspaceProcess)
+    }).catch(e => {
+      next(e)
+    })
+  }) // <= get_workspace_workflow
+
+  // --------------------------------------------------------------------------------
+
+  router.put('/workspaces/:id/process/:processid', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+    workspace_lib.updateCurrentProcess(req.params.processid, req.body.state).then((workspaceProcess) => {
       res.json(workspaceProcess)
     }).catch(e => {
       next(e)

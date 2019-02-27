@@ -30,7 +30,9 @@ module.exports = {
   get_process_byWorkflow: _get_process_byWorkflow,
   addConnection: _addConnection,
   removeConnection: _removeConnection,
-  cleanOldProcess: _cleanOldProcess
+  cleanOldProcess: _cleanOldProcess,
+  getCurrentProcess: _getCurrentProcess,
+  updateCurrentProcess: _updateCurrentProcess
 };
 
 // --------------------------------------------------------------------------------
@@ -120,6 +122,33 @@ function _createProcess(process) {
 
 // --------------------------------------------------------------------------------
 
+function _getCurrentProcess(processId) {
+  return new Promise((resolve, reject) => {
+    processModel.getInstance().model.findOne(processId,(err, process) =>{
+      if (err) {
+        reject(new Error.DataBaseProcessError(e))
+      } else {
+        resolve(process);
+      }
+    });
+  });
+} // <= _getCurrentProcess
+
+function _updateCurrentProcess(processId, state) {
+  return new Promise((resolve, reject) => {
+    processModel.getInstance().model.findByIdAndUpdate(processId,{state}, (err, process) =>{
+      process.state = state
+      if (err) {
+        reject(new Error.DataBaseProcessError(e))
+      } else {
+        resolve(process);
+      }
+    });
+  });
+} // <= _getCurrentProcess
+
+// --------------------------------------------------------------------------------
+
 function _cleanOldProcess(workflow) {
   return new Promise((resolve, reject) => {
     let limit = workflow.limitHistoric || 1;
@@ -171,7 +200,7 @@ function _cleanOldProcess(workflow) {
         return reject(new Error.DataBaseProcessError(e))
       })
   })
-}
+}// <= _cleanOldProcess
 
 // --------------------------------------------------------------------------------
 
@@ -238,7 +267,7 @@ function _get_process_byWorkflow(workflowId) {
           })
       });
   })
-}
+}// <= _get_process_byWorkflow
 
 // --------------------------------------------------------------------------------
 
@@ -264,6 +293,8 @@ function _update_simple(workspaceupdate) {
       });
   });
 } // <= _update_simple
+
+// --------------------------------------------------------------------------------
 
 function check_workspace_data(workspaceData) {
   let workspace_final = workspaceData;
@@ -293,7 +324,7 @@ function check_workspace_data(workspaceData) {
         reject(err);
       });
   });
-}
+}// <= check_workspace_data
 // --------------------------------------------------------------------------------
 
 async function _create(userId, workspaceData) {
@@ -452,23 +483,25 @@ function _get_all(userID, role) {
                         reject(new Error.DataBaseProcessError(err))
                       } else {
                         for (let step of processes[0].steps) {
-
+                          
                           const historiqueEndFinded = sift({
                             componentId: step.componentId
                           }, historiqueEnd)[0];
 
-                          
-                          if (historiqueEndFinded != undefined) {
-                            if (historiqueEndFinded.error != undefined) {
-                              workspace.status = 'error';
-                              return resolve(workspace)
-                              
-                            } else {
-                              workspace.status = 'resolved';
-                            }
+                          if(processes[0].state === "stop") {
+                          workspace.status = 'stoped'; 
                           } else {
-                            workspace.status = 'running';
-                            return resolve(workspace)
+                            if (historiqueEndFinded != undefined) {
+                              if (historiqueEndFinded.error != undefined) {
+                                workspace.status = 'error';
+                                return resolve(workspace)
+                                
+                              } else {
+                                workspace.status = 'resolved';
+                              }
+                            } else {
+                              workspace.status = 'running';
+                            }
                           }
                         }
 
@@ -749,4 +782,5 @@ function _removeConnection(workspaceId, linkId) {
     });
   })
 } // <= _removeConnection
+
 // --------------------------------------------------------------------------------

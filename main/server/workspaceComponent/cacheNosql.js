@@ -36,22 +36,16 @@ class CacheNosql {
   }
 
   pull (data, flowData, queryParams) {
-    // console.log("cache queryParams",queryParams);
 
     return new Promise((resolve, reject) => {
-      // console.log('--------- cash data START --------  : ', flowData);
       if (flowData != undefined && flowData[0].data != undefined) {
-        // console.log("----- cache data persist ----")
         // resolve({data:flowData[0].data});
         this.cache_lib.persist(data, flowData[0].data, data.specificData.history).then(cachedData => {
-          // console.log('persist OK',flowData[0]);
           resolve({ data: flowData[0].data })
         }).catch(e => {
-          // console.log('persist KO',flowData[0].data.length);
           reject(e)
         })
       } else {
-        // console.log('GET!!!!');
         this.cache_lib.get(data, true).then(cachedData => {
           if (cachedData != undefined) {
             resolve({ data: cachedData })

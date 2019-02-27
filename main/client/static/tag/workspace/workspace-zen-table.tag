@@ -124,6 +124,17 @@
       align-items: center;
       display: flex;
     }
+    .stop {
+      background-color: #ff6f69;
+      border-radius: 5px;
+      padding: 5px;
+      width: 50%;
+      color: white;
+      text-transform: uppercase;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+    }
     .running {
       background-color: #ffcc5c;
       border-radius: 5px;

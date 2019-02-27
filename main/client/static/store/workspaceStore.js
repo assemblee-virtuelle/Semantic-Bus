@@ -377,6 +377,24 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
   // --------------------------------------------------------------------------------
 
+  this.on('stop_current_process', () => {
+    this.utilStore.ajaxCall({
+      method: 'put',
+      url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/process/' + this.currentProcess._id,
+      headers: {
+        'Authorization': 'JTW' + ' ' + localStorage.token
+      },
+      contentType: 'application/json',
+      data: JSON.stringify({ state: 'stop' })
+    }).then((data) => {
+      console.log(data)
+    })
+  })
+
+  this.currentProcess
+
+  // --------------------------------------------------------------------------------
+
   this.on('item_persist', function (item) {
     this.utilStore.ajaxCall({
       method: 'put',
@@ -744,9 +762,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
         target: target._id
       })
     }, true).then(links => {
-      // source.connectionsAfter.push(connectedComps.target);
-      // target.connectionsBefore.push(connectedComps.source);
-      // this.workspaceBusiness.connectWorkspaceComponent(this.workspaceCurrent.components);
       this.workspaceCurrent.links = links
       this.trigger('workspace_current_changed', this.workspaceCurrent)
       if (this.viewBox) {
@@ -800,7 +815,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   this.on('component_current_connections_refresh', function () {
-    console.log('CURRETN', this.itemCurrent._id)
     let beforeLinks = sift({
       target: this.itemCurrent._id
     }, this.workspaceCurrent.links)
@@ -940,6 +954,12 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
         this.trigger('ajax_fail', body.error)
       }
     })
+
+    this.subscription_workspace_current_process_error = this.stompClient.subscribe('/topic/process-information.' + this.workspaceCurrent._id, message => {
+      let body = JSON.parse(message.body)
+      this.trigger('ajax_sucess', body.information)
+    })
+
     this.subscription_workspace_current_process_progress = this.stompClient.subscribe('/topic/process-progress.' + this.workspaceCurrent._id, message => {
       let body = JSON.parse(message.body)
 

@@ -27,6 +27,10 @@ var ProcessSchema = mongoose.Schema({
     type: String,
     //required: true
   },
+  state: {
+    type: String,
+    default: 'run'
+  },
   originComponentId:{
     type: String,
     required: true

@@ -31,14 +31,11 @@
         <g id="shapeCommandLayer"></g>
       </g>
     </svg>
-    <div class="containerH btnAdd" >
-      <div onclick={showAddComponentClick} title="Ajouter un composant" class="commandButtonImage">
+
+     <div onclick={stoperrr} title="stoperr un composant" class="commandButtonImage">
         <img src="./image/ajout_composant.svg" class="btnAddSize">
-      </div>
     </div>
-    <div class="containerH " >
-      <technical-component-table></technical-component-table>
-    </div>
+
   </div>
     <!-- Bouton ajouter un composant -->
 
@@ -57,6 +54,9 @@
       route('workspace/' + this.graph.workspace._id + '/addComponent');
     }
 
+    stoperrr(e) {
+      RiotControl.trigger('stop_current_process')
+    }
     function snapToGrid(p, r) {
       return Math.round(p / r) * r;
     }
