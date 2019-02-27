@@ -36,6 +36,9 @@
         <img src="./image/ajout_composant.svg" class="btnAddSize">
       </div>
     </div>
+    <div class="containerH " >
+      <technical-component-table></technical-component-table>
+    </div>
   </div>
     <!-- Bouton ajouter un composant -->
 
