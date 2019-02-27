@@ -16,7 +16,9 @@
     
     <zentable ref="technicalComponentTable" disallowdelete={true} disallownavigation={true}>
       <yield to="row">
-        <img class="rowImg"src={'image/components/'+ graphIcon}/>
+        <div>
+          <img class="rowImg"src={'image/components/'+ graphIcon}/>
+        </div>
         <div>
           <div class="tableRowName">{type}</div>
           <div class="tableRowDescription">{description}</div>
@@ -152,7 +154,7 @@
       width: 100%;
       padding: 1vh;
     }
-      .technical-component-table {
+    .technical-component-table {
       overflow: visible;
       width: 100%;
     }
@@ -181,8 +183,8 @@
       bottom: 1vh;
     }
     .rowImg {
-      height: 3vh;
-      width: 3vh;
+      height: 25px !important;
+      width: 25px !important;
       padding: 1vh;
     }
     .tableRowName {
@@ -202,7 +204,8 @@
       font-weight: 200;
       font-family: sans-serif;
       font-size: 10px;
-      padding:3px;
+      padding-right: 2vw;
+      padding-left: 1vw;
     }
 
     .containerTitle {

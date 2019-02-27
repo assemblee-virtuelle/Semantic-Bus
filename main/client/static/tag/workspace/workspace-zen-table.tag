@@ -21,7 +21,7 @@
       </div>
     </yield>
     <yield to="row">
-      <div class="tableRowName">
+      <div class="tableRowStatus">
         <div class={status}>
           <div class="img-status-div">
             <img src={"./image/"+status+".svg"} class="img-status" />
@@ -108,10 +108,77 @@
       display: flex;
     }
     .status-div {
+      font-size:0.85em;
       flex: 0.8;
       justify-content: center;
       align-items: center;
       display: flex;
+    }
+
+    .containerSearch {
+      height:80px;
+      justify-content: center;
+      align-items: center;
+      flex-shrink:0;
+    }
+    ::placeholder{
+      color: rgb(200,200,200);
+      font-style: italic;
+      opacity: 1; /* Firefox */
+    }
+
+    .tableRowStatus {
+      font-size: 0.85em;
+      flex:0.25;
+      padding: 10px;
+    }
+    .tableRowName {
+      font-size: 0.85em;
+      flex:0.3;
+      padding: 10px;
+    }
+    .tableRowDescription {
+      font-size: 0.85em;
+      flex:0.35;
+      padding: 10px;
+    }
+    .tableRowDate {
+      font-size: 0.85em;
+      flex:0.2;
+      padding: 10px;
+    }
+
+    .containerTitle {
+      border-radius: 2px;
+      width: 90%;
+      flex-direction: row;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgb(26,145,194);
+    }
+    .tableTitleName {
+      font-size: 0.85em;
+      flex:0.255;
+      color: white;
+      flex-shrink: 0;
+      padding-left:10px;
+    }
+    .tableTitleDescription {
+      font-size: 0.85em;
+      flex:0.340;
+      color: white;
+      flex-shrink: 0;
+      padding-left:10px;
+    }
+    .tableTitleDate {
+      font-size: 0.85em;
+      flex:0.255;
+      color: white;
+      flex-shrink: 0;
+    }
+    .tableEmpty {
+      flex:0.15;
     }
     .no-start {
       background-color: rgb(200,200,200);
@@ -158,74 +225,15 @@
       display: flex;
     }
     .resolved {
-      justify-content: space-around!important;
+      justify-content: space-around;
       background-color: #88d8b0;
       border-radius: 5px;
       padding: 5px;
       width: 50%;
       color: white;
       text-transform: uppercase;
-      justify-content: center;
       align-items: center;
       display: flex;
-    }
-    .containerSearch {
-      height:80px;
-      justify-content: center;
-      align-items: center;
-      flex-shrink:0;
-    }
-    ::placeholder{
-      color: rgb(200,200,200);
-      font-style: italic;
-      opacity: 1; /* Firefox */
-    }
-    .tableRowName {
-      font-size: 0.85em;
-      flex:0.3;
-      padding: 10px;
-    }
-    .tableRowDescription {
-      font-size: 0.85em;
-      flex:0.4;
-      padding: 10px;
-    }
-    .tableRowDate {
-      font-size: 0.85em;
-      flex:0.3;
-      padding: 10px;
-    }
-    .containerTitle {
-      border-radius: 2px;
-      width: 90%;
-      flex-direction: row;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      background-color: rgb(26,145,194);
-    }
-    .tableTitleName {
-      font-size: 0.85em;
-      flex:0.255;
-      color: white;
-      flex-shrink: 0;
-      padding-left:10px;
-    }
-    .tableTitleDescription {
-      font-size: 0.85em;
-      flex:0.340;
-      color: white;
-      flex-shrink: 0;
-      padding-left:10px;
-    }
-    .tableTitleDate {
-      font-size: 0.85em;
-      flex:0.255;
-      color: white;
-      flex-shrink: 0;
-    }
-    .tableEmpty {
-      flex:0.15;
     }
   </style>
 </workspace-zen-table>

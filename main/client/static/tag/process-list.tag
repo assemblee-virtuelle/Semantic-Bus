@@ -15,15 +15,12 @@
       <div class="tableRowState">
         <progress max={steps.length}  value={stepFinished} class={status}></progress>
       </div>
+      <div class="tableRowStateName">{status}</div>
     </yield>
   </zenTable>
 
-    <!-- <div class="commandButtonImage" style="flex-basis:40px">
-      <img src="./image/working.gif" width="40px" if={workInProgress}>
-    </div> -->
-
   <script>
-      renderDate = (date) => (
+    renderDate = (date) => (
       `${new Date(date).getDate()} ${['janv.',
         'févr.',
         'mars',
@@ -38,10 +35,12 @@
         'dec.'][new Date(date).getMonth()]} ${new Date(date).getFullYear()}`
     ) 
     this.workspaceCurrentProcesChanged=processCollection=>{
+      processCollection.map((process)=>{
+        if(process.state == "stop") process.status ="stoped"
+      })
       this.refs.processZenTable.data=processCollection;
       this.update();
     };
-
 
     this.on('mount', function () {
       this.refs.processZenTable.on('rowsSelected',records=>{
@@ -52,7 +51,6 @@
       RiotControl.trigger('workspace_current_process_refresh');
     })
     this.on('unmount', function () {
-      //RiotControl.off("store_share_workspace",this.share);
       RiotControl.off('workspace_current_process_changed', this.workspaceCurrentProcesChanged);
     })
   </script>
@@ -100,18 +98,26 @@
     }
     .tableRowState {
       font-size: 0.85em;
-      flex:0.6;
+      flex:0.4;
       padding: 10px;
+    }
+    .tableRowStateName {
+      font-size: 0.85em;
+      font-family: 'Open Sans', sans-serif;
+      font-weight: 200;
+      flex:0.2;
+      padding: 10px;
+      text-align: center;
+      text-transform: uppercase;
     }
     progress {
       width: 100%;
-
-      background: white;
+      background: rgb(230,230,230);
     }
     progress::-webkit-progress-bar {
       /*background: transparent;*/
       /*border-radius: 12px;*/
-      background: white;
+      background: rgb(230,230,230);
       /*box-shadow: inset 0 -2px 4px rgba(0,0,0,0.4), 0 2px 5px 0px rgba(0,0,0,0.3);*/
 
     }
@@ -136,6 +142,12 @@
     }
     progress.resolved::-moz-progress-bar {
       background: rgb(41,171,135);
+    }
+    progress.stoped::-webkit-progress-value {
+      background: #fe4a49;
+    }
+    progress.stoped::-moz-progress-bar {
+      background: #fe4a49;
     }
     progress.error::-moz-progress-bar {
       background: #fe4a49;

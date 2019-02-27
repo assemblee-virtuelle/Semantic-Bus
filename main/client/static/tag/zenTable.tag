@@ -300,7 +300,10 @@
     }
 
     .selected {
-      border-color: blue;
+      background-color: rgba(33, 150, 243,0.1) !important;      
+      border-top-color: rgba(33, 150, 243,0.1) !important;
+      border-top-width: 2px !important;
+      border: none !important;
     }
   </style>
 

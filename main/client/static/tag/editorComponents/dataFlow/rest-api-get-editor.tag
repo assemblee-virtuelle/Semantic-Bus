@@ -20,12 +20,12 @@
     <input class="inputComponents inputApiId" placeholder="" type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.url}></input>
   </div>
   <label class="labelFormStandard">URL de l'API:</label>
-  <div class="cardInput">
+  <div class="cardInput" show={data.specificData.url}>
     <a class="linkApi" ref="link" target="_blank" href={window.location.origin +'/data/api/'+data._id + '-'+ data.specificData.url}>{window.location.origin +'/data/api/'+data._id + '-'+ data.specificData.url}</a>
   </div>
   <label class="labelFormStandard">Content-type:</label>
   <div class="cardInput">
-    <input class="inputComponents" placeholder="application/json" type="text" name="contentTypeInput" ref="contentTypeInput" onChange={contentTypeInputChanged} value={data.specificData.contentType}></input>
+    <input class="inputComponents" placeholder="application/json" type="text" name="contentTypeInput" ref="contentTypeInput" onChange={contentTypeInputChanged} value={data.specificData.contentType || "application/json"}></input>
   </div>
   <script>
     this.data = {};
@@ -46,7 +46,7 @@
       this.data = Object.assign({},dataToUpdate);
       const regexUrl = `${this.data._id}-`;
       const rx = new RegExp(regexUrl, 'i');
-      if(dataToUpdate.specificData.url.match(rx)){
+      if(dataToUpdate.specificData && dataToUpdate.specificData.url && dataToUpdate.specificData.url.match(rx)){
         this.data.specificData.url =  dataToUpdate.specificData.url.split(this.data._id+'-')[1]
       }
       this.update();

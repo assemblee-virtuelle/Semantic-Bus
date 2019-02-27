@@ -58,7 +58,7 @@ class RestGetJson {
           return new Promise((resolve, reject) => {
             reject({
               codeHTTP: 404,
-              message: 'no API for this url'
+              message: {detail: 'no API for this url'}
             })
           })
         } else {
@@ -74,8 +74,6 @@ class RestGetJson {
               next(new Error('data in flow is not defined. please check your configuration'))
             } else if (targetedComponent.specificData.contentType.search('application/vnd.ms-excel') != -1) {
               res.setHeader('content-type', targetedComponent.specificData.contentType)
-              var responseBodyExel = []
-              console.log('data.contentType XLS', targetedComponent.specificData)
               this.dataTraitment.type.buildFile(undefined, JSON.stringify(dataToSend.data), undefined, true, targetedComponent.specificData.contentType).then((result) => {
                 res.setHeader('Content-disposition', 'attachment; filename=' + targetedComponent.specificData.url + '.xlsx')
                 res.send(result)
@@ -87,14 +85,13 @@ class RestGetJson {
               for (let key in dataToSend.data) {
                 out += convert(key, dataToSend.data[key])
               }
-              // console.log(out);
               res.send(out)
             } else if (targetedComponent.specificData.contentType.search('yaml') != -1) {
               res.setHeader('content-type', targetedComponent.specificData.contentType)
               res.send(this.json2yaml.stringify(dataToSend.data))
             } else if (targetedComponent.specificData.contentType.search('json') != -1) {
               res.setHeader('content-type', targetedComponent.specificData.contentType)
-              // console.log('restApiGet json data',dataToSend.data);
+              console.log('restApiGet json data',dataToSend.data);
               var buf = Buffer.from(JSON.stringify(dataToSend.data))
               res.send(buf)
             } else {

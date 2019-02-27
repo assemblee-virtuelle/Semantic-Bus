@@ -40,7 +40,7 @@
       <json-previewer-header if={isScrennToShow('workPreview')}></json-previewer-header>
       <!-- Nom d'utilisateur -->
       <div style="flex-grow:0;flex-shrink:0; padding-right:10px;">
-        <h3 style="color:white; font-family: 'Open Sans', sans-serif;">{CurrentName}</h3>
+        <h3 style="color:white; font-family: 'Open Sans', sans-serif; font-weight: 200">{CurrentName}</h3>
       </div>
       <!-- Bouton utilisateur -->
       <div class="containerV" style="flex-grow:0;flex-shrink:0;position:relative;">

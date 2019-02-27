@@ -635,6 +635,8 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
   this.on('workspace_current_process_select', function (process) {
     this.currentProcess = process
+    this.workspaceCurrent.status = process.status
+    this.trigger('workspace_current_changed', this.workspaceCurrent)
     route('workspace/' + this.workspaceCurrent._id + '/component')
   })
 
@@ -910,7 +912,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     })
     this.subscription_workspace_current_process_start = this.stompClient.subscribe('/topic/process-start.' + this.workspaceCurrent._id, message => {
       let body = JSON.parse(message.body)
-      this.workspaceCurrent.status = "running"
+      this.workspaceCurrent.status = 'running'
       this.trigger('workspace_current_changed', this.workspaceCurrent)
       if (body.error === undefined) {
         let process = {
@@ -920,7 +922,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
           timeStamp: body.timeStamp,
           stepFinished: 0
         }
-        this.workspaceCurrent.status = "running"
+        this.workspaceCurrent.status = 'running'
         this.processCollection.unshift(process)
         if (body.callerId === localStorage.user_id) {
           this.currentProcess = process
@@ -941,16 +943,17 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
           targetProcess.status = 'resolved'
           this.trigger('workspace_current_process_changed', this.processCollection)
         }
-        this.workspaceCurrent.status = "resolved"
+        console.log("process end")
+        this.workspaceCurrent.status = 'resolved'
       } else {
-        this.workspaceCurrent.status = "error"
+        this.workspaceCurrent.status = 'error'
         this.trigger('ajax_fail', body.error)
       }
       this.trigger('workspace_current_changed', this.workspaceCurrent)
     })
     this.subscription_workspace_current_process_error = this.stompClient.subscribe('/topic/process-error.' + this.workspaceCurrent._id, message => {
       let body = JSON.parse(message.body)
-      this.workspaceCurrent.status = "error"
+      this.workspaceCurrent.status = 'error'
       this.trigger('workspace_current_changed', this.workspaceCurrent)
       if (body.error === undefined) {
         let targetProcess = sift({
@@ -967,7 +970,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     this.subscription_workspace_current_process_error = this.stompClient.subscribe('/topic/process-information.' + this.workspaceCurrent._id, message => {
       let body = JSON.parse(message.body)
       // add switch case on information for more process info trigger
-      this.workspaceCurrent.status = "stoped"
+      this.workspaceCurrent.status = 'stoped'
       this.trigger('workspace_current_changed', this.workspaceCurrent)
       this.trigger('ajax_sucess', body.information)
     })

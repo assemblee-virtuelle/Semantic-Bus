@@ -1,7 +1,7 @@
 <graph class="containerV containerGrid">
   <!-- page graph -->
   <div id="graphContainer" style="flex-grow:1;" class="containerH contentrGrid">
-    <svg ref="graphSvgCanvas" style="flex-grow:1;">
+    <svg ref="graphSvgCanvas" style="flex-grow:1; position: relative">
       <filter id="dropshadow" x="1%" y="1%" width="110%" height="110%">
         <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
         <feOffset dx="-2" dy="-1" result="offsetblur1"/>
@@ -30,14 +30,21 @@
         <g id="lineCommandLayer"></g>
         <g id="shapeCommandLayer"></g>
       </g>
+      <div class="tableRowStatus" style={showComponent? "right: 30%": "right: 5%"}>
+        <div class={innerData.status} onClick={stopFlow}>
+          <img if={innerData.status === "running"} src="./image/loading.svg" class="img-status loaderImg" />
+          <div class="status-div">
+            {innerData.status !== "running" ? innerData.status : "Stop"}
+          </div>
+        </div>
+      </div>
     </svg>
-    <div >
-      <h1>{  this.innerData.status} </h1>
+
+    <div onClick={toggleList} style={showComponent? "right: 25%": "right: 0%"} class="btnShow">
+      <img src="./image/vertical-dot.svg" class="ingShow"/>
     </div>
-    <div onClick={stopFlow}>
-      <h1>STOP</h1>
-    </div>
-    <div class="containerListComponents" >
+
+    <div show={showComponent} class="containerListComponents">
       <technical-component-table></technical-component-table>
     </div>
   
@@ -55,6 +62,12 @@
     this.modeConnectBefore = false;
     this.selectedElement;
     this.initGraphDone = false;
+    this.showComponent = true;
+    this.init = true;
+    toggleList(){
+      this.showComponent = !this.showComponent;
+      this.update()
+    }
 
     showAddComponentClick(e) {
       route('workspace/' + this.graph.workspace._id + '/addComponent');
@@ -69,7 +82,7 @@
     }
 
     // draw selected elemnt around select element
-    this.drawSelected = function () {
+    this.drawSelected = function (graph) {
       this.selectedNodes = sift({
         'selected': true
       }, this.graph.nodes);
@@ -156,7 +169,8 @@
             .attr("class", function (d) {return 'editButtonGraph'})
             .attr("data-id", function (d) {return d.id})
             .on("click", function (d) {route(`workspace/${d.component.workspaceId}/component/${d.component._id}/edit-component`)})
-
+          
+          if (graph.status && graph.status !== 'running') {
           d3
             .select(this)
             .append("image")
@@ -168,8 +182,20 @@
             .attr("class", function (d) {return 'workButtonGraph'})
             .attr("data-id", function (d) {return d.id})
             .on("click", function (d) {RiotControl.trigger('item_current_work')})
-
-          if (d.status && d.status != 'waiting') {
+          } else {
+            d3
+            .select(this)
+            .append("image")
+            .attr("xlink:href", function (d) {return "./image/Super-Mono-svg/play.svg"})
+            .attr("width", function (d) {return 25})
+            .attr("height", function (d) {return 25})
+            .attr("x", function (d) {return 51})
+            .attr("y", function (d) {return 123})
+            .attr("class", 'workButtonGraph flash')
+            .attr("data-id", function (d) {return d.id})
+            
+          }
+          if (d.status && d.status !== 'waiting') {
             d3
               .select(this)
               .append("image")
@@ -585,7 +611,7 @@
         .attr('data-id', function (d) {return d.id})
         .call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
 
-      this.drawSelected();
+      this.drawSelected(graph);
 
       this.tooltip = this.svg
         .select("#textLayer")
@@ -665,17 +691,18 @@
       svg.call(zoom)
     }.bind(this)
 
-    this.updateData=function(dataToUpdate){
-      console.log(dataToUpdate)
+    this.updateData=(dataToUpdate)=>{
       this.innerData=dataToUpdate;
+      this.graph.status = dataToUpdate.status;
+      this.drawSelected(this.graph)
       this.update();
-    }.bind(this);
+    };
 
     this.on('mount', function () {
+      RiotControl.on('workspace_current_changed', this.updateData)
       RiotControl.on('workspace_graph_selection_changed', this.drawSelected);
       RiotControl.on('workspace_graph_compute_done', this.drawGraph);
       RiotControl.trigger('workspace_graph_compute', this.refs.graphSvgCanvas);
-      RiotControl.on('workspace_current_changed', this.updateData)
     }); // fin mount
 
     this.on('unmount', function () {
@@ -686,6 +713,122 @@
   </script>
 
   <style scoped>
+      /* Flash class and keyframe animation */
+    .flash{
+      color:#f2f;
+      -webkit-animation: flash linear 1s infinite;
+      animation: flash linear 1s infinite;
+    }
+    @-webkit-keyframes flash {
+      0% { opacity: 1; } 
+      50% { opacity: .1; } 
+      100% { opacity: 1; }
+    }
+    @keyframes flash {
+      0% { opacity: 1; } 
+      50% { opacity: .1; } 
+      100% { opacity: 1; }
+    }
+    .loaderImg {
+      -webkit-animation:spin 1s linear infinite;
+      -moz-animation:spin 1s linear infinite;
+      animation:spin 1s linear infinite;
+    }
+    @-moz-keyframes spin { 100% { -moz-transform: rotate(360deg); } }
+    @-webkit-keyframes spin { 100% { -webkit-transform: rotate(360deg); } }
+    @keyframes spin { 100% { -webkit-transform: rotate(360deg); transform:rotate(360deg); } }
+    .no-start {
+      background-color: rgba(200,200,200,0.5);
+      width: 7vw;
+      font-size: 0.75em;
+      border-radius: 5px;
+      padding: 5px;
+      color: white;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+      text-transform: capitalize;
+    }
+    .stoped {
+      background-color: rgba(255,111,105,0.5);
+      border-radius: 5px;
+      padding: 5px;
+      width: 7vw;
+      font-size: 0.75em;
+      color: white;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+      text-transform: capitalize;
+    }
+    .running {
+      background-color: rgb(255,111,105);
+      border-radius: 5px;
+      padding: 5px;
+      width: 7vw;
+      font-size: 0.75em;
+      color: white;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+      text-transform: capitalize;
+      cursor: pointer;
+    }
+    .error {
+      background-color: rgba(255,111,105,0.5);
+      border-radius: 5px;
+      padding: 5px;
+      width: 7vw;
+      font-size: 0.75em;
+      color: white;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+      text-transform: capitalize;
+    }
+    .resolved {
+      background-color: rgba(136,216,176,0.5);
+      justify-content: space-around;
+      border-radius: 5px;
+      padding: 5px;
+      width: 7vw;
+      font-size: 0.75em;
+      color: white;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+      text-transform: capitalize;
+    }
+    .img-status {
+      width:2vh;
+      height:2vh;
+    }
+    .status-div {
+      flex: 0.8;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+      padding-left: 0.5vh;
+      padding-right: 0.5vh;
+    }
+    .tableRowStatus {
+      position: absolute;
+      top: 1.5vh;
+    }
+    .btnShow {
+      position: absolute;
+      top: 50%;
+      height: 10vh;
+      display: flex;
+      align-items: center;
+      background-color: rgb(26, 145, 194);
+      border-top-left-radius: 5px;
+      border-bottom-left-radius: 5px;
+    }
+    .ingShow {
+      width: 2vh;
+      height: 3vh;
+    }
     .containerListComponents {
       width: 25%;
       background-color: white;
@@ -700,6 +843,7 @@
       flex: 1;
       width: 100%;
       justify-content: center;
+      position: relative;
     }
     .btnAdd {
       display: flex;

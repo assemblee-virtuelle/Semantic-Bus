@@ -2,8 +2,10 @@
 
   <!-- partager votre WorkFlow à un utilisateur -->
   <div class="containerV box-flex">
-      <label>Saisissez une adresse e-mail pour partager votre Workflow:</label>
-      <input id="users-list" style="width: 98%"placeholder="Entrez une adresse email..." value="{email}">
+      <label class="labelFormStandard">Saisissez une adresse e-mail pour partager votre Workflow:</label>
+      <div class="cardInput" >
+        <input class="inputStandard" id="users-list" style="width: 98%"placeholder="Entrez une adresse email..." value="{email}">
+      </div>
       <div style="color:red">{resultShare}</div>
   </div>
   <!-- Bouton valider -->
@@ -83,7 +85,9 @@
     })
   </script>
   <style scoped="scoped">
-
+    .awesomplete {
+      width:50%
+    }
     .share-btn {
       color: white;
       background-color: #3883fa;
