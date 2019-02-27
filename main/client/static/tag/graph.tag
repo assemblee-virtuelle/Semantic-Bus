@@ -170,7 +170,7 @@
             .attr("data-id", function (d) {return d.id})
             .on("click", function (d) {route(`workspace/${d.component.workspaceId}/component/${d.component._id}/edit-component`)})
           
-          if (graph.status && graph.status !== 'running') {
+          if (graph.status !== 'running' || !graph.status ) {
           d3
             .select(this)
             .append("image")
