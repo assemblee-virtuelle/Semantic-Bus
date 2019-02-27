@@ -292,7 +292,10 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       }).then(function (data) {
         this.trigger('persist_end', data)
         data.mode = 'edit'
-        this.workspaceCurrent = data
+        //update only necessery champ
+        this.workspaceCurrent.description = data.description
+        this.workspaceCurrent.name = data.name
+        this.workspaceCurrent.limitHistoric = data.limitHistoric
         this.trigger('ajax_sucess', `Votre workspace à été mis à jour`)
         this.trigger('workspace_current_changed', this.workspaceCurrent)
         if (this.viewBox) {
