@@ -18,11 +18,11 @@
   <fieldset id="containerJSTREE" style="margin: 1vh">
     <legend class="labelFormStandard">Options</legend>
     <div>
-      <input ref="historyInput" type="checkbox" onchange={historyInputChanged} checked={data.specificData.history}>
+      <input ref="historyInput" type="checkbox" onchange={historyInputChanged} checked={data.specificData && data.specificData.history}>
       <label >Historisation</label>
     </div>
     <div>
-      <input ref="historyOutInput" type="checkbox" onchange={historyOutInputChanged} checked={data.specificData.historyOut}>
+      <input ref="historyOutInput" type="checkbox" onchange={historyOutInputChanged} checked={data.specificData&& data.specificData.historyOut}>
       <label>Sortie avec historique</label>
     </div>
   </fieldset>

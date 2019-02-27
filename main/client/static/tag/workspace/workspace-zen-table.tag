@@ -13,6 +13,7 @@
   <zenTable show={filteredData.length > 0} drag={false} disallowselect={true} ref="zentable" disallowdelete={opts.disallowdelete}>
     <yield to="header">
       <div class="containerTitle">
+        <div class="tableTitleName">STATUS</div>
         <div class="tableTitleName">NOM</div>
         <div class="tableTitleDescription">DESCRITPION</div>
         <div class="tableTitleDate">DATE DE MODIFICATION</div>
@@ -20,6 +21,16 @@
       </div>
     </yield>
     <yield to="row">
+      <div class="tableRowName">
+        <div class={status}>
+          <div class="img-status-div">
+            <img src={"./image/"+status+".svg"} class="img-status" />
+          </div>
+          <div class="status-div">
+            {status}
+          </div>
+        </div>
+      </div>
       <div class="tableRowName">{name}</div>
       <div class="tableRowDescription">{description.slice(0,20)}</div>
       <div class="tableRowDate">{updatedAt? renderDate(updatedAt): '' }</div>
@@ -87,6 +98,66 @@
   </script>
 
   <style>
+    .img-status {
+      width:1em
+    }
+    .img-status-div {
+      flex: 0.2;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+    }
+    .status-div {
+      flex: 0.8;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+    }
+    .no-start {
+      background-color: rgb(200,200,200);
+      border-radius: 5px;
+      padding: 5px;
+      width: 50%;
+      color: white;
+      text-transform: uppercase;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+    }
+    .running {
+      background-color: #ffcc5c;
+      border-radius: 5px;
+      padding: 5px;
+      width: 50%;
+      color: white;
+      text-transform: uppercase;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+    }
+    .error {
+      background-color: #ff6f69;
+      border-radius: 5px;
+      padding: 5px;
+      width: 50%;
+      color: white;
+      text-transform: uppercase;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+    }
+    .resolved {
+      justify-content: space-around!important;
+      background-color: #88d8b0;
+      border-radius: 5px;
+      padding: 5px;
+      width: 50%;
+      color: white;
+      text-transform: uppercase;
+      justify-content: center;
+      align-items: center;
+      display: flex;
+    }
     .containerSearch {
       height:80px;
       justify-content: center;

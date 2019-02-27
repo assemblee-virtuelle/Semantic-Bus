@@ -94,7 +94,7 @@
       <div class="containerV">
         <label class="labelFormStandard">Nom de votre Workflow</label>
         <div class="cardParameter">
-          <input class="inputStandard" id="workspaceNameInput" type="text" ref="workspaceNameInput" placeholder="Sans-titre" value="{innerData.name}" onkeyup="{nameFieldChange}"></input>
+          <input class="inputStandard" id="workspaceNameInput" maxlength="50" type="text" ref="workspaceNameInput" placeholder="Sans-titre" value="{innerData.name}" onkeyup="{nameFieldChange}"></input>
         </div>
         <label class="labelFormStandard">Description de votre Workflow</label>
         <div class="cardParameter">

@@ -21,7 +21,7 @@
           <img src="./image/Super-Mono-png/PNG/sticker/icons/navigation-down-button.png" height="20px" width="20px" draggable="false">
         </div>
         <!-- content -->
-        <div class="containerH tableRowContent" onkeyup={rowKeyUp} onchange={onChange} draggable="false">
+        <div class="containerH tableRowContent center-row" onkeyup={rowKeyUp} onchange={onChange} draggable="false">
           <yield from="row"/>
         </div>
         <!-- zone bouton -->
@@ -134,14 +134,8 @@
       }
     }
 
-    // var arrayChangeHandler = {   tag: this,   get: function (target, property, third, fourth) {     switch (property) {       case 'push':       case 'unshift':         return function (data) {           target[property](data);
-    // console.log('update')           this.tag.update();         }.bind(this);         break;       default:         return target[property];     }   },   set: function (target, property, value, receiver) {     console.log('setting ' + property + ' for
-    // ' + target + ' with value ' + value);     target[property] = value;      you have to return true to accept the changes     return true;   } };  this.data = new Proxy([], arrayChangeHandler);
-
     this.data = [];
     this.background = ""
-    // arrayChangeHandler.tag=this; Object.defineProperty(this, 'data', {   set: function (data) {     this.data=new Proxy(data, arrayChangeHandler);     this.data = data;     this.update();     this.reportCss(); this.reportFlex();
-    // console.log(this.items,data);   }.bind(this),   get: function () {     return this.data;   },   configurable: true });
 
     Object.defineProperty(this, 'indexedData', {
       get: function () {
@@ -228,6 +222,11 @@
       -khtml-user-drag: element;
       -webkit-user-drag: element;
     }*/
+    .center-row {
+      justify-content: center;
+      align-items: center;
+      display: flex;
+    }
     .dropTarget {
       flex-basis: 5px;
     }

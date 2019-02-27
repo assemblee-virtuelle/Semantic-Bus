@@ -286,7 +286,7 @@
       align-items: center;
     }
     .successMessage {
-      background-color: rgb(41,171,135) !important;
+      background-color: #88d8b0 !important;
       color: white !important;
       z-index: 999;
       height: 50px;

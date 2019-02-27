@@ -56,7 +56,7 @@ function _createHistoriqueEnd(historique) {
         })
         .lean()
         .exec()
-        resolve(historic)
+      resolve(historic)
     } catch (e) {
       return reject(new Error.DataBaseProcessError(e))
     }
@@ -68,24 +68,26 @@ function _createHistoriqueEnd(historique) {
 function _addDataHistoriqueEnd(historicId, data) {
   return new Promise(async (resolve, reject) => {
     let frag;
-    
+
     try {
-      frag = await fragment_lib.persist({ data: data})
+      frag = await fragment_lib.persist({
+        data: data
+      })
     } catch (e) {
       return reject(new Error.DataBaseProcessError(e))
     }
 
     try {
       await historiqueEndModel.getInstance().model.findOneAndUpdate({
-        _id: historicId
-      }, {
-        frag: frag._id
-      }, {
-        new: true
-      })
-      .lean()
-      .exec();
-    } catch (e){
+          _id: historicId
+        }, {
+          frag: frag._id
+        }, {
+          new: true
+        })
+        .lean()
+        .exec();
+    } catch (e) {
       return reject(new Error.DataBaseProcessError(e))
     }
 
@@ -106,7 +108,7 @@ function _createProcess(process) {
   });
 
   return new Promise((resolve, reject) => {
-    processModelObject.save(function(err, work) {
+    processModelObject.save(function (err, work) {
       if (err) {
         reject(new Error.DataBaseProcessError(e))
       } else {
@@ -181,7 +183,7 @@ function _get_process_byWorkflow(workflowId) {
       .lean()
       .exec()
       .then(workflow => {
-        if(workflow == null) {
+        if (workflow == null) {
           return reject(new Error.EntityNotFoundError('workspaceModel'))
         }
         processModel.getInstance().model.find({
@@ -242,8 +244,7 @@ function _get_process_byWorkflow(workflowId) {
 
 function _update_simple(workspaceupdate) {
   return new Promise((resolve, reject) => {
-    if (config.quietLog != true) {
-    }
+    if (config.quietLog != true) {}
     workspaceModel.getInstance().model
       .findOneAndUpdate({
           _id: workspaceupdate._id
@@ -257,15 +258,13 @@ function _update_simple(workspaceupdate) {
         if (err) {
           reject(err);
         } else {
-          if (config.quietLog != true) {
-          }
+          if (config.quietLog != true) {}
           resolve(workspaceUpdate);
         }
       });
   });
 } // <= _update_simple
 
-// //#endregion
 function check_workspace_data(workspaceData) {
   let workspace_final = workspaceData;
   return new Promise(function (resolve, reject) {
@@ -277,11 +276,11 @@ function check_workspace_data(workspaceData) {
       }
     });
     let limitHistoric = new Promise(function (resolve, reject) {
-        if(parseInt(workspaceData.limitHistoric) && parseInt(workspaceData.limitHistoric) > 0){
-          resolve(workspaceData.limitHistoric)
-        } else {
-          reject(new Error.PropertyValidationError('nombre de process enregistré'))
-        }
+      if (parseInt(workspaceData.limitHistoric) && parseInt(workspaceData.limitHistoric) > 0) {
+        resolve(workspaceData.limitHistoric)
+      } else {
+        reject(new Error.PropertyValidationError('nombre de process enregistré'))
+      }
     });
 
     Promise.all([name, limitHistoric])
@@ -301,10 +300,10 @@ async function _create(userId, workspaceData) {
   let workspaceDataCheck
   try {
     workspaceDataCheck = await check_workspace_data(workspaceData)
-  } catch(e) {
+  } catch (e) {
     throw e;
   }
-  const workspaceModelInstance= workspaceModel.getInstance().model;
+  const workspaceModelInstance = workspaceModel.getInstance().model;
   const workspace = new workspaceModelInstance({
     name: workspaceDataCheck.name,
     limitHistoric: workspaceDataCheck.limitHistoric,
@@ -312,8 +311,8 @@ async function _create(userId, workspaceData) {
     components: workspaceDataCheck.components[0]
   });
 
-  return new Promise(function(resolve, reject) {
-    workspace.save(function(err, work) {
+  return new Promise(function (resolve, reject) {
+    workspace.save(function (err, work) {
       if (err) {
         throw reject(new Error.DataBaseProcessError(err))
       } else {
@@ -327,7 +326,7 @@ async function _create(userId, workspaceData) {
               }
             }
           },
-          function(err, user) {
+          function (err, user) {
             if (err) reject(new Error.DataBaseProcessError(err));
             else resolve(work);
           }
@@ -340,7 +339,7 @@ async function _create(userId, workspaceData) {
 // --------------------------------------------------------------------------------
 
 function _destroy(userId, workspaceId) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     userModel.getInstance().model.findByIdAndUpdate({
         _id: userId
       }, {
@@ -350,13 +349,13 @@ function _destroy(userId, workspaceId) {
           }
         }
       },
-      function(err, user) {
+      function (err, user) {
         if (err) throw TypeError(err);
         else {
           workspaceModel.getInstance().model.find({
               _id: workspaceId
             },
-            function(err, workspace) {
+            function (err, workspace) {
               if (err) throw TypeError(err);
               else {
                 if (workspace[0]) {
@@ -364,14 +363,13 @@ function _destroy(userId, workspaceId) {
                     workspace[0].components != undefined ||
                     workspace[0].components != null
                   ) {
-                    workspace[0].components.forEach(function(workspaceComp) {
-                      if (config.quietLog != true) {
-                      }
+                    workspace[0].components.forEach(function (workspaceComp) {
+                      if (config.quietLog != true) {}
                       workspaceComponentModel.getInstance().model
                         .remove({
                           _id: workspaceComp
                         })
-                        .exec(function(err, res) {
+                        .exec(function (err, res) {
                           if (err) throw TypeError(err);
                         });
                     });
@@ -380,7 +378,7 @@ function _destroy(userId, workspaceId) {
                 workspaceModel.getInstance().model.findOneAndRemove({
                     _id: workspaceId
                   },
-                  function(err) {
+                  function (err) {
                     if (err) throw TypeError(err);
                     else {
                       resolve(workspace);
@@ -399,7 +397,7 @@ function _destroy(userId, workspaceId) {
 // --------------------------------------------------------------------------------
 
 function _get_all(userID, role) {
-  return new Promise(function(resolve, reject) {
+  return new Promise((resolve, reject) => {
     userModel.getInstance().model
       .findOne({
         _id: userID
@@ -409,7 +407,7 @@ function _get_all(userID, role) {
         select: "name description updatedAt"
       })
       .lean()
-      .exec((_error, data) => {
+      .exec(async (_error, data) => {
         data.workspaces = sift({
             _id: {
               $ne: null
@@ -418,18 +416,77 @@ function _get_all(userID, role) {
           data.workspaces
         );
         data.workspaces = data.workspaces.map(r => {
-          console.log(r)
           return {
             workspace: r._id,
             role: r.role,
-            
           };
         });
-        let workspaces = sift({
+        const workspaces = sift({
             role: role
           },
           data.workspaces
         ).map(r => r.workspace);
+        
+        const ProcessPromiseArray = [];
+
+        workspaces.forEach((workspace) => {
+          const ProcessPromise = new Promise((resolve, reject) => {
+            processModel.getInstance().model.find({
+                workflowId: workspace._id
+              }).sort({
+                timeStamp: -1
+              })
+              .limit(1)
+              .lean()
+              .exec((err, processes) => {
+                if (err) {
+                  reject(new Error.DataBaseProcessError(err))
+                } else {
+                  if (processes[0]) {
+                    historiqueEndModel.getInstance().model.find({
+                      processId: processes[0]._id
+                    }).select({
+                      data: 0
+                    }).lean().exec((err, historiqueEnd) => {
+                      if (err) {
+                        reject(new Error.DataBaseProcessError(err))
+                      } else {
+                        for (let step of processes[0].steps) {
+
+                          const historiqueEndFinded = sift({
+                            componentId: step.componentId
+                          }, historiqueEnd)[0];
+
+                          
+                          if (historiqueEndFinded != undefined) {
+                            if (historiqueEndFinded.error != undefined) {
+                              workspace.status = 'error';
+                              return resolve(workspace)
+                              
+                            } else {
+                              workspace.status = 'resolved';
+                            }
+                          } else {
+                            workspace.status = 'running';
+                            return resolve(workspace)
+                          }
+                        }
+
+                        resolve(workspace)
+                      }
+                    })
+                  } else {
+                    workspace.status = 'no-start';
+                    resolve(workspace)
+                  }
+                }
+              })
+          })
+          ProcessPromiseArray.push(ProcessPromise)
+        })
+
+        await Promise.all(ProcessPromiseArray)
+
         resolve(workspaces);
       });
   });
@@ -438,9 +495,9 @@ function _get_all(userID, role) {
 // --------------------------------------------------------------------------------
 
 function _update(workspace) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     _update_mainprocess(workspace)
-      .then((data)=> {
+      .then((data) => {
         resolve(data);
       })
       .catch(e => {
@@ -488,12 +545,12 @@ function _update_mainprocess(preData) {
 
 // --------------------------------------------------------------------------------
 function _get_workspace_simple(workspace_id) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     workspaceModel.getInstance().model.findOne({
         _id: workspace_id
       })
       .then((workspace) => {
-        if(workspace == null) {
+        if (workspace == null) {
           return reject(new Error.EntityNotFoundError('workspaceModel'))
         }
         resolve(workspace);
@@ -508,7 +565,7 @@ function _get_workspace_simple(workspace_id) {
 
 function _get_workspace(workspace_id) {
   console.log("get worksapce", workspace_id)
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     let workspace;
     workspaceModel.getInstance().model.findOne({
         _id: workspace_id
@@ -522,7 +579,7 @@ function _get_workspace(workspace_id) {
       .lean()
       .exec()
       .then((workspaceIn) => {
-        if(workspaceIn == null) {
+        if (workspaceIn == null) {
           return reject(new Error.EntityNotFoundError('workspaceModel'))
         }
         workspace = workspaceIn;
@@ -611,8 +668,8 @@ function _get_workspace_graph_data(workspaceId) {
           reject(new Error.DataBaseProcessError(err))
         } else {
           try {
-           const graph = graphTraitement.formatDataWorkspaceGraph(result)
-           resolve(graph);
+            const graph = graphTraitement.formatDataWorkspaceGraph(result)
+            resolve(graph);
           } catch (e) {
             reject(new Error.InternalProcessError(e))
           }
@@ -629,7 +686,7 @@ function _addConnection(workspaceId, source, target) {
     workspaceModel.getInstance().model.findOne({
       _id: workspaceId
     }).then(workspace => {
-      if(workspace == null) {
+      if (workspace == null) {
         return reject(new Error.EntityNotFoundError('workspaceModel'))
       }
       workspace.links.push({
@@ -653,7 +710,7 @@ function _addConnection(workspaceId, source, target) {
       reject(new Error.DataBaseProcessError(e))
     })
   })
-}// <= _addConnection
+} // <= _addConnection
 
 // --------------------------------------------------------------------------------
 
@@ -662,7 +719,7 @@ function _removeConnection(workspaceId, linkId) {
     workspaceModel.getInstance().model.findOne({
       _id: workspaceId
     }).then(workspace => {
-      if(workspace == null) {
+      if (workspace == null) {
         return reject(new Error.EntityNotFoundError('workspaceModel'))
       }
       let targetLink = sift({
@@ -691,5 +748,5 @@ function _removeConnection(workspaceId, linkId) {
       return reject(new Error.DataBaseProcessError(e))
     });
   })
-}// <= _removeConnection
+} // <= _removeConnection
 // --------------------------------------------------------------------------------

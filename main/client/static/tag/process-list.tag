@@ -46,7 +46,6 @@
     this.on('mount', function () {
       this.refs.processZenTable.on('rowsSelected',records=>{
         selected=records[0];
-        console.log(selected);
         RiotControl.trigger('workspace_current_process_select',selected);
 
       });

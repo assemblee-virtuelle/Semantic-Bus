@@ -189,34 +189,37 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   // ----------------------------------------- API CALL  -----------------------------------------
 
   this.loadProcesses = function (id) {
-    this.utilStore.ajaxCall({
-      method: 'get',
-      url: '../data/core/workspaces/' + id + '/process'
-    }, true)
-      .then(data => {
-        this.processCollection = data
+    return new Promise((resolve, reject) => {
+      this.utilStore.ajaxCall({
+        method: 'get',
+        url: '../data/core/workspaces/' + id + '/process'
+      }, true)
+        .then(data => {
+          this.processCollection = data
 
-        this.processCollection.forEach(process => {
-          let waitingNB = sift({
-            status: 'waiting'
-          }, process.steps).length
-          let errorNB = sift({
-            status: 'error'
-          }, process.steps).length
-          if (errorNB > 0) {
-            process.status = 'error'
-          } else {
-            if (waitingNB > 0) {
-              process.status = 'waiting'
+          this.processCollection.forEach(process => {
+            let waitingNB = sift({
+              status: 'waiting'
+            }, process.steps).length
+            let errorNB = sift({
+              status: 'error'
+            }, process.steps).length
+            if (errorNB > 0) {
+              process.status = 'error'
             } else {
-              process.status = 'resolved'
+              if (waitingNB > 0) {
+                process.status = 'waiting'
+              } else {
+                process.status = 'resolved'
+              }
             }
-          }
-          process.stepFinished = process.steps.length - waitingNB
+            process.stepFinished = process.steps.length - waitingNB
+          })
+          console.log('---- load current process ---', this.processCollection[0])
+          resolve(this.processCollection[0])
+          this.trigger('workspace_current_process_changed', this.processCollection)
         })
-
-        this.trigger('workspace_current_process_changed', this.processCollection)
-      })
+    })
   }
 
   // --------------------------------------------------------------------------------
@@ -456,17 +459,19 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
           this.trigger('navigation_control_done', entity, action, secondAction)
         }
       } else {
-        this.unsubscribeToPreviousSubscription()
-        this.select({ _id: id }).then(() => {
-          this.subscribeToComponents(entity, action)
-          if (action === 'component' && secondId !== undefined) {
-            this.loadComponentPart(secondId, secondAction)
-            this.trigger('navigation_control_done', 'workspace', secondAction)
-          } else {
-            this.trigger('navigation_control_done', entity, action, secondAction)
-          }
+        this.loadProcesses(id).then((process) => {
+          this.currentProcess = process
+          this.unsubscribeToPreviousSubscription()
+          this.select({ _id: id }).then(() => {
+            this.subscribeToComponents(entity, action)
+            if (action === 'component' && secondId !== undefined) {
+              this.loadComponentPart(secondId, secondAction)
+              this.trigger('navigation_control_done', 'workspace', secondAction)
+            } else {
+              this.trigger('navigation_control_done', entity, action, secondAction)
+            }
+          })
         })
-        this.loadProcesses(id)
       }
     }
   })
@@ -795,7 +800,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   this.on('component_current_connections_refresh', function () {
-    console.log("CURRETN", this.itemCurrent._id)
+    console.log('CURRETN', this.itemCurrent._id)
     let beforeLinks = sift({
       target: this.itemCurrent._id
     }, this.workspaceCurrent.links)
@@ -902,7 +907,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
           this.currentProcess = process
           this.computeGraph()
         }
-        route('workspace/' + this.workspaceCurrent._id + '/process')
         this.trigger('workspace_current_process_changed', this.processCollection)
       } else {
         this.trigger('ajax_fail', body.error)
