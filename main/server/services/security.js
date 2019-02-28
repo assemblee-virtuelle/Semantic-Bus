@@ -12,7 +12,7 @@ const securityWorksapce = (req, role) => {
     token.split('')
     let tokenAfter = token.substring(4, token.length)
     const decodeToken = auth_lib_jwt.get_decoded_jwt(tokenAfter)
-   
+    console.log(decodeToken)
     if (req.body && req.body.workspaceId) workspaceId = req.body.workspaceId
     if (req.params && req.params.id) workspaceId = req.params.id
     user_lib.getWithWorkspace(

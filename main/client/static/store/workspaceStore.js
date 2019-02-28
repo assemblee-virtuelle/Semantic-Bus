@@ -634,6 +634,10 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     this.trigger('workspace_current_process_changed', this.processCollection)
   }) // <= workspace_current_refresh
 
+  this.on('workspace_current_process_refresh_from_server', function () {
+    this.loadProcesses(this.workspaceCurrent._id);
+  }) // <= workspace_current_refresh
+
   // --------------------------------------------------------------------------------
 
   this.on('workspace_current_process_select', function (process) {

@@ -49,10 +49,7 @@ function UserStore (utilStore) {
       method: 'post',
       data: JSON.stringify(tokenObject),
       contentType: 'application/json',
-      url: '/data/auth/google_auth_statefull_verification',
-      beforeSend: function () {
-        this.trigger('ajax_send_login')
-      }.bind(this)
+      url: '/data/auth/google_auth_statefull_verification'
     }).then(data => {
       if (data && data.token != null) {
         localStorage.token = data.token

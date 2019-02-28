@@ -693,7 +693,7 @@
 
     this.updateData=(dataToUpdate)=>{
       this.innerData=dataToUpdate;
-      this.graph.status = dataToUpdate.status;
+      if(this.graph)this.graph.status = dataToUpdate.status;
       this.drawSelected(this.graph)
       this.update();
     };

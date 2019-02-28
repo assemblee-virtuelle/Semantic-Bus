@@ -57,15 +57,14 @@
         </div>
       </div>
     </a>
-
   </div>
   <!-- Page graph -->
-  <div show={menu=='component'} class="containerH" style="flex-grow: 1;background-color:rgb(238,242,249)">
+  <div if={menu=='component'} class="containerH" style="flex-grow: 1;background-color:rgb(238,242,249)">
     <graph style="flex-grow:1"></graph>
     <!-- graph si vide -->
   </div>
   <!-- liste des partages -->
-  <div show={menu=='user' } class="containerV" style="flex-grow: 1;">
+  <div if={menu=='user' } class="containerV" style="flex-grow: 1;">
     <div class="containerV" style="flex-grow:1;padding-top:20px">
       <zentable title="" drag={false} disallownavigation={true} id="userliste" disallowcommand={innerData.mode=="read" } ref="userZenTable">
         <yield to="header">
@@ -89,7 +88,7 @@
     </div>
   </div>
   <!-- Page créer un workflow -->
-  <div show={menu=='information' } class="containerV" id="description" style="justify-content: center; background-color: rgb(238,242,249); flex-grow: 1;">
+  <div if={menu=='information' } class="containerV" id="description" style="justify-content: center; background-color: rgb(238,242,249); flex-grow: 1;">
     <div class="containerV box-flex" style="background-color: rgb(255,255,255);">
       <div class="containerV">
         <label class="labelFormStandard">Nom de votre Workflow</label>
@@ -134,22 +133,19 @@
   <div if={menu=='running' } class="containerV" style="flex-grow: 1;">
     <graph-of-use></graph-of-use>
   </div>
-  <!-- Page ajouter un composant -->
-  <!--  <div show={menu=='addComponent' } class="containerV" style="flex-grow: 1;">
-    <technical-component-table></technical-component-table>
-  </div>  -->
   <!-- Page utilisateurs -->
-  <div show={menu=='share' } class="containerV" style="flex-grow: 1;">
+  <div if={menu=='share' } class="containerV" style="flex-grow: 1;">
     <user-list></user-list>
   </div>
   <!-- Page processs -->
-  <div show={menu=='process' } class="containerV" style="flex-grow: 1;">
+  <div if={menu=='process' } class="containerV" style="flex-grow: 1;">
     <process-list></process-list>
   </div>
   <!-- Edition component -->
   <div if={menu=='edit-component' } class="containerV" style="flex-grow: 1;">
     <workspace-component-editor ></workspace-component-editor>
   </div>
+
   <script>
     this.innerData = {};
     this.title = "Workspace"
@@ -172,8 +168,10 @@
     
     this.workspaceCurrentChanged = function (data) {
       this.innerData = data;
-      this.refs.userZenTable.data = data.users;
+      if(this.menu=='user'){
+        this.refs.userZenTable.data = data.users;
       //this.tags['graph-of-use'].data = data
+      }
       this.update();
     }.bind(this);
 
@@ -224,7 +222,9 @@
 
     this.on('mount', function () {
       //user delete
-      this.tags.zentable.on('delRow',this.updateShareUser);
+      if(this.menu=='user'){
+        this.tags.zentable.on('delRow',this.updateShareUser);
+      }
       RiotControl.on('store_persisteWorkspace', this.persistClick)
       RiotControl.on('workspace_current_changed', this.workspaceCurrentChanged);
       RiotControl.on('share_change', this.shareChange);
