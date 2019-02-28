@@ -1,0 +1,16 @@
+{
+  "name": "SemanticBusTimer",
+  "version": "0.1.1",
+  "description": "Timer scheduler for Semantic Bus",
+  "private": true,
+  "main": "app.js",
+  "scripts": {
+    "start": "node app.js"
+  },
+  "author": "Simon Louvet <simon.louvet.zen@gmail.com> && Boceno Alexandre <bocenoalex@gmail.com>",
+  "license": "GNUV3",
+  "dependencies": {
+    "https": "latest",
+    "http": "0.0.0"
+  }
+}

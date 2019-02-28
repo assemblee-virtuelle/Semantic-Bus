@@ -156,16 +156,17 @@
       var onConnect = (client) => {
         // no more r&d for private incrementation because
         // react refonte will change all this mechanisme
-        if (configuration.privateScript && configuration.privateScript.length > 0) {
-          let stripeStore = new StripeStore();
-          RiotControl.addStore(stripeStore);
-        }
-
         const allStore = {};
         const utilStore = new UtilStore();
         RiotControl.addStore(utilStore);
         allStore['utilStore'] = utilStore;
 
+        if (configuration.privateScript && configuration.privateScript.length > 0) {
+          let stripeStore = new StripeStore(utilStore);
+          RiotControl.addStore(stripeStore);
+        }
+
+        
         const profilStore = new ProfilStore(utilStore);
         RiotControl.addStore(profilStore);
         allStore['profilStore'] = profilStore;
