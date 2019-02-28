@@ -703,7 +703,7 @@
       RiotControl.on('workspace_graph_selection_changed', this.drawSelected);
       RiotControl.on('workspace_graph_compute_done', this.drawGraph);
       RiotControl.trigger('workspace_graph_compute', this.refs.graphSvgCanvas);
-    }); // fin mount
+    });
 
     this.on('unmount', function () {
       RiotControl.off('workspace_graph_selection_changed', this.drawSelected);

@@ -394,8 +394,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     })
   })
 
-  this.currentProcess
-
   // --------------------------------------------------------------------------------
 
   this.on('item_persist', function (item) {

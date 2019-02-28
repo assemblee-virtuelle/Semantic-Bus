@@ -41,7 +41,6 @@ class RestGetJson {
                 req.query[key.name] = value
                 valueIndex++
               }
-              // console.log('ALLO');
               for (let queryKey in req.query) {
                 try {
                   // console.log('1',req.query[queryKey]);

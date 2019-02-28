@@ -58,6 +58,7 @@
 
   this.initD3js = data => {
     if(data){
+      console.log("data", data)
       var marginStackChart = {
           top: 40,
           right: 50,
@@ -171,12 +172,13 @@
 
 
       state.selectAll("rect")
-        .data(function (d) {return d.workspaces})
+        .data((d) => (d.workspaces))
         .enter()
         .append("rect")
         .attr("width", xStackChart.bandwidth())
-        .attr("y", function (d) {return yStackChart(d.y1)})
-        .attr("height", function (d) {return yStackChart(d.y0) - yStackChart(d.y1)})
+        .attr("y", (d) => (yStackChart(d.y1)))
+        .attr("height", function (d) {
+          return yStackChart(d.y0) - yStackChart(d.y1)})
         .style("fill", function (d) {return colorStackChart(d.id)})
         .on("mouseover", function (d) {
           d3
@@ -209,15 +211,16 @@
   };
 
   this.initgraph = (data) => {
-      if(data){
-        this.dataLoaded = true
-        this.numberWorkspace = data.workspaceNumber
-        this.globalPrice = data.golbalConsumption
-        this.globalMo = data.golbalConsumptionMo
-        this.update()
-        this.initD3js(data)
-      }
+    if(data){
+      console.log(data)
+      this.dataLoaded = true
+      this.numberWorkspace = data.workspaceNumber
+      this.globalPrice = data.golbalConsumption
+      this.globalMo = data.golbalConsumptionMo
+      this.update()
+      this.initD3js(data)
     }
+  }
 
 
 

@@ -88,7 +88,7 @@
     </div>
   </div>
   <!-- Page créer un workflow -->
-  <div if={menu=='information' } class="containerV" id="description" style="justify-content: center; background-color: rgb(238,242,249); flex-grow: 1;">
+  <div if={menu=='information'} class="containerV" id="description" style="justify-content: center; background-color: rgb(238,242,249); flex-grow: 1;">
     <div class="containerV box-flex" style="background-color: rgb(255,255,255);">
       <div class="containerV">
         <label class="labelFormStandard">Nom de votre Workflow</label>
@@ -130,15 +130,15 @@
     </div>
   </div>
   <!-- Page consommation -->
-  <div if={menu=='running' } class="containerV" style="flex-grow: 1;">
+  <div if={menu=='running'} class="containerV" style="flex-grow: 1;">
     <graph-of-use></graph-of-use>
   </div>
   <!-- Page utilisateurs -->
-  <div if={menu=='share' } class="containerV" style="flex-grow: 1;">
+  <div if={menu=='share'} class="containerV" style="flex-grow: 1;">
     <user-list></user-list>
   </div>
   <!-- Page processs -->
-  <div if={menu=='process' } class="containerV" style="flex-grow: 1;">
+  <div if={menu=='process'} class="containerV" style="flex-grow: 1;">
     <process-list></process-list>
   </div>
   <!-- Edition component -->
