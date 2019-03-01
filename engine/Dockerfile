@@ -51,10 +51,7 @@ RUN cd /data/core && ls  &&  npm install
 
 ADD ./wait-for-it.sh /data/scripts/
 
-RUN npm cache clean --force
-
-RUN cd /data/engine &&  npm install
-
+RUN cd /data/engine && npm cache clean --force && npm install
 
 EXPOSE 80
 

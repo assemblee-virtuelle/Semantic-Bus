@@ -1,7 +1,7 @@
 version: '3.0'
 services:         
   
-   rabbitmq:
+  rabbitmq:
     image: semanticbus/rabbitmq-stomp
     container_name: rabbitmq
     ports:
