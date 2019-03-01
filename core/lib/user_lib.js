@@ -2,7 +2,6 @@
 
 let userModel = require("../models/user_model");
 let pattern = require("../helpers").patterns;
-let config = require("../../main/configuration.js");
 let bcrypt = require("bcryptjs");
 let sift = require("sift");
 let graphTraitement = require("../helpers/graph-traitment");
@@ -38,8 +37,7 @@ module.exports = {
 // 2 - save in bdd user model
 
 function _create(bodyParams) {
-  if (config.quietLog != true) {
-  }
+  
   return new Promise(function (resolve, reject) {
     _create_preprocess(bodyParams.user).then((preData) => {
       return _create_mainprocess(preData);
@@ -95,8 +93,7 @@ function _create_preprocess(userParams) {
         resolve(null);
       }
       _check_job(userParams.job).then(function (boolean) {
-        if (config.quietLog != true) {
-        }
+       
         if (!boolean) {
           reject(new Error.PropertyValidationError('job'))
         } else {
@@ -109,8 +106,7 @@ function _create_preprocess(userParams) {
         resolve(null);
       }
       _check_name(userParams.name).then(function (boolean) {
-        if (config.quietLog != true) {
-        }
+       
         if (!boolean) {
           reject(new Error.PropertyValidationError('name'))
         } else {
@@ -157,8 +153,7 @@ function _create_preprocess(userParams) {
 } // <= _create_preprocess
 
 function _get_all(options) {
-  if (config.quietLog != true) {
-  }
+  
   return new Promise(function (resolve, reject) {
     userModel.getInstance().model
       .find(options.filters)
@@ -171,8 +166,7 @@ function _get_all(options) {
         if (err) {
           reject(err);
         } else {
-          if (config.quietLog != true) {
-          }
+          
           resolve(users);
         }
       });
@@ -301,8 +295,7 @@ function _update(user, mailChange) {
   return new Promise(function (resolve, reject) {
     _is_google_user(user).then(function (boolean) {
       if (boolean == true) {
-        if (config.quietLog != true) {
-        }
+       
         reject("google_user");
       } else {
         return _update_preprocess(user, mailChange);
@@ -322,8 +315,6 @@ function _update(user, mailChange) {
 function _update_mainprocess(preData) {
   //transformer le model business en model de persistance
   return new Promise(function (resolve, reject) {
-    if (config.quietLog != true) {
-    }
     var toUpdate = {};
     if (preData.email) {
       if (!toUpdate["$set"]) {
@@ -408,8 +399,7 @@ function _update_mainprocess(preData) {
         if (err) {
           reject("errorr_save");
         } else {
-          if (config.quietLog != true) {
-          }
+          
           resolve(userData);
         }
       }
@@ -527,8 +517,7 @@ function _update_preprocess(userParams) {
         o["hash_password"] = user_update_data[7];
         o["credit"] = user_update_data[8];
         o._id = userParams._id;
-        if (config.quietLog != true) {
-        }
+       
         resolve(o);
       })
       .catch(function (err) {
@@ -556,8 +545,7 @@ function _check_name(name) {
 function _check_job(job) {
   return new Promise(function (resolve, reject) {
     if (pattern.job.test(job)) {
-      if (config.quietLog != true) {
-      }
+      
       resolve(true);
     } else {
       resolve(false);
@@ -605,8 +593,6 @@ function _is_google_user(user) {
       .exec(function (err, userData) {
         if (userData) {
           if (userData.googleId != null) {
-            if (config.quietLog != true) {
-            }
             resolve(true);
           } else {
             resolve(false);

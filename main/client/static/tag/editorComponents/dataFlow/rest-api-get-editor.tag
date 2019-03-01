@@ -44,6 +44,9 @@
 
     this.updateData = function (dataToUpdate) {
       this.data = Object.assign({},dataToUpdate);
+      if(this.data.specificData && !this.data.specificData.contentType ){
+        this.data.specificData.contentType = "application/json"
+      }
       const regexUrl = `${this.data._id}-`;
       const rx = new RegExp(regexUrl, 'i');
       if(dataToUpdate.specificData && dataToUpdate.specificData.url && dataToUpdate.specificData.url.match(rx)){

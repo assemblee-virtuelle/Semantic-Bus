@@ -42,16 +42,16 @@ RUN node -v
 RUN npm -v
 
 RUN npm install pm2 -g
+RUN npm install nodemon -g
 # Bundle app source
 
-ADD ./main /data/main/
 ADD ./core /data/core/
 
-RUN cd /data/core && ls && npm cache clean --force &&  npm install
+RUN cd /data/core && ls && npm install
 
 ADD ./wait-for-it.sh /data/scripts/
 
-RUN cd /data/main && ls && npm cache clean --force &&  npm install
+RUN cd /data/main && ls && npm install
 
 EXPOSE 80
 

@@ -32,37 +32,7 @@ function UserIdFromToken (req) {
   return decodeToken.iss
 }
 
-module.exports = function (router, amqpClient) {
-  // Amqp
-
-  this.amqpClient = amqpClient
-  if (process.env.NOTENGINE !== true) {
-    amqpClient.consume('work-ask', (msg) => {
-      var messageObject = JSON.parse(msg.content.toString())
-      workspace_component_lib.get({
-        _id: messageObject.id
-      }).then(function (data) {
-        var engine = require('./services/engine.js')
-        return engine.execute(data, 'work', this.amqpClient, messageObject.callerId)
-      })
-    }, {
-      noAck: true
-    })
-
-    router.get('/work-ask/:componentId', function (req, res, next) {
-      // var messageObject = JSON.parse(msg.content.toString());
-      var componentId = req.params.componentId
-      workspace_component_lib.get({
-        _id: componentId
-      }).then(function (data) {
-        var engine = require('./services/engine.js')
-        return engine.execute(data, 'work', this.amqpClient, undefined)
-      }).then((data) => {
-      }).catch(e => {
-      })
-    })
-  }
-
+module.exports = function (router) {
   // Get workspaces
 
   router.get('/workspaces/me/owner', function (req, res, next) {

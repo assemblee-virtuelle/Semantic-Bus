@@ -1,3 +1,4 @@
+/* eslint-disable handle-callback-err */
 'use strict'
 
 const express = require('express')
@@ -8,11 +9,11 @@ const amqp = require('amqplib/callback_api')
 const safe = express.Router()
 const unSafeRouteur = express.Router()
 const bodyParser = require('body-parser')
+const request = require('request')
 const env = process.env
-const httpGet = require('./server/workspaceComponent/restGetJson.js')
 const fs = require('fs')
-const url = env.CONFIG_URL || 'https://data-players.github.io/StrongBox/public/dev-local-mac-without-stripe.json'
-const errorHandling = require('./server/services/errorHandling')
+const url = env.CONFIG_URL
+const errorHandling = require('../core/helpers/errorHandling')
 
 app.use(cors())
 app.use(bodyParser.json({
@@ -27,12 +28,9 @@ safe.use(bodyParser.json())
 
 http.globalAgent.maxSockets = 1000000000
 
-httpGet.makeRequest('GET', {
-  url
-}).then(result => {
-  const configJson = result.data
-  const content = 'module.exports = ' + JSON.stringify(result.data)
-
+request(url, { json: true }, (err, result, body) => {
+  const configJson = result.body
+  const content = 'module.exports = ' + JSON.stringify(result.body)
   fs.writeFile('configuration.js', content, 'utf8', function (err) {
     if (err) {
       throw err
@@ -49,11 +47,6 @@ httpGet.makeRequest('GET', {
         console.log('AMQP status : ', conn ? 'connected' : 'no connected', err || 'no error')
         conn.createChannel(function (_err, ch) {
           onConnect(ch)
-          if (process.env.NOTENGINE != true) {
-            ch.assertQueue('work-ask', {
-              durable: true
-            })
-          }
         })
       })
       const onConnect = function (amqpClient) {
@@ -64,12 +57,12 @@ httpGet.makeRequest('GET', {
         app.use('/data/auth', unSafeRouteur)
         app.use('/data/core', safe)
 
-        require('./server/initialiseWebService')(unSafeRouteur, amqpClient)
+        require('./server/initialiseWebService')(unSafeRouteur)
         require('./server/authWebService')(unSafeRouteur)
-        require('./server/workspaceWebService')(safe, amqpClient)
+        require('./server/workspaceWebService')(safe)
         require('./server/technicalComponentWebService')(safe, unSafeRouteur, amqpClient)
-        require('./server/userWebservices')(safe, amqpClient)
-        require('./server/fragmentWebService')(safe, amqpClient)
+        require('./server/userWebservices')(safe)
+        require('./server/fragmentWebService')(safe)
 
         /// SECURISATION DES REQUETES
 
@@ -83,9 +76,7 @@ httpGet.makeRequest('GET', {
         app.use('/browserify', express.static('browserify'))
         app.use('/npm', express.static('node_modules'))
 
-        app.listen(process.env.APP_PORT || 8080, function (err) {
-          console.log('~~ server started at ', 'port', process.env.APP_PORT || 8080, err, ':', this.address())
-          require('../core/timerScheduler').run()
+        app.listen(process.env.APP_PORT || 80, function (err) {
         })
         app.use((_err, req, res, next) => {
           if (_err) {

@@ -6,7 +6,7 @@ FROM debian:latest
 RUN rm /bin/sh && ln -s /bin/bash /bin/sh
 
 # define app folder
-WORKDIR /data/main
+WORKDIR /data/engine
 
 # update the repository sources list
 # and install dependencies
@@ -41,17 +41,18 @@ ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 RUN node -v
 RUN npm -v
 
-
+RUN npm install pm2 -g
+RUN npm install nodemon -g
 # Bundle app source
 
-
-ADD ./timer /data/timer/
 ADD ./core /data/core/
 
-RUN cd /data/core && ls && npm cache clean --force &&  npm install
+RUN cd /data/core && ls  &&  npm install
 
-RUN cd /data/timer && ls && npm cache clean --force && npm install
+ADD ./wait-for-it.sh /data/scripts/
 
-EXPOSE 9001
+RUN cd /data/engine && ls  &&  npm install
 
-CMD [ "npm", "run", "start" ]
+EXPOSE 80
+
+CMD [ "pm2", "start", "app.js", "--max-memory-restart", "1500M" ,"--no-daemon"]

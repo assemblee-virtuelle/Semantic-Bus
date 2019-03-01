@@ -15,23 +15,6 @@
       }
    });
 
-   test(){
-     //this.error.textContent='pending';
-     //var sendedData=this.data;
-     //console.log('test api');
-/*
-     $.ajax({
-       url: "/data/query/"+this.data.url,
-       type: 'get',
-       timeout: 5000
-     }).done(function(data) {
-       //console.log(data, JSON.stringify(data))
-       RiotControl.trigger('previewJSON',data)
-     }.bind(this)).fail(function(err) {
-
-     });*/
-   }
-
    this.on('mount', function () {
      this.urlOutPut.addEventListener('change',function(e){
        console.log(this);

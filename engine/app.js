@@ -1,47 +1,58 @@
-"use strict";
+'use strict'
 
-var http = require('http');
-var https = require('https');
-http.globalAgent.maxSockets = 1000000000;
-const requestHandler = (request, response) => {
-  response.end('Hello Node.js Server!')
-}
-var server = http.Server(requestHandler);
-var env = process.env;
-var url = require('url');
-var fs = require('fs');
-const configUrl = env.CONFIG_URL|| 'https://data-players.github.io/StrongBox/public/dev-docker.json'
-const parsedUrl = url.parse(configUrl);
-const requestOptions = {
-  hostname: parsedUrl.hostname,
-  path: parsedUrl.path,
-  port: parsedUrl.port,
-  headers: {
-    Accept: 'text/plain, application/xml , application/ld+json',
-    'user-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0',
-  }
-};
-https.get(requestOptions, function(res) {
-  var responseBody = '';
-  if (res.statusCode == 200) {
+const express = require('express')
+const cors = require('cors')
+const app = express()
+const http = require('http')
+const amqp = require('amqplib/callback_api')
+const safe = express.Router()
+const bodyParser = require('body-parser')
+const env = process.env
+const fs = require('fs')
+const url = env.CONFIG_URL
+const errorHandling = require('../core/helpers/errorHandling')
+const request = require('request')
 
-  }
-  res.on('data', chunk => {
-    responseBody += chunk.toString();
-  });
+http.globalAgent.maxSockets = 1000000000
+app.use(cors())
+app.use(bodyParser.json({
+  limit: '10mb'
+}))
+app.use(bodyParser.urlencoded({
+  limit: '10mb',
+  extended: true
+}))
 
-  res.on('end', () => {
-    console.log("http end", responseBody)
-    let content = 'module.exports = ' + responseBody;
-    fs.writeFile("configuration.js", content, 'utf8', function(err) {
-      server.listen(JSON.parse(responseBody).timer.port || 8080, function () {
-        console.log('~~ server started at ', this.address().address, ':', this.address().port)
-        require('../core/timerScheduler').run(true);
+safe.use(bodyParser.json())
+
+request(url, { json: true }, (err, result, body) => {
+  const configJson = result.body
+  const content = 'module.exports = ' + JSON.stringify(result.body)
+
+  fs.writeFile('configuration.js', content, 'utf8', function (err) {
+    if (err) {
+      throw err
+    } else {
+      amqp.connect(configJson.socketServer + '/' + configJson.amqpHost, (err, conn) =>{
+        conn.createChannel((_err, ch) => {
+          ch.assertQueue('work-ask', {
+            durable: true
+          })
+          onConnect(ch)
+        })
       })
-    });
-  });
-
-}.bind(this)).on('error', (e) => {
-  console.error('timer APP config error', e);
-  throw new Error(e)
-});
+      const onConnect = (amqpClient) => {
+        require('./amqpService')(safe, amqpClient)
+      }
+      app.use('/engine', safe)
+      app.listen(9090, function (err) {
+        console.log("listen")
+      })
+      app.use((_err, req, res, next) => {
+        if (_err) {
+          errorHandling(_err, res, next)
+        }
+      })
+    }
+  })
+})

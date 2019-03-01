@@ -5,7 +5,6 @@ const auth_lib_jwt = require('../../core/lib/auth_lib')
 const mailService = require('./services/mail')
 const jwt = require('jwt-simple')
 const moment = require('moment')
-const errorHandling = require('./services/errorHandling')
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

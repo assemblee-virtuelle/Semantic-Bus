@@ -37,6 +37,8 @@ data/
 
 # Dependency directories
 main/node_modules/
+engine/node_modules/
+timer/node_modules/
 core/node_modules/
 jspm_packages/
 

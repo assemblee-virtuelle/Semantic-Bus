@@ -5,16 +5,12 @@ module.exports = {
   moment: require('moment'),
   http: require('http'),
   url: require('url'),
-  config: require('../main/configuration.js'),
+  config: require("../configuration")(),
   runTimers: function(dedicaded) {
     // console.log('----- Timer Cron')
     this.componentLib.get_all_withConsomation({
       module: 'timer'
     }).then(components => {
-      // console.log('components',components.length);
-      if ((dedicaded && this.config.timer != undefined) || (dedicaded==undefined && this.config.timer == undefined)) {
-        // console.log('conditions');
-        //console.log(components.length + ' timers');
         components.forEach(c => {
           let now = new Date();
           let lastExec = c.specificData.last == undefined ? undefined : new Date(c.specificData.last);
@@ -48,34 +44,27 @@ module.exports = {
                 this.http.get({
                   host: parsedUrl.hostname,
                   port: parsedUrl.port,
-                  path: '/data/core/work-ask/' + c._id,
+                  path: config.engineUrl +'/work-ask/' + c._id,
                   headers: {
                     "Authorization": "JTW" + " " + token
                   },
                   agent: keepAliveAgent
-                }, function(res) {
+                }, (res) => {
                   if (res.statusCode == 200) {
                     console.log('GOOD');
                   }
                   res.on('end', () => {
                     console.log('END Timer Work');
                   });
-                }.bind(this)).on('error', (e) => {
+                }).on('error', (e) => {
                   console.error('timer work request fail', e);
                   //throw new Error(e)
                 });
 
-              } else if (dedicaded==undefined && this.config.timer == undefined) {
-                console.log('GO not dedidated!');
-                let engine = require('../../server/recursivPullResolvePromise');
-                engine.getNewInstance().resolveComponent(c, 'work').then(() => {
-                  //console.log('timer done');
-                })
               }
             }
           }
         });
-      }
     })
   },
   run: function(dedicaded) {
