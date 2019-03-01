@@ -47,7 +47,7 @@ RUN npm install nodemon -g
 
 ADD ./core /data/core/
 
-RUN cd /data/core && ls  &&  npm install
+RUN cd /data/core && npm install
 
 ADD ./wait-for-it.sh /data/scripts/
 
