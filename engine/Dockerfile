@@ -46,13 +46,19 @@ RUN npm install nodemon -g
 # Bundle app source
 
 ADD ./core /data/core/
-
 RUN cd /data/core && npm install
 
 ADD ./wait-for-it.sh /data/scripts/
 
-RUN cd /data/engine && npm cache clean --force && npm install
+# add node_modules binaries to PATH (nodejs look for node_modules in parent directories)
+ENV PATH /data/node_modules/.bin:$PATH
+
+# install and cache app dependencies
+ADD ./engine/package.json /data/
+RUN cd /data && npm cache clean --force && npm install
 
 EXPOSE 80
 
 CMD [ "pm2", "start", "app.js", "--max-memory-restart", "1500M" ,"--no-daemon"]
+
+

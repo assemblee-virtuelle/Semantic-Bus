@@ -47,11 +47,19 @@ RUN npm install nodemon -g
 
 ADD ./core /data/core/
 
+# add node_modules binaries to PATH (nodejs look for node_modules in parent directories)
+ENV PATH /data/node_modules/.bin:$PATH
+
+# install and cache app dependencies
+ADD ./main/package.json /data/
+
 RUN cd /data/core && ls && npm install
+
+RUN cd /data/ && npm cache clean --force && npm install
 
 ADD ./wait-for-it.sh /data/scripts/
 
-RUN cd /data/main && npm cache clean --force && npm install
+
 
 EXPOSE 80
 
