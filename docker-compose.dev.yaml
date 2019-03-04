@@ -9,7 +9,7 @@ services:
     image: semanticbus/engine
     environment:
         - APP_PORT=90
-        - NODE_ENV=development_docker
+        - NODE_ENV=production
         - CONFIG_URL=$CONFIG_URL
     volumes:
       - ./engine:/data/engine/
@@ -36,7 +36,7 @@ services:
     image: semanticbus/main
     environment:
         - APP_PORT=80
-        - NODE_ENV=development_docker
+        - NODE_ENV=production
         - CONFIG_URL=$CONFIG_URL
     volumes:
       - ./main:/data/main/

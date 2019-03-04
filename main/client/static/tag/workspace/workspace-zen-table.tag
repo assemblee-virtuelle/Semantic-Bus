@@ -24,7 +24,7 @@
       <div class="tableRowStatus">
         <div class={status}>
           <div class="img-status-div">
-            <img src={"./image/"+status+".svg"} class="img-status" />
+            <img src={"./image/"+status+".svg"} class="img-status" style="width:1.2em"/>
           </div>
           <div class="status-div">
             {status}

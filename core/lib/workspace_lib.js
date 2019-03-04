@@ -608,7 +608,7 @@ function _get_workspace(workspace_id) {
       .populate({
         path: "components",
         select: "-consumption_history",
-        model: workspaceComponentModel.getInstance()
+        model: workspaceComponentModel.getInstance().model
       })
       .lean()
       .exec()
