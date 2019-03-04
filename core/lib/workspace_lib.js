@@ -1,9 +1,9 @@
 "use strict";
 
 var fragment_lib = require('./fragment_lib.js');
+var workspaceComponentModel = require("../models/workspace_component_model");
 var workspaceModel = require("../models/workspace_model");
 var userModel = require("../models/user_model");
-var workspaceComponentModel = require("../models/workspace_component_model");
 var config = require("../getConfiguration.js")();
 var historiqueEndModel = require("../models/historiqueEnd_model");
 var processModel = require("../models/process_model");
