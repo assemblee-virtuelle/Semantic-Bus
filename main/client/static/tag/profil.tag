@@ -238,6 +238,7 @@
 
 
   </script>
+
   <style scoped="scoped">
     .arrow {
       position: absolute;
@@ -353,4 +354,5 @@
     }
 
   </style>
+
 </profil>
