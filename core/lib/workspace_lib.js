@@ -457,7 +457,7 @@ function _get_all(userID, role) {
           },
           data.workspaces
         ).map(r => r.workspace);
-        
+
         const ProcessPromiseArray = [];
 
         workspaces.forEach((workspace) => {
@@ -483,19 +483,19 @@ function _get_all(userID, role) {
                         reject(new Error.DataBaseProcessError(err))
                       } else {
                         for (let step of processes[0].steps) {
-                          
+
                           const historiqueEndFinded = sift({
                             componentId: step.componentId
                           }, historiqueEnd)[0];
 
                           if(processes[0].state === "stop") {
-                          workspace.status = 'stoped'; 
+                          workspace.status = 'stoped';
                           } else {
                             if (historiqueEndFinded != undefined) {
                               if (historiqueEndFinded.error != undefined) {
                                 workspace.status = 'error';
                                 return resolve(workspace)
-                                
+
                               } else {
                                 workspace.status = 'resolved';
                               }
@@ -597,8 +597,9 @@ function _get_workspace_simple(workspace_id) {
 // --------------------------------------------------------------------------------
 
 function _get_workspace(workspace_id) {
-  console.log("get worksapce", workspace_id)
+  // console.log("get workspace", workspace_id)
   return new Promise(function (resolve, reject) {
+    workspaceComponentModel.getInstance();//TODO : conception error if getInstance isn't call, schema is not register 
     let workspace;
     workspaceModel.getInstance().model.findOne({
         _id: workspace_id
@@ -682,19 +683,19 @@ function _get_workspace(workspace_id) {
                       reject(new Error.DataBaseProcessError(err))
                     } else {
                       for (let step of processes[0].steps) {
-                        
+
                         const historiqueEndFinded = sift({
                           componentId: step.componentId
                         }, historiqueEnd)[0];
 
                         if(processes[0].state === "stop") {
-                        workspace.status = 'stoped'; 
+                        workspace.status = 'stoped';
                         } else {
                           if (historiqueEndFinded != undefined) {
                             if (historiqueEndFinded.error != undefined) {
                               workspace.status = 'error';
                               return resolve(workspace)
-                              
+
                             } else {
                               workspace.status = 'resolved';
                             }

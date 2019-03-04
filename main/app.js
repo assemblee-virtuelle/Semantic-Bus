@@ -76,8 +76,11 @@ request(url, { json: true }, (err, result, body) => {
         app.use('/browserify', express.static('browserify'))
         app.use('/npm', express.static('node_modules'))
 
-        app.listen(process.env.APP_PORT || 80, function (err) {
+        const port= process.env.APP_PORT || 80
+        app.listen(port, function (err) {
+          console.log("serveur started at port",port);
         })
+
         app.use((_err, req, res, next) => {
           if (_err) {
             errorHandling(_err, res, next)
