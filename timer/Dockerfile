@@ -48,6 +48,7 @@ RUN npm install pm2 -g
 ADD ./timer/package.json /data/
 
 ADD ./core /data/core/
+ADD ./timer /data/timer/
 
 RUN cd /data/ && npm cache clean --force && npm install
 

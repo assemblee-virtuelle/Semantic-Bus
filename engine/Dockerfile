@@ -36,6 +36,7 @@ RUN source $NVM_DIR/nvm.sh \
 # add node and npm to path so the commands are available
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+ENV PATH /data/node_modules/.bin:$PATH
 
 # confirm installation
 RUN node -v
@@ -46,15 +47,10 @@ RUN npm install nodemon -g
 # Bundle app source
 
 ADD ./core /data/core/
-RUN cd /data/core && npm install
-
+ADD ./engine /data/engine/
+ADD ./engine/package.json /data/
 ADD ./wait-for-it.sh /data/scripts/
 
-# add node_modules binaries to PATH (nodejs look for node_modules in parent directories)
-ENV PATH /data/node_modules/.bin:$PATH
-
-# install and cache app dependencies
-ADD ./engine/package.json /data/
 RUN cd /data && npm cache clean --force && npm install
 
 EXPOSE 80

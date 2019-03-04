@@ -54,6 +54,7 @@ ENV PATH /data/node_modules/.bin:$PATH
 ADD ./main/package.json /data/
 
 ADD ./core /data/core/
+ADD ./main /data/main/
 
 RUN cd /data/ && npm cache clean --force && npm install
 
