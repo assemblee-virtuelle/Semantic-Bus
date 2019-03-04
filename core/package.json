@@ -1,16 +1,15 @@
 {
-  "name": "SemanticBusTimer",
-  "version": "0.1.1",
-  "description": "Timer scheduler for Semantic Bus",
+  "name": "semantic-bus",
+  "version": "0.9.1",
+  "description": "ETL style data middlware transformation embended in an ESB for all kind of data",
   "private": true,
-  "main": "app.js",
+  "main": "",
   "scripts": {
-    "start": "node app.js"
+    "lint": "./node_modules/.bin/eslint *.js scripts/**/*.js utils/**/*.js webServices/**/*.js"
   },
   "author": "Simon Louvet <simon.louvet.zen@gmail.com> && Boceno Alexandre <bocenoalex@gmail.com>",
   "license": "GNUV3",
   "dependencies": {
-    "https": "latest",
     "@types/webdriverio": "^4.10.1",
     "amqplib": "^0.5.2",
     "async": "^2.5.0",
@@ -77,5 +76,18 @@
     "passport": "^0.3.2",
     "passport-google-oauth": "^1.0.0",
     "passport-jwt": "^4.0.0"
+  },
+  "devDependencies": {
+    "@types/amqplib": "^0.5.9",
+    "@types/node-fetch": "2.1.4",
+    "chromedriver": "^2.37.0",
+    "eslint": "5.12.1",
+    "eslint-config-standard": "12.0.0",
+    "eslint-plugin-import": "2.14.0",
+    "eslint-plugin-node": "8.0.1",
+    "eslint-plugin-promise": "4.0.1",
+    "eslint-plugin-standard": "4.0.0",
+    "mocha-junit-reporter": "^1.13.0",
+    "wdio-chromedriver-service": "^0.1.2"
   }
 }
