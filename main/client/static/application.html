@@ -85,6 +85,7 @@
   <script type="riot/tag" src="tag/xml-property-to-object-editor.tag"></script>
   <script type="riot/tag" src="tag/data-gouv-geolocaliser-mass-editor.tag"></script>
   <script type="riot/tag" src="tag/workspace/workspace-zen-table.tag"></script>
+  <script type="riot/tag" src="tag/bigdataflow-table.tag"></script>
 
 
   <script type="riot/tag" src="tag/editorComponents/aggregation/simple-agregator-editor.tag"></script>
@@ -166,7 +167,7 @@
           RiotControl.addStore(stripeStore);
         }
 
-        
+
         const profilStore = new ProfilStore(utilStore);
         RiotControl.addStore(profilStore);
         allStore['profilStore'] = profilStore;

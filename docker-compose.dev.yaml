@@ -1,6 +1,6 @@
 version: '3.0'
-services:         
-  
+services:
+
   engine:
     build:
       context: .
@@ -15,7 +15,7 @@ services:
       - ./engine:/data/engine/
       - ./core:/data/core/
     networks:
-      - back  
+      - back
     ports:
       - "90:90"
     expose:
@@ -42,7 +42,7 @@ services:
       - ./main:/data/main/
       - ./core:/data/core/
     networks:
-      - back  
+      - back
     ports:
       - "80:80"
     expose:
@@ -63,13 +63,13 @@ services:
       - 15674:15674
       - 15672:15672
     networks:
-      - back  
-      
+      - back
+
   mongodb:
     image: mongo
     restart: always
     networks:
-      - back  
+      - back
     ports:
       - "27017:27017"
     expose:
@@ -81,5 +81,5 @@ services:
 volumes:
   data:
 
-networks: 
-  back: 
+networks:
+  back:

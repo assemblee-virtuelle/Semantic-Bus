@@ -1,6 +1,6 @@
 <workspace-zen-table class="containerV" style="flex-grow:1">
   <div class="containerH containerSearch">
-    <input 
+    <input
       class="searchbox inputStandard"
       type="text"
       name="inputSearch"
@@ -59,7 +59,7 @@
         'oct.',
         'nov.',
         'dec.'][new Date(date).getMonth()]} ${new Date(date).getFullYear()}`
-    ) 
+    )
     this.filter = ''
     this.filteredData = []
 
@@ -86,7 +86,8 @@
 
     this.on('mount', () => {
       this.reload()
-      this.tags.zentable.on('rowNavigation', (data) => route('workspace/' + data._id + '/component'))
+      // this.tags.zentable.on('rowNavigation', (data) => route('workspace/' + data._id + '/component'))
+      this.tags.zentable.on('rowNavigation', (data) => this.trigger('rowNavigation',data))
       this.tags.zentable.on('delRow', (data) => this.trigger('deleteRow', data))
 
       this.update()
