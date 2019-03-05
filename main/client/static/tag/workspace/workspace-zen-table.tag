@@ -1,6 +1,6 @@
 <workspace-zen-table class="containerV" style="flex-grow:1">
   <div class="containerH containerSearch">
-    <input 
+    <input
       class="searchbox inputStandard"
       type="text"
       name="inputSearch"
@@ -24,7 +24,7 @@
       <div class="tableRowStatus">
         <div class={status}>
           <div class="img-status-div">
-            <img src={"./image/"+status+".svg"} class="img-status" />
+            <img src={"./image/"+status+".svg"} class="img-status" style="width:1.2em"/>
           </div>
           <div class="status-div">
             {status}
@@ -59,7 +59,7 @@
         'oct.',
         'nov.',
         'dec.'][new Date(date).getMonth()]} ${new Date(date).getFullYear()}`
-    ) 
+    )
     this.filter = ''
     this.filteredData = []
 
@@ -86,7 +86,8 @@
 
     this.on('mount', () => {
       this.reload()
-      this.tags.zentable.on('rowNavigation', (data) => route('workspace/' + data._id + '/component'))
+      // this.tags.zentable.on('rowNavigation', (data) => route('workspace/' + data._id + '/component'))
+      this.tags.zentable.on('rowNavigation', (data) => this.trigger('rowNavigation',data))
       this.tags.zentable.on('delRow', (data) => this.trigger('deleteRow', data))
 
       this.update()

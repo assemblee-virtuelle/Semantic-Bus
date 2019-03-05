@@ -1,9 +1,9 @@
 "use strict";
 
 var fragment_lib = require('./fragment_lib.js');
+var workspaceComponentModel = require("../models/workspace_component_model");
 var workspaceModel = require("../models/workspace_model");
 var userModel = require("../models/user_model");
-var workspaceComponentModel = require("../models/workspace_component_model");
 var config = require("../getConfiguration.js")();
 var historiqueEndModel = require("../models/historiqueEnd_model");
 var processModel = require("../models/process_model");
@@ -599,7 +599,7 @@ function _get_workspace_simple(workspace_id) {
 function _get_workspace(workspace_id) {
   // console.log("get workspace", workspace_id)
   return new Promise(function (resolve, reject) {
-    workspaceComponentModel.getInstance();//TODO : conception error if getInstance isn't call, schema is not register 
+    workspaceComponentModel.getInstance();//TODO : conception error if getInstance isn't call, schema is not register
     let workspace;
     workspaceModel.getInstance().model.findOne({
         _id: workspace_id
@@ -608,7 +608,8 @@ function _get_workspace(workspace_id) {
       })
       .populate({
         path: "components",
-        select: "-consumption_history"
+        select: "-consumption_history",
+        model: workspaceComponentModel.getInstance().model// TODO cit is connection.model inside  workspaceComponentModel which declare model to Mpngoose, no this affectation : CF previus TODO
       })
       .lean()
       .exec()

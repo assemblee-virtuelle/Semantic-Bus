@@ -22,9 +22,10 @@
     }
 
     this.on('mount', () => {
-      this.refs.table.on('deleteRow', (data) => RiotControl.trigger('workspace_delete', data))
-      RiotControl.on('workspace_collection_changed', this.refreshData)
-      RiotControl.trigger('workspace_collection_load')
+      this.refs.table.on('deleteRow', (data) => RiotControl.trigger('workspace_delete', data));
+      this.refs.table.on('rowNavigation', (data) => route('workspace/' + data._id + '/component'));
+      RiotControl.on('workspace_collection_changed', this.refreshData);
+      RiotControl.trigger('workspace_collection_load');
     })
 
     this.on('unmount', () => {

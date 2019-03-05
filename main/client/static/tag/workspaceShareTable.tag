@@ -16,6 +16,7 @@
 
     this.on('mount', () => {
       RiotControl.on('workspace_share_collection_changed', this.refreshData)
+      this.refs.table.on('rowNavigation', (data) => route('workspace/' + data._id + '/component'));
       RiotControl.trigger('workspace_collection_share_load')
     })
 

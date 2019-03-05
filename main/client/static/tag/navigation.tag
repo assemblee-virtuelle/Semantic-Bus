@@ -59,7 +59,7 @@
       </div>
 
     </div>
-    
+
     <!-- Menu de navigation -->
     <div class="containerH" style="flex-grow:1;flex-shrink:1;">
       <div class="containerV" style="justify-content: space-between;background: linear-gradient(180deg, rgb(26,145,194) 20% ,rgb(41,181,237));flex-basis:80px;flex-shrink:0">
@@ -84,6 +84,15 @@
               </div>
             </div>
           </a>
+          <a href="#bigdataflowTable" class="commandButtonImage {selectedMenu:isScrennInHistory('bigdataflowTable')} containerV" style="flex-basis:100px;flex-grow:0;position:relative;">
+            <img src="./image/dossier.svg" style="" width="35px">
+            <div style="text-align:center;padding-top: 5px;font-family: 'Open Sans', sans-serif;color:white;font-size:0.75em">Big data Flow</div>
+            <div if={isScrennInHistory('bigdataflowTable')} class="containerV" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">
+              <div class="containerH" style="justify-content:flex-end;">
+                <div class="arrow-left"></div>
+              </div>
+            </div>
+          </a>
         </div>
       </div>
 
@@ -92,6 +101,8 @@
         <workspace-table if={isScrennToShow('myWorkspaces')></workspace-table>
         <workspace-share-table if={isScrennToShow('sharedWorkspaces')></workspace-share-table>
         <workspace-editor if={isScrennToShow('workspace')}></workspace-editor>
+        <bigdataflow-table if={isScrennToShow('bigdataflowTable')}></bigdataflow-table>
+        <bigdataflow-editor if={isScrennToShow('bigdataflowEditor')}></bigdataflow-editor>
         <graph if={isScrennToShow('graph')}></graph>
         <!--  <workspace-component-editor if={isScrennToShow('component')}></workspace-component-editor>  -->
         <profil if={isScrennToShow('profil')}></profil>

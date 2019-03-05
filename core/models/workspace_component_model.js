@@ -17,7 +17,6 @@ class WorkspaceComponentModelSingleton {
 
 class WorkspaceComponentModel {
   constructor() {
-    console.log('ALLO!!!!!!!!!');
     this._model = MongoClient.getInstance().connection.model('workspaceComponent', WorkspaceComponentSchema);
   }
 
