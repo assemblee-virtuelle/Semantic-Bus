@@ -1,6 +1,6 @@
 module.exports = configuration = () => {
     try {
-        console.log("get configuration url")
+        console.log("get configuration url ....")
         const configuration = require.resolve("../main/configuration");
         return require(configuration)
     } catch(e) {
@@ -8,7 +8,12 @@ module.exports = configuration = () => {
             const configuration = require.resolve("../engine/configuration.js");
             return require(configuration)
         } catch(e) {
-            console.log("error", e)
+            try {
+                const configuration = require.resolve("../timer/configuration.js");
+                return require(configuration)
+            } catch(e) {
+                console.log("error get config", e)
+            }
         }
     }
 }

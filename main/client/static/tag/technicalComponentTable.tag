@@ -154,7 +154,7 @@
       border:none!important!;
       width: 100%;
       padding: 1vh;
-      cursor:pointer;
+      cursor: pointer
     }
     .technical-component-table {
       overflow: visible;
