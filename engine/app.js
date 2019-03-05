@@ -33,7 +33,8 @@ request(url, { json: true }, (err, result, body) => {
     if (err) {
       throw err
     } else {
-      amqp.connect(configJson.socketServerEngine? configJson.socketServerEngine : configJson.socketServer + '/' + configJson.amqpHost, (err, conn) =>{
+      console.log(configJson)
+      amqp.connect((configJson.socketServerEngine? configJson.socketServerEngine : configJson.socketServer) + '/' + configJson.amqpHost, (err, conn) =>{
         conn.createChannel((_err, ch) => {
           ch.assertQueue('work-ask', {
             durable: true
@@ -42,6 +43,7 @@ request(url, { json: true }, (err, result, body) => {
         })
       })
       const onConnect = (amqpClient) => {
+        console.log("connexted to amqp")
         require('./amqpService')(safe, amqpClient)
       }
       app.use('/engine', safe)

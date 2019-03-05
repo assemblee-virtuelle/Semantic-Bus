@@ -38,6 +38,7 @@ ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 ENV PATH /data/node_modules/.bin:$PATH
 
+
 # confirm installation
 RUN node -v
 RUN npm -v
@@ -45,6 +46,17 @@ RUN npm -v
 RUN npm install pm2 -g
 RUN npm install nodemon -g
 # Bundle app source
+
+ARG CONFIG_URL
+
+ENV CONFIG_URL=$CONFIG_URL
+
+ARG ENV 
+RUN if [ "$ENV" == "production" ]; \
+    then  export PM2_PUBLIC_KEY=r28mevxswq3geh9 && export PM2_SECRET_KEY=ue0nipftekdqmyk; \
+    else  export PM2_PUBLIC_KEY=""; \
+    fi 
+
 
 ADD ./core /data/core/
 ADD ./engine /data/engine/
@@ -55,6 +67,6 @@ RUN cd /data && npm cache clean --force && npm install
 
 EXPOSE 80
 
-CMD [ "pm2", "start", "app.js", "--max-memory-restart", "1500M" ,"--no-daemon"]
+CMD [ "pm2-runtime", "start", "app.js", "--max-memory-restart", "1500M"]
 
 
