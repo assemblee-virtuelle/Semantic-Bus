@@ -33,7 +33,7 @@ request(url, { json: true }, (err, result, body) => {
     if (err) {
       throw err
     } else {
-      amqp.connect(configJson.socketServer + '/' + configJson.amqpHost, (err, conn) =>{
+      amqp.connect(configJson.socketServerEngine? configJson.socketServerEngine : configJson.socketServer + '/' + configJson.amqpHost, (err, conn) =>{
         conn.createChannel((_err, ch) => {
           ch.assertQueue('work-ask', {
             durable: true
