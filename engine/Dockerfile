@@ -53,10 +53,13 @@ ENV CONFIG_URL=$CONFIG_URL
 
 ARG ENV 
 RUN if [ "$ENV" == "production" ]; \
-    then  export PM2_PUBLIC_KEY=r28mevxswq3geh9 && export PM2_SECRET_KEY=ue0nipftekdqmyk; \
+    then  export PM2_PUBLIC_KEY=rgstoan52posxx6 && export PM2_SECRET_KEY=93al1u17774txzu; \
     else  export PM2_PUBLIC_KEY=""; \
     fi 
 
+RUN echo "FORCE_INSPECTOR=1" >> /etc/environment
+RUN source /etc/environment
+RUN pm2 reload app --update-env
 
 ADD ./core /data/core/
 ADD ./engine /data/engine/
@@ -67,6 +70,6 @@ RUN cd /data && npm cache clean --force && npm install
 
 EXPOSE 8080
 
-CMD [ "pm2-runtime", "start", "app.js", "--max-memory-restart", "1500M"]
+CMD [ "pm2-runtime", "app.js" ]
 
 
