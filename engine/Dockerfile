@@ -43,23 +43,21 @@ ENV PATH /data/node_modules/.bin:$PATH
 RUN node -v
 RUN npm -v
 
-RUN npm install pm2 -g
-RUN npm install nodemon -g
-# Bundle app source
-
 ARG CONFIG_URL
-
-ENV CONFIG_URL=$CONFIG_URL
-
+ARG PM2_PUBLIC_KEY
+ARG PM2_SECRET_KEY
 ARG ENV 
+
 RUN if [ "$ENV" == "production" ]; \
-    then  export PM2_PUBLIC_KEY=rgstoan52posxx6 && export PM2_SECRET_KEY=93al1u17774txzu; \
-    else  export PM2_PUBLIC_KEY=""; \
+    then  npm install -g pm2 2> /dev/null; \
+    else  npm install nodemon -g 2> /dev/null; \
     fi 
 
-RUN echo "FORCE_INSPECTOR=1" >> /etc/environment
-RUN source /etc/environment
-RUN pm2 reload app --update-env
+ENV CONFIG_URL=$CONFIG_URL
+ENV PM2_PUBLIC_KEY=$PM2_PUBLIC_KEY
+ENV PM2_SECRET_KEY=$PM2_SECRET_KEY
+ENV BROADCAST_LOGS 1
+ENV FORCE_INSPECTOR 1
 
 ADD ./core /data/core/
 ADD ./engine /data/engine/

@@ -54,4 +54,4 @@ RUN cd /data/ && npm cache clean --force && npm install
 
 EXPOSE 9001
 
-CMD [ "pm2", "start", "app.js", "--max-memory-restart", "1500M" ,"--no-daemon"]
+CMD [ "pm2-runtime", "app.js" ]

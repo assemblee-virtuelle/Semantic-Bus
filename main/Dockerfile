@@ -49,7 +49,6 @@ RUN npm install nodemon -g
 # add node_modules binaries to PATH (nodejs look for node_modules in parent directories)
 ENV PATH /data/node_modules/.bin:$PATH
 
-
 # install and cache app dependencies
 ADD ./main/package.json /data/
 
@@ -63,4 +62,4 @@ ADD ./wait-for-it.sh /data/scripts/
 
 EXPOSE 80
 
-CMD [ "pm2", "start", "app.js", "--max-memory-restart", "1500M" ,"--no-daemon"]
+CMD [ "pm2-runtime", "app.js" ]
