@@ -62,4 +62,4 @@ ADD ./wait-for-it.sh /data/scripts/
 
 EXPOSE 80
 
-CMD [ "pm2-runtime", "app.js" ]
+CMD [ "pm2-runtime", "app.js", "--name" ,"main"]

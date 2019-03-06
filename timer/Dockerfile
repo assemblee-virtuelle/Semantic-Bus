@@ -54,4 +54,4 @@ RUN cd /data/ && npm cache clean --force && npm install
 
 EXPOSE 9001
 
-CMD [ "pm2-runtime", "app.js" ]
+CMD [ "pm2-runtime", "app.js", "--name" ,"timer"]
