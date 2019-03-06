@@ -32,19 +32,21 @@ module.exports = {
                   iss: 'timerScheduler'
                 }
 
-                const token = this.jwt.encode(payload, this.config.timer.secret);
+                const token = this.jwt.encode(payload, this.config.secret);
 
                 //this.http.globalAgent.maxSockets = 5000;
                 let keepAliveAgent = new this.http.Agent({
                   keepAlive: true
                 });
 
-                const parsedUrl = this.url.parse(this.config.timer.target);
-                //console.log('GET',parsedUrl);
+  
+                const parsedUrl = this.url.parse(this.config.engineUrl);
+                console.log('--- GET --',parsedUrl);
+
                 this.http.get({
                   host: parsedUrl.hostname,
                   port: parsedUrl.port,
-                  path: this.config.engineUrl +'/work-ask/' + c._id,
+                  path: '/engine/work-ask/' + c._id,
                   headers: {
                     "Authorization": "JTW" + " " + token
                   },
