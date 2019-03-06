@@ -44,7 +44,7 @@ module.exports = {
                 this.http.get({
                   host: parsedUrl.hostname,
                   port: parsedUrl.port,
-                  path: config.engineUrl +'/work-ask/' + c._id,
+                  path: this.config.engineUrl +'/work-ask/' + c._id,
                   headers: {
                     "Authorization": "JTW" + " " + token
                   },

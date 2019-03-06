@@ -65,7 +65,7 @@ ADD ./wait-for-it.sh /data/scripts/
 
 RUN cd /data && npm cache clean --force && npm install
 
-EXPOSE 80
+EXPOSE 8080
 
 CMD [ "pm2-runtime", "start", "app.js", "--max-memory-restart", "1500M"]
 
