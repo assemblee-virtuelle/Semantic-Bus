@@ -1,10 +1,10 @@
-'use strict';
+'use strict'
 class MongoConnector {
   constructor () {
     this.type = 'Mongo'
     this.description = 'Interroger une base de donnée Mongo.'
     this.editor = 'mongo-connecteur-editor'
-    this.graphIcon = 'BDD.svg'
+    this.graphIcon = 'Mongo.svg'
     this.tags = [
       'http://semantic-bus.org/data/tags/inComponents',
       'http://semantic-bus.org/data/tags/outComponents',

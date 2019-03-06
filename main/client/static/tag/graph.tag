@@ -20,6 +20,7 @@
         <g id="lineSelector"></g>
         <g id="lineLayer"></g>
         <g id="stateLayer"></g>
+        <g id="backgroundImg"></g>
         <g id="roundLayer"></g>
         <g id="shapeSelector"></g>
         <g id="shapeLayer"></g>
@@ -39,16 +40,12 @@
         </div>
       </div>
     </svg>
-
     <div onClick={toggleList} style={showComponent? "right: 25%": "right: 0%"} class="btnShow">
       <img src="./image/vertical-dot.svg" class="ingShow"/>
     </div>
-
     <div show={showComponent} class="containerListComponents">
       <technical-component-table></technical-component-table>
     </div>
-  
-
   </div>
     <!-- Bouton ajouter un composant -->
 
@@ -324,7 +321,15 @@
         .select("#shapeLayer")
         .selectAll("image")
         .data([dragged], function (d) {return d.id})
-        .attr("x", gridX).attr("y", gridY)
+        .attr("x", gridX)
+        .attr("y", gridY)
+
+      this.backgroundImg = this.svg
+        .select("#backgroundImg")
+        .selectAll("circle")
+        .data([dragged], function (d) {return d.id})
+        .attr('cx', function (d) {return d.x + 34})
+        .attr('cy', function (d) {return d.y + 34})
 
       this.selectorsNodes = this.svg
         .select("#shapeSelector")
@@ -373,19 +378,18 @@
         .select("#roundLayer")
         .selectAll("svg")
         .data([dragged], function (d) {return d.id})
-
       this.subNode = this.subNode
         .attr('x', function (d) {return dragged.x - 30})
         .attr('y', function (d) {return dragged.y - 30})
 
       this.nodesTitle = this.svg
-      .select("#nodeTitleLayer")
-      .selectAll("text")
-      .data([dragged], function (d) {return d.id})
-
-      this.nodesTitle
+        .select("#nodeTitleLayer")
+        .selectAll("text")
+        .data([dragged], function (d) {return d.id})
         .attr('x', function (d) {return dragged.x +35})
         .attr('y', function (d) {return dragged.y -15})
+      
+        
 
       let afterLinks = sift({
         "source.id": dragged.id
@@ -586,6 +590,28 @@
           }
         })
 
+      // backgroundImg
+      this.backgroundImg = this.svg
+        .select("#backgroundImg")
+        .selectAll("circle")
+        .data(graph.nodes, function (d) {return d.id})
+
+      this.backgroundImg
+        .exit()
+        .remove()
+
+      this.backgroundImg = this.backgroundImg
+        .enter()
+        .append("circle")
+        .merge(this.backgroundImg)
+        .attr("r", function (d) {return 34})
+        .attr('cx', function (d) {return d.x + 34})
+        .attr('cy', function (d) {return d.y + 34})
+        .attr('data-ids', function (d) {return d.id})
+        .style('fill', 'white')
+        .call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
+
+      
       // Status
       let nodesWithStatus = sift({
         status: {
@@ -604,13 +630,16 @@
       this.status = this.status
         .enter()
         .append("circle")
-        .merge(this.status).attr("r", function (d) {return 37})
+        .merge(this.status)
+        .attr("r", function (d) {return 37})
         .attr('cx', function (d) {return d.x + 34})
         .attr('class', function (d) {return d.status})
         .attr('cy', function (d) {return d.y + 34})
         .attr('data-id', function (d) {return d.id})
         .call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
 
+      
+      
       this.drawSelected(graph);
 
       this.tooltip = this.svg

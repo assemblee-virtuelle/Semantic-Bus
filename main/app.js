@@ -39,10 +39,8 @@ request(url, { json: true }, (err, result, body) => {
       safe.use(function (req, res, next) {
         securityService.securityAPI(req, res, next)
       })
-
       app.set('etag', false)
       unSafeRouteur.use(cors())
-
       amqp.connect(configJson.socketServer + '/' + configJson.amqpHost, function (err, conn) {
         console.log('AMQP status : ', conn ? 'connected' : 'no connected', err || 'no error')
         conn.createChannel(function (_err, ch) {
