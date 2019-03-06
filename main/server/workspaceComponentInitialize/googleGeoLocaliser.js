@@ -4,7 +4,7 @@ class GoogleGeoLocaliser {
     this.type = 'Google geocoding'
     this.description = 'Interroger l\'API Google geocode pour trouver une adresse avec la latitude et la longitude.'
     this.editor = 'google-geolocaliser-editor'
-    this.graphIcon = 'Geocoding.svg'
+    this.graphIcon = 'Google_geocoding.svg'
     this.tags = [
       'http://semantic-bus.org/data/tags/middleComponents',
       'http://semantic-bus.org/data/tags/middleGeocodeComponents'

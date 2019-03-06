@@ -201,13 +201,13 @@ ecX+8Z+mcHMAAAAASUVORK5CYII=" transform="matrix(1 0 0 1 -11.0547 -2.8726)">
 			 M29.077,23.421"/>
 	</g>
 </g>
-<g id="Google_Sheets">
-	<polygon fill="#8DD0B0" points="34.248,11.489 42.848,19.874 34.577,19.874 	"/>
-	<g>
+<g id="Google_Sheets" display="none">
+	<polygon display="inline" fill="#8DD0B0" points="34.248,11.489 42.848,19.874 34.577,19.874 	"/>
+	<g display="inline">
 		<rect x="21.053" y="28.66" fill="#1BA260" width="16.012" height="13.738"/>
 		<path fill="#FFFFFF" d="M37.564,42.898H20.553V28.16h17.012V42.898z M21.553,41.898h15.012V29.16H21.553V41.898z"/>
 	</g>
-	<g>
+	<g display="inline">
 		<g>
 			<path fill-rule="evenodd" clip-rule="evenodd" fill="#1BA260" d="M15.208,30.289c0-5.388-0.008-10.775,0.015-16.163
 				c0.002-0.489,0.125-1.016,0.336-1.455c0.417-0.865,1.26-1.157,2.138-1.16c5.241-0.026,10.481-0.011,15.722-0.022
@@ -242,9 +242,9 @@ ecX+8Z+mcHMAAAAASUVORK5CYII=" transform="matrix(1 0 0 1 -11.0547 -2.8726)">
 				L29.386,29.638z"/>
 		</g>
 	</g>
-	<rect x="28.173" y="28.638" fill="#FFFFFF" width="1.706" height="13.823"/>
-	<rect x="21.053" y="32.573" fill="#FFFFFF" width="15.703" height="1.706"/>
-	<rect x="21.053" y="37.124" fill="#FFFFFF" width="15.703" height="1.706"/>
+	<rect x="28.173" y="28.638" display="inline" fill="#FFFFFF" width="1.706" height="13.823"/>
+	<rect x="21.053" y="32.573" display="inline" fill="#FFFFFF" width="15.703" height="1.706"/>
+	<rect x="21.053" y="37.124" display="inline" fill="#FFFFFF" width="15.703" height="1.706"/>
 </g>
 <g id="Frama" display="none">
 	<g display="inline">
@@ -500,8 +500,8 @@ ecX+8Z+mcHMAAAAASUVORK5CYII=" transform="matrix(1 0 0 1 -11.0547 -2.8726)">
 		</g>
 	</g>
 </g>
-<g id="Google_geocalise" display="none">
-	<g display="inline">
+<g id="Google_geocalise">
+	<g>
 		<g>
 			<polygon fill="#5C88C5" points="29.706,29.522 38.649,48.193 14.298,48.193 			"/>
 			<path fill="#FCFCFC" d="M39.046,48.443H13.768l15.994-19.382L39.046,48.443z M14.829,47.943h23.424l-8.603-17.96L14.829,47.943z"
