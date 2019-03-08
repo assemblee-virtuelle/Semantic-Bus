@@ -22,7 +22,7 @@ exports.formatDataUserGraph = function (workspaces) {
         data.workspaceNumber ++
         workspaceDetails.totalPrice ? data.golbalConsumption += workspaceDetails.totalPrice : data.golbalConsumption
         workspaceDetails.totalMo ? data.golbalConsumptionMo += workspaceDetails.totalMo : data.golbalConsumptionMo
-        
+        console.log(workspaceDetails)
         const d = new Date(workspaceDetails.roundDate);
         for (month in AllDayObject) {
           for (b in AllDayObject[month]) {

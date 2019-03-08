@@ -139,7 +139,6 @@ function BigdataflowStore (utilStore, stompClient) {
   })
 
 
-
   // ----------------------------------------- EVENT  -----------------------------------------
   this.on('navigation', (entity, id, action, secondId, secondAction)=>{
     if (entity === 'bigdataflow') {

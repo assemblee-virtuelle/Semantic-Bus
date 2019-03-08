@@ -119,12 +119,13 @@ function _get_all(userID, role) {
           },
           data.bigdataflow
         );
+        Array.isArray(data.bigdataflow) ? 
         data.bigdataflow = data.bigdataflow.map(r => {
           return {
             bigdataflow: r._id,
             role: r.role,
           };
-        });
+        }): data.bigdataflow = [];
         const bigdataflows = sift({
             role: role
           },

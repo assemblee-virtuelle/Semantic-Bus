@@ -224,12 +224,13 @@ function _getWithRelations(userID) {
               $ne: null
             }
           }, data.bigdataflow);
+          Array.isArray(data.bigdataflow) ? 
           data.bigdataflow = data.bigdataflow.map(r => {
             return {
               bigdataflow: r._id,
               role: r.role
             };
-          });
+          }) : data.bigdataflow = []
           resolve(data);
         });
     } catch (e) {
@@ -249,10 +250,7 @@ function _userGraph(userId) {
       },
       {
         $group: {
-          _id: {
-            workspaceId: "$workspaceId",
-            roundDate: "$roundDate"
-          },
+          _id: {workspaceId :{ workspaceId: "$workspaceId"}, roundDate : { $dayOfMonth: "$date" }},
           totalPrice: {
             $sum: "$totalPrice"
           },
@@ -269,20 +267,21 @@ function _userGraph(userId) {
           const c = {}
           const array = []
           result[0].workspaces.forEach((histo) => {
-            if (c[histo.workflowId]) {
-              c[histo.workflowId].totalPrice += histo.totalPrice;
-              c[histo.workflowId].totalMo += histo.moCount
+            let id = histo.workflowId + histo.roundDate;
+            if (c[id]) {
+              c[id].totalPrice += histo.totalPrice;
+              c[id].totalMo += histo.moCount
             } else {
-              c[histo.workflowId] = {};
-              c[histo.workflowId].totalPrice = histo.totalPrice
-              c[histo.workflowId].roundDate = histo.roundDate
-              c[histo.workflowId].totalMo = histo.moCount
-              c[histo.workflowId].id = histo.workflowId
+              c[id] = {};
+              c[id].totalPrice = histo.totalPrice
+              c[id].roundDate = histo.roundDate
+              c[id].totalMo = histo.moCount
+              c[id].id = histo.workflowId
             }
           })
           for (const workspaceId in c) {
             array.push(new Promise(resolve => {
-              workspaceModel.getInstance().model.find({ _id: workspaceId })
+              workspaceModel.getInstance().model.find({ _id: c[workspaceId].id })
                 .then((workspace) => {
                     if(c[workspaceId] && workspace[0]){
                       c[workspaceId].name = workspace[0].name

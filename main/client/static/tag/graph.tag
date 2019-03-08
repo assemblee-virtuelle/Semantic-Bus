@@ -20,6 +20,7 @@
         <g id="lineSelector"></g>
         <g id="lineLayer"></g>
         <g id="stateLayer"></g>
+        <g id="backgroundImg"></g>
         <g id="roundLayer"></g>
         <g id="shapeSelector"></g>
         <g id="shapeLayer"></g>
@@ -39,16 +40,12 @@
         </div>
       </div>
     </svg>
-
     <div onClick={toggleList} style={showComponent? "right: 25%": "right: 0%"} class="btnShow">
       <img src="./image/vertical-dot.svg" class="ingShow"/>
     </div>
-
     <div show={showComponent} class="containerListComponents">
-      <technical-component-table></technical-component-table>
+      <technical-component-table ></technical-component-table>
     </div>
-  
-
   </div>
     <!-- Bouton ajouter un composant -->
 
@@ -312,7 +309,7 @@
 
       var start_x = d3.event.x;
       var start_y = d3.event.y;
-
+      console.log(start_x, start_y)
       let gridX = snapToGrid(d3.event.x, 40);
       let gridY = snapToGrid(d3.event.y, 40)
       dragged.x = gridX;
@@ -324,7 +321,15 @@
         .select("#shapeLayer")
         .selectAll("image")
         .data([dragged], function (d) {return d.id})
-        .attr("x", gridX).attr("y", gridY)
+        .attr("x", gridX)
+        .attr("y", gridY)
+
+      this.backgroundImg = this.svg
+        .select("#backgroundImg")
+        .selectAll("circle")
+        .data([dragged], function (d) {return d.id})
+        .attr('cx', function (d) {return d.x + 34})
+        .attr('cy', function (d) {return d.y + 34})
 
       this.selectorsNodes = this.svg
         .select("#shapeSelector")
@@ -373,19 +378,18 @@
         .select("#roundLayer")
         .selectAll("svg")
         .data([dragged], function (d) {return d.id})
-
       this.subNode = this.subNode
         .attr('x', function (d) {return dragged.x - 30})
         .attr('y', function (d) {return dragged.y - 30})
 
       this.nodesTitle = this.svg
-      .select("#nodeTitleLayer")
-      .selectAll("text")
-      .data([dragged], function (d) {return d.id})
-
-      this.nodesTitle
+        .select("#nodeTitleLayer")
+        .selectAll("text")
+        .data([dragged], function (d) {return d.id})
         .attr('x', function (d) {return dragged.x +35})
         .attr('y', function (d) {return dragged.y -15})
+      
+        
 
       let afterLinks = sift({
         "source.id": dragged.id
@@ -458,8 +462,9 @@
     }.bind(this);
 
     // init all element of content graph
-    this.drawGraph = function (graph) {
+    this.drawGraph = function (graph, position) {
       this.graph = graph;
+      this.position = position;
       if (this.svg == undefined) {
         this.svg = d3.select("svg");
       }
@@ -586,6 +591,28 @@
           }
         })
 
+      // backgroundImg
+      this.backgroundImg = this.svg
+        .select("#backgroundImg")
+        .selectAll("circle")
+        .data(graph.nodes, function (d) {return d.id})
+
+      this.backgroundImg
+        .exit()
+        .remove()
+
+      this.backgroundImg = this.backgroundImg
+        .enter()
+        .append("circle")
+        .merge(this.backgroundImg)
+        .attr("r", function (d) {return 34})
+        .attr('cx', function (d) {return d.x + 34})
+        .attr('cy', function (d) {return d.y + 34})
+        .attr('data-ids', function (d) {return d.id})
+        .style('fill', 'white')
+        .call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
+
+      
       // Status
       let nodesWithStatus = sift({
         status: {
@@ -604,13 +631,16 @@
       this.status = this.status
         .enter()
         .append("circle")
-        .merge(this.status).attr("r", function (d) {return 37})
+        .merge(this.status)
+        .attr("r", function (d) {return 37})
         .attr('cx', function (d) {return d.x + 34})
         .attr('class', function (d) {return d.status})
         .attr('cy', function (d) {return d.y + 34})
         .attr('data-id', function (d) {return d.id})
         .call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
 
+      
+      
       this.drawSelected(graph);
 
       this.tooltip = this.svg
@@ -623,7 +653,7 @@
     }.bind(this)
 
     // init grid and grid's function
-    this.initGraph = function() {
+    this.initGraph = function(position) {
       this.initGraphDone = true
       let svg = d3.select('svg');
       let view = d3.select('#main-container');
@@ -678,16 +708,17 @@
       function zoomed() {
         currentTransform = d3.event.transform;
         if(currentTransform && !isNaN(currentTransform.k)){
-          this.graph.startPosition.x =  currentTransform.x
-          this.graph.startPosition.y = currentTransform.y
-          this.graph.startPosition.k = currentTransform.k
+          this.position.x =  currentTransform.x
+          this.position.y = currentTransform.y
+          this.position.k = currentTransform.k
+          RiotControl.trigger('update_graph_on_store', this.position)
           view.attr("transform", currentTransform);
           gX.call(xAxis.scale(d3.event.transform.rescaleX(xScale)));
           gY.call(yAxis.scale(d3.event.transform.rescaleY(yScale)));
         }
       }
-      if(!this.graph.startPosition)(this.graph.startPosition ={})
-      svg.call(zoom.transform, d3.zoomIdentity.translate(this.graph.startPosition.y || 0, this.graph.startPosition.x || 0).scale(this.graph.startPosition.k || 0.5))
+
+      svg.call(zoom.transform, d3.zoomIdentity.translate(this.position.x || 0 , this.position.y || 0).scale(this.position.k || 0.5))
       svg.call(zoom)
     }.bind(this)
 
@@ -699,10 +730,14 @@
     };
 
     this.on('mount', function () {
-      RiotControl.on('workspace_current_changed', this.updateData)
-      RiotControl.on('workspace_graph_selection_changed', this.drawSelected);
-      RiotControl.on('workspace_graph_compute_done', this.drawGraph);
-      RiotControl.trigger('workspace_graph_compute', this.refs.graphSvgCanvas);
+      RiotControl.on('graph_position_from_store', (data) => {
+        const position = data ? data : {}
+        RiotControl.on('workspace_graph_compute_done', (dataCompiled) => (this.drawGraph(dataCompiled.graph, position)))
+        RiotControl.on('workspace_current_changed', this.updateData)
+        RiotControl.on('workspace_graph_selection_changed', this.drawSelected);
+        RiotControl.trigger('workspace_graph_compute', this.refs.graphSvgCanvas);
+      })
+      RiotControl.trigger('get_graph_position_on_store')
     });
 
     this.on('unmount', function () {
