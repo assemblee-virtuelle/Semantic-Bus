@@ -48,6 +48,7 @@
 
   <script src="./store/workspaceBusiness.js"></script>
   <script src="./store/workspaceStore.js"></script>
+  <script src="./store/bigdataflowStore.js"></script>
   <script src="./store/technicalComponentStore.js"></script>
   <script src="./store/genericStore.js"></script>
   <script src="./store/cacheNosqlStore.js"></script>
@@ -86,6 +87,9 @@
   <script type="riot/tag" src="tag/data-gouv-geolocaliser-mass-editor.tag"></script>
   <script type="riot/tag" src="tag/workspace/workspace-zen-table.tag"></script>
   <script type="riot/tag" src="tag/bigdataflow-table.tag"></script>
+  <script type="riot/tag" src="tag/bigdataflow-table-header.tag"></script>
+  <script type="riot/tag" src="tag/bigdataflow-editor.tag"></script>
+  <script type="riot/tag" src="tag/bigdataflow-editor-header.tag"></script>
 
 
   <script type="riot/tag" src="tag/editorComponents/aggregation/simple-agregator-editor.tag"></script>
@@ -193,9 +197,13 @@
         specificStoreList.push(sqlStore)
         allStore['sqlStore'] = sqlStore;
 
-        const workspaceStore = new WorkspaceStore(utilStore, stompClient, specificStoreList); // Create a store instance.
-        RiotControl.addStore(workspaceStore); // Register the store in central dispatch.
+        const workspaceStore = new WorkspaceStore(utilStore, stompClient, specificStoreList);
+        RiotControl.addStore(workspaceStore);
         allStore['workspaceStore'] = workspaceStore;
+
+        const bigdataflowStore = new BigdataflowStore(utilStore, stompClient, specificStoreList);
+        RiotControl.addStore(bigdataflowStore);
+        allStore['bigdataflowStore'] = bigdataflowStore;
 
         const mainController = new MainController(allStore, stompClient, utilStore);
         RiotControl.addStore(mainController);

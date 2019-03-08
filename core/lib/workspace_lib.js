@@ -599,7 +599,9 @@ function _get_workspace_simple(workspace_id) {
 function _get_workspace(workspace_id) {
   // console.log("get workspace", workspace_id)
   return new Promise(function (resolve, reject) {
-    workspaceComponentModel.getInstance();//TODO : conception error if getInstance isn't call, schema is not register
+    //TODO : review model decalration architecture
+    //TODO : conception error if getInstance isn't call, schema is not register
+    workspaceComponentModel.getInstance();
     let workspace;
     workspaceModel.getInstance().model.findOne({
         _id: workspace_id

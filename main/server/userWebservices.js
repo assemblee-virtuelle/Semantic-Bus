@@ -67,7 +67,7 @@ module.exports = function (router) {
   // ---------------------------------------------------------------------------------
 
   router.get('/users/me', function (req, res, next) {
-    user_lib.getWithWorkspace(
+    user_lib.getWithRelations(
       UserIdFromToken(req), 'owner'
     ).then(function (result) {
       res.send(result)

@@ -57,12 +57,13 @@ request(url, { json: true }, (err, result, body) => {
         app.use('/data/auth', unSafeRouteur)
         app.use('/data/core', safe)
 
-        require('./server/initialiseWebService')(unSafeRouteur)
-        require('./server/authWebService')(unSafeRouteur)
-        require('./server/workspaceWebService')(safe)
-        require('./server/technicalComponentWebService')(safe, unSafeRouteur, amqpClient)
-        require('./server/userWebservices')(safe)
-        require('./server/fragmentWebService')(safe)
+        require('./server/initialiseWebService')(unSafeRouteur);
+        require('./server/authWebService')(unSafeRouteur);
+        require('./server/workspaceWebService')(safe);
+        require('./server/bigdataflowService')(safe);
+        require('./server/technicalComponentWebService')(safe, unSafeRouteur, amqpClient);
+        require('./server/userWebservices')(safe);
+        require('./server/fragmentWebService')(safe);
 
         /// SECURISATION DES REQUETES
 

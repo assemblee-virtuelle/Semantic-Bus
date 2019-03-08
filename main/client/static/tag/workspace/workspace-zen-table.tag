@@ -5,7 +5,7 @@
       type="text"
       name="inputSearch"
       ref="inputSearch"
-      placeholder="Rechercher vos workspaces..."
+      placeholder="Saisissez votre recherche..."
       oninput={updateSearch}
     />
   </div>
