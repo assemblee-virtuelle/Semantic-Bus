@@ -28,12 +28,13 @@ safe.use(bodyParser.json())
 request(url, { json: true }, (err, result, body) => {
   const configJson = result.body
   const content = 'module.exports = ' + JSON.stringify(result.body)
-
+  
   fs.writeFile('configuration.js', content, 'utf8', function (err) {
     if (err) {
       throw err
     } else {
-      amqp.connect(configJson.socketServer + '/' + configJson.amqpHost, (err, conn) =>{
+      console.log(configJson)
+      amqp.connect((configJson.socketServerEngine? configJson.socketServerEngine : configJson.socketServer) + '/' + configJson.amqpHost, (err, conn) =>{
         conn.createChannel((_err, ch) => {
           ch.assertQueue('work-ask', {
             durable: true
@@ -42,10 +43,11 @@ request(url, { json: true }, (err, result, body) => {
         })
       })
       const onConnect = (amqpClient) => {
+        console.log("connexted to amqp")
         require('./amqpService')(safe, amqpClient)
       }
       app.use('/engine', safe)
-      app.listen(9090, function (err) {
+      app.listen(process.env.APP_PORT || 8080, function (err) {
         console.log("listen")
       })
       app.use((_err, req, res, next) => {

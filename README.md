@@ -40,6 +40,7 @@ Semantic data transformation & semantic container crawling
 - Services
     - Timer (./timer) ( service for schedule workflow )
     - Core (./core) ( principal traitment for all services ( include main ))
+    - Engine (./engine) ( motor for graph resolution )
 
 
 
@@ -90,8 +91,7 @@ make stop => kill all conatiner
 
 ```
 
-
-### Application
+### Application In Local ( Not recommended)
 * for mac we use docker-machine and not docker for mac in our configuration 
 ```bash
 For Mac 

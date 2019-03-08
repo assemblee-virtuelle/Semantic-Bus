@@ -151,10 +151,10 @@
       border-color: transparent;
       border-top-width: 2px;
       border-top-color: rgb(238,242,249);
-      border:none!important!;
+      border:none!important;
       width: 100%;
       padding: 1vh;
-      cursor:pointer;
+      cursor: pointer
     }
     .technical-component-table {
       overflow: visible;
