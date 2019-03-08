@@ -14,8 +14,15 @@
         </div>
       </div>
     </div>
-    <div if={dataLoaded} class="containerH containerData">
-      <div class="item-flex"  style="background-color:rgb(255,255,255); flex: 1">
+   <div class="containerH containerData">
+      <div class="item-flex containerV"  style="background-color:rgb(255,255,255); flex: 1">
+        <div class="containerH" style="justify-content:center;align-items:center">
+          <div><h5 class="title-graph">CONSOMATION PAR WORFLOW JOURS ( 30 DERNIERS JOURS )</h5></div>
+          <select class="inputSelectComponents" ref="primaryComponentIdInput" name="primaryComponentIdInput" style="margin-left:10px" >
+            <option value="CREDIT">CREDIT</option>
+            <option value="MO">MO</option>
+          </select>
+        </div>
         <svg viewBox="0 0 1000 60O" id="stacked"></svg>
       </div>
     </div>
@@ -25,6 +32,8 @@
   this.resultEmail = "";
   this.result = true;
   this.numberWorkspace = 0
+  this.unity = "CREDIT";
+  this.data = []
 
   decimalAdjust(type, value, exp) {
     // Si la valeur de exp n'est pas définie ou vaut zéro...
@@ -58,7 +67,41 @@
 
   this.initD3js = data => {
     if(data){
-      console.log("data", data)
+      if(this.unity === "MO") {
+        data.golbalConsumption = 0
+        data.data.forEach((item)=>{
+          let total = 0
+          let y0 = 0
+          item.workspaces.forEach((workspace, index) => {   
+            y0 = +y0,
+            workspace.y0 = y0
+            workspace.y1 = (y0 += workspace.flow)
+            total += workspace.flow
+          })
+          if(total > data.golbalConsumption) {
+            data.golbalConsumption = total
+          }
+        })
+      }
+      if(this.unity === "CREDIT") {
+        data.golbalConsumption = 0
+        data.data.forEach((item)=>{
+          let total = 0
+          let y0 = 0
+          item.workspaces.forEach((workspace, index) => {
+            y0 = +y0,
+            workspace.y0 = y0
+            workspace.y1 = (y0 += workspace.price)
+            total += workspace.price
+          })
+          if(total > data.golbalConsumption) {
+            data.golbalConsumption = total
+          }
+        })
+      }
+
+      
+
       var marginStackChart = {
           top: 40,
           right: 50,
@@ -78,14 +121,19 @@
 
       var colorStackChart = d3.scaleOrdinal(d3.schemeSet3);
 
-      var canvasStackChart = d3
-        .select("#stacked")
+      d3.select("svg").remove();
+
+      console.log("svg");
+
+      const canvasStackChart = d3
+        .select(".item-flex")
+        .append('svg')
         .attr("width", widthStackChart + marginStackChart.left + marginStackChart.right)
         .attr("height", heightStackChart + marginStackChart.top + marginStackChart.bottom)
         .append("g")
         .attr("transform", "translate(" + marginStackChart.left + "," + marginStackChart.top + ")");
 
-      var div = d3.select(".item-flex").append("div").attr("class", "tooltip").style("opacity", 0);
+      const div = d3.select(".item-flex").append("div").attr("class", "tooltip").style("opacity", 0);
 
 
       xStackChart.domain(data.data.map(function (d) {
@@ -98,8 +146,8 @@
       ]);
       // gridlines in y axis function
       function make_y_gridlines() {
-          return d3.axisLeft(yStackChart)
-              .ticks(5)
+        return d3.axisLeft(yStackChart)
+            .ticks(5)
       }
       // y legend
       canvasStackChart
@@ -124,15 +172,7 @@
         .style("text-anchor", "end")
         .call(yAxis)
         .append("text")
-      // title graph
-      canvasStackChart
-        .append("text")
-        .attr("x", 550)            
-        .attr("y", -10)
-        .attr("class", "title-space")
-        .attr("text-anchor", "middle")  
-        .style("fill", "rgb(141,141,141)")
-        .text("Consomation de vos crédit par jours par workspaces ( 30 derniers jours )");
+      
       // x unity
       canvasStackChart
         .append("text")
@@ -206,25 +246,29 @@
             .duration(500)
             .style("opacity", 0);
         });
-        
+
+      this.update()   
     }
   };
 
   this.initgraph = (data) => {
     if(data){
-      console.log(data)
+      this.data = data
       this.dataLoaded = true
       this.numberWorkspace = data.workspaceNumber
       this.globalPrice = data.golbalConsumption
       this.globalMo = data.golbalConsumptionMo
-      this.update()
       this.initD3js(data)
     }
   }
 
-
-
   this.on('mount', function () {
+     if (this.refs.primaryComponentIdInput){
+      this.refs.primaryComponentIdInput.addEventListener('change', function (e) {
+        this.unity = e.currentTarget.value;
+        this.initD3js(this.data);
+      }.bind(this));
+    }
     this.dataLoaded= false
     RiotControl.on('load_user_workspace_graph_done', this.initgraph)
     RiotControl.trigger('load_user_workspace_graph');
@@ -235,6 +279,14 @@
   })
 </script>
 <style scoped>
+  .inputSelectComponents {  
+    height: 5vh;
+    border: rgb(212,212,212) 1px solid;
+    padding: 8px;
+    color: rgb(161,161,161);
+    font-size: 1em;
+    border-radius: 2px;
+  }
   .domain {
     stroke: none !important;
   }
