@@ -44,7 +44,7 @@
       <img src="./image/vertical-dot.svg" class="ingShow"/>
     </div>
     <div show={showComponent} class="containerListComponents">
-      <technical-component-table></technical-component-table>
+      <technical-component-table ></technical-component-table>
     </div>
   </div>
     <!-- Bouton ajouter un composant -->
@@ -309,7 +309,7 @@
 
       var start_x = d3.event.x;
       var start_y = d3.event.y;
-
+      console.log(start_x, start_y)
       let gridX = snapToGrid(d3.event.x, 40);
       let gridY = snapToGrid(d3.event.y, 40)
       dragged.x = gridX;
@@ -462,8 +462,9 @@
     }.bind(this);
 
     // init all element of content graph
-    this.drawGraph = function (graph) {
+    this.drawGraph = function (graph, position) {
       this.graph = graph;
+      this.position = position;
       if (this.svg == undefined) {
         this.svg = d3.select("svg");
       }
@@ -652,7 +653,7 @@
     }.bind(this)
 
     // init grid and grid's function
-    this.initGraph = function() {
+    this.initGraph = function(position) {
       this.initGraphDone = true
       let svg = d3.select('svg');
       let view = d3.select('#main-container');
@@ -707,16 +708,17 @@
       function zoomed() {
         currentTransform = d3.event.transform;
         if(currentTransform && !isNaN(currentTransform.k)){
-          this.graph.startPosition.x =  currentTransform.x
-          this.graph.startPosition.y = currentTransform.y
-          this.graph.startPosition.k = currentTransform.k
+          this.position.x =  currentTransform.x
+          this.position.y = currentTransform.y
+          this.position.k = currentTransform.k
+          RiotControl.trigger('update_graph_on_store', this.position)
           view.attr("transform", currentTransform);
           gX.call(xAxis.scale(d3.event.transform.rescaleX(xScale)));
           gY.call(yAxis.scale(d3.event.transform.rescaleY(yScale)));
         }
       }
-      if(!this.graph.startPosition)(this.graph.startPosition ={})
-      svg.call(zoom.transform, d3.zoomIdentity.translate(this.graph.startPosition.y || 0, this.graph.startPosition.x || 0).scale(this.graph.startPosition.k || 0.5))
+
+      svg.call(zoom.transform, d3.zoomIdentity.translate(this.position.x || 0 , this.position.y || 0).scale(this.position.k || 0.5))
       svg.call(zoom)
     }.bind(this)
 
@@ -728,10 +730,14 @@
     };
 
     this.on('mount', function () {
-      RiotControl.on('workspace_current_changed', this.updateData)
-      RiotControl.on('workspace_graph_selection_changed', this.drawSelected);
-      RiotControl.on('workspace_graph_compute_done', this.drawGraph);
-      RiotControl.trigger('workspace_graph_compute', this.refs.graphSvgCanvas);
+      RiotControl.on('graph_position_from_store', (data) => {
+        const position = data ? data : {}
+        RiotControl.on('workspace_graph_compute_done', (dataCompiled) => (this.drawGraph(dataCompiled.graph, position)))
+        RiotControl.on('workspace_current_changed', this.updateData)
+        RiotControl.on('workspace_graph_selection_changed', this.drawSelected);
+        RiotControl.trigger('workspace_graph_compute', this.refs.graphSvgCanvas);
+      })
+      RiotControl.trigger('get_graph_position_on_store')
     });
 
     this.on('unmount', function () {

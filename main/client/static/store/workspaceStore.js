@@ -18,6 +18,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   this.connectMode
   this.modeConnectBefore = false
   this.modeConnectAfter = false
+  this.position = {}
 
   // --------------------------------------------------------------------------------
   // --------------------------------------------------------------------------------
@@ -25,7 +26,8 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
   // ----------------------------------------- FUNCTION  -----------------------------------------
 
-  this.computeGraph = function (viewBox) {
+  this.computeGraph = function (viewBox, position) {
+    console.log('compute graph', position)
     let componentsId = this.workspaceCurrent.components.map(c => c._id)
     this.workspaceCurrent.links = sift({
       $and: [{
@@ -128,7 +130,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       })
     }
 
-    this.trigger('workspace_graph_compute_done', this.graph)
+    this.trigger('workspace_graph_compute_done', {graph: this.graph, position })
   }
 
   // --------------------------------------------------------------------------------
@@ -362,6 +364,16 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       })
     })
   } // <= update
+
+  // --------------------------------------------------------------------------------
+
+  this.on('update_graph_on_store', (position) => {
+    this.position = position
+  })
+
+  this.on('get_graph_position_on_store', () => {
+    this.trigger('graph_position_from_store', this.position)
+  })
 
   // --------------------------------------------------------------------------------
 
@@ -685,7 +697,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     }, true).then(data => {
       this.workspaceCurrent.components = this.workspaceCurrent.components.concat(data)
       if (this.viewBox) {
-        this.computeGraph()
+        this.computeGraph(null, { x: 0, y: 0})
       }
     })
   }.bind(this))

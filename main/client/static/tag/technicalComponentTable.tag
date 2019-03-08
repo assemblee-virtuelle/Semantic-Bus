@@ -55,7 +55,7 @@
       return out;
     }
 
-    this.addComponentClick = function (e) {
+    this.addComponentClick = (e) => {
       RiotControl.trigger("workspace_current_add_components")
     }
 
