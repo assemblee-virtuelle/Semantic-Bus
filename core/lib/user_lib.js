@@ -419,7 +419,7 @@ function _update_mainprocess(preData) {
       },
       function (err, userData) {
         if (err) {
-          reject("errorr_save");
+          return reject(new Error.DataBaseProcessError(err))
         } else {
 
           resolve(userData);
@@ -545,7 +545,7 @@ function _update_preprocess(userParams) {
         o["resetpasswordmdp"] = user_update_data[6];
         o["hash_password"] = user_update_data[7];
         o["credit"] = user_update_data[8];
-        o["bigdataflow"] = user_update_data[8];
+        o["bigdataflow"] = user_update_data[9];
         o._id = userParams._id;
 
         resolve(o);
