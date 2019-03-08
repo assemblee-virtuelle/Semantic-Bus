@@ -42,14 +42,34 @@ var UserSchema = mongoose.Schema({
     stripeID: {
         type: String,
     },
-    workspaces: [{
-        _id: {
-          ref: 'workspace',
-          type: mongoose.Schema.Types.ObjectId,
-          alias: 'workspace'
-        },
-        role: String,
-    }],
+    // workspaces: [{
+    //     _id: {
+    //       ref: 'workspace',
+    //       type: mongoose.Schema.Types.ObjectId,
+    //       alias: 'workspace'
+    //     },
+    //     role: String,
+    // }],
+    workspaces: {
+      type: [{
+          _id: {
+            ref: 'workspace',
+            type: mongoose.Schema.Types.ObjectId,
+          },
+          role: String,
+      }],
+      default:[]
+    },
+    bigdataflow: {
+      type:[{
+          _id: {
+            ref: 'bigdataflow',
+            type: mongoose.Schema.Types.ObjectId,
+          },
+          role: String,
+      }],
+      default:[]
+    },
     dates: {
         created_at: Date,
         updated_at: Date
@@ -75,7 +95,6 @@ var UserSchema = mongoose.Schema({
         default: null
     }
 });
-
 
 // UserSchema.virtual('pictureUrl').get(function () {
 //     return settings.files.users.url + '/' + this.picture;

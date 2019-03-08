@@ -34,8 +34,10 @@
       <!-- Titre headers -->
       <workspace-table-header if={isScrennToShow('myWorkspaces')}></workspace-table-header>
       <workspace-share-table-header if={isScrennToShow('sharedWorkspaces')}></workspace-share-table-header>
+      <bigdataflow-table-header if={isScrennToShow('bigdataflowTable')}></bigdataflow-table-header>
       <profil-header if={isScrennToShow('profil')}></profil-header>
       <workspace-editor-header if={isScrennToShow('workspace') || isScrennToShow('component')}></workspace-editor-header>
+      <bigdataflow-editor-header if={isScrennToShow('bigdataflow')}></bigdataflow-editor-header>
       <!--  <workspace-component-editor-header if={isScrennToShow('component')}></workspace-component-editor-header>  -->
       <json-previewer-header if={isScrennToShow('workPreview')}></json-previewer-header>
       <!-- Nom d'utilisateur -->
@@ -98,11 +100,11 @@
 
       <!-- Contenu -->
       <div class="containerV generalContainer" style="flex-grow:1;flex-shrink:1;">
-        <workspace-table if={isScrennToShow('myWorkspaces')></workspace-table>
-        <workspace-share-table if={isScrennToShow('sharedWorkspaces')></workspace-share-table>
+        <workspace-table if={isScrennToShow('myWorkspaces')}></workspace-table>
+        <workspace-share-table if={isScrennToShow('sharedWorkspaces')}></workspace-share-table>
         <workspace-editor if={isScrennToShow('workspace')}></workspace-editor>
         <bigdataflow-table if={isScrennToShow('bigdataflowTable')}></bigdataflow-table>
-        <bigdataflow-editor if={isScrennToShow('bigdataflowEditor')}></bigdataflow-editor>
+        <bigdataflow-editor if={isScrennToShow('bigdataflow')}></bigdataflow-editor>
         <graph if={isScrennToShow('graph')}></graph>
         <!--  <workspace-component-editor if={isScrennToShow('component')}></workspace-component-editor>  -->
         <profil if={isScrennToShow('profil')}></profil>

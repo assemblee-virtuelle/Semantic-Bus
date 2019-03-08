@@ -15,7 +15,7 @@ const securityWorksapce = (req, role) => {
     console.log(decodeToken)
     if (req.body && req.body.workspaceId) workspaceId = req.body.workspaceId
     if (req.params && req.params.id) workspaceId = req.params.id
-    user_lib.getWithWorkspace(
+    user_lib.getWithRelations(
       decodeToken.iss
     ).then((result) => {
       // !!!!!! Don't use ===  here because workspace Id is noT same type than params !!!!!

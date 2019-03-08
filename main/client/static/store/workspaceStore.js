@@ -338,7 +338,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       }, true).then(data => {
         this.workspaceCurrent = data
         this.workspaceCurrent.mode = 'edit'
-        this.menu = 'component'
         resolve(data)
       }).catch(error => {
         reject(error)
@@ -466,6 +465,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
   this.on('navigation', function (entity, id, action, secondId, secondAction) {
     if (entity === 'workspace') {
+      this.action=action;
       if (id === 'new') {
         this.initializeNewWorkspace(entity, action)
         this.trigger('navigation_control_done', entity, action)

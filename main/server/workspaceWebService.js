@@ -55,7 +55,7 @@ module.exports = function (router) {
 
   // ---------------------------------------------------------------------------------
 
-  router.get('/workspaces/:id/graph', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+  router.get('/workspaces/:id/graph', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     workspace_lib.get_workspace_graph_data(req.params.id).then((workspaceGraph) => {
       res.json({
         workspaceGraph
@@ -67,7 +67,7 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.get('/workspaces/:id', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+  router.get('/workspaces/:id', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     workspace_lib.getWorkspace(req.params.id).then(function (workspace) {
       for (var c of workspace.components) {
         if (technicalComponentDirectory[c.module] != null) {
@@ -87,7 +87,7 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.get('/workspaces/:id/process', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+  router.get('/workspaces/:id/process', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     workspace_lib.get_process_byWorkflow(req.params.id).then((workspaceProcess) => {
       res.json(workspaceProcess)
     }).catch(e => {
@@ -97,7 +97,7 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.get('/workspaces/:id/components/:componentId/process/:processId', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+  router.get('/workspaces/:id/components/:componentId/process/:processId', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     const componentId = req.params.componentId
     const processId = req.params.processId
     workspace_component_lib.get_component_result(componentId, processId).then(function (data) {
@@ -210,7 +210,7 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.post('/workspaces/:id/components/connection', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+  router.post('/workspaces/:id/components/connection', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     workspace_lib.addConnection(req.params.id, req.body.source, req.body.target).then(links => {
       res.json(links)
     }).catch(e => {
@@ -222,7 +222,7 @@ module.exports = function (router) {
 
   // WebService Who Listen AMQP
 
-  router.delete('/workspaces/:id/components/connection', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+  router.delete('/workspaces/:id/components/connection', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     workspace_lib.removeConnection(req.params.id, req.body.linkId).then(links => {
       res.json(links)
     }).catch(e => {
@@ -232,7 +232,7 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.delete('/workspaces/:id/share', (req, res, next) => securityService.wrapperSecurity(req, res, next, 'owner'), function (req, res, next) {
+  router.delete('/workspaces/:id/share', (req, res, next) => securityService.wrapperSecurity(req, res, next, 'owner','workflow'), function (req, res, next) {
     const workspace_id = req.params.id
 
     user_lib.get({
@@ -288,7 +288,7 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.delete('/workspaces/:id', (req, res, next) => securityService.wrapperSecurity(req, res, next, 'owner'), function (req, res, next) {
+  router.delete('/workspaces/:id', (req, res, next) => securityService.wrapperSecurity(req, res, next, 'owner','workflow'), function (req, res, next) {
     workspace_lib.destroy(UserIdFromToken(req), req.params.id).then(function (workspace) {
       res.json(workspace)
     }).catch(e => {
@@ -298,7 +298,7 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.delete('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+  router.delete('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     workspace_component_lib.remove({
       _id: req.body._id
     }).then(() => {
@@ -309,8 +309,8 @@ module.exports = function (router) {
   })// <= delete_components #share
 
   // ---------------------------------------------------------------------------------
-  
-  router.put('/workspaces/:id/process/:processid', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+
+  router.put('/workspaces/:id/process/:processid', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     workspace_lib.updateCurrentProcess(req.params.processid, req.body.state).then((workspaceProcess) => {
       res.json(workspaceProcess)
     }).catch(e => {
@@ -320,7 +320,7 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.put('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+  router.put('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     workspace_component_lib.update(req.params.id, req.body)
       .then((componentUpdated) => (res.json(componentUpdated)))
       .catch(e => {
@@ -330,7 +330,7 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.put('/workspaces/:id/share', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+  router.put('/workspaces/:id/share', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     var workspace_id = req.params.id
 
     user_lib.get({
@@ -376,7 +376,7 @@ module.exports = function (router) {
 
   // ---------------------------------------------------------------------------------
 
-  router.put('/workspaces/:id', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+  router.put('/workspaces/:id', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     if (req.body != null) {
       workspace_lib.update(req.body).then(workspaceUpdate => {
         for (var c of workspaceUpdate.components) {
@@ -399,7 +399,7 @@ module.exports = function (router) {
 
   // ---------------------------------------------------------------------------------
 
-  router.post('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+  router.post('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     if (req.body != null) {
       let components = req.body
       components.forEach(c => {
