@@ -5,7 +5,6 @@ const auth_lib_jwt = require('../../core/lib/auth_lib')
 const mailService = require('./services/mail')
 const jwt = require('jwt-simple')
 const moment = require('moment')
-const errorHandling = require('./services/errorHandling')
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -68,7 +67,7 @@ module.exports = function (router) {
   // ---------------------------------------------------------------------------------
 
   router.get('/users/me', function (req, res, next) {
-    user_lib.getWithWorkspace(
+    user_lib.getWithRelations(
       UserIdFromToken(req), 'owner'
     ).then(function (result) {
       res.send(result)

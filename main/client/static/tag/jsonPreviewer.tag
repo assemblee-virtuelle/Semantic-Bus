@@ -28,11 +28,11 @@
     </div>
     <div class="containerV">
       <label>Nombre d'octet:</label>
-      <input type="text" readonly="true" value={data.moCount*1000}></input>
+      <input type="text" readonly="true" value={data.moCount}></input>
     </div>
     <div class="containerV">
       <label>Prix en crédit:</label>
-      <input type="text" readonly="true" value={data.totalPrice*1000}></input>
+      <input type="text" readonly="true" value={data.totalPrice}></input>
     </div>
   </div>
     <jsonfragviewer show={data.persistProcess||data.error} ref="jsonFragViewer" style="flex-grow:100;"></jsonfragviewer>

@@ -40,6 +40,7 @@ Semantic data transformation & semantic container crawling
 - Services
     - Timer (./timer) ( service for schedule workflow )
     - Core (./core) ( principal traitment for all services ( include main ))
+    - Engine (./engine) ( motor for graph resolution )
 
 
 
@@ -71,21 +72,35 @@ curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | b
 nvm install 7.10
 cd core && npm install
 cd main && npm install
+cd engine && npm install
 
 ```
 
 
-## Launch
-
+## Launch with docker ( best solution ) *
+* for mac we use docker-machine and not docker for mac in our configuration 
 ### Docker
 
 ```bash
-docker-compose up
+( DOCKER-COMPOSE REQUIRED )
+
+make start => start project 
+make log => log main and engine container
+make restart => force recreate 
+make stop => kill all conatiner
+
 ```
 
-
-### Application
-
+### Application In Local ( Not recommended)
+* for mac we use docker-machine and not docker for mac in our configuration 
 ```bash
-node app.js
+For Mac 
+export CONFIG_URL="https://data-players.github.io/StrongBox/public/dev-mac.json" 
+&& docker-compose -f docker-compose.local.yaml up -d
+For Linux        
+export CONFIG_URL="https://data-players.github.io/StrongBox/public/dev-linux.json" && docker-compose -f docker-compose.local.yaml up -d
+
+cd main && node app.js
+cd engine && node app.js
+
 ```

@@ -5,7 +5,6 @@ var mongoose = require('mongoose');
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
-
 var WorkspaceSchema = mongoose.Schema({
   name: String,
   description: String,
@@ -14,7 +13,7 @@ var WorkspaceSchema = mongoose.Schema({
     ref: "workspaceComponent"
   }],
   dates: {
-    created_at: Date
+    created_at: Date,
   },
   rowid:{
     type: Number,
@@ -32,7 +31,7 @@ var WorkspaceSchema = mongoose.Schema({
     type: Number,
     default: 1
   }
-}, { minimize: false });
+},{ timestamps: true }, { minimize: false });
 
 
 // --------------------------------------------------------------------------------

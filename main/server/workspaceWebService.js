@@ -32,39 +32,7 @@ function UserIdFromToken (req) {
   return decodeToken.iss
 }
 
-module.exports = function (router, amqpClient) {
-  // Amqp
-
-  this.amqpClient = amqpClient
-  if (process.env.NOTENGINE !== true) {
-    amqpClient.consume('work-ask', (msg) => {
-      var messageObject = JSON.parse(msg.content.toString())
-      workspace_component_lib.get({
-        _id: messageObject.id
-      }).then(function (data) {
-        var engine = require('./services/engine.js')
-        return engine.execute(data, 'work', this.amqpClient, messageObject.callerId)
-      }).then((data) => {
-      }).catch(e => {
-      })
-    }, {
-      noAck: true
-    })
-
-    router.get('/work-ask/:componentId', function (req, res, next) {
-      // var messageObject = JSON.parse(msg.content.toString());
-      var componentId = req.params.componentId
-      workspace_component_lib.get({
-        _id: componentId
-      }).then(function (data) {
-        var engine = require('./services/engine.js')
-        return engine.execute(data, 'work', this.amqpClient, undefined)
-      }).then((data) => {
-      }).catch(e => {
-      })
-    })
-  }
-
+module.exports = function (router) {
   // Get workspaces
 
   router.get('/workspaces/me/owner', function (req, res, next) {
@@ -87,7 +55,7 @@ module.exports = function (router, amqpClient) {
 
   // ---------------------------------------------------------------------------------
 
-  router.get('/workspaces/:id/graph', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+  router.get('/workspaces/:id/graph', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     workspace_lib.get_workspace_graph_data(req.params.id).then((workspaceGraph) => {
       res.json({
         workspaceGraph
@@ -99,7 +67,7 @@ module.exports = function (router, amqpClient) {
 
   // --------------------------------------------------------------------------------
 
-  router.get('/workspaces/:id', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+  router.get('/workspaces/:id', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     workspace_lib.getWorkspace(req.params.id).then(function (workspace) {
       for (var c of workspace.components) {
         if (technicalComponentDirectory[c.module] != null) {
@@ -119,7 +87,7 @@ module.exports = function (router, amqpClient) {
 
   // --------------------------------------------------------------------------------
 
-  router.get('/workspaces/:id/process', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+  router.get('/workspaces/:id/process', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     workspace_lib.get_process_byWorkflow(req.params.id).then((workspaceProcess) => {
       res.json(workspaceProcess)
     }).catch(e => {
@@ -129,7 +97,7 @@ module.exports = function (router, amqpClient) {
 
   // --------------------------------------------------------------------------------
 
-  router.get('/workspaces/:id/components/:componentId/process/:processId', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+  router.get('/workspaces/:id/components/:componentId/process/:processId', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     const componentId = req.params.componentId
     const processId = req.params.processId
     workspace_component_lib.get_component_result(componentId, processId).then(function (data) {
@@ -152,126 +120,7 @@ module.exports = function (router, amqpClient) {
     }).catch(e => {
       next(e)
     })
-  })
-
-  // Update workspaces
-
-  router.put('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
-    workspace_component_lib.update(req.params.id, req.body)
-      .then((componentUpdated) => (res.json(componentUpdated)))
-      .catch(e => {
-        next(e)
-      })
-  })// <= update_component
-
-  // --------------------------------------------------------------------------------
-
-  router.put('/workspaces/:id/share', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
-    var workspace_id = req.params.id
-
-    user_lib.get({
-      'credentials.email': req.body.email
-    }).then(function (user) {
-      if (user) {
-        user.workspaces = user.workspaces || []
-
-        if (!contains(user.workspaces, {
-          _id: workspace_id
-        })) {
-          user.workspaces.push({
-            _id: workspace_id,
-            role: 'editor'
-          })
-          user_lib.update(user).then(function (updateUser) {
-            workspace_lib.getWorkspace(workspace_id).then(updatedWS => {
-              for (var c of updatedWS.components) {
-                if (technicalComponentDirectory[c.module] != null) {
-                  // console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
-                  c.graphIcon = technicalComponentDirectory[c.module].graphIcon
-                } else {
-                  c.graphIcon = 'default'
-                }
-                // console.log('-->',c);
-              }
-              res.send({
-                user: updateUser,
-                workspace: updatedWS
-              })
-            })
-          })
-        } else {
-          res.send('already')
-        }
-      } else {
-        res.send(false)
-      }
-    }).catch(e => {
-      next(e)
-    })
-  }) // <= update_share/workspace
-
-  // ---------------------------------------------------------------------------------
-
-  router.put('/workspaces/:id', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
-    if (req.body != null) {
-      workspace_lib.update(req.body).then(workspaceUpdate => {
-        for (var c of workspaceUpdate.components) {
-          if (technicalComponentDirectory[c.module] != null) {
-            c.graphIcon = technicalComponentDirectory[c.module].graphIcon
-          } else {
-            c.graphIcon = 'default'
-          }
-        }
-        res.send(workspaceUpdate)
-      }).catch(e => {
-        res.status(500).send(e)
-      }).catch(e => {
-        next(e)
-      })
-    } else {
-      next(new Error('empty body'))
-    }
-  }) // <= update_workspace;
-
-  // Create_workspaces_component
-
-  router.post('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
-    if (req.body != null) {
-      let components = req.body
-      components.forEach(c => {
-        c._id = undefined
-        c.workspaceId = req.params.id
-        c.specificData = c.specificData || {}
-        c.connectionsBefore = []
-        c.connectionsAfter = []
-        c.consumption_history = []
-      })
-      workspace_component_lib.create(components).then(function (workspaceComponents) {
-        workspace_lib.getWorkspace(req.params.id).then((workspace) => {
-          workspace.components = workspace.components.concat(workspaceComponents)
-          workspace_lib.update(workspace).then(workspaceUpdated => {
-            for (var c of components) {
-              if (technicalComponentDirectory[c.module] != null) {
-                // console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
-                c.graphIcon = technicalComponentDirectory[c.module].graphIcon
-              } else {
-                c.graphIcon = 'default'
-              }
-            }
-            res.send(components)
-          }).catch(e => {
-            next(e)
-          })
-        }).catch(e => {
-          next(e)
-        })
-      }).catch(e => {
-        next(e)
-      })
-    } else {
-      next(new Error('empty body'))
-    }
-  }) // <= add_components;
+  }) // <= get_workspace_workflow
 
   // --------------------------------------------------------------------------------
 
@@ -361,29 +210,29 @@ module.exports = function (router, amqpClient) {
 
   // --------------------------------------------------------------------------------
 
-  router.post('/workspaces/:id/components/connection', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+  router.post('/workspaces/:id/components/connection', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     workspace_lib.addConnection(req.params.id, req.body.source, req.body.target).then(links => {
       res.json(links)
     }).catch(e => {
       next(e)
     })
-  })// <= create_workspace_component_connexion
+  })// <= create_workspace_component_connexion #share
 
   // --------------------------------------------------------------------------------
 
-  // Delete entity
+  // WebService Who Listen AMQP
 
-  router.delete('/workspaces/:id/components/connection', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+  router.delete('/workspaces/:id/components/connection', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     workspace_lib.removeConnection(req.params.id, req.body.linkId).then(links => {
       res.json(links)
     }).catch(e => {
       next(e)
     })
-  }) // <= delete_connexion
+  }) // <= delete_connexion #share
 
   // --------------------------------------------------------------------------------
 
-  router.delete('/workspaces/:id/share', (req, res, next) => securityService.wrapperSecurity(req, res, next, 'owner'), function (req, res, next) {
+  router.delete('/workspaces/:id/share', (req, res, next) => securityService.wrapperSecurity(req, res, next, 'owner','workflow'), function (req, res, next) {
     const workspace_id = req.params.id
 
     user_lib.get({
@@ -435,21 +284,21 @@ module.exports = function (router, amqpClient) {
     }).catch(e => {
       next(e)
     })
-  }) // <= delete_share/workspace
+  }) // <= delete_share/workspace #share
 
   // --------------------------------------------------------------------------------
 
-  router.delete('/workspaces/:id', (req, res, next) => securityService.wrapperSecurity(req, res, next, 'owner'), function (req, res, next) {
+  router.delete('/workspaces/:id', (req, res, next) => securityService.wrapperSecurity(req, res, next, 'owner','workflow'), function (req, res, next) {
     workspace_lib.destroy(UserIdFromToken(req), req.params.id).then(function (workspace) {
       res.json(workspace)
     }).catch(e => {
       next(e)
     })
-  }) // <= delete_workspace
+  }) // <= delete_workspace #share
 
   // --------------------------------------------------------------------------------
 
-  router.delete('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next), function (req, res, next) {
+  router.delete('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     workspace_component_lib.remove({
       _id: req.body._id
     }).then(() => {
@@ -457,5 +306,134 @@ module.exports = function (router, amqpClient) {
     }).catch(e => {
       next(e)
     })
-  })// <= delete_components
+  })// <= delete_components #share
+
+  // ---------------------------------------------------------------------------------
+
+  router.put('/workspaces/:id/process/:processid', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
+    workspace_lib.updateCurrentProcess(req.params.processid, req.body.state).then((workspaceProcess) => {
+      res.json(workspaceProcess)
+    }).catch(e => {
+      next(e)
+    })
+  }) // <= update_process_workflow #share
+
+  // --------------------------------------------------------------------------------
+
+  router.put('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
+    workspace_component_lib.update(req.params.id, req.body)
+      .then((componentUpdated) => (res.json(componentUpdated)))
+      .catch(e => {
+        next(e)
+      })
+  })// <= update_component #share
+
+  // --------------------------------------------------------------------------------
+
+  router.put('/workspaces/:id/share', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
+    var workspace_id = req.params.id
+
+    user_lib.get({
+      'credentials.email': req.body.email
+    }).then(function (user) {
+      if (user) {
+        user.workspaces = user.workspaces || []
+
+        if (!contains(user.workspaces, {
+          _id: workspace_id
+        })) {
+          user.workspaces.push({
+            _id: workspace_id,
+            role: 'editor'
+          })
+          user_lib.update(user).then(function (updateUser) {
+            workspace_lib.getWorkspace(workspace_id).then(updatedWS => {
+              for (var c of updatedWS.components) {
+                if (technicalComponentDirectory[c.module] != null) {
+                  // console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
+                  c.graphIcon = technicalComponentDirectory[c.module].graphIcon
+                } else {
+                  c.graphIcon = 'default'
+                }
+                // console.log('-->',c);
+              }
+              res.send({
+                user: updateUser,
+                workspace: updatedWS
+              })
+            })
+          })
+        } else {
+          res.send('already')
+        }
+      } else {
+        res.send(false)
+      }
+    }).catch(e => {
+      next(e)
+    })
+  }) // <= update_share/workspace #share
+
+  // ---------------------------------------------------------------------------------
+
+  router.put('/workspaces/:id', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
+    if (req.body != null) {
+      workspace_lib.update(req.body).then(workspaceUpdate => {
+        for (var c of workspaceUpdate.components) {
+          if (technicalComponentDirectory[c.module] != null) {
+            c.graphIcon = technicalComponentDirectory[c.module].graphIcon
+          } else {
+            c.graphIcon = 'default'
+          }
+        }
+        res.send(workspaceUpdate)
+      }).catch(e => {
+        next(e)
+      }).catch(e => {
+        next(e)
+      })
+    } else {
+      next(new Error('empty body'))
+    }
+  }) // <= update_workspace #share
+
+  // ---------------------------------------------------------------------------------
+
+  router.post('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
+    if (req.body != null) {
+      let components = req.body
+      components.forEach(c => {
+        c._id = undefined
+        c.workspaceId = req.params.id
+        c.specificData = c.specificData || {}
+        c.connectionsBefore = []
+        c.connectionsAfter = []
+        c.consumption_history = []
+      })
+      workspace_component_lib.create(components).then(function (workspaceComponents) {
+        workspace_lib.getWorkspace(req.params.id).then((workspace) => {
+          workspace.components = workspace.components.concat(workspaceComponents)
+          workspace_lib.update(workspace).then(workspaceUpdated => {
+            for (var c of components) {
+              if (technicalComponentDirectory[c.module] != null) {
+                // console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
+                c.graphIcon = technicalComponentDirectory[c.module].graphIcon
+              } else {
+                c.graphIcon = 'default'
+              }
+            }
+            res.send(components)
+          }).catch(e => {
+            next(e)
+          })
+        }).catch(e => {
+          next(e)
+        })
+      }).catch(e => {
+        next(e)
+      })
+    } else {
+      next(new Error('empty body'))
+    }
+  }) // <= add_components #share
 }

@@ -5,10 +5,8 @@
     ref="table"
   />
 
-  <div class="containerV" style="flex-basis: 45px;justify-content: flex-start;;flex-grow:0;flex-shrink:0">
-    <div onclick={addWorkflowClick} class="commandButtonImage containerV" style="flex-grow:0;flex-shrink:0">
-      <img src="./image/ajout_composant.svg" title="Créer un Workflow" height="40px" width="40px">
-    </div>
+  <div class="containerV containerBtn">
+    <img onclick={addWorkflowClick} src="./image/ajout_composant.svg" class="commandButtonImage containerV btnAddSize" title="Créer un Workflow">
   </div>
 
   <script>
@@ -24,13 +22,21 @@
     }
 
     this.on('mount', () => {
-      this.refs.table.on('deleteRow', (data) => RiotControl.trigger('workspace_delete', data))
-      RiotControl.on('workspace_collection_changed', this.refreshData)
-      RiotControl.trigger('workspace_collection_load')
+      this.refs.table.on('deleteRow', (data) => RiotControl.trigger('workspace_delete', data));
+      this.refs.table.on('rowNavigation', (data) => route('workspace/' + data._id + '/component'));
+      RiotControl.on('workspace_collection_changed', this.refreshData);
+      RiotControl.trigger('workspace_collection_load');
     })
 
     this.on('unmount', () => {
       RiotControl.off('workspace_collection_changed', this.refreshData)
     })
   </script>
+  <style>
+    .containerBtn {
+      height: 10vh;
+      justify-content: center;
+      align-items: center;
+    }
+  </style>
 </workspace-table>

@@ -68,6 +68,7 @@
     "rdf-serializer-jsonld-ext": "git://github.com/rdf-ext/rdf-serializer-jsonld-ext.git#c81a3dbbbe6b8c3134070ee305c7cb6317a36e90",
     "rdfstore": "^0.9.17",
     "recluster": "^0.4.5",
+    "request": "^2.88.0",
     "sequelize": "^4.3.2",
     "sheetrock": "^1.1.4",
     "should": "^11.2.1",
@@ -82,7 +83,15 @@
     "webstomp-client": "^1.2.0",
     "ws": "^4.0.0",
     "xlsx": "^0.10.5",
-    "xml2js": "^0.4.19"
+    "xml2js": "^0.4.19",
+    "eslint-config-standard": "12.0.0",
+    "eslint-plugin-import": "2.14.0",
+    "eslint-plugin-node": "8.0.1",
+    "eslint-plugin-promise": "4.0.1",
+    "eslint-plugin-standard": "4.0.0",
+    "passport": "^0.3.2",
+    "passport-google-oauth": "^1.0.0",
+    "passport-jwt": "^4.0.0"
   },
   "devDependencies": {
     "@types/amqplib": "^0.5.9",

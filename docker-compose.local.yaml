@@ -1,21 +1,31 @@
-version: '3'
-services:
-
-  mongo:
+version: '3.0'
+services:         
+  
+  rabbitmq:
+    image: semanticbus/rabbitmq-stomp
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15674:15674
+      - 15672:15672
+    networks:
+      - back  
+      
+  mongodb:
     image: mongo
     restart: always
+    networks:
+      - back  
     ports:
       - "27017:27017"
+    expose:
+      - "27017"
     volumes:
       - data:/data/db
     command: --smallfiles
 
-  amqp:
-    image: semanticbus/rabbitmq-stomp
-    ports:
-      - "15672:15672"
-      - "15674:15674"
-      - "5672:5672"
-
 volumes:
   data:
+
+networks: 
+  back: 

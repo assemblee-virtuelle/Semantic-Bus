@@ -20,9 +20,9 @@ exports.formatDataUserGraph = function (workspaces) {
 
     workspaces.forEach((workspaceDetails) => {
         data.workspaceNumber ++
-        data.golbalConsumption  += workspaceDetails.totalPrice
-        data.golbalConsumptionMo += workspaceDetails.totalMo
-        
+        workspaceDetails.totalPrice ? data.golbalConsumption += workspaceDetails.totalPrice : data.golbalConsumption
+        workspaceDetails.totalMo ? data.golbalConsumptionMo += workspaceDetails.totalMo : data.golbalConsumptionMo
+        console.log(workspaceDetails)
         const d = new Date(workspaceDetails.roundDate);
         for (month in AllDayObject) {
           for (b in AllDayObject[month]) {
@@ -85,6 +85,8 @@ exports.formatDataUserGraph = function (workspaces) {
         data.data.push(c)
       }
     }
+
+    console.log(data)
 
     resolve(data)
   })

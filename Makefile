@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
-.PHONY: docker-build docker-up start stop restart up-test-container launch-test
+.PHONY: docker-build docker-up build start log stop restart
 
-DOCKER_COMPOSE=docker-compose -f docker-compose.local.yaml
+DOCKER_COMPOSE=docker-compose -f docker-compose.dev.yaml
 DOCKER_COMPOSE_TEST=docker-compose -f docker-compose.test.yaml
 
 
@@ -20,15 +20,21 @@ docker-clean:
 	$(DOCKER_COMPOSE) kill
 	$(DOCKER_COMPOSE) rm -fv
 
+docker-restart:	
+	$(DOCKER_COMPOSE) up -d --force-recreate
+	
+log: 
+	$(DOCKER_COMPOSE) logs -f engine main 
+
 # Start
-start: docker-up ## Start the project
+start: 
+	./select.sh 
 
-stop: docker-stop ## Stop the project
+stop: docker-stop 
 
-restart: docker-clean docker-build docker-up ## Reinstall everything
+restart: docker-restart
 
-test-build:
-	$(DOCKER_COMPOSE_TEST) build --no-cache
+build: docker-build 
 
 test-start:
 	$(DOCKER_COMPOSE_TEST) run e2e bash ./wait-for-it.sh semanticbus:80 -t 45

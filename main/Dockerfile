@@ -42,17 +42,21 @@ RUN node -v
 RUN npm -v
 
 RUN npm install pm2 -g
+RUN npm install nodemon -g
 # Bundle app source
 
-ADD ./main /data/main/
-ADD ./core /data/core/
+# add node_modules binaries to PATH (nodejs look for node_modules in parent directories)
+ENV PATH /data/node_modules/.bin:$PATH
 
-RUN cd /data/core && ls && npm cache clean --force &&  npm install
+# install and cache app dependencies
+ADD ./main/package.json /data/
+ADD ./core /data/core/
+ADD ./main /data/main/
+
+RUN cd /data/ && npm cache clean --force && npm install
 
 ADD ./wait-for-it.sh /data/scripts/
 
-RUN cd /data/main && ls && npm cache clean --force &&  npm install
-
 EXPOSE 80
 
-CMD [ "pm2", "start", "app.js", "--max-memory-restart", "1500M" ,"--no-daemon"]
+CMD [ "pm2-runtime", "app.js", "--name" ,"main"]

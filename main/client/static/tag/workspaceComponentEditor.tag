@@ -32,9 +32,7 @@
 
   <!-- Bouton valider -->
   <div class="containerH" style="flex-basis:45px;justify-content: center;align-items: flex-start; flex-shrink:0;flex-grow:0;">
-    <div onclick={saveClick} class="commandButtonImage">
-      <img src="./image/check.png" title="Valider les paramètres" height="35px" width="35px">
-    </div>
+    <img onclick={saveClick} class="commandButtonImage btnAddSize" src="./image/check.png" title="Valider les paramètres">
   </div>
 
   <script>

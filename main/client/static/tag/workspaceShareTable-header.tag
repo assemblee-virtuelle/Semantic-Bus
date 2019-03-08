@@ -4,7 +4,7 @@
     <div class="containerV" style="justify-content:center">
       <div class="containerH">
         <div class="main-title">
-          <h6 style="color:white; font-family: 'Open Sans', sans-serif;">Workflow partagé</h6>
+          <h6 style="color:white; font-family: 'Open Sans', sans-serif; font-weight: 400">Workflow partagé</h6>
         </div>
       </div>
     </div>

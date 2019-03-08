@@ -1,15 +1,12 @@
 <zentable class="containerV {opts.zentableClass}" style="flex-grow:1;">
-  <div class="containerH tableHeader" style="justify-content:center">
-    <yield from="Search"/>
-  </div>
   <!-- header -->
-  <div class="containerH tableHeader" ref="tableHeader" style="flex-shrink:0;">
+  <div class="containerH tableHeader" ref="tableHeader" >
     <yield from="header"/>
   </div>
 
   <div class="containerV scrollable tableBody" ref="tableBodyContainer">
     <!--<div class="table scrollable" name="tableBody" ref="tableBody" ondragover={on_drag_over} ondrop={on_drop}>-->
-    <div class="containerV" each={indexedData} style="margin-right: 50px;margin-left: 50px;flex-grow:0;flex-shrink:0;">
+    <div class="containerV rowContainer" each={indexedData} style="flex-grow:0;flex-shrink:0;">
       <div class="dropTarget" draggable="true" ondragenter={drag_enter} ondragover={drag_over} ondragleave={drag_leave} ondrop={drag_drop} data-insert="before"></div>
 
       <div
@@ -17,29 +14,25 @@
         data-rowid={rowId}
         data-id={_id}
         ondragstart={drag_start}
-        onclick={rowClic}
-        style="justify-content: space-between;flex-shrink:0;">
+        onclick={rowClic}>
         <!-- draganddrop -->
-        <div if={opts.drag} draggable="true" class="containerV" style="background-color:grey;flex-shrink:0;justify-content: space-between;">
+        <div if={opts.drag} draggable="true" class="containerV" style="flex-shrink:0;justify-content: space-between; cursor: pointer;">
           <img src="./image/Super-Mono-png/PNG/sticker/icons/navigation-up-button.png" height="20px" width="20px" draggable="false">
           <img src="./image/Super-Mono-png/PNG/sticker/icons/navigation-down-button.png" height="20px" width="20px" draggable="false">
         </div>
         <!-- content -->
-        <div class="containerH tableRowContent" style="flex-grow:1" onkeyup={rowKeyUp} onchange={onChange} draggable="false">
+        <div class="containerH tableRowContent center-row" onkeyup={rowKeyUp} onchange={onChange} draggable="false">
           <yield from="row"/>
         </div>
         <!-- zone bouton -->
-        <div class="containerV" style="flex-basis:120px;" draggable="false"  if={!(opts.disallownavigation==true) || !(opts.disallowdelete==true)}>
-          <div class="containerH" style="justify-content:space-around;padding-top:10px;align-items: center;">
-            <!-- Bouton éditer -->
-            <div onclick={navigationClick} if={!(opts.disallownavigation==true)} data-rowid={rowId} style="flex-basis:10px;">
-              <img class="commandButtonImage" src="./image/edit.png" height="20px" draggable={false}>
-            </div>
-            <!-- Bouton supprimer -->
-            <div onclick={delRowClick} data-rowid={rowId} if={!(opts.disallowdelete==true)} style="flex-basis:10px;">
-              <img class="commandButtonImage" src="./image/poubelle.png" height="20px" draggable={false}>
-            </div>
-
+        <div class="containerV tableRowBtn" draggable="false"  if={!(opts.disallownavigation==true) || !(opts.disallowdelete==true)}>
+          <!-- Bouton éditer -->
+          <div onclick={navigationClick} if={!(opts.disallownavigation==true)} data-rowid={rowId}>
+            <img class="commandButtonImage" src="./image/pencil.svg" height="20px" draggable={false}>
+          </div>
+          <!-- Bouton supprimer -->
+          <div onclick={delRowClick} data-rowid={rowId} if={!(opts.disallowdelete==true)}>
+            <img class="commandButtonImage" src="./image/trash.svg" height="20px" draggable={false}>
           </div>
         </div>
       </div>
@@ -141,14 +134,8 @@
       }
     }
 
-    // var arrayChangeHandler = {   tag: this,   get: function (target, property, third, fourth) {     switch (property) {       case 'push':       case 'unshift':         return function (data) {           target[property](data);
-    // console.log('update')           this.tag.update();         }.bind(this);         break;       default:         return target[property];     }   },   set: function (target, property, value, receiver) {     console.log('setting ' + property + ' for
-    // ' + target + ' with value ' + value);     target[property] = value;      you have to return true to accept the changes     return true;   } };  this.data = new Proxy([], arrayChangeHandler);
-
     this.data = [];
     this.background = ""
-    // arrayChangeHandler.tag=this; Object.defineProperty(this, 'data', {   set: function (data) {     this.data=new Proxy(data, arrayChangeHandler);     this.data = data;     this.update();     this.reportCss(); this.reportFlex();
-    // console.log(this.items,data);   }.bind(this),   get: function () {     return this.data;   },   configurable: true });
 
     Object.defineProperty(this, 'indexedData', {
       get: function () {
@@ -235,29 +222,33 @@
       -khtml-user-drag: element;
       -webkit-user-drag: element;
     }*/
+    .center-row {
+      justify-content: center;
+      align-items: center;
+      display: flex;
+    }
     .dropTarget {
       flex-basis: 5px;
+    }
+    .rowContainer {
+      width: 90%;
+      flex-grow:0;
+      flex-shrink:0;
     }
     .dropFocus {
       background-color: rgb(213,218,224);
       flex-basis: 40px;
     }
     .tableBody {
-      background-color: rgb(238,242,249);
       word-break: break-all;
       overflow-wrap: break-word;
+      align-items: center;
     }
 
     .commandBarTable {
       color: #3883fa;
       background-color: white;
     }
-
-    /*.tableHeader {
-      color: rgb(110,110,110);
-      background-color: rgb(238,242,249);
-      justify-content: start;
-    }*/
 
     .placeholder {
       margin: 10px;
@@ -268,34 +259,33 @@
     }
     /* ligne table*/
     .tableRow {
-      background-color: #ffffff;
-      background-image: linear-gradient(#fff, #f2f3f5);
-      border-radius: 5px;
-      border-top-width: 1px;
-      border-left-width: 1px;
-      border-bottom-width: 1px;
-      border-right-width: 1px;
-      border-style: solid;
-      border-color: #f2f3f5 rgb(213,218,224) rgb(213,218,224);
-
+      justify-content: space-between;
+      flex-shrink:0;
+      background-color: white;
+      border-radius: 2px;
+      border: 1px solid;
+      border-color: #f2f3f5;
     }
     .tableRowContent {
       justify-content: start;
-
+      flex: 0.85;
     }
 
-    .tableRowContent > * {
-      padding: 10px;
-      border-width: 1px;
-
+    .tableRowBtn {
+      flex-direction: row;
+      flex: 0.15;
+      justify-content: space-evenly;
+      align-items: center;
     }
 
-    /*.tableHeader {
-      padding: 8pt;
-    }*/
+    .tableHeader {
+      flex-shrink:0;
+      justify-content: center;
+      height: 5vh;
+      margin-bottom: 1vh;
+    }
 
     .tableHeader > * {
-      padding: 10px;
       border-width: 1px;
     }
 
@@ -310,7 +300,10 @@
     }
 
     .selected {
-      border-color: blue;
+      background-color: rgba(33, 150, 243,0.1) !important;      
+      border-top-color: rgba(33, 150, 243,0.1) !important;
+      border-top-width: 2px !important;
+      border: none !important;
     }
   </style>
 

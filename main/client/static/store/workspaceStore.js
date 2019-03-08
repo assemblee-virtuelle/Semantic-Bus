@@ -3,7 +3,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   for (specificStore of specificStoreList) {
     specificStore.genericStore = this
   }
-  this.globalWorkspaceCollection
   this.workspaceCollection
   this.workspaceShareCollection
   this.workspaceCurrent
@@ -19,6 +18,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   this.connectMode
   this.modeConnectBefore = false
   this.modeConnectAfter = false
+  this.position = {}
 
   // --------------------------------------------------------------------------------
   // --------------------------------------------------------------------------------
@@ -26,7 +26,8 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
   // ----------------------------------------- FUNCTION  -----------------------------------------
 
-  this.computeGraph = function (viewBox) {
+  this.computeGraph = function (viewBox, position) {
+    console.log('compute graph', position)
     let componentsId = this.workspaceCurrent.components.map(c => c._id)
     this.workspaceCurrent.links = sift({
       $and: [{
@@ -129,7 +130,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       })
     }
 
-    this.trigger('workspace_graph_compute_done', this.graph)
+    this.trigger('workspace_graph_compute_done', {graph: this.graph, position })
   }
 
   // --------------------------------------------------------------------------------
@@ -144,18 +145,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     }
     this.action = action
     this.workspaceCurrent.mode = 'init'
-  }
-
-  // --------------------------------------------------------------------------------
-
-  this.setGlobalWorkspaceCollection = function (data) {
-    this.globalWorkspaceCollection = data
-    this.workspaceCollection = sift({
-      role: 'owner'
-    }, data).map(r => r.workspace)
-    this.workspaceShareCollection = sift({
-      role: 'editor'
-    }, data).map(r => r.workspace)
   }
 
   // --------------------------------------------------------------------------------
@@ -181,8 +170,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
   // --------------------------------------------------------------------------------
 
-  this.refreshComponent = function (triggerConnections) {
-    console.log("refreshComponent")
+  this.refreshComponent = function () {
     this.trigger('item_current_editor_changed', this.itemCurrent.editor)
     this.modeConnectBefore = false
     this.modeConnectAfter = false
@@ -203,34 +191,37 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   // ----------------------------------------- API CALL  -----------------------------------------
 
   this.loadProcesses = function (id) {
-    this.utilStore.ajaxCall({
-      method: 'get',
-      url: '../data/core/workspaces/' + id + '/process'
-    }, true)
-      .then(data => {
-        this.processCollection = data
+    return new Promise((resolve, reject) => {
+      this.utilStore.ajaxCall({
+        method: 'get',
+        url: '../data/core/workspaces/' + id + '/process'
+      }, true)
+        .then(data => {
+          this.processCollection = data
 
-        this.processCollection.forEach(process => {
-          let waitingNB = sift({
-            status: 'waiting'
-          }, process.steps).length
-          let errorNB = sift({
-            status: 'error'
-          }, process.steps).length
-          if (errorNB > 0) {
-            process.status = 'error'
-          } else {
-            if (waitingNB > 0) {
-              process.status = 'waiting'
+          this.processCollection.forEach(process => {
+            let waitingNB = sift({
+              status: 'waiting'
+            }, process.steps).length
+            let errorNB = sift({
+              status: 'error'
+            }, process.steps).length
+            if (errorNB > 0) {
+              process.status = 'error'
             } else {
-              process.status = 'resolved'
+              if (waitingNB > 0) {
+                process.status = 'waiting'
+              } else {
+                process.status = 'resolved'
+              }
             }
-          }
-          process.stepFinished = process.steps.length - waitingNB
+            process.stepFinished = process.steps.length - waitingNB
+          })
+          console.log('---- load current process ---', this.processCollection[0])
+          resolve(this.processCollection[0])
+          this.trigger('workspace_current_process_changed', this.processCollection)
         })
-
-        this.trigger('workspace_current_process_changed', this.processCollection)
-      })
+    })
   }
 
   // --------------------------------------------------------------------------------
@@ -274,11 +265,9 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
         url: '../data/core/workspaces/',
         data: JSON.stringify({ workspace: this.workspaceCurrent })
       }, true).then(data => {
-        this.globalWorkspaceCollection.push({
-          role: 'owner',
-          workspace: data
-        })
-        this.setGlobalWorkspaceCollection(this.globalWorkspaceCollection)
+        console.log(data)
+        this.workspaceCollection.push(data)
+        console.log(this.workspaceCollection)
         this.workspaceCurrent = data
         this.workspaceCurrent.mode = 'edit'
         resolve(this.workspaceCurrent)
@@ -290,7 +279,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
   // --------------------------------------------------------------------------------
 
-  this.update = function (data) {
+  this.update = function () {
     return new Promise((resolve, reject) => {
       const fetchData = JSON.stringify(this.workspaceBusiness.serialiseWorkspace(this.workspaceCurrent))
       this.trigger('persist_start')
@@ -305,8 +294,11 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       }).then(function (data) {
         this.trigger('persist_end', data)
         data.mode = 'edit'
-        this.workspaceCurrent = data
-        this.trigger('workspace_current_persist_done', this.workspaceCurrent)
+        // update only necessery champ
+        this.workspaceCurrent.description = data.description
+        this.workspaceCurrent.name = data.name
+        this.workspaceCurrent.limitHistoric = data.limitHistoric
+        this.trigger('ajax_sucess', `Votre workspace à été mis à jour`)
         this.trigger('workspace_current_changed', this.workspaceCurrent)
         if (this.viewBox) {
           this.computeGraph()
@@ -328,12 +320,11 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
         'Authorization': 'JTW' + ' ' + localStorage.token
       }
     }).then(function (data) {
-      this.globalWorkspaceCollection = sift({
-        'workspace._id': {
+      this.workspaceCollection = sift({
+        '_id': {
           $ne: record._id
         }
-      }, this.globalWorkspaceCollection)
-      this.setGlobalWorkspaceCollection(this.globalWorkspaceCollection)
+      }, this.workspaceCollection)
       this.trigger('persist_end', data)
       this.trigger('workspace_collection_changed', this.workspaceCollection)
     }.bind(this))
@@ -349,7 +340,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       }, true).then(data => {
         this.workspaceCurrent = data
         this.workspaceCurrent.mode = 'edit'
-        this.menu = 'component'
         resolve(data)
       }).catch(error => {
         reject(error)
@@ -367,10 +357,22 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
         data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(this.itemCurrent))
       }, true).then(data => {
         this.itemCurrent = data
+        console.log('after call', this.itemCurrent)
+        this.trigger('workspace_current_changed', this.workspaceCurrent)
         resolve(this.itemCurrent)
       })
     })
   } // <= update
+
+  // --------------------------------------------------------------------------------
+
+  this.on('update_graph_on_store', (position) => {
+    this.position = position
+  })
+
+  this.on('get_graph_position_on_store', () => {
+    this.trigger('graph_position_from_store', this.position)
+  })
 
   // --------------------------------------------------------------------------------
 
@@ -385,6 +387,22 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     }).then(function (data) {
       this.trigger('graph_workspace_data_loaded', data)
     }.bind(this))
+  })
+
+  // --------------------------------------------------------------------------------
+
+  this.on('stop_current_process', () => {
+    this.utilStore.ajaxCall({
+      method: 'put',
+      url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/process/' + this.currentProcess._id,
+      headers: {
+        'Authorization': 'JTW' + ' ' + localStorage.token
+      },
+      contentType: 'application/json',
+      data: JSON.stringify({ state: 'stop' })
+    }).then((data) => {
+      console.log(data)
+    })
   })
 
   // --------------------------------------------------------------------------------
@@ -459,6 +477,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
   this.on('navigation', function (entity, id, action, secondId, secondAction) {
     if (entity === 'workspace') {
+      this.action=action;
       if (id === 'new') {
         this.initializeNewWorkspace(entity, action)
         this.trigger('navigation_control_done', entity, action)
@@ -471,17 +490,19 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
           this.trigger('navigation_control_done', entity, action, secondAction)
         }
       } else {
-        this.unsubscribeToPreviousSubscription()
-        this.select({ _id: id }).then(() => {
-          this.subscribeToComponents(entity, action)
-          if (action === 'component' && secondId !== undefined) {
-            this.loadComponentPart(secondId, secondAction)
-            this.trigger('navigation_control_done', 'workspace', secondAction)
-          } else {
-            this.trigger('navigation_control_done', entity, action, secondAction)
-          }
+        this.loadProcesses(id).then((process) => {
+          this.currentProcess = process
+          this.unsubscribeToPreviousSubscription()
+          this.select({ _id: id }).then(() => {
+            this.subscribeToComponents(entity, action)
+            if (action === 'component' && secondId !== undefined) {
+              this.loadComponentPart(secondId, secondAction)
+              this.trigger('navigation_control_done', 'workspace', secondAction)
+            } else {
+              this.trigger('navigation_control_done', entity, action, secondAction)
+            }
+          })
         })
-        this.loadProcesses(id)
       }
     }
   })
@@ -543,7 +564,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   this.on('workspace_collection_load', function (record) {
-    if (this.workspaceCollection == undefined) {
+    if (this.workspaceCollection === undefined) {
       this.load(this.workspaceCurrent).then(data => {
         this.trigger('workspace_collection_changed', this.workspaceCollection)
       })
@@ -623,10 +644,16 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     this.trigger('workspace_current_process_changed', this.processCollection)
   }) // <= workspace_current_refresh
 
+  this.on('workspace_current_process_refresh_from_server', function () {
+    this.loadProcesses(this.workspaceCurrent._id);
+  }) // <= workspace_current_refresh
+
   // --------------------------------------------------------------------------------
 
   this.on('workspace_current_process_select', function (process) {
     this.currentProcess = process
+    this.workspaceCurrent.status = process.status
+    this.trigger('workspace_current_changed', this.workspaceCurrent)
     route('workspace/' + this.workspaceCurrent._id + '/component')
   })
 
@@ -669,7 +696,9 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       }))
     }, true).then(data => {
       this.workspaceCurrent.components = this.workspaceCurrent.components.concat(data)
-      route('workspace/' + this.workspaceCurrent._id + '/component')
+      if (this.viewBox) {
+        this.computeGraph(null, { x: 0, y: 0})
+      }
     })
   }.bind(this))
 
@@ -754,9 +783,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
         target: target._id
       })
     }, true).then(links => {
-      // source.connectionsAfter.push(connectedComps.target);
-      // target.connectionsBefore.push(connectedComps.source);
-      // this.workspaceBusiness.connectWorkspaceComponent(this.workspaceCurrent.components);
       this.workspaceCurrent.links = links
       this.trigger('workspace_current_changed', this.workspaceCurrent)
       if (this.viewBox) {
@@ -903,6 +929,8 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     })
     this.subscription_workspace_current_process_start = this.stompClient.subscribe('/topic/process-start.' + this.workspaceCurrent._id, message => {
       let body = JSON.parse(message.body)
+      this.workspaceCurrent.status = 'running'
+      this.trigger('workspace_current_changed', this.workspaceCurrent)
       if (body.error === undefined) {
         let process = {
           _id: body._id,
@@ -911,6 +939,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
           timeStamp: body.timeStamp,
           stepFinished: 0
         }
+        this.workspaceCurrent.status = 'running'
         this.processCollection.unshift(process)
         if (body.callerId === localStorage.user_id) {
           this.currentProcess = process
@@ -931,12 +960,18 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
           targetProcess.status = 'resolved'
           this.trigger('workspace_current_process_changed', this.processCollection)
         }
+        console.log("process end")
+        this.workspaceCurrent.status = 'resolved'
       } else {
+        this.workspaceCurrent.status = 'error'
         this.trigger('ajax_fail', body.error)
       }
+      this.trigger('workspace_current_changed', this.workspaceCurrent)
     })
     this.subscription_workspace_current_process_error = this.stompClient.subscribe('/topic/process-error.' + this.workspaceCurrent._id, message => {
       let body = JSON.parse(message.body)
+      this.workspaceCurrent.status = 'error'
+      this.trigger('workspace_current_changed', this.workspaceCurrent)
       if (body.error === undefined) {
         let targetProcess = sift({
           _id: body._id
@@ -948,6 +983,13 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       } else {
         this.trigger('ajax_fail', body.error)
       }
+    })
+    this.subscription_workspace_current_process_error = this.stompClient.subscribe('/topic/process-information.' + this.workspaceCurrent._id, message => {
+      let body = JSON.parse(message.body)
+      // add switch case on information for more process info trigger
+      this.workspaceCurrent.status = 'stoped'
+      this.trigger('workspace_current_changed', this.workspaceCurrent)
+      this.trigger('ajax_sucess', body.information)
     })
     this.subscription_workspace_current_process_progress = this.stompClient.subscribe('/topic/process-progress.' + this.workspaceCurrent._id, message => {
       let body = JSON.parse(message.body)
@@ -993,7 +1035,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       this.processCollection
       )
       this.trigger('workspace_current_process_changed', this.processCollection)
-      route('workspace/' + body.workspaceId + '/process')
     })
     this.subscription_workspace_current_process_persist = this.stompClient.subscribe('/topic/process-persist.' + this.workspaceCurrent._id, message => {
       let body = JSON.parse(message.body)

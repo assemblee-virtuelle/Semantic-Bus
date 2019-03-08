@@ -1,37 +1,39 @@
-<technical-component-table class="containerV" style="flex-grow:1;">
+<technical-component-table class="mainContainerListGraph">
 
     <!-- tableau des composants -->
-    <div class="containerH" style="flex-shrink:0;padding:10px">
-      <div class="containerH" style="flex-grow:1;justify-content: center;">
+    <div class="containerFilter">
+      <div class="containerH cardFilter">
         <div each={item in firstLevelCriteria} class={commandButton:true,tagSelected:isTagInSelectedTags(item)} onclick={firstLevelCriteriaClick}>
           {item['skos:prefLabel']}
         </div>
       </div>
-    </div>
-    <div class="containerH"style="flex-shrink:0;padding:10px">
-      <div class="containerH" style="flex-grow:1;justify-content: center;">
+      <div class="containerH cardFilter">
         <div each={item in secondLevelCriteria} class={commandButton:true,tagSelected:isTagInSelectedTags(item)} onclick={secondLevelCriteriaClick}>
           {item['skos:prefLabel']}
         </div>
       </div>
     </div>
-
-    <zentable style="flex:1" ref="technicalComponentTable" disallowdelete={true} disallownavigation={true}>
-      <yield to="header">
-        <div class="table-title" style="margin-left: 50px;width: 200px;flex-grow:1">Composant</div>
-        <div class="table-title" style="margin-right:60px;width: 500px;flex-grow:1">Description</div>
-      </yield>
+    
+    <zentable ref="technicalComponentTable" disallowdelete={true} disallownavigation={true}>
       <yield to="row">
-        <div style="width: 200px;flex-grow:1">{type}</div>
-        <div style="width: 500px;flex-grow:1">{description}</div>
+        <div>
+          <img class="rowImg"src={'image/components/'+ graphIcon}/>
+        </div>
+        <div>
+          <div class="tableRowName">{type}</div>
+          <div class="tableRowDescription">{description}</div>
+        </div>
       </yield>
     </zentable>
-
+    <div style="height: 10vh"/>
     <!-- Bouton valider -->
-    <div class="containerH" style="padding-top:20px;flex-basis:45px;justify-content: center;align-items: flex-start; flex-shrink:0;flex-grow:0;">
-      <div onclick={addComponentClick} class="commandButtonImage">
-        <img src="./image/check.png" title="Valider la sélection" height="35px" width="35px">
+    <div class="containerH containerValidate">
+      <div onclick={addComponentClick} class="btnFil commandButtonImage">
+        Ajouter
+        <img class="imgFil" src="./image/ajout_composant.svg" title="Importer un Workflow">
+        <input onchange={import} ref="import" type="file" style="display:none;"/>
       </div>
+      
     </div>
 
   <script>
@@ -53,7 +55,7 @@
       return out;
     }
 
-    this.addComponentClick = function (e) {
+    this.addComponentClick = (e) => {
       RiotControl.trigger("workspace_current_add_components")
     }
 
@@ -135,16 +137,107 @@
     });
   </script>
   <style>
-    .notSynchronized {
-      background-color: orange !important;
-      color: white;
+    .rowContainer {
+      width: 100%;
     }
-    //TODO migrate ti zentable tag
-    .zentableScrollable {
-      padding: 10pt;
-      align-items: stretch;
-      background-color: rgb(240,240,240);
-      overflow: scroll;
+    .tableRowContent {
+      justify-content: start;
+      flex: 1;
+    }
+    .containerV {
+      width: 100%;
+    }
+    .tableRow {
+      border-color: transparent;
+      border-top-width: 2px;
+      border-top-color: rgb(238,242,249);
+      border:none!important;
+      width: 100%;
+      padding: 1vh;
+      cursor: pointer
+    }
+    .technical-component-table {
+      overflow: visible;
+      width: 100%;
+    }
+    .mainContainerListGraph {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      position: relative;
+      height: 100%;
+    }
+    .cardFilter {
+      flex-wrap: wrap;
+      justify-content: space-evenly;
+      padding: 1vh;
+      align-items: center;
+    }
+    .dropTarget {
+      flex-basis: 0px;
+    }
+    .containerFilter {
+      height: 2vh;
+      width: 100%;
+    }
+    .containerValidate {
+      position: absolute;
+      bottom: 1vh;
+    }
+    .rowImg {
+      height: 25px !important;
+      width: 25px !important;
+      padding: 1vh;
+    }
+    .tableRowName {
+      font-weight: 400;
+      font-family: sans-serif;
+      justify-content: flex-start;
+      font-size: 15px;
+      padding:1vh;
+    }
+    .selected {
+      background-color: rgba(33, 150, 243,0.1) !important;      
+      border-top-color: rgba(33, 150, 243,0.1) !important;
+      border-top-width: 2px !important;
+      border: none !important;
+    }
+    .tableRowDescription { 
+      font-weight: 200;
+      font-family: sans-serif;
+      font-size: 10px;
+      padding-right: 2vw;
+      padding-left: 1vw;
+    }
+
+    .containerTitle {
+      border-radius: 2px;
+      width: 90%;
+      flex-direction: row;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      background-color: rgb(26,145,194);
+    }
+    .tableTitleName {
+      font-size: 0.85em;
+      flex:0.26;
+      color: white;
+      flex-shrink: 0;
+      padding-left:10px;
+    }
+    .tableTitleDescription {
+      font-size: 0.85em;
+      flex:0.595;
+      color: white;
+      flex-shrink: 0;
+      padding-left:10px;
+    }
+    .tableEmptyImg {
+      flex:0.05;
+    }
+    .tableEmpty {
+      flex:0.15;
     }
   </style>
 </technical-component-table>

@@ -14,8 +14,12 @@ a {
     font-size: 20px;
     text-align: center;
     cursor:pointer;
+    border: none;
 }
-
+.btnAddSize {
+  height: 40px;
+  width: 40px;
+}
 .button-graph {
   border-radius: 50%;
   padding: 10px;
@@ -48,9 +52,38 @@ body {
 /* header table*/
 .table-title {
   color: white;
+  text-transform: capitalize;
   flex-shrink: 0;
   background-color: rgb(26, 145, 194);
 }
+
+.labelFormStandard {
+  font-size: 0.75em;
+  text-transform: uppercase;
+}
+.inputStandard {  
+  border: rgb(212,212,212) 1px solid;
+  padding: 8px;
+  color: rgb(161,161,161);
+  width: 50%;
+  font-size: 1em;
+  border-radius: 2px;
+}
+.inputComponents {  
+  height: 5vh;
+  border: rgb(212,212,212) 1px solid;
+  padding: 8px;
+  color: rgb(161,161,161);
+  width: 50%;
+  font-size: 1em;
+  border-radius: 2px;
+}
+::placeholder{
+  color: rgb(200,200,200);
+  font-style: italic;
+  opacity: 1; /* Firefox */
+}
+
 
 .header-login {
   height: 80px;
@@ -73,6 +106,11 @@ body {
   font-family: 'Open Sans', sans-serif;
 }
 
+.title-graph {
+  font-size: 1em;
+  font-family: 'Open Sans', sans-serif;
+}
+
 .title-header {
   justify-content: center;
   text-align: center;
@@ -82,37 +120,71 @@ body {
   font-size: 10px;
   width: 120px;
 }
-
+.cardParameter {
+  display: flex;
+  justify-content: flex-start;
+  align-items: center;
+  height: 9vh;
+  margin-left: 1vw;
+}
 /*titre composant*/
 .title-space {
+  font-weight: bold;
   justify-content: center;
   text-align: center;
   padding-top: 5px;
+  text-transform: uppercase;
   font-family: 'Open Sans', sans-serif;
   color: rgb(141,141,141);
-  font-size: 20px;
-
+  font-size: 15px;
 }
-
+.textArea {
+  color: rgb(26,145,194);
+  padding: 3vh;
+  border-radius: 10px;
+  border: 1px solid rgb(26,145,194);
+  height: 25vh;
+  width: 90%;
+  margin-left: 1vh;
+}
+.cardInput {
+  margin-left: 1vh;
+  margin-bottom: 1vh;
+  
+}
 /*titre composant*/
 .title-component {
-  font-size: 20px;
-  /*font-family: 'Open Sans', sans-serif;*/
-  margin-bottom: 5px;
-  border-top: 0px;
-  border-left: 0px;
-  border-right: 0px;
-  border-bottom: 2px rgb(213, 218, 224) solid;
-
+  font-weight: 400;
+  font-family: sans-serif;
 }
-
+.title-description-component {
+  font-weight: 200;
+  font-family: sans-serif;
+}
+.subtitle {
+  padding: 2vh;
+}
+.bar {
+  width: 100%;
+  height: 1px;
+  background-color: rgb(213,218,224);
+  margin: 10px 0px 10px 0px;
+}
 /*menu selectionné*/
 .tagSelected {
-  border: 3px solid rgb(124, 195, 232) !important;
-  background-color: rgb(124, 195, 232);
-  color: white;
+  color:  rgb(41, 177, 238) !important;
+}
+/*Bouton*/
+.commandButton {
+  cursor: pointer;
+  align-self: center;
+  color: grey;
+  font-size: 10px
 }
 
+.commandButton:hover {
+  color: rgb(41, 177, 238);
+}
 /*Menu selectionné*/
 .selected {
   cursor: pointer;
@@ -165,25 +237,7 @@ body {
   padding: 0px;
   justify-content: center;
 }*/
-/*Bouton*/
-.commandButton {
-  margin-left: 5pt;
-  padding-left: 10px;
-  padding-right: 10px;
-  padding-top: 2px;
-  padding-bottom: 2px;
-  cursor: pointer;
-  align-self: center;
-  border: 3px solid rgb(213, 218, 224);
-  color: grey;
-  border-radius: 20px;
-}
 
-.commandButton:hover {
-  border: 3px solid rgb(41, 177, 238) !important;
-  background-color: rgb(41, 177, 238);
-  color: white;
-}
 
 .selector {
   border-style: none;
@@ -232,4 +286,11 @@ label {
   padding: 2%;
   justify-content: center;
   flex-grow: 0.5;
+}
+.mainContainerListGraph {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  position: relative;
+  height: 100%;
 }

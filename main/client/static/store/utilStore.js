@@ -36,6 +36,7 @@ function UtilStore (specificStoreList) {
         }
         if (error.status === 401) {
           window.location = '/ihm/login.html'
+          localStorage.clear()
         }
         reject(error)
       }.bind(this))

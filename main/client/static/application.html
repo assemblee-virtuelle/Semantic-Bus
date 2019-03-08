@@ -14,7 +14,8 @@
   <link href='./js/jsonEditor/dist/jsoneditor.min.css' rel='stylesheet' type='text/css'>
   <link href="./image/grappe-log-01.png" rel="icon" type="image/png">
   <link rel="stylesheet" href="./js/awesomplete-gh-pages/awesomplete.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flexboxgrid/6.3.1/flexboxgrid.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flexboxgrid/6.3.1/flexboxgrid.min.css"
+    type="text/css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.5/themes/default/style.min.css" />
 </head>
 
@@ -42,11 +43,12 @@
   <script src="./js/spin.min.js"></script>
   <script src="./js/RiotControl/riotcontrol.js"></script>
   <script src="https://d3js.org/d3.v4.min.js"></script>
-  
+
   <script src="//d3js.org/d3-scale-chromatic.v0.3.min.js"></script>
 
   <script src="./store/workspaceBusiness.js"></script>
   <script src="./store/workspaceStore.js"></script>
+  <script src="./store/bigdataflowStore.js"></script>
   <script src="./store/technicalComponentStore.js"></script>
   <script src="./store/genericStore.js"></script>
   <script src="./store/cacheNosqlStore.js"></script>
@@ -75,44 +77,57 @@
   <script type="riot/tag" src="tag/profil-header.tag"></script>
   <script type="riot/tag" src="tag/graph.tag"></script>
   <script type="riot/tag" src="tag/graph_of_use.tag"></script>
+  <script type="riot/tag" src="tag/share-workspace.tag"></script>
   <script type="riot/tag" src="tag/graph_of_use_workspace.tag"></script>
   <script type="riot/tag" src="tag/jsonPreviewer.tag"></script>
   <script type="riot/tag" src="tag/jsonPreviewer-header.tag"></script>
   <script type="riot/tag" src="tag/process-list.tag"></script>
   <script type="riot/tag" src="tag/no-editor.tag"></script>
-  <script type="riot/tag" src="tag/scrapper-editor.tag"></script>
-  <script type="riot/tag" src="tag/rest-get-json-editor.tag"></script>
-  <script type="riot/tag" src="tag/rest-get-editor.tag"></script>
-  <script type="riot/tag" src="tag/object-transformer.tag"></script>
-  <script type="riot/tag" src="tag/google-get-json-editor.tag"></script>
-  <script type="riot/tag" src="tag/simple-agregator-editor.tag"></script>
-  <script type="riot/tag" src="tag/google-geolocaliser-editor.tag"></script>
-  <script type="riot/tag" src="tag/cache-nosql-editor.tag"></script>
-  <script type="riot/tag" src="tag/data-gouv-inverse-geolocaliser-editor.tag"></script>
-  <script type="riot/tag" src="tag/rest-api-get-editor.tag"></script>
   <script type="riot/tag" src="tag/xml-property-to-object-editor.tag"></script>
-  <script type="riot/tag" src="tag/framacalc-get-csv-editor.tag"></script>
-  <script type="riot/tag" src="tag/data-gouv-geolocaliser-editor.tag"></script>
   <script type="riot/tag" src="tag/data-gouv-geolocaliser-mass-editor.tag"></script>
-  <script type="riot/tag" src="tag/join-by-field-editor.tag"></script>
-  <script type="riot/tag" src="tag/deeper-focus-opening-bracket-editor.tag"></script>
-  <script type="riot/tag" src="tag/sparql-request-editor.tag"></script>
-  <script type="riot/tag" src="tag/filter-editor.tag"></script>
-  <script type="riot/tag" src="tag/upload-editor.tag"></script>
-  <script type="riot/tag" src="tag/sql-connecteur-editor.tag"></script>
-  <script type="riot/tag" src="tag/mongo-connecteur-editor.tag"></script>
-  <script type="riot/tag" src="tag/value-mapping-editor.tag"></script>
-  <script type="riot/tag" src="tag/timer-editor.tag"></script>
-  <script type="riot/tag" src="tag/rest-api-post-editor.tag"></script>
-  <script type="riot/tag" src="tag/query-params-creation-editor.tag"></script>
-  <script type="riot/tag" src="tag/value-from-path-editor.tag"></script>
-  <script type="riot/tag" src="tag/unicity-editor.tag"></script>
-  <script type="riot/tag" src="tag/properties-matrix-editor.tag"></script>
-  <script type="riot/tag" src="tag/post-consumer-editor.tag"></script>
-  <script type="riot/tag" src="tag/key-to-array-editor.tag"></script>
   <script type="riot/tag" src="tag/workspace/workspace-zen-table.tag"></script>
+  <script type="riot/tag" src="tag/bigdataflow-table.tag"></script>
+  <script type="riot/tag" src="tag/bigdataflow-table-header.tag"></script>
+  <script type="riot/tag" src="tag/bigdataflow-editor.tag"></script>
+  <script type="riot/tag" src="tag/bigdataflow-editor-header.tag"></script>
 
 
+  <script type="riot/tag" src="tag/editorComponents/aggregation/simple-agregator-editor.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/aggregation/join-by-field-editor.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/aggregation/unicity-editor.tag"></script>
+
+  <script type="riot/tag" src="tag/editorComponents/bdd/sql-connecteur-editor.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/bdd/mongo-connecteur-editor.tag"></script>
+
+  <script type="riot/tag" src="tag/editorComponents/cache/cache-nosql-editor.tag"></script>
+
+  <script type="riot/tag" src="tag/editorComponents/dataFlow/rest-api-get-editor.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/dataFlow/rest-get-json-editor.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/dataFlow/framacalc-get-csv-editor.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/dataFlow/google-get-json-editor.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/dataFlow/rest-api-post-editor.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/dataFlow/post-consumer-editor.tag"></script>
+
+  <script type="riot/tag" src="tag/editorComponents/files/upload-editor.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/files/rest-get-editor.tag"></script>
+
+  <script type="riot/tag" src="tag/editorComponents/geocodage/google-geolocaliser-editor.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/geocodage/data-gouv-inverse-geolocaliser-editor.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/geocodage/data-gouv-geolocaliser-editor.tag"></script>
+
+  <script type="riot/tag" src="tag/editorComponents/scrapper/scrapper-editor.tag"></script>
+
+  <script type="riot/tag" src="tag/editorComponents/transformation/object-transformer.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/transformation/filter-editor.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/transformation/key-to-array-editor.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/transformation/properties-matrix-editor.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/transformation/sparql-request-editor.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/transformation/value-mapping-editor.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/transformation/value-from-path-editor.tag"></script>
+
+  <script type="riot/tag" src="tag/editorComponents/utilities/deeper-focus-opening-bracket-editor.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/utilities/timer-editor.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/utilities/query-params-creation-editor.tag"></script>
   <script>
     $.ajax({
       method: 'get',
@@ -125,13 +140,13 @@
       }
       if (configuration.pk_stripe) localStorage.pk_stripe = configuration.pk_stripe
       if (configuration.privateScript) {
-        configuration.privateScript.forEach((src)=>{
+        configuration.privateScript.forEach((src) => {
           let a = document.createElement("script");
-          /.[tag]+$/.test(src)? a.type = "riot/tag" : a.type = "text/javascript";
+          /.[tag]+$/.test(src) ? a.type = "riot/tag" : a.type = "text/javascript";
           a.src = src
           document.body.appendChild(a);
         })
-      }  else {
+      } else {
         const x = document.createElement("script");
         x.type = "riot/tag";
         x.src = "tag/stripe-component.tag"
@@ -146,15 +161,16 @@
       var onConnect = (client) => {
         // no more r&d for private incrementation because
         // react refonte will change all this mechanisme
-        if(configuration.privateScript && configuration.privateScript.length > 0) {
-          let stripeStore = new StripeStore();
-          RiotControl.addStore(stripeStore);
-        }
-
         const allStore = {};
         const utilStore = new UtilStore();
         RiotControl.addStore(utilStore);
         allStore['utilStore'] = utilStore;
+
+        if (configuration.privateScript && configuration.privateScript.length > 0) {
+          let stripeStore = new StripeStore(utilStore);
+          RiotControl.addStore(stripeStore);
+        }
+
 
         const profilStore = new ProfilStore(utilStore);
         RiotControl.addStore(profilStore);
@@ -181,18 +197,22 @@
         specificStoreList.push(sqlStore)
         allStore['sqlStore'] = sqlStore;
 
-        const workspaceStore = new WorkspaceStore(utilStore, stompClient,specificStoreList); // Create a store instance.
-        RiotControl.addStore(workspaceStore); // Register the store in central dispatch.
+        const workspaceStore = new WorkspaceStore(utilStore, stompClient, specificStoreList);
+        RiotControl.addStore(workspaceStore);
         allStore['workspaceStore'] = workspaceStore;
+
+        const bigdataflowStore = new BigdataflowStore(utilStore, stompClient, specificStoreList);
+        RiotControl.addStore(bigdataflowStore);
+        allStore['bigdataflowStore'] = bigdataflowStore;
 
         const mainController = new MainController(allStore, stompClient, utilStore);
         RiotControl.addStore(mainController);
 
-        RiotControl.on('login_redirect', function() {
+        RiotControl.on('login_redirect', function () {
           window.open("../ihm/login.html", "_self");
         })
 
-        riot.compile(function() {
+        riot.compile(function () {
           riot.mount('*');
         });
       };
@@ -215,7 +235,7 @@
     })
   </script>
   <style>
-  /*  Modifier la police principal de Grappe  */
+    /*  Modifier la police principal de Grappe  */
     body {
       font-family: Arial, Helvetica, "Liberation Sans", FreeSans, sans-serif;
     }

@@ -10,7 +10,7 @@ var server = http.Server(requestHandler);
 var env = process.env;
 var url = require('url');
 var fs = require('fs');
-const configUrl = env.CONFIG_URL|| 'https://data-players.github.io/StrongBox/public/dev-docker.json'
+const configUrl = env.CONFIG_URL
 const parsedUrl = url.parse(configUrl);
 const requestOptions = {
   hostname: parsedUrl.hostname,

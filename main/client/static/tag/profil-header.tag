@@ -5,7 +5,7 @@
     <div class="containerV" style="justify-content:center">
       <div class="containerH">
         <div class="main-title">
-          <h6>Espace personnel</h6>
+          <h6 style="font-weight: 400">Espace personnel</h6>
         </div>
       </div>
     </div>
