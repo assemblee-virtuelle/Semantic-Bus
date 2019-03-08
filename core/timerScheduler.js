@@ -23,7 +23,7 @@ module.exports = {
               c.specificData.last = now;
               this.componentLib.update(c);
 
-              if (dedicaded && this.config.timer != undefined) {
+              if (dedicaded) {
                 console.log('Timer dedidated!');
 
                 const payload = {
