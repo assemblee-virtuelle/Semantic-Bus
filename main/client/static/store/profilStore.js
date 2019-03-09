@@ -79,8 +79,7 @@ function ProfilStore (utilStore) {
   })
 
   this.on('deconnexion', function (message) {
-    localStorage.token = null
-    localStorage.user_id = null
+    localStorage.clear();
     window.open('../ihm/login.html', '_self')
   })
 }

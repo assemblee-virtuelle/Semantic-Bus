@@ -354,7 +354,6 @@
       if ((this.user.password != undefined) && (this.user.email != undefined) && (this.user.email != "") && (this.user.email != "")) {
         RiotControl.trigger('user_connect', this.user);
         RiotControl.on('google_user', function () {
-          console.log("Connectez vous avec Google")
           this.resultConnexion = "Votre email est déjà utilisé par une connexion Google";
           this.update();
         }.bind(this))
