@@ -5,7 +5,6 @@ const mailService = require('./services/mail')
 const jwt = require('jwt-simple')
 const moment = require('moment')
 const config = require('../configuration')
-
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -98,7 +97,7 @@ module.exports = function (router) {
       from: 'Grappe, Confirmer votre email <tech@data-players.com>',
       to: req.body.emailInscription,
       subject: 'Confirmer Votre compte',
-      html: 'Bonjour,<br> Merci de cliquer sur le lien suivant pour confirmer votre compte. <br><a href=' + link + '>Ici </a>'
+      html: 'Bonjour,<br> Merci de cliquer sur le lien suivant pour confirmer votre compte Grappe. <br><a href=' + link + '>Ici </a>'
     }
     const user = {
       name: req.body.name,

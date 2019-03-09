@@ -10,6 +10,8 @@ let SecureMailModel = require("../models/security_mail");
 let workspaceModel = require("../models").workspace;
 let bigdataflowModel = require("../models").bigdataflow;
 const Error = require('../helpers/error.js');
+var validator = require('validator');
+
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -83,7 +85,8 @@ function _create_preprocess(userParams) {
   return new Promise(function (resolve, reject) {
     let mail = new Promise(function (resolve, reject) {
       const Usermail = Object.assign({}, userParams)
-      if (!_check_email(Usermail.email)|| !Usermail.email) {
+      const check = _check_email(Usermail.email)
+      if (validator.isEmail(Usermail.email) === false){
         reject(new Error.PropertyValidationError('mail'))
       } else {
         resolve(Usermail.email)
