@@ -32,7 +32,7 @@
       </div>
     </a>
     <!-- Déconnexion -->
-    <a onclick={deconnexion} class="commandButtonImage navBarTop containerV" style="background-color: rgb(124,195,232)">
+    <a onclick={logout} class="commandButtonImage navBarTop containerV" style="background-color: rgb(124,195,232)">
       <img src="./image/menu/log-out.png" height="40px" width="40px">
       Déconnexion
     </a>
@@ -104,7 +104,7 @@
               margin-top: 20px;
               text-align: center;
               border: none;"
-        onclick={deconnexion}
+        onclick={logout}
         type="button">Déconnexion</button>
     </div>
   </div>
@@ -133,8 +133,8 @@
       }
     }
 
-    deconnexion(e) {
-      RiotControl.trigger('deconnexion');
+    logout(e) {
+      RiotControl.trigger('logout');
     }
 
     changeEmailInput(e) {
