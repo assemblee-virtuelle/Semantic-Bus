@@ -40,7 +40,8 @@ function UserStore (utilStore) {
       method: 'post',
       data: JSON.stringify(tokenObject),
       contentType: 'application/json',
-      url: '/data/auth/google_auth_statefull_verification'
+      url: '/data/auth/google_auth_statefull_verification',
+      async: false
     }).then(data => {
       if (data && data.token != null) {
         localStorage.token = data.token

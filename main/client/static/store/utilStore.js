@@ -1,15 +1,18 @@
 function UtilStore (specificStoreList) {
   riot.observable(this) // Riot provides our event emitter.
 
-  this.ajaxCall = function (param, persistTrigger) {
+  this.ajaxCall = function (param, persistTrigger, unprotect) {
     return new Promise((resolve, reject) => {
       // console.log('UtilStore | ajaxCall');
       if (persistTrigger) {
         this.trigger('persist_start')
       }
-      param.headers = {
-        'Authorization': 'JTW' + ' ' + localStorage.token
+      if (!unprotect) {
+        param.headers = {
+          'Authorization': 'JTW' + ' ' + localStorage.token
+        }
       }
+
       param.contentType = 'application/json'
 
       $.ajax(param).done(function (data) {

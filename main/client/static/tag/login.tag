@@ -262,7 +262,6 @@
     }.bind(this));
 
     this.isGoogleUser = function () {
-      
       if (location.search.split('google_token=')[1] != null) {
         this.persistInProgress = true;
         var googleToken = location.search.split('google_token=')[1]
