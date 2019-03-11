@@ -41,7 +41,7 @@ request(url, { json: true }, (err, result, body) => {
       })
       app.set('etag', false)
       unSafeRouteur.use(cors())
-      console.log('connection to ----' , configJson.socketServer + '/' + configJson.amqpHost)
+      console.log('connection to ----', configJson.socketServer + '/' + configJson.amqpHost)
       amqp.connect(configJson.socketServer + '/' + configJson.amqpHost, function (err, conn) {
         console.log('AMQP status : ', conn ? 'connected' : 'no connected', err || 'no error')
         conn.createChannel(function (_err, ch) {
@@ -56,13 +56,13 @@ request(url, { json: true }, (err, result, body) => {
         app.use('/data/auth', unSafeRouteur)
         app.use('/data/core', safe)
 
-        require('./server/initialiseWebService')(unSafeRouteur);
-        require('./server/authWebService')(unSafeRouteur);
-        require('./server/workspaceWebService')(safe);
-        require('./server/bigdataflowService')(safe);
-        require('./server/technicalComponentWebService')(safe, unSafeRouteur, amqpClient);
-        require('./server/userWebservices')(safe);
-        require('./server/fragmentWebService')(safe);
+        require('./server/initialiseWebService')(unSafeRouteur)
+        require('./server/authWebService')(unSafeRouteur)
+        require('./server/workspaceWebService')(safe)
+        require('./server/bigdataflowService')(safe)
+        require('./server/technicalComponentWebService')(safe, unSafeRouteur, amqpClient)
+        require('./server/userWebservices')(safe)
+        require('./server/fragmentWebService')(safe)
 
         /// SECURISATION DES REQUETES
 
@@ -76,13 +76,14 @@ request(url, { json: true }, (err, result, body) => {
         app.use('/browserify', express.static('browserify'))
         app.use('/npm', express.static('node_modules'))
 
-        const port= process.env.APP_PORT || 80
+        const port = process.env.APP_PORT || 80
         app.listen(port, function (err) {
-          console.log("serveur started at port",port);
+          console.log('serveur started at port', port)
         })
 
         app.use((_err, req, res, next) => {
           if (_err) {
+            console.log(_err)
             errorHandling(_err, res, next)
           }
         })

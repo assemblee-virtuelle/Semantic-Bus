@@ -35,6 +35,7 @@
     const userStore = new UserStore(utilStore); // Create a store instance.
     RiotControl.addStore(utilStore);
     RiotControl.addStore(userStore); // Register the store in central dispatch.
+    console.log("in login page", localStorage)
     if (localStorage.token != null) {
       window.open("../ihm/application.html#myWorkspaces", "_self");
     }

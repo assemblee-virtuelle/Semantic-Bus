@@ -16,9 +16,6 @@ function UserStore (utilStore) {
       if (data != null && data.token != null) {
         localStorage.token = data.token
         this.trigger('application_redirect')
-        this.sleep(2000).then(() => {
-          this.trigger('ajax_receipt_login', '/inscription')
-        })
       }
     })
   })
@@ -29,16 +26,10 @@ function UserStore (utilStore) {
       data: JSON.stringify(user),
       contentType: 'application/json',
       url: '/data/auth/authenticate',
-      beforeSend: function () {
-        this.trigger('ajax_send_login')
-      }.bind(this)
     }).then(data => {
       if (data != null && data.token != null) {
         localStorage.token = data.token
         this.trigger('application_redirect')
-        this.sleep(2000).then(function () {
-          this.trigger('ajax_receipt_login', '/connexion')
-        }.bind(this))
       }
     })
   })
@@ -49,14 +40,12 @@ function UserStore (utilStore) {
       method: 'post',
       data: JSON.stringify(tokenObject),
       contentType: 'application/json',
-      url: '/data/auth/google_auth_statefull_verification'
+      url: '/data/auth/google_auth_statefull_verification',
+      async: false
     }).then(data => {
       if (data && data.token != null) {
         localStorage.token = data.token
         this.trigger('application_redirect')
-        this.sleep(2000).then(function () {
-          this.trigger('ajax_receipt_login', '/connexion')
-        }.bind(this))
       }
     })
   })

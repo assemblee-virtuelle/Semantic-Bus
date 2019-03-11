@@ -1,7 +1,8 @@
 'use strict';
 class JoinByField {
   constructor () {
-    this.sift = require('sift')
+    this.sift = require('sift');
+    this.PromiseOrchestrator = require('../../core/helpers/promiseOrchestrator')
   }
   getPrimaryFlow (data, flowData) {
     var primaryFlow = this.sift({

@@ -261,19 +261,7 @@
       this.update();
     }.bind(this));
 
-
-    RiotControl.on('persist_start', function (data) {
-      this.persistInProgress = true;
-      this.update();
-    }.bind(this));
-
-    RiotControl.on('persist_end', function (data) {
-      this.persistInProgress = false;
-      this.update();
-    }.bind(this));
-
     this.isGoogleUser = function () {
-      
       if (location.search.split('google_token=')[1] != null) {
         this.persistInProgress = true;
         var googleToken = location.search.split('google_token=')[1]
@@ -350,26 +338,6 @@
       this.resultConnexion = ""
     }
 
-    login(e) {
-      if ((this.user.password != undefined) && (this.user.email != undefined) && (this.user.email != "") && (this.user.email != "")) {
-        RiotControl.trigger('user_connect', this.user);
-        RiotControl.on('google_user', function () {
-          this.resultConnexion = "Votre email est déjà utilisé par une connexion Google";
-          this.update();
-        }.bind(this))
-        RiotControl.on('bad_auth', function () {
-          this.resultConnexion = "Vous n'exister pas en base de donnée inscrivez vous :)"
-          this.update();
-        }.bind(this));
-        RiotControl.on('err_processus', function () {
-          this.resultConnexion = "Erreur verification mot de passe"
-          this.update();
-        }.bind(this));
-      } else {
-        this.resultConnexion = "Remplissez votre email et mot de passe"
-      }
-    }
-
     this.emailChange = function (e) {
       this.user.email = e.currentTarget.value;
     }.bind(this);
@@ -441,19 +409,23 @@
     loginGoogle(e) {
       RiotControl.trigger('google_user_connect', this.user);
     }
+    login(e) {
+      if ((this.user.password != undefined) && (this.user.email != undefined) && (this.user.email != "") && (this.user.email != "")) {
+        RiotControl.trigger('user_connect', this.user);
+      } else {
+        this.resultConnexion = "Remplissez votre email et mot de passe"
+      }
+    }
 
     this.isGoogleUser();
 
     this.on('mount', function () {
       if (!window.location.href.split('login.html')[1]) {
-        route('connexion')
+        window.location = "/ihm/login.html?#connexion"
       }
       route(function (entity, id, action) {    
-        console.log('inere', entity,this.urls,  this.urls.includes(entity))
         if(this.urls.includes(entity) === false){
-          console.log('inere', !this.urls.includes(entity))
-          console.log('inere', entity)
-          window.location = "/ihm/login.html#connexion"
+          window.location = "/ihm/login.html?#connexion"
         }
         if (id == undefined && action == undefined) {
           this.entity = entity;

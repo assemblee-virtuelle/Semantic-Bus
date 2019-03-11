@@ -86,8 +86,7 @@ exports.formatDataUserGraph = function (workspaces) {
       }
     }
 
-    console.log(data)
-
+    if (data.data.length === 0) data.data = AllDayObject
     resolve(data)
   })
 }
