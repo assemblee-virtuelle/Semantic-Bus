@@ -38,6 +38,7 @@
     "csvtojson": "^1.1.9",
     "data2xml": "^1.2.5",
     "dot-prop": "^4.2.0",
+    "email-templates": "^5.0.4",
     "error-stack-parser": "^2.0.1",
     "eslint-config-standard": "12.0.0",
     "eslint-plugin-import": "2.14.0",

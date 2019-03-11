@@ -172,9 +172,7 @@ class AuthLib {
           .lean()
           .exec()
           .then(user => {
-            if (config.quietLog != true) {
-              //console.log("--- google user find ---", user)
-            }
+            
             user.googleToken = null;
             user.active = true
             //console.log(user)
@@ -189,7 +187,6 @@ class AuthLib {
                 subject: user.googleid,
               }
               const token = jwt.encode(payload, config.secret);
-
               res.send({
                 user: user_update,
                 token: token
