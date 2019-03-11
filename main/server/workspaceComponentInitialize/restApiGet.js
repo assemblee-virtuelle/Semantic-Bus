@@ -22,25 +22,25 @@ class RestApiGet {
   initialise (router, amqp) {
 
     router.get('*', (req, res, next) => {
-      console.log('api');
-      console.error('API text ERROR');
-      console.warn('API text WARN');
+      // console.log('api');
+      // console.error('API text ERROR');
+      // console.warn('API text WARN');
       // eslint-disable-next-line node/no-deprecated-api
       const urlRequiered = req.params[0].split('/')[1]
-      console.log('urlRequiered',urlRequiered);
+      // console.log('urlRequiered',urlRequiered);
       const query = req.query
       let targetedComponent
       this.workspace_component_lib.get_all({
         module: 'restApiGet'
       }).then(components => {
-        console.log('components',components);
+        // console.log('components',components);
         let matched = false
         for (let component of components) {
           if (component.specificData.url != undefined) {
             let keys = []
             let regexp = this.pathToRegexp(component.specificData.url, keys)
-            console.log('url',component.specificData.url);
-            console.log('keys',keys);
+            // console.log('url',component.specificData.url);
+            // console.log('keys',keys);
             if (regexp.test(urlRequiered)) {
               matched = true
               targetedComponent = component
@@ -63,7 +63,7 @@ class RestApiGet {
             }
           }
         }
-        console.log('ALLO-1',matched);
+        // console.log('ALLO-1',matched);
         if (!matched) {
           console.log('ERROR!!!');
           return new Promise((resolve, reject) => {
@@ -75,13 +75,14 @@ class RestApiGet {
             // })
           })
         } else {
-          console.log('allo');
+          // console.log('this.config.engineUrl',this.config.engineUrl);
           this.request.post(this.config.engineUrl + '/work-ask/' + targetedComponent._id,
             { body: { pushData: req.body, query: req.query },
               json: true
             }
             // eslint-disable-next-line handle-callback-err
             , (err, data) => {
+              console.log("request",err,data);
               const dataToSend = data.body.data
 
               if (targetedComponent.specificData != undefined) { // exception in previous promise

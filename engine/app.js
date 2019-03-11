@@ -28,7 +28,7 @@ safe.use(bodyParser.json())
 request(url, { json: true }, (err, result, body) => {
   const configJson = result.body
   const content = 'module.exports = ' + JSON.stringify(result.body)
-  
+
   fs.writeFile('configuration.js', content, 'utf8', function (err) {
     if (err) {
       throw err
@@ -47,8 +47,9 @@ request(url, { json: true }, (err, result, body) => {
         require('./amqpService')(safe, amqpClient)
       }
       app.use('/engine', safe)
-      app.listen(process.env.APP_PORT || 8080, function (err) {
-        console.log("listen")
+      let port=process.env.APP_PORT || 8080;
+      app.listen(port, function (err) {
+        console.log("listen at port ",port)
       })
       app.use((_err, req, res, next) => {
         if (_err) {

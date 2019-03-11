@@ -53,6 +53,7 @@ class JoinByField {
               data
             ]
           })
+          console.log('PromiseOrchestrator',this.PromiseOrchestrator);
           let promiseOrchestrator = new this.PromiseOrchestrator()
           promiseOrchestrator.execute(this, this.join, paramArray, {
             beamNb: 10
