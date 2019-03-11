@@ -23,7 +23,8 @@ class RestApiGet {
 
     router.get('*', (req, res, next) => {
       console.log('api');
-
+      console.error('API text ERROR');
+      console.warn('API text WARN');
       // eslint-disable-next-line node/no-deprecated-api
       const urlRequiered = req.params[0].split('/')[1]
       console.log('urlRequiered',urlRequiered);
