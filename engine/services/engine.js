@@ -76,11 +76,11 @@ class Engine {
                     console.log(' ---------- BuildPath Links-----------', this.fackCounter)
                     console.log(this.pathResolution.links.map(link => {
                       // return (link.source);
-                      return (link.source.component._id + ' : ' + link.source.queryParams + ' -> ' + link.target.component._id + ' : ' + link.target.queryParams)
+                      return (link.source.component._id + ' -> ' + link.target.component._id )
                     }))
                     console.log(' ---------- BuildPath Nodes-----------', this.fackCounter)
                     console.log(this.pathResolution.nodes.map(node => {
-                      return (node.component._id + ':' + node.queryParams)
+                      return (node.component._id + ':' + JSON.stringify(node.queryParams))
                     }))
                   }
 
@@ -147,7 +147,7 @@ class Engine {
         })
         return
       }
-      if (this.owner.credit >= 0 || ( this.config.privateScript && this.config.privateScript.length > 0 ) ) {
+      if (this.owner.credit >= 0 || ( this.config.privateScript && this.config.privateScript.length == 0 ) ) {
         this.fackCounter++
         if (this.config.quietLog != true) {
           console.log(' ---------- processNextBuildPath -----------', this.fackCounter)

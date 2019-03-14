@@ -9,7 +9,7 @@ class SimpleAgregator {
       var resultFlow = []
       for (let flow of flowData) {
         if (!Array.isArray(flow.data)) {
-          reject(new Error('input flow have to be an array'))
+          reject(new Error('input flow have to be an array : '))
         } else {
           for (let record of flow.data) {
             resultFlow.push(record)

@@ -22,14 +22,20 @@ module.exports = function (router, amqpClient) {
     router.post('/work-ask/:componentId', function (req, res, next) {
       const componentId = req.params.componentId
       const pushData = req.body.pushData
-      const queryParams = req.body.query
+      const queryParams = req.body.queryParams
       const direction = req.body.direction || 'work'
       workspace_component_lib.get({
         _id: componentId
       }).then(async (data) => {
         const engine = require('../services/engine.js')
-        let engineResult = await engine.execute(data, direction, amqpClient, undefined, pushData, queryParams)
-        res.send(engineResult)
+        engine.execute(data, direction, amqpClient, undefined, pushData, queryParams).then(engineResult=>{
+          res.send(engineResult)
+        }).catch(errors=>{
+          errorsMessages=errors.map(e=>e.message);
+          res.status(500).send(errorsMessages);
+        })
+
+
       })
     })
 }

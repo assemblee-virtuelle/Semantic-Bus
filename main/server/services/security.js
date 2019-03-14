@@ -5,7 +5,7 @@ const user_lib = require('../../../core/lib/user_lib')
 class Security {
 
   wrapperSecurity (req, res, next, role, entity){
-    console.log('wrapperSecurity',this);
+    // console.log('wrapperSecurity',this);
     switch (entity) {
       case 'workflow':
         this.securityWorkspace(req, role)
