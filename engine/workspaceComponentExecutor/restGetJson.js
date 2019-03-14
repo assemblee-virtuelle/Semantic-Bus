@@ -12,8 +12,7 @@ class RestGetJson {
   makeRequest (methodRest, specificData, pullParams, flowdata) {
     return new Promise((resolve, reject) => {
       let urlString = specificData.url
-
-      urlString = this.stringReplacer.execute(urlString, pullParams, flowdata, true)
+      urlString = this.stringReplacer.execute(urlString, pullParams, flowdata, true);
 
       let headers = {}
       if (specificData.headers != undefined) {

@@ -81,7 +81,7 @@ module.exports = function (router) {
         }
         res.redirect('/ihm/application.html#profil//edit')
       } catch (e) {
-        res.status(500)
+        res.sendStatus(500)
       }
     }
   }) // <-- updatePassword

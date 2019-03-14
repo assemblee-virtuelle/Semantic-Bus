@@ -73,7 +73,7 @@ function _get_all(filter) {
         } else {
           workspaceComponents.forEach(c => {
             c.specificData = c.specificData || {}
-          }); 
+          });
           resolve(workspaceComponents);
         }
       })
@@ -125,9 +125,9 @@ function _get_connectBefore_connectAfter(filter) {
 
 function _update(id, componentToUpdate) {
   return new Promise((resolve, reject) => {
-    console.log('componentToUpdate ----', componentToUpdate)
-    if(componentToUpdate && componentToUpdate.module === "restApiGet" 
-    && componentToUpdate.specificData 
+    // console.log('componentToUpdate ----', componentToUpdate)
+    if(componentToUpdate && componentToUpdate.module === "restApiGet"
+    && componentToUpdate.specificData
     && componentToUpdate.specificData.url)
     (componentToUpdate.specificData.url = componentToUpdate._id +'-'+componentToUpdate.specificData.url)
     if(componentToUpdate ){

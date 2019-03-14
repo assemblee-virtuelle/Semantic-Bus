@@ -75,48 +75,56 @@ class RestApiGet {
             // })
           })
         } else {
-          // console.log('this.config.engineUrl',this.config.engineUrl);
           this.request.post(this.config.engineUrl + '/work-ask/' + targetedComponent._id,
-            { body: { pushData: req.body, query: req.query },
+            { body: { pushData: req.body, queryParams:{query: req.query}},
               json: true
             }
             // eslint-disable-next-line handle-callback-err
             , (err, data) => {
-              console.log("request",err,data);
-              const dataToSend = data.body.data
+              // console.log(err,data);
+              if (err){
+                // console.error("restpiIGet request error",err);
+                res.status(500).send(err)
+              }else {
+                if(data.statusCode!=200){
+                  res.status(500).send({engineResponse:data.body})
+                }else {
+                  const dataToSend = data.body.data
 
-              if (targetedComponent.specificData != undefined) { // exception in previous promise
-                if (targetedComponent.specificData.contentType != undefined) {
-                  if (dataToSend == undefined) {
-                    res.send(new Error('data in flow is not defined. please check your configuration'))
-                  } else if (targetedComponent.specificData.contentType.search('application/vnd.ms-excel') != -1) {
-                    res.setHeader('content-type', targetedComponent.specificData.contentType)
-                    this.dataTraitment.type.buildFile(undefined, JSON.stringify(dataToSend), undefined, true, targetedComponent.specificData.contentType).then((result) => {
-                      res.setHeader('Content-disposition', 'attachment; filename=' + targetedComponent.specificData.url + '.xlsx')
-                      res.send(result)
-                    })
-                  } else if (targetedComponent.specificData.contentType.search('xml') != -1) {
-                    res.setHeader('content-type', targetedComponent.specificData.contentType)
-                    var convert = this.data2xml()
-                    var out = ''
-                    for (let key in dataToSend) {
-                      out += convert(key, dataToSend[key])
+                  if (targetedComponent.specificData != undefined) { // exception in previous promise
+                    if (targetedComponent.specificData.contentType != undefined) {
+                      if (dataToSend == undefined) {
+                        res.send(new Error('data in flow is not defined. please check your configuration'))
+                      } else if (targetedComponent.specificData.contentType.search('application/vnd.ms-excel') != -1) {
+                        res.setHeader('content-type', targetedComponent.specificData.contentType)
+                        this.dataTraitment.type.buildFile(undefined, JSON.stringify(dataToSend), undefined, true, targetedComponent.specificData.contentType).then((result) => {
+                          res.setHeader('Content-disposition', 'attachment; filename=' + targetedComponent.specificData.url + '.xlsx')
+                          res.send(result)
+                        })
+                      } else if (targetedComponent.specificData.contentType.search('xml') != -1) {
+                        res.setHeader('content-type', targetedComponent.specificData.contentType)
+                        var convert = this.data2xml()
+                        var out = ''
+                        for (let key in dataToSend) {
+                          out += convert(key, dataToSend[key])
+                        }
+                        res.send(out)
+                      } else if (targetedComponent.specificData.contentType.search('yaml') != -1) {
+                        res.setHeader('content-type', targetedComponent.specificData.contentType)
+                        return (this.json2yaml.stringify(dataToSend))
+                      } else if (targetedComponent.specificData.contentType.search('json') != -1) {
+                        res.setHeader('content-type', targetedComponent.specificData.contentType)
+                        var buf = Buffer.from(JSON.stringify(dataToSend))
+                        res.send(buf)
+                      } else {
+                        res.send(new Error('no supported madiatype'))
+                      // return ('type mime non géré')
+                      }
+                    } else {
+                      res.send(new Error('content-type have to be set'))
+                    // return ('type mime non géré')
                     }
-                    res.send(out)
-                  } else if (targetedComponent.specificData.contentType.search('yaml') != -1) {
-                    res.setHeader('content-type', targetedComponent.specificData.contentType)
-                    return (this.json2yaml.stringify(dataToSend))
-                  } else if (targetedComponent.specificData.contentType.search('json') != -1) {
-                    res.setHeader('content-type', targetedComponent.specificData.contentType)
-                    var buf = Buffer.from(JSON.stringify(dataToSend))
-                    res.send(buf)
-                  } else {
-                    res.send(new Error('no supported madiatype'))
-                  // return ('type mime non géré')
                   }
-                } else {
-                  res.send(new Error('content-type have to be set'))
-                // return ('type mime non géré')
                 }
               }
             })
