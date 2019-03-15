@@ -8,7 +8,8 @@ module.exports = {
 
 
   //mongoose: require('mongoose'),
-  frag: function(frag, key) {
+  frag: function(frag, key,counter) {
+    // console.log('frag',counter);
     //console.log('XXXXXXX',frag);
     //remove all dependent fragments
     return new Promise((resolve, reject) => {
@@ -22,7 +23,7 @@ module.exports = {
           let segmentation = arraySegmentator.segment(frag.data, 100)//100
           //console.log('segment',segmentation.length);
           let paramArray = segmentation.map(s => {
-            return [s.map(r=>{return {data:r}}), true]
+            return [s.map(r=>{return {data:r,createOnly:false,counter:counter}}), true]
           })
           //console.log('paramArray', paramArray);
           promiseOrchestrator.execute(this, this.persist, paramArray, {
@@ -92,7 +93,7 @@ module.exports = {
           //console.log('frag key', key);
           promiseStack.push(this.frag({
             data: frag.data[key]
-          }, key));
+          }, key,counter));
         }
         Promise.all(promiseStack).then(frags => {
           let allFrags = [];
@@ -129,9 +130,12 @@ module.exports = {
       }
     })
   },
-  persist: function(datas, createOnly) {
-    //console.log('persist data frag', this.objectSizeOf(data));
-    //console.log('persist data frag',datas);
+  persist: function(datas, createOnly, counter) {
+    counter=counter||0;
+    // console.log('persist data frag',counter);
+
+  //  console.log('persist data frag', this.objectSizeOf(datas));
+  //  console.log('persist data frag',datas);
 
 
     if (datas instanceof Object) {
@@ -174,7 +178,7 @@ module.exports = {
         });
         Promise.all(fragReadyPromises).then(fragReadyFargs => {
           let persistReadyPromises = fragReadyFargs.map(f => {
-            return this.frag(f)
+            return this.frag(f,undefined,++counter)
           });
           return Promise.all(persistReadyPromises);
         }).then(persistReadyFargs => {

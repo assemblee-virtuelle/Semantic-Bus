@@ -13,7 +13,11 @@ module.exports = function (router, amqpClient) {
         _id: messageObject.id
       }).then(function (data) {
         const engine = require('../services/engine.js')
-        return engine.execute(data, 'work', amqpClient, messageObject.callerId)
+        engine.execute(data, 'work', amqpClient, messageObject.callerId).then(r=>{
+          console.log('engine ok');
+        }).catch(e=>{
+          console.error(e);
+        })
       })
     }, {
       noAck: true
@@ -31,6 +35,7 @@ module.exports = function (router, amqpClient) {
         engine.execute(data, direction, amqpClient, undefined, pushData, queryParams).then(engineResult=>{
           res.send(engineResult)
         }).catch(errors=>{
+          console.error(e);
           errorsMessages=errors.map(e=>e.message);
           res.status(500).send(errorsMessages);
         })

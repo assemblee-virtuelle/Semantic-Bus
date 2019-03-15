@@ -147,7 +147,7 @@ class Engine {
         })
         return
       }
-      if (this.owner.credit >= 0 || ( this.config.privateScript && this.config.privateScript.length == 0 ) ) {
+      if (this.owner.credit >= 0 || ( this.config.privateScript && this.config.privateScript.length == 0 ) || config.free==true ) {
         this.fackCounter++
         if (this.config.quietLog != true) {
           console.log(' ---------- processNextBuildPath -----------', this.fackCounter)
@@ -338,10 +338,9 @@ class Engine {
                 processingNode.status = 'resolved'
                 this.historicEndAndCredit(processingNode, startTime, undefined)
                 if (processingNode.component._id == this.originComponent._id) {
-                  this.RequestOrigineResolveMethode(
-                    processingNode.dataResolution
-                  )
+                  this.originComponentResult= processingNode.dataResolution;
                 }
+                console.log(this.processNextBuildPath);
                 this.processNextBuildPath('normal ok')
               }).catch(e => {
                 console.log('CATCH normal', processingNode.component._id, e)
@@ -375,7 +374,8 @@ class Engine {
             })
             this.RequestOrigineRejectMethode(errors)
           } else {
-            this.processNotifier.end({ _id: this.processId })
+            this.processNotifier.end({ _id: this.processId });
+            this.RequestOrigineResolveMethode(this.originComponentResult);
           }
           this.workspace_lib.cleanOldProcess(this.workflow).then(processes => {
             // console.log(processes);
@@ -448,6 +448,7 @@ class Engine {
         error: historiqueEnd.error
       })
       if (processingNode.component.persistProcess == true) {
+        console.log('addDataHistoriqueEnd',this.objectSizeOf(persistFlow));
         this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id, persistFlow).then(frag => {
           this.processNotifier.persist({
             componentId: historiqueEnd.componentId,

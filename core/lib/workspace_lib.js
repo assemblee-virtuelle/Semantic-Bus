@@ -72,14 +72,12 @@ function _addDataHistoriqueEnd(historicId, data) {
     let frag;
 
     try {
+      console.log('really?');
       frag = await fragment_lib.persist({
         data: data
       })
-    } catch (e) {
-      return reject(new Error.DataBaseProcessError(e))
-    }
+      console.log('frag ok');
 
-    try {
       await historiqueEndModel.getInstance().model.findOneAndUpdate({
           _id: historicId
         }, {
@@ -89,11 +87,13 @@ function _addDataHistoriqueEnd(historicId, data) {
         })
         .lean()
         .exec();
+      resolve(frag);
     } catch (e) {
-      return reject(new Error.DataBaseProcessError(e))
+      console.error(e);
+      reject(new Error.DataBaseProcessError(e))
     }
 
-    resolve(frag);
+
   });
 }
 
