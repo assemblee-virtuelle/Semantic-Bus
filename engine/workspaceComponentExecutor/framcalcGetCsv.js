@@ -1,4 +1,5 @@
 'use strict';
+require("tls").DEFAULT_ECDH_CURVE = "auto"
 
 class FramcalcGetCsv {
   constructor () {
