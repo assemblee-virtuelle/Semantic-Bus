@@ -26,19 +26,24 @@ class ValueFromPath {
         return out
       } else {
         if (pathArray.length == 0) {
-          for (let pathObjectKey in pathObject) {
-            console.log('isArray',Array.isArray(node));
-            if (Array.isArray(node)){
-              // TODO switch off decause persistence bug (frag.lib)
-              // node.forEach(n=>{
-              //     n[pathObjectKey] = pathObject[pathObjectKey]
-              // })
-            }else{
-              node[pathObjectKey] = pathObject[pathObjectKey]
+          // console.log('RFP2',node,currentKey);
+          let out=node;
+          if(typeof out === 'object'){
+            for (let pathObjectKey in pathObject) {
+            // console.log('isArray',Array.isArray(node));
+              if (Array.isArray(node)){
+                // TODO switch off decause persistence bug (frag.lib)
+                // node.forEach(n=>{
+                //     n[pathObjectKey] = pathObject[pathObjectKey]
+                // })
+              }else{
+                node[pathObjectKey] = pathObject[pathObjectKey]
+              }
             }
           }
-          return node
+          return out;
         } else {
+          // console.log('RFP1',node,currentKey);
           let key = pathArray.shift()
           for (let keyNode in node) {
             // console.log('copare',keyNode,key,keyNode.localeCompare(key));
@@ -50,7 +55,9 @@ class ValueFromPath {
           }
 
           if (node.hasOwnProperty(key)) {
-            return this.progress(node[key], pathArray, pathObject, key,++counter)
+            let out=this.progress(node[key], pathArray, pathObject, key,++counter);
+            // console.log('out',out);
+            return out;
           } else {
             return undefined
           }
@@ -78,12 +85,13 @@ class ValueFromPath {
       // let value=this.dotProp.get(flowData[0].data, data.specificData.path)
       try{
         let value = this.resolve(flowData[0].data, data.specificData);
-        console.log('RESOLVE');
+        // console.log('RESOLVE');
         resolve({
           data: value
         })
       }catch (e){
-        console.log('REJECT');
+        console.error(e);
+        // console.log('REJECT');
         reject(e);
       }
 
