@@ -35,7 +35,7 @@ module.exports = function (router, amqpClient) {
         engine.execute(data, direction, amqpClient, undefined, pushData, queryParams).then(engineResult=>{
           res.send(engineResult)
         }).catch(errors=>{
-          console.error(e);
+          console.error(errors);
           errorsMessages=errors.map(e=>e.message);
           res.status(500).send(errorsMessages);
         })
