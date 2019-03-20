@@ -95,7 +95,7 @@
         .select("#shapeSelector")
         .selectAll("rect")
         .data(this.selectedNodes, function (d) {return d.id + '-selected'})
-      
+
       this.selectorsNodes
         .exit()
         .remove()
@@ -119,7 +119,7 @@
         .select("#shapeCommandLayer")
         .selectAll("svg")
         .data(this.selectedNodes, function (d) {return d.id + '-shapeCommandBarComponent'})
-      
+
       this.selectorsShapeCommandeBar
         .exit()
         .remove()
@@ -166,7 +166,7 @@
             .attr("class", function (d) {return 'editButtonGraph'})
             .attr("data-id", function (d) {return d.id})
             .on("click", function (d) {route(`workspace/${d.component.workspaceId}/component/${d.component._id}/edit-component`)})
-          
+
           if (graph.status !== 'running' || !graph.status ) {
           d3
             .select(this)
@@ -190,7 +190,7 @@
             .attr("y", function (d) {return 123})
             .attr("class", 'workButtonGraph flash')
             .attr("data-id", function (d) {return d.id})
-            
+
           }
           if (d.status && d.status !== 'waiting') {
             d3
@@ -261,18 +261,18 @@
         .attr('x1', function (d) {return d.source.x + 75})
         .attr('y1', function (d) {return d.source.y + 35})
         .attr('x2', function (d) {return d.target.x - 10})
-        .attr('y2', function (d) {return d.target.y + 35})      
+        .attr('y2', function (d) {return d.target.y + 35})
 
       // line commande bar
       this.selectorsLineCommandeBar = this.svg
         .select("#lineCommandLayer")
         .selectAll("svg")
         .data(this.selectedLines, function (d) {return d.id + '-lineCommandBarComponent'})
-      
+
       this.selectorsLineCommandeBar
         .exit()
         .remove()
-      
+
       this.selectorsLineCommandeBar = this.selectorsLineCommandeBar
         .enter()
         .append("svg")
@@ -288,7 +288,7 @@
             .attr("height", function (d) {return 25})
             .attr("x", function (d) {return 0})
             .attr("y", function (d) {return 10})
-            .on("click", function (d) {RiotControl.trigger('disconnect_components', d)})            
+            .on("click", function (d) {RiotControl.trigger('disconnect_components', d)})
         });
       this.update();
     }.bind(this);
@@ -388,8 +388,8 @@
         .data([dragged], function (d) {return d.id})
         .attr('x', function (d) {return dragged.x +35})
         .attr('y', function (d) {return dragged.y -15})
-      
-        
+
+
 
       let afterLinks = sift({
         "source.id": dragged.id
@@ -473,7 +473,7 @@
         .select("#shapeLayer")
         .selectAll("image")
         .data(graph.nodes, function (d) {return d.id + '-node-component'})
-      
+
       this.nodes
         .exit()
         .remove();
@@ -510,7 +510,7 @@
         .select("#nodeTitleLayer")
         .selectAll("text")
         .data(graph.nodes, function (d) {return d.id + '-node-title'})
-      
+
       this.nodesTitle
         .exit()
         .remove();
@@ -553,7 +553,7 @@
       this.subNode
         .exit()
         .remove()
-        
+
       this.subNode = this.subNode
         .enter()
         .append("svg")
@@ -612,7 +612,7 @@
         .style('fill', 'white')
         .call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
 
-      
+
       // Status
       let nodesWithStatus = sift({
         status: {
@@ -639,8 +639,8 @@
         .attr('data-id', function (d) {return d.id})
         .call(d3.drag().on("start", this.dragstarted).on("drag", this.dragged).on("end", this.dragended));
 
-      
-      
+
+
       this.drawSelected(graph);
 
       this.tooltip = this.svg
@@ -733,7 +733,7 @@
       RiotControl.on('graph_position_from_store', (data) => {
         const position = data ? data : {}
         RiotControl.on('workspace_graph_compute_done', (dataCompiled) => (this.drawGraph(dataCompiled.graph, position)))
-        RiotControl.on('workspace_current_changed', this.updateData)
+        RiotControl.on('workspace_current_changed', this.updateData);
         RiotControl.on('workspace_graph_selection_changed', this.drawSelected);
         RiotControl.trigger('workspace_graph_compute', this.refs.graphSvgCanvas);
       })
@@ -742,6 +742,7 @@
 
     this.on('unmount', function () {
       RiotControl.off('workspace_graph_selection_changed', this.drawSelected);
+      RiotControl.off('workspace_current_changed', this.updateData);
       RiotControl.off('workspace_graph_compute_done', this.drawGraph);
     });
 
@@ -755,13 +756,13 @@
       animation: flash linear 1s infinite;
     }
     @-webkit-keyframes flash {
-      0% { opacity: 1; } 
-      50% { opacity: .1; } 
+      0% { opacity: 1; }
+      50% { opacity: .1; }
       100% { opacity: 1; }
     }
     @keyframes flash {
-      0% { opacity: 1; } 
-      50% { opacity: .1; } 
+      0% { opacity: 1; }
+      50% { opacity: .1; }
       100% { opacity: 1; }
     }
     .loaderImg {
