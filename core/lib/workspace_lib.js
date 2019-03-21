@@ -72,11 +72,11 @@ function _addDataHistoriqueEnd(historicId, data) {
     let frag;
 
     try {
-      console.log('really?');
+      // console.log('really?');
       frag = await fragment_lib.persist({
         data: data
       })
-      console.log('frag ok');
+      // console.log('frag ok');
 
       await historiqueEndModel.getInstance().model.findOneAndUpdate({
           _id: historicId

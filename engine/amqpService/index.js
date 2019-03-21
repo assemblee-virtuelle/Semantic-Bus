@@ -14,7 +14,7 @@ module.exports = function (router, amqpClient) {
       }).then(function (data) {
         const engine = require('../services/engine.js')
         engine.execute(data, 'work', amqpClient, messageObject.callerId).then(r=>{
-          console.log('engine ok');
+          // console.log('engine ok');
         }).catch(e=>{
           console.error(e);
         })

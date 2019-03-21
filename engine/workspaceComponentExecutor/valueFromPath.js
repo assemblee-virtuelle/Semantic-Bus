@@ -1,7 +1,8 @@
 'use strict';
 class ValueFromPath {
   constructor () {
-    this.dotProp = require('dot-prop')
+    this.dotProp = require('dot-prop');
+    this.objectSizeOf = require("object-sizeof");
   }
 
   progress (node, pathArray, pathObject, currentKey,counter) {
@@ -32,10 +33,12 @@ class ValueFromPath {
             for (let pathObjectKey in pathObject) {
             // console.log('isArray',Array.isArray(node));
               if (Array.isArray(node)){
-                // TODO switch off decause persistence bug (frag.lib)
-                // node.forEach(n=>{
-                //     n[pathObjectKey] = pathObject[pathObjectKey]
-                // })
+                // TODO switch off because persistence bug (frag.lib on BDIS workflow)
+                node.forEach(n=>{
+                  // if(!Array.isArray(pathObject[pathObjectKey])){
+                    n[pathObjectKey] = pathObject[pathObjectKey]
+                  // }
+                })
               }else{
                 node[pathObjectKey] = pathObject[pathObjectKey]
               }
@@ -47,7 +50,7 @@ class ValueFromPath {
           let key = pathArray.shift()
           for (let keyNode in node) {
             // console.log('copare',keyNode,key,keyNode.localeCompare(key));
-            if (keyNode.localeCompare(key) != 0) {
+            if (keyNode.localeCompare(key) != 0  && this.objectSizeOf(node[keyNode])<1000 && !Array.isArray(node[keyNode])) {
               // console.log('ALLO');
               // let targetKey=currentKey==undefined?keyNode:targetKey+'-'+keyNode;
               pathObject[currentKey + '-' + keyNode] = node[keyNode]

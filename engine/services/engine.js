@@ -147,7 +147,7 @@ class Engine {
         })
         return
       }
-      if (this.owner.credit >= 0 || ( this.config.privateScript && this.config.privateScript.length == 0 ) || config.free==true ) {
+      if (this.owner.credit >= 0 || ( this.config.privateScript && this.config.privateScript.length == 0 ) || this.config.free==true ) {
         this.fackCounter++
         if (this.config.quietLog != true) {
           console.log(' ---------- processNextBuildPath -----------', this.fackCounter)
@@ -340,7 +340,7 @@ class Engine {
                 if (processingNode.component._id == this.originComponent._id) {
                   this.originComponentResult= processingNode.dataResolution;
                 }
-                console.log(this.processNextBuildPath);
+                // console.log(this.processNextBuildPath);
                 this.processNextBuildPath('normal ok')
               }).catch(e => {
                 console.log('CATCH normal', processingNode.component._id, e)
@@ -437,9 +437,9 @@ class Engine {
     historic_object.roundDate = roundDate
     historic_object.workflowId = this.originComponent.workspaceId
     let persistFlow
-    if (processingNode.component.persistProcess == true && dataFlow.data != undefined) {
-      persistFlow = JSON.parse(JSON.stringify(dataFlow.data))
-    }
+    // if (processingNode.component.persistProcess == true && dataFlow.data != undefined) {
+    //   persistFlow = JSON.parse(JSON.stringify(dataFlow.data))
+    // }
 
     this.workspace_lib.createHistoriqueEnd(historic_object).then(historiqueEnd => {
       this.processNotifier.progress({
@@ -448,8 +448,8 @@ class Engine {
         error: historiqueEnd.error
       })
       if (processingNode.component.persistProcess == true) {
-        console.log('addDataHistoriqueEnd',this.objectSizeOf(persistFlow));
-        this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id, persistFlow).then(frag => {
+        // console.log('addDataHistoriqueEnd',this.objectSizeOf(persistFlow));
+        this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id, dataFlow.data).then(frag => {
           this.processNotifier.persist({
             componentId: historiqueEnd.componentId,
             processId: historiqueEnd.processId,
