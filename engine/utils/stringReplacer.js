@@ -38,7 +38,9 @@ module.exports = {
           let value = this.dotProp.get(flow, objectKey)
           if (stringifyOption == true) {
             try {
-              value = JSON.stringify(value)
+              if (typeof value !== 'string') {
+                value = JSON.stringify(value)
+              }
             } catch (e) {
 
             }
@@ -47,7 +49,6 @@ module.exports = {
         }
       }
     }
-    // console.log('processingRawString',processingRawString);
     return processingRawString
   }
 }

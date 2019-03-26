@@ -13,14 +13,15 @@ class RestGetJson {
     return new Promise((resolve, reject) => {
       let urlString = specificData.url
       urlString = this.stringReplacer.execute(urlString, pullParams, flowdata, true);
-
+      console.log('urlString',JSON.stringify(urlString));
       let headers = {}
       if (specificData.headers != undefined) {
         for (let header of specificData.headers) {
           headers[header.key] = header.value
         }
       }
-      let parsedUrl = this.url.parse(urlString)
+      let parsedUrl = this.url.parse(urlString);
+      console.log('parsedUrl',parsedUrl);
       var requestOptions = {}
       requestOptions.hostname = parsedUrl.hostname
       requestOptions.path = parsedUrl.path

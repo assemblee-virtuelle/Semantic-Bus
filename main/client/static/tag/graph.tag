@@ -462,9 +462,9 @@
     }.bind(this);
 
     // init all element of content graph
-    this.drawGraph = function (graph, position) {
-      this.graph = graph;
-      this.position = position;
+    this.drawGraph = function (dataCompiled) {
+      this.graph = dataCompiled.graph;
+      // this.position = position;
       if (this.svg == undefined) {
         this.svg = d3.select("svg");
       }
@@ -472,7 +472,7 @@
       this.nodes = this.svg
         .select("#shapeLayer")
         .selectAll("image")
-        .data(graph.nodes, function (d) {return d.id + '-node-component'})
+        .data(this.graph.nodes, function (d) {return d.id + '-node-component'})
 
       this.nodes
         .exit()
@@ -509,7 +509,7 @@
       this.nodesTitle = this.svg
         .select("#nodeTitleLayer")
         .selectAll("text")
-        .data(graph.nodes, function (d) {return d.id + '-node-title'})
+        .data(this.graph.nodes, function (d) {return d.id + '-node-title'})
 
       this.nodesTitle
         .exit()
@@ -529,7 +529,7 @@
       this.links = this.svg
         .select("#lineLayer")
         .selectAll('line')
-        .data(graph.links, function (d) {return d.id})
+        .data(this.graph.links, function (d) {return d.id})
 
       this.links
         .exit()
@@ -548,7 +548,7 @@
       this.subNode = this.svg
         .select("#roundLayer")
         .selectAll("svg")
-        .data(graph.nodes, function (d) {return d.id})
+        .data(this.graph.nodes, function (d) {return d.id})
 
       this.subNode
         .exit()
@@ -595,7 +595,7 @@
       this.backgroundImg = this.svg
         .select("#backgroundImg")
         .selectAll("circle")
-        .data(graph.nodes, function (d) {return d.id})
+        .data(this.graph.nodes, function (d) {return d.id})
 
       this.backgroundImg
         .exit()
@@ -618,7 +618,7 @@
         status: {
           $exists: true
         }
-      }, graph.nodes);
+      }, this.graph.nodes);
       this.status = this.svg
         .select("#stateLayer")
         .selectAll("circle")
@@ -641,19 +641,20 @@
 
 
 
-      this.drawSelected(graph);
+      this.drawSelected(this.graph);
 
       this.tooltip = this.svg
         .select("#textLayer")
         .classed("tooltipHide", true)
 
-      if(!this.initGraphDone){
-        this.initGraph();
-      }
+      // if(!this.initGraphDone){
+      //   this.initGraph();
+      // }
     }.bind(this)
 
     // init grid and grid's function
     this.initGraph = function(position) {
+      this.position=position;
       this.initGraphDone = true
       let svg = d3.select('svg');
       let view = d3.select('#main-container');
@@ -730,20 +731,19 @@
     };
 
     this.on('mount', function () {
-      RiotControl.on('graph_position_from_store', (data) => {
-        const position = data ? data : {}
-        RiotControl.on('workspace_graph_compute_done', (dataCompiled) => (this.drawGraph(dataCompiled.graph, position)))
-        RiotControl.on('workspace_current_changed', this.updateData);
-        RiotControl.on('workspace_graph_selection_changed', this.drawSelected);
-        RiotControl.trigger('workspace_graph_compute', this.refs.graphSvgCanvas);
-      })
-      RiotControl.trigger('get_graph_position_on_store')
+      RiotControl.on('graph_position_from_store', this.initGraph)
+      RiotControl.on('workspace_graph_compute_done', this.drawGraph)
+      RiotControl.on('workspace_current_changed', this.updateData);
+      RiotControl.on('workspace_graph_selection_changed', this.drawSelected);
+      RiotControl.trigger('workspace_graph_compute', this.refs.graphSvgCanvas);
+      RiotControl.trigger('get_graph_position_on_store');
     });
 
     this.on('unmount', function () {
-      RiotControl.off('workspace_graph_selection_changed', this.drawSelected);
+      RiotControl.off('graph_position_from_store', this.initGraph)
+      RiotControl.off('workspace_graph_compute_done', this.drawGraph)
       RiotControl.off('workspace_current_changed', this.updateData);
-      RiotControl.off('workspace_graph_compute_done', this.drawGraph);
+      RiotControl.off('workspace_graph_selection_changed', this.drawSelected);
     });
 
   </script>
