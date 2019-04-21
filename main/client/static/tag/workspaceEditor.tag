@@ -91,18 +91,34 @@
   <div if={menu=='information'} class="containerV" id="description" style="justify-content: center; background-color: rgb(238,242,249); flex-grow: 1;">
     <div class="containerV box-flex" style="background-color: rgb(255,255,255);">
       <div class="containerV">
-        <label class="labelFormStandard">Nom de votre Workflow</label>
-        <div class="cardParameter">
-          <input class="inputStandard" id="workspaceNameInput" maxlength="50" type="text" ref="workspaceNameInput" placeholder="Sans-titre" value="{innerData.name}" onkeyup="{nameFieldChange}"></input>
-        </div>
-        <label class="labelFormStandard">Description de votre Workflow</label>
-        <div class="cardParameter">
-          <input class="inputStandard" readonly={innerData.mode=="read"} ref="workspaceDescriptionInput" id="workspaceDescriptionInput" type="text" placeholder="Aucune description" value="{innerData.description}" onkeyup="{descriptionFieldChange}"></input>
-        </div>
-        <label class="labelFormStandard">Nombre d'exécution consultable</label>
-        <div class="cardParameter">
-          <input defaultValue={1} class="inputStandard" type="number" readonly={innerData.mode=="read"} ref="workspaceLimitHistoricnput" id="workspaceLimitHistoricInput" placeholder="1" value="{innerData.limitHistoric}" onkeyup="{limitHistoricFieldChange}"></input>
-        </div>
+        <ds-input-text
+          label="Nom de votre Workflow"
+          placeholder="Sans-titre"
+          id="workspaceNameInput"
+          value={innerData.name}
+          onupdate={nameFieldChange}
+          maxlength={50}
+          readonly={innerData.mode === 'read'}
+        />
+
+        <ds-input-text
+          label="Description de votre Workflow"
+          placeholder="Aucune description"
+          id="workspaceDescriptionInput"
+          value={innerData.description}
+          onupdate={descriptionFieldChange}
+          readonly={innerData.mode === 'read'}
+        />
+
+        <ds-input-integer
+          label="Nombre d'exécution consultable"
+          placeholder="1"
+          id="workspaceLimitHistoricInput"
+          value={innerData.limitHistoric}
+          onupdate={limitHistoricFieldChange}
+          readonly={innerData.mode === 'read'}
+        />
+
         <label if={innerData._id}  class="labelFormStandard">Importer un graphique (JSON)</label>
         <div if={innerData._id} class="cardParameter">
           <div onclick={importClick} class="btnFil commandButtonImage">
@@ -178,24 +194,22 @@
     nameFieldChange(e) {
       RiotControl.trigger('workspace_current_updateField', {
         field: 'name',
-        data: e.target.value
+        data: e.value
       });
     }
 
     descriptionFieldChange(e) {
       RiotControl.trigger('workspace_current_updateField', {
         field: 'description',
-        data: e.target.value
+        data: e.value
       });
-      //this.innerData.description = e.target.value;
     }
 
     limitHistoricFieldChange(e) {
       RiotControl.trigger('workspace_current_updateField', {
         field: 'limitHistoric',
-        data: e.target.value
+        data: e.value
       });
-      //this.innerData.description = e.target.value;
     }
 
     export(e) {
@@ -246,13 +260,6 @@
       margin: 0;
     }
 
-    #description input {
-      box-sizing: border-box;
-      font-size: 1em;
-      font-family: 'Open Sans', sans-serif;
-      width: 80%;
-      color: rgb(100,100,100)
-    }
     .containerSideBar {
       display: flex;
       justify-content: center;
