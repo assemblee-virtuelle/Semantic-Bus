@@ -45,30 +45,41 @@
   <!-- Page Editer -->
   <div if={menu=='edit'} class="containerEdit">
     <div class="containerInformation">
-      <!-- Nom d'utilisateur -->
-      <label class="labelFormStandard">Nom d'utilisateur</label>
-      <div class="cardParameter">
-        <input class="inputStandard" value="{profil.name}" ref="name" onchange={changeNameInput}>
-      </div>
-      <!-- Email -->
-      <label class="labelFormStandard">Email</label>
-      <div class="cardParameter">
-        <input class="inputStandard" value="{profil.credentials.email}" ref="email" readonly="readOnly">
-      </div>
-      <!-- Société -->
-      <label class="labelFormStandard">Société</label>
-      <div class="cardParameter">
-        <input class="inputStandard" value="{profil.society}" placeholder="saisissez votre société" name="society" onchange={changeSocietyInput}>
-      </div>
-      <!-- Emploi -->
-      <label class="labelFormStandard">Statut</label>
-      <div class="cardParameter">
-        <input class="inputStandard" value="{profil.job}" placeholder="saisissez votre statut" name="job" onchange={changeJobInput}>
-      </div>
+      <ds-input-text
+        label="Nom d'utilisateur"
+        id="profil.name"
+        value={profil.name}
+        onupdate={changeNameInput}
+      ></ds-input-text>
+
+      <ds-input-text
+        label="Email"
+        id="profil.email"
+        value={profil.credentials.email}
+        readonly={true}
+      ></ds-input-text>
+
+      <ds-input-text
+        label="Société"
+        id="profil.society"
+        value={profil.society}
+        placeholder="saisissez votre société"
+        onupdate={changeSocietyInput}
+      ></ds-input-text>
+
+      <ds-input-text
+        label="Statut"
+        id="profil.job"
+        value={profil.job}
+        placeholder="saisissez votre statut"
+        onupdate={changeJobInput}
+      ></ds-input-text>
+
       <!-- info mail -->
       <div class="containerV" if={mailsend} style="justify-content: center; align-items: center;/* flex-grow: 1; */">
         <div>Un email à été envoyé, verifier votre boite mail.</div>
       </div>
+      
       <!--boutons renvoyer mail -->
       <span style="padding:20px">** L'email ne peut être modifier pour le moment veuillez recreer un compte et vous partager vos workflow en cas de changement</span>
       <div if={!profil.active}>
@@ -142,31 +153,24 @@
     }
 
     changeJobInput(e) {
-      this.profil.job = e.currentTarget.value;
+      this.profil.job = e.value;
     }
 
     changeSocietyInput(e) {
-      this.profil.society = e.currentTarget.value;
+      this.profil.society = e.value;
     }
 
     changeNameInput(e) {
-      this.profil.name = e.currentTarget.value;
+      this.profil.name = e.value;
     }
 
     updateUser(e) {
-      var regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g
+      const regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g
       if (this.profil.credentials.email.match(regex)) {
-        if (this.profil.credentials.email != this.refs.email.value) {
-          RiotControl.trigger('update_user', {
-            user: this.profil,
-            mailChange: true
-          });
-        } else {
-          RiotControl.trigger('update_user', {
-            user: this.profil,
-            mailChange: false
-          });
-        }
+        RiotControl.trigger('update_user', {
+          user: this.profil,
+          mailChange: false
+        });
       } else {
         this.result = false;
         this.resultEmail = "L'email n'est pas au bond format";
@@ -225,7 +229,6 @@
     }
 
     this.on('mount', function () {
-      console.log()
       RiotControl.on('user_from_storage', this.userFromStorage);
       RiotControl.on('profil_menu_changed', this.profilMenuChanged);
       RiotControl.trigger('get_user_from_storage')
