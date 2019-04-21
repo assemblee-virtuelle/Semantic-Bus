@@ -259,22 +259,20 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   this.create = function () {
-    return new Promise((resolve, reject) => {
-      this.utilStore.ajaxCall({
-        method: 'post',
-        url: '../data/core/workspaces/',
-        data: JSON.stringify({ workspace: this.workspaceCurrent })
-      }, true).then(data => {
-        console.log(data)
-        this.workspaceCollection.push(data)
-        console.log(this.workspaceCollection)
-        this.workspaceCurrent = data
-        this.workspaceCurrent.mode = 'edit'
-        resolve(this.workspaceCurrent)
-      }).catch(error => {
-        reject(error)
+    return this.utilStore.ajaxCall({
+      method: 'post',
+      url: '../data/core/workspaces/',
+      data: JSON.stringify({ workspace: this.workspaceCurrent })
+    }, true)
+      .then(createdWorkspace => {
+        this.load()
+        return createdWorkspace
       })
-    })
+      .then(createdWorkspace => {
+        this.workspaceCurrent = createdWorkspace
+        this.workspaceCurrent.mode = 'edit'
+        return this.workspaceCurrent
+      })
   } // <= create
 
   // --------------------------------------------------------------------------------
