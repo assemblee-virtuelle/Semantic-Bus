@@ -21,12 +21,16 @@
   </ds-field>
 
   <style>
+    :scope {
+      display: block;
+    }
+
     input {
-      width: 100%;
+      flex-grow: 1;
       border: rgb(212, 212, 212) 1px solid;
       padding: 8px;
       color: rgb(161, 161, 161);
-      font-size: 1em;
+      font-size: 1rem;
       border-radius: 2px;
     }
   </style>

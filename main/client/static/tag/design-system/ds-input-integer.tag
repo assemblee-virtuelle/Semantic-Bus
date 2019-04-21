@@ -19,6 +19,10 @@
   </ds-field>
 
   <style>
+    :scope {
+      display: block;
+    }
+
     input {
       width: 100%;
       border: rgb(212, 212, 212) 1px solid;

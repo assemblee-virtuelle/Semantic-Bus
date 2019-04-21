@@ -9,18 +9,21 @@
   </div>
 
   <style>
+    :scope {
+      display: block;
+    }
+
     label {
       display: block;
-      font-size: 0.75em;
+      font-size: 0.75rem;
       text-transform: uppercase;
+      margin-top: 0;
+      margin-bottom: 5px;
     }
 
     .input-container {
       display: flex;
-      justify-content: flex-start;
-      align-items: center;
-      height: 9vh;
-      margin-left: 1vw;
+      margin-left: 20px;
     }
   </style>
 

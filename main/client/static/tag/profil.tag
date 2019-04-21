@@ -45,51 +45,56 @@
   <!-- Page Editer -->
   <div if={menu=='edit'} class="containerEdit">
     <div class="containerInformation">
-      <ds-input-text
-        label="Nom d'utilisateur"
-        id="profil.name"
-        value={profil.name}
-        onupdate={changeNameInput}
-      ></ds-input-text>
+      <ds-card>
+        <ds-input-text
+          label="Nom d'utilisateur"
+          id="profil.name"
+          value={parent.profil.name}
+          onupdate={parent.changeNameInput}
+        ></ds-input-text>
 
-      <ds-input-text
-        label="Email"
-        id="profil.email"
-        value={profil.credentials.email}
-        readonly={true}
-      ></ds-input-text>
+        <ds-input-text
+          label="Email"
+          id="profil.email"
+          value={parent.profil.credentials.email}
+          readonly={true}
+        ></ds-input-text>
 
-      <ds-input-text
-        label="Société"
-        id="profil.society"
-        value={profil.society}
-        placeholder="saisissez votre société"
-        onupdate={changeSocietyInput}
-      ></ds-input-text>
+        <ds-input-text
+          label="Société"
+          id="profil.society"
+          value={parent.profil.society}
+          placeholder="saisissez votre société"
+          onupdate={parent.changeSocietyInput}
+        ></ds-input-text>
 
-      <ds-input-text
-        label="Statut"
-        id="profil.job"
-        value={profil.job}
-        placeholder="saisissez votre statut"
-        onupdate={changeJobInput}
-      ></ds-input-text>
+        <ds-input-text
+          label="Statut"
+          id="profil.job"
+          value={parent.profil.job}
+          placeholder="saisissez votre statut"
+          onupdate={parent.changeJobInput}
+        ></ds-input-text>
 
-      <!-- info mail -->
-      <div class="containerV" if={mailsend} style="justify-content: center; align-items: center;/* flex-grow: 1; */">
-        <div>Un email à été envoyé, verifier votre boite mail.</div>
-      </div>
-      
-      <!--boutons renvoyer mail -->
-      <span style="padding:20px">** L'email ne peut être modifier pour le moment veuillez recreer un compte et vous partager vos workflow en cas de changement</span>
-      <div if={!profil.active}>
-        <div if={!mailsend}>
-          <span style="padding:20px" id="bad-mail">!!!! Vous n'avez pas valider votre email (consulter vos mails / spam ) Vous ne pourrez utiliser l'outils sans un mail confirmer !!!!</span >
+        <!-- info mail -->
+        <div class="containerV" if={parent.mailsend} style="justify-content: center; align-items: center;/* flex-grow: 1; */">
+          <div>Un email à été envoyé, verifier votre boite mail.</div>
         </div>
-        <div class="containerH" if={profil.googleId == null || profil.googleId=='undefined' } style="margin-top:20px;">
-          <button class="button-profil" onclick={sendbackmail} type="button">{emailtext}</button>
+
+        <!--boutons renvoyer mail -->
+        <div class="profile-information">
+          ** L'email ne peut être modifier pour le moment veuillez recreer un compte et vous partager vos workflow en cas de changement
+
+          <div if={!parent.profil.active}>
+            <div if={!parent.mailsend} id="bad-mail">
+              !!!! Vous n'avez pas valider votre email (consulter vos mails / spam ) Vous ne pourrez utiliser l'outils sans un mail confirmer !!!!
+            </div>
+            <div class="containerH" if={parent.profil.googleId == null || parent.profil.googleId=='undefined' } style="margin-top:20px;">
+              <button class="button-profil" onclick={parent.sendbackmail} type="button">{parent.emailtext}</button>
+            </div>
+          </div>
         </div>
-      </div>
+      </ds-card>
     </div>
     <!-- Validation modifications-->
     <div class="containerValidate">
@@ -271,16 +276,23 @@
       flex: 1;
     }
     .containerInformation {
-      width: 90%;
-      background-color: white;
-      margin: 2vh;
-      padding: 2vh;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 15px;
     }
+
+    ds-input-text, ds-input-integer {
+      margin-bottom: 15px;
+    }
+
     .containerBtn {
       padding: 4vh;
     }
     .containerValidate {
 
+    }
+    .profile-information {
+      padding: 20px;
     }
     #bad-mail {
       color: red!important;
