@@ -1,42 +1,14 @@
 <profil class="containerV">
 
-  <!-- Nav Bar -->
-  <div class=" containerH containerNavBarTop">
-    <a href="#profil//edit" class="commandButtonImage navBarTop containerV" style={this.backgroundActive("edit")}>
-      <img src="./image/menu/id-card.png" height="40px" width="40px">
-      Editer
-      <div if={menu=='edit'} class="containerH arrow">
-        <div class="containerV" style="justify-content:flex-end;">
-          <div class="arrow-up"></div>
-        </div>
-      </div>
-    </a>
-    <!-- Consommation-->
-    <a href="#profil//running" class="commandButtonImage navBarTop containerV" style={this.backgroundActive("running")}>
-      <img src="./image/menu/chart-.png" height="40px" width="40px">
-      Consommation
-      <div if={menu=='running'} class="containerH arrow">
-        <div class="containerV" style="justify-content:flex-end;">
-          <div class="arrow-up"></div>
-        </div>
-      </div>
-    </a>
-    <!-- crédit -->
-    <a href="#profil//payement" class="commandButtonImage navBarTop containerV" style={this.backgroundActive("payement")}>
-      <img src="./image/menu/credit-card.png" height="40px" width="40px">
-      Crédits
-      <div if={menu=='payement'} class="containerH arrow">
-        <div class="containerV" style="justify-content:flex-end;">
-          <div class="arrow-up"></div>
-        </div>
-      </div>
-    </a>
-    <!-- Déconnexion -->
-    <a onclick={logout} class="commandButtonImage navBarTop containerV" style="background-color: rgb(124,195,232)">
-      <img src="./image/menu/log-out.png" height="40px" width="40px">
-      Déconnexion
-    </a>
-  </div>
+  <ds-horizontal-nav
+    items={[
+      {code: 'edit', url: '#profil//edit', image: './image/menu/id-card.png', label: 'Editer'},
+      {code: 'running', url: '#profil//running', image: './image/menu/chart-.png', label: 'Consommation'},
+      {code: 'payement', url: '#profil//payement', image: './image/menu/credit-card.png', label: 'Crédits'},
+      {code: 'logout', action: this.logout, image: './image/menu/log-out.png', label: 'Déconnexion'},
+    ]}
+    active={menu}
+  ></ds-horizontal-nav>
 
   <!-- Graphique consommation -->
   <div class="containerV" if={menu=='running'} style="margin-top: 10vh;">
