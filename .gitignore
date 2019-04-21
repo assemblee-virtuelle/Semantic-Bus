@@ -70,7 +70,7 @@ typings/
 test/test_result/
 
 #config
-configuration.js
+config/local.json
 
 #IDE-specific
 .idea

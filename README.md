@@ -104,3 +104,15 @@ cd main && node app.js
 cd engine && node app.js
 
 ```
+
+## Configuration
+
+Configuration is managed by [config](https://www.npmjs.com/package/config).
+
+If you need to change the configuration and persist it, update `config/default.json`.
+
+If you need to override the configuration in you local machine, create `config/local.json`
+(See https://github.com/lorenwest/node-config/wiki/Configuration-Files#local-files).
+
+If you need to be able to manage the configuration with environment variables, update `config/custom-environment-variables.json`
+(See https://github.com/lorenwest/node-config/wiki/Environment-Variables#custom-environment-variables).
