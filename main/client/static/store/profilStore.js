@@ -58,7 +58,7 @@ function ProfilStore (utilStore) {
 
   this.on('update_user', function (data) {
     this.utilStore.ajaxCall({
-      method: 'put',
+      method: 'patch',
       url: '../data/core/users/me',
       data: JSON.stringify(data),
       headers: {
