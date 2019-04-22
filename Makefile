@@ -34,7 +34,10 @@ stop: docker-stop
 
 restart: docker-restart
 
-build: docker-build 
+build: docker-build
+
+test-build:
+	$(DOCKER_COMPOSE_TEST) build --no-cache
 
 test-start:
 	$(DOCKER_COMPOSE_TEST) run e2e bash ./wait-for-it.sh semanticbus:80 -t 45
