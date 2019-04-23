@@ -21,7 +21,8 @@
     "dockerStop": "sudo docker stop semanticbus-app && sudo docker rm semanticbus-app",
     "dockerRun": "sudo docker run -i -P -p 8080:80 --link rabbitmq --name semanticbus-app semanticbus-app",
     "dockerRun2": "sudo docker run -i -P -p 8080:80 --link rabbitmq --name semanticbus-app -e CONFIG_URL='http://data-players.com/config/devButProd.json' semanticbus-app",
-    "dockerRunProd": "sudo docker run -i -P -p 8080:80 --link rabbitmq --name semanticbus-app -e CONFIG_URL='http://data-players.com/config/prod.json' semanticbus-app"
+    "dockerRunProd": "sudo docker run -i -P -p 8080:80 --link rabbitmq --name semanticbus-app -e CONFIG_URL='http://data-players.com/config/prod.json' semanticbus-app",
+    "ts": "webpack-cli --watch --mode development --progress --colors --no-inline"
   },
   "author": "Simon Louvet <simon.louvet.zen@gmail.com> && Boceno Alexandre <bocenoalex@gmail.com>",
   "license": "GNUV3",
@@ -69,6 +70,7 @@
     "passport-google-oauth": "^1.0.0",
     "passport-jwt": "^4.0.0",
     "path-to-regexp": "^2.2.1",
+    "preact": "8.4.2",
     "ramda": "0.26.1",
     "rdf-ext": "git://github.com/rdf-ext/rdf-ext.git",
     "rdf-parser-n3": "^0.3.0",
@@ -86,6 +88,7 @@
     "sshpk": "^1.7.0",
     "swagger-ui-express": "^4.0.2",
     "threads": "^0.10.0",
+    "typestyle": "2.0.2",
     "validator": "^10.11.0",
     "wdio-mocha-framework": "^0.5.10",
     "wdio-sauce-service": "^0.4.0",
@@ -106,6 +109,10 @@
     "eslint-plugin-promise": "4.0.1",
     "eslint-plugin-standard": "4.0.0",
     "mocha-junit-reporter": "^1.13.0",
-    "wdio-chromedriver-service": "^0.1.2"
+    "ts-loader": "5.4.3",
+    "typescript": "3.4.5",
+    "wdio-chromedriver-service": "^0.1.2",
+    "webpack": "4.30.0",
+    "webpack-cli": "3.3.1"
   }
 }

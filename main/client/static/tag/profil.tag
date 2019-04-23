@@ -1,13 +1,14 @@
 <profil class="containerV">
 
   <ds-horizontal-nav
-    items={[
+    items={JSON.stringify([
       {code: 'edit', url: '#profil//edit', image: './image/menu/id-card.png', label: 'Editer'},
       {code: 'running', url: '#profil//running', image: './image/menu/chart-.png', label: 'Consommation'},
       {code: 'payement', url: '#profil//payement', image: './image/menu/credit-card.png', label: 'Crédits'},
-      {code: 'logout', action: this.logout, image: './image/menu/log-out.png', label: 'Déconnexion'},
-    ]}
+      {code: 'logout', image: './image/menu/log-out.png', label: 'Déconnexion'},
+    ])}
     active={menu}
+    onAction={this.onNavAction}
   ></ds-horizontal-nav>
 
   <!-- Graphique consommation -->
@@ -118,6 +119,12 @@
     this.profil = {
       credentials : {
         email: '',
+      }
+    }
+
+    onNavAction(e) {
+      if (e.data === 'logout') {
+        this.logout()
       }
     }
 
