@@ -409,12 +409,10 @@
     loginGoogle(e) {
       RiotControl.trigger('google_user_connect', this.user);
     }
+
     login(e) {
-      if ((this.user.password != undefined) && (this.user.email != undefined) && (this.user.email != "") && (this.user.email != "")) {
-        RiotControl.trigger('user_connect', this.user);
-      } else {
-        this.resultConnexion = "Remplissez votre email et mot de passe"
-      }
+      e.preventDefault()
+      RiotControl.trigger('user_connect', this.user);
     }
 
     this.isGoogleUser();
