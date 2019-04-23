@@ -177,7 +177,6 @@
       flex-basis: 0px;
     }
     .containerFilter {
-      height: 2vh;
       width: 100%;
     }
     .containerValidate {
