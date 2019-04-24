@@ -22,21 +22,21 @@
         <ds-input-text
           label="Nom d'utilisateur"
           id="profil.name"
-          value={parent.profil.name}
+          x-value={parent.profil.name}
           onupdate={parent.changeNameInput}
         ></ds-input-text>
 
         <ds-input-text
           label="Email"
           id="profil.email"
-          value={parent.profil.credentials.email}
+          x-value={parent.profil.credentials.email}
           readonly={true}
         ></ds-input-text>
 
         <ds-input-text
           label="Société"
           id="profil.society"
-          value={parent.profil.society}
+          x-value={parent.profil.society}
           placeholder="saisissez votre société"
           onupdate={parent.changeSocietyInput}
         ></ds-input-text>
@@ -44,7 +44,7 @@
         <ds-input-text
           label="Statut"
           id="profil.job"
-          value={parent.profil.job}
+          x-value={parent.profil.job}
           placeholder="saisissez votre statut"
           onupdate={parent.changeJobInput}
         ></ds-input-text>
@@ -137,15 +137,15 @@
     }
 
     changeJobInput(e) {
-      this.profil.job = e.value;
+      this.profil.job = e.data.value;
     }
 
     changeSocietyInput(e) {
-      this.profil.society = e.value;
+      this.profil.society = e.data.value;
     }
 
     changeNameInput(e) {
-      this.profil.name = e.value;
+      this.profil.name = e.data.value;
     }
 
     updateUser(e) {
@@ -261,6 +261,7 @@
     }
 
     ds-input-text, ds-input-integer {
+      display: block;
       margin-bottom: 15px;
     }
 

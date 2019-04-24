@@ -52,12 +52,12 @@ export function enumeration<A extends string>(acceptedValues: Array<A>): Normali
   })
 }
 
-export function boolean(fallback: boolean = true): Normalizer<boolean> {
+export function boolean(keyName?: string, fallback: boolean = false): Normalizer<boolean> {
   return (value: string | undefined) => {
     if (value === undefined) {
       return fallback
     } else {
-      return value === 'true'
+      return value === 'true' || keyName !== undefined && value === keyName
     }
   }
 }

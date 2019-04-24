@@ -19,7 +19,8 @@ export function preactWrapper<P>(preactComponent: ComponentFactory<P>, propertie
     }
 
     static get observedAttributes() {
-      return Object.keys(properties)
+      const keys = Object.keys(properties)
+      return [...keys, ...keys.map(key => `x-${key}`)]
     }
 
     connectedCallback() {
@@ -39,13 +40,16 @@ export function preactWrapper<P>(preactComponent: ComponentFactory<P>, propertie
     getProps() {
       const props: any = {}
       Object.keys(properties).forEach(key => {
-        if (key.startsWith('on')) {
+        if (key === 'children') {
+          // ignore
+        } else if (key.startsWith('on')) {
           props[key] = (data: {} | undefined) => {
             this.dispatchEvent(new PreactWrapperEvent(key.substring(2).toLowerCase(), data))
           }
         } else {
           const attributeName = getNormalizedAttributeName(key)
-          props[key] = normalizeAttribute(properties, key, this.getAttribute(attributeName))
+          const rawValue = this.hasAttribute(attributeName) ? this.getAttribute(attributeName) : this.getAttribute(`x-${attributeName}`)
+          props[key] = normalizeAttribute(properties, key, rawValue)
         }
       })
       return props as P

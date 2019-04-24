@@ -1,12 +1,14 @@
 import {h, VNode} from 'preact'
 import {style} from 'typestyle'
 
-export type Props = {}
+export type Props = {
+  children: VNode<any>
+}
 
-export default function DsCard({}: Props): VNode<any> | null {
+export default function DsCard({children}: Props): VNode<any> | null {
   return (
     <div className={dsCardStyles}>
-      <slot />
+      {children}
     </div>
   )
 }
