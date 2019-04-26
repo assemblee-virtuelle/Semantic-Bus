@@ -259,20 +259,24 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   this.create = function () {
-    return this.utilStore.ajaxCall({
-      method: 'post',
-      url: '../data/core/workspaces/',
-      data: JSON.stringify({ workspace: this.workspaceCurrent })
-    }, true)
-      .then(createdWorkspace => {
-        this.load()
-        return createdWorkspace
-      })
-      .then(createdWorkspace => {
-        this.workspaceCurrent = createdWorkspace
-        this.workspaceCurrent.mode = 'edit'
-        return this.workspaceCurrent
-      })
+    return new Promise((resolve, reject) => {
+      return this.utilStore.ajaxCall({
+        method: 'post',
+        url: '../data/core/workspaces/',
+        data: JSON.stringify({ workspace: this.workspaceCurrent })
+      }, true)
+        .then(createdWorkspace => {
+          //refresh workflows list
+          // this.load();
+          // this.workspaceCurrent = createdWorkspace;
+          // this.workspaceCurrent.mode = 'edit';
+          resolve(createdWorkspace);
+        }).catch(error => {
+          reject(error)
+        })
+
+    });
+
   } // <= create
 
   // --------------------------------------------------------------------------------
@@ -475,11 +479,13 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
   this.on('navigation', function (entity, id, action, secondId, secondAction) {
     if (entity === 'workspace') {
+      console.log('NAVIGATION', id,action);
       this.action=action;
       if (id === 'new') {
         this.initializeNewWorkspace(entity, action)
         this.trigger('navigation_control_done', entity, action)
       } else if (this.workspaceCurrent !== undefined && this.workspaceCurrent._id === id) {
+        console.log('NO RELOAD');
         this.reloadWorkspace(entity, action)
         if (action === 'component' && secondId !== undefined) {
           this.loadComponentPart(secondId, secondAction)
