@@ -41,9 +41,10 @@ const errorHandling = (e, res) => {
     })
   }else{
     console.log('Other eror',e);
+    let message = e.details || e.displayMessage || e.message
     res.status(500).send({
       success: false,
-      message: 'Erreur Interne'
+      message: 'Erreur Interne : '+message
     })
 
   }

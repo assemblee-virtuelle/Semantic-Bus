@@ -1,10 +1,10 @@
 <rest-get-editor>
   <!-- bouton aide -->
-  <div class="contenaireH" style="margin-left:97%">
+  <div class="containerH" style="margin-left:97%">
     <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-File-consumer" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
  <!-- Titre du composant -->
-  <div class="contenaireV title-component">{data.type}</div>
+  <div class="containerV title-component">{data.type}</div>
   <div>
     <div class="bar"/>
   </div>
@@ -14,7 +14,7 @@
     <div class="bar"/>
   </div>
   <!-- Champ du composant -->
-  
+
   <label class="labelFormStandard">URL du web service à interroger:</label>
   <div class="cardInput">
     <input class="inputComponents" placeholder=""type="text" ref="urlInput" onChange={changeUrl} value={data.specificData.url}></input>

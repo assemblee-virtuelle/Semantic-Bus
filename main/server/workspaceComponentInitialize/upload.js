@@ -73,6 +73,8 @@ class Upload {
             // eslint-disable-next-line handle-callback-err
             , (err, dataToSend) => {
               if (err) {
+                console.error(err);
+                // err.details=err.displayMessage;
                 next(err)
               } else {
                 res.json({

@@ -83,6 +83,7 @@
     "should": "^11.2.1",
     "sift": "^5.1.0",
     "sift-date": "0.0.1",
+    "ssh2-sftp-client": "^2.5.0",
     "sshpk": "^1.7.0",
     "swagger-ui-express": "^4.0.2",
     "threads": "^0.10.0",

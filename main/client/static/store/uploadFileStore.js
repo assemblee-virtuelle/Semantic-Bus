@@ -1,6 +1,6 @@
 function UploadStore (utilStore) {
   riot.observable(this) // Riot provides our event emitter.
- 
+
   this.on('item_current_upload', function (data) {
     $.ajax({
       method: 'post',
@@ -31,8 +31,9 @@ function UploadStore (utilStore) {
       this.trigger('item_is_upload')
       route('workspace/' + this.genericStore.workspaceCurrent._id + '/component')
     }.bind(this)).fail(function (error) {
-      // console.log("in fail ajax")
-      this.trigger('ajax_fail', error.displayMessage || error.message)
+      //console.log("in fail ajax");
+      console.error(error);
+      this.trigger('ajax_fail', error.responseJSON.message)
     }.bind(this))
   })
 }

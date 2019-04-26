@@ -151,6 +151,7 @@
     });
 
     RiotControl.on('ajax_fail', function (message) {
+      console.log('AJAX FAIL',message);
       this.errorMessage = message;
       this.update();
       setTimeout(()=>{

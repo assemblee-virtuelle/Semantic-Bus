@@ -89,6 +89,8 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
           // JSONLD ///JSON //DONE
           case ("json"):
           case ("json-ld"):
+          case ("umap"):
+          case ("geojson"):
             //console.log()
             resolve({
               data: JSON.parse(dataString)

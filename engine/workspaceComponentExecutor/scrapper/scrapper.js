@@ -202,7 +202,7 @@ class Scrapper {
         // console.log('------   tour restant -------- ', (actions.length) - deeth);
         // console.log('action',actions[deeth].actionType);
         let effectivSelector = actions[deeth].selector || 'body'
-        client.waitForExist(effectivSelector, 60000)
+        client.waitForExist(effectivSelector, 5000)
           .then(function (visible) {
             let scrappingFunction
             switch (actions[deeth].actionType) {

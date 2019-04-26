@@ -72,7 +72,7 @@ function _addDataHistoriqueEnd(historicId, data) {
     let frag;
 
     try {
-      // console.log('really?');
+      console.log('fragment_lib.persist',data);
       frag = await fragment_lib.persist({
         data: data
       })

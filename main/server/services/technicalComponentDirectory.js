@@ -34,6 +34,7 @@ module.exports = {
   propertiesMatrix: require('../workspaceComponentInitialize/propertiesMatrix.js'),
   postConsumer: require('../workspaceComponentInitialize/postConsumer.js'),
   keyToArray: require('../workspaceComponentInitialize/keyToArray.js'),
+  sftpConsumer: require('../workspaceComponentInitialize/sftpConsumer.js'),
 
   /* some other modules you want */
 

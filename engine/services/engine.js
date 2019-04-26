@@ -314,13 +314,13 @@ class Engine {
 
                     this.processNextBuildPath('dfob ok')
                   }).catch(e => {
-                    console.log('CATCH dfob', e)
+                    console.log('REJECT dfob', e)
                     processingNode.dataResolution = {
                       error: e
                     }
                     this.historicEndAndCredit(processingNode, startTime, e)
                     processingNode.status = 'error'
-                    this.processNextBuildPath('dfob ko')
+                    this.processNextBuildPath('dfob reject')
                   })
                 }
               } catch (e) {
@@ -330,29 +330,40 @@ class Engine {
                 }
                 this.historicEndAndCredit(processingNode, startTime, e)
                 processingNode.status = 'error'
-                this.processNextBuildPath('dfob ko')
+                this.processNextBuildPath('dfob catch')
               }
             } else {
-              module.pull(processingNode.component, dataFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams).then(componentFlow => {
-                processingNode.dataResolution = componentFlow
-                processingNode.status = 'resolved'
-                this.historicEndAndCredit(processingNode, startTime, undefined)
-                if (processingNode.component._id == this.originComponent._id) {
-                  this.originComponentResult= processingNode.dataResolution;
-                }
-                // console.log(this.processNextBuildPath);
-                this.processNextBuildPath('normal ok')
-              }).catch(e => {
-                console.log('CATCH normal', processingNode.component._id, e)
+              try{
+                console.log('ALLO');
+                module.pull(processingNode.component, dataFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams).then(componentFlow => {
+                  processingNode.dataResolution = componentFlow
+                  processingNode.status = 'resolved'
+                  this.historicEndAndCredit(processingNode, startTime, undefined)
+                  if (processingNode.component._id == this.originComponent._id) {
+                    this.originComponentResult= processingNode.dataResolution;
+                  }
+                  // console.log(this.processNextBuildPath);
+                  this.processNextBuildPath('normal ok')
+                }).catch(e => {
+                  console.log('REJECT normal', processingNode.component._id, e)
+                  processingNode.dataResolution = {
+                    error: e
+                  }
+                  processingNode.status = 'error'
+                  // console.log('HIST')
+                  this.historicEndAndCredit(processingNode, startTime, e)
+                  // console.log('NEXT');
+                  this.processNextBuildPath('normal reject')
+                })
+              }catch(e){
+                console.log('CATCH normal', e)
                 processingNode.dataResolution = {
                   error: e
                 }
-                processingNode.status = 'error'
-                // console.log('HIST')
                 this.historicEndAndCredit(processingNode, startTime, e)
-                // console.log('NEXT');
-                this.processNextBuildPath('normal ko')
-              })
+                processingNode.status = 'error'
+                this.processNextBuildPath('normal catch')
+              }
             }
           }
         } else {
@@ -449,7 +460,7 @@ class Engine {
       })
       if (processingNode.component.persistProcess == true) {
         // console.log('addDataHistoriqueEnd',this.objectSizeOf(persistFlow));
-        this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id, dataFlow.data).then(frag => {
+        this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id, error==undefined?dataFlow.data:error).then(frag => {
           this.processNotifier.persist({
             componentId: historiqueEnd.componentId,
             processId: historiqueEnd.processId,
