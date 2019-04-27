@@ -72,7 +72,7 @@ function _addDataHistoriqueEnd(historicId, data) {
     let frag;
 
     try {
-      console.log('fragment_lib.persist',data);
+      // console.log('fragment_lib.persist',data);
       frag = await fragment_lib.persist({
         data: data
       })
@@ -548,7 +548,7 @@ function _update_mainprocess(preData) {
       console.log(e)
       return reject(e)
     }
-    console.log(workspaceCheck)
+    // console.log(workspaceCheck)
     workspaceModel.getInstance().model
       .findOneAndUpdate({
           _id: workspaceCheck._id

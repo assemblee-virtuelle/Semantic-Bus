@@ -12,8 +12,8 @@ module.exports = {
 
 
 function _extension(filename, contentType) {
-  console.log("contentType", contentType)
-  console.log("filename", filename)
+  // console.log("contentType", contentType)
+  // console.log("filename", filename)
   return new Promise(function(resolve, reject) {
 
     if (filename != null) {

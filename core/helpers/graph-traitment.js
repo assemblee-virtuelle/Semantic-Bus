@@ -8,7 +8,7 @@ exports.formatDataUserGraph = function (workspaces) {
   data.workspaceNumber = 0;
   data.golbalConsumption = 0;
   data.golbalConsumptionMo = 0;
-  return new Promise(resolve => {    
+  return new Promise(resolve => {
     for (var i = 30; i >= 0; i--) {
       if (AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] == null) {
         AllDayObject[moment().subtract(i, 'days')._d.getUTCMonth() + 1] = {}
@@ -22,7 +22,7 @@ exports.formatDataUserGraph = function (workspaces) {
         data.workspaceNumber ++
         workspaceDetails.totalPrice ? data.golbalConsumption += workspaceDetails.totalPrice : data.golbalConsumption
         workspaceDetails.totalMo ? data.golbalConsumptionMo += workspaceDetails.totalMo : data.golbalConsumptionMo
-        console.log(workspaceDetails)
+        // console.log(workspaceDetails)
         const d = new Date(workspaceDetails.roundDate);
         for (month in AllDayObject) {
           for (b in AllDayObject[month]) {
@@ -38,7 +38,7 @@ exports.formatDataUserGraph = function (workspaces) {
             }
         }
     })
-    
+
     for (var month in AllDayObject) {
       lasttab[month] = {}
       for (var conso in AllDayObject[month]) {
