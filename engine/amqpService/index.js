@@ -36,11 +36,13 @@ module.exports = function (router, amqpClient) {
           res.send(engineResult)
         }).catch(errors=>{
           console.error(errors);
-          errorsMessages=errors.map(e=>e.message);
+          if(Array.isArray(errors)){
+            errorsMessages=errors.map(e=>e.message);
+          }else{
+            errorsMessages=errors.message;
+          }
           res.status(500).send(errorsMessages);
         })
-
-
       })
     })
 }

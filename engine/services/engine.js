@@ -148,6 +148,7 @@ class Engine {
         return
       }
       if (this.owner.credit >= 0 || ( this.config.privateScript && this.config.privateScript.length == 0 ) || this.config.free==true ) {
+
         this.fackCounter++
         if (this.config.quietLog != true) {
           console.log(' ---------- processNextBuildPath -----------', this.fackCounter)
@@ -314,7 +315,7 @@ class Engine {
 
                     this.processNextBuildPath('dfob ok')
                   }).catch(e => {
-                    console.log('REJECT dfob', e)
+                    console.error('REJECT dfob', e)
                     processingNode.dataResolution = {
                       error: e
                     }
@@ -324,7 +325,7 @@ class Engine {
                   })
                 }
               } catch (e) {
-                console.log('CATCH dfob', e)
+                console.error('CATCH dfob', e)
                 processingNode.dataResolution = {
                   error: e
                 }
@@ -334,7 +335,6 @@ class Engine {
               }
             } else {
               try{
-                console.log('ALLO');
                 module.pull(processingNode.component, dataFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams).then(componentFlow => {
                   processingNode.dataResolution = componentFlow
                   processingNode.status = 'resolved'
@@ -345,7 +345,7 @@ class Engine {
                   // console.log(this.processNextBuildPath);
                   this.processNextBuildPath('normal ok')
                 }).catch(e => {
-                  console.log('REJECT normal', processingNode.component._id, e)
+                  console.error('REJECT normal', processingNode.component._id, e)
                   processingNode.dataResolution = {
                     error: e
                   }
@@ -356,7 +356,7 @@ class Engine {
                   this.processNextBuildPath('normal reject')
                 })
               }catch(e){
-                console.log('CATCH normal', e)
+                console.error('CATCH normal', e)
                 processingNode.dataResolution = {
                   error: e
                 }
@@ -396,7 +396,7 @@ class Engine {
           })
         }
       } else {
-        const fullError = new Error("Vous n'avez pas assez de credit")
+        const fullError = new Error("Vous n'avez pas assez de credit");
         this.processNotifier.error({
           _id: this.processId,
           error: fullError.message
