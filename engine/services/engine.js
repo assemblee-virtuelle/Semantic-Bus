@@ -214,6 +214,7 @@ class Engine {
               d.componentId = sourceNode.component._id
               return d
             })
+            dataFlow=JSON.parse(JSON.stringify(dataFlow));
             if (module.getPrimaryFlow != undefined) {
               primaryflow = module.getPrimaryFlow(
                 processingNode.component,
