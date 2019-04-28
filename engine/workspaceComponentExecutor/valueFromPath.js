@@ -8,7 +8,7 @@ class ValueFromPath {
   progress (node, pathArray, pathObject, currentKey,counter) {
     // console.log('progress',counter,pathArray,currentKey);
 
-    if(counter<100){
+    // if(counter<100){
       pathArray = JSON.parse(JSON.stringify(pathArray))
       pathObject = JSON.parse(JSON.stringify(pathObject))
       // console.log('progress', pathArray,node, pathObject);
@@ -67,9 +67,9 @@ class ValueFromPath {
           // console.log('pathObject increment',pathObject);
         }
       }
-    }else{
-      return node
-    }
+    // }else{
+    //   return node
+    // }
 
   }
 

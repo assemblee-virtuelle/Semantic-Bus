@@ -36,10 +36,10 @@ Semantic data transformation & semantic container crawling
 
 ## Archi
 
-- Main ( ./main ) ( principal app )
+- Main ( ./main ) ( main app )
 - Services
     - Timer (./timer) ( service for schedule workflow )
-    - Core (./core) ( principal traitment for all services ( include main ))
+    - Core (./core) ( shared low level services )
     - Engine (./engine) ( motor for graph resolution )
 
 
@@ -69,7 +69,7 @@ curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | b
 
 # Restart console
 
-nvm install 7.10
+nvm install 8.9
 cd core && npm install
 cd main && npm install
 cd engine && npm install
@@ -78,24 +78,24 @@ cd engine && npm install
 
 
 ## Launch with docker ( best solution ) *
-* for mac we use docker-machine and not docker for mac in our configuration 
+* for mac we use docker-machine and not docker for mac in our configuration
 ### Docker
 
 ```bash
 ( DOCKER-COMPOSE REQUIRED )
 
-make start => start project 
+make start => start project
 make log => log main and engine container
-make restart => force recreate 
-make stop => kill all conatiner
+make restart => force recreate
+make stop => kill all container
 
 ```
 
 ### Application In Local ( Not recommended)
-* for mac we use docker-machine and not docker for mac in our configuration 
+* for mac we use docker-machine and not docker for mac in our configuration
 ```bash
-For Mac 
-export CONFIG_URL="https://data-players.github.io/StrongBox/public/dev-mac.json" 
+For Mac
+export CONFIG_URL="https://data-players.github.io/StrongBox/public/dev-mac.json"
 && docker-compose -f docker-compose.local.yaml up -d
 For Linux        
 export CONFIG_URL="https://data-players.github.io/StrongBox/public/dev-linux.json" && docker-compose -f docker-compose.local.yaml up -d
