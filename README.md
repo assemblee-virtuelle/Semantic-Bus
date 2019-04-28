@@ -69,7 +69,7 @@ curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | b
 
 # Restart console
 
-nvm install 7.10
+nvm install 8.9
 cd core && npm install
 cd main && npm install
 cd engine && npm install
