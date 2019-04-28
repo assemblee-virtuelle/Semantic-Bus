@@ -36,10 +36,10 @@ Semantic data transformation & semantic container crawling
 
 ## Archi
 
-- Main ( ./main ) ( principal app )
+- Main ( ./main ) ( main app )
 - Services
     - Timer (./timer) ( service for schedule workflow )
-    - Core (./core) ( principal traitment for all services ( include main ))
+    - Core (./core) ( shared low level services )
     - Engine (./engine) ( motor for graph resolution )
 
 
@@ -87,7 +87,7 @@ cd engine && npm install
 make start => start project 
 make log => log main and engine container
 make restart => force recreate 
-make stop => kill all conatiner
+make stop => kill all container
 
 ```
 
