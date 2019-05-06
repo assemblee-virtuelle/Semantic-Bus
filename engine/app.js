@@ -43,7 +43,7 @@ request(url, { json: true }, (err, result, body) => {
         })
       })
       const onConnect = (amqpClient) => {
-        console.log("connexted to amqp")
+        console.log("connected to amqp")
         require('./amqpService')(safe, amqpClient)
       }
       app.use('/engine', safe)

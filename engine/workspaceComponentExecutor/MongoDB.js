@@ -166,20 +166,31 @@ class MongoConnector {
   }
 
   mongoInsert (client, database, collectionName, dataFlow) {
+    // console.log('mongoInsert');
     return new Promise((resolve, reject) => {
       try {
         const db = client.db(database)
 
-        // console.log(db);
+        // console.log('db',db);
         const collection = db.collection(collectionName)
         collection.remove({}).then(() => {
+          console.log('mongoInsert : records removed');
           const arraySegmentator = new this.ArraySegmentator()
-          const segments = arraySegmentator.segment(dataFlow, 100)
+          let segmentFlow;
+          console.log('dataFlow',dataFlow);
+          if(!Array.isArray(dataFlow)){
+            segmentFlow=[dataFlow];
+          }else{
+            segmentFlow=dataFlow;
+          }
+          const segments = arraySegmentator.segment(segmentFlow, 100)
+
           const paramArray = segments.map(s => [collection, s])
           const promiseOrchestrator = new this.PromiseOrchestrator()
           promiseOrchestrator.execute(this, this.mongoInsertPromise, paramArray, {
             beamNb: 10
           }).then(() => {
+            console.log('mongoInsert : records inserted');
             resolve()
           })
         })
@@ -192,7 +203,7 @@ class MongoConnector {
   }
 
   mongoInsertPromise (collection, data) {
-    // console.log("mongoInsertPromise",collection,data.length);
+    console.log("mongoInsertPromise",collection,data.length);
     return collection.insertMany(data)
   }
 

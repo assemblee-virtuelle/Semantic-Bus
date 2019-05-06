@@ -90,6 +90,11 @@ make restart => force recreate
 make stop => kill all container
 
 ```
+docker container still alive sometime:
+```
+docker kill semanticbus_mongo_1
+docker kill rabbitmq 
+```
 
 ### Application In Local ( Not recommended)
 * for mac we use docker-machine and not docker for mac in our configuration

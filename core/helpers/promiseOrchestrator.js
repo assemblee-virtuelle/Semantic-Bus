@@ -3,7 +3,7 @@ class PromiseOrchestrator {
   constructor() {}
 
   execute(context, workFunction, paramArray, option, config) {
-    //console.log('execute',paramArray);
+    // console.log('execute',paramArray);
     let executor = new PromisesExecutor(context, workFunction, paramArray, option, config);
     return executor.execute();
   }
@@ -29,10 +29,15 @@ class PromisesExecutor {
       this.initialPromiseResolve = resolve;
       this.initialPromiseReject = reject;
       //console.log("length",this.paramArray.length);
-      for (let i = 0; i < Math.min(this.option.beamNb, this.paramArray.length); i++) {
-        //console.log("i",i);
-        this.incrementExecute();
+      if(this.paramArray.length==0){
+        this.initialPromiseResolve([]);
+      }else{
+        for (let i = 0; i < Math.min(this.option.beamNb, this.paramArray.length); i++) {
+          //console.log("i",i);
+          this.incrementExecute();
+        }
       }
+
     });
   }
 
@@ -86,13 +91,14 @@ class PromiseExecutor {
   }
 
   execute() {
+    // console.log('PromiseExecutor : execute');
     if (this.config != undefined && this.config.quietLog != true) {
-      console.log("index / length : ", this.index,'/',this.paramArray.length);
+      // console.log("index / length : ", this.index,'/',this.paramArray.length);
     }
 
     return new Promise((resolve, reject) => {
       let currentParams = this.paramArray[this.index];
-      //console.log('apply',currentParams);
+      // console.log('apply',currentParams);
       try {
         this.workFunction.apply(this.context, currentParams).then((currentOut) => {
           //this.globalOut[this.index] = currentOut;
