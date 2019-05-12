@@ -13,10 +13,10 @@
   <zenTable show={filteredData.length > 0} drag={false} disallowselect={true} ref="zentable" disallowdelete={opts.disallowdelete}>
     <yield to="header">
       <div class="containerTitle">
-        <div class="tableTitleName">STATUS</div>
-        <div class="tableTitleName">NOM</div>
-        <div class="tableTitleDescription">DESCRITPION</div>
-        <div class="tableTitleDate">DATE DE MODIFICATION</div>
+        <div class="tableTitleName" data-is="i18n" key="workflow.table.status"></div>
+        <div class="tableTitleName" data-is="i18n" key="workflow.table.name"></div>
+        <div class="tableTitleDescription" data-is="i18n" key="workflow.table.description"></div>
+        <div class="tableTitleDate" data-is="i18n" key="workflow.table.modificationDate"></div>
         <div class="tableEmpty"/>
       </div>
     </yield>
