@@ -46,10 +46,8 @@ ARG PM2_PUBLIC_KEY
 ARG PM2_SECRET_KEY
 ARG ENV
 
-RUN if [ "$ENV" == "production" ]; \
-    then  npm install -g pm2 2> /dev/null; \
-    else  npm install nodemon -g 2> /dev/null; \
-    fi
+RUN npm install pm2 -g
+RUN npm install nodemon -g
 
 ENV CONFIG_URL=$CONFIG_URL
 ENV PM2_PUBLIC_KEY=$PM2_PUBLIC_KEY
