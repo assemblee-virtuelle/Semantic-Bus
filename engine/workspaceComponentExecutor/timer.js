@@ -10,7 +10,7 @@ class Timer {
         let now = new Date()
         let last= component.specificData.last==undefined?now:new Date(component.specificData.last);
         let next= component.specificData.next==undefined?now:new Date(component.specificData.next);
-        if(now>next){
+        if(now>=next){
           component.specificData.last = next;
           component.specificData.next = new Date(next.getTime()+(component.specificData.interval*60*1000));
           this.workspaceComponentLib.update(component).then(data => {

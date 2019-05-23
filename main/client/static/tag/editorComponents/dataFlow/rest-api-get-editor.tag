@@ -17,11 +17,11 @@
   <label class="labelFormStandard">Clé de l'API:</label>
   <div class="cardInput cardInputApiId">
     <div class="idApi">{data._id}-</div>
-    <input class="inputComponents inputApiId" placeholder="" type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.url}></input>
+    <input class="inputComponents inputApiId" placeholder="" type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.urlName}></input>
   </div>
   <label class="labelFormStandard">URL de l'API:</label>
   <div class="cardInput" show={data.specificData.url}>
-    <a class="linkApi" ref="link" target="_blank" href={window.location.origin +'/data/api/'+data._id + '-'+ data.specificData.url}>{window.location.origin +'/data/api/'+data._id + '-'+ data.specificData.url}</a>
+    <a class="linkApi" ref="link" target="_blank" href={window.location.origin +'/data/api/'+data.specificData.url}>{window.location.origin +'/data/api/'+data.specificData.url}</a>
   </div>
   <label class="labelFormStandard">Content-type:</label>
   <div class="cardInput">
@@ -36,7 +36,9 @@
     // Object.defineProperty(this, 'data', {    set: function (data) {      this.data=data;      this.update();    }.bind(this),    get: function () {     return this.data;   },   configurable: true });
 
     urlInputChanged(e) {
-      this.data.specificData.url = e.currentTarget.value;
+      this.data.specificData.urlName = e.currentTarget.value;
+      this.data.specificData.url=this.data._id + '-'+this.data.specificData.urlName;
+      console.log('url',this.data.specificData.url);
     }
     contentTypeInputChanged(e) {
       this.data.specificData.contentType = e.currentTarget.value;
@@ -47,16 +49,17 @@
       if(this.data.specificData && !this.data.specificData.contentType ){
         this.data.specificData.contentType = "application/json"
       }
-      const regexUrl = `${this.data._id}-`;
-      const rx = new RegExp(regexUrl, 'i');
-      if(dataToUpdate.specificData && dataToUpdate.specificData.url && dataToUpdate.specificData.url.match(rx)){
-        this.data.specificData.url =  dataToUpdate.specificData.url.split(this.data._id+'-')[1]
-      }
+      console.log('data origin',this.data.specificData);
+      // const regexUrl = `${this.data._id}-`;
+      // const rx = new RegExp(regexUrl, 'i');
+      // if(dataToUpdate.specificData && dataToUpdate.specificData.url && dataToUpdate.specificData.url.match(rx)){
+      //   this.data.specificData.url =  dataToUpdate.specificData.url.split(this.data._id+'-')[1]
+      // }
       this.update();
     }.bind(this);
 
     this.on('mount', function () {
-      
+
       // this.refs.urlInput.addEventListener('change',function(e){   this.data.specificData.url=e.currentTarget.value; }.bind(this));
       //
       // this.refs.contentTypeInput.addEventListener('change',function(e){   this.data.specificData.contentType=e.currentTarget.value; }.bind(this));
@@ -78,7 +81,7 @@
     display: flex;
   }
   .inputApiId {
-    padding-left: 250px;    
+    padding-left: 250px;
   }
   .idApi{
     position: absolute;

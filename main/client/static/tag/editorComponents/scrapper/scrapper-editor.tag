@@ -30,6 +30,10 @@
   <div class="cardInput">
     <input class="inputComponents" placeholder="" type="text" ref="url" value={data.specificData.url}></input>
   </div>
+  <label class="labelFormStandard">TimeOut for each action (second)</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="20" type="text" ref="timeout" value={data.specificData.timeout}></input>
+  </div>
   <!-- tableau scrapper -->
   <label class="labelFormStandard">Ajouter un Scénario</label>
   <div class="cardInput">
@@ -78,7 +82,7 @@
           <div class="tableRowY">
             <input style="width: 90%; padding: 0.7vh;" type="text" placeholder="Y"value={scrollY} data-field="scrollY"/>
           </div>
-        
+
         </div>
       </yield>
     </zentable>
@@ -153,6 +157,11 @@
         this.data.specificData.saucelabname = e.currentTarget.value;
       }.bind(this));
 
+      this.refs.timeout.addEventListener('change', function (e) {
+        //this.key = e.target.value;
+        this.data.specificData.timeout = e.currentTarget.value;
+      }.bind(this));
+
     });
   </script>
 
@@ -172,7 +181,7 @@
       color: white;
       text-transform: uppercase;
       text-align: center;
-      
+
       text-align: center;
     }
     .tableTitleName {

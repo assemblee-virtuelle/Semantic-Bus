@@ -126,11 +126,11 @@ function _get_connectBefore_connectAfter(filter) {
 function _update(componentToUpdate) {
   return new Promise((resolve, reject) => {
     // console.log('componentToUpdate ----', componentToUpdate)
-    if (componentToUpdate && componentToUpdate.module === "restApiGet" &&
-      componentToUpdate.specificData &&
-      componentToUpdate.specificData.url) {
-      (componentToUpdate.specificData.url = componentToUpdate._id + '-' + componentToUpdate.specificData.url)
-    }
+    // if (componentToUpdate && componentToUpdate.module === "restApiGet" &&
+    //   componentToUpdate.specificData &&
+    //   componentToUpdate.specificData.url) {
+    //   (componentToUpdate.specificData.url = componentToUpdate._id + '-' + componentToUpdate.specificData.url)
+    // }
     if (componentToUpdate) {
       workspaceComponentModel.getInstance().model.findOneAndUpdate({
           _id: componentToUpdate._id

@@ -25,118 +25,114 @@ class Engine {
   }
 
   resolveComponent() {
-    return new Promise((resolve, reject) => {
-      this.workspace_component_lib
-        .get_all({
-          workspaceId: this.originComponent.workspaceId
+    return new Promise(async (resolve, reject) => {
+      try {
+        let components = await this.workspace_component_lib
+          .get_all({
+            workspaceId: this.originComponent.workspaceId
+          });
+        this.componentsResolving = components
+        let workflow = await this.workspace_lib.getWorkspace(this.originComponent.workspaceId);
+        this.workflow = workflow
+        let ownerUserMail = this.sift({
+            role: 'owner'
+          },
+          this.workflow.users
+        )[0]
+        let user = await this.user_lib.get({
+          'credentials.email': ownerUserMail.email
+        });
+        this.componentsResolving.forEach(component => {
+          component.specificData = component.specificData || {}
         })
-        .then(components => {
-          this.componentsResolving = components
-          this.workspace_lib
-            .getWorkspace(this.originComponent.workspaceId)
-            .then(workflow => {
-              this.workflow = workflow
-              let ownerUserMail = this.sift({
-                  role: 'owner'
-                },
-                this.workflow.users
-              )[0]
 
-              this.user_lib
-                .get({
-                  'credentials.email': ownerUserMail.email
-                })
-                .then(async user => {
-                  this.componentsResolving.forEach(component => {
-                    component.specificData = component.specificData || {}
-                  })
+        this.originComponent = this.sift({
+            _id: this.originComponent._id
+          },
+          this.componentsResolving
+        )[0];
 
-                  this.originComponent = this.sift({
-                      _id: this.originComponent._id
-                    },
-                    this.componentsResolving
-                  )[0];
+        let workAskModule = this.technicalComponentDirectory[this.originComponent.module]
+        // console.log('workCallModule',workCallModule);
+        if (workAskModule.workAsk != undefined) {
+          await workAskModule.workAsk(this.originComponent);
+        }
 
-                  let workAskModule = this.technicalComponentDirectory[this.originComponent.module]
-                  // console.log('workCallModule',workCallModule);
-                  if (workAskModule.workAsk != undefined) {
-                    await workAskModule.workAsk(this.originComponent);
-                  }
+        // console.log(' ---------- Resolve Workflow -----------', this.workflow.name, this.originComponent._id)
+        this.pathResolution = this.buildPathResolution(
+          workflow,
+          this.originComponent,
+          this.requestDirection,
+          0,
+          this.componentsResolving,
+          undefined,
+          this.originQueryParams == undefined ? undefined : {
+            origin: this.originComponent._id,
+            queryParams: this.originQueryParams
+          },
+          undefined
+        )
 
-                  // console.log(' ---------- Resolve Workflow -----------', this.workflow.name, this.originComponent._id)
-                  this.pathResolution = this.buildPathResolution(
-                    workflow,
-                    this.originComponent,
-                    this.requestDirection,
-                    0,
-                    this.componentsResolving,
-                    undefined,
-                    this.originQueryParams == undefined ? undefined : {
-                      origin: this.originComponent._id,
-                      queryParams: this.originQueryParams
-                    },
-                    undefined
-                  )
+        if (this.config.quietLog != true) {
+          console.log(' ---------- BuildPath Links-----------', this.fackCounter)
+          console.log(this.pathResolution.links.map(link => {
+            // return (link.source);
+            return (link.source.component._id + ' -> ' + link.target.component._id)
+          }))
+          console.log(' ---------- BuildPath Nodes-----------', this.fackCounter)
+          console.log(this.pathResolution.nodes.map(node => {
+            return (node.component._id + ':' + JSON.stringify(node.queryParams))
+          }))
+        }
 
-                  if (this.config.quietLog != true) {
-                    console.log(' ---------- BuildPath Links-----------', this.fackCounter)
-                    console.log(this.pathResolution.links.map(link => {
-                      // return (link.source);
-                      return (link.source.component._id + ' -> ' + link.target.component._id)
-                    }))
-                    console.log(' ---------- BuildPath Nodes-----------', this.fackCounter)
-                    console.log(this.pathResolution.nodes.map(node => {
-                      return (node.component._id + ':' + JSON.stringify(node.queryParams))
-                    }))
-                  }
-
-                  this.owner = user
-                  this.workspace_lib.createProcess({
-                    workflowId: this.originComponent.workspaceId,
-                    ownerId: this.owner._id,
-                    callerId: this.callerId,
-                    originComponentId: this.originComponent._id,
-                    steps: this.pathResolution.nodes.map(node => ({
-                      componentId: node.component._id
-                    }))
-                  }).then((process) => {
-                    this.processId = process._id
-                    this.processNotifier = new ProcessNotifier(this.amqpClient, this.originComponent.workspaceId)
-                    this.processNotifier.start({
-                      _id: this.processId,
-                      callerId: this.callerId,
-                      timeStamp: process.timeStamp,
-                      steps: this.pathResolution.nodes.map(node => ({
-                        componentId: node.component._id,
-                        status: node.status
-                      }))
-                    })
-
-                    this.pathResolution.links.forEach(link => {
-                      link.status = 'waiting'
-                    })
-                    this.RequestOrigineResolveMethode = resolve
-                    this.RequestOrigineRejectMethode = reject
-
-                    /// -------------- push case  -----------------------
-                    if (this.requestDirection == 'push') {
-                      let originNode = this.sift({
-                        'component._id': this.originComponent._id
-                      }, this.pathResolution.nodes)[0]
-                      originNode.dataResolution = {
-                        data: this.pushData
-                      }
-                      originNode.status = 'resolved'
-                      this.historicEndAndCredit(originNode, new Date(), undefined, this.owner)
-
-                      resolve(this.pushData)
-                    }
-
-                    this.processNextBuildPath()
-                  })
-                })
-            })
+        this.owner = user
+        let process = await (this.workspace_lib.createProcess({
+          workflowId: this.originComponent.workspaceId,
+          ownerId: this.owner._id,
+          callerId: this.callerId,
+          originComponentId: this.originComponent._id,
+          steps: this.pathResolution.nodes.map(node => ({
+            componentId: node.component._id
+          }))
+        }));
+        this.processId = process._id
+        this.processNotifier = new ProcessNotifier(this.amqpClient, this.originComponent.workspaceId)
+        this.processNotifier.start({
+          _id: this.processId,
+          callerId: this.callerId,
+          timeStamp: process.timeStamp,
+          steps: this.pathResolution.nodes.map(node => ({
+            componentId: node.component._id,
+            status: node.status
+          }))
         })
+
+        this.pathResolution.links.forEach(link => {
+          link.status = 'waiting'
+        })
+        this.RequestOrigineResolveMethode = resolve
+        this.RequestOrigineRejectMethode = reject
+
+        /// -------------- push case  -----------------------
+        if (this.requestDirection == 'push') {
+          let originNode = this.sift({
+            'component._id': this.originComponent._id
+          }, this.pathResolution.nodes)[0]
+          originNode.dataResolution = {
+            data: this.pushData
+          }
+          originNode.status = 'resolved'
+          this.historicEndAndCredit(originNode, new Date(), undefined, this.owner)
+
+          resolve(this.pushData)
+        }
+
+        this.processNextBuildPath();
+
+      } catch (e) {
+        console.log('EOORORRRR', e);
+        reject(e)
+      }
     })
   }
 
@@ -741,7 +737,7 @@ class Engine {
 
 module.exports = {
   execute: function(component, requestDirection, stompClient, callerId, pushData, queryParams) {
-    let engine = new Engine(component, requestDirection, stompClient, callerId, pushData, queryParams)
+    let engine = new Engine(component, requestDirection, stompClient, callerId, pushData, queryParams);
     return engine.resolveComponent()
   }
 }

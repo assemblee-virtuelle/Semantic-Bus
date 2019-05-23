@@ -141,7 +141,8 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       description: '',
       components: [],
       users: [],
-      links: []
+      links: [],
+      limitHistoric:1,
     }
     this.action = action
     this.workspaceCurrent.mode = 'init'

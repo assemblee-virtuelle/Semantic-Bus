@@ -20,12 +20,15 @@
 
     this.on('update', function () {
       this.dateValue= opts.riotValue;
-      this.year=this.dateValue.getFullYear();
-      this.month=this.dateValue.getMonth()+1;
-      this.day=this.dateValue.getDate();
-      this.hour=this.dateValue.getHours();
-      this.minute=this.dateValue.getMinutes();
-      this.second=this.dateValue.getSeconds();
+      if(this.dateValue!=undefined){
+        this.year=this.dateValue.getFullYear();
+        this.month=this.dateValue.getMonth()+1;
+        this.day=this.dateValue.getDate();
+        this.hour=this.dateValue.getHours();
+        this.minute=this.dateValue.getMinutes();
+        this.second=this.dateValue.getSeconds();
+      }
+
       // allows recalculation of context data before the update
     })
 

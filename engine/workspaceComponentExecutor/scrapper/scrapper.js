@@ -1,9 +1,10 @@
 'use strict'
 class Scrapper {
   constructor () {
-    this.sift = require('sift')
-    this.webdriverio = require('webdriverio')
-    this.base = require('./wdio.conf.base')
+    this.sift = require('sift');
+    this.webdriverio = require('webdriverio');
+    this.base = require('./wdio.conf.base');
+    this.stringReplacer = require('../../utils/stringReplacer');
   }
 
   getPriceState (specificData, moPrice, recordPrice) {
@@ -20,7 +21,19 @@ class Scrapper {
     }
   }
 
-  makeRequest (user, key, actions, url, saucelabname, flowData) {
+  // makeRequest (user, key, actions, url, saucelabname, flowData) {
+  makeRequest (specificData, flowData,queryParams) {
+
+    // let url = this.stringReplacer.execute(flowData.url,undefined,flowData)
+
+    let url = this.stringReplacer.execute(specificData.url,queryParams,flowData)
+
+      console.log('URL',typeof(url),url);
+
+    let user=specificData.user;
+    let key=specificData.key;
+    let actions=specificData.scrapperRef;
+    let saucelabname=specificData.saucelabname;
     var client = this.webdriverio.remote(Object.assign(this.base.config, {
       desiredCapabilities: {
         browserName: 'chrome',
@@ -200,9 +213,13 @@ class Scrapper {
       return new Promise((resolve, reject) => {
         // console.log(" ------  deeth  ------- ", deeth);
         // console.log('------   tour restant -------- ', (actions.length) - deeth);
+
         // console.log('action',actions[deeth].actionType);
         let effectivSelector = actions[deeth].selector || 'body'
-        client.waitForExist(effectivSelector, 20000)
+
+        let timeout= specificData.timeout==undefined?20000:specificData.timeout*1000
+        // console.log('ALLO timeout',timeout);
+        client.waitForExist(effectivSelector, timeout)
           .then(function (visible) {
             let scrappingFunction
             switch (actions[deeth].actionType) {
@@ -296,16 +313,12 @@ class Scrapper {
     })
   }
 
-  pull (data, flowData) {
+  pull (data, flowData, queryParams) {
     // console.log("before scrapping start", data)
-    let url = data.specificData.url
 
-    if (flowData && flowData[0] && flowData[0].data && flowData[0].data.url != undefined) {
-      url = flowData[0].data.url
-    }
     let usableFlowData = flowData == undefined ? undefined : flowData[0].data
     // console.log('scrapp url', url);
-    return this.makeRequest(data.specificData.user, data.specificData.key, data.specificData.scrapperRef, url, data.specificData.saucelabname, usableFlowData)
+    return this.makeRequest(data.specificData, usableFlowData,queryParams)
   }
 }
 

@@ -34,7 +34,6 @@ module.exports = function (router, amqpClient) {
         engine.execute(data, direction, amqpClient, undefined, pushData, queryParams).then(engineResult=>{
           res.send(engineResult)
         }).catch(errors=>{
-          console.error(errors);
           if(Array.isArray(errors)){
             errorsMessages=errors.map(e=>e.message);
           }else{
@@ -42,6 +41,8 @@ module.exports = function (router, amqpClient) {
           }
           res.status(500).send(errorsMessages);
         })
+      }).catch(e=>{
+        res.status(500).send(e);
       })
     })
 }
