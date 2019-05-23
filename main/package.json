@@ -94,6 +94,7 @@
     "webstomp-client": "^1.2.0",
     "ws": "^4.0.0",
     "xlsx": "^0.10.5",
+    "xml-js": "^1.6.11",
     "xml2js": "^0.4.19"
   },
   "devDependencies": {

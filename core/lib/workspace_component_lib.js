@@ -85,8 +85,8 @@ function _get_all(filter) {
 function _get_all_withConsomation(filter) {
   return new Promise(function(resolve, reject) {
     workspaceComponentModel.getInstance().model.find(filter)
-    .lean()
-    .exec(function(err, workspaceComponents) {
+      .lean()
+      .exec(function(err, workspaceComponents) {
         if (err) {
           reject(new Error.DataBaseProcessError(err))
         } else {
@@ -123,14 +123,15 @@ function _get_connectBefore_connectAfter(filter) {
 
 // --------------------------------------------------------------------------------
 
-function _update(id, componentToUpdate) {
+function _update(componentToUpdate) {
   return new Promise((resolve, reject) => {
     // console.log('componentToUpdate ----', componentToUpdate)
-    if(componentToUpdate && componentToUpdate.module === "restApiGet"
-    && componentToUpdate.specificData
-    && componentToUpdate.specificData.url)
-    (componentToUpdate.specificData.url = componentToUpdate._id +'-'+componentToUpdate.specificData.url)
-    if(componentToUpdate ){
+    if (componentToUpdate && componentToUpdate.module === "restApiGet" &&
+      componentToUpdate.specificData &&
+      componentToUpdate.specificData.url) {
+      (componentToUpdate.specificData.url = componentToUpdate._id + '-' + componentToUpdate.specificData.url)
+    }
+    if (componentToUpdate) {
       workspaceComponentModel.getInstance().model.findOneAndUpdate({
           _id: componentToUpdate._id
         }, componentToUpdate, {
@@ -145,7 +146,7 @@ function _update(id, componentToUpdate) {
             resolve(componentUpdated)
           }
         });
-      }
+    }
   });
 
 } // <= _update
@@ -160,7 +161,7 @@ function _remove(componentToDelete) {
       }, {
         'consumption_history': 0,
       })
-    .exec((err, workspace) => {
+      .exec((err, workspace) => {
         if (err || workspace == null) {
           reject(new Error.DataBaseProcessError(err))
         } else {
@@ -170,7 +171,17 @@ function _remove(componentToDelete) {
             if (err) {
               reject(new Error.DataBaseProcessError(err))
             } else {
-              workspace.links=sift({$and:[{source:{$ne:componentToDelete._id}},{target:{$ne:componentToDelete._id}}]},workspace.links);
+              workspace.links = sift({
+                $and: [{
+                  source: {
+                    $ne: componentToDelete._id
+                  }
+                }, {
+                  target: {
+                    $ne: componentToDelete._id
+                  }
+                }]
+              }, workspace.links);
               workspace.save();
               resolve(componentToDelete);
             }

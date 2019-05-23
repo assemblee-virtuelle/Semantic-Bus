@@ -31,7 +31,7 @@ https.get(requestOptions, function(res) {
   });
 
   res.on('end', () => {
-    console.log("http end", responseBody)
+    // console.log("http end", responseBody)
     let content = 'module.exports = ' + responseBody;
     fs.writeFile("configuration.js", content, 'utf8', function(err) {
       server.listen(8080, function () {

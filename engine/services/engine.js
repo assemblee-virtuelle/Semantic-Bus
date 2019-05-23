@@ -3,7 +3,7 @@
 const ProcessNotifier = require('./ProcessNotifier')
 
 class Engine {
-  constructor (component, requestDirection, amqpClient, callerId, pushData, queryParams) {
+  constructor(component, requestDirection, amqpClient, callerId, pushData, queryParams) {
     this.technicalComponentDirectory = require('./technicalComponentDirectory.js')
     this.sift = require('sift')
     this.objectSizeOf = require('object-sizeof')
@@ -24,7 +24,7 @@ class Engine {
     this.owner = null
   }
 
-  resolveComponent () {
+  resolveComponent() {
     return new Promise((resolve, reject) => {
       this.workspace_component_lib
         .get_all({
@@ -37,25 +37,31 @@ class Engine {
             .then(workflow => {
               this.workflow = workflow
               let ownerUserMail = this.sift({
-                role: 'owner'
-              },
-              this.workflow.users
+                  role: 'owner'
+                },
+                this.workflow.users
               )[0]
 
               this.user_lib
                 .get({
                   'credentials.email': ownerUserMail.email
                 })
-                .then(user => {
+                .then(async user => {
                   this.componentsResolving.forEach(component => {
                     component.specificData = component.specificData || {}
                   })
 
                   this.originComponent = this.sift({
-                    _id: this.originComponent._id
-                  },
-                  this.componentsResolving
-                  )[0]
+                      _id: this.originComponent._id
+                    },
+                    this.componentsResolving
+                  )[0];
+
+                  let workAskModule = this.technicalComponentDirectory[this.originComponent.module]
+                  // console.log('workCallModule',workCallModule);
+                  if (workAskModule.workAsk != undefined) {
+                    await workAskModule.workAsk(this.originComponent);
+                  }
 
                   // console.log(' ---------- Resolve Workflow -----------', this.workflow.name, this.originComponent._id)
                   this.pathResolution = this.buildPathResolution(
@@ -76,7 +82,7 @@ class Engine {
                     console.log(' ---------- BuildPath Links-----------', this.fackCounter)
                     console.log(this.pathResolution.links.map(link => {
                       // return (link.source);
-                      return (link.source.component._id + ' -> ' + link.target.component._id )
+                      return (link.source.component._id + ' -> ' + link.target.component._id)
                     }))
                     console.log(' ---------- BuildPath Nodes-----------', this.fackCounter)
                     console.log(this.pathResolution.nodes.map(node => {
@@ -90,7 +96,9 @@ class Engine {
                     ownerId: this.owner._id,
                     callerId: this.callerId,
                     originComponentId: this.originComponent._id,
-                    steps: this.pathResolution.nodes.map(node => ({ componentId: node.component._id }))
+                    steps: this.pathResolution.nodes.map(node => ({
+                      componentId: node.component._id
+                    }))
                   }).then((process) => {
                     this.processId = process._id
                     this.processNotifier = new ProcessNotifier(this.amqpClient, this.originComponent.workspaceId)
@@ -132,11 +140,11 @@ class Engine {
     })
   }
 
-  processNextBuildPath () {
+  processNextBuildPath() {
     setTimeout(this.processNextBuildPathDelayed.bind(this), 100)
   }
 
-  processNextBuildPathDelayed (owner) {
+  processNextBuildPathDelayed(owner) {
     // console.log('privateScript',this.config.privateScript);
     this.workspace_lib.getCurrentProcess(this.processId).then((process) => {
       console.log(' <---- current process state -----> ', process.state)
@@ -147,7 +155,7 @@ class Engine {
         })
         return
       }
-      if (this.owner.credit >= 0 || ( this.config.privateScript && this.config.privateScript.length == 0 ) || this.config.free==true ) {
+      if (this.owner.credit >= 0 || (this.config.privateScript && this.config.privateScript.length == 0) || this.config.free == true) {
 
         this.fackCounter++
         if (this.config.quietLog != true) {
@@ -158,26 +166,26 @@ class Engine {
         }
         let processingNode
         let nodeWithoutIncoming = this.sift({
-          $and: [{
-            sources: {
-              $size: 0
-            }
+            $and: [{
+                sources: {
+                  $size: 0
+                }
+              },
+              {
+                status: 'waiting'
+              }
+            ]
           },
-          {
-            status: 'waiting'
-          }
-          ]
-        },
-        this.pathResolution.nodes
+          this.pathResolution.nodes
         )
         if (nodeWithoutIncoming.length > 0) {
           // console.log('source component', nodeWithoutIncoming[0]);
           processingNode = nodeWithoutIncoming[0]
         } else {
           let nodeWithAllIncomingResolved = this.sift({
-            status: 'waiting'
-          },
-          this.pathResolution.nodes
+              status: 'waiting'
+            },
+            this.pathResolution.nodes
           )
           nodeWithAllIncomingResolved.every(n => {
             let nbSourcesResolved = this.sift({
@@ -197,10 +205,10 @@ class Engine {
           let startTime = new Date()
           // processingLink.status = 'processing';
           let nodesProcessingInputs = this.sift({
-            'targets.target.component._id': processingNode.component._id
-            //  status: "processing"
-          },
-          this.pathResolution.nodes
+              'targets.target.component._id': processingNode.component._id
+              //  status: "processing"
+            },
+            this.pathResolution.nodes
           )
 
           let module = this.technicalComponentDirectory[processingNode.component.module]
@@ -214,7 +222,7 @@ class Engine {
               d.componentId = sourceNode.component._id
               return d
             })
-            dataFlow=JSON.parse(JSON.stringify(dataFlow));
+            dataFlow = JSON.parse(JSON.stringify(dataFlow));
             if (module.getPrimaryFlow != undefined) {
               primaryflow = module.getPrimaryFlow(
                 processingNode.component,
@@ -335,13 +343,13 @@ class Engine {
                 this.processNextBuildPath('dfob catch')
               }
             } else {
-              try{
+              try {
                 module.pull(processingNode.component, dataFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams).then(componentFlow => {
                   processingNode.dataResolution = componentFlow
                   processingNode.status = 'resolved'
                   this.historicEndAndCredit(processingNode, startTime, undefined)
                   if (processingNode.component._id == this.originComponent._id) {
-                    this.originComponentResult= processingNode.dataResolution;
+                    this.originComponentResult = processingNode.dataResolution;
                   }
                   // console.log(this.processNextBuildPath);
                   this.processNextBuildPath('normal ok')
@@ -356,7 +364,7 @@ class Engine {
                   // console.log('NEXT');
                   this.processNextBuildPath('normal reject')
                 })
-              }catch(e){
+              } catch (e) {
                 console.error('CATCH normal', e)
                 processingNode.dataResolution = {
                   error: e
@@ -370,13 +378,15 @@ class Engine {
         } else {
           // console.log('END');
           let nodeOnError = this.sift({
-            status: 'error'
-          },
-          this.pathResolution.nodes
+              status: 'error'
+            },
+            this.pathResolution.nodes
           )
 
           if (nodeOnError.length > 0) {
-            this.processNotifier.error({ _id: this.processId })
+            this.processNotifier.error({
+              _id: this.processId
+            })
 
             let errors = []
             this.pathResolution.nodes.forEach(n => {
@@ -386,12 +396,17 @@ class Engine {
             })
             this.RequestOrigineRejectMethode(errors)
           } else {
-            this.processNotifier.end({ _id: this.processId });
+            this.processNotifier.end({
+              _id: this.processId
+            });
             this.RequestOrigineResolveMethode(this.originComponentResult);
           }
           this.workspace_lib.cleanOldProcess(this.workflow).then(processes => {
             // console.log(processes);
-            this.processNotifier.processCleaned({ cleanedProcesses: processes, workspaceId: this.workflow._id })
+            this.processNotifier.processCleaned({
+              cleanedProcesses: processes,
+              workspaceId: this.workflow._id
+            })
             console.log('--------------  End of Worksapce processing --------------', this.owner.credit)
             return this.user_lib.update(this.owner)
           })
@@ -407,7 +422,7 @@ class Engine {
     })
   }
 
-  historicEndAndCredit (processingNode, startTime, error) {
+  historicEndAndCredit(processingNode, startTime, error) {
     let dataFlow = processingNode.dataResolution
     let module = processingNode.component.module
     let specificData = processingNode.component.specificData
@@ -461,7 +476,7 @@ class Engine {
       })
       if (processingNode.component.persistProcess == true) {
         // console.log('addDataHistoriqueEnd',this.objectSizeOf(persistFlow));
-        this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id, error==undefined?dataFlow.data:error).then(frag => {
+        this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id, error == undefined ? dataFlow.data : error).then(frag => {
           this.processNotifier.persist({
             componentId: historiqueEnd.componentId,
             processId: historiqueEnd.processId,
@@ -486,7 +501,7 @@ class Engine {
     this.owner.credit -= historic_object.totalPrice
   }
 
-  buildDfobFlowArray (currentFlow, dfobPathTab, key, keepArray) {
+  buildDfobFlowArray(currentFlow, dfobPathTab, key, keepArray) {
     if (Array.isArray(currentFlow)) {
       let flatOut = []
       currentFlow.forEach((f, i) => {
@@ -498,7 +513,7 @@ class Engine {
     }
   }
 
-  buildDfobFlow (currentFlow, dfobPathTab, key, keepArray) {
+  buildDfobFlow(currentFlow, dfobPathTab, key, keepArray) {
     if (dfobPathTab.length > 0) {
       if (Array.isArray(currentFlow)) {
         let currentdFob = dfobPathTab[0]
@@ -542,7 +557,7 @@ class Engine {
     }
   }
 
-  buildPathResolution (workspace, component, requestDirection, depth, usableComponents, buildPath, queryParams, buildPathCauseLink) {
+  buildPathResolution(workspace, component, requestDirection, depth, usableComponents, buildPath, queryParams, buildPathCauseLink) {
     if (depth < 100) {
       if (buildPath == undefined) {
         buildPath = {}
@@ -615,9 +630,9 @@ class Engine {
           for (var beforelink of connectionsBefore) {
             // console.log(beforeComponent);
             var beforeComponentObject = this.sift({
-              _id: beforelink.source
-            },
-            usableComponents
+                _id: beforelink.source
+              },
+              usableComponents
             )[0]
 
             if (beforeComponentObject) {
@@ -670,9 +685,9 @@ class Engine {
           for (var afterlink of connectionsAfter) {
             // console.log(beforeComponent);
             var afterComponentObject = this.sift({
-              _id: afterlink.target
-            },
-            usableComponents
+                _id: afterlink.target
+              },
+              usableComponents
             )[0]
             // console.log("beforeComponentObject",beforeComponentObject);
             // protection against dead link
@@ -725,7 +740,7 @@ class Engine {
 }
 
 module.exports = {
-  execute: function (component, requestDirection, stompClient, callerId, pushData, queryParams) {
+  execute: function(component, requestDirection, stompClient, callerId, pushData, queryParams) {
     let engine = new Engine(component, requestDirection, stompClient, callerId, pushData, queryParams)
     return engine.resolveComponent()
   }

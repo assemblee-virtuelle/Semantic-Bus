@@ -1,7 +1,7 @@
 .DEFAULT_GOAL := help
 .PHONY: docker-build docker-up build start log stop restart
 
-DOCKER_COMPOSE=docker-compose -f docker-compose.dev.yaml
+DOCKER_COMPOSE=docker-compose -f docker-compose.devWithTimer.yaml
 DOCKER_COMPOSE_TEST=docker-compose -f docker-compose.test.yaml
 
 
@@ -20,17 +20,17 @@ docker-clean:
 	$(DOCKER_COMPOSE) kill
 	$(DOCKER_COMPOSE) rm -fv
 
-docker-restart:	
+docker-restart:
 	$(DOCKER_COMPOSE) up -d --force-recreate
-	
-log: 
-	$(DOCKER_COMPOSE) logs -f engine main 
+
+log:
+	$(DOCKER_COMPOSE) logs -f engine main timer
 
 # Start
-start: 
-	./select.sh 
+start:
+	./select.sh
 
-stop: docker-stop 
+stop: docker-stop
 
 restart: docker-restart
 

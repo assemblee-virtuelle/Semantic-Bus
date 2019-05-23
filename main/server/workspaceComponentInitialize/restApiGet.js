@@ -1,6 +1,6 @@
 'use strict'
 class RestApiGet {
-  constructor () {
+  constructor() {
     this.type = 'Get provider'
     this.description = 'Exposer un flux de donnée sur une API http GET.'
     this.editor = 'rest-api-get-editor'
@@ -11,7 +11,8 @@ class RestApiGet {
     ]
     this.stepNode = false
     this.workspace_component_lib = require('../../../core/lib/workspace_component_lib')
-    this.data2xml = require('data2xml')
+    this.data2xml = require('data2xml');
+    this.xmlJS = require('xml-js');
     this.dataTraitment = require('../../../core/dataTraitmentLibrary/index.js')
     this.json2yaml = require('json2yaml')
     this.pathToRegexp = require('path-to-regexp')
@@ -19,7 +20,7 @@ class RestApiGet {
     this.config = require('../../configuration')
   }
 
-  initialise (router, amqp) {
+  initialise(router, amqp) {
 
     router.get('*', (req, res, next) => {
       // console.log('api');
@@ -65,7 +66,7 @@ class RestApiGet {
         }
         // console.log('ALLO-1',matched);
         if (!matched) {
-          console.log('ERROR!!!');
+          //console.log('ERROR!!!');
           return new Promise((resolve, reject) => {
             res.status(404).send('no API for this url');
             // eslint-disable-next-line prefer-promise-reject-errors
@@ -75,20 +76,27 @@ class RestApiGet {
             // })
           })
         } else {
-          this.request.post(this.config.engineUrl + '/work-ask/' + targetedComponent._id,
-            { body: { pushData: req.body, queryParams:{query: req.query}},
+          this.request.post(this.config.engineUrl + '/work-ask/' + targetedComponent._id, {
+              body: {
+                pushData: req.body,
+                queryParams: {
+                  query: req.query
+                }
+              },
               json: true
             }
             // eslint-disable-next-line handle-callback-err
             , (err, data) => {
               // console.log(err,data);
-              if (err){
+              if (err) {
                 // console.error("restpiIGet request error",err);
                 res.status(500).send(err)
-              }else {
-                if(data.statusCode!=200){
-                  res.status(500).send({engineResponse:data.body})
-                }else {
+              } else {
+                if (data.statusCode != 200) {
+                  res.status(500).send({
+                    engineResponse: data.body
+                  })
+                } else {
                   const dataToSend = data.body.data
 
                   if (targetedComponent.specificData != undefined) { // exception in previous promise
@@ -103,26 +111,32 @@ class RestApiGet {
                         })
                       } else if (targetedComponent.specificData.contentType.search('xml') != -1) {
                         res.setHeader('content-type', targetedComponent.specificData.contentType)
-                        var convert = this.data2xml()
-                        var out = ''
-                        for (let key in dataToSend) {
-                          out += convert(key, dataToSend[key])
-                        }
+                        // var convert = this.data2xml()
+                        // var out = ''
+                        // for (let key in dataToSend) {
+                        //   out += convert(key, dataToSend[key])
+                        //   // res.write(convert(key, dataToSend[key]))
+                        // }
+                        let out=this.xmlJS.js2xml(dataToSend, {compact: true, ignoreComment: true, spaces: 0});
+                        out = out.replace(/\0/g, '');
+                        // console.log('xml out', out);
+                        console.log(Buffer.byteLength(out, 'utf8') + " bytes");
                         res.send(out)
+                        // res.end();
                       } else if (targetedComponent.specificData.contentType.search('yaml') != -1) {
                         res.setHeader('content-type', targetedComponent.specificData.contentType)
-                        return (this.json2yaml.stringify(dataToSend))
+                        res.send(this.json2yaml.stringify(dataToSend));
                       } else if (targetedComponent.specificData.contentType.search('json') != -1) {
                         res.setHeader('content-type', targetedComponent.specificData.contentType)
                         var buf = Buffer.from(JSON.stringify(dataToSend))
                         res.send(buf)
                       } else {
                         res.send(new Error('no supported madiatype'))
-                      // return ('type mime non géré')
+                        // return ('type mime non géré')
                       }
                     } else {
                       res.send(new Error('content-type have to be set'))
-                    // return ('type mime non géré')
+                      // return ('type mime non géré')
                     }
                   }
                 }

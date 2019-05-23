@@ -321,7 +321,7 @@ module.exports = function (router) {
   // --------------------------------------------------------------------------------
 
   router.put('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
-    workspace_component_lib.update(req.params.id, req.body)
+    workspace_component_lib.update(req.body)
       .then((componentUpdated) => (res.json(componentUpdated)))
       .catch(e => {
         next(e)

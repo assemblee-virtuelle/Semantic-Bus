@@ -14,12 +14,14 @@ class MongoConnector {
   mongoInitialise (url) {
     return new Promise((resolve, reject) => {
       if (url) {
-        this.MongoClient.connect(url).then(client => {
-          resolve(client)
-        }).catch(e => {
-          e.displayMessage = 'connection to MongoDB database failed'
-          reject(e)
-        })
+          this.MongoClient.connect(url).then(client => {
+            resolve(client)
+          }).catch(e => {
+            console.log('ERROOR',e);
+            e.displayMessage = 'connection to MongoDB database failed'
+            reject(e)
+          })
+
       } else {
         const fullError = new Error('bad uri mongo connector')
         fullError.displayMessage = 'Connecteur Mongo : Veuillez entre une uri de connexion valide';
@@ -214,8 +216,9 @@ class MongoConnector {
   pull (data, dataFlow, queryParams) {
     if (dataFlow === undefined) {
       return new Promise(async (resolve, reject) => {
-        const client = await this.mongoInitialise(data.specificData.url)
+        let client;
         try {
+          client = await this.mongoInitialise(data.specificData.url)
           const mongoRequestResolved = await this.mongoRequest(client, data.specificData.querySelect, data.specificData.database, data.specificData.modelName, queryParams)
           resolve({
             data: mongoRequestResolved.result
@@ -228,8 +231,9 @@ class MongoConnector {
       })
     } else {
       return new Promise(async (resolve, reject) => {
-        const client = await this.mongoInitialise(data.specificData.url)
+        let client
         try {
+          client = await this.mongoInitialise(data.specificData.url)
           await this.mongoInsert(client, data.specificData.database, data.specificData.modelName, dataFlow[0].data)
           resolve({ data: dataFlow[0].data })
         } catch (error) {

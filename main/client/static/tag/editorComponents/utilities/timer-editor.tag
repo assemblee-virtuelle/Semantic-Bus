@@ -20,8 +20,13 @@
   </div>
   <label class="labelFormStandard">Dernière exécution :</label>
   <div class="cardInput">
-    <div>{data.specificData?data.specificData.last: null }</div>
+    <zendate value={this.last} mode="read"></zendate>
   </div>
+  <label class="labelFormStandard">Prochaine exécution :</label>
+  <div class="cardInput">
+    <zendate ref="next" value={this.next} mode="edit"></zendate>
+  </div>
+
   <script>
 
     this.data = {};
@@ -33,11 +38,17 @@
 
     this.updateData = function (dataToUpdate) {
       this.data = dataToUpdate;
+      this.last = dataToUpdate.specificData.last==undefined?undefined:new Date(dataToUpdate.specificData.last);
+      this.next = dataToUpdate.specificData.next==undefined?undefined:new Date(dataToUpdate.specificData.next);
       this.update();
     }.bind(this);
 
     this.on('mount', function () {
       RiotControl.on('item_current_changed', this.updateData);
+      this.refs.next.on('dateChanged',date=>{
+        this.data.specificData.next=date;
+        this.next= date;
+      })
     });
     this.on('unmount', function () {
       RiotControl.off('item_current_changed', this.updateData);

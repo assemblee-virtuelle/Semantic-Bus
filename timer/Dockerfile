@@ -41,14 +41,28 @@ ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
 RUN node -v
 RUN npm -v
 
-RUN npm install pm2 -g
+ARG CONFIG_URL
+ARG PM2_PUBLIC_KEY
+ARG PM2_SECRET_KEY
+ARG ENV
+
+RUN if [ "$ENV" == "production" ]; \
+    then  npm install -g pm2 2> /dev/null; \
+    else  npm install nodemon -g 2> /dev/null; \
+    fi
+
+ENV CONFIG_URL=$CONFIG_URL
+ENV PM2_PUBLIC_KEY=$PM2_PUBLIC_KEY
+ENV PM2_SECRET_KEY=$PM2_SECRET_KEY
+ENV BROADCAST_LOGS 1
+ENV FORCE_INSPECTOR 1
 
 # Bundle app source
 
-ADD ./timer/package.json /data/
-
 ADD ./core /data/core/
 ADD ./timer /data/timer/
+ADD ./timer/package.json /data/
+ADD ./wait-for-it.sh /data/scripts/
 
 RUN cd /data/ && npm cache clean --force && npm install
 

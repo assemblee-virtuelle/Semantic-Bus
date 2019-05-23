@@ -22,7 +22,6 @@ module.exports = function (router, amqpClient) {
     }, {
       noAck: true
     })
-
     router.post('/work-ask/:componentId', function (req, res, next) {
       const componentId = req.params.componentId
       const pushData = req.body.pushData
