@@ -25,6 +25,7 @@ module.exports = {
   get: _get,
   get_all: _get_all,
   update: _update,
+  updateProfil,
   getWithRelations: _getWithRelations,
   userGraph: _userGraph,
   createUpdatePasswordEntity: _createUpdatePasswordEntity,
@@ -308,6 +309,31 @@ function _userGraph(userId) {
     );
   });
 } // <= _userGraph
+
+/**
+ * @param {string} id
+ * @param {ProfilPatch} userPatch
+ * @return {Promise<UserDocument>}
+ */
+function updateProfil(id, userPatch) {
+  return userModel.getInstance().model
+    .findById(id)
+    .exec()
+    .then(user => {
+      if (user.googleId != null) {
+        return Promise.reject(new Error('google_user'))
+      } else {
+        return userModel.getInstance().model
+          .findByIdAndUpdate(
+            id,
+            { '$set': userPatch },
+            { new: true }
+          )
+          .exec()
+          .catch(error => Promise.reject(new Error.DataBaseProcessError(error)))
+      }
+    })
+}
 
 function _update(user, mailChange) {
   return new Promise(function (resolve, reject) {

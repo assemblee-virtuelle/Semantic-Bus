@@ -154,23 +154,7 @@
     }
 
     updateUser(e) {
-      var regex = /^(([^<>()\[\]\\.,;:\s@"]+(\.[^<>()\[\]\\.,;:\s@"]+)*)|(".+"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g
-      if (this.profil.credentials.email.match(regex)) {
-        if (this.profil.credentials.email != this.refs.email.value) {
-          RiotControl.trigger('update_user', {
-            user: this.profil,
-            mailChange: true
-          });
-        } else {
-          RiotControl.trigger('update_user', {
-            user: this.profil,
-            mailChange: false
-          });
-        }
-      } else {
-        this.result = false;
-        this.resultEmail = "L'email n'est pas au bond format";
-      }
+      RiotControl.trigger('update_user', this.profil);
     }
 
     sendbackmail(e) {

@@ -5,6 +5,8 @@ const auth_lib_jwt = require('../../core/lib/auth_lib')
 const mailService = require('./services/mail')
 const jwt = require('jwt-simple')
 const moment = require('moment')
+const validations = require('./validations')
+const userValidations = require('./validations/userValidations')
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -97,4 +99,13 @@ module.exports = function (router) {
       next(e)
     })
   })
+
+  router.patch('/users/me',
+    validations.validateRequestInput(userValidations.userPatchType),
+    (req, res, next) => {
+      user_lib.updateProfil(UserIdFromToken(req), req.body)
+        .then(result => res.send(result))
+        .catch(error => next(error))
+    }
+  )
 }
