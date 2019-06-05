@@ -17,6 +17,7 @@ function CacheNosqlStore (utilStore) {
       method: 'get',
       url: '../data/core/fragment/' + fragId
     }, true).then(frag => {
+      // console.log('frag',frag);
       this.trigger('cache_frag_loaded', frag.data, jsTreeId)
     })
   })

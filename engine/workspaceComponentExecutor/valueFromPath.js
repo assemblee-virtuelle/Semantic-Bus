@@ -29,8 +29,9 @@ class ValueFromPath {
       if (pathArray.length == 0) {
         // console.log('RFP2',node,currentKey);
         let out = node;
-
+        // console.log('ALLO1');
         if (Array.isArray(node)) {
+          // console.log('ALLO1',node);
           out = [];
           node.forEach(n => {
             if (typeof n === 'object') {
@@ -42,6 +43,7 @@ class ValueFromPath {
             }
             out.push(n);
           })
+          // console.log('ALLO2',out);
         } else if (typeof node === 'object') {
           out = node;
           for (let pathObjectKey in pathObject) {
@@ -96,7 +98,7 @@ class ValueFromPath {
       // let value=this.dotProp.get(flowData[0].data, data.specificData.path)
       try {
         let value = this.resolve(flowData[0].data, data.specificData);
-        // console.log('RESOLVE');
+        // console.log('RESOLVE',value);
         resolve({
           data: value
         })

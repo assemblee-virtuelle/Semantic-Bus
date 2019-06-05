@@ -14,9 +14,14 @@
     <div class="bar"/>
   </div>
   <!-- Champ du composant -->
+  <div class="subtitle">identification Google</div>
+  <label class="labelFormStandard">apiKey:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="apiKey" type="text" ref="apiKeyInput" value={data.specificData.apiKey}></input>
+  </div>
   <div class="subtitle">Champ de l'objet permettant de définir la position géographique.</div>
   <label class="labelFormStandard">Rue:</label>
-  <div class="cardInput">  
+  <div class="cardInput">
     <input class="inputComponents" placeholder="Rue" type="text" ref="streetInput" value={data.specificData.streetPath}></input>
   </div>
   <label class="labelFormStandard">Ville:</label>
@@ -73,6 +78,9 @@
       }.bind(this));
       this.refs.longitudeInput.addEventListener('change', function (e) {
         this.data.specificData.longitudePath = e.currentTarget.value;
+      }.bind(this));
+      this.refs.apiKeyInput.addEventListener('change', function (e) {
+        this.data.specificData.apiKey = e.currentTarget.value;
       }.bind(this));
 
       RiotControl.on('item_current_changed', this.updateData);

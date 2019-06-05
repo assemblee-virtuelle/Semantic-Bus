@@ -9,6 +9,7 @@ module.exports = {
 
   //mongoose: require('mongoose'),
   frag: function(frag, key,counter) {
+    // console.log('key',key);
     // for (let c=0;c<counter;c++){
     //   process.stdout.write(" ");
     // }
@@ -21,7 +22,7 @@ module.exports = {
       return new Promise((resolve, reject) => {
         if (Array.isArray(frag.data)) {
           if (this.objectSizeOf(frag.data) > 1000) {
-            //console.log('ARRAY BIG', key);
+            // console.log('ARRAY BIG', frag);
             let promiseOrchestrator = new this.PromiseOrchestrator();
             let arraySegmentator = new this.ArraySegmentator();
 
@@ -30,7 +31,7 @@ module.exports = {
             let paramArray = segmentation.map(s => {
               return [s.map(r=>{return {data:r,createOnly:false,counter:counter}}), true]
             })
-            //console.log('paramArray', paramArray);
+            // console.log('paramArray', JSON.stringify(paramArray));
             promiseOrchestrator.execute(this, this.persist, paramArray, {
               beamNb: 10//10
             }).then(persistSegments => {
@@ -76,7 +77,7 @@ module.exports = {
               });
             })
           } else {
-            //console.log('ARRAY SMALL', key);
+            // console.log('ARRAY SMALL', key);
             //console.log('NO PERSIST');
             resolve({
               frag: {
@@ -139,7 +140,7 @@ module.exports = {
     // console.log('persist data frag',counter);
 
   //  console.log('persist data frag', this.objectSizeOf(datas));
-  //  console.log('persist data frag',datas);
+    // console.log('persist data frag',createOnly,counter,datas);
 
     if (datas instanceof Object) {
       return new Promise((resolve, reject) => {
@@ -151,6 +152,7 @@ module.exports = {
         }
         fragReadyPromises = datas.map(data => {
           if (createOnly == true || data._id==undefined) {
+            // console.log('RESOLVE Simple',data.data);
             return new Promise((resolve, reject) => {
               resolve({
                 data: data.data
@@ -180,17 +182,18 @@ module.exports = {
           }
         });
         Promise.all(fragReadyPromises).then(fragReadyFargs => {
+          // console.log('fragReadyFargs',fragReadyFargs);
           let persistReadyPromises = fragReadyFargs.map(f => {
-            return this.frag(f,undefined,counter)
+            return this.frag(f,undefined,counter);
           });
           return Promise.all(persistReadyPromises);
         }).then(persistReadyFargs => {
-          //console.log('persistReadyFargs',persistReadyFargs);
+          // console.log('persistReadyFargs',JSON.stringify(persistReadyFargs));
           let createReadyFrags = [];
           let updateReadyFrags = [];
           let unpersistReadyFrags = [];
           if(persistReadyFargs==undefined){
-            console.log('persistReadyFargs');
+            console.log('persistReadyFargs undefined');
           }
           persistReadyFargs = persistReadyFargs.forEach(persistReadyFarg => {
             if(!(persistReadyFarg.frag.data instanceof Object)){
@@ -205,10 +208,12 @@ module.exports = {
             }
 
           })
+          // console.log('createReadyFrags',JSON.stringify(createReadyFrags));
           let insertPromiseStack = this.fragmentModel.getInstance().model.insertMany(createReadyFrags, {
             new: true
           });
           let updatePromisesStack = updateReadyFrags.map(f => {
+            // console.log('updateReadyFrags',updateReadyFrags);
             return this.fragmentModel.getInstance().model.findOneAndUpdate({
               _id: f._id
             }, f, {
@@ -216,13 +221,14 @@ module.exports = {
               new: true
             }).lean().exec();
           })
-          let upersistPromiseStack= new Promise((resolve,reject)=>{
+          let unpersistPromiseStack= new Promise((resolve,reject)=>{
             resolve(unpersistReadyFrags)
           })
 
-          return Promise.all([insertPromiseStack, updatePromisesStack,upersistPromiseStack]);
+          return Promise.all([insertPromiseStack, updatePromisesStack,unpersistPromiseStack]);
         }).then(insertedAndUpdatedFrags => {
           let out = insertedAndUpdatedFrags[0].concat(insertedAndUpdatedFrags[1]).concat(insertedAndUpdatedFrags[2]);
+          // console.log('out',JSON.stringify(out));
           if (forceArray) {
             out = out[0];
           }
@@ -247,6 +253,7 @@ module.exports = {
       .lean()
       .exec()
       .then((fragmentReturn) => {
+        // console.log('fragmentReturn',fragmentReturn);
         resolve(fragmentReturn)
       }).catch(err => {
         console.log('-------- FAGMENT LIB ERROR -------| ', err);

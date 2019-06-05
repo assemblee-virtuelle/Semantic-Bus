@@ -130,7 +130,7 @@ class Engine {
         this.processNextBuildPath();
 
       } catch (e) {
-        console.log('EOORORRRR', e);
+        // console.log('EOORORRRR', e);
         reject(e)
       }
     })
@@ -341,6 +341,7 @@ class Engine {
             } else {
               try {
                 module.pull(processingNode.component, dataFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams).then(componentFlow => {
+                  // console.log('componentFlow',componentFlow);
                   processingNode.dataResolution = componentFlow
                   processingNode.status = 'resolved'
                   this.historicEndAndCredit(processingNode, startTime, undefined)
@@ -419,6 +420,7 @@ class Engine {
   }
 
   historicEndAndCredit(processingNode, startTime, error) {
+    // console.log('processingNode.dataResolution',processingNode.dataResolution);
     let dataFlow = processingNode.dataResolution
     let module = processingNode.component.module
     let specificData = processingNode.component.specificData
@@ -471,7 +473,7 @@ class Engine {
         error: historiqueEnd.error
       })
       if (processingNode.component.persistProcess == true) {
-        // console.log('addDataHistoriqueEnd',this.objectSizeOf(persistFlow));
+        // console.log('addDataHistoriqueEnd',dataFlow.data);
         this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id, error == undefined ? dataFlow.data : error).then(frag => {
           this.processNotifier.persist({
             componentId: historiqueEnd.componentId,

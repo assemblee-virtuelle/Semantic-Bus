@@ -40,7 +40,7 @@
   <script>
     this.data = {};
     this.updateData = function (data) {
-      //console.log('COMPONENT PREVIEW', data);
+      // console.log('COMPONENT PREVIEW', data);
       this.data = data;
       this.update();
       if (this.refs.jsonFragViewer) {
@@ -59,6 +59,7 @@
     }.bind(this);
 
     this.refreshFrag = function (data, nodeId) {
+      // console.log('refreshFrag',data, nodeId);
       this.refs.jsonFragViewer.refreshNode(data, nodeId);
     }.bind(this);
 

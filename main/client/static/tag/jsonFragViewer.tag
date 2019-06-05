@@ -6,10 +6,12 @@
     this.option = {};
     Object.defineProperty(this, "data", {
       set: function (data) {
-        console.log('JsonFragEditor set data|', data);
         this.mountEditor(data).then(editor => {
           //editor.set(data);
-          editor.settings.core.data = this.jsonToJsTree(data);
+          let tree = this.jsonToJsTree(data);
+          console.log('JsonFragEditor set tree|', tree);
+
+          editor.settings.core.data = tree;
           editor.refresh();
         });
         //  this.editor.set(data);
@@ -22,18 +24,20 @@
     });
 
     this.refreshNode = function (data, nodeId) {
-      console.log(data, nodeId);
+      console.log('refreshNode', data, nodeId);
       //let ref=$('#containerJSTREE').jstree(true)
       var node = this.editor.get_node(nodeId);
       //console.log(node);
       node.data['_frag'] = undefined;
       var children = this.editor.get_node(nodeId).children;
       this.editor.delete_node(children);
+      let focus =  this.editor.get_node(nodeId);
+      let keyText = focus.original.key;
       let jsTreeNodes = this.jsonToJsTree(data);
-      //  console.log(jsTreeNodes);
+      this.editor.rename_node(nodeId,keyText+':'+jsTreeNodes[0].text);
       jsTreeNodes[0].children.forEach(c => {
         this.editor.create_node(nodeId, c, 'last', function (e) {
-          console.log(e);
+          // console.log(e);
         });
       })
 
@@ -41,27 +45,30 @@
     }.bind(this);
 
     this.jsonToJsTree = function (data, key) {
-      //console.log('tree Generation',data);
+      console.log('tree Generation', data, key);
       let prefix = '';
       if (key != undefined) {
         prefix = key.toString();
       }
       let separator = ' ';
       if (data instanceof Object && data != null) {
-        let openingChar;
-        let closingChar;
+        let openingChar='';
+        let closingChar='';
         let size;
         if (Array.isArray(data)) {
           openingChar = '[';
           closingChar = ']';
           size = data.length.toString();
         } else {
-          openingChar = '{';
-          closingChar = '}';
+          if (data['_frag'] == undefined) {
+            openingChar = '{';
+            closingChar = '}';
+          }
           size = '';
         }
         let node = {
           text: prefix + separator + openingChar + size.toString() + closingChar,
+          key : prefix + separator,
           data: data,
           children: []
         }
