@@ -58,7 +58,9 @@ class GoogleGeoLocaliser {
               addressGoogleFormated = addressGoogleFormated + (address.country ? address.country + ',+' : '')
               var urlString = 'https://maps.googleapis.com/maps/api/geocode/json?'
               urlString = urlString + addressGoogleFormated
-              urlString = urlString + '&key=' + apiKey
+              urlString = urlString + '&key=' + apiKey;
+              urlString = encodeURI(urlString);
+              console.log('urlString',urlString);
               const parsedUrl = this.url.parse(urlString)
               const requestOptions = {
                 hostname: parsedUrl.hostname,
@@ -78,10 +80,12 @@ class GoogleGeoLocaliser {
                 // once all the data has been read, resolve the Promise
                 response.on('end', () => {
                   if (hasResponseFailed) {
+                    console.log('error',response);
                     resolve({
                       error: `Request to ${response.url} failed with HTTP ${response.statusCode}:${response.statusMessage}`
                     })
                   } else {
+                    console.log('response good');
                     let responseBodyObject = {}
                     try {
                       responseBodyObject = JSON.parse(responseBody)

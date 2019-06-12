@@ -52,7 +52,7 @@ class PromisesExecutor {
         promiseExecutor.execute().then((currentOut) => {
           //console.log("currentOut",currentOut);
           //console.log('Promise Sucess');
-          this.globalOut[currentOut.index] = currentOut.value;
+          this.globalOut[currentOut.index] = currentOut==undefined?undefined:currentOut.value;
           this.incrementResolved++;
           setTimeout(this.incrementExecute.bind(this),1)
           //this.incrementExecute();

@@ -126,7 +126,7 @@ function _getCurrentProcess(processId) {
   return new Promise((resolve, reject) => {
     processModel.getInstance().model.findOne(processId,(err, process) =>{
       if (err) {
-        reject(new Error.DataBaseProcessError(e))
+        reject(new Error.DataBaseProcessError(err))
       } else {
         resolve(process);
       }
