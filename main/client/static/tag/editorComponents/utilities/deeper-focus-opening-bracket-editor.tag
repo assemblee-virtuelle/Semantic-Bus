@@ -38,10 +38,10 @@
       this.data.specificData.dfobPath = e.target.value;
     }.bind(this);
     this.pipeNbChange = function (e) {
-      this.data.specificData.pipeNbChange = e.target.value;
+      this.data.specificData.pipeNb = e.target.value;
     }.bind(this);
     this.keepArrayChange = function (e) {
-      console.log(e.target, e.target.checked);
+      // console.log(e.target, e.target.checked);
       this.data.specificData.keepArray = e.target.checked;
     }.bind(this);
 

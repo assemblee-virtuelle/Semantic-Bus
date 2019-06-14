@@ -17,8 +17,8 @@ class MongoConnector {
           this.MongoClient.connect(url).then(client => {
             resolve(client)
           }).catch(e => {
-            console.log('ERROOR',e);
             e.displayMessage = 'connection to MongoDB database failed'
+            console.error('MongoDB Error',e);
             reject(e)
           })
 
@@ -176,10 +176,10 @@ class MongoConnector {
         // console.log('db',db);
         const collection = db.collection(collectionName)
         collection.remove({}).then(() => {
-          console.log('mongoInsert : records removed');
+          // console.log('mongoInsert : records removed');
           const arraySegmentator = new this.ArraySegmentator()
           let segmentFlow;
-          console.log('dataFlow',dataFlow);
+          // console.log('dataFlow',dataFlow);
           if(!Array.isArray(dataFlow)){
             segmentFlow=[dataFlow];
           }else{
@@ -192,7 +192,7 @@ class MongoConnector {
           promiseOrchestrator.execute(this, this.mongoInsertPromise, paramArray, {
             beamNb: 10
           }).then(() => {
-            console.log('mongoInsert : records inserted');
+            // console.log('mongoInsert : records inserted');
             resolve()
           })
         })
@@ -205,7 +205,7 @@ class MongoConnector {
   }
 
   mongoInsertPromise (collection, data) {
-    console.log("mongoInsertPromise",collection,data.length);
+    // console.log("mongoInsertPromise",collection,data.length);
     return collection.insertMany(data)
   }
 
