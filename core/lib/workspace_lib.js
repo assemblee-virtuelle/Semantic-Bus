@@ -112,7 +112,7 @@ function _createProcess(process) {
   return new Promise((resolve, reject) => {
     processModelObject.save(function (err, work) {
       if (err) {
-        reject(new Error.DataBaseProcessError(e))
+        reject(new Error.DataBaseProcessError(err))
       } else {
         resolve(work);
       }
