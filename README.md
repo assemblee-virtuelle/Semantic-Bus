@@ -93,8 +93,39 @@ make stop => kill all container
 docker container still alive sometime:
 ```
 docker kill semanticbus_mongo_1
-docker kill rabbitmq 
+docker kill rabbitmq
 ```
+
+### Docker for Mac specific instructions
+
+Start by cloning the repository from github, using a fresh copy of Semantic Bus is recommended.
+
+#### Configure and build
+
+After Docker for Mac launched, run following commands in your terminal:
+
+```bash
+# This is on purpose to use linux version
+export CONFIG_URL="https://data-players.github.io/StrongBox/public/dev-linux.json"
+
+# Pull the necessary images from docker hub
+docker pull semanticbus/rabbitmq-stomp mongo debian
+
+# Building local images
+docker build . -t semanticbus/main -f main/Dockerfile
+docker build . -t semanticbus/timer -f timer/Dockerfile
+docker build . -t semanticbus/engine -f engine/Dockerfile
+```
+
+#### Run, watch and stop
+
+To run Semantic Bus, execute `docker-compose -f docker-compose.devWithTimerForMac.yaml up -d` in your terminal.
+
+To watch, run `docker-compose -f docker-compose.devWithTimerForMac.yaml logs -f`. Use `^c` (Ctrl-c) to stop watching.
+
+Finally, to stop and remove the containers, run `docker-compose -f docker-compose.devWithTimerForMac.yaml down`.
+
+You can navigate to http://localhost:8080 and should be granted with a request to login.
 
 ### Application In Local ( Not recommended)
 * for mac we use docker-machine and not docker for mac in our configuration
@@ -102,7 +133,7 @@ docker kill rabbitmq
 For Mac
 export CONFIG_URL="https://data-players.github.io/StrongBox/public/dev-mac.json"
 && docker-compose -f docker-compose.local.yaml up -d
-For Linux        
+For Linux
 export CONFIG_URL="https://data-players.github.io/StrongBox/public/dev-linux.json" && docker-compose -f docker-compose.local.yaml up -d
 
 cd main && node app.js

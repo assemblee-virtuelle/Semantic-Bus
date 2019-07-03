@@ -57,6 +57,6 @@ RUN cd /data/ && npm cache clean --force && npm install
 
 ADD ./wait-for-it.sh /data/scripts/
 
-EXPOSE 80
+EXPOSE 8080
 
 CMD [ "pm2-runtime", "app.js", "--name" ,"main"]
