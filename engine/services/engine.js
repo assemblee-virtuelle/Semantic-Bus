@@ -1,6 +1,7 @@
 'use strict'
 
 const ProcessNotifier = require('./ProcessNotifier')
+const clone = require('clone');
 
 class Engine {
   constructor(component, requestDirection, amqpClient, callerId, pushData, queryParams) {
@@ -218,7 +219,8 @@ class Engine {
               d.componentId = sourceNode.component._id
               return d
             })
-            dataFlow = JSON.parse(JSON.stringify(dataFlow));
+            //important to not produce side effect
+            dataFlow = clone(dataFlow);
             if (module.getPrimaryFlow != undefined) {
               primaryflow = module.getPrimaryFlow(
                 processingNode.component,

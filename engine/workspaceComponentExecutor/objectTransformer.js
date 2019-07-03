@@ -14,7 +14,8 @@ class ObjectTransformer {
   }
 
   jsonTransform (source, jsonTransformPattern, pullParams) {
-    return this.objectTransformation.executeWithParams(source, pullParams, jsonTransformPattern)
+    let out =  this.objectTransformation.executeWithParams(source, pullParams, jsonTransformPattern)
+    return out;
   }
 
   pull (data, flowData, pullParams) {

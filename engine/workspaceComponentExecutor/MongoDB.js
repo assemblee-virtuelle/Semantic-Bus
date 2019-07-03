@@ -153,6 +153,7 @@ class MongoConnector {
   }
 
   insert (dataFlow, modelShema) {
+
     return modelShema.model
       .remove({})
       .exec()
@@ -206,6 +207,11 @@ class MongoConnector {
 
   mongoInsertPromise (collection, data) {
     // console.log("mongoInsertPromise",collection,data.length);
+    console.log('data',data[0]);
+    console.log('data newStart',data[0].newStart);
+    console.log('data Date',data[0].newStart instanceof Date);
+    console.log('data String',data[0].newStart instanceof String);
+    console.log('data typeof',typeof data[0].newStart);
     return collection.insertMany(data)
   }
 
@@ -214,6 +220,7 @@ class MongoConnector {
   }
 
   pull (data, dataFlow, queryParams) {
+
     if (dataFlow === undefined) {
       return new Promise(async (resolve, reject) => {
         let client;
@@ -230,6 +237,11 @@ class MongoConnector {
         }
       })
     } else {
+      console.log('dataFlow',dataFlow[0].data[0]);
+      console.log('dataFlow newStart',dataFlow[0].data[0].newStart);
+      console.log('dataFlow Date',dataFlow[0].data[0].newStart instanceof Date);
+      console.log('dataFlow String',dataFlow[0].data[0].newStart instanceof String);
+      console.log('dataFlow typeof',typeof dataFlow[0].data[0].newStart);
       return new Promise(async (resolve, reject) => {
         let client
         try {
