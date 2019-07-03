@@ -1,0 +1,78 @@
+version: '2'
+services:
+  timer:
+    container_name: timer
+    image: semanticbus/timer
+    environment:
+        - APP_PORT=8081
+        - NODE_ENV=development_docker
+        - CONFIG_URL=$CONFIG_URL
+    volumes:
+      - ./timer:/data/timer/
+      - ./core:/data/core/
+    ports:
+      - 8081:8081
+    links:
+        - mongodb
+        - rabbitmq
+    depends_on:
+        - mongodb
+        - rabbitmq
+    command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "nodemon", "-L", "--watch", "/data/timer/*",  "--watch", "/data/core/*",  "--ignore", "configuration.js",  "/data/timer/app.js"]
+
+  engine:
+    container_name: engine
+    image: semanticbus/engine
+    environment:
+        - APP_PORT=90
+        - NODE_ENV=development_docker
+        - CONFIG_URL=$CONFIG_URL
+    volumes:
+      - ./engine:/data/engine/
+      - ./core:/data/core/
+    ports:
+      - 90:90
+    links:
+        - mongodb
+        - rabbitmq
+    depends_on:
+        - mongodb
+        - rabbitmq
+    command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "nodemon", "-L", "--watch", "/data/engine/*", "--watch", "/data/core/*",  "--ignore", "configuration.js",   "/data/engine/app.js"]
+
+  main:
+    container_name: main
+    image: semanticbus/main
+    environment:
+        - APP_PORT=8080
+        - NODE_ENV=development_docker
+        - CONFIG_URL=$CONFIG_URL
+    volumes:
+      - ./main:/data/main/
+      - ./core:/data/core/
+    ports:
+      - 8080:8080
+    links:
+        - mongodb
+        - rabbitmq
+    depends_on:
+        - mongodb
+        - rabbitmq
+    command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "nodemon", "-L", "--watch", "/data/main/*",  "--watch", "/data/core/*",  "--ignore", "configuration.js",  "/data/main/app.js"]
+
+  rabbitmq:
+    image: semanticbus/rabbitmq-stomp
+    container_name: rabbitmq
+    ports:
+      - 5672:5672
+      - 15674:15674
+      - 15672:15672
+
+  mongodb:
+    image: mongo
+    restart: always
+    ports:
+      - 27017:27017
+    volumes:
+      - ./db:/data/db
+    command: --smallfiles
