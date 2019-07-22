@@ -237,11 +237,6 @@ class MongoConnector {
         }
       })
     } else {
-      console.log('dataFlow',dataFlow[0].data[0]);
-      console.log('dataFlow newStart',dataFlow[0].data[0].newStart);
-      console.log('dataFlow Date',dataFlow[0].data[0].newStart instanceof Date);
-      console.log('dataFlow String',dataFlow[0].data[0].newStart instanceof String);
-      console.log('dataFlow typeof',typeof dataFlow[0].data[0].newStart);
       return new Promise(async (resolve, reject) => {
         let client
         try {

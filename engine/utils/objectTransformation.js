@@ -4,8 +4,9 @@ module.exports = {
   transform: require('jsonpath-object-transform'),
   Intl: require('intl'),
   executeWithParams: function (source, pullParams, jsonTransformPattern) {
+    // console.log('executeWithParams',source);
     let out = this.execute(source, jsonTransformPattern)
-    // console.log('out',out);
+    // console.log('executeWithParams out',out);
     if (pullParams != undefined) {
       let newJsonTransformPattern = this.convertOperatorParams(jsonTransformPattern)
       // console.log("newJsonTransformPattern", newJsonTransformPattern, pullParams);
@@ -55,6 +56,13 @@ module.exports = {
     // console.log(jsonTransformPattern);
     // console.log(jsonSchema);
     // source={root:source};
+
+    try{
+      Intl.__disableRegExpRestore();
+    }catch(e){
+      console.error(e);
+    }
+
     jsonTransformPattern = {
       root: jsonTransformPattern
     }
@@ -109,7 +117,7 @@ module.exports = {
       }
       // console.log('jsonTransform | resultBeforUnresolved |', transformResult);
       var destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable)
-      // console.log('jsonTransform | afterUnresolved |', destResult);
+      console.log('jsonTransform | afterUnresolved |', destResult);
 
       if (dissociatePatternPostProcess == undefined) {
         // console.log('ALLO');
@@ -118,7 +126,7 @@ module.exports = {
         // console.log('jsonTransform | dissociatePatternPostProcess |', dissociatePatternPostProcess);
         postProcessResult = this.postProcess(destResult, dissociatePatternPostProcess)
       }
-      // console.log('jsonTransform | postProcessResult |', postProcessResult);
+      console.log('jsonTransform | postProcessResult |', postProcessResult);
     } catch (e) {
       // console.log('transform exception',e);
       postProcessResult = source
@@ -313,15 +321,15 @@ module.exports = {
                 // console.log('**********************************');
                 // console.log(evalParamValue);
                 evalParamValue = '`' + evalParamValue + '`'
+              } else if (evalParamValue instanceof Date) {
+                evalParamValue = `new Date('${evalParamValue}')`
               } else if (typeof evalParamValue === 'object') {
-                // evalParamValue= 'JSON.parse(\''+JSON.stringify(evalParamValue)+'\')';
+                // console.log('DATE eval',evalParamValue);
                 evalParamValue = JSON.stringify(evalParamValue)
                 evalParamValue = evalParamValue.replace(/\\/g, '\\\\')
-                // evalParamValue = evalParamValue.replace(/'/g, "\\'");
                 evalParamValue = 'JSON.parse(`' + evalParamValue + '`)';
-                // evalParamValue = evalParamValue.replace("'", "X");
-                // evalParamValue=evalParamValue.replace(":","X");
-                // console.log('evalParamValue |', evalParamValue);
+                // console.log('DATE post eval',evalParamValue);
+
               }
               let regExpValue = new RegExp('({\\' + evalParam + '})', 'g')
               javascriptEvalString = javascriptEvalString.replace(regExpValue, evalParamValue)
@@ -370,6 +378,7 @@ module.exports = {
 
   unresolveProcess: function (nodeIn, jsonTransformPattern) {
     var nodeOut
+    // console.log('nodeIn',nodeIn);
     if (Array.isArray(nodeIn)) {
       nodeOut = []
       //console.log(nodeIn,jsonTransformPattern);
@@ -389,7 +398,7 @@ module.exports = {
           // console.log('unresolveProcess | ',key,'|',jsonTransformPattern[key]);
           nodeOut[key] = jsonTransformPattern[key]
         }
-      } else if (typeof nodeIn[key] === 'object' && jsonTransformPattern != undefined) {
+      } else if (!nodeIn[key]  instanceof Date && typeof nodeIn[key] === 'object' && jsonTransformPattern != undefined) {
         if (Array.isArray(nodeIn)) {
           nodeOut.push(this.unresolveProcess(nodeIn[key], jsonTransformPattern[1]))
         } else {
@@ -401,8 +410,9 @@ module.exports = {
         nodeOut[key] = nodeIn[key]
       }
 
-      // console.log('ALLO',nodeOut);
+
     }
+    // console.log('nodeOut',nodeOut);
     // console.log('unresolveProcess intermediate| ',nodeOut);
     return nodeOut
   }

@@ -16,9 +16,10 @@ class JoinByField {
       try {
         let filter = {}
         filter[data.specificData.secondaryFlowId] = primaryRecord[data.specificData.primaryFlowFKId];
-        console.log('filter', filter);
+        // console.log('filter', filter);
+        // console.log(secondaryFlowData[1]);
         let result = this.sift(filter, secondaryFlowData);
-        console.log('result', result);
+        // console.log('result', result);
         if (data.specificData.multipleJoin == true) {
           primaryRecord[data.specificData.primaryFlowFKName] = result
         } else {
