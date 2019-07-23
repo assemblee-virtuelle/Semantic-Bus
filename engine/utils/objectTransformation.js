@@ -57,12 +57,6 @@ module.exports = {
     // console.log(jsonSchema);
     // source={root:source};
 
-    try{
-      Intl.__disableRegExpRestore();
-    }catch(e){
-      console.error(e);
-    }
-
     jsonTransformPattern = {
       root: jsonTransformPattern
     }
@@ -103,7 +97,7 @@ module.exports = {
     var dissociatePatternPostProcess = this.dissociatePatternPostProcess(jsonTransformPattern)
     //console.log('resolvable | ', JSON.stringify(dissociatePatternResolvable));
     // console.log('postProcess | ', JSON.stringify(dissociatePatternPostProcess));
-    //console.log('resolvable | ', dissociatePatternResolvable);
+    // console.log('jsonTransform | resolvable | ', JSON.stringify(dissociatePatternResolvable));
     //console.log('postProcess | ', dissociatePatternPostProcess);
     //console.log('source | ', JSON.stringify(source));
     //console.log('source | ', source);
@@ -115,9 +109,9 @@ module.exports = {
       if (Object.keys(transformResult)[0] == 'undefined') {
         transformResult = transformResult['undefined']
       }
-      // console.log('jsonTransform | resultBeforUnresolved |', transformResult);
+      // console.log('jsonTransform | resultBeforUnresolved |', JSON.stringify(transformResult));
       var destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable)
-      console.log('jsonTransform | afterUnresolved |', destResult);
+      // console.log('jsonTransform | afterUnresolved |', JSON.stringify(destResult));
 
       if (dissociatePatternPostProcess == undefined) {
         // console.log('ALLO');
@@ -126,7 +120,7 @@ module.exports = {
         // console.log('jsonTransform | dissociatePatternPostProcess |', dissociatePatternPostProcess);
         postProcessResult = this.postProcess(destResult, dissociatePatternPostProcess)
       }
-      console.log('jsonTransform | postProcessResult |', postProcessResult);
+      // console.log('jsonTransform | postProcessResult |', JSON.stringify(postProcessResult));
     } catch (e) {
       // console.log('transform exception',e);
       postProcessResult = source
@@ -398,7 +392,9 @@ module.exports = {
           // console.log('unresolveProcess | ',key,'|',jsonTransformPattern[key]);
           nodeOut[key] = jsonTransformPattern[key]
         }
-      } else if (!nodeIn[key]  instanceof Date && typeof nodeIn[key] === 'object' && jsonTransformPattern != undefined) {
+      } else if (nodeIn[key] instanceof Date){
+        nodeOut[key] = nodeIn[key]
+      } else if (typeof nodeIn[key] === 'object' && jsonTransformPattern != undefined) {
         if (Array.isArray(nodeIn)) {
           nodeOut.push(this.unresolveProcess(nodeIn[key], jsonTransformPattern[1]))
         } else {

@@ -5,24 +5,24 @@ const clone = require('clone');
 
 class Engine {
   constructor(component, requestDirection, amqpClient, callerId, pushData, queryParams) {
-    this.technicalComponentDirectory = require('./technicalComponentDirectory.js')
-    this.sift = require('sift')
-    this.objectSizeOf = require('object-sizeof')
-    this.workspace_component_lib = require('../../core/lib/workspace_component_lib')
-    this.workspace_lib = require('../../core/lib/workspace_lib')
-    this.user_lib = require('../../core/lib/user_lib')
-    this.config = require('../configuration.js')
-    let PromiseOrchestrator = require('../../core/helpers/promiseOrchestrator.js')
-    this.promiseOrchestrator = new PromiseOrchestrator()
-    this.fackCounter = 0
-    this.amqpClient = amqpClient
-    this.callerId = callerId
-    this.processId = null
-    this.originComponent = component
-    this.requestDirection = requestDirection
-    this.pushData = pushData
-    this.originQueryParams = queryParams
-    this.owner = null
+    this.technicalComponentDirectory = require('./technicalComponentDirectory.js');
+    this.sift = require('sift').default;
+    this.objectSizeOf = require('object-sizeof');
+    this.workspace_component_lib = require('../../core/lib/workspace_component_lib');
+    this.workspace_lib = require('../../core/lib/workspace_lib');
+    this.user_lib = require('../../core/lib/user_lib');
+    this.config = require('../configuration.js');
+    let PromiseOrchestrator = require('../../core/helpers/promiseOrchestrator.js');
+    this.promiseOrchestrator = new PromiseOrchestrator();
+    this.fackCounter = 0;
+    this.amqpClient = amqpClient;
+    this.callerId = callerId;
+    this.processId = null;
+    this.originComponent = component;
+    this.requestDirection = requestDirection;
+    this.pushData = pushData;
+    this.originQueryParams = queryParams;
+    this.owner = null;
   }
 
   resolveComponent() {
@@ -35,10 +35,11 @@ class Engine {
         this.componentsResolving = components
         let workflow = await this.workspace_lib.getWorkspace(this.originComponent.workspaceId);
         this.workflow = workflow
-        let ownerUserMail = this.sift({
+        console.log(this.sift);
+        let ownerUserMail = this.workflow.users.filter(
+          this.sift({
             role: 'owner'
-          },
-          this.workflow.users
+          })
         )[0]
         let user = await this.user_lib.get({
           'credentials.email': ownerUserMail.email
@@ -47,11 +48,9 @@ class Engine {
           component.specificData = component.specificData || {}
         })
 
-        this.originComponent = this.sift({
-            _id: this.originComponent._id
-          },
-          this.componentsResolving
-        )[0];
+        this.originComponent = this.componentsResolving.filter(this.sift({
+          _id: this.originComponent._id
+        }))[0];
 
         let workAskModule = this.technicalComponentDirectory[this.originComponent.module]
         // console.log('workCallModule',workCallModule);
@@ -116,9 +115,9 @@ class Engine {
 
         /// -------------- push case  -----------------------
         if (this.requestDirection == 'push') {
-          let originNode = this.sift({
+          let originNode = this.pathResolution.nodes.filter(this.sift({
             'component._id': this.originComponent._id
-          }, this.pathResolution.nodes)[0]
+          }))[0];
           originNode.dataResolution = {
             data: this.pushData
           }
@@ -162,32 +161,33 @@ class Engine {
           }))
         }
         let processingNode
-        let nodeWithoutIncoming = this.sift({
-            $and: [{
-                sources: {
-                  $size: 0
-                }
-              },
-              {
-                status: 'waiting'
+        let nodeWithoutIncoming = this.pathResolution.nodes.filter(this.sift({
+          $and: [{
+              sources: {
+                $size: 0
               }
-            ]
-          },
-          this.pathResolution.nodes
-        )
+            },
+            {
+              status: 'waiting'
+            }
+          ]
+        }));
+
+
         if (nodeWithoutIncoming.length > 0) {
           // console.log('source component', nodeWithoutIncoming[0]);
           processingNode = nodeWithoutIncoming[0]
         } else {
-          let nodeWithAllIncomingResolved = this.sift({
-              status: 'waiting'
-            },
-            this.pathResolution.nodes
-          )
+
+          let nodeWithAllIncomingResolved = this.pathResolution.nodes.filter(this.sift({
+            status: 'waiting'
+          }));
+
           nodeWithAllIncomingResolved.every(n => {
-            let nbSourcesResolved = this.sift({
+            let nbSourcesResolved = n.sources.filter(this.sift({
               'source.status': 'resolved'
-            }, n.sources).length
+            })).length;
+
             // console.log('source resolved size', nbSourcesResolved, n.sources.length);
             if (n.sources.length == nbSourcesResolved) {
               processingNode = n
@@ -201,12 +201,9 @@ class Engine {
         if (processingNode != undefined) {
           let startTime = new Date()
           // processingLink.status = 'processing';
-          let nodesProcessingInputs = this.sift({
-              'targets.target.component._id': processingNode.component._id
-              //  status: "processing"
-            },
-            this.pathResolution.nodes
-          )
+          let nodesProcessingInputs = this.pathResolution.nodes.filter(this.sift({
+            'targets.target.component._id': processingNode.component._id
+          }));
 
           let module = this.technicalComponentDirectory[processingNode.component.module]
           let dataFlow
@@ -376,11 +373,10 @@ class Engine {
           }
         } else {
           // console.log('END');
-          let nodeOnError = this.sift({
-              status: 'error'
-            },
-            this.pathResolution.nodes
-          )
+
+          let nodeOnError = this.pathResolution.nodes.filter(this.sift({
+            status: 'error'
+          }));
 
           if (nodeOnError.length > 0) {
             this.processNotifier.error({
@@ -586,9 +582,7 @@ class Engine {
         }
       }
 
-      let existingNodes = this.sift(existingNodesFilter,
-        buildPath.nodes
-      )
+      let existingNodes = buildPath.nodes.filter(this.sift(existingNodesFilter));
 
       let buildPathNode
       if (existingNodes.length == 0) {
@@ -614,13 +608,13 @@ class Engine {
         }
       }
 
-      let connectionsBefore = this.sift({
+      let connectionsBefore = workspace.links.filter(this.sift({
         target: component._id
-      }, workspace.links)
+      }));
 
-      let connectionsAfter = this.sift({
+      let connectionsAfter = workspace.links.filter(this.sift({
         source: component._id
-      }, workspace.links)
+      }));
 
       if (requestDirection != 'push') {
         if (
@@ -629,11 +623,9 @@ class Engine {
         ) {
           for (var beforelink of connectionsBefore) {
             // console.log(beforeComponent);
-            var beforeComponentObject = this.sift({
-                _id: beforelink.source
-              },
-              usableComponents
-            )[0]
+            var beforeComponentObject = usableComponents.filter(this.sift({
+              _id: beforelink.source
+            }))[0];
 
             if (beforeComponentObject) {
               let existingLinkFilter = {
@@ -646,9 +638,8 @@ class Engine {
                   $eq: undefined
                 }
               }
-              var existingLink = this.sift(existingLinkFilter,
-                buildPath.links
-              )
+
+              var existingLink = buildPath.links.filter(this.sift(existingLinkFilter));
               if (existingLink.length == 0) {
                 var linkToProcess = {
                   // sourceComponentId: beforeComponentObject._id,
@@ -684,11 +675,10 @@ class Engine {
         ) {
           for (var afterlink of connectionsAfter) {
             // console.log(beforeComponent);
-            var afterComponentObject = this.sift({
-                _id: afterlink.target
-              },
-              usableComponents
-            )[0]
+            var afterComponentObject = usableComponents.filter(this.sift({
+              _id: afterlink.target
+            }))[0];
+
             // console.log("beforeComponentObject",beforeComponentObject);
             // protection against dead link
             if (afterComponentObject) {
@@ -702,9 +692,8 @@ class Engine {
                   $eq: undefined
                 }
               }
-              var existingLink = this.sift(existingLinkFilter,
-                buildPath.links
-              )
+              var existingLink = buildPath.links.filter(this.sift(existingLinkFilter));
+
               if (existingLink.length == 0) {
                 var linkToProcess = {
                   // sourceComponentId: beforeComponentObject._id,

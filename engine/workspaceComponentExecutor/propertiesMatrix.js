@@ -1,7 +1,6 @@
 'use strict';
 class PropertiesMatrix {
   constructor () {
-    this.sift = require('sift')
     this.transform = require('jsonpath-object-transform')
     this.dotProp = require('dot-prop')
   }

@@ -1,7 +1,6 @@
 'use strict'
 class Scrapper {
   constructor () {
-    this.sift = require('sift');
     this.webdriverio = require('webdriverio');
     this.base = require('./wdio.conf.base');
     this.stringReplacer = require('../../utils/stringReplacer');

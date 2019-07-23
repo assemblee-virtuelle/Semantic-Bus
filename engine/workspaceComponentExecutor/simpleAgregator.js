@@ -1,7 +1,6 @@
 'use strict';
 class SimpleAgregator {
   constructor () {
-    this.sift = require('sift')
     this.transform = require('jsonpath-object-transform')
   }
   pull (data, flowData) {

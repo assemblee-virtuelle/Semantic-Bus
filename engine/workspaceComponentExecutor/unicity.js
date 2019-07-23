@@ -7,7 +7,7 @@ class UnicityExecutor {
     this.increment = 0
     this.incrementResolved = 0
     this.globalOut = []
-    this.sift = require('sift')
+    this.sift = require('sift').default
   }
 
   execute () {
@@ -46,9 +46,9 @@ class UnicityExecutor {
           }
           let keysInUnicity = []
           if (this.specificData.unicityFields != undefined) {
-            keysInUnicity = this.sift({
+            keysInUnicity =this.specificData.unicityFields.filter(this.sift({
               field: key
-            }, this.specificData.unicityFields)
+            }));
           }
           // console.log('keysInUnicity',key,keysInUnicity);
           if (keysInUnicity.length > 0) {
@@ -64,6 +64,7 @@ class UnicityExecutor {
         // console.log('filter',source,filter);
 
         if (Object.keys(filter.key).length !== 0) {
+          let everExistingData = this.globalOut.filter(this.sift(filter));
           let everExistingData = this.sift(filter, this.globalOut)
           if (everExistingData.length > 0) {
             // console.log('everExistingData', this.globalOut.indexOf(everExistingData[0]), filter);
@@ -101,7 +102,6 @@ class Unicity {
     this.description = 'Structurer les données en vérifiant l\'unicité par champ et répartir les valeurs par source.'
     this.editor = 'unicity-editor'
     this.graphIcon = 'Unicity.svg'
-    this.sift = require('sift')
     this.transform = require('jsonpath-object-transform')
     this.dotProp = require('dot-prop')
     this.tags = [

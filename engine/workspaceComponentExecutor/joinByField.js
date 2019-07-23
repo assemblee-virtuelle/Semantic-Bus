@@ -1,13 +1,13 @@
 'use strict';
 class JoinByField {
   constructor() {
-    this.sift = require('sift');
+    this.sift = require('sift').default;
     this.PromiseOrchestrator = require('../../core/helpers/promiseOrchestrator')
   }
   getPrimaryFlow(data, flowData) {
-    var primaryFlow = this.sift({
+    var primaryFlow = flowData.filter(this.sift({
       componentId: data.specificData.primaryComponentId
-    }, flowData)
+    }));
     return primaryFlow[0]
   }
   join(primaryRecord, secondaryFlowData, data) {
@@ -18,7 +18,7 @@ class JoinByField {
         filter[data.specificData.secondaryFlowId] = primaryRecord[data.specificData.primaryFlowFKId];
         // console.log('filter', filter);
         // console.log(secondaryFlowData[1]);
-        let result = this.sift(filter, secondaryFlowData);
+        let result = secondaryFlowData.filter(this.sift(filter));
         // console.log('result', result);
         if (data.specificData.multipleJoin == true) {
           primaryRecord[data.specificData.primaryFlowFKName] = result
@@ -36,13 +36,13 @@ class JoinByField {
 
     return new Promise((resolve, reject) => {
       try {
-        var secondaryFlowData = this.sift({
+        var secondaryFlowData = flowData.filter(this.sift({
           componentId: data.specificData.secondaryComponentId
-        }, flowData)[0].data
-        var primaryFlowData = this.sift({
+        }))[0].data;
+        var primaryFlowData =flowData.filter(this.sift({
           componentId: data.specificData.primaryComponentId
-        }, flowData)[0].data
-
+        }))[0].data;
+        
         if (!Array.isArray(secondaryFlowData)) {
           // console.log('ALLO ERROR');
           resolve({
