@@ -20,7 +20,7 @@ class SqlConnector {
         host: host,
         port: port,
         dialect: driver,
-        ssl: true,
+        ssl: false,
         pool: {
           max: 100,
           min: 0,
@@ -35,14 +35,15 @@ class SqlConnector {
     // console.log("----- create model sql-----")
     return new Promise(function (resolve, reject) {
       sequelize.authenticate().then(() => {
-        // console.log('Connection has been established successfully.');
-        dataModel = {}
+        console.log('Connection has been established successfully.');
+        let dataModel = {}
         var name = modelName
         for (property in data) {
           dataModel[property] = {
             type: eval('this.Sequelize.' + data[property])
           }
         }
+        console.log('dataModel',dataModel);
         this.modelShema = sequelize.define(name,
           dataModel, {
             timestamps: false

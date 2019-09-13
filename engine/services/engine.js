@@ -35,7 +35,6 @@ class Engine {
         this.componentsResolving = components
         let workflow = await this.workspace_lib.getWorkspace(this.originComponent.workspaceId);
         this.workflow = workflow
-        console.log(this.sift);
         let ownerUserMail = this.workflow.users.filter(
           this.sift({
             role: 'owner'

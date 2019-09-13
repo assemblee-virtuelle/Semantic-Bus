@@ -27,7 +27,7 @@ class ValueFromPath {
       return out
     } else {
       if (pathArray.length == 0) {
-        // console.log('RFP2',node,currentKey);
+        console.log('RFP end',node,currentKey,pathObject);
         let out = node;
         // console.log('ALLO1');
         if (Array.isArray(node)) {
