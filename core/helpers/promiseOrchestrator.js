@@ -21,6 +21,10 @@ class PromisesExecutor {
     this.paramArray = paramArray;
     this.option = option || {};
     this.option.beamNb = this.option.beamNb || 1;
+    this.option.beamNb = parseInt(this.option.beamNb);
+    if(isNaN(this.option.beamNb)){
+      throw new Error("beamNb have to be a number")
+    }
     this.config = config;
   }
 
@@ -28,16 +32,19 @@ class PromisesExecutor {
     return new Promise((resolve, reject) => {
       this.initialPromiseResolve = resolve;
       this.initialPromiseReject = reject;
-      //console.log("length",this.paramArray.length);
-      if(this.paramArray.length==0){
-        this.initialPromiseResolve([]);
-      }else{
-        for (let i = 0; i < Math.min(this.option.beamNb, this.paramArray.length); i++) {
-          //console.log("i",i);
-          this.incrementExecute();
+      console.log("length",this.paramArray.length);
+      try {
+        if(this.paramArray.length==0){
+          this.initialPromiseResolve([]);
+        }else{
+          for (let i = 0; i < Math.min(this.option.beamNb, this.paramArray.length); i++) {
+            // console.log("i",i);
+            this.incrementExecute();
+          }
         }
+      } catch (e) {
+        this.initialPromiseReject(e);
       }
-
     });
   }
 

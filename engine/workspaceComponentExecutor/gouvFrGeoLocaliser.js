@@ -27,6 +27,9 @@ class GouvFrGeoLocaliser {
             for (var geoLocalisationKey in geoLocalisations) {
               let record = source[geoLocalisationKey]
               if (geoLocalisations[geoLocalisationKey].error == undefined && geoLocalisations[geoLocalisationKey].features != undefined && geoLocalisations[geoLocalisationKey].features[0] != undefined) {
+                // geoLocalisations[geoLocalisationKey].features.forEach(f=>{
+                //   console.log('geoLocalisations[geoLocalisationKey]',f);
+                // })
                 record[specificData.latitudePath] = geoLocalisations[geoLocalisationKey].features[0].geometry.coordinates[1]
                 record[specificData.longitudePath] = geoLocalisations[geoLocalisationKey].features[0].geometry.coordinates[0]
 
@@ -71,11 +74,13 @@ class GouvFrGeoLocaliser {
 
             var addressGouvFrFormated = ''
             addressGouvFrFormated = addressGouvFrFormated + (address.street ? address.street + ' ' : '')
-            addressGouvFrFormated = addressGouvFrFormated + (address.town ? address.town + ' ' : '')
             addressGouvFrFormated = addressGouvFrFormated + (address.postalCode ? address.postalCode + ' ' : '')
+            addressGouvFrFormated = addressGouvFrFormated + (address.town ? address.town + ' ' : '')
+
             // TODO notify user the adresse is too long (200)
             addressGouvFrFormated = addressGouvFrFormated.substr(0, 199)
             // addressGouvFrFormated = addressGouvFrFormated + (address.country ? address.country + ' ' : '');
+            // console.log('addressGouvFrFormated',addressGouvFrFormated);
             if (addressGouvFrFormated.length > 0) {
               goePromises.push(
                 new Promise((resolve, reject) => {

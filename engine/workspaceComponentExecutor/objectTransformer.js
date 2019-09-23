@@ -20,14 +20,18 @@ class ObjectTransformer {
 
   pull (data, flowData, pullParams) {
     return new Promise((resolve, reject) => {
-      if (flowData != undefined) {
-        resolve({
-          data: this.jsonTransform(flowData[0].data, data.specificData.transformObject, pullParams)
-        })
-      } else {
-        resolve({
-          data: this.jsonTransform({}, data.specificData.transformObject, pullParams)
-        })
+      try {
+        if (flowData != undefined) {
+          resolve({
+            data: this.jsonTransform(flowData[0].data, data.specificData.transformObject, pullParams)
+          })
+        } else {
+          resolve({
+            data: this.jsonTransform({}, data.specificData.transformObject, pullParams)
+          })
+        }
+      } catch (e) {
+        reject(e);
       }
     })
   }

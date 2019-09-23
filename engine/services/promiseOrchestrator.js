@@ -1,4 +1,5 @@
 'use strict'
+//DEPRECATED -> core
 class PromiseOrchestrator {
   execute (workFunction, paramArray, option) {
     let executor = new PromiseExecutor()

@@ -21,7 +21,7 @@ module.exports = {
             // console.log('interval',now - (interval * 1000 * 60), lastExec);
             if (nextExec == undefined || nextExec<now) {
               if (dedicaded) {
-                console.log('Timer dedidated!', c._id,c.workspaceId);
+                // console.log('Timer dedidated!', c._id,c.workspaceId);
 
                 const payload = {
                   exp: this.moment().add(14, 'days').unix(),
