@@ -14,13 +14,37 @@
     <div class="bar"/>
   </div>
   <!-- Champ du composant -->
-  <label class="labelFormStandard">Ignorer la valeur source:</label>
-  <label class="cardInput">
-    <span class="switch" style="margin-left:10px;">
-      <input type="checkbox" name="forgetOriginalValueInput" ref="forgetOriginalValueInput" checked={data.specificData.forgetOriginalValue} />
-      <span class="slider round"></span>
-    </span>
-  </label>
+  <div class="containerH" style="justify-content:space-between">
+    <div class="options">
+      <label class="labelFormStandard">Ignorer la valeur source:</label>
+      <div class="cardInput">
+        <label class="switch">
+            <input type="checkbox" name="forgetOriginalValueInput" ref="forgetOriginalValueInput" checked={data.specificData.forgetOriginalValue} onchange={forgetOriginalValueChange}/>
+            <span class="slider round"></span>
+        </label>
+      </div>
+    </div>
+    <div class="options">
+      <label class="labelFormStandard">Ignorer les majuscules:</label>
+      <div class="cardInput">
+        <label class="switch">
+            <input type="checkbox" name="ignoreCase" ref="ignoreCaseInput" checked={data.specificData.ignoreCase} onchange={ignoreCaseChange}/>
+            <span class="slider round"></span>
+        </label>
+      </div>
+    </div>
+    <div class="options">
+      <label class="labelFormStandard">Ignorer les accents:</label>
+      <div class="cardInput">
+        <label class="switch">
+            <input type="checkbox" name="ignoreAccent" ref="ignoreAccentInput" checked={data.specificData.ignoreAccent} onchange={ignoreAccentChange}/>
+            <span class="slider round"></span>
+        </label>
+      </div>
+    </div>
+  </div>
+
+
 
   <label class="labelFormStandard">Ajouter une valeur</label>
   <div class="cardInput">
@@ -30,7 +54,7 @@
       <input onchange={import} ref="import" type="file" style="display:none;"/>
     </div>
   </div>
-    
+
   <zentable ref="mappingTable" style="flex:1" drag={true} title="vos changement de valeurs" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
     <yield to="header">
       <div class="containerTitle">
@@ -65,6 +89,16 @@
       this.refs.mappingTable.data.push({})
     }
 
+    forgetOriginalValueChange(e){
+        this.data.specificData.forgetOriginalValue = event.target.checked
+    }
+    ignoreCaseChange(e){
+        this.data.specificData.ignoreCase = event.target.checked
+    }
+    ignoreAccentChange(e){
+        this.data.specificData.ignoreAccent = event.target.checked
+    }
+
     this.on('mount', function () {
       this.refs.mappingTable.on('dataChanged', data => {
         this.data.specificData.mappingTable = data;
@@ -75,9 +109,9 @@
       });
       RiotControl.on('item_current_changed', this.updateData);
 
-      this.refs.forgetOriginalValueInput.addEventListener('change', event => {
-        this.data.specificData.forgetOriginalValue = event.target.checked
-      });
+      // this.refs.forgetOriginalValueInput.addEventListener('change', event => {
+      //   this.data.specificData.forgetOriginalValue = event.target.checked
+      // });
     });
 
     this.on('unmount', function () {
@@ -100,7 +134,7 @@
       color: white;
       text-transform: uppercase;
       text-align: center;
-      
+
       text-align: center;
     }
     .tableTitleExit {
@@ -134,6 +168,6 @@
       align-items: center;
       display: flex;
     }
-  
+
   </style>
 </value-mapping-editor>

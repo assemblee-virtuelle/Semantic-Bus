@@ -32,6 +32,7 @@ module.exports = function (router, amqpClient) {
       }).then(async (data) => {
         const engine = require('../services/engine.js')
         engine.execute(data, direction, amqpClient, undefined, pushData, queryParams).then(engineResult=>{
+          // console.log('engineResult',JSON.stringify(engineResult));
           res.send(engineResult)
         }).catch(errors=>{
           if(Array.isArray(errors)){

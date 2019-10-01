@@ -5,12 +5,15 @@ module.exports = {
   Intl: require('intl'),
   executeWithParams: function (source, pullParams, jsonTransformPattern) {
     // console.log('executeWithParams',source);
+
     let out = this.execute(source, jsonTransformPattern,pullParams != undefined)
-    // console.log('executeWithParams out',out);
+    // console.log('executeWithParams out',JSON.stringify(out));
     if (pullParams != undefined) {
       //let newJsonTransformPattern = this.convertOperatorParams(jsonTransformPattern)
+
       let newJsonTransformPattern = this.convertOperatorParams(out)
-      console.log("newJsonTransformPattern", newJsonTransformPattern, pullParams);
+      // console.log("newJsonTransformPattern", JSON.stringify(newJsonTransformPattern));
+      // console.log("pullParams", JSON.stringify(pullParams));
       out = this.execute(pullParams, newJsonTransformPattern)
       // console.log('out1', out);
       // console.log('out2', out2);
@@ -51,6 +54,7 @@ module.exports = {
   },
 
   execute: function (source, jsonTransformPattern,skeepUnresolved) {
+
     // console.log("source", source,'jsonTransformPattern', jsonTransformPattern )
     // console.log('Object Transformer | source',source,' | pattern | ',jsonTransformPattern);
     // console.log(source);
@@ -105,14 +109,16 @@ module.exports = {
     var postProcessResult
     try {
       var transformResult = this.transform(source, dissociatePatternResolvable)
+
       // console.log('jsonTransform | resultBeforUnresolved |', JSON.stringify(transformResult));
       //TODO documentation why (seems for array)
       if (Object.keys(transformResult)[0] == 'undefined') {
         transformResult = transformResult['undefined']
       }
-      console.log('jsonTransform | resultBeforUnresolved |', JSON.stringify(transformResult));
+
+      // console.log('jsonTransform | resultBeforUnresolved |', JSON.stringify(transformResult));
       var destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable,skeepUnresolved)
-      console.log('jsonTransform | afterUnresolved |', JSON.stringify(destResult));
+      // console.log('jsonTransform | afterUnresolved |', JSON.stringify(destResult));
       // var destResult;
       // // console.log('skeepUnresolved',skeepUnresolved);
       // if(skeepUnresolved!=true){
@@ -125,16 +131,16 @@ module.exports = {
         // console.log('ALLO');
         postProcessResult = destResult
       } else {
-        console.log('jsonTransform | dissociatePatternPostProcess |', dissociatePatternPostProcess);
+        // console.log('jsonTransform | dissociatePatternPostProcess |', dissociatePatternPostProcess);
         postProcessResult = this.postProcess(destResult, dissociatePatternPostProcess)
       }
       // console.log('jsonTransform | postProcessResult |', JSON.stringify(postProcessResult));
     } catch (e) {
-      // console.log('transform exception',e);
+      console.log('transform exception',e);
       postProcessResult = source
     }
 
-    // console.log(postProcessResult);
+    // console.log('postProcessResult',JSON.stringify(postProcessResult));
     return postProcessResult.root
   },
   dissociatePatternResolvable: function (nodeIn, depth, everArrayPath) {
@@ -164,7 +170,7 @@ module.exports = {
 
     for (var key in nodeIn) {
       // console.log('node |', typeof nodeIn[key], ' | ', nodeIn[key]);
-      if (typeof nodeIn[key] === 'object') {
+      if (typeof nodeIn[key] === 'object' && nodeIn[key]!=null) {
         // console.log('----');
         // console.log(key, Array.isArray(nodeOut));
         if (Array.isArray(nodeOut)) {
@@ -173,8 +179,10 @@ module.exports = {
           nodeOut[key] = this.dissociatePatternResolvable(nodeIn[key], depth + 1, everArrayPath)
         }
       } else {
-        nodeOut[key] = null
-        if (typeof nodeIn[key] === 'string') {
+        nodeOut[key] = undefined
+        if (nodeIn[key] == null) {
+          nodeOut[key]=undefined;
+        }else if (typeof nodeIn[key] === 'string') {
           const regex = /^=(.*)/g
           const str = nodeIn[key]
           if (str.match(regex) != null) {
@@ -193,7 +201,7 @@ module.exports = {
             }
           }
 
-          if (nodeOut[key] == null) {
+          if (nodeOut[key] == undefined) {
             nodeOut[key] = nodeIn[key]
           }
         } else if (typeof nodeIn[key] === 'number') {
@@ -281,7 +289,7 @@ module.exports = {
     if (atLeastOneProperty == false) {
       nodeOut = undefined
     }
-    console.log('nodeOut',nodeOut);
+    // console.log('nodeOut',nodeOut);
     // console.log(nodeOut);
     return nodeOut
   },
@@ -314,7 +322,7 @@ module.exports = {
             //console.log('nodeInData[nodeInDataProperty] |', nodeInData[nodeInDataProperty]);
             for (let evalParam in nodeInData[nodeInDataProperty]) {
               // console.log('evalParam',evalParam);
-              console.log('evalParam',evalParam,nodeInData[nodeInDataProperty]);
+              // console.log('evalParam',evalParam,nodeInData[nodeInDataProperty]);
               var evalParamValue = nodeInData[nodeInDataProperty][evalParam]
               //console.log('evalParam |',evalParam,' | evalParamValue | ',evalParamValue);
               //console.log('typeof evalParamValue',typeof evalParamValue);
@@ -342,9 +350,9 @@ module.exports = {
               let regExpValue = new RegExp('({\\' + evalParam + '})', 'g')
               javascriptEvalString = javascriptEvalString.replace(regExpValue, evalParamValue)
             }
-            console.log('javascriptEvalString | ',javascriptEvalString);
+            // console.log('javascriptEvalString | ',javascriptEvalString);
             try {
-              console.log('includes',javascriptEvalString.includes('£'));
+              // console.log('includes',javascriptEvalString.includes('£'));
               if(javascriptEvalString.includes('£')){
                 nodeOut[nodeInDataProperty]='='+javascriptEvalString
               }
@@ -361,7 +369,7 @@ module.exports = {
                 evalString: javascriptEvalString,
                 cause: e.message
               }
-              console.log('Javascript Eval failed ', javascriptEvalString, e.message);
+              // console.log('Javascript Eval failed ', javascriptEvalString, e.message);
             }
           } else if (nodeInPostProcess[nodeInDataProperty].process == 'arrayHack') {
             // console.log('arrayHack',nodeInDataProperty);
