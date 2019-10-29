@@ -46,12 +46,12 @@ RUN npm -v
 ARG CONFIG_URL
 ARG PM2_PUBLIC_KEY
 ARG PM2_SECRET_KEY
-ARG ENV 
+ARG ENV
 
 RUN if [ "$ENV" == "production" ]; \
     then  npm install -g pm2 2> /dev/null; \
     else  npm install nodemon -g 2> /dev/null; \
-    fi 
+    fi
 
 ENV CONFIG_URL=$CONFIG_URL
 ENV PM2_PUBLIC_KEY=$PM2_PUBLIC_KEY
@@ -68,6 +68,4 @@ RUN cd /data && npm cache clean --force && npm install
 
 EXPOSE 8080
 
-CMD [ "pm2-runtime", "app.js" ,"--name" ,"engine"]
-
-
+CMD [ "pm2-runtime", "app.js" ,"--node-args","--max-old-space-size=2048","--name" ,"engine"]

@@ -32,7 +32,7 @@ class PromisesExecutor {
     return new Promise((resolve, reject) => {
       this.initialPromiseResolve = resolve;
       this.initialPromiseReject = reject;
-      console.log("length",this.paramArray.length);
+      // console.log("length",this.paramArray.length);
       try {
         if(this.paramArray.length==0){
           this.initialPromiseResolve([]);

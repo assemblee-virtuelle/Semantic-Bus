@@ -19,6 +19,7 @@ class ObjectTransformer {
   }
 
   pull (data, flowData, pullParams) {
+    console.log('ObjectTransformer pull',flowData,pullParams);
     return new Promise((resolve, reject) => {
       try {
         if (flowData != undefined) {
