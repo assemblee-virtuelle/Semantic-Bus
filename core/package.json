@@ -61,7 +61,7 @@
     "rdfstore": "^0.9.17",
     "recluster": "^0.4.5",
     "request": "^2.88.0",
-    "sequelize": "^4.3.2",
+    "sequelize": "^5.15.1",
     "sheetrock": "^1.1.4",
     "should": "^11.2.1",
     "sift": "^5.1.0",
