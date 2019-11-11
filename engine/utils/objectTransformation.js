@@ -101,13 +101,13 @@ module.exports = {
     var dissociatePatternResolvable = this.dissociatePatternResolvable(jsonTransformPattern)
     var dissociatePatternPostProcess = this.dissociatePatternPostProcess(jsonTransformPattern)
 
-    console.log('jsonTransform | postProcess | ', JSON.stringify(dissociatePatternPostProcess));
-    console.log('jsonTransform | resolvable | ', JSON.stringify(dissociatePatternResolvable));
-    // console.log('jsonTransform | postProcess | ', dissociatePatternPostProcess);
-    // console.log('jsonTransform | resolvable | ', dissociatePatternResolvable);
+    // console.log('jsonTransform | postProcess | ', JSON.stringify(dissociatePatternPostProcess));
+    // console.log('jsonTransform | resolvable | ', JSON.stringify(dissociatePatternResolvable));
+    console.log('jsonTransform | postProcess | ', dissociatePatternPostProcess);
+    console.log('jsonTransform | resolvable | ', dissociatePatternResolvable);
 
-    console.log('source | ', JSON.stringify(source));
-    // console.log('source | ', source);
+    // console.log('jsonTransform | source | ', JSON.stringify(source));
+    console.log('jsonTransform | source | ', source);
     var postProcessResult
     try {
       var transformResult = this.transform(source, dissociatePatternResolvable)

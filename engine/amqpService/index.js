@@ -26,6 +26,7 @@ module.exports = function (router, amqpClient) {
       const componentId = req.params.componentId
       const pushData = req.body.pushData
       const queryParams = req.body.queryParams
+      // console.log('queryParams',req.body);
       const direction = req.body.direction || 'work'
       workspace_component_lib.get({
         _id: componentId

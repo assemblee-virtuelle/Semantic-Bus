@@ -4,7 +4,7 @@ services:
   timer:
     build:
       context: .
-      dockerfile: ./timer/Dockerfile
+      dockerfile: ./timer/Dockerfile-alpin
     container_name: timer
     image: semanticbus/timer
     environment:
@@ -31,7 +31,7 @@ services:
   engine:
     build:
       context: .
-      dockerfile: ./engine/Dockerfile
+      dockerfile: ./engine/Dockerfile-alpin
     container_name: engine
     image: semanticbus/engine
     environment:
@@ -58,7 +58,7 @@ services:
   main:
     build:
       context: .
-      dockerfile: ./main/Dockerfile
+      dockerfile: ./main/Dockerfile-alpin
     container_name: main
     image: semanticbus/main
     environment:

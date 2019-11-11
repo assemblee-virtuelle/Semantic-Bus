@@ -20,6 +20,8 @@ class RestGetJson {
           headers[header.key] = header.value
         }
       }
+      headers["SemanticBus-User"]="test"
+
       let parsedUrl = this.url.parse(urlString);
       // console.log('parsedUrl',parsedUrl);
       var requestOptions = {}
@@ -30,7 +32,12 @@ class RestGetJson {
       requestOptions.headers = headers
       requestOptions.headers.Accept = 'application/xhtml+xml,application/xml,application/json,application/ld+json'
       requestOptions.headers['User-Agent'] = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/62.0.3202.94 Chrome/62.0.3202.94 Safari/537.36'
-      requestOptions.headers['Cache-Control'] = 'private, no-cache, no-store, must-revalidate'
+      requestOptions.headers['Cache-Control'] = 'private, no-cache, no-store, must-revalidate';
+      if(specificData.bodyFill==true){
+        requestOptions.headers['Content-Length'] = JSON.stringify(flowdata).length;
+      }
+
+      requestOptions.headers['Content-Type'] = 'application/json';
 
       let request = this.http.request(requestOptions, response => {
         let hasResponseFailed = response.statusCode >= 400
@@ -78,6 +85,9 @@ class RestGetJson {
       request.on('error', function (e) {
         reject(e)
       })
+      if(specificData.bodyFill==true){
+        request.write(JSON.stringify(flowdata));
+      }
       request.end()
     })
   }

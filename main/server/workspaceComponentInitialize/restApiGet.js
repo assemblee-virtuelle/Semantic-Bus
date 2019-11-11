@@ -78,9 +78,9 @@ class RestApiGet {
         } else {
           this.request.post(this.config.engineUrl + '/work-ask/' + targetedComponent._id, {
               body: {
-                pushData: req.body,
                 queryParams: {
-                  query: req.query
+                  query: req.query,
+                  body : req.body,
                 }
               },
               json: true

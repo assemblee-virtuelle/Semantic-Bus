@@ -18,6 +18,19 @@
   <div class="cardInput">
     <input class="inputComponents" placeholder="" type="text" ref="urlInput" value={data.specificData.url} onchange={urlInputChange}></input>
   </div>
+  <div class="containerH" style="justify-content:space-between">
+
+
+    <div class="options">
+      <label class="labelFormStandard">alimenter le body avec le flux:</label>
+      <div class="cardInput">
+        <label class="switch">
+            <input type="checkbox" name="bodyFillInput" ref="bodyFillInput" checked={data.specificData.bodyFill} onchange={bodyFillInputChange}/>
+            <span class="slider round"></span>
+        </label>
+      </div>
+    </div>
+  </div>
   <label class="labelFormStandard">Content-type forcé:</label>
   <div class="cardInput">
     <input class="inputComponents" placeholder="" type="text" ref="overidedContentTypeInput" value={data.specificData.overidedContentType} onchange={overidedContentTypeInputChange}></input>
@@ -47,6 +60,13 @@
     this.overidedContentTypeInputChange = function (e) {
       this.data.specificData.overidedContentType = e.target.value;
     }
+
+    this.bodyFillInputChange = function (e) {
+      console.log('allo',e.target.value);
+      this.data.specificData.bodyFill = e.target.checked;
+    }
+
+
 
     this.updateData = function (dataToUpdate) {
       this.data = dataToUpdate;

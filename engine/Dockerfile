@@ -12,6 +12,8 @@ WORKDIR /data/engine
 # and install dependencies
 RUN apt-get update \
     && apt-get install -y curl \
+    && apt-get install -y gcc \
+    && apt-get install -y make \
     && apt-get install -y build-essential \
     && apt-get install -y ca-certificates \
     && apt-get install -y git \
@@ -21,10 +23,11 @@ RUN apt-get update \
 
 # nvm environment variables
 ENV NVM_DIR /usr/local/nvm
-ENV NODE_VERSION 8.9.0
+ENV NODE_VERSION 12.13.0
 
 # install nvm
 # https://github.com/creationix/nvm#install-script
+RUN mkdir -p $NVM_DIR
 RUN curl --silent -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
 
 # install node and npm
@@ -36,6 +39,7 @@ RUN source $NVM_DIR/nvm.sh \
 # add node and npm to path so the commands are available
 ENV NODE_PATH $NVM_DIR/v$NODE_VERSION/lib/node_modules
 ENV PATH $NVM_DIR/versions/node/v$NODE_VERSION/bin:$PATH
+# add node_modules binaries to PATH (nodejs look for node_modules in parent directories)
 ENV PATH /data/node_modules/.bin:$PATH
 
 
@@ -59,12 +63,15 @@ ENV PM2_SECRET_KEY=$PM2_SECRET_KEY
 ENV BROADCAST_LOGS 1
 ENV FORCE_INSPECTOR 1
 
+# install and cache app dependencies
+ADD ./engine/package.json /data/
+RUN cd /data && npm cache clean --force && npm install
+
+
 ADD ./core /data/core/
 ADD ./engine /data/engine/
-ADD ./engine/package.json /data/
 ADD ./wait-for-it.sh /data/scripts/
 
-RUN cd /data && npm cache clean --force && npm install
 
 EXPOSE 8080
 

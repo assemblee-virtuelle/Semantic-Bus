@@ -78,6 +78,7 @@ request(url, { json: true }, (err, result, body) => {
 
         const port = process.env.APP_PORT || 80
         app.listen(port, function (err) {
+          console.log('max connection',app.maxConnections);
           console.log('serveur started at port', port)
         })
 
