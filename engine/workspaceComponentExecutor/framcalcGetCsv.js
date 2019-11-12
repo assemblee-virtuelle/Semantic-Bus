@@ -2,7 +2,7 @@
 require("tls").DEFAULT_ECDH_CURVE = "auto"
 
 class FramcalcGetCsv {
-  constructor () {
+  constructor() {
     this.csvToJson = require('csvtojson')
     this.fetch = require('node-fetch')
   }
@@ -12,32 +12,47 @@ class FramcalcGetCsv {
    * @param {number} offset
    * @return {Promise}
    */
-  makeRequest (url, offset) {
-    return this.fetchCSV(url)
-      .then(rawCSV => this.processCSV(rawCSV, offset))
+  async makeRequest(url, offset) {
+    let rawCSV= await this.fetchCSV(url);
+    return this.processCSV(rawCSV, offset)
+    // return this.fetchCSV(url)
+    //   .then(rawCSV => {
+    //     this.processCSV(rawCSV, offset)
+    //   })
   }
 
   /**
    * @param {string} url
    * @return {Promise<string>}
    */
-  fetchCSV (url) {
-    return this.fetch(this.normalizeUrl(url))
-      .then(response => {
-        const hasResponseFailed = response.status >= 400
-        if (hasResponseFailed) {
-          return Promise.reject(`Request to ${response.url} failed with HTTP ${response.status}`)
-        } else {
-          return response.text()
-        }
-      })
+  async fetchCSV(url) {
+    url = this.normalizeUrl(url);
+    let response = await this.fetch(url);
+    const hasResponseFailed = response.status >= 400
+    if (hasResponseFailed) {
+      return Promise.reject(`Request to ${response.url} failed with HTTP ${response.status}`)
+    } else {
+      return response.text()
+    }
+    // console.log('url', url);
+
+    // return this.fetch(url)
+    //   .then(response => {
+    //     // console.log('ALLO', response.status);
+    //     const hasResponseFailed = response.status >= 400
+    //     if (hasResponseFailed) {
+    //       return Promise.reject(`Request to ${response.url} failed with HTTP ${response.status}`)
+    //     } else {
+    //       return response.text()
+    //     }
+    //   })
   }
 
   /**
    * @param {string} url
    * @return {string}
    */
-  normalizeUrl (url) {
+  normalizeUrl(url) {
     if (url.startsWith('http')) {
       if (url.endsWith('.csv')) {
         return url
@@ -58,16 +73,26 @@ class FramcalcGetCsv {
    * @param {number} offset
    * @return {Promise<FramacalcResult>}
    */
-  processCSV (rawCSV, offset) {
-    return new Promise((resolve, reject) => {
-      this.csvToJson({ noheader: true })
-        .fromString(rawCSV)
-        .on('end_parsed', (jsonArr) => {
-          jsonArr.splice(0, offset)
+  processCSV(rawCSV, offset) {
 
-          resolve({ data: jsonArr })
+    return new Promise((resolve, reject) => {
+      this.csvToJson({
+          noheader: true
         })
-        .on('error', error => reject({ data: error }))
+        .fromString(rawCSV)
+        .then(jsonArr => {
+
+          jsonArr.splice(0, offset);
+          resolve({
+            data: jsonArr
+          })
+        }).catch(error => {
+          reject({
+            data: error
+          })
+        })
+
+
     })
   }
 
@@ -75,7 +100,7 @@ class FramcalcGetCsv {
    * @param {FramacalcData} data
    * @return {Promise<FramacalcResult>}
    */
-  pull (data) {
+  pull(data) {
     return this.makeRequest(data.specificData.key, data.specificData.offset)
   }
 }

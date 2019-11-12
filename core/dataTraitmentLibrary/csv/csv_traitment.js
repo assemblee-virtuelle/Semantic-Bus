@@ -18,20 +18,16 @@ function decode_utf8(s) {
 }
 
 function _csvtojson(data) {
-  console.log("CSV CSV CSV CSV");
+  // console.log("CSV CSV CSV CSV");
   return new Promise((resolve, reject) => {
     try {
       csv({
         noheader: true,
         delimiter: "auto"
-      }).fromString(data).on('json', (jsonObj) => {
-        //console.log('CSV', jsonObj)
-      }).on('end', () => {
-        //console.log('end')
-      }).on('end_parsed', (jsonArr) => {
-        //console.log(offset);
-        //console.log(jsonArr);
+      }).fromString(data).then(jsonObj=>{
         resolve(jsonArr);
+      }).catch(e=>{
+        reject(e);
       })
     }catch(e){
       reject(e);
