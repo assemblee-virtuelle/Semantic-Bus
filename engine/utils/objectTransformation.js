@@ -103,11 +103,11 @@ module.exports = {
 
     // console.log('jsonTransform | postProcess | ', JSON.stringify(dissociatePatternPostProcess));
     // console.log('jsonTransform | resolvable | ', JSON.stringify(dissociatePatternResolvable));
-    console.log('jsonTransform | postProcess | ', dissociatePatternPostProcess);
-    console.log('jsonTransform | resolvable | ', dissociatePatternResolvable);
+    // console.log('jsonTransform | postProcess | ', dissociatePatternPostProcess);
+    // console.log('jsonTransform | resolvable | ', dissociatePatternResolvable);
 
     // console.log('jsonTransform | source | ', JSON.stringify(source));
-    console.log('jsonTransform | source | ', source);
+    // console.log('jsonTransform | source | ', source);
     var postProcessResult
     try {
       var transformResult = this.transform(source, dissociatePatternResolvable)
@@ -118,9 +118,9 @@ module.exports = {
         transformResult = transformResult['undefined']
       }
 
-      console.log('jsonTransform | resultBeforUnresolved |', JSON.stringify(transformResult));
+      // console.log('jsonTransform | resultBeforUnresolved |', JSON.stringify(transformResult));
       var destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable, skeepUnresolved)
-      console.log('jsonTransform | afterUnresolved |', JSON.stringify(destResult));
+      // console.log('jsonTransform | afterUnresolved |', JSON.stringify(destResult));
       // var destResult;
       // // console.log('skeepUnresolved',skeepUnresolved);
       // if(skeepUnresolved!=true){

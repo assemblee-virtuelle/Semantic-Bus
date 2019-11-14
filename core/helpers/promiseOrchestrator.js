@@ -51,6 +51,7 @@ class PromisesExecutor {
   incrementExecute() {
     try {
       if (this.incrementResolved == this.paramArray.length) {
+        // console.log('this.globalOut',this.globalOut);
         this.initialPromiseResolve(this.globalOut);
       } else if (this.increment < this.paramArray.length) {
         //console.log('new PromiseExecutor',this.increment);
@@ -108,17 +109,18 @@ class PromiseExecutor {
       // console.log('apply',currentParams);
       try {
         this.workFunction.apply(this.context, currentParams).then((currentOut) => {
+          // console.log('Promise Executor resolve');
           //this.globalOut[this.index] = currentOut;
           resolve({
             index: this.index,
             value: currentOut
           });
         }).catch((e) => {
-
+          // console.log('Promise Executor reject');
           resolve({
             index: this.index,
             value: {
-              'error': e
+              'error': e.message
             }
           });
         }).then(() => {
@@ -129,7 +131,7 @@ class PromiseExecutor {
         reject({
           index: this.index,
           value: {
-            'error': e
+            'error': e.message
           }
         });
       }

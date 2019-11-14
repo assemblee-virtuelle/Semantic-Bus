@@ -26,6 +26,7 @@
   "author": "Simon Louvet <simon.louvet.zen@gmail.com> && Boceno Alexandre <bocenoalex@gmail.com>",
   "license": "GNUV3",
   "dependencies": {
+    "@wdio/sauce-service": "^5.16.5",
     "amqplib": "^0.5.2",
     "async": "^3.1.0",
     "bcrypt": "^3.0.6",
@@ -81,7 +82,7 @@
     "sshpk": "^1.7.0",
     "tedious": "^6.3.0",
     "validator": "^12.0.0",
-    "webdriverio": "^5.16.5",
+    "webdriverio": "^5.16.6",
     "xlsx": "^0.10.5",
     "xml2js": "^0.4.19"
   },

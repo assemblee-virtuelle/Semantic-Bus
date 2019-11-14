@@ -435,7 +435,7 @@ function _get_all(userID, role) {
       })
       .populate({
         path: "workspaces._id",
-        select: "name description updatedAt"
+        select: "name description updatedAt status"
       })
       .lean()
       .exec(async (_error, data) => {
@@ -462,58 +462,64 @@ function _get_all(userID, role) {
 
         workspaces.forEach((workspace) => {
           const ProcessPromise = new Promise((resolve, reject) => {
-            processModel.getInstance().model.find({
-                workflowId: workspace._id
-              }).sort({
-                timeStamp: -1
-              })
-              .limit(1)
-              .lean()
-              .exec((err, processes) => {
-                if (err) {
-                  reject(new Error.DataBaseProcessError(err))
-                } else {
-                  if (processes[0]) {
-                    historiqueEndModel.getInstance().model.find({
-                      processId: processes[0]._id
-                    }).select({
-                      data: 0
-                    }).lean().exec((err, historiqueEnd) => {
-                      if (err) {
-                        reject(new Error.DataBaseProcessError(err))
-                      } else {
-                        for (let step of processes[0].steps) {
+            // console.log('workspace',workspace);
+            if(workspace.status==undefined){
+              processModel.getInstance().model.find({
+                  workflowId: workspace._id
+                }).sort({
+                  timeStamp: -1
+                })
+                .limit(1)
+                .lean()
+                .exec((err, processes) => {
+                  if (err) {
+                    reject(new Error.DataBaseProcessError(err))
+                  } else {
+                    if (processes[0]) {
+                      historiqueEndModel.getInstance().model.find({
+                        processId: processes[0]._id
+                      }).select({
+                        data: 0
+                      }).lean().exec((err, historiqueEnd) => {
+                        if (err) {
+                          reject(new Error.DataBaseProcessError(err))
+                        } else {
+                          for (let step of processes[0].steps) {
 
-                          const historiqueEndFinded = sift({
-                            componentId: step.componentId
-                          }, historiqueEnd)[0];
+                            const historiqueEndFinded = sift({
+                              componentId: step.componentId
+                            }, historiqueEnd)[0];
 
-                          if(processes[0].state === "stop") {
-                          workspace.status = 'stoped';
-                          } else {
-                            if (historiqueEndFinded != undefined) {
-                              if (historiqueEndFinded.error != undefined) {
-                                workspace.status = 'error';
-                                return resolve(workspace)
-
-                              } else {
-                                workspace.status = 'resolved';
-                              }
+                            if(processes[0].state === "stop") {
+                              workspace.status = 'stoped';
+                              break;
                             } else {
-                              workspace.status = 'running';
+                              if (historiqueEndFinded != undefined) {
+                                if (historiqueEndFinded.error != undefined) {
+                                  workspace.status = 'error';
+                                  break;
+
+                                } else {
+                                  workspace.status = 'resolved';
+                                }
+                              } else {
+                                workspace.status = 'running';
+                              }
                             }
                           }
-                        }
 
-                        resolve(workspace)
-                      }
-                    })
-                  } else {
-                    workspace.status = 'no-start';
-                    resolve(workspace)
+                          resolve(workspace)
+                        }
+                      })
+                    } else {
+                      workspace.status = 'no-start';
+                      resolve(workspace)
+                    }
                   }
-                }
-              })
+                })
+            }else {
+              resolve(workspace);
+            }
           })
           ProcessPromiseArray.push(ProcessPromise)
         })

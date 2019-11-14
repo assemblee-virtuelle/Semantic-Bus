@@ -30,7 +30,8 @@ var WorkspaceSchema = mongoose.Schema({
   limitHistoric:{
     type: Number,
     default: 1
-  }
+  },
+  status: String,
 },{ timestamps: true }, { minimize: false });
 
 

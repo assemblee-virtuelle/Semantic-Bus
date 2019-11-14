@@ -42,7 +42,7 @@
     </yield>
     <yield to="row">
       <select data-field="actionType" ref="actionType">
-        <option each={optionValue in [" " , "getValue" , "getHtml" , "getAttr" , "setValue" , "click" , "scroll" ,"selectByValue","wait" ]} value={optionValue} selected={actionType==optionValue}>{optionValue}</option>
+        <option each={optionValue in [" " , "getValue" , "getHtml" , "getAttr" , "setValue" , "click" , "scroll" ,"wait" ]} value={optionValue} selected={actionType==optionValue}>{optionValue}</option>
       </select>
       <input type="text" style="width:20%;flex-grow:1" placeholder="Nom"value={action} data-field="action"/>
       <input type="text" style="width:30%;flex-grow:1" placeholder="Selection"value={selector} data-field="selector"/>
