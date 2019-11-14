@@ -53,37 +53,17 @@ See https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-t
 
 
 ### Git
-
-#### Option 1
-
 ```bash
 git clone git@github.com:assemblee-virtuelle/Semantic-Bus.git
 ```
 
-
-### nvm & npm
-
-```bash
-sudo apt-get install g++ build-essential
-curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
-
-# Restart console
-
-nvm install 8.9
-cd core && npm install
-cd main && npm install
-cd engine && npm install
-
-```
-
-
 ## Launch with docker ( best solution ) *
 * for mac we use docker-machine and not docker for mac in our configuration
-### Docker
+### make (recommended)
 
-```bash
+
 ( DOCKER-COMPOSE REQUIRED )
-
+```bash
 make start => start project
 make log => log main and engine container
 make restart => force recreate
@@ -96,16 +76,38 @@ docker kill semanticbus_mongo_1
 docker kill rabbitmq 
 ```
 
-### Application In Local ( Not recommended)
+### docker-compose( Not recommended)
 * for mac we use docker-machine and not docker for mac in our configuration
-```bash
+
 For Mac
+```bash
 export CONFIG_URL="https://data-players.github.io/StrongBox/public/dev-mac.json"
 && docker-compose -f docker-compose.local.yaml up -d
-For Linux        
+```
+For Linux
+```bash
 export CONFIG_URL="https://data-players.github.io/StrongBox/public/dev-linux.json" && docker-compose -f docker-compose.local.yaml up -d
+```
 
+### nvm & npm
+
+```bash
+sudo apt-get install g++ build-essential
+curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | bash
+```
+
+Restart console
+```bash
+nvm install 12.13
+cd core && npm install
+cd main && npm install
+cd engine && npm install
 cd main && node app.js
 cd engine && node app.js
+
+```
+
+
+
 
 ```
