@@ -76,7 +76,7 @@ docker kill semanticbus_mongo_1
 docker kill rabbitmq 
 ```
 
-### docker-compose( Not recommended)
+### docker-compose (Not recommended)
 * for mac we use docker-machine and not docker for mac in our configuration
 
 For Mac
@@ -89,7 +89,7 @@ For Linux
 export CONFIG_URL="https://data-players.github.io/StrongBox/public/dev-linux.json" && docker-compose -f docker-compose.local.yaml up -d
 ```
 
-### nvm & npm
+## Launch with nvm & npm (Not recommended)
 
 ```bash
 sudo apt-get install g++ build-essential
