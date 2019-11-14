@@ -57,7 +57,7 @@ See https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-t
 git clone git@github.com:assemblee-virtuelle/Semantic-Bus.git
 ```
 
-## Launch with docker ( best solution ) *
+## Launch with docker ( best solution )
 * for mac we use docker-machine and not docker for mac in our configuration
 ### make (recommended)
 
