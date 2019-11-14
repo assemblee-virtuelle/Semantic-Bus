@@ -36,7 +36,7 @@ class Engine {
         let workflow = await this.workspace_lib.getWorkspace(this.originComponent.workspaceId);
         this.workflow = workflow;
         this.workflow.status = 'running';
-        await this.workspace_lib.update(this.workflow);
+        await this.workspace_lib.updateSimple(this.workflow);
         let ownerUserMail = this.workflow.users.filter(
           this.sift({
             role: 'owner'
@@ -151,7 +151,7 @@ class Engine {
           information: 'Votre flow a été aretté avec succéss'
         })
         this.workflow.status = 'stoped';
-        this.workspace_lib.update(this.workflow)
+        this.workspace_lib.updateSimple(this.workflow)
       } else {
         if (this.owner.credit >= 0 || (this.config.privateScript && this.config.privateScript.length == 0) || this.config.free == true) {
 
@@ -393,7 +393,7 @@ class Engine {
                 _id: this.processId
               })
               this.workflow.status = 'error';
-              this.workspace_lib.update(this.workflow)
+              this.workspace_lib.updateSimple(this.workflow)
               let errors = []
               this.pathResolution.nodes.forEach(n => {
                 if (n.dataResolution != undefined && n.dataResolution.error != undefined) {
@@ -406,7 +406,7 @@ class Engine {
                 _id: this.processId
               });
               this.workflow.status = 'resolved';
-              this.workspace_lib.update(this.workflow)
+              this.workspace_lib.updateSimple(this.workflow)
               this.RequestOrigineResolveMethode(this.originComponentResult);
             }
             this.workspace_lib.cleanOldProcess(this.workflow).then(processes => {
@@ -416,7 +416,7 @@ class Engine {
                 workspaceId: this.workflow._id
               })
               console.log('--------------  End of Worksapce processing --------------', this.owner.credit)
-              return this.user_lib.update(this.owner)
+              return this.user_lib.updateSimple(this.owner)
             })
           }
         } else {
@@ -426,7 +426,7 @@ class Engine {
             error: fullError.message
           })
           this.workflow.status = 'error';
-          this.workspace_lib.update(this.workflow)
+          this.workspace_lib.updateSimple(this.workflow)
           this.RequestOrigineRejectMethode(fullError)
         }
       }
