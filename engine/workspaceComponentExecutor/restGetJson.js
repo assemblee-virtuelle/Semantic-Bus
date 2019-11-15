@@ -34,8 +34,9 @@ class RestGetJson {
       requestOptions.headers['User-Agent'] = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/62.0.3202.94 Chrome/62.0.3202.94 Safari/537.36'
       requestOptions.headers['Cache-Control'] = 'private, no-cache, no-store, must-revalidate';
       if(specificData.bodyFill==true){
-        requestOptions.headers['Content-Length'] = JSON.stringify(flowdata).length;
+        requestOptions.headers['Content-Length'] = Buffer.from(JSON.stringify(flowdata)).length;
       }
+      // console.log('LENGTH',requestOptions.headers['Content-Length']);
 
       requestOptions.headers['Content-Type'] = 'application/json';
 

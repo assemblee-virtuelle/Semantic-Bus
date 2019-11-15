@@ -82,7 +82,8 @@ class Engine {
           }))
           console.log(' ---------- BuildPath Nodes-----------', this.fackCounter)
           console.log(this.pathResolution.nodes.map(node => {
-            return (node.component._id + ':' + JSON.stringify(node.queryParams))
+            //return (node.component._id + ':' + JSON.stringify(node.queryParams))
+            return (node.component._id);
           }))
         }
 
@@ -297,8 +298,8 @@ class Engine {
                     this.promiseOrchestrator.execute(module, module.pull, paramArray, {
                       beamNb: primaryflow.dfob[0].pipeNb
                     }, this.config).then((componentFlowDfob) => {
-                      console.log('componentFlowDfob', JSON.stringify(componentFlowDfob));
-                      console.log('dfobFinalFlow', dfobFinalFlow);
+                      // console.log('componentFlowDfob', JSON.stringify(componentFlowDfob));
+                      // console.log('dfobFinalFlow', dfobFinalFlow);
                       for (var componentFlowDfobKey in componentFlowDfob) {
                         // console.log(componentFlowDfobKey);
                         if (componentFlowDfob[componentFlowDfobKey].data != undefined) {
@@ -316,7 +317,7 @@ class Engine {
                         // data: dfobFinalFlow.map(FF=>FF.objectToProcess),
                         data: primaryflow.data
                       }
-                      console.log('primaryflow ', primaryflow);
+                      // console.log('primaryflow ', primaryflow);
                       processingNode.status = 'resolved'
                       this.historicEndAndCredit(processingNode, startTime, undefined)
                       if (
@@ -416,7 +417,7 @@ class Engine {
                 workspaceId: this.workflow._id
               })
               console.log('--------------  End of Worksapce processing --------------', this.owner.credit)
-              return this.user_lib.updateSimple(this.owner)
+              return this.user_lib.update(this.owner)
             })
           }
         } else {
