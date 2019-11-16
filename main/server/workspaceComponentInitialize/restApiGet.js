@@ -120,7 +120,7 @@ class RestApiGet {
                         let out=this.xmlJS.js2xml(dataToSend, {compact: true, ignoreComment: true, spaces: 0});
                         out = out.replace(/\0/g, '');
                         // console.log('xml out', out);
-                        console.log(Buffer.byteLength(out, 'utf8') + " bytes");
+                        // console.log(Buffer.byteLength(out, 'utf8') + " bytes");
                         res.send(out)
                         // res.end();
                       } else if (targetedComponent.specificData.contentType.search('yaml') != -1) {
