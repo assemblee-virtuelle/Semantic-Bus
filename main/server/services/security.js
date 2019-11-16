@@ -47,7 +47,7 @@ class Security {
       token.split('')
       let tokenAfter = token.substring(4, token.length)
       const decodeToken = auth_lib_jwt.get_decoded_jwt(tokenAfter)
-      console.log(decodeToken)
+      // console.log(decodeToken)
       if (req.body && req.body.workspaceId) workspaceId = req.body.workspaceId
       if (req.params && req.params.id) workspaceId = req.params.id
       user_lib.getWithRelations(
@@ -75,13 +75,13 @@ class Security {
       token.split('')
       let tokenAfter = token.substring(4, token.length)
       const decodeToken = auth_lib_jwt.get_decoded_jwt(tokenAfter)
-      console.log(decodeToken)
+      // console.log(decodeToken)
       if (req.body && req.body.bigdataflowId) bigdataflowId = req.body.workspaceId
       if (req.params && req.params.id) bigdataflowId = req.params.id
       user_lib.getWithRelations(
         decodeToken.iss
       ).then((result) => {
-        console.log('result',JSON.stringify(result));
+        // console.log('result',JSON.stringify(result));
         // !!!!!! Don't use ===  here because workspace Id is noT same type than params !!!!!
         let isAuthorized
         if (role === 'owner') {

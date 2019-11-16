@@ -430,7 +430,6 @@ function _destroy(userId, workspaceId) {
 // --------------------------------------------------------------------------------
 
 function _get_all(userID, role) {
-  console.log('RRRRRRRRRRRR');
   return new Promise((resolve, reject) => {
     userModel.getInstance().model
       .findOne({
@@ -465,7 +464,7 @@ function _get_all(userID, role) {
 
         workspaces.forEach((workspace) => {
           const ProcessPromise = new Promise((resolve, reject) => {
-            console.log('workspace',workspace);
+            // console.log('workspace',workspace);
             if (workspace.status == undefined) {
               processModel.getInstance().model.find({
                   workflowId: workspace._id
