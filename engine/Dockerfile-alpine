@@ -39,4 +39,4 @@ COPY ./wait-for-it.sh /data/scripts/
 # Expose ports (for orchestrators and dynamic reverse proxies)
 EXPOSE 8080
 
-CMD [ "pm2-runtime", "app.js", "--name" ,"main"]
+CMD [ "pm2-runtime", "app.js", "--name" ,"engine"]
