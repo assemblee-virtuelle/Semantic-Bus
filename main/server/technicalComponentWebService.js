@@ -5,9 +5,9 @@ const componentsCategoriesTree = require('./utils/componentsCategoriesTree')
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-module.exports = (router, unsafeRouter, amqpClient) => {
+module.exports = (router, unsafeRouter) => {
   const technicalComponentDirectory = require('./services/technicalComponentDirectory')
-  technicalComponentDirectory.initialise(router, unsafeRouter, amqpClient)
+  technicalComponentDirectory.initialise(router, unsafeRouter)
 
   router.get('/technicalComponent', function (req, res) {
     res.json(technicalComponentDirectory.buildDictionnaryArray())

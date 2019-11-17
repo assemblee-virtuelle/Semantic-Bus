@@ -14,8 +14,7 @@
   <link href='./js/jsonEditor/dist/jsoneditor.min.css' rel='stylesheet' type='text/css'>
   <link href="./image/grappe-log-01.png" rel="icon" type="image/png">
   <link rel="stylesheet" href="./js/awesomplete-gh-pages/awesomplete.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flexboxgrid/6.3.1/flexboxgrid.min.css"
-    type="text/css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flexboxgrid/6.3.1/flexboxgrid.min.css" type="text/css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.5/themes/default/style.min.css" />
 </head>
 
@@ -111,7 +110,7 @@
 
   <script type="riot/tag" src="tag/editorComponents/files/upload-editor.tag"></script>
   <script type="riot/tag" src="tag/editorComponents/files/rest-get-editor.tag"></script>
-    <script type="riot/tag" src="tag/editorComponents/files/sftp-consumer-editor.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/files/sftp-consumer-editor.tag"></script>
 
   <script type="riot/tag" src="tag/editorComponents/geocodage/google-geolocaliser-editor.tag"></script>
   <script type="riot/tag" src="tag/editorComponents/geocodage/data-gouv-inverse-geolocaliser-editor.tag"></script>
@@ -160,6 +159,9 @@
         document.body.appendChild(y);
       }
 
+
+
+
       var onConnect = (client) => {
         // no more r&d for private incrementation because
         // react refonte will change all this mechanisme
@@ -199,22 +201,22 @@
         specificStoreList.push(sqlStore)
         allStore['sqlStore'] = sqlStore;
 
-        const workspaceStore = new WorkspaceStore(utilStore, stompClient, specificStoreList);
+        const workspaceStore = new WorkspaceStore(utilStore, stompClientProxy, specificStoreList);
         RiotControl.addStore(workspaceStore);
         allStore['workspaceStore'] = workspaceStore;
 
-        const bigdataflowStore = new BigdataflowStore(utilStore, stompClient, specificStoreList);
+        const bigdataflowStore = new BigdataflowStore(utilStore, stompClientProxy, specificStoreList);
         RiotControl.addStore(bigdataflowStore);
         allStore['bigdataflowStore'] = bigdataflowStore;
 
-        const mainController = new MainController(allStore, stompClient, utilStore);
+        const mainController = new MainController(allStore, stompClientProxy, utilStore);
         RiotControl.addStore(mainController);
 
-        RiotControl.on('login_redirect', function () {
+        RiotControl.on('login_redirect', function() {
           window.open("../ihm/login.html", "_self");
         })
 
-        riot.compile(function () {
+        riot.compile(function() {
           riot.mount('*');
         });
       };
@@ -229,10 +231,32 @@
         debug: true
       })
 
+
+      const objectHandler = {
+        get: function(target, propKey, receiver) {
+          //I only want to intercept method calls, not property access
+          var propValue = target[propKey];
+          if (typeof propValue != "function") {
+            return propValue;
+          } else {
+            return function() {
+              console.log("intercepting call to " + propKey + " in cat " + target.name);
+              if (target.connected == false && propKey=="send") {
+                alert('amqp seem disconnected, please refresh your browser');
+              }
+              return propValue.apply(this, arguments)
+            }
+          }
+        }
+      }
+
+
+      let stompClientProxy = new Proxy(stompClient, objectHandler);
+
       if (configuration.host != undefined && configuration.host.length > 0) {
-        stompClient.connect(login, password, onConnect, null, configuration.host);
+        stompClientProxy.connect(login, password, onConnect, null, configuration.host);
       } else {
-        stompClient.connect(login, password, onConnect, onError);
+        stompClientProxy.connect(login, password, onConnect, onError);
       }
     })
   </script>

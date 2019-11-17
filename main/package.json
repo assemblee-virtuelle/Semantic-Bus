@@ -27,7 +27,8 @@
   "license": "GNUV3",
   "dependencies": {
     "@types/webdriverio": "^4.10.1",
-    "amqplib": "^0.5.2",
+    "amqp-connection-manager": "^3.0.0",
+    "amqplib": "^0.5.5",
     "async": "^2.5.0",
     "bcrypt": "^3.0.6",
     "bcryptjs": "^2.4.3",
