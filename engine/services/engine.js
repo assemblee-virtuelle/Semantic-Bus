@@ -35,6 +35,7 @@ class Engine {
         this.componentsResolving = components
         let workflow = await this.workspace_lib.getWorkspace(this.originComponent.workspaceId);
         this.workflow = workflow;
+        console.log(' ---------- Start Engine-----------', this.workflow.name)
         this.workflow.status = 'running';
         await this.workspace_lib.updateSimple(this.workflow);
         let ownerUserMail = this.workflow.users.filter(
@@ -75,16 +76,16 @@ class Engine {
         )
 
         if (this.config.quietLog != true) {
-          console.log(' ---------- BuildPath Links-----------', this.fackCounter)
+          console.log(' ---------- BuildPath Links-----------', this.fackCounter, this.workflow.name)
           console.log(this.pathResolution.links.map(link => {
             // return (link.source);
             return (link.source.component._id + ' -> ' + link.target.component._id)
           }))
-          console.log(' ---------- BuildPath Nodes-----------', this.fackCounter)
-          console.log(this.pathResolution.nodes.map(node => {
-            //return (node.component._id + ':' + JSON.stringify(node.queryParams))
-            return (node.component._id);
-          }))
+          // console.log(' ---------- BuildPath Nodes-----------', this.fackCounter)
+          // console.log(this.pathResolution.nodes.map(node => {
+          //   //return (node.component._id + ':' + JSON.stringify(node.queryParams))
+          //   return (node.component._id);
+          // }))
         }
 
         this.owner = user
@@ -416,7 +417,7 @@ class Engine {
                 cleanedProcesses: processes,
                 workspaceId: this.workflow._id
               })
-              console.log('--------------  End of Worksapce processing --------------', this.owner.credit)
+              console.log('--------------  End of Worksapce processing --------------', this.workflow.name,this.owner.credit)
               return this.user_lib.update(this.owner)
             })
           }

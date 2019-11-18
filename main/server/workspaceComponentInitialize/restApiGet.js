@@ -41,8 +41,9 @@ class RestApiGet {
           _id: componentId,
           module: 'restApiGet'
         });
-        console.log('component',component);
+        // console.log('component',component);
         if (component != undefined && component.specificData.url != undefined) {
+          req.setTimeout(0);
           let keys = []
           let regexp = this.pathToRegexp(component.specificData.url, keys)
           if (regexp.test(urlRequiered)) {

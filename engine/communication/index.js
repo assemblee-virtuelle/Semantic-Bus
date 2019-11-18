@@ -6,7 +6,7 @@ const workspace_component_lib = require('../../core/lib/workspace_component_lib'
 class Communication {
   init(router) {
     router.post('/work-ask/:componentId', (req, res, next) => {
-      console.log('ALLO engine');
+      // console.log('ALLO engine');
       const componentId = req.params.componentId
       const pushData = req.body.pushData
       const queryParams = req.body.queryParams
@@ -20,6 +20,7 @@ class Communication {
           // console.log('engineResult',JSON.stringify(engineResult));
           res.send(engineResult)
         }).catch(errors=>{
+          let errorsMessages;
           if(Array.isArray(errors)){
             errorsMessages=errors.map(e=>e.message);
           }else{
