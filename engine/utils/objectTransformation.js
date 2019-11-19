@@ -3,6 +3,8 @@
 module.exports = {
   transform: require('jsonpath-object-transform'),
   Intl: require('intl'),
+  unicodeRegex: /&#(\d*);/g,
+  unicodeRegexReverse: /{unicode\((\d*)\)}/g,
   executeWithParams: function(source, pullParams, jsonTransformPattern) {
     // console.log('executeWithParams',source);
 
@@ -102,7 +104,7 @@ module.exports = {
     var dissociatePatternPostProcess = this.dissociatePatternPostProcess(jsonTransformPattern)
 
     // console.log('jsonTransform | postProcess | ', JSON.stringify(dissociatePatternPostProcess));
-    // console.log('jsonTransform | resolvable | ', JSON.stringify(dissociatePatternResolvable));
+    console.log('jsonTransform | resolvable | ', JSON.stringify(dissociatePatternResolvable));
     // console.log('jsonTransform | postProcess | ', dissociatePatternPostProcess);
     // console.log('jsonTransform | resolvable | ', dissociatePatternResolvable);
 
@@ -119,8 +121,10 @@ module.exports = {
       }
 
       // console.log('jsonTransform | resultBeforUnresolved |', JSON.stringify(transformResult));
+      // console.log('jsonTransform | resultBeforUnresolved |', transformResult);
       var destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable, skeepUnresolved)
       // console.log('jsonTransform | afterUnresolved |', JSON.stringify(destResult));
+      // console.log('jsonTransform | afterUnresolved |', destResult);
       // var destResult;
       // // console.log('skeepUnresolved',skeepUnresolved);
       // if(skeepUnresolved!=true){
@@ -207,6 +211,15 @@ module.exports = {
             nodeOut[key] = nodeIn[key].substring(1);
           }
 
+          if (this.unicodeRegex.test(nodeIn[key])) {
+            // nodeOut[key] = nodeIn[key].replace(this.unicodeRegex, '{unicode(' + '$&' + ')}');
+            nodeOut[key] = nodeIn[key].replace(this.unicodeRegex, (chn, p, decalage, s) => {
+              return '{unicode(' + p + ')}'
+            })
+
+            console.log(nodeOut[key]);
+          }
+
           if (nodeOut[key] == undefined) {
             nodeOut[key] = nodeIn[key];
           }
@@ -283,6 +296,12 @@ module.exports = {
           if (nodeIn[key].startsWith('(')) {
             nodeOut[key] = {
               process: 'firstParenthesis',
+            }
+          }
+
+          if (this.unicodeRegex.test(nodeIn[key])) {
+            nodeOut[key] = {
+              process: 'unicode',
             }
           }
 
@@ -396,7 +415,11 @@ module.exports = {
             nodeOut[nodeInDataProperty] = Number(nodeInData[nodeInDataProperty].substr(2, nodeInData[nodeInDataProperty].length - 2))
           } else if (nodeInPostProcess[nodeInDataProperty].process == 'firstParenthesis') {
             // console.log('numericHack');
-            nodeOut[nodeInDataProperty] = '('+nodeInData[nodeInDataProperty];
+            nodeOut[nodeInDataProperty] = '(' + nodeInData[nodeInDataProperty];
+          } else if (nodeInPostProcess[nodeInDataProperty].process == 'unicode') {
+            nodeOut[nodeInDataProperty] = nodeInData[nodeInDataProperty].replace(this.unicodeRegexReverse, (chn, p, decalage, s) => {
+              return '&#' + p + ';'
+            })
           } else {
             nodeOut[nodeInDataProperty] = this.postProcess(nodeInData[nodeInDataProperty], nodeInPostProcess[nodeInDataProperty])
           }

@@ -77,19 +77,15 @@ class RestApiGet {
             , (err, data) => {
               // console.log(err,data);
               try {
-                // console.log('ALLO 0');
                 if (err) {
-                  // console.error("restpiIGet request error",err);
+                  console.error("restpiIGet request error",err);
                   res.status(500).send(err)
                 } else {
-                  console.log('ALLO 0.1 api',data.body);
                   if (data.statusCode != 200) {
-                    console.log('ALLO 0.1.1 api');
                     res.status(500).send({
                       engineResponse: data.body
                     })
                   } else {
-                    console.log('ALLO 0.1.2 api');
                     let dataToSend
                     try {
                       dataToSend = data.body.data
@@ -97,10 +93,8 @@ class RestApiGet {
                       console.log('PUTAIN');
                     }
                     // const dataToSend = data.body.data
-                    console.log('ALLO 1');
                     if (component.specificData != undefined) { // exception in previous promise
                       if (component.specificData.contentType != undefined) {
-                        console.log('ALLO 2');
                         if (dataToSend == undefined) {
                           res.send(new Error('data in flow is not defined. please check your configuration'))
                         } else if (component.specificData.contentType.search('application/vnd.ms-excel') != -1) {

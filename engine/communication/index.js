@@ -7,6 +7,7 @@ class Communication {
   init(router) {
     router.post('/work-ask/:componentId', (req, res, next) => {
       // console.log('ALLO engine');
+      req.setTimeout(0);
       const componentId = req.params.componentId
       const pushData = req.body.pushData
       const queryParams = req.body.queryParams
