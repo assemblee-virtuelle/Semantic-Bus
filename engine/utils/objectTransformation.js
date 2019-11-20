@@ -104,7 +104,7 @@ module.exports = {
     var dissociatePatternPostProcess = this.dissociatePatternPostProcess(jsonTransformPattern)
 
     // console.log('jsonTransform | postProcess | ', JSON.stringify(dissociatePatternPostProcess));
-    console.log('jsonTransform | resolvable | ', JSON.stringify(dissociatePatternResolvable));
+    // console.log('jsonTransform | resolvable | ', JSON.stringify(dissociatePatternResolvable));
     // console.log('jsonTransform | postProcess | ', dissociatePatternPostProcess);
     // console.log('jsonTransform | resolvable | ', dissociatePatternResolvable);
 

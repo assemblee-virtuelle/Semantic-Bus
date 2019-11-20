@@ -13,6 +13,7 @@ class Engine {
     this.user_lib = require('../../core/lib/user_lib');
     this.config = require('../configuration.js');
     let PromiseOrchestrator = require('../../core/helpers/promiseOrchestrator.js');
+    this.stringReplacer = require('../utils/stringReplacer.js')
     this.promiseOrchestrator = new PromiseOrchestrator();
     this.fackCounter = 0;
     this.amqpClient = amqpClient;
@@ -249,7 +250,8 @@ class Engine {
               if (dataFlow != undefined && primaryflow.dfob != undefined) {
                 try {
                   // console.log("DFOB", primaryflow.dfob);
-                  var dfobTab = primaryflow.dfob[0].path.length > 0 ? primaryflow.dfob[0].path.split('.') : []
+                  let dfobPathNormalized = this.stringReplacer.execute(primaryflow.dfob[0].path, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams, primaryflow.data);
+                  var dfobTab = dfobPathNormalized.length > 0 ? dfobPathNormalized.split('.') : []
                   // console.log('dfob',dfobTab,primaryflow.dfob[0].keepArray);
                   var dfobFinalFlow = this.buildDfobFlow(
                     primaryflow.data,
