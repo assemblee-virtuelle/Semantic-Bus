@@ -29,6 +29,7 @@ class RestApiGet {
       // console.warn('API text WARN');
       // eslint-disable-next-line node/no-deprecated-api
       const urlRequiered = req.params[0].split('/')[1]
+      const urlRequieredFull = req.params[0].replace('/','')
       // console.log('urlRequiered',urlRequiered);
       const query = req.query
       let targetedComponent
@@ -45,10 +46,11 @@ class RestApiGet {
         if (component != undefined && component.specificData.url != undefined) {
           req.setTimeout(0);
           let keys = []
-          let regexp = this.pathToRegexp(component.specificData.url, keys)
-          if (regexp.test(urlRequiered)) {
-            let values = regexp.exec(urlRequiered)
-            let valueIndex = 1
+
+          let regexp = this.pathToRegexp(component.specificData.url, keys);
+          if (regexp.test(urlRequieredFull)) {
+            let values = regexp.exec(urlRequieredFull);
+            let valueIndex = 1;
             for (let key of keys) {
               let value = values[valueIndex]
               query[key.name] = value
@@ -78,7 +80,7 @@ class RestApiGet {
               // console.log(err,data);
               try {
                 if (err) {
-                  console.error("restpiIGet request error",err);
+                  console.error("restpiIGet request error", err);
                   res.status(500).send(err)
                 } else {
                   if (data.statusCode != 200) {
@@ -140,7 +142,7 @@ class RestApiGet {
                   }
                 }
               } catch (e) {
-                console.log('api error after engine call',e);
+                console.log('api error after engine call', e);
                 res.send(new Error(e.message))
               }
 

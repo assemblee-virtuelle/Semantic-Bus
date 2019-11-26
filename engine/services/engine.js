@@ -251,6 +251,7 @@ class Engine {
                 try {
                   // console.log("DFOB", primaryflow.dfob);
                   let dfobPathNormalized = this.stringReplacer.execute(primaryflow.dfob[0].path, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams, primaryflow.data);
+                  // console.log('dfobPathNormalized',dfobPathNormalized);
                   var dfobTab = dfobPathNormalized.length > 0 ? dfobPathNormalized.split('.') : []
                   // console.log('dfob',dfobTab,primaryflow.dfob[0].keepArray);
                   var dfobFinalFlow = this.buildDfobFlow(

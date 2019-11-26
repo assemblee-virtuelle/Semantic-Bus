@@ -3,8 +3,6 @@
 module.exports = {
   transform: require('jsonpath-object-transform'),
   Intl: require('intl'),
-  unicodeRegex: /&#(\d*);/g,
-  unicodeRegexReverse: /{unicode\((\d*)\)}/g,
   executeWithParams: function(source, pullParams, jsonTransformPattern) {
     // console.log('executeWithParams',source);
 
@@ -150,6 +148,7 @@ module.exports = {
     return postProcessResult.root
   },
   dissociatePatternResolvable: function(nodeIn, depth, everArrayPath) {
+
     if (depth == undefined) {
       depth = 0
     }
@@ -189,6 +188,11 @@ module.exports = {
         if (nodeIn[key] == null) {
           nodeOut[key] = undefined;
         } else if (typeof nodeIn[key] === 'string') {
+
+          let unicodeRegex = /&#(\d*);/g;
+          let unicodeRegexReverse = /{unicode\((\d*)\)}/g;
+          let charCodeRegex = /(:)/g;
+          let charCodeRegexReverse = /{charcode\((\d*)\)}/g;
           const regex = /^=(.*)/g
           const str = nodeIn[key]
           if (str.match(regex) != null) {
@@ -205,20 +209,30 @@ module.exports = {
               // console.log(dispatchParameter);
               nodeOut[key] = dispatchParameter
             }
+          } else {
+            if (nodeIn[key].startsWith('(')) {
+              nodeOut[key] = nodeIn[key].substring(1);
+            }
+
+
+            if (charCodeRegex.test(nodeIn[key])) {
+              nodeOut[key] = nodeIn[key].replace(charCodeRegex, (chn, p, decalage, s) => {
+                // console.log('ALLLO',p.charCodeAt(0));
+                return '{charcode(' + p.charCodeAt(0) + ')}'
+              })
+              // console.log('--CharCode-- Injection', key, nodeOut[key]);
+            }
+
+            if (unicodeRegex.test(nodeIn[key])) {
+              // nodeOut[key] = nodeIn[key].replace(this.unicodeRegex, '{unicode(' + '$&' + ')}');
+              nodeOut[key] = nodeIn[key].replace(unicodeRegex, (chn, p, decalage, s) => {
+                return '{unicode(' + p + ')}'
+              })
+
+              console.log(nodeOut[key]);
+            }
           }
 
-          if (nodeIn[key].startsWith('(')) {
-            nodeOut[key] = nodeIn[key].substring(1);
-          }
-
-          if (this.unicodeRegex.test(nodeIn[key])) {
-            // nodeOut[key] = nodeIn[key].replace(this.unicodeRegex, '{unicode(' + '$&' + ')}');
-            nodeOut[key] = nodeIn[key].replace(this.unicodeRegex, (chn, p, decalage, s) => {
-              return '{unicode(' + p + ')}'
-            })
-
-            console.log(nodeOut[key]);
-          }
 
           if (nodeOut[key] == undefined) {
             nodeOut[key] = nodeIn[key];
@@ -234,6 +248,7 @@ module.exports = {
     return nodeOut
   },
   dissociatePatternPostProcess: function(nodeIn, depth, everArrayPath) {
+
     if (depth == undefined) {
       depth = 0
     }
@@ -254,22 +269,29 @@ module.exports = {
     nodeOut = {}
 
     // }
+    let processes = [];
 
-    if (typeof nodeIn === 'string') {
-      const regex = /^=(.*)/g
-      const str = nodeIn[key]
-      let execResult = regex.exec(str)
-      if (execResult != null) {
-        nodeOut.process = 'javascriptExec'
-        nodeOut.processData = execResult[1]
-      };
-    }
+    // if (typeof nodeIn === 'string') {
+    //   const regex = /^=(.*)/g
+    //   const str = nodeIn[key]
+    //   let execResult = regex.exec(str)
+    //   if (execResult != null) {
+    //     processes.push({process:'javascriptExec',processData:execResult[1]})
+    //     nodeOut.process = 'javascriptExec'
+    //     nodeOut.processData = execResult[1]
+    //   };
+    // }
     if (arrayHack == true) {
-      nodeOut.process = 'arrayHack'
+      // nodeOut.process = 'arrayHack'
+      nodeOut.processes = [{
+        process: 'arrayHack'
+      }];
+      // processes.push({process:'arrayHack'})
     }
 
     for (var key in nodeIn) {
-      // console.log('node |', typeof nodeIn[key], ' | ', nodeIn[key]);
+      // console.log('dissociatePatternPostProcess |', key, '|', typeof nodeIn[key], ' | ', nodeIn[key]);
+
       if (typeof nodeIn[key] === 'object') {
         var dissociatePatternPostProcess = this.dissociatePatternPostProcess(nodeIn[key], depth + 1, everArrayPath)
         if (dissociatePatternPostProcess != undefined) {
@@ -280,35 +302,73 @@ module.exports = {
           }
         }
       } else {
+        let processes = [];
         if (typeof nodeIn[key] === 'string') {
+          let unicodeRegex = /&#(\d*);/g;
+          let unicodeRegexReverse = /{unicode\((\d*)\)}/g;
+          let charCodeRegex = /(:)/g;
+          let charCodeRegexReverse = /{charcode\((\d*)\)}/g;
           const regex = /^=(.*)/g
           const str = nodeIn[key]
           let execResult = regex.exec(str)
           if (execResult != null) {
             // console.log('javascriptExec',execResult[1]);
-            nodeOut[key] = {
+            processes.push({
               process: 'javascriptExec',
               processData: execResult[1]
+            });
+            // nodeOut[key] = {
+            //   process: 'javascriptExec',
+            //   processData: execResult[1]
+            // }
+          } else {
+            if (nodeIn[key].startsWith('(')) {
+              // nodeOut[key] = {
+              //   process: 'firstParenthesis',
+              // }
+              processes.push({
+                process: 'firstParenthesis',
+              });
             }
 
-          }
-
-          if (nodeIn[key].startsWith('(')) {
-            nodeOut[key] = {
-              process: 'firstParenthesis',
+            if (unicodeRegex.test(nodeIn[key])) {
+              processes.push({
+                process: 'unicode',
+              })
+              // nodeOut[key] = {
+              //   process: 'unicode',
+              // }
             }
-          }
-
-          if (this.unicodeRegex.test(nodeIn[key])) {
-            nodeOut[key] = {
-              process: 'unicode',
+            // console.log('nodeIn[key]',nodeIn[key],this.charCodeRegex.test(nodeIn[key]));
+            // console.log('nodeIn[key]',nodeIn[key],this.charCodeRegex.test(nodeIn[key]));
+            if (charCodeRegex.test(nodeIn[key])) {
+              processes.push({
+                process: 'charcode',
+              })
+              // nodeOut[key] = {
+              //   process: 'charcode',
+              // }
+              // console.log('--CharCode-- process',key,nodeOut[key]);
             }
           }
 
         } else if (typeof nodeIn[key] === 'number') {
-          nodeOut[key] = {
+          processes.push({
             process: 'numericHack'
+          })
+          // nodeOut[key] = {
+          //   process: 'numericHack'
+          // }
+        }
+        if (processes.length > 0) {
+          if (nodeOut[key] != undefined && nodeOut[key].processes != undefined) {
+            nodeOut[key].processes = nodeOut[key].processes.concat(processes);
+          } else {
+            nodeOut[key] = {
+              processes: processes
+            };
           }
+
         }
       }
     }
@@ -327,6 +387,10 @@ module.exports = {
   },
   postProcess: function(nodeInData, nodeInPostProcess) {
     // console.log('********'+JSON.stringify(nodeInData),nodeInPostProcess);
+    let unicodeRegex = /&#(\d*);/g;
+    let unicodeRegexReverse = /{unicode\((\d*)\)}/g;
+    let charCodeRegex = /(:)/g;
+    let charCodeRegexReverse = /{charcode\((\d*)\)}/g;
     var nodeOut
     Intl = this.Intl
 
@@ -342,84 +406,103 @@ module.exports = {
     } else if (typeof nodeInPostProcess === 'object') {
       nodeOut = {}
       for (var nodeInDataProperty in nodeInData) {
-        if (nodeInPostProcess[nodeInDataProperty] != undefined) {
-          if (nodeInPostProcess[nodeInDataProperty].process == 'javascriptExec') {
-            // console.log('-----javascriptExec-----');
-            // console.log('nodeInDataProperty', nodeInDataProperty);
-            // console.log('nodeInData[nodeInDataProperty]', nodeInData[nodeInDataProperty]);
-            // if (typeof nodeInPostProcess[nodeInDataProperty] == 'string') {
-            // console.log('PostProcess javascriptExec| ', nodeInPostProcess[nodeInDataProperty]);
-            var javascriptEvalString = nodeInPostProcess[nodeInDataProperty].processData
-            //console.log('javascriptEvalString |',javascriptEvalString)
-            //console.log('nodeInData[nodeInDataProperty] |', nodeInData[nodeInDataProperty]);
-            for (let evalParam in nodeInData[nodeInDataProperty]) {
-              // console.log('evalParam',evalParam);
-              // console.log('evalParam',evalParam,nodeInData[nodeInDataProperty]);
-              var evalParamValue = nodeInData[nodeInDataProperty][evalParam]
-              //console.log('evalParam |',evalParam,' | evalParamValue | ',evalParamValue);
-              //console.log('typeof evalParamValue',typeof evalParamValue);
-              //console.log('evalParamValue',typeof evalParamValue);
-              if (typeof evalParamValue === 'string') {
-                // evalParamValue = evalParamValue.replace(/\\/g, '\\\\')
-                // evalParamValue = evalParamValue.replace(/"/g, '\\"')
-                // evalParamValue = evalParamValue.replace(/\\/g, 'XXXXXX')
-                // evalParamValue = evalParamValue.replace(/\n/g, '\\n')
-                // evalParamValue = evalParamValue.replace(/\n/g, 'L24=')
-                // evalParamValue = evalParamValue.replace(/\n/g, '')
-                // console.log('**********************************');
-                // console.log(evalParamValue);
-                evalParamValue = '`' + evalParamValue + '`'
-              } else if (evalParamValue instanceof Date) {
-                evalParamValue = `new Date('${evalParamValue}')`
-              } else if (typeof evalParamValue === 'object') {
-                // console.log('DATE eval',evalParamValue);
-                evalParamValue = JSON.stringify(evalParamValue)
-                evalParamValue = evalParamValue.replace(/\\/g, '\\\\')
-                evalParamValue = 'JSON.parse(`' + evalParamValue + '`)';
-                // console.log('DATE post eval',evalParamValue);
-              }
-              // console.log('evalParamValue',evalParamValue);
-              let regExpValue = new RegExp('({\\' + evalParam + '})', 'g')
-              javascriptEvalString = javascriptEvalString.replace(regExpValue, evalParamValue)
-            }
-            // console.log('javascriptEvalString | ',javascriptEvalString);
-            try {
-              // console.log('includes',javascriptEvalString.includes('£'));
-              if (javascriptEvalString.includes('£')) {
-                nodeOut[nodeInDataProperty] = '=' + javascriptEvalString
-              } else {
-                // console.log('**********************************');
-                // console.log(javascriptEvalString);
-                nodeOut[nodeInDataProperty] = eval(javascriptEvalString)
-                //console.log('eval done',nodeOut[nodeInDataProperty]);
-              }
 
-            } catch (e) {
-              nodeOut[nodeInDataProperty] = {
-                error: 'Javascript Eval failed ',
-                evalString: javascriptEvalString,
-                cause: e.message
+        if (nodeInPostProcess[nodeInDataProperty] != undefined) {
+          // console.log('---- POST PROCESS----');
+          // console.log('nodeInDataProperty', nodeInDataProperty);
+          // console.log('nodeInPostProcess[nodeInDataProperty] ', nodeInPostProcess[nodeInDataProperty]);
+          // console.log('nodeInData[nodeInDataProperty]', nodeInData[nodeInDataProperty]);
+          if (nodeInPostProcess[nodeInDataProperty].processes != undefined) {
+            if (nodeInPostProcess[nodeInDataProperty].processes.filter(p => p.process == 'javascriptExec').length > 0) {
+              let process = nodeInPostProcess[nodeInDataProperty].processes.filter(p => p.process == 'javascriptExec')[0];
+              // console.log('-----javascriptExec-----');
+              // console.log('nodeInDataProperty', nodeInDataProperty);
+              // console.log('nodeInData[nodeInDataProperty]', nodeInData[nodeInDataProperty]);
+              // if (typeof nodeInPostProcess[nodeInDataProperty] == 'string') {
+              // console.log('PostProcess javascriptExec| ', nodeInPostProcess[nodeInDataProperty]);
+              var javascriptEvalString = process.processData;
+              console.log('javascriptEvalString |',javascriptEvalString)
+              console.log('nodeInData[nodeInDataProperty] |', nodeInData[nodeInDataProperty]);
+              for (let evalParam in nodeInData[nodeInDataProperty]) {
+                // console.log('evalParam',evalParam);
+                // console.log('evalParam',evalParam,nodeInData[nodeInDataProperty]);
+                var evalParamValue = nodeInData[nodeInDataProperty][evalParam]
+                console.log('evalParam |',evalParam,' | evalParamValue | ',evalParamValue);
+                //console.log('typeof evalParamValue',typeof evalParamValue);
+                //console.log('evalParamValue',typeof evalParamValue);
+                if (typeof evalParamValue === 'string') {
+                  // evalParamValue = evalParamValue.replace(/\\/g, '\\\\')
+                  // evalParamValue = evalParamValue.replace(/"/g, '\\"')
+                  // evalParamValue = evalParamValue.replace(/\\/g, 'XXXXXX')
+                  // evalParamValue = evalParamValue.replace(/\n/g, '\\n')
+                  // evalParamValue = evalParamValue.replace(/\n/g, 'L24=')
+                  // evalParamValue = evalParamValue.replace(/\n/g, '')
+                  // console.log('**********************************');
+                  // console.log(evalParamValue);
+                  evalParamValue = '`' + evalParamValue + '`'
+                } else if (evalParamValue instanceof Date) {
+                  evalParamValue = `new Date('${evalParamValue}')`
+                } else if (typeof evalParamValue === 'object') {
+                  // console.log('DATE eval',evalParamValue);
+                  evalParamValue = JSON.stringify(evalParamValue)
+                  evalParamValue = evalParamValue.replace(/\\/g, '\\\\')
+                  evalParamValue = 'JSON.parse(`' + evalParamValue + '`)';
+                  // console.log('DATE post eval',evalParamValue);
+                }
+                console.log('evalParamValue',evalParamValue);
+                let regExpValue = new RegExp('({\\' + evalParam + '})', 'g')
+                javascriptEvalString = javascriptEvalString.replace(regExpValue, evalParamValue)
               }
-              // console.log('Javascript Eval failed ', javascriptEvalString, e.message);
+              console.log('javascriptEvalString | ',javascriptEvalString);
+              try {
+                // console.log('includes',javascriptEvalString.includes('£'));
+                if (javascriptEvalString.includes('£')) {
+                  nodeOut[nodeInDataProperty] = '=' + javascriptEvalString
+                } else {
+                  // console.log('**********************************');
+                  // console.log(javascriptEvalString);
+                  nodeOut[nodeInDataProperty] = eval(javascriptEvalString)
+                  //console.log('eval done',nodeOut[nodeInDataProperty]);
+                }
+
+              } catch (e) {
+                nodeOut[nodeInDataProperty] = {
+                  error: 'Javascript Eval failed',
+                  evalString: javascriptEvalString,
+                  cause: e.message
+                }
+                // console.log('Javascript Eval failed ', javascriptEvalString, e.message);
+              }
             }
-          } else if (nodeInPostProcess[nodeInDataProperty].process == 'arrayHack') {
-            // console.log('arrayHack',nodeInDataProperty);
-            var objectToTransform = this.postProcess(nodeInData[nodeInDataProperty], nodeInPostProcess[nodeInDataProperty])
-            var arrayTransform = []
-            for (let key in objectToTransform) {
-              arrayTransform.push(objectToTransform[key])
+            if (nodeInPostProcess[nodeInDataProperty].processes.filter(p => p.process == 'arrayHack').length > 0) {
+
+              // else if (nodeInPostProcess[nodeInDataProperty].process == 'arrayHack') {
+              // console.log('arrayHack',nodeInDataProperty);
+              var objectToTransform = this.postProcess(nodeInData[nodeInDataProperty], nodeInPostProcess[nodeInDataProperty])
+              var arrayTransform = []
+              for (let key in objectToTransform) {
+                arrayTransform.push(objectToTransform[key])
+              }
+              nodeOut[nodeInDataProperty] = arrayTransform
             }
-            nodeOut[nodeInDataProperty] = arrayTransform
-          } else if (nodeInPostProcess[nodeInDataProperty].process == 'numericHack') {
-            // console.log('numericHack');
-            nodeOut[nodeInDataProperty] = Number(nodeInData[nodeInDataProperty].substr(2, nodeInData[nodeInDataProperty].length - 2))
-          } else if (nodeInPostProcess[nodeInDataProperty].process == 'firstParenthesis') {
-            // console.log('numericHack');
-            nodeOut[nodeInDataProperty] = '(' + nodeInData[nodeInDataProperty];
-          } else if (nodeInPostProcess[nodeInDataProperty].process == 'unicode') {
-            nodeOut[nodeInDataProperty] = nodeInData[nodeInDataProperty].replace(this.unicodeRegexReverse, (chn, p, decalage, s) => {
-              return '&#' + p + ';'
-            })
+            if (nodeInPostProcess[nodeInDataProperty].processes.filter(p => p.process == 'numericHack').length > 0) {
+              // console.log('numericHack');
+              nodeOut[nodeInDataProperty] = Number(nodeInData[nodeInDataProperty].substr(2, nodeInData[nodeInDataProperty].length - 2))
+            }
+            if (nodeInPostProcess[nodeInDataProperty].processes.filter(p => p.process == 'firstParenthesis').length > 0) {
+              // console.log('numericHack');
+              nodeOut[nodeInDataProperty] = '(' + nodeInData[nodeInDataProperty];
+            }
+            if (nodeInPostProcess[nodeInDataProperty].processes.filter(p => p.process == 'unicode').length > 0) {
+              nodeOut[nodeInDataProperty] = nodeInData[nodeInDataProperty].replace(unicodeRegexReverse, (chn, p, decalage, s) => {
+                return '&#' + p + ';';
+              })
+            }
+            if (nodeInPostProcess[nodeInDataProperty].processes.filter(p => p.process == 'charcode').length > 0) {
+              nodeOut[nodeInDataProperty] = nodeInData[nodeInDataProperty].replace(charCodeRegexReverse, (chn, p, decalage, s) => {
+                return String.fromCharCode(p);
+              })
+            }
           } else {
             nodeOut[nodeInDataProperty] = this.postProcess(nodeInData[nodeInDataProperty], nodeInPostProcess[nodeInDataProperty])
           }
