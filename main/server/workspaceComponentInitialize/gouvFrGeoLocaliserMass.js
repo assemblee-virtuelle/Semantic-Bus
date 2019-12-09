@@ -1,7 +1,7 @@
 'use strict'
 module.exports = {
   type: 'adresse.data.gouv.fr geolocaliser par lot',
-  description: 'interroger l\'api adresse.data.gouv pour transo une adresse en latitude et longitude par lot pour les gros volumes',
+  description: 'MAINTENANCE',
   editor: 'data-gouv-geolocaliser-mass-editor',
   graphIcon: 'Gouv_geocoding.svg',
   tags: [

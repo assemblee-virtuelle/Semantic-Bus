@@ -2,7 +2,7 @@
 class GoogleGeoLocaliser {
   constructor () {
     this.type = 'Google geocoding'
-    this.description = 'Interroger l\'API Google geocode pour trouver une adresse avec la latitude et la longitude.'
+    this.description = 'Interroger l\'API Google geocode pour trouver la latitude et la longitude à partir de une adresse.'
     this.editor = 'google-geolocaliser-editor'
     this.graphIcon = 'Google_geocoding.svg'
     this.tags = [

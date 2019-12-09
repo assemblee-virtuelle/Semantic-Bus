@@ -16,18 +16,23 @@ const fs = require('fs');
 const url = env.CONFIG_URL;
 const errorHandling = require('../core/helpers/errorHandling');
 
-app.use(cors())
-app.use(bodyParser.json({
-  limit: '10mb'
-}))
-app.use(bodyParser.urlencoded({
-  limit: '10mb',
-  extended: true
-}))
+// app.use(cors())
+// // app.use(bodyParser.json({
+// //   limit: '50mb'
+// // }))
+// app.use(bodyParser.json())
+// // app.use(bodyParser.urlencoded({
+// //   limit: '50mb',
+// //   extended: true
+// // }))
+// app.use(bodyParser.urlencoded())
 
-safe.use(bodyParser.json())
+app.use(bodyParser.json({limit: '50mb'}));
+app.use(bodyParser.urlencoded({limit: '50mb', extended: true}));
 
-http.globalAgent.maxSockets = 1000000000
+// safe.use(bodyParser.json())
+
+http.globalAgent.maxSockets = 10000000000
 
 request(url, {
   json: true

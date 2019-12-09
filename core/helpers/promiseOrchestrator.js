@@ -65,7 +65,6 @@ class PromisesExecutor {
           setTimeout(this.incrementExecute.bind(this),1)
           //this.incrementExecute();
         }).catch((e) => {
-          console.error('Promise Orchestrator Error',e);
           //this.globalOut[currentOut.index]=currentOut.value;
           this.globalOut[e.index] = e.value;
           this.incrementResolved++;
@@ -104,31 +103,17 @@ class PromiseExecutor {
       // console.log("index / length : ", this.index,'/',this.paramArray.length);
     }
 
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       let currentParams = this.paramArray[this.index];
       // console.log('apply',currentParams);
       try {
-        this.workFunction.apply(this.context, currentParams).then((currentOut) => {
-          // console.log('Promise Executor resolve');
-          //this.globalOut[this.index] = currentOut;
-          resolve({
-            index: this.index,
-            value: currentOut
-          });
-        }).catch((e) => {
-          // console.log('Promise Executor reject');
-          resolve({
-            index: this.index,
-            value: {
-              'error': e.message
-            }
-          });
-        }).then(() => {
-          // this.increment++;
-          // this.incrementExecute(context,workFunction,paramArray,option);
-        })
+        let currentOut=  await this.workFunction.apply(this.context, currentParams);
+        resolve({
+          index: this.index,
+          value: currentOut
+        });
       } catch (e) {
-        reject({
+        resolve({
           index: this.index,
           value: {
             'error': e.message

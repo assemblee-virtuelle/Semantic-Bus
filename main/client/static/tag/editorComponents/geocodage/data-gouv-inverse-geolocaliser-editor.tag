@@ -32,6 +32,10 @@
   <div class="cardInput">
     <input class="inputComponents" placeholder="Code Insee" type="text" ref="INSEEInput" value={data.specificData.INSEEPath}></input>
   </div>
+  <label class="labelFormStandard">Ville:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="Ville" type="text" ref="VilleInput" value={data.specificData.VillePath}></input>
+  </div>
   <script>
 
     this.data = {};
@@ -55,21 +59,22 @@
       configurable: true
     });
     */
-    
+
     this.on('mount', function () {
       this.refs.latInput.addEventListener('change', function (e) {
         this.data.specificData.latitudePath = e.currentTarget.value;
       }.bind(this));
-
       this.refs.lngInput.addEventListener('change', function (e) {
         this.data.specificData.longitudePath = e.currentTarget.value;
       }.bind(this));
       this.refs.INSEEInput.addEventListener('change', function (e) {
         this.data.specificData.INSEEPath = e.currentTarget.value;
       }.bind(this));
-
       this.refs.CPInput.addEventListener('change', function (e) {
         this.data.specificData.CPPath = e.currentTarget.value;
+      }.bind(this));
+      this.refs.VilleInput.addEventListener('change', function (e) {
+        this.data.specificData.VillePath = e.currentTarget.value;
       }.bind(this));
 
       RiotControl.on('item_current_changed', this.updateData);

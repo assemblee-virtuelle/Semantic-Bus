@@ -2,7 +2,7 @@
 class GouvFrGeoLocaliser {
   constructor () {
     this.type = 'data.gouv geocoding'
-    this.description = 'Interroger l\'API adresse.data.gouv.fr pour trouver une adresse avec la latitude et la longitude.'
+    this.description = 'Interroger l\'API adresse.data.gouv.fr pour trouver la latitude et la longitude à partir de une adresse.'
     this.editor = 'data-gouv-geolocaliser-editor'
     this.graphIcon = 'Gouv_geocoding.svg'
     this.tags = [

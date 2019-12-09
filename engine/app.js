@@ -17,10 +17,10 @@ const request = require('request');
 http.globalAgent.maxSockets = 1000000000
 app.use(cors())
 app.use(bodyParser.json({
-  limit: '10mb'
+  limit: '50mb'
 }))
 app.use(bodyParser.urlencoded({
-  limit: '10mb',
+  limit: '50mb',
   extended: true
 }))
 
