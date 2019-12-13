@@ -2,6 +2,7 @@ var exel = require('../exel/exel_traitment.js');
 var rdf = require('../rdf/rdf_traitment.js');
 var xml = require('../xml/xml_traitment.js');
 var csv = require('../csv/csv_traitment.js');
+var ics = require('../ics/index.js');
 
 module.exports = {
   type_file: _type_file,
@@ -105,7 +106,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
                 data: result
               })
             }, function(err) {
-              reject("votre fichier n'est pas au norme ou pas du bon format "+ extension+" , n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
+              reject("votre fichier n'est pas au norme ou pas du bon format "+ extension)
             })
             break;
 
@@ -118,7 +119,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
               //console.log(JSON.stringify(reusltat))
               resolve(result)
             }, function(err) {
-              reject("votre fichier n'est pas au norme ou pas du bon format "+ extension+", n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
+              reject("votre fichier n'est pas au norme ou pas du bon format "+ extension)
             })
             break;
 
@@ -140,7 +141,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
               // })
             }, function(err) {
               console.log(err);
-              reject("votre fichier n'est pas au norme ou pas du bon format "+ extension+", n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
+              reject("votre fichier n'est pas au norme ou pas du bon format "+ extension)
             })
             break;
 
@@ -153,7 +154,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
                 data: reusltat
               })
             }, function(err) {
-              reject("votre fichier n'est pas au norme ou pas du bon format "+ extension+", n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
+              reject("votre fichier n'est pas au norme ou pas du bon format "+ extension)
             })
             break;
           case ("csv"):
@@ -165,9 +166,21 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
               })
             }, function(err) {
               // console.log('err', err);
-              reject("votre fichier n'est pas au norme ou pas du bon format "+ extension+", n'hesitez pas a verifier que votre source d'entrée est bien un buffer")
+              reject("votre fichier n'est pas au norme ou pas du bon format "+ extension)
             })
             break;
+          case ("ics"):
+              ics.icstojson(dataString).then((result) => {
+                // //console.log("FINAL", reusltat)
+                //console.log("FINAL", reusltat)
+                resolve({
+                  data: result
+                })
+              }, function(err) {
+                // console.log('err', err);
+                reject("votre fichier n'est pas au norme ou pas du bon format "+ extension)
+              })
+              break;
           default:
             //console.log("in default")
             reject("erreur, le format du fichier n'est pas supporté ("+ extension+")")
