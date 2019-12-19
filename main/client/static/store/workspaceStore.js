@@ -692,6 +692,10 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
   // --------------------------------------------------------------------------------
 
+  this.on('workspace_current_components_refresh', function () {
+    this.trigger('workspace_current_components_changed', this.workspaceCurrent.components)
+  }.bind(this))
+
   this.on('workspace_current_add_components', function () {
     this.utilStore.ajaxCall({
       method: 'post',

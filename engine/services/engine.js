@@ -117,6 +117,12 @@ class Engine {
         this.RequestOrigineResolveMethode = resolve
         this.RequestOrigineRejectMethode = reject
 
+        if(this.originComponent.specificData.responseComponentId!=undefined){
+          this.responseComponentId=this.originComponent.specificData.responseComponentId
+        }else {
+          this.responseComponentId=this.originComponent._id;
+        }
+
         /// -------------- push case  -----------------------
         if (this.requestDirection == 'push') {
           let originNode = this.pathResolution.nodes.filter(this.sift({
@@ -127,9 +133,14 @@ class Engine {
           }
           originNode.status = 'resolved'
           this.historicEndAndCredit(originNode, new Date(), undefined, this.owner)
-
-          resolve(this.pushData)
+          // console.log(originNode.component._id,this.responseComponentId);
+          if (originNode.component._id == this.responseComponentId) {
+            resolve(this.pushData)
+            // this.originComponentResult = processingNode.dataResolution;
+          }
+          // resolve(this.pushData)
         }
+
 
         this.processNextBuildPath();
 
@@ -273,7 +284,7 @@ class Engine {
                     processingNode.status = 'resolved'
                     this.historicEndAndCredit(processingNode, startTime, undefined)
                     if (
-                      processingNode.component._id == this.originComponent._id
+                      processingNode.component._id == this.responseComponentId
                     ) {
                       this.RequestOrigineResolveMethode(
                         processingNode.dataResolution
@@ -325,7 +336,7 @@ class Engine {
                       processingNode.status = 'resolved'
                       this.historicEndAndCredit(processingNode, startTime, undefined)
                       if (
-                        processingNode.component._id == this.originComponent._id
+                        processingNode.component._id == this.responseComponentId
                       ) {
                         this.RequestOrigineResolveMethode(
                           processingNode.dataResolution
@@ -359,8 +370,13 @@ class Engine {
                     processingNode.dataResolution = componentFlow
                     processingNode.status = 'resolved'
                     this.historicEndAndCredit(processingNode, startTime, undefined)
-                    if (processingNode.component._id == this.originComponent._id) {
-                      this.originComponentResult = processingNode.dataResolution;
+                    console.log(processingNode.component._id,this.responseComponentId);
+                    if (processingNode.component._id == this.responseComponentId) {
+                      console.log('ALLOOOO');
+                      this.RequestOrigineResolveMethode(
+                        processingNode.dataResolution
+                      )
+                      // this.originComponentResult = processingNode.dataResolution;
                     }
                     // console.log(this.processNextBuildPath);
                     this.processNextBuildPath('normal ok')
@@ -412,7 +428,7 @@ class Engine {
               });
               this.workflow.status = 'resolved';
               this.workspace_lib.updateSimple(this.workflow)
-              this.RequestOrigineResolveMethode(this.originComponentResult);
+              // this.RequestOrigineResolveMethode(this.originComponentResult);
             }
             this.workspace_lib.cleanOldProcess(this.workflow).then(processes => {
               // console.log(processes);

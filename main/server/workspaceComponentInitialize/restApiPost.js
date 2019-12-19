@@ -29,7 +29,8 @@ class RestApiPost {
           }
           // eslint-disable-next-line handle-callback-err
           , (err, dataToSend) => {
-            if (err.code) {
+            console.log(err,dataToSend.body);
+            if (err!=null && err.code) {
               res.status(err.code).send(err.message)
             } else {
               next(err)

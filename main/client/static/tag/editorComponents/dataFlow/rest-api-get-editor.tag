@@ -38,7 +38,7 @@
     urlInputChanged(e) {
       this.data.specificData.urlName = e.currentTarget.value;
       this.data.specificData.url=this.data._id + '-'+this.data.specificData.urlName;
-      console.log('url',this.data.specificData.url);
+      // console.log('url',this.data.specificData.url);
     }
     contentTypeInputChanged(e) {
       this.data.specificData.contentType = e.currentTarget.value;
