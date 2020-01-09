@@ -7,7 +7,7 @@ var userModel = require("../models/user_model");
 var config = require("../getConfiguration.js")();
 var historiqueEndModel = require("../models/historiqueEnd_model");
 var processModel = require("../models/process_model");
-var sift = require("sift");
+var sift = require("sift").default;
 var graphTraitement = require("../helpers/graph-traitment");
 const Error = require('../helpers/error.js');
 
@@ -241,9 +241,9 @@ function _get_process_byWorkflow(workflowId) {
                       reject(new Error.DataBaseProcessError(err))
                     } else {
                       for (let step of process.steps) {
-                        let historiqueEndFinded = sift({
+                        let historiqueEndFinded = historiqueEnd.filter(sift({
                           componentId: step.componentId
-                        }, historiqueEnd)[0];
+                        }))[0];
                         if (historiqueEndFinded != undefined) {
                           if (historiqueEndFinded.error != undefined) {
                             step.status = 'error';
@@ -441,24 +441,22 @@ function _get_all(userID, role) {
       })
       .lean()
       .exec(async (_error, data) => {
-        data.workspaces = sift({
+        data.workspaces = data.workspaces.filter(sift({
             _id: {
               $ne: null
             }
-          },
-          data.workspaces
-        );
+          }
+        ));
         data.workspaces = data.workspaces.map(r => {
           return {
             workspace: r._id,
             role: r.role,
           };
         });
-        const workspaces = sift({
+        const workspaces = data.workspaces.filter(sift({
             role: role
-          },
-          data.workspaces
-        ).map(r => r.workspace);
+          }
+        )).map(r => r.workspace);
 
         const ProcessPromiseArray = [];
 
@@ -488,9 +486,9 @@ function _get_all(userID, role) {
                         } else {
                           for (let step of processes[0].steps) {
 
-                            const historiqueEndFinded = sift({
+                            const historiqueEndFinded =historiqueEnd.filter(sift({
                               componentId: step.componentId
-                            }, historiqueEnd)[0];
+                            }))[0];
 
                             if (processes[0].state === "stop") {
                               workspace.status = 'stoped';
@@ -520,7 +518,7 @@ function _get_all(userID, role) {
                     }
                   }
                 })
-                console.log(workspace.status);
+              console.log(workspace.status);
 
             } else {
               resolve(workspace);
@@ -631,19 +629,17 @@ function _get_workspace(workspace_id) {
           return reject(new Error.EntityNotFoundError('workspaceModel'))
         }
         workspace = workspaceIn;
-
         //protection against broken link and empty specificData : corrupt data
-        workspace.components = sift({
+        workspace.components = workspace.components.filter(sift({
             $ne: null
-          },
-          workspace.components
-        ).map(c => {
+          }
+        )).map(c => {
           c.specificData = c.specificData || {};
           return c;
         });
 
         let componentsId = workspace.components.map(c => c._id);
-        workspace.links = sift({
+        workspace.links = workspace.links.filter(sift({
           $and: [{
             source: {
               $in: componentsId
@@ -653,7 +649,7 @@ function _get_workspace(workspace_id) {
               $in: componentsId
             }
           }]
-        }, workspace.links)
+        }))
 
         return userModel.getInstance().model.find({
             workspaces: {
@@ -698,9 +694,9 @@ function _get_workspace(workspace_id) {
                     } else {
                       for (let step of processes[0].steps) {
 
-                        const historiqueEndFinded = sift({
+                        const historiqueEndFinded = historiqueEnd.filter(sift({
                           componentId: step.componentId
-                        }, historiqueEnd)[0];
+                        }))[0];
 
                         if (processes[0].state === "stop") {
                           workspace.status = 'stoped';
@@ -825,9 +821,9 @@ function _removeConnection(workspaceId, linkId) {
       if (workspace == null) {
         return reject(new Error.EntityNotFoundError('workspaceModel'))
       }
-      let targetLink = sift({
+      let targetLink = workspace.links.filter(sift({
         _id: linkId
-      }, workspace.links)[0];
+      }))[0];
       if (targetLink != undefined) {
         workspace.links.splice(workspace.links.indexOf(targetLink), 1);
         return workspaceModel.getInstance().model.findOneAndUpdate({

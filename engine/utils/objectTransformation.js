@@ -421,13 +421,13 @@ module.exports = {
               // if (typeof nodeInPostProcess[nodeInDataProperty] == 'string') {
               // console.log('PostProcess javascriptExec| ', nodeInPostProcess[nodeInDataProperty]);
               var javascriptEvalString = process.processData;
-              console.log('javascriptEvalString |',javascriptEvalString)
-              console.log('nodeInData[nodeInDataProperty] |', nodeInData[nodeInDataProperty]);
+              // console.log('javascriptEvalString |',javascriptEvalString)
+              // console.log('nodeInData[nodeInDataProperty] |', nodeInData[nodeInDataProperty]);
               for (let evalParam in nodeInData[nodeInDataProperty]) {
                 // console.log('evalParam',evalParam);
                 // console.log('evalParam',evalParam,nodeInData[nodeInDataProperty]);
                 var evalParamValue = nodeInData[nodeInDataProperty][evalParam]
-                console.log('evalParam |',evalParam,' | evalParamValue | ',evalParamValue);
+                // console.log('evalParam |',evalParam,' | evalParamValue | ',evalParamValue);
                 //console.log('typeof evalParamValue',typeof evalParamValue);
                 //console.log('evalParamValue',typeof evalParamValue);
                 if (typeof evalParamValue === 'string') {
@@ -449,11 +449,11 @@ module.exports = {
                   evalParamValue = 'JSON.parse(`' + evalParamValue + '`)';
                   // console.log('DATE post eval',evalParamValue);
                 }
-                console.log('evalParamValue',evalParamValue);
+                // console.log('evalParamValue',evalParamValue);
                 let regExpValue = new RegExp('({\\' + evalParam + '})', 'g')
                 javascriptEvalString = javascriptEvalString.replace(regExpValue, evalParamValue)
               }
-              console.log('javascriptEvalString | ',javascriptEvalString);
+              // console.log('javascriptEvalString | ',javascriptEvalString);
               try {
                 // console.log('includes',javascriptEvalString.includes('£'));
                 if (javascriptEvalString.includes('£')) {

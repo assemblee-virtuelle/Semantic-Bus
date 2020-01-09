@@ -2,7 +2,7 @@
 var workspaceComponentModel = require('../models/workspace_component_model');
 var workspaceModel = require('../models/workspace_model');
 var historiqueEndModel = require("../models/historiqueEnd_model");
-var sift = require('sift');
+var sift = require('sift').default;
 const Error = require('../helpers/error.js');
 
 // --------------------------------------------------------------------------------
@@ -171,7 +171,7 @@ function _remove(componentToDelete) {
             if (err) {
               reject(new Error.DataBaseProcessError(err))
             } else {
-              workspace.links = sift({
+              workspace.links =workspace.links.filter(sift({
                 $and: [{
                   source: {
                     $ne: componentToDelete._id
@@ -181,7 +181,7 @@ function _remove(componentToDelete) {
                     $ne: componentToDelete._id
                   }
                 }]
-              }, workspace.links);
+              }));
               workspace.save();
               resolve(componentToDelete);
             }

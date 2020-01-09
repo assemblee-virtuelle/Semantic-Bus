@@ -165,7 +165,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
                 data: result
               })
             }, function(err) {
-              // console.log('err', err);
+              console.log('err', err);
               reject("votre fichier n'est pas au norme ou pas du bon format "+ extension)
             })
             break;

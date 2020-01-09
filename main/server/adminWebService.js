@@ -1,8 +1,7 @@
 var error_lib = require('../../core').error
 var configuration = require('../configuration')
-var sift = require('sift')
 
-//  ------------------------- THIS PART IS DISABLE FOR NOW  ------------------------------- 
+//  ------------------------- THIS PART IS DISABLE FOR NOW  -------------------------------
 
 module.exports = function (router) {
   // router.get('/errors', function (req, res, next) {

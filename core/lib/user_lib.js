@@ -3,7 +3,7 @@
 let userModel = require("../models/user_model");
 let pattern = require("../helpers").patterns;
 let bcrypt = require("bcryptjs");
-let sift = require("sift");
+let sift = require("sift").default;
 let graphTraitement = require("../helpers/graph-traitment");
 let historiqueModel = require("../models").historiqueEnd;
 let SecureMailModel = require("../models/security_mail");
@@ -212,23 +212,23 @@ function _getWithRelations(userID) {
         })
         .lean()
         .exec((error, data) => {
-          data.workspaces = sift({
+          data.workspaces = data.workspaces.filter(sift({
             _id: {
               $ne: null
             }
-          }, data.workspaces);
+          }));
           data.workspaces = data.workspaces.map(r => {
             return {
               workspace: r._id,
               role: r.role
             };
           });
-          data.bigdataflow = sift({
+          data.bigdataflow = data.bigdataflow.filter(sift({
             _id: {
               $ne: null
             }
-          }, data.bigdataflow);
-          Array.isArray(data.bigdataflow) ? 
+          }));
+          Array.isArray(data.bigdataflow) ?
           data.bigdataflow = data.bigdataflow.map(r => {
             return {
               bigdataflow: r._id,

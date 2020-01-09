@@ -20,12 +20,16 @@ function decode_utf8(s) {
 function _csvtojson(data) {
   // console.log("CSV CSV CSV CSV");
   return new Promise((resolve, reject) => {
+    // console.log(  csv({
+    //     noheader: true,
+    //     delimiter: "auto"
+    //   }).fromString(data));
     try {
       csv({
         noheader: true,
         delimiter: "auto"
       }).fromString(data).then(jsonObj=>{
-        resolve(jsonArr);
+        resolve(jsonObj);
       }).catch(e=>{
         reject(e);
       })

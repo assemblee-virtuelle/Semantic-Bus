@@ -372,7 +372,6 @@ class Engine {
                     this.historicEndAndCredit(processingNode, startTime, undefined)
                     console.log(processingNode.component._id,this.responseComponentId);
                     if (processingNode.component._id == this.responseComponentId) {
-                      console.log('ALLOOOO');
                       this.RequestOrigineResolveMethode(
                         processingNode.dataResolution
                       )

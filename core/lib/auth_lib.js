@@ -115,7 +115,7 @@ class AuthLib {
       iss: user._id,
       subject: user.googleid,
     }
-    
+
     const token = jwt.encode(payload, config.secret);
 
     const authenticationModelInstance = authenticationModel.getInstance().model;
@@ -172,7 +172,7 @@ class AuthLib {
           .lean()
           .exec()
           .then(user => {
-            
+
             user.googleToken = null;
             user.active = true
             //console.log(user)
@@ -285,7 +285,7 @@ class AuthLib {
         res.sendStatus('401');
         return;
       }
-      
+
 
     }
   }
