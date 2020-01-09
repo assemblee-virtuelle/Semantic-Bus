@@ -13,7 +13,7 @@ class RestGetJson {
     return new Promise((resolve, reject) => {
       let urlString = specificData.url
       urlString = this.stringReplacer.execute(urlString, pullParams, flowdata, true);
-      // console.log('urlString',JSON.stringify(urlString));
+      console.log('urlString',JSON.stringify(urlString));
       let headers = {}
       if (specificData.headers != undefined) {
         for (let header of specificData.headers) {

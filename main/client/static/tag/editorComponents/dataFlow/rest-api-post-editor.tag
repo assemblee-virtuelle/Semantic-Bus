@@ -21,7 +21,7 @@
   </div>
   <label class="labelFormStandard">URL de l'API:</label>
   <div class="cardInput">
-    <a class="linkApi" ref="link" target="_blank" href={'http://semantic-bus.org/data/api/' +data.specificData.url}>{'http://semantic-bus.org/data/api/'+data.specificData.url}</a>
+    <a class="linkApi" ref="link" target="_blank" href={'http://grappe.io/data/api/' +data.specificData.url}>{'http://grappe.io/data/api/'+data.specificData.url}</a>
   </div>
   <label class="labelFormStandard">Content-type:</label>
   <div class="cardInput">
