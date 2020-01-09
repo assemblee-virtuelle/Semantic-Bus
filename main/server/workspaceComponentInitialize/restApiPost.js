@@ -29,13 +29,13 @@ class RestApiPost {
           }
           // eslint-disable-next-line handle-callback-err
           , (err, dataToSend) => {
-            console.log(err,dataToSend.body);
+            // console.log(err,dataToSend.body);
             if (err!=null && err.code) {
               res.status(err.code).send(err.message)
             } else {
               next(err)
             }
-            res.send({ data: dataToSend.body })
+            res.send(dataToSend.body.data)
           })
       })
     })
