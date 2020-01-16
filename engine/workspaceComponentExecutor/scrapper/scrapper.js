@@ -171,14 +171,21 @@ class Scrapper {
               await scrappingFunction(action, client);
             } else {
               let elmts = await client.$$(effectivSelector);
-              for (let elmt of elmts) {
-                let res = await scrappingFunction(action, client, elmt);
-                if (data[action.action] == undefined) {
-                  data[action.action] = [res];
-                } else {
-                  data[action.action].push(res);
+              if(elmts.length>0){
+                for (let elmt of elmts) {
+                  let res = await scrappingFunction(action, client, elmt);
+                  if (data[action.action] == undefined) {
+                    data[action.action] = [res];
+                  } else {
+                    data[action.action].push(res);
+                  }
                 }
+              }else{
+                data[action.action] = {
+                  error: `no element exist for seletor ${effectivSelector}`
+                };
               }
+
             }
           } catch (e) {
             data[action.action] = {
