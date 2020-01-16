@@ -19,11 +19,11 @@ class Scrapper {
       }
     }
   }
-  waitFor(client, action, cb) {
+  waitFor(action, client) {
     return new Promise(function(resolve, reject) {
       client.waitForVisible(action.selector, 20000)
         .then(function(visible) {
-          cb
+          resolve();
         }).catch(err => {
           reject(err)
         })
@@ -31,29 +31,20 @@ class Scrapper {
   };
 
   simulateClick(action, client, elmt) {
-    // console.log(" ------ simulateClick function ----", action)
+    // console.log(" ------ simulateClick function ----", elmt)
     return new Promise(function(resolve, reject) {
-      // let elmt = await client.$(action.selector)
       elmt.click().then(elem => {
-        // console.log('resolve',elem);
-        // console.log('resolve');
         resolve('click done')
       }).catch(e => {
-        // console.log('reject',e);
-        // console.log('reject');
         reject(e)
       })
-      //resolve(client.element(action.selector).click())
+
     })
   };
 
   getAttr(action, client, elmt) {
     return new Promise(function(resolve, reject) {
       elmt.getAttribute(action.attribut).then(function(elem) {
-        if (!Array.isArray(elem)) {
-          elem = [elem]
-        }
-        // console.log("in return promise ", elem)
         resolve(elem)
       }).catch((err) => {
         reject(err)
@@ -62,16 +53,11 @@ class Scrapper {
   }
 
   getHtml(action, client, elmt) {
-    // console.log("IN GET HTML")
+    // console.log("----- GET HTML ------")
     return new Promise(function(resolve, reject) {
       elmt.getText().then(function(elem) {
-        // console.log("in return promise ", elem)
-        if (!Array.isArray(elem)) {
-          elem = [elem]
-        }
         resolve(elem)
       }).catch((err) => {
-        // console.log("ERRROR", err);
         reject(err)
       })
     })
@@ -81,10 +67,8 @@ class Scrapper {
     return new Promise(function(resolve, reject) {
       // console.log("--- in get text ----- ")
       elmt.getValue().then(function(elem) {
-        // console.log("in return promise ", elem)
         resolve(elem)
       }).catch((err) => {
-        // console.log("ERRROR", err)
         reject(err)
       })
     })
@@ -111,14 +95,13 @@ class Scrapper {
       elmt.setValue(action.setValue).then((elem) => {
         resolve(elem)
       }).catch((err) => {
-        // console.log("ERRROR", err);
         reject(err)
       })
     })
   }
 
   wait(action, client) {
-    // console.log("---- set value ----", action.setValue)
+    // console.log("---- wait ----", action.setValue)
     return new Promise((resolve, reject) => {
       setTimeout(() => {
         resolve()
@@ -155,59 +138,59 @@ class Scrapper {
     return new Promise(async (resolve, reject) => {
       try {
         let timeout = specificData.timeout == undefined ? 20000 : specificData.timeout * 1000
-        for(let action of actions){
+        for (let action of actions) {
           let effectivSelector = action.selector || 'body';
           let existing = false;
-          let elmt = await client.$(effectivSelector);
-          existing = await elmt.isExisting();
-          if (!existing) {
-            try {
-              await elmt.waitForExist(timeout);
-              existing = true;
-            } catch (e) {
-              data[action.action] = {error:"not existing after " + timeout + " ms"};
-            }
+          let scrappingFunction
+          switch (action.actionType) {
+            case ('scroll'):
+              scrappingFunction = this.scroll
+              break;
+            case ('click'):
+              scrappingFunction = this.simulateClick
+              break;
+            case ('setValue'):
+              scrappingFunction = this.setValue
+              break;
+            case ('getHtml'):
+              scrappingFunction = this.getHtml
+              break;
+            case ('getAttr'):
+              scrappingFunction = this.getAttr
+              break;
+            case ('getValue'):
+              scrappingFunction = this.getText
+              break;
+            case ('wait'):
+              scrappingFunction = this.wait
+              break;
+            default:
           }
-          if (existing) {
-            let scrappingFunction
-            switch (action.actionType) {
-              case ('scroll'):
-                scrappingFunction = this.scroll
-                break;
-              case ('click'):
-                scrappingFunction = this.simulateClick
-                break;
-                // case ('selectByValue'):
-                //   scrappingFunction = this.selectByValue
-                //   break;
-              case ('setValue'):
-                scrappingFunction = this.setValue
-                break;
-              case ('getHtml'):
-                scrappingFunction = this.getHtml
-                break;
-              case ('getAttr'):
-                scrappingFunction = this.getAttr
-                break;
-              case ('getValue'):
-                scrappingFunction = this.getText
-                break;
-              case ('wait'):
-                scrappingFunction = this.wait
-                break;
-              default:
+          try {
+            if (action.actionType.includes('wait')) {
+              await scrappingFunction(action, client);
+            } else {
+              let elmts = await client.$$(effectivSelector);
+              for (let elmt of elmts) {
+                let res = await scrappingFunction(action, client, elmt);
+                if (data[action.action] == undefined) {
+                  data[action.action] = [res];
+                } else {
+                  data[action.action].push(res);
+                }
+              }
             }
-            try {
-              let res = await scrappingFunction(action, client,elmt);
-              data[action.action] = res;
-            } catch (e) {
-              data[action.action] = {error:e.message};
-            }
+          } catch (e) {
+            data[action.action] = {
+              error: e.message
+            };
           }
         }
+
         // console.log('AGREGATED DATA',data);
         resolve(data);
       } catch (e) {
+        console.error(e);
         reject(e);
       }
     });
@@ -218,10 +201,8 @@ class Scrapper {
 
     return new Promise(async (resolve, reject) => {
       try {
-        let url = this.stringReplacer.execute(specificData.url, queryParams, flowData)
-
-        // console.log('URL', typeof(url), url);
-        // throw new Error ('test');
+        let timeout = specificData.timeout == undefined ? 20000 : specificData.timeout * 1000;
+        let url = this.stringReplacer.execute(specificData.url, queryParams, flowData);
 
         let user = specificData.user;
         let key = specificData.key;
@@ -245,7 +226,7 @@ class Scrapper {
             // 'public': true
           },
           services: ['sauce'],
-          // waitforTimeout:5000,
+          waitforTimeout: timeout,
           // "semanticbusdev@gmail.com"
           // "882170ce-1971-4aa8-9b2d-0d7f89ec7b71"
           user: user,
@@ -255,22 +236,20 @@ class Scrapper {
           // region: 'us',
           // sauceConnect: true
         });
-        // console.log(options);
+
 
         client = await this.webdriverio.remote(options);
         let data = flowData || {}
         let depth = 0
-        // console.log("----  before recursive ------ ")
+
         if (user == null || key == null) {
           reject('Scrapper: no connection data')
         } else {
-          // console.log('saucelab connection initialisation');
+
 
 
           client.url(url)
             .then(() => {
-              // console.log('saucelab connection ok');
-              // console.log("before aggregate fonction", actions, client, depth, data);
               this.aggregateAction(actions, client, data, specificData).then((res) => {
                 // console.log("--traitmeent terminé final ----", res)
                 resolve({
@@ -286,14 +265,6 @@ class Scrapper {
               reject(err)
             })
 
-
-          // client.init().then(() => {
-          //   console.log('CLIENT INIT');
-          //
-          // }).catch(e => {
-          //   console.log('ERROR INIT');
-          //   reject(err)
-          // })
         }
 
       } catch (e) {

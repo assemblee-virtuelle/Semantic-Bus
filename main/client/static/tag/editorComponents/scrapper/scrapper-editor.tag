@@ -61,7 +61,7 @@
         <div class="containerRowScrapper">
           <div class="tableRowAction">
             <select style="width: 90%; height: 70%;" data-field="actionType" ref="actionType">
-              <option each={optionValue in [" " , "getValue" , "getHtml" , "getAttr" , "setValue" , "click" , "scroll" ,"selectByValue","wait" ]} value={optionValue} selected={actionType==optionValue}>{optionValue}</option>
+              <option each={optionValue in [" " , "getValue" , "getHtml" , "getAttr" , "setValue" , "click" , "scroll","wait" ]} value={optionValue} selected={actionType==optionValue}>{optionValue}</option>
             </select>
           </div>
           <div class="tableRowName">

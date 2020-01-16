@@ -16,7 +16,7 @@ function _extension(filename, contentType) {
   // console.log("contentType", contentType)
   // console.log("filename", filename)
   return new Promise(function(resolve, reject) {
-
+    console.log('filename',filename);
     if (filename != null) {
       //console.log(filename.match(reg)[0])
       //let matchArray=filename.match(reg);
@@ -65,6 +65,7 @@ function _buildFile(filename, dataString, dataBuffer, out, contentType) {
 function _type_file(filename, dataString, dataBuffer, out, contentType) {
   //console.log("in aggregate function")
   return _extension(filename, contentType).then(function(extension) {
+    console.log(extension);
     return new Promise(function(resolve, reject) {
       if (out == true || out == 'true') {
         //console.log(out)
@@ -170,6 +171,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
             })
             break;
           case ("ics"):
+          case ("calendar"):
               ics.icstojson(dataString).then((result) => {
                 // //console.log("FINAL", reusltat)
                 //console.log("FINAL", reusltat)

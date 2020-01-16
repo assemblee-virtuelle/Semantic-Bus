@@ -16,13 +16,26 @@ class PostConsumer {
       return Promise.reject(new Error('Only application/json contentType is currently supported for Post consumer component'))
     }
 
-    return this.call_url(componentConfig.url, {
-      method: 'POST',
-      body: body,
-      headers: {
-        'Content-Type': componentConfig.contentType
-      }
-    })
+    return new Promise((resolve,reject)=>{
+      this.call_url(componentConfig.url, {
+        method: 'POST',
+        body: body,
+        headers: {
+          'Content-Type': componentConfig.contentType
+        }
+      }).then(response=>{
+        console.log('response',response);
+        response.text().then(data=>{
+          console.log('data',data);
+          resolve({
+            data:data
+          })
+        })
+
+      })
+    });
+
+
   }
 
   call_url (url, options, numRetry) {

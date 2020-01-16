@@ -367,10 +367,10 @@ class Engine {
                 try {
                   module.pull(processingNode.component, dataFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams).then(componentFlow => {
                     // console.log('commponentFlow',componentFlow);
-                    processingNode.dataResolution = componentFlow
-                    processingNode.status = 'resolved'
+                    processingNode.dataResolution = componentFlow;
+                    processingNode.status = 'resolved';
                     this.historicEndAndCredit(processingNode, startTime, undefined)
-                    console.log(processingNode.component._id,this.responseComponentId);
+                    // console.log(processingNode.component._id,this.responseComponentId);
                     if (processingNode.component._id == this.responseComponentId) {
                       this.RequestOrigineResolveMethode(
                         processingNode.dataResolution
