@@ -28,7 +28,6 @@ class Filter {
 
       try {
         let filterResult = this.objectTransformation.execute(pullParams, filter);
-        // console.log('filterResult',filterResult);
         var resultData = usableData.filter(this.sift(filterResult));
         resolve({
           data: resultData

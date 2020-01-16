@@ -223,18 +223,24 @@ function _getWithRelations(userID) {
               role: r.role
             };
           });
-          data.bigdataflow = data.bigdataflow.filter(sift({
-            _id: {
-              $ne: null
-            }
-          }));
-          Array.isArray(data.bigdataflow) ?
-          data.bigdataflow = data.bigdataflow.map(r => {
-            return {
-              bigdataflow: r._id,
-              role: r.role
-            };
-          }) : data.bigdataflow = []
+          //TODO REFACTORING and suppression
+          if(data.bigdataflow!=undefined){
+            data.bigdataflow = data.bigdataflow.filter(sift({
+              _id: {
+                $ne: null
+              }
+            }));
+            Array.isArray(data.bigdataflow) ?
+            data.bigdataflow = data.bigdataflow.map(r => {
+              return {
+                bigdataflow: r._id,
+                role: r.role
+              };
+            }) : data.bigdataflow = []
+          }else {
+            data.bigdataflow = []
+          }
+
           resolve(data);
         });
     } catch (e) {
