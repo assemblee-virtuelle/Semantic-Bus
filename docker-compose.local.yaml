@@ -1,6 +1,6 @@
 version: '3.0'
-services:         
-  
+services:
+
   rabbitmq:
     image: semanticbus/rabbitmq-stomp
     container_name: rabbitmq
@@ -9,13 +9,13 @@ services:
       - 15674:15674
       - 15672:15672
     networks:
-      - back  
-      
+      - back
+
   mongodb:
-    image: mongo
+    image: mongo:4.0.6
     restart: always
     networks:
-      - back  
+      - back
     ports:
       - "27017:27017"
     expose:
@@ -27,5 +27,5 @@ services:
 volumes:
   data:
 
-networks: 
-  back: 
+networks:
+  back:
