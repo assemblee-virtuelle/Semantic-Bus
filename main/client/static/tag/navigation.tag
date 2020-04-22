@@ -262,11 +262,6 @@
       position: absolute;
       z-index: 1;
     }
-    #row {
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-    }
     #loaderText {
       padding-top: 5%;
       color: #3498db;
@@ -278,6 +273,12 @@
       animation: bounce 0.5s linear infinite;
       animation-direction: alternate;
     }
+    #row {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+    }
+
     @keyframes bounce {
       0% {
         transform: scale(1);

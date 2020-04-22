@@ -3,10 +3,10 @@
 module.exports = {
   transform: require('jsonpath-object-transform'),
   Intl: require('intl'),
-  executeWithParams: function(source, pullParams, jsonTransformPattern) {
+  executeWithParams: function(source, pullParams, jsonTransformPattern,options) {
     // console.log('executeWithParams',source);
 
-    let out = this.execute(source, jsonTransformPattern, pullParams != undefined)
+    let out = this.execute(source, jsonTransformPattern, pullParams != undefined,options)
     // console.log('executeWithParams out',JSON.stringify(out));
     if (pullParams != undefined) {
       //let newJsonTransformPattern = this.convertOperatorParams(jsonTransformPattern)
@@ -14,7 +14,7 @@ module.exports = {
       let newJsonTransformPattern = this.convertOperatorParams(out)
       // console.log("newJsonTransformPattern", JSON.stringify(newJsonTransformPattern));
       // console.log("pullParams", JSON.stringify(pullParams));
-      out = this.execute(pullParams, newJsonTransformPattern)
+      out = this.execute(pullParams, newJsonTransformPattern,options)
       // console.log('out1', out);
       // console.log('out2', out2);
       // out = this.mergeParams(out, out2)
@@ -53,7 +53,7 @@ module.exports = {
     return pushFlow
   },
 
-  execute: function(source, jsonTransformPattern, skeepUnresolved) {
+  execute: function(source, jsonTransformPattern, skeepUnresolved,options) {
 
     // console.log("source", source,'jsonTransformPattern', jsonTransformPattern )
     // console.log('Object Transformer | source',source,' | pattern | ',jsonTransformPattern);
@@ -98,8 +98,8 @@ module.exports = {
       jsonTransformPattern = destArray
     }
 
-    var dissociatePatternResolvable = this.dissociatePatternResolvable(jsonTransformPattern)
-    var dissociatePatternPostProcess = this.dissociatePatternPostProcess(jsonTransformPattern)
+    var dissociatePatternResolvable = this.dissociatePatternResolvable(jsonTransformPattern,undefined,undefined,options)
+    var dissociatePatternPostProcess = this.dissociatePatternPostProcess(jsonTransformPattern,undefined,undefined,options)
 
     // console.log('jsonTransform | postProcess | ', JSON.stringify(dissociatePatternPostProcess));
     // console.log('jsonTransform | resolvable | ', JSON.stringify(dissociatePatternResolvable));
@@ -247,8 +247,7 @@ module.exports = {
     // console.log(nodeOut);
     return nodeOut
   },
-  dissociatePatternPostProcess: function(nodeIn, depth, everArrayPath) {
-
+  dissociatePatternPostProcess: function(nodeIn, depth, everArrayPath,options) {
     if (depth == undefined) {
       depth = 0
     }
@@ -293,7 +292,7 @@ module.exports = {
       // console.log('dissociatePatternPostProcess |', key, '|', typeof nodeIn[key], ' | ', nodeIn[key]);
 
       if (typeof nodeIn[key] === 'object') {
-        var dissociatePatternPostProcess = this.dissociatePatternPostProcess(nodeIn[key], depth + 1, everArrayPath)
+        var dissociatePatternPostProcess = this.dissociatePatternPostProcess(nodeIn[key], depth + 1, everArrayPath,options)
         if (dissociatePatternPostProcess != undefined) {
           if (Array.isArray(nodeOut)) {
             nodeOut.push(dissociatePatternPostProcess)
@@ -315,7 +314,8 @@ module.exports = {
             // console.log('javascriptExec',execResult[1]);
             processes.push({
               process: 'javascriptExec',
-              processData: execResult[1]
+              processData: execResult[1],
+              options : options
             });
             // nodeOut[key] = {
             //   process: 'javascriptExec',
@@ -423,6 +423,7 @@ module.exports = {
               var javascriptEvalString = process.processData;
               // console.log('javascriptEvalString |',javascriptEvalString)
               // console.log('nodeInData[nodeInDataProperty] |', nodeInData[nodeInDataProperty]);
+              let consoleLog=false;
               for (let evalParam in nodeInData[nodeInDataProperty]) {
                 // console.log('evalParam',evalParam);
                 // console.log('evalParam',evalParam,nodeInData[nodeInDataProperty]);
@@ -446,12 +447,19 @@ module.exports = {
                   // console.log('DATE eval',evalParamValue);
                   evalParamValue = JSON.stringify(evalParamValue)
                   evalParamValue = evalParamValue.replace(/\\/g, '\\\\')
-                  evalParamValue = 'JSON.parse(`' + evalParamValue + '`)';
+                  evalParamValue = 'JSON.parse(\'' + evalParamValue + '\')';
                   // console.log('DATE post eval',evalParamValue);
                 }
                 // console.log('evalParamValue',evalParamValue);
                 let regExpValue = new RegExp('({\\' + evalParam + '})', 'g')
+
                 javascriptEvalString = javascriptEvalString.replace(regExpValue, evalParamValue)
+                if(evalParam=='$.siteError'){
+                  consoleLog=true
+                }
+              }
+              if(consoleLog){
+                console.log('javascriptEvalString | ',javascriptEvalString);
               }
               // console.log('javascriptEvalString | ',javascriptEvalString);
               try {
@@ -461,16 +469,26 @@ module.exports = {
                 } else {
                   // console.log('**********************************');
                   // console.log(javascriptEvalString);
-                  nodeOut[nodeInDataProperty] = eval(javascriptEvalString)
+                  if(process.options  && process.options.evaluationDetail==true){
+                    nodeOut[nodeInDataProperty] = {eval:eval(javascriptEvalString)};
+                  }else{
+                    nodeOut[nodeInDataProperty] = eval(javascriptEvalString);
+                  }
+
                   //console.log('eval done',nodeOut[nodeInDataProperty]);
                 }
 
               } catch (e) {
-                nodeOut[nodeInDataProperty] = {
-                  error: 'Javascript Eval failed',
-                  evalString: javascriptEvalString,
-                  cause: e.message
+                if(process.options  && process.options.evaluationDetail==true){
+                  nodeOut[nodeInDataProperty] = {
+                    error: 'Javascript Eval failed',
+                    errorDetail: {
+                      evalString: javascriptEvalString,
+                      cause: e.message
+                    }
+                  }
                 }
+
                 // console.log('Javascript Eval failed ', javascriptEvalString, e.message);
               }
             }

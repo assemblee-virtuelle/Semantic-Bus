@@ -13,8 +13,9 @@ class ObjectTransformer {
     return entity
   }
 
-  jsonTransform (source, jsonTransformPattern, pullParams) {
-    let out =  this.objectTransformation.executeWithParams(source, pullParams, jsonTransformPattern)
+  jsonTransform (source, jsonTransformPattern, pullParams,options) {
+
+    let out =  this.objectTransformation.executeWithParams(source, pullParams, jsonTransformPattern,options)
     return out;
   }
 
@@ -24,11 +25,11 @@ class ObjectTransformer {
       try {
         if (flowData != undefined) {
           resolve({
-            data: this.jsonTransform(flowData[0].data, data.specificData.transformObject, pullParams)
+            data: this.jsonTransform(flowData[0].data, data.specificData.transformObject, pullParams,{evaluationDetail:data.specificData.evaluationDetail})
           })
         } else {
           resolve({
-            data: this.jsonTransform({}, data.specificData.transformObject, pullParams)
+            data: this.jsonTransform({}, data.specificData.transformObject, pullParams,{evaluationDetail:data.specificData.evaluationDetail})
           })
         }
       } catch (e) {

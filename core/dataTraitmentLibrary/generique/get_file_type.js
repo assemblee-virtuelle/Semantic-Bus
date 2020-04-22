@@ -3,6 +3,7 @@ var rdf = require('../rdf/rdf_traitment.js');
 var xml = require('../xml/xml_traitment.js');
 var csv = require('../csv/csv_traitment.js');
 var ics = require('../ics/index.js');
+var zlib = require('zlib');
 
 module.exports = {
   type_file: _type_file,
@@ -16,7 +17,7 @@ function _extension(filename, contentType) {
   // console.log("contentType", contentType)
   // console.log("filename", filename)
   return new Promise(function(resolve, reject) {
-    console.log('filename',filename);
+    console.log('filename', filename);
     if (filename != null) {
       //console.log(filename.match(reg)[0])
       //let matchArray=filename.match(reg);
@@ -25,8 +26,8 @@ function _extension(filename, contentType) {
       let matches = filename.match(regex);
       // var reg = new RegExp(regex, 'g');
       // let regResult = reg.exec(filename)
-      let extention =matches.pop();
-      extention = extention.replace(';','').replace('.','')
+      let extention = matches.pop();
+      extention = extention.replace(';', '').replace('.', '')
       resolve(extention);
     } else {
       if (contentType) {
@@ -50,7 +51,7 @@ function _buildFile(filename, dataString, dataBuffer, out, contentType) {
       switch (extension) {
         case ("vnd.ms-excel"):
         case ("xlsx"):
-        //console.log('ALLO');
+          //console.log('ALLO');
           resolve(exel.json_to_exel(JSON.parse(dataString)));
           break;
         default:
@@ -72,7 +73,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
         switch (extension) {
 
           case ("xlsx"):
-          //console.log('ALLO');
+            //console.log('ALLO');
             resolve(exel.json_to_exel(JSON.parse(dataString)))
             // let ws = exel.json_to_exel(JSON.parse(dataString))
             // let wb = XLSX.utils.book_new();
@@ -80,7 +81,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
             break;
           default:
             //console.log("in default")
-            reject("erreur, votre fichier n'est pas au bon format "+extension)
+            reject("erreur, votre fichier n'est pas au bon format " + extension)
 
             break;
         }
@@ -101,13 +102,13 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
 
             // RDF TTL DONE
           case ("ttl"):
-            rdf.rdf_traitmentTTL(dataString).then((result) =>{
+            rdf.rdf_traitmentTTL(dataString).then((result) => {
               //console.log(reusltat)
               resolve({
                 data: result
               })
             }, function(err) {
-              reject("votre fichier n'est pas au norme ou pas du bon format "+ extension)
+              reject("votre fichier n'est pas au norme ou pas du bon format " + extension)
             })
             break;
 
@@ -120,7 +121,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
               //console.log(JSON.stringify(reusltat))
               resolve(result)
             }, function(err) {
-              reject("votre fichier n'est pas au norme ou pas du bon format "+ extension)
+              reject("votre fichier n'est pas au norme ou pas du bon format " + extension)
             })
             break;
 
@@ -128,8 +129,8 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
           case ("xls"):
           case ("xlsx"):
           case ("ods"):
-          //console.log('ALLO3');
-            exel.exel_to_json(dataBuffer).then((resultat)=>{
+            //console.log('ALLO3');
+            exel.exel_to_json(dataBuffer).then((resultat) => {
               //console.log("RESULTAT", resultat)
               resolve({
                 data: resultat
@@ -142,12 +143,13 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
               // })
             }, function(err) {
               console.log(err);
-              reject("votre fichier n'est pas au norme ou pas du bon format "+ extension)
+              reject("votre fichier n'est pas au norme ou pas du bon format " + extension)
             })
             break;
 
             // XML DONE
           case ("xml"):
+          case ("kml"):
             xml.xml_traitment(dataString).then(function(reusltat) {
               // //console.log("FINAL", reusltat)
               //console.log("FINAL", reusltat)
@@ -155,7 +157,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
                 data: reusltat
               })
             }, function(err) {
-              reject("votre fichier n'est pas au norme ou pas du bon format "+ extension)
+              reject("votre fichier n'est pas au norme ou pas du bon format " + extension)
             })
             break;
           case ("csv"):
@@ -167,25 +169,25 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
               })
             }, function(err) {
               console.log('err', err);
-              reject("votre fichier n'est pas au norme ou pas du bon format "+ extension)
+              reject("votre fichier n'est pas au norme ou pas du bon format " + extension)
             })
             break;
           case ("ics"):
           case ("calendar"):
-              ics.icstojson(dataString).then((result) => {
-                // //console.log("FINAL", reusltat)
-                //console.log("FINAL", reusltat)
-                resolve({
-                  data: result
-                })
-              }, function(err) {
-                // console.log('err', err);
-                reject("votre fichier n'est pas au norme ou pas du bon format "+ extension)
+            ics.icstojson(dataString).then((result) => {
+              // //console.log("FINAL", reusltat)
+              //console.log("FINAL", reusltat)
+              resolve({
+                data: result
               })
-              break;
+            }, function(err) {
+              // console.log('err', err);
+              reject("votre fichier n'est pas au norme ou pas du bon format " + extension)
+            })
+            break;
           default:
             //console.log("in default")
-            reject("erreur, le format du fichier n'est pas supporté ("+ extension+")")
+            reject("erreur, le format du fichier n'est pas supporté (" + extension + ")")
 
             break;
         }

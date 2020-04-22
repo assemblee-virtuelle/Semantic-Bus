@@ -1,6 +1,6 @@
 version: '3.0'
-services:         
-  
+services:
+
   semanticbus:
     build:
       context: .
@@ -15,7 +15,7 @@ services:
       # - ./main:/data/app/
       # - ./core:/data/core/
     networks:
-      - back  
+      - back
     ports:
       - "80:80"
     expose:
@@ -36,14 +36,14 @@ services:
       - 15674:15674
       - 15672:15672
     networks:
-      - back  
-      
+      - back
+
   mongodb:
-    image: mongo
+    image: mongo:4.0.6
     container_name: mongodb
     restart: always
     networks:
-      - back  
+      - back
     ports:
       - "27017:27017"
     expose:
@@ -55,5 +55,5 @@ services:
 volumes:
   data:
 
-networks: 
-  back: 
+networks:
+  back:

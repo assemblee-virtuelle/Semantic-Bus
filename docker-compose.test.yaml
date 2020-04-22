@@ -36,7 +36,7 @@ services:
       - back
 
   mongodb:
-    image: mongo
+    image: mongo:4.0.6
     restart: always
     networks:
       - back
