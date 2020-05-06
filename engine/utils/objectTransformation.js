@@ -447,7 +447,7 @@ module.exports = {
                   // console.log('DATE eval',evalParamValue);
                   evalParamValue = JSON.stringify(evalParamValue)
                   evalParamValue = evalParamValue.replace(/\\/g, '\\\\')
-                  evalParamValue = 'JSON.parse(\'' + evalParamValue + '\')';
+                  evalParamValue = 'JSON.parse(`' + evalParamValue + '`)';
                   // console.log('DATE post eval',evalParamValue);
                 }
                 // console.log('evalParamValue',evalParamValue);
@@ -480,6 +480,7 @@ module.exports = {
 
               } catch (e) {
                 if(process.options  && process.options.evaluationDetail==true){
+                  console.log('ERROR:',javascriptEvalString);
                   nodeOut[nodeInDataProperty] = {
                     error: 'Javascript Eval failed',
                     errorDetail: {
