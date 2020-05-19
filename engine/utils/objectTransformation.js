@@ -480,7 +480,7 @@ module.exports = {
 
               } catch (e) {
                 if(process.options  && process.options.evaluationDetail==true){
-                  console.log('ERROR:',javascriptEvalString);
+                  // console.log('ERROR:',javascriptEvalString);
                   nodeOut[nodeInDataProperty] = {
                     error: 'Javascript Eval failed',
                     errorDetail: {

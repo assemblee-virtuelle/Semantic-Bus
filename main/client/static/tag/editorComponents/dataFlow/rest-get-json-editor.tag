@@ -62,7 +62,6 @@
     }
 
     this.bodyFillInputChange = function (e) {
-      console.log('allo',e.target.value);
       this.data.specificData.bodyFill = e.target.checked;
     }
 

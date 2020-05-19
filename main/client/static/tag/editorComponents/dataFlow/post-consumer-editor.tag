@@ -13,7 +13,7 @@
   <div>
     <div class="bar"/>
   </div>
-  
+
   <label class="labelFormStandard">URL externe où envoyer les données:</label>
   <div class="cardInput">
     <input class="inputComponents" placeholder="" type="text" name="urlInput" ref="urlInput" onChange={this.urlInputChanged} value={data.specificData.url}></input>
@@ -22,6 +22,20 @@
   <div class="cardInput">
     <input class="inputComponents" placeholder="application/json" type="text" name="contentTypeInput" ref="contentTypeInput" onChange={this.contentTypeInputChanged} value={data.specificData.contentType}></input>
   </div>
+  <label class="labelFormStandard">Header</label>
+  <div class="cardInput">
+    <div onclick={addRowClick} class="btnFil commandButtonImage">
+      Ajouter
+      <img class="imgFil" src="./image/ajout_composant.svg" title="Importer un Workflow">
+      <input onchange={import} ref="import" type="file" style="display:none;"/>
+    </div>
+  </div>
+  <zentable ref="headerTable" title="header de la requete" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
+    <yield to="row">
+      <input placeholder="Clé" type="text" style="flex-basis:50%; margin: 5px" value={key} data-field="key"/>
+      <input placeholder="Valeur" type="text" style="flex-basis:50%; margin: 5px" value={value} data-field="value"/>
+    </yield>
+  </zentable>
   <script>
     this.data = {};
     this.urlInputChanged = e => {
@@ -30,11 +44,21 @@
     this.contentTypeInputChanged = e => {
       this.data.specificData.contentType = e.currentTarget.value;
     };
+    this.addRowClick = function (e) {
+      this.refs.headerTable.data.push({})
+    }
     this.updateData = dataToUpdate => {
       this.data = dataToUpdate;
+      this.refs.headerTable.data = this.data.specificData.headers || [];
       this.update();
     };
     this.on('mount', function () {
+      this.refs.headerTable.on('dataChanged', data => {
+        this.data.specificData.headers = data;
+      });
+      this.refs.headerTable.on('delRow', row => {
+        this.refs.headerTable.data.splice(row.rowid, 1);
+      });
       RiotControl.on('item_current_changed', this.updateData);
     });
     this.on('unmount', function () {

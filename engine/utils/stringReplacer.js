@@ -29,12 +29,11 @@ module.exports = {
       }
     }
     if (flow != undefined) {
-      // console.log('flow',flow);
       const regex = /{(\$.*?)}/g
       const elementsRaw = processingRawString.match(regex)
       if (elementsRaw != null) {
         for (let match of elementsRaw) {
-          const objectKey = match.slice(3, -1)
+          const objectKey = match.slice(3, -1);
           let value = this.dotProp.get(flow, objectKey)
           if (stringifyOption == true) {
             try {

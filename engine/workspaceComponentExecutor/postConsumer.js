@@ -2,6 +2,7 @@
 class PostConsumer {
   constructor () {
     this.fetch = require('node-fetch')
+    this.stringReplacer = require('../utils/stringReplacer.js')
   }
 
   pull (data, flowData, queryParams) {
@@ -10,23 +11,39 @@ class PostConsumer {
 
     switch (componentConfig.contentType) {
     case 'application/json':
-      body = JSON.stringify(flowData[0].data)
+      body = flowData[0].data
+      break
+    case 'application/ld+json':
+      body = flowData[0].data
       break
     default:
       return Promise.reject(new Error('Only application/json contentType is currently supported for Post consumer component'))
+    }
+    let headers={};
+    if (data.specificData.headers != undefined) {
+
+      for (let header of data.specificData.headers) {
+
+        // console.log('value',header.value);
+        // console.log('replacing',this.stringReplacer.execute(header.value, queryParams, body));
+        try {
+          headers[header.key] = this.stringReplacer.execute(header.value, queryParams, body)
+        } catch (e) {
+          console.log(e);
+        }
+      }
     }
 
     return new Promise((resolve,reject)=>{
       this.call_url(componentConfig.url, {
         method: 'POST',
-        body: body,
+        body: JSON.stringify(body),
         headers: {
-          'Content-Type': componentConfig.contentType
+          'Content-Type': componentConfig.contentType,
+          ...headers
         }
       }).then(response=>{
-        console.log('response',response);
         response.text().then(data=>{
-          console.log('data',data);
           resolve({
             data:data
           })
@@ -40,7 +57,7 @@ class PostConsumer {
 
   call_url (url, options, numRetry) {
     if (numRetry === undefined) numRetry = 0
-
+    // console.log('call',url);
     return this.fetch(url, options).catch(error => {
       if (numRetry >= 7) {
         // TODO log the failed posts somewhere ?
