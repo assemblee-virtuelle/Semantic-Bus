@@ -1,10 +1,219 @@
+const transformationObjectV1 = require('./../../engine/utils/objectTransformation.js')
+const transformationObjectV2 = require('./../../engine/utils/objectTransformationV2.js')
 
-var chai = require('chai')
-var assert = chai.assert;
+const source1 = {
+  attr1: 'value1'
+};
+const pattern1 = {
+  attr2: '$.attr1'
+};
+
+test('simple mapping V1', () => {
+  const result = transformationObjectV1.executeWithParams(source1, undefined, pattern1);
+  expect(result.attr2).toBe('value1');
+});
+
+test('simple mapping V2', () => {
+  const result = transformationObjectV2.executeWithParams(source1, undefined, pattern1);
+  expect(result.attr2).toBe('value1');
+});
+
+const source2 = {
+  attr1: {
+    attr2:"value1"
+  }
+};
+const pattern2 = {
+  attr3: '$.attr1.attr2'
+};
+
+test('dot prop simple V1', () => {
+  const result = transformationObjectV1.executeWithParams(source2, undefined, pattern2);
+  expect(result.attr3).toBe('value1');
+});
+
+test('dot prop simple V2', () => {
+  const result = transformationObjectV2.executeWithParams(source2, undefined, pattern2);
+  expect(result.attr3).toBe('value1');
+});
+
+const source3 = {
+  attr1: "value1"
+};
+const pattern3 = {
+  attr2: {
+    attr3:"$.attr1"
+  }
+};
+
+test('embended pattern simple V1', () => {
+  const result = transformationObjectV1.executeWithParams(source3, undefined, pattern3);
+  expect(result.attr2.attr3).toBe('value1');
+});
+
+test('embended pattern simple V2', () => {
+  const result = transformationObjectV2.executeWithParams(source3, undefined, pattern3);
+  expect(result.attr2.attr3).toBe('value1');
+});
+
+const source4 = {
+  attr1: 999
+};
+const pattern4 = {
+  attr2: "$.attr1"
+};
+
+test('numeric V1', () => {
+  const result = transformationObjectV1.executeWithParams(source4, undefined, pattern4);
+  expect(result.attr2).toBe(999);
+});
+
+test('numeric V2', () => {
+  const result = transformationObjectV2.executeWithParams(source4, undefined, pattern4);
+  expect(result.attr2).toBe(999);
+});
+
+const source5 = [{
+  attr1: 'value1'
+},{
+  attr1: 'value2'
+}];
+const pattern5 = {
+  attr2: '$..'
+};
+
+test('root V1', () => {
+  const result = transformationObjectV1.executeWithParams(source5, undefined, pattern5);
+  expect(result.attr2).toStrictEqual(source5);
+});
+
+test('root V2', () => {
+  const result = transformationObjectV2.executeWithParams(source5, undefined, pattern5);
+  expect(result.attr2).toStrictEqual(source5);
+});
+
+const source7 = {
+  attr1: 'value1'
+};
+const pattern7 = {
+  attr2: 'value2'
+};
+
+test('fix V1', () => {
+  const result = transformationObjectV1.executeWithParams(source7, undefined, pattern7);
+  expect(result.attr2).toStrictEqual('value2');
+});
+
+test('fix V2', () => {
+  const result = transformationObjectV2.executeWithParams(source7, undefined, pattern7);
+  expect(result.attr2).toStrictEqual('value2');
+});
+
+const source8 = {
+  attr1: 'value1'
+};
+const pattern8 = {
+  attr2: '={$.attr1}'
+};
+
+test('simple eval V1', () => {
+  const result = transformationObjectV1.executeWithParams(source8, undefined, pattern8);
+  expect(result.attr2).toBe('value1');
+});
+
+test('simple eval V2', () => {
+  const result = transformationObjectV2.executeWithParams(source8, undefined, pattern8);
+  expect(result.attr2).toBe('value1');
+});
+
+const source9 = {
+  attr1: 'value1',
+  attr2: 'value2'
+};
+const pattern9 = {
+  attr2: "={$.attr1}+' '+{$.attr2}"
+};
+
+test('eval concat string V1', () => {
+  const result = transformationObjectV1.executeWithParams(source9, undefined, pattern9);
+  expect(result.attr2).toBe('value1 value2');
+});
+
+test('eval concat string V2', () => {
+  const result = transformationObjectV2.executeWithParams(source9, undefined, pattern9);
+  expect(result.attr2).toBe('value1 value2');
+});
 
 
-describe('Array', function() {
-    // Further code for tests goes here
-    var user = []
-    return assert.equal(user.length, 0);
+const source10 = {
+  attr1: 'value1',
+};
+const pullParams10 = {
+  attr1: 'value2',
+};
+const pattern10 = {
+  attr1: '$.attr1',
+  attr2: '£.attr1',
+};
+
+test('pullParams V1', () => {
+  const result = transformationObjectV1.executeWithParams(source10, pullParams10, pattern10);
+  expect(result.attr1).toBe('value1');
+  expect(result.attr2).toBe('value2');
+});
+
+test('pullParams V2', () => {
+  const result = transformationObjectV2.executeWithParams(source10, pullParams10, pattern10);
+  expect(result.attr1).toBe('value1');
+  expect(result.attr2).toBe('value2');
+});
+
+
+const pattern11 = {
+  attr1: "={$.attr1}+' '+{£.attr1}",
+};
+
+test('pullParams & eval V1', () => {
+  const result = transformationObjectV1.executeWithParams(source10, pullParams10, pattern11);
+  expect(result.attr1).toBe('value1 value2');
+});
+
+test('pullParams & eval V2', () => {
+  const result = transformationObjectV2.executeWithParams(source10, pullParams10, pattern11);
+  expect(result.attr1).toBe('value1 value2');
+});
+
+const source12 = {
+  attr1: {attr2:'value1'},
+};
+const pullParams12 = {
+  attr1: 'attr2',
+};
+const pattern12 = {
+  attr1: '={$.attr1}[{£.attr1}]',
+};
+test('pullParams & eval 2 V1', () => {
+  const result = transformationObjectV1.executeWithParams(source12, pullParams12, pattern12);
+  expect(result.attr1).toBe('value1');
+});
+
+test('pullParams & eval 2 V2', () => {
+  const result = transformationObjectV2.executeWithParams(source12, pullParams12, pattern12);
+  console.log(result);
+  expect(result.attr1).toBe('value1');
+});
+
+const source13 =[1,2,3,4,5];
+const pattern13 = {
+  attr1: '={$..}.map(r=>r*2)',
+};
+
+test('eval array V1', () => {
+  const result = transformationObjectV1.executeWithParams(source13, undefined, pattern13);
+  expect(result.attr1).toStrictEqual([2,4,6,8,10]);
+});
+
+test('eval array 2 V2', () => {
+  const result = transformationObjectV2.executeWithParams(source13, undefined, pattern13);
+  expect(result.attr1).toStrictEqual([2,4,6,8,10]);
 });

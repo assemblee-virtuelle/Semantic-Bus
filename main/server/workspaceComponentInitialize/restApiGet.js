@@ -92,7 +92,7 @@ class RestApiGet {
                     try {
                       dataToSend = data.body.data
                     } catch (e) {
-                      console.log('PUTAIN');
+                      console.log(e);
                     }
                     // const dataToSend = data.body.data
                     if (component.specificData != undefined) { // exception in previous promise

@@ -34,18 +34,6 @@ class FramcalcGetCsv {
     } else {
       return response.text()
     }
-    // console.log('url', url);
-
-    // return this.fetch(url)
-    //   .then(response => {
-    //     // console.log('ALLO', response.status);
-    //     const hasResponseFailed = response.status >= 400
-    //     if (hasResponseFailed) {
-    //       return Promise.reject(`Request to ${response.url} failed with HTTP ${response.status}`)
-    //     } else {
-    //       return response.text()
-    //     }
-    //   })
   }
 
   /**

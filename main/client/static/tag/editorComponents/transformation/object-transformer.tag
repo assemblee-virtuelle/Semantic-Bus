@@ -14,7 +14,7 @@
     <div class="bar"/>
   </div>
   <!-- Champ du composant -->
-  <div class="containerH" style="justify-content:space-between">
+  <div class="containerH" style="justify-content:space-evenly">
     <div class="options">
       <label class="labelFormStandard">détail des évaluations:</label>
       <div class="cardInput">
@@ -22,6 +22,16 @@
             <input type="checkbox" name="evaluationDetailValueInput" ref="evaluationDetailValueInput" checked={data.specificData.evaluationDetail} onchange={evaluationDetailChange}/>
             <span class="slider round"></span>
         </label>
+      </div>
+    </div>
+    <div class="options">
+      <label class="labelFormStandard">version du transformer:</label>
+      <div class="cardInput">
+        <select name="version" ref="versionInput" onchange={versionChange}>
+          <option value="default" selected={data.specificData.version==='default' || data.specificData.version===undefined}>default</option>
+          <option value="v1" selected={data.specificData.version==='v1'}>V1</option>
+          <option value="v2" selected={data.specificData.version==='v2'}>V2</option>
+        </select>
       </div>
     </div>
   </div>
@@ -36,8 +46,12 @@
     }.bind(this);
 
     evaluationDetailChange(event){
-      console.log('evaluationDetailChange',event);
         this.data.specificData.evaluationDetail = event.target.checked
+    }
+
+    versionChange(event){
+      console.log( event.target.value);
+        this.data.specificData.version = event.target.value
     }
 
     this.on('mount', function () {

@@ -1,0 +1,13 @@
+{
+  "name": "semantic-bus-tests",
+  "private": true,
+  "description": "Semantic Bus unit tests",
+  "scripts": {
+    "test": "jest --detectOpenHandles --verbose"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "jest": "^24.9.0",
+    "supertest": "^4.0.2"
+  }
+}

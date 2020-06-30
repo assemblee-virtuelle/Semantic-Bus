@@ -140,7 +140,7 @@ module.exports = {
       }
       // console.log('jsonTransform | postProcessResult |', JSON.stringify(postProcessResult));
     } catch (e) {
-      console.log('transform exception', e);
+      // console.log('transform exception', e);
       postProcessResult = source
     }
 
@@ -454,13 +454,9 @@ module.exports = {
                 let regExpValue = new RegExp('({\\' + evalParam + '})', 'g')
 
                 javascriptEvalString = javascriptEvalString.replace(regExpValue, evalParamValue)
-                if(evalParam=='$.siteError'){
-                  consoleLog=true
-                }
+
               }
-              if(consoleLog){
-                console.log('javascriptEvalString | ',javascriptEvalString);
-              }
+
               // console.log('javascriptEvalString | ',javascriptEvalString);
               try {
                 // console.log('includes',javascriptEvalString.includes('£'));
