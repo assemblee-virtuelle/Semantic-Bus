@@ -577,7 +577,7 @@ function _update_mainprocess(preData) {
       .lean()
       .exec((err, componentUpdated) => {
         if (err) {
-          return reject(new Error.DataBaseProcessError(e))
+          return reject(new Error.DataBaseProcessError(err))
         } else {
           resolve(componentUpdated);
         }

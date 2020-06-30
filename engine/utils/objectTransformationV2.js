@@ -4,6 +4,7 @@
 module.exports = {
   Intl: require('intl'),
   dotProp: require('dot-prop'),
+  unicode : require('unicode-encode'),
   executeWithParams: function(source, pullParams, jsonTransformPattern, options) {
     let out = this.execute(source, pullParams, jsonTransformPattern, options)
     return out
@@ -22,14 +23,18 @@ module.exports = {
         const arrayRegexDot = [...patternEval.matchAll(regexpeDot)];
         for (const valueDot of arrayRegexDot) {
           let sourceDotValue = this.getValueFromSource(source,pullParams, valueDot[1]);
+          // sourceDotValue= this.escapeString(sourceDotValue);
+          // console.log('sourceDotValue',sourceDotValue);
           if(typeof sourceDotValue === 'string' || sourceDotValue instanceof String){
-            sourceDotValue = `'${sourceDotValue}'`
+            sourceDotValue = this.escapeString(sourceDotValue)
           }else if (typeof sourceDotValue === 'object') {
-            sourceDotValue = 'JSON.parse(`' + JSON.stringify(sourceDotValue) + '`)';
+            // sourceDotValue ='JSON.parse(`' + JSON.stringify(sourceDotValue) + '`)'
+            sourceDotValue = "this.parseAndResolveString('" + JSON.stringify(this.escapeString(sourceDotValue)) + "')";
           }
           patternEval = patternEval.replace(valueDot[0], sourceDotValue);
         }
         try {
+          console.log('main RESOLVE',patternEval);
           const evalResult = eval(patternEval);
           if(options  && options.evaluationDetail==true){
             return {eval:evalResult};
@@ -37,6 +42,7 @@ module.exports = {
             return evalResult;
           }
         } catch (e) {
+          console.log(e);
           if(options  && options.evaluationDetail==true){
             // console.log('ERROR:',javascriptEvalString);
             return {
@@ -79,6 +85,53 @@ module.exports = {
       } else {
         return pattern;
       }
+    }
+  },
+  escapeString(source){
+    if(typeof source === 'string' || source instanceof String){
+      // return '`${source}`'
+      // return `eval(\`${source}\`)`
+      return `eval(this.unicode.atou(\`${this.unicode.utoa(source)}\`))`
+      // return \
+    } else if(Array.isArray(source)){
+      return source.map(r=>this.escapeString(r))
+    } else if (typeof source === 'object') {
+      let out={}
+      for (const key in source){
+        out[key]=this.escapeString(source[key]);
+      }
+      return out
+    }else{
+      return source;
+    }
+  },
+  parseAndResolveString(source){
+    console.log('ALLLLLO');
+    return(this.resolveString(JSON.parse(source)))
+  },
+  resolveString(source){
+    console.log('EVAL? ALLLLLLO');
+    if(typeof source === 'string' || source instanceof String){
+      console.log('EVAL?');
+      let regexp = /eval\((.*)\)/gm;
+      let arrayRegex = [...source.matchAll(regexp)];
+      if(arrayRegex.length>0){
+        console.log('EVAL',arrayRegex[0][1]);
+        return eval(arrayRegex[0][1]);
+      }else {
+        return source;
+      }
+
+    } else if(Array.isArray(source)){
+      return source.map(r=>this.resolveString(r))
+    } else if (typeof source === 'object') {
+      let out={}
+      for (const key in source){
+        out[key]=this.resolveString(source[key]);
+      }
+      return out
+    }else{
+      return source;
     }
   }
 }
