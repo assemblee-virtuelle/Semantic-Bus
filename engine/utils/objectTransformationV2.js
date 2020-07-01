@@ -11,7 +11,7 @@ module.exports = {
   },
 
   execute: function(source, pullParams, jsonTransformPattern, options) {
-    console.log('jsonTransformPattern',jsonTransformPattern);
+    // console.log('jsonTransformPattern',jsonTransformPattern);
     if (source == undefined) {
       return undefined;
     } else if (typeof jsonTransformPattern === 'string' || jsonTransformPattern instanceof String) {
@@ -26,7 +26,7 @@ module.exports = {
           // sourceDotValue= this.escapeString(sourceDotValue);
           // console.log('sourceDotValue',sourceDotValue);
           if(typeof sourceDotValue === 'string' || sourceDotValue instanceof String){
-            sourceDotValue = this.escapeString(sourceDotValue)
+            sourceDotValue = "this.resolveString('"+this.escapeString(sourceDotValue)+"')"
           }else if (typeof sourceDotValue === 'object') {
             // sourceDotValue ='JSON.parse(`' + JSON.stringify(sourceDotValue) + '`)'
             sourceDotValue = "this.parseAndResolveString('" + JSON.stringify(this.escapeString(sourceDotValue)) + "')";
@@ -58,7 +58,7 @@ module.exports = {
         return this.getValueFromSource(source,pullParams, jsonTransformPattern);
       }
     } else if (Array.isArray(jsonTransformPattern)) {
-      return sourceValue.map((r, i) => this.execute(r, jsonTransformPattern, options))
+      return jsonTransformPattern.map((r, i) => this.execute(source,pullParams, r, options))
     } else {
       let out = {};
       for (const jsonTransformPatternKey in jsonTransformPattern) {
@@ -106,17 +106,13 @@ module.exports = {
     }
   },
   parseAndResolveString(source){
-    console.log('ALLLLLO');
     return(this.resolveString(JSON.parse(source)))
   },
   resolveString(source){
-    console.log('EVAL? ALLLLLLO');
     if(typeof source === 'string' || source instanceof String){
-      console.log('EVAL?');
       let regexp = /eval\((.*)\)/gm;
       let arrayRegex = [...source.matchAll(regexp)];
       if(arrayRegex.length>0){
-        console.log('EVAL',arrayRegex[0][1]);
         return eval(arrayRegex[0][1]);
       }else {
         return source;
