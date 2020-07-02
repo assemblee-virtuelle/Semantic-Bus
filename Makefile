@@ -4,7 +4,6 @@
 DOCKER_COMPOSE=docker-compose -f docker-compose.devWithTimer.yaml
 DOCKER_COMPOSE_TEST=docker-compose -f docker-compose.test.yaml
 
-
 # Docker
 docker-build:
 	$(DOCKER_COMPOSE) build
@@ -32,7 +31,7 @@ start:
 
 stop: docker-stop
 
-restart: docker-restart
+restart: docker-stop start
 
 build: docker-build
 
