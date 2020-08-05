@@ -41,7 +41,6 @@ services:
   mongodb:
     image: mongo:4.0.6
     container_name: mongodb
-    restart: always
     networks:
       - back
     ports:

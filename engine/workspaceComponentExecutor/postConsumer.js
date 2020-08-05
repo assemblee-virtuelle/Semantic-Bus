@@ -47,8 +47,11 @@ class PostConsumer {
           resolve({
             data:data
           })
+        }).catch(e=>{
+          console.log(e);
         })
-
+      }).catch(e=>{
+        console.log(e);
       })
     });
 
