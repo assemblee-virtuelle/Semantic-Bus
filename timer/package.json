@@ -34,7 +34,7 @@
     "http": "0.0.0",
     "https": "latest",
     "intl": "^1.2.5",
-    "jquery": "^3.4.1",
+    "jquery": "^3.5.0",
     "json2yaml": "^1.1.0",
     "jsonpath-object-transform": "^1.0.4",
     "jsonwebtoken": "^8.4.0",
