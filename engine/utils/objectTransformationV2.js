@@ -34,7 +34,7 @@ module.exports = {
           patternEval = patternEval.replace(valueDot[0], sourceDotValue);
         }
         try {
-          console.log('main RESOLVE',patternEval);
+          // console.log('main RESOLVE',patternEval);
           const evalResult = eval(patternEval);
           if(options  && options.evaluationDetail==true){
             return {eval:evalResult};

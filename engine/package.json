@@ -26,6 +26,7 @@
   "author": "Simon Louvet <simon.louvet.zen@gmail.com> && Boceno Alexandre <bocenoalex@gmail.com>",
   "license": "GNUV3",
   "dependencies": {
+    "@graphy/content.xml.scribe": "^4.2.1",
     "@wdio/sauce-service": "^5.16.5",
     "amqp-connection-manager": "^3.0.0",
     "amqplib": "^0.5.5",
@@ -46,10 +47,12 @@
     "express": "^4.16.3",
     "follow-redirects": "^1.4.1",
     "fs": "0.0.1-security",
+    "graphy": "^4.2.1",
     "http": "0.0.0",
     "ics-to-json": "^1.0.0",
     "intl": "1.2.4",
     "json2yaml": "^1.1.0",
+    "jsonld-streaming-parser": "^2.0.2",
     "jsonpath-object-transform": "^1.0.4",
     "jwt-simple": "^0.5.1",
     "mariadb": "^2.1.0",
@@ -79,6 +82,8 @@
     "sheetrock": "^1.1.4",
     "sift": "^8.5.0",
     "sift-date": "0.0.1",
+    "solid-auth-cli": "^1.0.14",
+    "solid-auth-client": "^2.5.0",
     "sqlite3": "^4.1.0",
     "ssh2-sftp-client": "^4.2.3",
     "sshpk": "^1.7.0",
@@ -86,7 +91,7 @@
     "unicode-encode": "^1.4.0",
     "validator": "^12.0.0",
     "webdriverio": "^5.16.6",
-    "xlsx": "^0.10.5",
+    "xlsx": "^0.16.6",
     "xml2js": "^0.4.19"
   },
   "devDependencies": {

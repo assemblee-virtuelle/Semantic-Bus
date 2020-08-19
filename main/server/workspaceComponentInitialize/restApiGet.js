@@ -97,6 +97,7 @@ class RestApiGet {
                     // const dataToSend = data.body.data
                     if (component.specificData != undefined) { // exception in previous promise
                       if (component.specificData.contentType != undefined) {
+                        console.log(component.specificData.contentType);
                         if (dataToSend == undefined) {
                           res.send(new Error('data in flow is not defined. please check your configuration'))
                         } else if (component.specificData.contentType.search('application/vnd.ms-excel') != -1) {
@@ -105,8 +106,15 @@ class RestApiGet {
                             res.setHeader('Content-disposition', 'attachment; filename=' + component.specificData.url + '.xlsx')
                             res.send(result)
                           })
+                        } else if (component.specificData.contentType.search('rdf') != -1) {
+
+                          res.setHeader('content-type', component.specificData.contentType)
+                          this.dataTraitment.type.buildFile(undefined, JSON.stringify(dataToSend), undefined, true, component.specificData.contentType).then((result) => {
+                            res.setHeader('Content-disposition', 'attachment; filename=' + component.specificData.url + '.xml')
+                            res.send(result)
+                          })
                         } else if (component.specificData.contentType.search('xml') != -1) {
-                          res.setHeader('content-type', targetedComponent.specificData.contentType)
+                          res.setHeader('content-type', component.specificData.contentType)
                           // var convert = this.data2xml()
                           // var out = ''
                           // for (let key in dataToSend) {

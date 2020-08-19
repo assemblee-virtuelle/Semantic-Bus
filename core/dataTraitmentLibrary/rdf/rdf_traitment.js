@@ -3,11 +3,21 @@ var RdfXmlParser =  require('rdf-parser-rdfxml');
 var JsonLdSerializer = require('rdf-serializer-jsonld');
 var N3Parser =  require('rdf-parser-n3');
 
+// const jsonld = require('jsonld');
+// const N3 = require('n3');
+// const rdflib = require('rdflib');
+// const rdfTranslator = require('rdf-translator');
+const { Readable } = require("stream")
+const JsonLdParser = require("jsonld-streaming-parser").JsonLdParser;
+const xml_scribe = require('@graphy/content.xml.scribe');
+const factory = require('@graphy/core.data.factory');
+
 
 module.exports = {
   rdf_traitmentXML: _rdf_traitmentXML,
   rdf_traitmentTTL: _rdf_traitmentTTL,
-  rdf_traitmentJSONLD: _rdf_traitmentJSONLD
+  rdf_traitmentJSONLD: _rdf_traitmentJSONLD,
+  json_to_rdf : _json_to_rdf
 };
 
 // --------------------------------------------------------------------------------
@@ -61,6 +71,47 @@ function _rdf_traitmentTTL(dataTTL) {
 function _rdf_traitmentRDFA (dataHTMLRDFA) {
   ///EN COUR DE DEV
 }
+
+async function _json_to_rdf (jsonData, header){
+  let rdfSerialise = new Promise(async (resolve,reject)=>{
+    let result=''
+
+    const myParser = new JsonLdParser();
+    const myTextStream = Readable.from(JSON.stringify(jsonData))
+    let ds_scriber = xml_scribe({
+      prefixes: jsonData['@context'],
+    });
+    ds_scriber.on('data',(data)=>{
+      result=result.concat(data.toString())
+    })
+    ds_scriber.on('end',(data)=>{
+      resolve(result);
+    })
+
+    myParser.import(myTextStream)
+      .on('data', (quad)=>{
+        let object;
+        if(quad.object.termType==="Literal"){
+          object = factory.literal(quad.object.value,quad.object.language)
+        }else if (quad.object.termType==="NamedNode") {
+          object = factory.namedNode(quad.object.value);
+        }
+        ds_scriber.write(factory.quad(...[
+          factory.namedNode(quad.subject.value),
+          factory.namedNode(quad.predicate.value),
+          object,
+        ]));
+      })
+      .on('error', error=>{
+        reject(error)
+      })
+      .on('end', () => {
+        ds_scriber.end()
+      });
+  });
+  return await rdfSerialise;
+}
+
 
 
 ////commentaires////

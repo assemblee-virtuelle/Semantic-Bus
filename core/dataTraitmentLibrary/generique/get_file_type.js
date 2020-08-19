@@ -46,13 +46,16 @@ function _extension(filename, contentType) {
 
 function _buildFile(filename, dataString, dataBuffer, out, contentType) {
   return _extension(undefined, contentType).then(function(extension) {
-    // console.log("extension |", extension)
+    console.log("extension |", extension)
     return new Promise(function(resolve, reject) {
       switch (extension) {
         case ("vnd.ms-excel"):
         case ("xlsx"):
-          //console.log('ALLO');
           resolve(exel.json_to_exel(JSON.parse(dataString)));
+          break;
+        case ("rdf+xml"):
+          //console.log('ALLO');
+          resolve(rdf.json_to_rdf(JSON.parse(dataString)));
           break;
         default:
           //console.log("in default")
@@ -115,7 +118,6 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
             // RDF XML DONE IF TEST PARSE
           case ("rdf"):
           case ("owl"):
-            console.log('allo');
             rdf.rdf_traitmentXML(dataString).then(result => {
               // console.log("RDF", result)
               //console.log(JSON.stringify(reusltat))
