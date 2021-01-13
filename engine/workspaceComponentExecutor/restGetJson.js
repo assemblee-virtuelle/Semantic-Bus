@@ -40,7 +40,9 @@ class RestGetJson {
 
       requestOptions.headers['Content-Type'] = 'application/json';
 
-      let request = this.http.request(requestOptions, response => {
+      const requester = urlString.includes('https')?this.https:this.http
+
+      let request = requester.request(requestOptions, response => {
         let hasResponseFailed = response.statusCode >= 400
         var responseBody = ''
         response.resume()

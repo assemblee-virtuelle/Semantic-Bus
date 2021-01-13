@@ -115,12 +115,6 @@ class RestApiGet {
                           })
                         } else if (component.specificData.contentType.search('xml') != -1) {
                           res.setHeader('content-type', component.specificData.contentType)
-                          // var convert = this.data2xml()
-                          // var out = ''
-                          // for (let key in dataToSend) {
-                          //   out += convert(key, dataToSend[key])
-                          //   // res.write(convert(key, dataToSend[key]))
-                          // }
                           let out = this.xmlJS.js2xml(dataToSend, {
                             compact: true,
                             ignoreComment: true,
