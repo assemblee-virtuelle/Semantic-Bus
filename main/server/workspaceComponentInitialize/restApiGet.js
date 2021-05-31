@@ -15,7 +15,8 @@ class RestApiGet {
     this.xmlJS = require('xml-js');
     this.dataTraitment = require('../../../core/dataTraitmentLibrary/index.js')
     this.json2yaml = require('json2yaml')
-    this.pathToRegexp = require('path-to-regexp')
+    const { pathToRegexp, match, parse, compile } = require("path-to-regexp");
+    this.pathToRegexp=pathToRegexp;
     this.request = require('request')
     this.config = require('../../configuration')
   }
@@ -30,8 +31,10 @@ class RestApiGet {
       // eslint-disable-next-line node/no-deprecated-api
       const urlRequiered = req.params[0].split('/')[1]
       const urlRequieredFull = req.params[0].replace('/','')
-      // console.log('urlRequiered',urlRequiered);
+      // console.log('req.params',req.params);
+      // console.log('urlRequieredFull',urlRequieredFull);
       const query = req.query
+      // console.log();
       let targetedComponent
       const regex = /([^-]*)-.*/g
       let componentId = regex.exec(urlRequiered)[1]
@@ -46,10 +49,10 @@ class RestApiGet {
         if (component != undefined && component.specificData.url != undefined) {
           req.setTimeout(0);
           let keys = []
-
           let regexp = this.pathToRegexp(component.specificData.url, keys);
           if (regexp.test(urlRequieredFull)) {
             let values = regexp.exec(urlRequieredFull);
+
             let valueIndex = 1;
             for (let key of keys) {
               let value = values[valueIndex]
@@ -64,7 +67,11 @@ class RestApiGet {
                 // console.log('2',query[queryKey]);
               }
             }
+          }else {
+            console.log('NO MATH!!');
           }
+
+          console.log('QUERY',query);
 
           this.request.post(this.config.engineUrl + '/work-ask/' + component._id, {
               body: {

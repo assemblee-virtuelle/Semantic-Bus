@@ -3,6 +3,7 @@
 
 module.exports = {
   Intl: require('intl'),
+  moment : require('moment'),
   dotProp: require('dot-prop'),
   unicode : require('unicode-encode'),
   executeWithParams: function(source, pullParams, jsonTransformPattern, options) {
@@ -24,7 +25,8 @@ module.exports = {
         for (const valueDot of arrayRegexDot) {
           let sourceDotValue = this.getValueFromSource(source,pullParams, valueDot[1]);
           // sourceDotValue= this.escapeString(sourceDotValue);
-          // console.log('sourceDotValue',sourceDotValue);
+          // console.log('sourceDotValue',sourceDotValue, typeof sourceDotValue);
+
           if(typeof sourceDotValue === 'string' || sourceDotValue instanceof String){
             sourceDotValue = "this.resolveString('"+this.escapeString(sourceDotValue)+"')"
           }else if (typeof sourceDotValue === 'object') {
@@ -59,13 +61,15 @@ module.exports = {
       }
     } else if (Array.isArray(jsonTransformPattern)) {
       return jsonTransformPattern.map((r, i) => this.execute(source,pullParams, r, options))
-    } else {
+    } else if(typeof jsonTransformPattern === 'object') {
       let out = {};
       for (const jsonTransformPatternKey in jsonTransformPattern) {
         // const jsonTransformPatternValue = jsonTransformPattern[jsonTransformPatternKey]
         out[jsonTransformPatternKey] = this.execute(source, pullParams, jsonTransformPattern[jsonTransformPatternKey], options)
       }
       return out
+    } else {
+      return jsonTransformPattern
     }
   },
   getValueFromSource(source,pullParams, pattern) {

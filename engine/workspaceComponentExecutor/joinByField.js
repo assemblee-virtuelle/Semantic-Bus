@@ -14,12 +14,13 @@ class JoinByField {
 
     return new Promise((resolve, reject) => {
       try {
+        console.log('ALLLO');
         let filter = {}
         filter[data.specificData.secondaryFlowId] = primaryRecord[data.specificData.primaryFlowFKId];
         // console.log('filter', filter);
         // console.log(secondaryFlowData[1]);
         let result = secondaryFlowData.filter(this.sift(filter));
-        // console.log('result', result);
+        console.log('result', result);
         if (data.specificData.multipleJoin == true) {
           primaryRecord[data.specificData.primaryFlowFKName] = result
         } else {
@@ -28,6 +29,7 @@ class JoinByField {
 
         resolve(primaryRecord)
       } catch (e) {
+        console.error(e);
         reject(e)
       }
     })
@@ -42,19 +44,18 @@ class JoinByField {
         var primaryFlowData =flowData.filter(this.sift({
           componentId: data.specificData.primaryComponentId
         }))[0].data;
-        
         if (!Array.isArray(secondaryFlowData)) {
           // console.log('ALLO ERROR');
           resolve({
             data: {
-              error: new Error('Secondary Flow have to be an array')
+              error: 'Secondary Flow have to be an array'
             }
           })
           // reject(new Error('Secondary Flow have to be an array'))
         } else if (primaryFlowData == undefined ) {
           resolve({
             data: {
-              error: new Error('Primary Flow is undefined')
+              error: 'Primary Flow is undefined'
             }
           })
         } else if (primaryFlowData.length == 0) {
@@ -75,6 +76,7 @@ class JoinByField {
               data
             ]
           })
+
           // console.log('PromiseOrchestrator',this.PromiseOrchestrator);
           let promiseOrchestrator = new this.PromiseOrchestrator()
           promiseOrchestrator.execute(this, this.join, paramArray, {
@@ -93,6 +95,7 @@ class JoinByField {
           })
         }
       } catch (e) {
+        console.error(e);
         reject(e)
       }
     })

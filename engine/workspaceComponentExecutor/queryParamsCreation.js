@@ -1,14 +1,18 @@
 'use strict';
 class QueryParamsCreation {
   constructor () {
-    this.objectTransformation = require('../utils/objectTransformation.js')
+    this.objectTransformation = require('../utils/objectTransformationV2.js')
   }
 
   buildQueryParam (previousQueryParam, specificData) {
     let stringPattern = JSON.stringify(specificData.queryParamsCreationObject)
     stringPattern = stringPattern.replace(/£./g, '$.')
     let objectPattern = JSON.parse(stringPattern)
-    let out = this.objectTransformation.execute(previousQueryParam, objectPattern)
+
+    console.log(previousQueryParam,objectPattern);
+    let out = this.objectTransformation.executeWithParams(previousQueryParam,{}, objectPattern)
+
+    console.log('out',out);
     return out
   }
 

@@ -17,12 +17,16 @@ function _exel_traitment_client(urlEXEL) {
   //console.log("urlEXEL", urlEXEL)
   return new Promise(function(resolve, reject) {
     var buffer = Buffer.concat(urlEXEL);
-    var exel = XLSX.read(buffer, {
-      type: "buffer"
-    });
-    resolve({
-      data: exel.Sheets
-    })
+    try {
+      var exel = XLSX.read(buffer, {
+        type: "buffer"
+      });
+      resolve({
+        data: exel.Sheets
+      });
+    } catch (e) {
+      reject(e);
+    }
   })
 }
 
@@ -46,25 +50,32 @@ function _exel_to_json(buffer, header) {
 
   //console.log('ALLO');
   return new Promise((resolve, reject) => {
-    let wb = XLSX.read(buffer, {
-      type: "buffer"
-    });
+    try {
 
-    let out = [];
-    for (let ws in wb.Sheets) {
-      console.log('ws',wb.Sheets[ws]);
-      let json = XLSX.utils.sheet_to_json(wb.Sheets[ws], {
-        header: 'A'
+      let wb = XLSX.read(buffer, {
+        type: "buffer"
       });
 
-      out.push({
-        name: ws,
-        data: json
-      });
+
+      let out = [];
+      for (let ws in wb.Sheets) {
+        console.log('ws',wb.Sheets[ws]);
+        let json = XLSX.utils.sheet_to_json(wb.Sheets[ws], {
+          header: 'A'
+        });
+
+        out.push({
+          name: ws,
+          data: json
+        });
+      }
+      resolve(out);
+    } catch (e) {
+      reject(e);
+    } finally {
+
     }
-    //console.log(out.length);
-    //let json =
-    resolve(out);
+
   })
 }
 

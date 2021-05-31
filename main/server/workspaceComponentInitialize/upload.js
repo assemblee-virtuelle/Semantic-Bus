@@ -45,6 +45,7 @@ class Upload {
             string = buffer.toString('utf-8')
           })
         }).on('finish', () => {
+
           this.dataTraitment.type.type_file(fileName, string, buffer).then((result) => {
             let normalized = this.propertyNormalizer.execute(result)
             resolve(normalized)

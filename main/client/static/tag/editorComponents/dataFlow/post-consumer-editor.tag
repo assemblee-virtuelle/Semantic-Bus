@@ -22,6 +22,13 @@
   <div class="cardInput">
     <input class="inputComponents" placeholder="application/json" type="text" name="contentTypeInput" ref="contentTypeInput" onChange={this.contentTypeInputChanged} value={data.specificData.contentType}></input>
   </div>
+  <label class="labelFormStandard">Methode:</label>
+  <div class="cardInput">
+    <select class="inputComponents" name="methodInput" ref="methodeInput" onchange={methodInputChanged}>
+      <option value="POST" selected={data.specificData.method==='POST' || data.specificData.contentType===undefined}>POST</option>
+      <option value="PATCH" selected={data.specificData.method==='PATCH'}>PATCH</option>
+    </select>
+  </div>
   <label class="labelFormStandard">Header</label>
   <div class="cardInput">
     <div onclick={addRowClick} class="btnFil commandButtonImage">
@@ -41,6 +48,9 @@
     this.urlInputChanged = e => {
       this.data.specificData.url = e.currentTarget.value;
     };
+    methodInputChanged(e) {
+      this.data.specificData.method = e.currentTarget.value;
+    }
     this.contentTypeInputChanged = e => {
       this.data.specificData.contentType = e.currentTarget.value;
     };
