@@ -68,10 +68,10 @@ class RestApiGet {
               }
             }
           }else {
-            console.log('NO MATH!!');
+            // console.log('NO MATH!!');
           }
 
-          console.log('QUERY',query);
+          // console.log('QUERY',query);
 
           this.request.post(this.config.engineUrl + '/work-ask/' + component._id, {
               body: {

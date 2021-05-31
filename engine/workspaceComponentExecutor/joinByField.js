@@ -14,13 +14,12 @@ class JoinByField {
 
     return new Promise((resolve, reject) => {
       try {
-        console.log('ALLLO');
         let filter = {}
         filter[data.specificData.secondaryFlowId] = primaryRecord[data.specificData.primaryFlowFKId];
         // console.log('filter', filter);
         // console.log(secondaryFlowData[1]);
         let result = secondaryFlowData.filter(this.sift(filter));
-        console.log('result', result);
+        // console.log('result', result);
         if (data.specificData.multipleJoin == true) {
           primaryRecord[data.specificData.primaryFlowFKName] = result
         } else {
