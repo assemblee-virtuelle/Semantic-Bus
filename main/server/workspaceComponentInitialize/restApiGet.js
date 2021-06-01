@@ -72,7 +72,7 @@ class RestApiGet {
           }
 
           // console.log('QUERY',query);
-          // console.log('Headers',req.headers);
+          console.log('Headers',req.headers);
           this.request.post(this.config.engineUrl + '/work-ask/' + component._id, {
               body: {
                 queryParams: {
