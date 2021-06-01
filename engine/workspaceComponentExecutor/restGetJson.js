@@ -15,31 +15,39 @@ class RestGetJson {
       // console.log(flowdata);
       urlString = this.stringReplacer.execute(urlString, pullParams, flowdata, true);
       // console.log('urlString',JSON.stringify(urlString));
-      let headers = {}
+      let headersFlow = {}
       if (specificData.headers != undefined) {
         for (let header of specificData.headers) {
-          headers[header.key] = header.value
+          const value = this.stringReplacer.execute(header.value, pullParams, flowdata, true);
+          headersFlow[header.key] = value
         }
       }
-      headers["SemanticBus-User"]="test"
 
       let parsedUrl = this.url.parse(urlString);
       // console.log('parsedUrl',parsedUrl);
-      var requestOptions = {}
-      requestOptions.hostname = parsedUrl.hostname
-      requestOptions.path = parsedUrl.path
-      requestOptions.port = parsedUrl.port
-      requestOptions.method = methodRest
-      requestOptions.headers = headers
-      requestOptions.headers.Accept = 'application/xhtml+xml,application/xml,application/json,application/ld+json'
-      requestOptions.headers['User-Agent'] = 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/62.0.3202.94 Chrome/62.0.3202.94 Safari/537.36'
-      requestOptions.headers['Cache-Control'] = 'private, no-cache, no-store, must-revalidate';
+      var defaultHeaders = {
+        'Content-Type':'application/json',
+        'User-Agent' : 'Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Ubuntu Chromium/62.0.3202.94 Chrome/62.0.3202.94 Safari/537.36',
+        'Cache-Control' : 'private, no-cache, no-store, must-revalidate',
+        'Accept' : 'application/xhtml+xml,application/xml,application/json,application/ld+json',
+        'SemanticBus-User' : 'test'
+      }
+      let requestOptions = {
+        hostname : parsedUrl.hostname,
+        path : parsedUrl.path,
+        port : parsedUrl.port,
+        method : methodRest,
+        headers : {...defaultHeaders,...headersFlow}
+      };
+
+      // console.log('requestOptions',requestOptions);
+
       if(specificData.bodyFill==true){
         requestOptions.headers['Content-Length'] = Buffer.from(JSON.stringify(flowdata)).length;
       }
       // console.log('LENGTH',requestOptions.headers['Content-Length']);
 
-      requestOptions.headers['Content-Type'] = 'application/json';
+      // requestOptions.headers['Content-Type'] = 'application/json';
 
       const requester = urlString.includes('https')?this.https:this.http
 
@@ -76,7 +84,7 @@ class RestGetJson {
                   data: this.propertyNormalizer.execute(responseObject)
                 })
               } else {
-                reject(new Error('unsuported content-type :' + contentType))
+                reject(new Error('unsuported content-type :' + contentType + responseBody))
               }
             } catch (e) {
               e.displayMessage = ('Data Flow is unparsable')

@@ -72,12 +72,13 @@ class RestApiGet {
           }
 
           // console.log('QUERY',query);
-
+          // console.log('Headers',req.headers);
           this.request.post(this.config.engineUrl + '/work-ask/' + component._id, {
               body: {
                 queryParams: {
                   query: req.query,
                   body: req.body,
+                  headers :req.headers
                 }
               },
               json: true
@@ -104,7 +105,7 @@ class RestApiGet {
                     // const dataToSend = data.body.data
                     if (component.specificData != undefined) { // exception in previous promise
                       if (component.specificData.contentType != undefined) {
-                        console.log(component.specificData.contentType);
+                        // console.log(component.specificData.contentType);
                         if (dataToSend == undefined) {
                           res.send(new Error('data in flow is not defined. please check your configuration'))
                         } else if (component.specificData.contentType.search('application/vnd.ms-excel') != -1) {
