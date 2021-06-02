@@ -9,9 +9,8 @@ class RestApiPost {
   }
   pull (data, flowData) {
     return new Promise((resolve, reject) => {
-      resolve({
-        data: null
-      })
+      // console.log('flowData',flowData);
+      resolve({data:flowData[0].data})
     })
   }
 }

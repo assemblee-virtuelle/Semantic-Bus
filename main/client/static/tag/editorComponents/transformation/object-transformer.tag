@@ -25,6 +25,15 @@
       </div>
     </div>
     <div class="options">
+      <label class="labelFormStandard">conserver les champs de la source:</label>
+      <div class="cardInput">
+        <label class="switch">
+            <input type="checkbox" name="keepSourceValueInput" ref="keepSourceValueInput" checked={data.specificData.keepSource} onchange={keepSourceChange}/>
+            <span class="slider round"></span>
+        </label>
+      </div>
+    </div>
+    <div class="options">
       <label class="labelFormStandard">version du transformer:</label>
       <div class="cardInput">
         <select name="version" ref="versionInput" onchange={versionChange}>
@@ -47,6 +56,10 @@
 
     evaluationDetailChange(event){
         this.data.specificData.evaluationDetail = event.target.checked
+    }
+
+    keepSourceChange(event){
+        this.data.specificData.keepSource = event.target.checked
     }
 
     versionChange(event){

@@ -15,13 +15,19 @@ class ObjectTransformer {
   }
 
   jsonTransform(source, jsonTransformPattern, pullParams, options) {
+    let out;
     if(options.version==='v1'||options.version==='default'||options.version===undefined){
-      return this.objectTransformation.executeWithParams(source, pullParams, jsonTransformPattern, options)
+      out = this.objectTransformation.executeWithParams(source, pullParams, jsonTransformPattern, options)
     }else if(options.version==='v2'){
-      return this.objectTransformationV2.executeWithParams(source, pullParams, jsonTransformPattern, options)
+      out = this.objectTransformationV2.executeWithParams(source, pullParams, jsonTransformPattern, options)
+      if(options.keepSource==true &&  !Array.isArray(out)&&!Array.isArray(source)){
+        // console.log('source',source);
+        out={...source,...out};
+      }
     }
     // let out = this.objectTransformation.executeWithParams(source, pullParams, jsonTransformPattern, options)
-    // return out;
+    // console.log(out);
+    return out;
   }
 
   pull(data, flowData, pullParams) {
@@ -32,14 +38,16 @@ class ObjectTransformer {
           resolve({
             data: this.jsonTransform(flowData[0].data, data.specificData.transformObject, pullParams, {
               evaluationDetail: data.specificData.evaluationDetail,
-              version: data.specificData.version
+              version: data.specificData.version,
+              keepSource : data.specificData.keepSource
             })
           })
         } else {
           resolve({
             data: this.jsonTransform({}, data.specificData.transformObject, pullParams, {
               evaluationDetail: data.specificData.evaluationDetail,
-              version: data.specificData.version
+              version: data.specificData.version,
+              keepSource : data.specificData.keepSource
             })
           })
         }

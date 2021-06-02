@@ -11,7 +11,8 @@ class Communication {
       const componentId = req.params.componentId
       const pushData = req.body.pushData
       const queryParams = req.body.queryParams
-      // console.log('queryParams',req.body);
+      // console.log('queryParams',req.body.queryParams);
+      // console.log('AAAAAAAAA componentId',componentId);
       const direction = req.body.direction || 'work'
       workspace_component_lib.get({
         _id: componentId

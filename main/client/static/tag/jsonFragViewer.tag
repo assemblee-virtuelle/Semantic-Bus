@@ -9,7 +9,7 @@
         this.mountEditor(data).then(editor => {
           //editor.set(data);
           let tree = this.jsonToJsTree(data);
-          console.log('JsonFragEditor set tree|', tree);
+          // console.log('JsonFragEditor set tree|', tree);
 
           editor.settings.core.data = tree;
           editor.refresh();
@@ -24,7 +24,8 @@
     });
 
     this.refreshNode = function (data, nodeId) {
-      console.log('refreshNode', data, nodeId);
+      // console.log('refreshNode', data, nodeId);
+      // console.log('refreshNode');
       //let ref=$('#containerJSTREE').jstree(true)
       var node = this.editor.get_node(nodeId);
       //console.log(node);
@@ -37,7 +38,7 @@
       this.editor.rename_node(nodeId,keyText+':'+jsTreeNodes[0].text);
       jsTreeNodes[0].children.forEach(c => {
         this.editor.create_node(nodeId, c, 'last', function (e) {
-          // console.log(e);
+          console.log(e);
         });
       })
 
@@ -45,7 +46,7 @@
     }.bind(this);
 
     this.jsonToJsTree = function (data, key) {
-      console.log('tree Generation', data, key);
+      // console.log('tree Generation', data, key);
       let prefix = '';
       if (key != undefined) {
         prefix = key.toString();
@@ -72,23 +73,28 @@
           data: data,
           children: []
         }
+        let showDataLenght = 100;
         if (Array.isArray(data)) {
-          let showDataLenght = 100
           if (data.length > showDataLenght) {
             let hideDataLenght = data.length - showDataLenght
             data = data.slice(0, showDataLenght);
             data.push(hideDataLenght + ' records hidden');
           }
         }
-
+        let keyCounter=0;
         for (let key in data) {
-          let insertingNodes = this.jsonToJsTree(
-            data[key],
-            Array.isArray(data)
-              ? key
-              : key
-          );
-          node.children = node.children.concat(insertingNodes);
+          keyCounter++;
+          if(keyCounter<showDataLenght){
+            let insertingNodes = this.jsonToJsTree(
+              data[key],
+              Array.isArray(data)
+                ? key
+                : key
+            );
+            node.children = node.children.concat(insertingNodes);
+          }else{
+            break;
+          }
         }
         //return [node,{text:closingChar}];
         return [node];

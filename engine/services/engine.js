@@ -51,6 +51,7 @@ class Engine {
           component.specificData = component.specificData || {}
         })
 
+
         this.originComponent = this.componentsResolving.filter(this.sift({
           _id: this.originComponent._id
         }))[0];
@@ -117,32 +118,38 @@ class Engine {
         this.RequestOrigineResolveMethode = resolve
         this.RequestOrigineRejectMethode = reject
 
-        if(this.originComponent.specificData.responseComponentId!=undefined){
+        if(this.originComponent.specificData.responseComponentId!=undefined&&this.originComponent.specificData.responseComponentId!='undefined'){
           this.responseComponentId=this.originComponent.specificData.responseComponentId
         }else {
           this.responseComponentId=this.originComponent._id;
         }
 
-        /// -------------- push case  -----------------------
-        if (this.requestDirection == 'push') {
-          let originNode = this.pathResolution.nodes.filter(this.sift({
-            'component._id': this.originComponent._id
-          }))[0];
-          originNode.dataResolution = {
-            data: this.pushData
+        if(this.responseComponentId!=undefined&&this.responseComponentId!='undefined'){
+
+          /// -------------- push case  -----------------------
+          if (this.requestDirection == 'push') {
+            let originNode = this.pathResolution.nodes.filter(this.sift({
+              'component._id': this.originComponent._id
+            }))[0];
+            originNode.dataResolution = {
+              data: this.pushData
+            }
+            originNode.status = 'resolved'
+            this.historicEndAndCredit(originNode, new Date(), undefined, this.owner)
+            // console.log(originNode.component._id,this.responseComponentId);
+            if (originNode.component._id == this.responseComponentId) {
+              resolve(this.pushData)
+              // this.originComponentResult = processingNode.dataResolution;
+            }
+            // resolve(this.pushData)
           }
-          originNode.status = 'resolved'
-          this.historicEndAndCredit(originNode, new Date(), undefined, this.owner)
-          // console.log(originNode.component._id,this.responseComponentId);
-          if (originNode.component._id == this.responseComponentId) {
-            resolve(this.pushData)
-            // this.originComponentResult = processingNode.dataResolution;
-          }
-          // resolve(this.pushData)
+
+
+          this.processNextBuildPath();
+        }else{
+          reject(new Error('responseComponentId undefined'))
         }
 
-
-        this.processNextBuildPath();
 
       } catch (e) {
         // console.log('EOORORRRR', e);
@@ -292,11 +299,12 @@ class Engine {
                     }
                     this.processNextBuildPath('dfob empty')
                   } else {
+                    // console.log('dfobFinalFlow',dfobFinalFlow);
                     let paramArray = dfobFinalFlow.map(finalItem => {
                       var recomposedFlow = []
                       // console.log(finalItem.objectToProcess,finalItem.key);
                       recomposedFlow = recomposedFlow.concat([{
-                        data: finalItem.objectToProcess[finalItem.key],
+                        data: finalItem.key!=undefined?finalItem.objectToProcess[finalItem.key]:finalItem.objectToProcess,
                         componentId: primaryflow.componentId
                       }])
                       recomposedFlow = recomposedFlow.concat(secondaryFlow)
@@ -308,25 +316,34 @@ class Engine {
                       ]
                     })
 
-                    // console.log('paramArray',JSON.stringify(paramArray));
+                    // console.log('paramArray',paramArray[0][1]);
 
                     this.promiseOrchestrator.execute(module, module.pull, paramArray, {
                       beamNb: primaryflow.dfob[0].pipeNb
                     }, this.config).then((componentFlowDfob) => {
                       // console.log('componentFlowDfob', JSON.stringify(componentFlowDfob));
-                      // console.log('dfobFinalFlow', dfobFinalFlow);
                       for (var componentFlowDfobKey in componentFlowDfob) {
-                        // console.log(componentFlowDfobKey);
-                        if (componentFlowDfob[componentFlowDfobKey].data != undefined) {
-                          dfobFinalFlow[componentFlowDfobKey].objectToProcess[dfobFinalFlow[componentFlowDfobKey].key] =
-                            componentFlowDfob[componentFlowDfobKey].data
+                        if (componentFlowDfob[componentFlowDfobKey].data != undefined ) {
+                          if(dfobFinalFlow[componentFlowDfobKey].key!=undefined){
+                            dfobFinalFlow[componentFlowDfobKey].objectToProcess[dfobFinalFlow[componentFlowDfobKey].key] =
+                              componentFlowDfob[componentFlowDfobKey].data
+                          }else{
+                            // all keys to replace because no key defined because root dfob
+                            for (let key of Object.keys(dfobFinalFlow[componentFlowDfobKey].objectToProcess)){
+                              dfobFinalFlow[componentFlowDfobKey].objectToProcess[key] =undefined;
+                            }
+                            for (let key of Object.keys(componentFlowDfob[componentFlowDfobKey].data)){
+                              dfobFinalFlow[componentFlowDfobKey].objectToProcess[key] =componentFlowDfob[componentFlowDfobKey].data[key];
+                            }
+                            // dfobFinalFlow[componentFlowDfobKey].objectToProcess=componentFlowDfob[componentFlowDfobKey].data;
+                          }
                         } else if (componentFlowDfob[componentFlowDfobKey].error != undefined) {
                           dfobFinalFlow[componentFlowDfobKey].objectToProcess[dfobFinalFlow[componentFlowDfobKey].key] =
                             componentFlowDfob[componentFlowDfobKey]
                         }
-
                       }
-                      // console.log('dfobFinalFlow',dfobFinalFlow);
+
+                      // console.log('dfobFinalFlow After',dfobFinalFlow);
                       processingNode.dataResolution = {
                         // componentId: processingNode.component._id,
                         // data: dfobFinalFlow.map(FF=>FF.objectToProcess),
@@ -369,6 +386,7 @@ class Engine {
                     // console.log('commponentFlow',componentFlow);
                     processingNode.dataResolution = componentFlow;
                     processingNode.status = 'resolved';
+                    // console.log('processingNode.dataResolution',processingNode.dataResolution);
                     this.historicEndAndCredit(processingNode, startTime, undefined)
                     // console.log(processingNode.component._id,this.responseComponentId);
                     if (processingNode.component._id == this.responseComponentId) {
