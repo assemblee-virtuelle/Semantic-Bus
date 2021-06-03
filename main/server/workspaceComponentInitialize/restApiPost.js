@@ -11,7 +11,9 @@ class RestApiPost {
       ],
       this.stepNode = false
     this.workspace_component_lib = require('../../../core/lib/workspace_component_lib')
-    this.data2xml = require('data2xml')
+    this.data2xml = require('data2xml');
+    this.xmlJS = require('xml-js');
+    this.dataTraitment = require('../../../core/dataTraitmentLibrary/index.js')
     this.json2yaml = require('json2yaml')
     this.request = require('request')
     this.config = require('../../configuration')
@@ -93,7 +95,7 @@ class RestApiPost {
                       console.log(e);
                     }
                     // const dataToSend = data.body.data
-                    // console.log('dataToSend',dataToSend);
+                    console.log('dataToSend',dataToSend);
                     if (component.specificData != undefined) { // exception in previous promise
                       if (component.specificData.contentType != undefined && component.specificData.contentType!='') {
                         // console.log('contentType',component.specificData.contentType);
