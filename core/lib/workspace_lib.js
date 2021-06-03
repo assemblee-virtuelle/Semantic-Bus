@@ -208,14 +208,14 @@ function _cleanOldProcess(workflow) {
 
 function _get_process_byWorkflow(workflowId) {
   return new Promise((resolve, reject) => {
-    console.log('--- TRACE 1');
+    // console.log('--- TRACE 1');
     workspaceModel.getInstance().model.findOne({
         _id: workflowId
       })
       .lean()
       .exec()
       .then(workflow => {
-        console.log('--- TRACE 2');
+        // console.log('--- TRACE 2');
         if (workflow == null) {
           return reject(new Error.EntityNotFoundError('workspaceModel'))
         }
@@ -227,11 +227,11 @@ function _get_process_byWorkflow(workflowId) {
           .limit(workflow.limitHistoric)
           .lean()
           .exec((err, processes) => {
-            console.log('--- TRACE 3');
+            // console.log('--- TRACE 3');
             if (err) {
               reject(new Error.DataBaseProcessError(err))
             } else {
-              console.log('--- TRACE 4');
+              // console.log('--- TRACE 4');
               let historicPromises = [];
               for (let process of processes) {
                 historicPromises.push(new Promise((resolve, reject) => {
@@ -241,9 +241,10 @@ function _get_process_byWorkflow(workflowId) {
                     data: 0
                   }).lean().exec((err, historiqueEnd) => {
                     if (err) {
+                      console.error('--- DataBaseProcessError during get_process_byWorkflow',err);
                       reject(new Error.DataBaseProcessError(err))
                     } else {
-                      console.log('--- TRACE 5');
+                      // console.log('--- TRACE 5');
                       for (let step of process.steps) {
                         let historiqueEndFinded = historiqueEnd.filter(sift({
                           componentId: step.componentId
@@ -266,7 +267,7 @@ function _get_process_byWorkflow(workflowId) {
               Promise.all(historicPromises).then(data => {
                 resolve(data)
               }).catch(e => {
-                console.log('--- REJECT ',e);
+                console.error('--- REJECT ',e);
                 reject(e);
               })
 
