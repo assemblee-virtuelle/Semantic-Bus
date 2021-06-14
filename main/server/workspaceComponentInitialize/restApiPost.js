@@ -95,7 +95,7 @@ class RestApiPost {
                       console.log(e);
                     }
                     // const dataToSend = data.body.data
-                    console.log('dataToSend',dataToSend);
+                    // console.log('dataToSend',dataToSend);
                     if (component.specificData != undefined) { // exception in previous promise
                       if (component.specificData.contentType != undefined && component.specificData.contentType!='') {
                         // console.log('contentType',component.specificData.contentType);

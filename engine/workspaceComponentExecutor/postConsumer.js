@@ -7,44 +7,34 @@ class PostConsumer {
   }
 
   pull (data, flowData, queryParams) {
-    const componentConfig = data.specificData
-    let body
+    const componentConfig = data.specificData;
+    let body;
 
-    // switch (componentConfig.contentType) {
-    // case 'application/json':
-    //   body = flowData[0].data
-    //   break
-    // case 'application/ld+json':
-    //   body = flowData[0].data
-    //   break
-    // 'application/x-www-form-urlencoded'
-    // default:
-    //   return Promise.reject(new Error(`${componentConfig.contentType} contentType not Supported by this component`))
-    // }
-    let headers={};
-    if (data.specificData.headers != undefined) {
-
-      for (let header of data.specificData.headers) {
-
-        // console.log('value',header.value);
-        // console.log('replacing',this.stringReplacer.execute(header.value, queryParams, body));
-        try {
-          headers[header.key] = this.stringReplacer.execute(header.value, queryParams, body)
-        } catch (e) {
-          console.log(e);
-        }
-      }
-    }
 
     return new Promise(async (resolve,reject)=>{
 
       try {
+        let headers={};
+        if (componentConfig.headers != undefined) {
+
+          for (let header of componentConfig.headers) {
+
+            // console.log('value',header.value);
+            // console.log('replacing',this.stringReplacer.execute(header.value, queryParams, body));
+            try {
+              headers[header.key] = this.stringReplacer.execute(header.value, queryParams, flowData[0].data)
+            } catch (e) {
+              console.log(e);
+            }
+          }
+        }
+
+
         let body;
         switch (componentConfig.contentType) {
           case 'application/json':
           case 'application/ld+json':
             body = JSON.stringify(flowData[0].data);
-            console.log('body',body);
             break;
           case 'application/x-www-form-urlencoded':
             body = this.formUrlencoded(flowData[0].data)
@@ -56,7 +46,8 @@ class PostConsumer {
         }
         // console.log('body',body);
         const url = this.stringReplacer.execute(componentConfig.url, queryParams, flowData[0].data);
-        console.log('url',url);
+
+
         const response = await this.call_url(url, {
           method: componentConfig.method||'POST',
           body: body,
