@@ -224,9 +224,15 @@ class Engine {
           if (processingNode != undefined) {
             let startTime = new Date()
             // processingLink.status = 'processing';
-            let nodesProcessingInputs = this.pathResolution.nodes.filter(this.sift({
-              'targets.target.component._id': processingNode.component._id
-            }));
+            // let nodesProcessingInputs = this.pathResolution.nodes.filter(this.sift({
+            //   'targets.target.component._id': processingNode.component._id
+            // }));
+
+            let nodesProcessingInputs = this.pathResolution.nodes.filter(npi =>
+               npi.targets.map(t=>
+                 t.target.component._id
+               ).includes(processingNode.component._id)
+             );
 
             let module = this.technicalComponentDirectory[processingNode.component.module]
             let dataFlow
