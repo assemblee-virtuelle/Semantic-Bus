@@ -382,8 +382,10 @@ class Engine {
                 }
               } else {
                 try {
+                  console.log("in dataFlow",dataFlow);
                   module.pull(processingNode.component, dataFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams).then(componentFlow => {
                     // console.log('commponentFlow',componentFlow);
+                    console.log("out componentFlow",componentFlow);
                     processingNode.dataResolution = componentFlow;
                     processingNode.status = 'resolved';
                     // console.log('processingNode.dataResolution',processingNode.dataResolution);
