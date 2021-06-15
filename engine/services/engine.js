@@ -232,6 +232,7 @@ class Engine {
             let dataFlow
             let primaryflow
             let secondaryFlow
+            console.log("nodesProcessingInputs",nodesProcessingInputs);
             if (nodesProcessingInputs.length > 0) {
               // console.log('ALLO');
               console.log("in processingNodes",nodesProcessingInputs);
@@ -241,9 +242,9 @@ class Engine {
                 return d
               })
               //important to not produce side effect
-              console.log("dataFlow",dataFlow);
+              // console.log("dataFlow",dataFlow);
               dataFlow = clone(dataFlow);
-              console.log("dataFlow cloned",dataFlow);
+              // console.log("dataFlow cloned",dataFlow);
               if (module.getPrimaryFlow != undefined) {
                 primaryflow = module.getPrimaryFlow(
                   processingNode.component,
