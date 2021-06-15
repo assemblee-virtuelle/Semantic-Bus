@@ -234,6 +234,7 @@ class Engine {
             let secondaryFlow
             if (nodesProcessingInputs.length > 0) {
               // console.log('ALLO');
+              console.log("in processingNodes",nodesProcessingInputs);
               dataFlow = nodesProcessingInputs.map(sourceNode => {
                 let d = sourceNode.dataResolution
                 d.componentId = sourceNode.component._id
@@ -258,8 +259,8 @@ class Engine {
             }
 
             // console.log("primaryflow", primaryflow);
-            if (dataFlow == undefined || (dataFlow != undefined && primaryflow == undefined)) {
-              let err = new Error('dataflow undefined or primary flow could not be identified')
+            if (dataFlow != undefined && primaryflow == undefined) {
+              let err = new Error('primary flow could not be identified')
               processingNode.status = 'error'
               processingNode.dataResolution = {
                 error: err
@@ -388,6 +389,7 @@ class Engine {
                   module.pull(processingNode.component, dataFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams).then(componentFlow => {
                     // console.log('commponentFlow',componentFlow);
                     console.log("out componentFlow",componentFlow);
+                    console.log("out processingNode",processingNode);
                     processingNode.dataResolution = componentFlow;
                     processingNode.status = 'resolved';
                     // console.log('processingNode.dataResolution',processingNode.dataResolution);
@@ -400,6 +402,7 @@ class Engine {
                       // this.originComponentResult = processingNode.dataResolution;
                     }
                     // console.log(this.processNextBuildPath);
+                    console.log('call next',processingNode.dataResolution);
                     this.processNextBuildPath('normal ok')
                   }).catch(e => {
                     console.error('REJECT normal', processingNode.component._id, e)
