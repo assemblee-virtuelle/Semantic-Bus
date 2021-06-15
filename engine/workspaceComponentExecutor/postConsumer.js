@@ -56,46 +56,33 @@ class PostConsumer {
             ...headers
           }
         });
+
+
         let data;
-        switch (response.headers.get('content-type')) {
-          case 'application/json':
-          case 'application/ld+json':
-            data= await response.json();
-            break;
-          default:
-            data= await response.text();
+        let hasResponseFailed = response.status >= 400
+        if (hasResponseFailed) {
+          reject(new Error('Request failed for url ' + url + ' with status ' + response.status))
+        } else {
+          switch (response.headers.get('content-type')) {
+            case 'application/json':
+            case 'application/ld+json':
+              data= await response.json();
+              break;
+            default:
+              data= await response.text();
+          }
+          // console.log(data);
+          // const data = await response.text();
+          resolve({
+            data:data
+          })
         }
-        console.log(data);
-        // const data = await response.text();
-        resolve({
-          data:data
-        })
+
       } catch (e) {
         console.log(e);
         reject(e);
       }
 
-
-      //
-      //
-      // this.call_url(componentConfig.url, {
-      //   method: 'POST',
-      //   body: JSON.stringify(body),
-      //   headers: {
-      //     'Content-Type': componentConfig.contentType,
-      //     ...headers
-      //   }
-      // }).then(response=>{
-      //   response.text().then(data=>{
-      //     resolve({
-      //       data:data
-      //     })
-      //   }).catch(e=>{
-      //     console.log(e);
-      //   })
-      // }).catch(e=>{
-      //   console.log(e);
-      // })
     });
 
 
