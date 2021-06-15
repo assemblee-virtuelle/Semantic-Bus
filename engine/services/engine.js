@@ -240,7 +240,9 @@ class Engine {
                 return d
               })
               //important to not produce side effect
+              console.log("dataFlow",dataFlow);
               dataFlow = clone(dataFlow);
+              console.log("dataFlow cloned",dataFlow);
               if (module.getPrimaryFlow != undefined) {
                 primaryflow = module.getPrimaryFlow(
                   processingNode.component,
@@ -256,8 +258,8 @@ class Engine {
             }
 
             // console.log("primaryflow", primaryflow);
-            if (dataFlow != undefined && primaryflow == undefined) {
-              let err = new Error('primary flow could not be identified')
+            if (dataFlow == undefined || (dataFlow != undefined && primaryflow == undefined)) {
+              let err = new Error('dataflow undefined or primary flow could not be identified')
               processingNode.status = 'error'
               processingNode.dataResolution = {
                 error: err
