@@ -238,10 +238,10 @@ class Engine {
             let dataFlow
             let primaryflow
             let secondaryFlow
-            console.log("nodesProcessingInputs",nodesProcessingInputs);
+            // console.log("nodesProcessingInputs",nodesProcessingInputs);
             if (nodesProcessingInputs.length > 0) {
               // console.log('ALLO');
-              console.log("in processingNodes",nodesProcessingInputs);
+              // console.log("in processingNodes",nodesProcessingInputs);
               dataFlow = nodesProcessingInputs.map(sourceNode => {
                 let d = sourceNode.dataResolution
                 d.componentId = sourceNode.component._id
@@ -392,11 +392,11 @@ class Engine {
                 }
               } else {
                 try {
-                  console.log("in dataFlow",dataFlow);
+                  // console.log("in dataFlow",dataFlow);
                   module.pull(processingNode.component, dataFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams).then(componentFlow => {
                     // console.log('commponentFlow',componentFlow);
-                    console.log("out componentFlow",componentFlow);
-                    console.log("out processingNode",processingNode);
+                    // console.log("out componentFlow",componentFlow);
+                    // console.log("out processingNode",processingNode);
                     processingNode.dataResolution = componentFlow;
                     processingNode.status = 'resolved';
                     // console.log('processingNode.dataResolution',processingNode.dataResolution);
@@ -409,7 +409,7 @@ class Engine {
                       // this.originComponentResult = processingNode.dataResolution;
                     }
                     // console.log(this.processNextBuildPath);
-                    console.log('call next',processingNode.dataResolution);
+                    // console.log('call next',processingNode.dataResolution);
                     this.processNextBuildPath('normal ok')
                   }).catch(e => {
                     console.error('REJECT normal', processingNode.component._id, e)
