@@ -4,7 +4,7 @@ class Filter {
     this.sift = require('sift').default;
     // this.siftDate = require('sift-date');
     this.stringReplacer = require('../utils/stringReplacer.js');
-    this.objectTransformation = require('../utils/objectTransformation.js');
+    this.objectTransformation = require('../utils/objectTransformationV2.js');
   }
 
   pull(data, flowData, pullParams) {
@@ -23,11 +23,15 @@ class Filter {
       // let usableData=JSON.parse(JSON.stringify(flowData[0].data));
       let usableData = flowData[0].data
       let filterString = data.specificData.filterString
-      filterString = filterString.replace(/£./g, '$.')
+      // filterString = filterString.replace(/£./g, '$.')
       let filter = JSON.parse(filterString)
 
       try {
-        let filterResult = this.objectTransformation.execute(pullParams, filter);
+        // (source, pullParams, jsonTransformPattern, options) {
+        // console.log('filter',filter);
+        // console.log('pullParams',pullParams);
+        let filterResult = this.objectTransformation.execute(usableData,pullParams, filter);
+        // console.log('filterResult',filterResult);
         var resultData = usableData.filter(this.sift(filterResult));
         resolve({
           data: resultData
