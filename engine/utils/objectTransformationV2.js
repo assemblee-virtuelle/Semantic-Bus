@@ -31,6 +31,7 @@ module.exports = {
             sourceDotValue = "this.resolveString('"+this.escapeString(sourceDotValue)+"')"
           }else if (typeof sourceDotValue === 'object') {
             // sourceDotValue ='JSON.parse(`' + JSON.stringify(sourceDotValue) + '`)'
+            console.log('sourceDotValue',this.escapeString(sourceDotValue));
             sourceDotValue = "this.parseAndResolveString('" + JSON.stringify(this.escapeString(sourceDotValue)) + "')";
           }
           patternEval = patternEval.replace(valueDot[0], sourceDotValue);
@@ -99,7 +100,7 @@ module.exports = {
       // return \
     } else if(Array.isArray(source)){
       return source.map(r=>this.escapeString(r))
-    } else if (typeof source === 'object') {
+    } else if (typeof source === 'object' && source.toJSON!=undefined) {
       let out={}
       for (const key in source){
         out[key]=this.escapeString(source[key]);

@@ -19,7 +19,9 @@ class ObjectTransformer {
     if(options.version==='v1'||options.version==='default'||options.version===undefined){
       out = this.objectTransformation.executeWithParams(source, pullParams, jsonTransformPattern, options)
     }else if(options.version==='v2'){
+      console.log('source',source.length);
       out = this.objectTransformationV2.executeWithParams(source, pullParams, jsonTransformPattern, options)
+
       if(options.keepSource==true &&  !Array.isArray(out)&&!Array.isArray(source)){
         // console.log('source',source);
         out={...source,...out};
