@@ -231,7 +231,7 @@ class MongoConnector {
         let client;
         try {
           client = await this.mongoInitialise(data.specificData.url)
-          const mongoRequestResolved = await this.mongoRequest(client, data.specificData.querySelect, data.specificData.database, data.specificData.modelName, queryParams, dataFlow[0].data)
+          const mongoRequestResolved = await this.mongoRequest(client, data.specificData.querySelect, data.specificData.database, data.specificData.modelName, queryParams, dataFlow?dataFlow[0].data:undefined)
           resolve({
             data: mongoRequestResolved.result
           })
