@@ -59,24 +59,37 @@ class PostConsumer {
 
 
         let data;
-        let hasResponseFailed = response.status >= 400
+        let hasResponseFailed = response.status >= 400;
+        let errorMessage;
         if (hasResponseFailed) {
-          reject(new Error('Request failed for url ' + url + ' with status ' + response.status))
+          // console.log(await response.text());
+          errorMessage='Request failed for url ' + url + ' with status ' + response.status
+          // reject(new Error('Request failed for url ' + url + ' with status ' + response.status))
+        }
+        switch (response.headers.get('content-type')) {
+          case 'application/json':
+          case 'application/ld+json':
+            data= await response.json();
+            break;
+          default:
+            data= await response.text();
+        }
+        // console.log(data);
+        // const data = await response.text();
+        if (errorMessage){
+          resolve({
+            data:{
+              body:data,
+              error:errorMessage
+            }
+          })
         } else {
-          switch (response.headers.get('content-type')) {
-            case 'application/json':
-            case 'application/ld+json':
-              data= await response.json();
-              break;
-            default:
-              data= await response.text();
-          }
-          // console.log(data);
-          // const data = await response.text();
           resolve({
             data:data
           })
         }
+
+
 
       } catch (e) {
         console.log(e);
