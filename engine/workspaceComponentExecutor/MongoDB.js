@@ -173,7 +173,7 @@ class MongoConnector {
   }
 
   mongoInsert (client, database, collectionName, dataFlow) {
-    // console.log('mongoInsert');
+    console.log('mongoInsert');
     return new Promise((resolve, reject) => {
       try {
         const db = client.db(database)
@@ -210,8 +210,8 @@ class MongoConnector {
   }
 
   mongoInsertPromise (collection, data) {
-    // console.log("mongoInsertPromise",collection,data.length);
-    // console.log('data',data[0]);
+    console.log("mongoInsertPromise",collection,data.length);
+    console.log('data',data[0]);
     // console.log('data newStart',data[0].newStart);
     // console.log('data Date',data[0].newStart instanceof Date);
     // console.log('data String',data[0].newStart instanceof String);
@@ -225,8 +225,9 @@ class MongoConnector {
 
   pull (data, dataFlow, queryParams) {
 
-    if (data.specificData.querySelect !== undefined) {
-      // console.log('Mongo READ');
+    if (data.specificData.querySelect !== undefined && data.specificData.querySelect !== undefined && data.specificData.querySelect !== '') {
+      console.log('Mongo READ');
+      console.log('data.specificData.querySelect',data.specificData.querySelect);
       return new Promise(async (resolve, reject) => {
         let client;
         try {
@@ -242,7 +243,7 @@ class MongoConnector {
         }
       })
     } else if (dataFlow !== undefined){
-      // console.log('Mongo RIGHT');
+      console.log('Mongo RIGHT');
       return new Promise(async (resolve, reject) => {
         let client
         try {
