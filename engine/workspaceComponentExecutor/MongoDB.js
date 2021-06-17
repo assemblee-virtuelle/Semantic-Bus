@@ -40,7 +40,7 @@ class MongoConnector {
             // console.log('REQUEST', querysTable);
         const normalizedQuerysTable = this.stringReplacer.execute(querysTable, queryParams, flowdata, true);
         // const normalizedQuerysTable = this.normalizeQuerysTable(querysTable, queryParams, flowdata, true)
-        console.log('normalizedQuerysTable',normalizedQuerysTable);
+        // console.log('normalizedQuerysTable',normalizedQuerysTable);
         const evaluation = eval('collection.' + normalizedQuerysTable)
         let mongoPromise
         if (evaluation instanceof Promise) {
@@ -226,7 +226,7 @@ class MongoConnector {
   pull (data, dataFlow, queryParams) {
 
     if (data.specificData.querySelect !== undefined) {
-      console.log('Mongo READ');
+      // console.log('Mongo READ');
       return new Promise(async (resolve, reject) => {
         let client;
         try {
@@ -242,7 +242,7 @@ class MongoConnector {
         }
       })
     } else if (dataFlow !== undefined){
-      console.log('Mongo RIGHT');
+      // console.log('Mongo RIGHT');
       return new Promise(async (resolve, reject) => {
         let client
         try {
