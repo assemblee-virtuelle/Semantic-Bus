@@ -9,6 +9,7 @@ class MongoConnector {
     this.stepNode = true
     this.PromiseOrchestrator = require('../../core/helpers/promiseOrchestrator.js')
     this.ArraySegmentator = require('../../core/helpers/ArraySegmentator.js')
+    this.stringReplacer = require('../utils/stringReplacer.js')
   }
 
   mongoInitialise (url) {
@@ -30,14 +31,16 @@ class MongoConnector {
     })
   }
 
-  mongoRequest (client, querysTable, database, collectionName, queryParams) {
+  mongoRequest (client, querysTable, database, collectionName, queryParams,flowdata) {
     return new Promise((resolve, reject) => {
       try {
         const db = client.db(database)
         // console.log(db);
         const collection = db.collection(collectionName)
-        const normalizedQuerysTable = this.normalizeQuerysTable(querysTable, queryParams)
-        // console.log(normalizedQuerysTable);
+            // console.log('REQUEST', querysTable);
+        const normalizedQuerysTable = this.stringReplacer.execute(querysTable, queryParams, flowdata, true);
+        // const normalizedQuerysTable = this.normalizeQuerysTable(querysTable, queryParams, flowdata, true)
+        console.log('normalizedQuerysTable',normalizedQuerysTable);
         const evaluation = eval('collection.' + normalizedQuerysTable)
         let mongoPromise
         if (evaluation instanceof Promise) {
@@ -102,40 +105,41 @@ class MongoConnector {
     }.bind(this))
   }
 
-  request (querysTable, modelShema, queryParams) {
-    // console.log('REQUEST', queryParams);
-    if (querysTable == null || querysTable.length == 0) {
-      return modelShema.model
-        .find()
-        .lean()
-        .exec()
-        .catch(error => {
-          let fullError = new Error(error)
-          fullError.displayMessage = 'Connecteur Mongo :  nous avons rencontré un probleme avec MongoDB';
-          throw fullError
-        })
-    } else {
-      try {
-        const normalizedQuerysTable = this.normalizeQuerysTable(querysTable, queryParams)
-        return eval('modelShema.model.' + normalizedQuerysTable + '.lean()')
-          .exec()
-          .then(data => data || [])
-          .catch(error => {
-            let fullError = new Error(error)
-            fullError.displayMessage = 'Connecteur Mongo :  nous avons rencontré un probleme avec votre query MongoDB';
-            throw fullError
-          })
-      } catch (e) {
-        if (e instanceof SyntaxError) {
-          let fullError = new Error(e)
-          fullError.displayMessage = "Connecteur Mongo : Veuillez entre une query valide  ex: findOne({name:'thomas')}"
-          return Promise.reject(fullError)
-        } else {
-          return Promise.reject(e)
-        }
-      }
-    }
-  }
+  // request (querysTable, modelShema, queryParams) {
+  //   if (querysTable == null || querysTable.length == 0) {
+  //     return modelShema.model
+  //       .find()
+  //       .lean()
+  //       .exec()
+  //       .catch(error => {
+  //         let fullError = new Error(error)
+  //         fullError.displayMessage = 'Connecteur Mongo :  nous avons rencontré un probleme avec MongoDB';
+  //         throw fullError
+  //       })
+  //   } else {
+  //     try {
+  //       console.log('querysTable',querysTable);
+  //       const normalizedQuerysTable = this.normalizeQuerysTable(querysTable, queryParams);
+  //       console.log('normalizedQuerysTable',normalizedQuerysTable);
+  //       return eval('modelShema.model.' + normalizedQuerysTable + '.lean()')
+  //         .exec()
+  //         .then(data => data || [])
+  //         .catch(error => {
+  //           let fullError = new Error(error)
+  //           fullError.displayMessage = 'Connecteur Mongo :  nous avons rencontré un probleme avec votre query MongoDB';
+  //           throw fullError
+  //         })
+  //     } catch (e) {
+  //       if (e instanceof SyntaxError) {
+  //         let fullError = new Error(e)
+  //         fullError.displayMessage = "Connecteur Mongo : Veuillez entre une query valide  ex: findOne({name:'thomas')}"
+  //         return Promise.reject(fullError)
+  //       } else {
+  //         return Promise.reject(e)
+  //       }
+  //     }
+  //   }
+  // }
 
   normalizeQuerysTable (querysTable, queryParams) {
     let processingQuerysTable = querysTable
@@ -207,11 +211,11 @@ class MongoConnector {
 
   mongoInsertPromise (collection, data) {
     // console.log("mongoInsertPromise",collection,data.length);
-    console.log('data',data[0]);
-    console.log('data newStart',data[0].newStart);
-    console.log('data Date',data[0].newStart instanceof Date);
-    console.log('data String',data[0].newStart instanceof String);
-    console.log('data typeof',typeof data[0].newStart);
+    // console.log('data',data[0]);
+    // console.log('data newStart',data[0].newStart);
+    // console.log('data Date',data[0].newStart instanceof Date);
+    // console.log('data String',data[0].newStart instanceof String);
+    // console.log('data typeof',typeof data[0].newStart);
     return collection.insertMany(data)
   }
 
@@ -221,12 +225,13 @@ class MongoConnector {
 
   pull (data, dataFlow, queryParams) {
 
-    if (dataFlow === undefined) {
+    if (data.specificData.querySelect !== undefined) {
+      console.log('Mongo READ');
       return new Promise(async (resolve, reject) => {
         let client;
         try {
           client = await this.mongoInitialise(data.specificData.url)
-          const mongoRequestResolved = await this.mongoRequest(client, data.specificData.querySelect, data.specificData.database, data.specificData.modelName, queryParams)
+          const mongoRequestResolved = await this.mongoRequest(client, data.specificData.querySelect, data.specificData.database, data.specificData.modelName, queryParams, dataFlow[0].data)
           resolve({
             data: mongoRequestResolved.result
           })
@@ -236,7 +241,8 @@ class MongoConnector {
           client.close()
         }
       })
-    } else {
+    } else if (dataFlow !== undefined){
+      console.log('Mongo RIGHT');
       return new Promise(async (resolve, reject) => {
         let client
         try {
