@@ -100,7 +100,11 @@ module.exports = {
       // return \
     } else if(Array.isArray(source)){
       return source.map(r=>this.escapeString(r))
-    } else if (typeof source === 'object' && source.toJSON!=undefined) {
+    } else if (source!=null && source.toJSON!==undefined){
+      let out={};
+      let json = source.toJSON();
+      return this.escapeString(json)
+    } else if (typeof source === 'object' ) {
       let out={}
       for (const key in source){
         out[key]=this.escapeString(source[key]);
