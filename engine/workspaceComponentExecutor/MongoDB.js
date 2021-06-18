@@ -6,7 +6,7 @@ class MongoConnector {
     this.dotProp = require('dot-prop')
     this.schema = null
     this.modelShema = null
-    this.stepNode = true
+    this.stepNode = false
     this.PromiseOrchestrator = require('../../core/helpers/promiseOrchestrator.js')
     this.ArraySegmentator = require('../../core/helpers/ArraySegmentator.js')
     this.stringReplacer = require('../utils/stringReplacer.js')
@@ -50,6 +50,7 @@ class MongoConnector {
         }
 
         mongoPromise.then(result => {
+          console.log('result',result);
           resolve({
             result: result,
             client: client
@@ -172,35 +173,39 @@ class MongoConnector {
       })
   }
 
-  mongoInsert (client, database, collectionName, dataFlow) {
+  mongoInsert (client, database, collectionName, dataFlow,notErase) {
     console.log('mongoInsert');
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
         const db = client.db(database)
 
         // console.log('db',db);
-        const collection = db.collection(collectionName)
-        collection.remove({}).then(() => {
-          // console.log('mongoInsert : records removed');
-          const arraySegmentator = new this.ArraySegmentator()
-          let segmentFlow;
-          // console.log('dataFlow',dataFlow);
-          if(!Array.isArray(dataFlow)){
-            segmentFlow=[dataFlow];
-          }else{
-            segmentFlow=dataFlow;
-          }
-          const segments = arraySegmentator.segment(segmentFlow, 100)
+        const collection = db.collection(collectionName);
+        if (notErase!==true){
+          await collection.remove({});
+        }
 
-          const paramArray = segments.map(s => [collection, s])
-          const promiseOrchestrator = new this.PromiseOrchestrator()
-          promiseOrchestrator.execute(this, this.mongoInsertPromise, paramArray, {
-            beamNb: 10
-          }).then(() => {
-            // console.log('mongoInsert : records inserted');
-            resolve()
-          })
+
+          // console.log('mongoInsert : records removed');
+        const arraySegmentator = new this.ArraySegmentator()
+        let segmentFlow;
+        // console.log('dataFlow',dataFlow);
+        if(!Array.isArray(dataFlow)){
+          segmentFlow=[dataFlow];
+        }else{
+          segmentFlow=dataFlow;
+        }
+        const segments = arraySegmentator.segment(segmentFlow, 100)
+
+        const paramArray = segments.map(s => [collection, s])
+        const promiseOrchestrator = new this.PromiseOrchestrator()
+        promiseOrchestrator.execute(this, this.mongoInsertPromise, paramArray, {
+          beamNb: 10
+        }).then(() => {
+          // console.log('mongoInsert : records inserted');
+          resolve()
         })
+
       } catch (e) {
         reject(e)
       } finally {
@@ -210,8 +215,8 @@ class MongoConnector {
   }
 
   mongoInsertPromise (collection, data) {
-    console.log("mongoInsertPromise",collection,data.length);
-    console.log('data',data[0]);
+    // console.log("mongoInsertPromise",collection,data.length);
+    // console.log('data',data[0]);
     // console.log('data newStart',data[0].newStart);
     // console.log('data Date',data[0].newStart instanceof Date);
     // console.log('data String',data[0].newStart instanceof String);
@@ -226,8 +231,8 @@ class MongoConnector {
   pull (data, dataFlow, queryParams) {
 
     if (data.specificData.querySelect !== undefined && data.specificData.querySelect !== undefined && data.specificData.querySelect !== '') {
-      console.log('Mongo READ');
-      console.log('data.specificData.querySelect',data.specificData.querySelect);
+      // console.log('Mongo READ');
+      // console.log('data.specificData.querySelect',data.specificData.querySelect);
       return new Promise(async (resolve, reject) => {
         let client;
         try {
@@ -242,14 +247,15 @@ class MongoConnector {
           client.close()
         }
       })
-    } else if (dataFlow !== undefined){
-      console.log('Mongo RIGHT');
+    } else {
+      const rightFlow= dataFlow!=undefined?dataFlow[0].data:[{}];
+      // console.log('Mongo RIGHT');
       return new Promise(async (resolve, reject) => {
         let client
         try {
           client = await this.mongoInitialise(data.specificData.url)
-          await this.mongoInsert(client, data.specificData.database, data.specificData.modelName, dataFlow[0].data)
-          resolve({ data: dataFlow[0].data })
+          await this.mongoInsert(client, data.specificData.database, data.specificData.modelName, rightFlow,data.specificData.notErase)
+          resolve({ data: rightFlow })
         } catch (error) {
           reject(error)
         } finally {

@@ -9,10 +9,10 @@ class QueryParamsCreation {
     stringPattern = stringPattern.replace(/£./g, '$.')
     let objectPattern = JSON.parse(stringPattern)
 
-    console.log(previousQueryParam,objectPattern);
+    // console.log(previousQueryParam,objectPattern);
     let out = this.objectTransformation.executeWithParams(previousQueryParam,{}, objectPattern)
 
-    console.log('out',out);
+    // console.log('out',out);
     return out
   }
 

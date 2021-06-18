@@ -3,7 +3,7 @@
   <div class="contenaireH" style="margin-left:97%">
     <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Mongo" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
-  
+
    <!-- Titre du composant -->
   <div class="contenaireV title-component">{data.type}</div>
   <div>
@@ -28,6 +28,15 @@
   <div class="cardInput">
     <input class="inputComponents" type="text" ref="modelName" value={data.specificData.modelName}/>
   </div>
+  <div class="options">
+    <label class="labelFormStandard">Ne pas supprimer avant injection</label>
+    <div class="cardInput">
+      <label class="switch">
+          <input type="checkbox" name="notEraseValueInput" ref="notEraseValueInput" checked={data.specificData.notErase} onchange={notEraseChange}/>
+          <span class="slider round"></span>
+      </label>
+    </div>
+  </div>
   <label class="labelFormStandard">Valeur( ne mettez pas le model seulement la query):
     <a href="http://mongoosejs.com/docs/queries.html" target="_blank"><img src="./image/help.png" alt="Aide" width="15px" height="15px"></a>
   </label>
@@ -45,6 +54,11 @@
       this.data = dataToUpdate;
       this.update();
     }.bind(this);
+
+    notEraseChange(event){
+        this.data.specificData.notErase = event.target.checked
+    }
+
 
     //mount
     this.on('mount', function () {
