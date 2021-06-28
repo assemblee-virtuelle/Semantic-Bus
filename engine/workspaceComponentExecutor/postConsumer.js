@@ -123,8 +123,6 @@ class PostConsumer {
       } catch (e) {
         console.warn(`Post consumer component post to ${url} failed ${numRetry} times : ${e.message}`)
         if (numRetry >= 6) {
-          // TODO log the failed posts somewhere ?
-          // console.error(error)
           reject(e)
         } else {
           // Exponentially increment retry interval at every failure
