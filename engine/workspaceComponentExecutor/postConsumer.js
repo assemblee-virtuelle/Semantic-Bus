@@ -125,7 +125,7 @@ class PostConsumer {
         if (numRetry >= 6) {
           // TODO log the failed posts somewhere ?
           // console.error(error)
-          reject(error)
+          reject(e)
         } else {
           // Exponentially increment retry interval at every failure
           // This will retry after 5s, 25s, 2m, 10m, 50m, 4h, 21h
