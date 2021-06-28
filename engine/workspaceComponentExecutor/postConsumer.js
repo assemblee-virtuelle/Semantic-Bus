@@ -105,6 +105,7 @@ class PostConsumer {
 
   call_url (url, options, numRetry) {
     return new Promise (async (resolve,reject)=>{
+      console.log('ALLLLLO');
       if (numRetry === undefined) numRetry = 0
       // console.log('call',url);
       const fetchTimeout=5
