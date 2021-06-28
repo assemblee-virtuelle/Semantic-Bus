@@ -117,7 +117,7 @@ class PostConsumer {
 
       try {
         const fetchResult = this.fetch(url, {...options,signal: controller.signal });
-        console.log('OK');
+        console.log('OK',fetchResult);
         resolve(fetchResult);
       } catch (e) {
         console.log('ERRROR');
