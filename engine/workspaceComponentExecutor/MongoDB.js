@@ -50,7 +50,7 @@ class MongoConnector {
         }
 
         mongoPromise.then(result => {
-          console.log('result',result);
+          // console.log('result',result);
           resolve({
             result: result,
             client: client
