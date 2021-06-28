@@ -105,7 +105,7 @@ class PostConsumer {
     if (numRetry === undefined) numRetry = 0
     // console.log('call',url);
     return this.fetch(url, options).catch(error => {
-      if (numRetry >= 3) {
+      if (numRetry >= 6) {
         // TODO log the failed posts somewhere ?
         console.error(error)
       } else {
