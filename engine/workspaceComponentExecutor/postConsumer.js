@@ -104,10 +104,9 @@ class PostConsumer {
 
   call_url (url, options, numRetry) {
     return new Promise (async (resolve,reject)=>{
-      console.log('ALLLLLO');
       if (numRetry === undefined) numRetry = 0
       // console.log('call',url);
-      const fetchTimeout=5
+      const fetchTimeout=10
       const controller = new this.AbortController();
       const id = setTimeout(() => {
         console.warn(`Fetch timeout ${fetchTimeout}s`);
@@ -116,10 +115,8 @@ class PostConsumer {
 
       try {
         const fetchResult = await this.fetch(url, {...options,signal: controller.signal });
-        console.log('OK');
         resolve(fetchResult);
       } catch (e) {
-        console.log('ERRROR');
         console.warn(`Post consumer component post to ${url} failed ${numRetry} times : ${e.message}`)
         if (numRetry >= 6) {
           // TODO log the failed posts somewhere ?
