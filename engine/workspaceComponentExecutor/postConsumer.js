@@ -119,6 +119,7 @@ class PostConsumer {
         const fetchResult = this.fetch(url, {...options,signal: controller.signal });
         resolve(fetchResult);
       } catch (e) {
+        console.log('ERRROR');
         console.warn(`Post consumer component post to ${url} failed ${numRetry} times : ${e.message}`)
         if (numRetry >= 6) {
           // TODO log the failed posts somewhere ?
