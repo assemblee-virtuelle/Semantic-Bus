@@ -129,7 +129,7 @@ class PostConsumer {
           // const retryInterval = Math.pow(5, numRetry + 1)
 
           const retryInterval =5;
-          console.warn(`trying again in ${retryInterval}s...`)
+          console.warn(`trying again in ${retryInterval}s... `)
           const sleepAwait = await this.sleep(retryInterval * 1000);
           try {
             const postponeFectch = await this.call_url(url, options, numRetry + 1);
