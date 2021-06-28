@@ -92,8 +92,8 @@ class PostConsumer {
         }
 
       } catch (e) {
-        console.log('ERROR hight');
-        console.log(e);
+        // console.log('ERROR hight');
+        console.log(e.message);
         reject(e);
       }
 
@@ -115,14 +115,18 @@ class PostConsumer {
 
       try {
         const fetchResult = await this.fetch(url, {...options,signal: controller.signal });
-        if(fetchResult.status >= 400){
-          throw new Error({status:fetchResult.status,message:`HTTP status ${fetchResult.status}`})
-        }
-        console.warn(`Post consumer component post to ${url} ok`)
+        clearTimeout(id);
+        // if(fetchResult.status >= 400){
+        //   console.log('STATUS',fetchResult.status);
+        //   throw new Error(`HTTP status ${fetchResult.status}`)
+        // }
+        console.warn(`Post consumer component post to ${url} done`)
         resolve(fetchResult);
       } catch (e) {
-        console.warn(`Post consumer component post to ${url} failed ${numRetry} times : ${e.message}`)
-        if (numRetry >= 6) {
+        clearTimeout(id);
+        console.warn(`Post consumer component post to ${url} failed ${numRetry+1} times : ${e.message}`)
+        if (numRetry > 2) {
+          console.error(JSON.stringify(e.message));
           reject(e)
         } else {
           // Exponentially increment retry interval at every failure
@@ -136,12 +140,13 @@ class PostConsumer {
             const postponeFectch = await this.call_url(url, options, numRetry + 1);
             resolve(postponeFectch)
           } catch (e) {
-            console.log('REJECT');
+            // console.log('REJECT');
+            console.error(JSON.stringify(e.message));
             reject(e)
           }
         }
       } finally {
-        clearTimeout(id);
+
       }
 
 
