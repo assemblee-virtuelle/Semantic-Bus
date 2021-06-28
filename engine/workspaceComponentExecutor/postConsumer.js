@@ -117,6 +117,7 @@ class PostConsumer {
 
       try {
         const fetchResult = this.fetch(url, {...options,signal: controller.signal });
+        console.log('OK');
         resolve(fetchResult);
       } catch (e) {
         console.log('ERRROR');
@@ -137,6 +138,7 @@ class PostConsumer {
             const postponeFectch = await this.call_url(url, options, numRetry + 1);
             resolve(postponeFectch)
           } catch (e) {
+            console.log('REJECT');
             reject(e)
           }
         }
