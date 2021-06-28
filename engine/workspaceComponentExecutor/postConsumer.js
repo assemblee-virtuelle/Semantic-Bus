@@ -91,9 +91,8 @@ class PostConsumer {
           })
         }
 
-
-
       } catch (e) {
+        console.log('ERROR hight');
         console.log(e);
         reject(e);
       }
@@ -117,7 +116,7 @@ class PostConsumer {
 
       try {
         const fetchResult = this.fetch(url, {...options,signal: controller.signal });
-        console.log('OK',fetchResult);
+        console.log('OK');
         resolve(fetchResult);
       } catch (e) {
         console.log('ERRROR');
