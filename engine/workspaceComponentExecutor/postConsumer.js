@@ -116,7 +116,7 @@ class PostConsumer {
       try {
         const fetchResult = await this.fetch(url, {...options,signal: controller.signal });
         if(fetchResult.status >= 400){
-          throw new Error({status:fetchResult.status,message:`HTTP status ${fetchResult.status}`)
+          throw new Error({status:fetchResult.status,message:`HTTP status ${fetchResult.status}`})
         }
         console.warn(`Post consumer component post to ${url} ok`)
         resolve(fetchResult);
