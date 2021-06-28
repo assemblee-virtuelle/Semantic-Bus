@@ -4,6 +4,8 @@ class PostConsumer {
     this.fetch = require('node-fetch');
     this.stringReplacer = require('../utils/stringReplacer.js');
     this.formUrlencoded = require('form-urlencoded').default;
+    const { AbortController, abortableFetch }  = require('abortcontroller-polyfill/dist/cjs-ponyfill')
+    this.AbortController=AbortController;
   }
 
   pull (data, flowData, queryParams) {
@@ -102,24 +104,62 @@ class PostConsumer {
   }
 
   call_url (url, options, numRetry) {
-    if (numRetry === undefined) numRetry = 0
-    // console.log('call',url);
-    return this.fetch(url, options).catch(error => {
-      if (numRetry >= 6) {
-        // TODO log the failed posts somewhere ?
-        console.error(error)
-      } else {
-        // Exponentially increment retry interval at every failure
-        // This will retry after 5s, 25s, 2m, 10m, 50m, 4h, 21h
-        // const retryInterval = Math.pow(5, numRetry + 1)
+    return new Promise (async (resolve,reject)=>{
+      if (numRetry === undefined) numRetry = 0
+      // console.log('call',url);
+      const fetchTimeout=5
+      const controller = new this.AbortController();
+      const id = setTimeout(() => {
+        console.warn(`Fetch timeout ${fetchTimeout}s`);
+        controller.abort();
+      }, fetchTimeout*1000);
 
-        const retryInterval =5;
-        console.log(`Post consumer component post to ${url} failed, trying again in ${retryInterval}s...`)
+      try {
+        const fetchResult = this.fetch(url, {...options,signal: controller.signal });
+        resolve(fetchResult);
+      } catch (e) {
+        if (numRetry >= 6) {
+          // TODO log the failed posts somewhere ?
+          console.error(error)
+          reject(error)
+        } else {
+          // Exponentially increment retry interval at every failure
+          // This will retry after 5s, 25s, 2m, 10m, 50m, 4h, 21h
+          // const retryInterval = Math.pow(5, numRetry + 1)
 
-        return this.sleep(retryInterval * 1000)
-          .then(() => this.call_url(url, options, numRetry + 1))
+          const retryInterval =5;
+          console.warn(`Post consumer component post to ${url} failed ${numRetry} time, trying again in ${retryInterval}s...`)
+          const sleepAwait = await this.sleep(retryInterval * 1000);
+          try {
+            const postponeFectch = await this.call_url(url, options, numRetry + 1);
+            resolve(postponeFectch)
+          } catch (e) {
+            reject(e)
+          }
+        }
+      } finally {
+        clearTimeout(id);
       }
+
+
+      // return this.fetch(url, {...options,signal: controller.signal }).catch(error => {
+      //   if (numRetry >= 6) {
+      //     // TODO log the failed posts somewhere ?
+      //     console.error(error)
+      //   } else {
+      //     // Exponentially increment retry interval at every failure
+      //     // This will retry after 5s, 25s, 2m, 10m, 50m, 4h, 21h
+      //     // const retryInterval = Math.pow(5, numRetry + 1)
+      //
+      //     const retryInterval =5;
+      //     console.log(`Post consumer component post to ${url} failed, trying again in ${retryInterval}s...`)
+      //
+      //     return this.sleep(retryInterval * 1000)
+      //       .then(() => this.call_url(url, options, numRetry + 1))
+      //   }
+      // })
     })
+
   }
 
   sleep (ms) {

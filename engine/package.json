@@ -28,6 +28,7 @@
   "dependencies": {
     "@graphy/content.xml.scribe": "^4.2.1",
     "@wdio/sauce-service": "^5.16.5",
+    "abortcontroller-polyfill": "^1.7.3",
     "amqp-connection-manager": "^3.0.0",
     "amqplib": "^0.5.5",
     "async": "^3.1.0",
