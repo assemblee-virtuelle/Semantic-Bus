@@ -115,7 +115,7 @@ class PostConsumer {
       }, fetchTimeout*1000);
 
       try {
-        const fetchResult = this.fetch(url, {...options,signal: controller.signal });
+        const fetchResult = await this.fetch(url, {...options,signal: controller.signal });
         console.log('OK');
         resolve(fetchResult);
       } catch (e) {
