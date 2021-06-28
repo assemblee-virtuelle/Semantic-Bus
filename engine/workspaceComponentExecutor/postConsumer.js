@@ -118,9 +118,10 @@ class PostConsumer {
         const fetchResult = this.fetch(url, {...options,signal: controller.signal });
         resolve(fetchResult);
       } catch (e) {
+        console.warn(`Post consumer component post to ${url} failed ${numRetry} times : ${e.message}`)
         if (numRetry >= 6) {
           // TODO log the failed posts somewhere ?
-          console.error(error)
+          // console.error(error)
           reject(error)
         } else {
           // Exponentially increment retry interval at every failure
@@ -128,7 +129,7 @@ class PostConsumer {
           // const retryInterval = Math.pow(5, numRetry + 1)
 
           const retryInterval =5;
-          console.warn(`Post consumer component post to ${url} failed ${numRetry} time, trying again in ${retryInterval}s...`)
+          console.warn(`trying again in ${retryInterval}s...`)
           const sleepAwait = await this.sleep(retryInterval * 1000);
           try {
             const postponeFectch = await this.call_url(url, options, numRetry + 1);
