@@ -111,8 +111,9 @@ class PostConsumer {
       } else {
         // Exponentially increment retry interval at every failure
         // This will retry after 5s, 25s, 2m, 10m, 50m, 4h, 21h
-        const retryInterval = Math.pow(5, numRetry + 1)
+        // const retryInterval = Math.pow(5, numRetry + 1)
 
+        const retryInterval =5;
         console.log(`Post consumer component post to ${url} failed, trying again in ${retryInterval}s...`)
 
         return this.sleep(retryInterval * 1000)

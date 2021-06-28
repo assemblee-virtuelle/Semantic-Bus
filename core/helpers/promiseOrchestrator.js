@@ -2,9 +2,9 @@
 class PromiseOrchestrator {
   constructor() {}
 
-  execute(context, workFunction, paramArray, option, config) {
+  execute(context, workFunction, paramArray, option, config, logIteration) {
     // console.log('execute',paramArray);
-    let executor = new PromisesExecutor(context, workFunction, paramArray, option, config);
+    let executor = new PromisesExecutor(context, workFunction, paramArray, option, config,logIteration);
     return executor.execute();
   }
 
@@ -55,6 +55,9 @@ class PromisesExecutor {
         this.initialPromiseResolve(this.globalOut);
       } else if (this.increment < this.paramArray.length) {
         //console.log('new PromiseExecutor',this.increment);
+        if (this.option.logIteration){
+          console.log(`promiseOrchestrator ${this.increment}/${this.paramArray.length}`);
+        }
         let promiseExecutor = new PromiseExecutor(this.context, this.workFunction, this.paramArray, this.option, this.increment);
         this.increment++;
         promiseExecutor.execute().then((currentOut) => {

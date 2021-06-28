@@ -329,7 +329,8 @@ class Engine {
                     // console.log('paramArray',paramArray[0][1]);
 
                     this.promiseOrchestrator.execute(module, module.pull, paramArray, {
-                      beamNb: primaryflow.dfob[0].pipeNb
+                      beamNb: primaryflow.dfob[0].pipeNb,
+                      logIteration : true
                     }, this.config).then((componentFlowDfob) => {
                       // console.log('componentFlowDfob', JSON.stringify(componentFlowDfob));
                       for (var componentFlowDfobKey in componentFlowDfob) {
