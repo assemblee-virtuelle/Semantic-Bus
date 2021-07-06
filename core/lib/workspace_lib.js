@@ -447,95 +447,99 @@ function _get_all(userID, role) {
       })
       .lean()
       .exec(async (_error, data) => {
-        data.workspaces = data.workspaces.filter(sift({
-            _id: {
-              $ne: null
+        if(!data){
+          reject(new Error(`user ${userID} not exists`))
+        } else{
+          data.workspaces = data.workspaces.filter(sift({
+              _id: {
+                $ne: null
+              }
             }
-          }
-        ));
-        data.workspaces = data.workspaces.map(r => {
-          return {
-            workspace: r._id,
-            role: r.role,
-          };
-        });
-        const workspaces = data.workspaces.filter(sift({
-            role: role
-          }
-        )).map(r => r.workspace);
+          ));
+          data.workspaces = data.workspaces.map(r => {
+            return {
+              workspace: r._id,
+              role: r.role,
+            };
+          });
+          const workspaces = data.workspaces.filter(sift({
+              role: role
+            }
+          )).map(r => r.workspace);
 
-        const ProcessPromiseArray = [];
+          const ProcessPromiseArray = [];
 
-        workspaces.forEach((workspace) => {
-          const ProcessPromise = new Promise((resolve, reject) => {
-            // console.log('workspace',workspace);
-            if (workspace.status == undefined) {
-              processModel.getInstance().model.find({
-                  workflowId: workspace._id
-                }).sort({
-                  timeStamp: -1
-                })
-                .limit(1)
-                .lean()
-                .exec((err, processes) => {
-                  if (err) {
-                    reject(new Error.DataBaseProcessError(err))
-                  } else {
-                    if (processes[0]) {
-                      historiqueEndModel.getInstance().model.find({
-                        processId: processes[0]._id
-                      }).select({
-                        data: 0
-                      }).lean().exec((err, historiqueEnd) => {
-                        if (err) {
-                          reject(new Error.DataBaseProcessError(err))
-                        } else {
-                          for (let step of processes[0].steps) {
+          workspaces.forEach((workspace) => {
+            const ProcessPromise = new Promise((resolve, reject) => {
+              // console.log('workspace',workspace);
+              if (workspace.status == undefined) {
+                processModel.getInstance().model.find({
+                    workflowId: workspace._id
+                  }).sort({
+                    timeStamp: -1
+                  })
+                  .limit(1)
+                  .lean()
+                  .exec((err, processes) => {
+                    if (err) {
+                      reject(new Error.DataBaseProcessError(err))
+                    } else {
+                      if (processes[0]) {
+                        historiqueEndModel.getInstance().model.find({
+                          processId: processes[0]._id
+                        }).select({
+                          data: 0
+                        }).lean().exec((err, historiqueEnd) => {
+                          if (err) {
+                            reject(new Error.DataBaseProcessError(err))
+                          } else {
+                            for (let step of processes[0].steps) {
 
-                            const historiqueEndFinded =historiqueEnd.filter(sift({
-                              componentId: step.componentId
-                            }))[0];
+                              const historiqueEndFinded =historiqueEnd.filter(sift({
+                                componentId: step.componentId
+                              }))[0];
 
-                            if (processes[0].state === "stop") {
-                              workspace.status = 'stoped';
-                              break;
-                            } else {
-                              if (historiqueEndFinded != undefined) {
-                                if (historiqueEndFinded.error != undefined) {
-                                  workspace.status = 'error';
-                                  break;
-
-                                } else {
-                                  workspace.status = 'resolved';
-                                }
+                              if (processes[0].state === "stop") {
+                                workspace.status = 'stoped';
+                                break;
                               } else {
-                                workspace.status = 'running';
+                                if (historiqueEndFinded != undefined) {
+                                  if (historiqueEndFinded.error != undefined) {
+                                    workspace.status = 'error';
+                                    break;
+
+                                  } else {
+                                    workspace.status = 'resolved';
+                                  }
+                                } else {
+                                  workspace.status = 'running';
+                                }
                               }
                             }
+                            this.updateSimple(workspace);
+                            resolve(workspace)
                           }
-                          this.updateSimple(workspace);
-                          resolve(workspace)
-                        }
-                      })
-                    } else {
-                      workspace.status = 'no-start';
-                      this.updateSimple(workspace);
-                      resolve(workspace)
+                        })
+                      } else {
+                        workspace.status = 'no-start';
+                        this.updateSimple(workspace);
+                        resolve(workspace)
+                      }
                     }
-                  }
-                })
-              console.log(workspace.status);
+                  })
+                console.log(workspace.status);
 
-            } else {
-              resolve(workspace);
-            }
+              } else {
+                resolve(workspace);
+              }
+            })
+            ProcessPromiseArray.push(ProcessPromise)
           })
-          ProcessPromiseArray.push(ProcessPromise)
-        })
 
-        await Promise.all(ProcessPromiseArray)
+          await Promise.all(ProcessPromiseArray)
 
-        resolve(workspaces);
+          resolve(workspaces);
+        }
       });
   });
 } // <= _get_all_by_role
