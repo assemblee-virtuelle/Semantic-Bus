@@ -448,7 +448,7 @@ function _get_all(userID, role) {
       .lean()
       .exec(async (_error, data) => {
         if(!data){
-          reject(new Error(`user ${userID} not exists`))
+          reject(new Error.EntityNotFoundError(`user ${userID} not exists`))
         } else{
           data.workspaces = data.workspaces.filter(sift({
               _id: {
