@@ -73,7 +73,7 @@ make stop => kill all container
 docker container still alive sometime:
 ```
 docker kill semanticbus_mongo_1
-docker kill rabbitmq 
+docker kill rabbitmq
 ```
 
 ### docker-compose (Not recommended)
@@ -104,10 +104,5 @@ cd main && npm install
 cd engine && npm install
 cd main && node app.js
 cd engine && node app.js
-
-```
-
-
-
 
 ```
