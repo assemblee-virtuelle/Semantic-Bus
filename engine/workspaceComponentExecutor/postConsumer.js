@@ -6,6 +6,36 @@ class PostConsumer {
     this.formUrlencoded = require('form-urlencoded').default;
     const { AbortController, abortableFetch }  = require('abortcontroller-polyfill/dist/cjs-ponyfill')
     this.AbortController=AbortController;
+    this.xml2js = require('xml2js')
+    this.propertyNormalizer = require('../utils/propertyNormalizer.js')
+  }
+
+  convertResponseToData (response) {
+    return new Promise(async(resolve, reject)=>{
+      try {
+        let contentType = response.headers.get('content-type')
+        // if (specificData.overidedContentType != undefined && specificData.overidedContentType.length > 0) {
+        //   contentType = specificData.overidedContentType
+        // }
+        if (contentType.search('xml') != -1 || contentType.search('html') != -1) {
+
+          this.xml2js.parseString(await response.text(), {
+            attrkey: 'attr',
+            'trim': true
+          }, (err, result) => {
+            resolve(this.propertyNormalizer.execute(result))
+          })
+        } else if (contentType.search('json') != -1) {
+          let responseObject = await response.json()
+          resolve(this.propertyNormalizer.execute(responseObject))
+        } else {
+          reject(new Error('unsuported content-type :' + contentType))
+        }
+      } catch (e) {
+        e.displayMessage = ('fail to parse data')
+        reject(e)
+      }
+    });
   }
 
   pull (data, flowData, queryParams) {
@@ -59,6 +89,7 @@ class PostConsumer {
           }
         });
 
+        console.log('STATUS',response.status);
 
         let data;
         let hasResponseFailed = response.status >= 400;
@@ -68,14 +99,11 @@ class PostConsumer {
           errorMessage='Request failed for url ' + url + ' with status ' + response.status
           // reject(new Error('Request failed for url ' + url + ' with status ' + response.status))
         }
-        switch (response.headers.get('content-type')) {
-          case 'application/json':
-          case 'application/ld+json':
-            data= await response.json();
-            break;
-          default:
-            data= await response.text();
-        }
+
+        data = await this.convertResponseToData(response);
+
+
+
         // console.log(data);
         // const data = await response.text();
         if (errorMessage){
