@@ -60,7 +60,7 @@
     "sshpk": "^1.7.0",
     "swagger-ui-express": "^4.0.2",
     "threads": "^0.10.0",
-    "validator": "^12.0.0",
+    "validator": "^13.7.0",
     "webstomp-client": "^1.2.0",
     "ws": "^7.2.0",
     "xlsx": "^0.10.5",
