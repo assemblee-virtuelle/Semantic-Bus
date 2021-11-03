@@ -90,7 +90,7 @@
     "solid-auth-cli": "^1.0.14",
     "solid-auth-client": "^2.5.0",
     "sshpk": "^1.7.0",
-    "validator": "^10.11.0",
+    "validator": "^13.7.0",
     "webstomp-client": "^1.2.0",
     "ws": "^4.0.0",
     "xlsx": "^0.16.6",
