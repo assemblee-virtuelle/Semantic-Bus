@@ -91,7 +91,7 @@
     "sshpk": "^1.7.0",
     "tedious": "^6.3.0",
     "unicode-encode": "^1.4.0",
-    "validator": "^12.0.0",
+    "validator": "^13.7.0",
     "webdriverio": "^5.16.6",
     "xlsx": "^0.16.6",
     "xml2js": "^0.4.19"
