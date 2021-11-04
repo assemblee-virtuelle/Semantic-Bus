@@ -27,6 +27,8 @@
     <select class="inputComponents" name="methodInput" ref="methodeInput" onchange={methodInputChanged}>
       <option value="POST" selected={data.specificData.method==='POST' || data.specificData.contentType===undefined}>POST</option>
       <option value="PATCH" selected={data.specificData.method==='PATCH'}>PATCH</option>
+      <option value="PUT" selected={data.specificData.method==='PUT'}>PUT</option>
+      <option value="DELETE" selected={data.specificData.method==='DELETE'}>DELETE</option>
     </select>
   </div>
   <label class="labelFormStandard">Header</label>

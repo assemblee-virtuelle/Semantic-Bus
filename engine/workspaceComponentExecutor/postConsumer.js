@@ -148,11 +148,11 @@ class PostConsumer {
         //   console.log('STATUS',fetchResult.status);
         //   throw new Error(`HTTP status ${fetchResult.status}`)
         // }
-        console.warn(`Post consumer component post to ${url} done`)
+        console.warn(`Post consumer component ${options.method} to ${url} done`)
         resolve(fetchResult);
       } catch (e) {
         clearTimeout(id);
-        console.warn(`Post consumer component post to ${url} failed ${numRetry+1} times : ${e.message}`)
+        console.warn(`Post consumer component ${options.method} to ${url} failed ${numRetry+1} times : ${e.message}`)
         if (numRetry > 2) {
           console.error(JSON.stringify(e.message));
           reject(e)
