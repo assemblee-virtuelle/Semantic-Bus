@@ -32,7 +32,7 @@
     "amqp-connection-manager": "^3.0.0",
     "amqplib": "^0.8.0",
     "async": "^3.1.0",
-    "bcrypt": "^3.0.6",
+    "bcrypt": "^5.0.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
     "busboy": "^0.2.14",
