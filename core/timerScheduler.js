@@ -16,7 +16,7 @@ module.exports = {
         components.forEach(c => {
           // console.log('COMPONENT',c);
           this.workspaceLib.getWorkspace(c.workspaceId).then(workspace=>{
-
+            console.log(`Timer check ${workspace._id} status:${workspace.status} name:${workspace.name}`);
             if (workspace.status!="running"){
               let now = new Date();
               let nextExec = c.specificData.next == undefined ? undefined : new Date(c.specificData.next);
@@ -28,7 +28,7 @@ module.exports = {
                 if (nextExec == undefined || nextExec<now) {
                   if (dedicaded) {
                     // console.log('Timer dedidated!', c._id,c.workspaceId);
-                    console.log(`Timer trigger ${workspace._id} status:${workspace.status} name:${workspace.name}`);
+                    console.log(`--------------- Timer execution ${workspace._id} status:${workspace.status} name:${workspace.name}`);
 
                     const payload = {
                       exp: this.moment().add(14, 'days').unix(),
