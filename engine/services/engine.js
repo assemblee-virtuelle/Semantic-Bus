@@ -177,11 +177,11 @@ class Engine {
         if (this.owner.credit >= 0 || (this.config.privateScript && this.config.privateScript.length == 0) || this.config.free == true) {
 
           this.fackCounter++
+          console.log(`---------- processNextBuildPath ----------- ${this.workflow.name} ${this.fackCounter}/${this.pathResolution.nodes.length}`)
           if (this.config.quietLog != true) {
-            console.log(' ---------- processNextBuildPath -----------', this.fackCounter)
-            console.log(this.pathResolution.nodes.map(node => {
-              return (node.component._id + ' : ' + node.status + ' ' + node.component.name)
-            }))
+            // console.log(this.pathResolution.nodes.map(node => {
+            //   return (node.component._id + ' : ' + node.status + ' ' + node.component.name)
+            // }))
           }
           let processingNode
           let nodeWithoutIncoming = this.pathResolution.nodes.filter(this.sift({
@@ -221,7 +221,11 @@ class Engine {
             })
           }
           // console.log('processingNode', processingNode);
+
           if (processingNode != undefined) {
+            if (this.config.quietLog != true) {
+              console.log(`           processingNode ----------- ${processingNode.component._id} type:'${processingNode.component.type}' name:'${processingNode.component.name}'`)
+            }
             let startTime = new Date()
             // processingLink.status = 'processing';
             // let nodesProcessingInputs = this.pathResolution.nodes.filter(this.sift({
@@ -235,6 +239,7 @@ class Engine {
              );
 
             let module = this.technicalComponentDirectory[processingNode.component.module]
+
             let dataFlow
             let primaryflow
             let secondaryFlow

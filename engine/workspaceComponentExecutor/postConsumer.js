@@ -4,10 +4,11 @@ class PostConsumer {
     this.fetch = require('node-fetch');
     this.stringReplacer = require('../utils/stringReplacer.js');
     this.formUrlencoded = require('form-urlencoded').default;
-    const { AbortController, abortableFetch }  = require('abortcontroller-polyfill/dist/cjs-ponyfill')
+    const { AbortController, abortableFetch }  = require('abortcontroller-polyfill/dist/cjs-ponyfill');
     this.AbortController=AbortController;
-    this.xml2js = require('xml2js')
-    this.propertyNormalizer = require('../utils/propertyNormalizer.js')
+    this.xml2js = require('xml2js');
+    this.propertyNormalizer = require('../utils/propertyNormalizer.js');
+    this.config = require('../configuration.js');
   }
 
   convertResponseToData (response) {
@@ -17,7 +18,9 @@ class PostConsumer {
         // if (specificData.overidedContentType != undefined && specificData.overidedContentType.length > 0) {
         //   contentType = specificData.overidedContentType
         // }
-        if (contentType.search('xml') != -1 || contentType.search('html') != -1) {
+        if (contentType==null || contentType==undefined){
+            resolve(undefined)
+        }else if (contentType.search('xml') != -1 || contentType.search('html') != -1) {
 
           this.xml2js.parseString(await response.text(), {
             attrkey: 'attr',
@@ -56,7 +59,7 @@ class PostConsumer {
             try {
               headers[header.key] = this.stringReplacer.execute(header.value, queryParams, flowData[0].data)
             } catch (e) {
-              console.log(e);
+              console.log(e.message);
             }
           }
         }
@@ -87,9 +90,9 @@ class PostConsumer {
             'Content-Type': componentConfig.contentType,
             ...headers
           }
-        });
+        },this.config);
 
-        console.log('STATUS',response.status);
+        // console.log('STATUS',response.status);
 
         let data;
         let hasResponseFailed = response.status >= 400;
@@ -137,7 +140,7 @@ class PostConsumer {
       const fetchTimeout=10
       const controller = new this.AbortController();
       const id = setTimeout(() => {
-        console.warn(`Fetch timeout ${fetchTimeout}s`);
+        // console.warn(`Fetch timeout ${fetchTimeout}s`);
         controller.abort();
       }, fetchTimeout*1000);
 
@@ -148,13 +151,18 @@ class PostConsumer {
         //   console.log('STATUS',fetchResult.status);
         //   throw new Error(`HTTP status ${fetchResult.status}`)
         // }
-        console.warn(`Post consumer component ${options.method} to ${url} done`)
+        // console.warn(`Post consumer component ${options.method} to ${url} done`)
         resolve(fetchResult);
       } catch (e) {
         clearTimeout(id);
-        console.warn(`Post consumer component ${options.method} to ${url} failed ${numRetry+1} times : ${e.message}`)
+        if (this.config != undefined && this.config.quietLog != true) {
+            console.warn(`Post consumer component ${options.method} to ${url} failed ${numRetry+1} times : ${e.message}`)
+        }
+
         if (numRetry > 2) {
-          console.error(JSON.stringify(e.message));
+          if (this.config != undefined && this.config.quietLog != true) {
+            console.error(JSON.stringify(e.message));
+          }
           reject(e)
         } else {
           // Exponentially increment retry interval at every failure
@@ -162,14 +170,18 @@ class PostConsumer {
           // const retryInterval = Math.pow(5, numRetry + 1)
 
           const retryInterval =5;
-          console.warn(`trying again in ${retryInterval}s... `)
+          if (this.config != undefined && this.config.quietLog != true) {
+            console.warn(`trying again in ${retryInterval}s... `)
+          }
           const sleepAwait = await this.sleep(retryInterval * 1000);
           try {
             const postponeFectch = await this.call_url(url, options, numRetry + 1);
             resolve(postponeFectch)
           } catch (e) {
             // console.log('REJECT');
-            console.error(JSON.stringify(e.message));
+            if (this.config != undefined && this.config.quietLog != true) {
+              console.error(JSON.stringify(e.message));
+            }
             reject(e)
           }
         }

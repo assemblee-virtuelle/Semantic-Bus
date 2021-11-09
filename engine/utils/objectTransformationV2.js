@@ -6,12 +6,14 @@ module.exports = {
   moment : require('moment'),
   dotProp: require('dot-prop'),
   unicode : require('unicode-encode'),
-  executeWithParams: function(source, pullParams, jsonTransformPattern, options) {
-    let out = this.execute(source, pullParams, jsonTransformPattern, options)
+  executeWithParams: function(source, pullParams, jsonTransformPattern, options, config) {
+    // console.log('config',config);
+    let out = this.execute(source, pullParams, jsonTransformPattern, options, config)
     return out
   },
 
-  execute: function(source, pullParams, jsonTransformPattern, options) {
+  execute: function(source, pullParams, jsonTransformPattern, options, config) {
+    // console.log('config',config!=undefined);
     // console.log('jsonTransformPattern',jsonTransformPattern);
     if (source == undefined) {
       return undefined;
@@ -45,7 +47,10 @@ module.exports = {
             return evalResult;
           }
         } catch (e) {
-          console.log(e);
+          // console.log('config',config.quietLog );
+          if (config != undefined && config.quietLog != true) {
+            console.warn(`Transformer Javascript Error : ${e.message}`);
+          }
           if(options  && options.evaluationDetail==true){
             // console.log('ERROR:',javascriptEvalString);
             return {
@@ -61,12 +66,12 @@ module.exports = {
         return this.getValueFromSource(source,pullParams, jsonTransformPattern);
       }
     } else if (Array.isArray(jsonTransformPattern)) {
-      return jsonTransformPattern.map((r, i) => this.execute(source,pullParams, r, options))
+      return jsonTransformPattern.map((r, i) => this.execute(source,pullParams, r, options,config))
     } else if(typeof jsonTransformPattern === 'object') {
       let out = {};
       for (const jsonTransformPatternKey in jsonTransformPattern) {
         // const jsonTransformPatternValue = jsonTransformPattern[jsonTransformPatternKey]
-        out[jsonTransformPatternKey] = this.execute(source, pullParams, jsonTransformPattern[jsonTransformPatternKey], options)
+        out[jsonTransformPatternKey] = this.execute(source, pullParams, jsonTransformPattern[jsonTransformPatternKey], options,config)
       }
       return out
     } else {

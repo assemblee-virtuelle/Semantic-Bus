@@ -16,7 +16,7 @@ module.exports = {
         components.forEach(c => {
           // console.log('COMPONENT',c);
           this.workspaceLib.getWorkspace(c.workspaceId).then(workspace=>{
-            // console.log('Timer Workspace',workspace._id,workspace.status);
+            console.log('Timer Workspace',workspace._id,workspace.name,workspace.status);
             if (workspace.status!="running"){
               let now = new Date();
               let nextExec = c.specificData.next == undefined ? undefined : new Date(c.specificData.next);

@@ -3,6 +3,7 @@ class ObjectTransformer {
   constructor() {
     this.objectTransformation = require('../utils/objectTransformation.js');
     this.objectTransformationV2 = require('../utils/objectTransformationV2.js');
+    this.config = require('../configuration.js');
   }
 
   initComponent(entity) {
@@ -16,11 +17,12 @@ class ObjectTransformer {
 
   jsonTransform(source, jsonTransformPattern, pullParams, options) {
     let out;
+    // console.log('config',this.config);
     if(options.version==='v1'||options.version==='default'||options.version===undefined){
-      out = this.objectTransformation.executeWithParams(source, pullParams, jsonTransformPattern, options)
+      out = this.objectTransformation.executeWithParams(source, pullParams, jsonTransformPattern, options,this.config)
     }else if(options.version==='v2'){
       // console.log('source',source.length);
-      out = this.objectTransformationV2.executeWithParams(source, pullParams, jsonTransformPattern, options)
+      out = this.objectTransformationV2.executeWithParams(source, pullParams, jsonTransformPattern, options,this.config)
 
       if(options.keepSource==true &&  !Array.isArray(out)&&!Array.isArray(source)){
         // console.log('source',source);
