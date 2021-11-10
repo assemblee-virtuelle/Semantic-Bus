@@ -35,7 +35,10 @@ class Timer {
         //   resolve(cachedData);
         // });
       } else {
-        reject(new Error('timer need source'))
+        resolve({
+          data: undefined
+        })
+        // reject(new Error('timer need source'))
       }
     })
   }

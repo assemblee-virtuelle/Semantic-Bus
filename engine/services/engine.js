@@ -171,8 +171,9 @@ class Engine {
           _id: this.processId,
           information: 'Votre flow a été aretté avec succéss'
         })
-        this.workflow.status = 'stoped';
-        this.workspace_lib.updateSimple(this.workflow)
+        //status of workflow ever stoped by update process webservice
+        // this.workflow.status = 'stoped';
+        // this.workspace_lib.updateSimple(this.workflow)
       } else {
         if (this.owner.credit >= 0 || (this.config.privateScript && this.config.privateScript.length == 0) || this.config.free == true) {
 

@@ -135,14 +135,21 @@ function _getCurrentProcess(processId) {
 } // <= _getCurrentProcess
 
 function _updateCurrentProcess(processId, state) {
+// console.log('ALLLLO');
   return new Promise((resolve, reject) => {
+    // console.log('_updateCurrentProcess');
     processModel.getInstance().model.findByIdAndUpdate(processId, {
       state
     }, (err, process) => {
+      // console.log(process);
       if (state=="stop"){
-        workspaceModel.getInstance().model.findByIdAndUpdate(process.workspaceId,{
-          state
-        })
+        workspaceModel.getInstance().model.findByIdAndUpdate(process.workflowId,{
+          status:"stoped"
+        },
+        (err, workspace) => {
+          // console.log('workspace',workspace);
+        }
+      )
       }
       if (err) {
         reject(new Error.DataBaseProcessError(e))
