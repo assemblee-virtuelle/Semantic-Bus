@@ -94,6 +94,6 @@ module.exports = {
   run: function(dedicaded) {
     //this.address = address;
     this.runTimers(dedicaded);
-    setInterval(this.runTimers.bind(this, dedicaded), 600000);
+    setInterval(this.runTimers.bind(this, dedicaded), 60000);
   }
 }
