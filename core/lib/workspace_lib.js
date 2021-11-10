@@ -139,7 +139,11 @@ function _updateCurrentProcess(processId, state) {
     processModel.getInstance().model.findByIdAndUpdate(processId, {
       state
     }, (err, process) => {
-      process.state = state
+      if (state=="stop"){
+        workspaceModel.getInstance().model.findByIdAndUpdate(process.workspaceId,{
+          state
+        })
+      }
       if (err) {
         reject(new Error.DataBaseProcessError(e))
       } else {
