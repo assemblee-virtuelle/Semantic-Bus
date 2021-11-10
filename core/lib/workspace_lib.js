@@ -682,7 +682,9 @@ function _get_workspace(workspace_id) {
           };
         });
         const ProcessPromise = new Promise((resolve, reject) => {
-          if (workspace.status == undefined) {
+          if (workspace.status != undefined) {
+            resolve(workspace);
+          } else {
             processModel.getInstance().model.find({
                 workflowId: workspace._id
               }).sort({
