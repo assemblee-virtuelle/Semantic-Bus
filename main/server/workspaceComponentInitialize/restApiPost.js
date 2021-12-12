@@ -63,6 +63,8 @@ class RestApiPost {
             // console.log('NO MATH!!');
           }
 
+          console.log('req.body',req.body);
+
           this.request.post(this.config.engineUrl + '/work-ask/' + component._id, {
               body: {
                 queryParams: {
