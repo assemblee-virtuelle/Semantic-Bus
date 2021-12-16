@@ -90,7 +90,7 @@ class PostConsumer {
             'Content-Type': componentConfig.contentType,
             ...headers
           }
-        },this.config);
+        });
 
         // console.log('STATUS',response.status);
 
