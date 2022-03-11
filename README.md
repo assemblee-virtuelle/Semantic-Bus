@@ -42,21 +42,6 @@ Semantic data transformation & semantic container crawling
     - Core (./core) ( shared low level services )
     - Engine (./engine) ( motor for graph resolution )
 
-
-
-## Install
-
-- `ssh-keygen -t rsa`
-- Add the generated public key (`.ssh/id_rsa.pub`) in Github admin
-
-See https://help.github.com/articles/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent/
-
-
-### Git
-```bash
-git clone git@github.com:assemblee-virtuelle/Semantic-Bus.git
-```
-
 ## Launch with docker ( best solution )
 * for mac we use docker-machine and not docker for mac in our configuration
 ### make (recommended)
