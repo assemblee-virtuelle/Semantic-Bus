@@ -1001,18 +1001,22 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       this.trigger('ajax_sucess', body.information)
     })
     this.subscription_workspace_current_process_progress = this.stompClient.subscribe('/topic/process-progress.' + this.workspaceCurrent._id, message => {
+      // console.log('STOMP PROCESS PROGRESS raw',message.body);
       let body = JSON.parse(message.body)
-
+      console.log('STOMP PROCESS PROGRESS',typeof( body), body);
       // if (body.error == undefined) {
+      console.log('this.processCollection',body.processId,this.processCollection);
       let targetProcess = sift({
         _id: body.processId
       }, this.processCollection)[0]
 
       if (targetProcess !== undefined) {
+        console.log('targetProcess',targetProcess);
         let targetStep = sift({
           componentId: body.componentId
         }, targetProcess.steps)[0]
         if (targetStep !== undefined) {
+          console.log('targetStep',targetStep);
           if (body.error === undefined) {
             targetStep.status = 'resolved'
           } else {

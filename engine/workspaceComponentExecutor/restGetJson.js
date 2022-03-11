@@ -23,6 +23,8 @@ class RestGetJson {
         }
       }
 
+      // console.log('urlString',urlString);
+
       let parsedUrl = this.url.parse(urlString);
       // console.log('parsedUrl',parsedUrl);
       var defaultHeaders = {
@@ -95,7 +97,8 @@ class RestGetJson {
       })
 
       request.on('error', function (e) {
-        reject(e)
+        console.log('error',e);
+        reject(new Error(`connect refused to ${urlString}`))
       })
       if(specificData.bodyFill==true){
         request.write(JSON.stringify(flowdata));

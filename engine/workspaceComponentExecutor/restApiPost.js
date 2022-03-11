@@ -7,10 +7,17 @@ class RestApiPost {
     this.dataTraitment = require('../../core/dataTraitmentLibrary/index.js')
     this.json2yaml = require('json2yaml')
   }
-  pull (data, flowData) {
+  pull (data, flowData, pullParams) {
     return new Promise((resolve, reject) => {
       // console.log('flowData',flowData);
-      resolve({data:flowData[0].data})
+      if(flowData && flowData[0]){
+        resolve({data:flowData[0].data})
+      } else if (pullParams) {
+        resolve({data:pullParams})
+      } else {
+        reject('Neither flowData nor pullParams')
+      }
+
     })
   }
 }

@@ -34,7 +34,7 @@ class ProcessNotifier {
   /**
    * @param {ProcessNotifier.Information} content
    */
-  
+
   information(content) {
     this.publish(`process-information`, content)
   }
@@ -66,11 +66,21 @@ class ProcessNotifier {
    * @private
    */
   publish(key, content) {
+    console.log('publish',key);
     this.amqpClient.publish(
-      'amq.topic',
-      `${key}.${this.workspaceId}`,
-      new Buffer(JSON.stringify(content))
-    );
+        'amq.topic',
+        `${key}.${this.workspaceId}`,
+        // new Buffer(JSON.stringify(content))
+        // JSON.stringify(content)
+        content
+      ).then(function() {
+        // return console.log('Message was sent!  Hooray!');
+        // console.log('amqp sent');
+      })
+      .catch(function(err) {
+        // return console.log('Message was rejected...  Boo!');
+        console.error('amq fail',err);
+      });
   }
 }
 

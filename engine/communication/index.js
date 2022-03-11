@@ -6,7 +6,7 @@ const workspace_component_lib = require('../../core/lib/workspace_component_lib'
 class Communication {
   init(router) {
     router.post('/work-ask/:componentId', (req, res, next) => {
-      console.log('req.body',req.body);
+      // console.log('req.body',req.body);
       req.setTimeout(0);
       const componentId = req.params.componentId
       const pushData = req.body.pushData
@@ -38,9 +38,9 @@ class Communication {
     })
   }
 
-  setAmqpClient(amqpClient){
-    this.amqpClient=amqpClient;
-    this.amqpClient.consume('work-ask', (msg) => {
+  setAmqpChannel(channel){
+    console.log('setAmqpChannel');
+    channel.consume('work-ask', (msg) => {
       // console.log("work-ask", msg)
       const messageObject = JSON.parse(msg.content.toString())
       console.log("work-ask", messageObject)
@@ -57,6 +57,10 @@ class Communication {
     }, {
       noAck: true
     })
+  }
+
+  setAmqpClient(amqpClient){
+    this.amqpClient=amqpClient;
   }
 }
 

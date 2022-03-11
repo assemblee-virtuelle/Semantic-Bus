@@ -14,9 +14,9 @@ module.exports = {
       module: 'timer'
     }).then(components => {
         components.forEach(c => {
-          console.log(`inspect ${c.workspaceId}-${c._id}`);
+          // console.log(`inspect ${c.workspaceId}-${c._id}`);
           this.workspaceLib.getWorkspace(c.workspaceId).then(workspace=>{
-            console.log(`check ${workspace._id}-${c._id} status:${workspace.status} name:${workspace.name}`);
+            // console.log(`check ${workspace._id}-${c._id} status:${workspace.status} name:${workspace.name}`);
             if (workspace.status!="running"){
               let now = new Date();
               let nextExec = c.specificData.next == undefined ? undefined : new Date(c.specificData.next);
@@ -87,6 +87,9 @@ module.exports = {
                 }
               }
             }
+          })
+          .catch(e=>{
+            console.error(`orchan timer ${c.workspaceId}-${c._id}`);
           })
         });
     })

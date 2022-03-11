@@ -26,15 +26,17 @@ class Timer {
   }
 
   pull(data, flowData, undefined) {
-    // console.log('--------- cash data START --------  : ');
+    // console.log('--------- timer START --------  : ');
     return new Promise((resolve, reject) => {
-      if (flowData != undefined && flowData[0].data != undefined) {
+      // console.log('flowData',typeof flowData, typeof flowData == 'undefined');
+      if (typeof flowData !== 'undefined' && flowData[0].data != undefined) {
         // console.log("----- cache data stock ----")
         resolve(flowData[0])
         // this.cache_lib.create(data,flowData[0]).then(cachedData=>{
         //   resolve(cachedData);
         // });
       } else {
+        // console.log("resolve undefined data");
         resolve({
           data: undefined
         })

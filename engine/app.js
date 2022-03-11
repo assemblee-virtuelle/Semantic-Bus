@@ -42,10 +42,12 @@ request(url, {
       var channelWrapper = connection.createChannel({
         json: true,
         setup: function(channel) {
-          channel.assertQueue('work-ask', {
-            durable: true
-          })
+          console.log("AMQP Connection");
+
           onConnect(channel);
+          return Promise.all([
+            channel.assertQueue('work-ask', { durable: true }),
+          ]);
           // `channel` here is a regular amqplib `ConfirmChannel`.
           // Note that `this` here is the channelWrapper instance.
           // return channel.assertQueue('rxQueueName', {
@@ -61,9 +63,10 @@ request(url, {
       //     onConnect(ch)
       //   })
       // })
+      communication.setAmqpClient(channelWrapper)
       const onConnect = (amqpClient) => {
-        console.log("connected to amqp");
-        communication.setAmqpClient(amqpClient);
+        // console.log('ALLO');
+        communication.setAmqpChannel(amqpClient);
         // require('./amqpService')(unsafe, amqpClient)
       }
       app.use('/engine', unsafe)

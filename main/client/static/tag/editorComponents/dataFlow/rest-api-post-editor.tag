@@ -19,7 +19,7 @@
     <div class="idApi">{data._id}-</div>
     <input class="inputComponents inputApiId" placeholder="" type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.urlName}></input>
   </div>
-  <label class="labelFormStandard">URL de l'API RRR:</label>
+  <label class="labelFormStandard">URL de l'API:</label>
   <div class="cardInput">
     <a class="linkApi" ref="link" target="_blank" href={window.location.origin +'/data/api/'+data.specificData.url}>{window.location.origin +'/data/api/'+data.specificData.url}</a>
   </div>
