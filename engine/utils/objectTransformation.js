@@ -53,7 +53,7 @@ module.exports = {
     return pushFlow
   },
 
-  execute: function(source, jsonTransformPattern, skeepUnresolved,options) {
+  execute: function(source, jsonTransformPattern, skipUnresolved,options) {
 
     // console.log("source", source,'jsonTransformPattern', jsonTransformPattern )
     // console.log('Object Transformer | source',source,' | pattern | ',jsonTransformPattern);
@@ -120,12 +120,12 @@ module.exports = {
 
       // console.log('jsonTransform | resultBeforUnresolved |', JSON.stringify(transformResult));
       // console.log('jsonTransform | resultBeforUnresolved |', transformResult);
-      var destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable, skeepUnresolved)
+      var destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable, skipUnresolved)
       // console.log('jsonTransform | afterUnresolved |', JSON.stringify(destResult));
       // console.log('jsonTransform | afterUnresolved |', destResult);
       // var destResult;
-      // // console.log('skeepUnresolved',skeepUnresolved);
-      // if(skeepUnresolved!=true){
+      // // console.log('skipUnresolved',skipUnresolved);
+      // if(skipUnresolved!=true){
       //   destResult = this.unresolveProcess(transformResult, dissociatePatternResolvable)
       // }else {
       //   destResult=transformResult;
