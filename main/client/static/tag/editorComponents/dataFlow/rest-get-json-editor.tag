@@ -5,7 +5,7 @@
   </div>
  <!-- Titre du composant -->
   <div class="contenaireV title-component">{data.type}</div>
-  <div class="contenaireV warning">Ce composant est déprécié, utiliser Post Consumer à la place</div>
+  <div class="contenaireV warning">Ce composant est déprécié, utiliser HTTP Consumer à la place</div>
   <div>
     <div class="bar"/>
   </div>
