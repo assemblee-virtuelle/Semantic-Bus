@@ -1,8 +1,8 @@
 'use strict'
 class RestApiPost {
   constructor() {
-    this.type = 'Post provider'
-    this.description = `Déclencher un flux de donnée sur une API http POST.`
+    this.type = 'HTTP provider'
+    this.description = `Mettre à disposition une API HTTP; Permettre à votre workflow d'être appelé par une requete HTTP.`
     this.editor = 'rest-api-post-editor'
     this.graphIcon = 'Post_provider.svg'
     this.tags = [

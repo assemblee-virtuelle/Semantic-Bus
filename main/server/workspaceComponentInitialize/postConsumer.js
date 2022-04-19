@@ -1,8 +1,8 @@
 'use strict';
 class PostConsumer {
   constructor () {
-    this.type = 'Post consumer'
-    this.description = 'Envoyer les données en POST vers une URL externe.'
+    this.type = 'HTTP consumer'
+    this.description = 'Appeler une API HTTP; Executer une requête HTTP.'
     this.editor = 'post-consumer-editor'
     this.graphIcon = 'Post_consumer.svg'
     this.tags = [
