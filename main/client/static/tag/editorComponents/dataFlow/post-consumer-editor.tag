@@ -14,18 +14,29 @@
     <div class="bar"/>
   </div>
 
+
   <label class="labelFormStandard">URL externe où envoyer les données:</label>
   <div class="cardInput">
     <input class="inputComponents" placeholder="" type="text" name="urlInput" ref="urlInput" onChange={this.urlInputChanged} value={data.specificData.url}></input>
   </div>
-  <label class="labelFormStandard">Content-type:</label>
-  <div class="cardInput">
+  <div class="options">
+    <label class="labelFormStandard">corp de requête vide :</label>
+    <div class="cardInput">
+      <label class="switch">
+          <input type="checkbox" name="noBodyInput" ref="noBodyInput" checked={data.specificData.noBody} onchange={noBodyChange}/>
+          <span class="slider round"></span>
+      </label>
+    </div>
+  </div>
+  <label class="labelFormStandard" ref="typeLabel">Content-type:</label>
+  <div class="cardInput" ref="typeInput">
     <input class="inputComponents" placeholder="application/json" type="text" name="contentTypeInput" ref="contentTypeInput" onChange={this.contentTypeInputChanged} value={data.specificData.contentType}></input>
   </div>
-  <label class="labelFormStandard">Methode:</label>
-  <div class="cardInput">
+  <label class="labelFormStandard" ref="methodLabel">Methode:</label>
+  <div class="cardInput" ref="methodInput">
     <select class="inputComponents" name="methodInput" ref="methodeInput" onchange={methodInputChanged}>
-      <option value="POST" selected={data.specificData.method==='POST' || data.specificData.contentType===undefined}>POST</option>
+      <option value="GET" selected={data.specificData.method==='GET' || data.specificData.method===undefined}>GET</option>
+      <option value="POST" selected={data.specificData.method==='POST' || data.specificData.method===undefined}>POST</option>
       <option value="PATCH" selected={data.specificData.method==='PATCH'}>PATCH</option>
       <option value="PUT" selected={data.specificData.method==='PUT'}>PUT</option>
       <option value="DELETE" selected={data.specificData.method==='DELETE'}>DELETE</option>
@@ -56,12 +67,31 @@
     this.contentTypeInputChanged = e => {
       this.data.specificData.contentType = e.currentTarget.value;
     };
+
+    noBodyChange(event){
+        this.data.specificData.noBody = event.target.checked;
+        this.methodInputVisibility();
+    }
+
     this.addRowClick = function (e) {
       this.refs.headerTable.data.push({})
     }
+
+    methodInputVisibility(specificData){
+      if(this.data.specificData.noBody!=true){
+        this.refs.typeInput.classList.remove("hide");
+        this.refs.typeLabel.classList.remove("hide");
+      }else{
+        this.refs.typeInput.classList.add("hide");
+        this.refs.typeLabel.classList.add("hide");
+      }
+    }
+
+
     this.updateData = dataToUpdate => {
       this.data = dataToUpdate;
       this.refs.headerTable.data = this.data.specificData.headers || [];
+      this.methodInputVisibility();
       this.update();
     };
     this.on('mount', function () {
@@ -77,4 +107,9 @@
       RiotControl.off('item_current_changed', this.updateData);
     });
   </script>
+  <style>
+  .hide {
+    display: none;
+  }
+  </style>
 </post-consumer-editor>

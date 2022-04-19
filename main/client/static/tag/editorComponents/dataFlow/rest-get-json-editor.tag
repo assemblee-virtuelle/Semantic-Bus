@@ -5,6 +5,7 @@
   </div>
  <!-- Titre du composant -->
   <div class="contenaireV title-component">{data.type}</div>
+  <div class="contenaireV warning">Ce composant est déprécié, utiliser Post Consumer à la place</div>
   <div>
     <div class="bar"/>
   </div>
@@ -89,4 +90,10 @@
       RiotControl.off('item_current_changed', this.updateData);
     });
   </script>
+  <style>
+  .warning{
+    color: red;
+    font-size: 30px;
+  }
+  </style>
 </rest-get-json-editor>

@@ -42,7 +42,7 @@ module.exports = {
   buildDictionnaryArray: function () {
     var directory = []
     for (var technicalComponent in this) {
-      if (technicalComponent != 'initialise' && technicalComponent != 'buildDictionnaryArray') {
+      if (technicalComponent != 'initialise' && technicalComponent != 'buildDictionnaryArray' && this[technicalComponent].tags!=undefined) {
         directory.push({
           module: technicalComponent,
           type: this[technicalComponent].type,

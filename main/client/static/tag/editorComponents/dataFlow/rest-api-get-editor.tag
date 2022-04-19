@@ -5,6 +5,7 @@
   </div>
  <!-- Titre du composant -->
   <div class="contenaireV title-component">{data.type}</div>
+  <div class="contenaireV warning">Ce composant est déprécié, utiliser Post Provider à la place</div>
   <div>
     <div class="bar"/>
   </div>
@@ -99,6 +100,11 @@
   }
   .linkApi{
     color:rgb(180,180,180);
+  }
+
+  .warning{
+    color: red;
+    font-size: 30px;
   }
 </style>
 </rest-api-get-editor>

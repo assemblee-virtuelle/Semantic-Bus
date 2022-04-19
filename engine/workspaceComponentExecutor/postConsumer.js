@@ -66,21 +66,26 @@ class PostConsumer {
 
 
         let body;
-        switch (componentConfig.contentType) {
-          case 'application/json':
-          case 'application/ld+json':
-            body = JSON.stringify(flowData[0].data);
-            break;
-          case 'application/x-www-form-urlencoded':
-            body = this.formUrlencoded(flowData[0].data)
-            break;
-          default:
-            // return Promise.reject(new Error(`${componentConfig.contentType} contentType not Supported by this component`))
-            reject(new Error(`${componentConfig.contentType} contentType not Supported by this component`));
+        let url=componentConfig.url;
+        if(componentConfig.noBody!=true && flowData){
+          switch (componentConfig.contentType) {
+            case 'application/json':
+            case 'application/ld+json':
+              body = JSON.stringify(flowData[0].data);
+              break;
+            case 'application/x-www-form-urlencoded':
+              body = this.formUrlencoded(flowData[0].data)
+              break;
+            default:
+              // return Promise.reject(new Error(`${componentConfig.contentType} contentType not Supported by this component`))
+              reject(new Error(`${componentConfig.contentType} contentType not Supported by this component`));
 
+          }
+          // console.log('body',body);
+          const url = this.stringReplacer.execute(componentConfig.url, queryParams, flowData[0].data);
         }
-        // console.log('body',body);
-        const url = this.stringReplacer.execute(componentConfig.url, queryParams, flowData[0].data);
+
+
 
 
         const response = await this.call_url(url, {
