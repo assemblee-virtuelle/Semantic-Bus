@@ -66,7 +66,7 @@ class PostConsumer {
 
 
         let body;
-        let url=componentConfig.url;
+
         if(componentConfig.noBody!=true && flowData){
           switch (componentConfig.contentType) {
             case 'application/json':
@@ -84,11 +84,12 @@ class PostConsumer {
           // console.log('body',body);
         }
 
+        let url=componentConfig.url;
         if(flowData){
-          const url = this.stringReplacer.execute(componentConfig.url, queryParams, flowData[0].data);
+          url = this.stringReplacer.execute(componentConfig.url, queryParams, flowData[0].data);
         }
 
-
+        // console.log('URL',url);
 
 
         const response = await this.call_url(url, {
