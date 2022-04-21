@@ -82,6 +82,9 @@ class PostConsumer {
 
           }
           // console.log('body',body);
+        }
+
+        if(flowData){
           const url = this.stringReplacer.execute(componentConfig.url, queryParams, flowData[0].data);
         }
 
