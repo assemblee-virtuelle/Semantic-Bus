@@ -42,6 +42,11 @@
       <option value="DELETE" selected={data.specificData.method==='DELETE'}>DELETE</option>
     </select>
   </div>
+  <label class="labelFormStandard">Content-type de réponse forcé:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="" type="text" ref="overidedContentTypeInput" value={data.specificData.overidedContentType} onchange={overidedContentTypeInputChange}></input>
+  </div>
+
   <label class="labelFormStandard">Header</label>
   <div class="cardInput">
     <div onclick={addRowClick} class="btnFil commandButtonImage">
@@ -72,6 +77,11 @@
         this.data.specificData.noBody = event.target.checked;
         this.methodInputVisibility();
     }
+
+    overidedContentTypeInputChange = function (e) {
+      this.data.specificData.overidedContentType = e.target.value;
+    }
+
 
     this.addRowClick = function (e) {
       this.refs.headerTable.data.push({})

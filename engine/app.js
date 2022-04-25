@@ -25,7 +25,7 @@ app.use(bodyParser.urlencoded({
 }))
 
 unsafe.use(bodyParser.json())
-
+console.log('url',url);
 request(url, {
   json: true
 }, (err, result, body) => {

@@ -2,28 +2,34 @@
 
 class GoogleGetJson {
   constructor () {
-    this.sheetrock = require('sheetrock')
+    this.sheetrock = require('sheetrock');
+    this.stringReplacer = require('../utils/stringReplacer.js');
   }
 
-  makeRequest (key, select, offset, provider) {
+  makeRequest (specificData, flowData, queryParams) {
     return new Promise((resolve, reject) => {
       // reject(new Error("fake"));
       try {
+        let url = this.stringReplacer.execute(specificData.key, queryParams, flowData[0].data);
+        if (!url.startsWith('http')){
+          url= 'https://docs.google.com/spreadsheets/d/' + url
+        }
+        console.log('url',url);
         this.sheetrock({
-          url: 'https://docs.google.com/spreadsheets/d/' + key,
+          url: url,
           reset: true,
-          query: select,
+          query: specificData.select,
           callback: function (error, options, response) {
             if (!error || error == null) {
               var cleanData = []
 
               for (var recordKey in response.raw.table.rows) {
-                if (recordKey < offset) {
+                if (recordKey < specificData.offset) {
                   continue
                 }
                 var record = response.raw.table.rows[recordKey]
                 var cleanRecord = {}
-                cleanRecord.provider = provider
+                cleanRecord.provider = specificData.provider
                 for (var cellKey in record.c) {
                   var cell = record.c[cellKey]
                   var column = response.raw.table.cols[cellKey].id || cellKey
@@ -47,13 +53,14 @@ class GoogleGetJson {
           }
         })
       } catch (e) {
+        console.log(e);
         reject(e)
       }
     })
   }
 
-  pull (data) {
-    return this.makeRequest(data.specificData.key, data.specificData.select, data.specificData.offset, data.specificData.provider)
+  pull (data, flowData, queryParams) {
+    return this.makeRequest(data.specificData, flowData, queryParams)
   }
 }
 module.exports = new GoogleGetJson()

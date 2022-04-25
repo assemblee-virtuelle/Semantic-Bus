@@ -11,15 +11,17 @@ class PostConsumer {
     this.config = require('../configuration.js');
   }
 
-  convertResponseToData (response) {
+  convertResponseToData (response,componentConfig) {
     return new Promise(async(resolve, reject)=>{
       try {
-        let contentType = response.headers.get('content-type')
+
+        let contentType = response.headers.get('content-type') || componentConfig.overidedContentType
+                // console.log('convertResponseToData',contentType,response.url,'allo',response.status)
         // if (specificData.overidedContentType != undefined && specificData.overidedContentType.length > 0) {
         //   contentType = specificData.overidedContentType
         // }
-        if (contentType==null || contentType==undefined){
-            resolve(undefined)
+        if (contentType==null || contentType==undefined || contentType==''){
+            reject(new Error(`no content-type in response or in overided by component`))
         }else if (contentType.search('xml') != -1 || contentType.search('html') != -1) {
 
           this.xml2js.parseString(await response.text(), {
@@ -29,7 +31,8 @@ class PostConsumer {
             resolve(this.propertyNormalizer.execute(result))
           })
         } else if (contentType.search('json') != -1) {
-          let responseObject = await response.json()
+          let responseObject = await response.json();
+          // console.log('responseObject',responseObject);
           resolve(this.propertyNormalizer.execute(responseObject))
         } else {
           reject(new Error('unsuported content-type :' + contentType))
@@ -59,7 +62,9 @@ class PostConsumer {
             try {
               headers[header.key] = this.stringReplacer.execute(header.value, queryParams, flowData[0].data)
             } catch (e) {
-              console.log(e.message);
+              if (this.config != undefined && this.config.quietLog != true) {
+                console.log(e.message);
+              }
             }
           }
         }
@@ -92,36 +97,66 @@ class PostConsumer {
         // console.log('URL',url);
 
 
-        const response = await this.call_url(url, {
-          method: componentConfig.method||'POST',
-          body: body,
-          headers: {
-            'Content-Type': componentConfig.contentType,
-            ...headers
-          }
-        });
+        // const response = await this.call_url(url, {
+        //   method: componentConfig.method||'POST',
+        //   body: body,
+        //   headers: {
+        //     'Content-Type': componentConfig.contentType,
+        //     ...headers
+        //   }
+        // });
+
+        let response;
+        let errorMessage;
+        headers= {
+          'Content-Type': componentConfig.contentType,
+          ...headers
+        }
+        try{
+          response = await this.call_url(url, {
+            method: componentConfig.method||'POST',
+            body: body,
+            headers: headers
+          });
+        } catch (e) {
+          errorMessage= e.message;
+        }
+
 
         // console.log('STATUS',response.status);
 
         let data;
-        let hasResponseFailed = response.status >= 400;
-        let errorMessage;
-        if (hasResponseFailed) {
-          // console.log(await response.text());
-          errorMessage='Request failed for url ' + url + ' with status ' + response.status
-          // reject(new Error('Request failed for url ' + url + ' with status ' + response.status))
+
+        if (response){
+          let hasResponseFailed = response.status >= 400;
+          if (hasResponseFailed) {
+            // console.log(await response.text());
+            errorMessage='Request failed for url ' + url + ' with status ' + response.status
+            // reject(new Error('Request failed for url ' + url + ' with status ' + response.status))
+          }
+          try{
+            data = await this.convertResponseToData(response,componentConfig);
+          } catch (e) {
+            errorMessage= e.message;
+          }
         }
 
-        data = await this.convertResponseToData(response);
 
-
-
-        // console.log(data);
+        // console.log('data',data);
         // const data = await response.text();
         if (errorMessage){
           resolve({
             data:{
-              body:data,
+              request:{
+                url:url,
+                headers:headers,
+                body:flowData&&flowData[0].data
+              },
+              response:{
+                body:data,
+                status:response&&response.status,
+                headers:response&&Object.fromEntries(response.headers.entries()),
+              },
               error:errorMessage
             }
           })
@@ -132,8 +167,7 @@ class PostConsumer {
         }
 
       } catch (e) {
-        // console.log('ERROR hight');
-        console.log(e.message);
+        // console.log(e.message);
         reject(e);
       }
 
@@ -172,7 +206,12 @@ class PostConsumer {
           if (this.config != undefined && this.config.quietLog != true) {
             console.error(JSON.stringify(e.message));
           }
-          reject(e)
+          if (e.message.includes('abort')){
+            reject(new Error(`request aborted cause by timout (${fetchTimeout}s) config ${numRetry+1} times`));
+          }else{
+            reject(new Error(`${e.message} ${numRetry+1} times`));
+          }
+
         } else {
           // Exponentially increment retry interval at every failure
           // This will retry after 5s, 25s, 2m, 10m, 50m, 4h, 21h
