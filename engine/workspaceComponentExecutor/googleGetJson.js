@@ -10,7 +10,7 @@ class GoogleGetJson {
     return new Promise((resolve, reject) => {
       // reject(new Error("fake"));
       try {
-        let url = this.stringReplacer.execute(specificData.key, queryParams, flowData[0].data);
+        let url = this.stringReplacer.execute(specificData.key, queryParams, flowData?flowData[0].data:undefined);
         if (!url.startsWith('http')){
           url= 'https://docs.google.com/spreadsheets/d/' + url
         }
