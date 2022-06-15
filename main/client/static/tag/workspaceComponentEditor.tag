@@ -55,11 +55,13 @@
     };
 
     this.itemCurrentEditorChanged = function (editor) {
+      console.log('editor',editor);
       this.mountEdition(editor);
       this.update();
     }.bind(this);
 
     this.itemCurrentChanged = function (item) {
+      console.log('item',item);
       this.itemCurrent = item;
       this.update();
     }.bind(this);

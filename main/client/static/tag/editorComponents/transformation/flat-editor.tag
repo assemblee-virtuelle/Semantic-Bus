@@ -13,4 +13,18 @@
   <div>
     <div class="bar"/>
   </div>
+
+  <script>
+    this.updateData=function(dataToUpdate){
+      this.data=dataToUpdate;
+      this.update();
+    }.bind(this);
+
+    this.on('mount', function () {
+      RiotControl.on('item_current_changed',this.updateData);
+    });
+    this.on('unmount', function () {
+      RiotControl.off('item_current_changed',this.updateData);
+    });
+  </script>
 </flat-editor>

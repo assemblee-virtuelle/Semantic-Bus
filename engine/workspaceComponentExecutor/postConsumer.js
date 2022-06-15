@@ -180,7 +180,7 @@ class PostConsumer {
     return new Promise (async (resolve,reject)=>{
       if (numRetry === undefined) numRetry = 0
       // console.log('call',url);
-      const fetchTimeout=10
+      const fetchTimeout=20
       const controller = new this.AbortController();
       const id = setTimeout(() => {
         // console.warn(`Fetch timeout ${fetchTimeout}s`);
