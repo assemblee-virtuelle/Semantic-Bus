@@ -26,6 +26,8 @@ module.exports = {
         const arrayRegexDot = [...patternEval.matchAll(regexpeDot)];
         for (const valueDot of arrayRegexDot) {
           let sourceDotValue = this.getValueFromSource(source,pullParams, valueDot[1]);
+
+          // console.log('sourceDotValue',sourceDotValue);
           // sourceDotValue= this.escapeString(sourceDotValue);
           // console.log('sourceDotValue',sourceDotValue, typeof sourceDotValue);
 
@@ -39,11 +41,11 @@ module.exports = {
           patternEval = patternEval.replace(valueDot[0], sourceDotValue);
         }
         try {
-          // console.log('main RESOLVE',patternEval);
           const evalResult = eval(patternEval);
           if(options  && options.evaluationDetail==true){
             return {eval:evalResult};
           }else{
+            console.log('return evalResult',evalResult);
             return evalResult;
           }
         } catch (e) {
