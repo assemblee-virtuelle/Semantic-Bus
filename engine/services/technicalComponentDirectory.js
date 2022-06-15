@@ -35,4 +35,7 @@ module.exports = {
   postConsumer: require('../workspaceComponentExecutor/postConsumer.js'),
   keyToArray: require('../workspaceComponentExecutor/keyToArray.js'),
   sftpConsumer: require('../workspaceComponentExecutor/sftpConsumer.js'),
+  flat: require('../workspaceComponentExecutor/flat.js'),
+  jsEvaluation: require('../workspaceComponentExecutor/jsEvaluation.js'),
+
 }

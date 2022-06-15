@@ -73,7 +73,7 @@
       <span style="padding:20px">** L'email ne peut être modifier pour le moment veuillez recreer un compte et vous partager vos workflow en cas de changement</span>
       <div if={!profil.active}>
         <div if={!mailsend}>
-          <span style="padding:20px" id="bad-mail">!!!! Vous n'avez pas valider votre email (consulter vos mails / spam ) Vous ne pourrez utiliser l'outils sans un mail confirmer !!!!</span >
+          <span style="padding:20px" id="bad-mail">Vous n'avez pas validé votre email (consultez vos mails/spam). Vous ne pourrez utiliser l'outil sans un mail confirmé.</span >
         </div>
         <div class="containerH" if={profil.googleId == null || profil.googleId=='undefined' } style="margin-top:20px;">
           <button class="button-profil" onclick={sendbackmail} type="button">{emailtext}</button>
