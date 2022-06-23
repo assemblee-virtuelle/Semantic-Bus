@@ -69,7 +69,8 @@
     methodInputChanged(e) {
       this.data.specificData.method = e.currentTarget.value;
     }
-    this.contentTypeInputChanged = e => {
+
+    contentTypeInputChanged = e => {
       this.data.specificData.contentType = e.currentTarget.value;
     };
 

@@ -51,16 +51,19 @@ class PostConsumer {
 
     return new Promise(async (resolve,reject)=>{
 
+
+      console.log('ALLLLLLLO');
+
       try {
         let headers={};
         if (componentConfig.headers != undefined) {
 
           for (let header of componentConfig.headers) {
 
-            // console.log('value',header.value);
-            // console.log('replacing',this.stringReplacer.execute(header.value, queryParams, body));
+            console.log('value',header.value);
+            console.log('replacing',this.stringReplacer.execute(header.value, queryParams));
             try {
-              headers[header.key] = this.stringReplacer.execute(header.value, queryParams, flowData[0].data)
+              headers[header.key] = this.stringReplacer.execute(header.value, queryParams, flowData?flowData[0].data:undefined)
             } catch (e) {
               if (this.config != undefined && this.config.quietLog != true) {
                 console.log(e.message);
@@ -112,6 +115,8 @@ class PostConsumer {
           'Content-Type': componentConfig.contentType,
           ...headers
         }
+
+              console.log('headers',headers);
         try{
           response = await this.call_url(url, {
             method: componentConfig.method||'POST',

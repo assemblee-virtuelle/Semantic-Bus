@@ -25,7 +25,14 @@
   </div>
   <label class="labelFormStandard">Content-type:</label>
   <div class="cardInput">
-    <input class="inputComponents" placeholder="" type="text" name="contentTypeInput" ref="contentTypeInput" onchange={contentTypeInputChanged} value={data.specificData.contentType}></input>
+    <select class="inputComponents" name="contentTypeInput" ref="contentTypeInput" onchange={contentTypeInputChanged}>
+      <option value="application/json" selected={data.specificData.contentType==='application/json' || data.specificData.contentType===undefined}>application/json</option>
+      <option value="application/ld+json" selected={data.specificData.contentType==='application/ld+json'}>application/ld+json</option>
+      <option value="application/xml" selected={data.specificData.contentType==='application/xml'}>application/xml</option>
+      <option value="application/x-yaml" selected={data.specificData.contentType==='application/x-yaml'}>application/x-yaml</option>
+      <option value="application/vnd.ms-excel" selected={data.specificData.contentType==='application/vnd.ms-excel'}>application/vnd.ms-excel</option>
+      <option value="application/rdf+xml" selected={data.specificData.contentType==='application/rdf+xml'}>application/rdf+xml</option>
+    </select>
   </div>
   <label class="labelFormStandard">Composant qui contient le flux principal:</label>
   <div class="cardInput">
@@ -49,6 +56,11 @@
       this.data.specificData.urlName = e.currentTarget.value;
       this.data.specificData.url=this.data._id + '-'+this.data.specificData.urlName;
     }
+
+    contentTypeInputChanged = e => {
+      this.data.specificData.contentType = e.currentTarget.value;
+    };
+
 
     responseComponentIdInputChanged(e){
       console.log(e.currentTarget.value);
