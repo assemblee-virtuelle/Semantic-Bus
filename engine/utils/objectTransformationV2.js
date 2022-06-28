@@ -45,7 +45,7 @@ module.exports = {
           if(options  && options.evaluationDetail==true){
             return {eval:evalResult};
           }else{
-            console.log('return evalResult',evalResult);
+            // console.log('return evalResult',evalResult);
             return evalResult;
           }
         } catch (e) {

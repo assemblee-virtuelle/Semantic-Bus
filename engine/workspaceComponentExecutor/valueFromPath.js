@@ -6,11 +6,15 @@ class ValueFromPath {
   }
 
   progress(node, pathArray, pathObject, currentKey, counter) {
+
     // console.log('progress',counter,pathArray,currentKey);
 
     // if(counter<100){
-    pathArray = JSON.parse(JSON.stringify(pathArray))
-    pathObject = JSON.parse(JSON.stringify(pathObject))
+    // pathArray = JSON.parse(JSON.stringify(pathArray))
+    pathArray= [...pathArray];
+    // pathObject = JSON.parse(JSON.stringify(pathObject))
+    pathObject = {...pathObject};
+
     // console.log('progress', pathArray,node, pathObject);
 
     let index = parseInt(pathArray[0])
@@ -18,7 +22,8 @@ class ValueFromPath {
     if (Array.isArray(node) && isNaN(index) && pathArray.length > 0) {
 
       let out = []
-      node.forEach(r => {
+      node.forEach((r,i) => {
+        // console.log(`${i}/${node.length}`);
         // console.log('r before', r);
         out.push(this.progress(r, pathArray, pathObject, currentKey, ++counter))
         // console.log('r after', r);
@@ -33,7 +38,11 @@ class ValueFromPath {
         if (Array.isArray(node)) {
           // console.log('ALLO1',node);
           out = [];
-          node.forEach(n => {
+          node.forEach((n,i) => {
+            // if (i%100==0){
+            //   console.log(`${i}/${node.length}`);
+            // }
+
             if (typeof n === 'object') {
               for (let pathObjectKey in pathObject) {
                 n[pathObjectKey] = pathObject[pathObjectKey]
@@ -94,6 +103,7 @@ class ValueFromPath {
 
   pull(data, flowData) {
     return new Promise((resolve, reject) => {
+      // console.log('VALUE FROM PATH START');
       // console.log(flowData[0],data.specificData.path);
       // let value=this.dotProp.get(flowData[0].data, data.specificData.path)
       try {

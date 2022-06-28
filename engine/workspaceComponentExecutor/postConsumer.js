@@ -50,18 +50,14 @@ class PostConsumer {
 
 
     return new Promise(async (resolve,reject)=>{
-
-
-      console.log('ALLLLLLLO');
-
       try {
         let headers={};
         if (componentConfig.headers != undefined) {
 
           for (let header of componentConfig.headers) {
 
-            console.log('value',header.value);
-            console.log('replacing',this.stringReplacer.execute(header.value, queryParams));
+            // console.log('value',header.value);
+            // console.log('replacing',this.stringReplacer.execute(header.value, queryParams));
             try {
               headers[header.key] = this.stringReplacer.execute(header.value, queryParams, flowData?flowData[0].data:undefined)
             } catch (e) {

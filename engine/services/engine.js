@@ -255,7 +255,8 @@ class Engine {
               })
               //important to not produce side effect
               // console.log("dataFlow",dataFlow);
-              dataFlow = clone(dataFlow);
+              // dataFlow = clone(dataFlow);
+              dataFlow=[...dataFlow]
               // console.log("dataFlow cloned",dataFlow);
               if (module.getPrimaryFlow != undefined) {
                 primaryflow = module.getPrimaryFlow(
@@ -594,7 +595,8 @@ class Engine {
         })
         return flatOut
       } else {
-        let newDfobPathTab = JSON.parse(JSON.stringify(dfobPathTab))
+        // let newDfobPathTab = JSON.parse(JSON.stringify(dfobPathTab))
+        let newDfobPathTab = [...dfobPathTab]
         let currentdFob = newDfobPathTab.shift()
         let flowOfKey = currentFlow[currentdFob]
 
