@@ -4,7 +4,7 @@
     <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-File-consumer" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
  <!-- Titre du composant -->
-  <div class="containerV title-component">{data.type}</div>
+  <div class="contenaireV title-component">{data.type}</div>
   <div>
     <div class="bar"/>
   </div>
