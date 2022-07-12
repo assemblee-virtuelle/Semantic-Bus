@@ -15,9 +15,10 @@ module.exports = {
   execute: function(source, pullParams, jsonTransformPattern, options, config) {
     // console.log('config',config!=undefined);
     // console.log('jsonTransformPattern',jsonTransformPattern);
-    if (source == undefined) {
-      return undefined;
-    } else if (typeof jsonTransformPattern === 'string' || jsonTransformPattern instanceof String) {
+    // if (source == undefined) {
+    //   return undefined;
+    // } else
+    if (typeof jsonTransformPattern === 'string' || jsonTransformPattern instanceof String) {
       const regexpeEval = /^\=(.*)/gm;
       const arrayRegexEval = [...jsonTransformPattern.matchAll(regexpeEval)]
       if (arrayRegexEval.length > 0) {
@@ -25,6 +26,7 @@ module.exports = {
         const regexpeDot = /{(.*?)}/gm;
         const arrayRegexDot = [...patternEval.matchAll(regexpeDot)];
         for (const valueDot of arrayRegexDot) {
+          // console.log('getValueFromSource',source,pullParams, valueDot[1]);
           let sourceDotValue = this.getValueFromSource(source,pullParams, valueDot[1]);
 
           // console.log('sourceDotValue',sourceDotValue);
@@ -35,11 +37,12 @@ module.exports = {
             sourceDotValue = "this.resolveString('"+this.escapeString(sourceDotValue)+"')"
           }else if (typeof sourceDotValue === 'object') {
             // sourceDotValue ='JSON.parse(`' + JSON.stringify(sourceDotValue) + '`)'
-            // console.log('sourceDotValue',this.escapeString(sourceDotValue));
+            // console.log('sourceDotValue parseAndResolveString',sourceDotValue,this.parseAndResolveString(JSON.stringify(this.escapeString(sourceDotValue))));
             sourceDotValue = "this.parseAndResolveString('" + JSON.stringify(this.escapeString(sourceDotValue)) + "')";
           }
           patternEval = patternEval.replace(valueDot[0], sourceDotValue);
         }
+        // console.log('patternEval',patternEval);
         try {
           const evalResult = eval(patternEval);
           if(options  && options.evaluationDetail==true){
@@ -100,6 +103,7 @@ module.exports = {
     }
   },
   escapeString(source){
+    // console.log('escapeString',source);
     if(typeof source === 'string' || source instanceof String){
       // return '`${source}`'
       // return `eval(\`${source}\`)`
@@ -111,7 +115,7 @@ module.exports = {
       let out={};
       let json = source.toJSON();
       return this.escapeString(json)
-    } else if (typeof source === 'object' ) {
+    } else if (source!=null && typeof source === 'object' ) {
       let out={}
       for (const key in source){
         out[key]=this.escapeString(source[key]);
@@ -136,7 +140,7 @@ module.exports = {
 
     } else if(Array.isArray(source)){
       return source.map(r=>this.resolveString(r))
-    } else if (typeof source === 'object') {
+    } else if (source!=null && typeof source === 'object') {
       let out={}
       for (const key in source){
         out[key]=this.resolveString(source[key]);

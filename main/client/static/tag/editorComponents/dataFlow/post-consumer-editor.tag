@@ -17,7 +17,7 @@
 
   <label class="labelFormStandard">URL externe où envoyer les données:</label>
   <div class="cardInput">
-    <input class="inputComponents" placeholder="" type="text" name="urlInput" ref="urlInput" onChange={this.urlInputChanged} value={data.specificData.url}></input>
+    <input class="inputComponents" placeholder="" type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.url}></input>
   </div>
   <div class="options">
     <label class="labelFormStandard">corp de requête vide :</label>
@@ -30,18 +30,28 @@
   </div>
   <label class="labelFormStandard" ref="typeLabel">Content-type:</label>
   <div class="cardInput" ref="typeInput">
-    <input class="inputComponents" placeholder="application/json" type="text" name="contentTypeInput" ref="contentTypeInput" onChange={this.contentTypeInputChanged} value={data.specificData.contentType}></input>
+    <input class="inputComponents" placeholder="application/json" type="text" name="contentTypeInput" ref="contentTypeInput" onChange={contentTypeInputChanged} value={data.specificData.contentType}></input>
   </div>
   <label class="labelFormStandard" ref="methodLabel">Methode:</label>
   <div class="cardInput" ref="methodInput">
     <select class="inputComponents" name="methodInput" ref="methodeInput" onchange={methodInputChanged}>
       <option value="GET" selected={data.specificData.method==='GET' || data.specificData.method===undefined}>GET</option>
-      <option value="POST" selected={data.specificData.method==='POST' || data.specificData.method===undefined}>POST</option>
+      <option value="POST" selected={data.specificData.method==='POST'}>POST</option>
       <option value="PATCH" selected={data.specificData.method==='PATCH'}>PATCH</option>
       <option value="PUT" selected={data.specificData.method==='PUT'}>PUT</option>
       <option value="DELETE" selected={data.specificData.method==='DELETE'}>DELETE</option>
     </select>
   </div>
+  <label class="labelFormStandard">Temps de réponse accordé (TimeOut):</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="20" type="text" name="timeoutInput" ref="timeoutInput" onChange={timeoutInputChanged} value={data.specificData.timeout}></input>
+  </div>
+  <label class="labelFormStandard">nombre de tentatives:</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="1" type="text" name="retryInput" ref="retryInput" onChange={retryInputChanged} value={data.specificData.retry}></input>
+  </div>
+
+
   <label class="labelFormStandard">Content-type de réponse forcé:</label>
   <div class="cardInput">
     <input class="inputComponents" placeholder="" type="text" ref="overidedContentTypeInput" value={data.specificData.overidedContentType} onchange={overidedContentTypeInputChange}></input>
@@ -63,9 +73,18 @@
   </zentable>
   <script>
     this.data = {};
-    this.urlInputChanged = e => {
+    urlInputChanged = e => {
       this.data.specificData.url = e.currentTarget.value;
     };
+
+    timeoutInputChanged = e => {
+      this.data.specificData.timeout = e.currentTarget.value;
+    };
+
+    retryInputChanged = e => {
+      this.data.specificData.retry = e.currentTarget.value;
+    };
+
     methodInputChanged(e) {
       this.data.specificData.method = e.currentTarget.value;
     }

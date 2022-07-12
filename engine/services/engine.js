@@ -337,7 +337,16 @@ class Engine {
 
                     this.promiseOrchestrator.execute(module, module.pull, paramArray, {
                       beamNb: primaryflow.dfob[0].pipeNb,
-                      logIteration : true
+                      logIteration : true,
+                      continueChekFunction : async ()=>{
+                        // console.log('check',this.processId);
+                        process = await this.workspace_lib.getCurrentProcess(this.processId);
+                        if (process.state == 'stop') {
+                          return false
+                        } else {
+                          return true
+                        }
+                      }
                     }, this.config).then((componentFlowDfob) => {
                       // console.log('componentFlowDfob', JSON.stringify(componentFlowDfob));
                       for (var componentFlowDfobKey in componentFlowDfob) {

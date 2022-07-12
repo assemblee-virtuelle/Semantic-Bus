@@ -11,9 +11,9 @@ class JsEvaluation {
         let usableData = flowData[0].data
         // JS code to execute
         let jsString = `=${data.specificData.jsString}`
-        console.log('usableData',usableData);
+        // console.log('usableData',usableData);
         let jsResult = this.objectTransformation.execute(usableData,pullParams,jsString);
-        console.log('jsResult',jsResult);
+        // console.log('jsResult',jsResult);
         // if(jsResult === undefined){
         //   throw new Error(`No result needs to be displayed, does the code start by '=' ?`);
         // }

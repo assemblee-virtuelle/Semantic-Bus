@@ -53,7 +53,7 @@ class RestGetJson {
 
       const requester = urlString.includes('https')?this.https:this.http;
 
-      console.log('requestOptions',requestOptions);
+      // console.log('requestOptions',requestOptions);
 
       let request = requester.request(requestOptions, response => {
         let hasResponseFailed = response.statusCode >= 400
