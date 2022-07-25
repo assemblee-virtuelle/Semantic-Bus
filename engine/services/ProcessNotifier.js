@@ -66,7 +66,7 @@ class ProcessNotifier {
    * @private
    */
   publish(key, content) {
-    console.log('publish',key);
+    // console.log('publish',key);
     this.amqpClient.publish(
         'amq.topic',
         `${key}.${this.workspaceId}`,

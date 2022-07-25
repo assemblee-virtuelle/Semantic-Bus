@@ -67,6 +67,7 @@ class Upload {
         this.workspace_component_lib.get({
           _id: compId
         }).then(component => {
+          //TODO refactor without direction
           this.request.post(this.config.engineUrl + '/work-ask/' + component._id,
             { body: { pushData: resultatTraite.data, direction: 'push' },
               json: true

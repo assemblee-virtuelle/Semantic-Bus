@@ -21,7 +21,7 @@ module.exports = {
     ++counter;
       return new Promise((resolve, reject) => {
         if (Array.isArray(frag.data)) {
-          if (this.objectSizeOf(frag.data) > 1000) {
+          if (this.objectSizeOf(frag.data) > 0) {
             // console.log('ARRAY BIG', frag);
             let promiseOrchestrator = new this.PromiseOrchestrator();
             let arraySegmentator = new this.ArraySegmentator();

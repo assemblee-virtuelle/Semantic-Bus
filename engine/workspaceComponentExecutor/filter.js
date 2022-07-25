@@ -38,6 +38,7 @@ class Filter {
         })
       } catch (e) {
         console.error(e);
+        console.log('REJECT');
         reject(e)
       } finally {
 
