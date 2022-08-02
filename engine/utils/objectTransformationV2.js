@@ -30,11 +30,11 @@ module.exports = {
           // console.log('getValueFromSource',source,pullParams, valueDot[1]);
           let sourceDotValue = this.getValueFromSource(source,pullParams, valueDot[1]);
 
-          if(source&&source['pair:label']&&source['pair:label'].includes('Nuyens') && valueDot&& valueDot[1] && valueDot[1].includes('longitude')){
-            // console.log("sourceDotValue");
-            console.log("sourceDotValue", sourceDotValue, typeof sourceDotValue);
-            logEval=true;
-          }
+          // if(source&&source['pair:label']&&source['pair:label'].includes('Nuyens') && valueDot&& valueDot[1] && valueDot[1].includes('longitude')){
+          //   // console.log("sourceDotValue");
+          //   console.log("sourceDotValue", sourceDotValue, typeof sourceDotValue);
+          //   logEval=true;
+          // }
 
           // console.log('sourceDotValue',sourceDotValue);
           // sourceDotValue= this.escapeString(sourceDotValue);
@@ -46,26 +46,26 @@ module.exports = {
             // sourceDotValue ='JSON.parse(`' + JSON.stringify(sourceDotValue) + '`)'
             // console.log('sourceDotValue parseAndResolveString',sourceDotValue,this.parseAndResolveString(JSON.stringify(this.escapeString(sourceDotValue))));
             sourceDotValue = "this.parseAndResolveString('" + JSON.stringify(this.escapeString(sourceDotValue)) + "')";
-          }else if ( typeof sourceDotValue =='number' || !isNaN(parseAndResolveString) ){
+          }else if ( typeof sourceDotValue =='number' || !isNaN(sourceDotValue) ){
             const type= typeof sourceDotValue;
             sourceDotValue=`Number(${sourceDotValue})`
           }
 
-          if(logEval){
-            console.log(sourceDotValue instanceof Number);
-            console.log('sourceDotValue2',sourceDotValue,valueDot[0]);
-          }
+          // if(logEval){
+          //   console.log(sourceDotValue instanceof Number);
+          //   console.log('sourceDotValue2',sourceDotValue,valueDot[0]);
+          // }
           patternEval = patternEval.replace(valueDot[0], sourceDotValue);
         }
         // console.log('patternEval',patternEval);
         try {
           const evalResult = eval(patternEval);
           // console.log('ALLO');
-          if(logEval){
-            // console.log("evalResult!");
-            console.log("patternEval",patternEval);
-            console.log("evalResult", evalResult, typeof evalResult);
-          }
+          // if(logEval){
+          //   // console.log("evalResult!");
+          //   console.log("patternEval",patternEval);
+          //   console.log("evalResult", evalResult, typeof evalResult);
+          // }
           if(options  && options.evaluationDetail==true){
             return {eval:evalResult};
           }else{

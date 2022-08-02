@@ -270,7 +270,7 @@ class Engine {
                   dfob:sourceNode.dataResolution?sourceNode.dataResolution.dfob:undefined
                 })
 
-                console.log("READ", typeof persistedDataFlow[0].data[5].bf_longitude);
+                // console.log("READ", typeof persistedDataFlow[0].data[5].bf_longitude);
 
               }
               // console.log("persistedDataFlow",persistedDataFlow[0]);
@@ -589,7 +589,7 @@ class Engine {
       // if (processingNode.component.persistProcess == true) {
         // console.log('addDataHistoriqueEnd',dataFlow.data);
         try {
-          console.log("WRITE", data[5].bf_longitude, typeof data[5].bf_longitude);
+          // console.log("WRITE", data[5].bf_longitude, typeof data[5].bf_longitude);
           const frag = await   this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id, error == undefined ? data : error);
           this.processNotifier.persist({
             componentId: historiqueEnd.componentId,
