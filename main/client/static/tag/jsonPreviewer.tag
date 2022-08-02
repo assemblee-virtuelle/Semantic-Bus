@@ -35,9 +35,10 @@
       <input type="text" readonly="true" value={data.totalPrice}></input>
     </div>
   </div>
-    <jsonfragviewer show={data.persistProcess||data.error} ref="jsonFragViewer" style="flex-grow:100;"></jsonfragviewer>
+    <jsonfragviewer  ref="jsonFragViewer" style="flex-grow:100;"></jsonfragviewer>
 
   <script>
+
     this.data = {};
     this.updateData = function (data) {
       // console.log('COMPONENT PREVIEW', data);
@@ -64,6 +65,7 @@
     }.bind(this);
 
     this.on('mount', function () {
+      // console.log('xxxxxxxxxxxx mount');
       if (this.refs.jsonFragViewer) {
         this.refs.jsonFragViewer.on('open_frag_node', (fragId, nodeId) => {
           //console.log('OPEN', fragId, nodeId);

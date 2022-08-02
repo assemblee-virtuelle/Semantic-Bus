@@ -39,7 +39,7 @@
           }
           return comp;
         });*/
-        console.log(data);
+        // console.log(data);
         this.tags.zentable.data=data;
       }.bind(this));
     }

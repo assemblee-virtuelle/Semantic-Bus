@@ -10,21 +10,7 @@
         <input placeholder="Sans-titre" type="text" id="nameComponentInput" onchange={onNameChange} value={itemCurrent.name} required="required"></input>
       </div>
     </div>
-    <div class="containerH" style="justify-content:center">
-      <div class="containerV" style="justify-content:center;margin-right:10px;">
-        <label >
-          Persistance du process (payant)
-        </label>
-      </div>
-      <div class="containerH" style="justify-content:center;">
-        <div class="containerV" style="justify-content:center;">
-          <label class="switch">
-            <input type="checkbox" onchange={onPersistProcessChange} checked={itemCurrent.persistProcess}>
-            <span class="slider round"></span>
-          </label>
-        </div>
-      </div>
-    </div>
+
   </div>
   <div style="flex-grow:1; background-color: rgb(238,242,249);" class="containerV">
     <div id="editionContainer" class="box-flex containerV"></div>
@@ -46,9 +32,9 @@
       this.itemCurrent.name = e.target.value;
     }
 
-    onPersistProcessChange(e) {
-      this.itemCurrent.persistProcess = e.target.checked;
-    }
+    // onPersistProcessChange(e) {
+    //   this.itemCurrent.persistProcess = e.target.checked;
+    // }
 
     this.mountEdition = function (editor) {
       this.editionContainer = riot.mount('#editionContainer', editor)[0];

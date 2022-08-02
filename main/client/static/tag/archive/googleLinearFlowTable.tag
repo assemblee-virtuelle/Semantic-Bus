@@ -35,7 +35,7 @@
      }.bind(this));
 
      this.tags.zentable.on('delRow',function(data){
-       console.log(data);
+       // console.log(data);
        RiotControl.trigger('GLF_delete',data);
        /*$.ajax({
          method:'delete',this.tags.zentable.data=data;

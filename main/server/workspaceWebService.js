@@ -102,7 +102,7 @@ module.exports = function (router) {
     const processId = req.params.processId
     workspace_component_lib.get_component_result(componentId, processId).then(function (data) {
       if (data !== undefined) {
-        if (data.persistProcess === true && data.frag !== undefined) {
+        if (data.frag !== undefined) {
           fragment_lib.get(data.frag).then(frag => {
             if (frag != null) {
               data.data = frag.data

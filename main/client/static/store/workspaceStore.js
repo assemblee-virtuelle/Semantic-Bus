@@ -404,7 +404,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
       contentType: 'application/json',
       data: JSON.stringify({ state: 'stop' })
     }).then((data) => {
-      console.log(data)
+      // console.log(data)
     })
   })
 

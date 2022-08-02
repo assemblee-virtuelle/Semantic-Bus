@@ -30,7 +30,11 @@ class ObjectTransformer {
       }
     }
     // let out = this.objectTransformation.executeWithParams(source, pullParams, jsonTransformPattern, options)
-    // console.log(out);
+    // console.log('out',out);
+    if(out['nom du lieux *']&&out['nom du lieux *'].includes('Nuyens')){
+      console.log("AFTER transform", out.bf_longitude, typeof out.bf_longitude);
+    }
+
     return out;
   }
 

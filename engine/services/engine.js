@@ -246,19 +246,8 @@ class Engine {
             let dataFlow
             let primaryflow
             let secondaryFlow
-            // console.log("nodesProcessingInputs",nodesProcessingInputs);
+
             if (nodesProcessingInputs.length > 0) {
-              // console.log('ALLO');
-              // console.log("in processingNodes",nodesProcessingInputs);
-              // dataFlow = nodesProcessingInputs.map(sourceNode => {
-              //   let d = sourceNode.dataResolution
-              //   d.componentId = sourceNode.component._id
-              //   return d
-              // })
-              //important to not produce side effect
-              // console.log("dataFlow",dataFlow);
-              //Clone need in case of mutiple out dataflow : first component can alter dataflow
-              // dataFlow = clone(dataFlow);
 
               let  persistedDataFlow =[];
               for (const sourceNode of nodesProcessingInputs){
@@ -271,22 +260,18 @@ class Engine {
                 }else {
                   sourceComponentId = sourceNode.component._id
                 }
-                // console.log('sourceComponentId',sourceComponentId);
-                // const sourceComponentId = sourceNode.dataResolution&&sourceNode.dataResolution.dfobSourceComponentId:
+
                 const persistedDataFlowCoponent= await this.workspace_component_lib.get_component_result(sourceComponentId,this.processId);
-                // persistedDataFlow.push({
-                //   frag:persistedDataFlowCoponent.frag,
-                //   frag_get_data_0:(await this.fragment_lib.get(persistedDataFlowCoponent.frag)).data[0],
-                //   frag_get_frag_0:(await this.fragment_lib.get(persistedDataFlowCoponent.frag)).frags[0],
-                //   frag_getWithResolution_data_0:(await this.fragment_lib.getWithResolution(persistedDataFlowCoponent.frag)).data['ldp:contains'][0]['cd:teachingLevel'][0],
-                //   // frag_getWithResolution_data_0_printouts:(await this.fragment_lib.getWithResolution(persistedDataFlowCoponent.frag)).data[1].printouts,
-                // })
-                // console.log('persistedDataFlowCoponent',persistedDataFlowCoponent);
+                // console.log('persistedDataFlowCoponent.frag',persistedDataFlowCoponent.frag);
+                const fragAvailable =persistedDataFlowCoponent.frag && persistedDataFlowCoponent.frag!=null;
                 persistedDataFlow.push({
-                  data : (await this.fragment_lib.getWithResolution(persistedDataFlowCoponent.frag)).data,
+                  data : fragAvailable?(await this.fragment_lib.getWithResolution(persistedDataFlowCoponent.frag)).data:undefined,
                   componentId:sourceNode.component._id,
                   dfob:sourceNode.dataResolution?sourceNode.dataResolution.dfob:undefined
                 })
+
+                console.log("READ", typeof persistedDataFlow[0].data[5].bf_longitude);
+
               }
               // console.log("persistedDataFlow",persistedDataFlow[0]);
               dataFlow = persistedDataFlow;
@@ -604,6 +589,7 @@ class Engine {
       // if (processingNode.component.persistProcess == true) {
         // console.log('addDataHistoriqueEnd',dataFlow.data);
         try {
+          console.log("WRITE", data[5].bf_longitude, typeof data[5].bf_longitude);
           const frag = await   this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id, error == undefined ? data : error);
           this.processNotifier.persist({
             componentId: historiqueEnd.componentId,
@@ -620,19 +606,6 @@ class Engine {
           })
         }
 
-        // this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id, error == undefined ? dataFlow.data : error).then(frag => {
-        //   this.processNotifier.persist({
-        //     componentId: historiqueEnd.componentId,
-        //     processId: historiqueEnd.processId,
-        //     data: frag.data
-        //   })
-        // }).catch(e => {
-        //   this.processNotifier.persist({
-        //     componentId: historiqueEnd.componentId,
-        //     processId: historiqueEnd.processId,
-        //     error: 'error persisting historic data'
-        //   })
-        // })
       // }
     } catch {
       this.processNotifier.progress({
@@ -642,37 +615,6 @@ class Engine {
       })
     }
 
-
-
-    // this.workspace_lib.createHistoriqueEnd(historic_object).then(historiqueEnd => {
-    //   this.processNotifier.progress({
-    //     componentId: historiqueEnd.componentId,
-    //     processId: historiqueEnd.processId,
-    //     error: historiqueEnd.error
-    //   })
-    //   if (processingNode.component.persistProcess == true) {
-    //     // console.log('addDataHistoriqueEnd',dataFlow.data);
-    //     this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id, error == undefined ? dataFlow.data : error).then(frag => {
-    //       this.processNotifier.persist({
-    //         componentId: historiqueEnd.componentId,
-    //         processId: historiqueEnd.processId,
-    //         data: frag.data
-    //       })
-    //     }).catch(e => {
-    //       this.processNotifier.persist({
-    //         componentId: historiqueEnd.componentId,
-    //         processId: historiqueEnd.processId,
-    //         error: 'error persisting historic data'
-    //       })
-    //     })
-    //   }
-    // }).catch(e => {
-    //   this.processNotifier.progress({
-    //     componentId: processingNode.component._id,
-    //     processId: this.processId,
-    //     error: 'error writing historic'
-    //   })
-    // })
     // console.log("--------------  End of component processing --------------",  this.owner.credit);
     this.owner.credit -= historic_object.totalPrice
   }

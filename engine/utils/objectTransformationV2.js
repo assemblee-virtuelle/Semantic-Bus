@@ -25,9 +25,16 @@ module.exports = {
         let patternEval = arrayRegexEval[0][1];
         const regexpeDot = /{(.*?)}/gm;
         const arrayRegexDot = [...patternEval.matchAll(regexpeDot)];
+        let logEval=false;
         for (const valueDot of arrayRegexDot) {
           // console.log('getValueFromSource',source,pullParams, valueDot[1]);
           let sourceDotValue = this.getValueFromSource(source,pullParams, valueDot[1]);
+
+          if(source&&source['pair:label']&&source['pair:label'].includes('Nuyens') && valueDot&& valueDot[1] && valueDot[1].includes('longitude')){
+            // console.log("sourceDotValue");
+            console.log("sourceDotValue", sourceDotValue, typeof sourceDotValue);
+            logEval=true;
+          }
 
           // console.log('sourceDotValue',sourceDotValue);
           // sourceDotValue= this.escapeString(sourceDotValue);
@@ -39,12 +46,26 @@ module.exports = {
             // sourceDotValue ='JSON.parse(`' + JSON.stringify(sourceDotValue) + '`)'
             // console.log('sourceDotValue parseAndResolveString',sourceDotValue,this.parseAndResolveString(JSON.stringify(this.escapeString(sourceDotValue))));
             sourceDotValue = "this.parseAndResolveString('" + JSON.stringify(this.escapeString(sourceDotValue)) + "')";
+          }else if ( typeof sourceDotValue =='number' || !isNaN(parseAndResolveString) ){
+            const type= typeof sourceDotValue;
+            sourceDotValue=`Number(${sourceDotValue})`
+          }
+
+          if(logEval){
+            console.log(sourceDotValue instanceof Number);
+            console.log('sourceDotValue2',sourceDotValue,valueDot[0]);
           }
           patternEval = patternEval.replace(valueDot[0], sourceDotValue);
         }
         // console.log('patternEval',patternEval);
         try {
           const evalResult = eval(patternEval);
+          // console.log('ALLO');
+          if(logEval){
+            // console.log("evalResult!");
+            console.log("patternEval",patternEval);
+            console.log("evalResult", evalResult, typeof evalResult);
+          }
           if(options  && options.evaluationDetail==true){
             return {eval:evalResult};
           }else{
@@ -54,7 +75,7 @@ module.exports = {
         } catch (e) {
           // console.log('config',config.quietLog );
           if (config != undefined && config.quietLog != true) {
-            console.warn(`Transformer Javascript Error : ${e.message}`);
+            // console.warn(`Transformer Javascript Error : ${e.message}`);
           }
           if(options  && options.evaluationDetail==true){
             // console.log('ERROR:',javascriptEvalString);
