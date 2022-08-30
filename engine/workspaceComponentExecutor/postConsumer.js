@@ -158,7 +158,7 @@ class PostConsumer {
               request:{
                 url:url,
                 headers:headers,
-                body:flowData&&flowData[0].data
+                body:flowData&&JSON.parse(JSON.stringify(flowData[0].data))
               },
               error:errorMessage
             }

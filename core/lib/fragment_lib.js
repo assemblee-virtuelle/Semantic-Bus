@@ -120,6 +120,8 @@ module.exports = {
               },
               key: key
             });
+          }).catch(e=>{
+            reject(e);
           });
         } else {
           //console.log('PRIMITIV', key);

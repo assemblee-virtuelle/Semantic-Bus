@@ -587,7 +587,7 @@ class Engine {
         error: historiqueEnd.error
       })
       // if (processingNode.component.persistProcess == true) {
-        // console.log('addDataHistoriqueEnd',dataFlow.data);
+        console.log('addDataHistoriqueEnd',data);
         try {
           // console.log("WRITE", data[5].bf_longitude, typeof data[5].bf_longitude);
           const frag = await   this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id, error == undefined ? data : error);
@@ -604,6 +604,10 @@ class Engine {
             processId: historiqueEnd.processId,
             error: 'error persisting historic data'
           })
+          await   this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id, {
+            error : 'error persisting historic data'
+          });
+          throw new Error('error persisting historic data');
         }
 
       // }
