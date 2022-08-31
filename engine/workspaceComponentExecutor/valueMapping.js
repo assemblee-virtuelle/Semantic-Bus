@@ -27,8 +27,14 @@ class ValueMapping {
       if (specificData.ignoreAccent == true) {
         flowValue = this.normalize(flowValue);
       }
-      // console.log(valueInString,flowValue);
-      if (valueInString.includes(flowValue) && this.strings.nonEmpty(atomicMapping.replacementValue)) {
+      let compareOk = false;
+      if(specificData.wholeWord==true){
+        compareOk = valueInString.localeCompare(flowValue)==0;
+      } else {
+        compareOk = valueInString.includes(flowValue);
+      }
+
+      if (compareOk && this.strings.nonEmpty(atomicMapping.replacementValue)) {
         if (specificData.forgetOriginalValue) {
           return [atomicMapping.replacementValue]
         } else {

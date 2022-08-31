@@ -25,6 +25,15 @@
       </div>
     </div>
     <div class="options">
+      <label class="labelFormStandard">mot entier:</label>
+      <div class="cardInput">
+        <label class="switch">
+            <input type="checkbox" name="wholeWord" ref="wholeWordInput" checked={data.specificData.wholeWord} onchange={wholeWordChange}/>
+            <span class="slider round"></span>
+        </label>
+      </div>
+    </div>
+    <div class="options">
       <label class="labelFormStandard">Ignorer les majuscules:</label>
       <div class="cardInput">
         <label class="switch">
@@ -98,6 +107,11 @@
     ignoreAccentChange(e){
         this.data.specificData.ignoreAccent = event.target.checked
     }
+
+    wholeWordChange(e){
+        this.data.specificData.wholeWord = event.target.checked
+    }
+
 
     this.on('mount', function () {
       this.refs.mappingTable.on('dataChanged', data => {
