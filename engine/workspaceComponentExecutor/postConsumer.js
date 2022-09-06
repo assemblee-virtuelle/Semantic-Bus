@@ -153,12 +153,13 @@ class PostConsumer {
 
         }).catch((e)=>{
           errorMessage= e.message;
+          console.log('flowData[0].data',flowData[0]);
           resolve({
             data:{
               request:{
                 url:url,
                 headers:headers,
-                body:flowData&&JSON.parse(JSON.stringify(flowData[0].data))
+                body:flowData[0].data?JSON.parse(JSON.stringify(flowData[0].data)):undefined
               },
               error:errorMessage
             }
