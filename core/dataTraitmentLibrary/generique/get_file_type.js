@@ -17,7 +17,7 @@ function _extension(filename, contentType) {
   // console.log("contentType", contentType)
   // console.log("filename", filename)
   return new Promise(function(resolve, reject) {
-    console.log('filename', filename);
+    // console.log('filename', filename);
     if (filename != null) {
       //console.log(filename.match(reg)[0])
       //let matchArray=filename.match(reg);
@@ -46,7 +46,7 @@ function _extension(filename, contentType) {
 
 function _buildFile(filename, dataString, dataBuffer, out, contentType) {
   return _extension(undefined, contentType).then(function(extension) {
-    console.log("extension |", extension)
+    // console.log("extension |", extension)
     return new Promise(function(resolve, reject) {
       switch (extension) {
         case ("vnd.ms-excel"):
@@ -69,7 +69,7 @@ function _buildFile(filename, dataString, dataBuffer, out, contentType) {
 function _type_file(filename, dataString, dataBuffer, out, contentType) {
   //console.log("in aggregate function")
   return _extension(filename, contentType).then(function(extension) {
-    console.log(extension);
+    // console.log(extension);
     return new Promise(function(resolve, reject) {
       if (out == true || out == 'true') {
         //console.log(out)

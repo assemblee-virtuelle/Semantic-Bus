@@ -34,9 +34,7 @@ class ValueFromPath {
       if (pathArray.length == 0) {
         // console.log('RFP end',node,currentKey,pathObject);
         let out = node;
-        // console.log('ALLO1');
         if (Array.isArray(node)) {
-          // console.log('ALLO1',node);
           out = [];
           node.forEach((n,i) => {
             // if (i%100==0){
@@ -52,7 +50,6 @@ class ValueFromPath {
             }
             out.push(n);
           })
-          // console.log('ALLO2',out);
         } else if (typeof node === 'object') {
           out = node;
           for (let pathObjectKey in pathObject) {
@@ -70,7 +67,6 @@ class ValueFromPath {
         for (let keyNode in node) {
           // console.log('copare',keyNode,key,keyNode.localeCompare(key));
           if (keyNode.localeCompare(key) != 0 && this.objectSizeOf(node[keyNode]) < 1000 && !Array.isArray(node[keyNode])) {
-            // console.log('ALLO');
             // let targetKey=currentKey==undefined?keyNode:targetKey+'-'+keyNode;
             pathObject[currentKey + '-' + keyNode] = node[keyNode]
           }

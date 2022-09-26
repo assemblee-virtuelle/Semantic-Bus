@@ -54,7 +54,7 @@ class SftpConsumer {
 
 
   pull(data, flowData, pullParams) {
-    return this.getFile(data.specificData, flowData[0].data, pullParams)
+    return this.getFile(data.specificData, flowData?flowData[0].data:undefined, pullParams)
   }
 }
 module.exports = new SftpConsumer()
