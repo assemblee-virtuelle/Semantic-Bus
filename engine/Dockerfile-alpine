@@ -30,11 +30,16 @@ COPY ./engine/package.json /data/
 
 RUN cd /data/ && npm cache clean --force && npm install --loglevel verbose
 
+
+RUN curl https://raw.githubusercontent.com/eficode/wait-for/v2.2.3/wait-for --create-dirs -o /data/scripts/wait-for.sh
+RUN chmod u+x /data/scripts/wait-for.sh
+
 # add src & build configuraiton
 COPY ./core /data/core/
 COPY ./engine /data/engine/
 
 COPY ./wait-for-it.sh /data/scripts/
+
 
 # Expose ports (for orchestrators and dynamic reverse proxies)
 EXPOSE 8080

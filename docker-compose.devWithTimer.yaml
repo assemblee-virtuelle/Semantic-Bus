@@ -53,7 +53,8 @@ services:
     depends_on:
         - mongodb
         - rabbitmq
-    command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "nodemon", "-L", "--watch", "/data/engine/*", "--watch", "/data/core/*",  "--ignore", "configuration.js", "--max-old-space-size=4096",  "/data/engine/app.js"]
+    command: bash -c "/data/scripts/wait-for.sh rabbitmq:5672 -t 60 -- nodemon --watch /data/engine --watch /data/core --ignore configuration.js --max-old-space-size=4096 /data/engine/app.js"
+
 
   main:
     build:
