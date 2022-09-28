@@ -10,9 +10,6 @@ module.exports = {
   buildFile: _buildFile
 };
 
-
-
-
 function _extension(filename, contentType) {
   // console.log("contentType", contentType)
   // console.log("filename", filename)
@@ -92,6 +89,26 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
       } else {
 
         switch (extension) {
+
+          // GZ decompression
+          case("gz"):
+            // decompression of a data buffer with Gunzip 
+            const newBuffer = zlib.gunzipSync(dataBuffer);
+            // the file in a decompressed string
+            const newString = newBuffer.toString('utf-8');   
+            // we remove the .gz at the end of the name of the file so that
+            // we can find the right file's extension type
+            const newFileName = filename.substring(filename, filename.length-3);
+
+            _type_file(newFileName, newString, newBuffer).then((result) => {
+              resolve({
+                data: result.data
+              })
+            }, (err)=> {
+              reject("Il y a eu un problème après la décompression du fichier : " + err)
+            })
+            break;
+
           // JSONLD ///JSON //DONE
           case ("json"):
           case ("json-ld"):
