@@ -17,6 +17,7 @@ class SftpConsumer {
       for (const key of Object.keys(specificData)) {;
         try {
           specificDataParsed[key] = this.stringReplacer.execute(specificData[key], pullParams, data)
+          console.log('data parsed = ' + specificDataParsed);
         } catch (e) {
           specificDataParsed[key] = {error:e.message};
           // console.log(e.message);
