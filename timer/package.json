@@ -12,7 +12,7 @@
   "dependencies": {
     "@types/webdriverio": "^5.0.0",
     "amqplib": "^0.5.2",
-    "async": "^3.1.0",
+    "async": "^3.2.2",
     "bcrypt": "^3.0.6",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
