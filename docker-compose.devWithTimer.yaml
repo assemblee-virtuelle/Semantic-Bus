@@ -33,7 +33,6 @@ services:
       context: .
       dockerfile: ./engine/Dockerfile-alpine
     container_name: engine
-    image: semanticbus/engine
     environment:
         - APP_PORT=90
         - NODE_ENV=development_docker

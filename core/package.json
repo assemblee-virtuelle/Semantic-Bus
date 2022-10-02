@@ -1,0 +1,6 @@
+{
+  "dependencies": {
+    "bson": "^4.7.0",
+    "isobject": "^4.0.0"
+  }
+}

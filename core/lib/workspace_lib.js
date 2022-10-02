@@ -24,7 +24,7 @@ module.exports = {
   getWorkspace: _get_workspace,
   get_workspace_simple: _get_workspace_simple,
   get_workspace_graph_data: _get_workspace_graph_data,
-  createHistoriqueEnd: _createHistoriqueEnd,
+  createOrUpdateHistoriqueEnd: _createOrUpdateHistoriqueEnd,
   addDataHistoriqueEnd: _addDataHistoriqueEnd,
   createProcess: _createProcess,
   get_process_byWorkflow: _get_process_byWorkflow,
@@ -39,8 +39,9 @@ module.exports = {
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-function _createHistoriqueEnd(historique) {
+function _createOrUpdateHistoriqueEnd(historique) {
   return new Promise(async (resolve, reject) => {
+    // console.log('_createOrUpdateHistoriqueEnd 0',historique);
     const historiqueEndObject = historiqueEndModel.getInstance().model(historique);
 
     if (historiqueEndObject.error != undefined) {
@@ -50,6 +51,7 @@ function _createHistoriqueEnd(historique) {
     }
 
     try {
+      // console.log('_createOrUpdateHistoriqueEnd 1',historiqueEndObject);
       const historic = await historiqueEndModel.getInstance().model.findOneAndUpdate({
           _id: historiqueEndObject._id
         }, historiqueEndObject, {
@@ -58,6 +60,7 @@ function _createHistoriqueEnd(historique) {
         })
         .lean()
         .exec()
+        // console.log('_createOrUpdateHistoriqueEnd 2',historic);
       resolve(historic)
     } catch (e) {
       return reject(new Error.DataBaseProcessError(e))
@@ -72,22 +75,23 @@ function _addDataHistoriqueEnd(historicId, data) {
     let frag;
 
     try {
-      // console.log('fragment_lib.persist',data);
+      // console.log('fragment_lib.persist');
       frag = await fragment_lib.persist({
         data: data
       })
-      // console.log('frag ok');
+      // console.log('frag ok',frag._id,historicId);
 
-      await historiqueEndModel.getInstance().model.findOneAndUpdate({
+      const result = await historiqueEndModel.getInstance().model.findOneAndUpdate({
           _id: historicId
         }, {
           frag: frag._id
         }, {
-          new: true
+          new: true,
+          upsert: true
         })
         .lean()
         .exec();
-      resolve(frag);
+      resolve(result);
     } catch (e) {
       console.error(e);
       reject(new Error.DataBaseProcessError(e))
