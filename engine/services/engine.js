@@ -264,8 +264,13 @@ class Engine {
                 const persistedDataFlowCoponent= await this.workspace_component_lib.get_component_result(sourceComponentId,this.processId);
                 // console.log('persistedDataFlowCoponent.frag',persistedDataFlowCoponent.frag);
                 const fragAvailable =persistedDataFlowCoponent.frag && persistedDataFlowCoponent.frag!=null;
+                let persitedData;
+                if (fragAvailable){
+                  persitedData=await this.fragment_lib.getWithResolution(persistedDataFlowCoponent.frag);
+                  // console.log('persitedData',persitedData);
+                }
                 persistedDataFlow.push({
-                  data : fragAvailable?(await this.fragment_lib.getWithResolution(persistedDataFlowCoponent.frag)).data:undefined,
+                  data : persitedData.data,
                   componentId:sourceNode.component._id,
                   dfob:sourceNode.dataResolution?sourceNode.dataResolution.dfob:undefined
                 })
@@ -327,7 +332,6 @@ class Engine {
                       // data: primaryflow.data
                     }
                     processingNode.status = 'resolved'
-                    await this.historicEndAndCredit(processingNode, startTime,primaryflow.data, undefined)
                     if (
                       processingNode.component._id == this.responseComponentId
                     ) {
@@ -337,6 +341,7 @@ class Engine {
                         }
                       )
                     }
+                    await this.historicEndAndCredit(processingNode, startTime,primaryflow.data, undefined)
                     this.processNextBuildPath('dfob empty')
                   } else {
                     // console.log('dfobFinalFlow',dfobFinalFlow);
@@ -401,7 +406,6 @@ class Engine {
                       }
                       // console.log('primaryflow ', primaryflow);
                       processingNode.status = 'resolved'
-                      await this.historicEndAndCredit(processingNode, startTime,primaryflow.data, undefined)
                       if (
                         processingNode.component._id == this.responseComponentId
                       ) {
@@ -411,6 +415,7 @@ class Engine {
                           }
                         )
                       }
+                      await this.historicEndAndCredit(processingNode, startTime,primaryflow.data, undefined)
 
                       this.processNextBuildPath('dfob ok')
                     }).catch(async e => {
@@ -444,7 +449,7 @@ class Engine {
                     processingNode.dataResolution = dataResolution;
                     processingNode.status = 'resolved';
                     // console.log('processingNode.dataResolution',processingNode.dataResolution);
-                    await this.historicEndAndCredit(processingNode, startTime,data, undefined)
+
                     // console.log(processingNode.component._id,this.responseComponentId);
                     if (processingNode.component._id == this.responseComponentId) {
                       this.RequestOrigineResolveMethode(
@@ -454,6 +459,7 @@ class Engine {
                       )
                       // this.originComponentResult = processingNode.dataResolution;
                     }
+                    await this.historicEndAndCredit(processingNode, startTime,data, undefined)
                     // console.log(this.processNextBuildPath);
                     // console.log('call next',processingNode.dataResolution);
                     this.processNextBuildPath('normal ok')
@@ -532,85 +538,94 @@ class Engine {
   }
 
   async historicEndAndCredit(processingNode, startTime, data, error) {
-    // console.log('processingNode.dataResolution',processingNode.dataResolution);
-    // console.log('historicEndAndCredit data undefined',data==undefined);
-    let dataFlow = processingNode.dataResolution
-    // let data = processingNode.dataResolution!=undefined?processingNode.dataResolution.data:undefined;
-    let module = processingNode.component.module
-    let specificData = processingNode.component.specificData
-    let historic_object = {}
-    let current_component = this.config.components_information[module]
-    let current_component_price
-    let roundDate = new Date()
-    roundDate.setMinutes(0)
-    roundDate.setSeconds(0)
-    roundDate.setMilliseconds(0)
-    roundDate.setHours(0)
-
-    if (module.getPriceState != undefined) {
-      current_component_price = module.getPriceState(specificData, current_component.price, current_component.record_price)
-    } else {
-      current_component_price = {
-        moPrice: current_component.price,
-        recordPrice: current_component.record_price
-      }
-    }
-
-    historic_object.recordCount = processingNode.dataResolution == undefined || data == undefined ? 0 : data.length || 1
-    historic_object.recordPrice = current_component_price.record_price || 0
-    historic_object.moCount = processingNode.dataResolution  == undefined || data == undefined ? 0 : this.objectSizeOf(data) / 1000000
-    historic_object.componentPrice = current_component_price.moPrice
-    historic_object.userId = this.owner._id
-    historic_object.totalPrice =
-      (historic_object.recordCount * historic_object.recordPrice) +
-      (historic_object.moCount * historic_object.componentPrice)
-    historic_object.componentModule = module
-    // TODO pas besoin de stoquer le name du component, on a l'id. ok si grosse perte de perf pour histogramme
-    historic_object.componentName = processingNode.component.name
-    historic_object.componentId = processingNode.component._id
-    historic_object.persistProcess = processingNode.component.persistProcess
-    historic_object.processId = this.processId
-    // historic_object.data = dataFlow.data;
-    historic_object.error = error
-    historic_object.startTime = startTime
-    historic_object.roundDate = roundDate
-    historic_object.workflowId = this.originComponent.workspaceId
-    let persistFlow
-    // if (processingNode.component.persistProcess == true && dataFlow.data != undefined) {
-    //   persistFlow = JSON.parse(JSON.stringify(dataFlow.data))
-    // }
+    let historic_object={};
     try {
-      const historiqueEnd = await this.workspace_lib.createHistoriqueEnd(historic_object);
-      this.processNotifier.progress({
-        componentId: historiqueEnd.componentId,
-        processId: historiqueEnd.processId,
-        error: historiqueEnd.error
-      })
+      historic_object.componentId = processingNode.component._id;
+      historic_object.persistProcess = processingNode.component.persistProcess;
+      historic_object.processId = this.processId;
+      historic_object= await this.workspace_lib.createOrUpdateHistoriqueEnd(historic_object)
       // if (processingNode.component.persistProcess == true) {
-        try {
-          // console.log("WRITE", data[5].bf_longitude, typeof data[5].bf_longitude);
-          const frag = await   this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id, error == undefined ? data : error);
-          this.processNotifier.persist({
-            componentId: historiqueEnd.componentId,
-            processId: historiqueEnd.processId,
-            data: frag.data
-          })
-          processingNode.dataResolution.data=undefined;
+      try {
+        // console.log("call addDataHistoriqueEnd");
+        // console.log('historic_object._id',historic_object._id);
+        // console.log('addDataHistoriqueEnd',data,error);
+        historic_object = await this.workspace_lib.addDataHistoriqueEnd(historic_object._id, error == undefined ? data : error);
+        // console.log("end addDataHistoriqueEnd",historic_object);
+        this.processNotifier.persist({
+          componentId: historic_object.componentId,
+          processId: historic_object.processId,
+          data: historic_object.frag.data
+        })
+        processingNode.dataResolution.data = undefined;
 
-        } catch (e) {
-          this.processNotifier.persist({
-            componentId: historiqueEnd.componentId,
-            processId: historiqueEnd.processId,
-            error: 'error persisting historic data'
-          })
-          await   this.workspace_lib.addDataHistoriqueEnd(historiqueEnd._id, {
-            error : 'error persisting historic data'
-          });
-          throw new Error('error persisting historic data');
+      } catch (e) {
+        console.log('ERROR',e);
+        this.processNotifier.persist({
+          componentId: historic_object.componentId,
+          processId: historic_object.processId,
+          error: 'error persisting historic data'
+        })
+        await this.workspace_lib.addDataHistoriqueEnd(historic_object._id, {
+          error: 'error persisting historic data'
+        });
+        throw new Error('error persisting historic data');
+      }
+
+      // console.log('processingNode.dataResolution',processingNode.dataResolution);
+      // console.log('historicEndAndCredit data undefined',data==undefined);
+      // let dataFlow = processingNode.dataResolution
+      // let data = processingNode.dataResolution!=undefined?processingNode.dataResolution.data:undefined;
+      let module = processingNode.component.module;
+      let specificData = processingNode.component.specificData;
+      // historic_object = {};
+      let current_component = this.config.components_information[module];
+      let current_component_price;
+      let roundDate = new Date();
+      roundDate.setMinutes(0);
+      roundDate.setSeconds(0);
+      roundDate.setMilliseconds(0);
+      roundDate.setHours(0);
+
+      if (module.getPriceState != undefined) {
+        current_component_price = module.getPriceState(specificData, current_component.price, current_component.record_price)
+      } else {
+        current_component_price = {
+          moPrice: current_component.price,
+          recordPrice: current_component.record_price
         }
+      }
+
+      historic_object.recordCount = processingNode.dataResolution == undefined || data == undefined ? 0 : data.length || 1;
+      historic_object.recordPrice = current_component_price.record_price || 0;
+      historic_object.moCount = processingNode.dataResolution  == undefined || data == undefined ? 0 : this.objectSizeOf(data) / 1000000;
+      historic_object.componentPrice = current_component_price.moPrice;
+      historic_object.userId = this.owner._id;
+      historic_object.totalPrice =
+        (historic_object.recordCount * historic_object.recordPrice) +
+        (historic_object.moCount * historic_object.componentPrice);
+      historic_object.componentModule = module;
+      // TODO pas besoin de stoquer le name du component, on a l'id. ok si grosse perte de perf pour histogramme
+      historic_object.componentName = processingNode.component.name;
+      // historic_object.data = dataFlow.data;
+      historic_object.error = error;
+      historic_object.startTime = startTime;
+      historic_object.roundDate = roundDate;
+      historic_object.workflowId = this.originComponent.workspaceId;
+      // let persistFlow
+      // if (processingNode.component.persistProcess == true && dataFlow.data != undefined) {
+      //   persistFlow = JSON.parse(JSON.stringify(dataFlow.data))
+      // }
+
+      historic_object = await this.workspace_lib.createOrUpdateHistoriqueEnd(historic_object);
+      this.processNotifier.progress({
+        componentId: historic_object.componentId,
+        processId: historic_object.processId,
+        error: historic_object.error
+      })
 
       // }
-    } catch {
+    } catch (e) {
+      console.log('ERROR',e);
       this.processNotifier.progress({
         componentId: processingNode.component._id,
         processId: this.processId,
@@ -619,7 +634,10 @@ class Engine {
     }
 
     // console.log("--------------  End of component processing --------------",  this.owner.credit);
-    this.owner.credit -= historic_object.totalPrice
+    if(historic_object!=undefined){
+      this.owner.credit -= historic_object.totalPrice
+    }
+
   }
 
   buildDfobFlowArray(currentFlow, dfobPathTab, key, keepArray) {

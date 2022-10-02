@@ -25,6 +25,7 @@ module.exports = {
           } else if (cachedData == null) {
             cachedData = {};
           }
+          console.log('cache PERSIST',fragment);
           return this.fragment_lib.persist(fragment)
         }).then((frag) => {
           cachedData.frag = frag._id;
@@ -60,13 +61,16 @@ module.exports = {
         })
         .lean()
         .exec()
-        .then(cachedData => {
+        .then(async cachedData => {
           // console.log("cachedData",cachedData);
           if (cachedData != undefined) {
             if (component.specificData.historyOut != true) {
               if (cachedData.frag != undefined) {
                 if (resolveFrag == true) {
-                  return this.fragment_lib.getWithResolution(cachedData.frag);
+                  // console.log('cache_lib getWithResolution');
+                  let resolution  = this.fragment_lib.getWithResolution(cachedData.frag);
+                  // console.log('resolution',resolution);
+                  return resolution;
                 } else {
                   return this.fragment_lib.get(cachedData.frag);
                 }
@@ -88,11 +92,12 @@ module.exports = {
           }
 
         }).then((frag) => {
-          //console.log('frag',frag);
+          // console.log('frag',frag);
           if (frag != undefined) {
             if(Array.isArray(frag)){
               resolve(frag.map(f=>f.data))
             }else{
+              // console.log('RESOLVE ',frag.data);
               resolve(frag.data);
             }
 
