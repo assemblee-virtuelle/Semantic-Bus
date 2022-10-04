@@ -16,16 +16,17 @@ module.exports = {
         .exec()
         .then(cachedDataIn => {
           cachedData = cachedDataIn;
-          // console.log(cachedData);
+          // console.log(cachedDataIn);
           let fragment = {
             data: data
           };
-          if (cachedData != null && history != true) {
-            fragment._id = cachedData.frag;
-          } else if (cachedData == null) {
-            cachedData = {};
-          }
-          console.log('cache PERSIST',fragment);
+          this.fragment_lib.cleanFrag(cachedDataIn.frag)
+          // if (cachedData != null && history != true) {
+          //   fragment._id = cachedData.frag;
+          // } else if (cachedData == null) {
+          //   cachedData = {};
+          // }
+          // console.log('cache PERSIST',fragment);
           return this.fragment_lib.persist(fragment)
         }).then((frag) => {
           cachedData.frag = frag._id;
@@ -37,6 +38,8 @@ module.exports = {
               date: new Date()
             });
           }
+          // console.log('cachedData',cachedData);
+          // console.log('component',component);
           return this.cacheModel.getInstance().model.findOneAndUpdate({
               _id: component._id
             },

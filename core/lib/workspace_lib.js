@@ -542,7 +542,7 @@ function _get_all(userID, role) {
                       }
                     }
                   })
-                console.log(workspace.status);
+                // console.log(workspace.status);
 
               } else {
                 resolve(workspace);

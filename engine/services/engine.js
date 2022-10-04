@@ -9,7 +9,7 @@ class Engine {
     this.sift = require('sift').default;
     this.objectSizeOf = require('object-sizeof');
     this.workspace_component_lib = require('../../core/lib/workspace_component_lib');
-    this.fragment_lib= require('../../core/lib/fragment_lib');
+    this.fragment_lib = require('../../core/lib/fragment_lib');
     this.workspace_lib = require('../../core/lib/workspace_lib');
     this.user_lib = require('../../core/lib/user_lib');
     this.config = require('../configuration.js');
@@ -119,13 +119,13 @@ class Engine {
         this.RequestOrigineResolveMethode = resolve
         this.RequestOrigineRejectMethode = reject
 
-        if(this.originComponent.specificData.responseComponentId!=undefined&&this.originComponent.specificData.responseComponentId!='undefined'){
-          this.responseComponentId=this.originComponent.specificData.responseComponentId
-        }else {
-          this.responseComponentId=this.originComponent._id;
+        if (this.originComponent.specificData.responseComponentId != undefined && this.originComponent.specificData.responseComponentId != 'undefined') {
+          this.responseComponentId = this.originComponent.specificData.responseComponentId
+        } else {
+          this.responseComponentId = this.originComponent._id;
         }
 
-        if(this.responseComponentId!=undefined&&this.responseComponentId!='undefined'){
+        if (this.responseComponentId != undefined && this.responseComponentId != 'undefined') {
 
           /// -------------- push case  -----------------------
           /// Only for file uplaod component : to refactor
@@ -148,7 +148,7 @@ class Engine {
 
 
           this.processNextBuildPath();
-        }else{
+        } else {
           reject(new Error('responseComponentId undefined'))
         }
 
@@ -236,10 +236,10 @@ class Engine {
             // }));
 
             let nodesProcessingInputs = this.pathResolution.nodes.filter(npi =>
-               npi.targets.map(t=>
-                 t.target.component._id
-               ).includes(processingNode.component._id)
-             );
+              npi.targets.map(t =>
+                t.target.component._id
+              ).includes(processingNode.component._id)
+            );
 
             let module = this.technicalComponentDirectory[processingNode.component.module]
 
@@ -249,30 +249,35 @@ class Engine {
 
             if (nodesProcessingInputs.length > 0) {
 
-              let  persistedDataFlow =[];
-              for (const sourceNode of nodesProcessingInputs){
+              let persistedDataFlow = [];
+              for (const sourceNode of nodesProcessingInputs) {
                 // console.log('sourceNode',sourceNode);
-                let sourceComponentId;
-                // console.log('sourceNode.dataResolution',sourceNode.dataResolution);
-                if(sourceNode.dataResolution && sourceNode.dataResolution.dfobSourceComponentId){
-                  // console.log('sourceNode.dataResolution.dfobSourceComponentId',sourceNode.dataResolution.dfobSourceComponentId);
-                  sourceComponentId = sourceNode.dataResolution.dfobSourceComponentId;
-                }else {
-                  sourceComponentId = sourceNode.component._id
+                let persistedData;
+                if (processingNode.component.module != 'deeperFocusOpeningBracket') {
+                  let sourceComponentId;
+                  // console.log('sourceNode.dataResolution',sourceNode.dataResolution);
+                  if (sourceNode.dataResolution && sourceNode.dataResolution.dfobSourceComponentId) {
+                    // console.log('sourceNode.dataResolution.dfobSourceComponentId',sourceNode.dataResolution.dfobSourceComponentId);
+                    sourceComponentId = sourceNode.dataResolution.dfobSourceComponentId;
+                  } else {
+                    sourceComponentId = sourceNode.component._id
+                  }
+
+                  const persistedDataFlowCoponent = await this.workspace_component_lib.get_component_result(sourceComponentId, this.processId);
+                  // console.log('persistedDataFlowCoponent.frag',persistedDataFlowCoponent,sourceNode);
+                  const fragAvailable = persistedDataFlowCoponent.frag && persistedDataFlowCoponent.frag != null;
+
+                  if (fragAvailable) {
+                    persistedData = await this.fragment_lib.getWithResolution(persistedDataFlowCoponent.frag);
+                    // console.log('persistedData',persistedData);
+                  }
+                  // console.log('persistedData',persistedData);
                 }
 
-                const persistedDataFlowCoponent= await this.workspace_component_lib.get_component_result(sourceComponentId,this.processId);
-                // console.log('persistedDataFlowCoponent.frag',persistedDataFlowCoponent.frag);
-                const fragAvailable =persistedDataFlowCoponent.frag && persistedDataFlowCoponent.frag!=null;
-                let persitedData;
-                if (fragAvailable){
-                  persitedData=await this.fragment_lib.getWithResolution(persistedDataFlowCoponent.frag);
-                  // console.log('persitedData',persitedData);
-                }
                 persistedDataFlow.push({
-                  data : persitedData.data,
-                  componentId:sourceNode.component._id,
-                  dfob:sourceNode.dataResolution?sourceNode.dataResolution.dfob:undefined
+                  data: persistedData ? persistedData.data : undefined,
+                  componentId: sourceNode.component._id,
+                  dfob: sourceNode.dataResolution ? sourceNode.dataResolution.dfob : undefined
                 })
 
                 // console.log("READ", typeof persistedDataFlow[0].data[5].bf_longitude);
@@ -280,6 +285,7 @@ class Engine {
               }
               // console.log("persistedDataFlow",persistedDataFlow[0]);
               dataFlow = persistedDataFlow;
+              // console.log('dataFlow',dataFlow[0].data);
 
               // dataFlow=[...dataFlow]
               // console.log("dataFlow cloned",dataFlow);
@@ -304,7 +310,7 @@ class Engine {
               processingNode.dataResolution = {
                 error: err
               }
-              await this.historicEndAndCredit(processingNode, startTime,undefined, err)
+              await this.historicEndAndCredit(processingNode, startTime, undefined, err)
               this.processNextBuildPath('flow ko')
             } else {
               // console.log('primaryflow',primaryflow);
@@ -322,6 +328,8 @@ class Engine {
                     primaryflow.dfob[0].keepArray
                   )
 
+                  // console.log('dfobFinalFlow',dfobFinalFlow);
+
 
                   if (this.config.quietLog != true) {
                     // console.log('dfobFinalFlow | ', dfobFinalFlow);
@@ -335,13 +343,11 @@ class Engine {
                     if (
                       processingNode.component._id == this.responseComponentId
                     ) {
-                      this.RequestOrigineResolveMethode(
-                        {
-                          data: primaryflow.data
-                        }
-                      )
+                      this.RequestOrigineResolveMethode({
+                        data: primaryflow.data
+                      })
                     }
-                    await this.historicEndAndCredit(processingNode, startTime,primaryflow.data, undefined)
+                    await this.historicEndAndCredit(processingNode, startTime, primaryflow.data, undefined)
                     this.processNextBuildPath('dfob empty')
                   } else {
                     // console.log('dfobFinalFlow',dfobFinalFlow);
@@ -349,7 +355,7 @@ class Engine {
                       var recomposedFlow = []
                       // console.log(finalItem.objectToProcess,finalItem.key);
                       recomposedFlow = recomposedFlow.concat([{
-                        data: finalItem.key!=undefined?finalItem.objectToProcess[finalItem.key]:finalItem.objectToProcess,
+                        data: finalItem.key != undefined ? finalItem.objectToProcess[finalItem.key] : finalItem.objectToProcess,
                         componentId: primaryflow.componentId
                       }])
                       recomposedFlow = recomposedFlow.concat(secondaryFlow)
@@ -365,8 +371,8 @@ class Engine {
 
                     this.promiseOrchestrator.execute(module, module.pull, paramArray, {
                       beamNb: primaryflow.dfob[0].pipeNb,
-                      logIteration : true,
-                      continueChekFunction : async ()=>{
+                      logIteration: true,
+                      continueChekFunction: async () => {
                         // console.log('check',this.processId);
                         process = await this.workspace_lib.getCurrentProcess(this.processId);
                         if (process.state == 'stop') {
@@ -376,19 +382,20 @@ class Engine {
                         }
                       }
                     }, this.config).then(async (componentFlowDfob) => {
+                      // console.log('componentFlowDfob',componentFlowDfob);
                       // console.log('componentFlowDfob', JSON.stringify(componentFlowDfob));
                       for (var componentFlowDfobKey in componentFlowDfob) {
-                        if (componentFlowDfob[componentFlowDfobKey].data != undefined ) {
-                          if(dfobFinalFlow[componentFlowDfobKey].key!=undefined){
+                        if (componentFlowDfob[componentFlowDfobKey].data != undefined) {
+                          if (dfobFinalFlow[componentFlowDfobKey].key != undefined) {
                             dfobFinalFlow[componentFlowDfobKey].objectToProcess[dfobFinalFlow[componentFlowDfobKey].key] =
                               componentFlowDfob[componentFlowDfobKey].data
-                          }else{
+                          } else {
                             // all keys to replace because no key defined because root dfob
-                            for (let key of Object.keys(dfobFinalFlow[componentFlowDfobKey].objectToProcess)){
-                              dfobFinalFlow[componentFlowDfobKey].objectToProcess[key] =undefined;
+                            for (let key of Object.keys(dfobFinalFlow[componentFlowDfobKey].objectToProcess)) {
+                              dfobFinalFlow[componentFlowDfobKey].objectToProcess[key] = undefined;
                             }
-                            for (let key of Object.keys(componentFlowDfob[componentFlowDfobKey].data)){
-                              dfobFinalFlow[componentFlowDfobKey].objectToProcess[key] =componentFlowDfob[componentFlowDfobKey].data[key];
+                            for (let key of Object.keys(componentFlowDfob[componentFlowDfobKey].data)) {
+                              dfobFinalFlow[componentFlowDfobKey].objectToProcess[key] = componentFlowDfob[componentFlowDfobKey].data[key];
                             }
                             // dfobFinalFlow[componentFlowDfobKey].objectToProcess=componentFlowDfob[componentFlowDfobKey].data;
                           }
@@ -409,13 +416,11 @@ class Engine {
                       if (
                         processingNode.component._id == this.responseComponentId
                       ) {
-                        this.RequestOrigineResolveMethode(
-                          {
-                            data: primaryflow.data
-                          }
-                        )
+                        this.RequestOrigineResolveMethode({
+                          data: primaryflow.data
+                        })
                       }
-                      await this.historicEndAndCredit(processingNode, startTime,primaryflow.data, undefined)
+                      await this.historicEndAndCredit(processingNode, startTime, primaryflow.data, undefined)
 
                       this.processNextBuildPath('dfob ok')
                     }).catch(async e => {
@@ -423,7 +428,7 @@ class Engine {
                       processingNode.dataResolution = {
                         // error: e
                       }
-                      await this.historicEndAndCredit(processingNode, startTime,undefined, e)
+                      await this.historicEndAndCredit(processingNode, startTime, undefined, e)
                       processingNode.status = 'error'
                       this.processNextBuildPath('dfob reject')
                     })
@@ -433,7 +438,7 @@ class Engine {
                   processingNode.dataResolution = {
                     // error: e
                   }
-                  await this.historicEndAndCredit(processingNode, startTime,undefined, e)
+                  await this.historicEndAndCredit(processingNode, startTime, undefined, e)
                   processingNode.status = 'error'
                   this.processNextBuildPath('dfob catch')
                 }
@@ -445,21 +450,22 @@ class Engine {
                     // console.log("out componentFlow",componentFlow);
                     // console.log("out processingNode",processingNode);
                     // processingNode.dataResolution = componentFlow;
-                    const {data,...dataResolution}=componentFlow;
+                    const {
+                      data,
+                      ...dataResolution
+                    } = componentFlow;
                     processingNode.dataResolution = dataResolution;
                     processingNode.status = 'resolved';
                     // console.log('processingNode.dataResolution',processingNode.dataResolution);
 
                     // console.log(processingNode.component._id,this.responseComponentId);
                     if (processingNode.component._id == this.responseComponentId) {
-                      this.RequestOrigineResolveMethode(
-                        {
-                          data : data
-                        }
-                      )
+                      this.RequestOrigineResolveMethode({
+                        data: data
+                      })
                       // this.originComponentResult = processingNode.dataResolution;
                     }
-                    await this.historicEndAndCredit(processingNode, startTime,data, undefined)
+                    await this.historicEndAndCredit(processingNode, startTime, data, undefined)
                     // console.log(this.processNextBuildPath);
                     // console.log('call next',processingNode.dataResolution);
                     this.processNextBuildPath('normal ok')
@@ -470,7 +476,7 @@ class Engine {
                     }
                     processingNode.status = 'error'
                     // console.log('HIST')
-                    await this.historicEndAndCredit(processingNode, startTime,undefined, e)
+                    await this.historicEndAndCredit(processingNode, startTime, undefined, e)
                     // console.log('NEXT');
                     this.processNextBuildPath('normal reject')
                   })
@@ -479,7 +485,7 @@ class Engine {
                   processingNode.dataResolution = {
                     // error: e
                   }
-                  await this.historicEndAndCredit(processingNode, startTime,undefined, e)
+                  await this.historicEndAndCredit(processingNode, startTime, undefined, e)
                   processingNode.status = 'error'
                   this.processNextBuildPath('normal catch')
                 }
@@ -519,7 +525,7 @@ class Engine {
                 cleanedProcesses: processes,
                 workspaceId: this.workflow._id
               })
-              console.log('--------------  End of Worksapce processing --------------', this.workflow.name,this.owner.credit)
+              console.log('--------------  End of Worksapce processing --------------', this.workflow.name, this.owner.credit)
               return this.user_lib.update(this.owner)
             })
           }
@@ -538,28 +544,31 @@ class Engine {
   }
 
   async historicEndAndCredit(processingNode, startTime, data, error) {
-    let historic_object={};
+    let historic_object = {};
     try {
       historic_object.componentId = processingNode.component._id;
       historic_object.persistProcess = processingNode.component.persistProcess;
       historic_object.processId = this.processId;
-      historic_object= await this.workspace_lib.createOrUpdateHistoriqueEnd(historic_object)
+      historic_object = await this.workspace_lib.createOrUpdateHistoriqueEnd(historic_object)
+      let module = processingNode.component.module;
       // if (processingNode.component.persistProcess == true) {
       try {
         // console.log("call addDataHistoriqueEnd");
         // console.log('historic_object._id',historic_object._id);
         // console.log('addDataHistoriqueEnd',data,error);
-        historic_object = await this.workspace_lib.addDataHistoriqueEnd(historic_object._id, error == undefined ? data : error);
+        if (module != 'deeperFocusOpeningBracket') {
+          historic_object = await this.workspace_lib.addDataHistoriqueEnd(historic_object._id, error == undefined ? data : error);
+        }
         // console.log("end addDataHistoriqueEnd",historic_object);
         this.processNotifier.persist({
           componentId: historic_object.componentId,
-          processId: historic_object.processId,
-          data: historic_object.frag.data
+          processId: historic_object.processId
+          // data: historic_object.frag?historic_object.frag.data:undefined
         })
         processingNode.dataResolution.data = undefined;
 
       } catch (e) {
-        console.log('ERROR',e);
+        console.log('ERROR', e);
         this.processNotifier.persist({
           componentId: historic_object.componentId,
           processId: historic_object.processId,
@@ -575,7 +584,7 @@ class Engine {
       // console.log('historicEndAndCredit data undefined',data==undefined);
       // let dataFlow = processingNode.dataResolution
       // let data = processingNode.dataResolution!=undefined?processingNode.dataResolution.data:undefined;
-      let module = processingNode.component.module;
+
       let specificData = processingNode.component.specificData;
       // historic_object = {};
       let current_component = this.config.components_information[module];
@@ -597,7 +606,7 @@ class Engine {
 
       historic_object.recordCount = processingNode.dataResolution == undefined || data == undefined ? 0 : data.length || 1;
       historic_object.recordPrice = current_component_price.record_price || 0;
-      historic_object.moCount = processingNode.dataResolution  == undefined || data == undefined ? 0 : this.objectSizeOf(data) / 1000000;
+      historic_object.moCount = processingNode.dataResolution == undefined || data == undefined ? 0 : this.objectSizeOf(data) / 1000000;
       historic_object.componentPrice = current_component_price.moPrice;
       historic_object.userId = this.owner._id;
       historic_object.totalPrice =
@@ -625,7 +634,7 @@ class Engine {
 
       // }
     } catch (e) {
-      console.log('ERROR',e);
+      console.log('ERROR', e);
       this.processNotifier.progress({
         componentId: processingNode.component._id,
         processId: this.processId,
@@ -634,7 +643,7 @@ class Engine {
     }
 
     // console.log("--------------  End of component processing --------------",  this.owner.credit);
-    if(historic_object!=undefined){
+    if (historic_object != undefined) {
       this.owner.credit -= historic_object.totalPrice
     }
 
