@@ -23,7 +23,11 @@ var FragmentSchema = mongoose.Schema({
   branchFrag : {
     type: mongoose.Schema.Types.ObjectId,
     ref: "fragment"
-  }
+  },
+  frags : [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: "fragment"
+  }]
 }, { minimize: false} );
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

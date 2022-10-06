@@ -53,6 +53,7 @@
   <script src="./store/cacheNosqlStore.js"></script>
   <script src="./store/uploadFileStore.js"></script>
   <script src="./store/profilStore.js"></script>
+  <script src="./store/adminStore.js"></script>
   <script src="./store/mainController.js"></script>
   <script src="./store/sqlStore.js"></script>
   <script src="./store/utilStore.js"></script>
@@ -75,6 +76,8 @@
   <script type="riot/tag" src="tag/login.tag"></script>
   <script type="riot/tag" src="tag/profil.tag"></script>
   <script type="riot/tag" src="tag/profil-header.tag"></script>
+  <script type="riot/tag" src="tag/admin.tag"></script>
+  <script type="riot/tag" src="tag/admin-header.tag"></script>
   <script type="riot/tag" src="tag/graph.tag"></script>
   <script type="riot/tag" src="tag/graph_of_use.tag"></script>
   <script type="riot/tag" src="tag/share-workspace.tag"></script>
@@ -181,6 +184,10 @@
         const profilStore = new ProfilStore(utilStore);
         RiotControl.addStore(profilStore);
         allStore['profilStore'] = profilStore;
+
+        const adminStore = new AdminStore(utilStore);
+        RiotControl.addStore(adminStore);
+        allStore['adminStore'] = adminStore;
 
         const technicalComponentStore = new TechnicalComponentStore(utilStore);
         RiotControl.addStore(technicalComponentStore);

@@ -1,9 +1,19 @@
 var error_lib = require('../../core').error
+var workspace_lib = require('../../core').workspace
 var configuration = require('../configuration')
 
 //  ------------------------- THIS PART IS DISABLE FOR NOW  -------------------------------
 
 module.exports = function (router) {
+
+  router.post('/cleanFragment', function (req, res, next) {
+    workspace_lib.cleanAllOldProcess().then(() => {
+      res.send("well cleaned")
+    }).catch(e => {
+      next(e)
+    })
+  })
+
   // router.get('/errors', function (req, res, next) {
   //   error_lib.getAll().then(function (errors) {
   //     res.json(errors)

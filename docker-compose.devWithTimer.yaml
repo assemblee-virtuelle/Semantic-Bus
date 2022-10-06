@@ -80,7 +80,7 @@ services:
     depends_on:
         - mongodb
         - rabbitmq
-    command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "nodemon", "-L", "--watch", "/data/main/*",  "--watch", "/data/core/*",  "--ignore", "configuration.js",  "/data/main/app.js"]
+    command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "nodemon", "-L", "--watch", "/data/main/*",  "--watch", "/data/core/*",  "--ignore", "configuration.js", "--max-old-space-size=8192",  "/data/main/app.js"]
 
   rabbitmq:
     image: semanticbus/rabbitmq-stomp
