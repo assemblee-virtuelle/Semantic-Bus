@@ -7,12 +7,21 @@ var configuration = require('../configuration')
 module.exports = function (router) {
 
   router.post('/cleanFragment', function (req, res, next) {
-    workspace_lib.cleanAllOldProcess().then(() => {
+    workspace_lib.cleanAllOldProcess(false).then(() => {
       res.send("well cleaned")
     }).catch(e => {
       next(e)
     })
   })
+
+  router.post('/cleanProcess', function (req, res, next) {
+    workspace_lib.cleanAllOldProcess(true).then(() => {
+      res.send("well cleaned")
+    }).catch(e => {
+      next(e)
+    })
+  })
+
 
   // router.get('/errors', function (req, res, next) {
   //   error_lib.getAll().then(function (errors) {

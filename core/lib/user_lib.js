@@ -11,6 +11,7 @@ let workspaceModel = require("../models").workspace;
 let bigdataflowModel = require("../models").bigdataflow;
 const Error = require('../helpers/error.js');
 var validator = require('validator');
+const config = require('../../main/configuration');
 
 
 // --------------------------------------------------------------------------------
@@ -223,23 +224,38 @@ function _getWithRelations(userID) {
               role: r.role
             };
           });
-          //TODO REFACTORING and suppression
-          if(data.bigdataflow!=undefined){
-            data.bigdataflow = data.bigdataflow.filter(sift({
-              _id: {
-                $ne: null
-              }
-            }));
-            Array.isArray(data.bigdataflow) ?
-            data.bigdataflow = data.bigdataflow.map(r => {
-              return {
-                bigdataflow: r._id,
-                role: r.role
-              };
-            }) : data.bigdataflow = []
+          if (config.adminUsers){
+            let adminUsers=config.adminUsers
+            if (!Array.isArray(config.adminUsers)){
+              adminUsers=[adminUsers];
+            }
+            if (adminUsers.includes(data.credentials.email)){
+                data.admin=true
+            } else {
+              data.admin=false
+            }
+
           }else {
-            data.bigdataflow = []
+            data.admin=true;
           }
+          //TODO REFACTORING and suppression
+          // if(data.bigdataflow!=undefined){
+          //   data.bigdataflow = data.bigdataflow.filter(sift({
+          //     _id: {
+          //       $ne: null
+          //     }
+          //   }));
+          //   Array.isArray(data.bigdataflow) ?
+          //   data.bigdataflow = data.bigdataflow.map(r => {
+          //     return {
+          //       bigdataflow: r._id,
+          //       role: r.role
+          //     };
+          //   }) : data.bigdataflow = []
+          // }else {
+          //   data.bigdataflow = []
+          // }
+
 
           resolve(data);
         });

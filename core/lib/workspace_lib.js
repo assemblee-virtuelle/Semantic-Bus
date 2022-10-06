@@ -168,13 +168,17 @@ function _updateCurrentProcess(processId, state) {
 
 // --------------------------------------------------------------------------------
 
-function _cleanAllOldProcess(workflow) {
+function _cleanAllOldProcess(removeProcess) {
   return new Promise(async (resolve, reject) => {
     const workspaces = await workspaceModel.getInstance().model.find({}).lean().exec();
+    let keepedProcess=[];
     for (var workflow of workspaces) {
       // console.log(workflow.name);
-      await  _cleanOldProcess(workflow)
+      const processNormalCleaned = await  _cleanOldProcess(workflow);
+      // console.log('processNormalCleaned',processNormalCleaned);
+      keepedProcess=keepedProcess.concat(processNormalCleaned);
     }
+    // console.log("keepedProcess",keepedProcess);
 
     const historicEndWithFrag=  await historiqueEndModel.getInstance().model.find({
         frag: {
@@ -182,14 +186,14 @@ function _cleanAllOldProcess(workflow) {
         }
     }).lean().exec();
     let frags = historicEndWithFrag.map(h=>h.frag);
-    console.log("frags",frags);
+    // console.log("frags",frags);
 
     const relatedFrags= await fragmentModel.getInstance().model.find({
         _id: {
           $in: frags
         }
     }).select({frags:1, rootFrag:1}).lean().exec();
-    console.log(relatedFrags);
+    // console.log(relatedFrags);
 
     let fragToKeep=relatedFrags.map(f=>f._id);
     // let relatedFrags = [];
@@ -206,7 +210,13 @@ function _cleanAllOldProcess(workflow) {
 
     }
 
-    console.log("fragToKeep",fragToKeep.length);
+    const notReferencedFragsCount= await fragmentModel.getInstance().model.count({
+        _id: {
+          $nin: fragToKeep
+        }
+    }).exec();
+
+    console.log(`${fragToKeep.length} fragments keeped and ${notReferencedFragsCount} fragments to remove`);
 
     await fragmentModel.getInstance().model.deleteMany({
         _id: {
@@ -214,14 +224,38 @@ function _cleanAllOldProcess(workflow) {
         }
     })
 
+    // console.log('notReferencedFrags',notReferencedFrags.length);
 
-    const notReferencedFrags= await fragmentModel.getInstance().model.find({
-        _id: {
-          $nin: fragToKeep
+    if (removeProcess==true){
+
+      const historiqueCount= await historiqueEndModel.getInstance().model.count({
+        processId: {
+          $nin: keepedProcess
         }
-    }).select('_id').lean().exec();
+      }).exec();
 
-    console.log('notReferencedFrags',notReferencedFrags.length);
+      console.log(`${historiqueCount} historique to remove`);
+
+      await historiqueEndModel.getInstance().model.deleteMany({
+        processId: {
+          $nin: keepedProcess
+        }
+      })
+
+      const processCount = await processModel.getInstance().model.count({
+        _id: {
+          $nin: keepedProcess
+        }
+      }).exec();
+
+      console.log(`${keepedProcess.length} process keeped ${processCount} process to remove`);
+
+      await processModel.getInstance().model.deleteMany({
+        _id: {
+          $nin: keepedProcess
+        }
+      })
+    }
 
     //
     // const notReferencedFrags= await fragmentModel.getInstance().model.find({
@@ -243,6 +277,7 @@ function _cleanAllOldProcess(workflow) {
 function _cleanOldProcess(workflow) {
   return new Promise((resolve, reject) => {
     let limit = workflow.limitHistoric || 1;
+    let keepedProcess=[];
     processModel.getInstance().model
       .find({
         workflowId: workflow._id
@@ -257,6 +292,9 @@ function _cleanOldProcess(workflow) {
       .lean()
       .exec()
       .then(processes => {
+        // console.log('processes',processes);
+        keepedProcess=processes.map(p=>p._id);
+        // console.log('processOld',processOld);
         // resolve(processes);
         return historiqueEndModel.getInstance().model.find({
           $and: [{
@@ -288,7 +326,8 @@ function _cleanOldProcess(workflow) {
             frag: 1
           }
         }).exec();
-        resolve();
+        // console.log('processOld',processOld);
+        resolve(keepedProcess);
       }).catch(e => {
         console.log(e);
         reject(new Error.DataBaseProcessError(e))

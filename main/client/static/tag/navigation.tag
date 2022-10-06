@@ -43,14 +43,14 @@
       <json-previewer-header if={isScrennToShow('workPreview')}></json-previewer-header>
       <!-- Nom d'utilisateur -->
       <div style="flex-grow:0;flex-shrink:0; padding-right:10px;">
-        <h3 style="color:white; font-family: 'Open Sans', sans-serif; font-weight: 200">{CurrentName}</h3>
+        <h3 style="color:white; font-family: 'Open Sans', sans-serif; font-weight: 200">{currentName}</h3>
       </div>
 
 
 
       <div class="containerH" style="flex-grow:0;flex-shrink:0;position:relative;">
         <!--bouton admnistration-->
-        <a href="#admin" class="commandButtonImage {selectedMenu:isScrennInHistory('admin')} containerV" style="flex-grow:0;">
+        <a href="#admin" if={adminAvaible} class="commandButtonImage {selectedMenu:isScrennInHistory('admin')} containerV" style="flex-grow:0;">
           <div class="contentV" style="justify-content:center;width:80px;height:80px ">
             <div class="containerH" style="justify-content:center;">
               <img style="padding-top: 15px;width:45px;height:45px;" src="./image/menu/conf.png">
@@ -191,12 +191,14 @@
         this.update();
     });
 
-    this.reload_name = function(profil){
-      this.CurrentName = profil? profil.name: '';
+    this.reload_profil = function(profil){
+      // console.log('profil',profil);
+      this.currentName = profil? profil.name: '';
+      this.adminAvaible = profil? profil.admin: false;
       this.update()
     }.bind(this);
 
-    RiotControl.on('user_from_storage', this.reload_name);
+    RiotControl.on('user_from_storage', this.reload_profil);
 
     this.on('mount', function () {
       route(function (...parts) {
