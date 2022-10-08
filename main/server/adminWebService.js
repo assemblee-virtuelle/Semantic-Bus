@@ -22,6 +22,15 @@ module.exports = function (router) {
     })
   })
 
+  router.post('/executeTimers', function (req, res, next) {
+    console.log("configuration",configuration);
+    workspace_lib.executeAllTimers(configuration).then(() => {
+      res.send("well executed")
+    }).catch(e => {
+      next(e)
+    })
+  })
+
 
   // router.get('/errors', function (req, res, next) {
   //   error_lib.getAll().then(function (errors) {

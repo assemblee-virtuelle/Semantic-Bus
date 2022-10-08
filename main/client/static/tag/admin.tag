@@ -15,7 +15,17 @@
       <label class="labelFormStandard">Nettoyer les processus d'execution</label>
         <div onclick={cleanProcessClick} class="btnFil commandButtonImage">
           Nettoyer
-          <img class="imgFil" src="./image/Administrative-Tools-256.png" title="Nettoyer fragmentation">
+          <img class="imgFil" src="./image/Administrative-Tools-256.png" title="Nettoyer process">
+          <input ref="import" type="file" style="display:none;"/>
+        </div>
+    </div>
+  </div>
+  <div class="containerH" style="justify-content:center">
+    <div class="containerV">
+      <label class="labelFormStandard">Executer tous les timers</label>
+        <div onclick={executeTimersClick} class="btnFil commandButtonImage">
+          Executer
+          <img class="imgFil" src="./image/Administrative-Tools-256.png" title="executer timers">
           <input ref="import" type="file" style="display:none;"/>
         </div>
     </div>
@@ -38,6 +48,10 @@
       RiotControl.trigger('clean_process');
     }
 
+    executeTimersClick(e){
+      RiotControl.trigger('execute_timers');
+    }
+
     fragmentCleaned(){
       alert('fragments néttoyés');
     }
@@ -46,17 +60,24 @@
       alert('processus néttoyés');
     }
 
+    timersExecuted(){
+      alert('timers executés');
+    }
+
+
 
 
     this.on('mount', () => {
       RiotControl.on('fragment_cleaned', this.fragmentCleaned);
       RiotControl.on('process_cleaned', this.processCleaned);
+      RiotControl.on('timers_executed', this.timersExecuted);
       // RiotControl.trigger('workspace_collection_load');
     })
 
     this.on('unmount', () => {
       RiotControl.off('fragment_cleaned', this.fragmentCleaned)
       RiotControl.off('process_cleaned', this.processCleaned)
+      RiotControl.off('timers_executed', this.timersExecuted);
     })
   </script>
   <style>

@@ -30,4 +30,18 @@ function AdminStore (utilStore) {
     })
   })
 
+  this.on('execute_timers', () => {
+    return new Promise((resolve, reject) => {
+      this.utilStore.ajaxCall({
+        method: 'post',
+        url: '../data/core/executeTimers'
+      }, true).then(data => {
+        resolve()
+        this.trigger('timers_executed')
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  })
+
 }
