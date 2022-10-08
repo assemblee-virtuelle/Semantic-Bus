@@ -36,6 +36,7 @@ module.exports = {
 
   //mongoose: require('mongoose'),
   frag: function(frag, key, counter) {
+
     // console.log('--FRAG ',frag);
     // console.log('key',key);
     // for (let c=0;c<counter;c++){
@@ -48,7 +49,8 @@ module.exports = {
     // }
     ++counter;
     return new Promise((resolve, reject) => {
-      if  (!frag.rootFrag && ! frag.originFrag){
+
+      if  (!frag.rootFrag && !frag.originFrag){
         frag.rootFrag = new this.ObjectID().toString();
       }
       if (Array.isArray(frag.data)) {
@@ -56,6 +58,7 @@ module.exports = {
           // console.log('frag.branchFrag',frag.branchFrag);
           if (!frag.branchFrag) {
             // console.log('frag persist root of array',frag);
+
             const newArrayFrag={
               rootFrag: frag.rootFrag,
               originFrag: frag.originFrag,
@@ -63,6 +66,11 @@ module.exports = {
               data: frag.data,
               _id: frag._id
             }
+            // console.log('create branchFrag',{
+            //   rootFrag:newArrayFrag.rootFrag,
+            //   originFrag:newArrayFrag.originFrag,
+            //   branchFrag:newArrayFrag.branchFrag
+            // });
             this.persist(newArrayFrag, false, counter).then(persistArray => {
               // console.log('persistArray',persistArray);
               resolve({
@@ -140,10 +148,10 @@ module.exports = {
           //console.log('frag key', key);
           promiseStack.push(this.frag({
             data: frag.data[key],
-            rootFrag: frag.rootFrag,
-            originFrag: frag.originFrag,
-            branchFrag: frag.branchFrag,
-            branchOriginFrag : frag.branchOriginFrag
+            rootFrag: undefined,
+            originFrag: frag.rootFrag || frag.originFrag,
+            branchFrag: undefined,
+            branchOriginFrag : undefined
           }, key, counter));
         }
         Promise.all(promiseStack).then(frags => {
@@ -173,10 +181,10 @@ module.exports = {
         resolve({
           frag: {
             data: frag.data,
-            rootFrag: frag.rootFrag,
-            originFrag: frag.originFrag,
-            branchFrag: frag.branchFrag,
-            branchOriginFrag : frag.branchOriginFrag,
+            rootFrag: undefined,
+            originFrag: undefined,
+            branchFrag: undefined,
+            branchOriginFrag : undefined,
             _id: frag._id
           },
           key: key
@@ -205,6 +213,7 @@ module.exports = {
         }
         fragReadyPromises = datas.map(data => {
           // console.log('data',data);
+
           if (createOnly == true || data._id == undefined) {
             // console.log('RESOLVE Simple',data.data);
             // console.log('New frag from data',data);
@@ -218,6 +227,7 @@ module.exports = {
               }).lean().exec().then(fragment => {
                 if (fragment != null) {
                   // console.log('EXISTING frag',fragment);
+                  console.log('REMOVE!!! ');
 
                   this.fragmentModel.getInstance().model.remove({
                     originFrag: fragment.rootFrag
@@ -387,6 +397,7 @@ module.exports = {
       }
     });
   },
+
   rebuildFrag: async function(frag, partDirectory,arrayDirectory,counter) {
     // console.log('rebuildFrag',frag);
     counter=counter||0;
@@ -415,8 +426,16 @@ module.exports = {
     // console.log('object',object);
 
     if (object!=null && object._frag){
-
-        return await this.rebuildFrag(partDirectory[object._frag],partDirectory,arrayDirectory,counter)
+        // console.log('find partDirectory of',object._frag);
+        // console.log('partDirectory[object._frag]',object._frag,partDirectory[object._frag]);
+        let persitedFrag = partDirectory[object._frag];
+        if (!persitedFrag){
+          console.log('frag not in partDirectory');
+          persitedFrag = await this.get(object._frag);
+          const {data,...rest} =  persitedFrag;
+          console.log('frag obtain from database',rest);
+        }
+        return await this.rebuildFrag(persitedFrag,partDirectory,arrayDirectory,counter)
 
     } else {
       if (object instanceof Object && object != null && object != undefined) {

@@ -11,7 +11,6 @@ let workspaceModel = require("../models").workspace;
 let bigdataflowModel = require("../models").bigdataflow;
 const Error = require('../helpers/error.js');
 var validator = require('validator');
-const config = require('../../main/configuration');
 
 
 // --------------------------------------------------------------------------------
@@ -196,7 +195,7 @@ function _get(filter) {
   });
 } // <= _get
 
-function _getWithRelations(userID) {
+function _getWithRelations(userID,config) {
   return new Promise(function (resolve, reject) {
     try {
       userModel.getInstance().model

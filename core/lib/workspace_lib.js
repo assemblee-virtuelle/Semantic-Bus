@@ -77,11 +77,11 @@ function _addDataHistoriqueEnd(historicId, data) {
     let frag;
 
     try {
-      // console.log('fragment_lib.persist');
+      // console.log('fragment_lib.persist',data);
       frag = await fragment_lib.persist({
         data: data
       })
-      // console.log('frag ok',frag._id,historicId);
+      // console.log('_addDataHistoriqueEnd frag ok',frag,historicId);
 
       const result = await historiqueEndModel.getInstance().model.findOneAndUpdate({
           _id: historicId
@@ -188,6 +188,8 @@ function _cleanAllOldProcess(removeProcess) {
     let frags = historicEndWithFrag.map(h=>h.frag);
     // console.log("frags",frags);
 
+    //TODO considere cache fragment to add to frags
+
     const relatedFrags= await fragmentModel.getInstance().model.find({
         _id: {
           $in: frags
@@ -207,8 +209,9 @@ function _cleanAllOldProcess(removeProcess) {
         }).select('_id').lean().exec();
         fragToKeep= fragToKeep.concat(fragFromRoot.map(f=>f._id));
       }
-
     }
+
+
 
     const notReferencedFragsCount= await fragmentModel.getInstance().model.count({
         _id: {

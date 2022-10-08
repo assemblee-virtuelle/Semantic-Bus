@@ -1,5 +1,6 @@
 const auth_lib_jwt = require('../../../core/lib/auth_lib')
 const user_lib = require('../../../core/lib/user_lib')
+const config = require('../../configuration')
 
 // --------------------------------------------------------------------------------
 class Security {
@@ -51,7 +52,7 @@ class Security {
       if (req.body && req.body.workspaceId) workspaceId = req.body.workspaceId
       if (req.params && req.params.id) workspaceId = req.params.id
       user_lib.getWithRelations(
-        decodeToken.iss
+        decodeToken.iss,config
       ).then((result) => {
         // !!!!!! Don't use ===  here because workspace Id is noT same type than params !!!!!
         let isAuthorized
@@ -79,7 +80,7 @@ class Security {
       if (req.body && req.body.bigdataflowId) bigdataflowId = req.body.workspaceId
       if (req.params && req.params.id) bigdataflowId = req.params.id
       user_lib.getWithRelations(
-        decodeToken.iss
+        decodeToken.iss,config
       ).then((result) => {
         // console.log('result',JSON.stringify(result));
         // !!!!!! Don't use ===  here because workspace Id is noT same type than params !!!!!

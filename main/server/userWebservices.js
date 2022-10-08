@@ -7,6 +7,7 @@ const jwt = require('jwt-simple')
 const moment = require('moment')
 const validations = require('./validations')
 const userValidations = require('./validations/userValidations')
+const config = require('../configuration')
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -69,8 +70,9 @@ module.exports = function (router) {
   // ---------------------------------------------------------------------------------
 
   router.get('/users/me', function (req, res, next) {
+    console.log('config', config);
     user_lib.getWithRelations(
-      UserIdFromToken(req), 'owner'
+      UserIdFromToken(req), config
     ).then(function (result) {
       res.send(result)
     }).catch(e => {

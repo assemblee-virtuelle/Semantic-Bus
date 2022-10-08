@@ -14,18 +14,29 @@ module.exports = {
         })
         .lean()
         .exec()
-        .then(cachedDataIn => {
+        .then(async cachedDataIn => {
           cachedData = cachedDataIn;
           // console.log(cachedDataIn);
-          let fragment = {
-            data: data
-          };
-          this.fragment_lib.cleanFrag(cachedDataIn.frag)
+
+          console.log('cachedDataIn',cachedDataIn);
+          if (cachedDataIn&&cachedDataIn!=null){
+            if(cachedDataIn.frag){
+             await this.fragment_lib.cleanFrag(cachedDataIn.frag)
+            }
+          } else {
+            cachedData = {};
+          }
+
+
           // if (cachedData != null && history != true) {
           //   fragment._id = cachedData.frag;
           // } else if (cachedData == null) {
           //   cachedData = {};
           // }
+
+          let fragment = {
+            data: data
+          };
           // console.log('cache PERSIST',fragment);
           return this.fragment_lib.persist(fragment)
         }).then((frag) => {
