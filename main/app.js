@@ -37,6 +37,7 @@ http.globalAgent.maxSockets = 10000000000
 request(url, {
   json: true
 }, (err, result, body) => {
+  console.log(err);
   const configJson = result.body
   const content = 'module.exports = ' + JSON.stringify(result.body)
   fs.writeFile('configuration.js', content, 'utf8', function(err) {
@@ -80,6 +81,7 @@ request(url, {
       require('./server/authWebService')(unSafeRouteur)
       require('./server/workspaceWebService')(safe)
       require('./server/bigdataflowService')(safe)
+      require('./server/adminWebService')(safe)
       require('./server/technicalComponentWebService')(safe, unSafeRouteur)
       require('./server/userWebservices')(safe)
       require('./server/fragmentWebService')(safe)

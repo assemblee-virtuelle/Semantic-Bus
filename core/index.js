@@ -5,6 +5,7 @@ var inscription = require('./lib').inscription
 var authentification = require('./lib').authentification
 var workspace = require('./lib').workspace
 var workspaceComponent = require('./lib').workspaceComponent
+var fragment = require('./lib').fragment;
 var error = require('./lib').error
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -16,5 +17,6 @@ module.exports = {
   inscription: inscription,
   workspace: workspace,
   workspaceComponent: workspaceComponent,
-  error: error
+  error: error,
+  fragment:fragment
 }

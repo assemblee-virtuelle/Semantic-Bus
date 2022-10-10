@@ -103,7 +103,7 @@
         <div class="cardParameter">
           <input defaultValue={1} class="inputStandard" type="number" readonly={innerData.mode=="read"} ref="workspaceLimitHistoricnput" id="workspaceLimitHistoricInput" placeholder="1" value="{innerData.limitHistoric}" onkeyup="{limitHistoricFieldChange}"></input>
         </div>
-        <label if={innerData._id}  class="labelFormStandard">Importer un graphique (JSON)</label>
+        <label if={innerData._id}  class="labelFormStandard">Importer au format JSON<</label>
         <div if={innerData._id} class="cardParameter">
           <div onclick={importClick} class="btnFil commandButtonImage">
             Importer

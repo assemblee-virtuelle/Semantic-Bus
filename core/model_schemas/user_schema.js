@@ -30,6 +30,10 @@ var UserSchema = mongoose.Schema({
         type: Boolean,
         default: false
     },
+    admin: {
+        type: Boolean,
+        default: false
+    },
     job:{
          type: String,
     },

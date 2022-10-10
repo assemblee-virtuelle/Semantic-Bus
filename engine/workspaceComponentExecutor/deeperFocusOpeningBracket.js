@@ -6,9 +6,9 @@ class DeeperFocusOpeningBracket {
       let dfobPath = data.specificData.dfobPath == undefined ? '' : data.specificData.dfobPath
       dfob.push({ path: dfobPath, keepArray: data.specificData.keepArray, pipeNb:data.specificData.pipeNb })
       resolve({
-        data: flowData[0].data,
+        // data: flowData[0].data,
         dfob: dfob,
-        dfobSourceComponentId : data._id 
+        dfobSourceComponentId : flowData[0].componentId
       })
     })
   }

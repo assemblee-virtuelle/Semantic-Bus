@@ -36,20 +36,32 @@
       <workspace-share-table-header if={isScrennToShow('sharedWorkspaces')}></workspace-share-table-header>
       <bigdataflow-table-header if={isScrennToShow('bigdataflowTable')}></bigdataflow-table-header>
       <profil-header if={isScrennToShow('profil')}></profil-header>
+      <admin-header if={isScrennToShow('admin')}></admin-header>
       <workspace-editor-header if={isScrennToShow('workspace') || isScrennToShow('component')}></workspace-editor-header>
       <bigdataflow-editor-header if={isScrennToShow('bigdataflow')}></bigdataflow-editor-header>
       <!--  <workspace-component-editor-header if={isScrennToShow('component')}></workspace-component-editor-header>  -->
       <json-previewer-header if={isScrennToShow('workPreview')}></json-previewer-header>
       <!-- Nom d'utilisateur -->
       <div style="flex-grow:0;flex-shrink:0; padding-right:10px;">
-        <h3 style="color:white; font-family: 'Open Sans', sans-serif; font-weight: 200">{CurrentName}</h3>
+        <h3 style="color:white; font-family: 'Open Sans', sans-serif; font-weight: 200">{currentName}</h3>
       </div>
-      <!-- Bouton utilisateur -->
-      <div class="containerV" style="flex-grow:0;flex-shrink:0;position:relative;">
+
+
+
+      <div class="containerH" style="flex-grow:0;flex-shrink:0;position:relative;">
+        <!--bouton admnistration-->
+        <a href="#admin" if={adminAvaible} class="commandButtonImage {selectedMenu:isScrennInHistory('admin')} containerV" style="flex-grow:0;">
+          <div class="contentV" style="justify-content:center;width:80px;height:80px ">
+            <div class="containerH" style="justify-content:center;">
+              <img style="padding-top: 15px;width:45px;height:45px;" src="./image/menu/conf.png">
+            </div>
+          </div>
+        </a>
+              <!-- Bouton utilisateur -->
         <a href="#profil//edit" class="commandButtonImage {selectedMenu:isScrennInHistory('profil')} containerV" style="flex-grow:0;">
           <div class="contentV" style="justify-content:center;width:80px;height:80px ">
             <div class="containerH" style="justify-content:center;">
-              <img class="contentV" style="padding-top: 15px;width:45px;height:45px;" src="./image/menu/user.png">
+              <img style="padding-top: 15px;width:45px;height:45px;" src="./image/menu/user.png">
             </div>
           </div>
         <!--  <div if={isScrennInHistory('profil')} class="containerH" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">
@@ -58,6 +70,7 @@
             </div>
           </div> -->
         </a>
+
       </div>
 
     </div>
@@ -86,7 +99,7 @@
               </div>
             </div>
           </a>
-          <a href="#bigdataflowTable" class="commandButtonImage {selectedMenu:isScrennInHistory('bigdataflowTable')} containerV" style="flex-basis:100px;flex-grow:0;position:relative;">
+          <!-- <a href="#bigdataflowTable" class="commandButtonImage {selectedMenu:isScrennInHistory('bigdataflowTable')} containerV" style="flex-basis:100px;flex-grow:0;position:relative;">
             <img src="./image/dossier.svg" style="" width="35px">
             <div style="text-align:center;padding-top: 5px;font-family: 'Open Sans', sans-serif;color:white;font-size:0.75em">Big data Flow</div>
             <div if={isScrennInHistory('bigdataflowTable')} class="containerV" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">
@@ -94,7 +107,7 @@
                 <div class="arrow-left"></div>
               </div>
             </div>
-          </a>
+          </a> -->
         </div>
       </div>
 
@@ -108,6 +121,7 @@
         <graph if={isScrennToShow('graph')}></graph>
         <!--  <workspace-component-editor if={isScrennToShow('component')}></workspace-component-editor>  -->
         <profil if={isScrennToShow('profil')}></profil>
+        <admin if={isScrennToShow('admin')}></admin>
         <jsonpreviewer if={isScrennToShow('workPreview')}></jsonpreviewer>
       </div>
     </div>
@@ -177,12 +191,14 @@
         this.update();
     });
 
-    this.reload_name = function(profil){
-      this.CurrentName = profil? profil.name: '';
+    this.reload_profil = function(profil){
+      // console.log('profil',profil);
+      this.currentName = profil? profil.name: '';
+      this.adminAvaible = profil? profil.admin: false;
       this.update()
     }.bind(this);
 
-    RiotControl.on('user_from_storage', this.reload_name);
+    RiotControl.on('user_from_storage', this.reload_profil);
 
     this.on('mount', function () {
       route(function (...parts) {

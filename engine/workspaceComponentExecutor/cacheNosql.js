@@ -37,7 +37,9 @@ class CacheNosql {
           reject(e)
         })
       } else {
+        // console.log('cache PULL',data);
         this.cache_lib.get(data, true).then(cachedData => {
+          // console.log('cachedData',cachedData);
           if (cachedData != undefined) {
             resolve({ data: cachedData })
           } else {
