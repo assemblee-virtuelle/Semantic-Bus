@@ -39,6 +39,7 @@ COPY ./core /data/core/
 COPY ./engine /data/engine/
 
 COPY ./wait-for-it.sh /data/scripts/
+COPY ./wait-for.sh /data/scripts/
 
 
 # Expose ports (for orchestrators and dynamic reverse proxies)
