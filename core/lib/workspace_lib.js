@@ -285,19 +285,19 @@ function _executeAllTimers(config) {
       const cacheComponents = await workspaceComponentModel.getInstance().model.find({
         module:"timer"
       }).lean().exec();
-      console.log(cacheComponents.length);
+      // console.log(cacheComponents.length);
       for (var component of cacheComponents) {
         // console.log("component",component);
         const wokspace = await workspaceModel.getInstance().model.findOne({
           _id:component.workspaceId
         }).lean().exec();
         if(wokspace!=null){
-          console.log("wokspace",wokspace.name,'-',wokspace.status);
+          // console.log("wokspace",wokspace.name,'-',wokspace.status);
           const execution = await fetch(config.engineUrl + '/work-ask/' + component._id,
             {method: 'POST'}
           )
           const result = await execution.text();
-          console.log("result",result);
+          // console.log("result",result);
         } else{
           'orphan timer'
         }

@@ -18,7 +18,7 @@ module.exports = {
           cachedData = cachedDataIn;
           // console.log(cachedDataIn);
 
-          console.log('cachedDataIn',cachedDataIn);
+          // console.log('cachedDataIn',cachedDataIn);
           if (cachedDataIn&&cachedDataIn!=null){
             if(cachedDataIn.frag){
              await this.fragment_lib.cleanFrag(cachedDataIn.frag)
