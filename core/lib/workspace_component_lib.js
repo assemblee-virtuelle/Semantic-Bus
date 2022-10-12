@@ -3,6 +3,7 @@ var workspaceComponentModel = require('../models/workspace_component_model');
 var workspaceModel = require('../models/workspace_model');
 var historiqueEndModel = require("../models/historiqueEnd_model");
 var sift = require('sift').default;
+var fragment_lib = require('./fragment_lib.js');
 const Error = require('../helpers/error.js');
 
 // --------------------------------------------------------------------------------
@@ -199,10 +200,14 @@ function _get_component_result(componentId, processId) {
         componentId: componentId
       })
       .lean()
-      .exec((err, historiqueEnd) => {
+      .exec(async (err, historiqueEnd) => {
         if (err) {
           reject(new Error.DataBaseProcessError(err))
         } else {
+          // console.log('historiqueEnd ',historiqueEnd);
+          // if(historiqueEnd.data._frag){
+          //   historiqueEnd.data = await fragment_lib.get(historiqueEnd.data._frag);
+          // }
           resolve(historiqueEnd);
         }
       })

@@ -13,19 +13,9 @@ class JsEvaluation {
         let jsString = `=${data.specificData.jsString}`
         // console.log('usableData',usableData);
         let jsResult = this.objectTransformation.execute(usableData,pullParams,jsString);
-        // console.log('jsResult',jsResult);
-        // if(jsResult === undefined){
-        //   throw new Error(`No result needs to be displayed, does the code start by '=' ?`);
-        // }
-        // Used for tests. When the JS code entered returns a single element
-        // Example : =2+2 should return 4
-        // else if(!Array.isArray(jsResult)){
-        //   console.log('dans le isarray')
-        //   result = [ jsResult ];
-        // }
-        // else {
-          result = jsResult
-        // }
+
+        result = jsResult
+
         resolve({
           data: result
         })

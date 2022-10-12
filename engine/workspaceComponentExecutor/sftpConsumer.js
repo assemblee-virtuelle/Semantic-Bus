@@ -10,21 +10,23 @@ class SftpConsumer {
   dataProcessing(dataPath, readableStream) {
     return new Promise((resolve, reject) => {
       const fakeName = dataPath.replace('/','_');
-            
+
       this.dataTraitment.type.type_file(fakeName, readableStream.toString(), readableStream)
         .then((result) => {
-          let data = this.propertyNormalizer.execute(result);
+          let data = this.propertyNormalizer.execute(result.data);
+          // console.log(data);
           resolve({
-            data
+            data: data,
+            path: dataPath
           });
         }, (err) => {
           let fullError = new Error(err);
-          fullError.displayMessage = 'SFTP : Erreur lors du traitement de votre fichier';
+          fullError.displayMessage = 'SFTP : Erreur lors du traitement du fichier';
           reject(fullError);
         });
     })
   }
-  
+
   getFile(specificData, data, pullParams) {
     return new Promise((resolve, reject) => {
       let sftp = new this.sftpClient();
@@ -49,39 +51,61 @@ class SftpConsumer {
 
       sftp.connect(config)
         .then(() => {
-          // we check if the path entered is for a file or folder 
+          // console.log('exists',specificDataParsed.path);
+          // we check if the path entered is for a file or folder
           return sftp.exists(specificDataParsed.path);
         })
         .then(typeOfPath => {
+          // console.log('typeOfPath',typeOfPath);
           // if the path leads to a file we return it
           if (typeOfPath === "-") {
             // we get the file and we return its data
+            // console.log('FILE');
             sftp.get(specificDataParsed.path)
               .then(readableStream => {
                 return this.dataProcessing(specificDataParsed.path, readableStream);
               })
               .then(result => {
                 resolve({
-                  data: result.data
+                  data:result
                 });
               });
           } else if (typeOfPath === "d") {
-            // if the path leads to a folder 
+            // if the path leads to a folder
             // list every element in the folder
             sftp.list(specificDataParsed.path)
               .then(elements => {
                 const promisesArray2 = elements.map(element => {
                   // if the elements are files
+                  let elementPath = specificDataParsed.path + element.name;
                   if (element.type === "-") {
-                    let filePath = specificDataParsed.path + element.name;
 
-                    return sftp.get(filePath)
-                      .then(readableStream => {
-                        return this.dataProcessing(filePath, readableStream);
-                      });
+
+
+                    if (specificDataParsed.resolvefilePath){
+                      return sftp.get(elementPath)
+                        .then(readableStream => {
+                          return this.dataProcessing(elementPath, readableStream);
+                        });
+                    } else {
+                      return Promise.resolve(
+                        {
+                          path: elementPath,
+                          type: "file"
+                        }
+                      )
+                    }
+
+                  } else if (element.type === "d"){
+                    return Promise.resolve(
+                      {
+                        path: elementPath,
+                        type: "folder"
+                      }
+                    );
+                  } else {
+                    return Promise.resolve();
                   }
-
-                  return Promise.resolve();
                 });
 
                 return Promise.all(promisesArray2);
@@ -90,7 +114,11 @@ class SftpConsumer {
                   data: dataArray
                 });
               });
+          } else if  (typeOfPath === false) {
+            reject(new Error(`path ${specificDataParsed.path} not found`))
           }
+        }).catch(e=>{
+          reject(e);
         });
     });
   }

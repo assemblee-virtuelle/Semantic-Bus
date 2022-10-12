@@ -36,6 +36,7 @@ module.exports = {
 
   //mongoose: require('mongoose'),
   frag: function(frag, key, counter) {
+    // console.log('frag counter ',counter);
 
     // console.log('--FRAG ',frag);
     // console.log('key',key);
@@ -48,48 +49,16 @@ module.exports = {
     //   console.log('frag init',counter,this.objectSizeOf(frag.data));
     // }
     ++counter;
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
 
       if  (!frag.rootFrag && !frag.originFrag){
         frag.rootFrag = new this.ObjectID().toString();
       }
       if (Array.isArray(frag.data)) {
         if (this.objectSizeOf(frag.data) > 1000) { //1000
-          // console.log('frag.branchFrag',frag.branchFrag);
-          if (!frag.branchFrag) {
-            // console.log('frag persist root of array',frag);
 
-            const newArrayFrag={
-              rootFrag: frag.rootFrag,
-              originFrag: frag.originFrag,
-              branchFrag: new this.ObjectID().toString(),
-              data: frag.data,
-              _id: frag._id
-            }
-            // console.log('create branchFrag',{
-            //   rootFrag:newArrayFrag.rootFrag,
-            //   originFrag:newArrayFrag.originFrag,
-            //   branchFrag:newArrayFrag.branchFrag
-            // });
-            this.persist(newArrayFrag, false, counter).then(persistArray => {
-              // console.log('persistArray',persistArray);
-              resolve({
-                frag: {
-                  data: {
-                    _frag:persistArray._id
-                  },
-                  originFrag: newArrayFrag.originFrag,
-                  rootFrag: newArrayFrag.rootFrag,
-                  branchFrag: newArrayFrag.branchFrag,
-                  branchOriginFrag : newArrayFrag.branchOriginFrag,
-                  // branchFrag: frag.branchFrag,
-                  // frags: allFrags,
-                  _id: frag._id
-                },
-                key: key
-              });
-            })
-          } else {
+            const branchFrag = new this.ObjectID().toString()
+
             // console.log('ARRAY BIG', frag);
             let promiseOrchestrator = new this.PromiseOrchestrator();
             let arraySegmentator = new this.ArraySegmentator();
@@ -97,33 +66,54 @@ module.exports = {
             let segmentation = arraySegmentator.segment(frag.data, 100) //100
             let paramArray = segmentation.map(s => {
               return [s.map(r => {
+                // console.log("data of segment",r);
                 return {
                   data: r,
                   originFrag: frag.rootFrag || frag.originFrag,
-                  rootFrag: undefined,
-                  branchOriginFrag: frag.branchFrag || frag.branchOriginFrag,
-                  branchFrag : undefined
+                  branchOriginFrag: branchFrag,
                 }
               }),false,counter]
             })
             // console.log('paramArray', JSON.stringify(paramArray));
-            promiseOrchestrator.execute(this, this.persist, paramArray, {
+            // console.log('** persist leafs',{
+            //   originFrag: frag.rootFrag || frag.originFrag,
+            //   branchOriginFrag: branchFrag
+            // });
+            const persistSegments = await promiseOrchestrator.execute(this, this.persist, paramArray, {
               beamNb: 10 //10
-            }).then(persistSegments => {
-              resolve({
-                frag: {
-                  data: [],
-                  originFrag: frag.originFrag,
-                  rootFrag: frag.rootFrag,
-                  branchFrag: frag.branchFrag,
-                  branchOriginFrag : frag.branchOriginFrag,
-                  // frags: allFrags,
-                  _id: frag._id
-                },
-                key: key
-              });
             })
-          }
+
+            // console.log('** persist branch',{
+            //   rootFrag:frag.rootFrag,
+            //   originFrag:frag.originFrag,
+            //   branchOriginFrag : frag.branchOriginFrag,
+            //   branchFrag:branchFrag
+            // });
+
+            //Branch must not persisted here because persist after frag call in persist method
+            // const persistBranch = await this.persist({
+            //       data: [],
+            //       rootFrag:frag.rootFrag,
+            //       originFrag:frag.originFrag,
+            //       branchOriginFrag : frag.branchOriginFrag,
+            //       branchFrag:branchFrag
+            // })
+            //
+            // console.log('*** persisted Branch',persistBranch);
+
+            resolve({
+              frag: {
+                data: [],
+                rootFrag:frag.rootFrag,
+                originFrag:frag.originFrag,
+                branchOriginFrag : frag.branchOriginFrag,
+                branchFrag:branchFrag,
+                // _id:persistBranch._id
+                // data:{_frag:persistBranch._id}
+              },
+              key: key
+            });
+          // }
         } else {
           // console.log('ARRAY SMALL', key);
           //console.log('NO PERSIST');
@@ -146,46 +136,46 @@ module.exports = {
         let objectOut = {};
         for (let key in frag.data) {
           //console.log('frag key', key);
-          promiseStack.push(this.frag({
+          // console.log("persist Call");
+          const fragPersisted = await this.persist({
             data: frag.data[key],
             rootFrag: undefined,
             originFrag: frag.rootFrag || frag.originFrag,
             branchFrag: undefined,
             branchOriginFrag : undefined
-          }, key, counter));
+          }, false,counter);
+          // console.log('fragPerssisted',fragPersisted);
+
+          if(fragPersisted.branchFrag){
+          // console.log('fragAndKey',key,fragPersisted);
+            objectOut[key] = {
+              _frag:fragPersisted._id
+            }
+          }else{
+            objectOut[key] = fragPersisted.data;
+          }
         }
-        Promise.all(promiseStack).then(frags => {
 
-          frags.forEach(fragAndKey => {
-            objectOut[fragAndKey.key] = fragAndKey.frag.data;
-
-          });
-
-          resolve({
-            frag: {
-              data: objectOut,
-              rootFrag: frag.rootFrag,
-              originFrag: frag.originFrag,
-              branchFrag: frag.branchFrag,
-              branchOriginFrag : frag.branchOriginFrag,
-              // frags: allFrags,
-              _id: frag._id
-            },
-            key: key
-          });
-        }).catch(e => {
-          reject(e);
-        });
-      } else {
-        // console.log('PRIMITIV', key,frag );
+        // console.log('objectOut',objectOut);
         resolve({
           frag: {
-            data: frag.data,
-            rootFrag: undefined,
-            originFrag: undefined,
-            branchFrag: undefined,
-            branchOriginFrag : undefined,
+            data: objectOut,
+            rootFrag: frag.rootFrag,
+            originFrag: frag.originFrag,
+            branchFrag: frag.branchFrag,
+            branchOriginFrag : frag.branchOriginFrag,
+            // frags: allFrags,
             _id: frag._id
+          },
+          key: key
+        });
+
+      } else {
+        // console.log('PRIMITIV',frag );
+        resolve({
+          frag: {
+            data:frag.data,
+            rootFrag:frag.rootFrag
           },
           key: key
         });
@@ -195,8 +185,11 @@ module.exports = {
 
   },
   persist: function(datas, createOnly, counter) {
-    // console.log('--PERSIST',datas);
+
     counter = counter || 0;
+    if (counter>1000){
+      throw new Eror("too many deep")
+    }
     // console.log('# persist data frag',counter);
 
     //  console.log('persist data frag', this.objectSizeOf(datas));
@@ -213,6 +206,17 @@ module.exports = {
         }
         fragReadyPromises = datas.map(data => {
           // console.log('data',data);
+
+          // const noData ={
+          //   originFrag: data.originFrag,
+          //   rootFrag: data.rootFrag,
+          //   branchFrag: data.branchFrag,
+          //   branchOriginFrag : data.branchOriginFrag,
+          // };
+          // if (data.rootFrag||data.originFrag) {
+          //   // console.log('--PERSIST',noData);
+          //   // console.log('ARRAY',datas.data.length);
+          // }
 
           if (createOnly == true || data._id == undefined) {
             // console.log('RESOLVE Simple',data.data);
@@ -242,9 +246,9 @@ module.exports = {
           }
         });
         Promise.all(fragReadyPromises).then(fragReadyFargs => {
-          // console.log('fragReadyFargs',fragReadyFargs);
+          // console.log('===> fragReadyFargs',JSON.stringify(fragReadyFargs));
           let persistReadyPromises = fragReadyFargs.map(f => {
-
+            // console.log('===> persist call frag',f);
             return this.frag(f, undefined, counter);
             // console.log('# frag end');
           });
@@ -260,16 +264,19 @@ module.exports = {
             console.log('persistReadyFargs undefined');
           }
           persistReadyFargs = persistReadyFargs.forEach(persistReadyFarg => {
-            if (!(persistReadyFarg.frag.data instanceof Object) && !persistReadyFarg.frag.branchOriginFrag) {
-              // console.log('UNPERSIST',persistReadyFarg.frag.data);
+            if (!(persistReadyFarg.frag.data instanceof Object)) {
+              // console.log('XXXXXXXXXX persistReadyFarg UNPERSIST',persistReadyFarg.frag);
               unpersistReadyFrags.push(persistReadyFarg.frag);
             } else {
               if (persistReadyFarg.frag._id == undefined) {
+
                 const fragmentModelInstance = this.fragmentModel.getInstance().model;
                 // console.log('-- after frag',persistReadyFarg.frag.rootFrag,'-',persistReadyFarg.frag.originFrag);
                 // console.log('createReadyFrag',persistReadyFarg.frag);
+                // console.log('XXXXXXXXXX persistReadyFarg CREATE');
                 createReadyFrags.push(new fragmentModelInstance(persistReadyFarg.frag));
               } else {
+                // console.log('XXXXXXXXXX persistReadyFarg UPDATE',persistReadyFarg.frag);
                 updateReadyFrags.push(persistReadyFarg.frag);
               }
             }
@@ -300,7 +307,10 @@ module.exports = {
           if (forceArray) {
             out = out[0];
           }
-          // console.log('out',out);
+          // if(!Array.isArray(out)){
+          //             console.log('out',out);
+          // }
+
           resolve(out);
         }).catch(e => {
           console.log('persist error',e);
@@ -316,7 +326,7 @@ module.exports = {
     }
   },
   get: function(id) {
-    //console.log(" ------ in fragment component ------ ", id)
+    console.log(" ------ get fragment------ ", id)
     return new Promise((resolve, reject) => {
       this.fragmentModel.getInstance().model.findOne({
           _id: id
@@ -330,7 +340,15 @@ module.exports = {
               branchOriginFrag: fragmentReturn.branchFrag
             }).lean().exec();
             // console.log('frags',frags);
-            fragmentReturn.data=frags.map(f=>f.data);
+            fragmentReturn.data=frags.map(f=>{
+              if(f.branchFrag){
+                return {
+                  _frag:f._id
+                }
+              }else{
+                return f.data
+              }
+            });
           }
           // console.log('fragmentReturn',fragmentReturn);
           resolve(fragmentReturn)
@@ -380,7 +398,7 @@ module.exports = {
                   partDirectory[frag._id] = frag;
                 });
               }
-
+              // console.log('partDirectory',partDirectory);
               let resolution = await this.rebuildFrag(fragmentReturn, partDirectory,arrayDirectory);
               fragmentReturn.data = resolution;
               // console.log('* resolve' ,fragmentReturn);
@@ -409,7 +427,11 @@ module.exports = {
       // console.log('records',records?records.map(r=>r._id):undefined);
       let arrayOut = [];
       for (let record of records){
-        arrayOut.push(await this.rebuildFragData(record.data,partDirectory,arrayDirectory,counter))
+        if(record.branchFrag){
+          arrayOut.push(await this.rebuildFrag(record,partDirectory,arrayDirectory,counter))
+        } else {
+          arrayOut.push(await this.rebuildFragData(record.data,partDirectory,arrayDirectory,counter))
+        }
       }
       return arrayOut;
     } else {

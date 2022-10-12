@@ -92,10 +92,10 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
 
           // GZ decompression
           case("gz"):
-            // decompression of a data buffer with Gunzip 
+            // decompression of a data buffer with Gunzip
             const newBuffer = zlib.gunzipSync(dataBuffer);
             // the file in a decompressed string
-            const newString = newBuffer.toString('utf-8');   
+            const newString = newBuffer.toString('utf-8');
             // we remove the .gz at the end of the name of the file so that
             // we can find the right file's extension type
             const newFileName = filename.substring(filename, filename.length-3);
@@ -104,7 +104,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
               resolve({
                 data: result.data
               })
-            }, (err)=> {
+            }).catch(err=> {
               reject("Il y a eu un problème après la décompression du fichier : " + err)
             })
             break;
@@ -182,7 +182,7 @@ function _type_file(filename, dataString, dataBuffer, out, contentType) {
           case ("csv"):
             csv.csvtojson(dataString).then((result) => {
               // //console.log("FINAL", reusltat)
-              //console.log("FINAL", reusltat)
+              // console.log("result", result)
               resolve({
                 data: result
               })

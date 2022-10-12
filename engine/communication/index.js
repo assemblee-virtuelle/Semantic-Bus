@@ -43,7 +43,7 @@ class Communication {
     channel.consume('work-ask', (msg) => {
       // console.log("work-ask", msg)
       const messageObject = JSON.parse(msg.content.toString())
-      console.log("work-ask", messageObject)
+      // console.log("work-ask", messageObject)
       workspace_component_lib.get({
         _id: messageObject.id
       }).then( (data)=>{
