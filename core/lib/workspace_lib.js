@@ -5,6 +5,8 @@ var workspaceComponentModel = require("../models/workspace_component_model");
 var workspaceModel = require("../models/workspace_model");
 var fragmentModel = require("../models/fragment_model");
 var userModel = require("../models/user_model");
+var cacheModel = require("../models/cache_model");
+
 var config = require("../getConfiguration.js")();
 var historiqueEndModel = require("../models/historiqueEnd_model");
 var processModel = require("../models/process_model");
@@ -34,7 +36,8 @@ module.exports = {
   removeConnection: _removeConnection,
   cleanOldProcess: _cleanOldProcess,
   cleanAllOldProcess: _cleanAllOldProcess,
-  executeAllTimers : _executeAllTimers,
+  cleanGarbage: _cleanGarbage,
+  executeAllTimers: _executeAllTimers,
   getCurrentProcess: _getCurrentProcess,
   updateCurrentProcess: _updateCurrentProcess
 };
@@ -169,109 +172,165 @@ function _updateCurrentProcess(processId, state) {
 
 // --------------------------------------------------------------------------------
 
-function _cleanAllOldProcess(removeProcess) {
+// clenGarbage not use fragmentLib.cleanFrag and it is normal. clena gargabe don(t have to depend of cleanFrag exection
+function _cleanGarbage() {
   return new Promise(async (resolve, reject) => {
-    const workspaces = await workspaceModel.getInstance().model.find({}).lean().exec();
-    let keepedProcess=[];
-    for (var workflow of workspaces) {
-      // console.log(workflow.name);
-      const processNormalCleaned = await  _cleanOldProcess(workflow);
-      // console.log('processNormalCleaned',processNormalCleaned);
-      keepedProcess=keepedProcess.concat(processNormalCleaned);
-    }
-    // console.log("keepedProcess",keepedProcess);
 
-    const historicEndWithFrag=  await historiqueEndModel.getInstance().model.find({
-        frag: {
-          $ne: undefined
+    try {
+      const workspaces = await workspaceModel.getInstance().model.find({}).lean().exec();
+      let allFragKeeped=[];
+      let totalProcessToRemove=[];
+      let totalHistoriqueEndToRemove = [];
+
+
+      for (var workflow of workspaces) {
+        const {
+          keepedProcesses,
+          oldProcesses,
+          keepedHistoriqueEnds,
+          oldHistoriqueEnds
+        } = await _getOldProcessAndHistoriqueEnd(workflow);
+
+
+        let fragsToKeepId = keepedHistoriqueEnds.map(h => h.frag);
+
+        // console.log('fragsToKeepId1',fragsToKeepId);
+        const cacheComponents = await workspaceComponentModel.getInstance().model.find({
+          module: "cacheNosql",
+          workspaceId: workflow._id
+        }).lean().exec();
+
+
+        const caches = await cacheModel.getInstance().model.find({
+          _id: {
+            $in: cacheComponents.map(c=>c._id)
+          },
+        }).lean().exec();
+
+        fragsToKeepId = fragsToKeepId.concat(caches.map(c => c.frag));
+
+        // console.log('fragsToKeepId2',fragsToKeepId);
+
+        const fragsToKeep = await fragmentModel.getInstance().model.find({
+          _id: {
+            $in: fragsToKeepId
+          }
+        }).select({
+          frags: 1,
+          rootFrag: 1
+        }).lean().exec();
+
+        // let fragToKeep = relatedFrags.map(f => f._id);
+        for (let frag of fragsToKeep) {
+          //old frags management. could be remove but some old frags keep in cache or process
+          if (frag.frags != undefined) {
+            fragsToKeepId = fragsToKeepId.concat((frag.frags));
+          }
+          //new frags management
+          if (frag.rootFrag != undefined) {
+            const fragFromRoot = await fragmentModel.getInstance().model.find({
+              originFrag: frag.rootFrag
+            }).select('_id').lean().exec();
+            fragsToKeepId = fragsToKeepId.concat(fragFromRoot.map(f => f._id));
+          }
         }
-    }).lean().exec();
-    let frags = historicEndWithFrag.map(h=>h.frag);
-    // console.log("frags",frags);
 
-    //TODO considere cache fragment to add to frags
+        // console.log('fragsToKeepId3',fragsToKeepId);
+        fragsToKeepId=fragsToKeepId.filter(f=>f!=undefined);
 
-    const relatedFrags= await fragmentModel.getInstance().model.find({
-        _id: {
-          $in: frags
-        }
-    }).select({frags:1, rootFrag:1}).lean().exec();
-    // console.log(relatedFrags);
+        // console.log('fragsToKeepId',fragsToKeepId);
 
-    let fragToKeep=relatedFrags.map(f=>f._id);
-    // let relatedFrags = [];
-    for  (let frag of relatedFrags){
-      if (frag.frags!=undefined){
-        fragToKeep= fragToKeep.concat((frag.frags));
+        allFragKeeped=allFragKeeped.concat(fragsToKeepId);
+
+        // const notReferencedFragsCount = await fragmentModel.getInstance().model.count({
+        //   _id: {
+        //     $nin: fragsToKeepId
+        //   }
+        // }).exec();
+        //
+        //
+        // await fragmentModel.getInstance().model.deleteMany({
+        //   _id: {
+        //     $nin: fragsToKeepId
+        //   }
+        // })
+
+        // totalFragKeeped+=fragsToKeepId.length;
+        // totalFragRemoved+=notReferencedFragsCount;
+
+        // await historiqueEndModel.getInstance().model.deleteMany({
+        //   _id: {
+        //     $in: oldHistoriqueEnds.map(h=>g._id)
+        //   }
+        // })
+
+        totalHistoriqueEndToRemove=totalHistoriqueEndToRemove.concat(oldHistoriqueEnds.map(h=>g._id));
+
+        // totalHistoriqueEndKeeped+=keepedHistoriqueEnds.length;
+        // totalHistoriqueEndRemoved+=oldHistoriqueEnds.length;
+
+        // await processModel.getInstance().model.deleteMany({
+        //   _id: {
+        //     $in: oldProcesses.map(h=>g._id)
+        //   }
+        // })
+
+        totalProcessToRemove=totalProcessToRemove.concat(oldProcesses.map(h=>g._id));
+
+        // totalProcessKeeped+=keepedProcesses.length;
+        // totalProcessRemoved+=oldProcesses.length;
+
+        // console.log(`cleanGarbage ${workflow.name} F:${fragsToKeepId.length}/${totalFragRemoved} H:${keepedHistoriqueEnds.length}/${oldHistoriqueEnds.length} P:${keepedProcesses.length}/${oldProcesses.length}`);
+
       }
-      if (frag.rootFrag!=undefined) {
-        const fragFromRoot= await fragmentModel.getInstance().model.find({
-            originFrag: frag.rootFrag
-        }).select('_id').lean().exec();
-        fragToKeep= fragToKeep.concat(fragFromRoot.map(f=>f._id));
-      }
-    }
 
-
-
-    const notReferencedFragsCount= await fragmentModel.getInstance().model.count({
+      const notReferencedFragsCount = await fragmentModel.getInstance().model.count({
         _id: {
-          $nin: fragToKeep
-        }
-    }).exec();
-
-    console.log(`${fragToKeep.length} fragments keeped and ${notReferencedFragsCount} fragments to remove`);
-
-    await fragmentModel.getInstance().model.deleteMany({
-        _id: {
-          $nin: fragToKeep
-        }
-    })
-
-    // console.log('notReferencedFrags',notReferencedFrags.length);
-
-    if (removeProcess==true){
-
-      const historiqueCount= await historiqueEndModel.getInstance().model.count({
-        processId: {
-          $nin: keepedProcess
+          $nin: allFragKeeped
         }
       }).exec();
 
-      console.log(`${historiqueCount} historique to remove`);
 
-      await historiqueEndModel.getInstance().model.deleteMany({
-        processId: {
-          $nin: keepedProcess
+      await fragmentModel.getInstance().model.deleteMany({
+        _id: {
+          $nin: allFragKeeped
         }
       })
 
-      const processCount = await processModel.getInstance().model.count({
+      await historiqueEndModel.getInstance().model.deleteMany({
         _id: {
-          $nin: keepedProcess
+          $in: totalHistoriqueEndToRemove
         }
-      }).exec();
-
-      console.log(`${keepedProcess.length} process keeped ${processCount} process to remove`);
+      })
 
       await processModel.getInstance().model.deleteMany({
         _id: {
-          $nin: keepedProcess
+          $in: totalProcessToRemove
         }
       })
+
+      console.log(`${allFragKeeped.length} fragments keeped and ${notReferencedFragsCount} fragments removed`);
+      console.log(`${totalHistoriqueEndToRemove.length} historic removed`);
+      console.log(`${totalProcessToRemove.length} process removed`);
+
+      resolve(workspaces);
+    } catch (e) {
+      reject(new Error.DataBaseProcessError(e))
+    }
+  });
+}
+
+function _cleanAllOldProcess() {
+  return new Promise(async (resolve, reject) => {
+    const workspaces = await workspaceModel.getInstance().model.find({}).lean().exec();
+    let keepedProcessesIds = [];
+    for (var workflow of workspaces) {
+      // console.log(workflow.name);
+      const processNormalCleaned = await _cleanOldProcess(workflow);
+      // console.log('processNormalCleaned',processNormalCleaned);
+      // keepedProcessesIds = keepedProcessIds.concat(processNormalCleaned);
     }
 
-    //
-    // const notReferencedFrags= await fragmentModel.getInstance().model.find({
-    //     _id: {
-    //       $nin: frags
-    //     }
-    // }).select('_id').lean().exec();
-    //
-    // console.log('notReferencedFrags',notReferencedFrags.length);
-
-
-    // console.log(workspaces);
     resolve(workspaces);
   }).catch(e => {
     reject(new Error(e))
@@ -283,96 +342,128 @@ function _executeAllTimers(config) {
 
     try {
       const cacheComponents = await workspaceComponentModel.getInstance().model.find({
-        module:"timer"
+        module: "timer"
       }).lean().exec();
       // console.log(cacheComponents.length);
       for (var component of cacheComponents) {
         // console.log("component",component);
         const wokspace = await workspaceModel.getInstance().model.findOne({
-          _id:component.workspaceId
+          _id: component.workspaceId
         }).lean().exec();
-        if(wokspace!=null){
+        if (wokspace != null) {
           // console.log("wokspace",wokspace.name,'-',wokspace.status);
-          const execution = await fetch(config.engineUrl + '/work-ask/' + component._id,
-            {method: 'POST'}
-          )
+          const execution = await fetch(config.engineUrl + '/work-ask/' + component._id, {
+            method: 'POST'
+          })
           const result = await execution.text();
           // console.log("result",result);
-        } else{
+        } else {
           'orphan timer'
         }
 
       }
 
-
       resolve();
 
     } catch (e) {
       console.error(e);
-      reject(new Error(e))
+      reject(new Error.DataBaseProcessError(e))
     }
   });
 }
 
+function _getOldProcessAndHistoriqueEnd(workflow) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      let limit = workflow.limitHistoric || 1;
+      let keepedProcesses = await processModel.getInstance().model.find({
+          workflowId: workflow._id
+        })
+        .sort({
+          timeStamp: -1
+        })
+        .limit(limit)
+        .select({
+          _id: 1
+        })
+        .lean().exec();
+      let oldProcesses = await processModel.getInstance().model.find({
+          workflowId: workflow._id,
+          _id: {
+            $nin: keepedProcesses.map(p => p._id)
+          }
+        })
+        .select({
+          _id: 1
+        })
+        .lean().exec();
+
+      let keepedHistoriqueEnds = await historiqueEndModel.getInstance().model.find({
+          processId: {
+            $in: keepedProcesses.map(p => p._id)
+          }
+        })
+        .select({
+          _id: 1,
+          frag: 1
+        }).lean().exec();
+
+      let oldHistoriqueEnds = await historiqueEndModel.getInstance().model.find({
+          processId: {
+            $in: oldProcesses.map(p => p._id)
+          }
+        })
+        .select({
+          _id: 1,
+          frag: 1
+        }).lean().exec();
+
+      resolve({
+        keepedProcesses,
+        oldProcesses,
+        keepedHistoriqueEnds,
+        oldHistoriqueEnds
+      })
+    } catch (e) {
+      reject(new Error.DataBaseProcessError(e))
+    }
+
+  });
+}
+
+
 
 function _cleanOldProcess(workflow) {
-  return new Promise((resolve, reject) => {
-    let limit = workflow.limitHistoric || 1;
-    let keepedProcess=[];
-    processModel.getInstance().model
-      .find({
-        workflowId: workflow._id
-      })
-      .sort({
-        timeStamp: -1
-      })
-      .limit(limit)
-      .select({
-        _id: 1
-      })
-      .lean()
-      .exec()
-      .then(processes => {
-        // console.log('processes',processes);
-        keepedProcess=processes.map(p=>p._id);
-        // console.log('processOld',processOld);
-        // resolve(processes);
-        return historiqueEndModel.getInstance().model.find({
-          $and: [{
-              processId: {
-                $nin: processes.map(p => p._id)
-              }
-            },
-            {
-              frag: {
-                $ne: undefined
-              }
-            },
-            {
-              workflowId: workflow._id
-            }
-          ]
-        }).lean().exec();
-      }).then(async (hists) => {
-        console.log(`Normal Clean ${hists.length} process of ${workflow.name}`);
-        for (let hist of hists) {
-          await fragment_lib.cleanFrag(hist.frag);
+  return new Promise(async (resolve, reject) => {
+    try {
+      const {
+        keepedProcesses,
+        oldProcesses,
+        keepedHistoriqueEnds,
+        oldHistoriqueEnds
+      } = await _getOldProcessAndHistoriqueEnd(workflow);
+
+      for (let oldHistoriqueEnd of oldHistoriqueEnds){
+        await fragment_lib.cleanFrag(oldHistoriqueEnd.frag);
+      }
+
+      console.log(`Normal Clean ${oldHistoriqueEnds.length} historic of ${workflow.name}`);
+      await historiqueEndModel.getInstance().model.deleteMany({
+        _id: {
+          $in: oldHistoriqueEnds.map(r => r._id)
         }
-        historiqueEndModel.getInstance().model.updateMany({
-          _id: {
-            $in: hists.map(r => r._id)
-          }
-        }, {
-          $unset: {
-            frag: 1
-          }
-        }).exec();
-        // console.log('processOld',processOld);
-        resolve(keepedProcess);
-      }).catch(e => {
-        console.log(e);
-        reject(new Error.DataBaseProcessError(e))
-      })
+      }).exec();
+
+      console.log(`Normal Clean ${oldProcesses.length} process of ${workflow.name}`);
+      await processModel.getInstance().model.deleteMany({
+        _id: {
+          $in: oldProcesses.map(r => r._id)
+        }
+      }).exec();
+      resolve()
+    } catch (e) {
+      reject(new Error.DataBaseProcessError(e))
+    }
   })
 } // <= _cleanOldProcess
 

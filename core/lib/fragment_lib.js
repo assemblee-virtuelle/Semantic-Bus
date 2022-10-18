@@ -486,10 +486,19 @@ module.exports = {
         //console.log(frag);
 
         if (frag != null) {
-          await this.fragmentModel.getInstance().model.remove({
-            originFrag: frag.rootFrag
-          }).exec();
-          await this.fragmentModel.getInstance().model.remove({
+          if (frag.frags != undefined) {
+            await this.fragmentModel.getInstance().model.deleteMany({
+              frags: {
+                $in : frag.frags
+              }
+            }).exec();
+          }
+          if (frag.rootFrag){
+            await this.fragmentModel.getInstance().model.deleteMany({
+              originFrag: frag.rootFrag
+            }).exec();
+          }
+          await this.fragmentModel.getInstance().model.deleteMany({
             _id: frag._id
           }).exec();
         }

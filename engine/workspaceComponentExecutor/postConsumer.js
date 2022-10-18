@@ -9,6 +9,7 @@ class PostConsumer {
     this.xml2js = require('xml2js');
     this.propertyNormalizer = require('../utils/propertyNormalizer.js');
     this.config = require('../configuration.js');
+    this.himalaya = require('himalaya')
   }
 
   convertResponseToData (response,componentConfig) {
@@ -19,12 +20,23 @@ class PostConsumer {
 
         if (contentType==null || contentType==undefined || contentType==''){
             reject(new Error(`no content-type in response or overided by component`))
-        }else if (contentType.search('xml') != -1 || contentType.search('html') != -1) {
-
-          this.xml2js.parseString(await response.text(), {
+        } else if (contentType.search('html') != -1) {
+          try {
+            const text = await response.text()
+            const json = this.himalaya.parse(text);
+            resolve(json);
+          } catch (e) {
+            resolve({
+              error : e
+            })
+          }
+        } else if (contentType.search('xml') != -1 ) {
+          const text = await response.text()
+          this.xml2js.parseString(text, {
             attrkey: 'attr',
             'trim': true
           }, (err, result) => {
+            console.log('result',result);
             resolve(this.propertyNormalizer.execute(result))
           })
         } else if (contentType.search('json') != -1) {

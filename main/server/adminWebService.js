@@ -6,8 +6,8 @@ var configuration = require('../configuration')
 
 module.exports = function (router) {
 
-  router.post('/cleanFragment', function (req, res, next) {
-    workspace_lib.cleanAllOldProcess(false).then(() => {
+  router.post('/cleanGarbage', function (req, res, next) {
+    workspace_lib.cleanGarbage().then(() => {
       res.send("well cleaned")
     }).catch(e => {
       next(e)
@@ -15,7 +15,7 @@ module.exports = function (router) {
   })
 
   router.post('/cleanProcess', function (req, res, next) {
-    workspace_lib.cleanAllOldProcess(true).then(() => {
+    workspace_lib.cleanAllOldProcess().then(() => {
       res.send("well cleaned")
     }).catch(e => {
       next(e)
