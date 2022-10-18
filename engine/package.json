@@ -69,7 +69,7 @@
     "node-fetch": "^2.3.0",
     "nodemailer": "^6.3.1",
     "object-sizeof": "^1.2.0",
-    "passport": "^0.3.2",
+    "passport": "^0.6.0",
     "passport-google-oauth": "^2.0.0",
     "passport-jwt": "^4.0.0",
     "path-to-regexp": "^5.0.0",
