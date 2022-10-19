@@ -11,9 +11,13 @@ class Upload {
     this.stepNode = false
   }
 
-  pull () {
+  pull (data, flowData, pullParams) {
+    // console.log('data',data);
+    // console.log('upload',pullParams.upload);
     return new Promise((resolve, reject) => {
-      resolve({})
+      resolve({
+        data: pullParams.upload
+      })
     })
   }
 }

@@ -79,6 +79,7 @@ function _createOrUpdateHistoriqueEnd(historique) {
 
 function _addDataHistoriqueEnd(historicId, data) {
   return new Promise(async (resolve, reject) => {
+    // console.log('addDataHistoriqueEnd');
     let frag;
 
     try {

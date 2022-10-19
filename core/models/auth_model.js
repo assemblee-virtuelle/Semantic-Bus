@@ -20,7 +20,7 @@ class AuthenticationModelSingleton {
 
 class AuthenticationModel {
   constructor() {
-    this._model = MongoClient.getInstance().connection.model('authentication', AuthenticationSchema);
+    this._model = MongoClient.getInstance().connection.model('authentification', AuthenticationSchema);
   }
 
   get model(){

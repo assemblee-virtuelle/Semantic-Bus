@@ -11,6 +11,7 @@ class Communication {
       const componentId = req.params.componentId
       const pushData = req.body.pushData
       const queryParams = req.body.queryParams
+      // console.log('pushData',pushData);
       // console.log('queryParams',req.body.queryParams);
       // console.log('AAAAAAAAA componentId',componentId);
       const direction = req.body.direction || 'work'

@@ -18,8 +18,12 @@ class MongoClient {
     this.mongoose = require('mongoose');
     this.mongoose.Promise = Promise;
     const conStr = this.config.mlabDB;
+    let option={};
+    if(conStr.includes('tls')||conStr.includes('ssl')){
+      option.ssl=true
+    }
     // console.log()
-    const db = this.mongoose.createConnection(conStr);
+    const db = this.mongoose.createConnection(conStr,option);
     // CONNECTION EVENTS
     // When successfully connected
     db.on('connected', function() {

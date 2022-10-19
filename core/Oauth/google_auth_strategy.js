@@ -8,6 +8,7 @@ var error = require('../helpers/error')
 
 module.exports = (passport) => {
   if (config.googleAuth) {
+    console.log('GOOGLE auth activ');
     passport.use(new GoogleStrategy({
       clientID: config.googleAuth.clientID,
       clientSecret: config.googleAuth.clientSecret,

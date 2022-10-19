@@ -9,7 +9,8 @@ class MongoConnector {
     this.stepNode = false
     this.PromiseOrchestrator = require('../../core/helpers/promiseOrchestrator.js')
     this.ArraySegmentator = require('../../core/helpers/ArraySegmentator.js')
-    this.stringReplacer = require('../utils/stringReplacer.js')
+    this.stringReplacer = require('../utils/stringReplacer.js'),
+    this.ObjectID = require('bson').ObjectID
   }
 
   mongoInitialise (url) {
@@ -32,22 +33,30 @@ class MongoConnector {
   }
 
   mongoRequest (client, querysTable, database, collectionName, queryParams,flowdata) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
+
+        // console.log('mongoRequest');
         const db = client.db(database)
         // console.log(db);
         const collection = db.collection(collectionName)
+        // console.log('collection',collection);
+        const forcedData = await (await collection.find()).toArray();
+        // console.log('forcedData',forcedData);
             // console.log('REQUEST', querysTable);
         const normalizedQuerysTable = this.stringReplacer.execute(querysTable, queryParams, flowdata, true);
         // const normalizedQuerysTable = this.normalizeQuerysTable(querysTable, queryParams, flowdata, true)
         // console.log('normalizedQuerysTable',normalizedQuerysTable);
-        const evaluation = eval('collection.' + normalizedQuerysTable)
+        const evaluation = eval('collection.' + normalizedQuerysTable);
+        // console.log('evaluation',evaluation);
         let mongoPromise
         if (evaluation instanceof Promise) {
           mongoPromise = evaluation
         } else {
           mongoPromise = evaluation.toArray()
         }
+
+        // console.log('mongoPromise',mongoPromise);
 
         mongoPromise.then(result => {
           // console.log('result',result);
@@ -157,21 +166,21 @@ class MongoConnector {
     return processingQuerysTable
   }
 
-  insert (dataFlow, modelShema) {
-
-    return modelShema.model
-      .remove({})
-      .exec()
-      .then(() => {
-        const arraySegmentator = new this.ArraySegmentator()
-        const segments = arraySegmentator.segment(dataFlow, 100)
-        const paramArray = segments.map(s => [modelShema, s])
-        const promiseOrchestrator = new this.PromiseOrchestrator()
-        promiseOrchestrator.execute(this, this.insertPromise, paramArray, {
-          beamNb: 10
-        })
-      })
-  }
+  // insert (dataFlow, modelShema) {
+  //
+  //   return modelShema.model
+  //     .remove({})
+  //     .exec()
+  //     .then(() => {
+  //       const arraySegmentator = new this.ArraySegmentator()
+  //       const segments = arraySegmentator.segment(dataFlow, 100)
+  //       const paramArray = segments.map(s => [modelShema, s])
+  //       const promiseOrchestrator = new this.PromiseOrchestrator()
+  //       promiseOrchestrator.execute(this, this.insertPromise, paramArray, {
+  //         beamNb: 10
+  //       })
+  //     })
+  // }
 
   mongoInsert (client, database, collectionName, dataFlow,notErase) {
     console.log('mongoInsert');
@@ -195,16 +204,43 @@ class MongoConnector {
         }else{
           segmentFlow=dataFlow;
         }
-        const segments = arraySegmentator.segment(segmentFlow, 100)
 
-        const paramArray = segments.map(s => [collection, s])
-        const promiseOrchestrator = new this.PromiseOrchestrator()
-        promiseOrchestrator.execute(this, this.mongoInsertPromise, paramArray, {
-          beamNb: 10
-        }).then(() => {
-          // console.log('mongoInsert : records inserted');
-          resolve()
-        })
+        // console.log('segmentFlow',segmentFlow);
+
+        for (let data of segmentFlow){
+          const {_id,...noId}=data;
+          // console.log(_id);
+          // console.log(noId);
+          try {
+            await collection.findOneAndUpdate({
+              _id:new this.ObjectID(_id)
+            },
+            {
+              $set:noId
+            },
+            {
+                upsert:true,
+                returnNewDocument: true
+            })
+          } catch (e) {
+            console.log(e);
+          }
+
+        }
+
+        resolve();
+
+
+        // const segments = arraySegmentator.segment(segmentFlow, 100)
+        //
+        // const paramArray = segments.map(s => [collection, s])
+        // const promiseOrchestrator = new this.PromiseOrchestrator()
+        // promiseOrchestrator.execute(this, this.mongoInsertPromise, paramArray, {
+        //   beamNb: 10
+        // }).then(() => {
+        //   // console.log('mongoInsert : records inserted');
+        //   resolve()
+        // })
 
       } catch (e) {
         reject(e)
@@ -224,9 +260,9 @@ class MongoConnector {
     return collection.insertMany(data)
   }
 
-  insertPromise (modelShema, data) {
-    return modelShema.model.insertMany(data).exec()
-  }
+  // insertPromise (modelShema, data) {
+  //   return modelShema.model.insertMany(data).exec()
+  // }
 
   pull (data, dataFlow, queryParams) {
 
@@ -238,24 +274,27 @@ class MongoConnector {
         try {
           client = await this.mongoInitialise(data.specificData.url)
           const mongoRequestResolved = await this.mongoRequest(client, data.specificData.querySelect, data.specificData.database, data.specificData.modelName, queryParams, dataFlow!=undefined?dataFlow[0].data:undefined)
+          // console.log('mongoRequestResolved',mongoRequestResolved.result);
           resolve({
             data: mongoRequestResolved.result
           })
         } catch (error) {
           reject(error)
         } finally {
-          client.close()
+          // console.log('before close');
+          client.close();
+          // console.log('after close');
         }
       })
     } else {
-      const rightFlow= dataFlow!=undefined?dataFlow[0].data:[{}];
-      // console.log('Mongo RIGHT');
+      const writeFlow= dataFlow!=undefined?dataFlow[0].data:[{}];
+      console.log('Mongo write',dataFlow[0].data);
       return new Promise(async (resolve, reject) => {
         let client
         try {
           client = await this.mongoInitialise(data.specificData.url)
-          await this.mongoInsert(client, data.specificData.database, data.specificData.modelName, rightFlow,data.specificData.notErase)
-          resolve({ data: rightFlow })
+          await this.mongoInsert(client, data.specificData.database, data.specificData.modelName, writeFlow,data.specificData.notErase)
+          resolve({ data: writeFlow })
         } catch (error) {
           reject(error)
         } finally {

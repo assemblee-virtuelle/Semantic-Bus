@@ -74,32 +74,10 @@ module.exports = {
                 }
               }),false,counter]
             })
-            // console.log('paramArray', JSON.stringify(paramArray));
-            // console.log('** persist leafs',{
-            //   originFrag: frag.rootFrag || frag.originFrag,
-            //   branchOriginFrag: branchFrag
-            // });
+
             const persistSegments = await promiseOrchestrator.execute(this, this.persist, paramArray, {
               beamNb: 10 //10
             })
-
-            // console.log('** persist branch',{
-            //   rootFrag:frag.rootFrag,
-            //   originFrag:frag.originFrag,
-            //   branchOriginFrag : frag.branchOriginFrag,
-            //   branchFrag:branchFrag
-            // });
-
-            //Branch must not persisted here because persist after frag call in persist method
-            // const persistBranch = await this.persist({
-            //       data: [],
-            //       rootFrag:frag.rootFrag,
-            //       originFrag:frag.originFrag,
-            //       branchOriginFrag : frag.branchOriginFrag,
-            //       branchFrag:branchFrag
-            // })
-            //
-            // console.log('*** persisted Branch',persistBranch);
 
             resolve({
               frag: {
@@ -117,9 +95,21 @@ module.exports = {
         } else {
           // console.log('ARRAY SMALL', key);
           //console.log('NO PERSIST');
+          let arrayOut=[];
+          for (let item of frag.data){
+            const fragReady = await this.frag({
+              data: item,
+              originFrag: frag.originFrag,
+              rootFrag: frag.rootFrag,
+              branchFrag: frag.branchFrag,
+              branchOriginFrag : frag.branchOriginFrag,
+            }, key,counter);
+            arrayOut.push(fragReady.frag.data)
+          }
+
           resolve({
             frag: {
-              data: frag.data,
+              data: arrayOut,
               originFrag: frag.originFrag,
               rootFrag: frag.rootFrag,
               branchFrag: frag.branchFrag,
@@ -130,29 +120,63 @@ module.exports = {
             key: key
           });
         }
-      } else if (frag.data instanceof Object && key != '_id' && key != '_frag') {
-        //console.log('OBJECT', key);
+      } else if (frag.data instanceof Object) {
+        // console.log('OBJECT', typeof frag.data,frag.data.constructor.name);
         let promiseStack = [];
         let objectOut = {};
         for (let key in frag.data) {
           //console.log('frag key', key);
           // console.log("persist Call");
-          const fragPersisted = await this.persist({
-            data: frag.data[key],
-            rootFrag: undefined,
-            originFrag: frag.rootFrag || frag.originFrag,
+          let dataToPersist =  frag.data[key];
+          if(dataToPersist==null){
+            dataToPersist=null;
+          }else if(
+            (typeof dataToPersist)=='function' ||
+            (dataToPersist.constructor && dataToPersist.constructor.name== 'ObjectID') ||
+            (dataToPersist.constructor && dataToPersist.constructor.name== 'Buffer')
+          ){
+            // console.log('frag simplification',key,typeof dataToPersist,frag.data.constructor.name);
+            dataToPersist= dataToPersist.toString();
+          }
+          // else if (dataToPersist['$oid']) {
+          //   dataToPersist = dataToPersist['$oid'];
+          //   console.log('$oid',dataToPersist);
+          // } else if (dataToPersist['$numberLong']) {
+          //   console.log('WHAT',dataToPersist);
+          //   dataToPersist = dataToPersist['$numberLong'];
+          //   console.log('$numberLong',dataToPersist);
+          // } else if (dataToPersist['$date']) {
+          //   dataToPersist = dataToPersist['$date']['$numberLong'];
+          //   console.log('$date',dataToPersist);
+          // }
+
+          const fragReady = await this.frag({
+            data: dataToPersist,
+            rootFrag: frag.rootFrag,
+            originFrag: frag.originFrag,
             branchFrag: undefined,
             branchOriginFrag : undefined
-          }, false,counter);
+          }, key,counter);
+
+
+          // const fragPersisted = await this.persist({
+          //   data: dataToPersist,
+          //   rootFrag: undefined,
+          //   originFrag: frag.rootFrag || frag.originFrag,
+          //   branchFrag: undefined,
+          //   branchOriginFrag : undefined
+          // }, false,counter);
           // console.log('fragPerssisted',fragPersisted);
 
-          if(fragPersisted.branchFrag){
+          const fragKey = key.startsWith('$')?'_'+key:key;
+
+          if(fragReady.frag.branchFrag){
           // console.log('fragAndKey',key,fragPersisted);
-            objectOut[key] = {
-              _frag:fragPersisted._id
+            objectOut[fragKey] = {
+              _frag:fragReady.frag._id
             }
           }else{
-            objectOut[key] = fragPersisted.data;
+            objectOut[fragKey] = fragReady.frag.data;
           }
         }
 
@@ -171,10 +195,31 @@ module.exports = {
         });
 
       } else {
-        // console.log('PRIMITIV',frag );
+        let dataPrimitiv=frag.data
+
+        // if(
+        //   (typeof dataPrimitiv)=='function' ||
+        //   dataPrimitiv.constructor.name== 'ObjectID' ||
+        //   dataPrimitiv.constructor.name== 'Buffer'
+        // ){
+        //   // console.log('frag simplification',key,typeof dataToPersist,frag.data.constructor.name);
+        //   dataPrimitiv= dataPrimitiv.toString();
+        // } else if (dataPrimitiv['$oid']) {
+        //   dataPrimitiv = dataPrimitiv['$oid'];
+        //   console.log('$oid',dataPrimitiv);
+        // } else if (dataPrimitiv['$numberLong']) {
+        //   console.log('WHAT',dataPrimitiv);
+        //   dataPrimitiv = dataPrimitiv['$numberLong'];
+        //   console.log('$numberLong',dataPrimitiv);
+        // } else if (dataPrimitiv['$date']) {
+        //   dataPrimitiv = dataPrimitiv['$date']['$numberLong'];
+        //   console.log('$date',dataPrimitiv);
+        // }
+
+        // console.log('PRIMITIV',dataPrimitiv );
         resolve({
           frag: {
-            data:frag.data,
+            data:dataPrimitiv,
             rootFrag:frag.rootFrag
           },
           key: key
@@ -190,7 +235,7 @@ module.exports = {
     if (counter>1000){
       throw new Eror("too many deep")
     }
-    // console.log('# persist data frag',counter);
+    // console.log('# persist data frag',counter,datas);
 
     //  console.log('persist data frag', this.objectSizeOf(datas));
     // console.log('persist data frag',createOnly,counter,datas);
@@ -273,7 +318,7 @@ module.exports = {
                 const fragmentModelInstance = this.fragmentModel.getInstance().model;
                 // console.log('-- after frag',persistReadyFarg.frag.rootFrag,'-',persistReadyFarg.frag.originFrag);
                 // console.log('createReadyFrag',persistReadyFarg.frag);
-                // console.log('XXXXXXXXXX persistReadyFarg CREATE');
+                // console.log('XXXXXXXXXX persistReadyFarg CREATE',JSON.stringify(persistReadyFarg.frag));
                 createReadyFrags.push(new fragmentModelInstance(persistReadyFarg.frag));
               } else {
                 // console.log('XXXXXXXXXX persistReadyFarg UPDATE',persistReadyFarg.frag);
@@ -283,6 +328,7 @@ module.exports = {
 
           })
 
+          // console.log('createReadyFrags',createReadyFrags);
           let insertPromiseStack = this.fragmentModel.getInstance().model.insertMany(createReadyFrags, {
             new: true
           });
@@ -346,9 +392,11 @@ module.exports = {
                   _frag:f._id
                 }
               }else{
-                return f.data
+                return this.replaceMongoNotSupportedKey(f.data,true);
               }
             });
+          }else{
+            fragmentReturn.data = this.replaceMongoNotSupportedKey(fragmentReturn.data,true);
           }
           // console.log('fragmentReturn',fragmentReturn);
           resolve(fragmentReturn)
@@ -455,14 +503,25 @@ module.exports = {
           console.log('frag not in partDirectory');
           persitedFrag = await this.get(object._frag);
           const {data,...rest} =  persitedFrag;
-          console.log('frag obtain from database',rest);
+          // console.log('frag obtain from database',rest);
         }
+        // console.log('+++ rebuildFrag');
         return await this.rebuildFrag(persitedFrag,partDirectory,arrayDirectory,counter)
 
     } else {
-      if (object instanceof Object && object != null && object != undefined) {
+      if (object==null){
+        return null;
+      }else if(
+        (typeof object)=='function' ||
+        object.constructor.name== 'ObjectID' ||
+        object.constructor.name== 'Buffer'){
+        return object.toString();
+
+      }else  if (object instanceof Object) {
+        // console.log('*** object',object);
         for (let key in object) {
           object[key] = await this.rebuildFragData(object[key], partDirectory,arrayDirectory,counter);
+          object = this.replaceMongoNotSupportedKey(object,false);
         }
         return object;
       }
@@ -471,9 +530,40 @@ module.exports = {
         return object;
       }
     }
-
-
   },
+
+  replaceMongoNotSupportedKey: function (object,deep){
+    // console.log('replaceMongoNotSupportedKey',object);
+    if(Array.isArray(object)){
+      let out = [];
+      for (let item of object) {
+        if(deep==true){
+          out.push(this.replaceMongoNotSupportedKey(item,true));
+        }else{
+          out.push = item;
+        }
+      }
+      return out;
+    }
+    if(object instanceof Object){
+      let out = {};
+      for (let key in object) {
+        let realKey = key;
+        if(key.includes('_$')){
+          realKey=key.substring(1);
+        }
+        if(deep==true){
+          out[realKey] = this.replaceMongoNotSupportedKey(object[key],true);
+        }else{
+          out[realKey] = object[key];
+        }
+      }
+      return out;
+    } else{
+      return object;
+    }
+  },
+
   cleanFrag: function(id) {
     // console.log('cleanFrag', id);
     this.fragmentModel.getInstance().model.findOne({

@@ -128,7 +128,7 @@ class Engine {
         if (this.responseComponentId != undefined && this.responseComponentId != 'undefined') {
 
           /// -------------- push case  -----------------------
-          /// Only for file uplaod component : to refactor
+          /// used before by upload and http provider component : now use pullParams in those cases
           // if (this.requestDirection == 'push') {
           //   let originNode = this.pathResolution.nodes.filter(this.sift({
           //     'component._id': this.originComponent._id

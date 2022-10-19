@@ -1,11 +1,5 @@
 <admin class="containerV" style="flex-grow:1">
 
-  <label class="labelFormStandard">Nettoyer les données périmées (process, processus,fragmentation) / suppression brutale</label>
-  <div onclick={cleanGarbageClick} class="btnFil commandButtonImage">
-    Nettoyer
-    <img class="imgFil" src="./image/Administrative-Tools-256.png" title="Nettoyer données périmées">
-    <input ref="import" type="file" style="display:none;"/>
-  </div>
 
   <label class="labelFormStandard">Nettoyer les processus d'execution périmés / suppression normale</label>
   <div onclick={cleanProcessClick} class="btnFil commandButtonImage">
@@ -13,6 +7,14 @@
     <img class="imgFil" src="./image/Administrative-Tools-256.png" title="Nettoyer process">
     <input ref="import" type="file" style="display:none;"/>
   </div>
+
+  <label class="labelFormStandard">Nettoyer les données périmées (processus historique,fragmentation) / suppression brutale</label>
+  <div onclick={cleanGarbageClick} class="btnFil commandButtonImage">
+    Nettoyer (Brut)
+    <img class="imgFil" src="./image/Administrative-Tools-256.png" title="Nettoyer données périmées">
+    <input ref="import" type="file" style="display:none;"/>
+  </div>
+
 
   <label class="labelFormStandard">Executer tous les timers</label>
   <div onclick={executeTimersClick} class="btnFil commandButtonImage">
