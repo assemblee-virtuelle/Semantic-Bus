@@ -12,41 +12,47 @@ class ValueMapping {
    * @return {Array<MapValueResult>}
    */
   mapValue(valueIn, specificData) {
-    let valueInString = valueIn.toString();
-    if (specificData.ignoreCase == true) {
-      valueInString = valueInString.toUpperCase();
-    }
-    if (specificData.ignoreAccent == true) {
-      valueInString = this.normalize(valueInString);
-    }
-    return this.arrays.flatMap(specificData.mappingTable, atomicMapping => {
-      let flowValue = atomicMapping.flowValue;
+    try {
+      let valueInString = valueIn.toString();
       if (specificData.ignoreCase == true) {
-        flowValue = flowValue.toUpperCase();
+        valueInString = valueInString.toUpperCase();
       }
       if (specificData.ignoreAccent == true) {
-        flowValue = this.normalize(flowValue);
+        valueInString = this.normalize(valueInString);
       }
-      let compareOk = false;
-      if(specificData.wholeWord==true){
-        compareOk = valueInString.localeCompare(flowValue)==0;
-      } else {
-        compareOk = valueInString.includes(flowValue);
-      }
-
-      if (compareOk && this.strings.nonEmpty(atomicMapping.replacementValue)) {
-        if (specificData.forgetOriginalValue) {
-          return [atomicMapping.replacementValue]
-        } else {
-          return [{
-            sourceValue: valueIn,
-            translatedValue: atomicMapping.replacementValue
-          }]
+      return this.arrays.flatMap(specificData.mappingTable, atomicMapping => {
+        let flowValue = atomicMapping.flowValue;
+        if (specificData.ignoreCase == true) {
+          flowValue = flowValue.toUpperCase();
         }
-      } else {
-        return []
-      }
-    })
+        if (specificData.ignoreAccent == true) {
+          flowValue = this.normalize(flowValue);
+        }
+        let compareOk = false;
+        if(specificData.wholeWord==true){
+          compareOk = valueInString.localeCompare(flowValue)==0;
+        } else {
+          compareOk = valueInString.includes(flowValue);
+        }
+
+        if (compareOk && this.strings.nonEmpty(atomicMapping.replacementValue)) {
+          if (specificData.forgetOriginalValue) {
+            return [atomicMapping.replacementValue]
+          } else {
+            return [{
+              sourceValue: valueIn,
+              translatedValue: atomicMapping.replacementValue
+            }]
+          }
+        } else {
+          return []
+        }
+      })
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
+
   }
 
   normalize(value) {
@@ -60,6 +66,7 @@ class ValueMapping {
    * @return {MapValuesResult}
    */
   mapValues(source, specificData) {
+
     if (source === undefined || source === null) {
       return {
         data: {
@@ -71,8 +78,11 @@ class ValueMapping {
         data: this.arrays.flatMap(source, valueIn => this.mapValue(valueIn, specificData))
       }
     } else {
+
+      const result = this.mapValue(source, specificData);
+      // console.log('result',result);
       return {
-        data: this.mapValue(source, specificData)
+        data: result
       }
     }
   }

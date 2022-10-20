@@ -1,4 +1,7 @@
 'use strict';
+
+const ObjectId = require('bson').ObjectID
+
 class MongoConnector {
   constructor () {
     this.mongoose = require('mongoose')
