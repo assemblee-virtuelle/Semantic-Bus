@@ -16,8 +16,7 @@ class PostConsumer {
     return new Promise(async(resolve, reject)=>{
       try {
 
-        let contentType = response.headers.get('content-type') || componentConfig.overidedContentType
-
+        let contentType = componentConfig.overidedContentType || response.headers.get('content-type')
         if (contentType==null || contentType==undefined || contentType==''){
             reject(new Error(`no content-type in response or overided by component`))
         } else if (contentType.search('html') != -1) {
@@ -36,7 +35,7 @@ class PostConsumer {
             attrkey: 'attr',
             'trim': true
           }, (err, result) => {
-            console.log('result',result);
+            // console.log('result',result);
             resolve(this.propertyNormalizer.execute(result))
           })
         } else if (contentType.search('json') != -1) {
@@ -127,10 +126,12 @@ class PostConsumer {
               errorMessage='Request failed for url ' + url + ' with status ' + response.status
             }
             try{
+
               if(response.headers&&response.headers.get('content-length')==0){
                 responseObject = undefined;
               }else{
                 responseObject = await this.convertResponseToData(response,componentConfig);
+                // console.log('responseObject',responseObject);
               }
             } catch (e) {
               errorMessage= e.message;

@@ -13,7 +13,11 @@
     this.data = []
 
     this.refreshData = (data) => {
-      this.data = data
+      this.data = data.map(d=>({
+        directNavigationUrl:`application.html#workspace/${d._id}/component`,
+        ...d
+      }));
+      // this.data = data
       this.update()
     }
 

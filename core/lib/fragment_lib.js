@@ -216,7 +216,7 @@ module.exports = {
             const fragKey = key.startsWith('$') ? '_' + key : key;
 
             if (fragReady.frag.branchFrag) {
-              console.log('+++ fragAndKey',key,fragReady.frag._id,fragReady);
+              // console.log('+++ fragAndKey',key,fragReady.frag._id,fragReady);
               objectOut[fragKey] = {
                 _frag: fragReady.frag._id
               }
@@ -425,12 +425,12 @@ module.exports = {
         .lean()
         .exec()
         .then(async (fragmentReturn) => {
-          console.log('fragmentReturn',fragmentReturn);
+          // console.log('fragmentReturn',fragmentReturn);
           if (fragmentReturn.branchFrag) {
             const frags = await this.fragmentModel.getInstance().model.find({
               branchOriginFrag: fragmentReturn.branchFrag
             }).lean().exec();
-            console.log('frags',frags);
+            // console.log('frags',frags);
             fragmentReturn.data = frags.map(f => {
               if (f.branchFrag) {
                 return {

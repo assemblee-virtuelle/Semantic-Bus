@@ -24,9 +24,12 @@
         </div>
         <!-- zone bouton -->
         <div class="containerV tableRowBtn" draggable="false"  if={!(opts.disallownavigation==true) || !(opts.disallowdelete==true)}>
+
+
           <!-- Bouton éditer -->
-          <div onclick={navigationClick} if={!(opts.disallownavigation==true)} data-rowid={rowId}>
-            <img class="commandButtonImage" src="./image/pencil.svg" height="20px" draggable={false}>
+          <div if={!(opts.disallownavigation==true)}>
+            <a href={directNavigationUrl} if={directNavigationUrl}>  <img class="commandButtonImage" src="./image/pencil.svg" height="20px" draggable={false}></a>
+            <img if={!directNavigationUrl}  onclick={navigationClick} class="commandButtonImage" src="./image/pencil.svg" height="20px" draggable={false} data-rowid={rowId}>
           </div>
           <!-- Bouton supprimer -->
           <div onclick={delRowClick} data-rowid={rowId} if={!(opts.disallowdelete==true)}>
@@ -302,7 +305,7 @@
     }
 
     .selected {
-      background-color: rgba(33, 150, 243,0.1) !important;      
+      background-color: rgba(33, 150, 243,0.1) !important;
       border-top-color: rgba(33, 150, 243,0.1) !important;
       border-top-width: 2px !important;
       border: none !important;

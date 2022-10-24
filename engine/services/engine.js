@@ -4,6 +4,7 @@ const ProcessNotifier = require('./ProcessNotifier')
 const clone = require('clone');
 
 class Engine {
+  // requestDirection & pushData lagacy/obsolete
   constructor(component, requestDirection, amqpClient, callerId, pushData, queryParams) {
     this.technicalComponentDirectory = require('./technicalComponentDirectory.js');
     this.sift = require('sift').default;
@@ -128,7 +129,7 @@ class Engine {
         if (this.responseComponentId != undefined && this.responseComponentId != 'undefined') {
 
           /// -------------- push case  -----------------------
-          /// used before by upload and http provider component : now use pullParams in those cases
+          /// used before by upload and http provider component : now use pullParams/queryParams in those cases
           // if (this.requestDirection == 'push') {
           //   let originNode = this.pathResolution.nodes.filter(this.sift({
           //     'component._id': this.originComponent._id
@@ -406,6 +407,7 @@ class Engine {
                       }
 
                       // console.log('dfobFinalFlow After',dfobFinalFlow);
+                      // legacy/obsolete TODO remove
                       processingNode.dataResolution = {
                         // componentId: processingNode.component._id,
                         // data: dfobFinalFlow.map(FF=>FF.objectToProcess),
@@ -425,6 +427,7 @@ class Engine {
                       this.processNextBuildPath('dfob ok')
                     }).catch(async e => {
                       console.error('REJECT dfob', e)
+                      // legacy/obsolote  TODO remove
                       processingNode.dataResolution = {
                         // error: e
                       }

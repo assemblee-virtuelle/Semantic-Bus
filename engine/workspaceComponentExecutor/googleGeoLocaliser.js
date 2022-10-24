@@ -60,7 +60,7 @@ class GoogleGeoLocaliser {
               urlString = urlString + addressGoogleFormated
               urlString = urlString + '&key=' + apiKey;
               urlString = encodeURI(urlString);
-              console.log('urlString',urlString);
+              // console.log('urlString',urlString);
               const parsedUrl = this.url.parse(urlString)
               const requestOptions = {
                 hostname: parsedUrl.hostname,
@@ -85,7 +85,7 @@ class GoogleGeoLocaliser {
                       error: `Request to ${response.url} failed with HTTP ${response.statusCode}:${response.statusMessage}`
                     })
                   } else {
-                    console.log('response good');
+                    // console.log('response good');
                     let responseBodyObject = {}
                     try {
                       responseBodyObject = JSON.parse(responseBody)
