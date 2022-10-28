@@ -84,13 +84,17 @@
     }
     this.updateData = function (dataToUpdate) {
       this.data = dataToUpdate;
+      if(! this.data.deeperFocusData) {
+        this.data.deeperFocusData = {};
+      }
       console.log("thisrefs",this.refs);
       console.log("thing : ",this.refs.dfobPathInput);
-      console.log("thing : ",this.refs.pipeNbInput.innerHTML);
+      console.log("thing : ",this.refs.pipeNbInput);
       console.log("thing : ",this.refs.keepArrayInput.value);
-      this.refs.dfobPath = this.data.deeperFocusData.dfobPath || [] ;
-      this.refs.pipeNb = this.data.deeperFocusData.pipeNb || [] ;
-      this.refs.keepArray = this.data.deeperFocusData.keepArray || [] ;
+      console.log("df data :", this.data.deeperFocusData);
+      this.refs.dfobPathInput = this.data.deeperFocusData.dfobPath || [] ;
+      this.refs.pipeNbInput = this.data.deeperFocusData.pipeNb || [] ;
+      this.refs.keepArrayInput = this.data.deeperFocusData.keepArray || [] ;
       console.log("new dfob path : ",this.refs.dfobPath);
       this.update();
     }.bind(this);
