@@ -34,6 +34,7 @@ function WorkspaceBusiness () {
     var out = {
       _id: workspaceComponentIn._id,
       specificData: workspaceComponentIn.specificData,
+      deeperFocusData: workspaceComponentIn.deeperFocusData,
       name: workspaceComponentIn.name,
       module: workspaceComponentIn.module,
       type: workspaceComponentIn.type,
