@@ -88,13 +88,9 @@
         this.data.deeperFocusData = {};
       }
       console.log("thisrefs",this.refs);
-      console.log("thing : ",this.refs.dfobPathInput);
-      console.log("thing : ",this.refs.pipeNbInput);
-      console.log("thing : ",this.refs.keepArrayInput.value);
-      console.log("df data :", this.data.deeperFocusData);
-      this.refs.dfobPathInput = this.data.deeperFocusData.dfobPath || [] ;
-      this.refs.pipeNbInput = this.data.deeperFocusData.pipeNb || [] ;
-      this.refs.keepArrayInput = this.data.deeperFocusData.keepArray || [] ;
+      this.refs.dfobPathInput,dfobPath = this.data.deeperFocusData.dfobPath || [] ;
+      this.refs.pipeNbInput,pipeNb = this.data.deeperFocusData.pipeNb || [] ;
+      this.refs.keepArrayInput,keepArray = this.data.deeperFocusData.keepArray || [] ;
       console.log("new dfob path : ",this.refs.dfobPath);
       this.update();
     }.bind(this);

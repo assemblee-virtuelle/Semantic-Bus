@@ -172,7 +172,7 @@ class Engine {
       if (process.state == 'stop') {
         this.processNotifier.information({
           _id: this.processId,
-          information: 'Votre flow a été aretté avec succéss'
+          information: 'Votre flow a été arrêté avec succès'
         })
         //status of workflow ever stoped by update process webservice
         // this.workflow.status = 'stoped';
@@ -249,37 +249,36 @@ class Engine {
             let secondaryFlow
 
             if (nodesProcessingInputs.length > 0) {
-
+              //MODIFS A FAIRE ICCCCCCIIIIIIII!!!!!!!!!!!!!!!
               let persistedDataFlow = [];
               for (const sourceNode of nodesProcessingInputs) {
                 // console.log('sourceNode',sourceNode);
                 let persistedData;
-                if (processingNode.component.module != 'deeperFocusOpeningBracket') {
-                  let sourceComponentId;
-                  // console.log('sourceNode.dataResolution',sourceNode.dataResolution);
-                  if (sourceNode.dataResolution && sourceNode.dataResolution.dfobSourceComponentId) {
-                    // console.log('sourceNode.dataResolution.dfobSourceComponentId',sourceNode.dataResolution.dfobSourceComponentId);
-                    sourceComponentId = sourceNode.dataResolution.dfobSourceComponentId;
-                  } else {
-                    sourceComponentId = sourceNode.component._id
-                  }
-
-                  const persistedDataFlowCoponent = await this.workspace_component_lib.get_component_result(sourceComponentId, this.processId);
-                  // console.log('persistedDataFlowCoponent.frag',persistedDataFlowCoponent,sourceNode);
-                  const fragAvailable = persistedDataFlowCoponent.frag && persistedDataFlowCoponent.frag != null;
-
-                  if (fragAvailable) {
-                    persistedData = await this.fragment_lib.getWithResolution(persistedDataFlowCoponent.frag);
-                    // console.log('persistedData',persistedData);
-                  }
-                  // console.log('persistedData',persistedData);
+                //if (processingNode.component.module != 'deeperFocusOpeningBracket') {
+                // début traitement 
+                let sourceComponentId;
+                if (sourceNode.dataResolution && sourceNode.dataResolution.dfobSourceComponentId) {
+                  // console.log('sourceNode.dataResolution.dfobSourceComponentId',sourceNode.dataResolution.dfobSourceComponentId);
+                  sourceComponentId = sourceNode.dataResolution.dfobSourceComponentId;
+                } else {
+                  sourceComponentId = sourceNode.component._id
                 }
 
-                persistedDataFlow.push({
-                  data: persistedData ? persistedData.data : undefined,
-                  componentId: sourceNode.component._id,
-                  dfob: sourceNode.dataResolution ? sourceNode.dataResolution.dfob : undefined
-                })
+                const persistedDataFlowCoponent = await this.workspace_component_lib.get_component_result(sourceComponentId, this.processId);
+                // console.log('persistedDataFlowCoponent.frag',persistedDataFlowCoponent,sourceNode);
+                const fragAvailable = persistedDataFlowCoponent.frag && persistedDataFlowCoponent.frag != null;
+
+                if (fragAvailable) {
+                  persistedData = await this.fragment_lib.getWithResolution(persistedDataFlowCoponent.frag);
+                  // console.log('persistedData',persistedData);
+                }
+                // console.log('persistedData',persistedData);
+              //}
+              persistedDataFlow.push({
+                data: persistedData ? persistedData.data : undefined,
+                componentId: sourceNode.component._id,
+                dfob: sourceNode.dataResolution ? sourceNode.dataResolution.dfob : undefined
+              })
 
                 // console.log("READ", typeof persistedDataFlow[0].data[5].bf_longitude);
 
@@ -314,7 +313,7 @@ class Engine {
               await this.historicEndAndCredit(processingNode, startTime, undefined, err)
               this.processNextBuildPath('flow ko')
             } else {
-              // console.log('primaryflow',primaryflow);
+              console.log('primaryflow',primaryflow);
               if (dataFlow != undefined && primaryflow.dfob != undefined) {
                 try {
                   // console.log("DFOB", primaryflow.dfob);
