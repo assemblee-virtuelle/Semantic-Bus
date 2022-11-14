@@ -255,40 +255,39 @@ class Engine {
                 // console.log('sourceNode',sourceNode);
                 let persistedData;
                 //if (processingNode.component.module != 'deeperFocusOpeningBracket') {
-                // début traitement 
                 let sourceComponentId;
                 if (sourceNode.dataResolution && sourceNode.dataResolution.dfobSourceComponentId) {
                   // console.log('sourceNode.dataResolution.dfobSourceComponentId',sourceNode.dataResolution.dfobSourceComponentId);
                   sourceComponentId = sourceNode.dataResolution.dfobSourceComponentId;
                 } else {
-                  sourceComponentId = sourceNode.component._id
+                  sourceComponentId = sourceNode.component._id;
                 }
 
-                const persistedDataFlowCoponent = await this.workspace_component_lib.get_component_result(sourceComponentId, this.processId);
-                // console.log('persistedDataFlowCoponent.frag',persistedDataFlowCoponent,sourceNode);
-                const fragAvailable = persistedDataFlowCoponent.frag && persistedDataFlowCoponent.frag != null;
+                const persistedDataFlowComponent = await this.workspace_component_lib.get_component_result(sourceComponentId, this.processId);
+                const fragAvailable = persistedDataFlowComponent.frag && persistedDataFlowComponent.frag != null;
 
                 if (fragAvailable) {
-                  persistedData = await this.fragment_lib.getWithResolution(persistedDataFlowCoponent.frag);
-                  // console.log('persistedData',persistedData);
+                  persistedData = await this.fragment_lib.getWithResolution(persistedDataFlowComponent.frag);
                 }
-                // console.log('persistedData',persistedData);
+
+                // 0 idée de à quoi ça sert le keepArray
+                if (sourceNode.component.specificData.keepArray && sourceNode.component.deeperFocusData){
+                  sourceNode.component.deeperFocusData.keepArray = sourceNode.component.specificData.keepArray;
+                } else if(sourceNode.component.deeperFocusData) {
+                  sourceNode.component.deeperFocusData.keepArray = [];
+                  // console.log("sourceNode.component.deeperFocusData",sourceNode.component.deeperFocusData.keepArray);
+                }
               //}
-              persistedDataFlow.push({
-                data: persistedData ? persistedData.data : undefined,
-                componentId: sourceNode.component._id,
-                dfob: sourceNode.dataResolution ? sourceNode.dataResolution.dfob : undefined
-              })
-
-                // console.log("READ", typeof persistedDataFlow[0].data[5].bf_longitude);
-
+              // HERE AJOUT !!! keepArray = sourceNode.component.specificData.keepArray ou []
+                persistedDataFlow.push({
+                  data: persistedData ? persistedData.data : undefined,
+                  componentId: sourceNode.component._id,
+                  dfob: sourceNode.component.deeperFocusData ? sourceNode.component.deeperFocusData : undefined
+                })
+              // console.log("READ", typeof persistedDataFlow[0].data[5].bf_longitude);
               }
-              // console.log("persistedDataFlow",persistedDataFlow[0]);
               dataFlow = persistedDataFlow;
-              // console.log('dataFlow',dataFlow[0].data);
 
-              // dataFlow=[...dataFlow]
-              // console.log("dataFlow cloned",dataFlow);
               if (module.getPrimaryFlow != undefined) {
                 primaryflow = module.getPrimaryFlow(
                   processingNode.component,
@@ -316,16 +315,14 @@ class Engine {
               console.log('primaryflow',primaryflow);
               if (dataFlow != undefined && primaryflow.dfob != undefined) {
                 try {
-                  // console.log("DFOB", primaryflow.dfob);
-                  let dfobPathNormalized = this.stringReplacer.execute(primaryflow.dfob[0].path, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams, primaryflow.data);
+                  let dfobPathNormalized = this.stringReplacer.execute(primaryflow.dfob.dfobPath, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams, primaryflow.data);
                   // console.log('dfobPathNormalized',dfobPathNormalized);
                   var dfobTab = dfobPathNormalized.length > 0 ? dfobPathNormalized.split('.') : []
-                  // console.log('dfob',dfobTab,primaryflow.dfob[0].keepArray);
                   var dfobFinalFlow = this.buildDfobFlow(
                     primaryflow.data,
                     dfobTab,
                     undefined,
-                    primaryflow.dfob[0].keepArray
+                    primaryflow.dfob.keepArray
                   )
 
                   // console.log('dfobFinalFlow',dfobFinalFlow);
@@ -370,7 +367,7 @@ class Engine {
                     // console.log('paramArray',paramArray[0][1]);
 
                     this.promiseOrchestrator.execute(module, module.pull, paramArray, {
-                      beamNb: primaryflow.dfob[0].pipeNb,
+                      beamNb: primaryflow.dfob.pipeNb,
                       logIteration: true,
                       continueChekFunction: async () => {
                         // console.log('check',this.processId);

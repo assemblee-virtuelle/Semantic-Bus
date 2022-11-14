@@ -18,7 +18,7 @@ module.exports = {
   gouvFrGeoLocaliser: require('../workspaceComponentExecutor/gouvFrGeoLocaliser.js'),
   // gouvFrGeoLocaliserMass: require('./workspaceComponentExecutor/gouvFrGeoLocaliserMass.js'),
   joinByField: require('../workspaceComponentExecutor/joinByField.js'),
-  deeperFocusOpeningBracket: require('../workspaceComponentExecutor/deeperFocusOpeningBracket.js'),
+  // deeperFocusOpeningBracket: require('../workspaceComponentExecutor/deeperFocusOpeningBracket.js'),
   filter: require('../workspaceComponentExecutor/filter.js'),
   upload: require('../workspaceComponentExecutor/upload.js'),
   scrapper: require('../workspaceComponentExecutor/scrapper/scrapper.js'),
