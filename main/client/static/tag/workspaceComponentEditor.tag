@@ -12,9 +12,52 @@
     </div>
 
   </div>
-  <div style="flex-grow:1; background-color: rgb(238,242,249);" class="containerV">
+    <!--  boutons des tabs  -->
+  <div class="tab">
+    <button id="generalBtn" class="tablinks" onclick={openTab}>General</button>
+    <button id="deeperFocusBtn" class="tablinks" onclick={openTab}>DeeperFocus</button>
+  </div>
+  <!--  contenu du premier tab  -->
+  <div id="general" style="flex-grow:1; background-color: rgb(238,242,249); display: block;" class="containerV tabcontent">
     <div id="editionContainer" class="box-flex containerV"></div>
   </div>
+  <!--  contenu du deuxième tab  -->
+  <div id="deeperFocus" style="flex-grow:1; background-color: rgb(238,242,249); display: none;" class="containerV tabcontent">
+    <div class="box-flex containerV">
+      <!--  composant deeper focus  -->
+      <!-- bouton aide -->
+      <div class="contenaireH" style="margin-left:97%">
+        <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Deeper-focus" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+      </div>
+      <!-- Titre du composant -->
+      <div class="contenaireV title-component">Deeper Focus</div>
+      <div>
+        <div class="bar"/>
+      </div>
+      <!-- Description du composant -->
+      <div class="title-description-component">Début de traitement d'un niveau de profondeur du flux.</div>
+      <div>
+        <div class="bar"/>
+      </div>
+      <!-- Champ du composant deeper focus -->
+      <label class="labelFormStandard">Chemin à inspecter pour les traitements qui suivent:</label>
+      <div class="cardInput">
+        <input class="inputComponents" placeholder="vide=racine" type="text" name="dfobPathInput" ref="dfobPathInput" value={data.deeperFocusData.dfobPath} onchange={dfobPathChange}></input>
+      </div>
+      <label class="labelFormStandard">Nombre de traitements parallèles:</label>
+      <div class="cardInput">
+        <input class="inputComponents" placeholder="" type="text" name="pipeNbInput" ref="pipeNbInput" value={data.deeperFocusData.pipeNb} onchange={pipeNbChange}></input>
+      </div>
+      <label class="labelFormStandard">Le chemin désigne une structure de tableau à conserver en tableau (décomposé en objet par défaut):</label>
+      <label class="cardInput">
+        <span class="switch">
+          <input type="checkbox" ref="keepArrayInput" onchange={keepArrayChange} checked={data.deeperFocusData.keepArray}>
+          <span class="slider round"></span>
+        </span>
+      </label>
+    </div>
+  </div>
+  <!--  fin contenu deuxième tab  -->
 
   <!-- Bouton valider -->
   <div class="containerH" style="flex-basis:45px;justify-content: center;align-items: flex-start; flex-shrink:0;flex-grow:0;">
@@ -24,17 +67,42 @@
   <script>
     this.itemCurrent = {};
     this.data = {};
+    this.data.deeperFocusData = {};
 
-    this.saveClick = function (e) {
-      RiotControl.trigger('item_current_persist');
+     // code lié au deeper-focus
+    dfobPathChange(e) {
+      console.log("dfobpathchange : ",e.target.value);
+      this.data.deeperFocusData.dfobPath = e.target.value;
     }
+    pipeNbChange(e) {
+      console.log("pipenbchange : ",e.target.value);
+      this.data.deeperFocusData.pipeNb = e.target.value;
+    }
+    keepArrayChange(e) {
+      console.log("keeparraychange : ",e.target.value);
+      this.data.deeperFocusData.keepArray = e.target.checked;
+    }
+    this.updateData = function (dataToUpdate) {
+    this.data = dataToUpdate;
+    if(! this.data.deeperFocusData) {
+      this.data.deeperFocusData = {};
+    }
+    console.log("thisrefs",this.refs);
+    this.refs.dfobPathInput,dfobPath = this.data.deeperFocusData.dfobPath || [] ;
+    this.refs.pipeNbInput,pipeNb = this.data.deeperFocusData.pipeNb || [] ;
+    this.refs.keepArrayInput,keepArray = this.data.deeperFocusData.keepArray || [] ;
+    console.log("new dfob path : ",this.refs.dfobPath);
+    this.update();
+    }.bind(this);
+    // fin du code lié au deeper focus
+    
     onNameChange(e) {
       this.itemCurrent.name = e.target.value;
     }
 
-    // onPersistProcessChange(e) {
-    //   this.itemCurrent.persistProcess = e.target.checked;
-    // }
+    this.saveClick = function (e) {
+      RiotControl.trigger('item_current_persist');
+    }
 
     this.mountEdition = function (editor) {
       this.editionContainer = riot.mount('#editionContainer', editor)[0];
@@ -52,8 +120,27 @@
       this.update();
     }.bind(this);
 
+    openTab(e) {
+      var i, tabcontent, tablinks, id;
+      tabcontent = document.getElementsByClassName("tabcontent");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
+
+      tablinks = document.getElementsByClassName("tablinks");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace("active", "");
+      }
+
+      id = e.srcElement.id.replace('Btn','');
+      document.getElementById(id).style.display = "block";
+
+      e.currentTarget.className += " active";
+    }
+
     this.on('mount', function () {
       RiotControl.trigger('workspace_current_refresh');
+      RiotControl.on('item_current_changed', this.updateData);
       RiotControl.on('item_current_changed', this.itemCurrentChanged);
       RiotControl.on('item_current_editor_changed', this.itemCurrentEditorChanged);
       RiotControl.trigger('component_current_refresh');
@@ -61,6 +148,7 @@
 
     this.on('unmount', function () {
       this.editionContainer.unmount();
+      RiotControl.off('item_current_changed', this.updateData);
       RiotControl.off('item_current_changed', this.itemCurrentChanged);
       RiotControl.off('item_current_editor_changed', this.itemCurrentEditorChanged);
     })

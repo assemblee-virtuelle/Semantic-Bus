@@ -41,3 +41,36 @@
   margin: 20px;
   padding: 2vh;
 }
+
+.tab {
+  overflow: hidden;
+  border: 1px solid #D5DAE0;
+  display: flex;
+  justify-content: space-evenly;
+  width: 100%;
+}
+
+.tab button {
+  float: left;
+  border: none;
+  cursor: pointer;
+  padding: 14px 16px;
+  transition: 0.3s;
+  width: 100%;
+  flex-grow: 1;
+  background-color: #F0F0F0;
+}
+
+.tab button:hover {
+  background-color: #D5DAE0;
+}
+
+.tab button.active {
+  background-color: #D5DAE0;
+}
+
+.tabcontent {
+  padding: 6px 12px;
+  border: 1px solid #D5DAE0;
+  border-top: none;
+}
