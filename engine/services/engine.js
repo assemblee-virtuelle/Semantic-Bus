@@ -322,8 +322,7 @@ class Engine {
               // console.log('primaryflow',primaryflow);
               if (dataFlow != undefined && (primaryflow.dfob != undefined || primaryflow.deeperFocusData)) {
                 try {
-                  console.log("DFOB", primaryflow.dfob);
-                  console.log("DFOB", primaryflow.deeperFocusData);
+                  // console.log("DFOB", primaryflow.dfob);
                   let dfobPathTemp = primaryflow.dfob ? primaryflow.dfob[0].path : primaryflow.deeperFocusData.dfobPath;
                   let dfobKeepArrayTemp = primaryflow.dfob ? primaryflow.dfob[0].keepArray : primaryflow.deeperFocusData.keepArray;
                   let dfobNbPipeTemp = primaryflow.dfob ? primaryflow.dfob[0].pipeNb : primaryflow.deeperFocusData.pipeNb;
@@ -334,11 +333,7 @@ class Engine {
                   }
 
                   let dfobPathNormalized = this.stringReplacer.execute(dfobPathTemp, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams, primaryflow.data);
-                  console.log('dfobPathNormalized',dfobPathNormalized);
-                  console.log('dfobPathTemp',dfobPathTemp);
-
                   var dfobTab = dfobPathNormalized.length > 0 ? dfobPathNormalized.split('.') : []
-                  console.log(dfobPathNormalized)
                   // console.log('dfob',dfobTab,primaryflow.dfob[0].keepArray);
                   var dfobFinalFlow = this.buildDfobFlow(
                     primaryflow.data,
@@ -346,9 +341,6 @@ class Engine {
                     undefined,
                     dfobKeepArrayTemp
                   )
-
-                  // console.log('dfobFinalFlow',dfobFinalFlow);
-
 
                   if (this.config.quietLog != true) {
                     // console.log('dfobFinalFlow | ', dfobFinalFlow);
