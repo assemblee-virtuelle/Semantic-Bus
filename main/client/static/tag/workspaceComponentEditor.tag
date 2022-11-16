@@ -55,6 +55,14 @@
           <span class="slider round"></span>
         </span>
       </label>
+      <label class="labelFormStandard">Activation du deeper focus:</label>
+        <label class="cardInput">
+          <span class="switch">
+            <input type="checkbox" ref="activateDfInput" onchange={activateDfChange} checked={data.deeperFocusData.activateDf}>
+            <span class="slider round"></span>
+          </span>
+        </label>
+      </label>
     </div>
   </div>
   <!--  fin contenu deuxième tab  -->
@@ -71,27 +79,26 @@
 
      // code lié au deeper-focus
     dfobPathChange(e) {
-      console.log("dfobpathchange : ",e.target.value);
       this.data.deeperFocusData.dfobPath = e.target.value;
     }
     pipeNbChange(e) {
-      console.log("pipenbchange : ",e.target.value);
       this.data.deeperFocusData.pipeNb = e.target.value;
     }
     keepArrayChange(e) {
-      console.log("keeparraychange : ",e.target.value);
       this.data.deeperFocusData.keepArray = e.target.checked;
+    }
+    activateDfChange(e) {
+      this.data.deeperFocusData.activateDf = e.target.checked;
     }
     this.updateData = function (dataToUpdate) {
     this.data = dataToUpdate;
     if(! this.data.deeperFocusData) {
       this.data.deeperFocusData = {};
     }
-    console.log("thisrefs",this.refs);
-    this.refs.dfobPathInput,dfobPath = this.data.deeperFocusData.dfobPath || [] ;
-    this.refs.pipeNbInput,pipeNb = this.data.deeperFocusData.pipeNb || [] ;
-    this.refs.keepArrayInput,keepArray = this.data.deeperFocusData.keepArray || [] ;
-    console.log("new dfob path : ",this.refs.dfobPath);
+    this.refs.dfobPathInput.dfobPath = this.data.deeperFocusData.dfobPath;
+    this.refs.pipeNbInput.pipeNb = this.data.deeperFocusData.pipeNb;
+    this.refs.keepArrayInput.keepArray = this.data.deeperFocusData.keepArray;
+    this.refs.activateDfInput.activateDf = this.data.deeperFocusData.activateDf;
     this.update();
     }.bind(this);
     // fin du code lié au deeper focus
