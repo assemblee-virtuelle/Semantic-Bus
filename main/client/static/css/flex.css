@@ -58,15 +58,15 @@
   transition: 0.3s;
   width: 100%;
   flex-grow: 1;
-  background-color: #F0F0F0;
+  background-color: #D5DAE0;
 }
 
 .tab button:hover {
-  background-color: #D5DAE0;
+  background-color: #F0F0F0;
 }
 
 .tab button.active {
-  background-color: #D5DAE0;
+  background-color: #F0F0F0;
 }
 
 .tabcontent {
