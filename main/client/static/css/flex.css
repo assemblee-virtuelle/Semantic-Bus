@@ -44,7 +44,8 @@
 
 .tab {
   overflow: hidden;
-  border: 1px solid #D5DAE0;
+  border-bottom: 1px solid #D5DAE0;
+  border-top: 1px solid #eef2f9;
   display: flex;
   justify-content: space-evenly;
   width: 100%;
@@ -58,15 +59,15 @@
   transition: 0.3s;
   width: 100%;
   flex-grow: 1;
-  background-color: #D5DAE0;
+  background-color: #d5dae0;
 }
 
 .tab button:hover {
-  background-color: #F0F0F0;
+  background-color: #eef2f9;
 }
 
 .tab button.active {
-  background-color: #F0F0F0;
+  background-color: #eef2f9;
 }
 
 .tabcontent {
