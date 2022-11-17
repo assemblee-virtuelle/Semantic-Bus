@@ -323,23 +323,22 @@ class Engine {
               if (dataFlow != undefined && (primaryflow.dfob != undefined || primaryflow.deeperFocusData)) {
                 try {
                   // console.log("DFOB", primaryflow.dfob);
-                  let dfobPathTemp = primaryflow.dfob ? primaryflow.dfob[0].path : primaryflow.deeperFocusData.dfobPath;
-                  let dfobKeepArrayTemp = primaryflow.dfob ? primaryflow.dfob[0].keepArray : primaryflow.deeperFocusData.keepArray;
-                  let dfobNbPipeTemp = primaryflow.dfob ? primaryflow.dfob[0].pipeNb : primaryflow.deeperFocusData.pipeNb;
+                  let dfobPath = primaryflow.dfob ? primaryflow.dfob[0].path : primaryflow.deeperFocusData.dfobPath;
+                  let dfobKeepArray = primaryflow.dfob ? primaryflow.dfob[0].keepArray : primaryflow.deeperFocusData.keepArray;
+                  let dfobNbPipe = primaryflow.dfob ? primaryflow.dfob[0].pipeNb : primaryflow.deeperFocusData.pipeNb;
 
-                  if(dfobPathTemp == undefined){
-                    console.log('here');
-                    dfobPathTemp = '';
+                  if(dfobPath == undefined){
+                    dfobPath = '';
                   }
 
-                  let dfobPathNormalized = this.stringReplacer.execute(dfobPathTemp, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams, primaryflow.data);
+                  let dfobPathNormalized = this.stringReplacer.execute(dfobPath, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams, primaryflow.data);
                   var dfobTab = dfobPathNormalized.length > 0 ? dfobPathNormalized.split('.') : []
                   // console.log('dfob',dfobTab,primaryflow.dfob[0].keepArray);
                   var dfobFinalFlow = this.buildDfobFlow(
                     primaryflow.data,
                     dfobTab,
                     undefined,
-                    dfobKeepArrayTemp
+                    dfobKeepArray
                   )
 
                   if (this.config.quietLog != true) {
@@ -381,7 +380,7 @@ class Engine {
                     // console.log('paramArray',paramArray[0][1]);
 
                     this.promiseOrchestrator.execute(module, module.pull, paramArray, {
-                      beamNb: dfobNbPipeTemp,
+                      beamNb: dfobNbPipe,
                       logIteration: true,
                       continueChekFunction: async () => {
                         // console.log('check',this.processId);

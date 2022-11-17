@@ -116,14 +116,15 @@
     };
 
     this.itemCurrentEditorChanged = function (editor) {
-      console.log('editor',editor);
+      //console.log('editor',editor);
       this.mountEdition(editor);
       this.update();
     }.bind(this);
 
     this.itemCurrentChanged = function (item) {
-      console.log('item',item);
+      //console.log('item',item);
       this.itemCurrent = item;
+      this.updateData(item);
       this.update();
     }.bind(this);
 
@@ -147,7 +148,6 @@
 
     this.on('mount', function () {
       RiotControl.trigger('workspace_current_refresh');
-      RiotControl.on('item_current_changed', this.updateData);
       RiotControl.on('item_current_changed', this.itemCurrentChanged);
       RiotControl.on('item_current_editor_changed', this.itemCurrentEditorChanged);
       RiotControl.trigger('component_current_refresh');
@@ -155,7 +155,6 @@
 
     this.on('unmount', function () {
       this.editionContainer.unmount();
-      RiotControl.off('item_current_changed', this.updateData);
       RiotControl.off('item_current_changed', this.itemCurrentChanged);
       RiotControl.off('item_current_editor_changed', this.itemCurrentEditorChanged);
     })
