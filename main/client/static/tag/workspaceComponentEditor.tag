@@ -14,7 +14,7 @@
   </div>
     <!--  boutons des tabs  -->
   <div class="tab">
-    <button id="generalBtn" class="tablinks" onclick={openTab}>General</button>
+    <button id="generalBtn" class="tablinks active" onclick={openTab}>General</button>
     <button id="deeperFocusBtn" class="tablinks" onclick={openTab}>DeeperFocus</button>
   </div>
   <!--  contenu du premier tab  -->
