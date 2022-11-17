@@ -275,12 +275,17 @@ class Engine {
                   // console.log('persistedData',persistedData);
                 }
 
+                let deeperFocusData;
+                if(sourceNode.component.deeperFocusData && sourceNode.component.deeperFocusData.activateDf){
+                  deeperFocusData = sourceNode.component.deeperFocusData;
+                }
+
                 persistedDataFlow.push({
                   data: persistedData ? persistedData.data : undefined,
                   componentId: sourceNode.component._id,
-                  dfob: sourceNode.dataResolution ? sourceNode.dataResolution.dfob : undefined
+                  dfob: sourceNode.dataResolution ? sourceNode.dataResolution.dfob : undefined,
+                  deeperFocusData: deeperFocusData ? deeperFocusData : undefined
                 })
-
                 // console.log("READ", typeof persistedDataFlow[0].data[5].bf_longitude);
 
               }
@@ -315,22 +320,26 @@ class Engine {
               this.processNextBuildPath('flow ko')
             } else {
               // console.log('primaryflow',primaryflow);
-              if (dataFlow != undefined && primaryflow.dfob != undefined) {
+              if (dataFlow != undefined && (primaryflow.dfob != undefined || primaryflow.deeperFocusData)) {
                 try {
                   // console.log("DFOB", primaryflow.dfob);
-                  let dfobPathNormalized = this.stringReplacer.execute(primaryflow.dfob[0].path, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams, primaryflow.data);
-                  // console.log('dfobPathNormalized',dfobPathNormalized);
+                  let dfobPath = primaryflow.dfob ? primaryflow.dfob[0].path : primaryflow.deeperFocusData.dfobPath;
+                  let dfobKeepArray = primaryflow.dfob ? primaryflow.dfob[0].keepArray : primaryflow.deeperFocusData.keepArray;
+                  let dfobNbPipe = primaryflow.dfob ? primaryflow.dfob[0].pipeNb : primaryflow.deeperFocusData.pipeNb;
+
+                  if(dfobPath == undefined){
+                    dfobPath = '';
+                  }
+
+                  let dfobPathNormalized = this.stringReplacer.execute(dfobPath, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams, primaryflow.data);
                   var dfobTab = dfobPathNormalized.length > 0 ? dfobPathNormalized.split('.') : []
                   // console.log('dfob',dfobTab,primaryflow.dfob[0].keepArray);
                   var dfobFinalFlow = this.buildDfobFlow(
                     primaryflow.data,
                     dfobTab,
                     undefined,
-                    primaryflow.dfob[0].keepArray
+                    dfobKeepArray
                   )
-
-                  // console.log('dfobFinalFlow',dfobFinalFlow);
-
 
                   if (this.config.quietLog != true) {
                     // console.log('dfobFinalFlow | ', dfobFinalFlow);
@@ -371,7 +380,7 @@ class Engine {
                     // console.log('paramArray',paramArray[0][1]);
 
                     this.promiseOrchestrator.execute(module, module.pull, paramArray, {
-                      beamNb: primaryflow.dfob[0].pipeNb,
+                      beamNb: dfobNbPipe,
                       logIteration: true,
                       continueChekFunction: async () => {
                         // console.log('check',this.processId);

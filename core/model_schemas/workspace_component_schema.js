@@ -23,6 +23,10 @@ var WorkspaceComponentSchema = mongoose.Schema({
     specificData: {
         type: Object,
         default: {}
+    },
+    deeperFocusData: {
+        type: Object,
+        default: {}
     }
 }, { minimize: false })
 
