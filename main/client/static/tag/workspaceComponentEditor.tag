@@ -18,7 +18,7 @@
     <button id="deeperFocusBtn" class="tablinks" onclick={openTab}>DeeperFocus</button>
   </div>
   <!--  contenu du premier tab  -->
-  <div id="general" style="flex-grow:1; background-color: rgb(238,242,249); display: block;" class="containerV tabcontent">
+  <div id="general" style="flex-grow:1; background-color: rgb(238,242,249);" class="containerV tabcontent">
     <div id="editionContainer" class="box-flex containerV"></div>
   </div>
   <!--  contenu du deuxième tab  -->
