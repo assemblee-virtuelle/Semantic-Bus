@@ -294,3 +294,40 @@ label {
   position: relative;
   height: 100%;
 }
+
+.tablinksContainer {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.tablinks {
+  width: 100%;
+  display: flex;
+  justify-content: center;
+}
+
+.tab {
+  align-items: center;
+}
+
+.tab button {
+  float: left;
+  border: none;
+  cursor: pointer;
+  padding: 18px 18px;
+  transition: 0.3s;
+  width: 100%;
+  flex-grow: 1;
+  background-color: #d5dae0;
+  align-items: center;
+}
+
+.tab button:hover {
+  background-color: #eef2f9;
+}
+
+.tab button.active {
+  background-color: #eef2f9;
+}
+

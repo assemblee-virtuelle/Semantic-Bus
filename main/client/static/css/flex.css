@@ -50,28 +50,3 @@
   justify-content: space-evenly;
   width: 100%;
 }
-
-.tab button {
-  float: left;
-  border: none;
-  cursor: pointer;
-  padding: 14px 16px;
-  transition: 0.3s;
-  width: 100%;
-  flex-grow: 1;
-  background-color: #d5dae0;
-}
-
-.tab button:hover {
-  background-color: #eef2f9;
-}
-
-.tab button.active {
-  background-color: #eef2f9;
-}
-
-.tabcontent {
-  padding: 6px 12px;
-  border: 1px solid #D5DAE0;
-  border-top: none;
-}
