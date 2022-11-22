@@ -535,7 +535,7 @@ module.exports = {
   },
 
   rebuildFragData: async function(object, partDirectory, arrayDirectory, counter) {
-    // console.log('rebuildFragData',object);
+    console.log('rebuildFragData',object);
     counter = counter || 0;
     counter++;
     // console.log(" ".repeat(counter),'rebuildFrag',object);
@@ -601,7 +601,7 @@ module.exports = {
         if (deep == true) {
           out.push(this.replaceMongoNotSupportedKey(item, true));
         } else {
-          out.push = item;
+          out.push(item);
         }
       }
       return out;
