@@ -276,7 +276,7 @@ class Engine {
                 }
 
                 let deeperFocusData;
-                if(sourceNode.component.deeperFocusData && sourceNode.component.deeperFocusData.activateDf){
+                if(processingNode.component.deeperFocusData && processingNode.component.deeperFocusData.activateDf){
                   deeperFocusData = processingNode.component.deeperFocusData;
                 }
 
