@@ -276,8 +276,8 @@ class Engine {
                 }
 
                 let deeperFocusData;
-                if(sourceNode.component.deeperFocusData && sourceNode.component.deeperFocusData.activateDf){
-                  deeperFocusData = sourceNode.component.deeperFocusData;
+                if(processingNode.component.deeperFocusData && processingNode.component.deeperFocusData.activateDf){
+                  deeperFocusData = processingNode.component.deeperFocusData;
                 }
 
                 persistedDataFlow.push({

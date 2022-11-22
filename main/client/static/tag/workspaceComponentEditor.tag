@@ -14,11 +14,19 @@
   </div>
     <!--  boutons des tabs  -->
   <div class="tab">
-    <button id="generalBtn" class="tablinks" onclick={openTab}>General</button>
-    <button id="deeperFocusBtn" class="tablinks" onclick={openTab}>DeeperFocus</button>
+    <button id="generalBtn" class="tablinks active" onclick={openTab}>General</button>
+    <div class="tablinksContainer">
+      <button id="deeperFocusBtn" class="tablinks" onclick={openTab}>DeeperFocus</button>
+      <label id="dfSwitchBtn" class="cardInput tablinks" style="justify-content:flex-start;">
+        <span class="switch">
+          <input type="checkbox" ref="activateDfInput" onchange={activateDfChange} checked={itemCurrent.deeperFocusData.activateDf}>
+          <span class="slider round"></span>
+        </span>
+      </label>
+    </div>
   </div>
   <!--  contenu du premier tab  -->
-  <div id="general" style="flex-grow:1; background-color: rgb(238,242,249); display: block;" class="containerV tabcontent">
+  <div id="general" style="flex-grow:1; background-color: rgb(238,242,249);" class="containerV tabcontent">
     <div id="editionContainer" class="box-flex containerV"></div>
   </div>
   <!--  contenu du deuxième tab  -->
@@ -55,14 +63,14 @@
           <span class="slider round"></span>
         </span>
       </label>
-      <label class="labelFormStandard">Activation du deeper focus:</label>
+      <!--  <label class="labelFormStandard">Activation du deeper focus:</label>
         <label class="cardInput">
           <span class="switch">
             <input type="checkbox" ref="activateDfInput" onchange={activateDfChange} checked={itemCurrent.deeperFocusData.activateDf}>
             <span class="slider round"></span>
           </span>
         </label>
-      </label>
+      </label>  -->
     </div>
   </div>
   <!--  fin contenu deuxième tab  -->
@@ -140,9 +148,10 @@
       }
 
       id = e.srcElement.id.replace('Btn','');
-      document.getElementById(id).style.display = "block";
+      document.getElementById(id).style.display = "flex";
 
       e.currentTarget.className += " active";
+      document.getElementById("dfSwitchBtn").className 
     }
 
     this.on('mount', function () {
