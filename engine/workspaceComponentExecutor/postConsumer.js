@@ -172,7 +172,7 @@ class PostConsumer {
               request:{
                 url:url,
                 headers:headers,
-                body:flowData[0].data?JSON.parse(JSON.stringify(flowData[0].data)):undefined
+                body:flowData&&flowData[0].data?JSON.parse(JSON.stringify(flowData[0].data)):undefined
               },
               error:errorMessage
             }

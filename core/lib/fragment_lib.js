@@ -535,7 +535,7 @@ module.exports = {
   },
 
   rebuildFragData: async function(object, partDirectory, arrayDirectory, counter) {
-    console.log('rebuildFragData',object);
+    // console.log('rebuildFragData',object);
     counter = counter || 0;
     counter++;
     // console.log(" ".repeat(counter),'rebuildFrag',object);
