@@ -478,6 +478,20 @@ class Engine {
                       // this.originComponentResult = processingNode.dataResolution;
                     }
                     await this.historicEndAndCredit(processingNode, startTime, data, undefined)
+                    .then((result) => {
+                      if(result == -1){
+                        throw new Error();
+                      }
+                    }).catch((e) => {
+                      const fullError = new Error("Volume de données trop important !");
+                      this.processNotifier.error({
+                        _id: this.processId,
+                        error: fullError.message
+                      })
+                      this.workflow.status = 'error';
+                      this.workspace_lib.updateSimple(this.workflow)
+                      this.RequestOrigineRejectMethode(fullError)
+                    })
                     // console.log(this.processNextBuildPath);
                     // console.log('call next',processingNode.dataResolution);
                     this.processNextBuildPath('normal ok')
@@ -618,12 +632,19 @@ class Engine {
 
       historic_object.recordCount = processingNode.dataResolution == undefined || data == undefined ? 0 : data.length || 1;
       historic_object.recordPrice = current_component_price.record_price || 0;
+      // objectSizeOf = get the size of js object in byte
       historic_object.moCount = processingNode.dataResolution == undefined || data == undefined ? 0 : this.objectSizeOf(data) / 1000000;
       historic_object.componentPrice = current_component_price.moPrice;
       historic_object.userId = this.owner._id;
       historic_object.totalPrice =
         (historic_object.recordCount * historic_object.recordPrice) +
         (historic_object.moCount * historic_object.componentPrice);
+      // we stop the function and return -1 if the data limit is reached
+      // 0.5 = 0.5 Mo ! 
+      if (historic_object.moCount > 0.5) {
+        return -1;
+      }
+
       historic_object.componentModule = module;
       // TODO pas besoin de stoquer le name du component, on a l'id. ok si grosse perte de perf pour histogramme
       historic_object.componentName = processingNode.component.name;
