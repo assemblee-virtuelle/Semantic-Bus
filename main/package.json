@@ -61,7 +61,7 @@
     "json2yaml": "^1.1.0",
     "jsonld-streaming-parser": "^2.0.2",
     "jsonpath-object-transform": "^1.0.4",
-    "jsonwebtoken": "^8.4.0",
+    "jsonwebtoken": "^9.0.0",
     "jwt-simple": "^0.5.1",
     "mocha": "^5.2.0",
     "moment": "^2.20.1",
