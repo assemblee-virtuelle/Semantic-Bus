@@ -317,7 +317,7 @@ class Engine {
             let dataVolumeInMb2nd = (this.objectSizeOf(secondaryFlow) / 1000000) / 1.8;
 
             if((dataVolumeInMb + dataVolumeInMb2nd) > 0.029){
-              let err = new Error('Volume de donnéee trop important');
+              let err = new Error('Volume de données trop important');
               processingNode.status = 'error';
               processingNode.dataResolution = {
                 error: err

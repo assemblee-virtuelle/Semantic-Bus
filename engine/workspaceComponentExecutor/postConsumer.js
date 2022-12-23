@@ -139,7 +139,7 @@ class PostConsumer {
                 // divided by 1000000 for the Mb and by 1.8 to have an accurate data volume value
                 let dataVolumeInMb = (this.objectSizeOf(responseObject) / 1000000) / 1.8;
                 if(dataVolumeInMb > this.dataLimitation){
-                  throw new Error('Http Consumer : Volume de donnéee trop important');
+                  throw new Error('Http Consumer : Volume de données trop important');
                 }
               }
             } catch (e) {

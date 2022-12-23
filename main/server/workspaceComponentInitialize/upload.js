@@ -49,7 +49,7 @@ class Upload {
             // we send an error in the component
             let dataVolumeInMb = Buffer.byteLength(string,'utf8')/1000000;
             if(dataVolumeInMb > this.dataLimitation){
-              let fullError = new Error('Upload : Volume de donnéee trop important');
+              let fullError = new Error('Upload : Volume de données trop important');
               reject(fullError)
             }
           })
