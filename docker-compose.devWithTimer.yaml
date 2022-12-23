@@ -11,6 +11,7 @@ services:
         - APP_PORT=100
         - NODE_ENV=development_docker
         - CONFIG_URL=$CONFIG_URL
+        - DATA_LIMIT=1
     volumes:
       - ./timer:/data/timer/
       - ./core:/data/core/
@@ -37,6 +38,7 @@ services:
         - APP_PORT=90
         - NODE_ENV=development_docker
         - CONFIG_URL=$CONFIG_URL
+        - DATA_LIMIT=1
     volumes:
       - ./engine:/data/engine/
       - ./core:/data/core/
@@ -65,6 +67,7 @@ services:
         - APP_PORT=80
         - NODE_ENV=development_docker
         - CONFIG_URL=$CONFIG_URL
+        - DATA_LIMIT=1
     volumes:
       - ./main:/data/main/
       - ./core:/data/core/

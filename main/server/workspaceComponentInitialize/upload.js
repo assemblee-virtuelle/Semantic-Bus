@@ -19,6 +19,7 @@ class Upload {
     this.stepNode = false
     this.request = require('request')
     this.config = require('../../configuration')
+    this.dataLimitation = process.env.DATA_LIMIT;
   }
 
   initialise (router, stompClient) {
@@ -43,6 +44,14 @@ class Upload {
           })
           file.on('end', () => {
             string = buffer.toString('utf-8')
+
+            // if the data volume that we will send is > to our limit
+            // we send an error in the component
+            let dataVolumeInMb = Buffer.byteLength(string,'utf8')/1000000;
+            if(dataVolumeInMb > this.dataLimitation){
+              let fullError = new Error('Upload : Volume de donnéee trop important');
+              reject(fullError)
+            }
           })
         }).on('finish', () => {
 

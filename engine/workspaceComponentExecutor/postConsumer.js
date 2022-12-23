@@ -9,7 +9,9 @@ class PostConsumer {
     this.xml2js = require('xml2js');
     this.propertyNormalizer = require('../utils/propertyNormalizer.js');
     this.config = require('../configuration.js');
-    this.himalaya = require('himalaya')
+    this.himalaya = require('himalaya');
+    this.objectSizeOf = require('object-sizeof');
+    this.dataLimitation = process.env.DATA_LIMIT;
   }
 
   convertResponseToData (response,componentConfig) {
@@ -131,10 +133,18 @@ class PostConsumer {
                 responseObject = undefined;
               }else{
                 responseObject = await this.convertResponseToData(response,componentConfig);
-                // console.log('responseObject',responseObject);
+                
+                // if the data volume that we will send is > to our limit
+                // we send an error in the component
+                // divided by 1000000 for the Mb and by 1.8 to have an accurate data volume value
+                let dataVolumeInMb = (this.objectSizeOf(responseObject) / 1000000) / 1.8;
+                if(dataVolumeInMb > this.dataLimitation){
+                  throw new Error('Http Consumer : Volume de donnéee trop important');
+                }
               }
             } catch (e) {
               errorMessage= e.message;
+              reject(e);
             }
           }
 

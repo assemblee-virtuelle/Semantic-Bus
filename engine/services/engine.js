@@ -26,6 +26,7 @@ class Engine {
     this.pushData = pushData;
     this.originQueryParams = queryParams;
     this.owner = null;
+    this.dataLimitation = process.env.DATA_LIMIT;
   }
 
   resolveComponent() {
@@ -641,7 +642,7 @@ class Engine {
         (historic_object.moCount * historic_object.componentPrice);
       // we stop the function and return -1 if the data limit is reached
       // 0.5 = 0.5 Mo ! 
-      if (historic_object.moCount > 0.5) {
+      if (historic_object.moCount > this.dataLimitation) {
         return -1;
       }
 
