@@ -23,16 +23,28 @@ Semantic data transformation & semantic container crawling
 
 
 ## Road map
-
-- Data completion from linked field (semantic web)
-- Automatic Ontology transformation (semantic web)
-- OAuth Support throw API
-- Support new record mention to propagate information across multiple neighbour node (see web mention)
+- new ergonomy
+- better sharing and options of sharing
+  - group management
+  - change admin
+  - change role
+  - credit consumption when workflow execution
+    - timer owner
+- authentified api calling (or pattern calling) and credit consumption fo caller
+  - restrict api with authentificaiton
+  - define how pay execution cause by API
 - Big Data Support (Infinit data Volume)
+  - we can do now it whith ticke ands external database as mongodb
+- Automatic Ontology transformation (semantic web)
+  - manual transformation now
+- Authentification to external services
+  - we use n8n or nocodeapi if we want to authentify to a data provider
 - Multiple entry point and exit point for a components
+  - entry discrimantaion have to be specified in component now
 - Reusable and preconfigured pattern building from component
-- R Component
-- Workflow sharing by Google Drive
+  - pattern can be implement now whith workflow trigger by api and body parameters but this could improve.
+- Workflow sharing by Google Drive or other cloud or better wokflow management
+
 
 ## Archi
 
