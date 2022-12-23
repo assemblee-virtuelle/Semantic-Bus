@@ -14,7 +14,7 @@ class MongoClientSingleton {
 class MongoClient {
   constructor() {
     this.config = require('../getConfiguration.js')();
-    // console.log(this.config)
+    console.log('config cor db',this.config)
     this.mongoose = require('mongoose');
     this.mongoose.Promise = Promise;
     const conStr = this.config.mlabDB;
