@@ -173,27 +173,7 @@ module.exports = {
             // console.log('frag key', key);
             // console.log("persist Call");
             let dataToPersist = frag.data[key];
-            // if (dataToPersist == null) {
-            //   dataToPersist = null;
-            // } else if (
-            //   (typeof dataToPersist) == 'function' ||
-            //   (dataToPersist.constructor && dataToPersist.constructor.name == 'ObjectID') ||
-            //   (dataToPersist.constructor && dataToPersist.constructor.name == 'Buffer')
-            // ) {
-            //   // console.log('frag simplification',key,typeof dataToPersist,frag.data.constructor.name);
-            //   dataToPersist = dataToPersist.toString();
-            // }
-            // // else if (dataToPersist['$oid']) {
-            //   dataToPersist = dataToPersist['$oid'];
-            //   console.log('$oid',dataToPersist);
-            // } else if (dataToPersist['$numberLong']) {
-            //   console.log('WHAT',dataToPersist);
-            //   dataToPersist = dataToPersist['$numberLong'];
-            //   console.log('$numberLong',dataToPersist);
-            // } else if (dataToPersist['$date']) {
-            //   dataToPersist = dataToPersist['$date']['$numberLong'];
-            //   console.log('$date',dataToPersist);
-            // }
+
 
             const fragReady = await this.frag({
               data: dataToPersist,
@@ -203,15 +183,6 @@ module.exports = {
               branchOriginFrag: undefined
             }, key, counter);
 
-
-            // const fragPersisted = await this.persist({
-            //   data: dataToPersist,
-            //   rootFrag: undefined,
-            //   originFrag: frag.rootFrag || frag.originFrag,
-            //   branchFrag: undefined,
-            //   branchOriginFrag : undefined
-            // }, false,counter);
-            // console.log('fragPerssisted',fragPersisted);
 
             const fragKey = key.startsWith('$') ? '_' + key : key;
 
@@ -240,32 +211,16 @@ module.exports = {
           });
         }
       } else {
+        // console.log('--primitiv',frag);
         let dataPrimitiv = frag.data
 
-        // if(
-        //   (typeof dataPrimitiv)=='function' ||
-        //   dataPrimitiv.constructor.name== 'ObjectID' ||
-        //   dataPrimitiv.constructor.name== 'Buffer'
-        // ){
-        //   // console.log('frag simplification',key,typeof dataToPersist,frag.data.constructor.name);
-        //   dataPrimitiv= dataPrimitiv.toString();
-        // } else if (dataPrimitiv['$oid']) {
-        //   dataPrimitiv = dataPrimitiv['$oid'];
-        //   console.log('$oid',dataPrimitiv);
-        // } else if (dataPrimitiv['$numberLong']) {
-        //   console.log('WHAT',dataPrimitiv);
-        //   dataPrimitiv = dataPrimitiv['$numberLong'];
-        //   console.log('$numberLong',dataPrimitiv);
-        // } else if (dataPrimitiv['$date']) {
-        //   dataPrimitiv = dataPrimitiv['$date']['$numberLong'];
-        //   console.log('$date',dataPrimitiv);
-        // }
-
-        // console.log('PRIMITIV',dataPrimitiv );
         resolve({
           frag: {
             data: dataPrimitiv,
-            rootFrag: frag.rootFrag
+            rootFrag: frag.rootFrag,
+            originFrag: frag.originFrag,
+            branchFrag: frag.branchFrag,
+            branchOriginFrag: frag.branchOriginFrag
           },
           key: key
         });
@@ -354,10 +309,10 @@ module.exports = {
             console.log('persistReadyFargs undefined');
           }
           persistReadyFargs = persistReadyFargs.forEach(persistReadyFarg => {
-            if (!(persistReadyFarg.frag.data instanceof Object)) {
-              // console.log('XXXXXXXXXX persistReadyFarg UNPERSIST',persistReadyFarg.frag);
-              unpersistReadyFrags.push(persistReadyFarg.frag);
-            } else {
+            // if (!(persistReadyFarg.frag.data instanceof Object)) {
+            //   // console.log('XXXXXXXXXX persistReadyFarg UNPERSIST',persistReadyFarg.frag);
+            //   unpersistReadyFrags.push(persistReadyFarg.frag);
+            // } else {
               if (persistReadyFarg.frag._id == undefined) {
 
                 const fragmentModelInstance = this.fragmentModel.getInstance().model;
@@ -369,7 +324,7 @@ module.exports = {
                 // console.log('XXXXXXXXXX persistReadyFarg UPDATE',persistReadyFarg.frag);
                 updateReadyFrags.push(persistReadyFarg.frag);
               }
-            }
+            // }
 
           })
 
@@ -386,14 +341,14 @@ module.exports = {
               new: true
             }).lean().exec();
           })
-          let unpersistPromiseStack = new Promise((resolve, reject) => {
-            resolve(unpersistReadyFrags)
-          })
+          // let unpersistPromiseStack = new Promise((resolve, reject) => {
+          //   resolve(unpersistReadyFrags)
+          // })
           // console.log('# persist final frags');
-          return Promise.all([insertPromiseStack, updatePromisesStack, unpersistPromiseStack]);
+          return Promise.all([insertPromiseStack, updatePromisesStack, ]);
         }).then(insertedAndUpdatedFrags => {
           // console.log('# build out');
-          let out = insertedAndUpdatedFrags[0].concat(insertedAndUpdatedFrags[1]).concat(insertedAndUpdatedFrags[2]);
+          let out = insertedAndUpdatedFrags[0].concat(insertedAndUpdatedFrags[1]);
           // console.log('out',JSON.stringify(out));
           if (forceArray) {
             out = out[0];
