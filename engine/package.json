@@ -84,7 +84,7 @@
     "recluster": "^0.4.5",
     "request": "^2.88.0",
     "sequelize": "^5.21.2",
-    "sheetrock": "^1.1.4",
+    "sheetrock": "^1.2.0",
     "sift": "^8.5.0",
     "sift-date": "0.0.1",
     "solid-auth-cli": "^1.0.14",
