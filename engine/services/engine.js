@@ -324,9 +324,8 @@ class Engine {
               }
               await this.historicEndAndCredit(processingNode, startTime, undefined, err)
               this.processNextBuildPath('flow ko')
-            }
 
-            if (dataFlow != undefined && primaryflow == undefined) {
+            } else if (dataFlow != undefined && primaryflow == undefined) {
               let err = new Error('primary flow could not be identified')
               processingNode.status = 'error'
               processingNode.dataResolution = {
@@ -334,6 +333,7 @@ class Engine {
               }
               await this.historicEndAndCredit(processingNode, startTime, undefined, err)
               this.processNextBuildPath('flow ko')
+
             } else {
               // console.log('primaryflow',primaryflow);
               if (dataFlow != undefined && (primaryflow.dfob != undefined || primaryflow.deeperFocusData)) {
