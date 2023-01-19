@@ -45,10 +45,16 @@
       this.data = data;
       this.update();
       if (this.refs.jsonFragViewer) {
-        if (data.error != undefined) {
-          this.refs.jsonFragViewer.data = data.error;
-        } else {
-          this.refs.jsonFragViewer.data = data.data;
+        if(data !== undefined){
+          if(data.error !== undefined){
+            this.refs.jsonFragViewer.data = data.error;
+          }
+          else {
+            this.refs.jsonFragViewer.data = data.data;
+          }
+        }
+        else {
+          this.refs.jsonFragViewer.data = undefined;
         }
       }
 

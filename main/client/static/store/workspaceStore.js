@@ -1040,14 +1040,16 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     })
     this.subscription_workflow_processCleaned = this.stompClient.subscribe('/topic/workflow-processCleaned.' + this.workspaceCurrent._id, message => {
       let body = JSON.parse(message.body)
-      this.processCollection = sift({
-        _id: {
-          $in: body.cleanedProcesses.map(p => p._id)
-        }
-      },
-      this.processCollection
-      )
-      this.trigger('workspace_current_process_changed', this.processCollection)
+      if(body && body.cleanedProcesses){
+        this.processCollection = sift({
+          _id: {
+            $in: body.cleanedProcesses.map(p => p._id)
+          }
+        },
+        this.processCollection
+        )
+        this.trigger('workspace_current_process_changed', this.processCollection)
+      }
     })
     this.subscription_workspace_current_process_persist = this.stompClient.subscribe('/topic/process-persist.' + this.workspaceCurrent._id, message => {
       let body = JSON.parse(message.body)
