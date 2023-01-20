@@ -11,7 +11,7 @@
   "license": "GNUV3",
   "dependencies": {
     "@types/webdriverio": "^5.0.0",
-    "amqplib": "^0.5.2",
+    "amqplib": "^0.10.3",
     "async": "^3.1.0",
     "bcrypt": "^5.1.0",
     "bcryptjs": "^2.4.3",
@@ -30,7 +30,7 @@
     "eslint-plugin-standard": "4.0.0",
     "express": "^4.17.3",
     "follow-redirects": "^1.4.1",
-    "helmet": "^3.6.1",
+    "helmet": "^6.0.1",
     "http": "0.0.0",
     "https": "latest",
     "intl": "^1.2.5",
