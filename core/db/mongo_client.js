@@ -22,6 +22,10 @@ class MongoClient {
     if(conStr.includes('tls')||conStr.includes('ssl')){
       option.ssl=true
     }
+    // allows us to use the ancient mongo string parser
+    // and the past server discovery and monitoring engine
+    option.useNewUrlParser=true;
+    option.useUnifiedTopology=true;
     // console.log()
     const db = this.mongoose.createConnection(conStr,option);
     // CONNECTION EVENTS
