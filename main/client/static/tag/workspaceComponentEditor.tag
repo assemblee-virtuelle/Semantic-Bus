@@ -15,7 +15,7 @@
     <!--  boutons des tabs  -->
   <div class="tab">
     <button id="generalBtn" class="tablinks active" onclick={openTab}>General</button>
-    <div class="tablinksContainer">
+    <div if={showDfTab} class="tablinksContainer">
       <button id="deeperFocusBtn" class="tablinks" onclick={openTab}>DeeperFocus</button>
       <label id="dfSwitchBtn" class="cardInput tablinks" style="justify-content:flex-start;">
         <span class="switch">
@@ -84,6 +84,7 @@
     this.itemCurrent = {};
     this.data = {};
     this.data.deeperFocusData = {};
+    this.showDfTab = true;
 
      // code lié au deeper-focus
     dfobPathChange(e) {
@@ -99,6 +100,10 @@
       this.itemCurrent.deeperFocusData.activateDf = e.target.checked;
     }
     this.updateData = function (itemCurrent) {
+      //if the component is a deeper focus we remove the deeper focus tab added to every component
+      if(this.itemCurrent.module == "deeperFocusOpeningBracket" || this.itemCurrent.type == "Deeper Focus"){
+        this.showDfTab = false;
+      } 
       if(! this.itemCurrent.deeperFocusData) {
         this.itemCurrent.deeperFocusData = {};
       }
