@@ -110,4 +110,4 @@ volumes:
 networks:
   bus:
     name: bus_network
-    external: true
+    # external: true
