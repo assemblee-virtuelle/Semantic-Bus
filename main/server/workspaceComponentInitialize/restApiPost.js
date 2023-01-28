@@ -142,7 +142,7 @@ class RestApiPost {
                           // return ('type mime non géré')
                         }
                       } else {
-                        console.log('ERROR');
+                        console.log('ERROR content-type have to be set');
                         res.status(400).send(`content-type have to be set`)
                         // return ('type mime non géré')
                       }

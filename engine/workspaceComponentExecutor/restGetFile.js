@@ -19,7 +19,7 @@ class HttpGet {
         port: parsedUrl.port,
         method: 'get',
         headers: {
-          Accept: 'text/plain, application/xml , application/ld+json, text/csv',
+          Accept: 'application/json, application/xml, application/ld+json, text/csv, text/plain,',
           'user-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0'
         }
       }

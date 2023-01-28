@@ -19,7 +19,7 @@ function _extension(filename, contentType) {
       //console.log(filename.match(reg)[0])
       //let matchArray=filename.match(reg);
       //console.log(filename.match(reg));
-      var regex = /\.([^\.]*)/g;
+      var regex = /\.(\w*)/g;
       let matches = filename.match(regex);
       // var reg = new RegExp(regex, 'g');
       // let regResult = reg.exec(filename)
@@ -66,7 +66,6 @@ function _buildFile(filename, dataString, dataBuffer, out, contentType) {
 function _type_file(filename, dataString, dataBuffer, out, contentType) {
   //console.log("in aggregate function")
   return _extension(filename, contentType).then(function(extension) {
-    // console.log(extension);
     return new Promise(function(resolve, reject) {
       if (out == true || out == 'true') {
         //console.log(out)
