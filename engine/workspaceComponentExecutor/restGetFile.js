@@ -9,9 +9,9 @@ class HttpGet {
     this.stringReplacer = require('../utils/stringReplacer.js')
   }
 
-  makeRequest (methodRest, urlString, contentType, pullParams) {
+  makeRequest (methodRest, urlString, contentType, flowData, pullParams) {
     return new Promise((resolve, reject) => {
-      urlString = this.stringReplacer.execute(urlString, pullParams, undefined)
+      urlString = this.stringReplacer.execute(urlString, pullParams, flowData?flowData[0].data:undefined)
       const parsedUrl = this.url.parse(urlString)
       const requestOptions = {
         hostname: parsedUrl.hostname,
@@ -64,7 +64,7 @@ class HttpGet {
   }
 
   pull (data, flowdata, pullParams) {
-    return this.makeRequest('GET', data.specificData.url, data.specificData.contentType, pullParams)
+    return this.makeRequest('GET', data.specificData.url, data.specificData.contentType,flowdata, pullParams)
   }
 }
 module.exports = new HttpGet()
