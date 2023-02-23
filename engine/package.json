@@ -83,7 +83,7 @@
     "rdf-serializer-jsonld-ext": "^1.4.0",
     "recluster": "^0.4.5",
     "request": "^2.88.0",
-    "sequelize": "^5.21.2",
+    "sequelize": "^6.28.2",
     "sheetrock": "^1.1.4",
     "sift": "^8.5.0",
     "sift-date": "0.0.1",
