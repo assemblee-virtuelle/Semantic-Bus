@@ -124,6 +124,7 @@
     }
 
     this.mountEdition = function (editor) {
+      console.log("here hereeee  ",editor);
       this.editionContainer = riot.mount('#editionContainer', editor)[0];
     };
 

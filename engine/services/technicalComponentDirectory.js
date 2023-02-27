@@ -25,6 +25,7 @@ module.exports = {
   httpGet: require('../workspaceComponentExecutor/restGetFile.js'),
   sqlConnector: require('../workspaceComponentExecutor/sqlConnecteur.js'),
   mongoConnector: require('../workspaceComponentExecutor/MongoDB.js'),
+  influxdbConnector: require('../workspaceComponentExecutor/influxdb.js'),
   sparqlRequest: require('../workspaceComponentExecutor/sparqlRequest.js'),
   valueMapping: require('../workspaceComponentExecutor/valueMapping.js'),
   timer: require('../workspaceComponentExecutor/timer.js'),
