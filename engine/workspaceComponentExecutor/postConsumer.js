@@ -42,7 +42,8 @@ class PostConsumer {
           let responseObject = await response.json();
           // console.log('responseObject',responseObject);
           resolve(this.propertyNormalizer.execute(responseObject))
-        } else {
+        }
+        else {
           reject(new Error('unsuported content-type :' + contentType))
         }
       } catch (e) {
@@ -78,7 +79,13 @@ class PostConsumer {
         let body;
 
         if(componentConfig.noBody!=true && flowData){
+          console.log("here ",flowData[0].data);
           switch (componentConfig.contentType) {
+            case 'text/plain':
+              body = flowData[0].data
+              // "airSensors,sensor_id=TLM0201";
+              break;
+              //console.log("new here ! ",flowData[0].data);
             case 'application/json':
             case 'application/ld+json':
               body = JSON.stringify(flowData[0].data);
@@ -108,7 +115,6 @@ class PostConsumer {
 
         // console.log('headers',headers);
         // console.log('BEFORE CALL');
-
         this.call_url(url, {
           method: componentConfig.method||'GET',
           body: body,

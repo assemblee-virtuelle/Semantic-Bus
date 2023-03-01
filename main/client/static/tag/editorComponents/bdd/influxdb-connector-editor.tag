@@ -13,10 +13,45 @@
   <div>
     <div class="bar"/>
   </div>
+  <!-- Champ du composant -->
+  <label class="labelFormStandard">Nom de la mesure:</label>
+  <div class="cardInput">
+    <input class="inputComponents" type="text" ref="measurement" value={data.specificData.measurement} placeholder="electricitySensors" onchange={measurementChange}/>
+  </div>
+  <label class="labelFormStandard">Champs d'id:</label>
+  <div class="cardInput">
+    <input class="inputComponents" type="text" ref="fieldset" value={data.specificData.fieldset} onchange={fieldsetChange}/>
+  </div>
+  <label class="labelFormStandard">Champs contenant le timestamp:</label>
+  <div class="cardInput">
+    <input class="inputComponents" type="text" ref="timestamp" value={data.specificData.timestamp} onchange={timestampChange}/>
+  </div>
 
 <script>
+
+  this.data = {};
+  this.data.specificData= {};
+  this.data.specificData.measurement = '';
+  this.data.specificData.fieldset = '';
+  this.data.specificData.timestamp = '';
+
+  measurementChange(e) {
+      this.data.specificData.measurement = e.target.value;
+  }
+
+  fieldsetChange(e) {
+    this.data.specificData.fieldset = e.target.value;
+  }
+
+  timestampChange(e) {
+    this.data.specificData.timestamp = e.target.value;
+  }
+
   this.updateData=function(dataToUpdate){
-    this.data=dataToUpdate;
+    this.data = dataToUpdate;
+    this.refs.timestamp.data = this.data.specificData.timestamp;
+    this.refs.fieldset.data = this.data.specificData.fielset;
+    this.refs.measurement.data = this.data.specificData.measurement;
     this.update();
   }.bind(this);
 
@@ -24,7 +59,7 @@
     RiotControl.on('item_current_changed',this.updateData);
   });
   this.on('unmount', function () {
-    RiotControl.off('item_current_changed',this.updateData);
+    RiotControl.off('item_current_changed', this.updateData);
   });
 </script>
 
