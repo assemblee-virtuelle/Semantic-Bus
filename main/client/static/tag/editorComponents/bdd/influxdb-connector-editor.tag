@@ -20,7 +20,7 @@
   </div>
   <label class="labelFormStandard">Champs d'id:</label>
   <div class="cardInput">
-    <input class="inputComponents" type="text" ref="fieldset" value={data.specificData.fieldset} onchange={fieldsetChange}/>
+    <input class="inputComponents" type="text" ref="tagKey" value={data.specificData.tagKey} onchange={tagChange}/>
   </div>
   <label class="labelFormStandard">Champs contenant le timestamp:</label>
   <div class="cardInput">
@@ -32,15 +32,15 @@
   this.data = {};
   this.data.specificData= {};
   this.data.specificData.measurement = '';
-  this.data.specificData.fieldset = '';
+  this.data.specificData.tagKey = '';
   this.data.specificData.timestamp = '';
 
   measurementChange(e) {
       this.data.specificData.measurement = e.target.value;
   }
 
-  fieldsetChange(e) {
-    this.data.specificData.fieldset = e.target.value;
+  tagChange(e) {
+    this.data.specificData.tagKey = e.target.value;
   }
 
   timestampChange(e) {
@@ -50,7 +50,7 @@
   this.updateData=function(dataToUpdate){
     this.data = dataToUpdate;
     this.refs.timestamp.data = this.data.specificData.timestamp;
-    this.refs.fieldset.data = this.data.specificData.fielset;
+    this.refs.tagKey.data = this.data.specificData.tagKey;
     this.refs.measurement.data = this.data.specificData.measurement;
     this.update();
   }.bind(this);
