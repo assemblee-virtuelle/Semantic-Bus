@@ -14,18 +14,30 @@
     <div class="bar"/>
   </div>
   <!-- Champ du composant -->
+  <!--  Nom de la mesure  -->
   <label class="labelFormStandard">Nom de la mesure:</label>
   <div class="cardInput">
     <input class="inputComponents" type="text" ref="measurement" value={data.specificData.measurement} placeholder="electricitySensors" onchange={measurementChange}/>
   </div>
-  <label class="labelFormStandard">Champs d'id:</label>
-  <div class="cardInput">
-    <input class="inputComponents" type="text" ref="tagKey" value={data.specificData.tagKey} onchange={tagChange}/>
-  </div>
+  <!--  Timestamp  -->
   <label class="labelFormStandard">Champs contenant le timestamp:</label>
   <div class="cardInput">
     <input class="inputComponents" type="text" ref="timestamp" value={data.specificData.timestamp} onchange={timestampChange}/>
   </div>
+  <!--  Champs d'id  -->
+  <label class="labelFormStandard">Champs d'id:</label>
+  <div class="cardInput">
+    <div onclick={addRowClick} class="btnFil commandButtonImage">
+        Ajouter
+        <img class="imgFil" src="./image/ajout_composant.svg" title="Importer un Workflow">
+        <input onchange={import} ref="import" type="file" style="display:none;"/>
+      </div>
+    </div>
+    <zentable ref="headerTable" title="header de la requete" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
+      <yield to="row">
+        <input placeholder="Tag" type="text" style="flex-basis:90%; margin: 5px" value={tag} data-field="tag"/>
+      </yield>
+    </zentable>
 
 <script>
 
@@ -34,9 +46,16 @@
   this.data.specificData.measurement = '';
   this.data.specificData.tagKey = '';
   this.data.specificData.timestamp = '';
+  this.data.specificData.headers = [];
+
+  //beggining of code for the input section
+  addRowClick(e) {
+    this.refs.headerTable.data.push({})
+  }
+  //end of code for the input section
 
   measurementChange(e) {
-      this.data.specificData.measurement = e.target.value;
+    this.data.specificData.measurement = e.target.value;
   }
 
   tagChange(e) {
@@ -49,18 +68,31 @@
 
   this.updateData=function(dataToUpdate){
     this.data = dataToUpdate;
+    this.refs.headerTable.data = this.data.specificData.headers;
     this.refs.timestamp.data = this.data.specificData.timestamp;
-    this.refs.tagKey.data = this.data.specificData.tagKey;
     this.refs.measurement.data = this.data.specificData.measurement;
+    this.refs.headerTable.data = this.data.specificData.headers || [];
     this.update();
   }.bind(this);
 
   this.on('mount', function () {
+    this.refs.headerTable.on('dataChanged', data => {
+      this.data.specificData.headers = data;
+    });
+    this.refs.headerTable.on('delRow', row => {
+        this.refs.headerTable.data.splice(row.rowid, 1);
+      });
     RiotControl.on('item_current_changed',this.updateData);
   });
   this.on('unmount', function () {
     RiotControl.off('item_current_changed', this.updateData);
   });
 </script>
+
+<style>
+.hide {
+  display: none;
+}
+</style>
 
 </influxdb-connector-editor>

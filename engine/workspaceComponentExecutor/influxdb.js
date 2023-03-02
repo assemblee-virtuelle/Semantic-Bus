@@ -25,9 +25,11 @@ class InfluxdbConnector {
     - on met toutes les variables restantes dans les fieldsets !
     */
 
-  stringDataBuilder(jsonData,data,fieldsetString) {
+  stringDataBuilder(jsonData,data,fieldsetString,tagString) {
     // you should refer to the pages on the influxdb line protocol
     // https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#naming-restrictions
+
+    // tester ce qu'il se passe sans tag entré // avec un seul tag entré
 
     // const keys = Object.keys(jsonData);
     // const values = Object.values(jsonData)
@@ -37,12 +39,6 @@ class InfluxdbConnector {
     // influxdb data type = string
     const measurementName = data.measurement;
 
-    // influxdb data type = string
-    // optional
-    const tagKeys = data.tagKey + '=' + jsonData[data.tagKey];
-    // console.log('test : ',jsonData[data.tagKey]);
-    // influxdb data type = string,float,integer,UInteger,String,Boolean
-    //
     //const fieldSet = "acpowerphase=" + jsonData.acpowerphase ;
     const fieldSet = fieldsetString;
     // the timestamp needs to be in the ISO format
@@ -57,10 +53,12 @@ class InfluxdbConnector {
         timestamp+="0";
       }
     }
-    console.log('time : ',date.getTime());
+    // console.log('time : ',date.getTime());
 
-    const result = measurementName + ',' +
-    tagKeys
+    const result = measurementName +
+    // influxdb data type = string
+    // optional
+    tagString
     // the blank space separates the measurement
     // name and tag set from the field set
     + " " +
@@ -68,9 +66,9 @@ class InfluxdbConnector {
     // "," + "sapdatecode" + jsonData.sapedatecode + ","+
     fieldSet
     + " "+
-    timestamp +
+    timestamp + " "
     // each data is a line separated by a /n
-    '\n';
+    "\n";
     return result
   }
 
@@ -80,14 +78,27 @@ class InfluxdbConnector {
     for (let index = 0; index < fields.length; index++) {
       const field = fields[index];
       const field_value = jsonData[field];
-      console.log("field : ",field,"value : ",field_value);
+      // console.log("field : ",field,"value : ",field_value);
       fieldsetString += (field + "=" + field_value);
       if(index != (fields.length-1)){
         fieldsetString += ","
       }
     }
-    console.log("final fieldString : ",fieldsetString);
+    // console.log("fitag : ",fieldsetString);
     return fieldsetString
+  }
+
+  tagStringBuilder(jsonData,tags){
+    let tagString = '';
+    for (let index = 0; index < tags.length; index++) {
+      const tag = tags[index];
+      const tag_value = jsonData[tag];
+      // console.log("tag : ",tag,"value : ",tag_value);
+      tagString += ("," + tag + "=" + tag_value);
+    }
+    //console.log("final tagString : ",tagString);
+    return tagString
+
   }
 
   getRemainingFields(jsonData,currentFields){
@@ -109,6 +120,25 @@ class InfluxdbConnector {
     return remainingFields
   }
 
+  setTagData(data){
+    const componentConfig = data.specificData;
+    let headers=[];
+    if (componentConfig.headers != undefined) {
+      for (let header of componentConfig.headers) {
+        try {
+          // console.log('test : ',header.tag);
+          headers.push(header.tag);
+        } catch (e) {
+          if (this.config != undefined && this.config.quietLog != true) {
+            console.log(e.message);
+          }
+        }
+      }
+    }
+
+    return headers
+  }
+
   pull (data, flowData, pullParams) {
     return new Promise((resolve, reject) => {
       try {
@@ -116,22 +146,33 @@ class InfluxdbConnector {
         // console.log("data tagKey : ",data.specificData.tagKey);
         // console.log("data timestamp : ",data.specificData.timestamp);
 
+        const tags = this.setTagData(data);
+        // console.log("tags : ",tags);
+
         if(!(data.specificData.tagKey && data.specificData.measurement)){
           throw new Error("Il faut fournir un champs d'id et le nom de la mesure à minima.");
         }
-        // const currentFields = {
-        //   [data.specificData.timestamp] : "timestamp",
-        //   [data.specificData.tagKey] : "tagKey" ,
-        //   [data.specificData.measurement] : "measurement"
-        // };
-        const inputFields = [data.specificData.timestamp,data.specificData.tagKey,
-          data.specificData.measurement];
+
+        // every field entered by the user
+        const inputFields = [data.specificData.timestamp];
+        if(tags.length != 0){
+          inputFields.push(...tags);
+        }
+
+        // console.log("inputfi ", inputFields);
 
         const jsonData = flowData[0].data;
         const fields = this.getRemainingFields(jsonData,inputFields);
+
+        // console.log("remaining strings : ",fields);
+
         const fieldsetString = this.fieldsetStringBuilder(jsonData,fields);
-        const result = this.stringDataBuilder(jsonData,data.specificData,fieldsetString);
-        console.log("fields : ",fields);
+        console.log("before tagstring");
+        const tagString = this.tagStringBuilder(jsonData,tags);
+        // console.log("tagstring : ",tagString);
+
+        const result = this.stringDataBuilder(jsonData,data.specificData,fieldsetString,tagString);
+        console.log("result : ",result);
         resolve({
           data: result
         })
