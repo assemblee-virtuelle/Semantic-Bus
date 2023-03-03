@@ -2,61 +2,44 @@
 
 class InfluxdbConnector {
   constructor () {
-    this.dotProp = require('dot-prop')
-    this.schema = null
-    this.modelShema = null
-    this.stepNode = false
-    this.PromiseOrchestrator = require('../../core/helpers/promiseOrchestrator.js')
-    this.ArraySegmentator = require('../../core/helpers/ArraySegmentator.js')
-    this.stringReplacer = require('../utils/stringReplacer.js'),
-    this.ObjectID = require('bson').ObjectID
+    this.config = require('../configuration.js');
   }
 
-      /* TODO :
-    - gérer le fait que les variables ne doivent pas commencer par "_" ou "time"
-    - gérer fait que strings soient entourées d'un " " pour les fieldset
-    - fieldset, measurement obligatoire
-    - si timestamp non fourni, timestamp du serveur fourni ???
-    - gestion erreurs try/catch
+    /* TODO :
+    - gérer les types : strings dans les fieldset entourées de " " + dates
 
-    - compression gzip requête http post
-
-      PARTI PRIS ->>>
-    - on met toutes les variables restantes dans les fieldsets !
-    */
+    optimisation :
+    - batchs de 5000 lignes
+    - ordonner les tags par clé ordre lexicographique
+    - compression gzip requête http post -> créer composant gzip ?
+  */
 
   stringDataBuilder(jsonData,data,fieldsetString,tagString) {
     // you should refer to the pages on the influxdb line protocol
     // https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#naming-restrictions
 
-    // tester ce qu'il se passe sans tag entré // avec un seul tag entré
-
-    // const keys = Object.keys(jsonData);
-    // const values = Object.values(jsonData)
-    // console.log("keys : ",keys);
-    // console.log("values : ",values);
-
     // influxdb data type = string
     const measurementName = data.measurement;
 
-    //const fieldSet = "acpowerphase=" + jsonData.acpowerphase ;
     const fieldSet = fieldsetString;
+
     // the timestamp needs to be in the ISO format
     // like this : ,               1654940402000, the influxISO format
     //     1677687240000 13
     // has 6 more 0s at the end -> 1422568543702900257 19
-    const date = new Date(jsonData[data.timestamp]);
-    let timestamp = date.getTime().toString();
-    if(timestamp.length < 19){
-      const nberOfZerosToAdd = 19 - timestamp.length;
-      for (let index = 0; index < nberOfZerosToAdd; index++) {
-        timestamp+="0";
+    let timestamp = '';
+    if(jsonData[data.timestamp]){
+      const date = new Date(jsonData[data.timestamp]);
+      timestamp = date.getTime().toString();
+      if(timestamp.length < 19){
+        const nberOfZerosToAdd = 18 - timestamp.length;
+        for (let index = 0; index < nberOfZerosToAdd; index++) {
+          timestamp+="0";
+        }
       }
     }
-    // console.log('time : ',date.getTime());
 
-    const result = measurementName +
-    // influxdb data type = string
+    let result = measurementName +
     // optional
     tagString
     // the blank space separates the measurement
@@ -64,11 +47,15 @@ class InfluxdbConnector {
     + " " +
     // "saprevision=" + jsonData.saprevision +
     // "," + "sapdatecode" + jsonData.sapedatecode + ","+
-    fieldSet
-    + " "+
-    timestamp + " "
+    fieldSet;
+
+    if(timestamp){
+      result += " "+ timestamp
+    }
+
     // each data is a line separated by a /n
-    "\n";
+    result += + " " + "\n";
+
     return result
   }
 
@@ -121,13 +108,13 @@ class InfluxdbConnector {
   }
 
   setTagData(data){
-    const componentConfig = data.specificData;
-    let headers=[];
-    if (componentConfig.headers != undefined) {
-      for (let header of componentConfig.headers) {
+    let tags=[];
+    // console.log("tagstable : ",data.tags);
+    if (data.tags != undefined) {
+      for (let tag of data.tags) {
         try {
           // console.log('test : ',header.tag);
-          headers.push(header.tag);
+          tags.push(tag.tag);
         } catch (e) {
           if (this.config != undefined && this.config.quietLog != true) {
             console.log(e.message);
@@ -136,22 +123,19 @@ class InfluxdbConnector {
       }
     }
 
-    return headers
+    return tags
   }
 
   pull (data, flowData, pullParams) {
     return new Promise((resolve, reject) => {
       try {
-        // console.log("data measurement : ",data.specificData.measurement);
-        // console.log("data tagKey : ",data.specificData.tagKey);
-        // console.log("data timestamp : ",data.specificData.timestamp);
+        const jsonData = flowData[0].data;
 
-        const tags = this.setTagData(data);
-        // console.log("tags : ",tags);
-
-        if(!(data.specificData.tagKey && data.specificData.measurement)){
-          throw new Error("Il faut fournir un champs d'id et le nom de la mesure à minima.");
+        if(!(data.specificData && data.specificData.measurement)){
+          reject(new Error("Il faut fournir le nom de la mesure"))
         }
+
+        const tags = this.setTagData(data.specificData);
 
         // every field entered by the user
         const inputFields = [data.specificData.timestamp];
@@ -159,15 +143,33 @@ class InfluxdbConnector {
           inputFields.push(...tags);
         }
 
-        // console.log("inputfi ", inputFields);
-
-        const jsonData = flowData[0].data;
         const fields = this.getRemainingFields(jsonData,inputFields);
 
+        if(!(fields.length > 0)){
+          reject(new Error("Il faut qu'il y ait au moins un champs en entrée (field)."))
+        }
+
+        // array containing every used field :
+        const everyField = Array.from(fields);
+        everyField.push(...inputFields);
+        everyField.push(data.specificData.measurement);
+        console.log("everyfield : ",everyField.toString());
+
+        for (let index = 0; index < everyField.length; index++) {
+          const element = everyField[index];
+          // console.log("element : ",index," : ",element);
+          // https://docs.influxdata.com/influxdb/v1.8/write_protocols/line_protocol_tutorial/
+          if(element && (element == "_field" || element == "measurement" || element == "time")){
+            reject(new Error("Un nom de champs s'appelle time ou _field ou _measurement."))
+          }
+
+        }
+
+        // console.log("inputfi ", inputFields);
         // console.log("remaining strings : ",fields);
 
         const fieldsetString = this.fieldsetStringBuilder(jsonData,fields);
-        console.log("before tagstring");
+        // console.log("before tagstring");
         const tagString = this.tagStringBuilder(jsonData,tags);
         // console.log("tagstring : ",tagString);
 

@@ -33,7 +33,7 @@
         <input onchange={import} ref="import" type="file" style="display:none;"/>
       </div>
     </div>
-    <zentable ref="headerTable" title="header de la requete" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
+    <zentable ref="tagsTable" title="tag(s) a choisir" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
       <yield to="row">
         <input placeholder="Tag" type="text" style="flex-basis:90%; margin: 5px" value={tag} data-field="tag"/>
       </yield>
@@ -46,11 +46,11 @@
   this.data.specificData.measurement = '';
   this.data.specificData.tagKey = '';
   this.data.specificData.timestamp = '';
-  this.data.specificData.headers = [];
+  this.data.specificData.tags = [];
 
   //beggining of code for the input section
   addRowClick(e) {
-    this.refs.headerTable.data.push({})
+    this.refs.tagsTable.data.push({})
   }
   //end of code for the input section
 
@@ -68,19 +68,19 @@
 
   this.updateData=function(dataToUpdate){
     this.data = dataToUpdate;
-    this.refs.headerTable.data = this.data.specificData.headers;
+   // this.refs.tagsTable.data = this.data.specificData.tags;
     this.refs.timestamp.data = this.data.specificData.timestamp;
     this.refs.measurement.data = this.data.specificData.measurement;
-    this.refs.headerTable.data = this.data.specificData.headers || [];
+    this.refs.tagsTable.data = this.data.specificData.tags || [];
     this.update();
   }.bind(this);
 
   this.on('mount', function () {
-    this.refs.headerTable.on('dataChanged', data => {
-      this.data.specificData.headers = data;
+    this.refs.tagsTable.on('dataChanged', data => {
+      this.data.specificData.tags = data;
     });
-    this.refs.headerTable.on('delRow', row => {
-        this.refs.headerTable.data.splice(row.rowid, 1);
+    this.refs.tagsTable.on('delRow', row => {
+        this.refs.tagsTable.data.splice(row.rowid, 1);
       });
     RiotControl.on('item_current_changed',this.updateData);
   });
