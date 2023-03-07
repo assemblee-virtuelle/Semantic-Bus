@@ -35,59 +35,65 @@ class UnicityExecutor {
         let filter = {
           key: {}
         }
-        let source
 
-        let newValues = {}
-        let sourcedData = {}
-        for (let key in record) {
-          // console.log(key, this.specificData.source);
-          if (key == this.specificData.source) {
-            source = record[key]
+        if ((typeof record === 'string' || record instanceof String)&&(this.specificData.unicityFields==undefined || this.specificData.unicityFields.length==0)){
+          let everExistingData= this.globalOut.find(o=>o===record)
+          if(!everExistingData){
+            this.globalOut.push(record);
           }
-          let keysInUnicity = []
-          if (this.specificData.unicityFields != undefined) {
-            keysInUnicity =this.specificData.unicityFields.filter(this.sift({
-              field: key
-            }));
+        }else{
+          let sourcedData = {}
+          for (let key in record) {
+            // console.log(key, this.specificData.source);
+            // if (key == this.specificData.source) {
+            //   source = record[key]
+            // }
+            let keysInUnicity = []
+            if (this.specificData.unicityFields != undefined) {
+              keysInUnicity =this.specificData.unicityFields.filter(this.sift({
+                field: key
+              }));
+            }
+            // console.log('keysInUnicity',key,keysInUnicity);
+            if (keysInUnicity.length > 0) {
+              filter.key[key] = record[key]
+            } else {
+              sourcedData[key] = [{
+                // source: source,
+                value: record[key]
+              }]
+            }
+            // }
           }
-          // console.log('keysInUnicity',key,keysInUnicity);
-          if (keysInUnicity.length > 0) {
-            filter.key[key] = record[key]
-          } else {
-            sourcedData[key] = [{
-              source: source,
-              value: record[key]
-            }]
-          }
-          // }
-        }
-        // console.log('filter',source,filter);
-
-        if (Object.keys(filter.key).length !== 0) {
-          let everExistingData = this.globalOut.filter(this.sift(filter));
-          if (everExistingData.length > 0) {
-            // console.log('everExistingData', this.globalOut.indexOf(everExistingData[0]), filter);
-            for (let key in sourcedData) {
-
-              if (everExistingData[0].data[key] == undefined) {
-                // console.log('new key in data', recordKey, key);
-                everExistingData[0].data[key] = []
+          // console.log('filter',source,filter);
+  
+          if (Object.keys(filter.key).length !== 0) {
+            let everExistingData = this.globalOut.filter(this.sift(filter));
+            if (everExistingData.length > 0) {
+              // console.log('everExistingData', this.globalOut.indexOf(everExistingData[0]), filter);
+              for (let key in sourcedData) {
+  
+                if (everExistingData[0].data[key] == undefined) {
+                  // console.log('new key in data', recordKey, key);
+                  everExistingData[0].data[key] = []
+                }
+                everExistingData[0].data[key].push(sourcedData[key][0])
+                //console.log('ALLO2');
               }
-              everExistingData[0].data[key].push(sourcedData[key][0])
-              //console.log('ALLO2');
+            } else {
+              this.globalOut.push({
+                key: filter.key,
+                data: sourcedData
+              })
             }
           } else {
             this.globalOut.push({
-              key: filter.key,
+              key: undefined,
               data: sourcedData
             })
           }
-        } else {
-          this.globalOut.push({
-            key: undefined,
-            data: sourcedData
-          })
         }
+       
         resolve()
       }, 1)
     })
