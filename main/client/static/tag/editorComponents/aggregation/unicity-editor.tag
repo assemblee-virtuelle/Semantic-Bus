@@ -14,10 +14,6 @@
   <div>
     <div class="bar"/>
   </div>
-  <label class="labelFormStandard">Champ de source:</label>
-  <div class="cardInput">
-    <input class="inputComponents" type="text" value={data.specificData.source} onkeyup={onSourceChange}>
-  </div>
   <label class="labelFormStandard">Ajouter un champs d'unicité</label>
   <div class="cardInput">
     <div onclick={addRow} class="btnFil commandButtonImage">
@@ -44,10 +40,6 @@
 
     this.addRow = function (e) {
       this.refs.unicityTableRef.data.push({})
-    }.bind(this);
-
-    this.onSourceChange = function (e) {
-      this.data.specificData.source = e.target.value;
     }.bind(this);
 
     this.on('mount', function () {
