@@ -215,6 +215,7 @@ function _getWithRelations(userID,config) {
           const InversRelationWorkspaces = await workspaceModel.getInstance().model.find({
             "users.email":data.credentials.email
           }).lean().exec();
+          console.log('XXXX InversRelationWorkspaces',InversRelationWorkspaces)
           data.workspaces=InversRelationWorkspaces;
           data.workspaces = data.workspaces.filter(sift({
             _id: {
