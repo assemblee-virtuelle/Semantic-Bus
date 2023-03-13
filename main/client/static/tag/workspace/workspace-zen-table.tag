@@ -16,6 +16,7 @@
         <div class="tableTitleName">STATUS</div>
         <div class="tableTitleName">NOM</div>
         <div class="tableTitleDescription">DESCRITPION</div>
+        <div class="tableTitleName">ROLE</div>
         <div class="tableTitleDate">DATE DE MODIFICATION</div>
         <div class="tableEmpty"/>
       </div>
@@ -33,6 +34,7 @@
       </div>
       <div class="tableRowName">{name}</div>
       <div class="tableRowDescription">{description.slice(0,20)}</div>
+      <div class="tableRowName">{role}</div>
       <div class="tableRowDate">{updatedAt? renderDate(updatedAt): '' }</div>
     </yield>
   </zenTable>

@@ -90,7 +90,7 @@
             </div>
           </a>
           <!-- Workflow Partagé -->
-          <a href="#sharedWorkspaces" class="commandButtonImage {selectedMenu:isScrennInHistory('sharedWorkspaces')} containerV" style="flex-basis:100px;flex-grow:0;position:relative;">
+          <!--  <a href="#sharedWorkspaces" class="commandButtonImage {selectedMenu:isScrennInHistory('sharedWorkspaces')} containerV" style="flex-basis:100px;flex-grow:0;position:relative;">
             <img src="./image/double_dossier.svg" style="" width="35px">
             <div style="text-align:center;padding-top: 5px;font-family: 'Open Sans', sans-serif;color:white;font-size:0.75em">WorkFlow Partagé</div>
             <div if={isScrennInHistory('sharedWorkspaces')} class="containerV" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">
@@ -98,7 +98,7 @@
                 <div class="arrow-left"></div>
               </div>
             </div>
-          </a>
+          </a>  -->
           <!-- <a href="#bigdataflowTable" class="commandButtonImage {selectedMenu:isScrennInHistory('bigdataflowTable')} containerV" style="flex-basis:100px;flex-grow:0;position:relative;">
             <img src="./image/dossier.svg" style="" width="35px">
             <div style="text-align:center;padding-top: 5px;font-family: 'Open Sans', sans-serif;color:white;font-size:0.75em">Big data Flow</div>

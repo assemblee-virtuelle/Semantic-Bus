@@ -231,7 +231,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     return new Promise((resolve, reject) => {
       this.utilStore.ajaxCall({
         method: 'get',
-        url: '../data/core/workspaces/me/owner'
+        url: '../data/core/workspaces/me/all'
       }, true).then(data => {
         this.workspaceCollection = data
         resolve(this.workspaceCollection)

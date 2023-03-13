@@ -16,20 +16,20 @@ class Communication {
       workspace_component_lib.get({
         _id: componentId
       }).then(async (data) => {
-        // const engine = require('../services/engine.js')
-        // engine.execute(data, direction, this.amqpClient, undefined, pushData, queryParams).then(engineResult=>{
-        //   // console.log('engineResult',JSON.stringify(engineResult));
-        //   res.send(engineResult)
-        // }).catch(errors=>{
-        //   let errorsMessages;
-        //   if(Array.isArray(errors)){
-        //     errorsMessages=errors.map(e=>e.message);
-        //   }else{
-        //     errorsMessages=errors.message;
-        //   }
-        //   console.log('error engine',errorsMessages);
-        //   res.status(500).send(errorsMessages);
-        // })
+        const engine = require('../services/engine.js')
+        engine.execute(data, direction, this.amqpClient, undefined, pushData, queryParams).then(engineResult=>{
+          // console.log('engineResult',JSON.stringify(engineResult));
+          res.send(engineResult)
+        }).catch(errors=>{
+          let errorsMessages;
+          if(Array.isArray(errors)){
+            errorsMessages=errors.map(e=>e.message);
+          }else{
+            errorsMessages=errors.message;
+          }
+          console.log('error engine',errorsMessages);
+          res.status(500).send(errorsMessages);
+        })
       }).catch(e=>{
         console.log('error global',e);
         res.status(500).send(e);

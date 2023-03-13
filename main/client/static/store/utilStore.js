@@ -46,6 +46,10 @@ function UtilStore (specificStoreList) {
     })
   }
 
+  this.getCurrentCredentials = function () {
+    const token = localStorage.token;
+  }
+
   this.objectSetFieldValue = function (object, field, value) {
     let fieldArray = field.split('.')
     let currentObject = object

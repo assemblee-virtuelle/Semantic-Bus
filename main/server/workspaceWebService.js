@@ -53,6 +53,17 @@ module.exports = function (router) {
     })
   }) // <= list_shared_workspace
 
+    // ---------------------------------------------------------------------------------
+
+    router.get('/workspaces/me/all', function (req, res, next) {
+      workspace_lib.getAll(UserIdFromToken(req), undefined).then(function (workspaces) {
+        res.json(workspaces)
+      }).catch(e => {
+        next(e)
+      })
+    }) // <= list_shared_workspace
+  
+
   // ---------------------------------------------------------------------------------
 
   router.get('/workspaces/:id/graph', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {

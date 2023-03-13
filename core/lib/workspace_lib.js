@@ -731,9 +731,19 @@ function _get_all(userID, role) {
               role: userOfWorkspace.role
             };
           });
-          const workspaces = data.workspaces.filter(sift({
-            role: role
-          })).map(r => r.workspace);
+          let workspaces;
+          if(role){
+            workspaces= data.workspaces.filter(w=>w.role===role);
+          }else{
+            workspaces=[...data.workspaces];
+          }
+          workspaces=workspaces.map(w=>({
+            ...w.workspace,
+            role:w.role
+          }));
+          // const workspaces = data.workspaces.filter(sift({
+          //   role: role
+          // })).map(r => r.workspace);
 
           const ProcessPromiseArray = [];
 
