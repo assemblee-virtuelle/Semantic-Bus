@@ -413,19 +413,20 @@ module.exports = function (router) {
       workspace_component_lib.create(components).then(function (workspaceComponents) {
         workspace_lib.getWorkspace(req.params.id).then((workspace) => {
           workspace.components = workspace.components.concat(workspaceComponents)
-          workspace_lib.update(workspace).then(workspaceUpdated => {
-            for (var c of components) {
-              if (technicalComponentDirectory[c.module] != null) {
-                // console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
-                c.graphIcon = technicalComponentDirectory[c.module].graphIcon
-              } else {
-                c.graphIcon = 'default'
-              }
-            }
-            res.send(components)
-          }).catch(e => {
-            next(e)
-          })
+          console.log('control workspace',workspace)
+          // workspace_lib.update(workspace).then(workspaceUpdated => {
+          //   for (var c of components) {
+          //     if (technicalComponentDirectory[c.module] != null) {
+          //       // console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
+          //       c.graphIcon = technicalComponentDirectory[c.module].graphIcon
+          //     } else {
+          //       c.graphIcon = 'default'
+          //     }
+          //   }
+          //   res.send(components)
+          // }).catch(e => {
+          //   next(e)
+          // })
         }).catch(e => {
           next(e)
         })
