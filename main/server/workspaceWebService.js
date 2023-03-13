@@ -413,7 +413,7 @@ module.exports = function (router) {
       workspace_component_lib.create(components).then(function (workspaceComponents) {
         workspace_lib.getWorkspace(req.params.id).then((workspace) => {
           workspace.components = workspace.components.concat(workspaceComponents)
-          console.log('control workspace',workspace)
+          console.log('control workspace hihi',workspace)
           // workspace_lib.update(workspace).then(workspaceUpdated => {
           //   for (var c of components) {
           //     if (technicalComponentDirectory[c.module] != null) {
