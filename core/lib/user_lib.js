@@ -202,16 +202,20 @@ function _getWithRelations(userID,config) {
         .findOne({
           _id: userID
         })
-        .populate({
-          path: "workspaces._id",
-          select: "name description"
-        })
-        .populate({
-          path: "bigdataflow._id",
-          select: "name description"
-        })
+        // .populate({
+        //   path: "workspaces._id",
+        //   select: "name description"
+        // })
+        // .populate({
+        //   path: "bigdataflow._id",
+        //   select: "name description"
+        // })
         .lean()
-        .exec((error, data) => {
+        .exec(async (error, data) => {
+          const InversRelationWorkspaces = await workspaceModel.getInstance().model.find({
+            "users.email":data.credentials.email
+          }).lean().exec();
+          data.workspaces=InversRelationWorkspaces;
           data.workspaces = data.workspaces.filter(sift({
             _id: {
               $ne: null
