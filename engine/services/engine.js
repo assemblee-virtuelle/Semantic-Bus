@@ -37,7 +37,7 @@ class Engine {
           });
         this.componentsResolving = components
         let workflow = await this.workspace_lib.getWorkspace(this.originComponent.workspaceId);
-        console.log('workflow',workflow);
+        console.log('workflow',workflow.users);
         this.workflow = workflow;
         console.log(' ---------- Start Engine-----------', this.workflow.name)
         this.workflow.status = 'running';
