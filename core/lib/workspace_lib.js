@@ -902,7 +902,7 @@ function _get_workspace(workspace_id) {
       })
       .lean()
       .exec()
-      .then((workspaceIn) => {
+      .then(async (workspaceIn) => {
         if (workspaceIn == null) {
           return reject(new Error.EntityNotFoundError('workspaceModel'))
         }
@@ -928,26 +928,26 @@ function _get_workspace(workspace_id) {
           }]
         }))
 
-        return userModel.getInstance().model.find({
-            workspaces: {
-              $elemMatch: {
-                _id: workspace._id
-              }
-            }
-          }, {
-            "workspaces.$": 1,
-            "credentials.email": 1
-          })
-          .lean()
-          .exec();
+      //   return userModel.getInstance().model.find({
+      //       workspaces: {
+      //         $elemMatch: {
+      //           _id: workspace._id
+      //         }
+      //       }
+      //     }, {
+      //       "workspaces.$": 1,
+      //       "credentials.email": 1
+      //     })
+      //     .lean()
+      //     .exec();
 
-      }).then(async (users) => {
-        workspace.users = users.map(u => {
-          return {
-            email: u.credentials.email,
-            role: u.workspaces[0].role
-          };
-        });
+      // }).then(async (users) => {
+      //   workspace.users = users.map(u => {
+      //     return {
+      //       email: u.credentials.email,
+      //       role: u.workspaces[0].role
+      //     };
+      //   });
         const ProcessPromise = new Promise((resolve, reject) => {
           if (workspace.status != undefined) {
             resolve(workspace);
