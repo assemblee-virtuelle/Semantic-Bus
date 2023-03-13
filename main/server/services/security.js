@@ -56,7 +56,7 @@ class Security {
       ).then((result) => {
         // !!!!!! Don't use ===  here because workspace Id is noT same type than params !!!!!
         let isAuthorized
-        console.log('XXXX securityWorkspace user',workspaceId,result.credentials.email)
+        // console.log('XXXX securityWorkspace user',workspaceId,result.credentials.email)
         if (role === 'owner') {
           isAuthorized =
             result.workspaces.filter((l) => l.workspace._id == workspaceId).length &&
@@ -64,7 +64,7 @@ class Security {
         } else {
           isAuthorized = result.workspaces.filter((l) => l.workspace._id == workspaceId).length > 0
         }
-        console.log(role,isAuthorized)
+        // console.log(role,isAuthorized)
         resolve(isAuthorized)
       })
     })
