@@ -6,32 +6,30 @@ const workspace_component_lib = require('../../core/lib/workspace_component_lib'
 class Communication {
   init(router) {
     router.post('/work-ask/:componentId', (req, res, next) => {
-      // console.log('req.body',req.body);
+
       req.setTimeout(0);
       const componentId = req.params.componentId
       const pushData = req.body.pushData
       const queryParams = req.body.queryParams
-      // console.log('pushData',pushData);
-      // console.log('queryParams',req.body.queryParams);
-      // console.log('AAAAAAAAA componentId',componentId);
+
       const direction = req.body.direction || 'work'
       workspace_component_lib.get({
         _id: componentId
       }).then(async (data) => {
-        const engine = require('../services/engine.js')
-        engine.execute(data, direction, this.amqpClient, undefined, pushData, queryParams).then(engineResult=>{
-          // console.log('engineResult',JSON.stringify(engineResult));
-          res.send(engineResult)
-        }).catch(errors=>{
-          let errorsMessages;
-          if(Array.isArray(errors)){
-            errorsMessages=errors.map(e=>e.message);
-          }else{
-            errorsMessages=errors.message;
-          }
-          console.log('error engine',errorsMessages);
-          res.status(500).send(errorsMessages);
-        })
+        // const engine = require('../services/engine.js')
+        // engine.execute(data, direction, this.amqpClient, undefined, pushData, queryParams).then(engineResult=>{
+        //   // console.log('engineResult',JSON.stringify(engineResult));
+        //   res.send(engineResult)
+        // }).catch(errors=>{
+        //   let errorsMessages;
+        //   if(Array.isArray(errors)){
+        //     errorsMessages=errors.map(e=>e.message);
+        //   }else{
+        //     errorsMessages=errors.message;
+        //   }
+        //   console.log('error engine',errorsMessages);
+        //   res.status(500).send(errorsMessages);
+        // })
       }).catch(e=>{
         console.log('error global',e);
         res.status(500).send(e);
