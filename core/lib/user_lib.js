@@ -215,17 +215,20 @@ function _getWithRelations(userID,config) {
           const InversRelationWorkspaces = await workspaceModel.getInstance().model.find({
             "users.email":data.credentials.email
           }).lean().exec();
-          console.log('XXXX InversRelationWorkspaces',InversRelationWorkspaces)
+          // console.log('XXXX InversRelationWorkspaces',InversRelationWorkspaces)
           data.workspaces=InversRelationWorkspaces;
           data.workspaces = data.workspaces.filter(sift({
             _id: {
               $ne: null
             }
           }));
-          data.workspaces = data.workspaces.map(r => {
+
+          data.workspaces = data.workspaces.map(w => {
+            const userOfWorkspace = w.users.find(u=>u.email===data.credentials.email);
+            // console.log("XXXX workspace",w)
             return {
-              workspace: r._id,
-              role: r.role
+              workspace: w._id,
+              role: userOfWorkspace.role
             };
           });
           if (config.adminUsers){

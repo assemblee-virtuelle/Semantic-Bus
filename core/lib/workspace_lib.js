@@ -705,24 +705,30 @@ function _get_all(userID, role) {
       .findOne({
         _id: userID
       })
-      .populate({
-        path: "workspaces._id",
-        select: "name description updatedAt status"
-      })
+      // .populate({
+      //   path: "workspaces._id",
+      //   select: "name description updatedAt status"
+      // })
       .lean()
       .exec(async (_error, data) => {
         if (!data) {
           reject(new Error.EntityNotFoundError(`user ${userID} not exists`))
         } else {
+          const InversRelationWorkspaces = await workspaceModel.getInstance().model.find({
+            "users.email":data.credentials.email
+          }).lean().exec();
+          data.workspaces=InversRelationWorkspaces;
           data.workspaces = data.workspaces.filter(sift({
             _id: {
               $ne: null
             }
           }));
-          data.workspaces = data.workspaces.map(r => {
+          data.workspaces = data.workspaces.map(w => {
+            const userOfWorkspace = w.users.find(u=>u.email===data.credentials.email);
+            // console.log("XXXX workspace",w)
             return {
-              workspace: r._id,
-              role: r.role,
+              workspace: w,
+              role: userOfWorkspace.role
             };
           });
           const workspaces = data.workspaces.filter(sift({
