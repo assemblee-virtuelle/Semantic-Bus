@@ -41,118 +41,118 @@ class Engine {
         this.workflow = workflow;
         console.log(' ---------- Start Engine-----------', this.workflow.name)
         this.workflow.status = 'running';
-        await this.workspace_lib.updateSimple(this.workflow);
-        let ownerUserMail = this.workflow.users.filter(
-          this.sift({
-            role: 'owner'
-          })
-        )[0]
-        let user = await this.user_lib.get({
-          'credentials.email': ownerUserMail.email
-        });
-        this.componentsResolving.forEach(component => {
-          component.specificData = component.specificData || {}
-        })
+        // await this.workspace_lib.updateSimple(this.workflow);
+        // let ownerUserMail = this.workflow.users.filter(
+        //   this.sift({
+        //     role: 'owner'
+        //   })
+        // )[0]
+        // let user = await this.user_lib.get({
+        //   'credentials.email': ownerUserMail.email
+        // });
+        // this.componentsResolving.forEach(component => {
+        //   component.specificData = component.specificData || {}
+        // })
 
 
-        this.originComponent = this.componentsResolving.filter(this.sift({
-          _id: this.originComponent._id
-        }))[0];
+        // this.originComponent = this.componentsResolving.filter(this.sift({
+        //   _id: this.originComponent._id
+        // }))[0];
 
-        let workAskModule = this.technicalComponentDirectory[this.originComponent.module]
-        // console.log('workCallModule',workCallModule);
-        if (workAskModule.workAsk != undefined) {
-          await workAskModule.workAsk(this.originComponent);
-        }
+        // let workAskModule = this.technicalComponentDirectory[this.originComponent.module]
+        // // console.log('workCallModule',workCallModule);
+        // if (workAskModule.workAsk != undefined) {
+        //   await workAskModule.workAsk(this.originComponent);
+        // }
 
-        // console.log(' ---------- Resolve Workflow -----------', this.workflow.name, this.originComponent._id)
-        this.pathResolution = this.buildPathResolution(
-          workflow,
-          this.originComponent,
-          this.requestDirection,
-          0,
-          this.componentsResolving,
-          undefined,
-          this.originQueryParams == undefined ? undefined : {
-            origin: this.originComponent._id,
-            queryParams: this.originQueryParams
-          },
-          undefined
-        )
+        // // console.log(' ---------- Resolve Workflow -----------', this.workflow.name, this.originComponent._id)
+        // this.pathResolution = this.buildPathResolution(
+        //   workflow,
+        //   this.originComponent,
+        //   this.requestDirection,
+        //   0,
+        //   this.componentsResolving,
+        //   undefined,
+        //   this.originQueryParams == undefined ? undefined : {
+        //     origin: this.originComponent._id,
+        //     queryParams: this.originQueryParams
+        //   },
+        //   undefined
+        // )
 
-        if (this.config.quietLog != true) {
-          console.log(' ---------- BuildPath Links-----------', this.fackCounter, this.workflow.name)
-          console.log(this.pathResolution.links.map(link => {
-            // return (link.source);
-            return (link.source.component._id + ' -> ' + link.target.component._id)
-          }))
-          // console.log(' ---------- BuildPath Nodes-----------', this.fackCounter)
-          // console.log(this.pathResolution.nodes.map(node => {
-          //   //return (node.component._id + ':' + JSON.stringify(node.queryParams))
-          //   return (node.component._id);
-          // }))
-        }
+        // if (this.config.quietLog != true) {
+        //   console.log(' ---------- BuildPath Links-----------', this.fackCounter, this.workflow.name)
+        //   console.log(this.pathResolution.links.map(link => {
+        //     // return (link.source);
+        //     return (link.source.component._id + ' -> ' + link.target.component._id)
+        //   }))
+        //   // console.log(' ---------- BuildPath Nodes-----------', this.fackCounter)
+        //   // console.log(this.pathResolution.nodes.map(node => {
+        //   //   //return (node.component._id + ':' + JSON.stringify(node.queryParams))
+        //   //   return (node.component._id);
+        //   // }))
+        // }
 
-        this.owner = user
-        let process = await (this.workspace_lib.createProcess({
-          workflowId: this.originComponent.workspaceId,
-          ownerId: this.owner._id,
-          callerId: this.callerId,
-          originComponentId: this.originComponent._id,
-          steps: this.pathResolution.nodes.map(node => ({
-            componentId: node.component._id
-          }))
-        }));
-        this.processId = process._id
-        this.processNotifier = new ProcessNotifier(this.amqpClient, this.originComponent.workspaceId)
-        this.processNotifier.start({
-          _id: this.processId,
-          callerId: this.callerId,
-          timeStamp: process.timeStamp,
-          steps: this.pathResolution.nodes.map(node => ({
-            componentId: node.component._id,
-            status: node.status
-          }))
-        })
+        // this.owner = user
+        // let process = await (this.workspace_lib.createProcess({
+        //   workflowId: this.originComponent.workspaceId,
+        //   ownerId: this.owner._id,
+        //   callerId: this.callerId,
+        //   originComponentId: this.originComponent._id,
+        //   steps: this.pathResolution.nodes.map(node => ({
+        //     componentId: node.component._id
+        //   }))
+        // }));
+        // this.processId = process._id
+        // this.processNotifier = new ProcessNotifier(this.amqpClient, this.originComponent.workspaceId)
+        // this.processNotifier.start({
+        //   _id: this.processId,
+        //   callerId: this.callerId,
+        //   timeStamp: process.timeStamp,
+        //   steps: this.pathResolution.nodes.map(node => ({
+        //     componentId: node.component._id,
+        //     status: node.status
+        //   }))
+        // })
 
-        this.pathResolution.links.forEach(link => {
-          link.status = 'waiting'
-        })
-        this.RequestOrigineResolveMethode = resolve
-        this.RequestOrigineRejectMethode = reject
+        // this.pathResolution.links.forEach(link => {
+        //   link.status = 'waiting'
+        // })
+        // this.RequestOrigineResolveMethode = resolve
+        // this.RequestOrigineRejectMethode = reject
 
-        if (this.originComponent.specificData.responseComponentId != undefined && this.originComponent.specificData.responseComponentId != 'undefined') {
-          this.responseComponentId = this.originComponent.specificData.responseComponentId
-        } else {
-          this.responseComponentId = this.originComponent._id;
-        }
+        // if (this.originComponent.specificData.responseComponentId != undefined && this.originComponent.specificData.responseComponentId != 'undefined') {
+        //   this.responseComponentId = this.originComponent.specificData.responseComponentId
+        // } else {
+        //   this.responseComponentId = this.originComponent._id;
+        // }
 
-        if (this.responseComponentId != undefined && this.responseComponentId != 'undefined') {
+        // if (this.responseComponentId != undefined && this.responseComponentId != 'undefined') {
 
-          /// -------------- push case  -----------------------
-          /// used before by upload and http provider component : now use pullParams/queryParams in those cases
-          // if (this.requestDirection == 'push') {
-          //   let originNode = this.pathResolution.nodes.filter(this.sift({
-          //     'component._id': this.originComponent._id
-          //   }))[0];
-          //   originNode.dataResolution = {
-          //     data: this.pushData
-          //   }
-          //   originNode.status = 'resolved'
-          //   this.historicEndAndCredit(originNode, new Date(), undefined, this.owner)
-          //   // console.log(originNode.component._id,this.responseComponentId);
-          //   if (originNode.component._id == this.responseComponentId) {
-          //     resolve(this.pushData)
-          //     // this.originComponentResult = processingNode.dataResolution;
-          //   }
-          //   // resolve(this.pushData)
-          // }
+        //   /// -------------- push case  -----------------------
+        //   /// used before by upload and http provider component : now use pullParams/queryParams in those cases
+        //   // if (this.requestDirection == 'push') {
+        //   //   let originNode = this.pathResolution.nodes.filter(this.sift({
+        //   //     'component._id': this.originComponent._id
+        //   //   }))[0];
+        //   //   originNode.dataResolution = {
+        //   //     data: this.pushData
+        //   //   }
+        //   //   originNode.status = 'resolved'
+        //   //   this.historicEndAndCredit(originNode, new Date(), undefined, this.owner)
+        //   //   // console.log(originNode.component._id,this.responseComponentId);
+        //   //   if (originNode.component._id == this.responseComponentId) {
+        //   //     resolve(this.pushData)
+        //   //     // this.originComponentResult = processingNode.dataResolution;
+        //   //   }
+        //   //   // resolve(this.pushData)
+        //   // }
 
 
-          this.processNextBuildPath();
-        } else {
-          reject(new Error('responseComponentId undefined'))
-        }
+        //   this.processNextBuildPath();
+        // } else {
+        //   reject(new Error('responseComponentId undefined'))
+        // }
 
 
       } catch (e) {
