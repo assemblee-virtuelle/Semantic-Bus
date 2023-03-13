@@ -6,7 +6,7 @@ const config = require('../../configuration')
 class Security {
 
   wrapperSecurity (req, res, next, role, entity){
-    // console.log('wrapperSecurity',this);
+    // console.log('wrapperSecurity',role,entity);
     switch (entity) {
       case 'workflow':
         this.securityWorkspace(req, role)
@@ -56,6 +56,7 @@ class Security {
       ).then((result) => {
         // !!!!!! Don't use ===  here because workspace Id is noT same type than params !!!!!
         let isAuthorized
+        console.log('XXXX securityWorkspace user',workspaceId,result.credentials.email)
         if (role === 'owner') {
           isAuthorized =
             result.workspaces.filter((l) => l.workspace._id == workspaceId).length &&
@@ -63,6 +64,7 @@ class Security {
         } else {
           isAuthorized = result.workspaces.filter((l) => l.workspace._id == workspaceId).length > 0
         }
+        console.log(role,isAuthorized)
         resolve(isAuthorized)
       })
     })

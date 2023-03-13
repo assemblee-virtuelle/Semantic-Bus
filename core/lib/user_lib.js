@@ -227,7 +227,7 @@ function _getWithRelations(userID,config) {
             const userOfWorkspace = w.users.find(u=>u.email===data.credentials.email);
             // console.log("XXXX workspace",w)
             return {
-              workspace: w._id,
+              workspace: w,
               role: userOfWorkspace.role
             };
           });
