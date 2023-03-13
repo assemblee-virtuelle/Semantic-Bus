@@ -52,9 +52,9 @@ class Communication {
         const engine = require('../services/engine.js')
         // engine.execute(data, 'work', this.amqpClient, messageObject.callerId).then(r=>{
           // console.log('engine ok');
-        }).catch(e=>{
-          console.error(e);
-        })
+        // }).catch(e=>{
+        //   console.error(e);
+        // })
       })
     }, {
       noAck: true
