@@ -46,8 +46,8 @@ class Communication {
       workspace_component_lib.get({
         _id: messageObject.id
       }).then( (data)=>{
-        console.log('work-ask 2',data)
-        // const engine = require('../services/engine.js')
+        console.log('work-ask 3',data)
+        const engine = require('../services/engine.js')
         // engine.execute(data, 'work', this.amqpClient, messageObject.callerId).then(r=>{
           // console.log('engine ok');
         // }).catch(e=>{
