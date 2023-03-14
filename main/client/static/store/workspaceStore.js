@@ -459,6 +459,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   this.on('delete-share-workspace', (data) => {
+    //console.log('delete-share-workspace')
     this.utilStore.ajaxCall({
       method: 'delete',
       url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/share',

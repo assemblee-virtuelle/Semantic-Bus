@@ -241,61 +241,7 @@ module.exports = function (router) {
     })
   }) // <= delete_connexion #share
 
-  // --------------------------------------------------------------------------------
 
-  router.delete('/workspaces/:id/share', (req, res, next) => securityService.wrapperSecurity(req, res, next, 'owner','workflow'), function (req, res, next) {
-    const workspace_id = req.params.id
-
-    user_lib.get({
-      'credentials.email': req.body.email
-    }).then(function (user) {
-      if (user && UserIdFromToken(req) != user._id) {
-        user.workspaces = user.workspaces || []
-        if (contains(user.workspaces, {
-          _id: workspace_id
-        })) {
-          let newArray = []
-          user.workspaces.forEach((wp) => {
-            if (wp._id != workspace_id) {
-              newArray.push(wp)
-            }
-          })
-
-          user.workspaces = newArray
-
-          user_lib.update(user).then(function (updateUser) {
-            workspace_lib.getWorkspace(workspace_id).then(updatedWS => {
-              for (var c of updatedWS.components) {
-                if (technicalComponentDirectory[c.module] != null) {
-                  // console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
-                  c.graphIcon = technicalComponentDirectory[c.module].graphIcon
-                } else {
-                  c.graphIcon = 'default'
-                }
-                // console.log('-->',c);
-              }
-              res.send({
-                user: updateUser,
-                workspace: updatedWS
-              })
-            })
-          })
-        } else {
-          res.status(400).send({
-            success: false,
-            message: 'not_in_user'
-          })
-        }
-      } else {
-        res.status(400).send({
-          success: false,
-          message: 'no_delete_owner'
-        })
-      }
-    }).catch(e => {
-      next(e)
-    })
-  }) // <= delete_share/workspace #share
 
   // --------------------------------------------------------------------------------
 
@@ -346,37 +292,26 @@ module.exports = function (router) {
 
     user_lib.get({
       'credentials.email': req.body.email
-    }).then(function (user) {
+    }).then(async function (user) {
       if (user) {
-        user.workspaces = user.workspaces || []
-
-        if (!contains(user.workspaces, {
-          _id: workspace_id
-        })) {
-          user.workspaces.push({
-            _id: workspace_id,
-            role: 'editor'
-          })
-          user_lib.update(user).then(function (updateUser) {
-            workspace_lib.getWorkspace(workspace_id).then(updatedWS => {
-              for (var c of updatedWS.components) {
-                if (technicalComponentDirectory[c.module] != null) {
-                  // console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
-                  c.graphIcon = technicalComponentDirectory[c.module].graphIcon
-                } else {
-                  c.graphIcon = 'default'
-                }
-                // console.log('-->',c);
-              }
-              res.send({
-                user: updateUser,
-                workspace: updatedWS
-              })
-            })
-          })
-        } else {
-          res.send('already')
+        let workspaceOrigin = await workspace_lib.get_workspace_simple(workspace_id);
+        workspaceOrigin.users=[...workspaceOrigin.users,{
+          email: user.credentials.email,
+          role : "editor"
+        }]
+        const updatedWorkspace = await workspace_lib.updateSimple(workspaceOrigin);
+        const workspace = await workspace_lib.getWorkspace(workspace_id);
+        for (var c of workspace.components) {
+          if (technicalComponentDirectory[c.module] != null) {
+            c.graphIcon = technicalComponentDirectory[c.module].graphIcon
+          } else {
+            c.graphIcon = 'default'
+          }
         }
+        res.send({
+          user: user,
+          workspace: workspace
+        })
       } else {
         res.send(false)
       }
@@ -384,6 +319,46 @@ module.exports = function (router) {
       next(e)
     })
   }) // <= update_share/workspace #share
+
+ // --------------------------------------------------------------------------------
+ router.delete('/workspaces/:id/share', (req, res, next) => securityService.wrapperSecurity(req, res, next, 'owner','workflow'), function (req, res, next) {
+  // console.log('DELETE SHARE')
+  const workspace_id = req.params.id
+
+  user_lib.get({
+    'credentials.email': req.body.email
+  }).then(async function (user) {
+
+    const IdOfConnectedUser = UserIdFromToken(req);
+    console.log('delete share',user._id,IdOfConnectedUser)
+    // const roleOfConenctedUser = workspace.users.filter()
+    if (user && IdOfConnectedUser!= user._id) {
+      let workspaceOrigin = await workspace_lib.get_workspace_simple(workspace_id);
+      workspaceOrigin.users=workspaceOrigin.users.filter(u=>u.email!==user.credentials.email);
+      console.log('workspace',workspaceOrigin)
+      const updatedWorkspace = await workspace_lib.updateSimple(workspaceOrigin);
+      const workspace = await workspace_lib.getWorkspace(workspace_id);
+      for (var c of workspace.components) {
+        if (technicalComponentDirectory[c.module] != null) {
+          c.graphIcon = technicalComponentDirectory[c.module].graphIcon
+        } else {
+          c.graphIcon = 'default'
+        }
+      }
+      res.send({
+        user: user,
+        workspace: workspace
+      })
+    } else {
+      res.status(400).send({
+        success: false,
+        message: 'no_delete_owner'
+      })
+    }
+  }).catch(e => {
+    next(e)
+  })
+}) // <= delete_share/workspace #share
 
   // ---------------------------------------------------------------------------------
 

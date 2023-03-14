@@ -157,6 +157,10 @@
     this.workspaceEditorMenuChanged = function (menu) {
       this.menu = menu;
       this.update();
+      if ( this.refs.userZenTable){
+        this.refs.userZenTable.on('delRow',this.updateShareUser);
+      }
+
     }.bind(this);
 
     this.backgroundActive = function ( active) {
@@ -216,15 +220,12 @@
     }
 
     updateShareUser(data){
+      //console.log('updateShareUser');
       RiotControl.trigger('delete-share-workspace',data);
 
     }
 
     this.on('mount', function () {
-      //user delete
-      if(this.menu=='user'){
-        this.tags.zentable.on('delRow',this.updateShareUser);
-      }
       RiotControl.on('store_persisteWorkspace', this.persistClick)
       RiotControl.on('workspace_current_changed', this.workspaceCurrentChanged);
       RiotControl.on('share_change', this.shareChange);
