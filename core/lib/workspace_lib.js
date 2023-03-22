@@ -606,36 +606,55 @@ async function _create(userId, workspaceData) {
   } catch (e) {
     throw e;
   }
-  const workspaceModelInstance = workspaceModel.getInstance().model;
-  const workspace = new workspaceModelInstance({
-    name: workspaceDataCheck.name,
-    limitHistoric: workspaceDataCheck.limitHistoric,
-    description: workspaceDataCheck.description,
-    components: workspaceDataCheck.components[0]
-  });
 
-  return new Promise(function(resolve, reject) {
-    workspace.save(function(err, work) {
-      if (err) {
-        throw reject(new Error.DataBaseProcessError(err))
-      } else {
-        userModel.getInstance().model.findByIdAndUpdate({
-            _id: userId
-          }, {
-            $push: {
-              workspaces: {
-                _id: workspace._id,
-                role: "owner"
-              }
-            }
-          },
-          function(err, user) {
-            if (err) reject(new Error.DataBaseProcessError(err));
-            else resolve(work);
-          }
-        );
-      }
-    });
+  return new Promise(async function(resolve, reject) {
+    try {
+      const user =  await userModel.getInstance().model.findByIdAndUpdate({
+        _id: userId
+      });
+  
+      const workspaceModelInstance = workspaceModel.getInstance().model;
+      let workspace = new workspaceModelInstance({
+        name: workspaceDataCheck.name,
+        limitHistoric: workspaceDataCheck.limitHistoric,
+        description: workspaceDataCheck.description,
+        components: workspaceDataCheck.components[0],
+        users :[{
+          email:user.credentials.email,
+          role:'owner'
+        }]
+      });
+      const savedWorkspace = await workspace.save();
+      resolve(savedWorkspace);
+    } catch (error) {
+      reject(error)
+    }
+
+
+
+
+
+    // workspace.save(function(err, work) {
+    //   if (err) {
+    //     throw reject(new Error.DataBaseProcessError(err))
+    //   } else {
+    //     userModel.getInstance().model.findByIdAndUpdate({
+    //         _id: userId
+    //       }, {
+    //         $push: {
+    //           workspaces: {
+    //             _id: workspace._id,
+    //             role: "owner"
+    //           }
+    //         }
+    //       },
+    //       function(err, user) {
+    //         if (err) reject(new Error.DataBaseProcessError(err));
+    //         else resolve(work);
+    //       }
+    //     );
+    //   }
+    // });
   });
 } // <= _create
 

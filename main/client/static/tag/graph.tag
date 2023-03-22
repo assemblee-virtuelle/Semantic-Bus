@@ -32,10 +32,10 @@
         <g id="shapeCommandLayer"></g>
       </g>
       <div class="tableRowStatus" style={showComponent? "right: 30%": "right: 5%"}>
-        <div class={innerData.status} onClick={stopFlow}>
-          <img if={innerData.status === "running"} src="./image/loading.svg" class="img-status loaderImg" />
+        <div class={innerData &&  innerData.status} onClick={stopFlow}>
+          <img if={innerData && innerData.status && innerData.status === "running"} src="./image/loading.svg" class="img-status loaderImg" />
           <div class="status-div">
-            {innerData.status !== "running" ? innerData.status : "Stop"}
+            {innerData && innerData.status && innerData.status !== "running" ? innerData.status : "Stop"}
           </div>
         </div>
       </div>

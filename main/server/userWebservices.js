@@ -70,7 +70,7 @@ module.exports = function (router) {
   // ---------------------------------------------------------------------------------
 
   router.get('/users/me', function (req, res, next) {
-    console.log('config', config);
+    // console.log('config', config);
     user_lib.getWithRelations(
       UserIdFromToken(req), config
     ).then(function (result) {

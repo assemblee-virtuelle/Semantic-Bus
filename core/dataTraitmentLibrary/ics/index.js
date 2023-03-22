@@ -18,8 +18,8 @@ function decode_utf8(s) {
 }
 
 function _icstojson(icsData) {
-  console.log(icsData);
-  console.log('ics',ics);
+  // console.log(icsData);
+  // console.log('ics',ics);
   return new Promise((resolve, reject) => {
     try {
       const data = ics(icsData);
