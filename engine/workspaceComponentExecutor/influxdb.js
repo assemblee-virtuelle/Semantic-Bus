@@ -93,21 +93,20 @@ class InfluxdbConnector {
     const remainingFields = [];
     // console.log("keys : ",keys);
     // console.log("values : ",values);
-    for (let index = 0; index < keys.length; index++) {
-      const element = jsonData[keys[index]];
+    keys.forEach(element => {
       // console.log("index : ",index," | is : ",element);
       // console.log("keys :",keys[index]);
-      if(currentFields.includes(keys[index])){
+      if(currentFields.includes(element)){
         //nothing happens
       } else {
-        remainingFields.push(keys[index]);
+        remainingFields.push(element);
       }
-    }
-
+    })
+    
     return remainingFields
   }
 
-  setTagData(data){
+  buildTagData(data){
     let tags=[];
     // console.log("tagstable : ",data.tags);
     if (data.tags != undefined) {
@@ -135,7 +134,7 @@ class InfluxdbConnector {
           reject(new Error("Il faut fournir le nom de la mesure"))
         }
 
-        const tags = this.setTagData(data.specificData);
+        const tags = this.buildTagData(data.specificData);
 
         // every field entered by the user
         const inputFields = [data.specificData.timestamp];
@@ -153,17 +152,15 @@ class InfluxdbConnector {
         const everyField = Array.from(fields);
         everyField.push(...inputFields);
         everyField.push(data.specificData.measurement);
-        console.log("everyfield : ",everyField.toString());
+        // console.log("everyfield : ",everyField.toString());
 
-        for (let index = 0; index < everyField.length; index++) {
-          const element = everyField[index];
-          // console.log("element : ",index," : ",element);
+        everyField.forEach(element => {
+          // console.log("first for :",element);
           // https://docs.influxdata.com/influxdb/v1.8/write_protocols/line_protocol_tutorial/
           if(element && (element == "_field" || element == "measurement" || element == "time")){
             reject(new Error("Un nom de champs s'appelle time ou _field ou _measurement."))
           }
-
-        }
+        });
 
         // console.log("inputfi ", inputFields);
         // console.log("remaining strings : ",fields);
@@ -174,7 +171,7 @@ class InfluxdbConnector {
         // console.log("tagstring : ",tagString);
 
         const result = this.stringDataBuilder(jsonData,data.specificData,fieldsetString,tagString);
-        console.log("result : ",result);
+        // console.log("result : ",result);
         resolve({
           data: result
         })
