@@ -27,35 +27,35 @@ class InfluxdbConnector {
     // like this : ,               1654940402000, the influxISO format
     //     1677687240000 13
     // has 6 more 0s at the end -> 1422568543702900257 19
+    let result;
     let timestamp = '';
     if(jsonData[data.timestamp]){
       const date = new Date(jsonData[data.timestamp]);
-      timestamp = date.getTime().toString();
-      if(timestamp.length < 19){
-        const nberOfZerosToAdd = 18 - timestamp.length;
-        for (let index = 0; index < nberOfZerosToAdd; index++) {
-          timestamp+="0";
+      // console.log(date);
+      if(date.toDateString().toLowerCase() !== 'invalid date'){
+        timestamp = date.getTime().toString();
+        if(timestamp.length < 19){
+          const nberOfZerosToAdd = 18 - timestamp.length;
+          for (let index = 0; index < nberOfZerosToAdd; index++) {
+            timestamp+="0";
+          }
         }
+        result = measurementName +
+        // optional
+        tagString
+        // the blank space separates the measurement
+        // name and tag set from the field set
+        + " " +
+        fieldSet;
+
+        if(timestamp){
+          result += " " + timestamp
+        }
+        // each data is a line separated by a /n
+        result += + " " + "\n";
       }
     }
-
-    let result = measurementName +
-    // optional
-    tagString
-    // the blank space separates the measurement
-    // name and tag set from the field set
-    + " " +
-    // "saprevision=" + jsonData.saprevision +
-    // "," + "sapdatecode" + jsonData.sapedatecode + ","+
-    fieldSet;
-
-    if(timestamp){
-      result += " "+ timestamp
-    }
-
-    // each data is a line separated by a /n
-    result += + " " + "\n";
-
+    // console.log('result : ',result);
     return result
   }
 
@@ -102,7 +102,7 @@ class InfluxdbConnector {
         remainingFields.push(element);
       }
     })
-    
+
     return remainingFields
   }
 
@@ -129,54 +129,67 @@ class InfluxdbConnector {
     return new Promise((resolve, reject) => {
       try {
         const jsonData = flowData[0].data;
+        let result = '';
 
         if(!(data.specificData && data.specificData.measurement)){
           reject(new Error("Il faut fournir le nom de la mesure"))
         }
 
-        const tags = this.buildTagData(data.specificData);
+        if(!(flowData[0].data)){
+          // console.log('empty data here');
+        } else {
+          // console.log(flowData[0].data);
+          const tags = this.buildTagData(data.specificData);
 
-        // every field entered by the user
-        const inputFields = [data.specificData.timestamp];
-        if(tags.length != 0){
-          inputFields.push(...tags);
-        }
-
-        const fields = this.getRemainingFields(jsonData,inputFields);
-
-        if(!(fields.length > 0)){
-          reject(new Error("Il faut qu'il y ait au moins un champs en entrée (field)."))
-        }
-
-        // array containing every used field :
-        const everyField = Array.from(fields);
-        everyField.push(...inputFields);
-        everyField.push(data.specificData.measurement);
-        // console.log("everyfield : ",everyField.toString());
-
-        everyField.forEach(element => {
-          // console.log("first for :",element);
-          // https://docs.influxdata.com/influxdb/v1.8/write_protocols/line_protocol_tutorial/
-          if(element && (element == "_field" || element == "measurement" || element == "time")){
-            reject(new Error("Un nom de champs s'appelle time ou _field ou _measurement."))
+          // every field entered by the user
+          const inputFields = [data.specificData.timestamp];
+          if(tags.length != 0){
+            inputFields.push(...tags);
           }
-        });
-
-        // console.log("inputfi ", inputFields);
-        // console.log("remaining strings : ",fields);
-
-        const fieldsetString = this.fieldsetStringBuilder(jsonData,fields);
-        // console.log("before tagstring");
-        const tagString = this.tagStringBuilder(jsonData,tags);
-        // console.log("tagstring : ",tagString);
-
-        const result = this.stringDataBuilder(jsonData,data.specificData,fieldsetString,tagString);
-        // console.log("result : ",result);
-        resolve({
-          data: result
-        })
-      } catch (e) {
-        reject (e)
+  
+          const fields = this.getRemainingFields(jsonData,inputFields);
+  
+          if(!(fields.length > 0)){
+            reject(new Error("Il faut qu'il y ait au moins un champs en entrée (field)."))
+          }
+  
+          // array containing every used field :
+          const everyField = Array.from(fields);
+          everyField.push(...inputFields);
+          everyField.push(data.specificData.measurement);
+          // console.log("everyfield : ",everyField.toString());
+  
+          everyField.forEach(element => {
+            // console.log("first for :",element);
+            // https://docs.influxdata.com/influxdb/v1.8/write_protocols/line_protocol_tutorial/
+            if(element && (element == "_field" || element == "measurement" || element == "time")){
+              reject(new Error("Un nom de champs s'appelle time ou _field ou _measurement."))
+            }
+          });
+  
+          // console.log("inputfi ", inputFields);
+          // console.log("remaining strings : ",fields);
+  
+          const fieldsetString = this.fieldsetStringBuilder(jsonData,fields);
+          // console.log("before tagstring");
+          const tagString = this.tagStringBuilder(jsonData,tags);
+          // console.log("tagstring : ",tagString);
+  
+          result = this.stringDataBuilder(jsonData,data.specificData,fieldsetString,tagString)
+          // console.log("result : ",result);
+          if(result !== undefined){
+            console.log(result);
+            resolve({
+              data: result
+            })
+          }
+          else {
+            return
+            // reject(new Error("String mal créée ou vide."))
+          }
+        }
+      } catch(e) {
+        reject(e)
       }
     })
   }
