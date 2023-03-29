@@ -14,6 +14,26 @@
     <div class="bar"/>
   </div>
   <!-- Champ du composant -->
+  <!--  Url influxdb  -->
+  <label class="labelFormStandard">Url Influxdb:</label>
+  <div class="cardInput">
+    <input class="inputComponents" type="text" ref="url" value={data.specificData.url} placeholder="https://db.influxdb.com" onchange={urlChange}/>
+  </div>
+  <!--  Clé d'api influxdb  -->
+   <label class="labelFormStandard">Clé Influxdb:</label>
+  <div class="cardInput">
+    <input class="inputComponents" type="text" ref="apiKey" value={data.specificData.apiKey} placeholder="7e9f5Tu..." onchange={apiKeyChange}/>
+  </div>
+  <!--  Organisation  -->
+   <label class="labelFormStandard">Organisation:</label>
+  <div class="cardInput">
+    <input class="inputComponents" type="text" ref="organization" value={data.specificData.organization} placeholder="Data-Players" onchange={organizationChange}/>
+  </div>
+  <!--  Bucket  -->
+   <label class="labelFormStandard">Bucket:</label>
+  <div class="cardInput">
+    <input class="inputComponents" type="text" ref="bucket" value={data.specificData.bucket} placeholder="Test" onchange={bucketChange}/>
+  </div>
   <!--  Nom de la mesure  -->
   <label class="labelFormStandard">Nom de la mesure:</label>
   <div class="cardInput">
@@ -46,6 +66,10 @@
   this.data.specificData.measurement = '';
   this.data.specificData.tagKey = '';
   this.data.specificData.timestamp = '';
+  this.data.specificData.apiKey = '';
+  this.data.specificData.url = '';
+  this.data.specificData.bucket = '';
+  this.data.specificData.organization = '';
   this.data.specificData.tags = [];
 
   //beggining of code for the input section
@@ -66,11 +90,28 @@
     this.data.specificData.timestamp = e.target.value;
   }
 
+  apiKeyChange(e) {
+    this.data.specificData.apiKey = e.target.value;
+  }
+  urlChange(e) {
+    this.data.specificData.url = e.target.value;
+  }
+  bucketChange(e) {
+    this.data.specificData.bucket = e.target.value;
+  }
+  organizationChange(e) {
+    this.data.specificData.organization = e.target.value;
+  }
+
   this.updateData=function(dataToUpdate){
     this.data = dataToUpdate;
    // this.refs.tagsTable.data = this.data.specificData.tags;
     this.refs.timestamp.data = this.data.specificData.timestamp;
     this.refs.measurement.data = this.data.specificData.measurement;
+    this.refs.apiKey.data = this.data.specificData.apiKey;
+    this.refs.url.data = this.data.specificData.url;
+    this.refs.bucket.data = this.data.specificData.bucket;
+    this.refs.organization.data = this.data.specificData.organization;
     this.refs.tagsTable.data = this.data.specificData.tags || [];
     this.update();
   }.bind(this);

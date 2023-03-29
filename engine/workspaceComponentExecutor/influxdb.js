@@ -3,15 +3,16 @@
 class InfluxdbConnector {
   constructor () {
     this.config = require('../configuration.js');
+    this.influxdbClient = require('@influxdata/influxdb-client');
   }
 
     /* TODO :
-    - gérer les types : strings dans les fieldset entourées de " " + dates
+    - gérer les types : strings ou api influx (integer only?)
 
     optimisation :
     - batchs de 5000 lignes
     - ordonner les tags par clé ordre lexicographique
-    - compression gzip requête http post -> créer composant gzip ?
+    - compression gzip requête http post -> créer composant gzip 
   */
 
   stringDataBuilder(jsonData,data,fieldsetString,tagString) {
@@ -31,7 +32,6 @@ class InfluxdbConnector {
     let timestamp = '';
     if(jsonData[data.timestamp]){
       const date = new Date(jsonData[data.timestamp]);
-      // console.log(date);
       if(date.toDateString().toLowerCase() !== 'invalid date'){
         timestamp = date.getTime().toString();
         if(timestamp.length < 19){
@@ -55,24 +55,31 @@ class InfluxdbConnector {
         result += + " " + "\n";
       }
     }
-    // console.log('result : ',result);
     return result
   }
 
   fieldsetStringBuilder(jsonData,fields){
-    //console.log("fields length : ",fields.length);
     let fieldsetString = '';
     for (let index = 0; index < fields.length; index++) {
       const field = fields[index];
       const field_value = jsonData[field];
-      // console.log("field : ",field,"value : ",field_value);
       fieldsetString += (field + "=" + field_value);
       if(index != (fields.length-1)){
         fieldsetString += ","
       }
     }
-    // console.log("fitag : ",fieldsetString);
     return fieldsetString
+  }
+
+  // only works with integer fields !!!
+  // add fields to the Point influxdb object
+  addFieldsToPoint(jsonData,point,fields){
+    if (fields) {
+      fields.forEach(field => {
+        point.intField(field, jsonData[field]);
+      })
+    }
+    return point
   }
 
   tagStringBuilder(jsonData,tags){
@@ -80,22 +87,27 @@ class InfluxdbConnector {
     for (let index = 0; index < tags.length; index++) {
       const tag = tags[index];
       const tag_value = jsonData[tag];
-      // console.log("tag : ",tag,"value : ",tag_value);
       tagString += ("," + tag + "=" + tag_value);
     }
-    //console.log("final tagString : ",tagString);
     return tagString
-
   }
 
+  // add tags to the Point influxdb object
+  addTagsToPoint(jsonData,point,tags){
+    if (tags) {
+      tags.forEach(tag => {
+        point.tag(tag, jsonData[tag]);
+      })
+    }
+    return point
+  }
+
+  // get the fields that weren't given by the user 
+  // in the component
   getRemainingFields(jsonData,currentFields){
     const keys = Object.keys(jsonData);
     const remainingFields = [];
-    // console.log("keys : ",keys);
-    // console.log("values : ",values);
     keys.forEach(element => {
-      // console.log("index : ",index," | is : ",element);
-      // console.log("keys :",keys[index]);
       if(currentFields.includes(element)){
         //nothing happens
       } else {
@@ -106,13 +118,12 @@ class InfluxdbConnector {
     return remainingFields
   }
 
+  // gets list of tags names
   buildTagData(data){
     let tags=[];
-    // console.log("tagstable : ",data.tags);
     if (data.tags != undefined) {
       for (let tag of data.tags) {
         try {
-          // console.log('test : ',header.tag);
           tags.push(tag.tag);
         } catch (e) {
           if (this.config != undefined && this.config.quietLog != true) {
@@ -121,74 +132,129 @@ class InfluxdbConnector {
         }
       }
     }
-
     return tags
   }
 
+  // old pull code
+  /*const jsonData = flowData[0].data;
+    let result = '';
+    if(!(data.specificData && data.specificData.measurement)){
+      reject(new Error("Il faut fournir le nom de la mesure"))
+    }
+
+    if(!(flowData[0].data)){
+      // console.log('empty data here');
+    } else {
+      // console.log(flowData[0].data);
+      const tags = this.buildTagData(data.specificData);
+
+      // every field entered by the user
+      const inputFields = [data.specificData.timestamp];
+      if(tags.length != 0){
+        inputFields.push(...tags);
+      }
+
+      const fields = this.getRemainingFields(jsonData,inputFields);
+
+      if(!(fields.length > 0)){
+        reject(new Error("Il faut qu'il y ait au moins un champs en entrée (field)."))
+      }
+
+      // array containing every used field :
+      const everyField = Array.from(fields);
+      everyField.push(...inputFields);
+      everyField.push(data.specificData.measurement);
+      // console.log("everyfield : ",everyField.toString());
+
+      everyField.forEach(element => {
+        // console.log("first for :",element);
+        // https://docs.influxdata.com/influxdb/v1.8/write_protocols/line_protocol_tutorial/
+        if(element && (element == "_field" || element == "measurement" || element == "time")){
+          reject(new Error("Un nom de champs s'appelle time ou _field ou _measurement."))
+        }
+      });
+
+      // console.log("inputfi ", inputFields);
+      // console.log("remaining strings : ",fields);
+
+      const fieldsetString = this.fieldsetStringBuilder(jsonData,fields);
+      // console.log("before tagstring");
+      const tagString = this.tagStringBuilder(jsonData,tags);
+      // console.log("tagstring : ",tagString);
+
+      result = this.stringDataBuilder(jsonData,data.specificData,fieldsetString,tagString)
+      // console.log("result : ",result);
+      if(result !== undefined){
+        console.log(result);
+        resolve({
+          data: result
+        })
+      }
+      else {
+        return
+      }*/
+
+  // doc of the influx client API on ->>>
+  // https://github.com/influxdata/influxdb-client-js/blob/master/examples/write.mjs
   pull (data, flowData, pullParams) {
     return new Promise((resolve, reject) => {
       try {
-        const jsonData = flowData[0].data;
-        let result = '';
-
-        if(!(data.specificData && data.specificData.measurement)){
-          reject(new Error("Il faut fournir le nom de la mesure"))
-        }
-
-        if(!(flowData[0].data)){
-          // console.log('empty data here');
-        } else {
-          // console.log(flowData[0].data);
-          const tags = this.buildTagData(data.specificData);
-
-          // every field entered by the user
-          const inputFields = [data.specificData.timestamp];
-          if(tags.length != 0){
-            inputFields.push(...tags);
+          if(!(data.specificData && data.specificData.url && data.specificData.apiKey)){
+            reject(new Error("Il faut fournir l'url et la clé influx"))
           }
-  
-          const fields = this.getRemainingFields(jsonData,inputFields);
-  
-          if(!(fields.length > 0)){
-            reject(new Error("Il faut qu'il y ait au moins un champs en entrée (field)."))
+          if(!(data.specificData && data.specificData.bucket && data.specificData.organization)){
+            reject(new Error("Il faut fournir le nom du bucket et de l'organisation"))
           }
-  
-          // array containing every used field :
-          const everyField = Array.from(fields);
-          everyField.push(...inputFields);
-          everyField.push(data.specificData.measurement);
-          // console.log("everyfield : ",everyField.toString());
-  
-          everyField.forEach(element => {
-            // console.log("first for :",element);
-            // https://docs.influxdata.com/influxdb/v1.8/write_protocols/line_protocol_tutorial/
-            if(element && (element == "_field" || element == "measurement" || element == "time")){
-              reject(new Error("Un nom de champs s'appelle time ou _field ou _measurement."))
-            }
-          });
-  
-          // console.log("inputfi ", inputFields);
-          // console.log("remaining strings : ",fields);
-  
-          const fieldsetString = this.fieldsetStringBuilder(jsonData,fields);
-          // console.log("before tagstring");
-          const tagString = this.tagStringBuilder(jsonData,tags);
-          // console.log("tagstring : ",tagString);
-  
-          result = this.stringDataBuilder(jsonData,data.specificData,fieldsetString,tagString)
-          // console.log("result : ",result);
-          if(result !== undefined){
-            console.log(result);
-            resolve({
-              data: result
-            })
+          if(!(data.specificData && data.specificData.measurement && data.specificData.timestamp)){
+            reject(new Error("Il faut fournir le nom de la mesure ou du timestamp"))
+          }
+
+          const url = data.specificData.url;
+          const token = data.specificData.apiKey;
+          const org = data.specificData.organization;
+          const bucket = data.specificData.bucket;
+
+          const influxDB = new this.influxdbClient.InfluxDB({url, token});
+          const writeApi = influxDB.getWriteApi(org, bucket);
+          const jsonData = flowData[0].data;
+
+          const measurementType = data.specificData.measurement;
+          const date = new Date(jsonData[data.specificData.timestamp]);
+
+          if(date.toString().toLowerCase() === "invalid date"){
+            reject(new Error("Il faut fournir un timestamp valide"))
           }
           else {
-            return
-            // reject(new Error("String mal créée ou vide."))
+            // if data == invalid date ->
+            const point1 = new this.influxdbClient.Point(measurementType)
+            .timestamp(date)
+
+            const tags = this.buildTagData(data.specificData);
+
+            // every field entered by the user
+            const inputFields = [data.specificData.timestamp];
+            if(tags.length != 0){
+            inputFields.push(...tags);
+            }
+
+            const fields = this.getRemainingFields(jsonData,inputFields);
+            if(!(fields.length > 0)){
+            reject(new Error("Il faut qu'il y ait au moins un champs en entrée (field)."))
+            }
+            // console.log('fields : ',fields);
+            // console.log('tags : ',tags);
+
+            const point2 = this.addTagsToPoint(jsonData,point1,tags)
+            const point3 = this.addFieldsToPoint(jsonData,point2,fields);
+
+            writeApi.writePoint(point3);
+
+            writeApi.close().then(() => {
+              // console.log('WRITE FINISHED');
+              resolve({'data' : "Donnée insérée"});
+            })
           }
-        }
-      } catch(e) {
+        } catch(e) {
         reject(e)
       }
     })
