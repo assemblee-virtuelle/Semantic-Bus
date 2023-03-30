@@ -8,6 +8,7 @@ class InfluxdbConnector {
 
     /* TODO :
     - gérer les types : strings ou api influx (integer only?)
+    - sécuriser clé api dans grappe?
 
     optimisation :
     - batchs de 5000 lignes
@@ -197,7 +198,7 @@ class InfluxdbConnector {
   // doc of the influx client API on ->>>
   // https://github.com/influxdata/influxdb-client-js/blob/master/examples/write.mjs
   pull (data, flowData, pullParams) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
           if(!(data.specificData && data.specificData.url && data.specificData.apiKey)){
             reject(new Error("Il faut fournir l'url et la clé influx"))
@@ -221,39 +222,56 @@ class InfluxdbConnector {
           const measurementType = data.specificData.measurement;
           const date = new Date(jsonData[data.specificData.timestamp]);
 
-          if(date.toString().toLowerCase() === "invalid date"){
-            reject(new Error("Il faut fournir un timestamp valide"))
-          }
-          else {
-            // if data == invalid date ->
-            const point1 = new this.influxdbClient.Point(measurementType)
-            .timestamp(date)
+          const tags = this.buildTagData(data.specificData);
+          let insertData = true;
+          // checking that the data for the tags isn't empty or undefined
+          tags.forEach(tag => {
+            if(!(jsonData[tag])){
+              insertData = false;
+            }
+          })
 
-            const tags = this.buildTagData(data.specificData);
-
-            // every field entered by the user
-            const inputFields = [data.specificData.timestamp];
-            if(tags.length != 0){
+          // every field entered by the user
+          const inputFields = [data.specificData.timestamp];
+          if(tags.length != 0){
             inputFields.push(...tags);
-            }
+          }
 
-            const fields = this.getRemainingFields(jsonData,inputFields);
-            if(!(fields.length > 0)){
+          const fields = this.getRemainingFields(jsonData,inputFields);
+          
+          if(!(fields.length > 0)){
             reject(new Error("Il faut qu'il y ait au moins un champs en entrée (field)."))
-            }
-            // console.log('fields : ',fields);
-            // console.log('tags : ',tags);
-
+          }
+          else if(date.toString().toLowerCase() === "invalid date"){
+            reject(new Error("Il faut fournir un timestamp et des données valides dans les tags."))
+          } 
+          else if(insertData){
+            // if we have valid tag values,
+            // a valid timestamp and at least one field then
+            // we insert the data
+            const point1 = new this.influxdbClient.Point(measurementType)
+                          .timestamp(date)
             const point2 = this.addTagsToPoint(jsonData,point1,tags)
             const point3 = this.addFieldsToPoint(jsonData,point2,fields);
-
             writeApi.writePoint(point3);
 
-            writeApi.close().then(() => {
-              // console.log('WRITE FINISHED');
-              resolve({'data' : "Donnée insérée"});
-            })
+            try {
+              await writeApi.close();
+              resolve({"data" : 'Donnée insérée'});
+            } catch (e) {
+              console.error(e);
+              if (e instanceof HttpError && e.statusCode === 401) {
+                console.log('Run ./onboarding.js to setup a new InfluxDB database.');
+                reject(e)
+              }
+              console.log('\nTerminé avec des erreurs');
+              reject(e)
+            }
+          } else{
+            resolve({'data':'Donnée non insérée'});
           }
+          resolve({'data':'Donnée non insérée'});
+
         } catch(e) {
         reject(e)
       }
