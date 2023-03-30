@@ -34,6 +34,16 @@
   <div class="cardInput">
     <input class="inputComponents" type="text" ref="bucket" value={data.specificData.bucket} placeholder="Test" onchange={bucketChange}/>
   </div>
+  <!--  Suppression des données  -->
+  <div class="options">
+    <label class="labelFormStandard">Ne pas supprimer avant injection</label>
+    <div class="cardInput">
+      <label class="switch">
+          <input type="checkbox" name="notEraseValueInput" ref="notEraseValueInput" checked={data.specificData.notErase} onchange={notEraseChange}/>
+          <span class="slider round"></span>
+      </label>
+    </div>
+  </div>
   <!--  Nom de la mesure  -->
   <label class="labelFormStandard">Nom de la mesure:</label>
   <div class="cardInput">
@@ -81,15 +91,12 @@
   measurementChange(e) {
     this.data.specificData.measurement = e.target.value;
   }
-
   tagChange(e) {
     this.data.specificData.tagKey = e.target.value;
   }
-
   timestampChange(e) {
     this.data.specificData.timestamp = e.target.value;
   }
-
   apiKeyChange(e) {
     this.data.specificData.apiKey = e.target.value;
   }
@@ -102,6 +109,9 @@
   organizationChange(e) {
     this.data.specificData.organization = e.target.value;
   }
+  notEraseChange(e){
+    this.data.specificData.notErase = e.target.checked
+  }
 
   this.updateData=function(dataToUpdate){
     this.data = dataToUpdate;
@@ -113,6 +123,7 @@
     this.refs.bucket.data = this.data.specificData.bucket;
     this.refs.organization.data = this.data.specificData.organization;
     this.refs.tagsTable.data = this.data.specificData.tags || [];
+    this.refs.notErase = this.data.specificData.notErase || false;
     this.update();
   }.bind(this);
 

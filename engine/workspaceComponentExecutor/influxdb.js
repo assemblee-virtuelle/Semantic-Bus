@@ -4,6 +4,7 @@ class InfluxdbConnector {
   constructor () {
     this.config = require('../configuration.js');
     this.influxdbClient = require('@influxdata/influxdb-client');
+    this.influxdbClientApi = require('@influxdata/influxdb-client-apis');
   }
 
     /* TODO :
@@ -16,61 +17,61 @@ class InfluxdbConnector {
     - compression gzip requête http post -> créer composant gzip 
   */
 
-  stringDataBuilder(jsonData,data,fieldsetString,tagString) {
-    // you should refer to the pages on the influxdb line protocol
-    // https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#naming-restrictions
+  // stringDataBuilder(jsonData,data,fieldsetString,tagString) {
+  //   // you should refer to the pages on the influxdb line protocol
+  //   // https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#naming-restrictions
 
-    // influxdb data type = string
-    const measurementName = data.measurement;
+  //   // influxdb data type = string
+  //   const measurementName = data.measurement;
 
-    const fieldSet = fieldsetString;
+  //   const fieldSet = fieldsetString;
 
-    // the timestamp needs to be in the ISO format
-    // like this : ,               1654940402000, the influxISO format
-    //     1677687240000 13
-    // has 6 more 0s at the end -> 1422568543702900257 19
-    let result;
-    let timestamp = '';
-    if(jsonData[data.timestamp]){
-      const date = new Date(jsonData[data.timestamp]);
-      if(date.toDateString().toLowerCase() !== 'invalid date'){
-        timestamp = date.getTime().toString();
-        if(timestamp.length < 19){
-          const nberOfZerosToAdd = 18 - timestamp.length;
-          for (let index = 0; index < nberOfZerosToAdd; index++) {
-            timestamp+="0";
-          }
-        }
-        result = measurementName +
-        // optional
-        tagString
-        // the blank space separates the measurement
-        // name and tag set from the field set
-        + " " +
-        fieldSet;
+  //   // the timestamp needs to be in the ISO format
+  //   // like this : ,               1654940402000, the influxISO format
+  //   //     1677687240000 13
+  //   // has 6 more 0s at the end -> 1422568543702900257 19
+  //   let result;
+  //   let timestamp = '';
+  //   if(jsonData[data.timestamp]){
+  //     const date = new Date(jsonData[data.timestamp]);
+  //     if(date.toDateString().toLowerCase() !== 'invalid date'){
+  //       timestamp = date.getTime().toString();
+  //       if(timestamp.length < 19){
+  //         const nberOfZerosToAdd = 18 - timestamp.length;
+  //         for (let index = 0; index < nberOfZerosToAdd; index++) {
+  //           timestamp+="0";
+  //         }
+  //       }
+  //       result = measurementName +
+  //       // optional
+  //       tagString
+  //       // the blank space separates the measurement
+  //       // name and tag set from the field set
+  //       + " " +
+  //       fieldSet;
 
-        if(timestamp){
-          result += " " + timestamp
-        }
-        // each data is a line separated by a /n
-        result += + " " + "\n";
-      }
-    }
-    return result
-  }
+  //       if(timestamp){
+  //         result += " " + timestamp
+  //       }
+  //       // each data is a line separated by a /n
+  //       result += + " " + "\n";
+  //     }
+  //   }
+  //   return result
+  // }
 
-  fieldsetStringBuilder(jsonData,fields){
-    let fieldsetString = '';
-    for (let index = 0; index < fields.length; index++) {
-      const field = fields[index];
-      const field_value = jsonData[field];
-      fieldsetString += (field + "=" + field_value);
-      if(index != (fields.length-1)){
-        fieldsetString += ","
-      }
-    }
-    return fieldsetString
-  }
+  // fieldsetStringBuilder(jsonData,fields){
+  //   let fieldsetString = '';
+  //   for (let index = 0; index < fields.length; index++) {
+  //     const field = fields[index];
+  //     const field_value = jsonData[field];
+  //     fieldsetString += (field + "=" + field_value);
+  //     if(index != (fields.length-1)){
+  //       fieldsetString += ","
+  //     }
+  //   }
+  //   return fieldsetString
+  // }
 
   // only works with integer fields !!!
   // add fields to the Point influxdb object
@@ -83,15 +84,15 @@ class InfluxdbConnector {
     return point
   }
 
-  tagStringBuilder(jsonData,tags){
-    let tagString = '';
-    for (let index = 0; index < tags.length; index++) {
-      const tag = tags[index];
-      const tag_value = jsonData[tag];
-      tagString += ("," + tag + "=" + tag_value);
-    }
-    return tagString
-  }
+  // tagStringBuilder(jsonData,tags){
+  //   let tagString = '';
+  //   for (let index = 0; index < tags.length; index++) {
+  //     const tag = tags[index];
+  //     const tag_value = jsonData[tag];
+  //     tagString += ("," + tag + "=" + tag_value);
+  //   }
+  //   return tagString
+  // }
 
   // add tags to the Point influxdb object
   addTagsToPoint(jsonData,point,tags){
@@ -120,17 +121,11 @@ class InfluxdbConnector {
   }
 
   // gets list of tags names
-  buildTagData(data){
+  getTags(data){
     let tags=[];
     if (data.tags != undefined) {
       for (let tag of data.tags) {
-        try {
-          tags.push(tag.tag);
-        } catch (e) {
-          if (this.config != undefined && this.config.quietLog != true) {
-            console.log(e.message);
-          }
-        }
+        tags.push(tag.tag);
       }
     }
     return tags
@@ -147,7 +142,7 @@ class InfluxdbConnector {
       // console.log('empty data here');
     } else {
       // console.log(flowData[0].data);
-      const tags = this.buildTagData(data.specificData);
+      const tags = this.getTags(data.specificData);
 
       // every field entered by the user
       const inputFields = [data.specificData.timestamp];
@@ -195,6 +190,30 @@ class InfluxdbConnector {
         return
       }*/
 
+
+  // delete every data from bucket 
+  // https://github.com/influxdata/influxdb-client-js/blob/master/examples/delete.ts
+  async deleteData(influxDB,org,bucket,measurementType){
+    // console.log('*** DELETE DATA ***')
+    const deleteAPI = new this.influxdbClientApi.DeleteAPI(influxDB);
+    // define time interval for delete operation
+    const stop = new Date();
+    const start = new Date('01/01/2000');
+    
+    // console.log('start : ',start);
+
+    await deleteAPI.postDelete({
+      org,
+      bucket,
+      body: {
+        start: start.toISOString(),
+        stop: stop.toISOString(),
+        // see https://docs.influxdata.com/influxdb/latest/reference/syntax/delete-predicate/
+        predicate: '_measurement="'+measurementType+'"',
+      },
+    });
+  }
+
   // doc of the influx client API on ->>>
   // https://github.com/influxdata/influxdb-client-js/blob/master/examples/write.mjs
   pull (data, flowData, pullParams) {
@@ -222,7 +241,7 @@ class InfluxdbConnector {
           const measurementType = data.specificData.measurement;
           const date = new Date(jsonData[data.specificData.timestamp]);
 
-          const tags = this.buildTagData(data.specificData);
+          const tags = this.getTags(data.specificData);
           let insertData = true;
           // checking that the data for the tags isn't empty or undefined
           tags.forEach(tag => {
@@ -233,10 +252,11 @@ class InfluxdbConnector {
 
           // every field entered by the user
           const inputFields = [data.specificData.timestamp];
-          if(tags.length != 0){
+          if(tags.length > 0){
             inputFields.push(...tags);
           }
 
+          // gets the fields that weren't entered by the user
           const fields = this.getRemainingFields(jsonData,inputFields);
           
           if(!(fields.length > 0)){
@@ -253,25 +273,31 @@ class InfluxdbConnector {
                           .timestamp(date)
             const point2 = this.addTagsToPoint(jsonData,point1,tags)
             const point3 = this.addFieldsToPoint(jsonData,point2,fields);
-            writeApi.writePoint(point3);
-
-            try {
+            
+            let deleteData = !(data.specificData.notErase);
+            // console.log('deletedata : ',deleteData);
+            
+            // we delete everything in the bucket from now to year 2000
+            if(deleteData){
+              this.deleteData(influxDB,org,bucket,measurementType)
+                .then(async () => {
+                  writeApi.writePoint(point3);
+                  await writeApi.close();
+                  resolve({"data" : 'Donnée insérée'});
+                  // console.log('\nFinished SUCCESS')
+                })
+                .catch((error) => {
+                  console.error(error)
+                  // console.log('\nFinished ERROR')
+                });
+            } else {
+              // then we write the data
+              writeApi.writePoint(point3);
               await writeApi.close();
               resolve({"data" : 'Donnée insérée'});
-            } catch (e) {
-              console.error(e);
-              if (e instanceof HttpError && e.statusCode === 401) {
-                console.log('Run ./onboarding.js to setup a new InfluxDB database.');
-                reject(e)
-              }
-              console.log('\nTerminé avec des erreurs');
-              reject(e)
             }
-          } else{
-            resolve({'data':'Donnée non insérée'});
           }
           resolve({'data':'Donnée non insérée'});
-
         } catch(e) {
         reject(e)
       }
