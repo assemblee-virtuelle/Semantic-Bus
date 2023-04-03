@@ -34,16 +34,6 @@
   <div class="cardInput">
     <input class="inputComponents" type="text" ref="bucket" value={data.specificData.bucket} placeholder="Test" onchange={bucketChange}/>
   </div>
-  <!--  Suppression des données  -->
-  <div class="options">
-    <label class="labelFormStandard">Ne pas supprimer avant injection</label>
-    <div class="cardInput">
-      <label class="switch">
-          <input type="checkbox" name="notEraseValueInput" ref="notEraseValueInput" checked={data.specificData.notErase} onchange={notEraseChange}/>
-          <span class="slider round"></span>
-      </label>
-    </div>
-  </div>
   <!--  Nom de la mesure  -->
   <label class="labelFormStandard">Nom de la mesure:</label>
   <div class="cardInput">
@@ -54,20 +44,37 @@
   <div class="cardInput">
     <input class="inputComponents" type="text" ref="timestamp" value={data.specificData.timestamp} onchange={timestampChange}/>
   </div>
+  <!--  Suppression des données  -->
+  <div class="options">
+    <label class="labelFormStandard">Ne pas supprimer avant injection</label>
+    <div class="cardInput">
+      <label class="switch">
+          <input type="checkbox" name="notEraseValueInput" ref="notEraseValueInput" checked={data.specificData.notErase} onchange={notEraseChange}/>
+          <span class="slider round"></span>
+      </label>
+    </div>
+  </div>
+    <!--  Query Infludb  -->
+  <label>Valeur(Mettre uniquement query de recherche de données):
+    <a href="https://docs.influxdata.com/influxdb/v2.6/reference/syntax/influxql/spec/" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </label>
+  <div class="containerH">
+    <textarea class="textArea" placeholder="from(bucket:Test) |> range(start: -1d) |> filter(fn: (r) => r._measurement == electricitySensors);" type="textarea" ref="querySelect" onchange={querySelectChange} value={data.specificData.querySelect} style="flex-grow:1">{data.specificData.querySelect}</textarea>
+  </div>
   <!--  Champs d'id  -->
   <label class="labelFormStandard">Champs d'id:</label>
   <div class="cardInput">
     <div onclick={addRowClick} class="btnFil commandButtonImage">
-        Ajouter
-        <img class="imgFil" src="./image/ajout_composant.svg" title="Importer un Workflow">
-        <input onchange={import} ref="import" type="file" style="display:none;"/>
-      </div>
+      Ajouter
+      <img class="imgFil" src="./image/ajout_composant.svg" title="Importer un Workflow">
+      <input onchange={import} ref="import" type="file" style="display:none;"/>
     </div>
-    <zentable ref="tagsTable" title="tag(s) a choisir" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
-      <yield to="row">
-        <input placeholder="Tag" type="text" style="flex-basis:90%; margin: 5px" value={tag} data-field="tag"/>
-      </yield>
-    </zentable>
+  </div>
+  <zentable ref="tagsTable" title="tag(s) a choisir" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
+    <yield to="row">
+      <input placeholder="Tag" type="text" style="flex-basis:90%; margin: 5px" value={tag} data-field="tag"/>
+    </yield>
+  </zentable>
 
 <script>
 
@@ -80,6 +87,7 @@
   this.data.specificData.url = '';
   this.data.specificData.bucket = '';
   this.data.specificData.organization = '';
+  this.data.specificData.querySelect = '';
   this.data.specificData.tags = [];
 
   //beggining of code for the input section
@@ -112,6 +120,9 @@
   notEraseChange(e){
     this.data.specificData.notErase = e.target.checked
   }
+  querySelectChange(e){
+    this.data.specificData.querySelect = e.target.value;
+  }
 
   this.updateData=function(dataToUpdate){
     this.data = dataToUpdate;
@@ -124,6 +135,7 @@
     this.refs.organization.data = this.data.specificData.organization;
     this.refs.tagsTable.data = this.data.specificData.tags || [];
     this.refs.notErase = this.data.specificData.notErase || false;
+    this.refs.querySelect = this.data.specificData.querySelect;
     this.update();
   }.bind(this);
 
