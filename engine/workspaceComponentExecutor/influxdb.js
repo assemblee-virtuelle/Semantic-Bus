@@ -193,7 +193,7 @@ class InfluxdbConnector {
 
   // delete every data from bucket 
   // https://github.com/influxdata/influxdb-client-js/blob/master/examples/delete.ts
-  async deleteData(influxDB,org,bucket,measurementType){
+  async deleteData(influxDB,org,bucket,measurementType,location){
     // console.log('*** DELETE DATA ***')
     const deleteAPI = new this.influxdbClientApi.DeleteAPI(influxDB);
     // define time interval for delete operation
@@ -209,7 +209,7 @@ class InfluxdbConnector {
         start: start.toISOString(),
         stop: stop.toISOString(),
         // see https://docs.influxdata.com/influxdb/latest/reference/syntax/delete-predicate/
-        predicate: '_measurement="'+measurementType+'"',
+        predicate: '_measurement="'+measurementType+'" and location="'+location+'"',
       },
     });
   }
@@ -242,6 +242,9 @@ class InfluxdbConnector {
           const date = new Date(jsonData[data.specificData.timestamp]);
 
           const tags = this.getTags(data.specificData);
+          // TODO when removal of data we have to choose a field ! location temporary
+          // test -> if location is empty we do not delete the datas
+          const location = jsonData['location'];
           let insertData = true;
           // checking that the data for the tags isn't empty or undefined
           tags.forEach(tag => {
@@ -279,7 +282,7 @@ class InfluxdbConnector {
             
             // we delete everything in the bucket from now to year 2000
             if(deleteData){
-              this.deleteData(influxDB,org,bucket,measurementType)
+              this.deleteData(influxDB,org,bucket,measurementType,location)
                 .then(async () => {
                   writeApi.writePoint(point3);
                   await writeApi.close();
@@ -292,12 +295,17 @@ class InfluxdbConnector {
                 });
             } else {
               // then we write the data
-              writeApi.writePoint(point3);
-              await writeApi.close();
-              resolve({"data" : 'Donnée insérée'});
+              try{
+                writeApi.writePoint(point3);
+                await writeApi.close();
+                console.log('data insérée');
+                resolve({"data" : 'Donnée insérée'});
+              } catch(e) {
+                console.log('data non insérée');
+                resolve({'data':'Donnée non insérée'});
+              }
             }
           }
-          resolve({'data':'Donnée non insérée'});
         } catch(e) {
         reject(e)
       }
