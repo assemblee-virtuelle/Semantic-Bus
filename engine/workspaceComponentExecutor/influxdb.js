@@ -199,8 +199,6 @@ class InfluxdbConnector {
     // define time interval for delete operation
     const stop = new Date();
     const start = new Date('01/01/2000');
-    
-    // console.log('start : ',start);
 
     await deleteAPI.postDelete({
       org,
@@ -231,67 +229,84 @@ class InfluxdbConnector {
     return data
   }
 
-  queryGenerator(influxDB,querySelect,bucket,measurementType){
+  async queryGenerator(influxDB,querySelect,bucket,measurementType,org){
     const queryApi = influxDB.getQueryApi(org);
+    let data;
     // first if there is a query we ask it
+
     if(queryApi && querySelect){
       console.log('entering query !');
-      this.iterateRows(bucket,measurementType,queryApi,querySelect).then( (data) => {
+      console.log('bucket ',bucket);
+      console.log('measurementType : ',measurementType);
+
+      await this.iterateRows(bucket,measurementType,queryApi,querySelect).then( (result) => {
         // console.log(data);
-        if(data){
-          resolve({"data" : data})
+        if(!result){
+          throw new Error("Aucune donnée trouvée avec la query");
+        } else {
+          data = result;
         }
-        else{
-          reject(new Error("Aucune donnée trouvée avec la query"));
-        }
+      }).catch ((e) => {
+        throw new Error(e);
       })
     }
+    return data
   }
 
-  async writeData(jsonData,influxDB,timestamp,fields,tags,org,bucket,measurementType){
+  writeData(jsonData,influxDB,timestamp,fields,tags,org,bucket,measurementType){
     const writeApi = influxDB.getWriteApi(org, bucket);
-
-    if(!(fields.length > 0)){
-      reject(new Error("Il faut qu'il y ait au moins un champs en entrée (field)."))
-    }
-    else if(!(timestamp)){
-      reject(new Error("Il faut fournir un timestamp"))
-    } else{
-      // TODO -> if/else???
-        const date = new Date(jsonData[timestamp]);
-        date.toString().toLowerCase() === "invalid date" ? reject(new Error("Il faut fournir un timestamp et des données valides dans les tags.")) : null;
-    }
-
-    // test -> if location is empty we do not delete the datas
-    let insertData = true;
-    // checking that the data for the tags isn't empty or undefined
-    tags.forEach(tag => {
-      if(!(jsonData[tag])){
-        insertData = false;
+    let result;
+    let date;
+    
+    try {
+      if(!(fields.length > 0)){
+        throw new Error("Il faut qu'il y ait au moins un champs en entrée (field).");
       }
-    })
-    
-    if(insertData && writeApi){
-      // if we have valid tag values,
-      // a valid timestamp and at least one field then
-      // we insert the data
-      const point1 = new this.influxdbClient.Point(measurementType)
-                    .timestamp(date)
-      const point2 = this.addTagsToPoint(jsonData,point1,tags)
-      const point3 = this.addFieldsToPoint(jsonData,point2,fields);
-    
-      // then we write the data
-      try{
+      else if(!(timestamp)){
+        throw new Error("Il faut fournir un timestamp");
+      } else{
+        // TODO -> if/else???
+          date = new Date(jsonData[timestamp]);
+          if(date.toString().toLowerCase() === "invalid date"){
+            throw new Error("Il faut fournir un timestamp et des données valides dans les tags.");
+          }
+      }
+
+      // test -> if location is empty we do not delete the datas
+      let insertData = true;
+      // checking that the data for the tags isn't empty or undefined
+      tags.forEach(tag => {
+        if(!(jsonData[tag])){
+          insertData = false;
+        }
+      })
+      
+      if(insertData && writeApi){
+        // if we have valid tag values,
+        // a valid timestamp and at least one field then
+        // we insert the data
+        const point1 = new this.influxdbClient.Point(measurementType)
+                      .timestamp(date)
+        const point2 = this.addTagsToPoint(jsonData,point1,tags)
+        const point3 = this.addFieldsToPoint(jsonData,point2,fields);
+
+        console.log(point3);
+      
+        // then we write the data
+        
         writeApi.writePoint(point3);
-        await writeApi.close();
-        console.log('data insérée');
-        resolve({"data" : 'Donnée insérée'});
-      } catch(e) {
-        console.log('data non insérée');
-        resolve({'data':'Donnée non insérée'});
+        writeApi.close().then( () => {
+          result  = 'donnée insérées';
+        })
+      } else{
+        result  = 'donnée non insérées';
       }
+    } catch(e) {
+        console.log('Error : ',e);
     }
 
+    return result;
+    
   }
 
   // doc of the influx client API on ->>>
@@ -316,36 +331,22 @@ class InfluxdbConnector {
           const measurementType = data.specificData.measurement;
           const timestamp = data.specificData.timestamp;
           const querySelect = data.specificData.querySelect;
-          const jsonData = flowData[0].data;
 
           // TODO when removal of data we have to choose a field ! location temporary
-          const location = jsonData['location'];
-
-          const tags = this.getTags(data.specificData);
-
-          // every field entered by the user
-          const inputFields = [data.specificData.timestamp];
-          if(tags.length > 0){
-            inputFields.push(...tags);
-          }
-
-          // gets the fields that weren't entered by the user
-          const fields = this.getRemainingFields(jsonData,inputFields);
-
-          // creation of the communication interface for influxdb
-          const influxDB = new this.influxdbClient.InfluxDB({url, token});
-          // TODO -> CHOOSE ARGUMENTS
+          const location = flowData ? flowData[0].data['location'] : '';
+          // console.log('location : ',location);
 
           let deleteData = !(data.specificData.notErase);
 
-          // when to query??? delete > query > insert
-      
+          // creation of the communication interface for influxdb
+          const influxDB = new this.influxdbClient.InfluxDB({url, token});
+          
           // we delete everything in the bucket from now to year 2000
           // we either delete or write the data ???
           if(deleteData){
+            console.log('deletedata');
             this.deleteData(influxDB,org,bucket,measurementType,location)
               .then(async () => {
-                await writeApi.close();
                 console.log('\nSuppression des données');
                 resolve({"data" : 'Suppression des données réalisée'});
               })
@@ -355,9 +356,32 @@ class InfluxdbConnector {
                 // console.log('\nFinished ERROR')
               });
           } else if(querySelect) {
-            this.queryGenerator(influxDB,querySelect,bucket,measurementType);
+            console.log('querySelect');
+            await this.queryGenerator(influxDB,querySelect,bucket,measurementType,org).then((result) => {
+              console.log('data : ',result);
+              resolve({'data' : result})
+            }).catch( (e) => {
+              console.log(e);
+              reject(new Error(e));
+            })
           } else {
-            await this.writeData(jsonData,influxDB,timestamp,fields,tags,org,bucket,measurementType);
+            console.log('writedata');
+            const jsonData = flowData[0].data;
+
+            const tags = this.getTags(data.specificData);
+
+            // every field entered by the user
+            const inputFields = [data.specificData.timestamp];
+            if(tags.length > 0){
+              inputFields.push(...tags);
+            }
+
+             // gets the fields that weren't entered by the user
+            const fields = this.getRemainingFields(jsonData,inputFields);
+
+            const result = this.writeData(jsonData,influxDB,timestamp,fields,tags,org,bucket,measurementType);
+            console.log('donnée insérée ');
+            resolve({'data' : result})
           }
         } catch(e) {
         reject(e)

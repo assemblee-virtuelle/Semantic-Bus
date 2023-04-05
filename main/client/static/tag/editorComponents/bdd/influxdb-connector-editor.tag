@@ -59,7 +59,7 @@
     <a href="https://docs.influxdata.com/influxdb/v2.6/reference/syntax/influxql/spec/" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </label>
   <div class="containerH">
-    <textarea class="textArea" placeholder="from(bucket:Test) |> range(start: -1d) |> filter(fn: (r) => r._measurement == electricitySensors);" type="textarea" ref="querySelect" onchange={querySelectChange} value={data.specificData.querySelect} style="flex-grow:1">{data.specificData.querySelect}</textarea>
+    <textarea class="textArea" placeholder="from(bucket:'Test') |> range(start: -3d) |> filter(fn: (r) => r._measurement == 'electricitySensors')" type="textarea" ref="querySelect" onchange={querySelectChange} value={data.specificData.querySelect} style="flex-grow:1">{data.specificData.querySelect}</textarea>
   </div>
   <!--  Champs d'id  -->
   <label class="labelFormStandard">Champs d'id:</label>
