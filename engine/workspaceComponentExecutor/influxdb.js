@@ -9,7 +9,7 @@ class InfluxdbConnector {
 
     /* TODO :
     - gérer les types : strings ou api influx (integer only?)
-    - sécuriser clé api dans grappe?
+    - gérer temps de suppression données start et end
 
     optimisation :
     - batchs de 5000 lignes
@@ -208,7 +208,7 @@ class InfluxdbConnector {
 
   // Execute query and receive table metadata and table row values using async iterator.
   async iterateRows(queryApi,querySelect) {
-    //console.log('*** IterateRows ***')
+    // console.log('*** IterateRows ***')
     // const fluxQuery = 'from(bucket:"'+bucket+'") |> range(start: -1d) |> filter(fn: (r) => r._measurement == "'+measurementType+'")';
     const fluxQuery = querySelect;
     let data = [];
@@ -230,8 +230,6 @@ class InfluxdbConnector {
 
     if(queryApi && querySelect){
       // console.log('entering query !');
-      // console.log('bucket ',bucket);
-      // console.log('measurementType : ',measurementType);
 
       await this.iterateRows(queryApi,querySelect).then( (result) => {
         // console.log(data);
@@ -310,11 +308,8 @@ class InfluxdbConnector {
           if(!(data.specificData && data.specificData.url && data.specificData.apiKey)){
             reject(new Error("Il faut fournir l'url et la clé influx"))
           }
-          if(!(data.specificData && data.specificData.bucket && data.specificData.organization)){
-            reject(new Error("Il faut fournir le nom du bucket et de l'organisation"))
-          }
-          if(!(data.specificData && data.specificData.measurement)){
-            reject(new Error("Il faut fournir le nom de la mesure"))
+          if(!(data.specificData && data.specificData.organization)){
+            reject(new Error("Il faut fournir le nom de l'organisation"))
           }
 
           const choice = data.specificData.choice;
@@ -323,19 +318,21 @@ class InfluxdbConnector {
           const url = data.specificData.url;
           const token = data.specificData.apiKey;
           const org = data.specificData.organization;
-          const bucket = data.specificData.bucket;
-          const measurementType = data.specificData.measurement;
-          const timestamp = data.specificData.timestamp;
-          const querySelect = data.specificData.querySelect;
+          const bucket = data.specificData.bucket ? data.specificData.bucket : '';
+          const measurementType = data.specificData.measurement ? data.specificData.measurement : '';
 
           // creation of the communication interface for influxdb
           const influxDB = new this.influxdbClient.InfluxDB({url, token});
-          
+
           switch (choice) {
             case "inserer":
               // console.log('writedata');
+              if(!(data.specificData && data.specificData.measurement && data.specificData.bucket)){
+                reject(new Error("Il faut fournir le nom de la mesure te le nom du bucket"))
+              }
               const jsonData = flowData[0].data;
               const tags = this.getTags(data.specificData);
+              const timestamp = data.specificData.timestamp;
 
               // every field entered by the user
               const inputFields = [data.specificData.timestamp];
@@ -352,6 +349,9 @@ class InfluxdbConnector {
 
             case "supprimer":
               // console.log('deletedata');
+              if(!(data.specificData && data.specificData.measurement && data.specificData.bucket)){
+                reject(new Error("Il faut fournir le nom de la mesure te le nom du bucket"))
+              }
 
               // we delete everything in the bucket from now to year 2000
               const deleteTagValue = data.specificData.deleteTagValue;
@@ -371,11 +371,13 @@ class InfluxdbConnector {
 
             case "requeter":
               // console.log('querySelect');
+              const querySelect = data.specificData.querySelect;
+
               await this.queryGenerator(influxDB,querySelect,org).then((result) => {
                 // console.log('data : ',result);
                 resolve({'data' : result})
               }).catch( (e) => {
-                // console.log(e);
+                console.log(e);
                 reject(new Error(e));
               })
               break;
@@ -383,6 +385,8 @@ class InfluxdbConnector {
             default:
               break;
           }
+          // if choice is undefined ->>>
+          resolve({data : {}})
 
         } catch(e) {
         reject(e)

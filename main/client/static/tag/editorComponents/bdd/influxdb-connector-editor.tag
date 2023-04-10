@@ -44,7 +44,7 @@
   </div>
   <!--  Elements nécessaires pour suppression ou insertion  -->
     <!--  Bucket  -->
-  <div id= "bucketMeasureType" style='display:none;'>
+  <div id= "bucketMeasureType" show={ (data.specificData.insertChecked == 'checked' || data.specificData.deleteChecked == 'checked')} >
     <div id="bucket">
       <label class="labelFormStandard">Bucket:</label>
       <div class="cardInput">
@@ -144,6 +144,7 @@
     this.checkedRadio = document.querySelector('input[name="action"]:checked')
     if (this.checkedRadio) {
       this.showHideElements(this.checkedRadio.value);
+      this.data.specificData.choice = this.checkedRadio.value;
     }
   }
   //end of the code for show/hide elements
