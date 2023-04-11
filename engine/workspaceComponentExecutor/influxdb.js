@@ -247,7 +247,7 @@ class InfluxdbConnector {
 
   writeData(jsonData,influxDB,timestamp,fields,tags,org,bucket,measurementType){
     const writeApi = influxDB.getWriteApi(org, bucket);
-    let result;
+    let result = 'donnée non insérée';
     let date;
     
     try {
@@ -286,18 +286,13 @@ class InfluxdbConnector {
         // then we write the data
         
         writeApi.writePoint(point3);
-        writeApi.close().then( () => {
-          result  = 'donnée insérées';
-        })
-      } else{
-        result  = 'donnée non insérées';
-      }
+        result  = 'donnée insérée';
+        writeApi.close();
+      } 
     } catch(e) {
         console.log('Error : ',e);
     }
-
     return result;
-    
   }
 
   // doc of the influx client API on ->>>
@@ -320,6 +315,9 @@ class InfluxdbConnector {
           const org = data.specificData.organization;
           const bucket = data.specificData.bucket ? data.specificData.bucket : '';
           const measurementType = data.specificData.measurement ? data.specificData.measurement : '';
+          const jsonData = flowData ? flowData[0].data : {};
+
+          // console.log('data : ',jsonData);
 
           // creation of the communication interface for influxdb
           const influxDB = new this.influxdbClient.InfluxDB({url, token});
@@ -330,7 +328,6 @@ class InfluxdbConnector {
               if(!(data.specificData && data.specificData.measurement && data.specificData.bucket)){
                 reject(new Error("Il faut fournir le nom de la mesure te le nom du bucket"))
               }
-              const jsonData = flowData[0].data;
               const tags = this.getTags(data.specificData);
               const timestamp = data.specificData.timestamp;
 
@@ -343,8 +340,8 @@ class InfluxdbConnector {
               // gets the fields that weren't entered by the user
               const fields = this.getRemainingFields(jsonData,inputFields);
               const result = this.writeData(jsonData,influxDB,timestamp,fields,tags,org,bucket,measurementType);
-              // console.log('donnée insérée ');
-              resolve({'data' : result})
+              // console.log(result);
+              resolve({'data' : jsonData})
               break;
 
             case "supprimer":
@@ -357,10 +354,11 @@ class InfluxdbConnector {
               const deleteTagValue = data.specificData.deleteTagValue;
               const deleteTag = data.specificData.deleteTag;
 
-              this.deleteData(influxDB,org,bucket,measurementType,deleteTag,deleteTagValue)
-                .then(async () => {
+              await this.deleteData(influxDB,org,bucket,measurementType,deleteTag,deleteTagValue)
+                .then(() => {
                   // console.log('\nSuppression des données');
-                  resolve({"data" : 'Suppression des données réalisée'});
+                  // console.log('jsonData : ',jsonData);
+                  resolve({'data' : jsonData});
                 })
                 .catch((error) => {
                   // console.error(error);
@@ -377,7 +375,7 @@ class InfluxdbConnector {
                 // console.log('data : ',result);
                 resolve({'data' : result})
               }).catch( (e) => {
-                console.log(e);
+                // console.log(e);
                 reject(new Error(e));
               })
               break;
