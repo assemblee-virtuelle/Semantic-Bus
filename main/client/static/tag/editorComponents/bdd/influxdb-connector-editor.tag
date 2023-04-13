@@ -121,10 +121,10 @@
         </yield>
         <yield to="row">
           <div class="tableRowLocation">
-            <input style="width: 90%; padding: 0.7vh;" type="text" placeholder="location" value={action} data-field="tag"/>
+            <input style="width: 90%; padding: 0.7vh;" type="text" placeholder="location" value={tag} data-field="tag"/>
           </div>
           <div class="tableRowTagValue">
-            <input style="width: 90%; padding: 0.7vh;" type="text" placeholder="coma" value={selector} data-field="tagValue"/>
+            <input style="width: 90%; padding: 0.7vh;" type="text" placeholder="coma" value={tagValue} data-field="tagValue"/>
           </div>
         </yield>
       </zentable>
@@ -171,7 +171,6 @@
   }
 
   saveRadioState(){
-    console.log('LOL', 'saveRadioState');
     this.checkedRadio = document.querySelector('input[name="action"]:checked')
     if (this.checkedRadio) {
       this.showHideElements(this.checkedRadio.value);
@@ -275,7 +274,7 @@
 <style>
   .containerTitle {
     border-radius: 2px;
-    width: 33%;
+    width: 45%;
     flex-direction: row;
     display: flex;
     justify-content: space-evenly;
@@ -309,14 +308,14 @@
 
   .tableRowLocation {
     font-size: 0.85em;
-    flex:0.2;
+    flex:0.3;
     justify-content: flex-start;
     align-items: center;
     display: flex;
   }
   .tableRowTagValue {
     font-size: 0.85em;
-    flex:0.2;
+    flex:0.3;
     justify-content: flex-start;
     align-items: center;
     display: flex;

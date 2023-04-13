@@ -190,12 +190,21 @@ class InfluxdbConnector {
 
   // delete every data from bucket 
   // https://github.com/influxdata/influxdb-client-js/blob/master/examples/delete.ts
-  async deleteData(influxDB,org,bucket,measurementType,deleteTag,deleteTagValue){
+  async deleteData(influxDB,org,bucket,measurementType,deleteTags){
     // console.log('*** DELETE DATA ***')
     const deleteAPI = new this.influxdbClientApi.DeleteAPI(influxDB);
     // define time interval for delete operation
     const stop = new Date();
     const start = new Date('01/01/1950');
+
+    let stringDelete = '_measurement="'+measurementType+'"';
+
+    deleteTags.forEach((element) => {
+      // console.log(element.tag,element.tagValue);
+      stringDelete +=' and '+element.tag+'="'+element.tagValue+'"';
+    })
+
+    console.log(stringDelete);
 
     await deleteAPI.postDelete({
       org,
@@ -204,7 +213,7 @@ class InfluxdbConnector {
         start: start.toISOString(),
         stop: stop.toISOString(),
         // see https://docs.influxdata.com/influxdb/latest/reference/syntax/delete-predicate/
-        predicate: '_measurement="'+measurementType+'" and '+deleteTag+'="'+deleteTagValue+'"',
+        predicate: stringDelete,
       },
     });
   }
@@ -410,10 +419,9 @@ class InfluxdbConnector {
               }
 
               // we delete everything in the bucket from now to year 2000
-              const deleteTagValue = data.specificData.deleteTagValue;
-              const deleteTag = data.specificData.deleteTag;
+              const deleteTags =  data.specificData.scrapperRef 
 
-              await this.deleteData(influxDB,org,bucket,measurementType,deleteTag,deleteTagValue)
+              await this.deleteData(influxDB,org,bucket,measurementType,deleteTags)
                 .then(() => {
                   // console.log('\nSuppression des données');
                   resolve({'data' : jsonData});
