@@ -14,19 +14,7 @@
     <div class="bar"/>
   </div>
   <!-- Champ du composant -->
-  <!--  Formulaire de choix lie au composant  -->
-  <form action='' ref="actionToggle" id="actionToggle">
-    <p>Choix de l'action à réaliser : </p>
-    <input type="radio" id="inserer" name="action" value="inserer" ref="insertChecked" onchange={saveRadioState} checked={data.specificData.insertChecked}>
-    <label for="inserer">Insérer des données</label><br>
-    <input type="radio" id="requeter" name="action" value="requeter" ref="requestChecked" onchange={saveRadioState} checked={data.specificData.requestChecked}>
-    <label for="requeter">Requêter des données</label><br>
-    <input type="radio" id="supprimer" name="action" value="supprimer" ref="deleteChecked" onchange={saveRadioState} checked={data.specificData.deleteChecked}>
-    <label for="supprimer">Supprimer des données</label>
-  </form>
-  <div>
-    <div class="bar"/>
-  </div>
+ 
   <!--  Url influxdb  -->
   <label class="labelFormStandard">Url Influxdb:</label>
   <div class="cardInput">
@@ -41,6 +29,19 @@
    <label class="labelFormStandard">Organisation:</label>
   <div class="cardInput">
     <input class="inputComponents" type="text" ref="organization" value={data.specificData.organization} placeholder="Data-Players" onchange={organizationChange}/>
+  </div>
+ <!--  Formulaire de choix lie au composant  -->
+  <form action='' ref="actionToggle" id="actionToggle">
+    <p>Choix de l'action à réaliser : </p>
+    <input type="radio" id="inserer" name="action" value="inserer" ref="insertChecked" onchange={saveRadioState} checked={data.specificData.insertChecked}>
+    <label for="inserer">Insérer des données</label><br>
+    <input type="radio" id="requeter" name="action" value="requeter" ref="requestChecked" onchange={saveRadioState} checked={data.specificData.requestChecked}>
+    <label for="requeter">Requêter des données</label><br>
+    <input type="radio" id="supprimer" name="action" value="supprimer" ref="deleteChecked" onchange={saveRadioState} checked={data.specificData.deleteChecked}>
+    <label for="supprimer">Supprimer des données</label>
+  </form>
+  <div>
+    <div class="bar"/>
   </div>
   <!--  Elements nécessaires pour suppression ou insertion  -->
     <!--  Bucket  -->
@@ -65,7 +66,9 @@
       <input class="inputComponents" type="text" ref="timestamp" value={data.specificData.timestamp} onchange={timestampChange}/>
     </div>
     <!--  Champs d'id  -->
-    <label class="labelFormStandard">Champs d'id:</label>
+    <label class="labelFormStandard">Champs de tags:
+      <a href="https://docs.influxdata.com/influxdb/v1.8/concepts/glossary/#tag" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+    </label>
     <div class="cardInput">
       <div onclick={addRowClick} class="btnFil commandButtonImage">
         Ajouter
@@ -90,16 +93,43 @@
   </div>
     <!--  Suppression des données  -->
   <div id="deleteData" show={ data.specificData.deleteChecked == 'checked' }>
-    <label class="labelFormStandard">Tag utilisé pour la suppression:</label>
-    <div class="cardInput">
+    <!--  <label class="labelFormStandard">Tag et valeur de tag souhaité.s</label>  -->
+
+    <!--  <div class="cardInput">
       <input class="inputComponents" type="text" ref="deleteTag" value={data.specificData.deleteTag} placeholder="location" onchange={deleteTagChange}/>
     </div>
     <label class="labelFormStandard">Valeur du tag en question:</label>
     <div class="cardInput">
       <input class="inputComponents" type="text" ref="deleteTagValue" value={data.specificData.deleteTagValue} placeholder="coma" onchange={deleteTagValueChange}/>
+    </div> -->
+    <!--  <div class="containerH table-title" style="margin-top: 5px;align-items: center;justify-content:flex-end;">  -->
+    <label class="labelFormStandard">Tag et sa valeur</label>
+    <div class="cardInput">
+      <div onclick={addRowClickDelete} class="btnFil commandButtonImage">
+        Ajouter
+        <img class="imgFil" src="./image/ajout_composant.svg" title="Importer un Workflow">
+        <input onchange={import} ref="import" type="file" style="display:none;"/>
+      </div>
+    </div>
+    <div>
+      <zentable ref="scrapperRef" style="flex:1" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
+        <yield to="header">
+          <div class="containerTitle">
+            <div class="tableTag">Tag</div>
+            <div class="tableTagValue">Valeur du tag</div>
+          </div>
+        </yield>
+        <yield to="row">
+          <div class="tableRowLocation">
+            <input style="width: 90%; padding: 0.7vh;" type="text" placeholder="location" value={action} data-field="tag"/>
+          </div>
+          <div class="tableRowTagValue">
+            <input style="width: 90%; padding: 0.7vh;" type="text" placeholder="coma" value={selector} data-field="tagValue"/>
+          </div>
+        </yield>
+      </zentable>
     </div>
   </div>
-
 
 <script>
 
@@ -121,6 +151,7 @@
   this.data.specificData.insertChecked = '';
   this.data.specificData.deleteChecked = '';
   this.data.specificData.requestChecked = '';
+  this.currentRowId = undefined;
 
   //code for the show/hide each component part
   showHideElements(checkedRadioValue) {
@@ -152,6 +183,11 @@
   //beggining of code for the input section
   addRowClick(e) {
     this.refs.tagsTable.data.push({})
+  }
+
+  addRowClickDelete(e) {
+    //var index=parseInt(e.currentTarget.dataset.rowid) console.log(index);
+    this.refs.scrapperRef.data.push({})
   }
   //end of code for the input section
 
@@ -207,16 +243,27 @@
     this.refs.insertChecked = this.data.specificData.insertChecked;
     this.refs.deleteChecked = this.data.specificData.deleteChecked;
     this.refs.requestChecked = this.data.specificData.requestChecked;
+    this.refs.scrapperRef.data = this.data.specificData.scrapperRef || [];
     this.update();
   }.bind(this);
 
   this.on('mount', function () {
+    //tags
     this.refs.tagsTable.on('dataChanged', data => {
       this.data.specificData.tags = data;
     });
     this.refs.tagsTable.on('delRow', row => {
         this.refs.tagsTable.data.splice(row.rowid, 1);
       });
+    //scrapers
+    this.refs.scrapperRef.on('dataChanged', data => {
+      this.data.specificData.scrapperRef = data;
+    });
+
+    this.refs.scrapperRef.on('delRow', (row) => {
+      //console.log(row);
+      this.refs.scrapperRef.data.splice(row.rowId, 1);
+    });
     RiotControl.on('item_current_changed',this.updateData);
   });
   
@@ -226,9 +273,68 @@
 </script>
 
 <style>
-.hide {
-  display: none;
-}
+  .containerTitle {
+    border-radius: 2px;
+    width: 33%;
+    flex-direction: row;
+    display: flex;
+    justify-content: space-evenly;
+    align-items: center;
+    background-color: rgb(26,145,194);
+  }
+
+  .tableTag {
+    font-size: 0.85em;
+    color: white;
+    text-transform: uppercase;
+    text-align: center;
+  }
+  .tableTagValue {
+    font-size: 0.85em;
+    color: white;
+    text-transform: uppercase;
+    text-align: center;
+  }
+
+  .containerV>.containerH {
+    justify-content: flex-start;
+  }
+
+  .containerRowScrapper {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
+    flex: 1
+  }
+
+  .tableRowLocation {
+    font-size: 0.85em;
+    flex:0.2;
+    justify-content: flex-start;
+    align-items: center;
+    display: flex;
+  }
+  .tableRowTagValue {
+    font-size: 0.85em;
+    flex:0.2;
+    justify-content: flex-start;
+    align-items: center;
+    display: flex;
+  }
+  
+  zentable .tableHeader{
+    justify-content: flex-start;
+    padding-left : 5%;
+  }
+
+  .hide {
+    display: none;
+  }
+
+  .display {
+    display: block;
+  }
+
 </style>
 
 </influxdb-connector-editor>
