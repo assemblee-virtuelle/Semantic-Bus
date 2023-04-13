@@ -200,11 +200,8 @@ class InfluxdbConnector {
     let stringDelete = '_measurement="'+measurementType+'"';
 
     deleteTags.forEach((element) => {
-      // console.log(element.tag,element.tagValue);
       stringDelete +=' and '+element.tag+'="'+element.tagValue+'"';
     })
-
-    console.log(stringDelete);
 
     await deleteAPI.postDelete({
       org,

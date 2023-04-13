@@ -31,35 +31,36 @@
     <input class="inputComponents" type="text" ref="organization" value={data.specificData.organization} placeholder="Data-Players" onchange={organizationChange}/>
   </div>
  <!--  Formulaire de choix lie au composant  -->
-  <form action='' ref="actionToggle" id="actionToggle">
-    <p>Choix de l'action à réaliser : </p>
-    <input type="radio" id="inserer" name="action" value="inserer" ref="insertChecked" onchange={saveRadioState} checked={data.specificData.insertChecked}>
-    <label for="inserer">Insérer des données</label><br>
-    <input type="radio" id="requeter" name="action" value="requeter" ref="requestChecked" onchange={saveRadioState} checked={data.specificData.requestChecked}>
-    <label for="requeter">Requêter des données</label><br>
-    <input type="radio" id="supprimer" name="action" value="supprimer" ref="deleteChecked" onchange={saveRadioState} checked={data.specificData.deleteChecked}>
-    <label for="supprimer">Supprimer des données</label>
+  <form action='' ref="actionToggle" id="actionToggle" onchange={saveRadioState}>
+    <fieldset class="fieldsetInflux">
+      <p>Choix de l'action à réaliser : </p>
+      <input type="checkbox" id="inserer" name="action" value="inserer" ref="insertChecked" checked={data.specificData.insertChecked}>
+      <label for="inserer">Insérer des données</label><br>
+      <input type="checkbox" id="requeter" name="action" value="requeter" ref="requestChecked" checked={data.specificData.requestChecked}>
+      <label for="requeter">Requêter des données</label><br>
+      <input type="checkbox" id="supprimer" name="action" value="supprimer" ref="deleteChecked" checked={data.specificData.deleteChecked}>
+      <label for="supprimer">Supprimer des données</label>
+    </fieldset>
   </form>
-  <div>
-    <div class="bar"/>
-  </div>
-  <!--  Elements nécessaires pour suppression ou insertion  -->
-    <!--  Bucket  -->
-  <div id= "bucketMeasureType" show={ (data.specificData.insertChecked == 'checked' || data.specificData.deleteChecked == 'checked')} >
-    <div id="bucket">
-      <label class="labelFormStandard">Bucket:</label>
-      <div class="cardInput">
-        <input class="inputComponents" type="text" ref="bucket" value={data.specificData.bucket} placeholder="Test" onchange={bucketChange}/>
-      </div>
-    </div>
-    <!--  Nom de la mesure  -->
-    <label class="labelFormStandard">Nom de la mesure:</label>
-    <div class="cardInput">
-      <input class="inputComponents" type="text" ref="measurement" value={data.specificData.measurement} placeholder="electricitySensors" onchange={measurementChange}/>
-    </div>
-  </div>
   <!--  Insertion des données  -->
   <div id="insertData" show={ data.specificData.insertChecked == 'checked' }>
+    <div>
+      <div class="bar"/>
+      <label class="labelFormStandard">Insertion des données :</label>
+      <div class="bar"/>
+    </div>
+    <!--  Bucket insertion  -->
+    <div id="bucketInsert">
+      <label class="labelFormStandard">Bucket:</label>
+      <div class="cardInputInsert">
+        <input class="inputComponents" type="text" ref="bucketInsert" value={data.specificData.bucketInsert} placeholder="Test" onchange={bucketInsertChange}/>
+      </div>
+    </div>
+    <!--  Nom de la mesure insertion -->
+    <label class="labelFormStandard">Nom de la mesure:</label>
+    <div class="cardInput">
+      <input class="inputComponents" type="text" ref="measurementInsert" value={data.specificData.measurementInsert} placeholder="electricitySensors" onchange={measurementInsertChange}/>
+    </div>
     <!--  Timestamp  -->
     <label class="labelFormStandard">Champs contenant le timestamp:</label>
     <div class="cardInput">
@@ -83,7 +84,12 @@
     </zentable>
   </div>
   <!--  Requetage des données  -->
-  <div id="queryData" show={ data.specificData.requestChecked == 'checked' }>
+  <div id="queryData" show={data.specificData.requestChecked == 'checked'}>
+    <div>
+      <div class="bar"/>
+      <label class="labelFormStandard">Requêtage des données :</label>
+      <div class="bar"/>
+    </div>
     <label>Valeur(Mettre uniquement query de recherche de données):
       <a href="https://docs.influxdata.com/influxdb/v2.6/reference/syntax/influxql/spec/" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
     </label>
@@ -92,6 +98,25 @@
     </div>
   </div>
     <!--  Suppression des données  -->
+  <div id= "bucketMeasureType" show={data.specificData.deleteChecked == 'checked'}>
+    <div>
+      <div class="bar"/>
+      <label class="labelFormStandard">Suppression des données :</label>
+      <div class="bar"/>
+    </div>
+    <!--  Bucket suppression  -->
+    <div id="bucket">
+      <label class="labelFormStandard">Bucket:</label>
+      <div class="cardInput">
+        <input class="inputComponents" type="text" ref="bucketDelete" value={data.specificData.bucketDelete} placeholder="Test" onchange={bucketDeleteChange}/>
+      </div>
+    </div>
+    <!--  Nom de la mesure suppression  -->
+    <label class="labelFormStandard">Nom de la mesure:</label>
+    <div class="cardInput">
+      <input class="inputComponents" type="text" ref="measurementDelete" value={data.specificData.measurementDelete} placeholder="electricitySensors" onchange={measurementDeleteChange}/>
+    </div>
+  </div>
   <div id="deleteData" show={ data.specificData.deleteChecked == 'checked' }>
     <!--  <label class="labelFormStandard">Tag et valeur de tag souhaité.s</label>  -->
 
@@ -112,7 +137,7 @@
       </div>
     </div>
     <div>
-      <zentable ref="scrapperRef" style="flex:1" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
+      <zentable ref="tagDelete" style="flex:1" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
         <yield to="header">
           <div class="containerTitle">
             <div class="tableTag">Tag</div>
@@ -121,10 +146,10 @@
         </yield>
         <yield to="row">
           <div class="tableRowLocation">
-            <input style="width: 90%; padding: 0.7vh;" type="text" placeholder="location" value={tag} data-field="tag"/>
+            <input type="text" placeholder="location" value={tag} data-field="tag"/>
           </div>
           <div class="tableRowTagValue">
-            <input style="width: 90%; padding: 0.7vh;" type="text" placeholder="coma" value={tagValue} data-field="tagValue"/>
+            <input type="text" placeholder="coma" value={tagValue} data-field="tagValue"/>
           </div>
         </yield>
       </zentable>
@@ -135,15 +160,19 @@
 
   this.data = {};
   this.data.specificData= {};
-  this.data.specificData.measurement = '';
   this.data.specificData.tagKey = '';
   this.data.specificData.timestamp = '';
   this.data.specificData.apiKey = '';
   this.data.specificData.url = '';
-  this.data.specificData.bucket = '';
+
+  this.data.specificData.bucketInsert = '';
+  this.data.specificData.bucketDelete = '';
+  this.data.specificData.measurementInsert = '';
+  this.data.specificData.measurementDelete = '';
+
   this.data.specificData.organization = '';
   this.data.specificData.querySelect = '';
-  this.data.specificData.choice = '';
+  this.data.specificData.choice = {};
   this.data.specificData.deleteTag = '';
   this.data.specificData.deleteTagValue = '';
   this.data.specificData.tags = [];
@@ -154,28 +183,37 @@
   this.currentRowId = undefined;
 
   //code for the show/hide each component part
-  showHideElements(checkedRadioValue) {
-    if (checkedRadioValue == "requeter") {
-      this.data.specificData.insertChecked = '';
-      this.data.specificData.deleteChecked = '';
-      this.data.specificData.requestChecked = 'checked';
-    } else if (checkedRadioValue == "supprimer") {
-      this.data.specificData.insertChecked = '';
-      this.data.specificData.deleteChecked = 'checked';
-      this.data.specificData.requestChecked = '';
-    } else if (checkedRadioValue == "inserer") {
-      this.data.specificData.insertChecked = 'checked';
-      this.data.specificData.deleteChecked = '';
-      this.data.specificData.requestChecked = '';
+  showHideElements(checkedRadio) {
+    //console.log('checkedRadio : ',checkedRadio);
+    this.data.specificData.insertChecked = '';
+    this.data.specificData.deleteChecked = '';
+    this.data.specificData.requestChecked = '';
+    if(this.checkedRadio.length > 0){
+      checkedRadio.forEach((checkedButton) => {
+  //      console.log('checkedRadio : ',checkedButton.value);
+        if (checkedButton.value == "requeter") {
+          this.data.specificData.requestChecked = 'checked';
+        } else if (checkedButton.value == "supprimer") {
+          this.data.specificData.deleteChecked = 'checked';
+        } else if (checkedButton.value == "inserer") {
+          this.data.specificData.insertChecked = 'checked';
+        }
+      })
     }
   }
 
   saveRadioState(){
-    this.checkedRadio = document.querySelector('input[name="action"]:checked')
-    if (this.checkedRadio) {
-      this.showHideElements(this.checkedRadio.value);
-      this.data.specificData.choice = this.checkedRadio.value;
-    }
+    //this.checkedRadio = document.querySelector('input[name="action"]:checked')
+    this.checkedRadio = document.querySelectorAll('input[name="action"]:checked');
+    //console.log('checkedRadioValue : ',this.checkedRadio);
+    //console.log('nb node',this.checkedRadio.length);
+    this.showHideElements(this.checkedRadio);
+      //this.data.specificData.choice = this.checkedRadio;
+    this.refs.choice = this.checkedRadio;
+    //if (this.checkedRadio) {
+      //this.showHideElements(this.checkedRadio.value);
+      //this.data.specificData.choice = this.checkedRadio.value;
+    //}
   }
   //end of the code for show/hide elements
 
@@ -186,7 +224,7 @@
 
   addRowClickDelete(e) {
     //var index=parseInt(e.currentTarget.dataset.rowid) console.log(index);
-    this.refs.scrapperRef.data.push({})
+    this.refs.tagDelete.data.push({})
   }
   //end of code for the input section
 
@@ -195,9 +233,6 @@
   }
   deleteTagChange(e) {
     this.data.specificData.deleteTag = e.target.value;
-  }
-  measurementChange(e) {
-    this.data.specificData.measurement = e.target.value;
   }
   tagChange(e) {
     this.data.specificData.tagKey = e.target.value;
@@ -211,9 +246,6 @@
   urlChange(e) {
     this.data.specificData.url = e.target.value;
   }
-  bucketChange(e) {
-    this.data.specificData.bucket = e.target.value;
-  }
   organizationChange(e) {
     this.data.specificData.organization = e.target.value;
   }
@@ -224,25 +256,42 @@
     this.data.specificData.querySelect = e.target.value;
   }
 
+  bucketInsertChange(e) {
+    this.data.specificData.bucketInsert = e.target.value;
+  }
+  bucketDeleteChange(e){
+    this.data.specificData.bucketDelete = e.target.value;
+  }
+  measurementDeleteChange(e){
+    this.data.specificData.measurementDelete = e.target.value;
+  }
+  measurementInsertChange(e) {
+    this.data.specificData.measurementInsert = e.target.value;
+  }
+
   this.updateData=function(dataToUpdate){
     this.data = dataToUpdate;
    // this.refs.tagsTable.data = this.data.specificData.tags;
     this.refs.timestamp.data = this.data.specificData.timestamp;
-    this.refs.measurement.data = this.data.specificData.measurement;
     this.refs.apiKey.data = this.data.specificData.apiKey;
     this.refs.url.data = this.data.specificData.url;
-    this.refs.bucket.data = this.data.specificData.bucket;
+    
+    this.refs.measurementInsert.data = this.data.specificData.measurementInsert;
+    this.refs.measurementDelete.data = this.data.specificData.measurementDelete;
+    this.refs.bucketInsert.data = this.data.specificData.bucketInsert;
+    this.refs.bucketDelete.data = this.data.specificData.bucketDelete;
+    
     this.refs.organization.data = this.data.specificData.organization;
     this.refs.tagsTable.data = this.data.specificData.tags || [];
     this.refs.deleteData = this.data.specificData.deleteData || false;
     this.refs.querySelect = this.data.specificData.querySelect;
-    this.refs.choice = this.data.specificData.choice;
+    //this.refs.choice = this.data.specificData.choice || {};
     this.refs.deleteTag = this.data.specificData.deleteTag;
     this.refs.deleteTagValue = this.data.specificData.deleteTagValue;
     this.refs.insertChecked = this.data.specificData.insertChecked;
     this.refs.deleteChecked = this.data.specificData.deleteChecked;
     this.refs.requestChecked = this.data.specificData.requestChecked;
-    this.refs.scrapperRef.data = this.data.specificData.scrapperRef || [];
+    this.refs.tagDelete.data = this.data.specificData.tagDelete || [];
     this.update();
   }.bind(this);
 
@@ -255,13 +304,13 @@
         this.refs.tagsTable.data.splice(row.rowid, 1);
       });
     //scrapers
-    this.refs.scrapperRef.on('dataChanged', data => {
-      this.data.specificData.scrapperRef = data;
+    this.refs.tagDelete.on('dataChanged', data => {
+      this.data.specificData.tagDelete = data;
     });
 
-    this.refs.scrapperRef.on('delRow', (row) => {
+    this.refs.tagDelete.on('delRow', (row) => {
       //console.log(row);
-      this.refs.scrapperRef.data.splice(row.rowId, 1);
+      this.refs.tagDelete.data.splice(row.rowId, 1);
     });
     RiotControl.on('item_current_changed',this.updateData);
   });
@@ -312,6 +361,8 @@
     justify-content: flex-start;
     align-items: center;
     display: flex;
+    width: 90%; 
+    padding: 0.7vh;
   }
   .tableRowTagValue {
     font-size: 0.85em;
@@ -319,6 +370,8 @@
     justify-content: flex-start;
     align-items: center;
     display: flex;
+    width: 90%; 
+    padding: 0.7vh;
   }
   
   zentable .tableHeader{
@@ -332,6 +385,17 @@
 
   .display {
     display: block;
+  }
+
+  .fieldsetInflux {
+    border-style: solid;
+    border-width: 1px;
+    margin: 1vh;
+    width:40%;
+  }
+
+  .scrollable {
+    height: 20%;
   }
 
 </style>
