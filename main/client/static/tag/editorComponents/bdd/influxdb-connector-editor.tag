@@ -34,14 +34,51 @@
   <form action='' ref="actionToggle" id="actionToggle" onchange={saveRadioState}>
     <fieldset class="fieldsetInflux">
       <p>Choix de l'action à réaliser : </p>
-      <input type="checkbox" id="inserer" name="action" value="inserer" ref="insertChecked" checked={data.specificData.insertChecked}>
-      <label for="inserer">Insérer des données</label><br>
-      <input type="checkbox" id="requeter" name="action" value="requeter" ref="requestChecked" checked={data.specificData.requestChecked}>
-      <label for="requeter">Requêter des données</label><br>
       <input type="checkbox" id="supprimer" name="action" value="supprimer" ref="deleteChecked" checked={data.specificData.deleteChecked}>
-      <label for="supprimer">Supprimer des données</label>
+        <label for="supprimer">Supprimer des données</label><br>
+      <input type="checkbox" id="inserer" name="action" value="inserer" ref="insertChecked" checked={data.specificData.insertChecked}>
+        <label for="inserer">Insérer des données</label><br>
+      <input type="checkbox" id="requeter" name="action" value="requeter" ref="requestChecked" checked={data.specificData.requestChecked}>
+        <label for="requeter">Requêter des données</label><br>
     </fieldset>
   </form>
+  <!--  Suppression des données  -->
+  <div id= "bucketMeasureType" show={data.specificData.deleteChecked == 'checked'}>
+    <div>
+      <div class="bar"/>
+      <label class="labelFormStandard">Suppression des données :</label>
+      <div class="bar"/>
+    </div>
+    <!--  Bucket suppression  -->
+    <label class="labelFormStandard">Bucket:</label>
+    <div class="cardInput">
+      <input class="inputComponents" type="text" ref="bucketDelete" value={data.specificData.bucketDelete} placeholder="Test" onchange={bucketDeleteChange}/>
+    </div>
+    <!--  Nom de la mesure suppression  -->
+    <label class="labelFormStandard">Nom de la mesure:</label>
+    <div class="cardInput">
+      <input class="inputComponents" type="text" ref="measurementDelete" value={data.specificData.measurementDelete} placeholder="electricitySensors" onchange={measurementDeleteChange}/>
+    </div>
+  <!--  Tag de suppression et valeur de ce tag  -->
+    <label class="labelFormStandard">Tag et sa valeur</label>
+    <div class="cardInput">
+      <div onclick={addRowClickDelete} class="btnFil commandButtonImage">
+        Ajouter
+        <img class="imgFil" src="./image/ajout_composant.svg" title="Importer un Workflow">
+        <input onchange={import} ref="import" type="file" style="display:none;"/>
+      </div>
+    </div>
+    <zentable ref="tagDelete" style="flex:1" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
+      <yield to="row">
+        <div class="tableRowLocation">
+          <input type="text" placeholder="location" value={tag} data-field="tag"/>
+        </div>
+        <div class="tableRowTagValue">
+          <input type="text" placeholder="coma" value={tagValue} data-field="tagValue"/>
+        </div>
+      </yield>
+    </zentable>
+    </div>
   <!--  Insertion des données  -->
   <div id="insertData" show={ data.specificData.insertChecked == 'checked' }>
     <div>
@@ -97,64 +134,6 @@
       <textarea class="textArea" placeholder="from(bucket:'Test') |> range(start: -3d) |> filter(fn: (r) => r._measurement == 'electricitySensors')" type="textarea" ref="querySelect" onchange={querySelectChange} value={data.specificData.querySelect} style="flex-grow:1">{data.specificData.querySelect}</textarea>
     </div>
   </div>
-    <!--  Suppression des données  -->
-  <div id= "bucketMeasureType" show={data.specificData.deleteChecked == 'checked'}>
-    <div>
-      <div class="bar"/>
-      <label class="labelFormStandard">Suppression des données :</label>
-      <div class="bar"/>
-    </div>
-    <!--  Bucket suppression  -->
-    <div id="bucket">
-      <label class="labelFormStandard">Bucket:</label>
-      <div class="cardInput">
-        <input class="inputComponents" type="text" ref="bucketDelete" value={data.specificData.bucketDelete} placeholder="Test" onchange={bucketDeleteChange}/>
-      </div>
-    </div>
-    <!--  Nom de la mesure suppression  -->
-    <label class="labelFormStandard">Nom de la mesure:</label>
-    <div class="cardInput">
-      <input class="inputComponents" type="text" ref="measurementDelete" value={data.specificData.measurementDelete} placeholder="electricitySensors" onchange={measurementDeleteChange}/>
-    </div>
-  </div>
-  <div id="deleteData" show={ data.specificData.deleteChecked == 'checked' }>
-    <!--  <label class="labelFormStandard">Tag et valeur de tag souhaité.s</label>  -->
-
-    <!--  <div class="cardInput">
-      <input class="inputComponents" type="text" ref="deleteTag" value={data.specificData.deleteTag} placeholder="location" onchange={deleteTagChange}/>
-    </div>
-    <label class="labelFormStandard">Valeur du tag en question:</label>
-    <div class="cardInput">
-      <input class="inputComponents" type="text" ref="deleteTagValue" value={data.specificData.deleteTagValue} placeholder="coma" onchange={deleteTagValueChange}/>
-    </div> -->
-    <!--  <div class="containerH table-title" style="margin-top: 5px;align-items: center;justify-content:flex-end;">  -->
-    <label class="labelFormStandard">Tag et sa valeur</label>
-    <div class="cardInput">
-      <div onclick={addRowClickDelete} class="btnFil commandButtonImage">
-        Ajouter
-        <img class="imgFil" src="./image/ajout_composant.svg" title="Importer un Workflow">
-        <input onchange={import} ref="import" type="file" style="display:none;"/>
-      </div>
-    </div>
-    <div>
-      <zentable ref="tagDelete" style="flex:1" allowdirectedit={true} disallowselect={true} disallownavigation={true}>
-        <yield to="header">
-          <div class="containerTitle">
-            <div class="tableTag">Tag</div>
-            <div class="tableTagValue">Valeur du tag</div>
-          </div>
-        </yield>
-        <yield to="row">
-          <div class="tableRowLocation">
-            <input type="text" placeholder="location" value={tag} data-field="tag"/>
-          </div>
-          <div class="tableRowTagValue">
-            <input type="text" placeholder="coma" value={tagValue} data-field="tagValue"/>
-          </div>
-        </yield>
-      </zentable>
-    </div>
-  </div>
 
 <script>
 
@@ -172,10 +151,10 @@
 
   this.data.specificData.organization = '';
   this.data.specificData.querySelect = '';
-  this.data.specificData.choice = {};
   this.data.specificData.deleteTag = '';
   this.data.specificData.deleteTagValue = '';
   this.data.specificData.tags = [];
+  this.data.specificData.choices = [];
 
   this.data.specificData.insertChecked = '';
   this.data.specificData.deleteChecked = '';
@@ -185,12 +164,14 @@
   //code for the show/hide each component part
   showHideElements(checkedRadio) {
     //console.log('checkedRadio : ',checkedRadio);
-    this.data.specificData.insertChecked = '';
-    this.data.specificData.deleteChecked = '';
-    this.data.specificData.requestChecked = '';
+
+    fullCheckedArray = ['requeter','inserer','supprimer'];
+    tempCheckedArray = [];
+  
     if(this.checkedRadio.length > 0){
       checkedRadio.forEach((checkedButton) => {
-  //      console.log('checkedRadio : ',checkedButton.value);
+        tempCheckedArray.push(checkedButton.value);
+
         if (checkedButton.value == "requeter") {
           this.data.specificData.requestChecked = 'checked';
         } else if (checkedButton.value == "supprimer") {
@@ -200,20 +181,42 @@
         }
       })
     }
+
+    const notCheckedArray = fullCheckedArray.filter(f => !tempCheckedArray.includes(f));
+    console.log('notchecked : ',notCheckedArray);
+
+    notCheckedArray.forEach((notChecked) => {
+      if (notChecked == "requeter") {
+          this.data.specificData.requestChecked = '';
+        } else if (notChecked == "supprimer") {
+          this.data.specificData.deleteChecked = '';
+        } else if (notChecked == "inserer") {
+          this.data.specificData.insertChecked = '';
+        }
+    })
+
+  }
+
+  returnChoices(){
+    let choiceArray = []
+    if (this.data.specificData.requestChecked == "checked") {
+      choiceArray.push("requeter");
+    } 
+    if (this.data.specificData.deleteChecked == "checked") {
+      choiceArray.push("supprimer");
+    }
+    if (this.data.specificData.insertChecked == "checked") {
+      choiceArray.push("inserer");
+    }
+    return choiceArray;
   }
 
   saveRadioState(){
-    //this.checkedRadio = document.querySelector('input[name="action"]:checked')
     this.checkedRadio = document.querySelectorAll('input[name="action"]:checked');
-    //console.log('checkedRadioValue : ',this.checkedRadio);
-    //console.log('nb node',this.checkedRadio.length);
     this.showHideElements(this.checkedRadio);
-      //this.data.specificData.choice = this.checkedRadio;
-    this.refs.choice = this.checkedRadio;
-    //if (this.checkedRadio) {
-      //this.showHideElements(this.checkedRadio.value);
-      //this.data.specificData.choice = this.checkedRadio.value;
-    //}
+    const choicesArray = this.returnChoices();
+    console.log('choix : ',choicesArray);
+    this.data.specificData.choices = choicesArray;
   }
   //end of the code for show/hide elements
 
@@ -285,13 +288,18 @@
     this.refs.tagsTable.data = this.data.specificData.tags || [];
     this.refs.deleteData = this.data.specificData.deleteData || false;
     this.refs.querySelect = this.data.specificData.querySelect;
-    //this.refs.choice = this.data.specificData.choice || {};
+
     this.refs.deleteTag = this.data.specificData.deleteTag;
     this.refs.deleteTagValue = this.data.specificData.deleteTagValue;
     this.refs.insertChecked = this.data.specificData.insertChecked;
     this.refs.deleteChecked = this.data.specificData.deleteChecked;
     this.refs.requestChecked = this.data.specificData.requestChecked;
     this.refs.tagDelete.data = this.data.specificData.tagDelete || [];
+
+    /*const choicesArray = this.returnChoices();
+    this.data.specificData.choices ? this.data.specificData.choices : this.data.specificData.choices = [];
+    this.data.specificData.choices.push(choicesArray);*/
+
     this.update();
   }.bind(this);
 
@@ -321,33 +329,6 @@
 </script>
 
 <style>
-  .containerTitle {
-    border-radius: 2px;
-    width: 45%;
-    flex-direction: row;
-    display: flex;
-    justify-content: space-evenly;
-    align-items: center;
-    background-color: rgb(26,145,194);
-  }
-
-  .tableTag {
-    font-size: 0.85em;
-    color: white;
-    text-transform: uppercase;
-    text-align: center;
-  }
-  .tableTagValue {
-    font-size: 0.85em;
-    color: white;
-    text-transform: uppercase;
-    text-align: center;
-  }
-
-  .containerV>.containerH {
-    justify-content: flex-start;
-  }
-
   .containerRowScrapper {
     display: flex;
     justify-content: flex-start;

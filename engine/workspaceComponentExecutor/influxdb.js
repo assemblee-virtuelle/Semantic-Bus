@@ -388,15 +388,13 @@ class InfluxdbConnector {
             reject(new Error("Il faut fournir le nom de l'organisation"))
           }
 
-          const choice = data.specificData.choice;
-          // console.log('CHOICE MADE : ',choice);
+          const choice = data.specificData.choices;
+          console.log('CHOICE MADE : ',choice);
 
           const url = data.specificData.url;
           const token = data.specificData.apiKey;
           const org = data.specificData.organization;
           // depends on the choice made ->>>
-          const bucket = data.specificData.bucket ? data.specificData.bucket : '';
-          const measurementType = data.specificData.measurement ? data.specificData.measurement : '';
           const jsonData = flowData ? flowData[0].data : {};
 
           // creation of the communication interface for influxdb
@@ -404,40 +402,48 @@ class InfluxdbConnector {
 
           switch (choice) {
             case "inserer":
+              // if(!(data.specificData && data.specificData.measurementInsert && data.specificData.bucketInsert)){
+              //   reject(new Error("Il faut fournir le nom de la mesure te le nom du bucket"))
+              // }
               // console.log('writedata');
-              const result = this.prepareData(data,jsonData,influxDB,org,bucket,measurementType);
-              resolve({'data' : jsonData})
+              // const result = this.prepareData(data,jsonData,influxDB,org,bucket,measurementType);
+              // resolve({'data' : jsonData})
               break;
 
             case "supprimer":
               // console.log('deletedata');
-              if(!(data.specificData && data.specificData.measurement && data.specificData.bucket)){
-                reject(new Error("Il faut fournir le nom de la mesure te le nom du bucket"))
+              if(!(data.specificData && data.specificData.measurementDelete && data.specificData.bucketDelete)){
+                reject(new Error("Il faut fournir le nom de la mesure et le nom du bucket pour la suppression."))
               }
 
-              // we delete everything in the bucket from now to year 2000
-              const deleteTags =  data.specificData.scrapperRef 
+              const bucket = data.specificData.bucketDelete;
+              const measurementType = data.specificData.measurementDelete;
 
-              await this.deleteData(influxDB,org,bucket,measurementType,deleteTags)
-                .then(() => {
-                  // console.log('\nSuppression des données');
-                  resolve({'data' : jsonData});
-                })
-                .catch((error) => {
-                  reject(new Error(error));
-                });
+              // we delete everything in the bucket from now to year 2000
+              const deleteTags =  data.specificData.tagDelete;
+              console.log('deleteTags : ',deleteTags); 
+              console.log('bucket : '+bucket+' measure '+measurementType);
+
+              // await this.deleteData(influxDB,org,bucket,measurementType,deleteTags)
+              //   .then(() => {
+              //     // console.log('\nSuppression des données');
+              //     resolve({'data' : jsonData});
+              //   })
+              //   .catch((error) => {
+              //     reject(new Error(error));
+              //   });
               break;
 
             case "requeter":
               // console.log('querySelect');
-              const querySelect = data.specificData.querySelect;
+              // const querySelect = data.specificData.querySelect;
 
-              await this.queryGenerator(influxDB,querySelect,org).then((result) => {
-                // console.log('data : ',result);
-                resolve({'data' : result})
-              }).catch( (error) => {
-                reject(new Error(error));
-              })
+              // await this.queryGenerator(influxDB,querySelect,org).then((result) => {
+              //   // console.log('data : ',result);
+              //   resolve({'data' : result})
+              // }).catch( (error) => {
+              //   reject(new Error(error));
+              // })
               break;
 
             default:
