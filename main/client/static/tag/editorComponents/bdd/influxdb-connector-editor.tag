@@ -31,7 +31,7 @@
     <input class="inputComponents" type="text" ref="organization" value={data.specificData.organization} placeholder="Data-Players" onchange={organizationChange}/>
   </div>
  <!--  Formulaire de choix lie au composant  -->
-  <form action='' ref="actionToggle" id="actionToggle" onchange={saveRadioState}>
+  <form action='' ref="actionToggle" id="actionToggle" onchange={saveCheckboxState}>
     <fieldset class="fieldsetInflux">
       <p>Choix de l'action à réaliser : </p>
       <input type="checkbox" id="supprimer" name="action" value="supprimer" ref="deleteChecked" checked={data.specificData.deleteChecked}>
@@ -87,11 +87,9 @@
       <div class="bar"/>
     </div>
     <!--  Bucket insertion  -->
-    <div id="bucketInsert">
-      <label class="labelFormStandard">Bucket:</label>
-      <div class="cardInputInsert">
-        <input class="inputComponents" type="text" ref="bucketInsert" value={data.specificData.bucketInsert} placeholder="Test" onchange={bucketInsertChange}/>
-      </div>
+    <label class="labelFormStandard">Bucket:</label>
+    <div class="cardInputInsert">
+      <input class="inputComponents" type="text" ref="bucketInsert" value={data.specificData.bucketInsert} placeholder="Test" onchange={bucketInsertChange}/>
     </div>
     <!--  Nom de la mesure insertion -->
     <label class="labelFormStandard">Nom de la mesure:</label>
@@ -154,7 +152,6 @@
   this.data.specificData.deleteTag = '';
   this.data.specificData.deleteTagValue = '';
   this.data.specificData.tags = [];
-  this.data.specificData.choices = [];
 
   this.data.specificData.insertChecked = '';
   this.data.specificData.deleteChecked = '';
@@ -163,12 +160,11 @@
 
   //code for the show/hide each component part
   showHideElements(checkedRadio) {
-    //console.log('checkedRadio : ',checkedRadio);
-
     fullCheckedArray = ['requeter','inserer','supprimer'];
     tempCheckedArray = [];
   
-    if(this.checkedRadio.length > 0){
+    //we save the value of each checkbox in 3 different objects
+    if(checkedRadio.length > 0){
       checkedRadio.forEach((checkedButton) => {
         tempCheckedArray.push(checkedButton.value);
 
@@ -182,6 +178,8 @@
       })
     }
 
+    //we saved the checked checkboxes but we didn't save the fact 
+    //that some checkboxes aren't checked anymore ->>
     const notCheckedArray = fullCheckedArray.filter(f => !tempCheckedArray.includes(f));
     console.log('notchecked : ',notCheckedArray);
 
@@ -197,26 +195,11 @@
 
   }
 
-  returnChoices(){
-    let choiceArray = []
-    if (this.data.specificData.requestChecked == "checked") {
-      choiceArray.push("requeter");
-    } 
-    if (this.data.specificData.deleteChecked == "checked") {
-      choiceArray.push("supprimer");
-    }
-    if (this.data.specificData.insertChecked == "checked") {
-      choiceArray.push("inserer");
-    }
-    return choiceArray;
-  }
-
-  saveRadioState(){
+  //we save each checked checkbox in a variable
+  //such as data.specificdata.insertChecked = 'checked'
+  saveCheckboxState(){
     this.checkedRadio = document.querySelectorAll('input[name="action"]:checked');
     this.showHideElements(this.checkedRadio);
-    const choicesArray = this.returnChoices();
-    console.log('choix : ',choicesArray);
-    this.data.specificData.choices = choicesArray;
   }
   //end of the code for show/hide elements
 
@@ -295,10 +278,6 @@
     this.refs.deleteChecked = this.data.specificData.deleteChecked;
     this.refs.requestChecked = this.data.specificData.requestChecked;
     this.refs.tagDelete.data = this.data.specificData.tagDelete || [];
-
-    /*const choicesArray = this.returnChoices();
-    this.data.specificData.choices ? this.data.specificData.choices : this.data.specificData.choices = [];
-    this.data.specificData.choices.push(choicesArray);*/
 
     this.update();
   }.bind(this);

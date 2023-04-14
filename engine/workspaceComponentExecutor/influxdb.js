@@ -1,7 +1,7 @@
 'use strict';
 
 const { json } = require('body-parser');
-const { type, forEach } = require('ramda');
+const { type, forEach, insert } = require('ramda');
 
 class InfluxdbConnector {
   constructor () {
@@ -253,7 +253,7 @@ class InfluxdbConnector {
   }
 
   writeDatum(tags,fields,timestamp,measurementType,jsonData,writeApi){
-    let result = 'donnée non insérée';
+    let result = '';
 
     try {
       let date = new Date(jsonData[timestamp]);
@@ -280,7 +280,7 @@ class InfluxdbConnector {
       
         // then we write the data
         writeApi.writePoint(point3);
-        result  = 'donnée insérée';
+        result  = point3;
         writeApi.close();
       } 
     } catch(e) {
@@ -292,9 +292,8 @@ class InfluxdbConnector {
   // same code as writeDatum except we iterate over the data
   // and we close the api at the end of the iteration
   writeData(tags,fields,timestamp,measurementType,jsonData,writeApi){
-    console.log('writedata');
-    // console.log('jsonData : ',jsonData);
-    let result = 'donnée non insérée';
+    //console.log('writedata');
+    let result =  [];
 
     jsonData.forEach(datum => {
       try {
@@ -321,12 +320,11 @@ class InfluxdbConnector {
           const point3 = this.addFieldsToPoint(datum,point2,fields);        
           // then we write the data
           writeApi.writePoint(point3);
-          result  = 'donnée insérée';
+          result.push(point3);
         } 
       } catch(e) {
           console.log('Error : ',e);
       }
-      
     });
     // we let the api connection open until the end
     writeApi.close();
@@ -388,8 +386,9 @@ class InfluxdbConnector {
             reject(new Error("Il faut fournir le nom de l'organisation"))
           }
 
-          const choice = data.specificData.choices;
-          console.log('CHOICE MADE : ',choice);
+          const insertData = data.specificData.insertChecked == 'checked' ? true : false;
+          const deleteData = data.specificData.deleteChecked == 'checked' ? true : false;
+          const requestData = data.specificData.requestChecked == 'checked' ? true : false;
 
           const url = data.specificData.url;
           const token = data.specificData.apiKey;
@@ -400,58 +399,65 @@ class InfluxdbConnector {
           // creation of the communication interface for influxdb
           const influxDB = new this.influxdbClient.InfluxDB({url, token});
 
-          switch (choice) {
-            case "inserer":
-              // if(!(data.specificData && data.specificData.measurementInsert && data.specificData.bucketInsert)){
-              //   reject(new Error("Il faut fournir le nom de la mesure te le nom du bucket"))
-              // }
-              // console.log('writedata');
-              // const result = this.prepareData(data,jsonData,influxDB,org,bucket,measurementType);
-              // resolve({'data' : jsonData})
-              break;
+          let insertDataReturned;
+          let requestDataReturned;
 
-            case "supprimer":
-              // console.log('deletedata');
-              if(!(data.specificData && data.specificData.measurementDelete && data.specificData.bucketDelete)){
-                reject(new Error("Il faut fournir le nom de la mesure et le nom du bucket pour la suppression."))
-              }
+          if(deleteData){
+            //console.log('supprimer');
+            if(!(data.specificData && data.specificData.measurementDelete && data.specificData.bucketDelete)){
+              reject(new Error("Il faut fournir le nom de la mesure et le nom du bucket pour la suppression."))
+            }
 
-              const bucket = data.specificData.bucketDelete;
-              const measurementType = data.specificData.measurementDelete;
+            let bucket = data.specificData.bucketDelete;
+            let measurementType = data.specificData.measurementDelete;
 
-              // we delete everything in the bucket from now to year 2000
-              const deleteTags =  data.specificData.tagDelete;
-              console.log('deleteTags : ',deleteTags); 
-              console.log('bucket : '+bucket+' measure '+measurementType);
+            // we delete everything in the bucket from now to year 1950
+            const deleteTags =  data.specificData.tagDelete;
 
-              // await this.deleteData(influxDB,org,bucket,measurementType,deleteTags)
-              //   .then(() => {
-              //     // console.log('\nSuppression des données');
-              //     resolve({'data' : jsonData});
-              //   })
-              //   .catch((error) => {
-              //     reject(new Error(error));
-              //   });
-              break;
+            await this.deleteData(influxDB,org,bucket,measurementType,deleteTags)
+              .catch((error) => {
+                reject(new Error(error));
+              });
+            }
+          if(insertData){
+            //console.log('inserer');
 
-            case "requeter":
-              // console.log('querySelect');
-              // const querySelect = data.specificData.querySelect;
+            if(!(data.specificData && data.specificData.measurementInsert && data.specificData.bucketInsert)){
+              reject(new Error("Il faut fournir le nom de la mesure te le nom du bucket"))
+            }
+            const bucket = data.specificData.bucketInsert;
+            const measurementType = data.specificData.measurementInsert;
 
-              // await this.queryGenerator(influxDB,querySelect,org).then((result) => {
-              //   // console.log('data : ',result);
-              //   resolve({'data' : result})
-              // }).catch( (error) => {
-              //   reject(new Error(error));
-              // })
-              break;
-
-            default:
-              break;
+            insertDataReturned = this.prepareData(data,jsonData,influxDB,org,bucket,measurementType);
           }
-          // if choice is undefined ->>>
-          resolve({data : {}})
+          if(requestData){
+            //console.log('requeter');
+            const querySelect = data.specificData.querySelect;
 
+            await this.queryGenerator(influxDB,querySelect,org).then((result) => {
+              // console.log('data : ',result);
+              requestDataReturned = result;
+            }).catch( (error) => {
+              reject(new Error(error));
+            })
+          }
+
+          // what we return every time a request is made 
+          // if request or request + insertion or request + insertion + delete
+          // or delete + request
+          if(requestData){
+            resolve({data : requestDataReturned});
+          }
+          else if((!deleteData && insertData && !requestData) || 
+            (deleteData && insertData && !requestData)){
+            resolve({data : insertDataReturned});
+          }
+          // if only delete we return the entry data
+          else if(deleteData && !insertData && !requestData) {
+            resolve({data : jsonData});
+          } else{
+            resolve({})
+          }
         } catch(e) {
         reject(e)
       }
