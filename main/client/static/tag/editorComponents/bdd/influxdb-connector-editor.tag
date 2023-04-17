@@ -21,27 +21,25 @@
     <input class="inputComponents" type="text" ref="url" value={data.specificData.url} placeholder="https://db.influxdb.com" onchange={urlChange}/>
   </div>
   <!--  Clé d'api influxdb  -->
-   <label class="labelFormStandard">Clé Influxdb:</label>
+  <label class="labelFormStandard">Clé Influxdb:</label>
   <div class="cardInput">
     <input class="inputComponents" type="text" ref="apiKey" value={data.specificData.apiKey} placeholder="7e9f5Tu..." onchange={apiKeyChange}/>
   </div>
   <!--  Organisation  -->
-   <label class="labelFormStandard">Organisation:</label>
+  <label class="labelFormStandard">Organisation:</label>
   <div class="cardInput">
     <input class="inputComponents" type="text" ref="organization" value={data.specificData.organization} placeholder="Data-Players" onchange={organizationChange}/>
   </div>
- <!--  Formulaire de choix lie au composant  -->
-  <form action='' ref="actionToggle" id="actionToggle" onchange={saveCheckboxState}>
-    <fieldset class="fieldsetInflux">
-      <p>Choix de l'action à réaliser : </p>
-      <input type="checkbox" id="supprimer" name="action" value="supprimer" ref="deleteChecked" checked={data.specificData.deleteChecked}>
-        <label for="supprimer">Supprimer des données</label><br>
-      <input type="checkbox" id="inserer" name="action" value="inserer" ref="insertChecked" checked={data.specificData.insertChecked}>
-        <label for="inserer">Insérer des données</label><br>
-      <input type="checkbox" id="requeter" name="action" value="requeter" ref="requestChecked" checked={data.specificData.requestChecked}>
-        <label for="requeter">Requêter des données</label><br>
-    </fieldset>
-  </form>
+
+  <label class="labelFormStandard">Choix de l'action à réaliser :</label>
+  <!--  Checkbox suppression des données  -->
+  <label class="labelFormStandard" for="supprimer">Supprimer des données</label>
+  <div class="cardInput">
+    <label class="switch">
+        <input type="checkbox" id="supprimer" name="action" ref="deleteChecked" checked={data.specificData.deleteChecked} onchange={saveAndShowDeleteCheckbox}/>
+        <span class="slider round"></span>
+    </label>
+  </div>
   <!--  Suppression des données  -->
   <div id= "bucketMeasureType" show={data.specificData.deleteChecked == 'checked'}>
     <div>
@@ -80,6 +78,14 @@
     </zentable>
     </div>
   <!--  Insertion des données  -->
+  <!--  Checkbox insertion des données  -->
+  <label class="labelFormStandard" for="inserer">Insérer des données</label>
+  <div class="cardInput">
+    <label class="switch">
+        <input type="checkbox"  id="inserer" name="action" ref="insertChecked" checked={data.specificData.insertChecked} onchange={saveAndShowInsertCheckbox}/>
+        <span class="slider round"></span>
+    </label>
+  </div>
   <div id="insertData" show={ data.specificData.insertChecked == 'checked' }>
     <div>
       <div class="bar"/>
@@ -119,6 +125,14 @@
     </zentable>
   </div>
   <!--  Requetage des données  -->
+  <!--  checkbox requêtage des données  -->
+  <label class="labelFormStandard" for="requeter">Requêter des données</label>
+  <div class="cardInput">
+    <label class="switch">
+        <input type="checkbox" id="requeter" name="action" ref="requestChecked" checked={data.specificData.requestChecked} onchange={saveAndShowRequestCheckbox}/>
+        <span class="slider round"></span>
+    </label>
+  </div>
   <div id="queryData" show={data.specificData.requestChecked == 'checked'}>
     <div>
       <div class="bar"/>
@@ -159,47 +173,19 @@
   this.currentRowId = undefined;
 
   //code for the show/hide each component part
-  showHideElements(checkedRadio) {
-    fullCheckedArray = ['requeter','inserer','supprimer'];
-    tempCheckedArray = [];
-  
-    //we save the value of each checkbox in 3 different objects
-    if(checkedRadio.length > 0){
-      checkedRadio.forEach((checkedButton) => {
-        tempCheckedArray.push(checkedButton.value);
-
-        if (checkedButton.value == "requeter") {
-          this.data.specificData.requestChecked = 'checked';
-        } else if (checkedButton.value == "supprimer") {
-          this.data.specificData.deleteChecked = 'checked';
-        } else if (checkedButton.value == "inserer") {
-          this.data.specificData.insertChecked = 'checked';
-        }
-      })
-    }
-
-    //we saved the checked checkboxes but we didn't save the fact 
-    //that some checkboxes aren't checked anymore ->>
-    const notCheckedArray = fullCheckedArray.filter(f => !tempCheckedArray.includes(f));
-    console.log('notchecked : ',notCheckedArray);
-
-    notCheckedArray.forEach((notChecked) => {
-      if (notChecked == "requeter") {
-          this.data.specificData.requestChecked = '';
-        } else if (notChecked == "supprimer") {
-          this.data.specificData.deleteChecked = '';
-        } else if (notChecked == "inserer") {
-          this.data.specificData.insertChecked = '';
-        }
-    })
-
+  saveAndShowInsertCheckbox(e){
+    console.log("showinsert : ",e.target.checked);
+    this.data.specificData.insertChecked = e.target.checked ? 'checked' : '';
   }
 
-  //we save each checked checkbox in a variable
-  //such as data.specificdata.insertChecked = 'checked'
-  saveCheckboxState(){
-    this.checkedRadio = document.querySelectorAll('input[name="action"]:checked');
-    this.showHideElements(this.checkedRadio);
+   saveAndShowRequestCheckbox(e){
+    console.log("showrequest : ",e.target.checked);
+    this.data.specificData.requestChecked = e.target.checked ? 'checked' : '';
+  }
+
+  saveAndShowDeleteCheckbox(e){
+    console.log("showdelete : ",e.target.checked);
+    this.data.specificData.deleteChecked = e.target.checked ? 'checked' : '';
   }
   //end of the code for show/hide elements
 
@@ -278,6 +264,8 @@
     this.refs.deleteChecked = this.data.specificData.deleteChecked;
     this.refs.requestChecked = this.data.specificData.requestChecked;
     this.refs.tagDelete.data = this.data.specificData.tagDelete || [];
+
+
 
     this.update();
   }.bind(this);
