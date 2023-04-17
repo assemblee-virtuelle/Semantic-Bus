@@ -1,7 +1,7 @@
 'use strict';
 
 const { json } = require('body-parser');
-const { type, forEach, insert } = require('ramda');
+const { type, forEach, insert, reject } = require('ramda');
 
 class InfluxdbConnector {
   constructor () {
@@ -199,9 +199,11 @@ class InfluxdbConnector {
 
     let stringDelete = '_measurement="'+measurementType+'"';
 
-    deleteTags.forEach((element) => {
-      stringDelete +=' and '+element.tag+'="'+element.tagValue+'"';
-    })
+    if(deleteTags){
+      deleteTags.forEach((element) => {
+        stringDelete +=' and '+element.tag+'="'+element.tagValue+'"';
+      })
+    }
 
     await deleteAPI.postDelete({
       org,
@@ -334,41 +336,45 @@ class InfluxdbConnector {
 
   prepareData(data,jsonData,influxDB,org,bucket,measurementType){
     let result = {};
-
-    if(!(data.specificData && data.specificData.measurement && data.specificData.bucket)){
-      reject(new Error("Il faut fournir le nom de la mesure te le nom du bucket"))
-    }
-
-    const writeApi = influxDB.getWriteApi(org, bucket);
-    const tags = this.getTags(data.specificData);
-    const timestamp = data.specificData.timestamp;
-
-    // every field entered by the user
-    const inputFields = [data.specificData.timestamp];
-    if(tags.length > 0){
-      inputFields.push(...tags);
-    }
-
-    if(!(timestamp)){
-      throw new Error("Il faut fournir un timestamp");
-    } 
-
-    // when the data given is an array of objects ->>>
-    if(Array.isArray(jsonData)){
-      // gets the fields that weren't entered by the user according to first object?
-      // we take the first object for the array
-      const fields = this.getRemainingFields(jsonData[0],inputFields);
-      if(!(fields.length > 0)){
-        throw new Error("Il faut qu'il y ait au moins un champs en entrée (field).");
+    try{
+      if(!(data.specificData && data.specificData.measurement && data.specificData.bucket)){
+        reject(new Error("Il faut fournir le nom de la mesure te le nom du bucket"))
       }
-      result = this.writeData(tags,fields,timestamp,measurementType,jsonData,writeApi);
-      // when the data given is just an object ->>>
-    }else {
-      const fields = this.getRemainingFields(jsonData,inputFields);
-      if(!(fields.length > 0)){
-        throw new Error("Il faut qu'il y ait au moins un champs en entrée (field).");
+
+      const writeApi = influxDB.getWriteApi(org, bucket);
+      const tags = this.getTags(data.specificData);
+      const timestamp = data.specificData.timestamp;
+
+      // every field entered by the user
+      const inputFields = [data.specificData.timestamp];
+      if(tags.length > 0){
+        inputFields.push(...tags);
       }
-      result = this.writeDatum(tags,fields,timestamp,measurementType,jsonData,writeApi);
+
+      if(!(timestamp)){
+        throw new Error("Il faut fournir un timestamp");
+      } 
+
+      // when the data given is an array of objects ->>>
+      if(Array.isArray(jsonData)){
+        // gets the fields that weren't entered by the user according to first object?
+        // we take the first object for the array
+        const fields = this.getRemainingFields(jsonData[0],inputFields);
+        if(!(fields.length > 0)){
+          throw new Error("Il faut qu'il y ait au moins un champs en entrée (field).");
+        }
+        result = this.writeData(tags,fields,timestamp,measurementType,jsonData,writeApi);
+        // when the data given is just an object ->>>
+      }else {
+        const fields = this.getRemainingFields(jsonData,inputFields);
+        if(!(fields.length > 0)){
+          throw new Error("Il faut qu'il y ait au moins un champs en entrée (field).");
+        }
+        result = this.writeDatum(tags,fields,timestamp,measurementType,jsonData,writeApi);
+      }
+    }
+    catch (e) {
+      throw new Error(e);
     }
     
     return result;
