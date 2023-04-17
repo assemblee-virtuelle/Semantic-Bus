@@ -103,7 +103,7 @@
       //if the component is a deeper focus we remove the deeper focus tab added to every component
       if(this.itemCurrent.module == "deeperFocusOpeningBracket" || this.itemCurrent.type == "Deeper Focus"){
         this.showDfTab = false;
-      } 
+      }
       if(! this.itemCurrent.deeperFocusData) {
         this.itemCurrent.deeperFocusData = {};
       }
@@ -114,7 +114,7 @@
       this.update();
     }.bind(this);
     // fin du code lié au deeper focus
-    
+
     onNameChange(e) {
       this.itemCurrent.name = e.target.value;
     }
@@ -156,7 +156,7 @@
       document.getElementById(id).style.display = "flex";
 
       e.currentTarget.className += " active";
-      document.getElementById("dfSwitchBtn").className 
+      document.getElementById("dfSwitchBtn").className
     }
 
     this.on('mount', function () {

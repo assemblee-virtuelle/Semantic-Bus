@@ -27,6 +27,8 @@
   "license": "GNUV3",
   "dependencies": {
     "@graphy/content.xml.scribe": "^4.2.1",
+    "@influxdata/influxdb-client": "^1.33.2",
+    "@influxdata/influxdb-client-apis": "^1.33.2",
     "@wdio/sauce-service": "^5.16.5",
     "abortcontroller-polyfill": "^1.7.3",
     "amqp-connection-manager": "^3.0.0",
