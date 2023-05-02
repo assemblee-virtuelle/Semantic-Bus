@@ -141,6 +141,7 @@ module.exports = function (router) {
       return {
         workspaceId: req.params.id,
         specificData: c.specificData || {},
+        deeperFocusData: c.deeperFocusData || {},
         module: c.module,
         type: c.type,
         description: c.description,
