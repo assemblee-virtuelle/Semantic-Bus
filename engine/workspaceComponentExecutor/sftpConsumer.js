@@ -12,18 +12,18 @@ class SftpConsumer {
       const fakeName = dataPath.replace('/','_');
 
       this.dataTraitment.type.type_file(fakeName, readableStream.toString(), readableStream)
-        .then((result) => {
-          let data = this.propertyNormalizer.execute(result.data);
-          // console.log(data);
-          resolve({
-            data: data,
-            path: dataPath
-          });
-        }, (err) => {
-          let fullError = new Error(err);
-          fullError.displayMessage = 'SFTP : Erreur lors du traitement du fichier';
-          reject(fullError);
+      .then((result) => {
+        let data = this.propertyNormalizer.execute(result.data);
+        // console.log(data);
+        resolve({
+          data: data,
+          path: dataPath
         });
+      }, (err) => {
+        let fullError = new Error(err);
+        fullError.displayMessage = 'SFTP : Erreur lors du traitement du fichier';
+        reject(fullError);
+      });     
     })
   }
 
@@ -63,12 +63,14 @@ class SftpConsumer {
             // console.log('FILE');
             sftp.get(specificDataParsed.path)
               .then(readableStream => {
-                return this.dataProcessing(specificDataParsed.path, readableStream);
+               return this.dataProcessing(specificDataParsed.path, readableStream);
               })
               .then(result => {
                 resolve({
                   data:result
                 });
+              }).catch(e => {
+                reject(e);
               });
           } else if (typeOfPath === "d") {
             // if the path leads to a folder
