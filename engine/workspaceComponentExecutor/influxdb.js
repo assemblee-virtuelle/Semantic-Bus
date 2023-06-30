@@ -8,6 +8,7 @@ class InfluxdbConnector {
     this.config = require('../configuration.js');
     this.influxdbClient = require('@influxdata/influxdb-client');
     this.influxdbClientApi = require('@influxdata/influxdb-client-apis');
+    this.objectTransformation = require('../utils/objectTransformationV2.js');
   }
 
     /* TODO :
@@ -437,8 +438,20 @@ class InfluxdbConnector {
             insertDataReturned = this.prepareData(data,jsonData,influxDB,org,bucket,measurementType);
           }
           if(requestData){
-            //console.log('requeter');
-            const querySelect = data.specificData.querySelect;
+            // console.log('requeter');
+            const querySelectString = data.specificData.querySelect;
+            let querySelect = querySelectString;
+
+            // if there is a data flow, we allow the request to treat data 
+            // in ${} brackets
+            if(flowData){
+              const jsString = `=${data.specificData.querySelect}`;
+              const result = this.objectTransformation.execute(flowData[0].data,pullParams,jsString);
+              // if the transformer worked, it becomes the query for influxdb
+              if(result){
+                querySelect = result;
+              }
+            }
 
             await this.queryGenerator(influxDB,querySelect,org).then((result) => {
               // console.log('data : ',result);
