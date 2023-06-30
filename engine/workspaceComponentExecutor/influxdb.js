@@ -8,7 +8,6 @@ class InfluxdbConnector {
     this.config = require('../configuration.js');
     this.influxdbClient = require('@influxdata/influxdb-client');
     this.influxdbClientApi = require('@influxdata/influxdb-client-apis');
-    this.objectTransformation = require('../utils/objectTransformationV2.js');
     this.stringReplacer = require('../utils/stringReplacer.js');
   }
 
