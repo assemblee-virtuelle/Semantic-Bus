@@ -9,6 +9,41 @@ class GouvFrInverseGeo {
     return entity
   }
 
+  async inverseGeoLocalise2 (flowData, specificData) {
+    if(Array.isArray(flowData)){
+      throw new Error('input data can not be an array');
+    }
+    var geoLoc = {
+      lat: flowData[specificData.latitudePath],
+      lng: flowData[specificData.longitudePath]
+    }
+    const urlString = 'http://api-adresse.data.gouv.fr/reverse/?lon=' + geoLoc.lng + '&lat=' + geoLoc.lat;
+    console.log(urlString)
+    const geoResponse = await fetch(urlString);
+
+
+    if(geoResponse.status==200){
+
+      const geoResponseObject = await geoResponse.json();
+      console.log(geoResponseObject)
+      if(geoResponseObject.features.length>0){
+        // console.log(geoLocalisations[geoLocalisationKey].features[0].properties);
+        flowData[specificData.CPPath] = geoResponseObject.features[0].properties.postcode;
+        flowData[specificData.INSEEPath] = geoResponseObject.features[0].properties.citycode;
+        flowData[specificData.VillePath] = geoResponseObject.features[0].properties.city;
+      }else{
+        flowData[specificData.CPPath]="no adress finded";
+        flowData[specificData.INSEEPath]="no adress finded";
+        flowData[specificData.VillePath] = "no adress finded"
+      }
+  
+      return flowData;
+    } else {
+      throw new Error(geoResponseObject.message)
+    }
+
+  }
+
   inverseGeoLocalise (rawSource, specificData) {
     let source = rawSource
     if (!Array.isArray(rawSource)) {
@@ -46,7 +81,12 @@ class GouvFrInverseGeo {
                   responseBody += chunk.toString()
                 })
                 response.on('end', () => {
-                  resolve(responseBody == '' ? undefined : JSON.parse(responseBody))
+                  try {
+                    resolve(responseBody == '' ? undefined : JSON.parse(responseBody))
+                  } catch (error) {
+                    reject(new Error('json deserialisation not ok:',responseBody));
+                  }
+
                 })
               })
               request.on('error', reject)
@@ -86,7 +126,7 @@ class GouvFrInverseGeo {
   }
 
   pull (data, flowData) {
-      return this.inverseGeoLocalise(flowData[0].data, data.specificData)
+      return this.inverseGeoLocalise2(flowData[0].data, data.specificData)
   }
 }
 

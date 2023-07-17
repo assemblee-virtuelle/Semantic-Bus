@@ -38,5 +38,7 @@ module.exports = {
   sftpConsumer: require('../workspaceComponentExecutor/sftpConsumer.js'),
   flat: require('../workspaceComponentExecutor/flat.js'),
   jsEvaluation: require('../workspaceComponentExecutor/jsEvaluation.js'),
+  slugify: require('../workspaceComponentExecutor/slugify.js'),
+  regex: require('../workspaceComponentExecutor/regex.js'),
 
 }

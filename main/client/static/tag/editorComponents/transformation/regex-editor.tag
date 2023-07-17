@@ -1,0 +1,42 @@
+<regex-editor>
+  <!-- bouton aide -->
+  <div class="contenaireH" style="margin-left:97%">
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Slugify" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+  </div>
+  <!-- Titre du composant -->
+  <div class="contenaireV title-component">{data.type}</div>
+  <div>
+    <div class="bar"/>
+  </div>
+  <!-- Description du composant -->
+  <div class="title-description-component">{data.description}</div>
+  <!-- Champ du composant -->
+  <div>
+    <div class="bar"/>
+  </div>
+  <label class="labelFormStandard">Regex</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="" type="text" name="regex" ref="regex" onChange={regexInputChanged} value={data.specificData.regex}></input>
+  </div>
+
+  <script>
+   this.data = {};
+    regexInputChanged = e => {
+      this.data.specificData.regex = e.currentTarget.value;
+    };
+    
+    this.updateData=function(dataToUpdate){
+      this.data = dataToUpdate;
+      this.update();
+    }.bind(this);
+
+    this.on('mount', function () {
+      RiotControl.on('item_current_changed',this.updateData);
+    });
+    this.on('unmount', function () {
+      RiotControl.off('item_current_changed',this.updateData);
+    });
+
+  </script>
+  <style scoped></style>
+</regex-editor>

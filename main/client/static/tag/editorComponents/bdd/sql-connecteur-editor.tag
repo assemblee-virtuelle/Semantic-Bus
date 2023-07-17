@@ -39,10 +39,11 @@
   <div class="cardInput">
     <input class="inputComponents" placeholder="Database" type="text" ref="database" value={data.specificData.database}/>
   </div>
-  <label class="labelFormStandard">Nom de la table:</label>
+  <!--  le nom du model n'a pas d'importance pour le cas du bus smantique  -->
+  <!--  <label class="labelFormStandard">Nom de la table:</label>
   <div class="cardInput">  
     <input class="inputComponents" placeholder="Nom de la table" type="text" ref="modelName" value={data.specificData.modelName}/>
-  </div>
+  </div>  -->
   <label class="labelFormStandard">Documentation requêtes:
     <a href={'http://sql.sh/cours'} target="_blank"><img src="./image/help.png" alt="Aide" width="15px" height="15px"></a>
   </label class="labelFormStandard">
@@ -98,9 +99,9 @@
         this.data.specificData.database = e.currentTarget.value;
       }.bind(this));
 
-      this.refs.modelName.addEventListener('change', function (e) {
+      /*this.refs.modelName.addEventListener('change', function (e) {
         this.data.specificData.modelName = e.currentTarget.value;
-      }.bind(this));
+      }.bind(this)); */
 
       this.refs.querySelect.addEventListener('change', function (e) {
         this.data.specificData.querySelect = e.currentTarget.value;

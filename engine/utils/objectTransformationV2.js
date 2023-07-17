@@ -13,11 +13,7 @@ module.exports = {
   },
 
   execute: function(source, pullParams, jsonTransformPattern, options, config) {
-    // console.log('config',config!=undefined);
-    // console.log('jsonTransformPattern',jsonTransformPattern);
-    // if (source == undefined) {
-    //   return undefined;
-    // } else
+
     if (typeof jsonTransformPattern === 'string' || jsonTransformPattern instanceof String) {
       const regexpeEval = /^\=(.*)/gm;
       const arrayRegexEval = [...jsonTransformPattern.matchAll(regexpeEval)]
@@ -27,45 +23,23 @@ module.exports = {
         const arrayRegexDot = [...patternEval.matchAll(regexpeDot)];
         let logEval=false;
         for (const valueDot of arrayRegexDot) {
-          // console.log('getValueFromSource',source,pullParams, valueDot[1]);
           let sourceDotValue = this.getValueFromSource(source,pullParams, valueDot[1]);
-
-          // if(source&&source['pair:label']&&source['pair:label'].includes('Nuyens') && valueDot&& valueDot[1] && valueDot[1].includes('longitude')){
-          //   // console.log("sourceDotValue");
-          //   console.log("sourceDotValue", sourceDotValue, typeof sourceDotValue);
-          //   logEval=true;
-          // }
-
-          // console.log('sourceDotValue',sourceDotValue);
-          // sourceDotValue= this.escapeString(sourceDotValue);
-          // console.log('sourceDotValue',sourceDotValue, typeof sourceDotValue);
 
           if(typeof sourceDotValue === 'string' || sourceDotValue instanceof String){
             sourceDotValue = "this.resolveString('"+this.escapeString(sourceDotValue)+"')"
           }else if (typeof sourceDotValue === 'object') {
-            // sourceDotValue ='JSON.parse(`' + JSON.stringify(sourceDotValue) + '`)'
-            // console.log('sourceDotValue parseAndResolveString',sourceDotValue,this.parseAndResolveString(JSON.stringify(this.escapeString(sourceDotValue))));
-            sourceDotValue = "this.parseAndResolveString('" + JSON.stringify(this.escapeString(sourceDotValue)) + "')";
+           sourceDotValue = "this.parseAndResolveString('" + JSON.stringify(this.escapeString(sourceDotValue)) + "')";
           }else if ( typeof sourceDotValue =='number' || !isNaN(sourceDotValue) ){
             const type= typeof sourceDotValue;
             sourceDotValue=`Number(${sourceDotValue})`
           }
 
-          // if(logEval){
-          //   console.log(sourceDotValue instanceof Number);
-          //   console.log('sourceDotValue2',sourceDotValue,valueDot[0]);
-          // }
           patternEval = patternEval.replace(valueDot[0], sourceDotValue);
         }
         // console.log('patternEval',patternEval);
         try {
           const evalResult = eval(patternEval);
-          // console.log('ALLO');
-          // if(logEval){
-          //   // console.log("evalResult!");
-          //   console.log("patternEval",patternEval);
-          //   console.log("evalResult", evalResult, typeof evalResult);
-          // }
+
           if(options  && options.evaluationDetail==true){
             return {eval:evalResult};
           }else{
@@ -124,12 +98,9 @@ module.exports = {
     }
   },
   escapeString(source){
-    // console.log('escapeString',source);
+
     if(typeof source === 'string' || source instanceof String){
-      // return '`${source}`'
-      // return `eval(\`${source}\`)`
       return `eval(this.unicode.atou(\`${this.unicode.utoa(source)}\`))`
-      // return \
     } else if(Array.isArray(source)){
       return source.map(r=>this.escapeString(r))
     } else if (source!=null && source.toJSON!==undefined){
