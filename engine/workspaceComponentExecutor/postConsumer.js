@@ -79,7 +79,7 @@ class PostConsumer {
         let body;
 
         if(componentConfig.noBody!=true && flowData){
-          console.log("here ",flowData[0].data);
+          // console.log("here ",flowData[0].data);
           switch (componentConfig.contentType) {
             case 'text/plain':
               body = flowData[0].data

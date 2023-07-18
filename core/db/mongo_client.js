@@ -14,7 +14,7 @@ class MongoClientSingleton {
 class MongoClient {
   constructor() {
     this.config = require('../getConfiguration.js')();
-    console.log('config cor db',this.config)
+    // console.log('config cor db',this.config)
     this.mongoose = require('mongoose');
     this.mongoose.Promise = Promise;
     const conStr = this.config.mlabDB;
@@ -27,7 +27,7 @@ class MongoClient {
     // CONNECTION EVENTS
     // When successfully connected
     db.on('connected', function() {
-      console.log('Mongoose default connection open to ' + conStr);
+      // console.log('Mongoose default connection open to ' + conStr);
     });
 
     // If the connection throws an error

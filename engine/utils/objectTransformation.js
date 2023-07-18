@@ -229,7 +229,7 @@ module.exports = {
                 return '{unicode(' + p + ')}'
               })
 
-              console.log(nodeOut[key]);
+              // console.log(nodeOut[key]);
             }
           }
 
