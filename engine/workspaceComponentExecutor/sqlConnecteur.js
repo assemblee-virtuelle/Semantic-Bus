@@ -41,7 +41,7 @@ class SqlConnector {
     return new Promise(async (resolve, reject) => {
       try {
         const schemaSeq = await this.initialise(data.specificData.driver, data.specificData.host, data.specificData.port, data.specificData.username, data.specificData.password, data.specificData.database)
-        const bddData = await this.request(data.specificData.querySelect, schemaSeq, flowData[0].data, pullParams);
+        const bddData = await this.request(data.specificData.querySelect, schemaSeq, flowData?flowData[0].data:undefined, pullParams);
         resolve({
           data: bddData
         })
