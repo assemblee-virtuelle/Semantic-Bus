@@ -8,6 +8,7 @@ class InfluxdbConnector {
     this.config = require('../configuration.js');
     this.influxdbClient = require('@influxdata/influxdb-client');
     this.influxdbClientApi = require('@influxdata/influxdb-client-apis');
+    this.stringReplacer = require('../utils/stringReplacer.js');
   }
 
     /* TODO :
@@ -437,8 +438,10 @@ class InfluxdbConnector {
             insertDataReturned = this.prepareData(data,jsonData,influxDB,org,bucket,measurementType);
           }
           if(requestData){
-            //console.log('requeter');
-            const querySelect = data.specificData.querySelect;
+            // console.log('requeter');
+            const querySelectString = data.specificData.querySelect;
+
+            const querySelect = this.stringReplacer.execute(querySelectString, pullParams, flowData?flowData[0].data:undefined);
 
             await this.queryGenerator(influxDB,querySelect,org).then((result) => {
               // console.log('data : ',result);
