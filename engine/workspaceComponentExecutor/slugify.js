@@ -13,10 +13,14 @@ class Slugify {
           throw new Error('input data can not be an array');
         }
 
-        console.log('flowDataPrimary',flowDataPrimary)
+        // console.log('flowDataPrimary',flowDataPrimary)
+        const result= slugify(flowDataPrimary,{
+          lower : true,
+          remove: /[*+~.()'"!:@]/g
+        })
 
         resolve({
-          data: slugify(flowDataPrimary)
+          data: result
         })
       } catch (e) {
         reject (e)
