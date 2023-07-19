@@ -1,4 +1,4 @@
-const slugify = require('slugify')
+const createSlug = require('speakingurl');
 
 'use strict';
 class Slugify {
@@ -12,12 +12,7 @@ class Slugify {
         if(Array.isArray(flowDataPrimary)){
           throw new Error('input data can not be an array');
         }
-
-        // console.log('flowDataPrimary',flowDataPrimary)
-        const result= slugify(flowDataPrimary,{
-          lower : true,
-          remove: /[*+~.()'"!:@]/g
-        })
+        const result = createSlug(flowDataPrimary );
 
         resolve({
           data: result
