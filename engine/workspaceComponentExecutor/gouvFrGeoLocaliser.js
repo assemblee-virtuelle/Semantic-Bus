@@ -43,11 +43,11 @@ class GouvFrGeoLocaliser {
         flowData[specificData.latitudePath] = geoResponseObject.features[0].geometry.coordinates[1];
         flowData[specificData.longitudePath] = geoResponseObject.features[0].geometry.coordinates[0];
         
-        console.log(flowData)
+        // console.log(flowData)
         return {
           data: flowData
         };
-      } catch (error) {
+      } catch (e) {
         console.error(e);
         throw e
       }
