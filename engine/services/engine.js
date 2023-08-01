@@ -532,7 +532,7 @@ class Engine {
               this.workspace_lib.updateSimple(this.workflow)
               // this.RequestOrigineResolveMethode(this.originComponentResult);
             }
-            console.log(`--------- start clean ${this.workflow.name}`)
+            // console.log(`--------- start clean ${this.workflow.name}`)
             this.workspace_lib.cleanOldProcess(this.workflow).then(processes => {
               console.log('--------------  End of Worksapce processing --------------', this.workflow.name, this.owner.credit)
  

@@ -173,10 +173,10 @@ function _updateCurrentProcess(processId, state) {
 
 // --------------------------------------------------------------------------------
 
-// clenGarbage not use fragmentLib.cleanFrag and it is normal. clena gargabe don(t have to depend of cleanFrag exection
+// clenGarbage not use fragmentLib.cleanFrag and it is normal. clean gargabe don't have to depend of cleanFrag execution
 function _cleanGarbage() {
   return new Promise(async (resolve, reject) => {
-
+    console.log("_cleanGarbage");
     try {
       const workspaces = await workspaceModel.getInstance().model.find({}).lean().exec();
       let allFragKeeped=[];
