@@ -169,7 +169,7 @@ class Engine {
   processNextBuildPathDelayed(owner) {
     // console.log('privateScript',this.config.privateScript);
     this.workspace_lib.getCurrentProcess(this.processId).then(async (process) => {
-      console.log(' <---- current process  -----> ', process)
+      // console.log(' <---- current process  -----> ', process)
       if (process.state == 'stop') {
         this.processNotifier.information({
           _id: this.processId,
@@ -532,14 +532,16 @@ class Engine {
               this.workspace_lib.updateSimple(this.workflow)
               // this.RequestOrigineResolveMethode(this.originComponentResult);
             }
+            console.log(`--------- start clean ${workflow.name}`)
             this.workspace_lib.cleanOldProcess(this.workflow).then(processes => {
+              console.log('--------------  End of Worksapce processing --------------', this.workflow.name, this.owner.credit)
+ 
               // console.log(processes);
-              console.log(`------- egine end clean ${this.workflow.name}`)
+              // console.log(`------- egine end clean ${this.workflow.name}`)
               this.processNotifier.processCleaned({
                 cleanedProcesses: processes,
                 workspaceId: this.workflow._id
               })
-              console.log('--------------  End of Worksapce processing --------------', this.workflow.name, this.owner.credit)
               return this.user_lib.update(this.owner)
             })
           }
