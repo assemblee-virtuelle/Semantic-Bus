@@ -169,7 +169,7 @@ class Engine {
   processNextBuildPathDelayed(owner) {
     // console.log('privateScript',this.config.privateScript);
     this.workspace_lib.getCurrentProcess(this.processId).then(async (process) => {
-      // console.log(' <---- current process state -----> ', process.state)
+      console.log(' <---- current process  -----> ', process)
       if (process.state == 'stop') {
         this.processNotifier.information({
           _id: this.processId,
