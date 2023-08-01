@@ -286,11 +286,11 @@ function _cleanGarbage() {
 
       }
 
-      const notReferencedFragsCount = await fragmentModel.getInstance().model.count({
-        _id: {
-          $nin: allFragKeeped
-        }
-      }).exec();
+      // const notReferencedFragsCount = await fragmentModel.getInstance().model.count({
+      //   _id: {
+      //     $nin: allFragKeeped
+      //   }
+      // }).exec();
 
       console.log('remove garbage fragments')
       await fragmentModel.getInstance().model.deleteMany({
@@ -312,6 +312,7 @@ function _cleanGarbage() {
       })
 
       console.log(`${allFragKeeped.length} fragments keeped and ${notReferencedFragsCount} fragments removed`);
+      console.log(`${allFragKeeped.length} fragments keeped`);
       console.log(`${totalHistoriqueEndToRemove.length} historic removed`);
       console.log(`${totalProcessToRemove.length} process removed`);
 
