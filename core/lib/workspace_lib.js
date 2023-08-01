@@ -448,7 +448,7 @@ function _cleanOldProcess(workflow) {
       for (let oldHistoriqueEnd of oldHistoriqueEnds){
         await fragment_lib.cleanFrag(oldHistoriqueEnd.frag);
       }
-
+      console.log(`--------- middle clean ${workflow.name}`)
       // console.log(`Normal Clean ${oldHistoriqueEnds.length} historic of ${workflow.name}`);
       await historiqueEndModel.getInstance().model.deleteMany({
         _id: {
