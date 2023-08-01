@@ -291,19 +291,19 @@ function _cleanGarbage() {
         }
       }).exec();
 
-
+      console.log('remove garbage fragments')
       await fragmentModel.getInstance().model.deleteMany({
         _id: {
           $nin: allFragKeeped
         }
       })
-
+      console.log('remove garbage historic')
       await historiqueEndModel.getInstance().model.deleteMany({
         _id: {
           $in: totalHistoriqueEndToRemove
         }
       })
-
+      console.log('remove garbage process')
       await processModel.getInstance().model.deleteMany({
         _id: {
           $in: totalProcessToRemove
