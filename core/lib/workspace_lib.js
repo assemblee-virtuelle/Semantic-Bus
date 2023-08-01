@@ -185,6 +185,7 @@ function _cleanGarbage() {
 
 
       for (var workflow of workspaces) {
+        console.log("stack data to keep ",workflow.name)
         const {
           keepedProcesses,
           oldProcesses,
