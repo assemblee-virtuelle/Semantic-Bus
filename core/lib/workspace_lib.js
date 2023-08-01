@@ -295,9 +295,10 @@ function _cleanGarbage() {
       const allFrag= await historiqueEndModel.getInstance().model.find({})
       .select({
         _id: 1
-      }).lean().exec();
-      console.log(allFrag,allFrag)
-
+      }).lean().exec().map(f=>f._id);
+      console.log('allFrag',allFrag);
+      const allFragtoRemove = allFrag.filter(f=>!allFragKeeped.includes(f));
+      console.log('allFragtoRemove',allFragtoRemove);
       console.log('remove garbage fragments')
       await fragmentModel.getInstance().model.deleteMany({
         _id: {
