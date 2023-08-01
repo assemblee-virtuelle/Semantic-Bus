@@ -446,7 +446,7 @@ function _cleanOldProcess(workflow) {
       } = await _getOldProcessAndHistoriqueEnd(workflow);
 
       for (let oldHistoriqueEnd of oldHistoriqueEnds){
-        await fragment_lib.cleanFrag(oldHistoriqueEnd.frag);
+        // await fragment_lib.cleanFrag(oldHistoriqueEnd.frag);
       }
       console.log(`--------- middle clean ${workflow.name}`)
       // console.log(`Normal Clean ${oldHistoriqueEnds.length} historic of ${workflow.name}`);
