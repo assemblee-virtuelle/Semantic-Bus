@@ -437,6 +437,7 @@ function _getOldProcessAndHistoriqueEnd(workflow) {
 function _cleanOldProcess(workflow) {
   return new Promise(async (resolve, reject) => {
     try {
+      console.log(`--------- start clean ${workflow.name}`)
       const {
         keepedProcesses,
         oldProcesses,
@@ -448,19 +449,20 @@ function _cleanOldProcess(workflow) {
         await fragment_lib.cleanFrag(oldHistoriqueEnd.frag);
       }
 
-      console.log(`Normal Clean ${oldHistoriqueEnds.length} historic of ${workflow.name}`);
+      // console.log(`Normal Clean ${oldHistoriqueEnds.length} historic of ${workflow.name}`);
       await historiqueEndModel.getInstance().model.deleteMany({
         _id: {
           $in: oldHistoriqueEnds.map(r => r._id)
         }
       }).exec();
 
-      console.log(`Normal Clean ${oldProcesses.length} process of ${workflow.name}`);
+      // console.log(`Normal Clean ${oldProcesses.length} process of ${workflow.name}`);
       await processModel.getInstance().model.deleteMany({
         _id: {
           $in: oldProcesses.map(r => r._id)
         }
       }).exec();
+      console.log(`--------- end clean ${workflow.name}`)
       resolve()
     } catch (e) {
       reject(new Error.DataBaseProcessError(e))
