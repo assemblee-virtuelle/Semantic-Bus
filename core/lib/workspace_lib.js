@@ -292,10 +292,13 @@ function _cleanGarbage() {
       //   }
       // }).exec();
 
-      const allFrag= await historiqueEndModel.getInstance().model.find({})
+      let allFrag= await historiqueEndModel.getInstance().model.find({})
       .select({
         _id: 1
-      }).lean().exec().map(f=>f._id);
+      }).lean().exec();
+      // console.log('allFrag',allFrag);
+      allFrag= allFrag.map(f=>f._id)
+
       console.log('allFrag',allFrag);
       const allFragtoRemove = allFrag.filter(f=>!allFragKeeped.includes(f));
       console.log('allFragtoRemove',allFragtoRemove);
