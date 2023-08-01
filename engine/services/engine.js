@@ -534,6 +534,7 @@ class Engine {
             }
             this.workspace_lib.cleanOldProcess(this.workflow).then(processes => {
               // console.log(processes);
+              console.log(`------- egine end clean ${this.workflow.name}`)
               this.processNotifier.processCleaned({
                 cleanedProcesses: processes,
                 workspaceId: this.workflow._id
