@@ -7,7 +7,7 @@ var error = require('../helpers/error')
 // --------------------------------------------------------------------------------
 
 module.exports = (passport) => {
-  if (config.googleAuth) {
+  if (config.googleAuth && config.googleAuth.clientID && config.googleAuth.clientID.length>0 && config.googleAuth.clientSecret && config.googleAuth.clientSecret.length>0) {
     console.log('GOOGLE auth activ');
     passport.use(new GoogleStrategy({
       clientID: config.googleAuth.clientID,
@@ -54,5 +54,8 @@ module.exports = (passport) => {
         })
       })
     }))
+  } else {
+    console.warn('googleAuth (clientID & clientSecret) config have to be set to use google authentification')
+    // throw new Error('googleAuth (clientID & clientSecret) config have to be set to use google authentification')
   }
 } // <= passport_google_auth

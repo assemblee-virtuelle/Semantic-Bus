@@ -609,6 +609,52 @@ module.exports = {
           }).exec();
         }
       })
+  },
+
+  tagGarbage: function(id) {
+
+    if(id){
+      console.log('tagGarbage', id);
+      this.fragmentModel.getInstance().model.findOne({
+        _id: id
+      })
+      .lean()
+      .exec()
+      .then(async frag => {
+
+        console.log('tagGarbage',frag);
+
+        if (frag != null) {
+          if (frag.frags != undefined) {
+            this.fragmentModel.getInstance().model.updateMany({
+              _id: {
+                $in: frag.frags
+              }
+            },
+            {
+              garbageTag : 1
+            }).exec();
+          }
+
+
+          if (frag.rootFrag) {
+           this.fragmentModel.getInstance().model.updateMany({
+              originFrag: frag.rootFrag
+            },
+            {
+              garbageTag : 1
+            }).exec();
+          }
+          this.fragmentModel.getInstance().model.updateMany({
+            _id: frag._id
+          },
+          {
+            garbageTag : 1
+          }).exec();
+        }
+      })
+    }
+   
   }
 
 };

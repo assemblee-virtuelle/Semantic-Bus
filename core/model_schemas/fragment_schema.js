@@ -27,7 +27,12 @@ var FragmentSchema = mongoose.Schema({
   frags : [{
     type: mongoose.Schema.Types.ObjectId,
     ref: "fragment"
-  }]
+  }],garbageTag : {
+    type : Boolean
+  },
+  garbageProcess : {
+    type : Number
+  }
 }, { minimize: false} );
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

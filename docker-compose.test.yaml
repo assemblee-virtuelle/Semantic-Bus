@@ -11,6 +11,8 @@ services:
         - APP_PORT=80
         - NODE_ENV=development_docker
         - CONFIG_URL=https://data-players.github.io/StrongBox/public/test-docker.json
+    volumes:
+        - ./config.local.json:/data/main/config.json
     networks:
       - back
     ports:

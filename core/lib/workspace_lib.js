@@ -14,6 +14,7 @@ var sift = require("sift").default;
 var graphTraitement = require("../helpers/graph-traitment");
 var fetch = require('node-fetch');
 const Error = require('../helpers/error.js');
+const ObjectID = require('bson').ObjectID;
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -177,13 +178,22 @@ function _updateCurrentProcess(processId, state) {
 function _cleanGarbage() {
   return new Promise(async (resolve, reject) => {
     console.log("_cleanGarbage");
+
     try {
       const workspaces = await workspaceModel.getInstance().model.find({}).lean().exec();
-      let allFragKeeped=[];
+      // let allFragKeeped=[];
       let totalProcessToRemove=[];
       let totalHistoriqueEndToRemove = [];
 
+      console.log('START initial clean fragment garbage')
+      await fragmentModel.getInstance().model.deleteMany({
+        garbageTag: 1
+      })
+      console.log('END initial clean fragment garbage')
 
+      const processGarbageId = Math.floor(Math.random() * 10000);
+
+      await fragmentModel.getInstance().model.updateMany({}, { garbageProcess: processGarbageId });
       for (var workflow of workspaces) {
         console.log("stack data to keep ",workflow.name)
         const {
@@ -219,95 +229,48 @@ function _cleanGarbage() {
           }
         }).select({
           frags: 1,
-          rootFrag: 1
+          rootFrag: 1,
+          _id: 1
         }).lean().exec();
 
-        // let fragToKeep = relatedFrags.map(f => f._id);
         for (let frag of fragsToKeep) {
-          //old frags management. could be remove but some old frags keep in cache or process
-          if (frag.frags != undefined) {
-            fragsToKeepId = fragsToKeepId.concat((frag.frags));
-          }
-          //new frags management
-          if (frag.rootFrag != undefined) {
-            const fragFromRoot = await fragmentModel.getInstance().model.find({
+
+          await fragmentModel.getInstance().model.updateMany({
+            frags: {
+              $in: frag.frags
+            }
+          },
+          {
+            garbageProcess : 0
+          });
+
+          await fragmentModel.getInstance().model.updateMany({
               originFrag: frag.rootFrag
-            }).select('_id').lean().exec();
-            fragsToKeepId = fragsToKeepId.concat(fragFromRoot.map(f => f._id));
-          }
+            },
+            {
+              garbageProcess : 0
+            }
+          )
+          await fragmentModel.getInstance().model.updateMany({
+              _id: frag._id
+            },
+            {
+              garbageProcess : 0
+            }
+          )
         }
 
-        // console.log('fragsToKeepId3',fragsToKeepId);
-        fragsToKeepId=fragsToKeepId.filter(f=>f!=undefined);
+        totalHistoriqueEndToRemove=totalHistoriqueEndToRemove.concat(oldHistoriqueEnds.map(h=>h._id));
 
-        // console.log('fragsToKeepId',fragsToKeepId);
-
-        allFragKeeped=allFragKeeped.concat(fragsToKeepId);
-
-        // const notReferencedFragsCount = await fragmentModel.getInstance().model.count({
-        //   _id: {
-        //     $nin: fragsToKeepId
-        //   }
-        // }).exec();
-        //
-        //
-        // await fragmentModel.getInstance().model.deleteMany({
-        //   _id: {
-        //     $nin: fragsToKeepId
-        //   }
-        // })
-
-        // totalFragKeeped+=fragsToKeepId.length;
-        // totalFragRemoved+=notReferencedFragsCount;
-
-        // await historiqueEndModel.getInstance().model.deleteMany({
-        //   _id: {
-        //     $in: oldHistoriqueEnds.map(h=>g._id)
-        //   }
-        // })
-
-        totalHistoriqueEndToRemove=totalHistoriqueEndToRemove.concat(oldHistoriqueEnds.map(h=>g._id));
-
-        // totalHistoriqueEndKeeped+=keepedHistoriqueEnds.length;
-        // totalHistoriqueEndRemoved+=oldHistoriqueEnds.length;
-
-        // await processModel.getInstance().model.deleteMany({
-        //   _id: {
-        //     $in: oldProcesses.map(h=>g._id)
-        //   }
-        // })
-
-        totalProcessToRemove=totalProcessToRemove.concat(oldProcesses.map(h=>g._id));
-
-        // totalProcessKeeped+=keepedProcesses.length;
-        // totalProcessRemoved+=oldProcesses.length;
-
-        // console.log(`cleanGarbage ${workflow.name} F:${fragsToKeepId.length}/${totalFragRemoved} H:${keepedHistoriqueEnds.length}/${oldHistoriqueEnds.length} P:${keepedProcesses.length}/${oldProcesses.length}`);
+        totalProcessToRemove=totalProcessToRemove.concat(oldProcesses.map(p=>p._id));
 
       }
 
-      // const notReferencedFragsCount = await fragmentModel.getInstance().model.count({
-      //   _id: {
-      //     $nin: allFragKeeped
-      //   }
-      // }).exec();
-
-      let allFrag= await historiqueEndModel.getInstance().model.find({})
-      .select({
-        _id: 1
-      }).lean().exec();
-      // console.log('allFrag',allFrag);
-      allFrag= allFrag.map(f=>f._id)
-
-      console.log('allFrag',allFrag);
-      const allFragtoRemove = allFrag.filter(f=>!allFragKeeped.includes(f));
-      console.log('allFragtoRemove',allFragtoRemove);
-      console.log('remove garbage fragments')
+      console.log('START total fragment garbage collector');
       await fragmentModel.getInstance().model.deleteMany({
-        _id: {
-          $nin: allFragKeeped
-        }
+        garbageProcess: processGarbageId
       })
+      console.log('END total fragment garbage collector');
       
       console.log('remove garbage historic')
       await historiqueEndModel.getInstance().model.deleteMany({
@@ -322,8 +285,8 @@ function _cleanGarbage() {
         }
       })
 
-      console.log(`${allFragKeeped.length} fragments keeped and ${notReferencedFragsCount} fragments removed`);
-      console.log(`${allFragKeeped.length} fragments keeped`);
+      // console.log(`${allFragKeeped.length} fragments keeped and ${notReferencedFragsCount} fragments removed`);
+      // console.log(`${allFragKeeped.length} fragments keeped`);
       console.log(`${totalHistoriqueEndToRemove.length} historic removed`);
       console.log(`${totalProcessToRemove.length} process removed`);
 
@@ -459,17 +422,15 @@ function _cleanOldProcess(workflow) {
       } = await _getOldProcessAndHistoriqueEnd(workflow);
 
       for (let oldHistoriqueEnd of oldHistoriqueEnds){
-        // await fragment_lib.cleanFrag(oldHistoriqueEnd.frag);
+        await fragment_lib.tagGarbage(oldHistoriqueEnd.frag);
       }
-      // console.log(`--------- middle clean ${workflow.name}`)
-      // console.log(`Normal Clean ${oldHistoriqueEnds.length} historic of ${workflow.name}`);
+
       await historiqueEndModel.getInstance().model.deleteMany({
         _id: {
           $in: oldHistoriqueEnds.map(r => r._id)
         }
       }).exec();
 
-      // console.log(`Normal Clean ${oldProcesses.length} process of ${workflow.name}`);
       await processModel.getInstance().model.deleteMany({
         _id: {
           $in: oldProcesses.map(r => r._id)
@@ -646,30 +607,6 @@ async function _create(userId, workspaceData) {
     }
 
 
-
-
-
-    // workspace.save(function(err, work) {
-    //   if (err) {
-    //     throw reject(new Error.DataBaseProcessError(err))
-    //   } else {
-    //     userModel.getInstance().model.findByIdAndUpdate({
-    //         _id: userId
-    //       }, {
-    //         $push: {
-    //           workspaces: {
-    //             _id: workspace._id,
-    //             role: "owner"
-    //           }
-    //         }
-    //       },
-    //       function(err, user) {
-    //         if (err) reject(new Error.DataBaseProcessError(err));
-    //         else resolve(work);
-    //       }
-    //     );
-    //   }
-    // });
   });
 } // <= _create
 

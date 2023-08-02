@@ -1,0 +1,127 @@
+{
+  "privateScript": [],
+  "pk_stripe": null,
+  "secret_stripe_private": null,
+  "secret_stripe_public": null,
+  "components_information": {
+    "cacheNosql": {
+      "price": 10
+    },
+    "deeperFocusOpeningBracket": {
+      "price": 0
+    },
+    "filter": {
+      "price": 40
+    },
+    "framcalcGetCsv": {
+      "price": 20
+    },
+    "googleGeoLocaliser": {
+      "price": 20,
+      "record_price": 10
+    },
+    "googleGetJson": {
+      "price": 20
+    },
+    "gouvFrGeoLocaliser": {
+      "price": 20
+    },
+    "gouvFrInverseGeo":{
+      "price": 20
+    },
+    "httpGet": {
+      "price": 40
+    },
+    "sftpConsumer":{
+      "price": 40
+    },
+    "joinByField": {
+      "price": 60
+    },
+    "keyToArray": {
+      "price": 40
+    },
+    "mongoConnector": {
+      "price": 20
+    },
+    "objectTransformer": {
+      "price": 80
+    },
+    "propertiesMatrix": {
+      "price": 40
+    },
+    "queryParamsCreation": {
+      "price": 20
+    },
+    "restApiGet": {
+      "price": 10
+    },
+    "restApiPost": {
+      "price": 10
+    },
+    "restGetJson": {
+      "price": 20
+    },
+    "scrapper": {
+      "price": 60
+    },
+    "simpleAgregator": {
+      "price": 20
+    },
+    "sparqlRequest": {
+      "price": 60
+    },
+    "sqlConnector": {
+      "price": 20
+    },
+    "timer": {
+      "price": 10
+    },
+    "unicity": {
+      "price": 60
+    },
+    "upload": {
+      "price": 40
+    },
+    "valueFromPath": {
+      "price": 20
+    },
+    "valueMapping": {
+      "price": 40
+    },
+    "postConsumer":{
+      "price": 20
+    },
+    "flat":{
+      "price": 20
+    },
+    "jsEvaluation":{
+      "price": 40
+    },
+    "regex":{
+      "price": 20
+    },
+    "slugify":{
+      "price": 20
+    },
+    "influxdbConnector": {
+      "price": 20
+    }
+  },
+  "googleAuth": {
+    "callbackURL": "/auth/",
+    "clientID": "",
+    "clientSecret": ""
+  },
+  "engineUrl":"http://engine:90/engine",
+  "mlabDB": "mongodb://mongodb:27017",
+  "socketClient": "ws://localhost:15674/ws/",
+  "amqpHost": "devLocal",
+  "socketServer": "amqp://rabbitmq:5672",
+  "secret": "secret",
+  "timer": {
+    "port": 8081,
+    "secret": "secret",
+    "target": "http://localhost:8080"
+  }
+}

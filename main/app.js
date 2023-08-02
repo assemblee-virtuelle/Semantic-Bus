@@ -1,5 +1,6 @@
 /* eslint-disable handle-callback-err */
 'use strict'
+const configJson = require('./config.json')
 
 const express = require('express');
 const cors = require('cors');
@@ -15,6 +16,9 @@ const env = process.env;
 const fs = require('fs');
 const url = env.CONFIG_URL;
 const errorHandling = require('../core/helpers/errorHandling');
+const cron = require('node-cron');
+const workspace_lib = require('../core/lib/workspace_lib')
+
 
 // app.use(cors())
 // // app.use(bodyParser.json({
@@ -34,12 +38,9 @@ app.use(bodyParser.urlencoded({limit: '100mb', extended: true}));
 
 http.globalAgent.maxSockets = 10000000000
 
-request(url, {
-  json: true
-}, (err, result, body) => {
-  console.log(err);
-  const configJson = result.body
-  const content = 'module.exports = ' + JSON.stringify(result.body)
+// console.log('config',configJson);
+
+const content = 'module.exports = ' + JSON.stringify(configJson)
   fs.writeFile('configuration.js', content, 'utf8', function(err) {
     if (err) {
       throw err
@@ -110,6 +111,19 @@ request(url, {
           errorHandling(_err, res, next)
         }
       })
+
+      cron.schedule('0 0 * * *', () => {
+        console.log('running a task every minute');
+        workspace_lib.cleanGarbage();
+      });
+      
     }
   })
-})
+
+// request(url, {
+//   json: true
+// }, (err, result, body) => {
+//   console.log(err);
+//   const configJson = result.body
+  
+// })
