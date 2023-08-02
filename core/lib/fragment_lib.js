@@ -614,15 +614,12 @@ module.exports = {
   tagGarbage: function(id) {
 
     if(id){
-      console.log('tagGarbage', id);
       this.fragmentModel.getInstance().model.findOne({
         _id: id
       })
       .lean()
       .exec()
       .then(async frag => {
-
-        console.log('tagGarbage',frag);
 
         if (frag != null) {
           if (frag.frags != undefined) {

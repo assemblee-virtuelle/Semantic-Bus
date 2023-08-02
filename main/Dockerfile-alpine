@@ -12,7 +12,8 @@ RUN npm install pm2 -g
 RUN npm install nodemon -g
 
 # install tool for npm lib compile in C
-RUN apk add --update --no-cache autoconf libtool automake python alpine-sdk
+RUN apk add --update --no-cache autoconf libtool automake python3 py3-pip alpine-sdk
+RUN apk update && apk add bash
 
 # Install app dependencies
 COPY ./main/package.json /data/
