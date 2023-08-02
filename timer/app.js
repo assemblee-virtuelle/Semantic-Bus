@@ -1,5 +1,5 @@
 "use strict";
-
+const configJson = require('./config.json')
 var http = require('http');
 var https = require('https');
 http.globalAgent.maxSockets = 1000000000;
@@ -21,27 +21,37 @@ const requestOptions = {
     'user-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0',
   }
 };
-https.get(requestOptions, function(res) {
-  var responseBody = '';
-  if (res.statusCode == 200) {
 
-  }
-  res.on('data', chunk => {
-    responseBody += chunk.toString();
-  });
 
-  res.on('end', () => {
-    // console.log("http end", responseBody)
-    let content = 'module.exports = ' + responseBody;
-    fs.writeFile("configuration.js", content, 'utf8', function(err) {
-      server.listen(8080, function () {
-        console.log('~~ server started ')
-        require('../core/timerScheduler').run(true);
-      })
-    });
-  });
+const content = 'module.exports = ' + JSON.stringify(configJson)
+fs.writeFile('configuration.js', content, 'utf8', function(err) {
+  server.listen(8080, function () {
+    console.log('~~ server started ')
+    require('../core/timerScheduler').run(true);
+  })
+})
 
-}.bind(this)).on('error', (e) => {
-  console.error('timer APP config error', e);
-  throw new Error(e)
-});
+// https.get(requestOptions, function(res) {
+//   var responseBody = '';
+//   if (res.statusCode == 200) {
+
+//   }
+//   res.on('data', chunk => {
+//     responseBody += chunk.toString();
+//   });
+
+//   res.on('end', () => {
+//     // console.log("http end", responseBody)
+//     let content = 'module.exports = ' + responseBody;
+//     fs.writeFile("configuration.js", content, 'utf8', function(err) {
+//       server.listen(8080, function () {
+//         console.log('~~ server started ')
+//         require('../core/timerScheduler').run(true);
+//       })
+//     });
+//   });
+
+// }.bind(this)).on('error', (e) => {
+//   console.error('timer APP config error', e);
+//   throw new Error(e)
+// });

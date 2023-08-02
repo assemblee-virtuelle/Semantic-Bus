@@ -14,6 +14,7 @@ services:
     volumes:
       - ./timer:/data/timer/
       - ./core:/data/core/
+      - ./config.local.json:/data/timer/config.json
     networks:
       - bus
     ports:
