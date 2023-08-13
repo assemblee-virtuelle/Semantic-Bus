@@ -7,7 +7,7 @@ var fragmentModel = require("../models/fragment_model");
 var userModel = require("../models/user_model");
 var cacheModel = require("../models/cache_model");
 
-var config = require("../getConfiguration.js")();
+// var config = require("../getConfiguration.js")();
 var historiqueEndModel = require("../models/historiqueEnd_model");
 var processModel = require("../models/process_model");
 var sift = require("sift").default;
@@ -521,7 +521,7 @@ function _get_process_byWorkflow(workflowId) {
 
 function _update_simple(workspaceupdate) {
   return new Promise((resolve, reject) => {
-    if (config.quietLog != true) {}
+    // if (config.quietLog != true) {}
     workspaceModel.getInstance().model
       .findOneAndUpdate({
           _id: workspaceupdate._id
@@ -535,7 +535,7 @@ function _update_simple(workspaceupdate) {
         if (err) {
           reject(err);
         } else {
-          if (config.quietLog != true) {}
+          // if (config.quietLog != true) {}
           resolve(workspaceUpdate);
         }
       });
@@ -638,7 +638,7 @@ function _destroy(userId, workspaceId) {
                     workspace[0].components != null
                   ) {
                     workspace[0].components.forEach(function(workspaceComp) {
-                      if (config.quietLog != true) {}
+                      // if (config.quietLog != true) {}
                       workspaceComponentModel.getInstance().model
                         .remove({
                           _id: workspaceComp
