@@ -43,6 +43,7 @@ class HttpGet {
         response.on('end', function () {
           let responseContentType = response.headers['content-type']
           responseContentType = contentType || responseContentType
+          console.log(responseBody)
           this.dataTraitment.type.type_file(response.headers['content-disposition'], responseBody, responseBodyExel, undefined, responseContentType).then((result) => {
             let normalized = this.propertyNormalizer.execute(result)
             resolve({ data: normalized })

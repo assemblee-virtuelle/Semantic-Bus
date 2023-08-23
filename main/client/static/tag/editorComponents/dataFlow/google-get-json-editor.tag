@@ -5,6 +5,8 @@
   </div>
   <!-- Titre du composant -->
   <div class="contenaireV title-component">{data.type}</div>
+  <div class="contenaireV warning">Ce composant est déprécié, consulter le documentation (point d'interogation bleu en haut à droite)</div>
+ 
   <div>
     <div class="bar"/>
   </div>
@@ -65,4 +67,10 @@
       RiotControl.off('item_current_changed', this.updateData);
     });
   </script>
+  <style>
+    .warning{
+      color: red;
+      font-size: 30px;
+    }
+  </style>
 </google-get-json-editor>
