@@ -8,7 +8,7 @@
     <input ref="import" type="file" style="display:none;"/>
   </div>
 
-  <label class="labelFormStandard">Nettoyer les données périmées (processus historique,fragmentation) / suppression brutale</label>
+  <label class="labelFormStandard">Supprimer les fragments marqués lors de l'execution normale des processus + Supprimer brutalement les fragments qui ne sont pas liés à un processus à conserver (périmés) + supprimer les processus d'execution périmés</label>
   <div onclick={cleanGarbageClick} class="btnFil commandButtonImage">
     Nettoyer (Brut)
     <img class="imgFil" src="./image/Administrative-Tools-256.png" title="Nettoyer données périmées">

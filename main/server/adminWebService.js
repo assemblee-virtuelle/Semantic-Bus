@@ -7,7 +7,7 @@ var configuration = require('../configuration')
 module.exports = function (router) {
 
   router.post('/cleanGarbage', function (req, res, next) {
-    workspace_lib.cleanGarbage().then(() => {
+    workspace_lib.cleanGarbageForgotten().then(() => {
       res.send("well cleaned")
     }).catch(e => {
       next(e)

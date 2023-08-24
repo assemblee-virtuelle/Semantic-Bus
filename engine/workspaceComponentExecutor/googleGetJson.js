@@ -14,7 +14,7 @@ class GoogleGetJson {
         if (!url.startsWith('http')){
           url= 'https://docs.google.com/spreadsheets/d/' + url
         }
-        console.log('url',url);
+        // console.log('url',url);
         this.sheetrock({
           url: url,
           reset: true,
@@ -45,6 +45,7 @@ class GoogleGetJson {
                 data: cleanData
               })
             } else {
+              console.log(error);
               let fullError = new Error(error)
               // error.message='google request failed, check your parameters : '+error.message;
               fullError.displayMessage = 'google request failed, check your parameters'

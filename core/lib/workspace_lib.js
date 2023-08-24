@@ -38,6 +38,7 @@ module.exports = {
   cleanOldProcess: _cleanOldProcess,
   cleanAllOldProcess: _cleanAllOldProcess,
   cleanGarbage: _cleanGarbage,
+  cleanGarbageForgotten: _cleanGarbageForgotten,
   executeAllTimers: _executeAllTimers,
   getCurrentProcess: _getCurrentProcess,
   updateCurrentProcess: _updateCurrentProcess
@@ -177,19 +178,33 @@ function _updateCurrentProcess(processId, state) {
 // clenGarbage not use fragmentLib.cleanFrag and it is normal. clean gargabe don't have to depend of cleanFrag execution
 function _cleanGarbage() {
   return new Promise(async (resolve, reject) => {
-    console.log("_cleanGarbage");
+    console.log("_cleanGarbage Normal");
+
+    try {
+      console.log('START normal clean fragment garbage')
+      await fragmentModel.getInstance().model.deleteMany({
+        garbageTag: 1
+      })
+      console.log('END normal clean fragment garbage')
+
+    } catch (e) {
+      reject(new Error.DataBaseProcessError(e))
+    }
+    resolve();
+  });
+}
+
+function _cleanGarbageForgotten() {
+  return new Promise(async (resolve, reject) => {
+    await _cleanGarbage();
+    
+    console.log("_cleanGarbage Forgotten");
 
     try {
       const workspaces = await workspaceModel.getInstance().model.find({}).lean().exec();
       // let allFragKeeped=[];
       let totalProcessToRemove=[];
       let totalHistoriqueEndToRemove = [];
-
-      console.log('START initial clean fragment garbage')
-      await fragmentModel.getInstance().model.deleteMany({
-        garbageTag: 1
-      })
-      console.log('END initial clean fragment garbage')
 
       const processGarbageId = Math.floor(Math.random() * 10000);
 
