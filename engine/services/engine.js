@@ -735,7 +735,7 @@ class Engine {
       if (module.buildQueryParam != undefined) {
         queryParams = {
           origin: component._id,
-          queryParams: module.buildQueryParam(queryParams.queryParams, component.specificData)
+          queryParams: module.buildQueryParam(queryParams?queryParams.queryParams:undefined, component.specificData)
         }
       }
 

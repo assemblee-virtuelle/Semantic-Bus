@@ -37,8 +37,8 @@ class Filter {
           data: resultData
         })
       } catch (e) {
-        console.error(e);
-        console.log('REJECT');
+        // console.error(e);
+        // console.log('REJECT');
         reject(e)
       } finally {
 

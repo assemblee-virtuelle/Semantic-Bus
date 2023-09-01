@@ -59,7 +59,7 @@ function _exel_to_json(buffer, header) {
 
       let out = [];
       for (let ws in wb.Sheets) {
-        console.log('ws',wb.Sheets[ws]);
+        // console.log('ws',wb.Sheets[ws]);
         let json = XLSX.utils.sheet_to_json(wb.Sheets[ws], {
           header: 'A'
         });

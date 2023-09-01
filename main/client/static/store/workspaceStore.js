@@ -395,9 +395,12 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   this.on('stop_current_process', () => {
+    // console.log('__________this.currentProcess',this.currentProcess)
+    let url = '../data/core/workspaces/' + this.workspaceCurrent._id + '/process/' + (this.currentProcess?._id!=undefined?this.currentProcess?._id:'');
+    console.log('url',url)
     this.utilStore.ajaxCall({
       method: 'put',
-      url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/process/' + this.currentProcess._id,
+      url ,
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
       },

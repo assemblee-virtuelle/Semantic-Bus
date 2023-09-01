@@ -13,6 +13,9 @@ module.exports = {
   },
 
   execute: function(source, pullParams, jsonTransformPattern, options, config) {
+    // console.log(source);
+    // console.log('-pullParams',pullParams);
+    // console.log('-jsonTransformPattern', jsonTransformPattern);
 
     if (typeof jsonTransformPattern === 'string' || jsonTransformPattern instanceof String) {
       const regexpeEval = /^\=(.*)/gm;
@@ -23,6 +26,7 @@ module.exports = {
         const arrayRegexDot = [...patternEval.matchAll(regexpeDot)];
         let logEval=false;
         for (const valueDot of arrayRegexDot) {
+          // console.log('--valueDot[1]',valueDot[1])
           let sourceDotValue = this.getValueFromSource(source,pullParams, valueDot[1]);
 
           if(typeof sourceDotValue === 'string' || sourceDotValue instanceof String){
@@ -33,13 +37,12 @@ module.exports = {
             const type= typeof sourceDotValue;
             sourceDotValue=`Number(${sourceDotValue})`
           }
-
           patternEval = patternEval.replace(valueDot[0], sourceDotValue);
         }
-        // console.log('patternEval',patternEval);
+        // console.log('-patternEval',patternEval);
         try {
           const evalResult = eval(patternEval);
-
+          // console.log('->',evalResult)
           if(options  && options.evaluationDetail==true){
             return {eval:evalResult};
           }else{
@@ -47,6 +50,7 @@ module.exports = {
             return evalResult;
           }
         } catch (e) {
+          // console.error(e)
           // console.log('config',config.quietLog );
           if (config != undefined && config.quietLog != true) {
             // console.warn(`Transformer Javascript Error : ${e.message}`);
@@ -86,11 +90,14 @@ module.exports = {
       let arrayRegex = [...pattern.matchAll(regexp)];
       let regexpPull = /\£\.(.*)/gm;
       let arrayRegexPull = [...pattern.matchAll(regexpPull)];
+      // console.log('-arrayRegexPull',arrayRegexPull);
       if (arrayRegex.length > 0) {
         const dotPath = arrayRegex[0][1];
         return this.dotProp.get(source, dotPath);
       }else if (arrayRegexPull.length > 0) {
         const dotPath = arrayRegexPull[0][1];
+        // console.log('-dotPath',dotPath)
+        // console.log('this.dotProp.get(pullParams, dotPath)',this.dotProp.get(pullParams, dotPath));
         return this.dotProp.get(pullParams, dotPath);
       } else {
         return pattern;

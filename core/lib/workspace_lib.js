@@ -147,29 +147,25 @@ function _getCurrentProcess(processId) {
   });
 } // <= _getCurrentProcess
 
-function _updateCurrentProcess(processId, state) {
-  // console.log('ALLLLO');
-  return new Promise((resolve, reject) => {
+function _updateCurrentProcess(processId, workspaceId, state) {
+  return new Promise(async (resolve, reject) => {
     // console.log('_updateCurrentProcess');
-    processModel.getInstance().model.findByIdAndUpdate(processId, {
-      state
-    }, (err, process) => {
-      // console.log(process);
-      if (state == "stop") {
-        workspaceModel.getInstance().model.findByIdAndUpdate(process.workflowId, {
+    try {
+      if(processId!=undefined){
+        await processModel.getInstance().model.findByIdAndUpdate(processId, {
+          state
+        })
+      }
+      if (state == "stop" && workspaceId!=undefined ) {
+        await workspaceModel.getInstance().model.findByIdAndUpdate(workspaceId, {
             status: "stoped"
-          },
-          (err, workspace) => {
-            // console.log('workspace',workspace);
-          }
-        )
-      }
-      if (err) {
-        reject(new Error.DataBaseProcessError(e))
-      } else {
-        resolve(process);
-      }
-    });
+          })
+      }    
+      resolve(processId)  
+    } catch (error) {
+      reject(error);
+    }
+
   });
 } // <= _getCurrentProcess
 
