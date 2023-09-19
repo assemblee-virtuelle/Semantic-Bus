@@ -56,6 +56,10 @@ Semantic data transformation & semantic container crawling
 - Engine (./engine) ( engine for graph resolution )
 - Timer (./timer) ( service for schedule workflow )
 
+## Config
+You have to duplicate config.js to local.config.js.
+Some config properties as googleAuth can be fullfill.
+Your local.config.js file will be ignore by git.
 
 ## Launch with docker (recommended)
 ### make (recommended)
@@ -87,7 +91,7 @@ curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | b
 
 Restart console
 ```bash
-nvm install 12.13
+nvm install 18
 cd core && npm install
 cd main && npm install
 cd engine && npm install
