@@ -118,16 +118,9 @@ class GoogleGeoLocaliser {
         for (var geoLocalisationKey in geoLocalisations) {
           let record = source[geoLocalisationKey]
           if (geoLocalisations[geoLocalisationKey].status == 'OK' && geoLocalisations[geoLocalisationKey].error == undefined) {
-            if(geoLocalisations[geoLocalisationKey].results.length>0){
-              record[specificData.latitudePath] = geoLocalisations[geoLocalisationKey].results[0].geometry.location.lat
-              record[specificData.longitudePath] = geoLocalisations[geoLocalisationKey].results[0].geometry.location.lng
-              result.push(record)
-            }else{
-              record[specificData.latitudePath] = {error:"no geocoding finded"}
-              record[specificData.longitudePath] = {error:"no geocoding finded"}
-              result.push(record)
-            }
-
+            record[specificData.latitudePath] = geoLocalisations[geoLocalisationKey].results[0].geometry.location.lat
+            record[specificData.longitudePath] = geoLocalisations[geoLocalisationKey].results[0].geometry.location.lng
+            result.push(record)
           } else {
             record[specificData.latitudePath] = {
               error: geoLocalisations[geoLocalisationKey].error || geoLocalisations[geoLocalisationKey].status
