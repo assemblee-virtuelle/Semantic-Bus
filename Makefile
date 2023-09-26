@@ -27,8 +27,7 @@ log:
 	$(DOCKER_COMPOSE) logs -f engine main timer
 
 # Start
-start:
-	./select.sh
+start: docker-restart
 
 stop: docker-stop
 
