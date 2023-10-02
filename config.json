@@ -106,6 +106,9 @@
     },
     "influxdbConnector": {
       "price": 20
+    },
+    "split": {
+      "price": 20
     }
   },
   "googleAuth": {
