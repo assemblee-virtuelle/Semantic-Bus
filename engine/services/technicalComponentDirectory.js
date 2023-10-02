@@ -40,5 +40,6 @@ module.exports = {
     jsEvaluation: require('../workspaceComponentExecutor/jsEvaluation.js'),
     slugify: require('../workspaceComponentExecutor/slugify.js'),
     regex: require('../workspaceComponentExecutor/regex.js'),
+    split: require('../workspaceComponentExecutor/split.js'),
     // ---ENDOFPART---
 }
