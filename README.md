@@ -21,43 +21,48 @@ Semantic data transformation & semantic container crawling
 - Workflow sharing & multi User Edition
 - API parameters usable in workflow components
 
+## need tiers
+- Big Data Support (Infinit data Volume)
+  - we can do now it whith external database as mongodb and advances workflows
+- Authentification to external services other than api tocken (headers or url)
+  - we use n8n or nocodeapi if we want to authentify to a data provider
 
 ## Road map
-- new ergonomy
+- Reusable and preconfigured pattern building from component
+  - pattern can be implement now whith workflow trigger by api and body parameters but this could improve.
+  - it is now possible using api and call it from an other workflow. Better usability and component have to improve experience and performance.
+- define how pay execution cause by internal API (http provider call by a http consumer of an other workflow)
+- HTTP provider external authentificaiton and restriciton
+  - authentified api calling
+    - secure api provided by http provider component when calling out of SemanticBus Instance
+  - api user restriction
+    - define who ca execute HTTP provider
 - better sharing and options of sharing
   - group management
   - change admin
   - change role
-  - credit consumption when workflow execution
-    - timer owner
-- authentified api calling (or pattern calling) and credit consumption fo caller
-  - restrict api with authentificaiton
-  - define how pay execution cause by API
-- Big Data Support (Infinit data Volume)
-  - we can do now it whith ticke ands external database as mongodb
+- new ergonomy
 - Automatic Ontology transformation (semantic web)
   - manual transformation now
-- Authentification to external services
-  - we use n8n or nocodeapi if we want to authentify to a data provider
 - Multiple entry point and exit point for a components
   - entry discrimantaion have to be specified in component now
-- Reusable and preconfigured pattern building from component
-  - pattern can be implement now whith workflow trigger by api and body parameters but this could improve.
 - Workflow sharing by Google Drive or other cloud or better wokflow management
 
 
 ## Archi
 
-- Main ( ./main ) ( main app )
-- Services
-    - Timer (./timer) ( service for schedule workflow )
-    - Core (./core) ( shared low level services )
-    - Engine (./engine) ( motor for graph resolution )
+- Core (./core) ( shared low level services )
+- Main ( ./main ) ( main app : frontend and API)
+- Engine (./engine) ( engine for graph resolution )
+- Timer (./timer) ( service for schedule workflow )
 
-## Launch with docker ( best solution )
-* for mac we use docker-machine and not docker for mac in our configuration
+## Config
+You have to duplicate config.js to local.config.js.
+Some config properties as googleAuth can be fullfill.
+Your local.config.js file will be ignore by git.
+
+## Launch with docker (recommended)
 ### make (recommended)
-
 
 ( DOCKER-COMPOSE REQUIRED )
 ```bash
@@ -74,17 +79,8 @@ docker kill rabbitmq
 ```
 
 ### docker-compose (Not recommended)
-* for mac we use docker-machine and not docker for mac in our configuration
 
-For Mac
-```bash
-export CONFIG_URL="https://data-players.github.io/StrongBox/public/dev-mac.json"
-&& docker-compose -f docker-compose.local.yaml up -d
-```
-For Linux
-```bash
-export CONFIG_URL="https://data-players.github.io/StrongBox/public/dev-linux.json" && docker-compose -f docker-compose.local.yaml up -d
-```
+docker-compose up -d
 
 ## Launch with nvm & npm (Not recommended)
 
@@ -95,7 +91,7 @@ curl -o- https://raw.githubusercontent.com/creationix/nvm/v0.33.2/install.sh | b
 
 Restart console
 ```bash
-nvm install 12.13
+nvm install 18
 cd core && npm install
 cd main && npm install
 cd engine && npm install

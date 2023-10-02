@@ -60,6 +60,7 @@ class UnicityExecutor {
             } else {
               sourcedData[key] = [{
                 // source: source,
+                // TODO remove value key and add direct record[key] in array
                 value: record[key]
               }]
             }
@@ -102,16 +103,16 @@ class UnicityExecutor {
 
 class Unicity {
   constructor () {
-    this.type = 'Unicity'
-    this.description = 'Structurer les données en vérifiant l\'unicité par champ et répartir les valeurs par source.'
-    this.editor = 'unicity-editor'
-    this.graphIcon = 'Unicity.svg'
-    this.transform = require('jsonpath-object-transform')
-    this.dotProp = require('dot-prop')
-    this.tags = [
-      'http://semantic-bus.org/data/tags/middleComponents',
-      'http://semantic-bus.org/data/tags/middleComponentsAgregation'
-    ]
+    // this.type = 'Unicity'
+    // this.description = 'Structurer les données en vérifiant l\'unicité par champ et répartir les valeurs par source.'
+    // this.editor = 'unicity-editor'
+    // this.graphIcon = 'Unicity.svg'
+    // this.transform = require('jsonpath-object-transform')
+    // this.dotProp = require('dot-prop')
+    // this.tags = [
+    //   'http://semantic-bus.org/data/tags/middleComponents',
+    //   'http://semantic-bus.org/data/tags/middleComponentsAgregation'
+    // ]
   }
 
   pull (data, flowData) {

@@ -146,6 +146,7 @@ class InfluxdbConnector {
   addFieldsToPoint(jsonData,point,fields){
     if (fields) {
       fields.forEach(field => {
+        console.log('fields',field,fields)
         point.intField(field, jsonData[field]);
       })
     }

@@ -41,7 +41,6 @@ class GoogleGeoLocaliser {
         }
         goePromises.push(
           new Promise((resolve, reject) => {
-            //var apiKey = 'AIzaSyBJElsvbr_6obYaeTd2oOyiEd97XjSNyY8'
             let apiKey;
             if (specificData.apiKey != undefined) {
               apiKey = specificData.apiKey;
@@ -50,7 +49,6 @@ class GoogleGeoLocaliser {
             }
 
             if (apiKey != undefined) {
-              // var apiKey = 'AIzaSyAGHo04gqJWKF8uVYhsWVRY_zo61YtemMQ'
               var addressGoogleFormated = 'address='
               addressGoogleFormated = addressGoogleFormated + (address.street ? address.street + ',+' : '')
               addressGoogleFormated = addressGoogleFormated + (address.town ? address.town + ',+' : '')
