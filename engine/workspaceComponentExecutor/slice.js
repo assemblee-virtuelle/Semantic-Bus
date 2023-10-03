@@ -1,5 +1,5 @@
 'use strict';
-class Split {
+class Slice {
     constructor () {
         this.objectTransformation = require('../utils/objectTransformationV2.js');
     }
@@ -32,4 +32,4 @@ class Split {
         })
     }
 }
-module.exports = new Split()
+module.exports = new Slice()

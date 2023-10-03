@@ -1,9 +1,9 @@
 'use strict'
-class Split {
+class Slice {
   constructor () {
-    this.type = 'Split'
+    this.type = 'Slice'
     this.description = "Sélectionne une partie d'un tableau."
-    this.editor = 'split-editor'
+    this.editor = 'slice-editor'
     this.graphIcon = 'default.svg'
     this.tags = [
       'http://semantic-bus.org/data/tags/middleComponents',
@@ -12,4 +12,4 @@ class Split {
   }
 }
 
-module.exports = new Split()
+module.exports = new Slice()

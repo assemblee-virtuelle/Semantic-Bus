@@ -40,7 +40,7 @@ module.exports = {
   jsEvaluation: require('../workspaceComponentInitialize/jsEvaluation.js'),
   slugify: require('../workspaceComponentInitialize/slugify.js'),
   regex: require('../workspaceComponentInitialize/regex.js'),
-  split: require('../workspaceComponentInitialize/split.js'),
+  slice: require('../workspaceComponentInitialize/slice.js'),
   // ---ENDOFPART---
 
   /* some other modules you want */
