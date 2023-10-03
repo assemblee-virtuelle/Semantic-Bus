@@ -1,14 +1,15 @@
 'use strict';
-class Slice {
+
+class IncrementTable {
     constructor () {
         this.stringReplacer = require('../utils/stringReplacer.js');
     }
     pull(data, flowData, pullParams) {
         return new Promise((resolve, reject) => {
-            try {        
+            try {
                 var result = []
 
-                let usableData = flowData[0].data
+                let usableData = flowData ? flowData[0].data : [];
 
                 let startIndex = data.specificData.startIndex ? Number(this.stringReplacer.execute(data.specificData.startIndex, pullParams, usableData)) : 0;
 
@@ -19,17 +20,20 @@ class Slice {
                     endIndex = usableData.length;
                 }
 
-                console.log("end : ",endIndex," type : ",typeof(endIndex));
-                console.log("start : ",startIndex," type : ",typeof(startIndex));
+                let stepIndex = data.specificData.range ? Number(this.stringReplacer.execute(data.specificData.range, pullParams, usableData)) : 1;
 
+                const arrayRange = (start, end, step) => {
+                    let output = [];
+ 
+                    for (let i = start; i <= end; i += step) {
+                        output.push(i);
+                    }
 
-                if (Array.isArray(usableData)){
-                    result = usableData.slice(startIndex,endIndex);
-                }
-                else{
-                  throw new Error("Data are not in an array structure.")
-                }
+                    return output;
+                };
 
+                result = arrayRange(startIndex,endIndex,stepIndex);
+                
                 resolve({
                     data: result
                 })
@@ -39,4 +43,4 @@ class Slice {
         })
     }
 }
-module.exports = new Slice()
+module.exports = new IncrementTable()

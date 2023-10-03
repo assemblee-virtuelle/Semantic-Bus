@@ -41,6 +41,7 @@ module.exports = {
   slugify: require('../workspaceComponentInitialize/slugify.js'),
   regex: require('../workspaceComponentInitialize/regex.js'),
   slice: require('../workspaceComponentInitialize/slice.js'),
+  incrementTable: require('../workspaceComponentInitialize/incrementTable.js'),
   // ---ENDOFPART---
 
   /* some other modules you want */

@@ -1,7 +1,7 @@
-<slice-editor>
+<increment-table-editor>
   <!-- bouton aide -->
   <div class="contenaireH" style="margin-left:97%">
-    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-slice" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-incrementTable" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
  <!-- Titre du composant -->
   <div class="contenaireV title-component">{data.type}</div>
@@ -13,9 +13,7 @@
   <div>
     <div class="bar"/>
   </div>
-  <!-- Customisation du composant ci-dessous -->
-
- <!--  Index de début du slice -->
+  <!--  Index de début du slice -->
   <label class="labelFormStandard">Index de début :</label>
   <div class="cardInput">
     <input class="inputComponents" type="text" ref="startIndex" value={data.specificData.startIndex} placeholder="0" onchange={startIndexChange}/>
@@ -25,19 +23,27 @@
   <div class="cardInput">
     <input class="inputComponents" type="text" ref="endIndex" value={data.specificData.endIndex} placeholder="15" onchange={endIndexChange}/>
   </div>
+  <!--  Range  -->
+  <label class="labelFormStandard">Pas d'itération :</label>
+  <div class="cardInput">
+    <input class="inputComponents" type="text" ref="range" value={data.specificData.range} placeholder="1" onchange={rangeChange}/>
+  </div>
 
 <script>
-    endIndexChange = e => {
-      this.data.specificData.endIndex = e.currentTarget.value;
-    };
+  endIndexChange = e => {
+    this.data.specificData.endIndex = e.currentTarget.value;
+  };
 
-    startIndexChange = e => {
-      this.data.specificData.startIndex = e.currentTarget.value;
-    };
+  startIndexChange = e => {
+    this.data.specificData.startIndex = e.currentTarget.value;
+  };
+
+  rangeChange = e => {
+    this.data.specificData.range = e.currentTarget.value;
+  };
 
   this.updateData=function(dataToUpdate){
     this.data=dataToUpdate;
-    console.log('here')
     this.update();
   }.bind(this);
 
@@ -49,4 +55,4 @@
   });
 </script>
 
-</slice-editor>
+</increment-table-editor>
