@@ -40,6 +40,9 @@ module.exports = {
   jsEvaluation: require('../workspaceComponentInitialize/jsEvaluation.js'),
   slugify: require('../workspaceComponentInitialize/slugify.js'),
   regex: require('../workspaceComponentInitialize/regex.js'),
+  slice: require('../workspaceComponentInitialize/slice.js'),
+  incrementTable: require('../workspaceComponentInitialize/incrementTable.js'),
+  // ---ENDOFPART---
 
   /* some other modules you want */
 
@@ -47,7 +50,7 @@ module.exports = {
   buildDictionnaryArray: function () {
     var directory = []
     for (var technicalComponent in this) {
-      if (technicalComponent != 'initialise' && technicalComponent != 'buildDictionnaryArray' && this[technicalComponent].tags!=undefined) {
+      if (technicalComponent != 'initialise' && technicalComponent != 'buildDictionnaryArray' && this[technicalComponent].tags != undefined) {
         directory.push({
           module: technicalComponent,
           type: this[technicalComponent].type,
