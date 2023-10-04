@@ -5,8 +5,8 @@ class Slice {
     }
     pull(data, flowData, pullParams) {
         return new Promise((resolve, reject) => {
-            try {        
-                var result = []
+            try {
+                var result;
 
                 let usableData = flowData[0].data
 
@@ -19,17 +19,17 @@ class Slice {
                     endIndex = usableData.length;
                 }
 
-                console.log("end : ",endIndex," type : ",typeof(endIndex));
-                console.log("start : ",startIndex," type : ",typeof(startIndex));
-
-
-                if (Array.isArray(usableData)){
-                    result = usableData.slice(startIndex,endIndex);
+                if(usableData == undefined){
+                    result = undefined;
                 }
-                else{
-                  throw new Error("Data are not in an array structure.")
+                else {
+                    if (Array.isArray(usableData)){
+                        result = usableData.slice(startIndex,endIndex);
+                    }
+                    else{
+                        throw new Error("Data are not an array structure.")
+                    }
                 }
-
                 resolve({
                     data: result
                 })

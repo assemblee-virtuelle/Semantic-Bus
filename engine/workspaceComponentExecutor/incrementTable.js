@@ -16,9 +16,7 @@ class IncrementTable {
                 let endIndex = 0;
                 if(data.specificData.endIndex){
                     endIndex =  Number(this.stringReplacer.execute(data.specificData.endIndex, pullParams, usableData));
-                } else if (usableData.length && usableData.length > 0){
-                    endIndex = usableData.length;
-                }
+                } 
 
                 let stepIndex = data.specificData.range ? Number(this.stringReplacer.execute(data.specificData.range, pullParams, usableData)) : 1;
 

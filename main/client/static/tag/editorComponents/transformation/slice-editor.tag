@@ -37,7 +37,6 @@
 
   this.updateData=function(dataToUpdate){
     this.data=dataToUpdate;
-    console.log('here')
     this.update();
   }.bind(this);
 
