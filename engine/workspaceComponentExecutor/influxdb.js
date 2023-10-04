@@ -405,7 +405,7 @@ class InfluxdbConnector {
           const jsonData = flowData ? flowData[0].data : {};
 
           // creation of the communication interface for influxdb
-          const influxDB = new this.influxdbClient.InfluxDB({url, token});
+          const influxDB = new this.influxdbClient.InfluxDB({url, token,timeout: 1000000});
 
           let insertDataReturned;
           let requestDataReturned;
