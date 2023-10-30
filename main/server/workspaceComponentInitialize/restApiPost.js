@@ -72,7 +72,7 @@ class RestApiPost {
 
           const worksapce =  await this.workspace_lib.get_workspace_simple(component.workspaceId)
           
-          const versionUrl = worksapce.engineVersion==undefined||worksapce.engineVersion=='default'?'/work-ask/':`/work-ask/${worksapce.engineVersion}/`
+          const versionUrl = worksapce.engineVersion==undefined||worksapce.engineVersion=='default'||worksapce.engineVersion=='v1'?'/work-ask/':`/work-ask/${worksapce.engineVersion}/`
            console.log(versionUrl);
 
           this.request.post(this.config.engineUrl + versionUrl + component._id, {
