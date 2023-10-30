@@ -179,19 +179,32 @@ function _get_all(options) {
 } // <= _get_all
 
 function _get(filter) {
-  return new Promise(function (resolve, reject) {
-    userModel.getInstance().model
+  return new Promise(async function (resolve, reject) {
+    try {
+      const userData= await userModel.getInstance().model
       .findOne(filter)
       .lean()
-      .exec(function (err, userData) {
-        if(err){
-          return reject(new Error.DataBaseProcessError(err))
-        } if( userData == null){
-          reject(new Error.EntityNotFoundError(err))
-        } else {
-          resolve(userData);
-        }
-      });
+      .exec();
+      if( userData == null){
+        reject(new Error.EntityNotFoundError())
+      } else {
+        resolve(userData);
+      }
+    } catch (error) {
+      reject(new Error.DataBaseProcessError(error))
+    }
+    // userModel.getInstance().model
+    //   .findOne(filter)
+    //   .lean()
+    //   .exec(function (err, userData) {
+    //     if(err){
+    //       return reject(new Error.DataBaseProcessError(err))
+    //     } if( userData == null){
+    //       reject(new Error.EntityNotFoundError(err))
+    //     } else {
+    //       resolve(userData);
+    //     }
+    //   });
   });
 } // <= _get
 
@@ -387,7 +400,7 @@ function _update(user, mailChange) {
 
 function _update_mainprocess(preData) {
   //transformer le model business en model de persistance
-  return new Promise(function (resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     var toUpdate = {};
     if (preData.email) {
       if (!toUpdate["$set"]) {
@@ -470,20 +483,30 @@ function _update_mainprocess(preData) {
       toUpdate["$set"]["resetpasswordmdp"] = preData.resetpasswordmdp;
     }
 
-    userModel.getInstance().model.findByIdAndUpdate(
-      preData._id,
-      toUpdate, {
-        new: true
-      },
-      function (err, userData) {
-        if (err) {
-          return reject(new Error.DataBaseProcessError(err))
-        } else {
+    try {
+      const userData = await userModel.getInstance().model.findByIdAndUpdate(
+        preData._id,
+        toUpdate, {
+          new: true
+        }).exec()
+        resolve(userData);
+    } catch (error) {
+      reject(new Error.DataBaseProcessError(error))
+    }
+    // userModel.getInstance().model.findByIdAndUpdate(
+    //   preData._id,
+    //   toUpdate, {
+    //     new: true
+    //   },
+    //   function (err, userData) {
+    //     if (err) {
+    //       return reject(new Error.DataBaseProcessError(err))
+    //     } else {
 
-          resolve(userData);
-        }
-      }
-    );
+    //       resolve(userData);
+    //     }
+    //   }
+    // );
   });
 } // <= _update_mainprocess
 
@@ -673,22 +696,40 @@ function _hash_password(password, passwordConfirm) {
 // --------------------------------------------------------------------------------
 
 function _is_google_user(user) {
-  return new Promise(function (resolve, reject) {
-    userModel.getInstance().model
+  return new Promise(async function (resolve, reject) {
+    try {
+      const userData= await  userModel.getInstance().model
       .findOne({
         "credentials.email": user.email
       })
-      .exec(function (err, userData) {
-        if (userData) {
-          if (userData.googleId != null) {
-            resolve(true);
-          } else {
-            resolve(false);
-          }
+      .exec();
+      if (userData) {
+        if (userData.googleId != null) {
+          resolve(true);
         } else {
           resolve(false);
         }
-      });
+      } else {
+        resolve(false);
+      }
+    } catch (error) {
+      return reject(new Error.DataBaseProcessError(error))
+    }
+    // userModel.getInstance().model
+    //   .findOne({
+    //     "credentials.email": user.email
+    //   })
+    //   .exec(function (err, userData) {
+    //     if (userData) {
+    //       if (userData.googleId != null) {
+    //         resolve(true);
+    //       } else {
+    //         resolve(false);
+    //       }
+    //     } else {
+    //       resolve(false);
+    //     }
+    //   });
   });
 } // <= _is_google_user
 

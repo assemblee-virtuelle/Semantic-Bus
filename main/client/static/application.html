@@ -47,7 +47,7 @@
 
   <script src="./store/workspaceBusiness.js"></script>
   <script src="./store/workspaceStore.js"></script>
-  <script src="./store/bigdataflowStore.js"></script>
+  <!-- <script src="./store/bigdataflowStore.js"></script> -->
   <script src="./store/technicalComponentStore.js"></script>
   <script src="./store/genericStore.js"></script>
   <script src="./store/cacheNosqlStore.js"></script>
@@ -168,80 +168,102 @@
       }
 
 
+      const allStore = {};
+      const utilStore = new UtilStore();
+      RiotControl.addStore(utilStore);
+      allStore['utilStore'] = utilStore;
 
+      if (configuration.privateScript && configuration.privateScript.length > 0) {
+        let stripeStore = new StripeStore(utilStore);
+        RiotControl.addStore(stripeStore);
+      }
+
+
+      const profilStore = new ProfilStore(utilStore);
+      RiotControl.addStore(profilStore);
+      allStore['profilStore'] = profilStore;
+
+      const adminStore = new AdminStore(utilStore);
+      RiotControl.addStore(adminStore);
+      allStore['adminStore'] = adminStore;
+
+      const technicalComponentStore = new TechnicalComponentStore(utilStore);
+      RiotControl.addStore(technicalComponentStore);
+      allStore['technicalComponentStore'] = technicalComponentStore;
+
+      const specificStoreList = [];
+
+      const cacheNosqlStore = new CacheNosqlStore(utilStore)
+      RiotControl.addStore(cacheNosqlStore);
+      specificStoreList.push(cacheNosqlStore)
+      allStore['cacheNosqlStore'] = cacheNosqlStore;
+
+      const uploadStore = new UploadStore(utilStore);
+      RiotControl.addStore(uploadStore);
+      specificStoreList.push(uploadStore)
+      allStore['uploadStore'] = uploadStore;
+
+      const sqlStore = new SqlStore();
+      RiotControl.addStore(sqlStore);
+      specificStoreList.push(sqlStore)
+      allStore['sqlStore'] = sqlStore;
+
+      const workspaceStore = new WorkspaceStore(utilStore, specificStoreList);
+      RiotControl.addStore(workspaceStore);
+      allStore['workspaceStore'] = workspaceStore;
+
+      const mainController = new MainController(allStore, utilStore);
+      RiotControl.addStore(mainController);
+
+      RiotControl.on('login_redirect', function() {
+        window.open("../ihm/login.html", "_self");
+      })
+
+      riot.compile(function() {
+        riot.mount('*');
+      });
 
       var onConnect = (client) => {
+        console.log('AMQP connected');
+        RiotControl.trigger('AMQP connected')
+        workspaceStore.setStompClient(stompClientProxy);
         // no more r&d for private incrementation because
         // react refonte will change all this mechanisme
-        const allStore = {};
-        const utilStore = new UtilStore();
-        RiotControl.addStore(utilStore);
-        allStore['utilStore'] = utilStore;
 
-        if (configuration.privateScript && configuration.privateScript.length > 0) {
-          let stripeStore = new StripeStore(utilStore);
-          RiotControl.addStore(stripeStore);
-        }
-
-
-        const profilStore = new ProfilStore(utilStore);
-        RiotControl.addStore(profilStore);
-        allStore['profilStore'] = profilStore;
-
-        const adminStore = new AdminStore(utilStore);
-        RiotControl.addStore(adminStore);
-        allStore['adminStore'] = adminStore;
-
-        const technicalComponentStore = new TechnicalComponentStore(utilStore);
-        RiotControl.addStore(technicalComponentStore);
-        allStore['technicalComponentStore'] = technicalComponentStore;
-
-        const specificStoreList = [];
-
-        const cacheNosqlStore = new CacheNosqlStore(utilStore)
-        RiotControl.addStore(cacheNosqlStore);
-        specificStoreList.push(cacheNosqlStore)
-        allStore['cacheNosqlStore'] = cacheNosqlStore;
-
-        const uploadStore = new UploadStore(utilStore);
-        RiotControl.addStore(uploadStore);
-        specificStoreList.push(uploadStore)
-        allStore['uploadStore'] = uploadStore;
-
-        const sqlStore = new SqlStore();
-        RiotControl.addStore(sqlStore);
-        specificStoreList.push(sqlStore)
-        allStore['sqlStore'] = sqlStore;
-
-        const workspaceStore = new WorkspaceStore(utilStore, stompClientProxy, specificStoreList);
-        RiotControl.addStore(workspaceStore);
-        allStore['workspaceStore'] = workspaceStore;
-
-        const bigdataflowStore = new BigdataflowStore(utilStore, stompClientProxy, specificStoreList);
-        RiotControl.addStore(bigdataflowStore);
-        allStore['bigdataflowStore'] = bigdataflowStore;
-
-        const mainController = new MainController(allStore, stompClientProxy, utilStore);
-        RiotControl.addStore(mainController);
-
-        RiotControl.on('login_redirect', function() {
-          window.open("../ihm/login.html", "_self");
-        })
-
-        riot.compile(function() {
-          riot.mount('*');
-        });
       };
+
 
       const login = 'guest';
       const password = 'guest';
-      const stompClient = webstomp.client(configuration.url, {
+      let stompClient = webstomp.client(configuration.url, {
         heartbeat: {
           incoming: 10000,
           outgoing: 10000
         },
-        debug: true
+        debug: false
       })
+
+
+      var onError = (client) => {
+        console.log('AMQP disconnected');
+        RiotControl.trigger('AMQP disconnected')
+        // console.log('AMQP disconnected or imposible to connect, try to reconnect in 5 seconds');
+        // console.log('ERROR',client);
+        setTimeout(()=>{
+          stompClient = webstomp.client(configuration.url, {
+            heartbeat: {
+              incoming: 10000,
+              outgoing: 10000
+            },
+            debug: false
+          })
+          stompClientProxy = new Proxy(stompClient, objectHandler);
+          // console.log('retry connect',stompClientProxy,login,password,onConnect,onError,configuration.hos);
+          console.log(('AMQP try to reconnect'));
+          stompClientProxy.connect(login, password, onConnect, onError, configuration.host);
+        },5000)
+
+      }
 
 
       const objectHandler = {
@@ -252,9 +274,10 @@
             return propValue;
           } else {
             return function() {
-              console.log("intercepting call to " + propKey + " in cat " + target.name);
+              // console.log("intercepting call to " + propKey + " in cat " + target.name);
               if (target.connected == false && propKey=="send") {
-                alert('amqp seem disconnected, please refresh your browser');
+                // alert('amqp seem disconnected, please refresh your browser');
+                RiotControl.trigger('ajax_fail', 'AMQP disconnected')
               }
               return propValue.apply(this, arguments)
             }
@@ -265,8 +288,9 @@
 
       let stompClientProxy = new Proxy(stompClient, objectHandler);
 
+      // console.log('configuration.host',configuration.host)
       if (configuration.host != undefined && configuration.host.length > 0) {
-        stompClientProxy.connect(login, password, onConnect, null, configuration.host);
+        stompClientProxy.connect(login, password, onConnect, onError, configuration.host);
       } else {
         stompClientProxy.connect(login, password, onConnect, onError);
       }

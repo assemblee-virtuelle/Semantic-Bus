@@ -4,7 +4,7 @@ class JoinByField {
     this.sift = require('sift').default;
     this.PromiseOrchestrator = require('../../core/helpers/promiseOrchestrator')
   }
-  getPrimaryFlow(data, flowData) {
+  async getPrimaryFlow(data, flowData) {
     var primaryFlow = flowData.filter(this.sift({
       componentId: data.specificData.primaryComponentId
     }));

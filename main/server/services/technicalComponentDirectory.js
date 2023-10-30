@@ -61,10 +61,10 @@ module.exports = {
     return directory
   },
 
-  initialise: function (router, unSafeRouteur) {
-    this.restApiPost.initialise(unSafeRouteur) // NO SECURE CHANGE ROUTER
-    this.restApiGet.initialise(unSafeRouteur) // NO SECURE CHANGE ROUTER
-    this.upload.initialise(router)
-    this.cacheNosql.initialise(router) // NO SECURE CHANGE ROUTER
+  initialise: function (router, unSafeRouteur,engineTracer) {
+    this.restApiPost.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
+    this.restApiGet.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
+    this.upload.initialise(router,engineTracer)
+    this.cacheNosql.initialise(router,engineTracer) // NO SECURE CHANGE ROUTER
   }
 }

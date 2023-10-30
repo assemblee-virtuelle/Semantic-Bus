@@ -113,7 +113,7 @@ const content = 'module.exports = ' + JSON.stringify(configJson)
       })
 
       cron.schedule('0 0 * * *', () => {
-        console.log('running a task every minute');
+        console.log('running a task each 00H00');
         workspace_lib.cleanGarbage();
       });
       

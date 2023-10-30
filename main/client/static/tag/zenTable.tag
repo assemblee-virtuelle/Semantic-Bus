@@ -4,7 +4,7 @@
 
   <div class="containerV scrollable tableBody" ref="tableBodyContainer">
     <!--<div class="table scrollable" name="tableBody" ref="tableBody" ondragover={on_drag_over} ondrop={on_drop}>-->
-    <div class="containerV rowContainer" each={indexedData} style="flex-grow:0;flex-shrink:0;">
+    <div class="containerV rowContainer" each={indexedData} ref="rowContainer" draggable={opts.dragout} ondragstart={dragOut_start}  style="flex-grow:0;flex-shrink:0;">
       <div class="dropTarget" draggable="true" ondragenter={drag_enter} ondragover={drag_over} ondragleave={drag_leave} ondrop={drag_drop} data-insert="before"></div>
 
       <div
@@ -14,7 +14,7 @@
         ondragstart={drag_start}
         onclick={rowClic}>
         <!-- draganddrop -->
-        <div if={opts.drag} draggable="true" class="containerV" style="flex-shrink:0;justify-content: space-between; cursor: pointer;">
+        <div if={opts.drag} draggable="true" class="containerV" style="flex-shrink:0;justify-content: space-between; cursor: pointer; width:20px">
           <img src="./image/Super-Mono-png/PNG/sticker/icons/navigation-up-button.png" height="20px" width="20px" draggable="false">
           <img src="./image/Super-Mono-png/PNG/sticker/icons/navigation-down-button.png" height="20px" width="20px" draggable="false">
         </div>
@@ -45,6 +45,8 @@
   <script>
 
     this.dragItem = null
+    this.data = [];
+    this.background = ""
 
     drag_leave(e) {
       e.preventDefault();
@@ -65,10 +67,26 @@
 
     drag_start(event) {
       //console.log(event.target.parentElement);
-      event.dataTransfer.setData('application/json', JSON.stringify(event.item));
+      event.dataTransfer.setData('sourceData', JSON.stringify(event.item));
       event.dataTransfer.setDragImage(event.target.parentElement, 0, 0);
       //console.log("drag_start"); this.dragged = event; return true;
     }
+
+
+    dragOut_start(event) {
+      //console.log(event);
+      RiotControl.trigger('set_componentSelectedToAdd', [event.item]);
+      event.dataTransfer.setData('sourceData', JSON.stringify(event.item));
+      const image = document.createElement('img');
+      image.setAttribute(
+        'src',
+        `image/components/${event.item.graphIcon}`,
+      );
+      image.setAttribute('height', 40); 
+      image.setAttribute('width', 40);
+      event.dataTransfer.setDragImage(image,0,0);
+    }
+
     drag_drop(event) {
       event.preventDefault();
       event.target.classList.remove('dropFocus');
@@ -76,8 +94,8 @@
       let insertDirection = event.target.getAttribute('data-insert');
       //console.log("insertDirection",insertDirection);
       console.log("item", event.item);
-      //console.log("event",JSON.parse(event.dataTransfer.getData('application/json')));
-      let source = JSON.parse(event.dataTransfer.getData('application/json'));
+      //console.log("event",JSON.parse(event.dataTransfer.getData('sourceData')));
+      let source = JSON.parse(event.dataTransfer.getData('sourceData'));
       console.log('source', source);
       //console.log(event.target); this.placeholder.remove();
       console.log('origin', this.data);
@@ -135,8 +153,7 @@
       }
     }
 
-    this.data = [];
-    this.background = ""
+
 
     Object.defineProperty(this, 'indexedData', {
       get: function () {
@@ -204,18 +221,23 @@
       this.trigger('dataChanged', this.data)
     }
 
-    // recalculateHeader() {   console.log(this.refs.tableHeader)   var headers = this.refs.tableHeader.children;   for (var row of this.root.querySelectorAll('.tableRow')) {     for (var headerkey in headers) {       var numkey = parseInt(headerkey);
-    // if (!isNaN(numkey)) {         console.log(row.children[numkey].getBoundingClientRect().width);         var width = row.children[numkey].getBoundingClientRect().width;         var cssWidth = width + 'px'; headers[headerkey].style.width = cssWidth;
-    // headers[headerkey].style.maxWidth = cssWidth;         headers[headerkey].style.minWidth = cssWidth;         headers[headerkey].style.flexBasis = cssWidth; console.log(headers[headerkey].style);       }     }     break;   } }
 
     this.on('mount', function () {
-      // this.refs.tableBodyContainer.addEventListener('dragenter', e => {   console.log('dragenter');   this.drag_enter(e); }, true)
-      //
-      // this.refs.tableBodyContainer.addEventListener('dragover', e => {   console.log('dragover');   this.drag_over(e); }, true) this.placeholder = document.createElement("div"); this.placeholder.className = "placeholder"; this.reportCss();
-      // addResizeListener(this.refs.tableBody, function () {   this.recalculateHeader() }.bind(this)); this.refs.tableBodyContainer.addEventListener('scroll', function (e) {   console.log(this.tableBodyContainer.scrollLeft);
-      // this.refs.tableHeader.scrollLeft = this.refs.tableBodyContainer.scrollLeft; }.bind(this));
-
+      //let rowContainer = d3.selectAll('.rowContainer');
+      //console.log(this.root.querySelectorAll('.rowContainer'))
+      //console.log(this.refs.rowContainer)
+      //console.log('rowContainer',rowContainer);
     });
+
+
+    this.on('updated', function () {
+      //let rowContainer = d3.selectAll('.rowContainer');
+      //console.log(this.root.querySelectorAll('.rowContainer'))
+      //console.log(this.refs.rowContainer)
+      //console.log('rowContainer',rowContainer);
+    });
+
+
   </script>
   <style>
 

@@ -5,7 +5,9 @@ const workspace_component_lib = require('../../core/lib/workspace_component_lib'
 
 class Communication {
   init(router) {
-    router.post('/work-ask/:componentId', (req, res, next) => {
+    router.post('/work-ask/?:engineVersion/:componentId', (req, res, next) => {
+
+      console.log('VERSION',req.params.engineVersion)
 
       req.setTimeout(0);
       const componentId = req.params.componentId

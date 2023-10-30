@@ -16,7 +16,7 @@ function UtilStore (specificStoreList) {
       param.contentType = 'application/json'
       $.ajax(param).done(function (data) {
         if (persistTrigger) {
-          console.warn('this',this);
+          // console.warn('this',this);
           this.trigger('persist_end')
         }
         resolve(data)

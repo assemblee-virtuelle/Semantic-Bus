@@ -14,6 +14,7 @@ var sift = require("sift").default;
 var graphTraitement = require("../helpers/graph-traitment");
 var fetch = require('node-fetch');
 const Error = require('../helpers/error.js');
+const { log } = require('console');
 const ObjectID = require('bson').ObjectID;
 
 // --------------------------------------------------------------------------------
@@ -31,11 +32,13 @@ module.exports = {
   get_workspace_graph_data: _get_workspace_graph_data,
   createOrUpdateHistoriqueEnd: _createOrUpdateHistoriqueEnd,
   addDataHistoriqueEnd: _addDataHistoriqueEnd,
+  addFragHistoriqueEnd:_addFragHistoriqueEnd,
   createProcess: _createProcess,
   get_process_byWorkflow: _get_process_byWorkflow,
   addConnection: _addConnection,
   removeConnection: _removeConnection,
-  cleanOldProcess: _cleanOldProcess,
+  cleanOldProcessByWorkflow: _cleanOldProcessByWorkflow,
+  markProcessAsResolved: _markProcessAsResolved,
   cleanAllOldProcess: _cleanAllOldProcess,
   cleanGarbage: _cleanGarbage,
   cleanGarbageForgotten: _cleanGarbageForgotten,
@@ -50,29 +53,27 @@ module.exports = {
 
 function _createOrUpdateHistoriqueEnd(historique) {
   return new Promise(async (resolve, reject) => {
-    // console.log('_createOrUpdateHistoriqueEnd 0',historique);
-    const historiqueEndObject = historiqueEndModel.getInstance().model(historique);
 
-    if (historiqueEndObject.error != undefined) {
-      historiqueEndObject.error = {
-        message: historiqueEndObject.error.message
+    if (historique.error != undefined) {
+      historique.error = {
+        message: historique.error.message
       };
     }
 
     try {
-      // console.log('_createOrUpdateHistoriqueEnd 1',historiqueEndObject);
-      const historic = await historiqueEndModel.getInstance().model.findOneAndUpdate({
-          _id: historiqueEndObject._id
-        }, historiqueEndObject, {
+
+      const persisted = await historiqueEndModel.getInstance().model.findOneAndUpdate({
+        processId:historique.processId,
+        componentId:historique.componentId
+      }, historique, {
           new: true,
           upsert: true
         })
         .lean()
         .exec()
-      // console.log('_createOrUpdateHistoriqueEnd 2',historic);
-      resolve(historic)
+      resolve(persisted)
     } catch (e) {
-      return reject(new Error.DataBaseProcessError(e))
+      reject(new Error.DataBaseProcessError(e))
     }
   });
 } // <= _createHistoriqueEnd
@@ -83,14 +84,36 @@ function _addDataHistoriqueEnd(historicId, data) {
   return new Promise(async (resolve, reject) => {
     // console.log('addDataHistoriqueEnd');
     let frag;
-
+    console.log('historicId',historicId);
     try {
       // console.log('fragment_lib.persist',data);
-      frag = await fragment_lib.persist({
-        data: data
-      })
+      frag = await fragment_lib.persist(data)
       // console.log('_addDataHistoriqueEnd frag ok',frag,historicId);
 
+      const result = await historiqueEndModel.getInstance().model.findOneAndUpdate({
+          _id: historicId
+        }, {
+          frag: frag._id
+        }, {
+          new: true,
+          upsert: true
+        })
+        .lean()
+        .exec();
+      log('_addDataHistoriqueEnd result',result)
+      resolve(result);
+    } catch (e) {
+      console.error(e);
+      reject(new Error.DataBaseProcessError(e))
+    }
+  });
+}
+
+
+function _addFragHistoriqueEnd(historicId, frag) {
+  return new Promise(async (resolve, reject) => {
+    // console.log("addFragHistoriqueEnd",frag)
+    try {
       const result = await historiqueEndModel.getInstance().model.findOneAndUpdate({
           _id: historicId
         }, {
@@ -106,9 +129,9 @@ function _addDataHistoriqueEnd(historicId, data) {
       console.error(e);
       reject(new Error.DataBaseProcessError(e))
     }
-
   });
 }
+
 
 // --------------------------------------------------------------------------------
 
@@ -122,28 +145,41 @@ function _createProcess(process) {
     steps: process.steps
   });
 
-  return new Promise((resolve, reject) => {
-    processModelObject.save(function(err, work) {
-      if (err) {
-        reject(new Error.DataBaseProcessError(err))
-      } else {
-        resolve(work);
-      }
-    });
+  return new Promise(async (resolve, reject) => {
+    try {
+      const work= await processModelObject.save();
+      resolve(work);
+    } catch (error) {
+      reject(new Error.DataBaseProcessError(error))
+    }
+    // processModelObject.save(function(err, work) {
+    //   if (err) {
+    //     reject(new Error.DataBaseProcessError(err))
+    //   } else {
+    //     resolve(work);
+    //   }
+    // });
   });
 } // <= _createHistoriqueEnd
 
 // --------------------------------------------------------------------------------
 
 function _getCurrentProcess(processId) {
-  return new Promise((resolve, reject) => {
-    processModel.getInstance().model.findOne(processId, (err, process) => {
-      if (err) {
-        reject(new Error.DataBaseProcessError(err))
-      } else {
-        resolve(process);
-      }
-    });
+  return new Promise(async (resolve, reject) => {
+    try {
+      const process= await processModel.getInstance().model.findById(processId).lean().exec();
+      resolve(process);
+    } catch (error) {
+      reject(new Error.DataBaseProcessError(error))
+    }
+
+    // processModel.getInstance().model.findOne(processId, (err, process) => {
+    //   if (err) {
+    //     reject(new Error.DataBaseProcessError(err))
+    //   } else {
+    //     resolve(process);
+    //   }
+    // });
   });
 } // <= _getCurrentProcess
 
@@ -314,7 +350,7 @@ function _cleanAllOldProcess() {
     let keepedProcessesIds = [];
     for (var workflow of workspaces) {
       // console.log(workflow.name);
-      const processNormalCleaned = await _cleanOldProcess(workflow);
+      const processNormalCleaned = await _cleanOldProcessByWorkflow(workflow);
       // console.log('processNormalCleaned',processNormalCleaned);
       // keepedProcessesIds = keepedProcessIds.concat(processNormalCleaned);
     }
@@ -365,7 +401,8 @@ function _getOldProcessAndHistoriqueEnd(workflow) {
     try {
       let limit = workflow.limitHistoric || 1;
       let keepedProcesses = await processModel.getInstance().model.find({
-          workflowId: workflow._id
+          workflowId: workflow._id,
+          state :{'$eq':'run'}
         })
         .sort({
           timeStamp: -1
@@ -421,34 +458,53 @@ function _getOldProcessAndHistoriqueEnd(workflow) {
 
 
 
-function _cleanOldProcess(workflow) {
+function _cleanOldProcessByWorkflow(workflow) {
   return new Promise(async (resolve, reject) => {
     try {
-      // console.log(`--------- start clean ${workflow.name}`)
+      console.log(`--------- start clean By Workflow ${workflow.name}`)
       const {
         keepedProcesses,
         oldProcesses,
         keepedHistoriqueEnds,
         oldHistoriqueEnds
       } = await _getOldProcessAndHistoriqueEnd(workflow);
-
-      for (let oldHistoriqueEnd of oldHistoriqueEnds){
-        await fragment_lib.tagGarbage(oldHistoriqueEnd.frag);
+      for (let oldProcess of oldProcesses){
+        await _markProcessAsResolved(oldProcess)
       }
 
-      await historiqueEndModel.getInstance().model.deleteMany({
-        _id: {
-          $in: oldHistoriqueEnds.map(r => r._id)
-        }
-      }).exec();
+      // for (let oldHistoriqueEnd of oldHistoriqueEnds){
+      //   await fragment_lib.tagGarbage(oldHistoriqueEnd.frag);
+      // }
 
-      await processModel.getInstance().model.deleteMany({
-        _id: {
-          $in: oldProcesses.map(r => r._id)
-        }
-      }).exec();
+      // await historiqueEndModel.getInstance().model.deleteMany({
+      //   _id: {
+      //     $in: oldHistoriqueEnds.map(r => r._id)
+      //   }
+      // }).exec();
+
+      // await processModel.getInstance().model.deleteMany({
+      //   _id: {
+      //     $in: oldProcesses.map(r => r._id)
+      //   }
+      // }).exec();
       // console.log(`--------- end clean ${workflow.name}`)
       resolve()
+    } catch (e) {
+      reject(new Error.DataBaseProcessError(e))
+    }
+  })
+} // <= _cleanOldProcessByWorkflow
+
+function _markProcessAsResolved(process) {
+  return new Promise(async (resolve, reject) => {
+    try {
+      // console.log(`--------- start clean By process`,process)
+      const processMongoose = await processModel.getInstance().model.findOne({
+        _id: process._id
+      }).exec();
+      processMongoose.state='resolved';
+      process = await processMongoose.save();
+      resolve(process);
     } catch (e) {
       reject(new Error.DataBaseProcessError(e))
     }
@@ -531,9 +587,9 @@ function _get_process_byWorkflow(workflowId) {
 // --------------------------------------------------------------------------------
 
 function _update_simple(workspaceupdate) {
-  return new Promise((resolve, reject) => {
-    // if (config.quietLog != true) {}
-    workspaceModel.getInstance().model
+  return new Promise(async (resolve, reject) => {
+    try {
+      const workspaceUpdate =  workspaceModel.getInstance().model
       .findOneAndUpdate({
           _id: workspaceupdate._id
         },
@@ -542,14 +598,28 @@ function _update_simple(workspaceupdate) {
           new: true
         }
       )
-      .exec((err, workspaceUpdate) => {
-        if (err) {
-          reject(err);
-        } else {
-          // if (config.quietLog != true) {}
-          resolve(workspaceUpdate);
-        }
-      });
+      .exec();
+      resolve(workspaceUpdate);
+    } catch (error) {
+      reject(error);
+    }
+    // workspaceModel.getInstance().model
+    //   .findOneAndUpdate({
+    //       _id: workspaceupdate._id
+    //     },
+    //     workspaceupdate, {
+    //       upsert: true,
+    //       new: true
+    //     }
+    //   )
+    //   .exec((err, workspaceUpdate) => {
+    //     if (err) {
+    //       reject(err);
+    //     } else {
+    //       // if (config.quietLog != true) {}
+    //       resolve(workspaceUpdate);
+    //     }
+    //   });
   });
 } // <= _update_simple
 

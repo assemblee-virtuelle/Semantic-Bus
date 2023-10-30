@@ -5,6 +5,7 @@ var historiqueEndModel = require("../models/historiqueEnd_model");
 var sift = require('sift').default;
 var fragment_lib = require('./fragment_lib.js');
 const Error = require('../helpers/error.js');
+const mongoose = require('mongoose');
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -45,44 +46,42 @@ function _create(workspaceComponents) {
 
 
 function _get(filter) {
-  return new Promise(function(resolve, reject) {
-    workspaceComponentModel.getInstance().model.findOne(filter)
-      .lean().exec(function(err, worksapceComponent) {
-        if (err) {
-          reject(new Error.DataBaseProcessError(err))
-        } else if (worksapceComponent == null) {
-          reject(new Error.EntityNotFoundError('workspaceComponent'))
-        } else {
-          worksapceComponent.specificData = worksapceComponent.specificData || {}; //protection against empty specificData : corrupt data
-          resolve(worksapceComponent);
-        }
-      })
+  return new Promise(async function(resolve, reject) {
+    try {
+      const workspaceComponent = await workspaceComponentModel.getInstance().model.findOne(filter).lean().exec();
+      if(workspaceComponent == null){
+        reject(new Error.EntityNotFoundError('workspaceComponent'))
+      } else {
+        workspaceComponent.specificData = workspaceComponent.specificData || {};
+        resolve(workspaceComponent)
+      }
+
+    } catch (error) {
+      reject(new Error.DataBaseProcessError(error))
+    }
   })
 } // <= _get
 
 // --------------------------------------------------------------------------------
-
 function _get_all(filter) {
-  return new Promise(function(resolve, reject) {
-    workspaceComponentModel.getInstance().model.find(filter, {
-        'consumption_history': 0
-      })
-      .lean()
-      .exec(function(err, workspaceComponents) {
-        if (err) {
-          reject(new Error.DataBaseProcessError(err))
-        } else {
-          workspaceComponents.forEach(c => {
-            c.specificData = c.specificData || {}
-          });
-          resolve(workspaceComponents);
-        }
-      })
+  return new Promise(async function(resolve, reject) {
+      try {
+            const workspaceComponents = await workspaceComponentModel.getInstance().model.find(filter, {
+              'consumption_history': 0
+            })
+            .lean()
+            .exec();
+            workspaceComponents.forEach(c => {
+              c.specificData = c.specificData || {}
+            });
+            resolve(workspaceComponents);
+      } catch (error) {
+            reject(new Error.DataBaseProcessError(err))
+      }
   })
 } // <= _get_all
 
 // --------------------------------------------------------------------------------
-
 function _get_all_withConsomation(filter) {
   return new Promise(function(resolve, reject) {
     workspaceComponentModel.getInstance().model.find(filter)
@@ -102,8 +101,6 @@ function _get_all_withConsomation(filter) {
 
 
 // --------------------------------------------------------------------------------
-
-
 function _get_connectBefore_connectAfter(filter) {
   return new Promise(function(resolve, reject) {
     workspaceComponentModel.getInstance().model.findOne(filter, {
@@ -123,7 +120,6 @@ function _get_connectBefore_connectAfter(filter) {
 } // <= _get_connectBefore_connectAfter
 
 // --------------------------------------------------------------------------------
-
 function _update(componentToUpdate) {
   return new Promise((resolve, reject) => {
     // console.log('componentToUpdate ----', componentToUpdate)
@@ -194,22 +190,33 @@ function _remove(componentToDelete) {
 
 // --------------------------------------------------------------------------------
 function _get_component_result(componentId, processId) {
-  return new Promise((resolve, reject) => {
-    historiqueEndModel.getInstance().model.findOne({
+  return new Promise(async (resolve, reject) => {
+    try {
+      const historiqueEnd = await  historiqueEndModel.getInstance().model.findOne({
         processId: processId,
         componentId: componentId
       })
       .lean()
-      .exec(async (err, historiqueEnd) => {
-        if (err) {
-          reject(new Error.DataBaseProcessError(err))
-        } else {
-          // console.log('historiqueEnd ',historiqueEnd);
-          // if(historiqueEnd.data._frag){
-          //   historiqueEnd.data = await fragment_lib.get(historiqueEnd.data._frag);
-          // }
-          resolve(historiqueEnd);
-        }
-      })
+      .exec();
+      resolve(historiqueEnd);
+    } catch (error) {
+      reject(new Error.DataBaseProcessError(error))
+    }
+    // historiqueEndModel.getInstance().model.findOne({
+    //     processId: processId,
+    //     componentId: componentId
+    //   })
+    //   .lean()
+    //   .exec(async (err, historiqueEnd) => {
+    //     if (err) {
+    //       reject(new Error.DataBaseProcessError(err))
+    //     } else {
+    //       // console.log('historiqueEnd ',historiqueEnd);
+    //       // if(historiqueEnd.data._frag){
+    //       //   historiqueEnd.data = await fragment_lib.get(historiqueEnd.data._frag);
+    //       // }
+    //       resolve(historiqueEnd);
+    //     }
+    //   })
   })
 }

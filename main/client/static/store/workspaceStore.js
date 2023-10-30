@@ -1,4 +1,4 @@
-function WorkspaceStore (utilStore, stompClient, specificStoreList) {
+function WorkspaceStore (utilStore, specificStoreList) {
   riot.observable(this)
   for (specificStore of specificStoreList) {
     specificStore.genericStore = this
@@ -11,7 +11,6 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   this.modeConnectBefore = false
   this.modeConnectAfter = false
   this.utilStore = utilStore
-  this.stompClient = stompClient
   this.processCollection = []
   this.currentProcess = undefined
   this.itemCurrent
@@ -19,6 +18,13 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
   this.modeConnectBefore = false
   this.modeConnectAfter = false
   this.position = {}
+
+  this.setStompClient = function(stompClient){
+    this.stompClient = stompClient;
+    if(this.workspaceCurrent){
+      this.subscribeToComponents();
+    }
+  }
 
   // --------------------------------------------------------------------------------
   // --------------------------------------------------------------------------------
@@ -301,6 +307,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
         this.workspaceCurrent.description = data.description
         this.workspaceCurrent.name = data.name
         this.workspaceCurrent.limitHistoric = data.limitHistoric
+        this.workspaceCurrent.engineVersion = data.engineVersion
         this.trigger('ajax_sucess', `Votre workspace à été mis à jour`)
         this.trigger('workspace_current_changed', this.workspaceCurrent)
         if (this.viewBox) {
@@ -503,7 +510,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
           this.currentProcess = process
           this.unsubscribeToPreviousSubscription()
           this.select({ _id: id }).then(() => {
-            this.subscribeToComponents(entity, action)
+            this.subscribeToComponents()
             if (action === 'component' && secondId !== undefined) {
               this.loadComponentPart(secondId, secondAction)
               this.trigger('navigation_control_done', 'workspace', secondAction)
@@ -598,6 +605,7 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
   this.on('workspace_current_updateField', function (message) {
     this.workspaceCurrent[message.field] = message.data
+    console.log('this.workspaceCurrent',this.workspaceCurrent)
     this.workspaceCurrent.synchronized = false
     this.trigger('workspace_current_changed', this.workspaceCurrent)
   }) // <= workspace_current_updateField
@@ -700,11 +708,13 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     this.trigger('workspace_current_components_changed', this.workspaceCurrent.components)
   }.bind(this))
 
-  this.on('workspace_current_add_components', function () {
+  this.on('workspace_current_add_components', function (position) {
     this.utilStore.ajaxCall({
       method: 'post',
       url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/components',
       data: JSON.stringify(this.componentSelectedToAdd.map((c) => {
+        c.graphPositionX=position.graphPositionX;
+        c.graphPositionY=position.graphPositionY;
         return this.workspaceBusiness.serialiseWorkspaceComponent(c)
       }))
     }, true).then(data => {
@@ -914,8 +924,8 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
 
   // --------------------------------------------------------------------------------
 
-  this.subscribeToComponents = function (entity, action) {
-    this.action = action
+  this.subscribeToComponents = function () {
+
     this.subscription_workspace_current_move_component = this.stompClient.subscribe('/topic/workspace_current_move_component.' + this.workspaceCurrent._id, message => {
       let body = JSON.parse(message.body)
       if (body.token !== localStorage.token) {
@@ -1044,13 +1054,15 @@ function WorkspaceStore (utilStore, stompClient, specificStoreList) {
     })
     this.subscription_workflow_processCleaned = this.stompClient.subscribe('/topic/workflow-processCleaned.' + this.workspaceCurrent._id, message => {
       let body = JSON.parse(message.body)
-      this.processCollection = sift({
-        _id: {
-          $in: body.cleanedProcesses.map(p => p._id)
-        }
-      },
-      this.processCollection
-      )
+      // TODO server send workspaceID and not new processe => rework process Notifier on server
+      // console.log('subscription_workflow_processCleaned ',body);
+      // this.processCollection = sift({
+      //   _id: {
+      //     $in: body.cleanedProcesses.map(p => p._id)
+      //   }
+      // },
+      // this.processCollection
+      // )
       this.trigger('workspace_current_process_changed', this.processCollection)
     })
     this.subscription_workspace_current_process_persist = this.stompClient.subscribe('/topic/process-persist.' + this.workspaceCurrent._id, message => {

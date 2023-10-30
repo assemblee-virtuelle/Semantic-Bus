@@ -34,7 +34,7 @@ class ObjectTransformer {
     if(out['nom du lieux *']&&out['nom du lieux *'].includes('Nuyens')){
       console.log("AFTER transform", out.bf_longitude, typeof out.bf_longitude);
     }
-
+    // console.log(('transformer out',out));
     return out;
   }
 

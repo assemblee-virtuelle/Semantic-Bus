@@ -4,66 +4,44 @@ module.exports = {
   fragment_lib: require('./fragment_lib.js'),
   PromiseOrchestrator: require('../helpers/promiseOrchestrator.js'),
   //mongoose: require('mongoose'),
-  persist: function(component, data, history) {
-    //cachedData={};
-    //console.log('CACHE LIB CREATE | ',data);
-    return new Promise((resolve, reject) => {
-      let cachedData;
-      this.cacheModel.getInstance().model.findOne({
-          _id: component._id
-        })
-        .lean()
-        .exec()
-        .then(async cachedDataIn => {
-          cachedData = cachedDataIn;
-          // console.log(cachedDataIn);
+  persist: async function(component, data, history) {
+    let cachedData;
+    let cachedDataIn = await this.cacheModel.getInstance().model.findOne({
+      _id: component._id
+    }).lean().exec();
+    cachedData = cachedDataIn;
 
-          // console.log('cachedDataIn',cachedDataIn);
-          if (cachedDataIn&&cachedDataIn!=null){
-            if(cachedDataIn.frag){
-             await this.fragment_lib.cleanFrag(cachedDataIn.frag)
-            }
-          } else {
-            cachedData = {};
-          }
+    if (cachedDataIn&&cachedDataIn!=null){
+      if(cachedDataIn.frag){
+       await this.fragment_lib.tagGarbage(cachedDataIn.frag)
+      }
+    } else {
+      cachedData = {};
+    }
 
+    let fragment = {
+      data: data
+    };
 
-          // if (cachedData != null && history != true) {
-          //   fragment._id = cachedData.frag;
-          // } else if (cachedData == null) {
-          //   cachedData = {};
-          // }
+    let frag = await this.fragment_lib.persist(fragment);
 
-          let fragment = {
-            data: data
-          };
-          // console.log('cache PERSIST',fragment);
-          return this.fragment_lib.persist(fragment)
-        }).then((frag) => {
-          cachedData.frag = frag._id;
-          cachedData.date = new Date();
-          if (history == true) {
-            cachedData.history = cachedData.history || [];
-            cachedData.history.push({
-              frag: frag._id,
-              date: new Date()
-            });
-          }
-          // console.log('cachedData',cachedData);
-          // console.log('component',component);
-          return this.cacheModel.getInstance().model.findOneAndUpdate({
-              _id: component._id
-            },
-            cachedData, {
-              upsert: true,
-              new: true
-            }).lean().exec();
-        }).then((cacheReturn) => {
-          resolve(cacheReturn);
-        }).catch(e => {
-          reject(e);
-        });
-    });
+    cachedData.frag = frag._id;
+    cachedData.date = new Date();
+    if (history == true) {
+      cachedData.history = cachedData.history || [];
+      cachedData.history.push({
+        frag: frag._id,
+        date: new Date()
+      });
+    }
+
+    return await this.cacheModel.getInstance().model.findOneAndUpdate({
+        _id: component._id
+      },
+      cachedData, {
+        upsert: true,
+        new: true
+      }).lean().exec();    
   },
 
   get: function(component, resolveFrag) {

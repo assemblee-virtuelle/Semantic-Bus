@@ -1,7 +1,7 @@
 <graph class="containerV containerGrid">
   <!-- page graph -->
   <div id="graphContainer" style="flex-grow:1;" class="containerH contentrGrid">
-    <svg ref="graphSvgCanvas" style="flex-grow:1; position: relative">
+    <svg ref="graphSvgCanvas" style="flex-grow:1; position: relative" ondrop={drag_drop}  ondragover={drag_over_prevent}>
       <filter id="dropshadow" x="1%" y="1%" width="110%" height="110%">
         <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
         <feOffset dx="-2" dy="-1" result="offsetblur1"/>
@@ -301,6 +301,7 @@
 
     // drag calcule for all elements of dragged node
     this.dragged = function (dragged) {
+      console.log('dragged')
       let containerStyle = document.querySelector('#graphContainer').getBoundingClientRect();
       let width = containerStyle.width ;
       let height = containerStyle.height;
@@ -443,6 +444,7 @@
     this.dragended = function (d) {
 
       if (d.x == d.xOrigin && d.y == d.yOrigin) {
+        //click management
         if (this.modeConnectBefore || this.modeConnectAfter) {
           if (this.modeConnectBefore) {
             RiotControl.trigger('connect_components', d.component, this.selectedNodes[0].component);
@@ -460,6 +462,25 @@
         RiotControl.trigger('item_persist', d.component);
       }
     }.bind(this);
+
+
+    drag_drop(event) {
+      //console.log('drag_drop',event)
+      let source = JSON.parse(event.dataTransfer.getData('sourceData'));
+      //console.log('source',source)
+
+      let svgStyle = this.refs.graphSvgCanvas.getBoundingClientRect();
+      console.log(this.position);
+      let xSvgSclaed = (event.offsetX/this.position.k)-(this.position.x/this.position.k);
+      let ySvgSclaed = (event.offsetY/this.position.k)-(this.position.y/this.position.k);
+      console.log(xSvgSclaed,ySvgSclaed)
+
+      RiotControl.trigger("workspace_current_add_components",{graphPositionX:xSvgSclaed,graphPositionY:ySvgSclaed});
+    }
+
+    drag_over_prevent(e) {
+      event.preventDefault();
+    }
 
     // init all element of content graph
     this.drawGraph = function (dataCompiled) {
@@ -654,6 +675,7 @@
 
     // init grid and grid's function
     this.initGraph = function(position) {
+      console.log('position',position)
       this.position=position;
       this.initGraphDone = true
       let svg = d3.select('svg');
@@ -661,6 +683,8 @@
       let containerStyle = document.querySelector('#main-container').getBoundingClientRect();
       let width = containerStyle.width;
       let height = containerStyle.height;
+      console.log('width',width);
+      console.log('height',height);
       let Square;
       document.querySelector('.component') ?  Square = document.querySelector('.component').getBoundingClientRect(): Square = {width:40};
       let widthSquare = Square.width;
@@ -712,13 +736,13 @@
           this.position.x =  currentTransform.x
           this.position.y = currentTransform.y
           this.position.k = currentTransform.k
+          //console.log('zoom position',this.position)
           RiotControl.trigger('update_graph_on_store', this.position)
           view.attr("transform", currentTransform);
           gX.call(xAxis.scale(d3.event.transform.rescaleX(xScale)));
           gY.call(yAxis.scale(d3.event.transform.rescaleY(yScale)));
         }
       }
-
       svg.call(zoom.transform, d3.zoomIdentity.translate(this.position.x || 0 , this.position.y || 0).scale(this.position.k || 0.5))
       svg.call(zoom)
     }.bind(this)

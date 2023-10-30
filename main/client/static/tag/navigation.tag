@@ -42,13 +42,17 @@
       <!--  <workspace-component-editor-header if={isScrennToShow('component')}></workspace-component-editor-header>  -->
       <json-previewer-header if={isScrennToShow('workPreview')}></json-previewer-header>
       <!-- Nom d'utilisateur -->
-      <div style="flex-grow:0;flex-shrink:0; padding-right:10px;">
-        <h3 style="color:white; font-family: 'Open Sans', sans-serif; font-weight: 200">{currentName}</h3>
-      </div>
+
 
 
 
       <div class="containerH" style="flex-grow:0;flex-shrink:0;position:relative;">
+        <div class="containerV" style="justify-content: center;align-items: center;">
+          <div class="indicator">
+            <div if={connected} class="bulb connected"></div>
+            <div if={!connected} class="bulb disconnected"></div>
+          </div>
+        </div>
         <!--bouton admnistration-->
         <a href="#admin" if={adminAvaible} class="commandButtonImage {selectedMenu:isScrennInHistory('admin')} containerV" style="flex-grow:0;">
           <div class="contentV" style="justify-content:center;width:80px;height:80px ">
@@ -57,7 +61,10 @@
             </div>
           </div>
         </a>
-              <!-- Bouton utilisateur -->
+              <div style="flex-grow:0;flex-shrink:0; padding-right:10px;">
+        <h3 style="color:white; font-family: 'Open Sans', sans-serif; font-weight: 200">{currentName}</h3>
+      </div>
+        <!-- Bouton utilisateur -->
         <a href="#profil//edit" class="commandButtonImage {selectedMenu:isScrennInHistory('profil')} containerV" style="flex-grow:0;">
           <div class="contentV" style="justify-content:center;width:80px;height:80px ">
             <div class="containerH" style="justify-content:center;">
@@ -89,25 +96,6 @@
               </div>
             </div>
           </a>
-          <!-- Workflow Partagé -->
-          <!--  <a href="#sharedWorkspaces" class="commandButtonImage {selectedMenu:isScrennInHistory('sharedWorkspaces')} containerV" style="flex-basis:100px;flex-grow:0;position:relative;">
-            <img src="./image/double_dossier.svg" style="" width="35px">
-            <div style="text-align:center;padding-top: 5px;font-family: 'Open Sans', sans-serif;color:white;font-size:0.75em">WorkFlow Partagé</div>
-            <div if={isScrennInHistory('sharedWorkspaces')} class="containerV" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">
-              <div class="containerH" style="justify-content:flex-end;">
-                <div class="arrow-left"></div>
-              </div>
-            </div>
-          </a>  -->
-          <!-- <a href="#bigdataflowTable" class="commandButtonImage {selectedMenu:isScrennInHistory('bigdataflowTable')} containerV" style="flex-basis:100px;flex-grow:0;position:relative;">
-            <img src="./image/dossier.svg" style="" width="35px">
-            <div style="text-align:center;padding-top: 5px;font-family: 'Open Sans', sans-serif;color:white;font-size:0.75em">Big data Flow</div>
-            <div if={isScrennInHistory('bigdataflowTable')} class="containerV" style="position:absolute;bottom:0;top:0;right:0;left:0;justify-content:center;">
-              <div class="containerH" style="justify-content:flex-end;">
-                <div class="arrow-left"></div>
-              </div>
-            </div>
-          </a> -->
         </div>
       </div>
 
@@ -130,7 +118,7 @@
   <script>
     this.data = {};
     this.persistInProgress = false;
-    this.workInProgress = false;
+    this.connected = true;
 
     closeError(e) {
       this.errorMessage = undefined;
@@ -148,48 +136,7 @@
       return screenToTest == this.entity;
     }
 
-    RiotControl.on('persist_start', function (data) {
-      //console.log('persist_start | ',this.saveButton)
-      this.persistInProgress = true;
-      this.update();
-    }.bind(this));
 
-    RiotControl.on('persist_end', function (data) {
-      this.persistInProgress = false;
-      this.update();
-    }.bind(this));
-
-    RiotControl.on('process-change', processCollection => {
-      this.processCollection = processCollection;
-      this.update();
-    });
-
-    RiotControl.on('ajax_fail', function (message) {
-      console.log('AJAX FAIL',message);
-      this.errorMessage = message;
-      this.update();
-      setTimeout(()=>{
-        this.errorMessage = null;
-        this.update();
-      },1800)
-    }.bind(this));
-
-    RiotControl.on('ajax_sucess', function (message) {
-      this.sucessMessage = message;
-      this.update();
-      setTimeout(()=>{
-        this.sucessMessage = null;
-        this.update();
-      },1800)
-    }.bind(this));
-
-    RiotControl.on('navigation_control_done', (entity, action, secondAction) => {
-        this.entity = undefined;
-        this.update();
-        this.entity = entity;
-        this.action = action;
-        this.update();
-    });
 
     this.reload_profil = function(profil){
       // console.log('profil',profil);
@@ -213,8 +160,65 @@
         }
       }.bind(this));
       RiotControl.trigger('bootstrap')
-
       route.start(true);
+
+      console.log('MOUNT');
+      RiotControl.on('persist_start', function (data) {
+        //console.log('persist_start | ',this.saveButton)
+        this.persistInProgress = true;
+        this.update();
+      }.bind(this));
+
+      RiotControl.on('persist_end', function (data) {
+        this.persistInProgress = false;
+        this.update();
+      }.bind(this));
+
+      RiotControl.on('process-change', processCollection => {
+        this.processCollection = processCollection;
+        this.update();
+      });
+
+      RiotControl.on('ajax_fail', function (message) {
+        console.log('AJAX FAIL',message);
+        this.errorMessage = message;
+        this.update();
+        setTimeout(()=>{
+          this.errorMessage = null;
+          this.update();
+        },3800)
+      }.bind(this));
+
+      RiotControl.on('ajax_sucess', function (message) {
+        this.sucessMessage = message;
+        this.update();
+        setTimeout(()=>{
+          this.sucessMessage = null;
+          this.update();
+        },3800)
+      }.bind(this));
+    
+      RiotControl.on('AMQP connected', function (message) {
+        //RiotControl.trigger('ajax_sucess', 'AMQP connected')
+        this.connected=true;
+        this.update();
+      }.bind(this));
+
+      RiotControl.on('AMQP disconnected', function (message) {
+        this.connected=false;
+        this.update();
+        //RiotControl.trigger('ajax_fail', 'AMQP disconnected')
+
+      }.bind(this));
+
+      RiotControl.on('navigation_control_done', (entity, action, secondAction) => {
+          this.entity = undefined;
+          this.update();
+          this.entity = entity;
+          this.action = action;
+          this.update();
+      });
+
     });
   </script>
   <style>
@@ -333,6 +337,39 @@
       padding: 5px;
       flex-basis: 20px;
       flex-shrink: 0;
+    }
+
+    .indicator {
+      width: 40px;
+      height: 40px;
+      border-radius: 15px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      position: relative;
+    }
+
+    .bulb {
+      width: 20px;
+      height: 20px;
+      border-radius: 50%;
+      background-color: red; /* Rouge par défaut (déconnecté) */
+      background: linear-gradient(to bottom, #ddd, #bbb); /* Aspect 3D */
+      border: 2px solid #555; /* Bordure sombre */
+      box-shadow: 0 0 10px rgba(0, 0, 0, 0.5); /* Ombre douce */
+      transition: transform 0.3s ease;
+    }
+
+    .bulb.connected {
+        background: linear-gradient(to bottom, #0a0, #080); /* Couleur verte lorsque connecté */
+        border-color: #0a0; /* Bordure verte lorsque connecté */
+        transform: scale(1.1); /* Légère mise à l'échelle pour l'effet 3D */
+    }
+
+    .bulb.disconnected {
+        background: linear-gradient(to bottom, #f00, #800); /* Couleur rouge lorsque déconnecté */
+        border-color: #f00; /* Bordure rouge lorsque déconnecté */
+        transform: scale(1.1); /* Légère mise à l'échelle pour l'effet 3D */
     }
   </style>
 </navigation>

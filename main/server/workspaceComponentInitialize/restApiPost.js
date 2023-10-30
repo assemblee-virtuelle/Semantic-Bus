@@ -12,6 +12,7 @@ class RestApiPost {
       ],
       this.stepNode = false
     this.workspace_component_lib = require('../../../core/lib/workspace_component_lib')
+    this.workspace_lib = require('../../../core/lib/workspace_lib')
     this.data2xml = require('data2xml');
     this.xmlJS = require('xml-js');
     this.dataTraitment = require('../../../core/dataTraitmentLibrary/index.js')
@@ -27,8 +28,10 @@ class RestApiPost {
     this.pathToRegexp = pathToRegexp;
   }
 
-  initialise(router) {
+  initialise(router,engineTracer) {
     router.all('*', async (req, res, next) => {
+      // console.log('engineTracer',engineTracer);
+      // console.log(req)
       const urlRequiered = req.params[0].split('/')[1];
       const urlRequieredFull = req.params[0].replace('/', '');
       const query = req.query;
@@ -45,6 +48,7 @@ class RestApiPost {
           req.setTimeout(0);
           let keys = []
           let regexp = this.pathToRegexp(component.specificData.url, keys);
+          //convert query url variable to query properties
           if (regexp.test(urlRequieredFull)) {
             let values = regexp.exec(urlRequieredFull);
 
@@ -66,7 +70,12 @@ class RestApiPost {
 
           // console.log('req.body',req.body);
 
-          this.request.post(this.config.engineUrl + '/work-ask/' + component._id, {
+          const worksapce =  await this.workspace_lib.get_workspace_simple(component.workspaceId)
+          
+          const versionUrl = worksapce.engineVersion==undefined||worksapce.engineVersion=='default'?'/work-ask/':`/work-ask/${worksapce.engineVersion}/`
+           console.log(versionUrl);
+
+          this.request.post(this.config.engineUrl + versionUrl + component._id, {
               body: {
                 queryParams: {
                   query: req.query,
@@ -80,7 +89,7 @@ class RestApiPost {
             }
             // eslint-disable-next-line handle-callback-err
             , (err, data) => {
-              // console.log(err,data);
+
               try {
                 if (err) {
                   console.error("restpiIPost request error", err);
@@ -91,62 +100,24 @@ class RestApiPost {
                       engineResponse: data.body
                     })
                   } else {
-                    let dataToSend
-                    try {
-                      dataToSend = data.body.data
-                    } catch (e) {
-                      console.log(e);
-                    }
-                    // const dataToSend = data.body.data
-                    // console.log('dataToSend',dataToSend);
-                    if (component.specificData != undefined) { // exception in previous promise
-                      if (component.specificData.contentType != undefined && component.specificData.contentType!='') {
-                        // console.log('contentType',component.specificData.contentType);
-                        if (dataToSend == undefined) {
-                          res.status(201).send()
-                        } else if (component.specificData.contentType.search('application/vnd.ms-excel') != -1) {
-                          res.setHeader('content-type', component.specificData.contentType)
-                          this.dataTraitment.type.buildFile(undefined, JSON.stringify(dataToSend), undefined, true, component.specificData.contentType).then((result) => {
-                            res.setHeader('Content-disposition', 'attachment; filename=' + component.specificData.url + '.xlsx')
-                            res.send(result)
-                          })
-                        } else if (component.specificData.contentType.search('rdf') != -1) {
-
-                          res.setHeader('content-type', component.specificData.contentType)
-                          this.dataTraitment.type.buildFile(undefined, JSON.stringify(dataToSend), undefined, true, component.specificData.contentType).then((result) => {
-                            res.setHeader('Content-disposition', 'attachment; filename=' + component.specificData.url + '.xml')
-                            res.send(result)
-                          })
-                        } else if (component.specificData.contentType.search('xml') != -1) {
-                          res.setHeader('content-type', component.specificData.contentType)
-                          let out = this.xmlJS.js2xml(dataToSend, {
-                            compact: true,
-                            ignoreComment: true,
-                            spaces: 0
-                          });
-                          out = out.replace(/\0/g, '');
-                          // console.log('xml out', out);
-                          // console.log(Buffer.byteLength(out, 'utf8') + " bytes");
-                          res.send(out)
-                          // res.end();
-                        } else if (component.specificData.contentType.search('yaml') != -1) {
-                          res.setHeader('content-type', component.specificData.contentType)
-                          res.send(this.json2yaml.stringify(dataToSend));
-                        } else if (component.specificData.contentType.search('json') != -1) {
-                          res.setHeader('content-type', component.specificData.contentType)
-                          var buf = Buffer.from(JSON.stringify(dataToSend))
-                          res.send(buf)
-                        } else {
-                          res.status(400).send('no supported content-type')
-                          // res.send(new Error('no supported madiatype'))
-                          // return ('type mime non géré')
+                    console.log('WORK response',data.body);
+                    if(data.body.data){
+                      console.log(data.body);
+                      this.sendResult(component, data.body.data, res)
+                    } else {
+                      engineTracer.pendingProcess.push(data.body.processId);
+                      let counter=0
+                      const intervalId = setInterval(() => {
+                        console.log(counter,data.body.processId)
+                        if (counter>=5){
+                          clearInterval(intervalId);
+                          res.send(engineTracer.pendingProcess);
+                        }else{
+                          counter++;
                         }
-                      } else {
-                        console.log('ERROR content-type have to be set');
-                        res.status(400).send(`content-type have to be set`)
-                        // return ('type mime non géré')
-                      }
+                      }, 10);
                     }
+
                   }
                 }
               } catch (e) {
@@ -188,6 +159,57 @@ class RestApiPost {
       //     })
       // })
     })
+  }
+
+  sendResult(component, dataToSend, res) {
+    if (component.specificData != undefined) { // exception in previous promise
+      if (component.specificData.contentType != undefined && component.specificData.contentType != '') {
+        // console.log('contentType',component.specificData.contentType);
+        if (dataToSend == undefined) {
+          res.status(201).send()
+        } else if (component.specificData.contentType.search('application/vnd.ms-excel') != -1) {
+          res.setHeader('content-type', component.specificData.contentType)
+          this.dataTraitment.type.buildFile(undefined, JSON.stringify(dataToSend), undefined, true, component.specificData.contentType).then((result) => {
+            res.setHeader('Content-disposition', 'attachment; filename=' + component.specificData.url + '.xlsx')
+            res.send(result)
+          })
+        } else if (component.specificData.contentType.search('rdf') != -1) {
+
+          res.setHeader('content-type', component.specificData.contentType)
+          this.dataTraitment.type.buildFile(undefined, JSON.stringify(dataToSend), undefined, true, component.specificData.contentType).then((result) => {
+            res.setHeader('Content-disposition', 'attachment; filename=' + component.specificData.url + '.xml')
+            res.send(result)
+          })
+        } else if (component.specificData.contentType.search('xml') != -1) {
+          res.setHeader('content-type', component.specificData.contentType)
+          let out = this.xmlJS.js2xml(dataToSend, {
+            compact: true,
+            ignoreComment: true,
+            spaces: 0
+          })
+          out = out.replace(/\0/g, '')
+          // console.log('xml out', out);
+          // console.log(Buffer.byteLength(out, 'utf8') + " bytes");
+          res.send(out)
+          // res.end();
+        } else if (component.specificData.contentType.search('yaml') != -1) {
+          res.setHeader('content-type', component.specificData.contentType)
+          res.send(this.json2yaml.stringify(dataToSend))
+        } else if (component.specificData.contentType.search('json') != -1) {
+          res.setHeader('content-type', component.specificData.contentType)
+          var buf = Buffer.from(JSON.stringify(dataToSend))
+          res.send(buf)
+        } else {
+          res.status(400).send('no supported content-type')
+          // res.send(new Error('no supported madiatype'))
+          // return ('type mime non géré')
+        }
+      } else {
+        console.log('ERROR content-type have to be set')
+        res.status(400).send(`content-type have to be set`)
+        // return ('type mime non géré')
+      }
+    }
   }
 }
 

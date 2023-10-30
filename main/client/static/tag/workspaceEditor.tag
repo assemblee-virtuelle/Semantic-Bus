@@ -103,6 +103,14 @@
         <div class="cardParameter">
           <input defaultValue={1} class="inputStandard" type="number" readonly={innerData.mode=="read"} ref="workspaceLimitHistoricnput" id="workspaceLimitHistoricInput" placeholder="1" value="{innerData.limitHistoric}" onkeyup="{limitHistoricFieldChange}"></input>
         </div>
+         <label class="labelFormStandard">Version du moteur de calcul</label>
+        <div class="cardParameter">
+          <select name="version" ref="versionInput" onchange={versionChange}>
+            <option value="default" selected={innerData.engineVersion==='default' || innerData.engineVersion===undefined}>default</option>
+            <option value="v1" selected={innerData.engineVersion==='v1'}>V1</option>
+            <option value="v2" selected={innerData.engineVersion==='v2'}>V2</option>
+          </select>
+        </div>
         <label if={innerData._id}  class="labelFormStandard">Importer au format JSON<</label>
         <div if={innerData._id} class="cardParameter">
           <div onclick={importClick} class="btnFil commandButtonImage">
@@ -201,7 +209,13 @@
       });
       //this.innerData.description = e.target.value;
     }
+   versionChange(e){
+      RiotControl.trigger('workspace_current_updateField', {
+        field: 'engineVersion',
+        data: e.target.value
+      });
 
+    }
     export(e) {
       RiotControl.trigger('workspace_current_export',this.refs["export-anchor"]);
     }

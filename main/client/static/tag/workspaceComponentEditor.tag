@@ -17,12 +17,15 @@
     <button id="generalBtn" class="tablinks active" onclick={openTab}>General</button>
     <div if={showDfTab} class="tablinksContainer">
       <button id="deeperFocusBtn" class="tablinks" onclick={openTab}>DeeperFocus</button>
+      <!-- 
       <label id="dfSwitchBtn" class="cardInput tablinks" style="justify-content:flex-start;">
         <span class="switch">
           <input type="checkbox" ref="activateDfInput" onchange={activateDfChange} checked={itemCurrent.deeperFocusData.activateDf}>
           <span class="slider round"></span>
         </span>
       </label>
+       -->
+      
     </div>
   </div>
   <!--  contenu du premier tab  -->
@@ -96,9 +99,9 @@
     keepArrayChange(e) {
       this.itemCurrent.deeperFocusData.keepArray = e.target.checked;
     }
-    activateDfChange(e) {
+    /**activateDfChange(e) {
       this.itemCurrent.deeperFocusData.activateDf = e.target.checked;
-    }
+    }**/
     this.updateData = function (itemCurrent) {
       //if the component is a deeper focus we remove the deeper focus tab added to every component
       if(this.itemCurrent.module == "deeperFocusOpeningBracket" || this.itemCurrent.type == "Deeper Focus"){
@@ -110,7 +113,7 @@
       this.refs.dfobPathInput.dfobPath = this.itemCurrent.deeperFocusData.dfobPath;
       this.refs.pipeNbInput.pipeNb = this.itemCurrent.deeperFocusData.pipeNb;
       this.refs.keepArrayInput.keepArray = this.itemCurrent.deeperFocusData.keepArray;
-      this.refs.activateDfInput.activateDf = this.itemCurrent.deeperFocusData.activateDf;
+      /**this.refs.activateDfInput.activateDf = this.itemCurrent.deeperFocusData.activateDf;**/
       this.update();
     }.bind(this);
     // fin du code lié au deeper focus
