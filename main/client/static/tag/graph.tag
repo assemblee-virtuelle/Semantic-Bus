@@ -331,7 +331,7 @@
         .data([dragged], function (d) {return d.id})
         .attr('cx', function (d) {return d.x + 34})
         .attr('cy', function (d) {return d.y + 34})
-
+item_current_workclac
       this.selectorsNodes = this.svg
         .select("#shapeSelector")
         .selectAll("rect")
@@ -442,9 +442,8 @@
 
     // drag end, save current position or save connect before/after
     this.dragended = function (d) {
-
       if (d.x == d.xOrigin && d.y == d.yOrigin) {
-        //click management
+        //click management to connect
         if (this.modeConnectBefore || this.modeConnectAfter) {
           if (this.modeConnectBefore) {
             RiotControl.trigger('connect_components', d.component, this.selectedNodes[0].component);

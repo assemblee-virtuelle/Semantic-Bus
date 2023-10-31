@@ -8,8 +8,9 @@ services:
       - "--providers.docker.exposedbydefault=false"
       - "--entrypoints.web.address=:90" # Spécifier l'adresse d'entrée
     ports:
-      - "8080:8080"
-    network_mode: host
+      - "90:90"
+    networks:
+      - bus
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   ##Laisser le nom main pour la localisation des folder pour la resolution du path de config
@@ -33,32 +34,13 @@ services:
       - "100:100"
     expose:
       - "100"
+    links:
+        - mongodb
+        - rabbitmq
     depends_on:
         - mongodb
         - rabbitmq
     command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "nodemon", "-L", "--watch", "/data/timer/*",  "--watch", "/data/core/*",  "--ignore", "configuration.js",  "/data/timer/app.js"]
-
-  engineV1:
-    image: dataplayers/semantic-bus-engine:v1.0
-    container_name: engineV1
-    environment:
-        - APP_PORT=91
-        - NODE_ENV=development_docker
-    volumes:
-      - ./config.local.json:/data/engine/config.json
-    network_mode: host
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.engineV1.rule=Host(`localhost`)" # Utiliser localhost comme hôte
-      - "traefik.http.routers.engineV1.rule=PathPrefix(`/engine/v1`)"
-      - traefik.http.middlewares.strip-v1-segment.replacepathregex.regex=^/engine/v1(/.*)$$
-      - traefik.http.middlewares.strip-v1-segment.replacepathregex.replacement=/engine$$1
-      - traefik.http.routers.engineV1.middlewares=strip-v1-segment
-      - "traefik.http.services.engineV1.loadbalancer.server.port=91"
-    depends_on:
-        - mongodb
-        - rabbitmq
-    command: bash -c "/data/scripts/wait-for-it.sh rabbitmq:5672 -t 60 -- nodemon --watch /data/engine --watch /data/core --ignore configuration.js --max-old-space-size=4096 /data/engine/app.js"
 
   engine:
     build:
@@ -66,21 +48,40 @@ services:
       dockerfile: ./engine/Dockerfile-alpine
     container_name: engine
     environment:
-        - APP_PORT=92
+        - APP_PORT=90
         - NODE_ENV=development_docker
     volumes:
       - ./engine:/data/engine/
       - ./core:/data/core/
       - ./config.local.json:/data/engine/config.json
-    network_mode: host
+    networks:
+      - bus
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.engine.rule=Host(`localhost`)" # Utiliser localhost comme hôte
-      - "traefik.http.routers.engine.rule=PathPrefix(`/engine/v2`)"
-      - traefik.http.middlewares.strip-v2-segment.replacepathregex.regex=^/engine/v2(/.*)$$
-      - traefik.http.middlewares.strip-v2-segment.replacepathregex.replacement=/engine$$1
-      - traefik.http.routers.engine.middlewares=strip-v2-segment
-      - "traefik.http.services.engine.loadbalancer.server.port=92"
+      - "traefik.http.routers.engine.rule=Host(`engine`)" # Utiliser localhost comme hôte
+      - "traefik.http.services.engine.loadbalancer.server.port=90"
+    links:
+        - mongodb
+        - rabbitmq
+    depends_on:
+        - mongodb
+        - rabbitmq
+    command: bash -c "/data/scripts/wait-for-it.sh rabbitmq:5672 -t 60 -- nodemon --watch /data/engine --watch /data/core --ignore configuration.js --max-old-space-size=4096 /data/engine/app.js"
+
+  engineV1:
+    image: dataplayers/semantic-bus-engine:v1.0
+    container_name: engineV1
+    environment:
+        - APP_PORT=90
+        - NODE_ENV=development_docker
+    volumes:
+      - ./config.local.json:/data/engine/config.json
+    networks:
+      - bus
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.engineV1.rule=Host(`engine`)" # Utiliser localhost comme hôte
+      - "traefik.http.services.engineV1.loadbalancer.server.port=90"
     links:
         - mongodb
         - rabbitmq
@@ -104,11 +105,15 @@ services:
       - ./main:/data/main/
       - ./core:/data/core/
       - ./config.local.json:/data/main/config.json
-    network_mode: host
+    networks:
+      - bus
     ports:
       - "80:80"
     expose:
       - "80"
+    links:
+        - mongodb
+        - rabbitmq
     depends_on:
         - mongodb
         - rabbitmq
@@ -121,11 +126,13 @@ services:
       - 5672:5672
       - 15674:15674
       - 15672:15672
-    network_mode: host
+    networks:
+      - bus
 
   mongodb:
     image: mongo:4.0.6
-    network_mode: host
+    networks:
+      - bus
     ports:
       - "27017:27017"
     expose:

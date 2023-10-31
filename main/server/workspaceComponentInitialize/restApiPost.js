@@ -28,8 +28,34 @@ class RestApiPost {
     this.pathToRegexp = pathToRegexp;
   }
 
-  initialise(router,engineTracer) {
+  setAmqp(amqpConnection){
+    console.log('set AMQP')
+
+    amqpConnection.consume('work-ask', (msg) => {
+      console.log("work-ask", msg)
+      // const messageObject = JSON.parse(msg.content.toString())
+      // // console.log("work-ask", messageObject)
+      // workspace_component_lib.get({
+      //   _id: messageObject.id
+      // }).then( (data)=>{
+      //   console.log('work-ask',data)
+      //   const engine = require('../services/engine.js')
+      //   engine.execute(data, 'work', this.amqpClient, messageObject.callerId).then(r=>{
+      //     // console.log('engine ok');
+      //   }).catch(e=>{
+      //     console.error(e);
+      //   })
+      // })
+    }, {
+      noAck: true
+    })
+  }
+
+  initialise(router,engineTracer,amqpConnection) {
+
+    console.log('ALLLO')
     router.all('*', async (req, res, next) => {
+
       // console.log('engineTracer',engineTracer);
       // console.log(req)
       const urlRequiered = req.params[0].split('/')[1];
@@ -71,11 +97,13 @@ class RestApiPost {
           // console.log('req.body',req.body);
 
           const worksapce =  await this.workspace_lib.get_workspace_simple(component.workspaceId)
-          
-          const versionUrl = worksapce.engineVersion==undefined||worksapce.engineVersion=='default'||worksapce.engineVersion=='v1'?'/work-ask/':`/work-ask/${worksapce.engineVersion}/`
-           console.log(versionUrl);
 
-          this.request.post(this.config.engineUrl + versionUrl + component._id, {
+          const version = worksapce.engineVersion==undefined||worksapce.engineVersion=='default'?'v1':worksapce.engineVersion
+          
+          const versionUrl = `${this.config.engineUrl}/${version}/work-ask/${component._id}`
+           console.log('versionUrl',this.config.engineUrl + versionUrl + component._id);
+
+          this.request.post(versionUrl, {
               body: {
                 queryParams: {
                   query: req.query,

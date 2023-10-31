@@ -103,7 +103,7 @@ class Engine {
             componentId: node.component._id
           }))
         }));
-        // resolve({processId:process._id});
+        resolve({processId:process._id});
         this.processId = process._id
         this.processNotifier = new ProcessNotifier(this.amqpClient, this.originComponent.workspaceId)
         this.processNotifier.start({
