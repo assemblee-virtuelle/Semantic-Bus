@@ -19,11 +19,11 @@ module.exports = {
       cachedData = {};
     }
 
-    let fragment = {
-      data: data
-    };
+    // let fragment = {
+    //   data: data
+    // };
 
-    let frag = await this.fragment_lib.persist(fragment);
+    let frag = await this.fragment_lib.persist(data);
 
     cachedData.frag = frag._id;
     cachedData.date = new Date();
@@ -54,15 +54,15 @@ module.exports = {
       })
       .lean().exec();
 
-      let frag;
+      let dataDefraged;
 
       if (cachedData != undefined) {
         if (component.specificData.historyOut != true) {
           if (cachedData.frag != undefined) {
             if (resolveFrag == true) {
-              frag = await this.fragment_lib.getWithResolutionByBranch(cachedData.frag);
+              dataDefraged = await this.fragment_lib.getWithResolutionByBranch(cachedData.frag);
             } else {
-              frag = await this.fragment_lib.get(cachedData.frag);
+              dataDefraged = await this.fragment_lib.get(cachedData.frag);
             }
           } else {
             reject(new Error("frag of cache doesn't exist"))
@@ -74,13 +74,12 @@ module.exports = {
       } else {
         resolve(undefined);// direct resolve to Empty Cache (cacheNosql.js)
       }
-
-      if (frag != undefined) {
-        if(Array.isArray(frag)){
-          resolve(frag.map(f=>f.data))
+      if (dataDefraged != undefined) {
+        if(Array.isArray(dataDefraged)){
+          resolve(dataDefraged.map(f=>f))
         }else{
           // console.log('RESOLVE ',frag.data);
-          resolve(frag.data);
+          resolve(dataDefraged);
         }
 
       } else {
