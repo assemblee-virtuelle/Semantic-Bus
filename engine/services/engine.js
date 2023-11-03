@@ -768,9 +768,10 @@ class Engine {
       if (this.config.quietLog != true) console.time("primary_getWithResolutionByBranch");
       rebuildData = await this.fragment_lib.getWithResolutionByBranch(fragment._id);
       if (this.config.quietLog != true) console.timeEnd("primary_getWithResolutionByBranch");
+      // console.log('_______rebuildData',rebuildData)
 
-
-      const needDfob = dfobTable.length>0 || Array.isArray(rebuildData)&&!keepArray;
+      // console.log('___fragment',fragment)
+      const needDfob = dfobTable.length>0 || (Array.isArray(rebuildData)&&!keepArray&&!fragment.branchOriginFrag);
       if(needDfob){
         // console.log('WITH DFOB');
         if (this.config.quietLog != true) console.time("build-DfobFlow");

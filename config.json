@@ -107,7 +107,10 @@
     "influxdbConnector": {
       "price": 20
     },
-    "split": {
+    "slice": {
+      "price": 20
+    },
+    "incrementTable": {
       "price": 20
     }
   },

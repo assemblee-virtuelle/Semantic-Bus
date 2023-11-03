@@ -110,6 +110,7 @@ class RestGetJson {
   }
 
   pull (data, flowdata, pullParams) {
+    console.log(data,flowdata)
     return this.makeRequest('GET', data.specificData, pullParams, flowdata == undefined ? undefined : flowdata[0].data)
   }
 }

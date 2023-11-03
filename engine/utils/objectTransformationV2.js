@@ -93,7 +93,9 @@ module.exports = {
       // console.log('-arrayRegexPull',arrayRegexPull);
       if (arrayRegex.length > 0) {
         const dotPath = arrayRegex[0][1];
-        return this.dotProp.get(source, dotPath);
+        const dotPropResult = this.dotProp.get(source, dotPath);
+        // console.log('___dotProp',source, dotPath,dotPropResult)
+        return dotPropResult;
       }else if (arrayRegexPull.length > 0) {
         const dotPath = arrayRegexPull[0][1];
         // console.log('-dotPath',dotPath)

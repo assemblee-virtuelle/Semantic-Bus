@@ -18,15 +18,19 @@ class SimpleAgregator {
   }
   pull (data, flowData) {
     return new Promise((resolve, reject) => {
+      console.log('___',flowData)
       var resultFlow = []
       for (let flow of flowData) {
-        if (!Array.isArray(flow.data)) {
-          resultFlow.push(flow.data)
-        } else {
-          for (let record of flow.data) {
-            resultFlow.push(record)
+        for(let oririnData of flow.data){
+          if (!Array.isArray(oririnData)) {
+            resultFlow.push(oririnData)
+          } else {
+            for (let record of oririnData) {
+              resultFlow.push(record)
+            }
           }
         }
+
       }
       resolve({
         data: resultFlow
