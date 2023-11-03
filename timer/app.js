@@ -8,6 +8,7 @@ const requestHandler = (request, response) => {
 }
 var server = http.Server(requestHandler);
 var env = process.env;
+const amqpManager = require('amqp-connection-manager');
 var url = require('url');
 var fs = require('fs');
 const configUrl = env.CONFIG_URL
@@ -24,12 +25,38 @@ const requestOptions = {
 
 
 const content = 'module.exports = ' + JSON.stringify(configJson)
-fs.writeFile('configuration.js', content, 'utf8', function(err) {
-  server.listen(8080, function () {
-    console.log('~~ server started ')
-    require('../core/timerScheduler').run(true);
-  })
+// fs.writeFile('configuration.js', content, 'utf8', function(err) {
+server.listen(env.PORT, function () {
+  console.log('~~ server started ')
+
 })
+
+console.log('connection to ----', configJson.socketServer + '/' + configJson.amqpHost)
+let connection = amqpManager.connect([configJson.socketServer + '/' + configJson.amqpHost])
+var channelWrapper = connection.createChannel({
+  json: true,
+  setup: (channel)=>{
+    // console.log('allo')
+    // channel.assertExchange('amq.topic','topic', {
+    //   durable: true
+    // })
+    // channel.assertQueue('process-persist', { exclusive: true, durable: true }).then((q)=>{
+    //   channel.bindQueue(q.queue, 'amq.topic', "process-persist.*");
+    // })
+
+    // channel.assertQueue('process-start', { exclusive: true, durable: true }).then((q)=>{
+    //   channel.bindQueue(q.queue, 'amq.topic', "process-start.*");
+    // })
+    onConnect(channel);
+  } 
+  
+});
+const onConnect = (channel) => {
+  console.log('AMQP connected')
+  require('../core/timerScheduler').run(channel);
+}
+
+// })
 
 // https.get(requestOptions, function(res) {
 //   var responseBody = '';

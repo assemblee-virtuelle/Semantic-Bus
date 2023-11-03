@@ -138,6 +138,7 @@ class PromiseExecutor {
           value: currentOut
         });
       } catch (e) {
+        console.error(e);
         resolve({
           index: this.index,
           value: {

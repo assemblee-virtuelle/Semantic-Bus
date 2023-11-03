@@ -7,6 +7,8 @@ class Communication {
   init(router) {
     router.post('/work-ask/:componentId', (req, res, next) => {
 
+      console.log('VERSION',req.params.engineVersion)
+
       req.setTimeout(0);
       const componentId = req.params.componentId
       const pushData = req.body.pushData
@@ -46,9 +48,10 @@ class Communication {
       workspace_component_lib.get({
         _id: messageObject.id
       }).then( (data)=>{
-        console.log('work-ask',data)
+        console.log('work-ask',messageObject)
         const engine = require('../services/engine.js')
-        engine.execute(data, 'work', this.amqpClient, messageObject.callerId).then(r=>{
+
+        engine.execute(data, 'work', this.amqpClient, messageObject.callerId,undefined,undefined, messageObject.tracerId).then(r=>{
           // console.log('engine ok');
         }).catch(e=>{
           console.error(e);

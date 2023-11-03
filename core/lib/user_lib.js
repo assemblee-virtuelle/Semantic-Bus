@@ -179,93 +179,123 @@ function _get_all(options) {
 } // <= _get_all
 
 function _get(filter) {
-  return new Promise(function (resolve, reject) {
-    userModel.getInstance().model
+  return new Promise(async function (resolve, reject) {
+    try {
+      const userData= await userModel.getInstance().model
       .findOne(filter)
       .lean()
-      .exec(function (err, userData) {
-        if(err){
-          return reject(new Error.DataBaseProcessError(err))
-        } if( userData == null){
-          reject(new Error.EntityNotFoundError(err))
-        } else {
-          resolve(userData);
-        }
-      });
+      .exec();
+      if( userData == null){
+        reject(new Error.EntityNotFoundError())
+      } else {
+        resolve(userData);
+      }
+    } catch (error) {
+      reject(new Error.DataBaseProcessError(error))
+    }
+    // userModel.getInstance().model
+    //   .findOne(filter)
+    //   .lean()
+    //   .exec(function (err, userData) {
+    //     if(err){
+    //       return reject(new Error.DataBaseProcessError(err))
+    //     } if( userData == null){
+    //       reject(new Error.EntityNotFoundError(err))
+    //     } else {
+    //       resolve(userData);
+    //     }
+    //   });
   });
 } // <= _get
 
 function _getWithRelations(userID,config) {
-  return new Promise(function (resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
-      userModel.getInstance().model
-        .findOne({
-          _id: userID
-        })
-        // .populate({
-        //   path: "workspaces._id",
-        //   select: "name description"
-        // })
-        // .populate({
-        //   path: "bigdataflow._id",
-        //   select: "name description"
-        // })
-        .lean()
-        .exec(async (error, data) => {
-          const InversRelationWorkspaces = await workspaceModel.getInstance().model.find({
-            "users.email":data.credentials.email
-          }).lean().exec();
-          // console.log('XXXX InversRelationWorkspaces',InversRelationWorkspaces)
-          data.workspaces=InversRelationWorkspaces;
-          data.workspaces = data.workspaces.filter(sift({
-            _id: {
-              $ne: null
-            }
-          }));
+      let data = await  userModel.getInstance().model
+      .findOne({
+        _id: userID
+      })
+      // .populate({
+      //   path: "workspaces._id",
+      //   select: "name description"
+      // })
+      // .populate({
+      //   path: "bigdataflow._id",
+      //   select: "name description"
+      // })
+      .lean()
+      .exec();
 
-          data.workspaces = data.workspaces.map(w => {
-            const userOfWorkspace = w.users.find(u=>u.email===data.credentials.email);
-            // console.log("XXXX workspace",w)
-            return {
-              workspace: w,
-              role: userOfWorkspace.role
-            };
-          });
-          if (config.adminUsers){
-            let adminUsers=config.adminUsers
-            if (!Array.isArray(config.adminUsers)){
-              adminUsers=[adminUsers];
-            }
-            if (adminUsers.includes(data.credentials.email)){
-                data.admin=true
-            } else {
-              data.admin=false
-            }
+      const InversRelationWorkspaces = await workspaceModel.getInstance().model.find({
+        "users.email":data.credentials.email
+      }).lean().exec();
+      // console.log('XXXX InversRelationWorkspaces',InversRelationWorkspaces)
+      data.workspaces=InversRelationWorkspaces;
+      data.workspaces = data.workspaces.filter(sift({
+        _id: {
+          $ne: null
+        }
+      }));
 
-          }else {
-            data.admin=true;
-          }
-          //TODO REFACTORING and suppression
-          // if(data.bigdataflow!=undefined){
-          //   data.bigdataflow = data.bigdataflow.filter(sift({
-          //     _id: {
-          //       $ne: null
-          //     }
-          //   }));
-          //   Array.isArray(data.bigdataflow) ?
-          //   data.bigdataflow = data.bigdataflow.map(r => {
-          //     return {
-          //       bigdataflow: r._id,
-          //       role: r.role
-          //     };
-          //   }) : data.bigdataflow = []
-          // }else {
-          //   data.bigdataflow = []
-          // }
+      data.workspaces = data.workspaces.map(w => {
+        const userOfWorkspace = w.users.find(u=>u.email===data.credentials.email);
+        // console.log("XXXX workspace",w)
+        return {
+          workspace: w,
+          role: userOfWorkspace.role
+        };
+      });
+      if (config.adminUsers){
+        let adminUsers=config.adminUsers
+        if (!Array.isArray(config.adminUsers)){
+          adminUsers=[adminUsers];
+        }
+        if (adminUsers.includes(data.credentials.email)){
+            data.admin=true
+        } else {
+          data.admin=false
+        }
+
+      }else {
+        data.admin=true;
+      }
+      //TODO REFACTORING and suppression
+      // if(data.bigdataflow!=undefined){
+      //   data.bigdataflow = data.bigdataflow.filter(sift({
+      //     _id: {
+      //       $ne: null
+      //     }
+      //   }));
+      //   Array.isArray(data.bigdataflow) ?
+      //   data.bigdataflow = data.bigdataflow.map(r => {
+      //     return {
+      //       bigdataflow: r._id,
+      //       role: r.role
+      //     };
+      //   }) : data.bigdataflow = []
+      // }else {
+      //   data.bigdataflow = []
+      // }
 
 
-          resolve(data);
-        });
+      resolve(data);
+
+      // userModel.getInstance().model
+      //   .findOne({
+      //     _id: userID
+      //   })
+      //   // .populate({
+      //   //   path: "workspaces._id",
+      //   //   select: "name description"
+      //   // })
+      //   // .populate({
+      //   //   path: "bigdataflow._id",
+      //   //   select: "name description"
+      //   // })
+      //   .lean()
+      //   .exec(async (error, data) => {
+         
+      //   });
     } catch (e) {
       reject(e);
     }
@@ -387,7 +417,7 @@ function _update(user, mailChange) {
 
 function _update_mainprocess(preData) {
   //transformer le model business en model de persistance
-  return new Promise(function (resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     var toUpdate = {};
     if (preData.email) {
       if (!toUpdate["$set"]) {
@@ -470,20 +500,30 @@ function _update_mainprocess(preData) {
       toUpdate["$set"]["resetpasswordmdp"] = preData.resetpasswordmdp;
     }
 
-    userModel.getInstance().model.findByIdAndUpdate(
-      preData._id,
-      toUpdate, {
-        new: true
-      },
-      function (err, userData) {
-        if (err) {
-          return reject(new Error.DataBaseProcessError(err))
-        } else {
+    try {
+      const userData = await userModel.getInstance().model.findByIdAndUpdate(
+        preData._id,
+        toUpdate, {
+          new: true
+        }).exec()
+        resolve(userData);
+    } catch (error) {
+      reject(new Error.DataBaseProcessError(error))
+    }
+    // userModel.getInstance().model.findByIdAndUpdate(
+    //   preData._id,
+    //   toUpdate, {
+    //     new: true
+    //   },
+    //   function (err, userData) {
+    //     if (err) {
+    //       return reject(new Error.DataBaseProcessError(err))
+    //     } else {
 
-          resolve(userData);
-        }
-      }
-    );
+    //       resolve(userData);
+    //     }
+    //   }
+    // );
   });
 } // <= _update_mainprocess
 
@@ -673,22 +713,40 @@ function _hash_password(password, passwordConfirm) {
 // --------------------------------------------------------------------------------
 
 function _is_google_user(user) {
-  return new Promise(function (resolve, reject) {
-    userModel.getInstance().model
+  return new Promise(async function (resolve, reject) {
+    try {
+      const userData= await  userModel.getInstance().model
       .findOne({
         "credentials.email": user.email
       })
-      .exec(function (err, userData) {
-        if (userData) {
-          if (userData.googleId != null) {
-            resolve(true);
-          } else {
-            resolve(false);
-          }
+      .exec();
+      if (userData) {
+        if (userData.googleId != null) {
+          resolve(true);
         } else {
           resolve(false);
         }
-      });
+      } else {
+        resolve(false);
+      }
+    } catch (error) {
+      return reject(new Error.DataBaseProcessError(error))
+    }
+    // userModel.getInstance().model
+    //   .findOne({
+    //     "credentials.email": user.email
+    //   })
+    //   .exec(function (err, userData) {
+    //     if (userData) {
+    //       if (userData.googleId != null) {
+    //         resolve(true);
+    //       } else {
+    //         resolve(false);
+    //       }
+    //     } else {
+    //       resolve(false);
+    //     }
+    //   });
   });
 } // <= _is_google_user
 

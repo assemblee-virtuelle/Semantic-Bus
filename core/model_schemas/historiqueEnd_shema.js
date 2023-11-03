@@ -67,23 +67,23 @@ var HistoriqueEndSchema = mongoose.Schema({
     recordCount: {
       type: Number,
       default: 0,
-      required: true
+      // required: true
     },
     totalPrice: {
       type: Number,
-      required: true
+      // required: true
     },
     recordPrice: {
       type: Number,
-      required: true
+      // required: true
     },
     roundDate: {
       type: String,
-      required: true
+      // required: true
     },
     workflowId: {
       type: String,
-      required: true
+      // required: true
     }
 
 });

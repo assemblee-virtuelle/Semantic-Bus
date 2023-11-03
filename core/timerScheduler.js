@@ -8,7 +8,7 @@ module.exports = {
   url: require('url'),
   request : require('request'),
   config: require("../timer/configuration"),
-  runTimers: function(dedicaded) {
+  runTimers: function(amqpConnection) {
     // console.log('----- Timer Cron')
     this.componentLib.get_all_withConsomation({
       module: 'timer'
@@ -20,83 +20,50 @@ module.exports = {
             if (workspace.status!="running"){
               let now = new Date();
               let nextExec = c.specificData.next == undefined ? undefined : new Date(c.specificData.next);
-              // console.log('lastExec',lastExec);
+              // console.log('nextExec',nextExec);
+              // console.log(c.specificData.interval)
               if (c.specificData.interval != undefined) {
 
                 let interval = c.specificData.interval;
-                // console.log('interval',now - (interval * 1000 * 60), lastExec);
+
                 if (nextExec == undefined || nextExec<now) {
-                  if (dedicaded) {
                     // console.log('Timer dedidated!', c._id,c.workspaceId);
                     console.log(`--------------- execution ${workspace._id}-${c._id} status:${workspace.status} name:${workspace.name}`);
 
-                    const payload = {
-                      exp: this.moment().add(14, 'days').unix(),
-                      iat: this.moment().unix(),
-                      iss: 'timerScheduler'
-                    }
 
-                    const token = this.jwt.encode(payload, this.config.secret);
+                    const workParams={
+                      id : c._id
+                     }
 
-                    //this.http.globalAgent.maxSockets = 5000;
-                    let keepAliveAgent = new this.http.Agent({
-                      keepAlive: true
-                    });
-
-
-                    const parsedUrl = this.url.parse(this.config.engineUrl+'/work-ask/' + c._id);
-                    // console.log('--- POST --',parsedUrl);
-                    this.request.post(this.config.engineUrl + '/work-ask/' + c._id, {
-                        body: {
-                          pushData: undefined,
-                          queryParams: undefined
-                        },
-                        json: true
-                      }
-                      // eslint-disable-next-line handle-callback-err
-                      , (err, data) => {
-                        if(err!=undefined){
-                          console.error('Error',err);
+                    amqpConnection.sendToQueue(
+                      'work-ask',
+                      Buffer.from(JSON.stringify(workParams)),
+                      null,
+    
+                      (err, ok) => {
+                        if (err !== null) {
+                          console.error('Erreur lors de l\'envoi du message :', err);
+                        } else {
+                          console.log(`Message envoyé à la file `);
+                          // res.send(workParams);
                         }
-                      });
-                    // this.http.request({
-                    //   host: parsedUrl.hostname,
-                    //   port: parsedUrl.port,
-                    //   method:'POST',
-                    //   // path: '/engine/work-ask/' + c._id,
-                    //   headers: {
-                    //     "Authorization": "JTW" + " " + token
-                    //   },
-                    //   agent: keepAliveAgent
-                    // }, (res) => {
-                    //   if (res.statusCode == 200) {
-                    //     console.log('GOOD');
-                    //     res.on('end', () => {
-                    //       console.log('END Timer Work');
-                    //     });
-                    //   }else{
-                    //     console.error('timer work request fail',parsedUrl.href, res.statusCode);
-                    //   }
-                    //
-                    // }).on('error', (e) => {
-                    //   console.error('timer work request fail', e);
-                    //   //throw new Error(e)
-                    // });
+                      }
+                    )
 
-                  }
                 }
               }
             }
           })
           .catch(e=>{
-            console.error(`orchan timer ${c.workspaceId}-${c._id}`);
+            console.error(c,e)
+            // console.error(`orchan timer ${c.workspaceId}-${c._id}`);
           })
         });
     })
   },
-  run: function(dedicaded) {
+  run: function(amqpConnection) {
     //this.address = address;
-    this.runTimers(dedicaded);
-    setInterval(this.runTimers.bind(this, dedicaded), 60000);
+    this.runTimers(amqpConnection);
+    setInterval(this.runTimers.bind(this,amqpConnection), 60000);
   }
 }

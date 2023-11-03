@@ -17,12 +17,15 @@
     <button id="generalBtn" class="tablinks active" onclick={openTab}>General</button>
     <div if={showDfTab} class="tablinksContainer">
       <button id="deeperFocusBtn" class="tablinks" onclick={openTab}>DeeperFocus</button>
+      <!-- 
       <label id="dfSwitchBtn" class="cardInput tablinks" style="justify-content:flex-start;">
         <span class="switch">
           <input type="checkbox" ref="activateDfInput" onchange={activateDfChange} checked={itemCurrent.deeperFocusData.activateDf}>
           <span class="slider round"></span>
         </span>
       </label>
+       -->
+      
     </div>
   </div>
   <!--  contenu du premier tab  -->
@@ -37,40 +40,34 @@
       <div class="contenaireH" style="margin-left:97%">
         <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Deeper-focus" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
       </div>
-      <!-- Titre du composant -->
-      <div class="contenaireV title-component">Deeper Focus</div>
-      <div>
-        <div class="bar"/>
-      </div>
       <!-- Description du composant -->
-      <div class="title-description-component">Début de traitement d'un niveau de profondeur du flux.</div>
-      <div>
-        <div class="bar"/>
-      </div>
-      <!-- Champ du composant deeper focus -->
-      <label class="labelFormStandard">Chemin à inspecter pour les traitements qui suivent:</label>
-      <div class="cardInput">
-        <input class="inputComponents" placeholder="vide=racine" type="text" name="dfobPathInput" ref="dfobPathInput" value={itemCurrent.deeperFocusData.dfobPath} onchange={dfobPathChange}></input>
-      </div>
-      <label class="labelFormStandard">Nombre de traitements parallèles:</label>
-      <div class="cardInput">
-        <input class="inputComponents" placeholder="" type="text" name="pipeNbInput" ref="pipeNbInput" value={itemCurrent.deeperFocusData.pipeNb} onchange={pipeNbChange}></input>
-      </div>
-      <label class="labelFormStandard">Le chemin désigne une structure de tableau à conserver en tableau (décomposé en objet par défaut):</label>
-      <label class="cardInput">
-        <span class="switch">
-          <input type="checkbox" ref="keepArrayInput" onchange={keepArrayChange} checked={itemCurrent.deeperFocusData.keepArray}>
-          <span class="slider round"></span>
-        </span>
-      </label>
-      <!--  <label class="labelFormStandard">Activation du deeper focus:</label>
+      <div class="title-description-component">Choix du niveau de profondeur de traitement du flux : sur quels données doivent se concentrer le composant</div>
+       <label class="labelFormStandard">Activation du deeper focus:</label>
         <label class="cardInput">
           <span class="switch">
-            <input type="checkbox" ref="activateDfInput" onchange={activateDfChange} checked={itemCurrent.deeperFocusData.activateDf}>
+            <input type="checkbox" ref="activateDfInput" onchange={activateDfChange} checked={itemCurrent.deeperFocusData?.activateDf}>
             <span class="slider round"></span>
           </span>
         </label>
-      </label>  -->
+      </label>
+      <div if={itemCurrent.deeperFocusData?.activateDf}>
+        <!-- Champ du composant deeper focus -->
+        <label class="labelFormStandard">Chemin à inspecter:</label>
+        <div class="cardInput">
+          <input class="inputComponents" placeholder="vide=racine" type="text" name="dfobPathInput" ref="dfobPathInput" value={itemCurrent.deeperFocusData.dfobPath} onchange={dfobPathChange}></input>
+        </div>
+        <label class="labelFormStandard">Nombre de traitements parallèles:</label>
+        <div class="cardInput">
+          <input class="inputComponents" placeholder="" type="text" name="pipeNbInput" ref="pipeNbInput" value={itemCurrent.deeperFocusData.pipeNb} onchange={pipeNbChange}></input>
+        </div>
+        <label class="labelFormStandard">Le chemin désigne une structure de tableau à conserver en tableau (décomposé en objet par défaut):</label>
+        <label class="cardInput">
+          <span class="switch">
+            <input type="checkbox" ref="keepArrayInput" onchange={keepArrayChange} checked={itemCurrent.deeperFocusData.keepArray}>
+            <span class="slider round"></span>
+          </span>
+        </label>
+      </div>
     </div>
   </div>
   <!--  fin contenu deuxième tab  -->
@@ -98,6 +95,7 @@
     }
     activateDfChange(e) {
       this.itemCurrent.deeperFocusData.activateDf = e.target.checked;
+      this.update();
     }
     this.updateData = function (itemCurrent) {
       //if the component is a deeper focus we remove the deeper focus tab added to every component
@@ -107,10 +105,10 @@
       if(! this.itemCurrent.deeperFocusData) {
         this.itemCurrent.deeperFocusData = {};
       }
-      this.refs.dfobPathInput.dfobPath = this.itemCurrent.deeperFocusData.dfobPath;
+      /*this.refs.dfobPathInput.dfobPath = this.itemCurrent.deeperFocusData.dfobPath;
       this.refs.pipeNbInput.pipeNb = this.itemCurrent.deeperFocusData.pipeNb;
-      this.refs.keepArrayInput.keepArray = this.itemCurrent.deeperFocusData.keepArray;
-      this.refs.activateDfInput.activateDf = this.itemCurrent.deeperFocusData.activateDf;
+      this.refs.keepArrayInput.keepArray = this.itemCurrent.deeperFocusData.keepArray;*/
+      /**this.refs.activateDfInput.activateDf = this.itemCurrent.deeperFocusData.activateDf;**/
       this.update();
     }.bind(this);
     // fin du code lié au deeper focus

@@ -14,10 +14,10 @@
       </div>
     </div>
     
-    <zentable ref="technicalComponentTable" disallowdelete={true} disallownavigation={true}>
+    <zentable ref="technicalComponentTable" dragout={true} disallowdelete={true} disallownavigation={true}>
       <yield to="row">
         <div>
-          <img class="rowImg"src={'image/components/'+ graphIcon}/>
+          <img class="rowImg" src={'image/components/'+ graphIcon} draggable="false"/>
         </div>
         <div>
           <div class="tableRowName">{type}</div>
@@ -56,7 +56,7 @@
     }
 
     this.addComponentClick = (e) => {
-      RiotControl.trigger("workspace_current_add_components")
+      RiotControl.trigger("workspace_current_add_components",{graphPositionX:0,graphPositionY:0})
     }
 
     firstLevelCriteriaClick(e) {

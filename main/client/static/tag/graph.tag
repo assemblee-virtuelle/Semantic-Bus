@@ -1,7 +1,7 @@
 <graph class="containerV containerGrid">
   <!-- page graph -->
   <div id="graphContainer" style="flex-grow:1;" class="containerH contentrGrid">
-    <svg ref="graphSvgCanvas" style="flex-grow:1; position: relative">
+       <svg ref="graphSvgCanvas" style="flex-grow:1; position: relative" ondrop={drag_drop} ondragover={drag_over_prevent}>
       <filter id="dropshadow" x="1%" y="1%" width="110%" height="110%">
         <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
         <feOffset dx="-2" dy="-1" result="offsetblur1"/>
@@ -309,7 +309,6 @@
 
       var start_x = d3.event.x;
       var start_y = d3.event.y;
-      console.log(start_x, start_y)
       let gridX = snapToGrid(d3.event.x, 40);
       let gridY = snapToGrid(d3.event.y, 40)
       dragged.x = gridX;
@@ -460,6 +459,22 @@
         RiotControl.trigger('item_persist', d.component);
       }
     }.bind(this);
+
+    drag_drop(event) {
+      console.log('drag_drop',event)
+      let source = JSON.parse(event.dataTransfer.getData('sourceData'));
+      //console.log('source',source)
+
+      let svgStyle = this.refs.graphSvgCanvas.getBoundingClientRect();
+      let xSvgSclaed = (event.offsetX/this.position.k)-(this.position.x/this.position.k);
+      let ySvgSclaed = (event.offsetY/this.position.k)-(this.position.y/this.position.k);
+
+      RiotControl.trigger("workspace_current_add_components",{graphPositionX:xSvgSclaed,graphPositionY:ySvgSclaed}); 
+    }
+
+    drag_over_prevent(e) {
+      event.preventDefault();
+    }
 
     // init all element of content graph
     this.drawGraph = function (dataCompiled) {

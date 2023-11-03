@@ -117,7 +117,7 @@
     "clientSecret": ""
   },
   "engineUrl":"http://engine:90/engine",
-  "mlabDB": "mongodb://mongodb:27017",
+  "mlabDB": "mongodb://mongodb:27017/admin",
   "socketClient": "ws://localhost:15674/ws/",
   "amqpHost": "devLocal",
   "socketServer": "amqp://rabbitmq:5672",

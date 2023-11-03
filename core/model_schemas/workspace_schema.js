@@ -31,6 +31,7 @@ var WorkspaceSchema = mongoose.Schema({
     type: Number,
     default: 1
   },
+  engineVersion:String,
   status: String,
 },{ timestamps: true }, { minimize: false });
 

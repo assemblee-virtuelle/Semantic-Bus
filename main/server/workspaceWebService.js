@@ -386,7 +386,7 @@ module.exports = function (router) {
 
   // ---------------------------------------------------------------------------------
 
-  router.post('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
+  router.post('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), async function (req, res, next) {
     if (req.body != null) {
       let components = req.body
       components.forEach(c => {
@@ -397,29 +397,20 @@ module.exports = function (router) {
         c.connectionsAfter = []
         c.consumption_history = []
       })
-      workspace_component_lib.create(components).then(function (workspaceComponents) {
-        workspace_lib.getWorkspace(req.params.id).then((workspace) => {
-          workspace.components = workspace.components.concat(workspaceComponents)
-          // console.log('control workspace hihi',workspace)
-          workspace_lib.update(workspace).then(workspaceUpdated => {
-            for (var c of components) {
-              if (technicalComponentDirectory[c.module] != null) {
-                // console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
-                c.graphIcon = technicalComponentDirectory[c.module].graphIcon
-              } else {
-                c.graphIcon = 'default'
-              }
-            }
-            res.send(components)
-          }).catch(e => {
-            next(e)
-          })
-        }).catch(e => {
-          next(e)
-        })
-      }).catch(e => {
-        next(e)
-      })
+      const workspaceComponents=  await  workspace_component_lib.create(components);
+      const workspace = await workspace_lib.getWorkspace(req.params.id);
+      workspace.components = workspace.components.concat(workspaceComponents);
+      const workspaceUpdated = await workspace_lib.update(workspace);
+      for (var c of workspaceComponents) {
+        if (technicalComponentDirectory[c.module] != null) {
+          // console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
+          c.graphIcon = technicalComponentDirectory[c.module].graphIcon
+        } else {
+          c.graphIcon = 'default'
+        }
+      }
+      res.send(workspaceComponents);
+
     } else {
       next(new Error('empty body'))
     }

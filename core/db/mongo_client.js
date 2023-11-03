@@ -7,6 +7,7 @@ class MongoClientSingleton {
     if (this.instance == undefined) {
       this.instance = new MongoClient();
     }
+    // console.log('test Conneciton',this.instance.connection);
     return this.instance;
   }
 }
@@ -16,6 +17,7 @@ class MongoClient {
     this.config = require('../getConfiguration.js')();
     // console.log('config cor db',this.config)
     this.mongoose = require('mongoose');
+    // this.mongoose.set('debug', true)
     this.mongoose.Promise = Promise;
     const conStr = this.config.mlabDB;
     let option={};
@@ -27,7 +29,7 @@ class MongoClient {
     // CONNECTION EVENTS
     // When successfully connected
     db.on('connected', function() {
-      // console.log('Mongoose default connection open to ' + conStr);
+      console.log('Mongoose default connection open to ' + conStr);
     });
 
     // If the connection throws an error

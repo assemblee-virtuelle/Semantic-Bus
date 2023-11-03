@@ -61,9 +61,9 @@ fs.writeFile('configuration.js', content, 'utf8', function(err) {
     //   })
     // })
     communication.setAmqpClient(channelWrapper)
-    const onConnect = (amqpClient) => {
+    const onConnect = (channel) => {
       // console.log('ALLO');
-      communication.setAmqpChannel(amqpClient);
+      communication.setAmqpChannel(channel);
       // require('./amqpService')(unsafe, amqpClient)
     }
     app.use('/engine', unsafe)

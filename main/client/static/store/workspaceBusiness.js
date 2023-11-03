@@ -58,6 +58,7 @@ function WorkspaceBusiness () {
       name: workspaceIn.name,
       description: workspaceIn.description,
       limitHistoric: workspaceIn.limitHistoric,
+      engineVersion : workspaceIn.engineVersion,
       rowid: workspaceIn.rowid
     }
     for (let component of workspaceIn.components) {

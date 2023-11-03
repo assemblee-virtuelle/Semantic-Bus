@@ -7,6 +7,7 @@ function MainController (allStore, utilStore) {
   }
 
   this.on('bootstrap', function () {
+    // console.log('MainController bootstrap',this.utilStore);
     this.utilStore.ajaxCall({
       method: 'get',
       contentType: 'application/json',
