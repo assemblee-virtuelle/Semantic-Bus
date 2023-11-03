@@ -6,7 +6,7 @@ module.exports = {
     workspace_model : require('../../core/models').workspace,
     workspaceComponent_model : require('../../core/models').workspaceComponent,
     cache_model : require('../../core/models').cache,
-    config : require('../configuration'),
+    config : require('../config.json'),
 
     // --------------------------------------------------------------------------------
     // --------------------------------------------------------------------------------

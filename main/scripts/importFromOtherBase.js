@@ -2,7 +2,7 @@
 
 module.exports = {
   mongoose: require('mongoose'),
-  config: require('../configuration.js'),
+  config: require('../config.json'),
   workspaceSchema: require('../../core/model_schemas/workspace_schema'),
   workspaceComponentSchema: require('../../core/model_schemas/workspace_component_schema'),
   userSchema: require('../../core/model_schemas/user_schema'),

@@ -4,7 +4,7 @@ module.exports = {
 
   workspace_model: require('../../core/models').workspace,
   workspaceComponent_model: require('../../core/models').workspaceComponent,
-  config: require('../configuration'),
+  config: require('../config.json'),
 
 
   // --------------------------------------------------------------------------------

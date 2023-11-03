@@ -14,7 +14,7 @@ class RestApiGet {
     const { pathToRegexp, match, parse, compile } = require("path-to-regexp");
     this.pathToRegexp=pathToRegexp;
     this.request = require('request')
-    this.config = require('../../configuration')
+    this.config = require('../../config.json')
   }
 
   initialise(router, amqp) {

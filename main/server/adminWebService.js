@@ -1,6 +1,6 @@
 var error_lib = require('../../core').error
 var workspace_lib = require('../../core').workspace
-var configuration = require('../configuration')
+var configuration = require('../config.json')
 
 //  ------------------------- THIS PART IS DISABLE FOR NOW  -------------------------------
 

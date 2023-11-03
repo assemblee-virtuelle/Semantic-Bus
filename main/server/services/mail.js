@@ -1,4 +1,4 @@
-const configuration = require('../../configuration')
+const configuration = require('../../config.json')
 const nodemailer = require('nodemailer')
 
 const sendMail = (req, res, mailOptions) => {

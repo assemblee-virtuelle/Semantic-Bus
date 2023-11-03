@@ -15,10 +15,10 @@ class Upload {
     this.propertyNormalizer = require('../utils/propertyNormalizer.js')
     this.readable = require('stream').Readable
     this.workspace_component_lib = require('../../../core/lib/workspace_component_lib')
-    this.configuration = require('../../configuration.js')
+    this.configuration = require('../../config.json')
     this.stepNode = false
     this.request = require('request')
-    this.config = require('../../configuration')
+    this.config = require('../../config.json')
   }
 
   initialise (router, stompClient) {

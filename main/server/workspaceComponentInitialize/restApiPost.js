@@ -22,7 +22,7 @@ class RestApiPost {
     this.dataTraitment = require('../../../core/dataTraitmentLibrary/index.js')
     this.json2yaml = require('json2yaml')
     this.request = require('request')
-    this.config = require('../../configuration')
+    this.config = require('../../config.json')
     
     const {
       pathToRegexp,

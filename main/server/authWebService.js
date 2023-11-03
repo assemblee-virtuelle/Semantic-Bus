@@ -4,7 +4,7 @@ const user_lib = require('../../core/lib/user_lib')
 const mailService = require('./services/mail')
 const jwt = require('jwt-simple')
 const moment = require('moment')
-const config = require('../configuration')
+const config = require('../config.json')
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

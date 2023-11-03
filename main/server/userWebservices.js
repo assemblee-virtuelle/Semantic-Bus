@@ -7,7 +7,7 @@ const jwt = require('jwt-simple')
 const moment = require('moment')
 const validations = require('./validations')
 const userValidations = require('./validations/userValidations')
-const config = require('../configuration')
+const config = require('../config.json')
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
