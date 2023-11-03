@@ -1,6 +1,6 @@
 const auth_lib_jwt = require('../../../core/lib/auth_lib')
 const user_lib = require('../../../core/lib/user_lib')
-const config = require('../../configuration')
+const config = require('../../config.json')
 
 // --------------------------------------------------------------------------------
 class Security {
