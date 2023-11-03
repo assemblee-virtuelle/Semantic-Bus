@@ -17,7 +17,7 @@
     <zentable ref="technicalComponentTable" dragout={true} disallowdelete={true} disallownavigation={true}>
       <yield to="row">
         <div>
-          <img class="rowImg"src={'image/components/'+ graphIcon} draggable="false"/>
+          <img class="rowImg" src={'image/components/'+ graphIcon} draggable="false"/>
         </div>
         <div>
           <div class="tableRowName">{type}</div>

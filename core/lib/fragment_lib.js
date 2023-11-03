@@ -325,15 +325,24 @@ module.exports = {
     }
   },
 
-  testLiteralArray: function (arrayToTest){
-    return arrayToTest.some(i=>{
+  testAllLiteralArray: function (arrayToTest){
+    const allLiteral = arrayToTest.every(i=>{
       const isLiteral = this.isLiteral(i);
-      // console.log('is literal',isLiteral,i);
-      // if (!isLiteral){
-      //   console.log('not literal',i);
-      // }
-      return !isLiteral
+      // console.log('is literal',i,isLiteral)
+      return isLiteral
     })
+    return allLiteral
+    
+  },
+
+  testFragArray: function (arrayToTest){
+    if (arrayToTest.length<=100){
+      return false; 
+    }else if (this.testAllLiteralArray(arrayToTest)){
+      return false
+    } else {
+      return true
+    }
   },
 
   persist : async function(data,fragCaller,exitingFrag) {
@@ -354,7 +363,8 @@ module.exports = {
         return await fargToPersist.save();
       }else if (Array.isArray(data)){
 
-        if(this.testLiteralArray(data)){
+        if(this.testFragArray(data)){
+          // console.log('FAG ARRRAY',data)
         // if(false){
           fargToPersist = await this.createArrayFrag(fargToPersist);
           for (let item of data){
@@ -364,7 +374,14 @@ module.exports = {
         }else{
           const arrayReadyToPersit = []
           for (let item of data){
-            arrayReadyToPersit.push(await this.persistObject(item,fargToPersist));
+            const persistedObject = await this.persistObject(item,fargToPersist);
+            if (persistedObject._id){
+              arrayReadyToPersit.push({
+                _frag : persistedObject._id.toString()
+              });
+            }else{
+              arrayReadyToPersit.push(persistedObject);
+            }
           }
           fargToPersist.data=arrayReadyToPersit;
           fargToPersist.markModified('data');
@@ -384,7 +401,8 @@ module.exports = {
   persistObject : async function(data,fragCaller,exitingFrag) {
     if (this.isLiteral(data)){
       return this.processLiteral(data);
-    } else if (Array.isArray(data)){
+    } else if (Array.isArray(data) && this.testFragArray(data)){
+      // console.log(('object->frag'));
       return await this.persist (data,fragCaller,exitingFrag) 
     } else {
       for (let key in data) {
@@ -447,35 +465,30 @@ module.exports = {
 
 
   get: function(id) {
-    console.log(" ------ get fragment------ ", id)
-    return new Promise((resolve, reject) => {
-      this.fragmentModel.getInstance().model.findOne({
-          _id: id
-        })
-        .lean()
-        .exec()
-        .then(async (fragmentReturn) => {
-          if (fragmentReturn.branchFrag) {
-            const frags = await this.fragmentModel.getInstance().model.find({
-              branchOriginFrag: fragmentReturn.branchFrag
-            }).lean().exec();
-            fragmentReturn.data = frags.map(f => {
-              if (f.branchFrag) {
-                return {
-                  _frag: f._id
-                }
-              } else {
-                return this.replaceMongoNotSupportedKey(f.data, true);
-              }
-            });
-          } else {
-            fragmentReturn.data = this.replaceMongoNotSupportedKey(fragmentReturn.data, true);
+    // console.log(" ------ get fragment------ ", id)
+    return new Promise(async (resolve, reject) => {
+      const  fragmentReturn = await this.fragmentModel.getInstance().model.findOne({
+        _id: id
+      })
+      .lean()
+      .exec()
+      .then();
+      // console.log('frag',fragmentReturn)
+      if (fragmentReturn.branchFrag) {
+        const frags = await this.fragmentModel.getInstance().model.find({
+          branchOriginFrag: fragmentReturn.branchFrag
+        }).lean().exec();
+        // console.log('GET frag Array',frags)
+
+        fragmentReturn.data = frags.map(f => {
+          return {
+            _frag: f._id
           }
-          resolve(fragmentReturn)
-        }).catch(err => {
-          console.log('-------- FAGMENT LIB ERROR -------| ', err);
-          reject(err);
         });
+      } else {
+        fragmentReturn.data = this.replaceMongoNotSupportedKey(fragmentReturn.data, true);
+      }
+      resolve(fragmentReturn)
     });
   },
 
@@ -824,13 +837,18 @@ module.exports = {
       await newFrag.save();
       
       const processedData = await this.copyDataUntilPath(newFrag.data,dfobTable,keepArray, relativHistoryTable,newFrag);
-      // console.log('______processedData',processedData)
+      // console.log('______processedData',JSON.stringify(processedData))
 
       newFrag.data= processedData.data;
       newFrag.markModified('data');
       newFrag = await newFrag.save();
+      // console.log('________newFrag',JSON.stringify(newFrag))
 
       const isDfobFragmentSelected =  processedData.dfobFragmentSelected&&processedData.dfobFragmentSelected.length>0;
+
+
+      const fragVerif = await fragmentModelInstance.findOne({_id: newFrag.id}).exec();
+      // console.log('__copyFragUntilPath fragVerif',JSON.stringify(fragVerif))
 
       return {
         data : processedData.data,
@@ -870,6 +888,7 @@ module.exports = {
         let relativHistoryTableSelected=[]
         for (let item of data) {
           const processedData = await this.copyDataUntilPath(item,dfobTable, keepArray, relativHistoryTable);
+          // console.log('_________processedData',processedData)
           let itemDefrag = processedData.data;
           itemDefrag = this.replaceMongoNotSupportedKey(itemDefrag, false);
           arrayDefrag.push(itemDefrag);
@@ -877,10 +896,9 @@ module.exports = {
           // fragmentSelected.push(processedData.dfobFragmentSelected);
           relativHistoryTableSelected=processedData.relativHistoryTableSelected?.length>relativHistoryTableSelected?processedData.relativHistoryTableSelected:relativHistoryTableSelected;
         }
-        // console.log('___ return array data',arrayDefrag);
         return {
           data : arrayDefrag,
-          relativHistoryTable:relativHistoryTableSelected,
+          relativHistoryTableSelected:relativHistoryTableSelected,
           dfobFragmentSelected: fragmentSelected
         };
       }else{
@@ -911,13 +929,23 @@ module.exports = {
           } else {
             // console.log('_',key,data[key])
             const processedData = await this.copyDataUntilPath(data[key], dfobTableCopy, keepArray, relativHistoryTableCopy,callerFrag);
+
             data[key] = processedData.data;
             data = this.replaceMongoNotSupportedKey(data, false);
             fragmentSelected=processedData.dfobFragmentSelected?processedData.dfobFragmentSelected:undefined;
-            relativHistoryTableSelected=processedData?.relativHistoryTableSelected?.length>relativHistoryTableSelected?processedData.relativHistoryTableSelected:relativHistoryTableCopy;
+            // console.log('__->',processedData.relativHistoryTableSelected,relativHistoryTableCopy)
+            if (processedData?.relativHistoryTableSelected?.length>relativHistoryTableSelected.length){
+              relativHistoryTableSelected=processedData.relativHistoryTableSelected;
+              relativHistoryTableCopy = relativHistoryTableSelected
+            }else{
+              relativHistoryTableSelected = relativHistoryTableCopy
+            }
+            // relativHistoryTableSelected=processedData?.relativHistoryTableSelected?.length>relativHistoryTableSelected.length?processedData.relativHistoryTableSelected:relativHistoryTableCopy;
           }
+          // console.log('___________processedData',data);
         }
-        // console.log('_____ return data',data);
+        // console.log('_____ return data',JSON.stringify(data));
+        // console.log('_____________________________relativHistoryTableSelected',relativHistoryTableSelected)
         return {
           data,
           relativHistoryTableSelected:relativHistoryTableSelected,
@@ -925,6 +953,7 @@ module.exports = {
         };
       }
     } else {
+      console.log('AAAAALLLLLLOOO')
       return {
         data,
         relativHistoryTable

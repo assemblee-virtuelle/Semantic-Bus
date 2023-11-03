@@ -33,8 +33,9 @@ function WorkspaceStore (utilStore, specificStoreList) {
   // ----------------------------------------- FUNCTION  -----------------------------------------
 
   this.computeGraph = function (viewBox, position) {
-    console.log('compute graph', position)
+    console.log('compute graph')
     let componentsId = this.workspaceCurrent.components.map(c => c._id)
+    console.log('componentsId',componentsId)
     this.workspaceCurrent.links = sift({
       $and: [{
         source: {
@@ -718,6 +719,7 @@ function WorkspaceStore (utilStore, specificStoreList) {
         return this.workspaceBusiness.serialiseWorkspaceComponent(c)
       }))
     }, true).then(data => {
+      console.log('add data',data)
       this.workspaceCurrent.components = this.workspaceCurrent.components.concat(data)
       if (this.viewBox) {
         this.computeGraph(null, { x: 0, y: 0})
@@ -743,6 +745,7 @@ function WorkspaceStore (utilStore, specificStoreList) {
       }, this.workspaceCurrent.components).forEach(afterComp => {
         afterComp.connectionsBefore.splice(afterComp.connectionsBefore.indexOf(record), 1)
       })
+      const indexComponent = this.workspaceCurrent.components.indexOf(record);
       this.workspaceCurrent.components.splice(this.workspaceCurrent.components.indexOf(record), 1)
       this.trigger('workspace_current_changed', this.workspaceCurrent)
       if (this.viewBox) {

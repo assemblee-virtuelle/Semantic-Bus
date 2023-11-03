@@ -5,7 +5,8 @@
   <div class="containerV scrollable tableBody" ref="tableBodyContainer">
     <!--<div class="table scrollable" name="tableBody" ref="tableBody" ondragover={on_drag_over} ondrop={on_drop}>-->
     <div class="containerV rowContainer" each={indexedData} ref="rowContainer" draggable={opts.dragout} ondragstart={dragOut_start}  style="flex-grow:0;flex-shrink:0;">
-      <div class="dropTarget" draggable="true" ondragenter={drag_enter} ondragover={drag_over} ondragleave={drag_leave} ondrop={drag_drop} data-insert="before"></div>
+      <!-- déplacer -->
+      <div if={opts.drag}  class="dropTarget" draggable="true" ondragenter={drag_enter} ondragover={drag_over} ondragleave={drag_leave} ondrop={drag_drop} data-insert="before"></div>
 
       <div
         class="tableRow containerH {selected:selected==true && opts.disallowselect!=true} {mainSelected:mainSelected==true && opts.disallowselect!=true}"
@@ -37,8 +38,8 @@
           </div>
         </div>
       </div>
-      <!-- déplacer un workflow -->
-      <div class="dropTarget" draggable="true" ondragenter={drag_enter} ondragover={drag_over} ondragleave={drag_leave} ondrop={drag_drop} data-insert="after"></div>
+      <!-- déplacer -->
+      <div if={opts.drag}  class="dropTarget" draggable="true" ondragenter={drag_enter} ondragover={drag_over} ondragleave={drag_leave} ondrop={drag_drop} data-insert="after"></div>
     </div>
 
   </div>
@@ -73,18 +74,12 @@
     }
 
 
-    dragOut_start(event) {
+    async dragOut_start(event) {
       //console.log(event);
       RiotControl.trigger('set_componentSelectedToAdd', [event.item]);
       event.dataTransfer.setData('sourceData', JSON.stringify(event.item));
-      const image = document.createElement('img');
-      image.setAttribute(
-        'src',
-        `image/components/${event.item.graphIcon}`,
-      );
-      image.setAttribute('height', 40); 
-      image.setAttribute('width', 40);
-      event.dataTransfer.setDragImage(image,0,0);
+      const img = event.target.querySelector('.rowImg');
+      event.dataTransfer.setDragImage(img,0,0);
     }
 
     drag_drop(event) {

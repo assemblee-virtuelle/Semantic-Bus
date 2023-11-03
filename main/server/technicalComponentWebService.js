@@ -8,6 +8,7 @@ const componentsCategoriesTree = require('./utils/componentsCategoriesTree')
 module.exports = (router, unsafeRouter) => {
   const technicalComponentDirectory = require('./services/technicalComponentDirectory')
   let engineTracer = {pendingProcess:[], redyProcess:[]}
+  technicalComponentDirectory.initialise(router, unsafeRouter)
  
 
   router.get('/technicalComponent', function (req, res) {

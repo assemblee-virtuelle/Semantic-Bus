@@ -36,6 +36,7 @@ class JoinByField {
   pull(data, flowData) {
 
     return new Promise((resolve, reject) => {
+      // console.log(data,flowData)
       try {
         var secondaryFlowData = flowData.filter(this.sift({
           componentId: data.specificData.secondaryComponentId

@@ -4,17 +4,17 @@
     <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Transform" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
   <!-- Titre du composant -->
-  <div class="contenaireV title-component">{data.type}</div>
+  <div class="contenaireV title-component">{data?.type}</div>
   <div>
     <div class="bar"/>
   </div>
   <!-- Description du composant -->
-  <div class="title-description-component">{data.description}</div>
+  <div class="title-description-component">{data?.description}</div>
   <div>
     <div class="bar"/>
   </div>
   <!-- Champ du composant -->
-  <div class="containerH" style="justify-content:space-evenly">
+  <div if={data?.specificData} class="containerH" style="justify-content:space-evenly">
     <div class="options">
       <label class="labelFormStandard">détail des évaluations:</label>
       <div class="cardInput">

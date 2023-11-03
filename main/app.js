@@ -54,14 +54,23 @@ let connection = amqpManager.connect([configJson.socketServer + '/' + configJson
 var channelWrapper = connection.createChannel({
   json: true,
   setup: (channel)=>{
-    channel.assertQueue('work-ask', {
+    // console.log('allo')
+    channel.assertExchange('amq.topic','topic', {
       durable: true
     })
+    channel.assertQueue('process-persist', { exclusive: true, durable: true }).then((q)=>{
+      channel.bindQueue(q.queue, 'amq.topic', "process-persist.*");
+    })
+
+    channel.assertQueue('process-start', { exclusive: true, durable: true }).then((q)=>{
+      channel.bindQueue(q.queue, 'amq.topic', "process-start.*");
+    })
     onConnect(channel);
-  }
+  } 
+  
 });
-const onConnect = (amqpClient) => {
-  technicalComponentDirectory.setAmqp(amqpClient)
+const onConnect = (channel) => {
+  technicalComponentDirectory.setAmqp(channel)
 }
 
 /// SECURISATION DES REQUETES

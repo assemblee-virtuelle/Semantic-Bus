@@ -209,76 +209,93 @@ function _get(filter) {
 } // <= _get
 
 function _getWithRelations(userID,config) {
-  return new Promise(function (resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
-      userModel.getInstance().model
-        .findOne({
-          _id: userID
-        })
-        // .populate({
-        //   path: "workspaces._id",
-        //   select: "name description"
-        // })
-        // .populate({
-        //   path: "bigdataflow._id",
-        //   select: "name description"
-        // })
-        .lean()
-        .exec(async (error, data) => {
-          const InversRelationWorkspaces = await workspaceModel.getInstance().model.find({
-            "users.email":data.credentials.email
-          }).lean().exec();
-          // console.log('XXXX InversRelationWorkspaces',InversRelationWorkspaces)
-          data.workspaces=InversRelationWorkspaces;
-          data.workspaces = data.workspaces.filter(sift({
-            _id: {
-              $ne: null
-            }
-          }));
+      let data = await  userModel.getInstance().model
+      .findOne({
+        _id: userID
+      })
+      // .populate({
+      //   path: "workspaces._id",
+      //   select: "name description"
+      // })
+      // .populate({
+      //   path: "bigdataflow._id",
+      //   select: "name description"
+      // })
+      .lean()
+      .exec();
 
-          data.workspaces = data.workspaces.map(w => {
-            const userOfWorkspace = w.users.find(u=>u.email===data.credentials.email);
-            // console.log("XXXX workspace",w)
-            return {
-              workspace: w,
-              role: userOfWorkspace.role
-            };
-          });
-          if (config.adminUsers){
-            let adminUsers=config.adminUsers
-            if (!Array.isArray(config.adminUsers)){
-              adminUsers=[adminUsers];
-            }
-            if (adminUsers.includes(data.credentials.email)){
-                data.admin=true
-            } else {
-              data.admin=false
-            }
+      const InversRelationWorkspaces = await workspaceModel.getInstance().model.find({
+        "users.email":data.credentials.email
+      }).lean().exec();
+      // console.log('XXXX InversRelationWorkspaces',InversRelationWorkspaces)
+      data.workspaces=InversRelationWorkspaces;
+      data.workspaces = data.workspaces.filter(sift({
+        _id: {
+          $ne: null
+        }
+      }));
 
-          }else {
-            data.admin=true;
-          }
-          //TODO REFACTORING and suppression
-          // if(data.bigdataflow!=undefined){
-          //   data.bigdataflow = data.bigdataflow.filter(sift({
-          //     _id: {
-          //       $ne: null
-          //     }
-          //   }));
-          //   Array.isArray(data.bigdataflow) ?
-          //   data.bigdataflow = data.bigdataflow.map(r => {
-          //     return {
-          //       bigdataflow: r._id,
-          //       role: r.role
-          //     };
-          //   }) : data.bigdataflow = []
-          // }else {
-          //   data.bigdataflow = []
-          // }
+      data.workspaces = data.workspaces.map(w => {
+        const userOfWorkspace = w.users.find(u=>u.email===data.credentials.email);
+        // console.log("XXXX workspace",w)
+        return {
+          workspace: w,
+          role: userOfWorkspace.role
+        };
+      });
+      if (config.adminUsers){
+        let adminUsers=config.adminUsers
+        if (!Array.isArray(config.adminUsers)){
+          adminUsers=[adminUsers];
+        }
+        if (adminUsers.includes(data.credentials.email)){
+            data.admin=true
+        } else {
+          data.admin=false
+        }
+
+      }else {
+        data.admin=true;
+      }
+      //TODO REFACTORING and suppression
+      // if(data.bigdataflow!=undefined){
+      //   data.bigdataflow = data.bigdataflow.filter(sift({
+      //     _id: {
+      //       $ne: null
+      //     }
+      //   }));
+      //   Array.isArray(data.bigdataflow) ?
+      //   data.bigdataflow = data.bigdataflow.map(r => {
+      //     return {
+      //       bigdataflow: r._id,
+      //       role: r.role
+      //     };
+      //   }) : data.bigdataflow = []
+      // }else {
+      //   data.bigdataflow = []
+      // }
 
 
-          resolve(data);
-        });
+      resolve(data);
+
+      // userModel.getInstance().model
+      //   .findOne({
+      //     _id: userID
+      //   })
+      //   // .populate({
+      //   //   path: "workspaces._id",
+      //   //   select: "name description"
+      //   // })
+      //   // .populate({
+      //   //   path: "bigdataflow._id",
+      //   //   select: "name description"
+      //   // })
+      //   .lean()
+      //   .exec(async (error, data) => {
+         
+      //   });
     } catch (e) {
       reject(e);
     }

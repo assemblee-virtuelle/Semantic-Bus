@@ -28,17 +28,22 @@ module.exports = {
 
 
 function _create(workspaceComponents) {
-  return new Promise(function(resolve, reject) {
-    var componentArray = workspaceComponents
-    if (Array.isArray(workspaceComponents) == false) {
-      componentArray = []
-      componentArray.push(workspaceComponents)
+  return new Promise(async function(resolve, reject) {
+    var componentArray = Array.isArray(workspaceComponents)?workspaceComponents:[workspaceComponents];
+    let out=[];
+    for (let component of componentArray ) {
+      let newComponent = new (workspaceComponentModel.getInstance().model)(component);
+      newComponent = await newComponent.save();
+      // const workspace = await workspaceModel.getInstance().model.findOne({_id:component.workspaceId});
+      // workspace.components.push(newComponent._id);
+      // await workspace.save();
+      out.push(newComponent);
+      
     }
-    workspaceComponentModel.getInstance().model.collection.insertMany(componentArray).then(savedComponents => {
-      resolve(savedComponents.ops)
-    }).catch(e => {
-      return reject(new Error.DataBaseProcessError(e))
-    });
+    console.log(out)
+    resolve(out);
+
+
   })
 }
 
@@ -121,28 +126,19 @@ function _get_connectBefore_connectAfter(filter) {
 
 // --------------------------------------------------------------------------------
 function _update(componentToUpdate) {
-  return new Promise((resolve, reject) => {
-    // console.log('componentToUpdate ----', componentToUpdate)
-    // if (componentToUpdate && componentToUpdate.module === "restApiGet" &&
-    //   componentToUpdate.specificData &&
-    //   componentToUpdate.specificData.url) {
-    //   (componentToUpdate.specificData.url = componentToUpdate._id + '-' + componentToUpdate.specificData.url)
-    // }
+  return new Promise(async (resolve, reject) => {
+
     if (componentToUpdate) {
-      workspaceComponentModel.getInstance().model.findOneAndUpdate({
-          _id: componentToUpdate._id
-        }, componentToUpdate, {
-          upsert: true,
-          new: true
-        })
-        .lean()
-        .exec((err, componentUpdated) => {
-          if (err) {
-            reject(new Error.DataBaseProcessError(err))
-          } else {
-            resolve(componentUpdated)
-          }
-        });
+
+      let componentUpdated = await  workspaceComponentModel.getInstance().model.findOneAndUpdate({
+        _id: componentToUpdate._id
+      }, componentToUpdate, {
+        upsert: true,
+        new: true
+      })
+      .lean()
+      .exec()
+      resolve(componentUpdated)
     }
   });
 
@@ -151,40 +147,42 @@ function _update(componentToUpdate) {
 // --------------------------------------------------------------------------------
 
 function _remove(componentToDelete) {
-  return new Promise((resolve, reject) => {
-    //console.log(componentToDelete);
-    workspaceModel.getInstance().model.findOne({
-        "components": componentToDelete._id
-      }, {
-        'consumption_history': 0,
-      })
-      .exec((err, workspace) => {
-        if (err || workspace == null) {
-          reject(new Error.DataBaseProcessError(err))
-        } else {
-          workspaceComponentModel.getInstance().model.remove({
-            _id: componentToDelete._id
-          }).exec((err, res) => {
-            if (err) {
-              reject(new Error.DataBaseProcessError(err))
-            } else {
-              workspace.links =workspace.links.filter(sift({
-                $and: [{
-                  source: {
-                    $ne: componentToDelete._id
-                  }
-                }, {
-                  target: {
-                    $ne: componentToDelete._id
-                  }
-                }]
-              }));
-              workspace.save();
-              resolve(componentToDelete);
-            }
-          })
-        }
-      });
+  return new Promise(async (resolve, reject) => {
+    let component = await workspaceComponentModel.getInstance().model.findOne({
+      _id: componentToDelete._id
+    }).exec();
+    let workspace= await workspaceModel.getInstance().model.findOne({
+     _id:component.workspaceId
+    }, {
+      'consumption_history': 0,
+    })
+    .exec();
+    if (workspace){
+      let  res = await workspaceComponentModel.getInstance().model.deleteOne({
+        _id: componentToDelete._id
+      }).exec();
+
+  
+      workspace.links =workspace.links.filter(sift({
+        $and: [{
+          source: {
+            $ne: componentToDelete._id
+          }
+        }, {
+          target: {
+            $ne: componentToDelete._id
+          }
+        }]
+      }));
+      await workspace.save();
+      console.log('END REMOVE',componentToDelete)
+      resolve(componentToDelete);
+    } else {
+      reject(new Error.DataBaseProcessError('workflow not finded'))
+    }
+
+
+
   });
 } // <= remove
 

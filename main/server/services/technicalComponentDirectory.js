@@ -18,7 +18,7 @@ module.exports = {
   gouvFrGeoLocaliser: require('../workspaceComponentInitialize/gouvFrGeoLocaliser.js'),
   // gouvFrGeoLocaliserMass: require('./workspaceComponentInitialize/gouvFrGeoLocaliserMass.js'),
   joinByField: require('../workspaceComponentInitialize/joinByField.js'),
-  deeperFocusOpeningBracket: require('../workspaceComponentInitialize/deeperFocusOpeningBracket.js'),
+  // deeperFocusOpeningBracket: require('../workspaceComponentInitialize/deeperFocusOpeningBracket.js'),
   filter: require('../workspaceComponentInitialize/filter.js'),
   upload: require('../workspaceComponentInitialize/upload.js'),
   scrapper: require('../workspaceComponentInitialize/scrapper.js'),
@@ -62,15 +62,15 @@ module.exports = {
   },
 
   initialise: function (router, unSafeRouteur,engineTracer) {
-    console.log('initialise')
+    // console.log('initialise')
     this.restApiPost.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
     this.restApiGet.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
     this.upload.initialise(router,engineTracer)
     this.cacheNosql.initialise(router,engineTracer) // NO SECURE CHANGE ROUTER
   },
 
-  setAmqp : (amqpClient)=>{
-    console.log('setAmqp')
-    // this.restApiPost.setAmqp(amqpClient);
+  setAmqp : function (channel){
+    // console.log('setAmqp')
+    this.restApiPost.setAmqp(channel);
   }
 }

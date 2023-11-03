@@ -27,8 +27,7 @@ services:
       - ./timer:/data/timer/
       - ./core:/data/core/
       - ./config.local.json:/data/timer/config.json
-    networks:
-      - bus
+    network_mode: host
     ports:
       - "100:100"
     expose:
@@ -38,27 +37,27 @@ services:
         - rabbitmq
     command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "nodemon", "-L", "--watch", "/data/timer/*",  "--watch", "/data/core/*",  "--ignore", "configuration.js",  "/data/timer/app.js"]
 
-  engineV1:
-    image: dataplayers/semantic-bus-engine:v1.0
-    container_name: engineV1
-    environment:
-        - APP_PORT=91
-        - NODE_ENV=development_docker
-    volumes:
-      - ./config.local.json:/data/engine/config.json
-    network_mode: host
-    labels:
-      - "traefik.enable=true"
-      - "traefik.http.routers.engineV1.rule=Host(`localhost`)" # Utiliser localhost comme hôte
-      - "traefik.http.routers.engineV1.rule=PathPrefix(`/engine/v1`)"
-      - traefik.http.middlewares.strip-v1-segment.replacepathregex.regex=^/engine/v1(/.*)$$
-      - traefik.http.middlewares.strip-v1-segment.replacepathregex.replacement=/engine$$1
-      - traefik.http.routers.engineV1.middlewares=strip-v1-segment
-      - "traefik.http.services.engineV1.loadbalancer.server.port=91"
-    depends_on:
-        - mongodb
-        - rabbitmq
-    command: bash -c "/data/scripts/wait-for-it.sh rabbitmq:5672 -t 60 -- nodemon --watch /data/engine --watch /data/core --ignore configuration.js --max-old-space-size=4096 /data/engine/app.js"
+  # engineV1:
+  #   image: dataplayers/semantic-bus-engine:v1.0
+  #   container_name: engineV1
+  #   environment:
+  #       - APP_PORT=91
+  #       - NODE_ENV=development_docker
+  #   volumes:
+  #     - ./config.local.json:/data/engine/config.json
+  #   network_mode: host
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.http.routers.engineV1.rule=Host(`localhost`)" # Utiliser localhost comme hôte
+  #     - "traefik.http.routers.engineV1.rule=PathPrefix(`/engine/v1`)"
+  #     - traefik.http.middlewares.strip-v1-segment.replacepathregex.regex=^/engine/v1(/.*)$$
+  #     - traefik.http.middlewares.strip-v1-segment.replacepathregex.replacement=/engine$$1
+  #     - traefik.http.routers.engineV1.middlewares=strip-v1-segment
+  #     - "traefik.http.services.engineV1.loadbalancer.server.port=91"
+  #   depends_on:
+  #       - mongodb
+  #       - rabbitmq
+  #   command: bash -c "/data/scripts/wait-for-it.sh rabbitmq:5672 -t 60 -- nodemon --watch /data/engine --watch /data/core --ignore configuration.js --max-old-space-size=4096 /data/engine/app.js"
 
   engine:
     build:
