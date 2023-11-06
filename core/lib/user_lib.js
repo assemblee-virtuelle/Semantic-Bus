@@ -159,22 +159,16 @@ function _create_preprocess(userParams) {
 
 function _get_all(options) {
 
-  return new Promise(function (resolve, reject) {
-    userModel.getInstance().model
-      .find(options.filters)
-      .limit(options.limit)
-      .select(options.select)
-      .skip(options.skip)
-      .sort(options.sort)
-      .lean()
-      .exec(function (err, users) {
-        if (err) {
-          reject(err);
-        } else {
-
-          resolve(users);
-        }
-      });
+  return new Promise(async function (resolve, reject) {
+    const users = await  userModel.getInstance().model
+    .find(options.filters)
+    .limit(options.limit)
+    .select(options.select)
+    .skip(options.skip)
+    .sort(options.sort)
+    .lean()
+    .exec();
+    resolve(users);
   });
 } // <= _get_all
 
