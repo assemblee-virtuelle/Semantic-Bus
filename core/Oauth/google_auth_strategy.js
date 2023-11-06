@@ -18,41 +18,35 @@ module.exports = (passport) => {
     },
     function (res, token, refreshToken, profile, done) {
       console.log('____________________NEXT TICK');
-      process.nextTick(function () {
-        UserModel.getInstance().model.findOne({
+      process.nextTick(async function () {
+        const user = await UserModel.getInstance().model.findOne({
           'googleId': profile.id
-        }, function (err, user) {
-          if (err) {
-            return done(err)
-          }
-          if (user) {
-            user.googleToken = token
-            UserModel.getInstance().model.findByIdAndUpdate(user._id, user, function (err, resp) {
-              if (err) {
-                // res.status(500).send()
-                return done(new error.OauthError())
-              }
-              return done(null, user)
-            })
-          } else {
-            const UserModelInstance = UserModel.getInstance().model
-            var newUser = new UserModelInstance({
-              name: profile.displayName,
-              googleToken: token,
-              googleId: profile.id,
-              credit: 2000,
-              credentials: {
-                email: profile.emails[0].value
-              }
-            })
-            newUser.save(function (err, resp) {
-              if (err) {
-                return done(new error.OauthError())
-              }
-              return done(null, newUser)
-            })
-          }
-        })
+        });
+        console.log('user',user)
+        if (user) {
+          user.googleToken = token
+          UserModel.getInstance().model.findByIdAndUpdate(user._id, user, function (err, resp) {
+            if (err) {
+              // res.status(500).send()
+              return done(new error.OauthError())
+            }
+            return done(null, user)
+          })
+        } else {
+          const UserModelInstance = UserModel.getInstance().model
+          var newUser = new UserModelInstance({
+            name: profile.displayName,
+            googleToken: token,
+            googleId: profile.id,
+            credit: 2000,
+            credentials: {
+              email: profile.emails[0].value
+            }
+          })
+          await newUser.save();
+          return done(null, newUser)
+
+        }
       })
     }))
   } else {
