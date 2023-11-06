@@ -25,13 +25,9 @@ module.exports = (passport) => {
         console.log('user',user)
         if (user) {
           user.googleToken = token
-          UserModel.getInstance().model.findByIdAndUpdate(user._id, user, function (err, resp) {
-            if (err) {
-              // res.status(500).send()
-              return done(new error.OauthError())
-            }
-            return done(null, user)
-          })
+          const user = await UserModel.getInstance().model.findByIdAndUpdate(user._id);
+          return done(new error.OauthError())
+
         } else {
           const UserModelInstance = UserModel.getInstance().model
           var newUser = new UserModelInstance({
