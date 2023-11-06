@@ -53,7 +53,6 @@ module.exports = {
 
 function _createOrUpdateHistoriqueEnd(historique) {
   return new Promise(async (resolve, reject) => {
-
     if (historique.error != undefined) {
       historique.error = {
         message: historique.error.message
@@ -84,7 +83,7 @@ function _addDataHistoriqueEnd(historicId, data) {
   return new Promise(async (resolve, reject) => {
     // console.log('addDataHistoriqueEnd');
     let frag;
-    console.log('historicId',historicId);
+    // console.log('historicId',historicId);
     try {
       // console.log('fragment_lib.persist',data);
       frag = await fragment_lib.persist(data)
@@ -100,7 +99,7 @@ function _addDataHistoriqueEnd(historicId, data) {
         })
         .lean()
         .exec();
-      log('_addDataHistoriqueEnd result',result)
+      // log('_addDataHistoriqueEnd result',result)
       resolve(result);
     } catch (e) {
       console.error(e);
@@ -662,8 +661,9 @@ async function _create(userId, workspaceData) {
 // --------------------------------------------------------------------------------
 
 function _destroy(userId, workspaceId) {
-  return new Promise(function(resolve, reject) {
-    userModel.getInstance().model.findByIdAndUpdate({
+  return new Promise(async function(resolve, reject) {
+    try {
+      const user = await userModel.getInstance().model.findByIdAndUpdate({
         _id: userId
       }, {
         $pull: {
@@ -671,49 +671,32 @@ function _destroy(userId, workspaceId) {
             _id: workspaceId
           }
         }
-      },
-      function(err, user) {
-        if (err) throw TypeError(err);
-        else {
-          workspaceModel.getInstance().model.find({
-              _id: workspaceId
-            },
-            function(err, workspace) {
-              if (err) throw TypeError(err);
-              else {
-                if (workspace[0]) {
-                  if (
-                    workspace[0].components != undefined ||
-                    workspace[0].components != null
-                  ) {
-                    workspace[0].components.forEach(function(workspaceComp) {
-                      // if (config.quietLog != true) {}
-                      workspaceComponentModel.getInstance().model
-                        .remove({
-                          _id: workspaceComp
-                        })
-                        .exec(function(err, res) {
-                          if (err) throw TypeError(err);
-                        });
-                    });
-                  }
-                }
-                workspaceModel.getInstance().model.findOneAndRemove({
-                    _id: workspaceId
-                  },
-                  function(err) {
-                    if (err) throw TypeError(err);
-                    else {
-                      resolve(workspace);
-                    }
-                  }
-                );
-              }
-            }
-          );
+      });
+      const workspace = await workspaceModel.getInstance().model.find({
+        _id: workspaceId
+      });
+      if (workspace[0]) {
+        if (
+          workspace[0].components != undefined ||
+          workspace[0].components != null
+        ) {
+          workspace[0].components.forEach(async function(workspaceComp) {
+            // if (config.quietLog != true) {}
+            await workspaceComponentModel.getInstance().model.deleteOne({
+              _id: workspaceComp
+            })
+          });
         }
       }
-    );
+  
+      await workspaceModel.getInstance().model.findOneAndRemove({
+        _id: workspaceId
+      });
+      resolve(workspace); 
+    } catch (error) {
+      reject(error)
+    }
+
   });
 } // <= _destroy
 

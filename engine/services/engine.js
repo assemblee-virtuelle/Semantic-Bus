@@ -438,19 +438,7 @@ class Engine {
     
 
                       processingNode.status = 'resolved'
-                      // if (
-                      //   processingNode.component._id == this.responseComponentId
-                      // ) {
-                      //   // console.log('RequestOrigineResolveMethode')
-                      //   console.time("getWithResolutionByBranch for RequestOrigineResolveMethode");
-                      //   const resolvedData = await this.fragment_lib.getWithResolutionByBranch(newFrag);
-                      //   console.timeEnd("getWithResolutionByBranch for RequestOrigineResolveMethode");
-                      //   // console.log('resolvedData',newFrag)
-                      //   this.RequestOrigineResolveMethode({
-                      //     data: resolvedData
-                      //   })
-                      // }
-                      // console.log('call historicEndAndCredit')
+                      // console.log('call historicEndAndCredit', newFrag)
                       await this.historicEndAndCredit(processingNode, startTime, newFrag, undefined)
                       // console.log('done historicEndAndCredit')
                       this.processNextBuildPath('flow ok')
@@ -499,12 +487,13 @@ class Engine {
                   //   // this.originComponentResult = processingNode.dataResolution;
                   // }
                   const frag = await this.fragment_lib.persist(data)
+                  // console.log('call historicEndAndCredit', frag)
                   await this.historicEndAndCredit(processingNode, startTime, frag, undefined)
 
                   this.processNextBuildPath('normal ok')
 
                 } catch (e) {
-                  console.error('CATCH normal', e)
+                  console.error('CATCH normal', e, typeof e)
                   processingNode.dataResolution = {
                     // error: e
                   }
@@ -581,50 +570,43 @@ class Engine {
     if (this.config.quietLog != true) console.time('historicEndAndCredit')
     let historic_object = {};
     try {
+      // if (!frag){
+      //   throw new Error('frag have to be set');
+      // }
       historic_object.componentId = processingNode.component._id;
       historic_object.persistProcess = processingNode.component.persistProcess;
       historic_object.processId = this.processId;
       // console.log('historic_object',historic_object)
       historic_object = await this.workspace_lib.createOrUpdateHistoriqueEnd(historic_object)
       let module = processingNode.component.module;
-      // if (processingNode.component.persistProcess == true) {
-      // console.log('______________frag',frag)
-      try {
-        // console.log("call addDataHistoriqueEnd");
-        // console.log('historic_object._id',historic_object._id);
-        // console.log('addDataHistoriqueEnd',data,error);
-        if (module != 'deeperFocusOpeningBracket' && !error) {
 
-            historic_object = await this.workspace_lib.addFragHistoriqueEnd(historic_object._id, frag);
-        }
-        // console.log("end addDataHistoriqueEnd",historic_object);
-        this.processNotifier.persist({
-          componentId: historic_object.componentId,
-          processId: historic_object.processId,
-          tracerId: this.tracerId,
-          frag : frag._id
-          // data: historic_object.frag?historic_object.frag.data:undefined
-        })
-        // processingNode.dataResolution.data = undefined;
-
-      } catch (e) {
-        console.log('ERROR', e);
-        this.processNotifier.persist({
-          componentId: historic_object.componentId,
-          processId: historic_object.processId,
-          tracerId: this.tracerId,
-          error: 'error persisting historic data'
-        })
-        await this.workspace_lib.addDataHistoriqueEnd(historic_object._id, {
-          error: 'error persisting historic data'
-        });
-        throw new Error('error persisting historic data');
+      if(frag){
+        try {
+          if (module != 'deeperFocusOpeningBracket' && !error) {
+              historic_object = await this.workspace_lib.addFragHistoriqueEnd(historic_object._id, frag);
+          }
+          this.processNotifier.persist({
+            componentId: historic_object.componentId,
+            processId: historic_object.processId,
+            tracerId: this.tracerId,
+            frag : frag._id
+          })
+        } catch (e) {
+          console.log('ERROR', e);
+          this.processNotifier.persist({
+            componentId: historic_object.componentId,
+            processId: historic_object.processId,
+            tracerId: this.tracerId,
+            error: 'error persisting historic data'
+          })
+          await this.workspace_lib.addDataHistoriqueEnd(historic_object._id, {
+            error: 'error persisting historic data'
+          });
+          throw new Error('error persisting historic data');
+        }  
       }
 
-      // console.log('processingNode.dataResolution',processingNode.dataResolution);
-      // console.log('historicEndAndCredit data undefined',data==undefined);
-      // let dataFlow = processingNode.dataResolution
-      // let data = processingNode.dataResolution!=undefined?processingNode.dataResolution.data:undefined;
+
 
       let specificData = processingNode.component.specificData;
       // historic_object = {};
@@ -661,10 +643,8 @@ class Engine {
       historic_object.startTime = startTime;
       historic_object.roundDate = roundDate;
       historic_object.workflowId = this.originComponent.workspaceId;
-      // let persistFlow
-      // if (processingNode.component.persistProcess == true && dataFlow.data != undefined) {
-      //   persistFlow = JSON.parse(JSON.stringify(dataFlow.data))
-      // }
+
+      // console.log('historic_object',historic_object);
 
       historic_object = await this.workspace_lib.createOrUpdateHistoriqueEnd(historic_object);
       this.processNotifier.progress({
@@ -673,8 +653,7 @@ class Engine {
         processId: historic_object.processId,
         error: historic_object.error
       })
-      // console.log('historicEndAndCredit DONE');
-      // }
+
     } catch (e) {
       console.log('ERROR', e);
       this.processNotifier.progress({

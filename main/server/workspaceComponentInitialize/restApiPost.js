@@ -61,6 +61,16 @@ class RestApiPost {
       noAck: true
     })
 
+    amqpConnection.consume('process-error', (msg) => {
+      const messageObject = JSON.parse(msg.content.toString())
+      const pendingWork = this.pendingWork[messageObject.tracerId||messageObject._id]
+      if(pendingWork){
+        pendingWork.error = messageObject._id;
+      }
+    }, {
+      noAck: true
+    })
+
   }
 
   initialise(router,engineTracer) {
@@ -173,8 +183,15 @@ class RestApiPost {
             // console.log('CALL AMQP')
             const tracerId =  uuidv4();
             const workParams={
-             tracerId ,
-             id : component._id
+              tracerId ,
+              id : component._id,
+              queryParams: {
+                query: req.query,
+                body: req.body,
+                headers: req.headers,
+                method :req.method
+              },
+              pushData: req.body
             }
             this.pendingWork[tracerId] = {
              component :component._id
@@ -188,6 +205,9 @@ class RestApiPost {
                    (err, ok) => {
                      if (err !== null) {
                        console.error('Erreur lors de l\'envoi du message :', err);
+                       res.status(500).send({
+                          error: 'AMQP server no connected'
+                        })
                      } else {
                       //  console.log(`Message envoyé à la file `);
                        // res.send(workParams);
@@ -196,15 +216,17 @@ class RestApiPost {
                  )
             //  let counter=1;
              const intervalId = setInterval(async () => {
-               // console.log(counter,this.pendingWork[tracerId])
                if (this.pendingWork[tracerId].frag){
                  clearInterval(intervalId);
-                 // res.send(this.pendingWork[data.body.processId]);
                  const dataResponse = await this.fragment_lib.getWithResolutionByBranch(this.pendingWork[tracerId].frag);
                  this.sendResult(component, dataResponse, res)
-                //  console.log(dataResponse)
-                //  res.send(dataResponse);
-               }else{
+
+               } else  if (this.pendingWork[tracerId].error){
+                clearInterval(intervalId);
+                res.status(500).send({
+                  error:'engine error'
+                })
+              }else{
                  // console.log('waiting');
                 //  counter++;
                }

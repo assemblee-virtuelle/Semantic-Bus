@@ -15,7 +15,7 @@ class RestApiPost {
       } else if (pullParams) {
         resolve({data:pullParams})
       } else {
-        reject('Neither flowData nor pullParams')
+        reject(new Error('Neither flowData nor pullParams'))
       }
 
     })

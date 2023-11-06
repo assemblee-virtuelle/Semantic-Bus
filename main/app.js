@@ -65,6 +65,10 @@ var channelWrapper = connection.createChannel({
     channel.assertQueue('process-start', { exclusive: true, durable: true }).then((q)=>{
       channel.bindQueue(q.queue, 'amq.topic', "process-start.*");
     })
+    channel.assertQueue('process-error', { exclusive: true, durable: true }).then((q)=>{
+      channel.bindQueue(q.queue, 'amq.topic', "process-error.*");
+    })
+
     onConnect(channel);
   } 
   

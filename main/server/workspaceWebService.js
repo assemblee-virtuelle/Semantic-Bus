@@ -111,6 +111,7 @@ module.exports = function (router) {
   router.get('/workspaces/:id/components/:componentId/process/:processId', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     const componentId = req.params.componentId
     const processId = req.params.processId
+    //return historicEnd
     workspace_component_lib.get_component_result(componentId, processId).then(function (data) {
       if (data !== undefined) {
         if (data.frag !== undefined) {
