@@ -22,10 +22,11 @@ module.exports = (passport) => {
         const user = await UserModel.getInstance().model.findOne({
           'googleId': profile.id
         });
-        console.log('user',user)
+
         if (user) {
           user.googleToken = token
-          await UserModel.getInstance().model.findByIdAndUpdate(user._id);
+          await UserModel.getInstance().model.findByIdAndUpdate(user._id,user);
+          console.log('user',user)
           return done(null, user)
           // return done(new error.OauthError())
           // UserModel.getInstance().model.findByIdAndUpdate(user._id, user, function (err, resp) {

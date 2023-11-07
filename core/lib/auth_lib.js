@@ -153,6 +153,8 @@ class AuthLib {
       failureRedirect: '../../ihm/login.html',
       session: false
     }), (req, res) => {
+
+      console.log('res.req.user', res.req.user)
       res.redirect(url + res.req.user.googleToken);
     });
   }
@@ -171,29 +173,26 @@ class AuthLib {
           })
           .lean()
           .exec()
-          .then(user => {
-
+          .then(async user => {
             user.googleToken = null;
             user.active = true
-            //console.log(user)
-            userModel.getInstance().model.findByIdAndUpdate(user._id, user, (err, user_update) => {
-              if (err) {
-                throw err;
-              }
-              const payload = {
-                exp: moment().add(14, 'days').unix(),
-                iat: moment().unix(),
-                iss: user._id,
-                subject: user.googleid,
-              }
-              const token = jwt.encode(payload, config.secret);
-              res.send({
-                user: user_update,
-                token: token
-              });
+            const user_update = userModel.getInstance().model.findByIdAndUpdate(user._id, user).lean().exec();
+            const payload = {
+              exp: moment().add(14, 'days').unix(),
+              iat: moment().unix(),
+              iss: user._id,
+              subject: user.googleid,
+            }
+            const token = jwt.encode(payload, config.secret);
+            res.send({
+              user: user_update,
+              token: token
             });
           })
-          .catch(() => res.sendStatus('401'))
+          .catch((e) => {
+            console.error(e)
+            res.sendStatus('401')
+          })
       } else {
         res.sendStatus('401');
       }

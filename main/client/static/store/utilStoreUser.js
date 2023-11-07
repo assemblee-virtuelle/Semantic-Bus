@@ -10,6 +10,7 @@ function UtilStore (specificStoreList) {
       param.headers = {
         'Authorization': 'JTW' + ' ' + localStorage.token
       }
+      // alert(localStorage.token)
       param.contentType = 'application/json'
 
       $.ajax(param).done(function (data) {
