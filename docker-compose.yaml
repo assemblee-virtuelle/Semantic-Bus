@@ -80,9 +80,6 @@ services:
       - traefik.http.middlewares.strip-v2-segment.replacepathregex.replacement=/engine$$1
       - traefik.http.routers.engine.middlewares=strip-v2-segment
       - "traefik.http.services.engine.loadbalancer.server.port=92"
-    links:
-        - mongodb
-        - rabbitmq
     depends_on:
         - mongodb
         - rabbitmq
