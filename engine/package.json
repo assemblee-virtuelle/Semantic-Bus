@@ -100,7 +100,7 @@
   "devDependencies": {
     "@types/amqplib": "^0.5.9",
     "@types/node-fetch": "2.1.4",
-    "chromedriver": "^78.0.1",
+    "chromedriver": "^119.0.1",
     "eslint": "^8.0.0",
     "mocha-junit-reporter": "^1.13.0",
     "wdio-chromedriver-service": "^5.0.2"
