@@ -7,7 +7,7 @@ module.exports = {
   http: require('http'),
   url: require('url'),
   request : require('request'),
-  config: require("../timer/configuration"),
+  config: require("../timer/config.json"),
   runTimers: function(amqpConnection) {
     // console.log('----- Timer Cron')
     this.componentLib.get_all_withConsomation({
