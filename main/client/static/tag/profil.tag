@@ -67,13 +67,13 @@
       </div>
       <!-- info mail -->
       <div class="containerV" if={mailsend} style="justify-content: center; align-items: center;/* flex-grow: 1; */">
-        <div>Un email à été envoyé, verifier votre boite mail.</div>
+        <div>Un email à été envoyé, veuillez vérifier votre boite mail.</div>
       </div>
       <!--boutons renvoyer mail -->
-      <span style="padding:20px">** L'email ne peut être modifier pour le moment veuillez recreer un compte et vous partager vos workflow en cas de changement</span>
+      <span style="padding:20px">** L’adresse e-mail ne peut pas être modifiée, veuillez créer un nouveau compte.</span>
       <div if={!profil.active}>
         <div if={!mailsend}>
-          <span style="padding:20px" id="bad-mail">Vous n'avez pas validé votre email (consultez vos mails/spam). Vous ne pourrez utiliser l'outil sans un mail confirmé.</span >
+          <span style="padding:20px" id="bad-mail">Un mail de validation à été envoyé sur votre messagerie “adresse e-mail”, veuillez cliquer sur le lien présent dans le mail pour confirmer la création de votre compte.</span >
         </div>
         <div class="containerH" if={profil.googleId == null || profil.googleId=='undefined' } style="margin-top:20px;">
           <button class="button-profil" onclick={sendbackmail} type="button">{emailtext}</button>
@@ -168,25 +168,25 @@
 
     RiotControl.on('google_user', function () {
       this.result = false;
-      this.resultEmail = "vous ne pouvez pas modifier votre email en tant q'utilisateur google";
+      this.resultEmail = "Vous ne pouvez pas modifier votre email en tant qu'utilisateur Google";
       this.update();
     }.bind(this));
 
     RiotControl.on('bad_format_job', function () {
       this.result = false;
-      this.resultJob = "Le job n'est pas au bon format";
+      this.resultJob = "L'emploi n'est pas au bon format";
       this.update();
     }.bind(this));
 
     RiotControl.on('bad_format_name', function () {
       this.result = false;
-      this.resultName = "Le job n'est pas au bon format";
+      this.resultName = "Le nom n'est pas au bon format";
       this.update();
     }.bind(this));
 
     RiotControl.on('bad_format_society', function () {
       this.result = false;
-      this.resultSociety = "La societe n'est pas au bon format";
+      this.resultSociety = "La société n'est pas au bon format";
       this.update();
     }.bind(this));
 

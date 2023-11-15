@@ -13,10 +13,10 @@
   <zenTable show={filteredData.length > 0} drag={false} disallowselect={true} ref="zentable" disallowdelete={opts.disallowdelete}>
     <yield to="header">
       <div class="containerTitle">
-        <div class="tableTitleName">STATUS</div>
+        <div class="tableTitleName">STATUT</div>
         <div class="tableTitleName">NOM</div>
-        <div class="tableTitleDescription">DESCRITPION</div>
-        <div class="tableTitleName">ROLE</div>
+        <div class="tableTitleDescription">DESCRIPTION</div>
+        <div class="tableTitleName">RÔLE</div>
         <div class="tableTitleDate">DATE DE MODIFICATION</div>
         <div class="tableEmpty"/>
       </div>

@@ -4,7 +4,7 @@
     <div class="containerV containerData">
       <div class="containerH  contentData">
         <div class="cardData" >
-          <span class="textNumber">{numberWorkspace}</span><span class="textBase">  Workspaces</span>
+          <span class="textNumber">{numberWorkspace}</span><span class="textBase">  Workflows</span>
         </div>
         <div class="cardData" >
           <span class="textNumber">{decimalAdjust('round', globalMo, -2)}</span><span class="textBase">  Mo </span>
@@ -17,7 +17,7 @@
    <div class="containerH containerData">
       <div class="item-flex containerV"  style="background-color:rgb(255,255,255); flex: 1">
         <div class="containerH" style="justify-content:center;align-items:center">
-          <div><h5 class="title-graph">CONSOMATION PAR WORFLOW JOURS ( 30 DERNIERS JOURS )</h5></div>
+          <div><h5 class="title-graph">CONSOMMATION PAR WORKFLOW DES 30 DERNIERS JOURS</h5></div>
           <select class="inputSelectComponents" ref="primaryComponentIdInput" name="primaryComponentIdInput" style="margin-left:10px" >
             <option value="CREDIT">CREDIT</option>
             <option value="MO">MO</option>
