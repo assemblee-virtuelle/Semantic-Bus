@@ -469,7 +469,7 @@ class Engine {
                 try {
                   // console.log("in dataFlow",dataFlow);
                   const componentFlow= await  module.pull(processingNode.component, dataFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams);
-
+                  console.log('ENGINE Component ok')
 
                   const {
                     data,
@@ -489,6 +489,7 @@ class Engine {
                   const frag = await this.fragment_lib.persist(data)
                   // console.log('call historicEndAndCredit', frag)
                   await this.historicEndAndCredit(processingNode, startTime, frag, undefined)
+
 
                   this.processNextBuildPath('normal ok')
 

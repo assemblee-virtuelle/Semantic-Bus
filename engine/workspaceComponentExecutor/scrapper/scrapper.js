@@ -136,6 +136,7 @@ class Scrapper {
   aggregateAction(actions, client, data, specificData) {
     // console.log('------   action restante -------- ', actions[depth]);
     return new Promise(async (resolve, reject) => {
+      let out = {}
       try {
         let timeout = specificData.timeout == undefined ? 20000 : specificData.timeout * 1000
         for (let action of actions) {
@@ -166,6 +167,7 @@ class Scrapper {
               break;
             default:
           }
+
           try {
             if (action.actionType.includes('wait')) {
               await scrappingFunction(action, client);
@@ -174,28 +176,28 @@ class Scrapper {
               if(elmts.length>0){
                 for (let elmt of elmts) {
                   let res = await scrappingFunction(action, client, elmt);
-                  if (data[action.action] == undefined) {
-                    data[action.action] = [res];
+                  if (out[action.action] == undefined) {
+                    out[action.action] = [res];
                   } else {
-                    data[action.action].push(res);
+                    out[action.action].push(res);
                   }
                 }
               }else{
-                data[action.action] = {
+                out[action.action] = {
                   error: `no element exist for seletor ${effectivSelector}`
                 };
               }
 
             }
           } catch (e) {
-            data[action.action] = {
+            out[action.action] = {
               error: e.message
             };
           }
         }
 
         // console.log('AGREGATED DATA',data);
-        resolve(data);
+        resolve(out);
       } catch (e) {
         console.error(e);
         reject(e);
@@ -209,7 +211,9 @@ class Scrapper {
     return new Promise(async (resolve, reject) => {
       try {
         let timeout = specificData.timeout == undefined ? 20000 : specificData.timeout * 1000;
+        console.log('specificData.url',specificData.url)
         let url = this.stringReplacer.execute(specificData.url, queryParams, flowData);
+        console.log('url',url)
 
         let user = specificData.user;
         let key = specificData.key;

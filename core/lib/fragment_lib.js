@@ -336,7 +336,7 @@ module.exports = {
   },
 
   testFragArray: function (arrayToTest){
-    if (arrayToTest.length<=100){
+    if (arrayToTest.length<=1000){
       return false; 
     }else if (this.testAllLiteralArray(arrayToTest)){
       return false
