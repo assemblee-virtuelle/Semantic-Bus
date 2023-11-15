@@ -55,29 +55,30 @@ function _create(bodyParams) {
 } // <= _create
 
 function _create_mainprocess(preData) {
-  return new Promise(function (resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     const userModelInstance = userModel.getInstance().model;
-    const user = new userModelInstance({
-      credentials: {
-        email: preData.email,
-        hashed_password: preData.hashedPassword
-      },
-      mailid: preData.mailid,
-      name: preData.name,
-      society: preData.society,
-      job: preData.job,
-      dates: {
-        created_at: new Date(),
-        updated_at: new Date()
-      }
-    });
-    user.save(function (err, userData) {
-      if (err) {
-        if (err && err.code == 11000) return reject(new Error.UniqueEntityError("User"))
-      } else {
-        resolve(userData);
-      }
-    });
+    try {
+      const user = new userModelInstance({
+        credentials: {
+          email: preData.email,
+          hashed_password: preData.hashedPassword
+        },
+        mailid: preData.mailid,
+        name: preData.name,
+        society: preData.society,
+        job: preData.job,
+        dates: {
+          created_at: new Date(),
+          updated_at: new Date()
+        }
+      });
+      const userData = await user.save();
+      resolve(userData)
+    } catch (error) {
+      if (error.code == 11000){
+        reject(new Error.UniqueEntityError("User"))
+      } 
+    }
   });
 } // <= _create_mainprocess
 
