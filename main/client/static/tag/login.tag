@@ -198,7 +198,7 @@
   <!--footer-->
   <div class="containerH" show={!isScrennToShow('loading')} style="justify-content: flex-end;height: 50px;margin-bottom:20px">
     <div class="containerV" style="justify-content: flex-end;margin-right:20px">
-      <span style="font-size: 0.75em;color:rgb(26,145,194)">Grappe v0.3 Copyright 2018
+      <span style="font-size: 0.75em;color:rgb(26,145,194)">Grappe.io © 2018-{currentYear}
         <a link="link" href="https://data-players.com/" style="color:rgb(26,145,194)">Data Players</a>
       </span>
     </div>
@@ -227,6 +227,7 @@
       'inscription',
       'connexion'
     ]
+    this.currentYear = new Date().getFullYear();
 
     Object.defineProperty(this, 'data', {
       set: function (data) {

@@ -36,7 +36,7 @@
     ) 
     this.workspaceCurrentProcesChanged=processCollection=>{
       processCollection.map((process)=>{
-        if(process.state == "stop") process.status ="stoped"
+        if(process.state == "stop") process.status ="stoppé"
       })
       this.refs.processZenTable.data=processCollection;
       this.update();

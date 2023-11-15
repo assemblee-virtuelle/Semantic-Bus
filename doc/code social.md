@@ -26,7 +26,6 @@ Il exploite la puissance et la polyvalence du traitement des graphes d’objets 
 ### Date de création
 Le projet a débuté fin 2016
 
-
 ### Personnes référentes
 Simon Louvet : Lead dev 
 Alexandre Boceno : Dev 
@@ -43,7 +42,7 @@ Développeurs + designers
 
 #### Publics visés
 Toutes les personnes qui en général font appel à des data-analyst pour les aider dans la maitrise des données.
-Data-Viz,
+Data-Viz...
 
 #### Rencontres physiques
 Ponctuelles, elles sont favorisées par l'éco-système de l'Assemblée Virtuelle
@@ -60,23 +59,21 @@ Riot : #semantic_bus:matrix.virtual-assembly.org
 
 ## Historique
 Le projet est né en 2016 à l'initiative de Simon Louvet et Guillaume Rouyer au sein de l'Assemblée Virtuelle.
-Alexandre Bocenno a contribuer au projet en tant que stagiaire en 2017 puis est devenu naturellement un contributeur actif.
-
+Alexandre Bocenno a contribué au projet en tant que stagiaire en 2017 puis est naturellement devenu un contributeur actif.
 
 ## Raison d'être
 
 ### Contexte
-Nos systèmes d'informations et le web plus généralement se sont construits sur de silos de données qui communiquent difficilement les uns avec les autres, alors qu'à l'origine le web était conçu comme interopérable par design.
+Nos systèmes d'informations et le web plus généralement se sont construits sur des silos de données qui communiquent difficilement les uns avec les autres, alors qu'à l'origine le web était conçu comme interopérable par design.
 
 ### Enjeux
-L'évolution économique, environementale et sociale du monde nous invite à croire que le moment est davantage propice à la coopération qu'à la compétition. Le mouvement de l'Open Data est grandissant et il est important d'accompagner les acteurs dans le changement de posture et d'usage.
+L'évolution économique, environnementale et sociale du monde nous invite à croire que le moment est davantage propice à la coopération qu'à la compétition. Le mouvement de l'Open Data est grandissant et il est important d'accompagner les acteurs dans le changement de posture et d'usage.
 
 ### Objectifs
-Faciliter l’interopérabilité entre des sources de données hétérogènes techniquement et sémantiquement
+Faciliter l’interopérabilité entre des sources de données hétérogènes techniquement et sémantiquement.
 
 ### Missions
 Répondre aux problématiques d’agrégation de données issues de sources hétérogènes.
-
 
 ## Modèle culturel et artistique
 Le bus sémantique s'inspire de 2 convictions :
@@ -94,9 +91,9 @@ Le bus sémantique s'inspire de 2 convictions :
 
 ## Modèle social et humain
 ### Principes généraux et mots-clefs
-Gouvernance partagée, sociocracy, liberté
+Gouvernance partagée, sociocracie, liberté
 
-### Savoirs-êtres
+### Savoir-être
 Nous privilégions la communication bienveillante/non violente.
 
 ### Gouvernance
@@ -105,7 +102,7 @@ Nous privilégions la communication bienveillante/non violente.
 Le bus sémantique est un projet technique dont les développeurs ont la maitrise.
 La gouvernance est assurée par l'équipe de direction technique composée de Simon Louvet et Alexandre Boceno.
 
-Si le consensus n'est pas possible, on privilégie la gestion par consentement.
+Si le consensus n'est pas possible, nous privilégions la gestion par consentement.
 
 Le code social fait partie du code logiciel du bus sémantique. De fait, l'équipe technique en est garant.
 
@@ -127,10 +124,10 @@ Le projet est libre, c'est à dire que chacun peut y proposer sa contribution.
 #### Directeur technique
 Mission et responsabilité : Il est reponsable de l'architecture, du choix des technologies et de leur implémentation dans le logiciel. C'est lui qui valide les pull request et les merge.
 Il est également responsabile de la feuille de route.
-Autonomie : Il est libre de choisir l'architecture, les technologies et ses implémentations qu'il juge la plus pertintente pour le projet.
+Autonomie : Il est libre de choisir l'architecture, les technologies et ses implémentations qu'il juge la plus pertinente pour le projet.
 
 #### Designer
-Mission et responsabilité : Fournir à l'équipe de développeur les éléments graphiques (UI) et fonctionnel (UX)
+Mission et responsabilité : Fournir à l'équipe de développeurs les éléments graphiques (UI) et fonctionnel (UX)
 Autonomie : L'équipe de designer
 
 #### Testeur

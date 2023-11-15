@@ -92,7 +92,7 @@
 
     RiotControl.on('item_is_upload', function () {
       //console.log('ALLO');
-      this.status = "resolved";
+      this.status = "résolu";
       this.update();
     }.bind(this))
 

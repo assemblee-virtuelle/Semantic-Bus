@@ -17,7 +17,7 @@
     <div class="containerH containerData">
       <div class="item-flex containerV"  style="background-color:rgb(255,255,255); flex: 1">
         <div class="containerH" style="justify-content:center;align-items:center">
-          <div><h5 class="title-graph">CONSOMATION PAR JOURS ( 30 DERNIERS JOURS )</h5></div>
+          <div><h5 class="title-graph">CONSOMMATION PAR WORKFLOW DES 30 DERNIERS JOURS</h5></div>
           <select class="inputSelectComponents" ref="primaryComponentIdInput" name="primaryComponentIdInput" style="margin-left:10px" >
             <option value="CREDIT">CREDIT</option>
             <option value="MO">MO</option>
@@ -244,9 +244,9 @@
             .html(
               name + 
               "<br/>Module: "+ d.label +
-              "<br/>Consomation : "+ d.datasize +" Mo"+
-              "<br/>Prix du flux : "+ Math.round(d.price * 100) / 100 + " Crédit"+
-              "<br/>Prix composant: "+ Math.round(d.pricing * 100) / 100 + "Credit / Mo")
+              "<br/>Consommation : "+ d.datasize +" Mo"+
+              "<br/>Prix du flux : "+ Math.round(d.price * 100) / 100 + " Crédits"+
+              "<br/>Prix du composant: "+ Math.round(d.pricing * 100) / 100 + "Credit / Mo")
             .style("left", d3.event.pageX-250 + "px")
             .style("top", d3.event.pageY - 28 + "px");
         })
