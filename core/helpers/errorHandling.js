@@ -10,7 +10,7 @@ const errorHandling = (e, res) => {
   } else if (e instanceof Error.UniqueEntityError) {
     console.log('UniqueEntityError', e)
     let message = ''
-    e.details === 'User' ? message = 'Un utilisateurs avec cette email existe déjà' : message = 'Un ' + e.details + ' existe déjà'
+    e.details === 'User' ? message = 'Un utilisateur avec cet email existe déjà' : message = 'Un ' + e.details + ' existe déjà'
     res.status(400).send({
       success: false,
       message
@@ -19,13 +19,13 @@ const errorHandling = (e, res) => {
     console.log('PropertyValidationError', e)
     res.status(400).send({
       success: false,
-      message: 'La propriété ' + e.details + ' n\'est pas correct'
+      message: 'La propriété ' + e.details + ' n\'est pas correcte'
     })
   }else if (e instanceof Error.EntityNotFoundError) {
     console.log('EntityNotFoundError', e)
     res.status(404).send({
       success: false,
-      message: e.details + ' not found'
+      message: e.details + ' non trouvé'
     })
   }else if (e instanceof Error.InternalProcessError) {
     console.log('InternalProcessError', e)
