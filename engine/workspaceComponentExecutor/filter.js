@@ -28,11 +28,13 @@ class Filter {
 
       try {
         // (source, pullParams, jsonTransformPattern, options) {
-        // console.log('filter',filter);
+        console.log('filter',filter);
+        console.log('usableData',usableData);
         // console.log('pullParams',pullParams);
         let filterResult = this.objectTransformation.execute(usableData,pullParams, filter);
-        // console.log('filterResult',filterResult);
+        console.log('filterResult',filterResult);
         var resultData = usableData.filter(this.sift(filterResult));
+        console.log('resultData',resultData)
         resolve({
           data: resultData
         })

@@ -406,6 +406,7 @@ module.exports = {
       return await this.persist (data,fragCaller,exitingFrag) 
     } else {
       for (let key in data) {
+        // console.log('persist key ',key,'value',data[key])
         const persistReturn = await this.persistObject(data[key],fragCaller);
         if (persistReturn?._id){
           data[key] = {

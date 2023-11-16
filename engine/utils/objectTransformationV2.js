@@ -13,7 +13,7 @@ module.exports = {
   },
 
   execute: function(source, pullParams, jsonTransformPattern, options, config) {
-    // console.log(source);
+    // console.log('Oject TRansformer source',source);
     // console.log('-pullParams',pullParams);
     // console.log('-jsonTransformPattern', jsonTransformPattern);
 
@@ -107,8 +107,9 @@ module.exports = {
     }
   },
   escapeString(source){
-
+    // console.log('escapeString',source);
     if(typeof source === 'string' || source instanceof String){
+      // console.log('escapeString',this.unicode.utoa(source))
       return `eval(this.unicode.atou(\`${this.unicode.utoa(source)}\`))`
     } else if(Array.isArray(source)){
       return source.map(r=>this.escapeString(r))

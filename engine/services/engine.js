@@ -573,7 +573,7 @@ class Engine {
     try {
       // if (!frag){
       //   throw new Error('frag have to be set');
-      // }
+      // }buildDfobFragmentFlow(')
       historic_object.componentId = processingNode.component._id;
       historic_object.persistProcess = processingNode.component.persistProcess;
       historic_object.processId = this.processId;
@@ -802,9 +802,12 @@ class Engine {
         // console.log('__________ componentFlowDfob :',componentFlowDfob)
 
         if (this.config.quietLog != true) console.time("recompose-DfobFlow");
+        // console.log('dfobFlow 1',dfobFlow)
         for (var componentFlowDfobKey in componentFlowDfob) {
-          if (componentFlowDfob[componentFlowDfobKey].data != undefined) {
+          if ('data' in componentFlowDfob[componentFlowDfobKey]) {
+            // console.log('componentFlowDfobKey 1',componentFlowDfobKey)
             if (dfobFlow[componentFlowDfobKey].key != undefined) {
+              // console.log('componentFlowDfobKey 2',componentFlowDfobKey)
               dfobFlow[componentFlowDfobKey].objectToProcess[dfobFlow[componentFlowDfobKey].key] =
                 componentFlowDfob[componentFlowDfobKey].data
             } else {
@@ -822,6 +825,7 @@ class Engine {
               componentFlowDfob[componentFlowDfobKey]
           }
         }
+        // console.log('dfobFlow 2',dfobFlow)
         if (this.config.quietLog != true) console.timeEnd("recompose-DfobFlow");
       } else {
         // console.log('WITHOUT DFOB');
