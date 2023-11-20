@@ -7,25 +7,26 @@ class CacheNosql {
     this.stepNode = true
   }
 
-  initialise (router) {
-    router.get('/getCache/:compId', function (req, res, next) {
-      var compId = req.params.compId
+  // initialise (router) {
+  //   router.get('/getCache/:compId', function (req, res, next) {
 
-      this.workspace_component_lib.get({
-        _id: compId
-      }).then(component => {
-        this.cache_lib.get(component, false).then(cachedData => {
-          if (cachedData != undefined) {
-            res.json(cachedData)
-          } else {
-            res.json([])
-          }
-        }).catch(e => {
-          next(e)
-        })
-      })
-    }.bind(this))
-  }
+  //     var compId = req.params.compId
+
+  //     this.workspace_component_lib.get({
+  //       _id: compId
+  //     }).then(component => {
+  //       this.cache_lib.get(component, false).then(cachedData => {
+  //         if (cachedData != undefined) {
+  //           res.json(cachedData)
+  //         } else {
+  //           res.json([])
+  //         }
+  //       }).catch(e => {
+  //         next(e)
+  //       })
+  //     })
+  //   }.bind(this))
+  // }
 
   pull (data, flowData, queryParams) {
     return new Promise((resolve, reject) => {

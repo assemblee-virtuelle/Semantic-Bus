@@ -50,7 +50,7 @@ class Communication {
       }).then( (data)=>{
         console.log('work-ask',messageObject)
         const engine = require('../services/engine.js')
-        console.log('messageObject',messageObject)
+        // console.log('messageObject',messageObject)
         engine.execute(data, 'work', this.amqpClient, messageObject.callerId,messageObject.pushData,messageObject.queryParams, messageObject.tracerId).then(r=>{
           // console.log('engine ok');
         }).catch(e=>{

@@ -469,7 +469,7 @@ class Engine {
                 try {
                   // console.log("in dataFlow",dataFlow);
                   const componentFlow= await  module.pull(processingNode.component, dataFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams);
-                  console.log('ENGINE Component ok')
+                  // console.log('ENGINE Component ok')
 
                   const {
                     data,

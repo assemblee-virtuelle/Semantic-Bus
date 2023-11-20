@@ -18,7 +18,7 @@ class SimpleAgregator {
   }
   pull (data, flowData) {
     return new Promise((resolve, reject) => {
-      console.log('___',flowData)
+      // console.log('___',flowData)
       var resultFlow = []
       for (let flow of flowData) {
         for(let oririnData of flow.data){

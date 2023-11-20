@@ -326,17 +326,16 @@ module.exports = {
   },
 
   testAllLiteralArray: function (arrayToTest){
-    const allLiteral = arrayToTest.every(i=>{
-      const isLiteral = this.isLiteral(i);
-      // console.log('is literal',i,isLiteral)
-      return isLiteral
+    const oneNotLiteral = arrayToTest.some(i=>{
+      const isNotLiteral = !this.isLiteral(i);
+      return isNotLiteral
     })
-    return allLiteral
+    return !oneNotLiteral
     
   },
 
   testFragArray: function (arrayToTest){
-    if (arrayToTest.length<=1000){
+    if (arrayToTest.length<=100){
       return false; 
     }else if (this.testAllLiteralArray(arrayToTest)){
       return false
@@ -402,13 +401,13 @@ module.exports = {
     if (this.isLiteral(data)){
       return this.processLiteral(data);
     } else if (Array.isArray(data) && this.testFragArray(data)){
-      // console.log(('object->frag'));
+      console.log(('object->frag'));
       return await this.persist (data,fragCaller,exitingFrag) 
     } else {
       for (let key in data) {
-        // console.log('persist key ',key,'value',data[key])
+        // console.log('persist key ',key)
         const persistReturn = await this.persistObject(data[key],fragCaller);
-        if (persistReturn?._id){
+        if (persistReturn?._id && persistReturn?._id instanceof mongoose.Types.ObjectId){
           data[key] = {
             _frag : persistReturn._id.toString()
           }
@@ -472,8 +471,7 @@ module.exports = {
         _id: id
       })
       .lean()
-      .exec()
-      .then();
+      .exec();
       // console.log('frag',fragmentReturn)
       if (fragmentReturn.branchFrag) {
         const frags = await this.fragmentModel.getInstance().model.find({

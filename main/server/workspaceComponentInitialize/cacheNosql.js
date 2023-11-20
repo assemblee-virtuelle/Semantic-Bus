@@ -16,22 +16,23 @@ class CacheNosql {
   }
 
   initialise (router) {
-    router.get('/getCache/:compId', function (req, res, next) {
-      var compId = req.params.compId
+    router.get('/getCache/:compId', async function (req, res, next) {
+      try {
+        var compId = req.params.compId
+        const component = await  this.workspace_component_lib.get({
+          _id: compId
+        });
 
-      this.workspace_component_lib.get({
-        _id: compId
-      }).then(component => {
-        this.cache_lib.get(component, false).then(cachedData => {
-          if (cachedData != undefined) {
-            res.json(cachedData)
-          } else {
-            res.json([])
-          }
-        }).catch(e => {
-          next(e)
-        })
-      })
+        const cachedData = await this.cache_lib.get(component, false);
+
+        if (cachedData != undefined) {
+          res.json(cachedData.data)
+        } else {
+          res.json([])
+        }
+      } catch (error) {
+        next(error)
+      }
     }.bind(this))
   }
 }
