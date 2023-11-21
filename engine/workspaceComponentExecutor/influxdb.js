@@ -146,7 +146,7 @@ class InfluxdbConnector {
   addFieldsToPoint(jsonData,point,fields){
     if (fields) {
       fields.forEach(field => {
-        console.log('fields',field,fields)
+        // console.log('fields',field,fields)
         point.intField(field, jsonData[field]);
       })
     }
@@ -281,7 +281,7 @@ class InfluxdbConnector {
                       .timestamp(date)
         const point2 = this.addTagsToPoint(jsonData,point1,tags)
         const point3 = this.addFieldsToPoint(jsonData,point2,fields);
-        console.log('point3',point3)
+        // console.log('point3',point3)
       
         // then we write the data
         writeApi.writePoint(point3);
