@@ -363,7 +363,7 @@ module.exports = {
       }else if (Array.isArray(data)){
 
         if(this.testFragArray(data)){
-          // console.log('FAG ARRRAY',data)
+          // console.log('FRAG ARRRAY',data)
         // if(false){
           fargToPersist = await this.createArrayFrag(fargToPersist);
           for (let item of data){
@@ -371,10 +371,11 @@ module.exports = {
           } 
           return  fargToPersist;
         }else{
+          // console.log('NOT FRAG ARRRAY',data)
           const arrayReadyToPersit = []
           for (let item of data){
             const persistedObject = await this.persistObject(item,fargToPersist);
-            if (persistedObject._id){
+            if (persistedObject._id  && persistedObject?._id instanceof mongoose.Types.ObjectId){
               arrayReadyToPersit.push({
                 _frag : persistedObject._id.toString()
               });

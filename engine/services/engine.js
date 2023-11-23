@@ -866,7 +866,7 @@ class Engine {
         if (this.config.quietLog != true) console.timeEnd("persist");
         // console.log('AFTER persist',JSON.stringify(pesristedFragment))
     } catch (error) {
-      console.error("______persist ERROR",error);
+      console.error("persist ERROR",error);
     }
     // console.log('______ pesristedFragment',pesristedFragment);
     return pesristedFragment
