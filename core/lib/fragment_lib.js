@@ -401,7 +401,7 @@ module.exports = {
     if (this.isLiteral(data)){
       return this.processLiteral(data);
     } else if (Array.isArray(data) && this.testFragArray(data)){
-      console.log(('object->frag'));
+      // console.log(('object->frag'));
       return await this.persist (data,fragCaller,exitingFrag) 
     } else {
       for (let key in data) {

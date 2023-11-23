@@ -114,7 +114,7 @@ class PostConsumer {
         }
 
         // console.log('headers',headers);
-        // console.log('BEFORE CALL');
+        console.log('BEFORE CALL');
         this.call_url(url, {
           method: componentConfig.method||'GET',
           body: body,
@@ -124,6 +124,7 @@ class PostConsumer {
         componentConfig.timeout,
         componentConfig.retry?componentConfig.retry-1:undefined
       ).then(async (response)=>{
+          console.log('AFTER CALL',response.status);
           let responseObject;
 
           if (response){
@@ -210,7 +211,7 @@ class PostConsumer {
       }, fetchTimeout*1000);
 
 
-      // console.log('BEFORE FETCH');
+      console.log('BEFORE FETCH');
       this.fetch(url, {...options,signal: controller.signal }).then(
         (fetchResult)=>{
           clearTimeout(id);
