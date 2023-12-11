@@ -14,7 +14,6 @@
     <div class="bar"/>
   </div>
 
-
   <label class="labelFormStandard">URL externe où envoyer les données:</label>
   <div class="cardInput">
     <input class="inputComponents" placeholder="" type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.url}></input>
@@ -57,6 +56,15 @@
     <input class="inputComponents" placeholder="" type="text" ref="overidedContentTypeInput" value={data.specificData.overidedContentType} onchange={overidedContentTypeInputChange}></input>
   </div>
 
+  <label class="labelFormStandard">certificat pfx (doit être une propriété faisant reference à un fichier interne uploadé ex:_file)</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="" type="text" ref="certificatePropertyInput" value={data.specificData.certificateProperty} onchange={certificatePropertyInputChange}></input>
+  </div>
+  <label class="labelFormStandard">passphrase pfx</label>
+  <div class="cardInput">
+    <input class="inputComponents" placeholder="" type="text" ref="certificatePassphraseInput" value={data.specificData.certificatePassphrase} onchange={certificatePassphraseInputChange}></input>
+  </div>
+
   <label class="labelFormStandard">Header</label>
   <div class="cardInput">
     <div onclick={addRowClick} class="btnFil commandButtonImage">
@@ -71,6 +79,7 @@
       <input placeholder="Valeur" type="text" style="flex-basis:50%; margin: 5px" value={value} data-field="value"/>
     </yield>
   </zentable>
+
   <script>
     this.data = {};
     urlInputChanged = e => {
@@ -102,6 +111,13 @@
       this.data.specificData.overidedContentType = e.target.value;
     }
 
+    certificatePropertyInputChange = function (e) {
+      this.data.specificData.certificateProperty = e.target.value;
+    }
+
+    certificatePassphraseInputChange = function (e) {
+      this.data.specificData.certificatePassphrase = e.target.value;
+    }
 
     this.addRowClick = function (e) {
       this.refs.headerTable.data.push({})
@@ -116,6 +132,11 @@
         this.refs.typeLabel.classList.add("hide");
       }
     }
+
+    this.profilCertificatesChanged = function (certificates) {
+      this.refs.certificates.data = certificates;
+      this.update();
+    }.bind(this);
 
 
     this.updateData = dataToUpdate => {
@@ -132,6 +153,8 @@
         this.refs.headerTable.data.splice(row.rowid, 1);
       });
       RiotControl.on('item_current_changed', this.updateData);
+      RiotControl.on('profil_certificates_changed', this.profilCertificatesChanged);
+      RiotControl.trigger('profil_get_certificates')
     });
     this.on('unmount', function () {
       RiotControl.off('item_current_changed', this.updateData);

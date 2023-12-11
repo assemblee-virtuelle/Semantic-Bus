@@ -90,7 +90,7 @@
       this.reload()
       // this.tags.zentable.on('rowNavigation', (data) => route('workspace/' + data._id + '/component'))
       this.tags.zentable.on('rowNavigation', (data) => this.trigger('rowNavigation',data))
-      this.tags.zentable.on('delRow', (data) => this.trigger('deleteRow', data))
+      this.tags.zentable.on('delRow', (data) => this.trigger('delRow', data))
 
       this.update()
     })

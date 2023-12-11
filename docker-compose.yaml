@@ -9,7 +9,8 @@ services:
       - "--entrypoints.web.address=:90" # Spécifier l'adresse d'entrée
     ports:
       - "8080:8080"
-    network_mode: host
+    networks:
+      - bus
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
   ##Laisser le nom main pour la localisation des folder pour la resolution du path de config
@@ -27,7 +28,8 @@ services:
       - ./timer:/data/timer/
       - ./core:/data/core/
       - ./config.local.json:/data/timer/config.json
-    network_mode: host
+    networks:
+      - bus
     ports:
       - "100:100"
     expose:
@@ -71,7 +73,9 @@ services:
       - ./engine:/data/engine/
       - ./core:/data/core/
       - ./config.local.json:/data/engine/config.json
-    network_mode: host
+      - ./uploads:/data/uploads/
+    networks:
+      - bus
     labels:
       - "traefik.enable=true"
       - "traefik.http.routers.engine.rule=Host(`localhost`)" # Utiliser localhost comme hôte
@@ -99,8 +103,10 @@ services:
     volumes:
       - ./main:/data/main/
       - ./core:/data/core/
+      - ./uploads:/data/uploads/
       - ./config.local.json:/data/main/config.json
-    network_mode: host
+    networks:
+      - bus
     ports:
       - "80:80"
     expose:
@@ -117,11 +123,13 @@ services:
       - 5672:5672
       - 15674:15674
       - 15672:15672
-    network_mode: host
+    networks:
+      - bus
 
   mongodb:
     image: mongo:4.0.6
-    network_mode: host
+    networks:
+      - bus
     ports:
       - "27017:27017"
     expose:

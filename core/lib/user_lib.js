@@ -8,7 +8,8 @@ let graphTraitement = require("../helpers/graph-traitment");
 let historiqueModel = require("../models").historiqueEnd;
 let SecureMailModel = require("../models/security_mail");
 let workspaceModel = require("../models").workspace;
-let bigdataflowModel = require("../models").bigdataflow;
+let certificateModel = require("../models").certificate;
+// let bigdataflowModel = require("../models").bigdataflow;
 const Error = require('../helpers/error.js');
 var validator = require('validator');
 
@@ -45,7 +46,6 @@ function _create(bodyParams) {
   return new Promise(function (resolve, reject) {
     _create_preprocess(bodyParams.user).then((preData) => {
       return _create_mainprocess(preData);
-
     }).then(user => {
       resolve(user);
     }).catch((err) => {

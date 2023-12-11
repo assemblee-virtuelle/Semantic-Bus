@@ -28,7 +28,7 @@ class HttpGet {
       const request = lib.request(requestOptions, response => {
         const hasResponseFailed = response.statusCode >= 400
         var responseBody = ''
-        var responseBodyExel = []
+        // var responseBodyExel = []
         if (hasResponseFailed) {
           let fullError = new Error('http get hasResponseFailed')
           fullError.displayMessage = '`Request to ' + urlString + ' failed with HTTP ' + response.statusCode
@@ -37,14 +37,14 @@ class HttpGet {
 
         response.on('data', chunk => {
           responseBody += chunk.toString()
-          responseBodyExel.push(chunk)
+          // responseBodyExel.push(chunk)
         })
 
         response.on('end', function () {
           let responseContentType = response.headers['content-type']
           responseContentType = contentType || responseContentType
           console.log(responseBody)
-          this.dataTraitment.type.type_file(response.headers['content-disposition'], responseBody, responseBodyExel, undefined, responseContentType).then((result) => {
+          this.dataTraitment.type.data_from_file(response.headers['content-disposition'], Buffer.from(responseBody, 'utf-8'), responseContentType).then((result) => {
             let normalized = this.propertyNormalizer.execute(result)
             resolve({ data: normalized })
           }, (err) => {

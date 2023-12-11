@@ -7,7 +7,7 @@ class Communication {
   init(router) {
     router.post('/work-ask/:componentId', (req, res, next) => {
 
-      console.log('VERSION',req.params.engineVersion)
+      // console.log('VERSION',req.params.engineVersion)
 
       req.setTimeout(0);
       const componentId = req.params.componentId

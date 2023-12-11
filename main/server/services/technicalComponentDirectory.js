@@ -75,5 +75,6 @@ module.exports = {
   setAmqp : function (channel){
     // console.log('setAmqp')
     this.restApiPost.setAmqp(channel);
+    this.upload.setAmqp(channel)
   }
 }

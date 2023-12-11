@@ -30,5 +30,6 @@ module.exports = {
     error: errorSchema,
     historiqueEnd: historiqueEndSchema,
     process: pocessSchema,
-    fragment: fragmentSchema
+    fragment: fragmentSchema,
+    file : fileSchema
 }

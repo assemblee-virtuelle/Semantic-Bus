@@ -28,6 +28,7 @@ function UploadStore (utilStore) {
         return xhr
       }.bind(this)
     }).done(function (data) {
+      // console.log('UPLOAD')
       this.trigger('item_is_upload')
       route('workspace/' + this.genericStore.workspaceCurrent._id + '/component')
     }.bind(this)).fail(function (error) {

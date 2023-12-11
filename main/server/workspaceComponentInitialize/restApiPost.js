@@ -36,7 +36,7 @@ class RestApiPost {
   }
 
   setAmqp(amqpConnection){
-    console.log('set AMQP')
+    // console.log('set AMQP')
     this.amqpConnection=amqpConnection;
     amqpConnection.consume('process-persist', (msg) => {
       const messageObject = JSON.parse(msg.content.toString())
@@ -191,7 +191,7 @@ class RestApiPost {
                 headers: req.headers,
                 method :req.method
               },
-              pushData: req.body
+              // pushData: req.body
             }
             this.pendingWork[tracerId] = {
              component :component._id

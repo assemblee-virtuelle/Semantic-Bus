@@ -67,7 +67,7 @@
     .container {
       width: 450px;
     }
-  }*/
+  }
   </style>
   <script>
 
@@ -101,16 +101,6 @@
       this.progress = 0;
       this.textload = "";
       //$('.progress-bar').width(0 + '%');
-
-      function fixdata(data) {
-        var o = "",
-          l = 0,
-          w = 10240;
-        for (; l < data.byteLength / w; ++l)
-          o += String.fromCharCode.apply(null, new Uint8Array(data.slice(l * w, l * w + w)));
-        o += String.fromCharCode.apply(null, new Uint8Array(data.slice(l * w)));
-        return o;
-      }
 
       var rABS = true; // true: readAsBinaryString ; false: readAsArrayBuffer
       $('#upload-input').unbind('change');

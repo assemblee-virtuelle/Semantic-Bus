@@ -1,6 +1,6 @@
 'use strict';
 //console.log("Datatraitment module initialize")
-var type = require('./generique/get_file_type.js');
+var type = require('./file_convertor.js');
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

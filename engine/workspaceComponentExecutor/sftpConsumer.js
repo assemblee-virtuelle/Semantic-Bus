@@ -11,7 +11,7 @@ class SftpConsumer {
     return new Promise((resolve, reject) => {
       const fakeName = dataPath.replace('/','_');
 
-      this.dataTraitment.type.type_file(fakeName, readableStream.toString(), readableStream)
+      this.dataTraitment.type.data_from_file(fakeName, readableStream)
       .then((result) => {
         let data = this.propertyNormalizer.execute(result.data);
         // console.log(data);

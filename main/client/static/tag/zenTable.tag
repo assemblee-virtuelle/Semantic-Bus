@@ -88,15 +88,15 @@
       event.target.classList.add('dropTarget');
       let insertDirection = event.target.getAttribute('data-insert');
       //console.log("insertDirection",insertDirection);
-      console.log("item", event.item);
+      //console.log("item", event.item);
       //console.log("event",JSON.parse(event.dataTransfer.getData('sourceData')));
       let source = JSON.parse(event.dataTransfer.getData('sourceData'));
-      console.log('source', source);
+      //console.log('source', source);
       //console.log(event.target); this.placeholder.remove();
-      console.log('origin', this.data);
+      //console.log('origin', this.data);
       // this.data.splice(source.rowId, 1);
       let insertPosition = event.item.rowId;
-      console.log(insertDirection);
+      //console.log(insertDirection);
 
       this.data.splice(source.rowId, 1);
 
@@ -108,12 +108,12 @@
       }
       //let newData=this.data.slice(0,insertPosition)
       insertPosition = Math.max(0, insertPosition);
-      console.log(insertPosition);
+      //console.log(insertPosition);
 
       this.data.splice(insertPosition, 0, source);
 
       // RiotControl.trigger('workspace_list_persist', this.dragged.item)
-      console.log('result', this.data);
+      //console.log('result', this.data);
       this.update();
     }
 

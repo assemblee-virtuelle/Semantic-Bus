@@ -1,4 +1,9 @@
 'use strict';
+
+const fs = require('fs');
+const https = require('https');
+const fileLib = require('../../core/lib/file_lib.js')
+
 class PostConsumer {
   constructor () {
     this.fetch = require('node-fetch');
@@ -114,17 +119,33 @@ class PostConsumer {
         }
 
         // console.log('headers',headers);
-        console.log('BEFORE CALL');
+        // console.log('BEFORE CALL');
+        let certif = undefined;
+        if (flowData && flowData[0].data && componentConfig.certificateProperty && componentConfig.certificatePassphrase ){
+          // console.log ('fileId',flowData[0],flowData[0].data[componentConfig.certificateProperty])
+          const fileObjectc = await fileLib.get(flowData[0].data[componentConfig.certificateProperty]);
+          // console.log('fileObjectc',fileObjectc)
+          let file =fs.readFileSync(fileObjectc.filePath);
+          console.log('file',file)
+          certif={
+            pfx:{
+              file : file,
+              passphrase : componentConfig.certificatePassphrase
+            }
+          }
+        }
+
         this.call_url(url, {
           method: componentConfig.method||'GET',
           body: body,
-          headers: headers
+          headers: headers,
+          certif
         },
         undefined,
         componentConfig.timeout,
         componentConfig.retry?componentConfig.retry-1:undefined
       ).then(async (response)=>{
-          console.log('AFTER CALL',response.status);
+          // console.log('AFTER CALL',response.status);
           let responseObject;
 
           if (response){
@@ -210,9 +231,21 @@ class PostConsumer {
         controller.abort();
       }, fetchTimeout*1000);
 
+      // Configuration de l'agent HTTPS personnalisé
+      let optionsMix;
+      if (url.includes('https') && options.certif && options.certif.pfx){
+        const agent = new https.Agent({
+          pfx: options.certif.pfx.file,
+          passphrase: options.certif.pfx.passphrase
+        });
+        optionsMix={...options, agent, signal: controller.signal };
+      }else{
+        optionsMix={...options, signal: controller.signal }
+      }
 
       console.log('BEFORE FETCH');
-      this.fetch(url, {...options,signal: controller.signal }).then(
+
+      this.fetch(url, optionsMix).then(
         (fetchResult)=>{
           clearTimeout(id);
           resolve(fetchResult);
