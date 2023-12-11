@@ -243,8 +243,6 @@ class PostConsumer {
         optionsMix={...options, signal: controller.signal }
       }
 
-      console.log('BEFORE FETCH');
-
       this.fetch(url, optionsMix).then(
         (fetchResult)=>{
           clearTimeout(id);
