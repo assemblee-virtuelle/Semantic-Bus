@@ -4,7 +4,7 @@ const fs = require('fs');
 const https = require('https');
 const fileLib = require('../../core/lib/file_lib.js')
 
-class PostConsumer {
+class HttpConsumer {
   constructor () {
     this.fetch = require('node-fetch');
     this.stringReplacer = require('../utils/stringReplacer.js');
@@ -298,4 +298,4 @@ class PostConsumer {
   }
 }
 
-module.exports = new PostConsumer()
+module.exports = new HttpConsumer()

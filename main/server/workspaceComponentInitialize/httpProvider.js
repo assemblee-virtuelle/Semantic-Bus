@@ -2,7 +2,7 @@
 
 const { v4: uuidv4 } = require('uuid');
 const MODE = 'AMQP' // MODE could be AMQP when all workflow will migrate over V1
-class RestApiPost {
+class HttpProvider {
   constructor() {
     this.type = 'HTTP provider'
     this.description = `Mettre à disposition une API HTTP; Permettre à votre workflow d'être appelé par une requete HTTP.`
@@ -14,9 +14,9 @@ class RestApiPost {
         'http://semantic-bus.org/data/tags/APIComponents'
       ],
       this.stepNode = false
-    this.workspace_component_lib = require('../../../core/lib/workspace_component_lib')
-    this.workspace_lib = require('../../../core/lib/workspace_lib')
-    this.fragment_lib = require('../../../core/lib/fragment_lib')
+    this.workspace_component_lib = require('../../../core/lib/workspace_component_lib.js')
+    this.workspace_lib = require('../../../core/lib/workspace_lib.js')
+    this.fragment_lib = require('../../../core/lib/fragment_lib.js')
     this.data2xml = require('data2xml');
     this.xmlJS = require('xml-js');
     this.dataTraitment = require('../../../core/dataTraitmentLibrary/index.js')
@@ -294,4 +294,4 @@ class RestApiPost {
   }
 }
 
-module.exports = new RestApiPost()
+module.exports = new HttpProvider()

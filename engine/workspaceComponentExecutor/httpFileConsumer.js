@@ -1,5 +1,5 @@
 'use strict';
-class HttpGet {
+class HttpFileConsumer {
   constructor () {
     this.url = require('url')
     this.http = require('http')
@@ -68,4 +68,4 @@ class HttpGet {
     return this.makeRequest('GET', data.specificData.url, data.specificData.contentType,flowdata, pullParams)
   }
 }
-module.exports = new HttpGet()
+module.exports = new HttpFileConsumer()

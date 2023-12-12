@@ -1,4 +1,4 @@
-<rest-get-editor>
+<http-file-consumer-editor>
   <!-- bouton aide -->
   <div class="containerH" style="margin-left:97%">
     <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-File-consumer" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>

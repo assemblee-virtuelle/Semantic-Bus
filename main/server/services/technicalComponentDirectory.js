@@ -12,7 +12,8 @@ module.exports = {
   cacheNosql: require('../workspaceComponentInitialize/cacheNosql.js'),
   gouvFrInverseGeo: require('../workspaceComponentInitialize/gouvFrInverseGeo.js'),
   restApiGet: require('../workspaceComponentInitialize/restApiGet.js'),
-  restApiPost: require('../workspaceComponentInitialize/restApiPost.js'),
+  restApiPost: require('../workspaceComponentInitialize/httpProvider.js'),
+  httpProvider: require('../workspaceComponentInitialize/httpProvider.js'),
   // xmlToObject: require('./workspaceComponentInitialize/xmlToObject.js'),
   framcalcGetCsv: require('../workspaceComponentInitialize/framcalcGetCsv.js'),
   gouvFrGeoLocaliser: require('../workspaceComponentInitialize/gouvFrGeoLocaliser.js'),
@@ -22,7 +23,8 @@ module.exports = {
   filter: require('../workspaceComponentInitialize/filter.js'),
   upload: require('../workspaceComponentInitialize/upload.js'),
   scrapper: require('../workspaceComponentInitialize/scrapper.js'),
-  httpGet: require('../workspaceComponentInitialize/restGetFile.js'),
+  httpGet: require('../workspaceComponentInitialize/httpFileConsumer.js'),
+  httpFileConsumer: require('../workspaceComponentInitialize/httpFileConsumer.js'),
   sqlConnector: require('../workspaceComponentInitialize/sqlConnecteur.js'),
   mongoConnector: require('../workspaceComponentInitialize/MongoDB.js'),
   influxdbConnector: require('../workspaceComponentInitialize/influxdb.js'),
@@ -33,7 +35,8 @@ module.exports = {
   valueFromPath: require('../workspaceComponentInitialize/valueFromPath.js'),
   unicity: require('../workspaceComponentInitialize/unicity.js'),
   propertiesMatrix: require('../workspaceComponentInitialize/propertiesMatrix.js'),
-  postConsumer: require('../workspaceComponentInitialize/postConsumer.js'),
+  postConsumer: require('../workspaceComponentInitialize/httpConsumer.js'),
+  httpConsumer: require('../workspaceComponentInitialize/httpConsumer.js'),
   keyToArray: require('../workspaceComponentInitialize/keyToArray.js'),
   sftpConsumer: require('../workspaceComponentInitialize/sftpConsumer.js'),
   flat: require('../workspaceComponentInitialize/flat.js'),
@@ -64,17 +67,17 @@ module.exports = {
     return directory
   },
 
-  initialise: function (router, unSafeRouteur,engineTracer) {
+  initialise: function (router, unSafeRouteur, engineTracer) {
     // console.log('initialise')
-    this.restApiPost.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
-    this.restApiGet.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
-    this.upload.initialise(router,engineTracer)
-    this.cacheNosql.initialise(router,engineTracer) // NO SECURE CHANGE ROUTER
+    this.httpProvider.initialise(unSafeRouteur, engineTracer) // NO SECURE CHANGE ROUTER
+    this.restApiGet.initialise(unSafeRouteur, engineTracer) // NO SECURE CHANGE ROUTER
+    this.upload.initialise(router, engineTracer)
+    this.cacheNosql.initialise(router, engineTracer) // NO SECURE CHANGE ROUTER
   },
 
-  setAmqp : function (channel){
+  setAmqp: function (channel) {
     // console.log('setAmqp')
-    this.restApiPost.setAmqp(channel);
+    this.httpProvider.setAmqp(channel)
     this.upload.setAmqp(channel)
   }
 }
