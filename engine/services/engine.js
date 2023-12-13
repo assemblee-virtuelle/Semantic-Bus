@@ -259,27 +259,27 @@ class Engine {
                 // console.log('sourceNode',sourceNode);
                 let persistedData;
                 let persistedFragmentData;
-                if (processingNode.component.module != 'deeperFocusOpeningBracket') {
+                // if (processingNode.component.module != 'deeperFocusOpeningBracket') {
                   let sourceComponentId;
                   // console.log('sourceNode.dataResolution',sourceNode.dataResolution);
-                  if (sourceNode.dataResolution && sourceNode.dataResolution.dfobSourceComponentId) {
-                    // console.log('sourceNode.dataResolution.dfobSourceComponentId',sourceNode.dataResolution.dfobSourceComponentId);
-                    sourceComponentId = sourceNode.dataResolution.dfobSourceComponentId;
-                  } else {
+                  // if (sourceNode.dataResolution && sourceNode.dataResolution.dfobSourceComponentId) {
+                  //   // console.log('sourceNode.dataResolution.dfobSourceComponentId',sourceNode.dataResolution.dfobSourceComponentId);
+                  //   sourceComponentId = sourceNode.dataResolution.dfobSourceComponentId;
+                  // } else {
                     sourceComponentId = sourceNode.component._id
-                  }
+                  // }
 
                   // get_component_result is get HistoricEnd
                   const persistedDataFlowCoponent = await this.workspace_component_lib.get_component_result(sourceComponentId, this.processId);
-                  // console.log('persistedDataFlowCoponent.frag',persistedDataFlowCoponent,sourceNode);
+                  // console.log('persistedDataFlowCoponent',persistedDataFlowCoponent,sourceNode);
                   const fragAvailable = persistedDataFlowCoponent.frag && persistedDataFlowCoponent.frag != null;
 
                   if (fragAvailable) {
                     persistedFragmentData = persistedDataFlowCoponent.frag;
                   }
 
-                }
-                const previousDfob = sourceNode.dataResolution ? sourceNode.dataResolution.dfob : undefined;
+                // }
+                const previousDfob = persistedDataFlowCoponent.dfob ? persistedDataFlowCoponent.dfob : undefined;
                 persistedDataFlow.push({
                   // data: persistedData ? persistedData : undefined,
                   fragment : persistedFragmentData,
@@ -293,22 +293,24 @@ class Engine {
                 deeperFocusData : processingNode.component.deeperFocusData
               }
 
-              if(componentFlow.dataFlow.length==1 && !componentFlow.deeperFocusData){
+              if(componentFlow.dataFlow.length==1 && (!componentFlow.deeperFocusData || Object.keys(componentFlow.deeperFocusData).length==0)){
+                // console.log('APPPLY dfob from source!!',componentFlow.dataFlow[0].dfob)
                 componentFlow.deeperFocusData=componentFlow.dataFlow[0].dfob;
-              }
+              }  
 
-              if(componentFlow?.deeperFocusData?.activateDf==undefined||componentFlow?.deeperFocusData?.activateDf==false){
+
+              if(!componentFlow?.deeperFocusData && (componentFlow?.deeperFocusData?.activateDf==undefined||componentFlow?.deeperFocusData?.activateDf==false)){
                 componentFlow.deeperFocusData={
                   dfobPath:'',
                   keepArray:true
                 };
               }
-              
+          
               // properties harmonisation
               componentFlow.deeperFocusData={
-                keepArray : componentFlow.deeperFocusData.keepArray|| componentFlow.deeperFocusData.dfobKeepArray,
-                dfobPath : componentFlow.deeperFocusData.dfobPath,
-                pipeNb : componentFlow.deeperFocusData.beanNb||  componentFlow.deeperFocusData.pipeNb||  componentFlow.deeperFocusData.dfobNbPipe 
+                keepArray : componentFlow.deeperFocusData.keepArray!=undefined ? componentFlow.deeperFocusData.keepArray : componentFlow.deeperFocusData.dfobKeepArray,
+                dfobPath : componentFlow.deeperFocusData.path!=undefined ? componentFlow.deeperFocusData.path : componentFlow.deeperFocusData.dfobPath,
+                pipeNb : componentFlow.deeperFocusData.beanNb!=undefined? componentFlow.deeperFocusData.beanNb : componentFlow.deeperFocusData.pipeNb!=undefined ? componentFlow.deeperFocusData.pipeNb :  componentFlow.deeperFocusData.dfobNbPipe 
               }
 
               if (module.getPrimaryFlow != undefined) {
@@ -319,7 +321,6 @@ class Engine {
               } else {
                 componentFlow.primaryflow = componentFlow.dataFlow[0]
               }
-              // console.log('componentFlow.primaryflow',componentFlow.primaryflow);
 
               secondaryFlow = []
               if (module.getSecondaryFlow != undefined) {
@@ -344,7 +345,7 @@ class Engine {
               await this.historicEndAndCredit(processingNode, startTime, undefined, err)
               this.processNextBuildPath('flow ko')
             } else {
-              // console.log('primaryflow',primaryflow);
+              // console.log('componentFlow.primaryflow',componentFlow.primaryflow);
               if ( componentFlow.deeperFocusData) {
                 try {
 
@@ -406,6 +407,7 @@ class Engine {
                     if (this.config.quietLog != true) console.timeEnd("secondary_getWithResolutionByBranch");
 
                     try {
+                      let dfob = undefined;
                       let paramArray = dfobFragmentSelected.map(item => {
                         // console.log('item',item)
                         return [
@@ -418,7 +420,7 @@ class Engine {
                       })
 
                       try {
-                        await this.promiseOrchestrator.execute(this, this.rebuildFrag_focus_work_persist, paramArray, {
+                        const workResult = await this.promiseOrchestrator.execute(this, this.rebuildFrag_focus_work_persist, paramArray, {
                           pipeNb,
                           logIteration: true,
                           continueChekFunction: async () => {
@@ -431,15 +433,22 @@ class Engine {
                             }
                           }
                         },this.config);
+                        for (const workResultItem of workResult) {
+                          if(workResultItem.dfob){
+                            dfob=workResultItem.dfob;
+                          }  
+                        }
+                        
+                        // console.log('rebuildFrag_focus_work_persist done',workResult)
                       } catch (error) {
                         console.error(error);
                       }
-                      // console.log('rebuildFrag_focus_work_persist done')
+                      //  console.log('___________dfob',dfob)
     
 
                       processingNode.status = 'resolved'
                       // console.log('call historicEndAndCredit', newFrag)
-                      await this.historicEndAndCredit(processingNode, startTime, newFrag, undefined)
+                      await this.historicEndAndCredit(processingNode, startTime, newFrag, undefined,dfob)
                       // console.log('done historicEndAndCredit')
                       this.processNextBuildPath('flow ok')
                     } catch (error) {
@@ -567,7 +576,7 @@ class Engine {
 
   }
 
-  async historicEndAndCredit(processingNode, startTime, frag, error) {
+  async historicEndAndCredit(processingNode, startTime, frag, error, dfob) {
     if (this.config.quietLog != true) console.time('historicEndAndCredit')
     let historic_object = {};
     try {
@@ -583,9 +592,8 @@ class Engine {
 
       if(frag){
         try {
-          if (module != 'deeperFocusOpeningBracket' && !error) {
-              historic_object = await this.workspace_lib.addFragHistoriqueEnd(historic_object._id, frag);
-          }
+          historic_object = await this.workspace_lib.addFragHistoriqueEnd(historic_object._id, frag);
+          
           this.processNotifier.persist({
             componentId: historic_object.componentId,
             processId: historic_object.processId,
@@ -626,6 +634,10 @@ class Engine {
           moPrice: current_component.price,
           recordPrice: current_component.record_price
         }
+      }
+
+      if (dfob){
+        historic_object.dfob=dfob
       }
 
       // historic_object.recordCount = processingNode.dataResolution == undefined || data == undefined ? 0 : data.length || 1;
@@ -732,6 +744,7 @@ class Engine {
 
   async buildDfobFragmentFlow(fragment, dfobTable, keepArray) {
     if (this.config.quietLog != true)  console.time("buildDfobFragmentFlow");
+    // console.log('buildDfobFragmentFlow',fragment)
     const out=  await this.fragment_lib.copyFragUntilPath(fragment, dfobTable,keepArray);
     if (this.config.quietLog != true)  console.timeEnd("buildDfobFragmentFlow");
     // throw new Error('tmp')
@@ -747,6 +760,7 @@ class Engine {
     try {
       if (this.config.quietLog != true) console.time("primary_getWithResolutionByBranch");
       rebuildData = await this.fragment_lib.getWithResolutionByBranch(fragment._id);
+      dfob=undefined;
       if (this.config.quietLog != true) console.timeEnd("primary_getWithResolutionByBranch");
       // console.log('_______rebuildData',rebuildData)
 
@@ -845,6 +859,7 @@ class Engine {
         if (this.config.quietLog != true) console.timeEnd("work");
         // console.log('workResult',workResult);
         rebuildData=workResult.data;
+        dfob = workResult.dfob
       }
     } catch (error) {
       console.error(error);
@@ -856,20 +871,24 @@ class Engine {
    
    
     // console.log('______ rebuildData', rebuildData);
-
     // console.log('_________fragment',fragment);
+
     let pesristedFragment
     try {
         // console.log('BEFORE persist',rebuildData,fragment)
         if (this.config.quietLog != true) console.time("persist");
         pesristedFragment = await this.fragment_lib.persist(rebuildData,undefined,fragment);
         if (this.config.quietLog != true) console.timeEnd("persist");
+
         // console.log('AFTER persist',JSON.stringify(pesristedFragment))
     } catch (error) {
       console.error("persist ERROR",error);
     }
     // console.log('______ pesristedFragment',pesristedFragment);
-    return pesristedFragment
+    return {
+      frag : pesristedFragment, // not needed because frag of component ever known by main execution
+      dfob
+    }
 
   }
 
