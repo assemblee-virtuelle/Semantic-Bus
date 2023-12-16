@@ -296,10 +296,11 @@ class Engine {
               if(componentFlow.dataFlow.length==1 && (!componentFlow.deeperFocusData || Object.keys(componentFlow.deeperFocusData).length==0)){
                 // console.log('APPPLY dfob from source!!',componentFlow.dataFlow[0].dfob)
                 componentFlow.deeperFocusData=componentFlow.dataFlow[0].dfob;
-              }  
+              } 
 
-
-              if(!componentFlow?.deeperFocusData && (componentFlow?.deeperFocusData?.activateDf==undefined||componentFlow?.deeperFocusData?.activateDf==false)){
+              // console.log('componentFlow?.deeperFocusData',componentFlow?.deeperFocusData)
+              if((!componentFlow?.deeperFocusData ||Object.keys(componentFlow.deeperFocusData).length==0)&& (componentFlow?.deeperFocusData?.activateDf==undefined||componentFlow?.deeperFocusData?.activateDf==false)){
+                // console.log('DEFAULT DFOB!!')
                 componentFlow.deeperFocusData={
                   dfobPath:'',
                   keepArray:true
@@ -358,6 +359,10 @@ class Engine {
                   let dfobPathNormalized = this.stringReplacer.execute(dfobPath, processingNode.queryParams?.queryParams, componentFlow.primaryflow?.data);
                   var dfobTab = dfobPathNormalized.length > 0 ? dfobPathNormalized.split('.') : []
 
+
+
+                  console.log('___ buildDfobFragmentFlow',componentFlow.primaryflow.fragment,dfobTab,keepArray)
+
                   let dfobFragmentFlow = await this.buildDfobFragmentFlow(
                     componentFlow.primaryflow.fragment,
                     dfobTab,
@@ -371,7 +376,7 @@ class Engine {
                   
                   dfobFragmentSelected = Array.isArray(dfobFragmentSelected)?dfobFragmentSelected:[dfobFragmentSelected]
 
-                  // console.log('________________ dfobFragmentSelected',dfobFragmentSelected);
+                  console.log('________________ dfobFragmentSelected',dfobFragmentSelected);
                   // console.log('________________ dfobFragmentSelected data',dfobFragmentSelected.map(f=>f.frag.data));
 
                   if (this.config.quietLog != true) {

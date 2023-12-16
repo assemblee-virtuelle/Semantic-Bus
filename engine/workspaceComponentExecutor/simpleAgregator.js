@@ -21,17 +21,21 @@ class SimpleAgregator {
       // console.log('___',flowData)
       var resultFlow = []
       for (let flow of flowData) {
-        for(let oririnData of flow.data){
-          if (!Array.isArray(oririnData)) {
-            resultFlow.push(oririnData)
-          } else {
-            for (let record of oririnData) {
-              resultFlow.push(record)
-            }
+        if(Array.isArray(flow.data)){
+          for(let originData of flow.data){
+            // if (Array.isArray(originData)) {
+            //   for (let record of originData) {
+            //     resultFlow.push(record)
+            //   }
+            // } else {
+              resultFlow.push(originData)
+            // }
           }
+        } else{
+          resultFlow.push(flow.data)
         }
-
       }
+      resultFlow=resultFlow.flat();
       resolve({
         data: resultFlow
       })
