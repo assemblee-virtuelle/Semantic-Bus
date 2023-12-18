@@ -1,4 +1,4 @@
-<http-provider-editor>
+<rest-api-post-editor>
   <!-- bouton aide -->
   <div class="contenaireH" style="margin-left:97%">
     <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-HTTP-Provider" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
@@ -131,4 +131,4 @@
       color:rgb(180,180,180);
     }
   </style>
-</http-provider-editor>
+</rest-api-post-editor>

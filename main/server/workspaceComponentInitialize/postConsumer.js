@@ -1,9 +1,9 @@
 'use strict';
-class HttpConsumer {
+class PostConsumer {
   constructor () {
     this.type = 'HTTP consumer'
     this.description = 'Appeler une API HTTP; Executer une requête HTTP.'
-    this.editor = 'http-consumer-editor'
+    this.editor = 'post-consumer-editor'
     this.graphIcon = 'Post_consumer.svg'
     this.tags = [
       'http://semantic-bus.org/data/tags/outComponents',
@@ -13,4 +13,4 @@ class HttpConsumer {
   }
 }
 
-module.exports = new HttpConsumer()
+module.exports = new PostConsumer()

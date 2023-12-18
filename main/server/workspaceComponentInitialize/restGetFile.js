@@ -1,9 +1,9 @@
 'use strict';
-class HttpFileConsumer {
+class HttpGet {
   constructor () {
-    this.type = 'HTTP File Consumer'
+    this.type = 'File consumer'
     this.description = 'Interroger un fichier mis à disposition sur une API REST avec une requete GET.'
-    this.editor = 'http-file-consumer-editor'
+    this.editor = 'rest-get-editor'
     this.graphIcon = 'File_consumer.svg'
     this.tags = [
       'http://semantic-bus.org/data/tags/inComponents',
@@ -11,4 +11,4 @@ class HttpFileConsumer {
     ]
   }
 }
-module.exports = new HttpFileConsumer()
+module.exports = new HttpGet()
