@@ -49,6 +49,10 @@ var HistoriqueEndSchema = mongoose.Schema({
         type: Object,
         //required: true
     },
+    dfob:{
+      type: Object,
+      //required: true
+    },
     moPrice: {
       type: Number
     },
