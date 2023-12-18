@@ -4,14 +4,13 @@ module.exports = {
     // --------------------------------------------------------------------------------
     // --------------------------------------------------------------------------------
 
-    restGetJson: require('../workspaceComponentExecutor/restGetJson.js'),
     objectTransformer: require('../workspaceComponentExecutor/objectTransformer.js'),
     googleGetJson: require('../workspaceComponentExecutor/googleGetJson.js'),
     simpleAgregator: require('../workspaceComponentExecutor/simpleAgregator.js'),
     googleGeoLocaliser: require('../workspaceComponentExecutor/googleGeoLocaliser.js'),
     cacheNosql: require('../workspaceComponentExecutor/cacheNosql.js'),
     gouvFrInverseGeo: require('../workspaceComponentExecutor/gouvFrInverseGeo.js'),
-    restApiGet: require('../workspaceComponentExecutor/restApiGet.js'),
+    restApiGet: require('../workspaceComponentExecutor/httpProvider.js'),
     restApiPost: require('../workspaceComponentExecutor/httpProvider.js'),
     httpProvider: require('../workspaceComponentExecutor/httpProvider.js'),
     // xmlToObject: require('./workspaceComponentExecutor/xmlToObject.js'),
@@ -37,6 +36,7 @@ module.exports = {
     propertiesMatrix: require('../workspaceComponentExecutor/propertiesMatrix.js'),
     postConsumer: require('../workspaceComponentExecutor/httpConsumer.js'),
     httpConsumer: require('../workspaceComponentExecutor/httpConsumer.js'),
+    restGetJson: require('../workspaceComponentExecutor/httpConsumer.js'),
     keyToArray: require('../workspaceComponentExecutor/keyToArray.js'),
     sftpConsumer: require('../workspaceComponentExecutor/sftpConsumer.js'),
     flat: require('../workspaceComponentExecutor/flat.js'),
