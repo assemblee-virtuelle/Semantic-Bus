@@ -3,6 +3,12 @@
   border-style: none;
 }
 
+.warning
+{
+  color: red;
+  font-size: 30px;
+}
+
 .containerH/*container horizontal*/
 {
   display: flex;

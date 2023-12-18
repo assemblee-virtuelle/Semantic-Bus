@@ -41,7 +41,7 @@
         <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Deeper-focus" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
       </div>
       <!-- Description du composant -->
-      <div class="title-description-component">Choix du niveau de profondeur de traitement du flux : sur quels données doivent se concentrer le composant</div>
+      <div class="title-description-component">Choix du niveau de profondeur de traitement du flux : sur quelles données doit se concentrer le composant</div>
        <label class="labelFormStandard">Activation du deeper focus:</label>
         <label class="cardInput">
           <span class="switch">
