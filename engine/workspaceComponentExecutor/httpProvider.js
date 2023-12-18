@@ -1,5 +1,5 @@
 'use strict'
-class RestApiPost {
+class HttpProvider {
   constructor () {
     this.stepNode = false
     this.workspace_component_lib = require('../../core/lib/workspace_component_lib')
@@ -22,4 +22,4 @@ class RestApiPost {
   }
 }
 
-module.exports = new RestApiPost()
+module.exports = new HttpProvider()
