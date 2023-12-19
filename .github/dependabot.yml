@@ -1,0 +1,15 @@
+version: 2
+updates:
+  - package-ecosystem: "npm"
+    directory: "/"
+    # Check every day pb with npm dependancies
+    schedule:
+      interval: "daily"
+      time: "20:00"
+      timezone: "Europe/Paris"
+    target-branch: "update-dependancies"
+    # Labels on pull requests for version updates only
+    labels:
+      - "npm dependencies"
+    # Allow up to 10 open pull requests for npm dependencies
+    open-pull-requests-limit: 10
