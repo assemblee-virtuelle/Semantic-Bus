@@ -27,8 +27,7 @@
   "license": "GNUV3",
   "dependencies": {
     "@graphy/content.xml.scribe": "^4.2.1",
-    "amqp-connection-manager": "^3.0.0",
-    "amqplib": "^0.5.5",
+    "amqp-connection-manager": "3.9.0",
     "bcryptjs": "^2.4.3",
     "body-parser": "^1.18.2",
     "bson": "^4.7.0",
@@ -67,6 +66,7 @@
   "devDependencies": {
     "@types/amqplib": "^0.5.9",
     "@types/node-fetch": "2.1.4",
+    "amqplib": "0.8.0",
     "eslint": "5.12.1",
     "eslint-config-standard": "12.0.0",
     "eslint-plugin-import": "2.14.0",
