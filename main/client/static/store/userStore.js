@@ -85,7 +85,7 @@ function UserStore (utilStore) {
       contentType: 'application/json',
       url: '/data/auth/passwordforget?mail=' + email
     }).then(() => {
-      this.trigger('ajax_sucess', 'Un mail vous a était envoyé merci de verifier votre boite mail')
+      this.trigger('ajax_sucess', 'Un mail vous a été envoyé, consultez votre boite mail')
       window.location = '/ihm/login.html#connexion'
     })
   })

@@ -23,20 +23,27 @@ const encodeToken = (mail, action) => {
 
 module.exports = function (router) {
   router.get('/passwordforget', async (req, res, next) => {
-    const token = encodeToken(req.query.mail, 'recovery_password')
-    const link = ('http://' + req.get('host') + '/ihm/login.html#forgot_password/changePassword?code=' + token + '&mail=' + encodeURIComponent(req.query.mail))
-    await user_lib.createUpdatePasswordEntity(req.query.mail, token)
     try {
+      const token = encodeToken(req.query.mail, 'recovery_password')
+      const link = ('http://' + req.get('host') + '/ihm/login.html#forgot_password_changePassword?code=' + token + '&mail=' + encodeURIComponent(req.query.mail))
+
+      await user_lib.createUpdatePasswordEntity(req.query.mail, token).then()
+
       const mailOptions = {
-        from: 'Grappe, Mot de passe oublié <tech@data-players.com>',
+        from: 'tech@data-players.com',
         to: req.query.mail,
-        subject: 'Confirmer Votre compte',
-        html: 'Bonjour,<br> Merci de cliquer sur le lien suivant pour resilier votre mot de passe. <br><a href=' + link + '>Ici </a>'
+        subject: 'Mot de passe oublié',
+        text: 'Bonjour,\nMerci de cliquer sur le lien suivant pour changer votre mot de passe.\n' + link
       }
 
-      await mailService.sendMail(req, res, mailOptions)
-      res.sendStatus(200)
+      console.log('mailOptions : ', mailOptions)
+
+      mailService.sendMail(req, res, mailOptions).then((info) => {
+        console.log('Email sent:', info)
+        res.sendStatus(200)
+      })
     } catch (e) {
+      console.error('Error sending email:', e)
       res.sendStatus(500)
     }
   }) // <-- passwordforget
@@ -94,10 +101,10 @@ module.exports = function (router) {
     const link = ('http://' + req.get('host') + '/data/auth/secure?code=' + token + '&mail=' + encodeURIComponent(req.body.emailInscription))
 
     const mailOptions = {
-      from: 'Grappe, Confirmer votre email <tech@data-players.com>',
+      from: 'tech@data-players.com',
       to: req.body.emailInscription,
       subject: 'Confirmer Votre compte',
-      html: 'Bonjour,<br> Merci de cliquer sur le lien suivant pour confirmer votre compte Grappe. <br><a href=' + link + '>Ici </a>'
+      text: 'Bonjour,\nMerci de cliquer sur le lien suivant pour confirmer votre compte Grappe.\n' + link
     }
     const user = {
       name: req.body.name,
@@ -111,9 +118,13 @@ module.exports = function (router) {
       let usercreate = await inscription_lib_user.create({ user })
       try {
         await user_lib.createUpdatePasswordEntity(req.body.emailInscription, token)
-        await mailService.sendMail(req, res, mailOptions)
+        mailService.sendMail(req, res, mailOptions).then((info) => {
+          res.sendStatus(200)
+        }).catch((error) => {
+          console.error('Error sending email:', error)
+        })
       } catch (e) {
-        console.log("erreur lors de l'envoie de mail")
+        res.sendStatus(500)
       }
       res.send({ user: usercreate.user, token: usercreate.token.token })
     } catch (e) {

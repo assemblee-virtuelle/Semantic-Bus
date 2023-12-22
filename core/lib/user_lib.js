@@ -300,15 +300,15 @@ function _getWithRelations(userID,config) {
 
 function _userGraph(userId) {
   return new Promise(resolve => {
-    historiqueModel.getInstance().model.aggregate(
-      [{
+    historiqueModel.getInstance().model.aggregate([
+      {
         $match: {
           userId: userId
         }
       },
       {
         $group: {
-          _id: {workspaceId :{ workspaceId: "$workspaceId"}, roundDate : { $dayOfMonth: "$date" }},
+          _id: { workspaceId: "$workspaceId", roundDate: { $dayOfMonth: "$date" } },
           totalPrice: {
             $sum: "$totalPrice"
           },
@@ -319,50 +319,61 @@ function _userGraph(userId) {
             $push: "$$ROOT"
           }
         }
-      }],
-      (_err, result) => {
-        if(result && result[0]){
-          const c = {}
-          const array = []
-          result[0].workspaces.forEach((histo) => {
+      }
+    ])
+      .then(result => {
+        if (result && result[0]) {
+          const c = {};
+          const array = [];
+
+          result[0].workspaces.forEach(histo => {
             let id = histo.workflowId + histo.roundDate;
             if (c[id]) {
               c[id].totalPrice += histo.totalPrice;
-              c[id].totalMo += histo.moCount
+              c[id].totalMo += histo.moCount;
             } else {
               c[id] = {};
-              c[id].totalPrice = histo.totalPrice
-              c[id].roundDate = histo.roundDate
-              c[id].totalMo = histo.moCount
-              c[id].id = histo.workflowId
+              c[id].totalPrice = histo.totalPrice;
+              c[id].roundDate = histo.roundDate;
+              c[id].totalMo = histo.moCount;
+              c[id].id = histo.workflowId;
             }
-          })
+          });
+
           for (const workspaceId in c) {
-            array.push(new Promise(resolve => {
+            array.push(
               workspaceModel.getInstance().model.find({ _id: c[workspaceId].id })
-                .then((workspace) => {
-                    if(c[workspaceId] && workspace[0]){
-                      c[workspaceId].name = workspace[0].name
-                      c[workspaceId].componentNumber = workspace[0].components ? workspace[0].components.length : 0
-                      c[workspaceId].description = workspace[0].description
-                      resolve(c[workspaceId])
-                    }else {
-                      resolve(c)
-                    }
-                });
-            }))
+                .then(workspace => {
+                  if (c[workspaceId] && workspace[0]) {
+                    c[workspaceId].name = workspace[0].name;
+                    c[workspaceId].componentNumber = workspace[0].components ? workspace[0].components.length : 0;
+                    c[workspaceId].description = workspace[0].description;
+                    return c[workspaceId];
+                  } else {
+                    return c;
+                  }
+                })
+            );
           }
 
           Promise.all(array)
-          .then(WorspaceWithConsuption => (graphTraitement.formatDataUserGraph(WorspaceWithConsuption)))
-          .then(worspaceTraited => (resolve(worspaceTraited)))
+            .then(WorspaceWithConsuption => graphTraitement.formatDataUserGraph(WorspaceWithConsuption))
+            .then(worspaceTraited => resolve(worspaceTraited))
+            .catch(error => {
+              console.error('Error in processing workspaces:', error);
+              resolve(null);
+            });
         } else {
-          resolve(null)
+          resolve(null);
         }
-      }
-    );
+      })
+      .catch(error => {
+        console.error('Error in aggregating data:', error);
+        resolve(null);
+      });
   });
-} // <= _userGraph
+}
+
 
 /**
  * @param {string} id
@@ -687,7 +698,7 @@ function _hash_password(password, passwordConfirm) {
       }
     }
     if (!pattern.password.test(password)) {
-      return reject(new Error.PropertyValidationError("password"))
+      return reject("Le mot de passe doit avoir entre 6 et 20 caractères.")
     }
 
     bcrypt.genSalt(10, function (err, salt) {
@@ -747,20 +758,18 @@ function _is_google_user(user) {
 
 // --------------------------------------------------------------------------------
 
-function _createUpdatePasswordEntity(userMail, token ) {
-  return new Promise(function (resolve, reject) {
-    SecureMailModel.get()
-      .update({userMail}, {userMail, token}, {upsert: true, setDefaultsOnInsert: true})
-      .exec(function (err, userData) {
-        if(err){
-          return reject(new Error.DataBaseProcessError(err))
-        } else {
-          resolve(true);
-        }
-      });
-  });
-} // <= _createUpdatePasswordEntity
-
+async function _createUpdatePasswordEntity(userMail, token) {
+  try {
+    const result = await SecureMailModel.updateOne(
+      { userMail },
+      { userMail, token },
+      { upsert: true, setDefaultsOnInsert: true }
+    );
+    return result;
+  } catch (error) {
+    reject(new Error('DataBaseProcessError', error));
+  }
+}
 
 // --------------------------------------------------------------------------------
 
