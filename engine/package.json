@@ -46,7 +46,7 @@
     "dot-prop": "^5.2.0",
     "error-stack-parser": "^2.0.1",
     "express": "^4.16.3",
-    "follow-redirects": "^1.4.1",
+    "follow-redirects": "^1.15.4",
     "form-urlencoded": "^4.2.1",
     "fs": "0.0.1-security",
     "graphy": "^4.2.1",
