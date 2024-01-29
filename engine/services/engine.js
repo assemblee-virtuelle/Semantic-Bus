@@ -361,7 +361,7 @@ class Engine {
 
 
 
-                  console.log('___ buildDfobFragmentFlow',componentFlow.primaryflow.fragment,dfobTab,keepArray)
+                  // console.log('___ buildDfobFragmentFlow',componentFlow.primaryflow.fragment,dfobTab,keepArray)
 
                   let dfobFragmentFlow = await this.buildDfobFragmentFlow(
                     componentFlow.primaryflow.fragment,
@@ -376,7 +376,7 @@ class Engine {
                   
                   dfobFragmentSelected = Array.isArray(dfobFragmentSelected)?dfobFragmentSelected:[dfobFragmentSelected]
 
-                  console.log('________________ dfobFragmentSelected',dfobFragmentSelected);
+                  // console.log('________________ dfobFragmentSelected',dfobFragmentSelected);
                   // console.log('________________ dfobFragmentSelected data',dfobFragmentSelected.map(f=>f.frag.data));
 
                   if (this.config.quietLog != true) {
@@ -764,6 +764,7 @@ class Engine {
 
     try {
       if (this.config.quietLog != true) console.time("primary_getWithResolutionByBranch");
+      // console.log('__________rebuild ',fragment)
       rebuildData = await this.fragment_lib.getWithResolutionByBranch(fragment._id);
       dfob=undefined;
       if (this.config.quietLog != true) console.timeEnd("primary_getWithResolutionByBranch");
@@ -772,7 +773,7 @@ class Engine {
       // console.log('___fragment',fragment)
       const needDfob = dfobTable.length>0 || (Array.isArray(rebuildData)&&!keepArray&&!fragment.branchOriginFrag);
       if(needDfob){
-        // console.log('WITH DFOB');
+        // console.log('WITH DFOB',dfobTable);
         if (this.config.quietLog != true) console.time("build-DfobFlow");
         const dfobFlow = this.buildDfobFlow(
           rebuildData,
@@ -844,7 +845,7 @@ class Engine {
               componentFlowDfob[componentFlowDfobKey]
           }
         }
-        // console.log('dfobFlow 2',dfobFlow)
+        // console.log('_________ dfobFlow 2',dfobFlow)
         if (this.config.quietLog != true) console.timeEnd("recompose-DfobFlow");
       } else {
         // console.log('WITHOUT DFOB');
