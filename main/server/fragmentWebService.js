@@ -4,6 +4,7 @@ module.exports = function (router, amqpClient) {
 
   router.get('/fragment/:id', function (req, res, next) {
     fragment_lib.get(req.params.id).then((frag) => {
+      // console.log('__________fragment', frag)
       res.json(frag)
     }).catch(e => {
       next(e)

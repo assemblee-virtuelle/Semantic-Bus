@@ -53,6 +53,7 @@
     "json2yaml": "^1.1.0",
     "jsonld-streaming-parser": "^2.0.2",
     "jsonpath-object-transform": "^1.0.4",
+    "jszip": "^3.10.1",
     "jwt-simple": "^0.5.1",
     "moment": "^2.20.1",
     "mongodb": "^6.1.0",

@@ -77,6 +77,7 @@ class ValueFromPath {
           // console.log('out',out);
           return out;
         } else {
+          // console.log('RETURN UNDEFINED')
           return undefined
         }
         // console.log('pathObject increment',pathObject);
@@ -93,7 +94,7 @@ class ValueFromPath {
     // console.log('matches',matches);
     let result = this.progress(source, matches, {}, 'root', 0)
     //let result = source;
-    // console.log('result',result);
+    // console.log('________________________result',result);
     return (result)
   }
 

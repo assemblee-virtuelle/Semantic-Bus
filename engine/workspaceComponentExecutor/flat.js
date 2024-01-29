@@ -6,7 +6,7 @@ class Flat {
       try {
         var result = []
         if (Array.isArray(flowData[0].data)){
-          result = flowData[0].data.flat()
+          result = flowData[0].data.flat();
         }
         else{
           throw new Error("Data are not in an array structure.")
