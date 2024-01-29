@@ -4,6 +4,7 @@ var xml = require('./xml/xml_traitment.js');
 var csv = require('./csv/csv_traitment.js');
 var ics = require('./ics/index.js');
 var zlib = require('zlib');
+const JSZip = require('jszip');
 
 module.exports = {
   data_from_file: _data_from_file,
@@ -48,13 +49,74 @@ function _buildFile(filename, dataString, dataBuffer, out, contentType) {
 
 }
 
+function addFileToTree(tree,fileObject,leaf, parts) {
+
+
+
+  // if (parts.length === 0){
+  //   leaf.
+  // }
+
+  const part = parts.shift();
+  if (parts.length === 0) {
+      // Si c'est un fichier
+      tree[part] = 'file';
+  } else {
+      // Si c'est un dossier
+      if (!tree[part]) tree[part] = {};
+      addFileToTree(tree[part], parts);
+  }
+}
+
 function _data_from_file(filename, dataBuffer, contentType) {
   //console.log("in aggregate function")
+  // console.log('_data_from_file')
+  // console.log('filename',filename);
+  // console.log('contentType',contentType);
   const extension= _extension(filename, contentType);
+  console.log(extension)
 
-  return new Promise(function(resolve, reject) {
+  return new Promise(async function(resolve, reject) {
     switch (extension) {
+      // GZ decompression
+      case("zip"):
+        const zip = new JSZip();
+        try {
+          const contents = await  zip.loadAsync(dataBuffer);
+          console.log('UNZIP!!',contents)
+          let files=[];
+          for (const fileName of Object.keys(zip.files)) {
+            const fileObject=zip.files[fileName]
+            if(fileObject.dir==false){
+              const pathTab = fileObject.name.split('/').filter(Boolean);
+              const name= pathTab.pop();
+              const fileItem = {
+                fullPath :fileObject.name,
+                name : name,
+                path : pathTab.join('/')
+              }
 
+              try {
+                const bufferFile= await fileObject.async('nodebuffer');
+                const data = await _data_from_file(name, bufferFile);
+                // console.log(data)
+                fileItem.data= data.data;
+              } catch (error) {
+                // console.error(error)
+                fileItem.data= {error:error};
+              } finally {
+                files.push(fileItem);
+              }
+            }
+          }
+          resolve({
+            data: files
+          })
+        } catch (error) {
+          reject(`Erreur lors de la lecture du fichier ZIP: ${error}`)
+        }
+
+        break;
       // GZ decompression
       case("gz"):
         // decompression of a data buffer with Gunzip
@@ -65,7 +127,7 @@ function _data_from_file(filename, dataBuffer, contentType) {
         // we can find the right file's extension type
         const newFileName = filename.substring(filename, filename.length-3);
 
-        _data_from_file(newFileName, newString, newBuffer).then((result) => {
+        _data_from_file(newFileName, newBuffer).then((result) => {
           resolve({
             data: result.data
           })
@@ -134,11 +196,12 @@ function _data_from_file(filename, dataBuffer, contentType) {
         // XML DONE
       case ("xml"):
       case ("kml"):
-        xml.xml_traitment(dataBuffer.toString()).then(function(reusltat) {
+      console.log(dataBuffer)
+      xml.xml_traitment(dataBuffer.toString()).then(function(result) {
           // //console.log("FINAL", reusltat)
           //console.log("FINAL", reusltat)
           resolve({
-            data: reusltat
+            data: result
           })
         }, function(err) {
           reject("votre fichier n'est pas au norme ou pas du bon format " + extension)
@@ -170,7 +233,6 @@ function _data_from_file(filename, dataBuffer, contentType) {
         })
         break;
       default:
-        //console.log("in default")
         reject("erreur, le format du fichier n'est pas supporté (" + extension + ")")
 
         break;

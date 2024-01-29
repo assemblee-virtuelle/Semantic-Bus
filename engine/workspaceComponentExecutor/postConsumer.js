@@ -3,6 +3,7 @@
 const fs = require('fs');
 const https = require('https');
 const fileLib = require('../../core/lib/file_lib.js')
+const fileConvertor = require('../../core/dataTraitmentLibrary/file_convertor.js')
 
 class PostConsumer {
   constructor () {
@@ -47,6 +48,17 @@ class PostConsumer {
           let responseObject = await response.json();
           // console.log('responseObject',responseObject);
           resolve(this.propertyNormalizer.execute(responseObject))
+        } else if (contentType.search('octect-stream') != -1) {
+          // console.log(responseBody)
+          let buffer = await response.buffer();
+          fileConvertor.data_from_file(response.headers.get('content-disposition'), buffer).then((result) => {
+            // let normalized = this.propertyNormalizer.execute(result)
+            resolve(this.propertyNormalizer.execute(result))
+          }).catch((err) => {
+            let fullError = new Error(err)
+            fullError.displayMessage = 'HTTP GET : Erreur lors du traitement de votre fichier';
+            reject(fullError)
+          })
         }
         else {
           reject(new Error('unsuported content-type :' + contentType))
@@ -120,27 +132,26 @@ class PostConsumer {
 
         // console.log('headers',headers);
         // console.log('BEFORE CALL');
-        let certif = undefined;
+        let agentOptions = undefined;
+        let options = {
+          method: componentConfig.method||'GET',
+          body: body,
+          headers: headers
+        };
         if (flowData && flowData[0].data && componentConfig.certificateProperty && componentConfig.certificatePassphrase ){
           // console.log ('fileId',flowData[0],flowData[0].data[componentConfig.certificateProperty])
           const fileObjectc = await fileLib.get(flowData[0].data[componentConfig.certificateProperty]);
           // console.log('fileObjectc',fileObjectc)
           let file =fs.readFileSync(fileObjectc.filePath);
-          console.log('file',file)
-          certif={
-            pfx:{
-              file : file,
-              passphrase : componentConfig.certificatePassphrase
-            }
+          // console.log('file',file)
+          options.agentOptions={
+            pfx: file,
+            passphrase:  componentConfig.certificatePassphrase,
+            rejectUnauthorized: false 
           }
         }
 
-        this.call_url(url, {
-          method: componentConfig.method||'GET',
-          body: body,
-          headers: headers,
-          certif
-        },
+        this.call_url(url, options,
         undefined,
         componentConfig.timeout,
         componentConfig.retry?componentConfig.retry-1:undefined
@@ -233,17 +244,16 @@ class PostConsumer {
 
       // Configuration de l'agent HTTPS personnalisé
       let optionsMix;
-      if (url.includes('https') && options.certif && options.certif.pfx){
-        const agent = new https.Agent({
-          pfx: options.certif.pfx.file,
-          passphrase: options.certif.pfx.passphrase
-        });
+      if (url.includes('https') && options.agentOptions){
+        const agent = new https.Agent(options.agentOptions);
+        delete options.agentOptions;
         optionsMix={...options, agent, signal: controller.signal };
       }else{
         optionsMix={...options, signal: controller.signal }
       }
 
       console.log('BEFORE FETCH');
+      console.log('optionsMix',optionsMix);
 
       this.fetch(url, optionsMix).then(
         (fetchResult)=>{

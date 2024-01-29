@@ -310,7 +310,8 @@ module.exports = {
     data==undefined ||
     (typeof data) == 'function' ||
     (data?.constructor?.name == 'ObjectID') ||
-    (data?.constructor?.name == 'Buffer')||
+    (data?.constructor?.name == 'Buffer') ||
+    (data instanceof Date && !isNaN(data)) ||
     !(this.isObject(data)))&&
     !Array.isArray(data) 
   },
@@ -320,7 +321,7 @@ module.exports = {
     (data?.constructor?.name == 'ObjectID') ||
     (data?.constructor?.name == 'Buffer')){
       return data.toString();
-    }else{
+    } else{
       return data;
     }
   },
@@ -375,7 +376,7 @@ module.exports = {
           const arrayReadyToPersit = []
           for (let item of data){
             const persistedObject = await this.persistObject(item,fargToPersist);
-            if (persistedObject._id  && persistedObject?._id instanceof mongoose.Types.ObjectId){
+            if (persistedObject?._id  && persistedObject?._id instanceof mongoose.Types.ObjectId){
               arrayReadyToPersit.push({
                 _frag : persistedObject._id.toString()
               });
@@ -383,6 +384,7 @@ module.exports = {
               arrayReadyToPersit.push(persistedObject);
             }
           }
+          // console.log('arrayReadyToPersit',arrayReadyToPersit)
           fargToPersist.data=arrayReadyToPersit;
           fargToPersist.markModified('data');
           fargToPersist.branchFrag=undefined;
@@ -390,9 +392,11 @@ module.exports = {
         }
       }else{
         const objectData = await this.persistObject(data,fargToPersist)
+        // console.log('objectData',objectData)
         fargToPersist.data=objectData;
         fargToPersist.markModified('data');
         fargToPersist.branchFrag=undefined;
+        // console.log('_____fargToPersist',fargToPersist)
         return await fargToPersist.save();
       }
     // }
@@ -473,7 +477,7 @@ module.exports = {
       })
       .lean()
       .exec();
-      // console.log('frag',fragmentReturn)
+
       if (fragmentReturn.branchFrag) {
         const frags = await this.fragmentModel.getInstance().model.find({
           branchOriginFrag: fragmentReturn.branchFrag
@@ -688,8 +692,8 @@ module.exports = {
         }
       }
       return out;
-    }
-    if (object instanceof Object) {
+    } else if (this.isObject(object) && !this.isLiteral(object)) {
+      // console.log('___replaceMongoNotSupportedKey object ',object,this.isLiteral(object))
       let out = {};
       for (let key in object) {
         let realKey = key;
