@@ -53,7 +53,6 @@
     // Object.defineProperty(this, 'data', {    set: function (data) {      this.data=data;      this.update();    }.bind(this),    get: function () {     return this.data;   },   configurable: true });
 
     urlInputChanged(e) {
-      console.log(e.currentTarget.value);
       this.data.specificData.urlName = e.currentTarget.value;
       this.data.specificData.url=this.data._id + '-'+this.data.specificData.urlName;
     }
@@ -64,7 +63,6 @@
 
 
     responseComponentIdInputChanged(e){
-      console.log(e.currentTarget.value);
       this.data.specificData.responseComponentId = e.currentTarget.value;
     }
     contentTypeInputChanged(e) {

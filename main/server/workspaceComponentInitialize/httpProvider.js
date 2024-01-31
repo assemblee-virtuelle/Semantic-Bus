@@ -151,21 +151,17 @@ class HttpProvider {
                       engineResponse: data.body
                     })
                   } else {
-                    console.log('WORK response',data.body);
                     if(data.body.data){
-                      console.log(data.body);
                       this.sendResult(component, data.body.data, res)
                     }else {
                       // engineTracer.pendingProcess.push(data.body.processId);
                       this.pendingWork[data.body.processId]={component :component._id};
                       let counter=0
                       const intervalId = setInterval(async () => {
-                        console.log(counter,data.body.processId)
                         if (this.pendingWork[data.body.processId].frag){
                           clearInterval(intervalId);
                           // res.send(this.pendingWork[data.body.processId]);
                           const dataResponse = await this.fragment_lib.getWithResolutionByBranch(this.pendingWork[data.body.processId].frag);
-                          console.log(dataResponse)
                           this.sendResult(component, dataResponse, res)
                         }else{
                           // console.log('waiting');

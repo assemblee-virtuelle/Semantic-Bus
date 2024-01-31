@@ -33,15 +33,12 @@
       this.update();
     }.bind(this);
     changeUrl(e) {
-      console.log(e)
       if (this.data != null && this.data.specificData != null) {
         this.data.specificData.url = e.currentTarget.value;
-        console.log("if", this.data.specificData.url)
       } else {
         this.data = {}
         this.data.specificData = {}
         this.data.specificData.url = e.currentTarget.value;
-        console.log("else", this.data.specificData.url)
       }
       this.update();
     }
@@ -52,10 +49,8 @@
       this.data.specificData.body = e.currentTarget.value;
     }
     changeContentType(e) {
-      console.log(e)
       if (this.data != null && this.data.specificData != null) {
         this.data.specificData.contentType = e.currentTarget.value;
-        console.log("if", this.data.specificData.contentType)
       }
       this.update();
     }
