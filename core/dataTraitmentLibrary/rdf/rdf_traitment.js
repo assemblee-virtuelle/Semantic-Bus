@@ -5,7 +5,7 @@
 // --------------------------------------------------------------------------------
 
 // var RdfXmlParser =  require('rdf-parser-rdfxml');
-var JsonLdSerializer = require('rdf-serializer-jsonld');
+// var JsonLdSerializer = require('rdf-serializer-jsonld');
 var N3Parser =  require('rdf-parser-n3');
 
 // const jsonld = require('jsonld');
@@ -27,7 +27,7 @@ module.exports = {
 
 // --------------------------------------------------------------------------------
 
-const serializer = new JsonLdSerializer({outputFormat: 'string', compact: false});
+// const serializer = new JsonLdSerializer({outputFormat: 'string', compact: false});
 // const parser = new RdfXmlParser();
 const n3Parser = new N3Parser()
 

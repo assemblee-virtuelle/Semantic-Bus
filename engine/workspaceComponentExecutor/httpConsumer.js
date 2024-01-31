@@ -48,8 +48,7 @@ class HttpConsumer {
           let responseObject = await response.json();
           // console.log('responseObject',responseObject);
           resolve(this.propertyNormalizer.execute(responseObject))
-        } else if (contentType.search('octect-stream') != -1) {
-          // console.log(responseBody)
+        } else if (contentType.search('octet-stream') != -1) {
           let buffer = await response.buffer();
           fileConvertor.data_from_file(response.headers.get('content-disposition'), buffer).then((result) => {
             // let normalized = this.propertyNormalizer.execute(result)
