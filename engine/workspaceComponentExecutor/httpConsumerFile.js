@@ -43,7 +43,6 @@ class HttpConsumerFile {
         response.on('end', function () {
           let responseContentType = response.headers['content-type']
           responseContentType = contentType || responseContentType
-          console.log(responseBody)
           this.dataTraitment.type.data_from_file(response.headers['content-disposition'], Buffer.from(responseBody, 'utf-8'), responseContentType).then((result) => {
             let normalized = this.propertyNormalizer.execute(result)
             resolve({ data: normalized })

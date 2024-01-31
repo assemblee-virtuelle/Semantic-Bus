@@ -32,6 +32,9 @@
     "httpGet": {
       "price": 40
     },
+    "httpConsumerFile": {
+      "price": 40
+    },
     "sftpConsumer":{
       "price": 40
     },
@@ -53,14 +56,8 @@
     "queryParamsCreation": {
       "price": 20
     },
-    "restApiGet": {
-      "price": 10
-    },
     "restApiPost": {
       "price": 10
-    },
-    "restGetJson": {
-      "price": 20
     },
     "scrapper": {
       "price": 60
@@ -91,6 +88,12 @@
     },
     "postConsumer":{
       "price": 20
+    },
+    "httpConsumer":{
+      "price": 20
+    },
+    "httpProvider":{
+      "price": 10
     },
     "flat":{
       "price": 20
@@ -129,5 +132,14 @@
     "port": 8081,
     "secret": "secret",
     "target": "http://localhost:8080"
+  },
+  "smtp": {
+    "host": "", 
+    "port": 587,
+    "debug": true,
+    "auth": {
+      "user": "",
+      "pass": ""
+    }
   }
 }

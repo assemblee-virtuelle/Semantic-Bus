@@ -1,3 +1,9 @@
+// --------------------------------------------------------------------------------
+// TODO =>
+// remettre à jour les packages utilisés dans le fichier
+// rdf_traitment.js pour les fichiers owl, rdf et ttl
+// --------------------------------------------------------------------------------
+
 var exel = require('./exel/exel_traitment.js');
 var rdf = require('./rdf/rdf_traitment.js');
 var xml = require('./xml/xml_traitment.js');
@@ -74,7 +80,6 @@ function _data_from_file(filename, dataBuffer, contentType) {
   // console.log('filename',filename);
   // console.log('contentType',contentType);
   const extension= _extension(filename, contentType);
-  console.log(extension)
 
   return new Promise(async function(resolve, reject) {
     switch (extension) {
@@ -149,26 +154,24 @@ function _data_from_file(filename, dataBuffer, contentType) {
 
         // RDF TTL DONE
       case ("ttl"):
-        rdf.rdf_traitmentTTL(dataBuffer.toString()).then((result) => {
-          //console.log(reusltat)
-          resolve({
-            data: result
-          })
-        }, function(err) {
-          reject("votre fichier n'est pas au norme ou pas du bon format " + extension)
-        })
+        // rdf.rdf_traitmentTTL(dataBuffer.toString()).then((result) => {
+        //   //console.log(reusltat)
+        //   resolve({
+        //     data: result
+        //   })
+        // }, function(err) {
+        reject("votre fichier n'est pas au norme ou pas du bon format " + extension)
+        // })
         break;
 
         // RDF XML DONE IF TEST PARSE
       case ("rdf"):
       case ("owl"):
-        rdf.rdf_traitmentXML(dataBuffer.toString()).then(result => {
-          // console.log("RDF", result)
-          //console.log(JSON.stringify(reusltat))
-          resolve(result)
-        }, function(err) {
-          reject("votre fichier n'est pas au norme ou pas du bon format " + extension)
-        })
+        // rdf.rdf_traitmentXML(dataBuffer.toString()).then(result => {
+        //   resolve(result)
+        // }, function(err) {
+        reject("votre fichier n'est pas au norme ou pas du bon format " + extension)
+        // })
         break;
 
         // EXEL/CSV/XLSX DONE

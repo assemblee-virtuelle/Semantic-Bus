@@ -26,8 +26,7 @@ module.exports = function (router) {
     try {
       const token = encodeToken(req.query.mail, 'recovery_password')
       const link = ('http://' + req.get('host') + '/ihm/login.html#forgot_password_changePassword?code=' + token + '&mail=' + encodeURIComponent(req.query.mail))
-
-      await user_lib.createUpdatePasswordEntity(req.query.mail, token).then()
+      await user_lib.createUpdatePasswordEntity(req.query.mail, token)
 
       const mailOptions = {
         from: 'tech@data-players.com',
@@ -36,11 +35,10 @@ module.exports = function (router) {
         text: 'Bonjour,\nMerci de cliquer sur le lien suivant pour changer votre mot de passe.\n' + link
       }
 
-      console.log('mailOptions : ', mailOptions)
-
       mailService.sendMail(req, res, mailOptions).then((info) => {
-        console.log('Email sent:', info)
         res.sendStatus(200)
+      }).catch((error) => {
+        console.error('Error sending email:', error)
       })
     } catch (e) {
       console.error('Error sending email:', e)
