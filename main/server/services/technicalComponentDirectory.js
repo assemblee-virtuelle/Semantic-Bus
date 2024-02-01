@@ -4,15 +4,15 @@ module.exports = {
   // --------------------------------------------------------------------------------
   // --------------------------------------------------------------------------------
 
-  restGetJson: require('../workspaceComponentInitialize/restGetJson.js'),
   objectTransformer: require('../workspaceComponentInitialize/objectTransformer.js'),
   googleGetJson: require('../workspaceComponentInitialize/googleGetJson.js'),
   simpleAgregator: require('../workspaceComponentInitialize/simpleAgregator.js'),
   googleGeoLocaliser: require('../workspaceComponentInitialize/googleGeoLocaliser.js'),
   cacheNosql: require('../workspaceComponentInitialize/cacheNosql.js'),
   gouvFrInverseGeo: require('../workspaceComponentInitialize/gouvFrInverseGeo.js'),
-  restApiGet: require('../workspaceComponentInitialize/restApiGet.js'),
+  restApiGet: require('../workspaceComponentInitialize/restApiPost.js'),
   restApiPost: require('../workspaceComponentInitialize/restApiPost.js'),
+  httpProvider: require('../workspaceComponentInitialize/httpProvider.js'),
   // xmlToObject: require('./workspaceComponentInitialize/xmlToObject.js'),
   framcalcGetCsv: require('../workspaceComponentInitialize/framcalcGetCsv.js'),
   gouvFrGeoLocaliser: require('../workspaceComponentInitialize/gouvFrGeoLocaliser.js'),
@@ -23,6 +23,7 @@ module.exports = {
   upload: require('../workspaceComponentInitialize/upload.js'),
   scrapper: require('../workspaceComponentInitialize/scrapper.js'),
   httpGet: require('../workspaceComponentInitialize/restGetFile.js'),
+  httpConsumerFile: require('../workspaceComponentInitialize/httpConsumerFile.js'),
   sqlConnector: require('../workspaceComponentInitialize/sqlConnecteur.js'),
   mongoConnector: require('../workspaceComponentInitialize/MongoDB.js'),
   influxdbConnector: require('../workspaceComponentInitialize/influxdb.js'),
@@ -34,6 +35,8 @@ module.exports = {
   unicity: require('../workspaceComponentInitialize/unicity.js'),
   propertiesMatrix: require('../workspaceComponentInitialize/propertiesMatrix.js'),
   postConsumer: require('../workspaceComponentInitialize/postConsumer.js'),
+  httpConsumer: require('../workspaceComponentInitialize/httpConsumer.js'),
+  restGetJson: require('../workspaceComponentInitialize/httpConsumer.js'),
   keyToArray: require('../workspaceComponentInitialize/keyToArray.js'),
   sftpConsumer: require('../workspaceComponentInitialize/sftpConsumer.js'),
   flat: require('../workspaceComponentInitialize/flat.js'),
@@ -68,6 +71,7 @@ module.exports = {
     // console.log('initialise')
     this.restApiPost.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
     this.restApiGet.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
+    this.httpProvider.initialise(unSafeRouteur,engineTracer)
     this.upload.initialise(router,engineTracer)
     this.cacheNosql.initialise(router,engineTracer) // NO SECURE CHANGE ROUTER
   },

@@ -1,11 +1,13 @@
 'use strict';
-class PostConsumer {
+class HttpConsumer {
   constructor () {
     this.type = 'HTTP consumer'
     this.description = 'Appeler une API HTTP; Executer une requête HTTP.'
-    this.editor = 'post-consumer-editor'
+    this.editor = 'http-consumer-editor'
     this.graphIcon = 'Post_consumer.svg'
+    this.tags = [
+    ]
   }
 }
 
-module.exports = new PostConsumer()
+module.exports = new HttpConsumer()

@@ -23,7 +23,7 @@
             <option value="MO">MO</option>
           </select>
         </div>
-        <svg viewBox="0 0 1000 60O" id="stacked"></svg>
+        <svg viewBox="0 0 1000 600" id="stacked"></svg>
       </div>
     </div>
   </div>

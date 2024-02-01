@@ -1,6 +1,11 @@
+// --------------------------------------------------------------------------------
+// TODO =>
+// changer les packages importés obsoletes 
+// remplacer rdf-parser-rdfxml voir même jsonld-streaming-parser
+// --------------------------------------------------------------------------------
 
-var RdfXmlParser =  require('rdf-parser-rdfxml');
-var JsonLdSerializer = require('rdf-serializer-jsonld');
+// var RdfXmlParser =  require('rdf-parser-rdfxml');
+// var JsonLdSerializer = require('rdf-serializer-jsonld');
 var N3Parser =  require('rdf-parser-n3');
 
 // const jsonld = require('jsonld');
@@ -22,25 +27,44 @@ module.exports = {
 
 // --------------------------------------------------------------------------------
 
-const serializer = new JsonLdSerializer({outputFormat: 'string', compact: false});
-const parser = new RdfXmlParser();
+// const serializer = new JsonLdSerializer({outputFormat: 'string', compact: false});
+// const parser = new RdfXmlParser();
 const n3Parser = new N3Parser()
 
 
 function _rdf_traitmentXML (dataXML) {
-  let n3Tab = []
-  return new Promise(function(resolve,reject){
-    new Promise(function (resolve, reject) {
-      parser.process(dataXML, function (n3) {
-        n3Tab.push(n3)
-        resolve(n3Tab)
-      })
-    }).then(function (n3T) {
-      serializer.serialize(n3T).then(function (jsonld) {
-        resolve(jsonld)
-      })
-    })
-  })
+  // let n3Tab = []
+  // return new Promise(function(resolve,reject){
+  //   new Promise(function (resolve, reject) {
+  //     parser.process(dataXML, function (n3) {
+  //       n3Tab.push(n3)
+  //       resolve(n3Tab)
+  //     })
+  //   }).then(function (n3T) {
+  //     serializer.serialize(n3T).then(function (jsonld) {
+  //       resolve(jsonld)
+  //     })
+  //   })
+  // })
+  //   .catch((error) => {
+  //       console.error('Error parsing RDF/XML:', error);
+  //   });
+}
+
+function parseRDF(dataXML) {
+  // return new Promise((resolve, reject) => {
+  //     const readableStream = Readable.from([dataXML]);
+  //     const triples = [];
+  //     parser.import(readableStream, (triple) => {
+  //         triples.push(triple);
+  //     }, (error) => {
+  //         if (error) {
+  //             reject(error);
+  //         } else {
+  //             resolve(triples);
+  //         }
+  //     });
+  // });
 }
 
 function _rdf_traitmentJSONLD (dataJSON) {
@@ -69,7 +93,7 @@ function _rdf_traitmentTTL(dataTTL) {
  }
 
 function _rdf_traitmentRDFA (dataHTMLRDFA) {
-  ///EN COUR DE DEV
+  // EN COURS DE DEV
 }
 
 async function _json_to_rdf (jsonData, header){
@@ -114,9 +138,7 @@ async function _json_to_rdf (jsonData, header){
 
 
 
-////commentaires////
+//commentaires//
 
-
-//// DBPEDIA  PB ==> http://dbpedia.org/resource/Eiffel_Tower PROXY pour format ttl je pense
-//redirection  vers  http://dbpedia.org/page/Eiffel_Tower qui est rdfa et qui ne peux pas ce convertir en n3 du a probleme de lib //
-// ISSUE RDF-EXT :  https://github.com/rdf-ext/rdf-parser-rdfxml/issues/1 ///
+// DBPEDIA  PB ==> http://dbpedia.org/resource/Eiffel_Tower PROXY pour format ttl je pense
+// redirection  vers  http://dbpedia.org/page/Eiffel_Tower qui est rdfa et qui ne peux pas ce convertir en n3 du a probleme de lib //

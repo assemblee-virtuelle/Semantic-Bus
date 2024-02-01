@@ -6,7 +6,7 @@
       <div onclick={closeError} style="margin-left: 50px; cursor:pointer"><img src="./image/cross.svg" height="20px"></div>
     </div>
   </div>
-  <div id="containerErrorDiv" class="containerV" if={sucessMessage} >
+  <div class="containerV" if={sucessMessage} >
     <div class="containerH commandBar successMessage" style="pointer-events:auto;">
       <div>{sucessMessage}</div>
       <div onclick={closeSuccess} style="margin-left: 50px; cursor:pointer"><img src="./image/cross.svg" height="20px"></div>
@@ -172,7 +172,7 @@
 
   <!-- Changer de mot de passe -->
 
-  <div class="containerH" if={isScrennToShow('forgot_password/changePassword')} style="justify-content: center; align-items: center;flex-grow:2">
+  <div class="containerH" if={isScrennToShow('forgot_password_changePassword')} style="justify-content: center; align-items: center;flex-grow:2">
     <div class="containerV" style="justify-content: center;width: 600px; height: 600px">
       <div class="containerH" style="flex-wrap:wrap;overflow:auto">
         <!-- Focus Code -->
@@ -222,7 +222,7 @@
     this.badcodechangepassword = ""
     this.result_password = ""
     this.urls = [
-      'forgot_password/changePassword',
+      'forgot_password_changePassword',
       'initiat',
       'inscription',
       'connexion'
@@ -305,13 +305,14 @@
       if ((this.newUser.passwordInscription != undefined) && (this.newUser.confirmPasswordInscription != undefined) && (this.newUser.emailInscription != undefined)) {
         var reg = /^(([^<>()[\]\\.,;:\s@\"]+(\.[^<>()[\]\\.,;:\s@\"]+)*)|(\".+\"))@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\])|(([a-zA-Z\-0-9]+\.)+[a-zA-Z]{2,}))$/g;
         if (this.newUser.emailInscription.match(reg) != null) {
-          if ((this.newUser.passwordInscription == this.newUser.confirmPasswordInscription) && (this.newUser.passwordInscription.split("").length > 5)) {
+          if ((this.newUser.passwordInscription == this.newUser.confirmPasswordInscription) &&
+           (this.newUser.passwordInscription.length > 5) && (this.newUser.passwordInscription.length < 21)) {
             RiotControl.trigger('user_inscription', this.newUser);
           } else {
-            this.resultMdp = "mot de passe invalide 6 caracteres minimum"
+            this.resultMdp = "Mot de passe invalide, doit faire entre 6 et 20 caractères maximum."
           }
         } else {
-          this.resultEmail = "Veuillez entrez un email Valide"
+          this.resultEmail = "Veuillez entrez un email valide"
         }
       } else {
         if (this.newUser.emailInscription == undefined) {

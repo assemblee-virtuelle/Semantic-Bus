@@ -1,7 +1,6 @@
 'use strict';
 
 const { json } = require('body-parser');
-const { type, forEach, insert, reject } = require('ramda');
 
 class InfluxdbConnector {
   constructor () {

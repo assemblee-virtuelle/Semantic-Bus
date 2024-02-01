@@ -3,21 +3,22 @@ const nodemailer = require('nodemailer')
 
 const sendMail = (req, res, mailOptions) => {
   return new Promise(function (resolve, reject) {
-    const transporter = nodemailer.createTransport(configuration.smtp, {
-      from: mailOptions.from,
-      headers: {
-        'X-Laziness-level': 1000
-      }
-    })
+    const transporter = nodemailer.createTransport(configuration.smtp)
 
-    transporter.sendMail(mailOptions, function (error) {
+    mailOptions.from = mailOptions.from || configuration.smtp.auth.user
+    mailOptions.headers = {
+      'X-Laziness-level': 1000,
+      ...mailOptions.headers
+    }
+
+    transporter.sendMail(mailOptions, function (error, info) {
       if (error) {
         reject(error)
       } else {
-        resolve('MAIL_SENT')
+        resolve(info)
       }
     })
   })
-} // <-- sendMail
+}
 
 module.exports.sendMail = sendMail

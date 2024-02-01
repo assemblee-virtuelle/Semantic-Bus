@@ -1,5 +1,5 @@
 'use strict';
-class HttpGet {
+class HttpConsumerFile {
   constructor () {
     this.url = require('url')
     this.http = require('http')
@@ -43,7 +43,6 @@ class HttpGet {
         response.on('end', function () {
           let responseContentType = response.headers['content-type']
           responseContentType = contentType || responseContentType
-          console.log(responseBody)
           this.dataTraitment.type.data_from_file(response.headers['content-disposition'], Buffer.from(responseBody, 'utf-8'), responseContentType).then((result) => {
             let normalized = this.propertyNormalizer.execute(result)
             resolve({ data: normalized })
@@ -68,4 +67,4 @@ class HttpGet {
     return this.makeRequest('GET', data.specificData.url, data.specificData.contentType,flowdata, pullParams)
   }
 }
-module.exports = new HttpGet()
+module.exports = new HttpConsumerFile()

@@ -1,7 +1,7 @@
 'use strict';
 class SftpConsumer {
   constructor () {
-    this.type = 'sftp consumer'
+    this.type = 'SFTP consumer'
     this.description = 'Interroger un fichier mis à disposition sur un serveur FTP.'
     this.editor = 'sftp-consumer-editor'
     this.graphIcon = 'File_consumer.svg'

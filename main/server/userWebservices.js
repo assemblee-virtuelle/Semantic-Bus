@@ -60,14 +60,17 @@ module.exports = function (router) {
       await user_lib.createUpdatePasswordEntity(req.query.mail, token)
 
       const mailOptions = {
-        from: 'Grappe, Confirmer votre email <tech@data-players.com>',
+        from: 'tech@data-players.com',
         to: req.query.mail,
-        subject: 'Confirmer Votre compte',
-        html: 'Bonjour,<br> Merci de cliquer sur le lien suivant pour confirmer votre compte. <br><a href=' + link + '>Ici </a>'
+        subject: 'Confirmez Votre compte',
+        text: 'Bonjour,\nMerci de cliquer sur le lien suivant pour confirmer votre compte.\n' + link
       }
 
-      await mailService.sendMail(req, res, mailOptions)
-      res.sendStatus(200)
+      mailService.sendMail(req, res, mailOptions).then((info) => {
+        res.sendStatus(200)
+      }).catch((error) => {
+        console.error('Error sending email:', error)
+      })
     } catch (e) {
       res.sendStatus(500)
     }
