@@ -56,8 +56,14 @@
     "queryParamsCreation": {
       "price": 20
     },
+    "restApiGet": {
+      "price": 10
+    },
     "restApiPost": {
       "price": 10
+    },
+    "restGetJson": {
+      "price": 20
     },
     "scrapper": {
       "price": 60
