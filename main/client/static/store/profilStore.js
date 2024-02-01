@@ -33,7 +33,7 @@ function ProfilStore (utilStore) {
       },
       contentType: 'application/json'
     }).then(() => {
-      this.trigger('ajax_sucess', `Un mail vous a  été envoyé, consultez votre boite mail`)
+      this.trigger('ajax_sucess', `Un mail vous a été envoyé, consultez votre boite mail`)
     })
   })
 

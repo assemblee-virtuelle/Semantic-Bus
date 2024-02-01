@@ -1,10 +1,9 @@
-<post-consumer-editor>
+<http-consumer-editor>
   <!-- bouton aide -->
   <div class="contenaireH" style="margin-left:97%">
     <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-HTTP-Consumer" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
   <div class="contenaireV title-component">{data.type}</div>
-  <div class="contenaireV warning">Ce composant est déprécié, utilisez HTTP Consumer à la place</div>
   <div>
     <div class="bar"/>
   </div>
@@ -166,4 +165,4 @@
     display: none;
   }
   </style>
-</post-consumer-editor>
+</http-consumer-editor>

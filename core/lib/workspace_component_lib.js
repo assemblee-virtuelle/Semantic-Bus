@@ -91,18 +91,18 @@ function _get_all_withConsomation(filter) {
   return new Promise(function(resolve, reject) {
     workspaceComponentModel.getInstance().model.find(filter)
       .lean()
-      .exec(function(err, workspaceComponents) {
-        if (err) {
-          reject(new Error.DataBaseProcessError(err))
-        } else {
-          workspaceComponents.forEach(c => {
-            c.specificData = c.specificData || {}
-          }); //protection against empty specificData : corrupt data
-          resolve(workspaceComponents);
-        }
+      .exec()
+      .then(workspaceComponents => {
+        workspaceComponents.forEach(c => {
+          c.specificData = c.specificData || {}
+        });
+        resolve(workspaceComponents);
+      })
+      .catch(err => {
+        reject(new Error.DataBaseProcessError(err))
       });
   })
-} // <= _get_all
+}
 
 
 // --------------------------------------------------------------------------------

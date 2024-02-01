@@ -23,15 +23,22 @@ class SqlConnector {
   }
 
   async request(query, sequelize, flowData, pullParams) {
-
-    query = this.stringReplacer.execute(query, pullParams, flowData)
+    query = this.stringReplacer.execute(query, pullParams, flowData);
+  
     try {
-      const SQLResult = await sequelize.query(query, {
-        type: sequelize.QueryTypes.SELECT
-      })
-      return SQLResult;
+      const [SQLResult, metadata] = await sequelize.query(query);
+  
+      // Check if the query is a SELECT query
+      if (query.trim().toLowerCase().includes('select')) {
+        // If it's a SELECT query, map the results
+        const resultData = Array.isArray(SQLResult) ? SQLResult.map(item => ({ ...item })) : [];
+        return resultData;
+      } else {
+        // For non-SELECT queries, return a meaningful response or handle accordingly
+        return "La requête a bien été exécutée.";
+      }
     } catch (err) {
-      let fullError = new Error(err)
+      let fullError = new Error(err);
       fullError.displayMessage = 'Connecteur SQL : Mauvais format de requete SQL';
       throw fullError;
     }

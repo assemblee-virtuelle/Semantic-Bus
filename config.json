@@ -32,6 +32,9 @@
     "httpGet": {
       "price": 40
     },
+    "httpConsumerFile": {
+      "price": 40
+    },
     "sftpConsumer":{
       "price": 40
     },
@@ -92,6 +95,12 @@
     "postConsumer":{
       "price": 20
     },
+    "httpConsumer":{
+      "price": 20
+    },
+    "httpProvider":{
+      "price": 10
+    },
     "flat":{
       "price": 20
     },
@@ -129,5 +138,14 @@
     "port": 8081,
     "secret": "secret",
     "target": "http://localhost:8080"
+  },
+  "smtp": {
+    "host": "", 
+    "port": 587,
+    "debug": true,
+    "auth": {
+      "user": "",
+      "pass": ""
+    }
   }
 }
