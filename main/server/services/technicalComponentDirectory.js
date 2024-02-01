@@ -10,7 +10,7 @@ module.exports = {
   googleGeoLocaliser: require('../workspaceComponentInitialize/googleGeoLocaliser.js'),
   cacheNosql: require('../workspaceComponentInitialize/cacheNosql.js'),
   gouvFrInverseGeo: require('../workspaceComponentInitialize/gouvFrInverseGeo.js'),
-  // restApiGet: require('../workspaceComponentInitialize/restApiPost.js'),
+  restApiGet: require('../workspaceComponentInitialize/restApiPost.js'),
   restApiPost: require('../workspaceComponentInitialize/restApiPost.js'),
   httpProvider: require('../workspaceComponentInitialize/httpProvider.js'),
   // xmlToObject: require('./workspaceComponentInitialize/xmlToObject.js'),
@@ -70,7 +70,8 @@ module.exports = {
   initialise: function (router, unSafeRouteur,engineTracer) {
     // console.log('initialise')
     this.restApiPost.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
-    // this.restApiGet.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
+    this.restApiGet.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
+    this.httpProvider.initialise(unSafeRouteur,engineTracer)
     this.upload.initialise(router,engineTracer)
     this.cacheNosql.initialise(router,engineTracer) // NO SECURE CHANGE ROUTER
   },
