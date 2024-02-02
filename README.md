@@ -23,7 +23,7 @@ Semantic data transformation & semantic container crawling
 
 ## need tiers
 - Big Data Support (Infinit data Volume)
-  - we can do now it whith external database as mongodb and advances workflows
+  - we can do now it with external database as mongodb and advances workflows
 - Authentification to external services other than api tocken (headers or url)
   - we use n8n or nocodeapi if we want to authentify to a data provider
 
