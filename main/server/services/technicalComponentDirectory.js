@@ -36,7 +36,7 @@ module.exports = {
   propertiesMatrix: require('../workspaceComponentInitialize/propertiesMatrix.js'),
   postConsumer: require('../workspaceComponentInitialize/postConsumer.js'),
   httpConsumer: require('../workspaceComponentInitialize/httpConsumer.js'),
-  restGetJson: require('../workspaceComponentInitialize/httpConsumer.js'),
+  restGetJson: require('../workspaceComponentInitialize/restGetJson.js'),
   keyToArray: require('../workspaceComponentInitialize/keyToArray.js'),
   sftpConsumer: require('../workspaceComponentInitialize/sftpConsumer.js'),
   flat: require('../workspaceComponentInitialize/flat.js'),
