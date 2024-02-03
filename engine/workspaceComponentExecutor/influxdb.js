@@ -339,8 +339,8 @@ class InfluxdbConnector {
   prepareData(data,jsonData,influxDB,org,bucket,measurementType){
     let result = {};
     try{
-      if(!(data.specificData && data.specificData.measurement && data.specificData.bucket)){
-        reject(new Error("Il faut fournir le nom de la mesure te le nom du bucket"))
+      if(!(data.specificData && data.specificData.measurementInsert && data.specificData.bucketInsert)){
+        reject(new Error("Il faut fournir le nom de la mesure et le nom du bucket"))
       }
 
       const writeApi = influxDB.getWriteApi(org, bucket);
@@ -358,7 +358,7 @@ class InfluxdbConnector {
       } 
 
       // when the data given is an array of objects ->>>
-      if(Array.isArray(jsonData)){
+      if(Array.isArray(data)){
         // gets the fields that weren't entered by the user according to first object?
         // we take the first object for the array
         const fields = this.getRemainingFields(jsonData[0],inputFields);
