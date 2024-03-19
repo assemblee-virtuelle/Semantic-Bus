@@ -83,8 +83,10 @@ module.exports = {
     }
   },
   getValueFromSource(source,pullParams, pattern) {
-    if (pattern.localeCompare('$..') == 0) {
+    if (pattern.localeCompare('$..') == 0 || pattern.localeCompare('$') == 0) {
       return source;
+    } else if (pattern.localeCompare('£..') == 0 || pattern.localeCompare('£') == 0) {
+      return pullParams;
     } else {
       let regexp = /\$\.(.*)/gm;
       let arrayRegex = [...pattern.matchAll(regexp)];
