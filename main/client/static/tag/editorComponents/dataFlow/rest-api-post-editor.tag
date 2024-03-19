@@ -72,7 +72,7 @@
       this.data = dataToUpdate;
       this.update();
     }.bind(this);
-    $
+    
     this.updateWorkspace = (workspace) =>{
       this.components = workspace.components;
     }
@@ -88,7 +88,6 @@
 
     });
     this.on('unmount', function () {
-      RiotControl.off('item_current_changed', this.updateData);
       RiotControl.off('item_current_changed', this.updateData);
       RiotControl.off('workspace_current_changed', this.updateWorkspace);
 

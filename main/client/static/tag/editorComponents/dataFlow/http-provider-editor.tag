@@ -26,7 +26,7 @@
   <label class="labelFormStandard">Content-type:</label>
   <div class="cardInput">
     <select class="inputComponents" name="contentTypeInput" ref="contentTypeInput" onchange={contentTypeInputChanged}>
-      <option value="application/json" selected={data.specificData.contentType==='application/json' || data.specificData.contentType===undefined}>application/json</option>
+      <option value="application/json" selected={data.specificData.contentType==='application/json'}>application/json</option>
       <option value="application/ld+json" selected={data.specificData.contentType==='application/ld+json'}>application/ld+json</option>
       <option value="application/xml" selected={data.specificData.contentType==='application/xml'}>application/xml</option>
       <option value="application/x-yaml" selected={data.specificData.contentType==='application/x-yaml'}>application/x-yaml</option>
@@ -45,9 +45,6 @@
   <script>
 
     this.data = {};
-    this.test = function () {
-      consol.log('test');
-    }
 
     // Object.defineProperty(this, 'data', {    set: function (data) {      this.data=data;      this.update();    }.bind(this),    get: function () {     return this.data;   },   configurable: true });
 
@@ -69,6 +66,12 @@
     }
     this.updateData = function (dataToUpdate) {
       this.data = dataToUpdate;
+      if (this.data.specificData.contentType==undefined){
+        this.data.specificData.contentType='application/json';
+      }
+      if (this.data.specificData.url==undefined){
+        this.data.specificData.url=this.data._id+'-'
+      } 
       this.update();
     }.bind(this);
     $
@@ -87,7 +90,6 @@
 
     });
     this.on('unmount', function () {
-      RiotControl.off('item_current_changed', this.updateData);
       RiotControl.off('item_current_changed', this.updateData);
       RiotControl.off('workspace_current_changed', this.updateWorkspace);
 

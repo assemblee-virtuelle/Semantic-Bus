@@ -9,6 +9,7 @@ class HttpProvider {
     this.editor = 'http-provider-editor'
     this.graphIcon = 'Post_provider.svg'
     this.tags = [
+        'http://semantic-bus.org/data/tags/inComponents',
         'http://semantic-bus.org/data/tags/outComponents',
         'http://semantic-bus.org/data/tags/APIComponents'
       ],
