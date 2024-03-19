@@ -18,7 +18,7 @@ class QueryParamsCreation {
 
   pull (data, flowData) {
     return new Promise((resolve, reject) => {
-      resolve({ data: flowData[0].data })
+      resolve({ data: flowData?.[0].data })
     })
   }
 }
