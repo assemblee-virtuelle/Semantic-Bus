@@ -10,300 +10,7 @@ module.exports = {
   //promiseOrchestrator : new PromiseOrchestrator();
   objectSizeOf: require("object-sizeof"),
   isObject: require('isobject'),
-
-
-  // nuber in comment at end of lines are values when approved and well tested
-
-  // frag: function(frag, key, counter) {
-  //   ++counter;
-  //   return new Promise(async (resolve, reject) => {
-
-  //     if (!frag.rootFrag && !frag.originFrag) {
-  //       frag.rootFrag = new this.ObjectID().toString();
-  //     }
-  //     if (Array.isArray(frag.data)) {
-  //       if (this.objectSizeOf(frag.data) > 0) {//10000
-  //         //Big array
-
-  //         // const branchFrag = new this.ObjectID().toString()
-  //         // frag.maxIndex =0;
-  //         // frag.branchFrag=branchFrag;
-
-
-  //         // for (let data of (frag.data)){
-  //         //   console.trace();
-  //         //   frag = await this.addDataToArrayFrag(data,frag);
-  //         // }
-  //         // frag.data= [];
-
-  //         // const newBranchFrag = await frag.save();
-  //         // console.log('newBrachFrag');
-  //         // resolve({
-  //         //   frag: newBranchFrag,
-  //         //   key: key
-  //         // });
-
-  //         const branchFrag = new this.ObjectID().toString()
-  //         let promiseOrchestrator = new this.PromiseOrchestrator();
-  //         let arraySegmentator = new this.ArraySegmentator();
-
-  //         let segmentation = arraySegmentator.segment(frag.data, 100) //100
-  //         let paramArray = segmentation.map(s => {
-  //           return [s.map(r => {
-  //             return {
-  //               data: r,
-  //               originFrag: frag.rootFrag || frag.originFrag,
-  //               branchOriginFrag: branchFrag,
-  //             }
-  //           }), false, counter]
-  //         })
-
-  //         const persistSegments = await promiseOrchestrator.execute(this, this.persist, paramArray, {
-  //           beamNb: 10 //10
-  //         })
-
-  //         console.log('__________CREATE branche caller',frag)
-
-
-  //         const persistBranch = await this.persist({
-  //           data: [],
-  //           rootFrag: undefined,
-  //           originFrag: frag.rootFrag || frag.originFrag,
-  //           branchOriginFrag: frag.branchFrag,
-  //           branchFrag: branchFrag,
-  //           // data:{_frag:persistBranch._id}
-  //         })
-
-  //         resolve({
-  //           frag: {
-  //             data: [],
-  //             rootFrag: frag.rootFrag,
-  //             originFrag: frag.originFrag,
-  //             branchOriginFrag: frag.branchOriginFrag,
-  //             branchFrag: branchFrag,
-  //             _id:persistBranch._id.toString()
-  //             // data:{_frag:persistBranch._id}
-  //           },
-  //           key: key
-  //         });
-  //       } else {
-  //         //small array
-  //         let arrayOut = [];
-  //         for (let item of frag.data) {
-  //           const fragReady = await this.frag({
-  //             data: item,
-  //             originFrag: frag.originFrag,
-  //             rootFrag: frag.rootFrag,
-  //             branchFrag: frag.branchFrag,
-  //             branchOriginFrag: frag.branchOriginFrag,
-  //           }, key, counter);
-  //           arrayOut.push(fragReady.frag.data)
-  //         }
-
-  //         resolve({
-  //           frag: {
-  //             data: arrayOut,
-  //             originFrag: frag.originFrag,
-  //             rootFrag: frag.rootFrag,
-  //             branchFrag: frag.branchFrag,
-  //             branchOriginFrag: frag.branchOriginFrag,
-  //             // frags: [],
-  //             _id: frag._id
-  //           },
-  //           key: key
-  //         });
-  //       }
-  //     } else if (frag.data instanceof Object) {
-  //       // Object
-  //       if (frag.data == null) {
-  //         resolve({
-  //           frag: {
-  //             data: null,
-  //             rootFrag: frag.rootFrag,
-  //             originFrag: frag.originFrag,
-  //             branchFrag: frag.branchFrag,
-  //             branchOriginFrag: frag.branchOriginFrag,
-  //             // frags: allFrags,
-  //             _id: frag._id
-  //           },
-  //           key: key
-  //         });
-  //       } else if (
-  //         (typeof frag.data) == 'function' ||
-  //         (frag.data.constructor && frag.data.constructor.name == 'ObjectID') ||
-  //         (frag.data.constructor && frag.data.constructor.name == 'Buffer')
-  //       ) {
-  //         //object to persist without framgment; it is a technic fix; In the context of normal operation, these types of objects should not exist
-  //         resolve({
-  //           frag: {
-  //             data: frag.data.toString(),
-  //             rootFrag: frag.rootFrag,
-  //             originFrag: frag.originFrag,
-  //             branchFrag: frag.branchFrag,
-  //             branchOriginFrag: frag.branchOriginFrag,
-  //             // frags: allFrags,
-  //             _id: frag._id
-  //           },
-  //           key: key
-  //         });
-  //       } else {
-  //         // Object
-  //         let promiseStack = [];
-  //         let objectOut = {};
-  //         for (let key in frag.data) {
-  //           let dataToPersist = frag.data[key];
-  //           const fragReady = await this.frag({
-  //             data: dataToPersist,
-  //             rootFrag: frag.rootFrag,
-  //             originFrag: frag.originFrag,
-  //             branchFrag: undefined,
-  //             branchOriginFrag: undefined
-  //           }, key, counter);
-
-
-  //           const fragKey = key.startsWith('$') ? '_' + key : key;
-
-  //           if (fragReady.frag.branchFrag) {
-  //             objectOut[fragKey] = {
-  //               _frag: fragReady.frag._id
-  //             }
-  //           } else {
-  //             objectOut[fragKey] = fragReady.frag.data;
-  //           }
-  //         }
-
-  //         resolve({
-  //           frag: {
-  //             data: objectOut,
-  //             rootFrag: frag.rootFrag,
-  //             originFrag: frag.originFrag,
-  //             branchFrag: frag.branchFrag,
-  //             branchOriginFrag: frag.branchOriginFrag,
-  //             // frags: allFrags,
-  //             _id: frag._id
-  //           },
-  //           key: key
-  //         });
-  //       }
-  //     } else {
-  //       // primitiv - literal
-  //       let dataPrimitiv = frag.data
-
-  //       resolve({
-  //         frag: {
-  //           data: dataPrimitiv,
-  //           rootFrag: frag.rootFrag,
-  //           originFrag: frag.originFrag,
-  //           branchFrag: frag.branchFrag,
-  //           branchOriginFrag: frag.branchOriginFrag
-  //         },
-  //         key: key
-  //       });
-  //     }
-  //   })
-  //   // }
-
-  // },
-  // persist: function(datas, createOnly, counter) {
-  //   console.trace();
-  //   counter = counter || 0;
-  //   if (counter > 1000) {
-  //     throw new Eror("too many deep")
-  //   }
-
-
-  //   if (datas instanceof Object) {
-  //     return new Promise((resolve, reject) => {
-  //       let fragReadyPromises = [];
-  //       let forceArray = false;
-  //       if (!Array.isArray(datas)) {
-  //         datas = [datas];
-  //         forceArray = true;
-  //       }
-  //       fragReadyPromises = datas.map(data => {
-
-  //         if (createOnly == true || data._id == undefined) {
-  //           return new Promise((resolve, reject) => {
-  //             resolve(data)
-  //           })
-  //         } else {
-  //           return new Promise((resolve, reject) => {
-  //             this.fragmentModel.getInstance().model.findOne({
-  //               _id: data._id
-  //             }).exec().then(fragment => {
-  //               if (fragment != null) {
-  //                 // console.log('REMOVE!!! ');
-  //                 // this.fragmentModel.getInstance().model.remove({
-  //                 //   originFrag: fragment.rootFrag
-  //                 // }).exec();
-
-  //                 fragment.data = data.data;
-  //               } else {
-  //                 fragment = data
-  //               }
-  //               resolve(fragment);
-  //             });
-  //           });
-  //         }
-  //       });
-  //       Promise.all(fragReadyPromises).then(fragReadyFargs => {
-  //         let persistReadyPromises = fragReadyFargs.map(f => {
-  //           return this.frag(f, undefined, counter);
-  //         });
-  //         return Promise.all(persistReadyPromises);
-
-  //       }).then(persistReadyFargs => {
-
-  //         let createReadyFrags = [];
-  //         let updateReadyFrags = [];
-  //         let unpersistReadyFrags = [];
-  //         if (persistReadyFargs == undefined) {
-  //           console.log('persistReadyFargs undefined');
-  //         }
-  //         persistReadyFargs = persistReadyFargs.forEach(persistReadyFarg => {
-  //           if (persistReadyFarg.frag._id == undefined) {
-  //             const fragmentModelInstance = this.fragmentModel.getInstance().model;
-  //             createReadyFrags.push(new fragmentModelInstance(persistReadyFarg.frag));
-  //           } else {
-  //             updateReadyFrags.push(persistReadyFarg.frag);
-  //           }
-  //         })
-
-  //         let insertPromiseStack = this.fragmentModel.getInstance().model.insertMany(createReadyFrags, {
-  //           new: true
-  //         });
-  //         let updatePromisesStack = updateReadyFrags.map(f => {
-  //           console.warn(`ALERT fragment udating, this case shouldn't exist`)
-  //           // console.trace();
-  //           return this.fragmentModel.getInstance().model.findOneAndUpdate({
-  //             _id: f._id
-  //           }, f, {
-  //             upsert: true,
-  //             new: true
-  //           }).exec();
-  //         })
-
-  //         return Promise.all([insertPromiseStack, updatePromisesStack, ]);
-  //       }).then(insertedAndUpdatedFrags => {
-
-  //         let out = insertedAndUpdatedFrags[0].concat(insertedAndUpdatedFrags[1]);
-  //         if (forceArray) {
-  //           out = out[0];
-  //         }
-  //         resolve(out);
-  //       }).catch(e => {
-  //         console.log('persist error', e);
-  //         reject(e);
-  //       });
-  //     });
-
-  //   } else {
-  //     console.log('NO PERSIST BECAUSE NO OBJECT');
-  //     return new Promise((resolve, reject) => {
-  //       resolve(datas);
-  //     })
-  //   }
-  // },
+  PromiseOrchestrator : require('../../core/helpers/promiseOrchestrator.js'),
 
   isLiteral (data){
     return (data==null ||
@@ -365,11 +72,18 @@ module.exports = {
 
         if(this.testFragArray(data)){
           // console.log('FRAG ARRRAY',data)
-        // if(false){
+          
           fargToPersist = await this.createArrayFrag(fargToPersist);
-          for (let item of data){
-            await this.addDataToArrayFrag(item,fargToPersist);
-          } 
+          const paramArray=data.map((item,index)=>([
+            item,
+            fargToPersist,
+            index
+          ]));
+          const addToArrayOcherstrator=new this.PromiseOrchestrator()
+          await addToArrayOcherstrator.execute(this, this.addDataToArrayFrag, paramArray, {beamNb:100},{quietLog:false});
+          // for (let item of data){
+          //   await this.addDataToArrayFrag(item,fargToPersist);
+          // } 
           return  fargToPersist;
         }else{
           // console.log('NOT FRAG ARRRAY',data)
@@ -438,7 +152,8 @@ module.exports = {
     return arrayFrag;
   
   },
-  addFragToArrayFrag: async function(frag, arrayFrag) {
+  //call without index not support parallel calls (PromiseOrchestrator for ex)
+  addFragToArrayFrag: async function(frag, arrayFrag,index) {
     // console.log('addFragToArrayFrag',frag,arrayFrag);
     const isObjectFrag =  frag._id && ! frag instanceof mongoose.Types.ObjectId;
     const fragmentModelInstance = this.fragmentModel.getInstance().model;
@@ -447,16 +162,20 @@ module.exports = {
     fragObject.branchOriginFrag = arrayFrag.branchFrag;
     fragObject.originFrag=arrayFrag.root||arrayFrag.originFrag;
     fragObject.rootFrag=undefined;
-    fragObject.index = arrayFrag.maxIndex+1;
-    await fragObject.save();
-    arrayFrag.maxIndex=fragObject.index;
-    return await arrayFrag.save();
-  
+    if (index!=undefined){
+      fragObject.index = index;
+      await fragObject.save();
+    }else{
+      fragObject.index = arrayFrag.maxIndex+1;
+      await fragObject.save();
+      arrayFrag.maxIndex=fragObject.index;
+      await arrayFrag.save();
+    } 
   },
-  addDataToArrayFrag: async function(data, arrayFrag) {
+  addDataToArrayFrag: async function(data, arrayFrag,index) {
     // console.log('addDataToArrayFrag',data)
     const frag = await this.persist(data,arrayFrag) 
-    await this.addFragToArrayFrag(frag,arrayFrag)
+    await this.addFragToArrayFrag(frag,arrayFrag,index)
   
   },
   createRootArrayFragFromFrags: async function(frags) {

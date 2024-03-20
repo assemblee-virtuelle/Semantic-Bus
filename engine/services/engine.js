@@ -330,7 +330,7 @@ class Engine {
                   componentFlow.dataFlow
                 )
               } else {
-                // console.log('COMPUTE secandary Flow',componentFlow.dataFlow)
+                // console.log('COMPUTE secondary Flow',componentFlow.dataFlow)
                 componentFlow.secondaryFlow = secondaryFlow.concat(componentFlow.dataFlow)
                 componentFlow.secondaryFlow.splice(componentFlow.secondaryFlow.indexOf(componentFlow.primaryflow), 1)
               }
@@ -380,7 +380,7 @@ class Engine {
                   // console.log('________________ dfobFragmentSelected data',dfobFragmentSelected.map(f=>f.frag.data));
 
                   if (this.config.quietLog != true) {
-                    // console.log('dfobFragmentSelected ', dfobFragmentSelected)
+                    // console.log('__dfobFragmentSelected ', dfobFragmentSelected.length,pipeNb)
                   }
 
                   if (dfobFragmentSelected.length == 0) {
@@ -410,7 +410,7 @@ class Engine {
                       })
                     }
                     if (this.config.quietLog != true) console.timeEnd("secondary_getWithResolutionByBranch");
-
+                    if (this.config.quietLog != true) console.time("rebuildFrag_focus_work_persist");
                     try {
                       let dfob = undefined;
                       let paramArray = dfobFragmentSelected.map(item => {
@@ -426,7 +426,7 @@ class Engine {
 
                       try {
                         const workResult = await this.promiseOrchestrator.execute(this, this.rebuildFrag_focus_work_persist, paramArray, {
-                          pipeNb,
+                          beamNb:pipeNb,
                           logIteration: true,
                           continueChekFunction: async () => {
                             // console.log('check',this.processId);
@@ -466,6 +466,7 @@ class Engine {
                       processingNode.status = 'error'
                       this.processNextBuildPath('dfob reject')
                     }
+                    if (this.config.quietLog != true) console.timeEnd("rebuildFrag_focus_work_persist");
 
                   }
                 } catch (e) {
@@ -763,18 +764,18 @@ class Engine {
     // console.log('___________rebuildFrag_focus_work_persist',dfob,fragment)
 
     try {
-      if (this.config.quietLog != true) console.time("primary_getWithResolutionByBranch");
+      // if (this.config.quietLog != true) console.time("primary_getWithResolutionByBranch");
       // console.log('__________rebuild ',fragment)
       rebuildData = await this.fragment_lib.getWithResolutionByBranch(fragment._id);
       dfob=undefined;
-      if (this.config.quietLog != true) console.timeEnd("primary_getWithResolutionByBranch");
+      // if (this.config.quietLog != true) console.timeEnd("primary_getWithResolutionByBranch");
       // console.log('_______rebuildData',rebuildData)
 
       // console.log('___fragment',fragment)
       const needDfob = dfobTable.length>0 || (Array.isArray(rebuildData)&&!keepArray&&!fragment.branchOriginFrag);
       if(needDfob){
         // console.log('WITH DFOB',dfobTable);
-        if (this.config.quietLog != true) console.time("build-DfobFlow");
+        // if (this.config.quietLog != true) console.time("build-DfobFlow");
         const dfobFlow = this.buildDfobFlow(
           rebuildData,
           dfobTable,
@@ -800,13 +801,13 @@ class Engine {
             processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams
           ]
         });
-        if (this.config.quietLog != true) console.timeEnd("build-DfobFlow");
+        // if (this.config.quietLog != true) console.timeEnd("build-DfobFlow");
 
         // console.log('__________ paramArray :',paramArray[0][1])
         // console.log('__________module',module);
-        if (this.config.quietLog != true) console.time("work");
+        // if (this.config.quietLog != true) console.time("work");
         const componentFlowDfob = await this.promiseOrchestrator.execute(module, module.pull, paramArray, {
-          pipeNb,
+          beamNb: pipeNb,
           logIteration: true,
           continueChekFunction: async () => {
             const process = await this.workspace_lib.getCurrentProcess(this.processId);
@@ -817,11 +818,11 @@ class Engine {
             }
           }
         }, this.config);
-        if (this.config.quietLog != true) console.timeEnd("work");
+        // if (this.config.quietLog != true) console.timeEnd("work");
     
         // console.log('__________ componentFlowDfob :',componentFlowDfob)
 
-        if (this.config.quietLog != true) console.time("recompose-DfobFlow");
+        // if (this.config.quietLog != true) console.time("recompose-DfobFlow");
         // console.log('dfobFlow 1',dfobFlow)
         for (var componentFlowDfobKey in componentFlowDfob) {
           if ('data' in componentFlowDfob[componentFlowDfobKey]) {
@@ -846,7 +847,7 @@ class Engine {
           }
         }
         // console.log('_________ dfobFlow 2',dfobFlow)
-        if (this.config.quietLog != true) console.timeEnd("recompose-DfobFlow");
+        // if (this.config.quietLog != true) console.timeEnd("recompose-DfobFlow");
       } else {
         // console.log('WITHOUT DFOB');
         let workResult
@@ -860,9 +861,9 @@ class Engine {
         recomposedFlow = recomposedFlow.concat(secondaryFlow);
         // console.log('recomposedFlow',recomposedFlow);
         // console.log('processingNode.component',processingNode.component);
-        if (this.config.quietLog != true) console.time("work");
+        // if (this.config.quietLog != true) console.time("work");
         workResult = await module.pull(processingNode.component, recomposedFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams)
-        if (this.config.quietLog != true) console.timeEnd("work");
+        // if (this.config.quietLog != true) console.timeEnd("work");
         // console.log('workResult',workResult);
         rebuildData=workResult.data;
         dfob = workResult.dfob
@@ -882,9 +883,9 @@ class Engine {
     let pesristedFragment
     try {
         // console.log('BEFORE persist',rebuildData,fragment)
-        if (this.config.quietLog != true) console.time("persist");
+        // if (this.config.quietLog != true) console.time("persist");
         pesristedFragment = await this.fragment_lib.persist(rebuildData,undefined,fragment);
-        if (this.config.quietLog != true) console.timeEnd("persist");
+        // if (this.config.quietLog != true) console.timeEnd("persist");
 
         // console.log('AFTER persist',JSON.stringify(pesristedFragment))
     } catch (error) {

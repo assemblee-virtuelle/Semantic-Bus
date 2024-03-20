@@ -1,7 +1,7 @@
 <regex-editor>
   <!-- bouton aide -->
   <div class="contenaireH" style="margin-left:97%">
-    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Slugify" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
+    <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Regex" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
   <!-- Titre du composant -->
   <div class="contenaireV title-component">{data.type}</div>

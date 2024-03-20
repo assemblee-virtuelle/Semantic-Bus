@@ -125,7 +125,7 @@ class PromiseExecutor {
   execute() {
     // console.log('PromiseExecutor : execute');
     if (this.config != undefined && this.config.quietLog != true) {
-      // console.log("index / length : ", this.index,'/',this.paramArray.length);
+      console.log("index / length : ", this.index,'/',this.paramArray.length);
     }
 
     return new Promise(async (resolve, reject) => {

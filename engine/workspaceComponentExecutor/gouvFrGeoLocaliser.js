@@ -40,7 +40,7 @@ class GouvFrGeoLocaliser {
         var addressGouvFrFormated = adressArray.join(',');
         const geoResponse = await fetch(`http://api-adresse.data.gouv.fr/search/?q=${addressGouvFrFormated}`);
         const geoResponseObject = await geoResponse.json();
-        console.log(geoResponseObject)
+        // console.log(geoResponseObject)
         if( geoResponseObject.features &&  geoResponseObject.features.length>0){
           flowData[specificData.latitudePath] = geoResponseObject.features[0].geometry.coordinates[1];
           flowData[specificData.longitudePath] = geoResponseObject.features[0].geometry.coordinates[0];
