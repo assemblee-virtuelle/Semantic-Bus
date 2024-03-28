@@ -33,9 +33,9 @@ function WorkspaceStore (utilStore, specificStoreList) {
   // ----------------------------------------- FUNCTION  -----------------------------------------
 
   this.computeGraph = function (viewBox, position) {
-    console.log('compute graph')
+    // console.log('compute graph',this.workspaceCurrent)
     let componentsId = this.workspaceCurrent.components.map(c => c._id)
-    console.log('componentsId',componentsId)
+    // console.log('componentsId',componentsId)
     this.workspaceCurrent.links = sift({
       $and: [{
         source: {
@@ -79,15 +79,21 @@ function WorkspaceStore (utilStore, specificStoreList) {
       let connectionsAfter = sift({
         source: record._id
       }, this.workspaceCurrent.links)
+      let connectionsBeforeSecond = sift({
+        target: record._id,
+        targetInput: 'second'
+      }, this.workspaceCurrent.links)
       var node = {
         text: record.type,
         id: record._id,
         graphIcon: record.graphIcon,
+        secondFlowConnector : record.secondFlowConnector,
         component: record
       }
       CompteConnexion[record._id] = {}
       CompteConnexion[record._id].connectionsBefore = connectionsBefore.length
       CompteConnexion[record._id].connectionsAfter = connectionsAfter.length
+      CompteConnexion[record._id].connectionsBeforeSecond = connectionsBeforeSecond.length
 
       if (this.currentProcess !== undefined) {
         let step = sift({
@@ -107,9 +113,12 @@ function WorkspaceStore (utilStore, specificStoreList) {
       } else { // tous ceux du milieu
         node.x = record.graphPositionX || 0
         node.y = record.graphPositionY || 0
-        node.connectionsBefore = connectionsBefore.length
-        node.connectionsAfter = connectionsAfter.length
       }
+
+      node.connectionsBefore = connectionsBefore.length
+      node.connectionsAfter = connectionsAfter.length
+      node.connectionsBeforeSecond = connectionsBeforeSecond.length;
+
       this.graph.x += -node.x
       this.graph.y += -node.y
 
@@ -129,6 +138,7 @@ function WorkspaceStore (utilStore, specificStoreList) {
           id: link.target
         }, this.graph.nodes)[0],
         id: id,
+        targetInput : link.targetInput,
         scb: CompteConnexion[link.source].connectionsBefore,
         sca: CompteConnexion[link.source].connectionsAfter,
         tcb: CompteConnexion[link.target].connectionsBefore,
@@ -533,25 +543,41 @@ function WorkspaceStore (utilStore, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   this.on('component_current_set', function (data) {
+    console.log('component_current_set_1')
     this.graph.nodes.forEach(n => {
-      n.selected = false
+      n.selected = false;
+      n.connectBeforeMode = false;
+      n.connectBeforeSecondMode = false;
+      n.connectAfterMode = false;
     })
 
     this.graph.links.forEach(l => {
       l.selected = false
     })
-    sift({
-      'component._id': data._id
-    }, this.graph.nodes).forEach(n => {
-      n.selected = true
-    })
+    if(data!=undefined){
+      sift({
+        'component._id': data._id
+      }, this.graph.nodes).forEach(n => {
+        n.selected = true
+      })
+    }
+    console.log('graph',this.graph)
     // this.trigger('workspace_graph_compute_done', this.graph)
     this.trigger('workspace_graph_selection_changed', this.graph)
   })
 
   // --------------------------------------------------------------------------------
 
-  this.on('connection_current_set', function (source, target) {
+  this.on('component_current_set', function (data) {
+    console.log('component_current_set_2')
+    this.itemCurrent = data
+  })
+  
+
+  // --------------------------------------------------------------------------------
+
+  this.on('connection_current_set', function (source, target, targetInput) {
+    console.log(targetInput);
     this.graph.nodes.forEach(n => {
       n.selected = false
     })
@@ -565,6 +591,8 @@ function WorkspaceStore (utilStore, specificStoreList) {
         'source.component._id': source._id
       }, {
         'target.component._id': target._id
+      }, {
+        'targetInput': targetInput
       }]
     }, this.graph.links).forEach(l => {
       l.selected = true
@@ -764,17 +792,61 @@ function WorkspaceStore (utilStore, specificStoreList) {
 
   this.on('item_current_connect_before_show', function (data) {
     this.modeConnectBefore = !this.modeConnectBefore
+    this.modeConnectBeforeSecond = false
     this.modeConnectAfter = false
     this.trigger('item_curent_connect_show_changed', {
       before: this.modeConnectBefore,
+      beforeSecond: this.modeConnectBeforeSecond,
       after: this.modeConnectAfter
     })
 
     sift({
       selected: true
     }, this.graph.nodes).forEach(n => {
-      n.connectBeforeMode = true
+      n.connectBeforeMode = this.modeConnectBefore
+      n.connectBeforeSecondMode = this.modeConnectBeforeSecond
+      n.connectAfterMode = this.modeConnectAfter
     })
+
+    sift({
+      selected: false
+    }, this.graph.nodes).forEach(n => {
+      n.connectBeforeMode = false
+      n.connectBeforeSecondMode = false
+      n.connectAfterMode = false
+    })
+
+    this.trigger('workspace_graph_selection_changed', this.graph)
+  })
+
+  // --------------------------------------------------------------------------------
+
+  this.on('item_current_connect_before_second_show', function (data) {
+    this.modeConnectBefore = false
+    this.modeConnectBeforeSecond = !this.modeConnectBeforeSecond
+    this.modeConnectAfter = false
+    this.trigger('item_curent_connect_show_changed', {
+      before: this.modeConnectBefore,
+      beforeSecond: this.modeConnectBeforeSecond,
+      after: this.modeConnectAfter
+    })
+
+    sift({
+      selected: true
+    }, this.graph.nodes).forEach(n => {
+      n.connectBeforeMode = this.modeConnectBefore
+      n.connectBeforeSecondMode = this.modeConnectBeforeSecond
+      n.connectAfterMode = this.modeConnectAfter
+    })
+
+    sift({
+      selected: false
+    }, this.graph.nodes).forEach(n => {
+      n.connectBeforeMode = false
+      n.connectBeforeSecondMode = false
+      n.connectAfterMode = false
+    })
+
     this.trigger('workspace_graph_selection_changed', this.graph)
   })
 
@@ -783,9 +855,11 @@ function WorkspaceStore (utilStore, specificStoreList) {
   this.on('item_current_connect_after_show', function (data) {
     // not used
     this.modeConnectBefore = false
+    this.modeConnectBeforeSecond = false
     this.modeConnectAfter = !this.modeConnectAfter
     this.trigger('item_curent_connect_show_changed', {
       before: this.modeConnectBefore,
+      beforeSecond: this.modeConnectBeforeSecond,
       after: this.modeConnectAfter
     })
     //! not used
@@ -793,20 +867,32 @@ function WorkspaceStore (utilStore, specificStoreList) {
     sift({
       selected: true
     }, this.graph.nodes).forEach(n => {
-      n.connectAfterMode = true
+      n.connectBeforeMode = this.modeConnectBefore
+      n.connectBeforeSecondMode = this.modeConnectBeforeSecond
+      n.connectAfterMode = this.modeConnectAfter
     })
+
+    sift({
+      selected: false
+    }, this.graph.nodes).forEach(n => {
+      n.connectBeforeMode = false
+      n.connectBeforeSecondMode = false
+      n.connectAfterMode = false
+    })
+
     this.trigger('workspace_graph_selection_changed', this.graph)
   })
 
   // --------------------------------------------------------------------------------
 
-  this.on('connect_components', function (source, target) {
+  this.on('connect_components', function (source, target,input) {
     this.utilStore.ajaxCall({
       method: 'post',
       url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/components/connection',
       data: JSON.stringify({
         source: source._id,
-        target: target._id
+        target: target._id,
+        input:input
       })
     }, true).then(links => {
       this.workspaceCurrent.links = links
@@ -853,11 +939,6 @@ function WorkspaceStore (utilStore, specificStoreList) {
     })
   })
 
-  // --------------------------------------------------------------------------------
-
-  this.on('component_current_set', function (data) {
-    this.itemCurrent = data
-  })
 
   // --------------------------------------------------------------------------------
 

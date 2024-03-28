@@ -83,9 +83,11 @@ module.exports = function (router) {
       for (var c of workspace.components) {
         if (technicalComponentDirectory[c.module] != null) {
           // console.log('ICON',technicalComponentDirectory[c.module].graphIcon);
-          c.graphIcon = technicalComponentDirectory[c.module].graphIcon
+          c.graphIcon = technicalComponentDirectory[c.module].graphIcon;
+          c.secondFlowConnector = technicalComponentDirectory[c.module].secondFlowConnector
         } else {
-          c.graphIcon = 'default'
+          c.graphIcon = 'default';
+          c.secondFlowConnector = false;
         }
         // console.log('-->',c);
       }
@@ -224,7 +226,7 @@ module.exports = function (router) {
   // --------------------------------------------------------------------------------
 
   router.post('/workspaces/:id/components/connection', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
-    workspace_lib.addConnection(req.params.id, req.body.source, req.body.target).then(links => {
+    workspace_lib.addConnection(req.params.id, req.body.source, req.body.target, req.body.input).then(links => {
       res.json(links)
     }).catch(e => {
       next(e)

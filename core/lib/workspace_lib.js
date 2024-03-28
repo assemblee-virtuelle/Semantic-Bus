@@ -905,6 +905,7 @@ function _get_workspace(workspace_id) {
       .lean()
       .exec()
       .then(async (workspaceIn) => {
+        // console.log('workspaceIn',workspaceIn);
         if (workspaceIn == null) {
           return reject(new Error.EntityNotFoundError('workspaceModel'))
         }
@@ -1028,7 +1029,8 @@ function _get_workspace_graph_data(workspaceId) {
 
 // --------------------------------------------------------------------------------
 
-function _addConnection(workspaceId, source, target) {
+function _addConnection(workspaceId, source, target, input) {
+
   return new Promise((resolve, reject) => {
     workspaceModel.getInstance().model.findOne({
       _id: workspaceId
@@ -1036,10 +1038,13 @@ function _addConnection(workspaceId, source, target) {
       if (workspace == null) {
         return reject(new Error.EntityNotFoundError('workspaceModel'))
       }
+      console.log('input',input)
       workspace.links.push({
         source: source,
-        target: target
+        target: target,
+        targetInput : input
       });
+      console.log('workspace add connection',workspace)
       return workspaceModel.getInstance().model.findOneAndUpdate({
             _id: workspace._id
           },

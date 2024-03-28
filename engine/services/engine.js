@@ -79,7 +79,11 @@ class Engine {
             queryParams: this.originQueryParams
           },
           undefined
-        )
+        );
+        // console.log('this.pathResolution',this.pathResolution.nodes)
+        this.pathResolution.nodes.forEach(n=>{
+          console.log(n)
+        })
 
         if (this.config.quietLog != true) {
           console.log(' ---------- BuildPath Links-----------', this.fackCounter, this.workflow.name)
@@ -253,7 +257,6 @@ class Engine {
             let secondaryFlow
             let componentFlow={}
             if (nodesProcessingInputs.length > 0) {
-
               let persistedDataFlow = [];
               for (const sourceNode of nodesProcessingInputs) {
                 // console.log('sourceNode',sourceNode);
@@ -280,11 +283,13 @@ class Engine {
 
                 // }
                 const previousDfob = persistedDataFlowCoponent.dfob ? persistedDataFlowCoponent.dfob : undefined;
+                const targetInput = sourceNode.targets.find(t=>t.target.component._id==processingNode.component._id).targetInput;
                 persistedDataFlow.push({
                   // data: persistedData ? persistedData : undefined,
                   fragment : persistedFragmentData,
                   componentId: sourceNode.component._id,
-                  dfob: previousDfob,
+                  targetInput: targetInput,
+                  dfob: previousDfob
                 })
               }
               
@@ -293,14 +298,14 @@ class Engine {
                 deeperFocusData : processingNode.component.deeperFocusData
               }
 
+              // legacy compatibility with dfob as component
               if(componentFlow.dataFlow.length==1 && (!componentFlow.deeperFocusData || Object.keys(componentFlow.deeperFocusData).length==0)){
                 // console.log('APPPLY dfob from source!!',componentFlow.dataFlow[0].dfob)
                 componentFlow.deeperFocusData=componentFlow.dataFlow[0].dfob;
               } 
 
-              // console.log('componentFlow?.deeperFocusData',componentFlow?.deeperFocusData)
+              // default DFOB
               if((!componentFlow?.deeperFocusData ||Object.keys(componentFlow.deeperFocusData).length==0)&& (componentFlow?.deeperFocusData?.activateDf==undefined||componentFlow?.deeperFocusData?.activateDf==false)){
-                // console.log('DEFAULT DFOB!!')
                 componentFlow.deeperFocusData={
                   dfobPath:'',
                   keepArray:true
@@ -320,7 +325,7 @@ class Engine {
                   componentFlow.dataFlow
                 )
               } else {
-                componentFlow.primaryflow = componentFlow.dataFlow[0]
+                componentFlow.primaryflow = componentFlow.dataFlow.filter(df=>df.targetInput==undefined)[0]
               }
 
               secondaryFlow = []
@@ -406,7 +411,8 @@ class Engine {
                     for (let sf of componentFlow.secondaryFlow){
                       secondaryFlowDefraged.push({
                         data : await this.fragment_lib.getWithResolutionByBranch(sf.fragment),
-                        componentId : sf.componentId
+                        componentId : sf.componentId,
+                        targetInput : sf.targetInput
                       })
                     }
                     if (this.config.quietLog != true) console.timeEnd("secondary_getWithResolutionByBranch");
@@ -761,17 +767,17 @@ class Engine {
     let module = this.technicalComponentDirectory[processingNode.component.module]
     const {dfobTable,pipeNb, keepArray}=dfob
     let rebuildData;
-    // console.log('___________rebuildFrag_focus_work_persist',dfob,fragment)
+
 
     try {
       // if (this.config.quietLog != true) console.time("primary_getWithResolutionByBranch");
-      // console.log('__________rebuild ',fragment)
+
       rebuildData = await this.fragment_lib.getWithResolutionByBranch(fragment._id);
       dfob=undefined;
       // if (this.config.quietLog != true) console.timeEnd("primary_getWithResolutionByBranch");
-      // console.log('_______rebuildData',rebuildData)
 
-      // console.log('___fragment',fragment)
+
+
       const needDfob = dfobTable.length>0 || (Array.isArray(rebuildData)&&!keepArray&&!fragment.branchOriginFrag);
       if(needDfob){
         // console.log('WITH DFOB',dfobTable);
@@ -782,18 +788,14 @@ class Engine {
           undefined,
           keepArray
         )
-        // console.log('___________dfobFlow',JSON.stringify(dfobFlow))
         let paramArray = dfobFlow.map(item => {
-          // console.log('__________ item :',item)
           var recomposedFlow = [];
-          // console.log(finalItem.objectToProcess,finalItem.key);
     
           recomposedFlow = recomposedFlow.concat([{
             data: item.key != undefined ? item.objectToProcess[item.key] : item.objectToProcess,
             componentId: primaryflow.componentId
           }]);
           recomposedFlow = recomposedFlow.concat(secondaryFlow);
-          // console.log('recomposedFlow',recomposedFlow);
 
           return [
             processingNode.component,
@@ -802,9 +804,6 @@ class Engine {
           ]
         });
         // if (this.config.quietLog != true) console.timeEnd("build-DfobFlow");
-
-        // console.log('__________ paramArray :',paramArray[0][1])
-        // console.log('__________module',module);
         // if (this.config.quietLog != true) console.time("work");
         const componentFlowDfob = await this.promiseOrchestrator.execute(module, module.pull, paramArray, {
           beamNb: pipeNb,
@@ -819,16 +818,11 @@ class Engine {
           }
         }, this.config);
         // if (this.config.quietLog != true) console.timeEnd("work");
-    
-        // console.log('__________ componentFlowDfob :',componentFlowDfob)
-
         // if (this.config.quietLog != true) console.time("recompose-DfobFlow");
-        // console.log('dfobFlow 1',dfobFlow)
+
         for (var componentFlowDfobKey in componentFlowDfob) {
           if ('data' in componentFlowDfob[componentFlowDfobKey]) {
-            // console.log('componentFlowDfobKey 1',componentFlowDfobKey)
             if (dfobFlow[componentFlowDfobKey].key != undefined) {
-              // console.log('componentFlowDfobKey 2',componentFlowDfobKey)
               dfobFlow[componentFlowDfobKey].objectToProcess[dfobFlow[componentFlowDfobKey].key] =
                 componentFlowDfob[componentFlowDfobKey].data
             } else {
@@ -839,32 +833,26 @@ class Engine {
               for (let key of Object.keys(componentFlowDfob[componentFlowDfobKey].data)) {
                 dfobFlow[componentFlowDfobKey].objectToProcess[key] = componentFlowDfob[componentFlowDfobKey].data[key];
               }
-              // dfobFinalFlow[componentFlowDfobKey].objectToProcess=componentFlowDfob[componentFlowDfobKey].data;
             }
           } else if (componentFlowDfob[componentFlowDfobKey].error != undefined) {
             dfobFlow[componentFlowDfobKey].objectToProcess[dfobFlow[componentFlowDfobKey].key] =
               componentFlowDfob[componentFlowDfobKey]
           }
         }
-        // console.log('_________ dfobFlow 2',dfobFlow)
         // if (this.config.quietLog != true) console.timeEnd("recompose-DfobFlow");
       } else {
         // console.log('WITHOUT DFOB');
         let workResult
         let recomposedFlow = [];
-        // console.log(finalItem.objectToProcess,finalItem.key);
-  
         recomposedFlow = recomposedFlow.concat([{
           data: rebuildData,
           componentId: primaryflow.componentId
         }]);
         recomposedFlow = recomposedFlow.concat(secondaryFlow);
-        // console.log('recomposedFlow',recomposedFlow);
-        // console.log('processingNode.component',processingNode.component);
+
         // if (this.config.quietLog != true) console.time("work");
         workResult = await module.pull(processingNode.component, recomposedFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams)
         // if (this.config.quietLog != true) console.timeEnd("work");
-        // console.log('workResult',workResult);
         rebuildData=workResult.data;
         dfob = workResult.dfob
       }
@@ -874,11 +862,6 @@ class Engine {
         error : error.message
       };
     }
-
-   
-   
-    // console.log('______ rebuildData', rebuildData);
-    // console.log('_________fragment',fragment);
 
     let pesristedFragment
     try {
@@ -891,7 +874,6 @@ class Engine {
     } catch (error) {
       console.error("persist ERROR",error);
     }
-    // console.log('______ pesristedFragment',pesristedFragment);
     return {
       frag : pesristedFragment, // not needed because frag of component ever known by main execution
       dfob
@@ -992,7 +974,8 @@ class Engine {
                   target: buildPathNode,
                   requestDirection: 'pull',
                   queryParams: queryParams,
-                  linkId: beforelink._id
+                  linkId: beforelink._id,
+                  targetInput: beforelink.targetInput
                 }
                 // linkToProcess.status='waiting';
                 buildPath.links.push(linkToProcess)
@@ -1046,13 +1029,13 @@ class Engine {
                   source: buildPathNode,
                   requestDirection: 'push',
                   queryParams: queryParams,
-                  linkId: afterlink._id
+                  linkId: afterlink._id,
+                  targetInput: afterlink.targetInput
                 }
-                // linkToProcess.status='waiting';
+
                 buildPath.links.push(linkToProcess)
                 buildPathNode.targets.push(linkToProcess)
-                // console.log(linkToProcess);
-                // buildPath.push(out);
+
                 this.buildPathResolution(
                   workspace,
                   afterComponentObject,

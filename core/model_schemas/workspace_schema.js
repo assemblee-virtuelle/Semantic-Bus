@@ -21,7 +21,8 @@ var WorkspaceSchema = mongoose.Schema({
   },
   links: [{
     source: String,
-    target: String
+    target: String,
+    targetInput: String
   }],
   users: [{
     email: String,

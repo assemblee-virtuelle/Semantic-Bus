@@ -1,7 +1,7 @@
 <graph class="containerV containerGrid">
   <!-- page graph -->
   <div id="graphContainer" style="flex-grow:1;" class="containerH contentrGrid">
-       <svg ref="graphSvgCanvas" style="flex-grow:1; position: relative" ondrop={drag_drop} ondragover={drag_over_prevent}>
+    <svg ref="graphSvgCanvas" style="flex-grow:1; position: relative" ondrop={drag_drop} ondragover={drag_over_prevent} onClick={graph_background_click}>
       <filter id="dropshadow" x="1%" y="1%" width="110%" height="110%">
         <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
         <feOffset dx="-2" dy="-1" result="offsetblur1"/>
@@ -57,6 +57,7 @@
     this.selectorsLines = [];
     this.modeConnectAfter = false;
     this.modeConnectBefore = false;
+    this.modeConnectBeforeSecond = false;
     this.selectedElement;
     this.initGraphDone = false;
     this.showComponent = true;
@@ -78,8 +79,10 @@
       return Math.round(p / r) * r;
     }
 
-    // draw selected elemnt around select element
+    // draw selected element around select element
     this.drawSelected = function (graph) {
+      //console.log(graph);
+      this.graph=graph;
       this.selectedNodes = sift({
         'selected': true
       }, this.graph.nodes);
@@ -89,6 +92,11 @@
       this.modeConnectBefore = sift({
         'connectBeforeMode': true
       }, this.graph.nodes).length > 0;
+
+      this.modeConnectBeforeSecond = sift({
+        'connectBeforeSecondMode': true
+      }, this.graph.nodes).length > 0;
+      //console.log(this.modeConnectAfter,this.modeConnectBefore,this.modeConnectBeforeSecond)
 
       // node
       this.selectorsNodes = this.svg
@@ -154,6 +162,50 @@
             .attr("x", function (d) {return 1})
             .attr("y", function (d) {return 70})
             .on("click", function (d) {RiotControl.trigger('item_current_connect_before_show')});
+          d3
+            .select(this)
+            .append("image")
+            .attr("xlink:href", function (d) {
+              let image = "";
+              if (d.connectAfterMode == true) {
+                //image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand.png";
+                image = "./image/Super-Mono-svg/plus-select.svg";
+              } else {
+                //image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand-alt.png";
+                image = "./image/Super-Mono-svg/plus.svg";
+              }
+            return image
+            })
+            .attr("width", function (d) {return 25})
+            .attr("height", function (d) {return 25})
+            .attr("x", function (d) {return 102})
+            .attr("y", function (d) {return 70})
+            .attr("class", function (d) {return 'connectAfterButtonGraph'})
+            .attr("data-id", function (d) {return d.id})
+            .on("click", function (d) {RiotControl.trigger('item_current_connect_after_show')})
+          if(d.secondFlowConnector){
+            d3
+              .select(this)
+              .append("image")
+              .attr("xlink:href", function (d) {
+
+                let image = "";
+                if (d.connectBeforeSecondMode == true) {
+                  // image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand.png";
+                  image = "./image/Super-Mono-svg/plus-select.svg";
+                } else {
+                  // image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand-alt.png";
+                  image = "./image/Super-Mono-svg/plus-second.svg";
+                }
+                return image;
+              })
+              .attr("width", function (d) {return 25})
+              .attr("height", function (d) {return 25})
+              .attr("x", function (d) {return 15})
+              .attr("y", function (d) {return 35})
+              .on("click", function (d) {RiotControl.trigger('item_current_connect_before_second_show')});
+
+          }
 
           d3
             .select(this)
@@ -218,27 +270,7 @@
             .attr("data-id", function (d) {return d.id})
             .on("click", function (d) {RiotControl.trigger('workspace_current_delete_component', d.component)})
 
-          d3
-            .select(this)
-            .append("image")
-            .attr("xlink:href", function (d) {
-              let image = "";
-              if (d.connectAfterMode == true) {
-                //image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand.png";
-                image = "./image/Super-Mono-svg/plus-select.svg";
-              } else {
-                //image = "./image/Super-Mono-png/PNG/basic/green/toggle-expand-alt.png";
-                image = "./image/Super-Mono-svg/plus.svg";
-              }
-            return image
-            })
-            .attr("width", function (d) {return 25})
-            .attr("height", function (d) {return 25})
-            .attr("x", function (d) {return 102})
-            .attr("y", function (d) {return 70})
-            .attr("class", function (d) {return 'connectAfterButtonGraph'})
-            .attr("data-id", function (d) {return d.id})
-            .on("click", function (d) {RiotControl.trigger('item_current_connect_after_show')})
+
         })
 
       // line overlay
@@ -261,7 +293,7 @@
         .attr('x1', function (d) {return d.source.x + 75})
         .attr('y1', function (d) {return d.source.y + 35})
         .attr('x2', function (d) {return d.target.x - 10})
-        .attr('y2', function (d) {return d.target.y + 35})
+        .attr('y2', function (d) {return d.target.y + (d.targetInput=='second'?0:35)})
 
       // line commande bar
       this.selectorsLineCommandeBar = this.svg
@@ -299,7 +331,7 @@
       d.yOrigin = d.y;
     };
 
-    // drag calcule for all elements of dragged node
+    // drag compute for all elements of dragged node
     this.dragged = function (dragged) {
       let containerStyle = document.querySelector('#graphContainer').getBoundingClientRect();
       let width = containerStyle.width ;
@@ -310,7 +342,7 @@
       var start_x = d3.event.x;
       var start_y = d3.event.y;
       let gridX = snapToGrid(d3.event.x, 40);
-      let gridY = snapToGrid(d3.event.y, 40)
+      let gridY = snapToGrid(d3.event.y, 40);
       dragged.x = gridX;
       dragged.y = gridY;
 
@@ -351,8 +383,9 @@
         .select("#lineLayer")
         .selectAll("line")
         .data(beforeLinks, function (d) {return d.id})
-        .attr("x2", gridX -10)
-        .attr("y2", gridY + 35)
+        .attr("x2", gridX -5)
+        //.attr("y2", gridY + 35)
+        .attr('y2', function (d) {return gridY+ (d.targetInput=='second'?0:35)})
 
       let beforeLinksSelected = sift({
         "target.id": dragged.id
@@ -362,8 +395,9 @@
         .select("#lineSelector")
         .selectAll("line")
         .data(beforeLinksSelected, function (d) {return d.id})
-        .attr("x2", gridX -10)
-        .attr("y2", gridY + 35)
+        .attr("x2", gridX -5)
+        //.attr("y2", gridY + 35)
+        .attr('y2', function (d) {return gridY + (d.targetInput=='second'?0:35)})
 
       this.selectorsLineCommandeBar = this.svg
         .select("#lineCommandLayer")
@@ -409,7 +443,8 @@
         .select("#lineSelector")
         .selectAll("line")
         .data(afterLinksSelected, function (d) {return d.id})
-        .attr("x1", gridX + 35).attr("y1", gridY + 35)
+        .attr("x1", gridX + 75)
+        .attr("y1", gridY + 35)
 
       this.selectorsLineCommandeBar = this.svg
         .select("#lineCommandLayer")
@@ -442,12 +477,15 @@
     this.dragended = function (d) {
 
       if (d.x == d.xOrigin && d.y == d.yOrigin) {
-        if (this.modeConnectBefore || this.modeConnectAfter) {
+        if ((this.modeConnectBeforeSecond || this.modeConnectBefore || this.modeConnectAfter) && this.selectedNodes[0]) {
           if (this.modeConnectBefore) {
             RiotControl.trigger('connect_components', d.component, this.selectedNodes[0].component);
           }
           if (this.modeConnectAfter) {
             RiotControl.trigger('connect_components', this.selectedNodes[0].component, d.component);
+          }
+          if (this.modeConnectBeforeSecond) {
+            RiotControl.trigger('connect_components', d.component, this.selectedNodes[0].component,'second');
           }
         } else {
           RiotControl.trigger('component_current_set', d.component);
@@ -468,6 +506,8 @@
       let svgStyle = this.refs.graphSvgCanvas.getBoundingClientRect();
       let xSvgSclaed = (event.offsetX/this.position.k)-(this.position.x/this.position.k);
       let ySvgSclaed = (event.offsetY/this.position.k)-(this.position.y/this.position.k);
+      xSvgSclaed = snapToGrid(xSvgSclaed, 40);
+      ySvgSclaed = snapToGrid(ySvgSclaed , 40);
 
       RiotControl.trigger("workspace_current_add_components",{graphPositionX:xSvgSclaed,graphPositionY:ySvgSclaed}); 
     }
@@ -476,9 +516,19 @@
       event.preventDefault();
     }
 
+    graph_background_click(e){
+      if(e.target.id=="background"){
+        //console.log('click',e);
+        RiotControl.trigger('component_current_set', undefined);
+      }
+
+    }
+
     // init all element of content graph
     this.drawGraph = function (dataCompiled) {
+
       this.graph = dataCompiled.graph;
+      console.log('graph',this.graph)
       // this.position = position;
       if (this.svg == undefined) {
         this.svg = d3.select("svg");
@@ -549,15 +599,16 @@
       this.links
         .exit()
         .remove();
+
       this.links = this.links
         .enter()
         .append('line')
         .merge(this.links)
         .attr('x1', function (d) {return d.source.x + 75})
         .attr('y1', function (d) {return d.source.y + 35})
-        .attr('x2', function (d) {return d.target.x - 10})
-        .attr('y2', function (d) {return d.target.y + 35})
-        .on("click", function (d) {RiotControl.trigger('connection_current_set', d.source.component, d.target.component)}.bind(this));
+        .attr('x2', function (d) {return d.target.x - 5})
+        .attr('y2', function (d) {return d.target.y + (d.targetInput=='second'?0:35)})
+        .on("click", function (d) {RiotControl.trigger('connection_current_set', d.source.component, d.target.component, d.targetInput)}.bind(this));
 
       // Connect Before / After
       this.subNode = this.svg
@@ -580,14 +631,15 @@
             .select(this)
             .selectAll("image")
             .remove();
+          console.log(d);
           if(d.connectionsBefore){
             d3.select(this)
               .append("image")
               .attr("xlink:href", function (d) {return "./image/plus_disable.svg"})
               .attr("width", function (d) {return 15})
               .attr("height", function (d) {return 15})
-              .attr("x", function (d) {return 10})
-              .attr("y", function (d) {return 55})
+              .attr("x", function (d) {return 17})
+              .attr("y", function (d) {return 57})
               .attr("class", function (d) {return 'connectBeforeButtonGraph'})
               .attr("data-id", function (d) {return d.id})
 
@@ -599,10 +651,22 @@
               .attr("xlink:href", function (d) {let image = "";return "./image/plus_disable.svg"})
               .attr("width", function (d) {return 15})
               .attr("height", function (d) {return 15})
-              .attr("x", function (d) {return 102})
-              .attr("y", function (d) {return 55})
+              .attr("x", function (d) {return 97})
+              .attr("y", function (d) {return 57})
               .attr("class", function (d) {return 'connectAfterButtonGraph'})
               .attr("data-id", function (d) {return d.id})
+          }
+          if(d.connectionsBeforeSecond){
+            d3.select(this)
+              .append("image")
+              .attr("xlink:href", function (d) {return "./image/plus_disable.svg"})
+              .attr("width", function (d) {return 15})
+              .attr("height", function (d) {return 15})
+              .attr("x", function (d) {return 17})
+              .attr("y", function (d) {return 27})
+              .attr("class", function (d) {return 'connectBeforeButtonGraph'})
+              .attr("data-id", function (d) {return d.id})
+
           }
         })
 

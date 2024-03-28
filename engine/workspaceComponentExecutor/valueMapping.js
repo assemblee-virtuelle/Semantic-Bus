@@ -11,7 +11,7 @@ class ValueMapping {
    * @param {SpecificData} specificData
    * @return {Array<MapValueResult>}
    */
-  mapValue(valueIn, specificData) {
+  mapValue(valueIn, specificData,secondaryFlow) {
     try {
       let valueInString = valueIn.toString();
       if (specificData.ignoreCase == true) {
@@ -20,7 +20,17 @@ class ValueMapping {
       if (specificData.ignoreAccent == true) {
         valueInString = this.normalize(valueInString);
       }
-      return this.arrays.flatMap(specificData.mappingTable, atomicMapping => {
+      let mappingTable;
+      if(secondaryFlow){
+        mappingTable = secondaryFlow.map(sf=>({
+          flowValue : sf.in,
+          replacementValue: sf.out
+        }))
+      }else{
+        mappingTable=specificData.mappingTable;
+      }
+      // console.log(mappingTable)
+      return this.arrays.flatMap(mappingTable, atomicMapping => {
         let flowValue = atomicMapping.flowValue;
         if (specificData.ignoreCase == true) {
           flowValue = flowValue.toUpperCase();
@@ -65,7 +75,7 @@ class ValueMapping {
    * @param {SpecificData} specificData
    * @return {MapValuesResult}
    */
-  mapValues(source, specificData) {
+  mapValues(source, specificData,secondaryFlow) {
 
     if (source === undefined || source === null) {
       return {
@@ -75,11 +85,11 @@ class ValueMapping {
       }
     } else if (Array.isArray(source)) {
       return {
-        data: this.arrays.flatMap(source, valueIn => this.mapValue(valueIn, specificData))
+        data: this.arrays.flatMap(source, valueIn => this.mapValue(valueIn, specificData,secondaryFlow))
       }
     } else {
 
-      const result = this.mapValue(source, specificData);
+      const result = this.mapValue(source, specificData,secondaryFlow);
       // console.log('result',result);
       return {
         data: result
@@ -88,7 +98,9 @@ class ValueMapping {
   }
 
   pull(data, flowData) {
-    return Promise.resolve(this.mapValues(flowData[0].data, data.specificData))
+    const primaryFlow = flowData.find(f=>f.targetInput==undefined)?.data;
+    const secondaryFlow = flowData.find(f=>f.targetInput=='second')?.data;
+    return Promise.resolve(this.mapValues(primaryFlow, data.specificData,secondaryFlow))
   }
 }
 
