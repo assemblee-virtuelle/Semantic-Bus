@@ -36,7 +36,7 @@
     "csvtojson": "^2.0.10",
     "data2xml": "^1.2.5",
     "error-stack-parser": "^2.0.1",
-    "express": "^4.16.3",
+    "express": "^4.19.2",
     "http": "0.0.0",
     "ics-to-json": "^1.0.0",
     "io-ts": "1.8.5",
