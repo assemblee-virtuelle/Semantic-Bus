@@ -81,9 +81,6 @@ class Engine {
           undefined
         );
         // console.log('this.pathResolution',this.pathResolution.nodes)
-        this.pathResolution.nodes.forEach(n=>{
-          console.log(n)
-        })
 
         if (this.config.quietLog != true) {
           console.log(' ---------- BuildPath Links-----------', this.fackCounter, this.workflow.name)
