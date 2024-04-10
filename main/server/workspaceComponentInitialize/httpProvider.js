@@ -96,10 +96,9 @@ class HttpProvider {
   }
 
   initialise(router,engineTracer) {
-    console.log('aaaaloooo')
     router.all('*', async (req, res, next) => {
       // console.log('pendingWork',this.pendingWork);
-      // console.log(req)
+      console.log('_______________0.1');
       const urlRequiered = req.params[0].split('/')[1];
       const urlRequieredFull = req.params[0].replace('/', '');
       const query = req.query;
@@ -113,6 +112,7 @@ class HttpProvider {
           _id: componentId,
         });
         if (component != undefined && component.specificData.url != undefined) {
+          console.log('_______________0.2');
           req.setTimeout(0);
           let keys = []
           let regexp = this.pathToRegexp(component.specificData.url, keys);
