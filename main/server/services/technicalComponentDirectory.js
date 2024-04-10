@@ -69,8 +69,8 @@ module.exports = {
 
   initialise: function (router, unSafeRouteur,engineTracer) {
     // console.log('initialise')
-    this.restApiPost.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
-    this.restApiGet.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
+    // this.restApiPost.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
+    // this.restApiGet.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
     this.httpProvider.initialise(unSafeRouteur,engineTracer)
     this.upload.initialise(router,engineTracer)
     this.cacheNosql.initialise(router,engineTracer) // NO SECURE CHANGE ROUTER
@@ -78,7 +78,7 @@ module.exports = {
 
   setAmqp : function (channel){
     // console.log('setAmqp')
-    this.restApiPost.setAmqp(channel);
+    this.httpProvider.setAmqp(channel);
     this.upload.setAmqp(channel)
   }
 }
