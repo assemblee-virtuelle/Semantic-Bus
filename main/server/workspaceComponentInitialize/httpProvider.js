@@ -50,6 +50,7 @@ class HttpProvider {
         const dataResponse = await this.fragment_lib.getWithResolutionByBranch(messageObject.frag);
         this.sendResult(pendingWork?.component, dataResponse, pendingWork.res);
         // console.log('->undefined')
+        console.log('_______________4 delete persist',pendingWork.component._id.toString());
         delete this.pendingWork[tracerId];
         delete this.currentCall[pendingWork.component._id.toString()];
         this.pop(pendingWork.component._id.toString());
@@ -82,6 +83,7 @@ class HttpProvider {
         pendingWork.res.status(500).send({
           error:'engine error'
         })
+        console.log('_______________4 delete error',pendingWork.component._id.toString());
         delete this.pendingWork[tracerId];
         delete this.currentCall[pendingWork.component._id.toString()];
         this.pop(pendingWork.component._id.toString());
@@ -94,8 +96,6 @@ class HttpProvider {
   }
 
   initialise(router,engineTracer) {
-
-
     router.all('*', async (req, res, next) => {
       // console.log('pendingWork',this.pendingWork);
       // console.log(req)
@@ -135,7 +135,7 @@ class HttpProvider {
           } else {
             // console.log('NO MATH!!');
           }
-
+          console.log('_______________1 add call',component._id.toString());
           const callStack=this.pendingCall[component._id];
           const callContent = {
             queryParams: {
@@ -169,7 +169,9 @@ class HttpProvider {
   pop(componentId){
     const callStack = this.pendingCall[componentId];    
     // console.log(callStack.length);
+    console.log('_______________2 pop',componentId);
     if(!this.currentCall[componentId] && Array.isArray(callStack) && callStack.length>0){
+      console.log('_______________3 pop GO',componentId,' - ',callStack.length);
       this.currentCall[componentId]=true;
       const currentCallItem = callStack.shift();
       const tracerId =  uuidv4();
