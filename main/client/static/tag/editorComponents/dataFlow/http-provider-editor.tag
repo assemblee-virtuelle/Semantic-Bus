@@ -14,16 +14,16 @@
     <div class="bar"/>
   </div>
   <!-- Champ du composant -->
-  <label class="labelFormStandard">Clé de l'API:</label>
+  <label class="labelFormStandard">Clé de l'API</label>
   <div class="cardInput cardInputApiId">
     <div class="idApi">{data._id}-</div>
     <input class="inputComponents inputApiId" placeholder="" type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.urlName}></input>
   </div>
-  <label class="labelFormStandard">URL de l'API:</label>
+  <label class="labelFormStandard">URL de l'API</label>
   <div class="cardInput">
     <a class="linkApi" ref="link" target="_blank" href={window.location.origin +'/data/api/'+data.specificData.url}>{window.location.origin +'/data/api/'+data.specificData.url}</a>
   </div>
-  <label class="labelFormStandard">Content-type:</label>
+  <label class="labelFormStandard">Content-type</label>
   <div class="cardInput">
     <select class="inputComponents" name="contentTypeInput" ref="contentTypeInput" onchange={contentTypeInputChanged}>
       <option value="application/json" selected={data.specificData.contentType==='application/json'}>application/json</option>
@@ -34,12 +34,22 @@
       <option value="application/rdf+xml" selected={data.specificData.contentType==='application/rdf+xml'}>application/rdf+xml</option>
     </select>
   </div>
-  <label class="labelFormStandard">Composant qui contient le flux principal:</label>
+  <label class="labelFormStandard">réponse http sans données</label>
   <div class="cardInput">
-    <select class="inputComponents" name="responseComponentIdInput" ref="responseComponentIdInput" onchange={responseComponentIdInputChanged}>
-      <option value="undefined">non-défini</option>
-      <option each={option in components} value={option._id} selected={parent.data.specificData.responseComponentId ==option._id}>{option.type} : {option.name}</option>
-    </select>
+    <label class="switch">
+        <input type="checkbox" name="resonseWithoutExecution" ref="resonseWithoutExecutionInput" checked={data.specificData.resonseWithoutExecution} onchange={resonseWithoutExecutionChange}/>
+        <span class="slider round"></span>
+    </label>
+  </div>
+  <div>
+  <div if={!data.specificData.resonseWithoutExecution}>
+    <label class="labelFormStandard">Composant qui effectura la reponse http</label>
+    <div class="cardInput">
+      <select class="inputComponents" name="responseComponentIdInput" ref="responseComponentIdInput" onchange={responseComponentIdInputChanged}>
+        <option value="undefined">non-défini</option>
+        <option each={option in components} value={option._id} selected={parent.data.specificData.responseComponentId ==option._id}>{option.type} : {option.name}</option>
+      </select>
+    </div>
   </div>
   <!--<label>Sortie en xls (Boolean)</label> <input type="text" name="xlsInput" ref="xlsInput"value={data.specificData.xls}></input>-->
   <script>
@@ -64,6 +74,11 @@
     contentTypeInputChanged(e) {
       this.data.specificData.contentType = e.currentTarget.value;
     }
+
+    resonseWithoutExecutionChange(event){
+        this.data.specificData.resonseWithoutExecution = event.target.checked
+    }
+
     this.updateData = function (dataToUpdate) {
       this.data = dataToUpdate;
       if (this.data.specificData.contentType==undefined){

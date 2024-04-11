@@ -48,7 +48,9 @@ class HttpProvider {
       if(triggerComponentId == messageObject.componentId){
         // pendingWork.frag = messageObject.frag;
         const dataResponse = await this.fragment_lib.getWithResolutionByBranch(messageObject.frag);
-        this.sendResult(pendingWork?.component, dataResponse, pendingWork.res);
+        if(pendingWork?.component?.specificData.resonseWithoutExecution!=true){
+          this.sendResult(pendingWork?.component, dataResponse, pendingWork.res);
+        }
         // console.log('->undefined')
         console.log('_______________4 delete persist',pendingWork.component._id.toString());
         delete this.pendingWork[tracerId];
@@ -80,9 +82,11 @@ class HttpProvider {
       const pendingWork = this.pendingWork[tracerId]
       if(pendingWork){
         pendingWork.error = messageObject._id;
-        pendingWork.res.status(500).send({
-          error:'engine error'
-        })
+        if(pendingWork?.component?.specificData.resonseWithoutExecution!=true){
+          pendingWork.res.status(500).send({
+            error:'engine error'
+          })
+        }
         console.log('_______________4 delete error',pendingWork.component._id.toString());
         delete this.pendingWork[tracerId];
         delete this.currentCall[pendingWork.component._id.toString()];
@@ -136,6 +140,12 @@ class HttpProvider {
           } else {
             // console.log('NO MATH!!');
           }
+
+          if(component.specificData.resonseWithoutExecution){
+            res.send();
+          }
+          
+
           console.log('_______________1 add call',component._id.toString());
           const callStack=this.pendingCall[component._id];
           const callContent = {
