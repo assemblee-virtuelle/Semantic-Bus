@@ -300,9 +300,8 @@ class Engine {
                 // console.log('APPPLY dfob from source!!',componentFlow.dataFlow[0].dfob)
                 componentFlow.deeperFocusData=componentFlow.dataFlow[0].dfob;
               } 
-
               // default DFOB
-              if((!componentFlow?.deeperFocusData ||Object.keys(componentFlow.deeperFocusData).length==0)&& (componentFlow?.deeperFocusData?.activateDf==undefined||componentFlow?.deeperFocusData?.activateDf==false)){
+              if((!componentFlow?.deeperFocusData ||Object.keys(componentFlow.deeperFocusData).length==0) || (componentFlow?.deeperFocusData?.activateDf==undefined||componentFlow?.deeperFocusData?.activateDf==false)){
                 componentFlow.deeperFocusData={
                   dfobPath:'',
                   keepArray:true
@@ -349,6 +348,7 @@ class Engine {
               this.processNextBuildPath('flow ko')
             } else {
               // console.log('componentFlow.primaryflow',componentFlow.primaryflow);
+              // console.log('componentFlow.deeperFocusData',componentFlow.deeperFocusData);
               if ( componentFlow.deeperFocusData) {
                 try {
 
@@ -761,6 +761,7 @@ class Engine {
   }
 
   async rebuildFrag_focus_work_persist(processingNode,fragment, dfob, primaryflow, secondaryFlow) {
+    // console.log('_________rebuildFrag_focus_work_persist')
     let module = this.technicalComponentDirectory[processingNode.component.module]
     const {dfobTable,pipeNb, keepArray}=dfob
     let rebuildData;
@@ -773,9 +774,8 @@ class Engine {
       dfob=undefined;
       // if (this.config.quietLog != true) console.timeEnd("primary_getWithResolutionByBranch");
 
-
-
       const needDfob = dfobTable.length>0 || (Array.isArray(rebuildData)&&!keepArray&&!fragment.branchOriginFrag);
+  
       if(needDfob){
         // console.log('WITH DFOB',dfobTable);
         // if (this.config.quietLog != true) console.time("build-DfobFlow");
