@@ -124,9 +124,8 @@ class HttpConsumer {
 
         let response;
         let errorMessage;
-        headers= {
-          'Content-Type': componentConfig.contentType,
-          ...headers
+        if(componentConfig.contentType && body){
+          headers['Content-Type']=componentConfig.contentType
         }
 
         // console.log('headers',headers);
