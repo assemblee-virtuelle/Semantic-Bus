@@ -58,7 +58,7 @@
     "moment": "^2.20.1",
     "mongodb": "^6.1.0",
     "mongoose": "^7.6.1",
-    "mysql2": "2.2.5",
+    "mysql2": "3.9.7",
     "node-fetch": "^2.3.0",
     "object-sizeof": "^1.2.0",
     "passport": "^0.3.2",
