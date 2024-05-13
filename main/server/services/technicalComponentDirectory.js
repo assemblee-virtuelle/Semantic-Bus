@@ -45,6 +45,7 @@ module.exports = {
   regex: require('../workspaceComponentInitialize/regex.js'),
   slice: require('../workspaceComponentInitialize/slice.js'),
   incrementTable: require('../workspaceComponentInitialize/incrementTable.js'),
+  jsonLdConversion: require('../workspaceComponentInitialize/jsonld-conversion.js'),
   // ---ENDOFPART---
 
   /* some other modules you want */

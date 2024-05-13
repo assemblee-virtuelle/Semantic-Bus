@@ -121,6 +121,9 @@
     },
     "incrementTable": {
       "price": 20
+    },
+    "jsonLdConversion": {
+      "price": 20
     }
   },
   "googleAuth": {

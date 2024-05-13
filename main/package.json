@@ -38,6 +38,7 @@
     "error-stack-parser": "^2.0.1",
     "express": "^4.16.3",
     "http": "0.0.0",
+    "ical-js-parser": "^0.7.4",
     "ics-to-json": "^1.0.0",
     "io-ts": "1.8.5",
     "isobject": "^4.0.0",

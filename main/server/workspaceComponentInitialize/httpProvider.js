@@ -236,6 +236,13 @@ class HttpProvider {
             res.setHeader('Content-disposition', 'attachment; filename=' + component.specificData.url + '.xml')
             res.send(result)
           })
+        } else if (component.specificData.contentType.search('ics') != -1) {
+
+          res.setHeader('content-type', component.specificData.contentType)
+          this.dataTraitment.type.buildFile(undefined, JSON.stringify(dataToSend), undefined, true, component.specificData.contentType).then((result) => {
+            res.setHeader('Content-disposition', 'attachment; filename=' + component.specificData.url + '.ics')
+            res.send(result)
+          })
         } else if (component.specificData.contentType.search('xml') != -1) {
           res.setHeader('content-type', component.specificData.contentType)
           let out = this.xmlJS.js2xml(dataToSend, {

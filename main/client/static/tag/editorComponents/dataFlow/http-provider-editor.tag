@@ -32,6 +32,7 @@
       <option value="application/x-yaml" selected={data.specificData.contentType==='application/x-yaml'}>application/x-yaml</option>
       <option value="application/vnd.ms-excel" selected={data.specificData.contentType==='application/vnd.ms-excel'}>application/vnd.ms-excel</option>
       <option value="application/rdf+xml" selected={data.specificData.contentType==='application/rdf+xml'}>application/rdf+xml</option>
+      <option value="application/ics" selected={data.specificData.contentType==='application/ics'}>application/ics</option>
     </select>
   </div>
   <label class="labelFormStandard">réponse http sans données</label>

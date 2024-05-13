@@ -19,7 +19,7 @@
     <input class="inputComponents" placeholder="" type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.url}></input>
   </div>
   <div class="options">
-    <label class="labelFormStandard">corp de requête vide :</label>
+    <label class="labelFormStandard">corp de requête vide:</label>
     <div class="cardInput">
       <label class="switch">
           <input type="checkbox" name="noBodyInput" ref="noBodyInput" checked={data.specificData.noBody} onchange={noBodyChange}/>
@@ -27,13 +27,22 @@
       </label>
     </div>
   </div>
-  <label class="labelFormStandard" ref="typeLabel">Content-type:</label>
-  <div class="cardInput" ref="typeInput">
-    <input class="inputComponents" placeholder="application/json" type="text" name="contentTypeInput" ref="contentTypeInput" onChange={contentTypeInputChanged} value={data.specificData.contentType}></input>
+  <label class="labelFormStandard" ref="bodyPathLabel">chemin qui contient le body:</label>
+  <div class="cardInput" ref="bodyPathInput">
+    <input class="inputComponents" type="text" name="bodyPathInput" onChange={bodyPathInputChanged} value={data.specificData.bodyPath}></input>
   </div>
-  <label class="labelFormStandard" ref="methodLabel">Methode:</label>
+    <label class="labelFormStandard" ref="contentTypeLabel">Content Type</label>
+  <div class="cardInput" ref="contentTypeInput">
+    <select class="inputComponents" name="contentTypeInput" onchange={contentTypeInputChanged}>
+      <option value="application/json" selected={data.specificData.method==='application/json' || data.specificData.method===undefined}>application/json</option>
+      <option value="application/json+ld" selected={data.specificData.method==='application/json+ld'}>application/json+ld</option>
+      <option value="text/plain" selected={data.specificData.method==='text/plain'}>text/plain</option>
+      <option value="application/x-www-form-urlencoded" selected={data.specificData.method==='application/x-www-form-urlencoded'}>application/x-www-form-urlencoded</option>
+    </select>
+  </div>
+  <label class="labelFormStandard">Methode:</label>
   <div class="cardInput" ref="methodInput">
-    <select class="inputComponents" name="methodInput" ref="methodeInput" onchange={methodInputChanged}>
+    <select class="inputComponents" name="methodInput" onchange={methodInputChanged}>
       <option value="GET" selected={data.specificData.method==='GET' || data.specificData.method===undefined}>GET</option>
       <option value="POST" selected={data.specificData.method==='POST'}>POST</option>
       <option value="PATCH" selected={data.specificData.method==='PATCH'}>PATCH</option>
@@ -50,19 +59,27 @@
     <input class="inputComponents" placeholder="1" type="text" name="retryInput" ref="retryInput" onChange={retryInputChanged} value={data.specificData.retry}></input>
   </div>
 
-
   <label class="labelFormStandard">Content-type de réponse forcé:</label>
   <div class="cardInput">
     <input class="inputComponents" placeholder="" type="text" ref="overidedContentTypeInput" value={data.specificData.overidedContentType} onchange={overidedContentTypeInputChange}></input>
   </div>
 
-  <label class="labelFormStandard">certificat pfx (doit être une propriété faisant reference à un fichier interne uploadé ex:_file)</label>
-  <div class="cardInput">
-    <input class="inputComponents" placeholder="" type="text" ref="certificatePropertyInput" value={data.specificData.certificateProperty} onchange={certificatePropertyInputChange}></input>
+  <div class="options">
+    <label class="labelFormStandard">certification</label>
+    <div class="cardInput">
+      <label class="switch">
+          <input type="checkbox" name="certificateUsingInput" ref="certificateUsingInput" checked={data.specificData.certificateUsing} onchange={certificateUsingChange}/>
+          <span class="slider round"></span>
+      </label>
+    </div>
   </div>
-  <label class="labelFormStandard">passphrase pfx</label>
-  <div class="cardInput">
-    <input class="inputComponents" placeholder="" type="text" ref="certificatePassphraseInput" value={data.specificData.certificatePassphrase} onchange={certificatePassphraseInputChange}></input>
+  <label class="labelFormStandard" ref="certificateLabel">certificat pfx (doit être une propriété faisant reference à un fichier interne uploadé ex:_file)</label>
+  <div class="cardInput" ref="certificateInput">
+    <input class="inputComponents" placeholder="" type="text" value={data.specificData.certificateProperty} onchange={certificatePropertyInputChange}></input>
+  </div>
+  <label class="labelFormStandard" ref="certificatePassphraseLabel">passphrase pfx</label>
+  <div class="cardInput" ref="certificatePassphraseInput">
+    <input class="inputComponents" placeholder="" type="text" value={data.specificData.certificatePassphrase} onchange={certificatePassphraseInputChange}></input>
   </div>
 
   <label class="labelFormStandard">Header</label>
@@ -98,13 +115,23 @@
       this.data.specificData.method = e.currentTarget.value;
     }
 
-    contentTypeInputChanged = e => {
+    contentTypeInputChanged(e) {
       this.data.specificData.contentType = e.currentTarget.value;
-    };
+    }
+
+
+    bodyPathInputChanged(e) {
+      this.data.specificData.bodyPath = e.currentTarget.value;
+    }
 
     noBodyChange(event){
         this.data.specificData.noBody = event.target.checked;
         this.methodInputVisibility();
+    }
+
+    certificateUsingChange(event){
+        this.data.specificData.certificateUsing = event.target.checked;
+        this.certificateUsingInputVisibility();
     }
 
     overidedContentTypeInputChange = function (e) {
@@ -125,12 +152,33 @@
 
     methodInputVisibility(specificData){
       if(this.data.specificData.noBody!=true){
-        this.refs.typeInput.classList.remove("hide");
-        this.refs.typeLabel.classList.remove("hide");
+        this.refs.contentTypeInput.classList.remove("hide");
+        this.refs.contentTypeLabel.classList.remove("hide");
+        this.refs.bodyPathInput.classList.remove("hide");
+        this.refs.bodyPathLabel.classList.remove("hide");
       }else{
-        this.refs.typeInput.classList.add("hide");
-        this.refs.typeLabel.classList.add("hide");
+        this.refs.contentTypeInput.classList.add("hide");
+        this.refs.contentTypeLabel.classList.add("hide");
+        this.refs.bodyPathInput.classList.add("hide");
+        this.refs.bodyPathLabel.classList.add("hide");
       }
+    }
+
+    certificateUsingInputVisibility(specificData){
+      if(this.data.specificData){
+        if(this.data.specificData.certificateUsing!=true){
+          this.refs.certificatePassphraseInput.classList.add("hide");
+          this.refs.certificatePassphraseLabel.classList.add("hide");
+          this.refs.certificateInput.classList.add("hide");
+          this.refs.certificateLabel.classList.add("hide");
+        }else{
+          this.refs.certificatePassphraseInput.classList.remove("hide");
+          this.refs.certificatePassphraseLabel.classList.remove("hide");
+          this.refs.certificateInput.classList.remove("hide");
+          this.refs.certificateLabel.classList.remove("hide");
+        }
+      }
+
     }
 
     this.profilCertificatesChanged = function (certificates) {
@@ -143,6 +191,7 @@
       this.data = dataToUpdate;
       this.refs.headerTable.data = this.data.specificData.headers || [];
       this.methodInputVisibility();
+      this.certificateUsingInputVisibility();
       this.update();
     };
     this.on('mount', function () {

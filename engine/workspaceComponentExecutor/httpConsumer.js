@@ -4,6 +4,7 @@ const fs = require('fs');
 const https = require('https');
 const fileLib = require('../../core/lib/file_lib.js')
 const fileConvertor = require('../../core/dataTraitmentLibrary/file_convertor.js')
+const dotProp =  require('dot-prop')
 
 class HttpConsumer {
   constructor () {
@@ -15,7 +16,7 @@ class HttpConsumer {
     this.xml2js = require('xml2js');
     this.propertyNormalizer = require('../utils/propertyNormalizer.js');
     this.config = require('../configuration.js');
-    this.himalaya = require('himalaya')
+    this.himalaya = require('himalaya');
   }
 
   convertResponseToData (response,componentConfig) {
@@ -93,21 +94,26 @@ class HttpConsumer {
 
 
         let body;
+        let bodyObject = flowData[0].data;
+        if (componentConfig.bodyPath && componentConfig.bodyPath.length>0){
+          bodyObject = dotProp.get(bodyObject, componentConfig.bodyPath)
+        }
+
 
         if(componentConfig.noBody!=true && flowData){
           // console.log("here ",flowData[0].data);
           switch (componentConfig.contentType) {
             case 'text/plain':
-              body = flowData[0].data
+              body = bodyObject.toString();
               // "airSensors,sensor_id=TLM0201";
               break;
               //console.log("new here ! ",flowData[0].data);
             case 'application/json':
             case 'application/ld+json':
-              body = JSON.stringify(flowData[0].data);
+              body = JSON.stringify(bodyObject);
               break;
             case 'application/x-www-form-urlencoded':
-              body = this.formUrlencoded(flowData[0].data)
+              body = this.formUrlencoded(bodyObject)
               break;
             default:
               reject(new Error(`${componentConfig.contentType} contentType not Supported by this component`));

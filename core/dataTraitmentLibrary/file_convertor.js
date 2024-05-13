@@ -4,11 +4,11 @@
 // rdf_traitment.js pour les fichiers owl, rdf et ttl
 // --------------------------------------------------------------------------------
 
-var exel = require('./exel/exel_traitment.js');
-var rdf = require('./rdf/rdf_traitment.js');
-var xml = require('./xml/xml_traitment.js');
-var csv = require('./csv/csv_traitment.js');
-var ics = require('./ics/index.js');
+const exel = require('./exel/exel_traitment.js');
+const rdf = require('./rdf/rdf_traitment.js');
+const xml = require('./xml/xml_traitment.js');
+const csv = require('./csv/csv_traitment.js');
+const ics = require('./ics/index.js');
 var zlib = require('zlib');
 const JSZip = require('jszip');
 
@@ -43,9 +43,12 @@ function _buildFile(filename, dataString, dataBuffer, out, contentType) {
         resolve(exel.json_to_exel(JSON.parse(dataString)));
         break;
       case ("rdf+xml"):
-        //console.log('ALLO');
         resolve(rdf.json_to_rdf(JSON.parse(dataString)));
         break;
+      case ("ics"):
+          //console.log('ALLO');
+          resolve(ics.json_to_ics(JSON.parse(dataString)));
+          break;
       default:
         //console.log("in default")
         reject("erreur, votre fichier n'est pas au bon format");
@@ -88,7 +91,7 @@ function _data_from_file(filename, dataBuffer, contentType) {
         const zip = new JSZip();
         try {
           const contents = await  zip.loadAsync(dataBuffer);
-          console.log('UNZIP!!',contents)
+          // console.log('UNZIP!!',contents)
           let files=[];
           for (const fileName of Object.keys(zip.files)) {
             const fileObject=zip.files[fileName]
