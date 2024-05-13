@@ -94,14 +94,14 @@ class HttpConsumer {
 
 
         let body;
-        let bodyObject = flowData[0].data;
-        if (componentConfig.bodyPath && componentConfig.bodyPath.length>0){
-          bodyObject = dotProp.get(bodyObject, componentConfig.bodyPath)
-        }
-
 
         if(componentConfig.noBody!=true && flowData){
-          // console.log("here ",flowData[0].data);
+          let bodyObject = flowData[0].data;
+          if (componentConfig.bodyPath && componentConfig.bodyPath.length>0){
+            bodyObject = dotProp.get(bodyObject, componentConfig.bodyPath)
+          }
+  
+          console.log("bodyObject",bodyObject);
           switch (componentConfig.contentType) {
             case 'text/plain':
               body = bodyObject.toString();
@@ -119,7 +119,7 @@ class HttpConsumer {
               reject(new Error(`${componentConfig.contentType} contentType not Supported by this component`));
 
           }
-          // console.log('body',body);
+          console.log('body1',body);
         }
 
         let url=componentConfig.url;
@@ -130,6 +130,7 @@ class HttpConsumer {
 
         let response;
         let errorMessage;
+        console.log('body2',body);
         if(componentConfig.contentType && body){
           headers['Content-Type']=componentConfig.contentType
         }
@@ -154,7 +155,7 @@ class HttpConsumer {
             rejectUnauthorized: false 
           }
         }
-
+        console.log(url, options)
         this.call_url(url, options,
         undefined,
         componentConfig.timeout,
