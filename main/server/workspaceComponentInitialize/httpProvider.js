@@ -44,15 +44,18 @@ class HttpProvider {
       const messageObject = JSON.parse(msg.content.toString());
       const tracerId = messageObject.tracerId||messageObject.processId;
       const pendingWork = this.pendingWork[tracerId];
-      const triggerComponentId= pendingWork?.component?.specificData?.responseComponentId||pendingWork?.component._id;
-      if(triggerComponentId == messageObject.componentId){
+      const responseComponentId= pendingWork?.component?.specificData?.responseComponentId||pendingWork?.component._id;
+      const unlockComponentId= pendingWork?.component?.specificData?.unlockComponentId||pendingWork?.component._id;
+      if(responseComponentId == messageObject.componentId){
+        // console.log('_______________4 response persist',pendingWork.component._id.toString());
         // pendingWork.frag = messageObject.frag;
         const dataResponse = await this.fragment_lib.getWithResolutionByBranch(messageObject.frag);
         if(pendingWork?.component?.specificData.resonseWithoutExecution!=true){
           this.sendResult(pendingWork?.component, dataResponse, pendingWork.res);
         }
-        // console.log('->undefined')
-        console.log('_______________4 delete persist',pendingWork.component._id.toString());
+      }
+      if(unlockComponentId == messageObject.componentId){
+        // console.log('_______________5 delete persist',pendingWork.component._id.toString());
         delete this.pendingWork[tracerId];
         delete this.currentCall[pendingWork.component._id.toString()];
         this.pop(pendingWork.component._id.toString());
@@ -87,7 +90,7 @@ class HttpProvider {
             error:'engine error'
           })
         }
-        console.log('_______________4 delete error',pendingWork.component._id.toString());
+        // console.log('_______________4 delete error',pendingWork.component._id.toString());
         delete this.pendingWork[tracerId];
         delete this.currentCall[pendingWork.component._id.toString()];
         this.pop(pendingWork.component._id.toString());
@@ -102,7 +105,7 @@ class HttpProvider {
   initialise(router,engineTracer) {
     router.all('*', async (req, res, next) => {
       // console.log('pendingWork',this.pendingWork);
-      console.log('_______________0.1');
+      // console.log('_______________0.1');
       const urlRequiered = req.params[0].split('/')[1];
       const urlRequieredFull = req.params[0].replace('/', '');
       const query = req.query;
@@ -116,7 +119,7 @@ class HttpProvider {
           _id: componentId,
         });
         if (component != undefined && component.specificData.url != undefined) {
-          console.log('_______________0.2');
+          // console.log('_______________0.2');
           req.setTimeout(0);
           let keys = []
           let regexp = this.pathToRegexp(component.specificData.url, keys);
@@ -146,7 +149,7 @@ class HttpProvider {
           }
           
 
-          console.log('_______________1 add call',component._id.toString());
+          // console.log('_______________1 add call',component._id.toString());
           const callStack=this.pendingCall[component._id];
           const callContent = {
             queryParams: {
@@ -164,7 +167,7 @@ class HttpProvider {
           } else{
             this.pendingCall[component._id]=[callContent]
           }
-          this.pop(component._id.toString());
+          this.pop(component._id.toString(),component.specificData.unrestrictedExecution);
 
 
         } else {
@@ -177,13 +180,19 @@ class HttpProvider {
     })
   }
 
-  pop(componentId){
+  pop(componentId,unrestrictedExecution){
     const callStack = this.pendingCall[componentId];    
     // console.log(callStack.length);
-    console.log('_______________2 pop',componentId);
-    if(!this.currentCall[componentId] && Array.isArray(callStack) && callStack.length>0){
-      console.log('_______________3 pop GO',componentId,' - ',callStack.length);
-      this.currentCall[componentId]=true;
+    // console.log('_______________2 pop',componentId);
+    if(unrestrictedExecution || !this.currentCall[componentId] && Array.isArray(callStack) && callStack.length>0){
+      // console.log('_______________3 pop GO',componentId,' - ',callStack.length);
+      if(!unrestrictedExecution){
+        this.currentCall[componentId]=true;
+        // if engin never send end of process becaus crash; this settime free lock
+        setTimeout(() => {
+          delete this.currentCall[componentId];
+        }, 20000);
+      }
       const currentCallItem = callStack.shift();
       const tracerId =  uuidv4();
       const workParams={

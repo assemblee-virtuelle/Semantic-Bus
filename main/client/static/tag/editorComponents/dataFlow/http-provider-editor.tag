@@ -35,10 +35,26 @@
       <option value="application/ics" selected={data.specificData.contentType==='application/ics'}>application/ics</option>
     </select>
   </div>
+  <label class="labelFormStandard">execution sans file d'attente ni blocage</label>
+  <div class="cardInput">
+    <label class="switch">
+        <input type="checkbox" name="unrestrictedExecution" ref="unrestrictedExecutionInput" checked={data.specificData.unrestrictedExecutionExecution} onchange={unrestrictedExecutionChange}/>
+        <span class="slider round"></span>
+    </label>
+  </div>
+  <div if={!data.specificData.unrestrictedExecution}>
+    <label class="labelFormStandard">Composant qui débloque la file d'attente</label>
+    <div class="cardInput">
+      <select class="inputComponents" name="unlockComponentIdInput" ref="unlockComponentIdInput" onchange={unlockComponentIdInputChanged}>
+        <option value="undefined">non-défini</option>
+        <option each={option in components} value={option._id} selected={parent.data.specificData.unlockComponentId ==option._id}>{option.type} : {option.name}</option>
+      </select>
+    </div>
+  </div>
   <label class="labelFormStandard">réponse http sans données</label>
   <div class="cardInput">
     <label class="switch">
-        <input type="checkbox" name="resonseWithoutExecution" ref="resonseWithoutExecutionInput" checked={data.specificData.resonseWithoutExecution} onchange={resonseWithoutExecutionChange}/>
+        <input type="checkbox" name="responseWithoutExecution" ref="responseWithoutExecutionInput" checked={data.specificData.responseWithoutExecution} onchange={responseWithoutExecutionChange}/>
         <span class="slider round"></span>
     </label>
   </div>
@@ -76,9 +92,18 @@
       this.data.specificData.contentType = e.currentTarget.value;
     }
 
-    resonseWithoutExecutionChange(event){
-        this.data.specificData.resonseWithoutExecution = event.target.checked
+    responseWithoutExecutionChange(event){
+        this.data.specificData.responseWithoutExecution = event.target.checked
     }
+
+    unrestrictedExecutionChange(event){
+        this.data.specificData.unrestrictedExecution = event.target.checked
+    }
+
+    unlockComponentIdInputChanged(e){
+      this.data.specificData.unlockComponentId = e.currentTarget.value;
+    }
+    
 
     this.updateData = function (dataToUpdate) {
       this.data = dataToUpdate;

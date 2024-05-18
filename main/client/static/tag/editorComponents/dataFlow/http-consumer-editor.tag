@@ -34,10 +34,10 @@
     <label class="labelFormStandard" ref="contentTypeLabel">Content Type</label>
   <div class="cardInput" ref="contentTypeInput">
     <select class="inputComponents" name="contentTypeInput" onchange={contentTypeInputChanged}>
-      <option value="application/json" selected={data.specificData.method==='application/json' || data.specificData.method===undefined}>application/json</option>
-      <option value="application/json+ld" selected={data.specificData.method==='application/json+ld'}>application/json+ld</option>
-      <option value="text/plain" selected={data.specificData.method==='text/plain'}>text/plain</option>
-      <option value="application/x-www-form-urlencoded" selected={data.specificData.method==='application/x-www-form-urlencoded'}>application/x-www-form-urlencoded</option>
+      <option value="application/json" selected={data.specificData.contentType==='application/json' || data.specificData.contentType===undefined}>application/json</option>
+      <option value="application/ld+json" selected={data.specificData.contentType==='application/ld+json'}>application/ld+json</option>
+      <option value="text/plain" selected={data.specificData.contentType==='text/plain'}>text/plain</option>
+      <option value="application/x-www-form-urlencoded" selected={data.specificData.contentType==='application/x-www-form-urlencoded'}>application/x-www-form-urlencoded</option>
     </select>
   </div>
   <label class="labelFormStandard">Methode:</label>
@@ -116,6 +116,7 @@
     }
 
     contentTypeInputChanged(e) {
+      console.log('ALLO',e)
       this.data.specificData.contentType = e.currentTarget.value;
     }
 
