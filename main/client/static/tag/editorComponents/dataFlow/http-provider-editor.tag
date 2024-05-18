@@ -38,7 +38,7 @@
   <label class="labelFormStandard">execution sans file d'attente ni blocage</label>
   <div class="cardInput">
     <label class="switch">
-        <input type="checkbox" name="unrestrictedExecution" ref="unrestrictedExecutionInput" checked={data.specificData.unrestrictedExecutionExecution} onchange={unrestrictedExecutionChange}/>
+        <input type="checkbox" name="unrestrictedExecution" ref="unrestrictedExecutionInput" checked={data.specificData.unrestrictedExecution} onchange={unrestrictedExecutionChange}/>
         <span class="slider round"></span>
     </label>
   </div>
@@ -59,7 +59,7 @@
     </label>
   </div>
   <div>
-  <div if={!data.specificData.resonseWithoutExecution}>
+  <div if={!data.specificData.responseWithoutExecution}>
     <label class="labelFormStandard">Composant qui effectura la reponse http</label>
     <div class="cardInput">
       <select class="inputComponents" name="responseComponentIdInput" ref="responseComponentIdInput" onchange={responseComponentIdInputChanged}>
