@@ -371,6 +371,8 @@ class Engine {
                     keepArray
                   )
                 
+                  console.log('__dfobFragmentFlow',dfobFragmentFlow.dfobFragmentSelected)
+
                   const newFrag = dfobFragmentFlow.newFrag;
                   let dfobFragmentSelected = dfobFragmentFlow.dfobFragmentSelected;
 
@@ -421,7 +423,7 @@ class Engine {
                         return [
                           processingNode,
                           item.frag,
-                          {dfobTable:item.relativHistoryTableSelected||[],pipeNb, keepArray},
+                          {dfobTable:item.relativDfobTable||[],pipeNb, keepArray},
                           componentFlow.primaryflow,
                           secondaryFlowDefraged
                         ]
@@ -721,15 +723,19 @@ class Engine {
         let currentdFob = newDfobPathTab.shift()
         let flowOfKey = currentFlow[currentdFob]
 
-        // TODO complex algorythm, To improve
-        if (newDfobPathTab.length > 0) {
-          return (this.buildDfobFlow(flowOfKey, newDfobPathTab, currentdFob, keepArray))
-        } else {
-          if (Array.isArray(flowOfKey) && keepArray != true) {
+        if(flowOfKey){
+          // TODO complex algorythm, To improve
+          if (newDfobPathTab.length > 0) {
             return (this.buildDfobFlow(flowOfKey, newDfobPathTab, currentdFob, keepArray))
           } else {
-            return (this.buildDfobFlow(currentFlow, newDfobPathTab, currentdFob, keepArray))
+            if (Array.isArray(flowOfKey) && keepArray != true) {
+              return (this.buildDfobFlow(flowOfKey, newDfobPathTab, currentdFob, keepArray))
+            } else {
+              return (this.buildDfobFlow(currentFlow, newDfobPathTab, currentdFob, keepArray))
+            }
           }
+        }else{
+          throw new Error(`dfobPath '${dfobPathTab}' isn't achievable`)
         }
       }
     } else {
@@ -779,63 +785,68 @@ class Engine {
       if(needDfob){
         // console.log('WITH DFOB',dfobTable);
         // if (this.config.quietLog != true) console.time("build-DfobFlow");
-        const dfobFlow = this.buildDfobFlow(
-          rebuildData,
-          dfobTable,
-          undefined,
-          keepArray
-        )
-        let paramArray = dfobFlow.map(item => {
-          var recomposedFlow = [];
-    
-          recomposedFlow = recomposedFlow.concat([{
-            data: item.key != undefined ? item.objectToProcess[item.key] : item.objectToProcess,
-            componentId: primaryflow.componentId
-          }]);
-          recomposedFlow = recomposedFlow.concat(secondaryFlow);
-
-          return [
-            processingNode.component,
-            recomposedFlow,
-            processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams
-          ]
-        });
-        // if (this.config.quietLog != true) console.timeEnd("build-DfobFlow");
-        // if (this.config.quietLog != true) console.time("work");
-        const componentFlowDfob = await this.promiseOrchestrator.execute(module, module.pull, paramArray, {
-          beamNb: pipeNb,
-          logIteration: true,
-          continueChekFunction: async () => {
-            const process = await this.workspace_lib.getCurrentProcess(this.processId);
-            if (process.state == 'stop') {
-              return false
-            } else {
-              return true
+        try {
+          const dfobFlow = this.buildDfobFlow(
+            rebuildData,
+            dfobTable,
+            undefined,
+            keepArray
+          )
+          let paramArray = dfobFlow.map(item => {
+            var recomposedFlow = [];
+      
+            recomposedFlow = recomposedFlow.concat([{
+              data: item.key != undefined ? item.objectToProcess[item.key] : item.objectToProcess,
+              componentId: primaryflow.componentId
+            }]);
+            recomposedFlow = recomposedFlow.concat(secondaryFlow);
+  
+            return [
+              processingNode.component,
+              recomposedFlow,
+              processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams
+            ]
+          });
+          // if (this.config.quietLog != true) console.timeEnd("build-DfobFlow");
+          // if (this.config.quietLog != true) console.time("work");
+          const componentFlowDfob = await this.promiseOrchestrator.execute(module, module.pull, paramArray, {
+            beamNb: pipeNb,
+            logIteration: true,
+            continueChekFunction: async () => {
+              const process = await this.workspace_lib.getCurrentProcess(this.processId);
+              if (process.state == 'stop') {
+                return false
+              } else {
+                return true
+              }
             }
-          }
-        }, this.config);
-        // if (this.config.quietLog != true) console.timeEnd("work");
-        // if (this.config.quietLog != true) console.time("recompose-DfobFlow");
-
-        for (var componentFlowDfobKey in componentFlowDfob) {
-          if ('data' in componentFlowDfob[componentFlowDfobKey]) {
-            if (dfobFlow[componentFlowDfobKey].key != undefined) {
+          }, this.config);
+          // if (this.config.quietLog != true) console.timeEnd("work");
+          // if (this.config.quietLog != true) console.time("recompose-DfobFlow");
+  
+          for (var componentFlowDfobKey in componentFlowDfob) {
+            if ('data' in componentFlowDfob[componentFlowDfobKey]) {
+              if (dfobFlow[componentFlowDfobKey].key != undefined) {
+                dfobFlow[componentFlowDfobKey].objectToProcess[dfobFlow[componentFlowDfobKey].key] =
+                  componentFlowDfob[componentFlowDfobKey].data
+              } else {
+                // all keys to replace because no key defined because root dfob
+                for (let key of Object.keys(dfobFlow[componentFlowDfobKey].objectToProcess)) {
+                  dfobFlow[componentFlowDfobKey].objectToProcess[key] = undefined;
+                }
+                for (let key of Object.keys(componentFlowDfob[componentFlowDfobKey].data)) {
+                  dfobFlow[componentFlowDfobKey].objectToProcess[key] = componentFlowDfob[componentFlowDfobKey].data[key];
+                }
+              }
+            } else if (componentFlowDfob[componentFlowDfobKey].error != undefined) {
               dfobFlow[componentFlowDfobKey].objectToProcess[dfobFlow[componentFlowDfobKey].key] =
-                componentFlowDfob[componentFlowDfobKey].data
-            } else {
-              // all keys to replace because no key defined because root dfob
-              for (let key of Object.keys(dfobFlow[componentFlowDfobKey].objectToProcess)) {
-                dfobFlow[componentFlowDfobKey].objectToProcess[key] = undefined;
-              }
-              for (let key of Object.keys(componentFlowDfob[componentFlowDfobKey].data)) {
-                dfobFlow[componentFlowDfobKey].objectToProcess[key] = componentFlowDfob[componentFlowDfobKey].data[key];
-              }
+                componentFlowDfob[componentFlowDfobKey]
             }
-          } else if (componentFlowDfob[componentFlowDfobKey].error != undefined) {
-            dfobFlow[componentFlowDfobKey].objectToProcess[dfobFlow[componentFlowDfobKey].key] =
-              componentFlowDfob[componentFlowDfobKey]
           }
+        } catch (error) {
+          //if exception during buildDfobFlow or other buildDfobFlow is not impact
         }
+       
         // if (this.config.quietLog != true) console.timeEnd("recompose-DfobFlow");
       } else {
         // console.log('WITHOUT DFOB');

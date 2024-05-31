@@ -534,7 +534,9 @@ module.exports = {
       if(keepArray && dfobTable.length==0){
         fragmentSelected = [{
           frag : newFrag,
-          relativHistoryTableSelected: relativHistoryTable
+          //relativHistoryTable is [] cause by copyDataUntilPath call or dafault.
+          relativHistoryTableSelected: relativHistoryTable,
+          relativDfobTable: []
         }];
       }
 
@@ -570,15 +572,17 @@ module.exports = {
       const isDfobFragmentSelected =  processedData.dfobFragmentSelected&&processedData.dfobFragmentSelected.length>0;
 
 
-      const fragVerif = await fragmentModelInstance.findOne({_id: newFrag.id}).exec();
+      // const fragVerif = await fragmentModelInstance.findOne({_id: newFrag.id}).exec();
       // console.log('__copyFragUntilPath fragVerif',JSON.stringify(fragVerif))
 
       return {
         data : processedData.data,
-        dfobFragmentSelected:isDfobFragmentSelected ? processedData.dfobFragmentSelected : {
+        //if no processedData.dfobFragmentSelected but algo is here, that means this step create fragment
+        dfobFragmentSelected:isDfobFragmentSelected ? processedData.dfobFragmentSelected : [{
           frag : newFrag,
-          relativHistoryTableSelected: processedData.relativHistoryTableSelected
-        },
+          relativHistoryTableSelected: processedData.relativHistoryTableSelected,
+          relativDfobTable: dfobTable
+        }],
         rootFrag :newFrag.rootFrag,
         newFrag :newFrag
       };
@@ -627,10 +631,11 @@ module.exports = {
       }else{
 
         let relativHistoryTableCopy =[...relativHistoryTable]
-        let fragmentSelected;
+        let fragmentSelected=[];
         let relativHistoryTableSelected=[];
         for (let key in data) {
-          // console.log('___0.1',key,data)
+          // console.log('______key',key)
+          // console.log('______dfobTable',dfobTable)
           let dfobTableCurrent = [...dfobTable];
           let dfobTableCopy = [...dfobTable];
           let dfobMarker = false;
@@ -641,13 +646,16 @@ module.exports = {
           }else{
             dfobTableCurrent=[];
           }
+          console.log('____relativHistoryTableCopy 1',relativHistoryTableCopy)
           if (data[key] && data[key] != null && data[key]._frag) {
             if(dfobTableCurrent.length>0){
               const persitedFrag = await this.copyFragUntilPath(data[key]._frag, dfobTableCopy, keepArray, [], callerFrag)
               data[key] = {
                 _frag:persitedFrag.newFrag._id.toString()
               };
-              fragmentSelected=persitedFrag.dfobFragmentSelected;
+              if(persitedFrag.dfobFragmentSelected){
+                fragmentSelected=fragmentSelected.concat(persitedFrag.dfobFragmentSelected);
+              }
             }
           } else {
             // console.log('_',key,data[key])
@@ -655,12 +663,16 @@ module.exports = {
 
             data[key] = processedData.data;
             data = this.replaceMongoNotSupportedKey(data, false);
-            fragmentSelected=processedData.dfobFragmentSelected?processedData.dfobFragmentSelected:undefined;
+            if(processedData.dfobFragmentSelected){
+              fragmentSelected=fragmentSelected.concat(processedData.dfobFragmentSelected)
+            }
+            // fragmentSelected=processedData.dfobFragmentSelected?processedData.dfobFragmentSelected:undefined;
             // console.log('__->',processedData.relativHistoryTableSelected,relativHistoryTableCopy)
             if (processedData?.relativHistoryTableSelected?.length>relativHistoryTableSelected.length){
               relativHistoryTableSelected=processedData.relativHistoryTableSelected;
               relativHistoryTableCopy = relativHistoryTableSelected
             }else{
+              console.log('____relativHistoryTableCopy 2',relativHistoryTableCopy)
               relativHistoryTableSelected = relativHistoryTableCopy
             }
             // relativHistoryTableSelected=processedData?.relativHistoryTableSelected?.length>relativHistoryTableSelected.length?processedData.relativHistoryTableSelected:relativHistoryTableCopy;
@@ -668,15 +680,16 @@ module.exports = {
           // console.log('___________processedData',data);
         }
         // console.log('_____ return data',JSON.stringify(data));
-        // console.log('_____________________________relativHistoryTableSelected',relativHistoryTableSelected)
+        console.log('_____________________________relativHistoryTableSelected',relativHistoryTableSelected)
+        // console.log('_____________________________dfobTableCopy',dfobTableCopy)
+        console.log('_____________________________dfobTable',dfobTable)
         return {
           data,
-          relativHistoryTableSelected:relativHistoryTableSelected,
-          dfobFragmentSelected:fragmentSelected
+          relativHistoryTableSelected : relativHistoryTableSelected,
+          dfobFragmentSelected : fragmentSelected
         };
       }
     } else {
-      console.log('AAAAALLLLLLOOO')
       return {
         data,
         relativHistoryTable
