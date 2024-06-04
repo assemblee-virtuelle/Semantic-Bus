@@ -672,7 +672,7 @@ module.exports = {
               relativHistoryTableSelected=processedData.relativHistoryTableSelected;
               relativHistoryTableCopy = relativHistoryTableSelected
             }else{
-              console.log('____relativHistoryTableCopy 2',relativHistoryTableCopy)
+              // console.log('____relativHistoryTableCopy 2',relativHistoryTableCopy)
               relativHistoryTableSelected = relativHistoryTableCopy
             }
             // relativHistoryTableSelected=processedData?.relativHistoryTableSelected?.length>relativHistoryTableSelected.length?processedData.relativHistoryTableSelected:relativHistoryTableCopy;

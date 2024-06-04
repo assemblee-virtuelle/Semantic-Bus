@@ -42,21 +42,18 @@ class HttpProvider {
     this.amqpConnection=amqpConnection;
     amqpConnection.consume('process-persist', async (msg) => {
       const messageObject = JSON.parse(msg.content.toString());
-      const tracerId = messageObject.tracerId||messageObject.processId;
+      const tracerId = messageObject.tracerId;
       const pendingWork = this.pendingWork[tracerId];
       const responseComponentId= pendingWork?.component?.specificData?.responseComponentId||pendingWork?.component._id;
       const unlockComponentId= pendingWork?.component?.specificData?.unlockComponentId||pendingWork?.component._id;
+
       if(responseComponentId == messageObject.componentId){
-        // console.log('_______________4 response persist',pendingWork.component._id.toString());
-        // pendingWork.frag = messageObject.frag;
         const dataResponse = await this.fragment_lib.getWithResolutionByBranch(messageObject.frag);
-        if(pendingWork?.component?.specificData.resonseWithoutExecution!=true){
+        if(pendingWork?.component?.specificData.responseWithoutExecution!=true){
           this.sendResult(pendingWork?.component, dataResponse, pendingWork.res);
         }
       }
       if(unlockComponentId == messageObject.componentId){
-        // console.log('_______________5 delete persist',pendingWork.component._id.toString());
-        delete this.pendingWork[tracerId];
         delete this.currentCall[pendingWork.component._id.toString()];
         this.pop(pendingWork.component._id.toString());
       }
@@ -68,12 +65,19 @@ class HttpProvider {
 
     amqpConnection.consume('process-start', (msg) => {
       const messageObject = JSON.parse(msg.content.toString())
-      // console.log('messageObject',messageObject)
-      // console.log('process-start',messageObject.tracerId,this.id)
-      const pendingWork = this.pendingWork[messageObject.tracerId||messageObject._id]
+      const pendingWork = this.pendingWork[messageObject.tracerId]
       if(pendingWork){
         pendingWork.process = messageObject._id;
-        
+      }
+    }, {
+      noAck: true
+    })
+
+    amqpConnection.consume('process-end', (msg) => {
+      const messageObject = JSON.parse(msg.content.toString())
+      const pendingWork = this.pendingWork[messageObject.tracerId]
+      if(pendingWork){
+        delete this.pendingWork[tracerId];
       }
     }, {
       noAck: true

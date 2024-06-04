@@ -101,7 +101,7 @@ class HttpConsumer {
             bodyObject = dotProp.get(bodyObject, componentConfig.bodyPath)
           }
   
-          console.log("bodyObject",bodyObject);
+          // console.log("bodyObject",bodyObject);
           switch (componentConfig.contentType) {
             case 'text/plain':
               body = bodyObject.toString();
@@ -119,7 +119,7 @@ class HttpConsumer {
               reject(new Error(`${componentConfig.contentType} contentType not Supported by this component`));
 
           }
-          console.log('body1',body);
+          // console.log('body1',body);
         }
 
         let url=componentConfig.url;
@@ -130,7 +130,7 @@ class HttpConsumer {
 
         let response;
         let errorMessage;
-        console.log('body2',body);
+        // console.log('body2',body);
         if(componentConfig.contentType && body){
           headers['Content-Type']=componentConfig.contentType
         }
