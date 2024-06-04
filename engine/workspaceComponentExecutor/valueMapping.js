@@ -89,7 +89,10 @@ class ValueMapping {
       }
     } else {
 
-      const result = this.mapValue(source, specificData,secondaryFlow);
+      let result = this.mapValue(source, specificData,secondaryFlow);
+      if(result.length===1){
+        result=result[0];
+      }
       // console.log('result',result);
       return {
         data: result

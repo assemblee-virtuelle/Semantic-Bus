@@ -646,7 +646,7 @@ module.exports = {
           }else{
             dfobTableCurrent=[];
           }
-          console.log('____relativHistoryTableCopy 1',relativHistoryTableCopy)
+          // console.log('____relativHistoryTableCopy 1',relativHistoryTableCopy)
           if (data[key] && data[key] != null && data[key]._frag) {
             if(dfobTableCurrent.length>0){
               const persitedFrag = await this.copyFragUntilPath(data[key]._frag, dfobTableCopy, keepArray, [], callerFrag)
@@ -680,9 +680,9 @@ module.exports = {
           // console.log('___________processedData',data);
         }
         // console.log('_____ return data',JSON.stringify(data));
-        console.log('_____________________________relativHistoryTableSelected',relativHistoryTableSelected)
+        // console.log('_____________________________relativHistoryTableSelected',relativHistoryTableSelected)
         // console.log('_____________________________dfobTableCopy',dfobTableCopy)
-        console.log('_____________________________dfobTable',dfobTable)
+        // console.log('_____________________________dfobTable',dfobTable)
         return {
           data,
           relativHistoryTableSelected : relativHistoryTableSelected,
