@@ -74,12 +74,15 @@ class HttpProvider {
     })
 
     amqpConnection.consume('process-end', (msg) => {
+      console.log('_______process-end 1')
       const messageObject = JSON.parse(msg.content.toString())
+      console.log('_______process-end 2')
       const pendingWork = this.pendingWork[messageObject.tracerId]
+      console.log('_______process-end 3')
       if(pendingWork){
         delete this.pendingWork[tracerId];
       }
-      console.log('_______process-end')
+      console.log('_______process-end 4')
     }, {
       noAck: true
     })
