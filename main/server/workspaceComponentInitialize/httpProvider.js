@@ -123,7 +123,7 @@ class HttpProvider {
       let componentId = regex.exec(urlRequiered)[1];
       // let component;
       try {
-        // console.log('______componentId',componentId)
+        console.log('______componentId',componentId)
         let component = await this.workspace_component_lib.get({
           _id: componentId,
         });
