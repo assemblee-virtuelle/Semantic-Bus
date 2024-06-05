@@ -79,6 +79,7 @@ class HttpProvider {
       if(pendingWork){
         delete this.pendingWork[tracerId];
       }
+      console.log('_______process-end')
     }, {
       noAck: true
     })
