@@ -148,7 +148,7 @@ class HttpProvider {
             // console.log('NO MATH!!');
           }
 
-          if(component.specificData.resonseWithoutExecution){
+          if(component.specificData.responseWithoutExecution){
             res.send();
           }
           
@@ -187,7 +187,7 @@ class HttpProvider {
   pop(componentId,unrestrictedExecution){
     const callStack = this.pendingCall[componentId];    
     // console.log(callStack.length);
-    // console.log('_______________2 pop',componentId);
+    console.log('_______________2 pop',componentId);
     if(unrestrictedExecution || !this.currentCall[componentId] && Array.isArray(callStack) && callStack.length>0){
       // console.log('_______________3 pop GO',componentId,' - ',callStack.length);
       if(!unrestrictedExecution){
