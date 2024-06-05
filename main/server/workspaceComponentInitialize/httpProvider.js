@@ -80,7 +80,7 @@ class HttpProvider {
       const pendingWork = this.pendingWork[messageObject.tracerId]
       console.log('_______process-end 3')
       if(pendingWork){
-        delete this.pendingWork[tracerId];
+        delete this.pendingWork[messageObject.tracerId];
       }
       console.log('_______process-end 4')
     }, {
