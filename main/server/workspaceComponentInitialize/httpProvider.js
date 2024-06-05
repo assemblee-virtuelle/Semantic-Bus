@@ -74,15 +74,15 @@ class HttpProvider {
     })
 
     amqpConnection.consume('process-end', (msg) => {
-      console.log('_______process-end 1')
+      // console.log('_______process-end 1')
       const messageObject = JSON.parse(msg.content.toString())
-      console.log('_______process-end 2')
+      // console.log('_______process-end 2')
       const pendingWork = this.pendingWork[messageObject.tracerId]
-      console.log('_______process-end 3')
+      // console.log('_______process-end 3')
       if(pendingWork){
         delete this.pendingWork[messageObject.tracerId];
       }
-      console.log('_______process-end 4')
+      // console.log('_______process-end 4')
     }, {
       noAck: true
     })
@@ -121,8 +121,9 @@ class HttpProvider {
       let targetedComponent;
       const regex = /([^-]*)-.*/g;
       let componentId = regex.exec(urlRequiered)[1];
-      let component;
+      // let component;
       try {
+        console.log('______componentId',componentId)
         let component = await this.workspace_component_lib.get({
           _id: componentId,
         });
