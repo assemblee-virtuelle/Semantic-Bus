@@ -123,7 +123,7 @@ class HttpProvider {
       let componentId = regex.exec(urlRequiered)[1];
       // let component;
       try {
-        console.log('______componentId',componentId)
+        // console.log('______componentId',componentId)
         let component = await this.workspace_component_lib.get({
           _id: componentId,
         });
@@ -192,7 +192,7 @@ class HttpProvider {
   pop(componentId,unrestrictedExecution){
     const callStack = this.pendingCall[componentId];    
     // console.log(callStack.length);
-    console.log('_______________2 pop',componentId);
+    // console.log('_______________2 pop',componentId);
     if(unrestrictedExecution || !this.currentCall[componentId] && Array.isArray(callStack) && callStack.length>0){
       // console.log('_______________3 pop GO',componentId,' - ',callStack.length);
       if(!unrestrictedExecution){
