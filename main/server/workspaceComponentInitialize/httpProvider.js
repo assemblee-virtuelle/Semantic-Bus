@@ -112,8 +112,8 @@ class HttpProvider {
 
   initialise(router,engineTracer) {
     router.all('*', async (req, res, next) => {
-      console.log('pendingWork',this.pendingWork);
-      console.log('_______________0.1');
+      // console.log('pendingWork',this.pendingWork);
+      // console.log('_______________0.1');
       const urlRequiered = req.params[0].split('/')[1];
       const urlRequieredFull = req.params[0].replace('/', '');
       const query = req.query;
