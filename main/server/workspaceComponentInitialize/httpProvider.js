@@ -123,10 +123,16 @@ class HttpProvider {
       let componentId = regex.exec(urlRequiered)[1];
       // let component;
       try {
-        console.log('______componentId',componentId)
-        let component = await this.workspace_component_lib.get({
-          _id: componentId,
-        });
+        console.log('______componentId',componentId);
+        let component;
+        try {
+          component = await this.workspace_component_lib.get({
+            _id: componentId,
+          });
+        } catch (error) {
+          // no found component just not set component
+        }
+
         if (component != undefined && component.specificData.url != undefined) {
           // console.log('_______________0.2');
           req.setTimeout(0);
