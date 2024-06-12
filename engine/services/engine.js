@@ -556,7 +556,8 @@ class Engine {
             }
             // console.log(`--------- start clean ${this.workflow.name}`)
             await this.workspace_lib.markProcessAsResolved(process);
-            const processes =  await this.workspace_lib.cleanOldProcessByWorkflow(this.workflow);
+            // CAUTION mark process resolved seem not need call cleanOldProcessByWorkflow
+            // const processes =  await this.workspace_lib.cleanOldProcessByWorkflow(this.workflow);
             console.log('--------------  End of Worksapce processing --------------', this.workflow.name, this.owner.credit)
  
             // console.log(processes);

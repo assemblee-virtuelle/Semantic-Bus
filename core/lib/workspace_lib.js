@@ -467,7 +467,7 @@ function _cleanOldProcessByWorkflow(workflow) {
         keepedHistoriqueEnds,
         oldHistoriqueEnds
       } = await _getOldProcessAndHistoriqueEnd(workflow);
-      console.log('---+++--------oldProcesses',oldProcesses);
+      console.log('------------oldProcesses.length)',oldProcesses.length);
       for (let oldProcess of oldProcesses){
         await _markProcessAsResolved(oldProcess)
       }
