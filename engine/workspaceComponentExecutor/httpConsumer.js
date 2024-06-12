@@ -155,7 +155,7 @@ class HttpConsumer {
             rejectUnauthorized: false 
           }
         }
-        console.log(url, options)
+        // console.log(url, options)
         this.call_url(url, options,
         undefined,
         componentConfig.timeout,
