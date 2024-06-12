@@ -48,7 +48,7 @@ class Communication {
       workspace_component_lib.get({
         _id: messageObject.id
       }).then( (data)=>{
-        console.log('work-ask',messageObject)
+        // console.log('work-ask',messageObject)
         const engine = require('../services/engine.js')
         // console.log('messageObject',messageObject)
         engine.execute(data, 'work', this.amqpClient, messageObject.callerId,messageObject.pushData,messageObject.queryParams, messageObject.tracerId).then(r=>{

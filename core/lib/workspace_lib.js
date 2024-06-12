@@ -470,6 +470,7 @@ function _cleanOldProcessByWorkflow(workflow) {
       for (let oldProcess of oldProcesses){
         await _markProcessAsResolved(oldProcess)
       }
+      console.log(`--------- end clean By Workflow ${workflow.name}`)
 
       // for (let oldHistoriqueEnd of oldHistoriqueEnds){
       //   await fragment_lib.tagGarbage(oldHistoriqueEnd.frag);
