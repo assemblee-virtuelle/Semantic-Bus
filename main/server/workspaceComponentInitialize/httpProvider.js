@@ -164,7 +164,7 @@ class HttpProvider {
           }
           
 
-          // console.log('_______________1 add call',component._id.toString());
+          console.log('_______________1 add call',component._id.toString());
           const callStack=this.pendingCall[component._id];
           const callContent = {
             queryParams: {
