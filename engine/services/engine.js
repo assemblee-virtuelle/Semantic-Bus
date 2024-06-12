@@ -563,7 +563,7 @@ class Engine {
             // console.log(processes);
             // console.log(`------- egine end clean ${this.workflow.name}`)
             this.processNotifier.processCleaned({
-              cleanedProcesses: processes,
+              cleanedProcesses: [process],
               tracerId: this.tracerId,
               workspaceId: this.workflow._id
             })
