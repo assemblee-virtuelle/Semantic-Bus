@@ -123,7 +123,7 @@ class HttpProvider {
       let componentId = regex.exec(urlRequiered)[1];
       // let component;
       try {
-        // console.log('______componentId',componentId);
+        console.log('______componentId',componentId);
         let component;
         try {
           component = await this.workspace_component_lib.get({
@@ -163,8 +163,8 @@ class HttpProvider {
             res.send();
           }
           
-          console.log('_______________1 add call',component);
-          console.log('_______________1 add call',component._id.toString());
+          console.log('_______________1 add call',component.workspaceId,component._id.toString(),component.specificData.url);
+          // console.log('_______________1 add call',component._id.toString());
           const callStack=this.pendingCall[component._id];
           const callContent = {
             queryParams: {
