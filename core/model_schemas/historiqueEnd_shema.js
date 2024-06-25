@@ -6,8 +6,6 @@ var mongoose = require('mongoose');
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-
-
 var HistoriqueEndSchema = mongoose.Schema({
     timeStamp: {
         type: Date,
@@ -37,12 +35,8 @@ var HistoriqueEndSchema = mongoose.Schema({
     persistProcess :{
         type : Boolean,
     },
-    // data:{
-    //     type: Object,
-    //     //required: true
-    // },
     frag: {
-      type: mongoose.Schema.Types.ObjectId,
+      type: String,
       ref: "fragment"
     },
     error:{
@@ -89,8 +83,8 @@ var HistoriqueEndSchema = mongoose.Schema({
       type: String,
       // required: true
     }
-
 });
+
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

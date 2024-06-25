@@ -133,6 +133,7 @@
   },
   "engineUrl":"http://engine:90/engine",
   "mlabDB": "mongodb://mongodb:27017/admin",
+  "mongodbFlowDB": "mongodb://admin:adminpassword@mongodb_flow:27018/admin",
   "socketClient": "ws://localhost:15674/ws/",
   "amqpHost": "devLocal",
   "socketServer": "amqp://rabbitmq:5672",

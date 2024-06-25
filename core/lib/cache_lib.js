@@ -3,7 +3,6 @@ module.exports = {
   cacheModel: require('../models/cache_model'),
   fragment_lib: require('./fragment_lib.js'),
   PromiseOrchestrator: require('../helpers/promiseOrchestrator.js'),
-  //mongoose: require('mongoose'),
   persist: async function(component, data, history) {
     let cachedData;
     let cachedDataIn = await this.cacheModel.getInstance().model.findOne({
@@ -19,18 +18,14 @@ module.exports = {
       cachedData = {};
     }
 
-    // let fragment = {
-    //   data: data
-    // };
-
     let frag = await this.fragment_lib.persist(data);
 
-    cachedData.frag = frag._id;
+    cachedData.frag = frag._id.toString();
     cachedData.date = new Date();
     if (history == true) {
       cachedData.history = cachedData.history || [];
       cachedData.history.push({
-        frag: frag._id,
+        frag: frag._id.toString(),
         date: new Date()
       });
     }
@@ -45,14 +40,11 @@ module.exports = {
   },
 
   get: function(component, resolveFrag) {
-    //console.log(" ------ in cache component ------ ", component._id)
     let promiseOrchestrator = new this.PromiseOrchestrator();
     return new Promise(async (resolve, reject) => {
-
       let cachedData = await this.cacheModel.getInstance().model.findOne({
         _id: component._id
-      })
-      .lean().exec();
+      }).lean().exec();
 
       let dataDefraged;
 
@@ -65,78 +57,24 @@ module.exports = {
               dataDefraged = await this.fragment_lib.get(cachedData.frag);
             }
           } else {
-            reject(new Error("frag of cache doesn't exist"))
+            reject(new Error("frag of cache doesn't exist"));
           }
         } else {
           let arrayParam = cachedData.history.map(r => [r.frag]);
           return await promiseOrchestrator.execute(this.fragment_lib, this.fragment_lib.getWithResolutionByBranch, arrayParam)
         }
       } else {
-        resolve(undefined);// direct resolve to Empty Cache (cacheNosql.js)
+        resolve(undefined);
       }
       if (dataDefraged != undefined) {
-        if(Array.isArray(dataDefraged)){
-          resolve(dataDefraged.map(f=>f))
-        }else{
-          // console.log('RESOLVE ',frag.data);
+        if (Array.isArray(dataDefraged)) {
+          resolve(dataDefraged.map(f => f));
+        } else {
           resolve(dataDefraged);
         }
-
       } else {
-        reject(new Error('corrupted cache fragmentation'))
+        reject(new Error('corrupted cache fragmentation'));
       }
-
-      // this.cacheModel.getInstance().model.findOne({
-      //     _id: component._id
-      //   })
-      //   .lean()
-      //   .exec()
-      //   .then(async cachedData => {
-      //     // console.log("cachedData",cachedData);
-      //     if (cachedData != undefined) {
-      //       if (component.specificData.historyOut != true) {
-      //         if (cachedData.frag != undefined) {
-      //           if (resolveFrag == true) {
-      //             // console.log('cache_lib getWithResolution');
-      //             let resolution  = this.fragment_lib.getWithResolution(cachedData.frag);
-      //             // console.log('resolution',resolution);
-      //             return resolution;
-      //           } else {
-      //             return this.fragment_lib.get(cachedData.frag);
-      //           }
-      //         } else {
-      //           reject(new Error("frag of cache doesn't exist"))
-      //         }
-      //       } else {
-      //         let arrayParam = cachedData.history.map(r => [r.frag]);
-      //         return promiseOrchestrator.execute(this.fragment_lib, this.fragment_lib.get, arrayParam)
-      //         // promiseOrchestrator.execute(this.fragment_lib, this.fragment_lib.get, arrayParam).then(arrayResult => {
-      //         //   console.log("arrayResult",arrayResult);
-      //         //   resolve(arrayResult);
-      //         // })
-      //       }
-      //     } else {
-      //       // console.log('ALLO');
-      //       //return new Promise((resolve,reject)=>{resolve(undefined)});
-      //       resolve(undefined);// direct resolve to Empty Cache (cacheNosql.js)
-      //     }
-
-      //   }).then((frag) => {
-      //     // console.log('frag',frag);
-      //     if (frag != undefined) {
-      //       if(Array.isArray(frag)){
-      //         resolve(frag.map(f=>f.data))
-      //       }else{
-      //         // console.log('RESOLVE ',frag.data);
-      //         resolve(frag.data);
-      //       }
-
-      //     } else {
-      //       reject(new Error('corrupted cache fragmentation'))
-      //     }
-      //   }).catch(err => {
-      //     reject(err);
-      //   });
     });
   }
 };

@@ -1,7 +1,9 @@
 'use strict';
-////console.log(__filename);
 const MongoClient = require('../db/mongo_client');
 const FragmentSchema = require('../model_schemas/fragment_schema');
+// const config = require('../../config.json');
+const mongoose = require('mongoose');
+const config = require('../getConfiguration.js')();
 
 class FragmentModelSingleton {
   constructor() {
@@ -17,7 +19,9 @@ class FragmentModelSingleton {
 
 class FragmentModel {
   constructor() {
-    this._model = MongoClient.getInstance().connection.model('fragment', FragmentSchema);
+    console.log('config',config);
+    this._connection = mongoose.createConnection(config.mongodbFlowDB, { useNewUrlParser: true, useUnifiedTopology: true });
+    this._model = this._connection.model('fragment', FragmentSchema);
   }
 
   get model(){
@@ -26,4 +30,3 @@ class FragmentModel {
 }
 
 module.exports = FragmentModelSingleton;
-// module.exports = mongoClient.getInstance().connection.model('fragment', FragmentSchema);

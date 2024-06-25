@@ -128,6 +128,7 @@ services:
 
   mongodb:
     image: mongo:4.0.6
+    container_name: mongodb
     networks:
       - bus
     ports:
@@ -137,6 +138,21 @@ services:
     volumes:
       - data:/data/db
     command: --smallfiles
+
+  mongodb_flow:
+    image: mongo:7.0.11 # Fixer la version de l'image
+    container_name: mongodb_flow
+    networks:
+      - bus
+    ports:
+      - "27018:27017"
+    expose:
+      - "27017"
+    volumes:
+      - /volumes/data_flow:/data/db
+    command: >
+      mongod --wiredTigerCacheSizeGB 2
+
 
 volumes:
   data:
