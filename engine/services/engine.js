@@ -555,9 +555,10 @@ class Engine {
               // this.RequestOrigineResolveMethode(this.originComponentResult);
             }
             // console.log(`--------- start clean ${this.workflow.name}`)
+            // mark current process as resolved - not mark old process as resolved
             await this.workspace_lib.markProcessAsResolved(process);
-            // CAUTION mark process resolved seem not need call cleanOldProcessByWorkflow
-            // const processes =  await this.workspace_lib.cleanOldProcessByWorkflow(this.workflow);
+            // CAUTION cleanOldProcessByWorkflow is required to tag garbage to fragment and delete old process and old historiqueEnd
+            const processes =  await this.workspace_lib.cleanOldProcessByWorkflow(this.workflow);
             console.log('--------------  End of Worksapce processing --------------', this.workflow.name, this.owner.credit)
  
             // console.log(processes);

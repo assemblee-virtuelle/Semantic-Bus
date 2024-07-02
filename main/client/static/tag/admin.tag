@@ -1,14 +1,14 @@
 <admin class="containerV" style="flex-grow:1">
 
 
-  <label class="labelFormStandard">Nettoyer les processus d'execution périmés / suppression normale</label>
+  <label class="labelFormStandard">Suprimer les processus d'execution périmés + marquer les fragments à supprimer + supprimer les fragments marqués</label>
   <div onclick={cleanProcessClick} class="btnFil commandButtonImage">
     Nettoyer
     <img class="imgFil" src="./image/Administrative-Tools-256.png" title="Nettoyer process">
     <input ref="import" type="file" style="display:none;"/>
   </div>
 
-  <label class="labelFormStandard">Supprimer les fragments marqués lors de l'execution normale des processus + Supprimer brutalement les fragments qui ne sont pas liés à un processus à conserver (périmés) + supprimer les processus d'execution périmés</label>
+  <label class="labelFormStandard">Supprimer les fragments marqués à supprimer + Supprimer brutalement (algo independant) les fragments des processus périmés + supprimer les processus d'execution périmés</label>
   <div onclick={cleanGarbageClick} class="btnFil commandButtonImage">
     Nettoyer (Brut)
     <img class="imgFil" src="./image/Administrative-Tools-256.png" title="Nettoyer données périmées">

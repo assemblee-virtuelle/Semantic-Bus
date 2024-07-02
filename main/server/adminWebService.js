@@ -14,12 +14,21 @@ module.exports = function (router) {
     })
   })
 
-  router.post('/cleanProcess', function (req, res, next) {
-    workspace_lib.cleanAllOldProcess().then(() => {
-      res.send("well cleaned")
-    }).catch(e => {
+  router.post('/cleanProcess', async function (req, res, next) {
+    try{
+      await workspace_lib.cleanAllOldProcess();
+      await workspace_lib.cleanGarbage();
+    }catch(e){
       next(e)
-    })
+    }
+    res.send("well cleaned")
+    // res.send("well cleaned")
+    // workspace_lib.cleanAllOldProcess().then(() => {
+
+    //   res.send("well cleaned")
+    // }).catch(e => {
+    //   next(e)
+    // })
   })
 
   router.post('/executeTimers', function (req, res, next) {

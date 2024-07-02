@@ -174,14 +174,14 @@ function _updateCurrentProcess(processId, workspaceId, state) {
 // clenGarbage not use fragmentLib.cleanFrag and it is normal. clean gargabe don't have to depend of cleanFrag execution
 function _cleanGarbage() {
   return new Promise(async (resolve, reject) => {
-    console.log("_cleanGarbage Normal");
+    // console.log("_cleanGarbage Normal");
 
     try {
-      console.log('START normal clean fragment garbage');
+      console.log('-------- START normal clean fragment garbage');
       await fragmentModel.getInstance().model.deleteMany({
         garbageTag: 1
       });
-      console.log('END normal clean fragment garbage');
+      console.log('-------- END normal clean fragment garbage');
     } catch (e) {
       reject(new Error.DataBaseProcessError(e));
     }
@@ -413,35 +413,35 @@ function _getOldProcessAndHistoriqueEnd(workflow) {
 function _cleanOldProcessByWorkflow(workflow) {
   return new Promise(async (resolve, reject) => {
     try {
-      console.log(`--------- start clean By Workflow ${workflow.name}`)
+      // console.log(`--------- start clean By Workflow ${workflow.name}`)
       const {
         keepedProcesses,
         oldProcesses,
         keepedHistoriqueEnds,
         oldHistoriqueEnds
       } = await _getOldProcessAndHistoriqueEnd(workflow);
-      console.log('------------oldProcesses.length)',oldProcesses.length);
-      for (let oldProcess of oldProcesses){
-        await _markProcessAsResolved(oldProcess)
-      }
-      console.log(`--------- end clean By Workflow ${workflow.name}`)
-
-      // for (let oldHistoriqueEnd of oldHistoriqueEnds){
-      //   await fragment_lib.tagGarbage(oldHistoriqueEnd.frag);
+      // console.log('------------oldProcesses.length)',oldProcesses.length);
+      // for (let oldProcess of oldProcesses){
+      //   await _markProcessAsResolved(oldProcess)
       // }
+      // console.log(`--------- end clean By Workflow ${workflow.name}`)
 
-      // await historiqueEndModel.getInstance().model.deleteMany({
-      //   _id: {
-      //     $in: oldHistoriqueEnds.map(r => r._id)
-      //   }
-      // }).exec();
+      for (let oldHistoriqueEnd of oldHistoriqueEnds){
+        await fragment_lib.tagGarbage(oldHistoriqueEnd.frag);
+      }
 
-      // await processModel.getInstance().model.deleteMany({
-      //   _id: {
-      //     $in: oldProcesses.map(r => r._id)
-      //   }
-      // }).exec();
-      // console.log(`--------- end clean ${workflow.name}`)
+      await historiqueEndModel.getInstance().model.deleteMany({
+        _id: {
+          $in: oldHistoriqueEnds.map(r => r._id)
+        }
+      }).exec();
+
+      await processModel.getInstance().model.deleteMany({
+        _id: {
+          $in: oldProcesses.map(r => r._id)
+        }
+      }).exec();
+      console.log(`--------- end clean ${workflow.name}, ${oldHistoriqueEnds.length} historic removed and tag fragment as garbage, ${oldProcesses.length} process removed`)
       resolve()
     } catch (e) {
       reject(new Error.DataBaseProcessError(e))
