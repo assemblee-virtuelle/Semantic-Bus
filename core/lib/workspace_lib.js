@@ -202,9 +202,11 @@ function _cleanGarbageForgotten() {
 
       const processGarbageId = Math.floor(Math.random() * 10000);
 
+      console.log('--- start tag all fragment as garbage');
       await fragmentModel.getInstance().model.updateMany({}, { garbageProcess: processGarbageId });
+      console.log('--- end tag all fragment as garbage');
       for (var workflow of workspaces) {
-        console.log("stack data to keep ", workflow.name);
+        console.log("--- stack data to keep ", workflow.name);
         const {
           keepedProcesses,
           oldProcesses,
@@ -226,6 +228,7 @@ function _cleanGarbageForgotten() {
         }).lean().exec();
 
         fragsToKeepId = fragsToKeepId.concat(caches.map(c => c.frag));
+        console.log('--- fragsToKeepId length:',fragsToKeepId.length);
 
         const fragsToKeep = await fragmentModel.getInstance().model.find({
           _id: {
@@ -237,14 +240,14 @@ function _cleanGarbageForgotten() {
           _id: 1
         }).lean().exec();
 
-        for (let frag of fragsToKeep) {
-          await fragmentModel.getInstance().model.updateMany({
-            frags: {
-              $in: frag.frags
-            }
-          }, {
-            garbageProcess: 0
-          });
+        for (let [i, frag] of fragsToKeep) {
+          // await fragmentModel.getInstance().model.updateMany({
+          //   frags: {
+          //     $in: frag.frags
+          //   }
+          // }, {
+          //   garbageProcess: 0
+          // });
 
           await fragmentModel.getInstance().model.updateMany({
             originFrag: frag.rootFrag
@@ -252,11 +255,13 @@ function _cleanGarbageForgotten() {
             garbageProcess: 0
           });
 
-          await fragmentModel.getInstance().model.updateMany({
-            _id: frag._id
-          }, {
-            garbageProcess: 0
-          });
+          // await fragmentModel.getInstance().model.updateMany({
+          //   _id: frag._id
+          // }, {
+          //   garbageProcess: 0
+          // });
+
+          console.log(`--- mark to deleteMany ${i}/${fragsToKeep.length}`);
         }
 
         totalHistoriqueEndToRemove=totalHistoriqueEndToRemove.concat(oldHistoriqueEnds.map(h=>h._id));
@@ -265,19 +270,19 @@ function _cleanGarbageForgotten() {
 
       }
 
-      console.log('START total fragment garbage collector');
+      console.log('--- START total fragment garbage collector');
       await fragmentModel.getInstance().model.deleteMany({
         garbageProcess: processGarbageId
       })
-      console.log('END total fragment garbage collector');
+      console.log('--- END total fragment garbage collector');
       
-      console.log('remove garbage historic')
+      console.log('--- remove garbage historic')
       await historiqueEndModel.getInstance().model.deleteMany({
         _id: {
           $in: totalHistoriqueEndToRemove
         }
       })
-      console.log('remove garbage process')
+      console.log('--- remove garbage process')
       await processModel.getInstance().model.deleteMany({
         _id: {
           $in: totalProcessToRemove
