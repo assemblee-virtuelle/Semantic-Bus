@@ -262,7 +262,7 @@ function _cleanGarbageForgotten() {
           //   garbageProcess: 0
           // });
 
-          console.log(`--- mark to deleteMany ${i+1}/${fragsToKeep.length}`);
+          console.log(`--- mark  fragments to not delete ${i+1}/${fragsToKeep.length}`);
         }
 
         totalHistoriqueEndToRemove=totalHistoriqueEndToRemove.concat(oldHistoriqueEnds.map(h=>h._id));
@@ -270,8 +270,11 @@ function _cleanGarbageForgotten() {
         totalProcessToRemove=totalProcessToRemove.concat(oldProcesses.map(p=>p._id));
 
       }
+      const totalFragmentsBeforeDeletion = await fragmentModel.getInstance().model.countDocuments({
+        garbageProcess: processGarbageId
+      });
 
-      console.log('--- START total fragment garbage collector');
+      console.log(`--- START total fragment garbage collector : ${totalFragmentsBeforeDeletion} fragments`);
       await fragmentModel.getInstance().model.deleteMany({
         garbageProcess: processGarbageId
       })
