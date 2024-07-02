@@ -239,8 +239,9 @@ function _cleanGarbageForgotten() {
           rootFrag: 1,
           _id: 1
         }).lean().exec();
-
-        for (let [i, frag] of fragsToKeep) {
+        console.log('--- fragsToKeep length:',fragsToKeep.length);
+        for (let i = 0; i < fragsToKeep.length; i++) { // Correction ici
+          let frag = fragsToKeep[i];
           // await fragmentModel.getInstance().model.updateMany({
           //   frags: {
           //     $in: frag.frags
