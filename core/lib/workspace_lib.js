@@ -251,7 +251,7 @@ function _cleanGarbageForgotten() {
           // });
 
           await fragmentModel.getInstance().model.updateMany({
-            originFrag: frag.rootFrag
+            rootFrag: frag.rootFrag
           }, {
             garbageProcess: 0
           });
@@ -262,7 +262,7 @@ function _cleanGarbageForgotten() {
           //   garbageProcess: 0
           // });
 
-          console.log(`--- mark to deleteMany ${i}/${fragsToKeep.length}`);
+          console.log(`--- mark to deleteMany ${i+1}/${fragsToKeep.length}`);
         }
 
         totalHistoriqueEndToRemove=totalHistoriqueEndToRemove.concat(oldHistoriqueEnds.map(h=>h._id));
