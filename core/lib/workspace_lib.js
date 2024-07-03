@@ -373,9 +373,9 @@ function _getOldProcessAndHistoriqueEnd(workflow) {
           timeStamp: -1
         })
         .limit(limit)
-        // .select({
-        //   _id: 1
-        // })
+        .select({
+          _id: 1
+        })
         .lean().exec();
       // console.log('--- keepedProcesses',keepedProcesses);
       let oldProcesses = await processModel.getInstance().model.find({
@@ -394,10 +394,10 @@ function _getOldProcessAndHistoriqueEnd(workflow) {
             $in: keepedProcesses.map(p => p._id)
           }
         })
-        // .select({
-        //   _id: 1,
-        //   frag: 1
-        // })
+        .select({
+          _id: 1,
+          frag: 1
+        })
         .lean().exec();
 
       let oldHistoriqueEnds = await historiqueEndModel.getInstance().model.find({
@@ -442,10 +442,10 @@ function _cleanOldProcessByWorkflow(workflow) {
       // console.log(`--------- end clean By Workflow ${workflow.name}`)
 
 
-      console.log("keepedProcesses",keepedProcesses);
-      console.log("oldProcesses",oldProcesses);
-      console.log("keepedHistoriqueEnds",keepedHistoriqueEnds);
-      console.log("oldHistoriqueEnds",oldHistoriqueEnds);
+      // console.log("keepedProcesses",keepedProcesses);
+      // console.log("oldProcesses",oldProcesses);
+      // console.log("keepedHistoriqueEnds",keepedHistoriqueEnds);
+      // console.log("oldHistoriqueEnds",oldHistoriqueEnds);
 
       for (let oldHistoriqueEnd of oldHistoriqueEnds){
         await fragment_lib.tagGarbage(oldHistoriqueEnd.frag);
