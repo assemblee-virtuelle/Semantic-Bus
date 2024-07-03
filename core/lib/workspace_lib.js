@@ -374,6 +374,7 @@ function _getOldProcessAndHistoriqueEnd(workflow) {
         _id: 1
       })
       .lean().exec();
+      console.log('--- OOOOOOOOOOOOOOOOOOOOOOOOOOO keepedProcessesRun',keepedProcessesRun.length);
       let keepedProcessesHistoric = await processModel.getInstance().model.find({
           workflowId: workflow._id,
           state :{'$ne':'run'}
