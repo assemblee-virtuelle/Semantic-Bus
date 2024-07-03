@@ -83,11 +83,21 @@ class Engine {
         // console.log('this.pathResolution',this.pathResolution.nodes)
 
         if (this.config.quietLog != true) {
-          console.log(' ---------- BuildPath Links-----------', this.fackCounter, this.workflow.name)
-          console.log(this.pathResolution.links.map(link => {
-            // return (link.source);
-            return (link.source.component._id + ' -> ' + link.target.component._id)
-          }))
+          console.table(this.pathResolution.links.map(link => {
+            return {
+              source: link.source.component._id.toString(),
+              source_module: link.source.component.module,
+              source_nom: link.source.component.nom,
+              target: link.target.component._id.toString(),
+              target_module: link.target.component.module,
+              target_nom: link.target.component.nom
+            }
+          }));
+          // console.log(' ---------- BuildPath Links-----------', this.fackCounter, this.workflow.name)
+          // console.log(this.pathResolution.links.map(link => {
+          //   // return (link.source);
+          //   return (link.source.component._id + ' -> ' + link.target.component._id)
+          // }))
           // console.log(' ---------- BuildPath Nodes-----------', this.fackCounter)
           // console.log(this.pathResolution.nodes.map(node => {
           //   //return (node.component._id + ':' + JSON.stringify(node.queryParams))
@@ -176,7 +186,7 @@ class Engine {
     // console.log('privateScript',this.config.privateScript);
     try {
       let process =  await this.workspace_lib.getCurrentProcess(this.processId);
-      if (process?.state == 'stop') {
+      if (process.state == 'stop') {
         this.processNotifier.information({
           _id: this.processId,
           tracerId: this.tracerId,
@@ -436,7 +446,7 @@ class Engine {
                           continueChekFunction: async () => {
                             // console.log('check',this.processId);
                             const process = await this.workspace_lib.getCurrentProcess(this.processId);
-                            if (process?.state == 'stop') {
+                            if (process.state == 'stop') {
                               return false
                             } else {
                               return true
@@ -590,7 +600,9 @@ class Engine {
   }
 
   async historicEndAndCredit(processingNode, startTime, frag, error, dfob) {
-    if (this.config.quietLog != true) console.time('historicEndAndCredit')
+    if (this.config.quietLog != true){
+      console.time('historicEndAndCredit')
+    }
     let historic_object = {};
     try {
       // if (!frag){
@@ -689,7 +701,7 @@ class Engine {
         error: 'error writing historic'
       })
     }
-    if (this.config.quietLog != true)  console.timeEnd('historicEndAndCredit')
+    if (this.config.quietLog != true) console.timeEnd('historicEndAndCredit')
     // console.log("--------------  End of component processing --------------",  this.owner.credit);
     if (historic_object != undefined) {
       this.owner.credit -= historic_object.totalPrice

@@ -365,73 +365,50 @@ function _getOldProcessAndHistoriqueEnd(workflow) {
   return new Promise(async (resolve, reject) => {
     try {
       let limit = workflow.limitHistoric || 1;
-      // console.log('--- limit',limit);
-      let keepedProcessesRun = await processModel.getInstance().model.find({
-        workflowId: workflow._id,
-        state :{'$eq':'run'}
+      let allProcesses = await processModel.getInstance().model.find({
+        workflowId: workflow._id
+      })
+      .sort({
+        timeStamp: -1
       })
       .select({
-        _id: 1
+        _id: 1,
+        state: 1
       })
       .lean().exec();
-      console.log('--- OOOOOOOOOOOOOOOOOOOOOOOOOOO keepedProcessesRun',keepedProcessesRun.length);
-      let keepedProcessesHistoric = await processModel.getInstance().model.find({
-          workflowId: workflow._id,
-          state :{'$ne':'run'}
-        })
-        .sort({
-          timeStamp: -1
-        })
-        .limit(limit)
-        .select({
-          _id: 1
-        })
-        .lean().exec();
 
+      let keepedProcessesRun = allProcesses.filter(process => process.state === 'run');
+      let keepedProcessesHistoric = allProcesses.filter(process => process.state !== 'run').slice(0, limit);
       let keepedProcesses = keepedProcessesHistoric.concat(keepedProcessesRun);
-      // console.log('--- keepedProcesses',keepedProcesses);
-      let oldProcesses = await processModel.getInstance().model.find({
-          workflowId: workflow._id,
-          _id: {
-            $nin: keepedProcesses.map(p => p._id)
-          }
-        })
-        .select({
-          _id: 1
-        })
-        .lean().exec();
+      
+      // Détermination de oldProcesses
+      let oldProcesses = allProcesses.filter(process => !keepedProcesses.some(keeped => keeped._id.equals(process._id)));
 
-      let keepedHistoriqueEnds = await historiqueEndModel.getInstance().model.find({
-          processId: {
-            $in: keepedProcesses.map(p => p._id)
-          }
-        })
-        .select({
-          _id: 1,
-          frag: 1
-        })
-        .lean().exec();
+      // Nouvelle requête pour déterminer keepedHistoriqueEnds et oldHistoriqueEnds
+      let historiqueEnds = await historiqueEndModel.getInstance().model.find({
+        processId: {
+          $in: allProcesses.map(p => p._id)
+        }
+      })
+      .select({
+        _id: 1,
+        frag: 1,
+        processId: 1
+      })
+      .lean().exec();
 
-      let oldHistoriqueEnds = await historiqueEndModel.getInstance().model.find({
-          processId: {
-            $in: oldProcesses.map(p => p._id)
-          }
-        })
-        .select({
-          _id: 1,
-          frag: 1
-        }).lean().exec();
+      let keepedHistoriqueEnds = historiqueEnds.filter(h => keepedProcesses.some(p => p._id.equals(h.processId)));
+      let oldHistoriqueEnds = historiqueEnds.filter(h => oldProcesses.some(p => p._id.equals(h.processId)));
 
       resolve({
         keepedProcesses,
         oldProcesses,
         keepedHistoriqueEnds,
         oldHistoriqueEnds
-      })
+      });
     } catch (e) {
-      reject(new Error.DataBaseProcessError(e))
+      reject(new Error.DataBaseProcessError(e));
     }
-
   });
 }
 
