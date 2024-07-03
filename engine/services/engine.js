@@ -176,7 +176,7 @@ class Engine {
     // console.log('privateScript',this.config.privateScript);
     try {
       let process =  await this.workspace_lib.getCurrentProcess(this.processId);
-      if (process.state == 'stop') {
+      if (process?.state == 'stop') {
         this.processNotifier.information({
           _id: this.processId,
           tracerId: this.tracerId,
