@@ -249,7 +249,7 @@ function _cleanGarbageForgotten() {
           // }, {
           //   garbageProcess: 0
           // });
-          if(frag.rootFrag != undefined){
+          if(frag.rootFrag != undefined && frag.rootFrag != null){
             await fragmentModel.getInstance().model.updateMany({
               rootFrag: frag.rootFrag
             }, {
