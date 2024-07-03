@@ -365,7 +365,7 @@ function _getOldProcessAndHistoriqueEnd(workflow) {
   return new Promise(async (resolve, reject) => {
     try {
       let limit = workflow.limitHistoric || 1;
-      console.log('--- limit',limit);
+      // console.log('--- limit',limit);
       let keepedProcesses = await processModel.getInstance().model.find({
           workflowId: workflow._id
         })
