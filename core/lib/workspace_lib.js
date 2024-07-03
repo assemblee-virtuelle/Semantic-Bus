@@ -365,6 +365,7 @@ function _getOldProcessAndHistoriqueEnd(workflow) {
   return new Promise(async (resolve, reject) => {
     try {
       let limit = workflow.limitHistoric || 1;
+      console.log('--- limit',limit);
       let keepedProcesses = await processModel.getInstance().model.find({
           workflowId: workflow._id,
           state :{'$eq':'run'}
@@ -377,6 +378,7 @@ function _getOldProcessAndHistoriqueEnd(workflow) {
           _id: 1
         })
         .lean().exec();
+      console.log('--- keepedProcesses',keepedProcesses);
       let oldProcesses = await processModel.getInstance().model.find({
           workflowId: workflow._id,
           _id: {
@@ -440,8 +442,8 @@ function _cleanOldProcessByWorkflow(workflow) {
       // console.log(`--------- end clean By Workflow ${workflow.name}`)
 
 
-      console.log("keepedHistoriqueEnds",keepedHistoriqueEnds);
-      console.log("oldHistoriqueEnds",oldHistoriqueEnds);
+      console.log("keepedProcesses",keepedProcesses);
+      console.log("oldProcesses",oldProcesses);
       console.log("keepedHistoriqueEnds",keepedHistoriqueEnds);
       console.log("oldHistoriqueEnds",oldHistoriqueEnds);
 
