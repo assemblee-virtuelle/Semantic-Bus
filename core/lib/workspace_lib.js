@@ -367,18 +367,17 @@ function _getOldProcessAndHistoriqueEnd(workflow) {
       let limit = workflow.limitHistoric || 1;
       console.log('--- limit',limit);
       let keepedProcesses = await processModel.getInstance().model.find({
-          workflowId: workflow._id,
-          state :{'$eq':'run'}
+          workflowId: workflow._id
         })
         .sort({
           timeStamp: -1
         })
         .limit(limit)
-        .select({
-          _id: 1
-        })
+        // .select({
+        //   _id: 1
+        // })
         .lean().exec();
-      console.log('--- keepedProcesses',keepedProcesses);
+      // console.log('--- keepedProcesses',keepedProcesses);
       let oldProcesses = await processModel.getInstance().model.find({
           workflowId: workflow._id,
           _id: {
@@ -395,10 +394,11 @@ function _getOldProcessAndHistoriqueEnd(workflow) {
             $in: keepedProcesses.map(p => p._id)
           }
         })
-        .select({
-          _id: 1,
-          frag: 1
-        }).lean().exec();
+        // .select({
+        //   _id: 1,
+        //   frag: 1
+        // })
+        .lean().exec();
 
       let oldHistoriqueEnds = await historiqueEndModel.getInstance().model.find({
           processId: {
