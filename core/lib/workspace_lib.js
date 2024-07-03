@@ -439,6 +439,12 @@ function _cleanOldProcessByWorkflow(workflow) {
       // }
       // console.log(`--------- end clean By Workflow ${workflow.name}`)
 
+
+      console.log("keepedHistoriqueEnds",keepedHistoriqueEnds);
+      console.log("oldHistoriqueEnds",oldHistoriqueEnds);
+      console.log("keepedHistoriqueEnds",keepedHistoriqueEnds);
+      console.log("oldHistoriqueEnds",oldHistoriqueEnds);
+
       for (let oldHistoriqueEnd of oldHistoriqueEnds){
         await fragment_lib.tagGarbage(oldHistoriqueEnd.frag);
       }
