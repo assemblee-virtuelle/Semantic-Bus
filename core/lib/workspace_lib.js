@@ -249,12 +249,16 @@ function _cleanGarbageForgotten() {
           // }, {
           //   garbageProcess: 0
           // });
+          if(frag.rootFrag != undefined){
+            await fragmentModel.getInstance().model.updateMany({
+              rootFrag: frag.rootFrag
+            }, {
+              garbageProcess: 0
+            });
+          }else{
+            console.log('--- frag without rootFrag',frag);
+          }
 
-          await fragmentModel.getInstance().model.updateMany({
-            rootFrag: frag.rootFrag
-          }, {
-            garbageProcess: 0
-          });
 
           // await fragmentModel.getInstance().model.updateMany({
           //   _id: frag._id
