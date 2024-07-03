@@ -436,7 +436,7 @@ class Engine {
                           continueChekFunction: async () => {
                             // console.log('check',this.processId);
                             const process = await this.workspace_lib.getCurrentProcess(this.processId);
-                            if (process.state == 'stop') {
+                            if (process?.state == 'stop') {
                               return false
                             } else {
                               return true
