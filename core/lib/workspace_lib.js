@@ -251,7 +251,7 @@ function _cleanGarbageForgotten() {
           // });
           if(frag.rootFrag != undefined && frag.rootFrag != null){
             await fragmentModel.getInstance().model.updateMany({
-              rootFrag: frag.rootFrag
+              originFrag: frag.rootFrag
             }, {
               garbageProcess: 0
             });
@@ -260,11 +260,11 @@ function _cleanGarbageForgotten() {
           }
 
 
-          // await fragmentModel.getInstance().model.updateMany({
-          //   _id: frag._id
-          // }, {
-          //   garbageProcess: 0
-          // });
+          await fragmentModel.getInstance().model.updateMany({
+            _id: frag._id
+          }, {
+            garbageProcess: 0
+          });
 
           console.log(`--- mark  fragments to not delete ${i+1}/${fragsToKeep.length}`);
         }

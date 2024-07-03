@@ -468,16 +468,16 @@ module.exports = {
       .exec()
       .then(async frag => {
         if (frag != null) {
-          if (frag.frags != undefined) {
-            this.fragmentModel.getInstance().model.updateMany({
-              _id: {
-                $in: frag.frags
-              }
-            },
-            {
-              garbageTag : 1
-            }).exec();
-          }
+          // if (frag.frags != undefined) {
+          //   this.fragmentModel.getInstance().model.updateMany({
+          //     _id: {
+          //       $in: frag.frags
+          //     }
+          //   },
+          //   {
+          //     garbageTag : 1
+          //   }).exec();
+          // }
 
           if (frag.rootFrag) {
            this.fragmentModel.getInstance().model.updateMany({
