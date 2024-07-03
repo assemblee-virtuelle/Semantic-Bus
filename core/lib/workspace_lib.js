@@ -367,7 +367,8 @@ function _getOldProcessAndHistoriqueEnd(workflow) {
       let limit = workflow.limitHistoric || 1;
       // console.log('--- limit',limit);
       let keepedProcesses = await processModel.getInstance().model.find({
-          workflowId: workflow._id
+          workflowId: workflow._id,
+          state :{'$ne':'run'}
         })
         .sort({
           timeStamp: -1
