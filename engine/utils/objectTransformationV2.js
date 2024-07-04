@@ -40,12 +40,12 @@ module.exports = {
         try {
           const evalResult = eval(patternEval);
           // console.log('-> evalResult',evalResult)
-          if (options && options.evaluationDetail == true) {
-            return { eval: evalResult };
-          } else {
+          // if (options && options.evaluationDetail == true) {
+          //   return { eval: evalResult };
+          // } else {
             // console.log('return evalResult',evalResult);
             return evalResult;
-          }
+          // }
         } catch (e) {
           console.error(e)
           // console.log('config',config.quietLog );

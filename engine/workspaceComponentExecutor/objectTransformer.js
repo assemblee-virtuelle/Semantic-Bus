@@ -18,9 +18,9 @@ class ObjectTransformer {
   jsonTransform(source, jsonTransformPattern, pullParams, options) {
     let out;
     // console.log('config',this.config);
-    if(options.version==='v1'||options.version==='default'||options.version===undefined){
-      out = this.objectTransformation.executeWithParams(source, pullParams, jsonTransformPattern, options,this.config)
-    }else if(options.version==='v2'){
+    // if(options.version==='v1'||options.version==='default'||options.version===undefined){
+    //   out = this.objectTransformation.executeWithParams(source, pullParams, jsonTransformPattern, options,this.config)
+    // }else if(options.version==='v2'){
       // console.log('source',source.length);
       out = this.objectTransformationV2.executeWithParams(source, pullParams, jsonTransformPattern, options,this.config)
 
@@ -28,7 +28,7 @@ class ObjectTransformer {
         // console.log('source',source);
         out={...source,...out};
       }
-    }
+    // }
     // let out = this.objectTransformation.executeWithParams(source, pullParams, jsonTransformPattern, options)
     // console.log('out',out);
     // if(out['nom du lieux *']&&out['nom du lieux *'].includes('Nuyens')){

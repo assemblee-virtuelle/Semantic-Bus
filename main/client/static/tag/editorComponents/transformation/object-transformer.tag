@@ -33,7 +33,7 @@
         </label>
       </div>
     </div>
-    <div class="options">
+    <!--  <div class="options">
       <label class="labelFormStandard">version du transformer:</label>
       <div class="cardInput">
         <select name="version" ref="versionInput" onchange={versionChange}>
@@ -42,7 +42,7 @@
           <option value="v2" selected={data.specificData.version==='v2'}>V2</option>
         </select>
       </div>
-    </div>
+    </div>  -->
   </div>
   <jsoneditor ref="jsonSchema" title="Transform Schema" class="containerV" modes="['tree','text']"></jsoneditor>
   <script>
