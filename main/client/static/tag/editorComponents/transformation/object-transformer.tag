@@ -15,7 +15,7 @@
   </div>
   <!-- Champ du composant -->
   <div if={data?.specificData} class="containerH" style="justify-content:space-evenly">
-    <div class="options">
+    <!--  <div class="options">
       <label class="labelFormStandard">détail des évaluations:</label>
       <div class="cardInput">
         <label class="switch">
@@ -23,7 +23,7 @@
             <span class="slider round"></span>
         </label>
       </div>
-    </div>
+    </div>  -->
     <div class="options">
       <label class="labelFormStandard">conserver les champs de la source:</label>
       <div class="cardInput">
