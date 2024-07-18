@@ -4,6 +4,7 @@ class Regex {
     this.objectTransformation = require('../utils/objectTransformationV2.js');
   }
   pull (data, flowData, pullParams) {
+    console.log('REGEX');
     return new Promise((resolve, reject) => {
       try {
         const flowDataPrimary = flowData[0].data;
