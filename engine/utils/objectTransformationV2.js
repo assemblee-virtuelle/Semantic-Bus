@@ -36,7 +36,7 @@ module.exports = {
           }
           patternEval = patternEval.replace(valueDot[0], sourceDotValue);
         }
-        console.log(' -> patternEval', patternEval);
+        // console.log(' -> patternEval', patternEval);
         try {
           const evalResult = eval(patternEval);
           // console.log('-> evalResult',evalResult)
@@ -47,13 +47,13 @@ module.exports = {
             return evalResult;
           // }
         } catch (e) {
-          console.error(e)
+          // console.error(e)
           // console.log('config',config.quietLog );
           if (config != undefined && config.quietLog != true) {
             console.warn(`Transformer Javascript Error : ${e.message}`);
           }
           // if(options  && options.evaluationDetail==true){
-          console.log('ERROR:', patternEval);
+          // console.log('ERROR:', patternEval);
           return {
             error: 'Javascript Eval failed',
             errorDetail: {
