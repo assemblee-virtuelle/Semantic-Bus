@@ -717,7 +717,13 @@ class Engine {
       })
       return flatOut
     } else {
-      return (this.buildDfobFlow(currentFlow, dfobPathTab, key, keepArray))
+      try {
+        const dfobFlow = this.buildDfobFlow(currentFlow, dfobPathTab, key, keepArray);
+        return dfobFlow;
+      } catch (error) {
+        console.error('error',error);
+        return undefined;
+      }
     }
   }
 
@@ -733,11 +739,12 @@ class Engine {
         return flatOut
       } else {
         // let newDfobPathTab = JSON.parse(JSON.stringify(dfobPathTab))
-        let newDfobPathTab = [...dfobPathTab]
-        let currentdFob = newDfobPathTab.shift()
-        let flowOfKey = currentFlow[currentdFob]
+        const newDfobPathTab = [...dfobPathTab];
+        const currentdFob = newDfobPathTab.shift();
+        const propertyExist =  currentFlow.hasOwnProperty(currentdFob) 
+        const flowOfKey = propertyExist ? currentFlow[currentdFob] : undefined;
 
-        if(flowOfKey){
+        if(propertyExist){
           // TODO complex algorythm, To improve
           if (newDfobPathTab.length > 0) {
             return (this.buildDfobFlow(flowOfKey, newDfobPathTab, currentdFob, keepArray))
@@ -749,7 +756,10 @@ class Engine {
             }
           }
         }else{
-          throw new Error(`dfobPath '${dfobPathTab}' isn't achievable`)
+          // throw new Error(`dfobPath '${dfobPathTab}' isn't achievable`)
+          return {
+            objectToProcess: undefined,
+          }
         }
       }
     } else {
@@ -806,11 +816,12 @@ class Engine {
             undefined,
             keepArray
           )
+
           let paramArray = dfobFlow.map(item => {
             var recomposedFlow = [];
       
             recomposedFlow = recomposedFlow.concat([{
-              data: item.key != undefined ? item.objectToProcess[item.key] : item.objectToProcess,
+              data: item?.key != undefined ? item.objectToProcess[item.key] : item.objectToProcess,
               componentId: primaryflow.componentId
             }]);
             recomposedFlow = recomposedFlow.concat(secondaryFlow);
@@ -821,8 +832,7 @@ class Engine {
               processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams
             ]
           });
-          // if (this.config.quietLog != true) console.timeEnd("build-DfobFlow");
-          // if (this.config.quietLog != true) console.time("work");
+
           const componentFlowDfob = await this.promiseOrchestrator.execute(module, module.pull, paramArray, {
             beamNb: pipeNb,
             logIteration: true,
@@ -835,8 +845,7 @@ class Engine {
               }
             }
           }, this.config);
-          // if (this.config.quietLog != true) console.timeEnd("work");
-          // if (this.config.quietLog != true) console.time("recompose-DfobFlow");
+
   
           for (var componentFlowDfobKey in componentFlowDfob) {
             if ('data' in componentFlowDfob[componentFlowDfobKey]) {
@@ -853,11 +862,14 @@ class Engine {
                 }
               }
             } else if (componentFlowDfob[componentFlowDfobKey].error != undefined) {
-              dfobFlow[componentFlowDfobKey].objectToProcess[dfobFlow[componentFlowDfobKey].key] =
-                componentFlowDfob[componentFlowDfobKey]
+              if (dfobFlow[componentFlowDfobKey].key != undefined && dfobFlow[componentFlowDfobKey].objectToProcess != undefined) {
+                dfobFlow[componentFlowDfobKey].objectToProcess[dfobFlow[componentFlowDfobKey].key] =
+                  componentFlowDfob[componentFlowDfobKey]
+              }
             }
           }
         } catch (error) {
+          console.log('error',error);
           //if exception during buildDfobFlow or other buildDfobFlow is not impact
         }
        
