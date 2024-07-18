@@ -7,6 +7,7 @@ class Regex {
     return new Promise((resolve, reject) => {
       try {
         const flowDataPrimary = flowData[0].data;
+        console.log('flowDataPrimary',flowDataPrimary);
         if(Array.isArray(flowDataPrimary)){
           throw new Error('input data can not be an array');
         }
