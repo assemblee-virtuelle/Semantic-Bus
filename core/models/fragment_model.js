@@ -19,9 +19,25 @@ class FragmentModelSingleton {
 
 class FragmentModel {
   constructor() {
-    console.log('config',config);
-    this._connection = mongoose.createConnection(config.mongodbFlowDB, { useNewUrlParser: true, useUnifiedTopology: true });
-    this._model = this._connection.model('fragment', FragmentSchema);
+    console.log('config', config);
+    this._connection = mongoose.createConnection(config.mongodbFlowDB, { 
+      useNewUrlParser: true, 
+      useUnifiedTopology: true,
+      minPoolSize: 5, // Nombre minimum de connexions dans le pool
+      maxPoolSize: 10, // Nombre maximum de connexions dans le pool
+    });
+
+    this._connection.on('connected', function () {
+      console.log('Mongoose default connection open to ' + config.mongodbFlowDB);
+    });
+
+    this._connection.on('error', function (err) {
+      console.log('Mongoose default connection error: ' + err);
+    });
+
+    this._connection.on('disconnected', function () {
+      console.log('Mongoose default connection disconnected');
+    });
   }
 
   get model(){
