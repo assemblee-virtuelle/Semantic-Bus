@@ -3,7 +3,7 @@ class ObjectTransformer {
   constructor() {
     this.objectTransformation = require('../utils/objectTransformation.js');
     this.objectTransformationV2 = require('../utils/objectTransformationV2.js');
-    this.config = require('../configuration.js');
+    this.config = require('../config.json');
   }
 
   initComponent(entity) {

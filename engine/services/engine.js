@@ -13,7 +13,7 @@ class Engine {
     this.fragment_lib = require('../../core/lib/fragment_lib');
     this.workspace_lib = require('../../core/lib/workspace_lib');
     this.user_lib = require('../../core/lib/user_lib');
-    this.config = require('../configuration.js');
+    this.config = require('../config.json');
     let PromiseOrchestrator = require('../../core/helpers/promiseOrchestrator.js');
     this.stringReplacer = require('../utils/stringReplacer.js')
     this.promiseOrchestrator = new PromiseOrchestrator();
@@ -415,7 +415,7 @@ class Engine {
                     this.processNextBuildPath('dfob empty')
                   } else {
 
-                    if (this.config.quietLog != true) console.time("secondary_getWithResolutionByBranch");
+                    if (this.config.quietLog != true) console.time("secondary_getWithResolutionByBranch"+'_'+this.processId+'_'+this.workflow.name);
                     const secondaryFlowDefraged=[];
                     for (let sf of componentFlow.secondaryFlow){
                       secondaryFlowDefraged.push({
@@ -424,8 +424,8 @@ class Engine {
                         targetInput : sf.targetInput
                       })
                     }
-                    if (this.config.quietLog != true) console.timeEnd("secondary_getWithResolutionByBranch");
-                    if (this.config.quietLog != true) console.time("rebuildFrag_focus_work_persist");
+                    if (this.config.quietLog != true) console.timeEnd("secondary_getWithResolutionByBranch"+'_'+this.processId+'_'+this.workflow.name);
+                    if (this.config.quietLog != true) console.time("rebuildFrag_focus_work_persist"+'_'+this.processId+'_'+this.workflow.name);
                     try {
                       let dfob = undefined;
                       let paramArray = dfobFragmentSelected.map(item => {
@@ -481,7 +481,7 @@ class Engine {
                       processingNode.status = 'error'
                       this.processNextBuildPath('dfob reject')
                     }
-                    if (this.config.quietLog != true) console.timeEnd("rebuildFrag_focus_work_persist");
+                    if (this.config.quietLog != true) console.timeEnd("rebuildFrag_focus_work_persist"+'_'+this.processId+'_'+this.workflow.name);
 
                   }
                 } catch (e) {
@@ -601,7 +601,7 @@ class Engine {
 
   async historicEndAndCredit(processingNode, startTime, frag, error, dfob) {
     if (this.config.quietLog != true){
-      console.time('historicEndAndCredit')
+      console.time('historicEndAndCredit'+'_'+this.processId+'_'+this.workflow.name)
     }
     let historic_object = {};
     try {
@@ -701,7 +701,7 @@ class Engine {
         error: 'error writing historic'
       })
     }
-    if (this.config.quietLog != true) console.timeEnd('historicEndAndCredit')
+    if (this.config.quietLog != true) console.timeEnd('historicEndAndCredit'+'_'+this.processId+'_'+this.workflow.name)
     // console.log("--------------  End of component processing --------------",  this.owner.credit);
     if (historic_object != undefined) {
       this.owner.credit -= historic_object.totalPrice
@@ -782,10 +782,10 @@ class Engine {
   }
 
   async buildDfobFragmentFlow(fragment, dfobTable, keepArray) {
-    if (this.config.quietLog != true)  console.time("buildDfobFragmentFlow");
+    if (this.config.quietLog != true)  console.time("buildDfobFragmentFlow_"+this.processId+'_'+this.workflow.name);
     // console.log('buildDfobFragmentFlow',fragment)
     const out=  await this.fragment_lib.copyFragUntilPath(fragment, dfobTable,keepArray);
-    if (this.config.quietLog != true)  console.timeEnd("buildDfobFragmentFlow");
+    if (this.config.quietLog != true)  console.timeEnd("buildDfobFragmentFlow_"+this.processId+'_'+this.workflow.name);
     // throw new Error('tmp')
     return out;
   }

@@ -57,8 +57,10 @@ module.exports = {
     // if (this.isLiteral(data)){
     //     return this.processLiteral(data);
     // }else {
-      const fragmentModelInstance = this.fragmentModel.getInstance().model;
-      let fargToPersist = exitingFrag || new fragmentModelInstance({
+      const fragmentModelInstance = await this.fragmentModel.getInstance();
+      const model = fragmentModelInstance.model;
+      // console.log('_______fragmentModelInstance',model);
+      let fargToPersist = exitingFrag || new model({
         rootFrag : fragCaller?.rootFrag!=undefined||fragCaller?.originFrag!=undefined ? undefined : new this.ObjectID(),
         originFrag : fragCaller?.rootFrag|| fragCaller?.originFrag,
       })
@@ -67,7 +69,7 @@ module.exports = {
         fargToPersist.data=data;
         fargToPersist.markModified('data');
         fargToPersist.branchFrag=undefined;
-        return await fargToPersist.save();
+        return await fargToPersist.save({ validateBeforeSave: false }); // Désactiver la validation
       }else if (Array.isArray(data)){
 
         if(this.testFragArray(data)){
@@ -102,7 +104,7 @@ module.exports = {
           fargToPersist.data=arrayReadyToPersit;
           fargToPersist.markModified('data');
           fargToPersist.branchFrag=undefined;
-          return await fargToPersist.save();
+          return await fargToPersist.save({ validateBeforeSave: false }); // Désactiver la validation
         }
       }else{
         const objectData = await this.persistObject(data,fargToPersist)
@@ -111,7 +113,7 @@ module.exports = {
         fargToPersist.markModified('data');
         fargToPersist.branchFrag=undefined;
         // console.log('_____fargToPersist',fargToPersist)
-        return await fargToPersist.save();
+        return await fargToPersist.save({ validateBeforeSave: false }); // Désactiver la validation
       }
     // }
   },
@@ -121,7 +123,7 @@ module.exports = {
       return this.processLiteral(data);
     } else if (Array.isArray(data) && this.testFragArray(data)){
       // console.log(('object->frag'));
-      return await this.persist (data,fragCaller,exitingFrag) 
+      return await this.persist(data, fragCaller, exitingFrag) 
     } else {
       for (let key in data) {
         // console.log('persist key ',key)
@@ -140,36 +142,37 @@ module.exports = {
 
   createArrayFrag: async function(exitingFrag) {
     // console.log('createArrayFrag',exitingFrag);
-    const fragmentModelInstance = this.fragmentModel.getInstance().model;
-    let arrayFrag= exitingFrag ||  new fragmentModelInstance({
+    const fragmentModelInstance = await this.fragmentModel.getInstance();
+    const model = fragmentModelInstance.model;
+    let arrayFrag= exitingFrag ||  new model({
       rootFrag :  new this.ObjectID()
     });
     arrayFrag.data=[];
     arrayFrag.markModified('data');
     arrayFrag.branchFrag = new this.ObjectID();
     arrayFrag.maxIndex=0;
-    arrayFrag = await arrayFrag.save();
-    return arrayFrag;
+    return await arrayFrag.save({ validateBeforeSave: false }); // Désactiver la validation
   
   },
   //call without index not support parallel calls (PromiseOrchestrator for ex)
   addFragToArrayFrag: async function(frag, arrayFrag,index) {
     // console.log('addFragToArrayFrag',frag,arrayFrag);
     const isObjectFrag =  frag._id && ! frag instanceof mongoose.Types.ObjectId;
-    const fragmentModelInstance = this.fragmentModel.getInstance().model;
-    const fragObject = isObjectFrag?frag:await fragmentModelInstance.findOne({_id: frag}).exec();
+    const fragmentModelInstance = await this.fragmentModel.getInstance();
+    const model = fragmentModelInstance.model;
+    const fragObject = isObjectFrag?frag:await model.findOne({_id: frag}).exec();
 
     fragObject.branchOriginFrag = arrayFrag.branchFrag;
     fragObject.originFrag=arrayFrag.root||arrayFrag.originFrag;
     fragObject.rootFrag=undefined;
     if (index!=undefined){
       fragObject.index = index;
-      await fragObject.save();
+      await fragObject.save({ validateBeforeSave: false }); // Désactiver la validation
     }else{
       fragObject.index = arrayFrag.maxIndex+1;
-      await fragObject.save();
+      await fragObject.save({ validateBeforeSave: false }); // Désactiver la validation
       arrayFrag.maxIndex=fragObject.index;
-      await arrayFrag.save();
+      await arrayFrag.save({ validateBeforeSave: false }); // Désactiver la validation
     } 
   },
   addDataToArrayFrag: async function(data, arrayFrag,index) {
@@ -191,14 +194,15 @@ module.exports = {
   get: function(id) {
     // console.log(" ------ get fragment------ ", id)
     return new Promise(async (resolve, reject) => {
-      const  fragmentReturn = await this.fragmentModel.getInstance().model.findOne({
+      const model = (await this.fragmentModel.getInstance()).model;
+      const  fragmentReturn = await model.findOne({
         _id: id
       })
       .lean()
       .exec();
 
       if (fragmentReturn.branchFrag) {
-        const frags = await this.fragmentModel.getInstance().model.find({
+        const frags = await model.find({
           branchOriginFrag: fragmentReturn.branchFrag
         }).lean().exec();
         // console.log('GET frag Array',frags)
@@ -220,12 +224,15 @@ module.exports = {
     if (!frag){
       throw new Error('frag have to be set');
     }
+    const fragmentModelInstance = await this.fragmentModel.getInstance();
     // console.log('frag',frag);
     const isObjectFrag =  frag._id && ! frag instanceof mongoose.Types.ObjectId;
-    const fragmentModelInstance = this.fragmentModel.getInstance().model;
-    const fragToResolve = isObjectFrag?frag:await fragmentModelInstance.findOne({_id: frag}).exec();
+
+    // console.log('fragmentModelInstance',fragmentModelInstance);
+    const model = fragmentModelInstance.model;
+    const fragToResolve = isObjectFrag?frag:await model.findOne({_id: frag}).exec();
     if(fragToResolve.branchFrag){
-      const children= await fragmentModelInstance.find({branchOriginFrag: fragToResolve.branchFrag}).exec();
+      const children= await model.find({branchOriginFrag: fragToResolve.branchFrag}).exec();
       const childrenData=[];
       for (let child of children) {
         if(child.branchFrag){
@@ -274,10 +281,11 @@ module.exports = {
   },
 
   getWithResolution: function(id) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
         let fragmentReturn;
-        this.fragmentModel.getInstance().model.findOne({
+        const model = (await this.fragmentModel.getInstance()).model;
+        model.findOne({
             _id: id
           })
           .lean()
@@ -287,7 +295,7 @@ module.exports = {
 
             if (fragmentReturn.rootFrag) {
 
-              return this.fragmentModel.getInstance().model.find({
+              return model.find({
                 originFrag: fragmentReturn.rootFrag
               }).lean().exec();
             } else {
@@ -431,8 +439,9 @@ module.exports = {
     }
   },
 
-  cleanFrag: function(id) {
-    this.fragmentModel.getInstance().model.findOne({
+  cleanFrag: async function(id) {
+    const model = (await this.fragmentModel.getInstance()).model;
+    model.findOne({
         _id: id
       })
       .lean()
@@ -440,28 +449,29 @@ module.exports = {
       .then(async frag => {
         if (frag != null) {
           if (frag.frags != undefined) {
-            await this.fragmentModel.getInstance().model.deleteMany({
+            await model.deleteMany({
               frags: {
                 $in: frag.frags
               }
             }).exec();
           }
           if (frag.rootFrag) {
-            await this.fragmentModel.getInstance().model.deleteMany({
+            await model.deleteMany({
               originFrag: frag.rootFrag
             }).exec();
           }
-          await this.fragmentModel.getInstance().model.deleteMany({
+          await model.deleteMany({
             _id: frag._id
           }).exec();
         }
       })
   },
 
-  tagGarbage: function(id) {
+  tagGarbage: async function(id) {
+    const model = (await this.fragmentModel.getInstance()).model;
 
     if(id){
-      this.fragmentModel.getInstance().model.findOne({
+      model.findOne({
         _id: id
       })
       .lean()
@@ -480,14 +490,14 @@ module.exports = {
           // }
 
           if (frag.rootFrag) {
-           this.fragmentModel.getInstance().model.updateMany({
+           model.updateMany({
               originFrag: frag.rootFrag
             },
             {
               garbageTag : 1
             }).exec();
           }
-          this.fragmentModel.getInstance().model.updateMany({
+          model.updateMany({
             _id: frag._id
           },
           {
@@ -501,15 +511,20 @@ module.exports = {
   // frag support fragId or frag object
   copyFragUntilPath : async function(frag,dfobTable,keepArray, relativHistoryTable=[], callerFrag=undefined){
     // console.log('keepArray',keepArray,dfobTable);
+
     if (!frag){
       throw new Error('frag have to be set');
     }
+    console.time('copyFragUntilPath init'+'_'+frag);
     const isObjectFrag =  frag._id && ! frag instanceof mongoose.Types.ObjectId;
-    const fragmentModelInstance = this.fragmentModel.getInstance().model;
-    const fragToCopy = isObjectFrag?frag:await fragmentModelInstance.findOne({_id: frag}).exec();
+    const fragmentModelInstance = await this.fragmentModel.getInstance();
+    const model = fragmentModelInstance.model;
+    const fragToCopy = isObjectFrag?frag:await model.findOne({_id: frag}).exec();
+    console.timeEnd('copyFragUntilPath init'+'_'+frag);
     // console.log('fragToCopy',fragToCopy);
     if (fragToCopy.branchFrag) {
-      const newFrag = new fragmentModelInstance({
+      console.time('copyFragUntilPath branchFrag'+'_'+frag);
+      const newFrag = new model({
         _id:undefined,
         data : fragToCopy.data,
         //rootfrag should be undefind if caller but not in real life :-(
@@ -521,8 +536,8 @@ module.exports = {
         branchOriginFrag : callerFrag?callerFrag.branchFrag:undefined,
         garbageProcess:false
       })
-      await newFrag.save();
-      const fragleaves = await fragmentModelInstance.find({branchOriginFrag: fragToCopy.branchFrag})
+      await newFrag.save({ validateBeforeSave: false }); // Désactiver la validation
+      const fragleaves = await model.find({branchOriginFrag: fragToCopy.branchFrag})
       let arrayOut = [];
       let fragmentSelected=[];
       for (let record of fragleaves) {
@@ -539,7 +554,7 @@ module.exports = {
           relativDfobTable: []
         }];
       }
-
+      console.timeEnd('copyFragUntilPath branchFrag'+'_'+frag);
       return {
         data : arrayOut,
         dfobFragmentSelected: fragmentSelected,
@@ -547,7 +562,9 @@ module.exports = {
         newFrag:newFrag
       };
     } else {
-
+      // console.trace();
+      console.time('copyFragUntilPath normal 1'+'_'+frag);
+      // console.log('-------------------step 0--------------');
       const newFragRaw= {
         data : fragToCopy.data,
         originFrag : callerFrag?callerFrag.originFrag||callerFrag.rootFrag:undefined,
@@ -557,22 +574,27 @@ module.exports = {
         branchFrag : undefined,
         garbageProcess:false
       }
+      // console.log('-------------------step 1--------------');
 
-      let newFrag = new fragmentModelInstance(newFragRaw)
-      await newFrag.save();
-      
+      let newFrag = new model(newFragRaw)
+      // console.log('-------------------step 2--------------');
+      await newFrag.save({ validateBeforeSave: false }); // Désactiver la validation
+      // console.log('-------------------step 3--------------');
+      console.timeEnd('copyFragUntilPath normal 1'+'_'+frag);
+      console.time('copyFragUntilPath normal 2'+'_'+frag);
       const processedData = await this.copyDataUntilPath(newFrag.data,dfobTable,keepArray, relativHistoryTable,newFrag);
       // console.log('______processedData',JSON.stringify(processedData))
 
       newFrag.data= processedData.data;
       newFrag.markModified('data');
-      newFrag = await newFrag.save();
+      newFrag = await newFrag.save({ validateBeforeSave: false }); // Désactiver la validation
+      console.timeEnd('copyFragUntilPath normal 2'+'_'+frag);
       // console.log('________newFrag',JSON.stringify(newFrag))
-
+      console.time('copyFragUntilPath normal 3'+'_'+frag);
       const isDfobFragmentSelected =  processedData.dfobFragmentSelected&&processedData.dfobFragmentSelected.length>0;
+      console.timeEnd('copyFragUntilPath normal 3'+'_'+frag);
 
-
-      // const fragVerif = await fragmentModelInstance.findOne({_id: newFrag.id}).exec();
+      // const fragVerif = await model.findOne({_id: newFrag.id}).exec();
       // console.log('__copyFragUntilPath fragVerif',JSON.stringify(fragVerif))
 
       return {
@@ -586,7 +608,9 @@ module.exports = {
         rootFrag :newFrag.rootFrag,
         newFrag :newFrag
       };
+
     }
+
   },
   copyDataUntilPath : async function(data,dfobTable, keepArray, relativHistoryTable=[], callerFrag){
     // console.log('data to copy',data)
@@ -614,7 +638,7 @@ module.exports = {
         let fragmentSelected=[];
         let relativHistoryTableSelected=[]
         for (let item of data) {
-          const processedData = await this.copyDataUntilPath(item,dfobTable, keepArray, relativHistoryTable);
+          const processedData = await this.copyDataUntilPath(item,dfobTable,keepArray, relativHistoryTable);
           // console.log('_________processedData',processedData)
           let itemDefrag = processedData.data;
           itemDefrag = this.replaceMongoNotSupportedKey(itemDefrag, false);
@@ -697,3 +721,4 @@ module.exports = {
     }
   }
 };
+

@@ -59,7 +59,7 @@
     "jwt-simple": "^0.5.1",
     "moment": "^2.20.1",
     "mongodb": "^6.1.0",
-    "mongoose": "^7.6.1",
+    "mongoose": "^8.5.1",
     "mysql2": "2.2.5",
     "node-fetch": "^2.3.0",
     "object-sizeof": "^1.2.0",

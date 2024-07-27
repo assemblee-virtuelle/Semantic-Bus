@@ -47,7 +47,7 @@
     "jszip": "^3.10.1",
     "jwt-simple": "^0.5.1",
     "moment": "^2.20.1",
-    "mongoose": "^7.6.1",
+    "mongoose": "^8.5.1",
     "node-cron": "^3.0.2",
     "node-fetch": "^2.3.0",
     "nodemailer": "^6.9.9",

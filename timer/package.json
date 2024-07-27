@@ -20,7 +20,7 @@
     "jsprim": "1.4.2",
     "jwt-simple": "^0.5.1",
     "moment": "^2.20.1",
-    "mongoose": "^7.6.1",
+    "mongoose": "^8.5.1",
     "node-fetch": "^2.3.0",
     "object-sizeof": "^1.2.0",
     "passport": "^0.3.2",

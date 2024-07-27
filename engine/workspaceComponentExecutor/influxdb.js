@@ -4,7 +4,6 @@ const { json } = require('body-parser');
 
 class InfluxdbConnector {
   constructor () {
-    this.config = require('../configuration.js');
     this.influxdbClient = require('@influxdata/influxdb-client');
     this.influxdbClientApi = require('@influxdata/influxdb-client-apis');
     this.stringReplacer = require('../utils/stringReplacer.js');

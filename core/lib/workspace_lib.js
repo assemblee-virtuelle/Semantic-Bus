@@ -178,7 +178,7 @@ function _cleanGarbage() {
 
     try {
       console.log('-------- START normal clean fragment garbage');
-      await fragmentModel.getInstance().model.deleteMany({
+      await (await fragmentModel.getInstance()).model.deleteMany({
         garbageTag: 1
       });
       console.log('-------- END normal clean fragment garbage');
@@ -203,7 +203,7 @@ function _cleanGarbageForgotten() {
       const processGarbageId = Math.floor(Math.random() * 10000);
 
       console.log('--- start tag all fragment as garbage');
-      await fragmentModel.getInstance().model.updateMany({}, { garbageProcess: processGarbageId });
+      await (await fragmentModel.getInstance()).model.updateMany({}, { garbageProcess: processGarbageId });
       console.log('--- end tag all fragment as garbage');
       for (var workflow of workspaces) {
         console.log("--- stack data to keep ", workflow.name);
@@ -230,7 +230,7 @@ function _cleanGarbageForgotten() {
         fragsToKeepId = fragsToKeepId.concat(caches.map(c => c.frag));
         console.log('--- fragsToKeepId length:',fragsToKeepId.length);
 
-        const fragsToKeep = await fragmentModel.getInstance().model.find({
+        const fragsToKeep = await (await fragmentModel.getInstance()).model.find({
           _id: {
             $in: fragsToKeepId
           }
@@ -250,7 +250,7 @@ function _cleanGarbageForgotten() {
           //   garbageProcess: 0
           // });
           if(frag.rootFrag != undefined && frag.rootFrag != null){
-            await fragmentModel.getInstance().model.updateMany({
+            await (await fragmentModel.getInstance()).model.updateMany({
               originFrag: frag.rootFrag
             }, {
               garbageProcess: 0
@@ -260,7 +260,7 @@ function _cleanGarbageForgotten() {
           }
 
 
-          await fragmentModel.getInstance().model.updateMany({
+          await (await fragmentModel.getInstance()).model.updateMany({
             _id: frag._id
           }, {
             garbageProcess: 0
@@ -279,7 +279,7 @@ function _cleanGarbageForgotten() {
       });
 
       console.log(`--- START total fragment garbage collector : ${totalFragmentsBeforeDeletion} fragments`);
-      await fragmentModel.getInstance().model.deleteMany({
+      await (await fragmentModel.getInstance()).model.deleteMany({
         garbageProcess: processGarbageId
       })
       console.log('--- END total fragment garbage collector');

@@ -15,7 +15,7 @@ class HttpConsumer {
     this.AbortController=AbortController;
     this.xml2js = require('xml2js');
     this.propertyNormalizer = require('../utils/propertyNormalizer.js');
-    this.config = require('../configuration.js');
+    this.config = require('../config.json');
     this.himalaya = require('himalaya');
   }
 

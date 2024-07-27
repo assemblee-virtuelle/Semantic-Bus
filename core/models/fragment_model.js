@@ -7,11 +7,31 @@ const config = require('../getConfiguration.js')();
 
 class FragmentModelSingleton {
   constructor() {
+    this.instance = null; // Initialisation de l'instance
+    this.initializing = false; // Ajout d'un état d'initialisation
   }
 
-  static getInstance(){
-    if (this.instance == undefined) {
-      this.instance = new FragmentModel();
+  static async getInstance() {
+    try {
+      if (this.instance == null && !this.initializing) { // Vérifiez si l'initialisation est en cours
+        this.initializing = true; // Marquez comme en cours d'initialisation
+        this.instance = new FragmentModel(); // Création d'une nouvelle instance
+        await this.instance.init(); // Appel de l'initialisation
+        this.initializing = false; // Réinitialisez l'état d'initialisation
+      } else if (this.initializing) {
+        // Attendre que l'initialisation soit terminée
+        await new Promise(resolve => {
+          const checkInitialization = setInterval(() => {
+            if (!this.initializing) {
+              clearInterval(checkInitialization);
+              resolve();
+            }
+          }, 100); // Vérifie toutes les 100 ms
+        });
+      }
+    } catch (err) {
+      console.log('err', err);
+      this.initializing = false; // Réinitialisez même en cas d'erreur
     }
     return this.instance;
   }
@@ -19,32 +39,29 @@ class FragmentModelSingleton {
 
 class FragmentModel {
   constructor() {
-    console.log('config',config);
-
-    this._connection = mongoose.createConnection(config.mongodbFlowDB, { 
-      useNewUrlParser: true, 
-      useUnifiedTopology: true,
-      minPoolSize: 5, // Nombre minimum de connexions dans le pool
-      maxPoolSize: 10, // Nombre maximum de connexions dans le pool
-    });
-
-    this._model = this._connection.model('fragment', FragmentSchema);
-
-    this._connection.on('connected', function () {
-      console.log('Mongoose default connection open to ' + config.mongodbFlowDB);
-    });
-
-    this._connection.on('error', function (err) {
-      console.log('Mongoose default connection error: ' + err);
-    });
-
-    this._connection.on('disconnected', function () {
-      console.log('Mongoose default connection disconnected');
-    });
-
+    // console.log('config', config);
+    this._model = null; // Initialisation du modèle
   }
 
-  get model(){
+  async init() {
+    try {
+      const conn = await mongoose.connect(config.mongodbFlowDB, {
+        useNewUrlParser: true,
+        useUnifiedTopology: true,
+        minPoolSize: 20,
+        maxPoolSize: 20
+      });
+
+      this._model = conn.model('fragment', FragmentSchema);
+     // conn.on('disconnected', function () {
+      //   console.log('Mongoose default connection disconnected');
+      // });
+    } catch (err) {
+      console.log('Mongoose default connection error: ' + err); // Gestion de l'erreur
+    }
+  }
+
+  get model() {
     return this._model;
   }
 }

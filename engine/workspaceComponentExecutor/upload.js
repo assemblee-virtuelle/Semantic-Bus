@@ -11,7 +11,6 @@ class Upload {
 
     this.propertyNormalizer = require('../utils/propertyNormalizer.js')
     this.readable = require('stream').Readable
-    this.configuration = require('../configuration.js')
     this.stepNode = false
   }
 
