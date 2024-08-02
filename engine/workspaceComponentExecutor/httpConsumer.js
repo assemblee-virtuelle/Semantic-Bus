@@ -94,12 +94,14 @@ class HttpConsumer {
 
 
         let body;
+        let bodyObject;
 
         if(componentConfig.noBody!=true && flowData){
-          let bodyObject = flowData[0].data;
+          bodyObject = flowData[0].data;
           if (componentConfig.bodyPath && componentConfig.bodyPath.length>0){
             bodyObject = dotProp.get(bodyObject, componentConfig.bodyPath)
           }
+
   
           // console.log("bodyObject",bodyObject);
           switch (componentConfig.contentType) {
@@ -188,7 +190,7 @@ class HttpConsumer {
                 request:{
                   url:url,
                   headers:headers,
-                  body:flowData&&flowData[0].data
+                  body:bodyObject
                 },
                 response:{
                   body:responseObject,
