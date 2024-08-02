@@ -111,3 +111,5 @@ cron.schedule('0 0 * * *', () => {
   console.log('running a task each 00H00');
   workspace_lib.cleanGarbage();
 });
+// clean at startUp
+workspace_lib.cleanGarbage();
