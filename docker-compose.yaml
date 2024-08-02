@@ -149,15 +149,47 @@ services:
     expose:
       - "27017"
     volumes:
-      - /volumes/data_flow:/data/db
+      - data_flow:/data/db
     command: >
       mongod --wiredTigerCacheSizeGB 2
 
-
+  scylla:
+    image: scylladb/scylla:latest
+    container_name: scylla
+    ports:
+      - "9042:9042" # Port par défaut pour CQL
+      - "9180:9180" # Port par défaut pour l'API REST
+    networks:
+      - bus
+    volumes:
+      - scylla_data:/var/lib/scylla
+      # - ./init-scripts/scylla.yaml:/etc/scylla/scylla.yaml
+    command: --smp 4 --memory 6G --overprovisioned 1 --api-address 0.0.0.0 --cluster-name "fragments_cluster"
+    healthcheck:
+      test: ["CMD", "cqlsh","-e describe keyspaces"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+  # Nouveau service pour charger le keyspace
+  scylla-load-keyspace:
+    container_name: scylla-load-keyspace
+    image: scylladb/scylla:latest
+    depends_on:
+      scylla:
+        condition: service_healthy
+    networks:
+      - bus
+    entrypoint: ["/scylla-entrypoint.sh"]
+    volumes:
+      - ./init-scripts/scylla-initdb.cql:/scylla-initdb.cql
+      - ./init-scripts/scylla-entrypoint.sh:/scylla-entrypoint.sh
 volumes:
   data:
+  data_flow:
+  scylla_data: # Volume pour les données de ScyllaDB
 
 networks:
   bus:
     name: bus_network
     # external: true
+

@@ -974,6 +974,7 @@ function WorkspaceStore (utilStore, specificStoreList) {
   // ----------------------------------------- WEB STOMP CALL  -----------------------------------------
 
   this.on('item_current_work', function (message) {
+    // console.log('item_current_work',this.itemCurrent);
     this.stompClient.send('/queue/work-ask', JSON.stringify({
       id: this.itemCurrent._id,
       workspaceId: this.itemCurrent.workspaceId,

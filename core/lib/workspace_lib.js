@@ -97,7 +97,7 @@ function _addFragHistoriqueEnd(historicId, frag) {
       const result = await historiqueEndModel.getInstance().model.findOneAndUpdate({
         _id: historicId
       }, {
-        frag: frag._id.toString()
+        frag: (frag.id||frag._id).toString()
       }, {
         new: true,
         upsert: true
@@ -996,6 +996,8 @@ function _get_workspace_graph_data(workspaceId) {
 
 function _addConnection(workspaceId, source, target, input) {
 
+  // needed to ensure mongoose model loaded
+  workspaceComponentModel.getInstance();
   return new Promise((resolve, reject) => {
     workspaceModel.getInstance().model.findOne({
       _id: workspaceId
@@ -1003,13 +1005,13 @@ function _addConnection(workspaceId, source, target, input) {
       if (workspace == null) {
         return reject(new Error.EntityNotFoundError('workspaceModel'))
       }
-      console.log('input',input)
+      // console.log('input',input)
       workspace.links.push({
         source: source,
         target: target,
         targetInput : input
       });
-      console.log('workspace add connection',workspace)
+      // console.log('workspace add connection',workspace)
       return workspaceModel.getInstance().model.findOneAndUpdate({
             _id: workspace._id
           },
@@ -1032,16 +1034,21 @@ function _addConnection(workspaceId, source, target, input) {
 // --------------------------------------------------------------------------------
 
 function _removeConnection(workspaceId, linkId) {
+  workspaceComponentModel.getInstance();
   return new Promise((resolve, reject) => {
+    // console.log('removeConnection',workspaceId, linkId)
     workspaceModel.getInstance().model.findOne({
       _id: workspaceId
     }).then(workspace => {
+      // console.log('workspace',workspace)
       if (workspace == null) {
         return reject(new Error.EntityNotFoundError('workspaceModel'))
       }
+      // console.log('workspace.links',workspace.links)
       let targetLink = workspace.links.filter(sift({
         _id: linkId
       }))[0];
+      // console.log('targetLink',targetLink)
       if (targetLink != undefined) {
         workspace.links.splice(workspace.links.indexOf(targetLink), 1);
         return workspaceModel.getInstance().model.findOneAndUpdate({
@@ -1062,6 +1069,7 @@ function _removeConnection(workspaceId, linkId) {
     }).then(workspaceUpdate => {
       resolve(workspaceUpdate.links);
     }).catch(e => {
+      console.log('error',e)
       return reject(new Error.DataBaseProcessError(e))
     });
   })

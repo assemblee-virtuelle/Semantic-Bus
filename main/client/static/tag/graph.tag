@@ -631,7 +631,6 @@
             .select(this)
             .selectAll("image")
             .remove();
-          console.log(d);
           if(d.connectionsBefore){
             d3.select(this)
               .append("image")

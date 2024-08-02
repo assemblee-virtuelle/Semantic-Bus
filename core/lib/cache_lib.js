@@ -1,7 +1,7 @@
 'use strict';
 module.exports = {
   cacheModel: require('../models/cache_model'),
-  fragment_lib: require('./fragment_lib.js'),
+  fragment_lib: require('./fragment_lib_scylla.js'),
   PromiseOrchestrator: require('../helpers/promiseOrchestrator.js'),
   persist: async function(component, data, history) {
     let cachedData;
@@ -9,6 +9,8 @@ module.exports = {
       _id: component._id
     }).lean().exec();
     cachedData = cachedDataIn;
+
+    // console.log('allo1')
 
     if (cachedDataIn&&cachedDataIn!=null){
       if(cachedDataIn.frag){
@@ -18,14 +20,18 @@ module.exports = {
       cachedData = {};
     }
 
+    // console.log('allo2')
+
     let frag = await this.fragment_lib.persist(data);
 
-    cachedData.frag = frag._id.toString();
+    // console.log('allo3')
+
+    cachedData.frag = frag.id.toString();
     cachedData.date = new Date();
     if (history == true) {
       cachedData.history = cachedData.history || [];
       cachedData.history.push({
-        frag: frag._id.toString(),
+        frag: frag.id.toString(),
         date: new Date()
       });
     }

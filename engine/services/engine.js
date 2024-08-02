@@ -11,6 +11,7 @@ class Engine {
     this.objectSizeOf = require('object-sizeof');
     this.workspace_component_lib = require('../../core/lib/workspace_component_lib');
     this.fragment_lib = require('../../core/lib/fragment_lib');
+    this.fragment_lib_scylla = require('../../core/lib/fragment_lib_scylla');
     this.workspace_lib = require('../../core/lib/workspace_lib');
     this.user_lib = require('../../core/lib/user_lib');
     this.config = require('../config.json');
@@ -281,16 +282,23 @@ class Engine {
 
                   // get_component_result is get HistoricEnd
                   const persistedDataFlowCoponent = await this.workspace_component_lib.get_component_result(sourceComponentId, this.processId);
-                  // console.log('persistedDataFlowCoponent',persistedDataFlowCoponent,sourceNode);
+                  // console.log('persistedDataFlowCoponent',persistedDataFlowCoponent);
                   const fragAvailable = persistedDataFlowCoponent.frag && persistedDataFlowCoponent.frag != null;
 
                   if (fragAvailable) {
                     persistedFragmentData = persistedDataFlowCoponent.frag;
                   }
+                  // console.log('persistedFragmentData',persistedFragmentData)
 
                 // }
                 const previousDfob = persistedDataFlowCoponent.dfob ? persistedDataFlowCoponent.dfob : undefined;
-                const targetInput = sourceNode.targets.find(t=>t.target.component._id==processingNode.component._id).targetInput;
+                // console.log('sourceNode.targets',processingNode.component._id)
+                // for (const target of sourceNode.targets) {
+                //   console.log('target',target)
+                // }
+              
+                const targetInput = sourceNode.targets.find(t => t.target.component._id.equals(processingNode.component._id)).targetInput;
+                // console.log('targetInput', targetInput)  
                 persistedDataFlow.push({
                   // data: persistedData ? persistedData : undefined,
                   fragment : persistedFragmentData,
@@ -325,14 +333,18 @@ class Engine {
                 pipeNb : componentFlow.deeperFocusData.beanNb!=undefined? componentFlow.deeperFocusData.beanNb : componentFlow.deeperFocusData.pipeNb!=undefined ? componentFlow.deeperFocusData.pipeNb :  componentFlow.deeperFocusData.dfobNbPipe 
               }
 
+              // console.log('componentFlow.dataFlow',componentFlow.dataFlow)
               if (module.getPrimaryFlow != undefined) {
                 componentFlow.primaryflow = await module.getPrimaryFlow(
                   processingNode.component,
                   componentFlow.dataFlow
                 )
               } else {
+                
                 componentFlow.primaryflow = componentFlow.dataFlow.filter(df=>df.targetInput==undefined)[0]
               }
+
+              // console.log('_________componentFlow',componentFlow)
 
               secondaryFlow = []
               if (module.getSecondaryFlow != undefined) {
@@ -381,7 +393,7 @@ class Engine {
                     keepArray
                   )
                 
-                  // console.log('__dfobFragmentFlow',dfobFragmentFlow.dfobFragmentSelected)
+                  // console.log('_____dfobFragmentFlow.data',dfobFragmentFlow.dfobFragmentSelected.data)
 
                   const newFrag = dfobFragmentFlow.newFrag;
                   let dfobFragmentSelected = dfobFragmentFlow.dfobFragmentSelected;
@@ -411,7 +423,7 @@ class Engine {
                     //   })
                     //   console.timeEnd("getWithResolutionByBranch for RequestOrigineResolveMethode");
                     // }
-                    await this.historicEndAndCredit(processingNode, startTime, componentFlow.primaryflow.data, undefined)
+                    await this.historicEndAndCredit(processingNode, startTime, newFrag, undefined)
                     this.processNextBuildPath('dfob empty')
                   } else {
 
@@ -419,7 +431,8 @@ class Engine {
                     const secondaryFlowDefraged=[];
                     for (let sf of componentFlow.secondaryFlow){
                       secondaryFlowDefraged.push({
-                        data : await this.fragment_lib.getWithResolutionByBranch(sf.fragment),
+                        // data : await this.fragment_lib.getWithResolutionByBranch(sf.fragment),
+                        data : await this.fragment_lib_scylla.getWithResolutionByBranch(sf.fragment),
                         componentId : sf.componentId,
                         targetInput : sf.targetInput
                       })
@@ -516,7 +529,8 @@ class Engine {
                   //   })
                   //   // this.originComponentResult = processingNode.dataResolution;
                   // }
-                  const frag = await this.fragment_lib.persist(data)
+                  // const frag = await this.fragment_lib.persist(data)
+                  const frag  = await this.fragment_lib_scylla.persist(data)
                   // console.log('call historicEndAndCredit', frag)
                   await this.historicEndAndCredit(processingNode, startTime, frag, undefined)
 
@@ -568,7 +582,7 @@ class Engine {
             // mark current process as resolved - not mark old process as resolved
             await this.workspace_lib.markProcessAsResolved(process);
             // CAUTION cleanOldProcessByWorkflow is required to tag garbage to fragment and delete old process and old historiqueEnd
-            const processes =  await this.workspace_lib.cleanOldProcessByWorkflow(this.workflow);
+            // const processes =  await this.workspace_lib.cleanOldProcessByWorkflow(this.workflow);
             console.log('--------------  End of Worksapce processing --------------', this.workflow.name, this.owner.credit)
  
             // console.log(processes);
@@ -593,7 +607,7 @@ class Engine {
         }
       }
     } catch (error) {
-      console.trace();
+      // console.trace();
       throw (error)
     }
 
@@ -617,13 +631,14 @@ class Engine {
 
       if(frag){
         try {
+          // console.log('_________addFragHistoriqueEnd',frag)
           historic_object = await this.workspace_lib.addFragHistoriqueEnd(historic_object._id, frag);
           
           this.processNotifier.persist({
             componentId: historic_object.componentId,
             processId: historic_object.processId,
             tracerId: this.tracerId,
-            frag : frag._id
+            frag : frag.id
           })
         } catch (e) {
           console.log('ERROR', e);
@@ -784,14 +799,17 @@ class Engine {
   async buildDfobFragmentFlow(fragment, dfobTable, keepArray) {
     if (this.config.quietLog != true)  console.time("buildDfobFragmentFlow_"+this.processId+'_'+this.workflow.name);
     // console.log('buildDfobFragmentFlow',fragment)
-    const out=  await this.fragment_lib.copyFragUntilPath(fragment, dfobTable,keepArray);
+    // console.log('_________copyFragUntilPath call 3')
+    // console.trace()
+    const out=  await this.fragment_lib_scylla.copyFragUntilPath(fragment, dfobTable,keepArray);
+    // console.log('out',out);
     if (this.config.quietLog != true)  console.timeEnd("buildDfobFragmentFlow_"+this.processId+'_'+this.workflow.name);
     // throw new Error('tmp')
     return out;
   }
 
   async rebuildFrag_focus_work_persist(processingNode,fragment, dfob, primaryflow, secondaryFlow) {
-    // console.log('_________rebuildFrag_focus_work_persist')
+    // console.log('_________rebuildFrag_focus_work_persist',fragment)
     let module = this.technicalComponentDirectory[processingNode.component.module]
     const {dfobTable,pipeNb, keepArray}=dfob
     let rebuildData;
@@ -800,7 +818,10 @@ class Engine {
     try {
       // if (this.config.quietLog != true) console.time("primary_getWithResolutionByBranch");
 
-      rebuildData = await this.fragment_lib.getWithResolutionByBranch(fragment._id);
+      // rebuildData = await this.fragment_lib.getWithResolutionByBranch(fragment._id);
+      // console.log('_________BEFORE getWithResolutionByBranch')
+      rebuildData = await this.fragment_lib_scylla.getWithResolutionByBranch(fragment.id);
+      // console.log('_________AFTER getWithResolutionByBranch')
       dfob=undefined;
       // if (this.config.quietLog != true) console.timeEnd("primary_getWithResolutionByBranch");
 
@@ -897,11 +918,13 @@ class Engine {
       };
     }
 
+    // console.log('-----------ALLLLO')
+
     let pesristedFragment
     try {
         // console.log('BEFORE persist',rebuildData,fragment)
         // if (this.config.quietLog != true) console.time("persist");
-        pesristedFragment = await this.fragment_lib.persist(rebuildData,undefined,fragment);
+        pesristedFragment = await this.fragment_lib_scylla.persist(rebuildData,undefined,fragment);
         // if (this.config.quietLog != true) console.timeEnd("persist");
 
         // console.log('AFTER persist',JSON.stringify(pesristedFragment))

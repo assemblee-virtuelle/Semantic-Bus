@@ -1,4 +1,4 @@
-const fragment_lib = require('../../core/lib/fragment_lib');
+const fragment_lib = require('../../core/lib/fragment_lib_scylla');
 
 'use strict';
 class SimpleAgregator {
@@ -6,11 +6,14 @@ class SimpleAgregator {
   }
   async getPrimaryFlow(data, dataFlow) {
 
-    // console.log('____________dataFlow',dataFlow[0].data);
+    // console.log('____________dataFlow',dataFlow);
 
     const newRooFrag = await fragment_lib.createRootArrayFragFromFrags(dataFlow.map(df=>df.fragment))
+    
+    // console.log('____________newRooFrag',newRooFrag)
+    
     return {
-        fragment:newRooFrag._id
+        fragment:newRooFrag.id
       }
   }
   async getSecondaryFlow(data, flowData) {

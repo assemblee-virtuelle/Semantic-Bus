@@ -11,7 +11,7 @@ class CacheNosql {
     ]
     this.workspace_component_lib = require('../../../core/lib/workspace_component_lib')
     this.cache_lib = require('../../../core/lib/cache_lib')
-    this.fragment_lib = require('../../../core/lib/fragment_lib')
+    // this.fragment_lib = require('../../../core/lib/fragment_lib_scylla')
     this.stepNode = true
   }
 

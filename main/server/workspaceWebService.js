@@ -3,6 +3,7 @@ const user_lib = require('../../core').user
 const auth_lib_jwt = require('../../core/lib/auth_lib')
 const workspace_component_lib = require('../../core/lib/workspace_component_lib')
 const fragment_lib = require('../../core/lib/fragment_lib')
+const fragment_lib_scylla = require('../../core/lib/fragment_lib_scylla')
 const technicalComponentDirectory = require('./services/technicalComponentDirectory.js')
 const securityService = require('./services/security')
 
@@ -113,18 +114,33 @@ module.exports = function (router) {
   router.get('/workspaces/:id/components/:componentId/process/:processId', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     const componentId = req.params.componentId
     const processId = req.params.processId
+    
     //return historicEnd
     workspace_component_lib.get_component_result(componentId, processId).then(function (data) {
       if (data !== undefined) {
         if (data.frag !== undefined) {
-          fragment_lib.get(data.frag).then(frag => {
+          console.log('data.frag',data.frag)
+          fragment_lib_scylla.get(data.frag).then(frag => {
+            // console.log('__________fragment', frag)
             if (frag != null) {
               data.data = frag.data
             } else {
               data.error = { error: "frag of cache doesn't exist" }
             }
             res.send(data)
+          }).catch(e => {
+            // next(e)
           })
+
+
+          // fragment_lib.get(data.frag).then(frag => {
+          //   if (frag != null) {
+          //     data.data = frag.data
+          //   } else {
+          //     data.error = { error: "frag of cache doesn't exist" }
+          //   }
+          //   res.send(data)
+          // })
         } else {
           res.send(data)
         }
