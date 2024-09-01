@@ -104,6 +104,7 @@ const persistFragment = async (fragment) => {
 const getFragmentById = async (id) => {
   const query = `SELECT * FROM fragment WHERE id = ?`;
   const result = await client.execute(query, [id], { prepare: true });
+  console.log('____getFragmentById',result);
 
   if (result.rowLength > 0) {
     const fragmentData = result.rows[0];
