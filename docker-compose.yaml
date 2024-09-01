@@ -96,6 +96,7 @@ services:
       dockerfile: ./main/Dockerfile-alpine
     container_name: main
     image: semanticbus/main
+
     environment:
         - APP_PORT=80
         - NODE_ENV=development_docker
@@ -112,8 +113,12 @@ services:
     expose:
       - "80"
     depends_on:
-        - mongodb
-        - rabbitmq
+      mongodb:
+        condition: service_started
+      rabbitmq:
+        condition: service_started
+      scylla:
+        condition: service_healthy
     command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "nodemon", "-L", "--watch", "/data/main/*",  "--watch", "/data/core/*",  "--ignore", "configuration.js", "--max-old-space-size=8192",  "/data/main/app.js"]
 
   rabbitmq:

@@ -1,29 +1,31 @@
 const cassandra = require('cassandra-driver');
+const config = require('../getConfiguration.js')(); // Chargement de la configuration
+
 // const fs = require('fs');
 
 const client = new cassandra.Client({
-  contactPoints: ['scylla'],
-  localDataCenter: 'datacenter1',
-  keyspace: 'mykeyspace',
+  contactPoints: config.CASSANDRA.contactPoints, // Utilisation des points de contact de la config
+  localDataCenter: config.CASSANDRA.localDataCenter, // Centre de données local de la config
+  keyspace: config.CASSANDRA.keyspace, // Espace de clés de la config
   pooling: {
-    maxRequestsPerConnection: 32768,
+    maxRequestsPerConnection: config.CASSANDRA.pooling.maxRequestsPerConnection, // Max requêtes par connexion
     coreConnectionsPerHost: {
-      [cassandra.types.distance.local]: 5,
-      [cassandra.types.distance.remote]: 1
+      [cassandra.types.distance.local]: config.CASSANDRA.pooling.coreConnectionsPerHost.local, // Connexions locales
+      [cassandra.types.distance.remote]: config.CASSANDRA.pooling.coreConnectionsPerHost.remote // Connexions distantes
     }
   },
   socketOptions: {
-    readTimeout: 600000
+    readTimeout: config.CASSANDRA.socketOptions.readTimeout // Durée d'attente pour une réponse
   },
-  authProvider: new cassandra.auth.PlainTextAuthProvider('username', 'password'),
-//   sslOptions: {
+  authProvider: new cassandra.auth.PlainTextAuthProvider(config.CASSANDRA.authProvider.username, config.CASSANDRA.authProvider.password), // Authentification
+//   sslOptions: { // Options SSL pour sécuriser la connexion
 //     cert: fs.readFileSync('path/to/cert.pem'),
 //     key: fs.readFileSync('path/to/key.pem'),
 //     ca: [fs.readFileSync('path/to/ca.pem')],
 //     rejectUnauthorized: true
 //   },
   policies: {
-    loadBalancing: new cassandra.policies.loadBalancing.RoundRobinPolicy()
+    loadBalancing: new cassandra.policies.loadBalancing.RoundRobinPolicy() // Politique de répartition de charge
   }
 });
 
