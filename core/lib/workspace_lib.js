@@ -685,18 +685,15 @@ function _get_all(userID, role) {
     if (!data) {
       reject(new Error.EntityNotFoundError(`user ${userID} not exists`))
     } else {
-      console.log("__data",data)
       const InversRelationWorkspaces = await workspaceModel.getInstance().model.find({
         "users.email":data.credentials.email
       }).lean().exec();
-      console.log("__InversRelationWorkspaces",InversRelationWorkspaces)
       data.workspaces=InversRelationWorkspaces;
       data.workspaces = data.workspaces.filter(sift({
         _id: {
           $ne: null
         }
       }));
-      console.log("__data.workspaces 1",data.workspaces)
       data.workspaces = data.workspaces.map(w => {
         const userOfWorkspace = w.users.find(u=>u.email===data.credentials.email);
         // console.log("XXXX workspace",w)
@@ -705,7 +702,6 @@ function _get_all(userID, role) {
           role: userOfWorkspace.role
         };
       });
-      console.log("__data.workspaces 2",data.workspaces)
       let workspaces;
       if(role){
         workspaces= data.workspaces.filter(w=>w.role===role);
@@ -716,7 +712,6 @@ function _get_all(userID, role) {
         ...w.workspace,
         role:w.role
       }));
-      console.log("__workspaces",workspaces)
 
       const ProcessPromiseArray = [];
 
