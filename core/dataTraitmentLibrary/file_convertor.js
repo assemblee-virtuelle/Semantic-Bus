@@ -202,7 +202,7 @@ function _data_from_file(filename, dataBuffer, contentType) {
         // XML DONE
       case ("xml"):
       case ("kml"):
-      console.log(dataBuffer)
+      // console.log(dataBuffer)
       xml.xml_traitment(dataBuffer.toString()).then(function(result) {
           // //console.log("FINAL", reusltat)
           //console.log("FINAL", reusltat)

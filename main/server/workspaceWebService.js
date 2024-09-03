@@ -119,7 +119,7 @@ module.exports = function (router) {
     workspace_component_lib.get_component_result(componentId, processId).then(function (data) {
       if (data !== undefined) {
         if (data.frag !== undefined) {
-          console.log('data.frag',data.frag)
+          // console.log('data.frag',data.frag)
           fragment_lib_scylla.get(data.frag).then(frag => {
             // console.log('__________fragment', frag)
             if (frag != null) {
@@ -355,7 +355,7 @@ module.exports = function (router) {
     if (user && IdOfConnectedUser!= user._id) {
       let workspaceOrigin = await workspace_lib.get_workspace_simple(workspace_id);
       workspaceOrigin.users=workspaceOrigin.users.filter(u=>u.email!==user.credentials.email);
-      console.log('workspace',workspaceOrigin)
+      // console.log('workspace',workspaceOrigin)
       const updatedWorkspace = await workspace_lib.updateSimple(workspaceOrigin);
       const workspace = await workspace_lib.getWorkspace(workspace_id);
       for (var c of workspace.components) {
