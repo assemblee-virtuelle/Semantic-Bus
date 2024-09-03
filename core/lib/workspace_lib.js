@@ -685,6 +685,7 @@ function _get_all(userID, role) {
     if (!data) {
       reject(new Error.EntityNotFoundError(`user ${userID} not exists`))
     } else {
+      console.log("__data",data)
       const InversRelationWorkspaces = await workspaceModel.getInstance().model.find({
         "users.email":data.credentials.email
       }).lean().exec();
