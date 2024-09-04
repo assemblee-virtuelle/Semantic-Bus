@@ -160,8 +160,10 @@ module.exports = {
   },
   createRootArrayFragFromFrags: async function (frags) {
     let newRootFrag = await this.createArrayFrag()
+    let index = 0;
     for (let frag of frags) {
-      await this.addFragToArrayFrag(frag, newRootFrag);
+      await this.addFragToArrayFrag(frag, newRootFrag, index);
+      index++;
     }
     return newRootFrag;
   },
