@@ -204,7 +204,11 @@ module.exports = {
 
 
     if (fragToResolve.branchFrag) {
-      const children = await this.fragmentModel.searchFragmentByField({ branchOriginFrag: fragToResolve.branchFrag });
+      const children = await this.fragmentModel.searchFragmentByField({
+        branchOriginFrag: fragToResolve.branchFrag
+      }, {
+        index: 'ASC'
+      });
 
       const childrenData = [];
       for (let child of children) {
