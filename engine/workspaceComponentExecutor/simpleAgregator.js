@@ -7,6 +7,7 @@ class SimpleAgregator {
   async getPrimaryFlow(data, dataFlow) {
     // Tri des dataFlow par la propriété _id
     dataFlow.sort((a, b) => a.fragment.componentId - b.fragment.componentId);
+    console.log('____________dataFlow',dataFlow);
 
     const newRooFrag = await fragment_lib.createRootArrayFragFromFrags(dataFlow.map(df => df.fragment))
     
