@@ -8,8 +8,12 @@ class SimpleAgregator {
     dataFlow.sort((a, b) => {
       let componentIdA = a.componentId.toString();
       let componentIdB = b.componentId.toString();
-      return componentIdA.localeCompare(componentIdB);
+      const diff = componentIdA.localeCompare(componentIdB);
+      console.log('____________diff',componentIdA,componentIdB,diff);
+      return diff;
     });
+
+    console.log('____________dataFlow',dataFlow);
 
     const newRooFrag = await fragment_lib.createRootArrayFragFromFrags(dataFlow.map(df => df.fragment))
 
