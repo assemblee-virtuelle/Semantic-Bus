@@ -174,7 +174,10 @@ module.exports = {
       if (fragmentReturn.branchFrag) {
         const frags = await this.fragmentModel.searchFragmentByField({
           branchOriginFrag: fragmentReturn.branchFrag
+        },{
+          index:'ASC'
         })
+        console.log('_________frags',frags)
 
         fragmentReturn.data = frags.map(f => {
           return {

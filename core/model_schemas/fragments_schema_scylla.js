@@ -12,6 +12,8 @@ class Fragment {
       branchFrag: data?.branchfrag || data?.branchFrag,
       garbageTag: data?.garbagetag || data?.garbageTag,
       garbageProcess: data?.garbageprocess || data?.garbageProcess,
+      index: data?.indexarray || data?.index,
+      maxIndex: data?.maxindexarray || data?.maxIndex
     };
 
     this.id = lowerCamelData.id || uuidv4();
@@ -22,6 +24,8 @@ class Fragment {
     this.branchFrag = lowerCamelData.branchFrag;
     this.garbageTag = lowerCamelData.garbageTag;
     this.garbageProcess = lowerCamelData.garbageProcess;
+    this.index = lowerCamelData.index;
+    this.maxIndex = lowerCamelData.maxIndex;
   }
 
 }
