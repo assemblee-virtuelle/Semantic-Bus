@@ -199,14 +199,16 @@ class HttpProvider {
   pop(componentId,unrestrictedExecution){
     const callStack = this.pendingCall[componentId];    
     // console.log(callStack.length);
-    // console.log('_______________2 pop',componentId);
+    console.log('_______________ pop',componentId,this.currentCall[componentId],callStack.length);
     if(unrestrictedExecution || !this.currentCall[componentId] && Array.isArray(callStack) && callStack.length>0){
       // console.log('_______________3 pop GO',componentId,' - ',callStack.length);
       if(!unrestrictedExecution){
         this.currentCall[componentId]=true;
         // if engin never send end of process becaus crash; this settime free lock
         setTimeout(() => {
+
           delete this.currentCall[componentId];
+          console.log('_________________ pop timeout',componentId,this.currentCall,callStack.length);
           this.pop(componentId,unrestrictedExecution);
         }, 20000);
       }
