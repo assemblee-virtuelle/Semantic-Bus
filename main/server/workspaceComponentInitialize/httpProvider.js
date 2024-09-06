@@ -199,7 +199,9 @@ class HttpProvider {
   pop(componentId,unrestrictedExecution){
     const callStack = this.pendingCall[componentId];    
     // console.log(callStack.length);
-    console.log('_______________ pop',componentId,this.currentCall[componentId],callStack.length);
+    if(componentId=='66d75accbc551b0de3afc4ed' || componentId=='66d76d4fbc551b0de3b020c2'){
+      console.log('_______________ pop',componentId,this.currentCall[componentId],callStack.length);
+    }
     if(unrestrictedExecution || !this.currentCall[componentId] && Array.isArray(callStack) && callStack.length>0){
       // console.log('_______________3 pop GO',componentId,' - ',callStack.length);
       if(!unrestrictedExecution){
