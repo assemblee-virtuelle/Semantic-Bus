@@ -49,14 +49,12 @@ class HttpProvider {
       const unlockComponentId = pendingWork?.component?.specificData?.unlockComponentId || pendingWork?.component._id;
 
       if (responseComponentId == messageObject.componentId) {
-        if (messageObject.componentId == '66d75accbc551b0de3afc4ed' || messageObject.componentId == '66d76d4fbc551b0de3b020c2') {
-          console.log('_______________ process-persist', messageObject.componentId,messageObject.frag);
-        }
         const dataResponse = await this.fragment_lib_scylla.getWithResolutionByBranch(messageObject.frag);
         if (pendingWork?.component?.specificData.responseWithoutExecution != true) {
           this.sendResult(pendingWork?.component, dataResponse, pendingWork.res);
         }
       }
+
       if (unlockComponentId == messageObject.componentId) {
         delete this.currentCall[pendingWork.component._id.toString()];
         this.pop(pendingWork.component._id.toString());
@@ -202,9 +200,6 @@ class HttpProvider {
   pop(componentId, unrestrictedExecution) {
     const callStack = this.pendingCall[componentId];
     // console.log(callStack.length);
-    if (componentId == '66d75accbc551b0de3afc4ed' || componentId == '66d76d4fbc551b0de3b020c2') {
-      console.log('_______________ pop', componentId, this.currentCall[componentId], callStack.length);
-    }
     if (unrestrictedExecution || !this.currentCall[componentId] && Array.isArray(callStack) && callStack.length > 0) {
       // console.log('_______________3 pop GO',componentId,' - ',callStack.length);
       if (!unrestrictedExecution) {
@@ -213,7 +208,7 @@ class HttpProvider {
         setTimeout(() => {
 
           delete this.currentCall[componentId];
-          console.log('_________________ pop timeout', componentId, this.currentCall, callStack.length);
+          console.warn('WARNING httpProvider pop timeout', componentId, this.currentCall, callStack.length);
           this.pop(componentId, unrestrictedExecution);
         }, 20000);
       }
