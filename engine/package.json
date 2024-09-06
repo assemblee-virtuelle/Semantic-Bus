@@ -40,6 +40,7 @@
     "cors": "^2.8.4",
     "csvtojson": "^2.0.10",
     "data2xml": "^1.2.5",
+    "dayjs": "^1.11.13",
     "dot-prop": "^5.2.0",
     "error-stack-parser": "^2.0.1",
     "express": "^4.16.3",
