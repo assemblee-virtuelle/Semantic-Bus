@@ -57,7 +57,9 @@ class HttpProvider {
           console.log('_______________ process-persist dataResponse', dataResponse);
         }
         if (pendingWork?.component?.specificData.responseWithoutExecution != true) {
-          console.log('_______________ process-persist sendResult', dataResponse);
+          if (messageObject.componentId == '66d75accbc551b0de3afc4ed' || messageObject.componentId == '66d76d4fbc551b0de3b020c2') {
+            console.log('_______________ process-persist sendResult', dataResponse);
+          }
           this.sendResult(pendingWork?.component, dataResponse, pendingWork.res);
         }
       }
