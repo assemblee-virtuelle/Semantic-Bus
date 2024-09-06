@@ -9,10 +9,10 @@ class HttpProvider {
     this.editor = 'http-provider-editor'
     this.graphIcon = 'Post_provider.svg'
     this.tags = [
-        'http://semantic-bus.org/data/tags/inComponents',
-        'http://semantic-bus.org/data/tags/outComponents',
-        'http://semantic-bus.org/data/tags/APIComponents'
-      ],
+      'http://semantic-bus.org/data/tags/inComponents',
+      'http://semantic-bus.org/data/tags/outComponents',
+      'http://semantic-bus.org/data/tags/APIComponents'
+    ],
       this.stepNode = false
     this.workspace_component_lib = require('../../../core/lib/workspace_component_lib')
     this.workspace_lib = require('../../../core/lib/workspace_lib')
@@ -24,7 +24,7 @@ class HttpProvider {
     this.json2yaml = require('json2yaml')
     this.request = require('request')
     this.config = require('../../config.json')
-    
+
     const {
       pathToRegexp,
       match,
@@ -32,29 +32,36 @@ class HttpProvider {
       compile
     } = require("path-to-regexp");
     this.pathToRegexp = pathToRegexp;
-    this.pendingWork= {};
-    this.pendingCall= {};
-    this.currentCall= {};
+    this.pendingWork = {};
+    this.pendingCall = {};
+    this.currentCall = {};
     this.amqpConnection;
   }
 
-  setAmqp(amqpConnection){
+  setAmqp(amqpConnection) {
     // console.log('set AMQP')
-    this.amqpConnection=amqpConnection;
+    this.amqpConnection = amqpConnection;
     amqpConnection.consume('process-persist', async (msg) => {
       const messageObject = JSON.parse(msg.content.toString());
       const tracerId = messageObject.tracerId;
       const pendingWork = this.pendingWork[tracerId];
-      const responseComponentId= pendingWork?.component?.specificData?.responseComponentId||pendingWork?.component._id;
-      const unlockComponentId= pendingWork?.component?.specificData?.unlockComponentId||pendingWork?.component._id;
+      const responseComponentId = pendingWork?.component?.specificData?.responseComponentId || pendingWork?.component._id;
+      const unlockComponentId = pendingWork?.component?.specificData?.unlockComponentId || pendingWork?.component._id;
 
-      if(responseComponentId == messageObject.componentId){
+      if (responseComponentId == messageObject.componentId) {
+        if (messageObject.componentId == '66d75accbc551b0de3afc4ed' || messageObject.componentId == '66d76d4fbc551b0de3b020c2') {
+          console.log('_______________ process-persist', messageObject.componentId,messageObject.frag);
+        }
         const dataResponse = await this.fragment_lib_scylla.getWithResolutionByBranch(messageObject.frag);
-        if(pendingWork?.component?.specificData.responseWithoutExecution!=true){
+        if (messageObject.componentId == '66d75accbc551b0de3afc4ed' || messageObject.componentId == '66d76d4fbc551b0de3b020c2') {
+          console.log('_______________ process-persist dataResponse', dataResponse);
+        }
+        if (pendingWork?.component?.specificData.responseWithoutExecution != true) {
+          console.log('_______________ process-persist sendResult', dataResponse);
           this.sendResult(pendingWork?.component, dataResponse, pendingWork.res);
         }
       }
-      if(unlockComponentId == messageObject.componentId){
+      if (unlockComponentId == messageObject.componentId) {
         delete this.currentCall[pendingWork.component._id.toString()];
         this.pop(pendingWork.component._id.toString());
       }
@@ -67,7 +74,7 @@ class HttpProvider {
     amqpConnection.consume('process-start', (msg) => {
       const messageObject = JSON.parse(msg.content.toString())
       const pendingWork = this.pendingWork[messageObject.tracerId]
-      if(pendingWork){
+      if (pendingWork) {
         pendingWork.process = messageObject._id;
       }
     }, {
@@ -80,7 +87,7 @@ class HttpProvider {
       // console.log('_______process-end 2')
       const pendingWork = this.pendingWork[messageObject.tracerId]
       // console.log('_______process-end 3')
-      if(pendingWork){
+      if (pendingWork) {
         delete this.pendingWork[messageObject.tracerId];
       }
       // console.log('_______process-end 4')
@@ -90,13 +97,13 @@ class HttpProvider {
 
     amqpConnection.consume('process-error', (msg) => {
       const messageObject = JSON.parse(msg.content.toString())
-      const tracerId=messageObject.tracerId||messageObject._id;
+      const tracerId = messageObject.tracerId || messageObject._id;
       const pendingWork = this.pendingWork[tracerId]
-      if(pendingWork){
+      if (pendingWork) {
         pendingWork.error = messageObject._id;
-        if(pendingWork?.component?.specificData.resonseWithoutExecution!=true){
+        if (pendingWork?.component?.specificData.resonseWithoutExecution != true) {
           pendingWork.res.status(500).send({
-            error:'engine error'
+            error: 'engine error'
           })
         }
         // console.log('_______________4 delete error',pendingWork.component._id.toString());
@@ -104,14 +111,14 @@ class HttpProvider {
         delete this.currentCall[pendingWork.component._id.toString()];
         this.pop(pendingWork.component._id.toString());
       }
-  
+
     }, {
       noAck: true
     })
 
   }
 
-  initialise(router,engineTracer) {
+  initialise(router, engineTracer) {
     router.all('*', async (req, res, next) => {
       // console.log('req.params[0]',req.params[0]);
       // console.log('_______________0.1');
@@ -160,30 +167,30 @@ class HttpProvider {
             // console.log('NO MATH!!');
           }
 
-          if(component.specificData.responseWithoutExecution){
+          if (component.specificData.responseWithoutExecution) {
             res.send();
           }
-          
+
           // console.log('_______________1 add call',component.workspaceId,component._id.toString(),component.specificData.url);
           // console.log('_______________1 add call',component._id.toString());
-          const callStack=this.pendingCall[component._id];
+          const callStack = this.pendingCall[component._id];
           const callContent = {
             queryParams: {
               query: req.query,
               body: req.body,
               headers: req.headers,
-              method :req.method
+              method: req.method
             },
-            component : component,
-            res:res
+            component: component,
+            res: res
           }
 
-          if (Array.isArray(callStack)){
+          if (Array.isArray(callStack)) {
             callStack.push(callContent);
-          } else{
-            this.pendingCall[component._id]=[callContent]
+          } else {
+            this.pendingCall[component._id] = [callContent]
           }
-          this.pop(component._id.toString(),component.specificData.unrestrictedExecution);
+          this.pop(component._id.toString(), component.specificData.unrestrictedExecution);
 
 
         } else {
@@ -196,34 +203,34 @@ class HttpProvider {
     })
   }
 
-  pop(componentId,unrestrictedExecution){
-    const callStack = this.pendingCall[componentId];    
+  pop(componentId, unrestrictedExecution) {
+    const callStack = this.pendingCall[componentId];
     // console.log(callStack.length);
-    if(componentId=='66d75accbc551b0de3afc4ed' || componentId=='66d76d4fbc551b0de3b020c2'){
-      console.log('_______________ pop',componentId,this.currentCall[componentId],callStack.length);
+    if (componentId == '66d75accbc551b0de3afc4ed' || componentId == '66d76d4fbc551b0de3b020c2') {
+      console.log('_______________ pop', componentId, this.currentCall[componentId], callStack.length);
     }
-    if(unrestrictedExecution || !this.currentCall[componentId] && Array.isArray(callStack) && callStack.length>0){
+    if (unrestrictedExecution || !this.currentCall[componentId] && Array.isArray(callStack) && callStack.length > 0) {
       // console.log('_______________3 pop GO',componentId,' - ',callStack.length);
-      if(!unrestrictedExecution){
-        this.currentCall[componentId]=true;
+      if (!unrestrictedExecution) {
+        this.currentCall[componentId] = true;
         // if engin never send end of process becaus crash; this settime free lock
         setTimeout(() => {
 
           delete this.currentCall[componentId];
-          console.log('_________________ pop timeout',componentId,this.currentCall,callStack.length);
-          this.pop(componentId,unrestrictedExecution);
+          console.log('_________________ pop timeout', componentId, this.currentCall, callStack.length);
+          this.pop(componentId, unrestrictedExecution);
         }, 20000);
       }
       const currentCallItem = callStack.shift();
-      const tracerId =  uuidv4();
-      const workParams={
-        tracerId ,
-        id : currentCallItem.component._id,
+      const tracerId = uuidv4();
+      const workParams = {
+        tracerId,
+        id: currentCallItem.component._id,
         queryParams: currentCallItem.queryParams
       }
       this.pendingWork[tracerId] = {
-        component :currentCallItem.component,
-        res : currentCallItem.res
+        component: currentCallItem.component,
+        res: currentCallItem.res
       }
 
       this.amqpConnection.sendToQueue(
@@ -237,13 +244,13 @@ class HttpProvider {
               error: 'AMQP server no connected'
             })
           } else {
-          //  console.log(`Message envoyé à la file `);
+            //  console.log(`Message envoyé à la file `);
             // res.send(workParams);
           }
         }
       )
     }
-    
+
 
   }
 
