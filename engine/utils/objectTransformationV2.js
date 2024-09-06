@@ -1,22 +1,6 @@
 'use strict'
 // need NodeJs >=12
-const dayJs = require('dayjs');
-const utc = require('dayjs/plugin/utc');
-const localeData = require('dayjs/plugin/localeData');
-dayJs.extend(utc);
-dayJs.extend(localeData);
-
-// Importez toutes les locales
-const locales = [
-  'af', 'ar', 'az', 'be', 'bg', 'bn', 'ca', 'cs', 'da', 'de', 'el', 'en', 'eo', 'es', 'et', 'fa', 'fi', 'fr', 'ga', 'gd', 'gl', 'gu', 'he', 'hi', 'hr', 'hu', 'hy', 'id', 'is', 'it', 'ja', 'jv', 'ka', 'kk', 'km', 'kn', 'ko', 'ku', 'ky', 'lt', 'lv', 'mk', 'ml', 'mn', 'mr', 'ms', 'mt', 'my', 'nb', 'ne', 'nl', 'pl', 'pt', 'ro', 'ru', 'sd', 'si', 'sk', 'sl', 'sq', 'sr', 'su', 'sv', 'sw', 'ta', 'te', 'th', 'tl', 'tr', 'uk', 'ur', 'uz', 'vi', 'xh', 'yi', 'yo', 'zu'
-];
-
-// Importation de chaque locale
-locales.forEach(locale => {
-  require(`dayjs/locale/${locale}`); // Charge chaque locale
-  dayJs.locale(locale); // Définir la locale
-});
-
+const dayjs = require('dayjs-with-plugins');
 const intl = require('intl');
 
 module.exports = {

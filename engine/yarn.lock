@@ -907,6 +907,11 @@ datez@0.0.7:
   dependencies:
     timezone-soft "1.4.1"
 
+dayjs-with-plugins@^1.0.4:
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/dayjs-with-plugins/-/dayjs-with-plugins-1.0.4.tgz#9b0390625abe09028d1164f8e70eea0201298220"
+  integrity sha512-fOqHs2iISlsoHcNNXY8nhssxZgv6k+yplhfxjSR+uuktAEwyWsOeUirBcbgTIIxS7LKKQymBuY02zLzTeC4D9g==
+
 dayjs@^1.11.13:
   version "1.11.13"
   resolved "https://registry.yarnpkg.com/dayjs/-/dayjs-1.11.13.tgz#92430b0139055c3ebb60150aa13e860a4b5a366c"
