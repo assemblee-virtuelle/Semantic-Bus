@@ -207,6 +207,7 @@ class HttpProvider {
         // if engin never send end of process becaus crash; this settime free lock
         setTimeout(() => {
           delete this.currentCall[componentId];
+          this.pop(componentId,unrestrictedExecution);
         }, 20000);
       }
       const currentCallItem = callStack.shift();
