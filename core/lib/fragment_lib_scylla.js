@@ -176,10 +176,10 @@ module.exports = {
       if (fragmentReturn.branchFrag) {
         const frags = await this.fragmentModel.searchFragmentByField({
           branchOriginFrag: fragmentReturn.branchFrag
-        },{
-          index:'ASC'
+        }, {
+          index: 'ASC'
         })
-        console.log('_________frags',frags)
+        console.log('_________frags', frags)
 
         fragmentReturn.data = frags.map(f => {
           return {
@@ -440,15 +440,16 @@ module.exports = {
   },
 
   cleanFrag: async function (id) {
-    console.log('___ cleanFrag',id)
-
-    const targetFrag = await this.fragmentModel.getFragmentById(id);
-    await this.fragmentModel.deleteMany({
-      originFrag: targetFrag.rootFrag
-    });
-    await this.fragmentModel.deleteMany({
-      id: id
-    });
+    console.log('___ cleanFrag', id)
+    if (uuidValidate(id)) {
+      const targetFrag = await this.fragmentModel.getFragmentById(id);
+      await this.fragmentModel.deleteMany({
+        originFrag: targetFrag.rootFrag
+      });
+      await this.fragmentModel.deleteMany({
+        id: id
+      });
+    }
 
     // const model = (await this.fragmentModel.getInstance()).model;
     // model.findOne({
@@ -478,10 +479,10 @@ module.exports = {
   },
 
   tagGarbage: async function (id) {
-      console.log('___ tagGarbage',id)
-
+    console.log('___ tagGarbage', id)
+    if (uuidValidate(id)) {
       const targetFrag = await this.fragmentModel.getFragmentById(id);
-      if(targetFrag.rootFrag){
+      if (targetFrag.rootFrag) {
         await this.fragmentModel.updateMultipleFragments({
           originFrag: targetFrag.rootFrag
         }, {
@@ -494,6 +495,9 @@ module.exports = {
       }, {
         garbageTag: 1
       });
+    }
+
+
 
     // if (id) {
     //   try {
