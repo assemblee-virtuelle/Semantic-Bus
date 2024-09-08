@@ -582,7 +582,7 @@ class Engine {
             // mark current process as resolved - not mark old process as resolved
             await this.workspace_lib.markProcessAsResolved(process);
             // CAUTION cleanOldProcessByWorkflow is required to tag garbage to fragment and delete old process and old historiqueEnd
-            // const processes =  await this.workspace_lib.cleanOldProcessByWorkflow(this.workflow);
+            const processes =  await this.workspace_lib.cleanOldProcessByWorkflow(this.workflow);
             console.log('--------------  End of Worksapce processing --------------', this.workflow.name, this.owner.credit)
  
             // console.log(processes);
