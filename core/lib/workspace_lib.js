@@ -231,6 +231,7 @@ function _cleanGarbageForgotten() {
 
         fragsToKeepId = fragsToKeepId.concat(caches.map(c => c.frag));
         // console.log('--- fragsToKeepId length:',fragsToKeepId.length);
+        fragsToKeepId = fragsToKeepId.filter(id => uuidValidate(id));
 
         const fragsToKeep = await fragmentModelScylla.find({
           id: fragsToKeepId
