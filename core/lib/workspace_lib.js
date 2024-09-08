@@ -259,11 +259,11 @@ function _cleanGarbageForgotten() {
             });
           }
         }
-      }
+        totalHistoriqueEndToRemove = totalHistoriqueEndToRemove.concat(oldHistoriqueEnds.map(h => h._id));
+        totalProcessToRemove = totalProcessToRemove.concat(oldProcesses.map(p => p._id));
   
-      totalHistoriqueEndToRemove = totalHistoriqueEndToRemove.concat(oldHistoriqueEnds.map(h => h._id));
-      totalProcessToRemove = totalProcessToRemove.concat(oldProcesses.map(p => p._id));
-
+      }
+ 
       const totalFragmentsBeforeDeletion = await fragmentModelScylla.countDocuments({
         garbageProcess: processGarbageId
       });
