@@ -419,7 +419,7 @@ function _getOldProcessAndHistoriqueEnd(workflow) {
 function _cleanOldProcessByWorkflow(workflow) {
   return new Promise(async (resolve, reject) => {
     try {
-      // console.log(`--------- start clean By Workflow ${workflow.name}`)
+      console.log(`--------- start clean By Workflow ${workflow.name}`)
       const {
         keepedProcesses,
         oldProcesses,
@@ -437,7 +437,7 @@ function _cleanOldProcessByWorkflow(workflow) {
       // console.log("oldProcesses",oldProcesses);
       // console.log("keepedHistoriqueEnds",keepedHistoriqueEnds);
       // console.log("oldHistoriqueEnds",oldHistoriqueEnds);
-
+      
       for (let oldHistoriqueEnd of oldHistoriqueEnds){
         await fragment_lib_scylla.tagGarbage(oldHistoriqueEnd.frag);
       }

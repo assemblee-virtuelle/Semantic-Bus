@@ -478,6 +478,7 @@ module.exports = {
   },
 
   tagGarbage: async function (id) {
+      console.log('___ tagGarbage',id)
 
       const targetFrag = await this.fragmentModel.getFragmentById(id);
       await this.fragmentModel.updateMultipleFragments({
