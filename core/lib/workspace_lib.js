@@ -437,9 +437,11 @@ function _cleanOldProcessByWorkflow(workflow) {
       // console.log("oldProcesses",oldProcesses);
       // console.log("keepedHistoriqueEnds",keepedHistoriqueEnds);
       // console.log("oldHistoriqueEnds",oldHistoriqueEnds);
-      
+
       for (let oldHistoriqueEnd of oldHistoriqueEnds){
-        await fragment_lib_scylla.tagGarbage(oldHistoriqueEnd.frag);
+        if(oldHistoriqueEnd.frag != undefined){
+          await fragment_lib_scylla.tagGarbage(oldHistoriqueEnd.frag);
+        }
       }
 
       await historiqueEndModel.getInstance().model.deleteMany({
