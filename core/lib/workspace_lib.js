@@ -16,8 +16,8 @@ var sift = require("sift").default;
 var graphTraitement = require("../helpers/graph-traitment");
 var fetch = require('node-fetch');
 const Error = require('../helpers/error.js');
-const { log } = require('console');
 const ObjectID = require('bson').ObjectID;
+const { uuidValidate } = require('uuidv4');
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
