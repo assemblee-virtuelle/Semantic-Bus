@@ -440,54 +440,77 @@ module.exports = {
   },
 
   cleanFrag: async function (id) {
-    const model = (await this.fragmentModel.getInstance()).model;
-    model.findOne({
+    console.log('___ cleanFrag',id)
+
+    const targetFrag = await this.fragmentModel.getFragmentById(id);
+    await this.fragmentModel.deleteMany({
+      originFrag: targetFrag.rootFrag
+    });
+    await this.fragmentModel.deleteMany({
       id: id
-    })
-      .lean()
-      .exec()
-      .then(async frag => {
-        if (frag != null) {
-          if (frag.frags != undefined) {
-            await model.deleteMany({
-              frags: {
-                $in: frag.frags
-              }
-            }).exec();
-          }
-          if (frag.rootFrag) {
-            await model.deleteMany({
-              originFrag: frag.rootFrag
-            }).exec();
-          }
-          await model.deleteMany({
-            id: frag.id
-          }).exec();
-        }
-      })
+    });
+
+    // const model = (await this.fragmentModel.getInstance()).model;
+    // model.findOne({
+    //   id: id
+    // })
+    //   .lean()
+    //   .exec()
+    //   .then(async frag => {
+    //     if (frag != null) {
+    //       if (frag.frags != undefined) {
+    //         await model.deleteMany({
+    //           frags: {
+    //             $in: frag.frags
+    //           }
+    //         }).exec();
+    //       }
+    //       if (frag.rootFrag) {
+    //         await model.deleteMany({
+    //           originFrag: frag.rootFrag
+    //         }).exec();
+    //       }
+    //       await model.deleteMany({
+    //         id: frag.id
+    //       }).exec();
+    //     }
+    //   })
   },
 
   tagGarbage: async function (id) {
-    if (id) {
-      try {
-        const frag = await this.fragmentModel.getFragmentById(id);
-        if (frag != null) {
-          if (frag.rootFrag) {
-            await this.fragmentModel.updateMultipleFragments(
-              {
-                id: frag.rootFrag
-              },
-              {
-                garbageTag: 1
-              }
-            );
-          }
-        }
-      } catch (e) {
-        console.log('error', e)
-      }
 
-    }
+      const targetFrag = await this.fragmentModel.getFragmentById(id);
+      await this.fragmentModel.updateMultipleFragments({
+        originFrag: targetFrag.rootFrag
+      }, {
+        garbageTag: 1
+      });
+      await this.fragmentModel.updateMultipleFragments({
+        id: id
+      }, {
+        garbageTag: 1
+      });
+
+    // if (id) {
+    //   try {
+    //     const frag = await this.fragmentModel.getFragmentById(id);
+    //     if (frag != null) {
+    //       if (frag.rootFrag) {
+    //         await this.fragmentModel.updateMultipleFragments(
+    //           {
+    //             id: frag.rootFrag
+    //           },
+    //           {
+    //             garbageTag: 1
+    //           }
+    //         );
+    //       }
+    //     }
+    //   } catch (e) {
+    //     console.log('error', e)
+    //   }
+
+    // }
   },
 
   // frag support fragId or frag object

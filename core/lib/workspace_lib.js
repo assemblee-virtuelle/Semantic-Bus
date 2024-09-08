@@ -1,9 +1,11 @@
 "use strict";
 
 var fragment_lib = require('./fragment_lib.js');
+var fragment_lib_scylla = require('./fragment_lib_scylla.js');
 var workspaceComponentModel = require("../models/workspace_component_model");
 var workspaceModel = require("../models/workspace_model");
-var fragmentModel = require("../models/fragment_model");
+// var fragmentModel = require("../models/fragment_model");
+var fragmentModelScylla = require("../models/fragments_model_scylla");
 var userModel = require("../models/user_model");
 var cacheModel = require("../models/cache_model");
 
@@ -74,7 +76,7 @@ function _addDataHistoriqueEnd(historicId, data) {
   return new Promise(async (resolve, reject) => {
     let frag;
     try {
-      frag = await fragment_lib.persist(data);
+      frag = await fragment_lib_scylla.persist(data);
       const result = await historiqueEndModel.getInstance().model.findOneAndUpdate({
         _id: historicId
       }, {
@@ -178,7 +180,7 @@ function _cleanGarbage() {
 
     try {
       console.log('-------- START normal clean fragment garbage');
-      await (await fragmentModel.getInstance()).model.deleteMany({
+      await fragmentModelScylla.deleteMany({
         garbageTag: 1
       });
       console.log('-------- END normal clean fragment garbage');
@@ -203,7 +205,7 @@ function _cleanGarbageForgotten() {
       const processGarbageId = Math.floor(Math.random() * 10000);
 
       console.log('--- start tag all fragment as garbage');
-      await (await fragmentModel.getInstance()).model.updateMany({}, { garbageProcess: processGarbageId });
+      await fragmentModelScylla.updateMany({}, { garbageProcess: processGarbageId });
       console.log('--- end tag all fragment as garbage');
       for (var workflow of workspaces) {
         console.log("--- stack data to keep ", workflow.name);
@@ -228,17 +230,16 @@ function _cleanGarbageForgotten() {
         }).lean().exec();
 
         fragsToKeepId = fragsToKeepId.concat(caches.map(c => c.frag));
-        console.log('--- fragsToKeepId length:',fragsToKeepId.length);
+        // console.log('--- fragsToKeepId length:',fragsToKeepId.length);
 
-        const fragsToKeep = await (await fragmentModel.getInstance()).model.find({
-          _id: {
-            $in: fragsToKeepId
-          }
-        }).select({
-          frags: 1,
+        const fragsToKeep = await fragmentModelScylla.find({
+          id: fragsToKeepId
+        },
+        undefined,
+        {
           rootFrag: 1,
-          _id: 1
-        }).lean().exec();
+          id: 1
+        });
         console.log('--- fragsToKeep length:',fragsToKeep.length);
         for (let i = 0; i < fragsToKeep.length; i++) { // Correction ici
           let frag = fragsToKeep[i];
@@ -250,23 +251,23 @@ function _cleanGarbageForgotten() {
           //   garbageProcess: 0
           // });
           if(frag.rootFrag != undefined && frag.rootFrag != null){
-            await (await fragmentModel.getInstance()).model.updateMany({
+            await fragmentModelScylla.updateMany({
               originFrag: frag.rootFrag
             }, {
               garbageProcess: 0
             });
           }else{
-            console.log('--- frag without rootFrag',frag);
+            // console.log('--- frag without rootFrag',frag);
           }
 
 
-          await (await fragmentModel.getInstance()).model.updateMany({
-            _id: frag._id
+          await fragmentModelScylla.updateMany({
+            id: frag.id
           }, {
             garbageProcess: 0
           });
 
-          console.log(`--- mark  fragments to not delete ${i+1}/${fragsToKeep.length}`);
+          // console.log(`--- mark  fragments to not delete ${i+1}/${fragsToKeep.length}`);
         }
 
         totalHistoriqueEndToRemove=totalHistoriqueEndToRemove.concat(oldHistoriqueEnds.map(h=>h._id));
@@ -274,12 +275,12 @@ function _cleanGarbageForgotten() {
         totalProcessToRemove=totalProcessToRemove.concat(oldProcesses.map(p=>p._id));
 
       }
-      const totalFragmentsBeforeDeletion = await fragmentModel.getInstance().model.countDocuments({
+      const totalFragmentsBeforeDeletion = await fragmentModelScylla.countDocuments({
         garbageProcess: processGarbageId
       });
 
       console.log(`--- START total fragment garbage collector : ${totalFragmentsBeforeDeletion} fragments`);
-      await (await fragmentModel.getInstance()).model.deleteMany({
+      await fragmentModelScylla.deleteMany({
         garbageProcess: processGarbageId
       })
       console.log('--- END total fragment garbage collector');
@@ -340,6 +341,7 @@ function _executeAllTimers(config) {
           _id: component.workspaceId
         }).lean().exec();
         if (wokspace != null) {
+          // console.log("wokspace",wokspace.name,'-',wokspace.status);
           // console.log("wokspace",wokspace.name,'-',wokspace.status);
           const execution = await fetch(config.engineUrl + '/work-ask/' + component._id, {
             method: 'POST'
@@ -437,7 +439,7 @@ function _cleanOldProcessByWorkflow(workflow) {
       // console.log("oldHistoriqueEnds",oldHistoriqueEnds);
 
       for (let oldHistoriqueEnd of oldHistoriqueEnds){
-        await fragment_lib.tagGarbage(oldHistoriqueEnd.frag);
+        await fragment_lib_scylla.tagGarbage(oldHistoriqueEnd.frag);
       }
 
       await historiqueEndModel.getInstance().model.deleteMany({

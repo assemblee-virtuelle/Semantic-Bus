@@ -1,7 +1,6 @@
 const client = require('../db/scylla_client');
 const zlib = require('zlib');
 const Fragment = require('../model_schemas/fragments_schema_scylla');
-const { log } = require('console');
 
 const insertFragment = async (fragment) => {
   const query = `
@@ -111,24 +110,35 @@ const getFragmentById = async (id) => {
 
 
 // Mise à jour de searchFragmentByField
-const searchFragmentByField = async (searchCriteria, sortOptions) => {
+const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, selectedFields = {}) => {
+  // Traitement des critères et options
   searchCriteria = processCriteriaAndOptions(searchCriteria); // Appel de la fonction utilitaire
   sortOptions = processCriteriaAndOptions(sortOptions); // Appel de la fonction utilitaire
 
   const fieldNames = Object.keys(searchCriteria);
-  const fieldValues = Object.values(searchCriteria);
   
-  const whereClauses = fieldNames.map(field => `${field} = ?`);
-  const whereClause = whereClauses.join(' AND ');
+  const whereClauses = fieldNames.map(field => {
+    if (Array.isArray(searchCriteria[field])) {
+      return `${field} IN (${searchCriteria[field].map(() => '?').join(', ')})`;
+    }
+    return `${field} = ?`;
+  });
+  const whereClause = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''; // Ajout conditionnel de WHERE
 
-  const queryString = `SELECT * FROM fragment WHERE ${whereClause}`;
-  const result = await client.execute(queryString, fieldValues, { prepare: true });
+  const selectedFieldNames = Object.keys(selectedFields).filter(field => selectedFields[field] === 1).join(', ') || '*';
+  const queryString = `SELECT ${selectedFieldNames} FROM fragment ${whereClause}`; // Requête commune
+  // console.log('SEARH queryString : ', queryString)
+  const finalValues = fieldNames.flatMap(field => {
+    return Array.isArray(searchCriteria[field]) ? searchCriteria[field] : [searchCriteria[field]];
+  });
+
+  const result = await client.execute(queryString, finalValues, { prepare: true }); // Utilisation de finalValues
 
   let rows = result.rows;
   if (sortOptions) {
     rows.sort((a, b) => {
       for (const [key, order] of Object.entries(sortOptions)) {
-        const orderLower = order.toLowerCase(); // Convertir en minuscule
+        const orderLower = order.toLowerCase();
         if (a[key] < b[key]) return orderLower === 'asc' ? -1 : 1;
         if (a[key] > b[key]) return orderLower === 'asc' ? 1 : -1;
       }
@@ -136,38 +146,57 @@ const searchFragmentByField = async (searchCriteria, sortOptions) => {
     });
   }
 
-  rows = rows.map(row => processFragment(row));
-
-  return rows;
+  return rows.map(row => processFragment(row)); // Traitement des résultats
 };
 
 const updateMultipleFragments = async (searchCriteria, updateFields) => {
-
-  searchCriteria = processCriteriaAndOptions(searchCriteria); // Appel de la fonction utilitaire
   updateFields = processCriteriaAndOptions(updateFields); // Appel de la fonction utilitaire
-  // if (updateFields?.index) {
-  //   updateFields.indexArray = updateFields.index;
-  // }
-  // if (updateFields?.maxIndex) {
-  //   updateFields.maxIndexArray = updateFields.maxIndex;
-  // }
-  // if (searchCriteria?.index) {
-  //   searchCriteria.indexArray = searchCriteria.index;
-  // }
-  // if (searchCriteria?.maxIndex) {
-  //   searchCriteria.maxIndexArray = searchCriteria.maxIndex;
-  // }
-  delete updateFields.index; // Suppression de index
-  delete updateFields.maxIndex; // Suppression de maxIndex
-  delete searchCriteria.index; // Suppression de index
-  delete searchCriteria.maxIndex; // Suppression de maxIndex
+
   const fields = Object.keys(updateFields);
   const values = Object.values(updateFields);
   const setClause = fields.map(field => `${field} = ?`).join(', ');
-  const whereClause = Object.keys(searchCriteria).map(field => `${field} = ?`).join(' AND ');
-  const query = `UPDATE fragment SET ${setClause} WHERE ${whereClause}`;
-  const queryValues = [...values, ...Object.values(searchCriteria)];
-  await client.execute(query, queryValues, { prepare: true });
+
+  // Récupérer les fragments à mettre à jour
+  const fragmentsToUpdate = await searchFragmentByField(searchCriteria, null, { id: 1 });
+  const idsToUpdate = fragmentsToUpdate.map(fragment => fragment.id);
+
+  if (idsToUpdate.length === 0) return; 
+
+  // Diviser les IDs en lots de 100
+  const batchSize = 100;
+  for (let i = 0; i < idsToUpdate.length; i += batchSize) {
+    const batchIds = idsToUpdate.slice(i, i + batchSize);
+    const whereClause = `id IN (${batchIds.map(() => '?').join(', ')})`;
+    const query = `UPDATE fragment SET ${setClause} WHERE ${whereClause}`;
+    const queryValues = [...values, ...batchIds];
+
+    await client.execute(query, queryValues, { prepare: true });
+  }
+};
+
+const deleteManyFragments = async (searchCriteria) => {
+  searchCriteria = processCriteriaAndOptions(searchCriteria);
+  const toGarbage = await searchFragmentByField(searchCriteria,undefined, {id: 1});
+  console.log('fragment to Delete : ', toGarbage.length)
+  const idsToDelete = toGarbage.map(fragment => fragment.id);
+  if (idsToDelete.length === 0) return; 
+
+  // Diviser les IDs en lots de 100
+  const batchSize = 100;
+  for (let i = 0; i < idsToDelete.length; i += batchSize) {
+    const batchIds = idsToDelete.slice(i, i + batchSize);
+    const whereClause = `id IN (${batchIds.map(() => '?').join(', ')})`;
+    const query = `DELETE FROM fragment WHERE ${whereClause}`;
+    
+    await client.execute(query, batchIds, { prepare: true });
+  }
+  // console.log(`${idsToDelete.length} fragments deleted`);
+};
+
+const countDocuments = async (searchCriteria) => {
+  const ids = await searchFragmentByField(searchCriteria, undefined, { id: 1 }); // Sélectionne uniquement les IDs
+  // console.log('countDocuments : ', ids.length,searchCriteria)
+  return ids.length; // Retourne le nombre d'IDs trouvés
 };
 
 module.exports = {
@@ -176,6 +205,11 @@ module.exports = {
   persistFragment,
   getFragmentById,
   searchFragmentByField,
+  find: searchFragmentByField,
   updateMultipleFragments,
+  updateMany: updateMultipleFragments,
+  deleteMany: deleteManyFragments,
+  deleteManyFragments,
+  countDocuments, // Ajout de la nouvelle fonction
   model: Fragment
 };

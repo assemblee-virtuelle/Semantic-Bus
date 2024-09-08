@@ -16,7 +16,7 @@ class HttpProvider {
       this.stepNode = false
     this.workspace_component_lib = require('../../../core/lib/workspace_component_lib')
     this.workspace_lib = require('../../../core/lib/workspace_lib')
-    this.fragment_lib = require('../../../core/lib/fragment_lib')
+    // this.fragment_lib = require('../../../core/lib/fragment_lib')
     this.fragment_lib_scylla = require('../../../core/lib/fragment_lib_scylla');
     this.data2xml = require('data2xml');
     this.xmlJS = require('xml-js');

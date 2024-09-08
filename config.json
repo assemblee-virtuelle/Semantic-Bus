@@ -131,7 +131,7 @@
     "clientID": "",
     "clientSecret": ""
   },
-  "engineUrl":"http://engine:90/engine",
+  "engineUrl":"http://engine:92/engine",
   "mlabDB": "mongodb://mongodb:27017/admin",
   "mongodbFlowDB": "mongodb://admin:adminpassword@mongodb_flow:27018/admin",
   "socketClient": "ws://localhost:15674/ws/",

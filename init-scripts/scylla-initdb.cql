@@ -27,3 +27,10 @@ ON mykeyspace.fragment(branchOriginFrag);
 
 CREATE INDEX IF NOT EXISTS originfrag_index 
 ON mykeyspace.fragment(originFrag);
+
+CREATE INDEX IF NOT EXISTS garbagetag_index 
+ON mykeyspace.fragment(garbageTag);
+
+CREATE INDEX IF NOT EXISTS garbageProcess_index 
+ON mykeyspace.fragment(garbageProcess);
+
