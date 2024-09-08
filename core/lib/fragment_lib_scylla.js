@@ -481,11 +481,14 @@ module.exports = {
       console.log('___ tagGarbage',id)
 
       const targetFrag = await this.fragmentModel.getFragmentById(id);
-      await this.fragmentModel.updateMultipleFragments({
-        originFrag: targetFrag.rootFrag
-      }, {
-        garbageTag: 1
-      });
+      if(targetFrag.rootFrag){
+        await this.fragmentModel.updateMultipleFragments({
+          originFrag: targetFrag.rootFrag
+        }, {
+          garbageTag: 1
+        });
+      }
+
       await this.fragmentModel.updateMultipleFragments({
         id: id
       }, {
