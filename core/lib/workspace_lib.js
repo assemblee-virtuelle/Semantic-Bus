@@ -230,52 +230,40 @@ function _cleanGarbageForgotten() {
         }).lean().exec();
 
         fragsToKeepId = fragsToKeepId.concat(caches.map(c => c.frag));
-        // console.log('--- fragsToKeepId length:',fragsToKeepId.length);
         fragsToKeepId = fragsToKeepId.filter(id => uuidValidate(id));
 
-        const fragsToKeep = await fragmentModelScylla.find({
-          id: fragsToKeepId
-        },
-        undefined,
-        {
-          rootFrag: 1,
-          id: 1
-        });
-        console.log('--- fragsToKeep length:',fragsToKeep.length);
-        for (let i = 0; i < fragsToKeep.length; i++) { // Correction ici
-          let frag = fragsToKeep[i];
-          // await fragmentModel.getInstance().model.updateMany({
-          //   frags: {
-          //     $in: frag.frags
-          //   }
-          // }, {
-          //   garbageProcess: 0
-          // });
-          if(frag.rootFrag != undefined && frag.rootFrag != null){
+        // Traitement par lots de 100
+        for (let i = 0; i < fragsToKeepId.length; i += 100) {
+          const batch = fragsToKeepId.slice(i, i + 100);
+          const fragsToKeep = await fragmentModelScylla.find({
+            id: batch
+          },
+          undefined,
+          {
+            rootFrag: 1,
+            id: 1
+          });
+          console.log('--- fragsToKeep length:', fragsToKeep.length);
+          for (let frag of fragsToKeep) {
+            if (frag.rootFrag != undefined && frag.rootFrag != null) {
+              await fragmentModelScylla.updateMany({
+                originFrag: frag.rootFrag
+              }, {
+                garbageProcess: 0
+              });
+            }
             await fragmentModelScylla.updateMany({
-              originFrag: frag.rootFrag
+              id: frag.id
             }, {
               garbageProcess: 0
             });
-          }else{
-            // console.log('--- frag without rootFrag',frag);
           }
-
-
-          await fragmentModelScylla.updateMany({
-            id: frag.id
-          }, {
-            garbageProcess: 0
-          });
-
-          // console.log(`--- mark  fragments to not delete ${i+1}/${fragsToKeep.length}`);
         }
-
-        totalHistoriqueEndToRemove=totalHistoriqueEndToRemove.concat(oldHistoriqueEnds.map(h=>h._id));
-
-        totalProcessToRemove=totalProcessToRemove.concat(oldProcesses.map(p=>p._id));
-
       }
+  
+      totalHistoriqueEndToRemove = totalHistoriqueEndToRemove.concat(oldHistoriqueEnds.map(h => h._id));
+      totalProcessToRemove = totalProcessToRemove.concat(oldProcesses.map(p => p._id));
+
       const totalFragmentsBeforeDeletion = await fragmentModelScylla.countDocuments({
         garbageProcess: processGarbageId
       });
