@@ -1,6 +1,7 @@
 const client = require('../db/scylla_client');
 const zlib = require('zlib');
 const Fragment = require('../model_schemas/fragments_schema_scylla');
+const { validate: uuidValidate } = require('uuid');
 
 const insertFragment = async (fragment) => {
   const query = `
@@ -119,7 +120,15 @@ const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, sele
   
   const whereClauses = fieldNames.map(field => {
     if (Array.isArray(searchCriteria[field])) {
-      return `${field} IN (${searchCriteria[field].map(value => typeof value === 'string' ? `'${value}'` : value).join(', ')})`;
+      return `${field} IN (${searchCriteria[field].map(value => {
+        if (uuidValidate(value)) {
+          return value;
+        }
+        return typeof value === 'string' ? `'${value}'` : value;
+      }).join(', ')})`;
+    }
+    if (uuidValidate(searchCriteria[field])) {
+      return `${field} = ${searchCriteria[field]}`;
     }
     return `${field} = ${typeof searchCriteria[field] === 'string' ? `'${searchCriteria[field]}'` : searchCriteria[field]}`;
   });
@@ -128,9 +137,14 @@ const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, sele
   const selectedFieldNames = Object.keys(selectedFields).filter(field => selectedFields[field] === 1).join(', ') || '*';
   const queryString = `SELECT ${selectedFieldNames} FROM fragment ${whereClause}`; // Requête commune
 
-  console.log('SEARH queryString : ', queryString);
+  // Ajout de la requête de comptage
+  const countQueryString = `SELECT COUNT(*) FROM fragment ${whereClause}`;
+  console.log('SEARCH countQueryString : ', countQueryString);
+  const countResult = await client.execute(countQueryString); // Exécution de la requête de comptage
+  console.log('SEARCH countResult : ', countResult.rows[0]['count'].toInt());
+  console.log('SEARCH queryString : ', queryString);
   const result = await client.execute(queryString); // Exécution de la requête complète
-  console.log('SEARH result : ', result);
+  console.log('SEARCH result : ', result);
   let rows = result.rows;
   if (sortOptions) {
     rows.sort((a, b) => {
