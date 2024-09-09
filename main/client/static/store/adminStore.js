@@ -2,6 +2,21 @@ function AdminStore (utilStore) {
   riot.observable(this)
   this.utilStore = utilStore
 
+
+  this.on('clean_garbage_simple', () => {
+    return new Promise((resolve, reject) => {
+      this.utilStore.ajaxCall({
+        method: 'post',
+        url: '../data/core/cleanGarbageSimple'
+      }, true).then(data => {
+        resolve()
+        this.trigger('garbage_cleaned')
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  })
+
   this.on('clean_garbage', () => {
     return new Promise((resolve, reject) => {
       this.utilStore.ajaxCall({
