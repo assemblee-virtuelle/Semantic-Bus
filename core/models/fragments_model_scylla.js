@@ -162,31 +162,35 @@ const updateMultipleFragments = async (searchCriteria, updateFields) => {
 
   // Diviser les IDs en lots de 100
   const batchSize = 100;
+  const updatePromises = []; // Tableau pour stocker les promesses
   for (let i = 0; i < idsToUpdate.length; i += batchSize) {
     const batchIds = idsToUpdate.slice(i, i + batchSize);
     const whereClause = `id IN (${batchIds.map(() => '?').join(', ')})`;
     const query = `UPDATE fragment SET ${setClause} WHERE ${whereClause}`;
     const queryValues = [...values, ...batchIds];
 
-    await client.execute(query, queryValues, { prepare: true });
+    updatePromises.push(client.execute(query, queryValues, { prepare: true })); // Ajouter la promesse
   }
+  await Promise.all(updatePromises); // Attendre que toutes les promesses soient résolues
 };
 
 const deleteManyFragments = async (searchCriteria) => {
   searchCriteria = processCriteriaAndOptions(searchCriteria);
-  const toGarbage = await searchFragmentByField(searchCriteria,undefined, {id: 1});
-  console.log('fragment to Delete : ', toGarbage.length)
+  const toGarbage = await searchFragmentByField(searchCriteria, undefined, { id: 1 });
+  console.log('fragment to Delete : ', toGarbage.length);
   const idsToDelete = toGarbage.map(fragment => fragment.id);
   if (idsToDelete.length === 0) return; 
 
   // Diviser les IDs en lots de 100
   const batchSize = 100;
+  const deletePromises = []; // Tableau pour stocker les promesses
   for (let i = 0; i < idsToDelete.length; i += batchSize) {
     const batchIds = idsToDelete.slice(i, i + batchSize);
     const whereClause = `id IN (${batchIds.map(() => '?').join(', ')})`;
     const query = `DELETE FROM fragment WHERE ${whereClause}`;
-    await client.execute(query, batchIds, { prepare: true });
+    deletePromises.push(client.execute(query, batchIds, { prepare: true })); // Ajouter la promesse
   }
+  await Promise.all(deletePromises); // Attendre que toutes les promesses soient résolues
   // console.log(`${idsToDelete.length} fragments deleted`);
 };
 
