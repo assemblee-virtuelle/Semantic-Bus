@@ -181,7 +181,7 @@ function _cleanGarbage() {
     try {
       console.log('-------- START normal clean fragment garbage');
       await fragmentModelScylla.deleteMany({
-        garbageTag: 1
+        garbageTag: true
       });
       console.log('-------- END normal clean fragment garbage');
     } catch (e) {
