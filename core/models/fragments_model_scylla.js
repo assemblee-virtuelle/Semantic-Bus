@@ -113,38 +113,24 @@ const getFragmentById = async (id) => {
 // Mise à jour de searchFragmentByField
 const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, selectedFields = {}) => {
   // Traitement des critères et options
-  searchCriteria = processCriteriaAndOptions(searchCriteria); // Appel de la fonction utilitaire
-  sortOptions = processCriteriaAndOptions(sortOptions); // Appel de la fonction utilitaire
+  searchCriteria = processCriteriaAndOptions(searchCriteria); 
+  sortOptions = processCriteriaAndOptions(sortOptions); 
 
   const fieldNames = Object.keys(searchCriteria);
   
   const whereClauses = fieldNames.map(field => {
     if (Array.isArray(searchCriteria[field])) {
-      return `${field} IN (${searchCriteria[field].map(value => {
-        if (uuidValidate(value)) {
-          return value;
-        }
-        return typeof value === 'string' ? `'${value}'` : value;
-      }).join(', ')})`;
+      return `${field} IN (${searchCriteria[field].map(() => '?').join(', ')})`;
     }
-    if (uuidValidate(searchCriteria[field])) {
-      return `${field} = ${searchCriteria[field]}`;
-    }
-    return `${field} = ${typeof searchCriteria[field] === 'string' ? `'${searchCriteria[field]}'` : searchCriteria[field]}`;
+    return `${field} = ?`;
   });
   const whereClause = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''; // Ajout conditionnel de WHERE
 
   const selectedFieldNames = Object.keys(selectedFields).filter(field => selectedFields[field] === 1).join(', ') || '*';
   const queryString = `SELECT ${selectedFieldNames} FROM fragment ${whereClause}`;
-  const countQueryString = `SELECT COUNT(*) FROM fragment ${whereClause}`;
+  const queryParams = fieldNames.flatMap(field => Array.isArray(searchCriteria[field]) ? searchCriteria[field] : [searchCriteria[field]]);
 
-  console.log('SEARCH countQueryString : ', countQueryString);
-  const countResult = await client.execute(countQueryString);
-  console.log('SEARCH countResult : ', countResult.rows[0]['count'].toInt());
-
-  console.log('SEARCH queryString : ', queryString);
-  const result = await getAllFragments(queryString, []); // Utilisation de la nouvelle fonction
-  console.log('SEARCH result : ', result);
+  const result = await getAllFragments(queryString, queryParams); 
 
   let rows = result;
   if (sortOptions) {
@@ -158,7 +144,7 @@ const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, sele
     });
   }
 
-  return rows.map(row => processFragment(row)); // Traitement des résultats
+  return rows.map(row => processFragment(row));
 };
 
 const updateMultipleFragments = async (searchCriteria, updateFields) => {
