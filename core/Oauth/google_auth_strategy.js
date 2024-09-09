@@ -17,7 +17,7 @@ module.exports = (passport) => {
       proxy: true
     },
     function (res, token, refreshToken, profile, done) {
-      console.log('____________________NEXT TICK');
+      // console.log('____________________NEXT TICK');
       process.nextTick(async function () {
         const user = await UserModel.getInstance().model.findOne({
           'googleId': profile.id

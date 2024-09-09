@@ -195,7 +195,7 @@ function _cleanGarbageForgotten() {
   return new Promise(async (resolve, reject) => {
     await _cleanGarbage();
 
-    console.log("_cleanGarbage Forgotten");
+    // console.log("--- cleanGarbage Forgotten");
 
     try {
       const workspaces = await workspaceModel.getInstance().model.find({}).lean().exec();
@@ -289,8 +289,8 @@ function _cleanGarbageForgotten() {
 
       // console.log(`${allFragKeeped.length} fragments keeped and ${notReferencedFragsCount} fragments removed`);
       // console.log(`${allFragKeeped.length} fragments keeped`);
-      console.log(`${totalHistoriqueEndToRemove.length} historic removed`);
-      console.log(`${totalProcessToRemove.length} process removed`);
+      console.log(`--- ${totalHistoriqueEndToRemove.length} historic removed`);
+      console.log(`--- ${totalProcessToRemove.length} process removed`);
 
       resolve(workspaces);
     } catch (e) {

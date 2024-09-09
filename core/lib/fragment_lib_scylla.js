@@ -179,7 +179,7 @@ module.exports = {
         }, {
           index: 'ASC'
         })
-        console.log('_________frags', frags)
+        // console.log('_________frags', frags)
 
         fragmentReturn.data = frags.map(f => {
           return {
@@ -440,7 +440,7 @@ module.exports = {
   },
 
   cleanFrag: async function (id) {
-    console.log('___ cleanFrag', id)
+    // console.log('___ cleanFrag', id)
     if (uuidValidate(id)) {
       const targetFrag = await this.fragmentModel.getFragmentById(id);
       await this.fragmentModel.deleteMany({
@@ -479,7 +479,7 @@ module.exports = {
   },
 
   tagGarbage: async function (id) {
-    console.log('___ tagGarbage', id)
+    // console.log('___ tagGarbage', id)
     if (uuidValidate(id)) {
       const targetFrag = await this.fragmentModel.getFragmentById(id);
       if (targetFrag.rootFrag) {
