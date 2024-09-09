@@ -119,9 +119,9 @@ const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, sele
   
   const whereClauses = fieldNames.map(field => {
     if (Array.isArray(searchCriteria[field])) {
-      return `${field} IN (${searchCriteria[field].map(value => `'${value}'`).join(', ')})`;
+      return `${field} IN (${searchCriteria[field].map(value => typeof value === 'string' ? `'${value}'` : value).join(', ')})`;
     }
-    return `${field} = '${searchCriteria[field]}'`;
+    return `${field} = ${typeof searchCriteria[field] === 'string' ? `'${searchCriteria[field]}'` : searchCriteria[field]}`;
   });
   const whereClause = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''; // Ajout conditionnel de WHERE
 
