@@ -135,17 +135,18 @@ const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, sele
   const whereClause = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''; // Ajout conditionnel de WHERE
 
   const selectedFieldNames = Object.keys(selectedFields).filter(field => selectedFields[field] === 1).join(', ') || '*';
-  const queryString = `SELECT ${selectedFieldNames} FROM fragment ${whereClause}`; // Requête commune
-
-  // Ajout de la requête de comptage
+  const queryString = `SELECT ${selectedFieldNames} FROM fragment ${whereClause}`;
   const countQueryString = `SELECT COUNT(*) FROM fragment ${whereClause}`;
+
   console.log('SEARCH countQueryString : ', countQueryString);
-  const countResult = await client.execute(countQueryString); // Exécution de la requête de comptage
+  const countResult = await client.execute(countQueryString);
   console.log('SEARCH countResult : ', countResult.rows[0]['count'].toInt());
+
   console.log('SEARCH queryString : ', queryString);
-  const result = await client.execute(queryString); // Exécution de la requête complète
+  const result = await getAllFragments(queryString, []); // Utilisation de la nouvelle fonction
   console.log('SEARCH result : ', result);
-  let rows = result.rows;
+
+  let rows = result;
   if (sortOptions) {
     rows.sort((a, b) => {
       for (const [key, order] of Object.entries(sortOptions)) {
@@ -207,6 +208,18 @@ const countDocuments = async (searchCriteria) => {
   const ids = await searchFragmentByField(searchCriteria, undefined, { id: 1 }); // Sélectionne uniquement les IDs
   // console.log('countDocuments : ', ids.length,searchCriteria)
   return ids.length; // Retourne le nombre d'IDs trouvés
+};
+
+const getAllFragments = async (query, params) => {
+  let result = await client.execute(query, params, { prepare: true });
+  let allRows = result.rows;
+
+  while (result.pageState) {
+    result = await client.execute(query, params, { prepare: true, pageState: result.pageState });
+    allRows = allRows.concat(result.rows);
+  }
+
+  return allRows;
 };
 
 module.exports = {
