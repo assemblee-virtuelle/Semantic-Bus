@@ -127,11 +127,11 @@ const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, sele
 
   const selectedFieldNames = Object.keys(selectedFields).filter(field => selectedFields[field] === 1).join(', ') || '*';
   const queryString = `SELECT ${selectedFieldNames} FROM fragment ${whereClause}`; // Requête commune
-  // console.log('SEARH queryString : ', queryString)
+
   const finalValues = fieldNames.flatMap(field => {
     return Array.isArray(searchCriteria[field]) ? searchCriteria[field] : [searchCriteria[field]];
   });
-
+  console.log('SEARH queryString : ', queryString,finalValues)
   const result = await client.execute(queryString, finalValues, { prepare: true }); // Utilisation de finalValues
 
   let rows = result.rows;
@@ -187,7 +187,6 @@ const deleteManyFragments = async (searchCriteria) => {
     const batchIds = idsToDelete.slice(i, i + batchSize);
     const whereClause = `id IN (${batchIds.map(() => '?').join(', ')})`;
     const query = `DELETE FROM fragment WHERE ${whereClause}`;
-    
     await client.execute(query, batchIds, { prepare: true });
   }
   // console.log(`${idsToDelete.length} fragments deleted`);
