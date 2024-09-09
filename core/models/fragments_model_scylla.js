@@ -119,21 +119,18 @@ const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, sele
   
   const whereClauses = fieldNames.map(field => {
     if (Array.isArray(searchCriteria[field])) {
-      return `${field} IN (${searchCriteria[field].map(() => '?').join(', ')})`;
+      return `${field} IN (${searchCriteria[field].map(value => `'${value}'`).join(', ')})`;
     }
-    return `${field} = ?`;
+    return `${field} = '${searchCriteria[field]}'`;
   });
   const whereClause = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''; // Ajout conditionnel de WHERE
 
   const selectedFieldNames = Object.keys(selectedFields).filter(field => selectedFields[field] === 1).join(', ') || '*';
   const queryString = `SELECT ${selectedFieldNames} FROM fragment ${whereClause}`; // Requête commune
 
-  const finalValues = fieldNames.flatMap(field => {
-    return Array.isArray(searchCriteria[field]) ? searchCriteria[field] : [searchCriteria[field]];
-  });
-  console.log('SEARH queryString : ', queryString,finalValues)
-  const result = await client.execute(queryString, finalValues); // Utilisation de finalValues
-  console.log('SEARH result : ', result)
+  console.log('SEARH queryString : ', queryString);
+  const result = await client.execute(queryString); // Exécution de la requête complète
+  console.log('SEARH result : ', result);
   let rows = result.rows;
   if (sortOptions) {
     rows.sort((a, b) => {
