@@ -132,7 +132,7 @@ const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, sele
     return Array.isArray(searchCriteria[field]) ? searchCriteria[field] : [searchCriteria[field]];
   });
   console.log('SEARH queryString : ', queryString,finalValues)
-  const result = await client.execute(queryString, finalValues, { prepare: true }); // Utilisation de finalValues
+  const result = await client.execute(queryString, finalValues); // Utilisation de finalValues
   console.log('SEARH result : ', result)
   let rows = result.rows;
   if (sortOptions) {
