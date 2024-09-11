@@ -869,6 +869,7 @@ class Engine {
 
   
           for (var componentFlowDfobKey in componentFlowDfob) {
+            try{
             if ('data' in componentFlowDfob[componentFlowDfobKey]) {
               if (dfobFlow[componentFlowDfobKey].key != undefined) {
                 dfobFlow[componentFlowDfobKey].objectToProcess[dfobFlow[componentFlowDfobKey].key] =
@@ -886,7 +887,10 @@ class Engine {
               if (dfobFlow[componentFlowDfobKey].key != undefined && dfobFlow[componentFlowDfobKey].objectToProcess != undefined) {
                 dfobFlow[componentFlowDfobKey].objectToProcess[dfobFlow[componentFlowDfobKey].key] =
                   componentFlowDfob[componentFlowDfobKey]
+                }
               }
+            } catch (error) {
+              // console.warning('error during recompose-DfobFlow',error);
             }
           }
         } catch (error) {

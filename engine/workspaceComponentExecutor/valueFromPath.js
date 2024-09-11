@@ -7,6 +7,10 @@ class ValueFromPath {
 
   progress(node, pathArray, pathObject, currentKey, counter) {
 
+    if (node===undefined){
+      return undefined;
+    }
+
     // console.log('progress',counter,pathArray,currentKey);
 
     // if(counter<100){
