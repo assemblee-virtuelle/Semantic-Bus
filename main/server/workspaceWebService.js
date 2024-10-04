@@ -6,7 +6,7 @@ const workspace_component_lib = require('../../core/lib/workspace_component_lib'
 const fragment_lib_scylla = require('../../core/lib/fragment_lib_scylla')
 const technicalComponentDirectory = require('./services/technicalComponentDirectory.js')
 const securityService = require('./services/security')
-
+const config = require('../config.json')
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -37,7 +37,7 @@ module.exports = function (router) {
   // Get workspaces
 
   router.get('/workspaces/me/owner', function (req, res, next) {
-    workspace_lib.getAll(UserIdFromToken(req), 'owner').then(function (workspaces) {
+    workspace_lib.getAll(UserIdFromToken(req), 'owner', config).then(function (workspaces) {
       res.json(workspaces)
     }).catch(e => {
       next(e)
@@ -47,7 +47,7 @@ module.exports = function (router) {
   // ---------------------------------------------------------------------------------
 
   router.get('/workspaces/me/shared', function (req, res, next) {
-    workspace_lib.getAll(UserIdFromToken(req), 'editor').then(function (workspaces) {
+    workspace_lib.getAll(UserIdFromToken(req), 'editor', config).then(function (workspaces) {
       res.json(workspaces)
     }).catch(e => {
       next(e)
@@ -57,7 +57,7 @@ module.exports = function (router) {
     // ---------------------------------------------------------------------------------
 
     router.get('/workspaces/me/all', function (req, res, next) {
-      workspace_lib.getAll(UserIdFromToken(req), undefined).then(function (workspaces) {
+      workspace_lib.getAll(UserIdFromToken(req), undefined, config).then(function (workspaces) {
         res.json(workspaces)
       }).catch(e => {
         next(e)

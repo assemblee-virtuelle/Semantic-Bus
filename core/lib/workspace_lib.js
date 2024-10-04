@@ -2,6 +2,7 @@
 
 var fragment_lib = require('./fragment_lib.js');
 var fragment_lib_scylla = require('./fragment_lib_scylla.js');
+var user_lib = require('./user_lib.js');
 var workspaceComponentModel = require("../models/workspace_component_model");
 var workspaceModel = require("../models/workspace_model");
 // var fragmentModel = require("../models/fragment_model");
@@ -660,51 +661,66 @@ function _destroy(userId, workspaceId) {
 
 // --------------------------------------------------------------------------------
 
-function _get_all(userID, role) {
+function _get_all(userID, role, config) {
   return new Promise(async (resolve, reject) => {
 
 
-    let data = await  userModel.getInstance().model
-    .findOne({
-      _id: userID
-    })
-    // .populate({
-    //   path: "workspaces._id",
-    //   select: "name description updatedAt status"
+    // let data = await  userModel.getInstance().model
+    // .findOne({
+    //   _id: userID
     // })
-    .lean()
-    .exec();
+    // // .populate({
+    // //   path: "workspaces._id",
+    // //   select: "name description updatedAt status"
+    // // })
+    // .lean()
+    // .exec();
+
+    let data = await user_lib.getWithRelations(userID, config);
 
     if (!data) {
       reject(new Error.EntityNotFoundError(`user ${userID} not exists`))
     } else {
-      const InversRelationWorkspaces = await workspaceModel.getInstance().model.find({
-        "users.email":data.credentials.email
-      }).lean().exec();
-      data.workspaces=InversRelationWorkspaces;
-      data.workspaces = data.workspaces.filter(sift({
-        _id: {
-          $ne: null
-        }
-      }));
-      data.workspaces = data.workspaces.map(w => {
-        const userOfWorkspace = w.users.find(u=>u.email===data.credentials.email);
-        // console.log("XXXX workspace",w)
-        return {
-          workspace: w,
-          role: userOfWorkspace.role
-        };
-      });
+
       let workspaces;
-      if(role){
-        workspaces= data.workspaces.filter(w=>w.role===role);
-      }else{
-        workspaces=[...data.workspaces];
+      console.log("data user",data)
+      if(data.admin){
+        workspaces = await workspaceModel.getInstance().model.find({}).lean().exec();
+        workspaces = workspaces.map(w => ({
+          ...w,
+          role: 'admin'
+        }));
+
+      } else {
+        const InversRelationWorkspaces = await workspaceModel.getInstance().model.find({
+          "users.email":data.credentials.email
+        }).lean().exec();
+        data.workspaces=InversRelationWorkspaces;
+        data.workspaces = data.workspaces.filter(sift({
+          _id: {
+            $ne: null
+          }
+        }));
+        data.workspaces = data.workspaces.map(w => {
+          const userOfWorkspace = w.users.find(u=>u.email===data.credentials.email);
+          // console.log("XXXX workspace",w)
+          return {
+            workspace: w,
+            role: userOfWorkspace.role
+          };
+        });
+  
+        if(role){
+          workspaces= data.workspaces.filter(w=>w.role===role);
+        }else{
+          workspaces=[...data.workspaces];
+        }
+        workspaces=workspaces.map(w=>({
+          ...w.workspace,
+          role:w.role
+        }));
       }
-      workspaces=workspaces.map(w=>({
-        ...w.workspace,
-        role:w.role
-      }));
+     
 
       const ProcessPromiseArray = [];
 
