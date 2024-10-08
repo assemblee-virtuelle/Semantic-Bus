@@ -11,27 +11,47 @@ class JoinByField {
     return primaryFlow[0]
   }
   join(primaryRecord, secondaryFlowData, data) {
-
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
-        let filter = {}
-        filter[data.specificData.secondaryFlowId] = primaryRecord[data.specificData.primaryFlowFKId];
-        // console.log('filter', filter);
-        // console.log(secondaryFlowData[1]);
-        let result = secondaryFlowData.filter(this.sift(filter));
-        // console.log('result', result);
-        if (data.specificData.multipleJoin == true) {
-          primaryRecord[data.specificData.primaryFlowFKName] = result
+        let filter = {};
+        let result = [];
+        const valueToJoin = primaryRecord[data.specificData.primaryFlowFKId];
+        if (!valueToJoin) {
+          result = [];
         } else {
-          primaryRecord[data.specificData.primaryFlowFKName] = result[0]
+          if(Array.isArray(valueToJoin)){
+            // Utilisation de PromiseOrchestrator au lieu de map
+            let paramArray = valueToJoin.map(v => [secondaryFlowData, filter, v, data]);
+            let promiseOrchestrator = new this.PromiseOrchestrator();
+            result = await promiseOrchestrator.execute(this, this.createFilterAndGetResult, paramArray,{
+              beamNb: 10
+            }, this.config);
+          } else {
+            result = this.createFilterAndGetResult(secondaryFlowData, filter, valueToJoin, data);
+          }
         }
 
-        resolve(primaryRecord)
+        primaryRecord[data.specificData.primaryFlowFKName] = result;
+
+        resolve(primaryRecord);
       } catch (e) {
         console.error(e);
-        reject(e)
+        reject(e);
       }
-    })
+    });
+  }
+
+  // Nouvelle fonction pour créer le filtre et obtenir le résultat
+  createFilterAndGetResult(secondaryFlowData, filter, valueToJoin, data) {
+    filter[data.specificData.secondaryFlowId] = valueToJoin;
+    // console.log('filter', filter);
+    let result = secondaryFlowData.filter(this.sift(filter));
+    
+    if (!data.specificData.multipleJoin == true) {
+      result = result[0];
+    }
+    
+    return result;
   }
   pull(data, flowData) {
 
