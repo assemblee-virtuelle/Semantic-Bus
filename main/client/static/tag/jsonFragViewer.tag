@@ -4,6 +4,7 @@
     //var tag = this
     this.title = "";
     this.option = {};
+    this.currentContextMenu;
     Object.defineProperty(this, "data", {
       set: function (data) {
         this.mountEditor(data).then(editor => {
@@ -45,6 +46,18 @@
       this.editor.open_node(nodeId);
     }.bind(this);
 
+    this.escapeHtml = function(content) {
+        return content
+            .replace(/&/g, '&amp;')
+            .replace(/"/g, '&quot;')
+            .replace(/'/g, '&#39;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\n/g, '&#10;')
+            .replace(/\r/g, '&#13;');
+    }
+
+
     this.jsonToJsTree = function (data, key) {
       // console.log('tree Generation', data, key);
       let prefix = '';
@@ -68,7 +81,11 @@
           size = '';
         }
         let node = {
-          text: prefix + separator + openingChar + size.toString() + closingChar,
+          text: `<div style="display:flex;flex-direction:row;align-items:flex-start;">
+              <div class="copyable" data-content="${prefix}" data-type="property">${prefix}</div>
+              <div>&nbsp;${separator}&nbsp;</div>
+              <div>${openingChar}${size.toString()}${closingChar}</div>
+            </div>`,
           key : prefix + separator,
           data: data,
           children: []
@@ -106,11 +123,16 @@
         } else if (data == undefined) {
           value = 'undefined';
         } else {
+          //value = data.toString().substring(0, 100) + (data.toString().length > 100 ? '...' : '');
           value = data.toString();
         }
         return [
           {
-            text: prefix + separator + value
+            text: `<div style="display:flex;flex-direction:row;align-items:flex-start;">
+              <div class="copyable" data-content="${prefix}" data-type="property">${prefix}</div>
+              <div>&nbsp;${separator}&nbsp;</div>
+              <div style="white-space: nowrap; max-height:100px;overflow:auto;" class="copyable" data-type="value" data-content=${JSON.stringify(this.escapeHtml(value))}>${value}</div>
+            </div>`
           }
         ]
       }
@@ -147,13 +169,85 @@
 
     this.on('mount', function () {
       this.mountEditor();
+
+      // Add event listener for right-click 
+      this.contextMenuListener = (e) => {
+        let target = e.target;
+        while (target && !target.classList.contains('copyable')) {
+          target = target.parentElement;
+        }
+        if (target) {
+          e.preventDefault();
+          if (this.currentContextMenu) {
+            document.body.removeChild(this.currentContextMenu);
+            delete this.currentContextMenu;
+          }
+          showContextMenu(e, target.getAttribute('data-content'), target.getAttribute('data-type'));
+        }
+      };
+
+      this.clickListener = () => {
+        if (this.currentContextMenu) {
+          document.body.removeChild(this.currentContextMenu);
+          delete this.currentContextMenu;
+        }
+      };
+
+      document.addEventListener('contextmenu', this.contextMenuListener);
+      document.addEventListener('click', this.clickListener);
+
+      // Function to show context menu
+      const showContextMenu = (event, content, type) => {
+        const menu = document.createElement('div');
+        menu.style.position = 'absolute';
+        menu.style.top = `${event.pageY}px`;
+        menu.style.left = `${event.pageX}px`;
+        menu.style.backgroundColor = '#fff';
+        menu.style.border = '1px solid #ccc';
+        menu.style.padding = '5px';
+        menu.style.zIndex = 1000;
+        menu.innerHTML = `<div class="copy-option">Copy ${type}</div>`;
+        document.body.appendChild(menu);
+        this.currentContextMenu = menu
+
+        menu.addEventListener('click', () => {
+          copyToClipboard(content);
+          document.body.removeChild(menu);
+          delete this.currentContextMenu;
+        });
+
+      };
+
+      const copyToClipboard = (text) => {
+        navigator.clipboard.writeText(text).then(() => {
+          console.log('Text copied to clipboard', text);
+        }).catch((err) => {
+          console.error('Could not copy text: ', err);
+        });
+      };
+
     }.bind(this));
+
+    this.on('unmount', function () {
+      document.removeEventListener('contextmenu', this.contextMenuListener);
+      document.removeEventListener('click', this.clickListener);
+    }.bind(this));
+
   </script>
   <style scoped="scoped">
     #jsonfrageditor {
       border-style: solid;
       border-width: 1px;
       border-color: rgb(213, 218, 224);
+    }
+
+    .jstree-anchor {
+      height: auto !important;
+      max-width: 95%;  /* Limite la largeur à 100% du conteneur parent */
+      box-sizing: border-box;
+    }
+    .jstree-children {
+
     }
   </style>
 
