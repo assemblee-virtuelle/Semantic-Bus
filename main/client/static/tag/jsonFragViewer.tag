@@ -58,8 +58,9 @@
     }
 
 
-    this.jsonToJsTree = function (data, key) {
+    this.jsonToJsTree = function (data, key, path) {
       // console.log('tree Generation', data, key);
+      const newPath =  path ? [path, key].join('.') : key;
       let prefix = '';
       if (key != undefined) {
         prefix = key.toString();
@@ -82,7 +83,7 @@
         }
         let node = {
           text: `<div style="display:flex;flex-direction:row;align-items:flex-start;">
-              <div class="copyable" data-content="${prefix}" data-type="property">${prefix}</div>
+              <div class="copyable" data-property="${prefix}" data-path="${path}" data-type="property">${prefix}</div>
               <div>&nbsp;${separator}&nbsp;</div>
               <div>${openingChar}${size.toString()}${closingChar}</div>
             </div>`,
@@ -101,12 +102,14 @@
         let keyCounter=0;
         for (let key in data) {
           keyCounter++;
+          
           if(keyCounter<showDataLenght){
             let insertingNodes = this.jsonToJsTree(
               data[key],
               Array.isArray(data)
                 ? key
-                : key
+                : key,
+              newPath
             );
             node.children = node.children.concat(insertingNodes);
           }else{
@@ -129,7 +132,7 @@
         return [
           {
             text: `<div style="display:flex;flex-direction:row;align-items:flex-start;">
-              <div class="copyable" data-content="${prefix}" data-type="property">${prefix}</div>
+              <div class="copyable" data-property="${prefix}" data-path="${[path,key].join('.')}" data-type="property">${prefix}</div>
               <div>&nbsp;${separator}&nbsp;</div>
               <div style="white-space: nowrap; max-height:100px;overflow:auto;" class="copyable" data-type="value" data-content=${JSON.stringify(this.escapeHtml(value))}>${value}</div>
             </div>`
@@ -182,7 +185,29 @@
             document.body.removeChild(this.currentContextMenu);
             delete this.currentContextMenu;
           }
-          showContextMenu(e, target.getAttribute('data-content'), target.getAttribute('data-type'));
+          let menus = [];
+          if (target.getAttribute('data-property') != undefined) {
+            menus.push({
+              content: target.getAttribute('data-property'),
+              type: 'property'
+            })
+          }
+
+          if (target.getAttribute('data-content') != undefined) {
+            menus.push({
+              content: target.getAttribute('data-content'),
+              type: 'value'
+            })
+          }
+
+          if(target.getAttribute('data-path') != undefined) {
+            menus.push({
+              content: target.getAttribute('data-path'),
+              type: 'path'
+            })
+          }
+
+          showContextMenu(e,menus);
         }
       };
 
@@ -197,8 +222,8 @@
       document.addEventListener('click', this.clickListener);
 
       // Function to show context menu
-      const showContextMenu = (event, content, type) => {
-        const menu = document.createElement('div');
+      const showContextMenu = (event, menus) => {
+        const menu = document.createElement('div'); // Correction du nom de la variable
         menu.style.position = 'absolute';
         menu.style.top = `${event.pageY}px`;
         menu.style.left = `${event.pageX}px`;
@@ -206,16 +231,18 @@
         menu.style.border = '1px solid #ccc';
         menu.style.padding = '5px';
         menu.style.zIndex = 1000;
-        menu.innerHTML = `<div class="copy-option">Copy ${type}</div>`;
+        for (let item of menus) { // Correction du nom de la variable dans la boucle
+          const menuItem = document.createElement('div'); // Correction du nom de la variable
+          menuItem.innerHTML = `<div style="cursor: pointer; padding: 5px; border: 1px solid #ccc; background-color: #f9f9f9;">Copy ${item.type}</div>`;
+          menuItem.addEventListener('click', () => {
+            copyToClipboard(item.content);
+            document.body.removeChild(menu);
+            delete this.currentContextMenu;
+          });
+          menu.appendChild(menuItem); // Ajout de l'élément au conteneur
+        }
         document.body.appendChild(menu);
         this.currentContextMenu = menu
-
-        menu.addEventListener('click', () => {
-          copyToClipboard(content);
-          document.body.removeChild(menu);
-          delete this.currentContextMenu;
-        });
-
       };
 
       const copyToClipboard = (text) => {
@@ -245,9 +272,6 @@
       height: auto !important;
       max-width: 95%;  /* Limite la largeur à 100% du conteneur parent */
       box-sizing: border-box;
-    }
-    .jstree-children {
-
     }
   </style>
 
