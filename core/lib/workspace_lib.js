@@ -2,6 +2,7 @@
 
 var fragment_lib = require('./fragment_lib.js');
 var fragment_lib_scylla = require('./fragment_lib_scylla.js');
+var file_lib_scylla = require('./file_lib_scylla.js');
 var user_lib = require('./user_lib.js');
 var workspaceComponentModel = require("../models/workspace_component_model");
 var workspaceModel = require("../models/workspace_model");
@@ -416,23 +417,16 @@ function _cleanOldProcessByWorkflow(workflow) {
         keepedHistoriqueEnds,
         oldHistoriqueEnds
       } = await _getOldProcessAndHistoriqueEnd(workflow);
-      // console.log('------------oldProcesses.length)',oldProcesses.length);
-      // for (let oldProcess of oldProcesses){
-      //   await _markProcessAsResolved(oldProcess)
-      // }
-      // console.log(`--------- end clean By Workflow ${workflow.name}`)
-
-
-      // console.log("keepedProcesses",keepedProcesses);
-      // console.log("oldProcesses",oldProcesses);
-      // console.log("keepedHistoriqueEnds",keepedHistoriqueEnds);
-      // console.log("oldHistoriqueEnds",oldHistoriqueEnds);
 
       for (let oldHistoriqueEnd of oldHistoriqueEnds){
         if(oldHistoriqueEnd.frag != undefined){
           await fragment_lib_scylla.tagGarbage(oldHistoriqueEnd.frag);
         }
       }
+      // console.log(`--------- delete files of old processes`,oldProcesses.map(p=>p._id))
+      await file_lib_scylla.deleteMany({
+        processId: oldProcesses.map(p=>p._id.toString())
+      }); 
 
       await historiqueEndModel.getInstance().model.deleteMany({
         _id: {

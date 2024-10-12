@@ -14,13 +14,26 @@ function UtilStore (specificStoreList) {
       }
 
       param.contentType = 'application/json'
-      $.ajax(param).done(function (data) {
+      if (param.responseType === 'blob') {
+        param.xhrFields = {
+            responseType: 'blob' // Ajoutez cette ligne pour gérer les blobs
+        }
+      }
+      console.log('param.responseType', param.responseType);
+      $.ajax({
+        ...param,
+        // xhrFields: {
+        //   responseType: param.responseType || 'json' // Ajoutez cette ligne pour gérer les blobs
+        // }
+      }).done(function (data) {
+        console.log('FETCH DONE', param,data);
         if (persistTrigger) {
           // console.warn('this',this);
           this.trigger('persist_end')
         }
         resolve(data)
-      }.bind(this)).fail(function (error) {
+      }.bind(this)).fail(function (error,textStatus) {
+        console.log('FETCH ERROR', error,textStatus);
         if (persistTrigger) {
           this.trigger('persist_end')
         }

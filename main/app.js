@@ -47,6 +47,7 @@ require('./server/adminWebService')(safe)
 let technicalComponentDirectory = require('./server/technicalComponentWebService')(safe, unSafeRouteur)
 require('./server/userWebservices')(safe)
 require('./server/fragmentWebService')(safe)
+require('./server/fileWebservices')(safe)
 
 
 console.log('connection to ----', configJson.socketServer + '/' + configJson.amqpHost)

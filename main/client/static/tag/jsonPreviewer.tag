@@ -64,6 +64,16 @@
       this.refs.jsonFragViewer.refreshNode(data, nodeId);
     }.bind(this);
 
+    this.refreshFile = function (file, nodeId) {
+      const fileInfo={
+        _fileObject:{
+          filename:file.filename,
+          id : file.id
+        }
+      }
+      this.refs.jsonFragViewer.refreshNode(fileInfo, nodeId);
+    }.bind(this);
+
     this.on('mount', function () {
       // console.log('xxxxxxxxxxxx mount');
       if (this.refs.jsonFragViewer) {
@@ -71,15 +81,20 @@
           //console.log('OPEN', fragId, nodeId);
           RiotControl.trigger("cache_frag_load", fragId, nodeId)
         })
+        this.refs.jsonFragViewer.on('open_file_node', (fileId, nodeId) => {
+          RiotControl.trigger("cache_file_load", fileId, nodeId)
+        })
       }
       RiotControl.on('previewJSON', this.updateData);
       RiotControl.on('cache_frag_loaded', this.refreshFrag);
+      RiotControl.on('cache_file_loaded', this.refreshFile);
       RiotControl.on('item_current_process_persist_changed', this.updatePersistData);
       RiotControl.trigger('previewJSON_refresh');
     });
     this.on('unmount', function () {
       RiotControl.off('previewJSON', this.updateData);
       RiotControl.off('cache_frag_loaded', this.refreshFrag);
+      RiotControl.off('cache_file_loaded', this.refreshFile);
       RiotControl.off('item_current_process_persist_changed', this.updatePersistData);
     });
   </script>

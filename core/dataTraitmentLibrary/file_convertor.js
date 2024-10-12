@@ -84,6 +84,8 @@ function _data_from_file(filename, dataBuffer, contentType) {
   // console.log('contentType',contentType);
   const extension= _extension(filename, contentType);
 
+  console.log('extension',extension);
+
   return new Promise(async function(resolve, reject) {
     switch (extension) {
       // GZ decompression

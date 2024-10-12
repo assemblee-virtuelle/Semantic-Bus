@@ -2,30 +2,32 @@
 
 const fs = require('fs');
 const https = require('https');
-const fileLib = require('../../core/lib/file_lib.js')
+const fileLib = require('../../core/lib/file_lib_scylla.js')
 const fileConvertor = require('../../core/dataTraitmentLibrary/file_convertor.js')
-const dotProp =  require('dot-prop')
+const dotProp = require('dot-prop')
 
 class HttpConsumer {
-  constructor () {
+  constructor() {
     this.fetch = require('node-fetch');
     this.stringReplacer = require('../utils/stringReplacer.js');
     this.formUrlencoded = require('form-urlencoded').default;
-    const { AbortController, abortableFetch }  = require('abortcontroller-polyfill/dist/cjs-ponyfill');
-    this.AbortController=AbortController;
+    const { AbortController, abortableFetch } = require('abortcontroller-polyfill/dist/cjs-ponyfill');
+    this.AbortController = AbortController;
     this.xml2js = require('xml2js');
     this.propertyNormalizer = require('../utils/propertyNormalizer.js');
     this.config = require('../config.json');
     this.himalaya = require('himalaya');
   }
 
-  convertResponseToData (response,componentConfig) {
-    return new Promise(async(resolve, reject)=>{
+  convertResponseToData(response, componentConfig) {
+    console.log('convertResponseToData', response, componentConfig)
+    return new Promise(async (resolve, reject) => {
       try {
 
         let contentType = componentConfig.overidedContentType || response.headers.get('content-type')
-        if (contentType==null || contentType==undefined || contentType==''){
-            reject(new Error(`no content-type in response or overided by component`))
+        console.log('contentType', contentType)
+        if (contentType == null || contentType == undefined || contentType == '') {
+          reject(new Error(`no content-type in response or overided by component`))
         } else if (contentType.search('html') != -1) {
           try {
             const text = await response.text()
@@ -33,10 +35,10 @@ class HttpConsumer {
             resolve(json);
           } catch (e) {
             resolve({
-              error : e
+              error: e
             })
           }
-        } else if (contentType.search('xml') != -1 ) {
+        } else if (contentType.search('xml') != -1) {
           const text = await response.text()
           this.xml2js.parseString(text, {
             attrkey: 'attr',
@@ -49,7 +51,10 @@ class HttpConsumer {
           let responseObject = await response.json();
           // console.log('responseObject',responseObject);
           resolve(this.propertyNormalizer.execute(responseObject))
-        } else if (contentType.search('octet-stream') != -1) {
+        } else if (
+          contentType.search('octet-stream') != -1 ||
+          contentType.search('zip') != -1
+        ) {
           let buffer = await response.buffer();
           fileConvertor.data_from_file(response.headers.get('content-disposition'), buffer).then((result) => {
             // let normalized = this.propertyNormalizer.execute(result)
@@ -61,7 +66,7 @@ class HttpConsumer {
           })
         }
         else {
-          reject(new Error('unsuported content-type :' + contentType))
+          reject(new Error('unsuported content-type : ' + contentType))
         }
       } catch (e) {
         e.displayMessage = ('fail to parse data')
@@ -70,20 +75,20 @@ class HttpConsumer {
     });
   }
 
-  pull (data, flowData, queryParams) {
+  pull(data, flowData, queryParams) {
     const componentConfig = data.specificData;
     let body;
 
 
-    return new Promise(async (resolve,reject)=>{
+    return new Promise(async (resolve, reject) => {
       try {
-        let headers={};
+        let headers = {};
         if (componentConfig.headers != undefined) {
 
           for (let header of componentConfig.headers) {
 
             try {
-              headers[header.key] = this.stringReplacer.execute(header.value, queryParams, flowData?flowData[0].data:undefined)
+              headers[header.key] = this.stringReplacer.execute(header.value, queryParams, flowData ? flowData[0].data : undefined)
             } catch (e) {
               if (this.config != undefined && this.config.quietLog != true) {
                 console.log(e.message);
@@ -96,19 +101,19 @@ class HttpConsumer {
         let body;
         let bodyObject
 
-        if(componentConfig.noBody!=true && flowData){
+        if (componentConfig.noBody != true && flowData) {
           bodyObject = flowData[0].data;
-          if (componentConfig.bodyPath && componentConfig.bodyPath.length>0){
+          if (componentConfig.bodyPath && componentConfig.bodyPath.length > 0) {
             bodyObject = dotProp.get(bodyObject, componentConfig.bodyPath)
           }
-  
+
           // console.log("bodyObject",bodyObject);
           switch (componentConfig.contentType) {
             case 'text/plain':
               body = bodyObject.toString();
               // "airSensors,sensor_id=TLM0201";
               break;
-              //console.log("new here ! ",flowData[0].data);
+            //console.log("new here ! ",flowData[0].data);
             case 'application/json':
             case 'application/ld+json':
               body = JSON.stringify(bodyObject);
@@ -123,103 +128,103 @@ class HttpConsumer {
           // console.log('body1',body);
         }
 
-        let url=componentConfig.url;
+        let url = componentConfig.url;
         // console.log('flowData',flowData);
-        if((flowData&&flowData[0].data) || queryParams){
-          url = this.stringReplacer.execute(componentConfig.url, queryParams, flowData?flowData[0].data:undefined);
+        if ((flowData && flowData[0].data) || queryParams) {
+          url = this.stringReplacer.execute(componentConfig.url, queryParams, flowData ? flowData[0].data : undefined);
         }
 
         let response;
         let errorMessage;
         // console.log('body2',body);
-        if(componentConfig.contentType && body){
-          headers['Content-Type']=componentConfig.contentType
+        if (componentConfig.contentType && body) {
+          headers['Content-Type'] = componentConfig.contentType
         }
 
         // console.log('headers',headers);
         // console.log('BEFORE CALL');
         let agentOptions = undefined;
         let options = {
-          method: componentConfig.method||'GET',
+          method: componentConfig.method || 'GET',
           body: body,
           headers: headers
         };
-        if (flowData && flowData[0].data && componentConfig.certificateProperty && componentConfig.certificatePassphrase ){
+        if (flowData && flowData[0].data && componentConfig.certificateProperty && componentConfig.certificatePassphrase) {
           // console.log ('fileId',flowData[0],flowData[0].data[componentConfig.certificateProperty])
-          const fileObjectc = await fileLib.get(flowData[0].data[componentConfig.certificateProperty]);
+          const fileObject = await fileLib.get(flowData[0].data[componentConfig.certificateProperty]?._file);
           // console.log('fileObjectc',fileObjectc)
-          let file =fs.readFileSync(fileObjectc.filePath);
-          // console.log('file',file)
-          options.agentOptions={
-            pfx: file,
-            passphrase:  componentConfig.certificatePassphrase,
-            rejectUnauthorized: false 
+          // let file =fs.readFileSync(fileObjectc.filePath);
+          console.log('fileObject', fileObject)
+          options.agentOptions = {
+            pfx: fileObject.binary,
+            passphrase: componentConfig.certificatePassphrase,
+            rejectUnauthorized: false
           }
         }
         // console.log(url, options)
         this.call_url(url, options,
-        undefined,
-        componentConfig.timeout,
-        componentConfig.retry?componentConfig.retry-1:undefined
-      ).then(async (response)=>{
+          undefined,
+          componentConfig.timeout,
+          componentConfig.retry ? componentConfig.retry - 1 : undefined
+        ).then(async (response) => {
           // console.log('AFTER CALL',response.status);
           let responseObject;
 
-          if (response){
+          if (response) {
             let hasResponseFailed = response.status >= 400;
             if (hasResponseFailed) {
-              errorMessage='Request failed for url ' + url + ' with status ' + response.status
+              errorMessage = 'Request failed for url ' + url + ' with status ' + response.status
             }
-            try{
+            try {
 
-              if(response.headers&&response.headers.get('content-length')==0){
+              if (response.headers && response.headers.get('content-length') == 0) {
                 responseObject = undefined;
-              }else{
-                responseObject = await this.convertResponseToData(response,componentConfig);
+              } else {
+                responseObject = await this.convertResponseToData(response, componentConfig);
                 // console.log('responseObject',responseObject);
               }
             } catch (e) {
-              errorMessage= e.message;
+              errorMessage = e.message;
             }
           }
 
-          if (errorMessage){
+          if (errorMessage) {
             resolve({
-              data:{
-                request:{
-                  url:url,
-                  headers:headers,
-                  body:bodyObject
+              data: {
+                request: {
+                  url: url,
+                  headers: headers,
+                  body: bodyObject
                 },
-                response:{
-                  body:responseObject,
-                  status:response&&response.status,
-                  headers:response&&Object.fromEntries(response.headers.entries()),
+                response: {
+                  body: responseObject,
+                  status: response && response.status,
+                  headers: response && Object.fromEntries(response.headers.entries()),
                 },
-                error:errorMessage
+                error: errorMessage
               }
             })
           } else {
             resolve({
               data: {
-                body:responseObject,
-                status:response&&response.status,
-                headers:response&&response.headers&&Object.fromEntries(response.headers.entries()),
+                body: responseObject,
+                status: response && response.status,
+                headers: response && response.headers && Object.fromEntries(response.headers.entries()),
               }
             })
           }
 
-        }).catch((e)=>{
-          errorMessage= e.message;
+        }).catch((e) => {
+          errorMessage = e.message;
           // console.log('flowData[0].data',flowData[0]);
           resolve({
-            data:{
-              request:{
-                url:url,
-                headers:headers,
-                body:bodyObject
+            data: {
+              request: {
+                url: url,
+                headers: headers,
+                body: bodyObject
               },
-              error:errorMessage
+              error: errorMessage
             }
           })
         })
@@ -236,48 +241,48 @@ class HttpConsumer {
 
   }
 
-  call_url (url, options, numRetry, timeout, retry) {
-    return new Promise (async (resolve,reject)=>{
+  call_url(url, options, numRetry, timeout, retry) {
+    return new Promise(async (resolve, reject) => {
       if (numRetry === undefined) numRetry = 0
       // console.log('call',url);
-      const fetchTimeout= timeout || 20;
-      retry=retry||0;
+      const fetchTimeout = timeout || 20;
+      retry = retry || 0;
       const controller = new this.AbortController();
       const id = setTimeout(() => {
         // console.warn(`Fetch timeout ${fetchTimeout}s`);
         controller.abort();
-      }, fetchTimeout*1000);
+      }, fetchTimeout * 1000);
 
       // Configuration de l'agent HTTPS personnalisé
       let optionsMix;
-      if (url.includes('https') && options.agentOptions){
+      if (url.includes('https') && options.agentOptions) {
         const agent = new https.Agent(options.agentOptions);
         delete options.agentOptions;
-        optionsMix={...options, agent, signal: controller.signal };
-      }else{
-        optionsMix={...options, signal: controller.signal }
+        optionsMix = { ...options, agent, signal: controller.signal };
+      } else {
+        optionsMix = { ...options, signal: controller.signal }
       }
 
       this.fetch(url, optionsMix).then(
-        (fetchResult)=>{
+        (fetchResult) => {
           clearTimeout(id);
           resolve(fetchResult);
         }
       ).catch(
-        (e)=>{
+        (e) => {
           clearTimeout(id);
           if (this.config != undefined && this.config.quietLog != true) {
-              console.warn(`Post consumer component ${options.method} to ${url} failed ${numRetry+1} times : ${e.message}`)
+            console.warn(`Post consumer component ${options.method} to ${url} failed ${numRetry + 1} times : ${e.message}`)
           }
 
           if (numRetry >= retry) {
             if (this.config != undefined && this.config.quietLog != true) {
               console.error(JSON.stringify(e.message));
             }
-            if (e.message.includes('abort')){
-              reject(new Error(`request aborted cause by timout (${fetchTimeout}s) config ${numRetry+1} times`));
-            }else{
-              reject(new Error(`${e.message} ${numRetry+1} times`));
+            if (e.message.includes('abort')) {
+              reject(new Error(`request aborted cause by timout (${fetchTimeout}s) config ${numRetry + 1} times`));
+            } else {
+              reject(new Error(`${e.message} ${numRetry + 1} times`));
             }
 
           } else {
@@ -285,17 +290,17 @@ class HttpConsumer {
             // This will retry after 5s, 25s, 2m, 10m, 50m, 4h, 21h
             // const retryInterval = Math.pow(5, numRetry + 1)
 
-            const retryInterval =5;
+            const retryInterval = 5;
             if (this.config != undefined && this.config.quietLog != true) {
               console.warn(`trying again in ${retryInterval}s... `)
             }
-            setTimeout(async ()=>{
+            setTimeout(async () => {
 
-                this.call_url(url, options, numRetry + 1).then((postponeFectch)=>{
-                  resolve(postponeFectch)
-                }).catch((e)=>{
-                  reject(e)
-                })
+              this.call_url(url, options, numRetry + 1).then((postponeFectch) => {
+                resolve(postponeFectch)
+              }).catch((e) => {
+                reject(e)
+              })
 
             }, retryInterval * 1000)
 
@@ -308,7 +313,7 @@ class HttpConsumer {
 
   }
 
-  sleep (ms) {
+  sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms))
   }
 }

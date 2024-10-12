@@ -5,9 +5,11 @@ class SftpConsumer {
     this.dataTraitment = require('../../core/dataTraitmentLibrary/index.js');
     this.propertyNormalizer = require('../utils/propertyNormalizer.js')
     this.stringReplacer = require('../utils/stringReplacer.js');
+    this.fileLib = require('../../core/lib/file_lib_scylla.js');
+    this.File = require('../../core/model_schemas/file_schema_scylla.js');
   }
 
-  dataProcessing(dataPath, readableStream) {
+  dataProcessing(dataPath, readableStream, processId) {
     return new Promise((resolve, reject) => {
       const fakeName = dataPath.replace('/','_');
 
@@ -19,15 +21,29 @@ class SftpConsumer {
           data: data,
           path: dataPath
         });
-      }, (err) => {
-        let fullError = new Error(err);
-        fullError.displayMessage = 'SFTP : Erreur lors du traitement du fichier';
-        reject(fullError);
+      }, async (err) => {
+        console.log('err',err);
+        const file = new this.File({
+          binary: readableStream,
+          filename: fakeName,
+          processId: processId
+        });
+        await this.fileLib.create(file);
+        resolve(
+          {
+            file :{
+              _file : file.id
+            }
+          }
+        );
+        // let fullError = new Error(err);
+        // fullError.displayMessage = 'SFTP : Erreur lors du traitement du fichier';
+        // reject(fullError);
       });     
     })
   }
 
-  getFile(specificData, data, pullParams) {
+  getFile(specificData, data, pullParams, processId) {
     return new Promise((resolve, reject) => {
       let sftp = new this.sftpClient();
 
@@ -63,7 +79,7 @@ class SftpConsumer {
             // console.log('FILE');
             sftp.get(specificDataParsed.path)
               .then(readableStream => {
-               return this.dataProcessing(specificDataParsed.path, readableStream);
+               return this.dataProcessing(specificDataParsed.path, readableStream, processId);
               })
               .then(result => {
                 resolve({
@@ -81,13 +97,10 @@ class SftpConsumer {
                   // if the elements are files
                   let elementPath = specificDataParsed.path + element.name;
                   if (element.type === "-") {
-
-
-
                     if (specificDataParsed.resolvefilePath){
                       return sftp.get(elementPath)
                         .then(readableStream => {
-                          return this.dataProcessing(elementPath, readableStream);
+                          return this.dataProcessing(elementPath, readableStream, processId);
                         });
                     } else {
                       return Promise.resolve(

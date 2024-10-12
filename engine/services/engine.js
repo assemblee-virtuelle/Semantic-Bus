@@ -511,7 +511,7 @@ class Engine {
                 // ONLY when no InputsNodes because componentFlow.deeperFocusData are always set in other case
                 try {
                   // console.log("in dataFlow",dataFlow);
-                  const componentFlow= await  module.pull(processingNode.component, dataFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams);
+                  const componentFlow= await  module.pull(processingNode.component, dataFlow, processingNode.queryParams?.queryParams,this.processId);
                   // console.log('ENGINE Component ok')
 
                   const {
@@ -850,7 +850,8 @@ class Engine {
             return [
               processingNode.component,
               recomposedFlow,
-              processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams
+              processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams,
+              this.processId
             ]
           });
 
@@ -910,7 +911,7 @@ class Engine {
         recomposedFlow = recomposedFlow.concat(secondaryFlow);
 
         // if (this.config.quietLog != true) console.time("work");
-        workResult = await module.pull(processingNode.component, recomposedFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams)
+        workResult = await module.pull(processingNode.component, recomposedFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams,this.processId)
         // if (this.config.quietLog != true) console.timeEnd("work");
         rebuildData=workResult.data;
         dfob = workResult.dfob

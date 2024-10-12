@@ -3,7 +3,8 @@
 const path = require('path');
 const fs = require('fs');
 const busboy = require('busboy');
-const file_lib = require('../../../core/lib/file_lib')
+const file_lib = require('../../../core/lib/file_lib_scylla')
+const file_model_scylla = require('../../../core/models/file_model_scylla')
 
 class Upload {
   constructor () {
@@ -42,140 +43,92 @@ class Upload {
       let fileName = null
       let saveTo = null
       busboyInstance.on('file', (fieldname, file, filename, encoding, mimetype) => {
-        fileName = filename
-        // file.on('data', (data) => {
-        //   if (buffer == undefined) {
-        //     buffer = Buffer.from(data)
-        //   } else {
-        //     buffer = Buffer.concat([buffer, data])
-        //   }
-        // })
-        // file.on('end', () => {
-        //   string = buffer.toString('utf-8')
-        // })
+        fileName = filename;
+        let buffer = Buffer.alloc(0);
 
-        const uploadDir= path.join(__dirname, '../../../uploads',compId);
-        
-        console.log('uploadDir',uploadDir)
-        if (!fs.existsSync(uploadDir)) {
-          fs.mkdirSync(uploadDir, { recursive: true });
-        }
-        saveTo = path.join(uploadDir, path.basename(filename));
-  
-        const writeStream = fs.createWriteStream(saveTo);
-  
-        file.pipe(writeStream);
-  
-        writeStream.on('finish', () => {
-          // console.log('File has been written');
-        });
-  
-        writeStream.on('error', (err) => {
-          console.error('Error writing file:', err);
+        file.on('data', (data) => {
+          buffer = Buffer.concat([buffer, data]);
         });
 
-      })
-      busboyInstance.on('finish', async () => {
-        res.json({
-          message: 'file upload ok'
-        })
+        file.on('end', async () => {
+          try {
+            const fileData = new file_model_scylla.model({
+              binary: buffer, // Utiliser la chaîne hexadécimale ici
+              filename: fileName,
+              frag: null, // ou toute autre propriété dont vous avez besoin
+            });
 
-        const file = await file_lib.create({
-          filePath:saveTo,
-          fileName:fileName
-        })
+            const file = await file_lib.create(fileData);
 
-        const workParams={
-          id : compId,
-          queryParams: {
-            _file : file._id
+            const workParams = {
+              id: compId,
+              queryParams: {
+                _file: file.id,
+              },
+            };
+
+            // console.log('workParams',workParams);
+
+            this.amqpConnection.sendToQueue(
+              'work-ask',
+              Buffer.from(JSON.stringify(workParams)),
+              null,
+              (err, ok) => {
+                if (err !== null) {
+                  console.error('Erreur lors de l\'envoi du message :', err);
+                  res.status(500).send({
+                    error: 'AMQP server no connected',
+                  });
+                }
+              }
+            );
+
+            res.json({
+              message: 'file upload ok',
+            });
+          } catch (error) {
+            console.error('Error processing file:', error);
+            res.status(500).send({
+              error: 'Error processing file',
+            });
           }
-        }
-
-        this.amqpConnection.sendToQueue(
-          'work-ask',
-          Buffer.from(JSON.stringify(workParams)),
-          null,
-
-          (err, ok) => {
-            if (err !== null) {
-              console.error('Erreur lors de l\'envoi du message :', err);
-              res.status(500).send({
-                 error: 'AMQP server no connected'
-               })
-            } else {
-             //  console.log(`Message envoyé à la file `);
-              // res.send(workParams);
-            }
-          }
-        )
-
-        // // Lecture du fichier et conversion en buffer
-        // fs.readFile(saveTo, (err, buffer) => {
-        //   if (err) {
-        //     console.error('Erreur lors de la lecture du fichier:', err);
-        //     return;
-        //   }
-
-        //   this.file_convertor.data_from_file(fileName, buffer).then((result) => {
-        //     let normalized = this.propertyNormalizer.execute(result);
-        //     console.log('normalized',normalized.data)
-
-            
-        //     // resolve(normalized)
-        //   }, (err) => {
-        //     let fullError = new Error(err)
-        //     fullError.displayMessage = 'Upload : ' + err
-        //     throw new Error(fullError)
-        //     // reject(fullError)
-        //   })
-        // });
-  
-  
-        // this.workspace_component_lib.get({
-        //   _id: compId
-        // }).then(component => {
-
-
-
-     //  let coun
-
-          // console.log('resultatTraite.data',resultatTraite.data);
-  
-          //TODO : change by file writing and AMQP call with file path
-          // this.request.post(this.config.engineUrl + '/work-ask/' + component._id,
-          //   { body: {
-          //       pushData: resultatTraite.data,
-          //       queryParams: {
-          //         upload: resultatTraite.data
-          //       }
-          //    },
-          //     json: true
-          //   }
-          //   // eslint-disable-next-line handle-callback-err
-          //   , (err, dataToSend) => {
-          //     if (err) {
-          //       console.error(err);
-          //       // err.details=err.displayMessage;
-          //       next(err)
-          //     } else {
-          //       res.json({
-          //         message: 'file upload ok'
-          //       })
-          //     }
-          //   })
-        // })
-
-
-        // this.file_convertor.data_from_file(fileName, string, buffer).then((result) => {
-        //   let normalized = this.propertyNormalizer.execute(result)
-        //   resolve(normalized)
-        // }, (err) => {
-        //   let fullError = new Error(err)
-        //   fullError.displayMessage = 'Upload : ' + err
-        //   reject(fullError)
-        // })
+        });
       })
+      // busboyInstance.on('finish', async () => {
+      //   res.json({
+      //     message: 'file upload ok'
+      //   })
+
+      //   const file = await file_lib.create({
+      //     filePath:saveTo,
+      //     fileName:fileName
+      //   })
+
+      //   const workParams={
+      //     id : compId,
+      //     queryParams: {
+      //       _file : file._id
+      //     }
+      //   }
+
+      //   this.amqpConnection.sendToQueue(
+      //     'work-ask',
+      //     Buffer.from(JSON.stringify(workParams)),
+      //     null,
+
+      //     (err, ok) => {
+      //       if (err !== null) {
+      //         console.error('Erreur lors de l\'envoi du message :', err);
+      //         res.status(500).send({
+      //            error: 'AMQP server no connected'
+      //          })
+      //       } else {
+      //        //  console.log(`Message envoyé à la file `);
+      //         // res.send(workParams);
+      //       }
+      //     }
+      //   )
+      // })
 
       busboyInstance.on('error', (err) => {
         let fullError = new Error(err)
@@ -190,3 +143,5 @@ class Upload {
 }
 
 module.exports = new Upload()
+
+

@@ -35,8 +35,9 @@
       this.editor.delete_node(children);
       let focus =  this.editor.get_node(nodeId);
       let keyText = focus.original.key;
-      let jsTreeNodes = this.jsonToJsTree(data);
-      this.editor.rename_node(nodeId,keyText+':'+jsTreeNodes[0].text);
+      console.log('focus', focus);
+      let jsTreeNodes = this.jsonToJsTree(data,focus.original.key,focus.original.path);
+      this.editor.rename_node(nodeId,jsTreeNodes[0].text);
       jsTreeNodes[0].children.forEach(c => {
         this.editor.create_node(nodeId, c, 'last', function (e) {
           console.log(e);
@@ -57,6 +58,10 @@
             .replace(/\r/g, '&#13;');
     }
 
+    this.testFunction = function () {
+      console.log('testFunction');
+    }
+
 
     this.jsonToJsTree = function (data, key, path) {
       // console.log('tree Generation', data, key);
@@ -67,59 +72,77 @@
       }
       let separator = ' ';
       if (data instanceof Object && data != null) {
-        let openingChar='';
-        let closingChar='';
-        let size;
-        if (Array.isArray(data)) {
-          openingChar = '[';
-          closingChar = ']';
-          size = data.length.toString();
-        } else {
-          if (data['_frag'] == undefined) {
-            openingChar = '{';
-            closingChar = '}';
+        let node;
+        if (key == '_fileObject') {
+          node = {
+            text: `<div style="display:flex;flex-direction:row;align-items:flex-start;">
+                <div class="menuAvailable" data-file-id="${data.id}" data-file-name="${data.filename}" >${data.filename}</div>
+              </div>`,
+            key : prefix,
+            data: data,
+            path: newPath,
+            children: []
           }
-          size = '';
-        }
-        let node = {
-          text: `<div style="display:flex;flex-direction:row;align-items:flex-start;">
-              <div class="copyable" data-property="${prefix}" data-path="${path}" data-type="property">${prefix}</div>
-              <div>&nbsp;${separator}&nbsp;</div>
-              <div>${openingChar}${size.toString()}${closingChar}</div>
-            </div>`,
-          key : prefix + separator,
-          data: data,
-          children: []
-        }
-        let showDataLenght = 100;
-        if (Array.isArray(data)) {
-          if (data.length > showDataLenght) {
-            let hideDataLenght = data.length - showDataLenght
-            data = data.slice(0, showDataLenght);
-            data.push(hideDataLenght + ' records hidden');
+        } else{
+          separator = path?':':'';
+          let openingChar='';
+          let closingChar='';
+          let size;
+          if (Array.isArray(data)) {
+            openingChar = '[';
+            closingChar = ']';
+            size = data.length.toString();
+          } else {
+            // if frag, we don't know if it is array or object
+            if (data['_frag'] == undefined) {
+              openingChar = '{';
+              closingChar = '}';
+            }
+            size = '';
+          }
+          node = {
+            text: `<div style="display:flex;flex-direction:row;align-items:flex-start;">
+                <div class="menuAvailable" data-property="${prefix}" data-path="${path}" data-type="property">${prefix}</div>
+                <div>&nbsp;${separator}&nbsp;</div>
+                <div>${openingChar}${size.toString()}${closingChar}</div>
+              </div>`,
+            key : prefix,
+            data: data,
+            path: newPath,
+            children: []
+          }
+          let showDataLenght = 100;
+          if (Array.isArray(data)) {
+            if (data.length > showDataLenght) {
+              let hideDataLenght = data.length - showDataLenght
+              data = data.slice(0, showDataLenght);
+              data.push(hideDataLenght + ' records hidden');
+            }
+          }
+          let keyCounter=0;
+          for (let key in data) {
+            keyCounter++;
+            
+            if(keyCounter<=showDataLenght+1){
+              let insertingNodes = this.jsonToJsTree(
+                data[key],
+                Array.isArray(data)
+                  ? key
+                  : key,
+                newPath
+              );
+              node.children = node.children.concat(insertingNodes);
+            }else{
+              break;
+            }
           }
         }
-        let keyCounter=0;
-        for (let key in data) {
-          keyCounter++;
-          
-          if(keyCounter<showDataLenght){
-            let insertingNodes = this.jsonToJsTree(
-              data[key],
-              Array.isArray(data)
-                ? key
-                : key,
-              newPath
-            );
-            node.children = node.children.concat(insertingNodes);
-          }else{
-            break;
-          }
-        }
+
+
         //return [node,{text:closingChar}];
         return [node];
       } else {
-        separator = ' : ';
+        let separator = ':';
         let value = '';
         if (data == null) {
           value = 'null';
@@ -132,12 +155,13 @@
         return [
           {
             text: `<div style="display:flex;flex-direction:row;align-items:flex-start;">
-              <div class="copyable" data-property="${prefix}" data-path="${[path,key].join('.')}" data-type="property">${prefix}</div>
+              <div class="menuAvailable" data-property="${prefix}" data-path="${[path,key].join('.')}" data-type="property">${prefix}</div>
               <div>&nbsp;${separator}&nbsp;</div>
-              <div style="white-space: nowrap; max-height:100px;overflow:auto;" class="copyable" data-type="value" data-content=${JSON.stringify(this.escapeHtml(value))}>${value}</div>
+              <div style="white-space: nowrap; max-height:100px;overflow:auto;" class="menuAvailable" data-type="value" data-value=${JSON.stringify(this.escapeHtml(value))}>${value}</div>
             </div>`
           }
         ]
+       
       }
     };
 
@@ -162,6 +186,10 @@
               //RiotControl.trigger("cache_frag_load", node.node.data['_frag'], node.node.id)
               this.trigger("open_frag_node", node.node.data['_frag'], node.node.id)
             }
+            if (node.node.data['_file'] != undefined) {
+              //RiotControl.trigger("cache_frag_load", node.node.data['_frag'], node.node.id)
+              this.trigger("open_file_node", node.node.data['_file'], node.node.id)
+            }
             //console.log(data.instance.get_selected(true)[0].text); console.log(data.instance.get_node(data.selected[0]).text);
           });
 
@@ -176,7 +204,7 @@
       // Add event listener for right-click 
       this.contextMenuListener = (e) => {
         let target = e.target;
-        while (target && !target.classList.contains('copyable')) {
+        while (target && !target.classList.contains('menuAvailable')) {
           target = target.parentElement;
         }
         if (target) {
@@ -189,21 +217,42 @@
           if (target.getAttribute('data-property') != undefined) {
             menus.push({
               content: target.getAttribute('data-property'),
-              type: 'property'
+              text: 'copy property',
+              type: 'copy'
             })
           }
 
-          if (target.getAttribute('data-content') != undefined) {
+          if (target.getAttribute('data-value') != undefined) {
             menus.push({
               content: target.getAttribute('data-content'),
-              type: 'value'
+              text : 'copy value',
+              type: 'copy'
             })
           }
 
           if(target.getAttribute('data-path') != undefined) {
             menus.push({
               content: target.getAttribute('data-path'),
-              type: 'path'
+              text : 'copy path',
+              type: 'copy'
+            })
+          }
+          if(target.getAttribute('data-file-name') != undefined) {
+            menus.push({
+              content: target.getAttribute('data-file-name'),
+              text : 'copy value',
+              type: 'copy'
+            })
+          }
+
+          if(target.getAttribute('data-file-id') != undefined) {
+            menus.push({
+              content: {
+                fileId: target.getAttribute('data-file-id'),
+                fileName: target.getAttribute('data-file-name')
+              },
+              text : 'download file',
+              type: 'download'
             })
           }
 
@@ -211,7 +260,13 @@
         }
       };
 
-      this.clickListener = () => {
+      this.clickListener = (e) => {
+        const target= e.target;
+        if (target.getAttribute('data-fileid') != undefined) {
+          RiotControl.trigger("cache_file_download", target.getAttribute('data-fileid'),target.getAttribute('data-filename'))
+          //this.trigger("cache_file_download", target.getAttribute('data-fileid'))
+          //this.trigger("open_file_node", target.getAttribute('data-fileid'))
+        }
         if (this.currentContextMenu) {
           document.body.removeChild(this.currentContextMenu);
           delete this.currentContextMenu;
@@ -233,9 +288,14 @@
         menu.style.zIndex = 1000;
         for (let item of menus) { // Correction du nom de la variable dans la boucle
           const menuItem = document.createElement('div'); // Correction du nom de la variable
-          menuItem.innerHTML = `<div style="cursor: pointer; padding: 5px; border: 1px solid #ccc; background-color: #f9f9f9;">Copy ${item.type}</div>`;
+          menuItem.innerHTML = `<div style="cursor: pointer; padding: 5px; border: 1px solid #ccc; background-color: #f9f9f9;">${item.text}</div>`;
           menuItem.addEventListener('click', () => {
-            copyToClipboard(item.content);
+            if(item.type == 'copy'){
+              copyToClipboard(item.content);
+            }
+            if(item.type == 'download'){
+              RiotControl.trigger("cache_file_download", item.content.fileId, item.content.fileName)
+            }
             document.body.removeChild(menu);
             delete this.currentContextMenu;
           });

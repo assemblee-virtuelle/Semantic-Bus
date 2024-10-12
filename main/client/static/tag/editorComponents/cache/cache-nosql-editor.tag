@@ -67,21 +67,37 @@
       this.update();
     }.bind(this);
 
+    this.refreshFile = function (file, nodeId) {
+      const fileInfo={
+        _fileObject:{
+          filename:file.filename,
+          id : file.id
+        }
+      }
+      this.refs.jsonFragViewer.refreshNode(fileInfo, nodeId);
+    }.bind(this);
+
     this.on('mount', function () {
       //console.log('CACHE MOUNT');
       this.refs.jsonFragViewer.on('open_frag_node', (fragId, nodeId) => {
         //console.log('OPEN', fragId, nodeId);
         RiotControl.trigger("cache_frag_load", fragId, nodeId)
       })
+      this.refs.jsonFragViewer.on('open_file_node', (fileId, nodeId) => {
+        //console.log('OPEN', fragId, nodeId);
+        RiotControl.trigger("cache_file_load", fileId, nodeId)
+      })
       RiotControl.on('item_current_changed', this.updateData);
       RiotControl.on('item_current_getCache_done', this.refreshCache);
       RiotControl.on('cache_frag_loaded', this.refreshFrag);
+      RiotControl.on('cache_file_loaded', this.refreshFile);
       RiotControl.trigger('item_current_getCache');
     });
     this.on('unmount', function () {
       //console.log('CACHE UNMOUNT');
       RiotControl.off('item_current_changed', this.updateData);
       RiotControl.off('item_current_getCache_done', this.refreshCache);
+      RiotControl.off('cache_file_loaded', this.refreshFile);
       RiotControl.off('cache_frag_loaded', this.refreshFrag);
     });
   </script>

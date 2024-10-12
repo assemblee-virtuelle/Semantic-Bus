@@ -34,3 +34,23 @@ ON mykeyspace.fragment(garbageTag);
 CREATE INDEX IF NOT EXISTS garbageProcess_index 
 ON mykeyspace.fragment(garbageProcess);
 
+-- Créez la table pour le schéma de fichier
+CREATE TABLE IF NOT EXISTS mykeyspace.file (
+    id UUID PRIMARY KEY     -- Identifiant unique pour chaque fichier
+);
+
+-- Ajoutez les colonnes à la table file
+ALTER TABLE mykeyspace.file ADD binary blob; 
+ALTER TABLE mykeyspace.file ADD frag UUID; 
+ALTER TABLE mykeyspace.file ADD filename text;
+ALTER TABLE mykeyspace.file ADD cacheId text;
+ALTER TABLE mykeyspace.file ADD processId text;
+
+CREATE INDEX IF NOT EXISTS cacheid_index 
+ON mykeyspace.file(cacheId);
+
+CREATE INDEX IF NOT EXISTS processid_index 
+ON mykeyspace.file(processId);
+
+
+
