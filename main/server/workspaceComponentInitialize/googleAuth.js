@@ -18,7 +18,7 @@ class GoogleAuth {
 
   createOAuth2Client(req) {
     // Assurez-vous que l'application Express fait confiance au proxy
-    // req.app.set('trust proxy', true);
+    req.app.set('trust proxy', true);
 
     const clientId = config.googleAuth.clientID;
     const clientSecret = config.googleAuth.clientSecret;
