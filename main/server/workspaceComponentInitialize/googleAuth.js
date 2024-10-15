@@ -17,9 +17,14 @@ class GoogleAuth {
   }
 
   createOAuth2Client(req) {
+    // Assurez-vous que l'application Express fait confiance au proxy
+    // req.app.set('trust proxy', true);
+
     const clientId = config.googleAuth.clientID;
     const clientSecret = config.googleAuth.clientSecret;
-    const redirectUri = `${req.protocol}://${req.get('host')}/data/specific/anonymous/google-auth/callback`;
+    const protocol = req.secure ? 'https' : 'http';
+    console.log('protocol', protocol);
+    const redirectUri = `${protocol}://${req.get('host')}/data/specific/anonymous/google-auth/callback`;
     return new OAuth2Client(clientId, clientSecret, redirectUri);
   }
 
