@@ -5,10 +5,16 @@ class JoinByField {
     this.PromiseOrchestrator = require('../../core/helpers/promiseOrchestrator')
   }
   async getPrimaryFlow(data, flowData) {
-    var primaryFlow = flowData.filter(this.sift({
-      componentId: data.specificData.primaryComponentId
-    }));
-    return primaryFlow[0]
+    let secondaryFlowByConnection = flowData.find(f=>f.targetInput=='second');
+    if (secondaryFlowByConnection){
+      let primaryFlow = flowData.find(f=>f.componentId!=secondaryFlowByConnection.componentId);
+      return primaryFlow;
+    }else if (data.specificData.primaryComponentId){
+      let primaryFlow = flowData.find(f=>f.componentId==data.specificData.primaryComponentId); 
+      return primaryFlow;
+    }else{
+      throw new Error('Primary Flow could not be identified');
+    }
   }
   join(primaryRecord, secondaryFlowData, data) {
     return new Promise(async (resolve, reject) => {
@@ -58,12 +64,25 @@ class JoinByField {
     return new Promise((resolve, reject) => {
       // console.log(data,flowData)
       try {
-        var secondaryFlowData = flowData.filter(this.sift({
-          componentId: data.specificData.secondaryComponentId
-        }))[0].data;
-        var primaryFlowData =flowData.filter(this.sift({
-          componentId: data.specificData.primaryComponentId
-        }))[0].data;
+        // console.log("flowData", flowData);
+        const secondaryFlowByConnection = flowData.find(f=>f.targetInput=='second');
+        let secondaryFlowData;
+        let primaryFlowData;
+
+        if (secondaryFlowByConnection) {
+          secondaryFlowData = secondaryFlowByConnection.data;
+          primaryFlowData = flowData.find(f=>f.targetInput==undefined)?.data;
+        }else{
+          secondaryFlowData = flowData.filter(this.sift({
+            componentId: data.specificData.secondaryComponentId
+          }))[0].data;
+          primaryFlowData = flowData.filter(this.sift({
+            componentId: data.specificData.primaryComponentId
+          }))[0].data;
+        }
+
+        // console.log("flows", secondaryFlowData, primaryFlowData);
+
         if (!Array.isArray(secondaryFlowData)) {
           // console.log('ALLO ERROR');
           resolve({
@@ -88,7 +107,7 @@ class JoinByField {
             forcedArray=true;
             primaryFlowData = [primaryFlowData];
           }
-          var secondaryFlowData = JSON.parse(JSON.stringify(secondaryFlowData)) // in case primary and secandary is the same source
+          secondaryFlowData = JSON.parse(JSON.stringify(secondaryFlowData)) // in case primary and secandary is the same source
           let paramArray = primaryFlowData.map(r => {
             return [
               r,

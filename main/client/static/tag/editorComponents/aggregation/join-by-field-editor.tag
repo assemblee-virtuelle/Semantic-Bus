@@ -15,25 +15,25 @@
     <div class="bar"/>
   </div>
 
-  <label class="labelFormStandard">Composant qui contient le flux principal:</label>
+  <!--  <label class="labelFormStandard">Composant qui contient le flux principal:</label>
   <div class="cardInput">
     <select class="inputComponents" name="primaryComponentIdInput" ref="primaryComponentIdInput">
       <option value="undefined">non-défini</option>
       <option each={option in linkedComponents.beforeComponents} value={option._id} selected={parent.data.specificData.primaryComponentId ==option._id}>{option.type} : {option.name}</option>
     </select>
-  </div>
-  <label class="labelFormStandard">Champ du composant principal qui contient l'identifiant du flux secondaire:</label>
+  </div>  -->
+  <label class="labelFormStandard">Propriété du flux principal qui contient l'identifiant du flux secondaire:</label>
   <div class="cardInput">
     <input class="inputComponents" type="text" name="primaryFlowFKIdInput" value={data.specificData.primaryFlowFKId} ref="primaryFlowFKIdInput"></input>
   </div>
-  <label class="labelFormStandard">Composant qui contient le flux secondaire:</label>
+  <!--  <label class="labelFormStandard">Composant qui contient le flux secondaire:</label>
   <div class="cardInput">
     <select class="inputComponents" name="secondaryComponentIdInput" ref="secondaryComponentIdInput">
       <option value="undefined">non-défini</option>
       <option each={option in linkedComponents.beforeComponents} value={option._id} selected={parent.data.specificData.secondaryComponentId ==option._id}>{option.type} : {option.name}</option>
     </select>
-  </div>
-  <label class="labelFormStandard">Champ du composant secondaire qui définit son identifiant:</label>
+  </div>  -->
+  <label class="labelFormStandard">Propriété du flux secondaire qui définit son identifiant:</label>
   <div class="cardInput">
     <input class="inputComponents" type="text" name="secondaryFlowIdInput" ref="secondaryFlowIdInput" value={data.specificData.secondaryFlowId}></input>
   </div>
@@ -62,7 +62,7 @@
       this.data.specificData.multipleJoin = e.target.checked;
     }.bind(this);
 
-    this.updateConnections = function (connections) {
+   /* this.updateConnections = function (connections) {
 
       if (this.data.specificData.primaryComponentId == undefined && connections.beforeComponents[0]) {
         this.data.specificData.primaryComponentId = connections.beforeComponents[0]._id;
@@ -72,20 +72,20 @@
       }
       this.linkedComponents = connections;
       this.update();
-    }.bind(this);
+    }.bind(this);*/
 
     this.on('mount', function () {
-      this.refs.primaryComponentIdInput.addEventListener('change', function (e) {
+      /*this.refs.primaryComponentIdInput.addEventListener('change', function (e) {
         this.data.specificData.primaryComponentId = e.currentTarget.value;
-      }.bind(this));
+      }.bind(this));*/
 
       this.refs.primaryFlowFKIdInput.addEventListener('change', function (e) {
         this.data.specificData.primaryFlowFKId = e.currentTarget.value;
       }.bind(this));
 
-      this.refs.secondaryComponentIdInput.addEventListener('change', function (e) {
+      /*this.refs.secondaryComponentIdInput.addEventListener('change', function (e) {
         this.data.specificData.secondaryComponentId = e.currentTarget.value;
-      }.bind(this));
+      }.bind(this));*/
 
       this.refs.secondaryFlowIdInput.addEventListener('change', function (e) {
         this.data.specificData.secondaryFlowId = e.currentTarget.value;

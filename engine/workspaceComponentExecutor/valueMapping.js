@@ -6,6 +6,16 @@ class ValueMapping {
     this.strings = require('../utils/strings')
   }
 
+  async getPrimaryFlow(data, flowData) {
+    let secondaryFlowByConnection = flowData.find(f=>f.targetInput=='second');
+    if (secondaryFlowByConnection){
+      let primaryFlow = flowData.find(f=>f.componentId!=secondaryFlowByConnection.componentId);
+      return primaryFlow;
+    }else{
+      throw new Error('Primary Flow could not be identified');
+    }
+  }
+
   /**
    * @param {*} valueIn
    * @param {SpecificData} specificData

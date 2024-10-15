@@ -32,7 +32,7 @@ class Upload {
     this.amqpConnection=amqpConnection;
   }
 
-  initialise (router, stompClient) {
+  initialise (router) {
     router.post('/upload/:compId', (req, res, next) => {
       var compId = req.params.compId
 

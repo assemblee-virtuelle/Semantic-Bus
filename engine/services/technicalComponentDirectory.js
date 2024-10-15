@@ -46,5 +46,6 @@ module.exports = {
     slice: require('../workspaceComponentExecutor/slice.js'),
     incrementTable: require('../workspaceComponentExecutor/incrementTable.js'),
     jsonLdConversion: require('../workspaceComponentExecutor/jsonld-conversion.js'),
-    // ---ENDOFPART---
+    googleAuth: require('../workspaceComponentExecutor/googleAuth.js'),
+    imap: require('../workspaceComponentExecutor/imap.js'),
 }

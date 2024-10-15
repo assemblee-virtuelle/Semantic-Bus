@@ -112,8 +112,8 @@ class HttpProvider {
 
   }
 
-  initialise(router, engineTracer) {
-    router.all('*', async (req, res, next) => {
+  initialise(router) {
+    router.all('/api/*', async (req, res, next) => {
       // console.log('req.params[0]',req.params[0]);
       // console.log('_______________0.1');
       const urlRequiered = req.params[0].split('/')[1];

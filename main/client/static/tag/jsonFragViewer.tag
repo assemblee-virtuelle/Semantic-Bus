@@ -157,7 +157,7 @@
             text: `<div style="display:flex;flex-direction:row;align-items:flex-start;">
               <div class="menuAvailable" data-property="${prefix}" data-path="${[path,key].join('.')}" data-type="property">${prefix}</div>
               <div>&nbsp;${separator}&nbsp;</div>
-              <div style="white-space: nowrap; max-height:100px;overflow:auto;" class="menuAvailable" data-type="value" data-value=${JSON.stringify(this.escapeHtml(value))}>${value}</div>
+              <div style="white-space: nowrap; max-height:100px;overflow:auto;" class="menuAvailable" data-type="value" data-content=${JSON.stringify(this.escapeHtml(value))}>${value}</div>
             </div>`
           }
         ]
@@ -222,7 +222,7 @@
             })
           }
 
-          if (target.getAttribute('data-value') != undefined) {
+          if (target.getAttribute('data-content') != undefined) {
             menus.push({
               content: target.getAttribute('data-content'),
               text : 'copy value',

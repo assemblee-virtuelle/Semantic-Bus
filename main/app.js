@@ -33,9 +33,9 @@ app.set('etag', false)
 unSafeRouteur.use(cors())
 
 app.use('/configuration', unSafeRouteur)
-app.use('/data/api', unSafeRouteur)
+app.use('/data/specific/anonymous', unSafeRouteur)
 app.use('/data/specific', safe)
-
+app.use('/data', unSafeRouteur)
 app.use('/data/auth', unSafeRouteur)
 app.use('/data/core', safe)
 

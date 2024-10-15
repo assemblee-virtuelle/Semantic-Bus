@@ -39,7 +39,7 @@ class Engine {
           });
         this.componentsResolving = components
         let workflow = await this.workspace_lib.getWorkspace(this.originComponent.workspaceId);
-        // console.log('workflow.users',workflow.users);
+        console.log('----------- workflow',workflow);
         this.workflow = workflow;
         console.log(' ---------- Start Engine-----------', this.workflow.name)
         this.workflow.status = 'running';
@@ -94,16 +94,6 @@ class Engine {
               target_nom: link.target.component.nom
             }
           }));
-          // console.log(' ---------- BuildPath Links-----------', this.fackCounter, this.workflow.name)
-          // console.log(this.pathResolution.links.map(link => {
-          //   // return (link.source);
-          //   return (link.source.component._id + ' -> ' + link.target.component._id)
-          // }))
-          // console.log(' ---------- BuildPath Nodes-----------', this.fackCounter)
-          // console.log(this.pathResolution.nodes.map(node => {
-          //   //return (node.component._id + ':' + JSON.stringify(node.queryParams))
-          //   return (node.component._id);
-          // }))
         }
 
         this.owner = user
@@ -144,27 +134,6 @@ class Engine {
         }
 
         if (this.responseComponentId != undefined && this.responseComponentId != 'undefined') {
-
-          /// -------------- push case  -----------------------
-          /// used before by upload and http provider component : now use pullParams/queryParams in those cases
-          // if (this.requestDirection == 'push') {
-          //   let originNode = this.pathResolution.nodes.filter(this.sift({
-          //     'component._id': this.originComponent._id
-          //   }))[0];
-          //   originNode.dataResolution = {
-          //     data: this.pushData
-          //   }
-          //   originNode.status = 'resolved'
-          //   this.historicEndAndCredit(originNode, new Date(), undefined, this.owner)
-          //   // console.log(originNode.component._id,this.responseComponentId);
-          //   if (originNode.component._id == this.responseComponentId) {
-          //     resolve(this.pushData)
-          //     // this.originComponentResult = processingNode.dataResolution;
-          //   }
-          //   // resolve(this.pushData)
-          // }
-
-
           this.processNextBuildPath();
         } else {
           reject(new Error('responseComponentId undefined'))
@@ -193,9 +162,7 @@ class Engine {
           tracerId: this.tracerId,
           information: 'Votre flow a été aretté avec succéss'
         })
-        //status of workflow ever stoped by update process webservice
-        // this.workflow.status = 'stoped';
-        // this.workspace_lib.updateSimple(this.workflow)
+
       } else {
         if (this.owner.credit >= 0 || (this.config.privateScript && this.config.privateScript.length == 0) || this.config.free == true) {
 
@@ -262,7 +229,9 @@ class Engine {
 
             let dataFlow
             let primaryflow
-            let secondaryFlow
+            //TODO : remove
+            let secondaryFlow;
+
             let componentFlow={}
             if (nodesProcessingInputs.length > 0) {
               let persistedDataFlow = [];
@@ -270,32 +239,21 @@ class Engine {
                 // console.log('sourceNode',sourceNode);
                 let persistedData;
                 let persistedFragmentData;
-                // if (processingNode.component.module != 'deeperFocusOpeningBracket') {
-                  let sourceComponentId;
-                  // console.log('sourceNode.dataResolution',sourceNode.dataResolution);
-                  // if (sourceNode.dataResolution && sourceNode.dataResolution.dfobSourceComponentId) {
-                  //   // console.log('sourceNode.dataResolution.dfobSourceComponentId',sourceNode.dataResolution.dfobSourceComponentId);
-                  //   sourceComponentId = sourceNode.dataResolution.dfobSourceComponentId;
-                  // } else {
-                    sourceComponentId = sourceNode.component._id
-                  // }
 
-                  // get_component_result is get HistoricEnd
-                  const persistedDataFlowCoponent = await this.workspace_component_lib.get_component_result(sourceComponentId, this.processId);
-                  // console.log('persistedDataFlowCoponent',persistedDataFlowCoponent);
-                  const fragAvailable = persistedDataFlowCoponent.frag && persistedDataFlowCoponent.frag != null;
+                let sourceComponentId;
 
-                  if (fragAvailable) {
-                    persistedFragmentData = persistedDataFlowCoponent.frag;
-                  }
-                  // console.log('persistedFragmentData',persistedFragmentData)
+                sourceComponentId = sourceNode.component._id
 
-                // }
+                const persistedDataFlowCoponent = await this.workspace_component_lib.get_component_result(sourceComponentId, this.processId);
+                // console.log('persistedDataFlowCoponent',persistedDataFlowCoponent);
+                const fragAvailable = persistedDataFlowCoponent.frag && persistedDataFlowCoponent.frag != null;
+
+                if (fragAvailable) {
+                  persistedFragmentData = persistedDataFlowCoponent.frag;
+                }
+
                 const previousDfob = persistedDataFlowCoponent.dfob ? persistedDataFlowCoponent.dfob : undefined;
-                // console.log('sourceNode.targets',processingNode.component._id)
-                // for (const target of sourceNode.targets) {
-                //   console.log('target',target)
-                // }
+
               
                 const targetInput = sourceNode.targets.find(t => t.target.component._id.equals(processingNode.component._id)).targetInput;
                 // console.log('targetInput', targetInput)  
@@ -345,7 +303,7 @@ class Engine {
               }
 
               // console.log('_________componentFlow',componentFlow)
-
+              //TODO : remove
               secondaryFlow = []
               if (module.getSecondaryFlow != undefined) {
                 componentFlow.secondaryFlow = await module.getSecondaryFlow(
