@@ -32,6 +32,8 @@ module.exports = {
         body: postData
       });
 
+      console.log('response', response);
+
       if (!response.ok) {
         throw new Error(`Failed to refresh token: ${response.status}`);
       }
