@@ -129,7 +129,7 @@ function _update(componentToUpdate) {
   return new Promise(async (resolve, reject) => {
 
     if (componentToUpdate) {
-      console.log('componentToUpdate', componentToUpdate);
+      // console.log('componentToUpdate', componentToUpdate);
       let componentUpdated = await  workspaceComponentModel.getInstance().model.findOneAndUpdate({
         _id: componentToUpdate._id
       }, componentToUpdate, {
