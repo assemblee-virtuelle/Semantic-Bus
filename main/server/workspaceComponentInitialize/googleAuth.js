@@ -36,8 +36,9 @@ class GoogleAuth {
         const oAuth2Client = this.createOAuth2Client(req);
         const authorizeUrl = oAuth2Client.generateAuthUrl({
           access_type: 'offline',
+          prompt: 'consent',
           scope: component.specificData.selectedScopes,
-          state: componentId // Ajout du componentId dans l'état
+          state: componentId 
         });
         res.redirect(authorizeUrl);
       } catch (error) {
@@ -52,7 +53,7 @@ class GoogleAuth {
 
       try {
         const { tokens } = await oAuth2Client.getToken(code);
-        oAuth2Client.setCredentials(tokens);
+        // oAuth2Client.setCredentials(tokens);
         console.info('Tokens acquired:', tokens);
 
         // Récupération du component pour obtenir le workspaceId
