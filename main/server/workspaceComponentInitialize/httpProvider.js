@@ -116,13 +116,16 @@ class HttpProvider {
     router.all('/api/*', async (req, res, next) => {
       // console.log('req.params[0]',req.params[0]);
       // console.log('_______________0.1');
-      const urlRequiered = req.params[0].split('/')[1];
+      console.log('req',req);
+      // const urlRequiered = req.params[0].split('/')[1];
+      // console.log('urlRequiered',urlRequiered);
       const urlRequieredFull = req.params[0].replace('/', '');
+      console.log('urlRequieredFull',urlRequieredFull);
       const query = req.query;
       // console.log();
       let targetedComponent;
       const regex = /([^-]*)-.*/g;
-      let componentId = regex.exec(urlRequiered)[1];
+      let componentId = regex.exec(urlRequieredFull)[1];
       // let component;
       try {
         // console.log('______componentId',componentId);
