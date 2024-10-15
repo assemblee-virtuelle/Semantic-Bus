@@ -70,8 +70,10 @@ class GoogleAuth {
             }
         );
 
-        // Construction de l'URL de redirection avec workspaceId et componentId
-        res.redirect(`http://localhost/ihm/application.html#workspace/${workspaceId}/component/${componentId}/edit-component`);
+        req.app.set('trust proxy', true);
+        const protocol = req.secure ? 'https' : 'http';
+        const host = req.get('host');
+        res.redirect(`${protocol}://${host}/ihm/application.html#workspace/${workspaceId}/component/${componentId}/edit-component`);
       } catch (error) {
         res.status(500).send('Erreur lors de l\'authentification');
       }
