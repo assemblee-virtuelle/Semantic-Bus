@@ -23,7 +23,7 @@ class GoogleAuth {
     const clientId = config.googleAuth.clientID;
     const clientSecret = config.googleAuth.clientSecret;
     const protocol = req.secure ? 'https' : 'http';
-    console.log('protocol', protocol);
+    // console.log('protocol', protocol);
     const redirectUri = `${protocol}://${req.get('host')}/data/specific/anonymous/google-auth/callback`;
     return new OAuth2Client(clientId, clientSecret, redirectUri);
   }
@@ -54,7 +54,7 @@ class GoogleAuth {
       try {
         const { tokens } = await oAuth2Client.getToken(code);
         // oAuth2Client.setCredentials(tokens);
-        console.info('Tokens acquired:', tokens);
+        // console.info('Tokens acquired:', tokens);
 
         // Récupération du component pour obtenir le workspaceId
         const component = await workspaceComponentLib.get({ _id: componentId });

@@ -59,6 +59,7 @@
     "passport": "^0.3.2",
     "passport-google-oauth": "^1.0.0",
     "path-to-regexp": "^6.2.0",
+    "raw-body": "^3.0.0",
     "rdf-parser-n3": "^1.1.1",
     "rdf-serializer-jsonld": "^1.1.2",
     "rdfxml-streaming-parser": "^2.4.0",

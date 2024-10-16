@@ -116,11 +116,12 @@ class HttpProvider {
     router.all('/api/*', async (req, res, next) => {
       // console.log('req.params[0]',req.params[0]);
       // console.log('_______________0.1');
-      console.log('req',req);
+      console.log('req.body',req.body);
+      console.log('req.rawBody',req.rawBody);
       // const urlRequiered = req.params[0].split('/')[1];
       // console.log('urlRequiered',urlRequiered);
       const urlRequieredFull = req.params[0].replace('/', '');
-      console.log('urlRequieredFull',urlRequieredFull);
+      // console.log('urlRequieredFull',urlRequieredFull);
       const query = req.query;
       // console.log();
       let targetedComponent;
@@ -171,6 +172,7 @@ class HttpProvider {
           // console.log('_______________1 add call',component.workspaceId,component._id.toString(),component.specificData.url);
           // console.log('_______________1 add call',component._id.toString());
           const callStack = this.pendingCall[component._id];
+          // console.log('req.body', req.body);
           const callContent = {
             queryParams: {
               query: req.query,

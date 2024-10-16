@@ -109,11 +109,11 @@ class Imap {
   async initialise() {
     try {
       const imapComponents = await workspaceComponentLib.get_all({type:'IMAP'});
-      console.log('imapComponents', imapComponents);
+      // console.log('imapComponents', imapComponents);
       
-      for (const component of imapComponents) {
-        await this.connectToImap(component.specificData);
-      }
+      // for (const component of imapComponents) {
+      //   await this.connectToImap(component.specificData);
+      // }
     } catch (error) {
       console.error('Erreur lors de l\'initialisation des composants IMAP:', error);
     }

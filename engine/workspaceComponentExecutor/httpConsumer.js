@@ -125,7 +125,7 @@ class HttpConsumer {
               reject(new Error(`${componentConfig.contentType} contentType not Supported by this component`));
 
           }
-          // console.log('body1',body);
+          console.log('body1',body);
         }
 
         let url = componentConfig.url;
@@ -154,14 +154,14 @@ class HttpConsumer {
           const fileObject = await fileLib.get(flowData[0].data[componentConfig.certificateProperty]?._file);
           // console.log('fileObjectc',fileObjectc)
           // let file =fs.readFileSync(fileObjectc.filePath);
-          console.log('fileObject', fileObject)
+          // console.log('fileObject', fileObject)
           options.agentOptions = {
             pfx: fileObject.binary,
             passphrase: componentConfig.certificatePassphrase,
             rejectUnauthorized: false
           }
         }
-        // console.log(url, options)
+        console.log('options',url, options)
         this.call_url(url, options,
           undefined,
           componentConfig.timeout,
@@ -262,7 +262,7 @@ class HttpConsumer {
       } else {
         optionsMix = { ...options, signal: controller.signal }
       }
-
+      console.log('optionsMix', optionsMix);
       this.fetch(url, optionsMix).then(
         (fetchResult) => {
           clearTimeout(id);
