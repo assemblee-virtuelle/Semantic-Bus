@@ -29,43 +29,6 @@ app.use(bodyParser.text({
   type: ['application/*', 'text/*'],
 }));
 
-function checkIfFile(req, buffer) {
-  // Check for MIME type in headers first
-  const contentType = req.headers['content-type'];
-  console.log('contentType', contentType);
-  if (contentType) {
-    const fileMimeTypes = [
-      'multipart/form-data',
-      'application/pdf',
-      'image/jpeg',
-      'image/png',
-      'image/gif',
-      'application/zip',
-      // Add more MIME types as needed
-    ];
-    if (fileMimeTypes.includes(contentType.split(';')[0].trim())) {
-      throw new Error('File detected based on Content-Type');
-    }
-  }
-
-  // If Content-Type check is inconclusive, check for common file signatures (magic numbers)
-  const bytes = new Uint8Array(buffer);
-  const fileSignatures = {
-    jpg: [0xFF, 0xD8, 0xFF],
-    png: [0x89, 0x50, 0x4E, 0x47],
-    gif: [0x47, 0x49, 0x46, 0x38],
-    pdf: [0x25, 0x50, 0x44, 0x46],
-    zip: [0x50, 0x4B, 0x03, 0x04],
-    // Add more signatures as needed
-  };
-
-  for (const signature of Object.values(fileSignatures)) {
-    if (bytes.length >= signature.length && signature.every((byte, index) => byte === bytes[index])) {
-      throw new Error('File detected based on fileSignatures');
-    }
-  }
-}
-
 http.globalAgent.maxSockets = 10000000000
 
 

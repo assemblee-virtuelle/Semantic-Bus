@@ -116,8 +116,6 @@ class HttpProvider {
     router.all('/api/*', async (req, res, next) => {
       // console.log('req.params[0]',req.params[0]);
       // console.log('_______________0.1');
-      console.log('req.body',req.body);
-      console.log('req.rawBody',req.rawBody);
       // const urlRequiered = req.params[0].split('/')[1];
       // console.log('urlRequiered',urlRequiered);
       const urlRequieredFull = req.params[0].replace('/', '');
