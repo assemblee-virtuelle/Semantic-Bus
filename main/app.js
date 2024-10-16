@@ -18,8 +18,6 @@ const url = env.CONFIG_URL;
 const errorHandling = require('../core/helpers/errorHandling');
 const cron = require('node-cron');
 const workspace_lib = require('../core/lib/workspace_lib')
-const getRawBody = require('raw-body');
-const onFinished = require('on-finished');
 
 
 app.use(bodyParser.json({limit: '100mb'}));
