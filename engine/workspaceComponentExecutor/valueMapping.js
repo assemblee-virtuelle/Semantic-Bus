@@ -12,7 +12,7 @@ class ValueMapping {
       let primaryFlow = flowData.find(f=>f.componentId!=secondaryFlowByConnection.componentId);
       return primaryFlow;
     }else{
-      throw new Error('Primary Flow could not be identified');
+      return flowData[0];
     }
   }
 
