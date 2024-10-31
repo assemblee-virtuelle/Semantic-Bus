@@ -70,7 +70,7 @@ class ValueFromPath {
         let key = pathArray.shift()
         for (let keyNode in node) {
           // console.log('copare',keyNode,key,keyNode.localeCompare(key));
-          if (keyNode.localeCompare(key) != 0 && this.objectSizeOf(node[keyNode]) < 1000 && !Array.isArray(node[keyNode])) {
+          if (keyNode.localeCompare(key) != 0 && this.objectSizeOf(node[keyNode]) < 1000) {
             // let targetKey=currentKey==undefined?keyNode:targetKey+'-'+keyNode;
             pathObject[currentKey + '-' + keyNode] = node[keyNode]
           }
