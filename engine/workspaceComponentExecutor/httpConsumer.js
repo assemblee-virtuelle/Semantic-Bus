@@ -53,7 +53,8 @@ class HttpConsumer {
           resolve(this.propertyNormalizer.execute(responseObject))
         } else if (
           contentType.search('octet-stream') != -1 ||
-          contentType.search('zip') != -1
+          contentType.search('zip') != -1 ||
+          contentType.search('ics') != -1
         ) {
           let buffer = await response.buffer();
           fileConvertor.data_from_file(response.headers.get('content-disposition'), buffer).then((result) => {
@@ -125,7 +126,7 @@ class HttpConsumer {
               reject(new Error(`${componentConfig.contentType} contentType not Supported by this component`));
 
           }
-          console.log('body1',body);
+          // console.log('body1',body);
         }
 
         let url = componentConfig.url;

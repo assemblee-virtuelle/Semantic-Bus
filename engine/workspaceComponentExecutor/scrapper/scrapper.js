@@ -7,7 +7,7 @@ class Scrapper {
   }
 
   getPriceState(specificData, moPrice, recordPrice) {
-    if (specificData.sauceLabToken != null) {
+    if (specificData.key != null) {
       return {
         moPrice: moPrice,
         recordPrice: 0
@@ -223,8 +223,8 @@ class Scrapper {
         let options = Object.assign(this.base.config, {
           capabilities: {
             browserName: 'chrome',
-            version: '56',
-            platform: 'windows 10',
+            version: 'latest',
+            platform: 'windows 11',
             // tags: ['examples'],
             name: saucelabname || 'Example Test',
 
