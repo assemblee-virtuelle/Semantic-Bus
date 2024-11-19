@@ -124,6 +124,9 @@
     },
     "jsonLdConversion": {
       "price": 20
+    },
+    "binaryExtractor": {
+      "price": 20
     }
   },
   "googleAuth": {

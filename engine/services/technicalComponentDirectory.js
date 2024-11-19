@@ -48,4 +48,5 @@ module.exports = {
     jsonLdConversion: require('../workspaceComponentExecutor/jsonld-conversion.js'),
     googleAuth: require('../workspaceComponentExecutor/googleAuth.js'),
     imap: require('../workspaceComponentExecutor/imap.js'),
+    binaryExtractor: require('../workspaceComponentExecutor/binaryExtractor.js'),
 }

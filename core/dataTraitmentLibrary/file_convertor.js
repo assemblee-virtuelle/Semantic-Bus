@@ -77,11 +77,8 @@ function addFileToTree(tree,fileObject,leaf, parts) {
   }
 }
 
-function _data_from_file(filename, dataBuffer, contentType) {
-  //console.log("in aggregate function")
-  // console.log('_data_from_file')
-  // console.log('filename',filename);
-  // console.log('contentType',contentType);
+function _data_from_file(filename, dataBuffer, contentType, extractionParams) {
+  console.log('extractionParams', extractionParams);
   const extension= _extension(filename, contentType);
 
   console.log('extension',extension);
@@ -108,7 +105,7 @@ function _data_from_file(filename, dataBuffer, contentType) {
 
               try {
                 const bufferFile= await fileObject.async('nodebuffer');
-                const data = await _data_from_file(name, bufferFile);
+                const data = await _data_from_file(name, bufferFile, undefined, extractionParams);
                 // console.log(data)
                 fileItem.data= data.data;
               } catch (error) {
@@ -137,7 +134,7 @@ function _data_from_file(filename, dataBuffer, contentType) {
         // we can find the right file's extension type
         const newFileName = filename.substring(filename, filename.length-3);
 
-        _data_from_file(newFileName, newBuffer).then((result) => {
+        _data_from_file(newFileName, newBuffer, undefined, extractionParams).then((result) => {
           resolve({
             data: result.data
           })
@@ -165,7 +162,7 @@ function _data_from_file(filename, dataBuffer, contentType) {
         //     data: result
         //   })
         // }, function(err) {
-        reject("votre fichier n'est pas au norme ou pas du bon format " + extension)
+        reject("Format non supporté mais c'est prévu " + extension)
         // })
         break;
 
@@ -175,7 +172,7 @@ function _data_from_file(filename, dataBuffer, contentType) {
         // rdf.rdf_traitmentXML(dataBuffer.toString()).then(result => {
         //   resolve(result)
         // }, function(err) {
-        reject("votre fichier n'est pas au norme ou pas du bon format " + extension)
+        reject("Format non supporté mais c'est prévu  " + extension)
         // })
         break;
 
@@ -184,7 +181,7 @@ function _data_from_file(filename, dataBuffer, contentType) {
       case ("xlsx"):
       case ("ods"):
         //console.log('ALLO3');
-        exel.exel_to_json(dataBuffer).then((resultat) => {
+        exel.exel_to_json(dataBuffer, extractionParams).then((resultat) => {
           //console.log("RESULTAT", resultat)
           resolve({
             data: resultat
@@ -205,7 +202,7 @@ function _data_from_file(filename, dataBuffer, contentType) {
       case ("xml"):
       case ("kml"):
       // console.log(dataBuffer)
-      xml.xml_traitment(dataBuffer.toString()).then(function(result) {
+      xml.xml_traitment(dataBuffer.toString(), extractionParams).then(function(result) {
           // //console.log("FINAL", reusltat)
           //console.log("FINAL", reusltat)
           resolve({
@@ -216,7 +213,7 @@ function _data_from_file(filename, dataBuffer, contentType) {
         })
         break;
       case ("csv"):
-        csv.csvtojson(dataBuffer.toString()).then((result) => {
+        csv.csvtojson(dataBuffer.toString(), extractionParams).then((result) => {
           // //console.log("FINAL", reusltat)
           // console.log("result", result)
           resolve({
@@ -229,7 +226,7 @@ function _data_from_file(filename, dataBuffer, contentType) {
         break;
       case ("ics"):
       case ("calendar"):
-        ics.icstojson(dataBuffer.toString()).then((result) => {
+        ics.icstojson(dataBuffer.toString(), extractionParams).then((result) => {
           // //console.log("FINAL", reusltat)
           //console.log("FINAL", reusltat)
           resolve({

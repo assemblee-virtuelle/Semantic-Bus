@@ -17,17 +17,18 @@ function decode_utf8(s) {
   }
 }
 
-function _csvtojson(data) {
-  // console.log("CSV CSV CSV CSV");
+function _csvtojson(data, extractionParams) {
+  console.log('extractionParams', extractionParams);
   return new Promise((resolve, reject) => {
     // console.log(  csv({
     //     noheader: true,
     //     delimiter: "auto"
     //   }).fromString(data));
+    const delimiter = extractionParams?.delimiter || "auto";
     try {
       csv({
         noheader: true,
-        delimiter: "auto"
+        delimiter: delimiter
       }).fromString(data).then(jsonObj=>{
         resolve(jsonObj);
       }).catch(e=>{

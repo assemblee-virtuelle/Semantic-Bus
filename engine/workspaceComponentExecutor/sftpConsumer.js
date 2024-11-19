@@ -9,20 +9,26 @@ class SftpConsumer {
     this.File = require('../../core/model_schemas/file_schema_scylla.js');
   }
 
-  dataProcessing(dataPath, readableStream, processId) {
-    return new Promise((resolve, reject) => {
+  dataProcessing(dataPath, readableStream, processId, specificData) {
+    return new Promise(async (resolve, reject) => {
       const fakeName = dataPath.replace('/','_');
 
-      this.dataTraitment.type.data_from_file(fakeName, readableStream)
-      .then((result) => {
-        let data = this.propertyNormalizer.execute(result.data);
-        // console.log(data);
-        resolve({
-          data: data,
-          path: dataPath
-        });
-      }, async (err) => {
-        console.log('err',err);
+      let rawFile= true;
+      if (specificData.rawFile!=true){
+        try{
+          const result = await this.dataTraitment.type.data_from_file(fakeName, readableStream, rawFile)
+          let data = this.propertyNormalizer.execute(result.data);
+          rawFile= false;
+          resolve({
+            data: data,
+            path: dataPath
+          });
+        }catch(e){
+          console.warning(e);
+        }
+      }
+
+      if (rawFile){
         const file = new this.File({
           binary: readableStream,
           filename: fakeName,
@@ -36,10 +42,7 @@ class SftpConsumer {
             }
           }
         );
-        // let fullError = new Error(err);
-        // fullError.displayMessage = 'SFTP : Erreur lors du traitement du fichier';
-        // reject(fullError);
-      });     
+      }     
     })
   }
 
@@ -79,7 +82,7 @@ class SftpConsumer {
             // console.log('FILE');
             sftp.get(specificDataParsed.path)
               .then(readableStream => {
-               return this.dataProcessing(specificDataParsed.path, readableStream, processId);
+               return this.dataProcessing(specificDataParsed.path, readableStream, processId, specificDataParsed);
               })
               .then(result => {
                 resolve({
@@ -100,7 +103,7 @@ class SftpConsumer {
                     if (specificDataParsed.resolvefilePath){
                       return sftp.get(elementPath)
                         .then(readableStream => {
-                          return this.dataProcessing(elementPath, readableStream, processId);
+                          return this.dataProcessing(elementPath, readableStream, processId, specificDataParsed);
                         });
                     } else {
                       return Promise.resolve(

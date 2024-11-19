@@ -36,6 +36,14 @@
     <input class="inputComponents" placeholder="" type="text" ref="pathInput" onchange={changePath} value={data.specificData.path}></input>
   </div>
 
+  <label class="labelFormStandard">conservation du fichier binaire:</label>
+  <div class="cardInput">
+    <label class="switch">
+        <input type="checkbox" name="rawFileInput" ref="rawFileInput" checked={data.specificData.rawFile} onchange={rawFileChange}/>
+        <span class="slider round"></span>
+    </label>
+  </div>
+
   <script>
     this.data = {}
     this.data.specificData = {}
@@ -57,6 +65,9 @@
     }
     changePath(e) {
       this.data.specificData.path = e.currentTarget.value;
+    }
+    rawFileChange(e) {
+      this.data.specificData.rawFile = e.currentTarget.checked;
     }
     this.on('mount', function () {
       RiotControl.on('item_current_changed', this.updateData);
