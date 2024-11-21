@@ -20,7 +20,7 @@ class HttpConsumer {
   }
 
   convertResponseToData(response, componentConfig) {
-    console.log('convertResponseToData', response, componentConfig)
+    // console.log('convertResponseToData', response, componentConfig)
     return new Promise(async (resolve, reject) => {
       try {
 
