@@ -10,8 +10,8 @@ class BinaryExtractor {
   }
 
   async pull(data, flowData) {
-    console.log('data',data);
-    console.log('flowData',flowData);
+    // console.log('data',data);
+    // console.log('flowData',flowData);
     if (!flowData || !flowData[0] || !flowData[0].data || !flowData[0].data._file) {
       throw new Error('No file data found in input');
     }

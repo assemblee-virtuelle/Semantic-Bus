@@ -1,10 +1,69 @@
 'use strict'
 // need NodeJs >=12
 const dayjs = require('dayjs-with-plugins');
-const intl = require('intl');
+const he = require('he');
+const Globalize = require("globalize");
+const cldrData = require("cldr-data");
+const path = require('path');
+const fs = require('fs');
+// Charger toutes les données CLDR nécessaires pour toutes les locales
+
+const allLocales = cldrData.availableLocales;
+
+const loadCldrData = () => {
+  const localesCldrCategories = [
+    "main/{locale}/numbers",
+    "main/{locale}/currencies",
+    "main/{locale}/ca-gregorian",
+    "main/{locale}/timeZoneNames",
+    "main/{locale}/listPatterns",
+    "main/{locale}/units",
+    "main/{locale}/measurementSystemNames",
+    "main/{locale}/dateFields",
+    "main/{locale}/posix"
+  ];
+  const supplementalsCldrCategories = [
+    "supplemental/likelySubtags",
+    "supplemental/numberingSystems",
+    "supplemental/plurals",
+    "supplemental/timeData",
+    "supplemental/weekData",
+    "supplemental/currencyData",
+    "supplemental/aliases",
+    "supplemental/parentLocales",
+    "supplemental/dayPeriods",
+    "supplemental/ordinals",
+  ];
+
+
+  supplementalsCldrCategories.forEach(category => {
+    Globalize.load(cldrData(category));
+  });
+
+  allLocales.forEach(locale => {
+    localesCldrCategories.forEach(category => {
+      const path = category.replace("{locale}", locale);
+      try {
+        Globalize.load(cldrData(path));
+        // Globalize.load(
+        //   cldrData.entireMainFor(locale),
+        //   cldrData.entireSupplemental()
+        // );
+      } catch (err) {
+        console.warn(`Could not load data for locale ${locale}: ${err.message}`);
+      }
+    });
+  });
+
+};
+
+// Initialisation de Globalize avec toutes les locales
+loadCldrData();
+
+
 
 module.exports = {
-  Intl: require('intl'),
+  // Intl: require('intl'),
   // moment: require('moment'),
   dotProp: require('dot-prop'),
   unicode: require('unicode-encode'),
@@ -45,8 +104,8 @@ module.exports = {
           // if (options && options.evaluationDetail == true) {
           //   return { eval: evalResult };
           // } else {
-            // console.log('return evalResult',evalResult);
-            return evalResult;
+          // console.log('return evalResult',evalResult);
+          return evalResult;
           // }
         } catch (e) {
           // console.error(e)
