@@ -54,7 +54,9 @@ class HttpConsumer {
         } else if (
           contentType.search('octet-stream') != -1 ||
           contentType.search('zip') != -1 ||
-          contentType.search('ics') != -1
+          contentType.search('ics') != -1 ||
+          contentType.search('csv') != -1 ||
+          contentType.search('xlsx') != -1
         ) {
           let buffer = await response.buffer();
           fileConvertor.data_from_file(response.headers.get('content-disposition'), buffer).then((result) => {

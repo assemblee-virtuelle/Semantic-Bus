@@ -34,6 +34,7 @@ class GoogleAuth {
       const componentId = req.query.componentId;
       try {
         const component = await workspaceComponentLib.get({ _id: componentId });
+        console.log('component', component);
         const oAuth2Client = this.createOAuth2Client(req);
         const authorizeUrl = oAuth2Client.generateAuthUrl({
           access_type: 'offline',
