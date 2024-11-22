@@ -30,6 +30,7 @@ class GoogleAuth {
 
   async initialise(router) {
     router.get('/google-auth', async (req, res) => {
+      console.log('ALLO');
       const componentId = req.query.componentId;
       try {
         const component = await workspaceComponentLib.get({ _id: componentId });

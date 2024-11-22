@@ -263,7 +263,7 @@ class HttpConsumer {
       } else {
         optionsMix = { ...options, signal: controller.signal }
       }
-      console.log('optionsMix', optionsMix);
+      // console.log('optionsMix', optionsMix);
       this.fetch(url, optionsMix).then(
         (fetchResult) => {
           clearTimeout(id);
