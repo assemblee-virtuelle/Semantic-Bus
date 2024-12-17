@@ -52,10 +52,10 @@ class PromisesExecutor {
     try {
       // console.log(this.option);
       let continueChekresult= true;
-      if(this.option && this.option.continueChekFunction){
-        // console.log('continueChekFunction call');
+      if(this.option && this.option.continueCheckFunction){
+        // console.log('continueCheckFunction call');
 
-        continueChekresult = await this.option.continueChekFunction()
+        continueChekresult = await this.option.continueCheckFunction()
         // console.log(continueChekresult);
       }
 

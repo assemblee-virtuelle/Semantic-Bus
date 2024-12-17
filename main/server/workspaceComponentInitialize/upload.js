@@ -28,12 +28,14 @@ class Upload {
   }
 
   setAmqp(amqpConnection){
-    // console.log('set AMQP')
+    console.log('set AMQP')
     this.amqpConnection=amqpConnection;
   }
 
   initialise (router) {
+    console.log('_______initialise');
     router.post('/upload/:compId', (req, res, next) => {
+      console.log('________UPLOAD', req.params.compId);
       var compId = req.params.compId
 
       var busboyInstance = new busboy({
@@ -43,6 +45,7 @@ class Upload {
       let fileName = null
       let saveTo = null
       busboyInstance.on('file', (fieldname, file, filename, encoding, mimetype) => {
+        console.log('UPLOAD', filename);
         fileName = filename;
         let buffer = Buffer.alloc(0);
 
@@ -52,6 +55,7 @@ class Upload {
 
         file.on('end', async () => {
           try {
+            // console.log('_WRITE to file scylla');
             const fileData = new file_model_scylla.model({
               binary: buffer, // Utiliser la chaîne hexadécimale ici
               filename: fileName,
@@ -67,7 +71,7 @@ class Upload {
               },
             };
 
-            // console.log('workParams',workParams);
+            console.log('workParams',workParams);
 
             this.amqpConnection.sendToQueue(
               'work-ask',

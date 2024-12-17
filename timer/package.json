@@ -10,11 +10,11 @@
   "author": "Simon Louvet <simon.louvet.zen@gmail.com> && Boceno Alexandre <bocenoalex@gmail.com>",
   "license": "GNUV3",
   "dependencies": {
-    "@types/webdriverio": "^5.0.0",
     "amqp-connection-manager": "3.9.0",
+    "aws-sdk": "^2.1692.0",
     "bcryptjs": "^2.4.3",
-    "csvtojson": "^2.0.10",
     "cassandra-driver": "^4.7.2",
+    "csvtojson": "^2.0.10",
     "error-stack-parser": "^2.0.1",
     "http": "0.0.0",
     "isobject": "^4.0.0",
@@ -28,6 +28,7 @@
     "passport-google-oauth": "^2.0.0",
     "request": "^2.88.0",
     "sift": "^8.5.1",
+    "spinnies": "^0.5.1",
     "validator": "^12.0.0",
     "xlsx": "^0.10.5",
     "xml2js": "^0.4.19"

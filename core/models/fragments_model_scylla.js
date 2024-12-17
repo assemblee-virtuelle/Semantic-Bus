@@ -2,85 +2,116 @@ const client = require('../db/scylla_client');
 const zlib = require('zlib');
 const Fragment = require('../model_schemas/fragments_schema_scylla');
 const { validate: uuidValidate } = require('uuid');
+const Spinnies = require('spinnies');
+
+// Helper function to compress data
+const compressData = (data) => {
+  if (!data) return null;
+  return zlib.deflateSync(Buffer.from(JSON.stringify(data), 'utf-8'));
+};
+
+// Helper function to decompress data
+const decompressData = (compressedData) => {
+  if (!compressedData) return null;
+  return JSON.parse(zlib.inflateSync(compressedData).toString('utf-8'));
+};
+
+// Function to process a fragment for reading
+const processFragmentRead = (fragmentData) => {
+  if (fragmentData?.data) {
+    try {
+      fragmentData.data = decompressData(fragmentData.data);
+    } catch (error) {
+      console.error('Error decompressing data', fragmentData.id, fragmentData.data, error);
+    }
+  }
+
+  let processedFragment = new Fragment(fragmentData);
+
+  processedFragment.id = processedFragment.id.toString();
+  processedFragment.rootFrag = processedFragment?.rootFrag?.toString();
+  processedFragment.branchOriginFrag = processedFragment?.branchOriginFrag?.toString();
+  processedFragment.branchFrag = processedFragment?.branchFrag?.toString(); 
+  processedFragment.originFrag = processedFragment?.originFrag?.toString();  
+
+  return processedFragment;
+};
+
+// Function to process a fragment for writing
+const processFragmentWrite = (fragment) => {
+  const processedFragment = { ...fragment };
+
+  if (fragment?.data) {
+    processedFragment.data = compressData(fragment.data);
+  }
+
+  processedFragment.id = fragment?.id?.toString(); // Ensure id is a string
+  return processedFragment;
+};
 
 const insertFragment = async (fragment) => {
+  const processedFragment = processFragmentWrite(fragment);
   const query = `
     INSERT INTO fragment (id, data, originFrag, rootFrag, branchOriginFrag, branchFrag, garbageTag, garbageProcess, indexArray, maxIndexArray)
     VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
   `;
-  let compressedJsonData;
-  if (fragment?.data) {
-    compressedJsonData = zlib.deflateSync(Buffer.from(JSON.stringify(fragment.data), 'utf-8'));
-  }
-
 
   const insertResult = await client.execute(query, [
-    fragment.id,
-    compressedJsonData,
-    fragment.originFrag,
-    fragment.rootFrag,
-    fragment.branchOriginFrag,
-    fragment.branchFrag,
-    fragment.garbageTag,
-    fragment.garbageProcess,
-    fragment.index !== undefined ? fragment.index : null, // Changement de index en indexArray
-    fragment.maxIndex !== undefined ? fragment.maxIndex : null // Ajout de maxIndex
+    processedFragment.id,
+    processedFragment.data,
+    processedFragment.originFrag,
+    processedFragment.rootFrag,
+    processedFragment.branchOriginFrag,
+    processedFragment.branchFrag,
+    processedFragment.garbageTag,
+    processedFragment.garbageProcess,
+    processedFragment.index !== undefined ? processedFragment.index : null, // Changement de index en indexArray
+    processedFragment.maxIndex !== undefined ? processedFragment.maxIndex : null // Ajout de maxIndex
   ], { prepare: true });
 
-  return fragment;
+  return processFragmentRead(processedFragment);
 };
 
 const updateFragment = async (fragment) => {
+
+  const processedFragment = processFragmentWrite(fragment);
   const query = `
     UPDATE fragment 
     SET data = ?, originFrag = ?, rootFrag = ?, branchOriginFrag = ?, branchFrag = ?, garbageTag = ?, garbageProcess = ?, indexArray = ?, maxIndexArray = ?
     WHERE id = ?
   `;
 
-  let compressedJsonData;
-  if (fragment?.data) {
-    compressedJsonData = zlib.deflateSync(Buffer.from(JSON.stringify(fragment.data), 'utf-8'));
-  } else {
-    compressedJsonData = null;
-  }
-
   const updatedFields = [
-    compressedJsonData,
-    fragment.originFrag !== undefined ? fragment.originFrag : null,
-    fragment.rootFrag !== undefined ? fragment.rootFrag : null,
-    fragment.branchOriginFrag !== undefined ? fragment.branchOriginFrag : null,
-    fragment.branchFrag !== undefined ? fragment.branchFrag : null,
-    fragment.garbageTag !== undefined ? fragment.garbageTag : null,
-    fragment.garbageProcess !== undefined ? fragment.garbageProcess : null,
-    fragment.index !== undefined ? fragment.index : null, // Changement de index en indexArray
-    fragment.maxIndex !== undefined ? fragment.maxIndex : null, // Ajout de maxIndex
-    fragment.id
+    processedFragment.data,
+    processedFragment.originFrag !== undefined ? processedFragment.originFrag : null,
+    processedFragment.rootFrag !== undefined ? processedFragment.rootFrag : null,
+    processedFragment.branchOriginFrag !== undefined ? processedFragment.branchOriginFrag : null,
+    processedFragment.branchFrag !== undefined ? processedFragment.branchFrag : null,
+    processedFragment.garbageTag !== undefined ? processedFragment.garbageTag : null,
+    processedFragment.garbageProcess !== undefined ? processedFragment.garbageProcess : null,
+    processedFragment.index !== undefined ? processedFragment.index : null, // Changement de index en indexArray
+    processedFragment.maxIndex !== undefined ? processedFragment.maxIndex : null, // Ajout de maxIndex
+    processedFragment.id
   ];
 
-  await client.execute(query, updatedFields, { prepare: true });
-
-  return fragment;
-
+  const result = await client.execute(query, updatedFields, { prepare: true });
+  return processFragmentRead(processedFragment);
 };
 
 const persistFragment = async (fragment) => {
-  const checkQuery = `SELECT id FROM fragment WHERE id = ?`;
-  const result = await client.execute(checkQuery, [fragment.id], { prepare: true });
+  try {
 
-  if (result.rowLength > 0) {
+    const existingFragment = await getFragmentById(fragment.id);
+
     return await updateFragment(fragment);
-  } else {
-    return await insertFragment(fragment);
+  } catch (error) {
+    if (error.message.includes('not found')) {
+      // If the error is because the fragment was not found, insert a new one
+      return await insertFragment(fragment);
+    }
+    // Re-throw the error if it's not the "not found" error
+    throw error;
   }
-};
-
-const processFragment = (fragmentData) => {
-  if (fragmentData?.data) {
-    fragmentData.data = JSON.parse(zlib.inflateSync(fragmentData.data).toString('utf-8'));
-  }
-  fragmentData.id = fragmentData.id.toString(); // Ajout de toString sur id
-  // indexArray and maxIndexArray to index and maxIndex are in the scope of new Fragment
-  return new Fragment(fragmentData);
 };
 
 // Fonction utilitaire pour traiter les critères et options
@@ -100,10 +131,12 @@ const processCriteriaAndOptions = (criteria) => {
 const getFragmentById = async (id) => {
   const query = `SELECT * FROM fragment WHERE id = ?`;
   const result = await client.execute(query, [id], { prepare: true });
-
   if (result.rowLength > 0) {
     const fragmentData = result.rows[0];
-    return processFragment(fragmentData); // Utilisation de processFragment
+
+    const resultProcessed = processFragmentRead(fragmentData); // Utilisation de processFragmentRead
+
+    return resultProcessed;
   } else {
     throw new Error(`Fragment with ID ${id} not found`);
   }
@@ -111,7 +144,7 @@ const getFragmentById = async (id) => {
 
 
 // Mise à jour de searchFragmentByField
-const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, selectedFields = {}) => {
+const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, selectedFields = {}, limit = Infinity, callback = null) => {
   // Traitement des critères et options
   searchCriteria = processCriteriaAndOptions(searchCriteria); 
   sortOptions = processCriteriaAndOptions(sortOptions); 
@@ -127,70 +160,95 @@ const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, sele
   const whereClause = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''; // Ajout conditionnel de WHERE
 
   const selectedFieldNames = Object.keys(selectedFields).filter(field => selectedFields[field] === 1).join(', ') || '*';
-  const queryString = `SELECT ${selectedFieldNames} FROM fragment ${whereClause}`;
+  const limitClause = limit !== Infinity ? `LIMIT ${limit}` : ''; // Ne pas ajouter LIMIT si limit est Infinity
+  const queryString = `SELECT ${selectedFieldNames} FROM fragment ${whereClause} ${limitClause}`;
   const queryParams = fieldNames.flatMap(field => Array.isArray(searchCriteria[field]) ? searchCriteria[field] : [searchCriteria[field]]);
 
-  const result = await getAllFragments(queryString, queryParams); 
+  const resultProcessed = await getAllFragments(queryString, queryParams, limit, callback); // Transmettre la limite
 
-  let rows = result;
-  if (sortOptions) {
-    rows.sort((a, b) => {
-      for (const [key, order] of Object.entries(sortOptions)) {
-        const orderLower = order.toLowerCase();
-        if (a[key] < b[key]) return orderLower === 'asc' ? -1 : 1;
-        if (a[key] > b[key]) return orderLower === 'asc' ? 1 : -1;
-      }
-      return 0;
-    });
+  if (!callback) {
+    let rows = resultProcessed;
+    if (sortOptions) {
+      rows.sort((a, b) => {
+        for (const [key, order] of Object.entries(sortOptions)) {
+          const orderLower = order.toLowerCase();
+          if (a[key] < b[key]) return orderLower === 'asc' ? -1 : 1;
+          if (a[key] > b[key]) return orderLower === 'asc' ? 1 : -1;
+        }
+        return 0;
+      });
+    }
+    return rows; // Utilisation de processFragmentRead
   }
-
-  return rows.map(row => processFragment(row));
+  // Ne retourne rien si un callback est fourni
 };
 
-const updateMultipleFragments = async (searchCriteria, updateFields) => {
-  updateFields = processCriteriaAndOptions(updateFields); // Appel de la fonction utilitaire
+const updateMultipleFragments = async (searchCriteria, updateFields, showSpinner = false) => {
+  const spinnies = new Spinnies();
+  const searchCriteriaProcessed = processCriteriaAndOptions(searchCriteria); // Appel de la fonction utilitaire
+  const updateFieldsProcessed = processFragmentWrite(updateFields); // Application de processFragmentWrite
 
-  const fields = Object.keys(updateFields);
-  const values = Object.values(updateFields);
+  // Exclude 'id' from fields and values
+  const fields = Object.keys(updateFieldsProcessed).filter(field => field !== 'id');
+  const values = fields.map(field => updateFieldsProcessed[field]);
   const setClause = fields.map(field => `${field} = ?`).join(', ');
 
   // Récupérer les fragments à mettre à jour
-  const fragmentsToUpdate = await searchFragmentByField(searchCriteria, null, { id: 1 });
+  const fragmentsToUpdate = await searchFragmentByField(searchCriteriaProcessed, null, { id: 1 });
+  // console.log('fragmentsToUpdate', fragmentsToUpdate)
   const idsToUpdate = fragmentsToUpdate.map(fragment => fragment.id);
+
+  // console.log('idsToUpdate', idsToUpdate)
 
   if (idsToUpdate.length === 0) return; 
 
   // Diviser les IDs en lots de 100
   const batchSize = 100;
-  const updatePromises = []; // Tableau pour stocker les promesses
+
+  if (showSpinner) {
+    spinnies.add('update', { text: 'Updating fragments...' });
+  }
+
   for (let i = 0; i < idsToUpdate.length; i += batchSize) {
+    // console.log('__idsToUpdate', idsToUpdate)
+    // console.log('__i', i)
     const batchIds = idsToUpdate.slice(i, i + batchSize);
+    // console.log('__batchIds', batchIds)
     const whereClause = `id IN (${batchIds.map(() => '?').join(', ')})`;
     const query = `UPDATE fragment SET ${setClause} WHERE ${whereClause}`;
     const queryValues = [...values, ...batchIds];
+    // console.log('query', query, 'queryValues', queryValues)
 
-    updatePromises.push(client.execute(query, queryValues, { prepare: true })); // Ajouter la promesse
+    // Exécuter chaque mise à jour de lot une par une
+    const result = await client.execute(query, queryValues, { prepare: true });
+    // console.log('result', result)
+
+    // Mettre à jour le spinner avec la progression
+    if (showSpinner) {
+      spinnies.update('update', { text: `Updating fragments... (${Math.min(i + batchSize, idsToUpdate.length)}/${idsToUpdate.length})` });
+    }
   }
-  await Promise.all(updatePromises); // Attendre que toutes les promesses soient résolues
+
+  if (showSpinner) {
+    spinnies.succeed('update', { text: 'Fragments updated successfully!' });
+  }
 };
 
 const deleteManyFragments = async (searchCriteria) => {
   searchCriteria = processCriteriaAndOptions(searchCriteria);
-  const toGarbage = await searchFragmentByField(searchCriteria, undefined, { id: 1 });
-  console.log('fragment to Delete : ', toGarbage.length);
-  const idsToDelete = toGarbage.map(fragment => fragment.id);
+  const itemsToDelete = await searchFragmentByField(searchCriteria, undefined, { id: 1 });
+  // console.log('fragment to Delete : ', toGarbage.length);
+  const idsToDelete = itemsToDelete.map(fragment => fragment.id);
   if (idsToDelete.length === 0) return; 
 
   // Diviser les IDs en lots de 100
   const batchSize = 100;
-  const deletePromises = []; // Tableau pour stocker les promesses
   for (let i = 0; i < idsToDelete.length; i += batchSize) {
     const batchIds = idsToDelete.slice(i, i + batchSize);
     const whereClause = `id IN (${batchIds.map(() => '?').join(', ')})`;
     const query = `DELETE FROM fragment WHERE ${whereClause}`;
-    deletePromises.push(client.execute(query, batchIds, { prepare: true })); // Ajouter la promesse
+    await client.execute(query, batchIds, { prepare: true }); // Exécuter chaque suppression de lot une par une
   }
-  await Promise.all(deletePromises); // Attendre que toutes les promesses soient résolues
   // console.log(`${idsToDelete.length} fragments deleted`);
 };
 
@@ -200,16 +258,34 @@ const countDocuments = async (searchCriteria) => {
   return ids.length; // Retourne le nombre d'IDs trouvés
 };
 
-const getAllFragments = async (query, params) => {
-  let result = await client.execute(query, params, { prepare: true });
-  let allRows = result.rows;
+const getAllFragments = async (query, params, limit = Infinity, callback = null) => {
+  let allRows = [];
+  let pageCount = 0; // Initialisation du compteur de pages
+  let result;
 
-  while (result.pageState) {
-    result = await client.execute(query, params, { prepare: true, pageState: result.pageState });
-    allRows = allRows.concat(result.rows);
+  do {
+    pageCount++; // Incrémentation du compteur de pages
+    result = await client.execute(query, params, { prepare: true, pageState: result?.pageState });
+    // console.log('Page count:', pageCount, 'Records retrieved:', allRows.length);
+
+    if (callback) {
+      const processedRows = result.rows.map(row => processFragmentRead(row));
+      await callback(processedRows); // Appeler le callback avec tous les rows de la page
+    } else {
+      allRows = allRows.concat(result.rows);
+    }
+
+    // Arrêter la pagination si la limite est atteinte, sauf si la limite est Infinity
+    if (limit !== Infinity && allRows.length >= limit) {
+      allRows = allRows.slice(0, limit); // S'assurer que le nombre de lignes ne dépasse pas la limite
+      break;
+    }
+  } while (result.pageState);
+
+  // console.log('Total pages:', pageCount); // Affichage du nombre total de pages
+  if (!callback) {
+    return allRows.map(row => processFragmentRead(row));
   }
-
-  return allRows;
 };
 
 module.exports = {
@@ -223,6 +299,7 @@ module.exports = {
   updateMany: updateMultipleFragments,
   deleteMany: deleteManyFragments,
   deleteManyFragments,
-  countDocuments, // Ajout de la nouvelle fonction
+  countDocuments,
+  getAllFragments,
   model: Fragment
 };

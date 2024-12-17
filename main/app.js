@@ -6,7 +6,7 @@ const express = require('express');
 const cors = require('cors');
 const app = express();
 const http = require('http');
-const amqp = require('amqplib/callback_api');
+// const amqp = require('amqplib/callback_api');
 const amqpManager = require('amqp-connection-manager');
 const safe = express.Router();
 const unSafeRouteur = express.Router();
@@ -18,7 +18,9 @@ const url = env.CONFIG_URL;
 const errorHandling = require('../core/helpers/errorHandling');
 const cron = require('node-cron');
 const workspace_lib = require('../core/lib/workspace_lib')
-
+const { createFragmentTable } = require('../core/db/dynamodb_admin');
+const { createFileTable } = require('../core/db/scylla_admin');
+const { migrateFragmentsDataFromScyllaToDynamoDB } = require('../core/db/migration'); 
 
 app.use(bodyParser.json({limit: '100mb'}));
 app.use(bodyParser.urlencoded({limit: '100mb', extended: true}));
@@ -86,8 +88,18 @@ var channelWrapper = connection.createChannel({
   
 });
 const onConnect = (channel) => {
-  technicalComponentDirectory.setAmqp(channel)
+  console.log('_______onConnect');
+  technicalComponentDirectory.setAmqpChannel(channel)
 }
+
+technicalComponentDirectory.setAmqpClient(channelWrapper);
+
+// Use async/await to ensure sequential execution
+(async () => {
+  await createFragmentTable();
+  await createFileTable();
+  // await migrateFragmentsDataFromScyllaToDynamoDB();
+})();
 
 /// SECURISATION DES REQUETES
 

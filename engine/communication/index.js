@@ -5,7 +5,7 @@ const workspace_component_lib = require('../../core/lib/workspace_component_lib'
 
 class Communication {
   init(router) {
-    router.post('/work-ask/:componentId', (req, res, next) => {
+    router.post('/work-ask/:componentId', async (req, res, next) => {
 
       // console.log('VERSION',req.params.engineVersion)
 
@@ -15,51 +15,51 @@ class Communication {
       const queryParams = req.body.queryParams
 
       const direction = req.body.direction || 'work'
-      workspace_component_lib.get({
-        _id: componentId
-      }).then(async (data) => {
-        const engine = require('../services/engine.js')
-        engine.execute(data, direction, this.amqpClient, undefined, pushData, queryParams).then(engineResult=>{
-          // console.log('engineResult',JSON.stringify(engineResult));
-          res.send(engineResult)
-        }).catch(errors=>{
+      try {
+        console.log('get component', componentId);
+        const data = await workspace_component_lib.get({ _id: componentId });
+        const engine = require('../services/engine.js');
+        try {
+          const engineResult = await engine.execute(data, direction, this.amqpClient, undefined, pushData, queryParams);
+          res.send(engineResult);
+        } catch (errors) {
           let errorsMessages;
-          if(Array.isArray(errors)){
-            errorsMessages=errors.map(e=>e.message);
-          }else{
-            errorsMessages=errors.message;
+          if (Array.isArray(errors)) {
+            errorsMessages = errors.map(e => e.message);
+          } else {
+            errorsMessages = errors.message;
           }
-          console.log('error engine',errorsMessages);
+          console.log('error engine', errorsMessages);
           res.status(500).send(errorsMessages);
-        })
-      }).catch(e=>{
-        console.log('error global',e);
+        }
+      } catch (e) {
+        console.log('error global', e);
         res.status(500).send(e);
-      })
+      }
     })
   }
 
-  setAmqpChannel(channel){
+  async setAmqpChannel(channel) {
     console.log('setAmqpChannel');
-    channel.consume('work-ask', (msg) => {
-      // console.log("work-ask", msg)
-      const messageObject = JSON.parse(msg.content.toString())
-      // console.log("work-ask", messageObject)
-      workspace_component_lib.get({
-        _id: messageObject.id
-      }).then( (data)=>{
-        // console.log('work-ask',messageObject)
-        const engine = require('../services/engine.js')
-        // console.log('messageObject',messageObject)
-        engine.execute(data, 'work', this.amqpClient, messageObject.callerId,messageObject.pushData,messageObject.queryParams, messageObject.tracerId).then(r=>{
+    channel.consume('work-ask', async (msg) => {
+      // console.log('msg', msg);
+      const messageObject = JSON.parse(msg.content.toString());
+      // console.log('messageObject', messageObject);
+      try {
+        const data = await workspace_component_lib.get({ _id: messageObject.id });
+        const engine = require('../services/engine.js');
+        try {
+          await engine.execute(data, 'work', this.amqpClient, messageObject.callerId, messageObject.pushData, messageObject.queryParams, messageObject.tracerId);
           // console.log('engine ok');
-        }).catch(e=>{
+        } catch (e) {
           console.error(e);
-        })
-      })
+        }
+      } catch (e) {
+        console.error(e);
+      }
     }, {
       noAck: true
-    })
+    });
   }
 
   setAmqpClient(amqpClient){

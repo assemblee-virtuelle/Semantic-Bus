@@ -1,3 +1,231 @@
+/**
+ * @module WorkspaceStore
+ * 
+ * @description
+ * This module manages the workspace state and interactions within the application.
+ * It provides methods for loading, updating, and managing workspaces and their components.
+ * 
+ * @param {Object} utilStore - Utility store for making AJAX calls.
+ * @param {Array} specificStoreList - List of specific stores to be associated with the workspace.
+ * 
+ * @fires WorkspaceStore#workspace_graph_compute_done
+ * @fires WorkspaceStore#workspace_current_process_changed
+ * @fires WorkspaceStore#ajax_fail
+ * @fires WorkspaceStore#ajax_success
+ * @fires WorkspaceStore#workspace_current_changed
+ * @fires WorkspaceStore#workspace_collection_changed
+ * @fires WorkspaceStore#workspace_share_collection_changed
+ * @fires WorkspaceStore#navigation_control_done
+ * @fires WorkspaceStore#item_current_changed
+ * @fires WorkspaceStore#item_curent_connect_show_changed
+ * @fires WorkspaceStore#graph_position_from_store
+ * @fires WorkspaceStore#share_change
+ * @fires WorkspaceStore#share_change_no_valide
+ * @fires WorkspaceStore#share_change_already
+ * @fires WorkspaceStore#previewJSON
+ * @fires WorkspaceStore#process_result
+ * @fires WorkspaceStore#component_current_connections_changed
+ * @fires WorkspaceStore#workspace_editor_menu_changed
+ * @fires WorkspaceStore#item_current_process_persist_changed
+ * @fires WorkspaceStore#workspace_graph_selection_changed
+ * @fires WorkspaceStore#persist_start
+ * @fires WorkspaceStore#persist_end
+ * @fires WorkspaceStore#item_current_editor_changed
+ * @fires WorkspaceStore#graph_workspace_data_loaded
+ * @fires WorkspaceStore#ajax_sucess
+ * @fires WorkspaceStore#workspace_current_components_changed
+ * 
+ * @event WorkspaceStore#update_graph_on_store
+ * @description Triggered to update the graph position on the store.
+ * 
+ * @event WorkspaceStore#get_graph_position_on_store
+ * @description Triggered to get the graph position from the store.
+ * 
+ * @event WorkspaceStore#load_workspace_graph
+ * @description Triggered to load the workspace graph data.
+ * 
+ * @event WorkspaceStore#stop_current_process
+ * @description Triggered to stop the current process.
+ * 
+ * @event WorkspaceStore#item_persist
+ * @description Triggered to persist an item.
+ * 
+ * @event WorkspaceStore#share-workspace
+ * @description Triggered to share a workspace.
+ * 
+ * @event WorkspaceStore#delete-share-workspace
+ * @description Triggered to delete a shared workspace.
+ * 
+ * @event WorkspaceStore#navigation
+ * @description Triggered for navigation within the workspace.
+ * 
+ * @event WorkspaceStore#workspace_graph_compute
+ * @description Triggered to compute the workspace graph.
+ * 
+ * @event WorkspaceStore#component_current_set
+ * @description Triggered to set the current component.
+ * 
+ * @event WorkspaceStore#connection_current_set
+ * @description Triggered to set the current connection.
+ * 
+ * @event WorkspaceStore#workspace_delete
+ * @description Triggered to delete a workspace.
+ * 
+ * @event WorkspaceStore#workspace_collection_load
+ * @description Triggered to load the workspace collection.
+ * 
+ * @event WorkspaceStore#workspace_collection_share_load
+ * @description Triggered to load the shared workspace collection.
+ * 
+ * @event WorkspaceStore#workspace_current_updateField
+ * @description Triggered to update a field in the current workspace.
+ * 
+ * @event WorkspaceStore#workspace_current_export
+ * @description Triggered to export the current workspace.
+ * 
+ * @event WorkspaceStore#workspace_current_import
+ * @description Triggered to import a workspace.
+ * 
+ * @event WorkspaceStore#previewJSON_refresh
+ * @description Triggered to refresh the JSON preview.
+ * 
+ * @event WorkspaceStore#workspace_current_process_refresh
+ * @description Triggered to refresh the current process in the workspace.
+ * 
+ * @event WorkspaceStore#workspace_current_process_refresh_from_server
+ * @description Triggered to refresh the current process from the server.
+ * 
+ * @event WorkspaceStore#workspace_current_process_select
+ * @description Triggered to select a process in the current workspace.
+ * 
+ * @event WorkspaceStore#workspace_current_refresh
+ * @description Triggered to refresh the current workspace.
+ * 
+ * @event WorkspaceStore#workspace_current_persist
+ * @description Triggered to persist the current workspace.
+ * 
+ * @event WorkspaceStore#set_componentSelectedToAdd
+ * @description Triggered to set the component selected to add.
+ * 
+ * @event WorkspaceStore#workspace_current_components_refresh
+ * @description Triggered to refresh the components in the current workspace.
+ * 
+ * @event WorkspaceStore#workspace_current_add_components
+ * @description Triggered to add components to the current workspace.
+ * 
+ * @event WorkspaceStore#workspace_current_delete_component
+ * @description Triggered to delete a component from the current workspace.
+ * 
+ * @event WorkspaceStore#set-email-to-share
+ * @description Triggered to set the email for sharing a workspace.
+ * 
+ * @event WorkspaceStore#item_current_connect_before_show
+ * @description Triggered to show the connect before mode for the current item.
+ * 
+ * @event WorkspaceStore#item_current_connect_before_second_show
+ * @description Triggered to show the connect before second mode for the current item.
+ * 
+ * @event WorkspaceStore#item_current_connect_after_show
+ * @description Triggered to show the connect after mode for the current item.
+ * 
+ * @event WorkspaceStore#connect_components
+ * @description Triggered to connect components.
+ * 
+ * @event WorkspaceStore#disconnect_components
+ * @description Triggered to disconnect components.
+ * 
+ * @event WorkspaceStore#item_current_persist
+ * @description Triggered to persist the current item.
+ * 
+ * @event WorkspaceStore#component_preview
+ * @description Triggered to preview a component.
+ * 
+ * @event WorkspaceStore#component_current_connections_refresh
+ * @description Triggered to refresh the current component's connections.
+ * 
+ * @event WorkspaceStore#component_current_refresh
+ * @description Triggered to refresh the current component.
+ * 
+ * @event WorkspaceStore#item_current_work
+ * @description Triggered to work on the current item.
+ * 
+ * @event WorkspaceStore#item_current_updateField
+ * @description Triggered to update a field in the current item.
+ * 
+ * @event WorkspaceStore#workspace_current_move_component
+ * @description Triggered to move a component in the current workspace.
+ * 
+ * @function setStompClient
+ * @description Sets the STOMP client and subscribes to components if a workspace is current.
+ * @param {Object} stompClient - The STOMP client instance.
+ * 
+ * @function computeGraph
+ * @description Computes the graph layout for the current workspace.
+ * @param {Object} viewBox - The viewBox dimensions for the graph.
+ * @param {Object} position - The position of the graph.
+ * 
+ * @function initializeNewWorkspace
+ * @description Initializes a new workspace with default values.
+ * @param {String} entity - The entity type.
+ * @param {String} action - The action to be performed.
+ * 
+ * @function reloadWorkspace
+ * @description Reloads the current workspace and triggers process change events.
+ * @param {String} entity - The entity type.
+ * @param {String} action - The action to be performed.
+ * 
+ * @function loadComponentPart
+ * @description Loads a specific component part by ID.
+ * @param {String} id - The ID of the component.
+ * @param {String} action - The action to be performed.
+ * 
+ * @function refreshComponent
+ * @description Refreshes the current component and triggers related events.
+ * 
+ * @function persistComponent
+ * @description Persists the current component asynchronously.
+ * 
+ * @function loadProcesses
+ * @description Loads processes for a given workspace ID.
+ * @param {String} id - The ID of the workspace.
+ * @returns {Promise} Resolves with the process collection.
+ * 
+ * @function load
+ * @description Loads all workspaces for the current user.
+ * @returns {Promise} Resolves with the workspace collection.
+ * 
+ * @function loadShareWorkspace
+ * @description Loads shared workspaces for the current user.
+ * @returns {Promise} Resolves with the shared workspace collection.
+ * 
+ * @function create
+ * @description Creates a new workspace.
+ * @returns {Promise} Resolves with the created workspace.
+ * 
+ * @function update
+ * @description Updates the current workspace.
+ * @returns {Promise} Resolves with the updated workspace data.
+ * 
+ * @function delete
+ * @description Deletes a specified workspace.
+ * @param {Object} record - The workspace record to delete.
+ * 
+ * @function select
+ * @description Selects a workspace by ID and loads its data.
+ * @param {Object} record - The workspace record to select.
+ * @returns {Promise} Resolves with the selected workspace data.
+ * 
+ * @function updateComponent
+ * @description Updates a specific component within the workspace.
+ * @returns {Promise} Resolves with the updated component data.
+ * 
+ * @function subscribeToComponents
+ * @description Subscribes to component-related events via STOMP.
+ * 
+ * @function unsubscribeToPreviousSubscription
+ * @description Unsubscribes from previous STOMP subscriptions.
+ */
+
 function WorkspaceStore (utilStore, specificStoreList) {
   riot.observable(this)
   for (specificStore of specificStoreList) {
@@ -562,7 +790,6 @@ function WorkspaceStore (utilStore, specificStoreList) {
       })
     }
     console.log('graph',this.graph)
-    // this.trigger('workspace_graph_compute_done', this.graph)
     this.trigger('workspace_graph_selection_changed', this.graph)
   })
 
@@ -603,6 +830,7 @@ function WorkspaceStore (utilStore, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   this.on('workspace_delete', function (record) {
+    console.log('workspace_delete', record)
     this.delete(record)
   }) // <= workspace_delete
 
@@ -974,7 +1202,7 @@ function WorkspaceStore (utilStore, specificStoreList) {
   // ----------------------------------------- WEB STOMP CALL  -----------------------------------------
 
   this.on('item_current_work', function (message) {
-    // console.log('item_current_work',this.itemCurrent);
+    console.log('item_current_work',this.itemCurrent);
     this.stompClient.send('/queue/work-ask', JSON.stringify({
       id: this.itemCurrent._id,
       workspaceId: this.itemCurrent.workspaceId,
@@ -1177,3 +1405,4 @@ function WorkspaceStore (utilStore, specificStoreList) {
     })
   }
 }
+

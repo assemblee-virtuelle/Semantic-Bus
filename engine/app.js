@@ -27,7 +27,7 @@ app.use(bodyParser.urlencoded({
 
 unsafe.use(bodyParser.json())
 
-console.log(configJson);
+// console.log(configJson);
 let connection = amqpManager.connect([(configJson.socketServerEngine ? configJson.socketServerEngine : configJson.socketServer) + '/' + configJson.amqpHost]);
 let communication = require('./communication');
 const onConnect = (channel) => {

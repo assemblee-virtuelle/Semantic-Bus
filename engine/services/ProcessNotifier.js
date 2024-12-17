@@ -2,11 +2,11 @@
 
 class ProcessNotifier {
   /**
-   * @param {amqp.Channel} amqpClient
+   * @param {amqp.Channel} amqpChannel
    * @param {string} workspaceId
    */
-  constructor(amqpClient, workspaceId) {
-    this.amqpClient = amqpClient
+  constructor(amqpChannel, workspaceId) {
+    this.amqpChannel = amqpChannel
     this.workspaceId = workspaceId
   }
 
@@ -67,7 +67,7 @@ class ProcessNotifier {
    */
   publish(key, content) {
     // console.log('publish',key);
-    this.amqpClient.publish(
+    this.amqpChannel.publish(
         'amq.topic',
         `${key}.${this.workspaceId}`,
         // new Buffer(JSON.stringify(content))

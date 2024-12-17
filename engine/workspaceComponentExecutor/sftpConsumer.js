@@ -53,10 +53,12 @@ class SftpConsumer {
       const specificDataParsed = {};
 
       Object.keys(specificData).forEach(key => {
-        try {
-          specificDataParsed[key] = this.stringReplacer.execute(specificData[key], pullParams, data);
+        if (typeof specificData[key] === 'string' || specificData[key] instanceof String) {
+          try {
+            specificDataParsed[key] = this.stringReplacer.execute(specificData[key], pullParams, data);
         } catch (e) {
-          specificDataParsed[key] = { error: e.message };
+            specificDataParsed[key] = { error: e.message };
+          }
         }
       });
 

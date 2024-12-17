@@ -1,6 +1,41 @@
-// TodoStore definition.
-// Flux stores house application logic and state that relate to a specific domain.
-// In this case, a list of todo items.
+/**
+ * @module FlowStore
+ * 
+ * !!CAUTION!!
+ * This module seems to be legacy. it could be removed.
+ * 
+ * @description
+ * This module manages the flow state and interactions within the application.
+ * It provides methods for loading, creating, updating, and deleting flows.
+ * 
+ * @param {Object} utilStore - Utility store for making AJAX calls.
+ * 
+ * @fires FlowStore#GLF_collection_changed
+ * @fires FlowStore#GLF_current_changed
+ * 
+ * @function load
+ * @description Loads the Google Linear Flow collection from the server.
+ * 
+ * @function create
+ * @description Creates a new Google Linear Flow.
+ * 
+ * @function update
+ * @description Updates the current Google Linear Flow.
+ * 
+ * @function delete
+ * @description Deletes a specified Google Linear Flow record.
+ * @param {Object} record - The flow record to delete.
+ * 
+ * @function on
+ * @description Registers event listeners for various flow-related events.
+ * 
+ * @event FlowStore#GLF_collection_changed
+ * @description Triggered when the Google Linear Flow collection changes.
+ * 
+ * @event FlowStore#GLF_current_changed
+ * @description Triggered when the current Google Linear Flow changes.
+ */
+
 function FlowStore (utilStore) {
   this.utilStore = utilStore
   riot.observable(this) // Riot provides our event emitter.
@@ -67,6 +102,7 @@ function FlowStore (utilStore) {
     }.bind(this))
   }
 
+  // Event listeners
   this.on('GLF_delete', function (record) {
     this.delete(record)
   })

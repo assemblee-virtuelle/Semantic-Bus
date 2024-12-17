@@ -3,7 +3,7 @@ const user_lib = require('../../core').user
 const auth_lib_jwt = require('../../core/lib/auth_lib')
 const workspace_component_lib = require('../../core/lib/workspace_component_lib')
 // const fragment_lib = require('../../core/lib/fragment_lib')
-const fragment_lib_scylla = require('../../core/lib/fragment_lib_scylla')
+const fragment_lib = require('../../core/lib/fragment_lib_scylla')
 const technicalComponentDirectory = require('./services/technicalComponentDirectory.js')
 const securityService = require('./services/security')
 const config = require('../config.json')
@@ -120,7 +120,7 @@ module.exports = function (router) {
       if (data !== undefined) {
         if (data.frag !== undefined) {
           // console.log('data.frag',data.frag)
-          fragment_lib_scylla.get(data.frag).then(frag => {
+          fragment_lib.get(data.frag).then(frag => {
             // console.log('__________fragment', frag)
             if (frag != null) {
               data.data = frag.data

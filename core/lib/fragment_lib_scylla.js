@@ -1,6 +1,8 @@
 'use strict';
 
 const { v4: uuidv4, validate: uuidValidate } = require('uuid');
+const { isLiteral, processLiteral, testAllLiteralArray } = require('../helpers/literalHelpers');
+
 
 module.exports = {
     fragmentModel: require('../models/fragments_model_scylla'),
@@ -11,40 +13,16 @@ module.exports = {
     isObject: require('isobject'),
     PromiseOrchestrator: require('../helpers/promiseOrchestrator.js'),
 
-    isLiteral(data) {
-        return (data == null ||
-            data == undefined ||
-            (typeof data) == 'function' ||
-            uuidValidate(data) ||
-            (data?.constructor?.name == 'Buffer') ||
-            (data instanceof Date && !isNaN(data)) ||
-            !(this.isObject(data))) &&
-            !Array.isArray(data)
-    },
+    // isLiteral,
 
-    processLiteral(data) {
-        if ((typeof data) == 'function' ||
-            uuidValidate(data) ||
-            (data?.constructor?.name == 'Buffer')) {
-            return data.toString();
-        } else {
-            return data;
-        }
-    },
+    // processLiteral,
 
-    testAllLiteralArray: function (arrayToTest) {
-        const oneNotLiteral = arrayToTest.some(i => {
-            const isNotLiteral = !this.isLiteral(i);
-            return isNotLiteral
-        })
-        return !oneNotLiteral
-
-    },
+    // testAllLiteralArray,
 
     testFragArray: function (arrayToTest) {
         if (arrayToTest.length <= 100) {
             return false;
-        } else if (this.testAllLiteralArray(arrayToTest)) {
+        } else if (testAllLiteralArray(arrayToTest)) {
             return false
         } else {
             return true
@@ -55,10 +33,10 @@ module.exports = {
 
         const model = this.fragmentModel.model;
         let fargToPersist = exitingFrag || new model({
-            rootFrag: fragCaller?.rootFrag != undefined || fragCaller?.originFrag != undefined?undefined : uuidv4(),
+            rootFrag: fragCaller?.rootFrag != undefined || fragCaller?.originFrag != undefined ? undefined : uuidv4(),
             originFrag: fragCaller?.rootFrag || fragCaller?.originFrag,
         })
-        if (this.isLiteral(data)) {
+        if (isLiteral(data)) {
             fargToPersist.data = data;
             return await this.fragmentModel.persistFragment(fargToPersist);
         } else if (Array.isArray(data)) {
@@ -98,8 +76,8 @@ module.exports = {
     },
 
     persistObject: async function (data, fragCaller, exitingFrag) {
-        if (this.isLiteral(data)) {
-            return this.processLiteral(data);
+        if (isLiteral(data)) {
+            return processLiteral(data);
         } else if (Array.isArray(data) && this.testFragArray(data)) {
             return await this.persist(data, fragCaller, exitingFrag)
         } else {
@@ -118,6 +96,7 @@ module.exports = {
     },
 
     createArrayFrag: async function (exitingFrag) {
+
         const model = this.fragmentModel.model;
         let arrayFrag = exitingFrag || new model({
             rootFrag: uuidv4()
@@ -125,7 +104,8 @@ module.exports = {
         arrayFrag.data = [];
         arrayFrag.branchFrag = uuidv4();
         arrayFrag.maxIndex = 0;
-        return await this.fragmentModel.persistFragment(arrayFrag);
+        const result = await this.fragmentModel.persistFragment(arrayFrag);
+        return result;
     },
     //call without index not support parallel calls (PromiseOrchestrator for ex)
     addFragToArrayFrag: async function (frag, arrayFrag, index) {
@@ -135,13 +115,12 @@ module.exports = {
             fragObject = new model()
         } else {
             const isObjectFrag = frag instanceof this.fragmentModel.model;
-            fragObject = isObjectFrag?frag : await this.fragmentModel.getFragmentById(frag);
+            fragObject = isObjectFrag ? frag : await this.fragmentModel.getFragmentById(frag);
 
         }
 
         fragObject.branchOriginFrag = arrayFrag.branchFrag;
-        fragObject.originFrag = arrayFrag.root || arrayFrag.originFrag;
-        fragObject.rootFrag = undefined;
+        fragObject.originFrag = arrayFrag.rootFrag || arrayFrag.originFrag;
         if (index != undefined) {
             fragObject.index = index;
             return await this.fragmentModel.persistFragment(fragObject);
@@ -170,6 +149,7 @@ module.exports = {
 
     get: function (id) {
         return new Promise(async (resolve, reject) => {
+            // console.log('___get', id)
             const fragmentReturn = await this.fragmentModel.getFragmentById(id);
 
             if (fragmentReturn.branchFrag) {
@@ -192,67 +172,121 @@ module.exports = {
         });
     },
 
-    getWithResolutionByBranch: async function (frag) {
+    /**
+     * Retrieves data with resolution by branch.or execute callBackOnPath if set
+     * 
+     * @param {Object} frag - The fragment to resolve.
+     * @param {Object} options - The options for resolution.
+     * @param {Array} [options.pathTable] - An array of paths. If set, the function will return data defraged until the path and not after.
+     * @param {boolean} [options.deeperFocusActivated=false] - If true, activates deeper focus.
+     * @param {Function} [options.callBackOnPath] - If set, the function will call the callback instead of returning data.
+     * If callBackOnPath is set and deeperFocusActivated is true, and pathTable is [] (path is resolved), callback is called with all data of the array instead of the raw array.
+     * 
+     * @returns {Promise<Object>} - The resolved data.
+     * 
+     * @throws {Error} - If the fragment is not set.
+     */
+    getWithResolutionByBranch: async function (frag, options = { pathTable: undefined, deeperFocusActivated: false, callBackOnPath: undefined }) {
 
         if (!frag) {
             throw new Error('frag have to be set');
         }
         const isObjectFrag = frag instanceof this.fragmentModel.model;
-
-        const fragToResolve = isObjectFrag?frag : await this.fragmentModel.getFragmentById(frag);
-
+        const fragToResolve = isObjectFrag ? frag : await this.fragmentModel.getFragmentById(frag);
 
         if (fragToResolve.branchFrag) {
-            const children = await this.fragmentModel.searchFragmentByField({
-                branchOriginFrag: fragToResolve.branchFrag
-            }, {
-                index: 'ASC'
-            });
+            if (options.callBackOnPath && options.pathTable && options.pathTable.length == 0 && options.deeperFocusActivated) {
+                // console.log('_____ callBackOnPath on branchFrag');
+                await this.fragmentModel.searchFragmentByField({
+                    branchOriginFrag: fragToResolve.branchFrag
+                }, undefined, undefined, undefined, async (fragments) => {
+                    //TODO: recall getWithResolutionByBranch if item contains a branchFrag
+                    // console.log('_____ searchFragmentByField item', items.length);
+                    fragments.forEach(async (fragment) => { 
+                        // console.log('_____ searchFragmentByField fragment', fragment.data);
+                        await options.callBackOnPath(fragment.data);
+                    });
+                });
+            } else {
+                let children = await this.fragmentModel.searchFragmentByField({
+                    branchOriginFrag: fragToResolve.branchFrag
+                }, {
+                    index: 'ASC'
+                });
+                const childrenData = [];
+                for (let child of children) {
+                    if (child.branchFrag) {
+                        const data = await this.getWithResolutionByBranch(child, options);
+                        childrenData.push(data);
+                    } else {
 
-            const childrenData = [];
-            for (let child of children) {
-                if (child.branchFrag) {
-                    const data = await this.getWithResolutionByBranch(child);
-                    childrenData.push(data);
+                        const data = await this.rebuildFragDataByBranch(child.data, options);
+                        childrenData.push(data);
+                    }
+                }
+                if (options.callBackOnPath && options.pathTable && options.pathTable.length == 0 && !options.deeperFocusActivated) {
+                    await options.callBackOnPath(childrenData);
                 } else {
-
-                    const data = await this.rebuildFragDataByBranch(child.data);
-                    childrenData.push(data);
+                    return childrenData;
                 }
             }
-            return childrenData.sort((a, b) => a.index < b.index);
+
         } else {
-            return await this.rebuildFragDataByBranch(fragToResolve.data);
+            return await this.rebuildFragDataByBranch(fragToResolve.data, options);
         }
     },
 
-    rebuildFragDataByBranch: async function (data) {
+    rebuildFragDataByBranch: async function (data, options = { pathTable: undefined, callBackOnPath: undefined, deeperFocusActivated: false }) {
         // console.log('data',data)
-        if (data != null && data._frag) {
-            return await this.getWithResolutionByBranch(data._frag);
-        } else if (data == null) {
-            return null;
-        } else if (this.isLiteral(data)) {
-            return data;
-        } else if (data instanceof Object) {
-            if (Array.isArray(data)) {
-                let arrayDefrag = [];
-                for (let item of data) {
-                    let itemDefrag = await this.rebuildFragDataByBranch(item,);
-                    itemDefrag = this.replaceMongoNotSupportedKey(itemDefrag, false);
-                    arrayDefrag.push(itemDefrag);
+        if (options.callBackOnPath && Array.isArray(options.pathTable) && options.pathTable.length == 0) {
+            await options.callBackOnPath(data);
+        }
+        else {
+            if (data != null && data._frag) {
+                if (options.pathTable && options.pathTable.length == 0) {
+                    return data;
+                } else {
+                    return await this.getWithResolutionByBranch(data._frag, options);
                 }
-                return arrayDefrag;
+            } else if (data == null) {
+                return null;
+            } else if (isLiteral(data)) {
+                return data;
+            } else if (data instanceof Object) {
+                if (Array.isArray(data)) {
+                    let arrayDefrag = [];
+                    for (let item of data) {
+                        let itemDefrag = await this.rebuildFragDataByBranch(item, options);
+                        // itemDefrag = this.replaceMongoNotSupportedKey(itemDefrag, false);
+                        arrayDefrag.push(itemDefrag);
+                    }
+                    return arrayDefrag;
+                } else {
+                    for (let key in data) {
+
+                        if (options.pathTable) {
+                            if (options.pathTable.length > 0) {
+                                const firstPath = options.pathTable[0];
+                                if (firstPath && firstPath.includes(key)) {
+                                    options.pathTable.shift();
+                                } else {
+                                    options.pathTable = [];
+                                    options.callBackOnPath = undefined;
+                                }
+                            }
+                        }
+                        const valueOfkey = await this.rebuildFragDataByBranch(data[key], options);
+                        if (valueOfkey) {
+                            data[key] = valueOfkey;
+                        }
+                        // data = this.replaceMongoNotSupportedKey(data, false);
+                    }
+                    return data;
+                }
+
             } else {
-                for (let key in data) {
-                    data[key] = await this.rebuildFragDataByBranch(data[key]);
-                    data = this.replaceMongoNotSupportedKey(data, false);
-                }
                 return data;
             }
-
-        } else {
-            return data;
         }
     },
 
@@ -419,7 +453,7 @@ module.exports = {
                 }
             }
             return out;
-        } else if (this.isObject(object) && !this.isLiteral(object)) {
+        } else if (this.isObject(object) && !isLiteral(object)) {
             let out = {};
             for (let key in object) {
                 let realKey = key;
@@ -469,29 +503,6 @@ module.exports = {
                 garbageTag: 1
             });
         }
-
-
-
-        // if (id) {
-        //   try {
-        //     const frag = await this.fragmentModel.getFragmentById(id);
-        //     if (frag != null) {
-        //       if (frag.rootFrag) {
-        //         await this.fragmentModel.updateMultipleFragments(
-        //           {
-        //             id: frag.rootFrag
-        //           },
-        //           {
-        //             garbageTag: 1
-        //           }
-        //         );
-        //       }
-        //     }
-        //   } catch (e) {
-        //     console.log('error', e)
-        //   }
-
-        // }
     },
 
     // frag support fragId or frag object
@@ -501,19 +512,19 @@ module.exports = {
         }
         const isObjectFrag = frag instanceof this.fragmentModel.model;
         const model = this.fragmentModel.model;
-        const fragToCopy = isObjectFrag?frag : await this.fragmentModel.getFragmentById(frag);
+        const fragToCopy = isObjectFrag ? frag : await this.fragmentModel.getFragmentById(frag);
 
         if (fragToCopy.branchFrag) {
             const newFrag = new model({
                 id: undefined,
                 data: fragToCopy.data,
                 //rootfrag should be undefind if caller but not in real life :-(
-                rootFrag: fragToCopy.rootFrag && !callerFrag?uuidv4() : undefined,
-                originFrag: callerFrag?callerFrag.originFrag || callerFrag.rootFrag : undefined,
-                branchFrag: fragToCopy.branchFrag?uuidv4() : undefined,
+                rootFrag: fragToCopy.rootFrag && !callerFrag ? uuidv4() : undefined,
+                originFrag: callerFrag ? callerFrag.originFrag || callerFrag.rootFrag : undefined,
+                branchFrag: fragToCopy.branchFrag ? uuidv4() : undefined,
                 maxIndex: fragToCopy.maxIndex,
                 index: fragToCopy.index,
-                branchOriginFrag: callerFrag?callerFrag.branchFrag : undefined,
+                branchOriginFrag: callerFrag ? callerFrag.branchFrag : undefined,
                 garbageProcess: false
             })
             await this.fragmentModel.persistFragment(newFrag);
@@ -542,9 +553,9 @@ module.exports = {
         } else {
             const newFragRaw = {
                 data: fragToCopy.data,
-                originFrag: callerFrag?callerFrag.originFrag || callerFrag.rootFrag : undefined,
-                branchOriginFrag: callerFrag?callerFrag.branchFrag : undefined,
-                rootFrag: fragToCopy.rootFrag?uuidv4() : undefined,
+                originFrag: callerFrag ? callerFrag.originFrag || callerFrag.rootFrag : undefined,
+                branchOriginFrag: callerFrag ? callerFrag.branchFrag : undefined,
+                rootFrag: fragToCopy.rootFrag ? uuidv4() : undefined,
                 index: fragToCopy.index,
                 branchFrag: undefined,
                 garbageProcess: false
@@ -559,7 +570,7 @@ module.exports = {
             return {
                 data: processedData.data,
                 //if no processedData.dfobFragmentSelected but algo is here, that means this step create fragment
-                dfobFragmentSelected: isDfobFragmentSelected?processedData.dfobFragmentSelected : [{
+                dfobFragmentSelected: isDfobFragmentSelected ? processedData.dfobFragmentSelected : [{
                     frag: newFrag,
                     relativHistoryTableSelected: processedData.relativHistoryTableSelected,
                     relativDfobTable: dfobTable
@@ -582,9 +593,9 @@ module.exports = {
                 data: null,
                 relativHistoryTable
             };
-        } else if (this.isLiteral(data)) {
+        } else if (isLiteral(data)) {
             return {
-                data: this.processLiteral(data),
+                data: processLiteral(data),
                 relativHistoryTable
             };
         } else if (data instanceof Object) {
@@ -597,7 +608,7 @@ module.exports = {
                     let itemDefrag = processedData.data;
                     arrayDefrag.push(itemDefrag);
                     fragmentSelected = fragmentSelected.concat(fragmentSelected);
-                    relativHistoryTableSelected = processedData.relativHistoryTableSelected?.length > relativHistoryTableSelected?processedData.relativHistoryTableSelected : relativHistoryTableSelected;
+                    relativHistoryTableSelected = processedData.relativHistoryTableSelected?.length > relativHistoryTableSelected ? processedData.relativHistoryTableSelected : relativHistoryTableSelected;
                 }
                 return {
                     data: arrayDefrag,

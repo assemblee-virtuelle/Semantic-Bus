@@ -85,7 +85,7 @@ services:
       - traefik.http.routers.engine.middlewares=strip-v2-segment
       - "traefik.http.services.engine.loadbalancer.server.port=92"
     depends_on:
-        - mongodb
+        - scylla
         - rabbitmq
     command: bash -c "/data/scripts/wait-for-it.sh rabbitmq:5672 -t 60 -- nodemon --watch /data/engine --watch /data/core --ignore configuration.js --max-old-space-size=4096 /data/engine/app.js"
 
@@ -96,11 +96,10 @@ services:
       dockerfile: ./main/Dockerfile-alpine
     container_name: main
     image: semanticbus/main
-
+    tty: true
     environment:
         - APP_PORT=80
         - NODE_ENV=development_docker
-        - CONFIG_URL=$CONFIG_URL
     volumes:
       - ./main:/data/main/
       - ./core:/data/core/
@@ -164,12 +163,23 @@ services:
     ports:
       - "9042:9042" # Port par défaut pour CQL
       - "9180:9180" # Port par défaut pour l'API REST
+      - "8000:8000" # Port pour Alternator
     networks:
       - bus
     volumes:
       - scylla_data:/var/lib/scylla
       # - ./init-scripts/scylla.yaml:/etc/scylla/scylla.yaml
-    command: --smp 4 --memory 6G --overprovisioned 1 --api-address 0.0.0.0 --cluster-name "fragments_cluster"
+    command: >
+      --smp 4
+      --memory 6G
+      --overprovisioned 1
+      --api-address 0.0.0.0
+      --cluster-name "fragments_cluster"
+      --alternator-port=8000
+      --alternator-write-isolation always
+    environment:
+      - ALTERNATOR_ACCESS_KEY_ID=yourAccessKeyId
+      - ALTERNATOR_SECRET_ACCESS_KEY=yourSecretAccessKey
     healthcheck:
       test: ["CMD", "cqlsh","-e describe keyspaces"]
       interval: 15s

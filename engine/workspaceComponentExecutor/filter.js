@@ -20,18 +20,25 @@ class Filter {
     // }])
 
     return new Promise((resolve, reject) => {
-      // let usableData=JSON.parse(JSON.stringify(flowData[0].data));
-      let usableData = flowData[0].data
-      let filterString = data.specificData.filterString
-      // filterString = filterString.replace(/£./g, '$.')
-      let filter = JSON.parse(filterString)
+
 
       try {
+
+        // let usableData=JSON.parse(JSON.stringify(flowData[0].data));
+        let usableData = flowData[0].data
+        if (!Array.isArray(usableData)) {
+          console.log('_____ usableData', usableData);
+          throw new Error('input data is not an array')
+        }
+
+        let filterString = data.specificData.filterString
+        // filterString = filterString.replace(/£./g, '$.')
+        let filter = JSON.parse(filterString)
         // (source, pullParams, jsonTransformPattern, options) {
         // console.log('filter',filter);
         // console.log('usableData',usableData);
         // console.log('pullParams',pullParams);
-        let filterResult = this.objectTransformation.execute(usableData,pullParams, filter);
+        let filterResult = this.objectTransformation.execute(usableData, pullParams, filter);
         // console.log('filterResult',filterResult);
         var resultData = usableData.filter(this.sift(filterResult));
         // console.log('resultData',resultData)

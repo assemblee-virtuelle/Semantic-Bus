@@ -12,10 +12,13 @@ module.exports = {
     cachedData = cachedDataIn;
 
     // console.log('allo1')
-
     if (cachedDataIn&&cachedDataIn!=null){
       if(cachedDataIn.frag){
-       await this.fragment_lib.tagGarbage(cachedDataIn.frag)
+        try{
+          await this.fragment_lib.tagGarbage(cachedDataIn.frag)
+        }catch(e){
+          console.warn('cache not tag to garbage', cachedDataIn.frag)
+        }
       }
     } else {
       cachedData = {};
@@ -33,6 +36,7 @@ module.exports = {
     let frag = await this.fragment_lib.persist(data);
 
     // console.log('allo3')
+    // console.log('___frag', frag)
 
     cachedData.frag = frag.id.toString();
     cachedData.date = new Date();

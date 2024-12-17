@@ -1,22 +1,23 @@
 'use strict'
 
+const lo = require('dayjs/locale/lo.js');
 const ProcessNotifier = require('./ProcessNotifier')
 const clone = require('clone');
+const DfobHelper = require('../../core/helpers/dfobHelper');
+const technicalComponentDirectory = require('./technicalComponentDirectory.js');
+const sift = require('sift').default;
+const objectSizeOf = require('object-sizeof');
+const workspace_component_lib = require('../../core/lib/workspace_component_lib');
+const fragment_lib = require('../../core/lib/fragment_lib_scylla');
+const workspace_lib = require('../../core/lib/workspace_lib');
+const user_lib = require('../../core/lib/user_lib');
+const config = require('../config.json');
+const PromiseOrchestrator = require('../../core/helpers/promiseOrchestrator.js');
+const stringReplacer = require('../utils/stringReplacer.js');
+const DfobProcessor = require('../../core/helpers/dfobProcessor');
 
 class Engine {
-  // requestDirection & pushData lagacy/obsolete
-  constructor(component, requestDirection, amqpClient, callerId, pushData, queryParams,tracerId) {
-    this.technicalComponentDirectory = require('./technicalComponentDirectory.js');
-    this.sift = require('sift').default;
-    this.objectSizeOf = require('object-sizeof');
-    this.workspace_component_lib = require('../../core/lib/workspace_component_lib');
-    this.fragment_lib = require('../../core/lib/fragment_lib');
-    this.fragment_lib_scylla = require('../../core/lib/fragment_lib_scylla');
-    this.workspace_lib = require('../../core/lib/workspace_lib');
-    this.user_lib = require('../../core/lib/user_lib');
-    this.config = require('../config.json');
-    let PromiseOrchestrator = require('../../core/helpers/promiseOrchestrator.js');
-    this.stringReplacer = require('../utils/stringReplacer.js')
+  constructor(component, requestDirection, amqpClient, callerId, pushData, queryParams, tracerId) {
     this.promiseOrchestrator = new PromiseOrchestrator();
     this.fackCounter = 0;
     this.amqpClient = amqpClient;
@@ -30,132 +31,115 @@ class Engine {
     this.owner = null;
   }
 
-  resolveComponent() {
-    return new Promise(async (resolve, reject) => {
-      try {
-        let components = await this.workspace_component_lib
-          .get_all({
-            workspaceId: this.originComponent.workspaceId
-          });
-        this.componentsResolving = components
-        let workflow = await this.workspace_lib.getWorkspace(this.originComponent.workspaceId);
-        // console.log('----------- workflow',workflow);
-        this.workflow = workflow;
-        console.log(' ---------- Start Engine-----------', this.workflow.name)
-        this.workflow.status = 'running';
-        await this.workspace_lib.updateSimple(this.workflow);
-        let ownerUserMail = this.workflow.users.filter(
-          this.sift({
-            role: 'owner'
-          })
-        )[0]
-        let user = await this.user_lib.get({
-          'credentials.email': ownerUserMail.email
-        });
-        this.componentsResolving.forEach(component => {
-          component.specificData = component.specificData || {}
-        })
+  async resolveComponent() {
+    try {
+      let components = await workspace_component_lib.get_all({
+        workspaceId: this.originComponent.workspaceId
+      });
+      this.componentsResolving = components;
+      let workflow = await workspace_lib.getWorkspace(this.originComponent.workspaceId);
+      this.workflow = workflow;
+      console.log(' ---------- Start Engine-----------', this.workflow.name);
+      this.workflow.status = 'running';
+      await workspace_lib.updateSimple(this.workflow);
+      let ownerUserMail = this.workflow.users.filter(
+        sift({ role: 'owner' })
+      )[0];
+      let user = await user_lib.get({
+        'credentials.email': ownerUserMail.email
+      });
+      this.componentsResolving.forEach(component => {
+        component.specificData = component.specificData || {};
+      });
 
+      this.originComponent = this.componentsResolving.filter(sift({
+        _id: this.originComponent._id
+      }))[0];
 
-        this.originComponent = this.componentsResolving.filter(this.sift({
-          _id: this.originComponent._id
-        }))[0];
-
-        let workAskModule = this.technicalComponentDirectory[this.originComponent.module]
-        // console.log('workCallModule',workCallModule);
-        if (workAskModule.workAsk != undefined) {
-          await workAskModule.workAsk(this.originComponent);
-        }
-
-        // console.log(' ---------- Resolve Workflow -----------', this.workflow.name, this.originComponent._id)
-        this.pathResolution = this.buildPathResolution(
-          workflow,
-          this.originComponent,
-          this.requestDirection,
-          0,
-          this.componentsResolving,
-          undefined,
-          this.originQueryParams == undefined ? undefined : {
-            origin: this.originComponent._id,
-            queryParams: this.originQueryParams
-          },
-          undefined
-        );
-        // console.log('this.pathResolution',this.pathResolution.nodes)
-
-        if (this.config.quietLog != true) {
-          console.table(this.pathResolution.links.map(link => {
-            return {
-              source: link.source.component._id.toString(),
-              source_module: link.source.component.module,
-              source_nom: link.source.component.nom,
-              target: link.target.component._id.toString(),
-              target_module: link.target.component.module,
-              target_nom: link.target.component.nom
-            }
-          }));
-        }
-
-        this.owner = user
-        let process = await (this.workspace_lib.createProcess({
-          workflowId: this.originComponent.workspaceId,
-          ownerId: this.owner._id,
-          callerId: this.callerId,
-          originComponentId: this.originComponent._id,
-          steps: this.pathResolution.nodes.map(node => ({
-            componentId: node.component._id
-          }))
-        }));
-        resolve({processId:process._id});
-        this.processId = process._id
-        this.processNotifier = new ProcessNotifier(this.amqpClient, this.originComponent.workspaceId)
-        // console.log('___________this.tracerId',this.tracerId)
-        this.processNotifier.start({
-          _id: this.processId,
-          callerId: this.callerId,
-          tracerId: this.tracerId,
-          timeStamp: process.timeStamp,
-          steps: this.pathResolution.nodes.map(node => ({
-            componentId: node.component._id,
-            status: node.status
-          }))
-        })
-
-        this.pathResolution.links.forEach(link => {
-          link.status = 'waiting'
-        })
-        // this.RequestOrigineResolveMethode = resolve
-        // this.RequestOrigineRejectMethode = reject
-
-        if (this.originComponent.specificData.responseComponentId != undefined && this.originComponent.specificData.responseComponentId != 'undefined') {
-          this.responseComponentId = this.originComponent.specificData.responseComponentId
-        } else {
-          this.responseComponentId = this.originComponent._id;
-        }
-
-        if (this.responseComponentId != undefined && this.responseComponentId != 'undefined') {
-          this.processNextBuildPath();
-        } else {
-          reject(new Error('responseComponentId undefined'))
-        }
-
-
-      } catch (e) {
-        // console.log('EOORORRRR', e);
-        reject(e)
+      let workAskModule = technicalComponentDirectory[this.originComponent.module];
+      if (workAskModule.workAsk != undefined) {
+        await workAskModule.workAsk(this.originComponent);
       }
-    })
+
+      this.pathResolution = this.buildPathResolution(
+        workflow,
+        this.originComponent,
+        this.requestDirection,
+        0,
+        this.componentsResolving,
+        undefined,
+        this.originQueryParams == undefined ? undefined : {
+          origin: this.originComponent._id,
+          queryParams: this.originQueryParams
+        },
+        undefined
+      );
+
+      if (config.quietLog != true) {
+        console.table(this.pathResolution.links.map(link => {
+          return {
+            source: link.source.component._id.toString(),
+            source_module: link.source.component.module,
+            source_nom: link.source.component.nom,
+            target: link.target.component._id.toString(),
+            target_module: link.target.component.module,
+            target_nom: link.target.component.nom
+          };
+        }));
+      }
+
+      this.owner = user;
+      let process = await workspace_lib.createProcess({
+        workflowId: this.originComponent.workspaceId,
+        ownerId: this.owner._id,
+        callerId: this.callerId,
+        originComponentId: this.originComponent._id,
+        steps: this.pathResolution.nodes.map(node => ({
+          componentId: node.component._id
+        }))
+      });
+      this.processId = process._id;
+      this.processNotifier = new ProcessNotifier(this.amqpClient, this.originComponent.workspaceId);
+      this.processNotifier.start({
+        _id: this.processId,
+        callerId: this.callerId,
+        tracerId: this.tracerId,
+        timeStamp: process.timeStamp,
+        steps: this.pathResolution.nodes.map(node => ({
+          componentId: node.component._id,
+          status: node.status
+        }))
+      });
+
+      this.pathResolution.links.forEach(link => {
+        link.status = 'waiting';
+      });
+
+      if (this.originComponent.specificData.responseComponentId != undefined && this.originComponent.specificData.responseComponentId != 'undefined') {
+        this.responseComponentId = this.originComponent.specificData.responseComponentId;
+      } else {
+        this.responseComponentId = this.originComponent._id;
+      }
+
+      if (this.responseComponentId != undefined && this.responseComponentId != 'undefined') {
+        this.processNextBuildPath();
+      } else {
+        throw new Error('responseComponentId undefined');
+      }
+
+    } catch (e) {
+      console.error(e);
+      throw e;
+    }
   }
 
   processNextBuildPath() {
-    // console.trace();
     setTimeout(this.processNextBuildPathDelayed.bind(this), 100)
   }
 
   async processNextBuildPathDelayed(owner) {
-    // console.log('privateScript',this.config.privateScript);
     try {
-      let process =  await this.workspace_lib.getCurrentProcess(this.processId);
+      let process = await workspace_lib.getCurrentProcess(this.processId);
       if (process.state == 'stop') {
         this.processNotifier.information({
           _id: this.processId,
@@ -164,44 +148,39 @@ class Engine {
         })
 
       } else {
-        if (this.owner.credit >= 0 || (this.config.privateScript && this.config.privateScript.length == 0) || this.config.free == true) {
+        if (this.owner.credit >= 0 || (config.privateScript && config.privateScript.length == 0) || config.free == true) {
 
           this.fackCounter++
           console.log(`---------- processNextBuildPath ----------- ${this.workflow.name} ${this.fackCounter}/${this.pathResolution.nodes.length}`)
-          if (this.config.quietLog != true) {
-            // console.log(this.pathResolution.nodes.map(node => {
-            //   return (node.component._id + ' : ' + node.status + ' ' + node.component.name)
-            // }))
+          if (config.quietLog != true) {
           }
           let processingNode
-          let nodeWithoutIncoming = this.pathResolution.nodes.filter(this.sift({
+          let nodeWithoutIncoming = this.pathResolution.nodes.filter(sift({
             $and: [{
-                sources: {
-                  $size: 0
-                }
-              },
-              {
-                status: 'waiting'
+              sources: {
+                $size: 0
               }
+            },
+            {
+              status: 'waiting'
+            }
             ]
           }));
 
 
           if (nodeWithoutIncoming.length > 0) {
-            // console.log('source component', nodeWithoutIncoming[0]);
             processingNode = nodeWithoutIncoming[0]
           } else {
 
-            let nodeWithAllIncomingResolved = this.pathResolution.nodes.filter(this.sift({
+            let nodeWithAllIncomingResolved = this.pathResolution.nodes.filter(sift({
               status: 'waiting'
             }));
 
             nodeWithAllIncomingResolved.every(n => {
-              let nbSourcesResolved = n.sources.filter(this.sift({
+              let nbSourcesResolved = n.sources.filter(sift({
                 'source.status': 'resolved'
               })).length;
 
-              // console.log('source resolved size', nbSourcesResolved, n.sources.length);
               if (n.sources.length == nbSourcesResolved) {
                 processingNode = n
                 return false
@@ -210,14 +189,12 @@ class Engine {
               }
             })
           }
-          // console.log('processingNode', processingNode);
 
           if (processingNode != undefined) {
-            if (this.config.quietLog != true) {
+            if (config.quietLog != true) {
               console.log(`           processingNode ----------- ${processingNode.component._id} type:'${processingNode.component.type}' name:'${processingNode.component.name}'`)
             }
             let startTime = new Date()
-            // console.log('processingNode',processingNode);
 
             let nodesProcessingInputs = this.pathResolution.nodes.filter(npi =>
               npi.targets.map(t =>
@@ -225,18 +202,16 @@ class Engine {
               ).includes(processingNode.component._id)
             );
 
-            let module = this.technicalComponentDirectory[processingNode.component.module]
+            let module = technicalComponentDirectory[processingNode.component.module]
 
             let dataFlow
             let primaryflow
-            //TODO : remove
             let secondaryFlow;
 
-            let componentFlow={}
+            let componentFlow = {}
             if (nodesProcessingInputs.length > 0) {
               let persistedDataFlow = [];
               for (const sourceNode of nodesProcessingInputs) {
-                // console.log('sourceNode',sourceNode);
                 let persistedData;
                 let persistedFragmentData;
 
@@ -244,8 +219,7 @@ class Engine {
 
                 sourceComponentId = sourceNode.component._id
 
-                const persistedDataFlowCoponent = await this.workspace_component_lib.get_component_result(sourceComponentId, this.processId);
-                // console.log('persistedDataFlowCoponent',persistedDataFlowCoponent);
+                const persistedDataFlowCoponent = await workspace_component_lib.get_component_result(sourceComponentId, this.processId);
                 const fragAvailable = persistedDataFlowCoponent.frag && persistedDataFlowCoponent.frag != null;
 
                 if (fragAvailable) {
@@ -254,71 +228,52 @@ class Engine {
 
                 const previousDfob = persistedDataFlowCoponent.dfob ? persistedDataFlowCoponent.dfob : undefined;
 
-              
                 const targetInput = sourceNode.targets.find(t => t.target.component._id.equals(processingNode.component._id)).targetInput;
-                // console.log('targetInput', targetInput)  
                 persistedDataFlow.push({
-                  // data: persistedData ? persistedData : undefined,
-                  fragment : persistedFragmentData,
+                  fragment: persistedFragmentData,
                   componentId: sourceNode.component._id,
                   targetInput: targetInput,
                   dfob: previousDfob
                 })
               }
-              
-              componentFlow={
-                dataFlow : persistedDataFlow,
-                deeperFocusData : processingNode.component.deeperFocusData
+
+              componentFlow = {
+                dataFlow: persistedDataFlow,
+                deeperFocusData: processingNode.component.deeperFocusData
               }
 
-              // legacy compatibility with dfob as component
-              if(componentFlow.dataFlow.length==1 && (!componentFlow.deeperFocusData || Object.keys(componentFlow.deeperFocusData).length==0)){
-                // console.log('APPPLY dfob from source!!',componentFlow.dataFlow[0].dfob)
-                componentFlow.deeperFocusData=componentFlow.dataFlow[0].dfob;
-              } 
-              // default DFOB
-              if((!componentFlow?.deeperFocusData ||Object.keys(componentFlow.deeperFocusData).length==0) || (componentFlow?.deeperFocusData?.activateDf==undefined||componentFlow?.deeperFocusData?.activateDf==false)){
-                componentFlow.deeperFocusData={
-                  dfobPath:'',
-                  keepArray:true
+              if ((!componentFlow?.deeperFocusData || Object.keys(componentFlow.deeperFocusData).length == 0) || (componentFlow?.deeperFocusData?.activateDf == undefined || componentFlow?.deeperFocusData?.activateDf == false)) {
+                componentFlow.deeperFocusData = {
+                  dfobPath: '',
+                  keepArray: true
                 };
               }
-          
-              // properties harmonisation
-              componentFlow.deeperFocusData={
-                keepArray : componentFlow.deeperFocusData.keepArray!=undefined ? componentFlow.deeperFocusData.keepArray : componentFlow.deeperFocusData.dfobKeepArray,
-                dfobPath : componentFlow.deeperFocusData.path!=undefined ? componentFlow.deeperFocusData.path : componentFlow.deeperFocusData.dfobPath,
-                pipeNb : componentFlow.deeperFocusData.beanNb!=undefined? componentFlow.deeperFocusData.beanNb : componentFlow.deeperFocusData.pipeNb!=undefined ? componentFlow.deeperFocusData.pipeNb :  componentFlow.deeperFocusData.dfobNbPipe 
+
+              componentFlow.deeperFocusData = {
+                keepArray: componentFlow.deeperFocusData.keepArray != undefined ? componentFlow.deeperFocusData.keepArray : componentFlow.deeperFocusData.dfobKeepArray,
+                dfobPath: componentFlow.deeperFocusData.path != undefined ? componentFlow.deeperFocusData.path : componentFlow.deeperFocusData.dfobPath,
+                pipeNb: componentFlow.deeperFocusData.beanNb != undefined ? componentFlow.deeperFocusData.beanNb : componentFlow.deeperFocusData.pipeNb != undefined ? componentFlow.deeperFocusData.pipeNb : componentFlow.deeperFocusData.dfobNbPipe
               }
 
-              // console.log('componentFlow.dataFlow',componentFlow.dataFlow)
               if (module.getPrimaryFlow != undefined) {
                 componentFlow.primaryflow = await module.getPrimaryFlow(
                   processingNode.component,
                   componentFlow.dataFlow
                 )
               } else {
-                
-                componentFlow.primaryflow = componentFlow.dataFlow.filter(df=>df.targetInput==undefined)[0]
+                componentFlow.primaryflow = componentFlow.dataFlow.find(df => df.targetInput == undefined)
               }
-
-              // console.log('_________componentFlow',componentFlow)
-              //TODO : remove
-              secondaryFlow = []
               if (module.getSecondaryFlow != undefined) {
                 componentFlow.secondaryFlow = await module.getSecondaryFlow(
                   processingNode.component,
                   componentFlow.dataFlow
                 )
               } else {
-                // console.log('COMPUTE secondary Flow',componentFlow.dataFlow)
-                componentFlow.secondaryFlow = secondaryFlow.concat(componentFlow.dataFlow)
-                componentFlow.secondaryFlow.splice(componentFlow.secondaryFlow.indexOf(componentFlow.primaryflow), 1)
+                componentFlow.secondaryFlow = componentFlow.dataFlow.filter(flow => flow !== componentFlow.primaryflow);
               }
             }
 
-            // console.log("componentFlow", componentFlow);
-            if (componentFlow.dataFlow!=undefined && componentFlow.primaryflow == undefined) {
+            if (componentFlow.dataFlow != undefined && componentFlow.primaryflow == undefined) {
               let err = new Error('primary flow could not be identified')
               processingNode.status = 'error'
               processingNode.dataResolution = {
@@ -327,150 +282,121 @@ class Engine {
               await this.historicEndAndCredit(processingNode, startTime, undefined, err)
               this.processNextBuildPath('flow ko')
             } else {
-              // console.log('componentFlow.primaryflow',componentFlow.primaryflow);
-              // console.log('componentFlow.deeperFocusData',componentFlow.deeperFocusData);
-              if ( componentFlow.deeperFocusData) {
+              if (componentFlow.deeperFocusData) {
+                // console.log('_____ deeperFocusData')
                 try {
 
-                  let {dfobPath,keepArray, pipeNb}=componentFlow.deeperFocusData;
+                  let { dfobPath, keepArray, pipeNb } = componentFlow.deeperFocusData;
 
-                  if(dfobPath == undefined){
+                  if (dfobPath == undefined) {
                     dfobPath = '';
                   }
 
-                  let dfobPathNormalized = this.stringReplacer.execute(dfobPath, processingNode.queryParams?.queryParams, componentFlow.primaryflow?.data);
+                  let dfobPathNormalized = stringReplacer.execute(dfobPath, processingNode.queryParams?.queryParams, componentFlow.primaryflow?.data);
                   var dfobTab = dfobPathNormalized.length > 0 ? dfobPathNormalized.split('.') : []
-
-
-
-                  // console.log('___ buildDfobFragmentFlow',componentFlow.primaryflow.fragment,dfobTab,keepArray)
 
                   let dfobFragmentFlow = await this.buildDfobFragmentFlow(
                     componentFlow.primaryflow.fragment,
                     dfobTab,
                     keepArray
                   )
-                
-                  // console.log('_____dfobFragmentFlow.data',dfobFragmentFlow.dfobFragmentSelected.data)
 
                   const newFrag = dfobFragmentFlow.newFrag;
                   let dfobFragmentSelected = dfobFragmentFlow.dfobFragmentSelected;
+                  // console.log('dfobFragmentSelected',dfobFragmentSelected)
 
-
-                  
-                  dfobFragmentSelected = Array.isArray(dfobFragmentSelected)?dfobFragmentSelected:[dfobFragmentSelected]
-
-                  // console.log('________________ dfobFragmentSelected',dfobFragmentSelected);
-                  // console.log('________________ dfobFragmentSelected data',dfobFragmentSelected.map(f=>f.frag.data));
-
-                  if (this.config.quietLog != true) {
-                    // console.log('__dfobFragmentSelected ', dfobFragmentSelected.length,pipeNb)
-                  }
+                  dfobFragmentSelected = Array.isArray(dfobFragmentSelected) ? dfobFragmentSelected : [dfobFragmentSelected]
 
                   if (dfobFragmentSelected.length == 0) {
-                    processingNode.dataResolution = {
-                      // data: primaryflow.data
-                    }
+                    processingNode.dataResolution = {}
                     processingNode.status = 'resolved'
-                    // if (
-                    //   processingNode.component._id == this.responseComponentId
-                    // ) {
-                    //   console.time("getWithResolutionByBranch for RequestOrigineResolveMethode");
-                    //   this.RequestOrigineResolveMethode({
-                    //     data: this.fragment_lib.getWithResolutionByBranch(newFrag)
-                    //   })
-                    //   console.timeEnd("getWithResolutionByBranch for RequestOrigineResolveMethode");
-                    // }
                     await this.historicEndAndCredit(processingNode, startTime, newFrag, undefined)
                     this.processNextBuildPath('dfob empty')
                   } else {
+                    const secondaryFlowDefraged = [];
+                    if (!module.workWithFragments) {
+                      // console.log('_____ module.workWithFragments', module.workWithFragments)
+                      if (config.quietLog != true) console.time("secondary_getWithResolutionByBranch" + '_' + this.processId + '_' + this.workflow.name);
+                      for (let sf of componentFlow.secondaryFlow) {
+                        secondaryFlowDefraged.push({
+                          data: await fragment_lib.getWithResolutionByBranch(sf.fragment),
+                          componentId: sf.componentId,
+                          targetInput: sf.targetInput
+                        })
+                      }
+                      if (config.quietLog != true) console.timeEnd("secondary_getWithResolutionByBranch" + '_' + this.processId + '_' + this.workflow.name);
 
-                    if (this.config.quietLog != true) console.time("secondary_getWithResolutionByBranch"+'_'+this.processId+'_'+this.workflow.name);
-                    const secondaryFlowDefraged=[];
-                    for (let sf of componentFlow.secondaryFlow){
-                      secondaryFlowDefraged.push({
-                        // data : await this.fragment_lib.getWithResolutionByBranch(sf.fragment),
-                        data : await this.fragment_lib_scylla.getWithResolutionByBranch(sf.fragment),
-                        componentId : sf.componentId,
-                        targetInput : sf.targetInput
-                      })
                     }
-                    if (this.config.quietLog != true) console.timeEnd("secondary_getWithResolutionByBranch"+'_'+this.processId+'_'+this.workflow.name);
-                    if (this.config.quietLog != true) console.time("rebuildFrag_focus_work_persist"+'_'+this.processId+'_'+this.workflow.name);
+
+                    if (config.quietLog != true) console.time("rebuildFrag_focus_work_persist" + '_' + this.processId + '_' + this.workflow.name);
                     try {
                       let dfob = undefined;
                       let paramArray = dfobFragmentSelected.map(item => {
-                        // console.log('item',item)
                         return [
                           processingNode,
                           item.frag,
-                          {dfobTable:item.relativDfobTable||[],pipeNb, keepArray},
+                          { dfobTable: item.relativDfobTable || [], pipeNb, keepArray },
                           componentFlow.primaryflow,
-                          secondaryFlowDefraged
+                          secondaryFlowDefraged,
+                          componentFlow.secondaryFlow
                         ]
                       })
 
                       try {
                         const workResult = await this.promiseOrchestrator.execute(this, this.rebuildFrag_focus_work_persist, paramArray, {
-                          beamNb:pipeNb,
+                          beamNb: pipeNb,
                           logIteration: true,
-                          continueChekFunction: async () => {
-                            // console.log('check',this.processId);
-                            const process = await this.workspace_lib.getCurrentProcess(this.processId);
+                          continueCheckFunction: async () => {
+                            const process = await workspace_lib.getCurrentProcess(this.processId);
                             if (process.state == 'stop') {
                               return false
                             } else {
                               return true
                             }
                           }
-                        },this.config);
+                        }, config);
+                        //TODO : seems to be deleted
                         for (const workResultItem of workResult) {
-                          if(workResultItem.dfob){
-                            dfob=workResultItem.dfob;
-                          }  
+                          dfob = workResultItem?.dfob;
                         }
-                        
-                        // console.log('rebuildFrag_focus_work_persist done',workResult)
+
                       } catch (error) {
                         console.error(error);
                       }
-                      //  console.log('___________dfob',dfob)
-    
+
 
                       processingNode.status = 'resolved'
-                      // console.log('call historicEndAndCredit', newFrag)
-                      await this.historicEndAndCredit(processingNode, startTime, newFrag, undefined,dfob)
-                      // console.log('done historicEndAndCredit')
+                      await this.historicEndAndCredit(processingNode, startTime, newFrag, undefined, dfob)
                       this.processNextBuildPath('flow ok')
                     } catch (error) {
                       console.error('REJECT dfob', error)
-                      // legacy/obsolote  TODO remove
                       processingNode.dataResolution = {
-                        // error: e
                       }
                       await this.historicEndAndCredit(processingNode, startTime, undefined, error)
                       processingNode.status = 'error'
                       this.processNextBuildPath('dfob reject')
                     }
-                    if (this.config.quietLog != true) console.timeEnd("rebuildFrag_focus_work_persist"+'_'+this.processId+'_'+this.workflow.name);
-
+                    if (config.quietLog != true) console.timeEnd("rebuildFrag_focus_work_persist" + '_' + this.processId + '_' + this.workflow.name);
+                    if (module.endWork) {
+                      await module.endWork(processingNode.component,this.processId);
+                    }
                   }
                 } catch (e) {
                   console.error('CATCH dfob', e)
                   processingNode.dataResolution = {
-                    // error: e
                   }
                   await this.historicEndAndCredit(processingNode, startTime, undefined, e)
                   processingNode.status = 'error'
+                  if (module.endWork) {
+                    await module.endWork(processingNode,this.processId);
+                  }
                   this.processNextBuildPath('dfob catch')
                 }
-                // console.log('DFOB END',processingNode.status );
               } else {
-                // ONLY when no InputsNodes because componentFlow.deeperFocusData are always set in other case
+                // console.log('_____ NO deeperFocusData')
                 try {
-                  // console.log("in dataFlow",dataFlow);
-                  const componentFlow= await  module.pull(processingNode.component, dataFlow, processingNode.queryParams?.queryParams,this.processId);
-                  // console.log('ENGINE Component ok')
+                  //TODO: methode can be workWithFragments
+                  const componentFlow = await module.pull(processingNode.component, dataFlow, processingNode.queryParams?.queryParams, this.processId);
 
                   const {
                     data,
@@ -478,18 +404,8 @@ class Engine {
                   } = componentFlow;
                   processingNode.dataResolution = dataResolution;
                   processingNode.status = 'resolved';
-                  // console.log('processingNode.dataResolution',processingNode.dataResolution);
 
-                  // console.log(processingNode.component._id,this.responseComponentId);
-                  // if (processingNode.component._id == this.responseComponentId) {
-                  //   this.RequestOrigineResolveMethode({
-                  //     data: data
-                  //   })
-                  //   // this.originComponentResult = processingNode.dataResolution;
-                  // }
-                  // const frag = await this.fragment_lib.persist(data)
-                  const frag  = await this.fragment_lib_scylla.persist(data)
-                  // console.log('call historicEndAndCredit', frag)
+                  const frag = await fragment_lib.persist(data)
                   await this.historicEndAndCredit(processingNode, startTime, frag, undefined)
 
 
@@ -498,7 +414,6 @@ class Engine {
                 } catch (e) {
                   console.error('CATCH normal', e, typeof e)
                   processingNode.dataResolution = {
-                    // error: e
                   }
                   await this.historicEndAndCredit(processingNode, startTime, undefined, e)
                   processingNode.status = 'error'
@@ -507,9 +422,8 @@ class Engine {
               }
             }
           } else {
-            // console.log('END');
 
-            let nodeOnError = this.pathResolution.nodes.filter(this.sift({
+            let nodeOnError = this.pathResolution.nodes.filter(sift({
               status: 'error'
             }));
 
@@ -519,38 +433,31 @@ class Engine {
                 tracerId: this.tracerId,
               })
               this.workflow.status = 'error';
-              this.workspace_lib.updateSimple(this.workflow)
+              await workspace_lib.updateSimple(this.workflow)
               let errors = []
               this.pathResolution.nodes.forEach(n => {
                 if (n.dataResolution != undefined && n.dataResolution.error != undefined) {
                   errors.push(n.dataResolution.error)
                 }
               })
-              // this.RequestOrigineRejectMethode(errors)
             } else {
               this.processNotifier.end({
                 _id: this.processId,
                 tracerId: this.tracerId,
               });
               this.workflow.status = 'resolved';
-              this.workspace_lib.updateSimple(this.workflow)
-              // this.RequestOrigineResolveMethode(this.originComponentResult);
+              await workspace_lib.updateSimple(this.workflow)
             }
-            // console.log(`--------- start clean ${this.workflow.name}`)
-            // mark current process as resolved - not mark old process as resolved
-            await this.workspace_lib.markProcessAsResolved(process);
-            // CAUTION cleanOldProcessByWorkflow is required to tag garbage to fragment and delete old process and old historiqueEnd
-            const processes =  await this.workspace_lib.cleanOldProcessByWorkflow(this.workflow);
+            await workspace_lib.markProcessAsResolved(process);
+            const processes = await workspace_lib.cleanOldProcessByWorkflow(this.workflow);
             console.log('--------------  End of Worksapce processing --------------', this.workflow.name, this.owner.credit)
- 
-            // console.log(processes);
-            // console.log(`------- egine end clean ${this.workflow.name}`)
+
             this.processNotifier.processCleaned({
               cleanedProcesses: [process],
               tracerId: this.tracerId,
               workspaceId: this.workflow._id
             })
-            this.user_lib.update(this.owner)
+            user_lib.update(this.owner)
           }
         } else {
           const fullError = new Error("Vous n'avez pas assez de credit");
@@ -560,43 +467,44 @@ class Engine {
             error: fullError.message
           })
           this.workflow.status = 'error';
-          this.workspace_lib.updateSimple(this.workflow)
-          // this.RequestOrigineRejectMethode(fullError)
+          await workspace_lib.updateSimple(this.workflow)
         }
       }
     } catch (error) {
-      // console.trace();
-      throw (error)
+      console.error(error);
+      const fullError = new Error("Erreur du moteur inconnue contater l'hebergeur");
+      this.processNotifier.error({
+        _id: this.processId,
+        tracerId: this.tracerId,
+        error: fullError.message
+      })
+      this.workflow.status = 'error';
+      await workspace_lib.updateSimple(this.workflow)
     }
 
   }
 
   async historicEndAndCredit(processingNode, startTime, frag, error, dfob) {
-    if (this.config.quietLog != true){
-      console.time('historicEndAndCredit'+'_'+this.processId+'_'+this.workflow.name)
+    if (config.quietLog != true) {
+      console.time('historicEndAndCredit' + '_' + this.processId + '_' + this.workflow.name)
     }
     let historic_object = {};
     try {
-      // if (!frag){
-      //   throw new Error('frag have to be set');
-      // }buildDfobFragmentFlow(')
       historic_object.componentId = processingNode.component._id;
       historic_object.persistProcess = processingNode.component.persistProcess;
       historic_object.processId = this.processId;
-      // console.log('historic_object',historic_object)
-      historic_object = await this.workspace_lib.createOrUpdateHistoriqueEnd(historic_object)
+      historic_object = await workspace_lib.createOrUpdateHistoriqueEnd(historic_object)
       let module = processingNode.component.module;
 
-      if(frag){
+      if (frag) {
         try {
-          // console.log('_________addFragHistoriqueEnd',frag)
-          historic_object = await this.workspace_lib.addFragHistoriqueEnd(historic_object._id, frag);
-          
+          historic_object = await workspace_lib.addFragHistoriqueEnd(historic_object._id, frag);
+
           this.processNotifier.persist({
             componentId: historic_object.componentId,
             processId: historic_object.processId,
             tracerId: this.tracerId,
-            frag : frag.id
+            frag: frag.id
           })
         } catch (e) {
           console.log('ERROR', e);
@@ -606,18 +514,17 @@ class Engine {
             tracerId: this.tracerId,
             error: 'error persisting historic data'
           })
-          await this.workspace_lib.addDataHistoriqueEnd(historic_object._id, {
+          await workspace_lib.addDataHistoriqueEnd(historic_object._id, {
             error: 'error persisting historic data'
           });
           throw new Error('error persisting historic data');
-        }  
+        }
       }
 
 
 
       let specificData = processingNode.component.specificData;
-      // historic_object = {};
-      let current_component = this.config.components_information[module];
+      let current_component = config.components_information[module];
       let current_component_price;
       let roundDate = new Date();
       roundDate.setMinutes(0);
@@ -634,30 +541,21 @@ class Engine {
         }
       }
 
-      if (dfob){
-        historic_object.dfob=dfob
+      if (dfob) {
+        historic_object.dfob = dfob
       }
 
-      // historic_object.recordCount = processingNode.dataResolution == undefined || data == undefined ? 0 : data.length || 1;
       historic_object.recordPrice = current_component_price.record_price || 0;
-      // historic_object.moCount = processingNode.dataResolution == undefined || data == undefined ? 0 : this.objectSizeOf(data) / 1000000;
       historic_object.componentPrice = current_component_price.moPrice;
       historic_object.userId = this.owner._id;
-      // historic_object.totalPrice =
-      //   (historic_object.recordCount * historic_object.recordPrice) +
-      //   (historic_object.moCount * historic_object.componentPrice);
       historic_object.componentModule = module;
-      // TODO pas besoin de stoquer le name du component, on a l'id. ok si grosse perte de perf pour histogramme
       historic_object.componentName = processingNode.component.name;
-      // historic_object.data = dataFlow.data;
       historic_object.error = error;
       historic_object.startTime = startTime;
       historic_object.roundDate = roundDate;
       historic_object.workflowId = this.originComponent.workspaceId;
 
-      // console.log('historic_object',historic_object);
-
-      historic_object = await this.workspace_lib.createOrUpdateHistoriqueEnd(historic_object);
+      historic_object = await workspace_lib.createOrUpdateHistoriqueEnd(historic_object);
       this.processNotifier.progress({
         componentId: historic_object.componentId,
         tracerId: this.tracerId,
@@ -674,230 +572,126 @@ class Engine {
         error: 'error writing historic'
       })
     }
-    if (this.config.quietLog != true) console.timeEnd('historicEndAndCredit'+'_'+this.processId+'_'+this.workflow.name)
-    // console.log("--------------  End of component processing --------------",  this.owner.credit);
+    if (config.quietLog != true) console.timeEnd('historicEndAndCredit' + '_' + this.processId + '_' + this.workflow.name)
     if (historic_object != undefined) {
       this.owner.credit -= historic_object.totalPrice
     }
 
   }
 
-  buildDfobFlowArray(currentFlow, dfobPathTab, key, keepArray) {
-    if (Array.isArray(currentFlow)) {
-      let flatOut = []
-      currentFlow.forEach((f, i) => {
-        flatOut = flatOut.concat(this.buildDfobFlowArray(f, dfobPathTab, key, keepArray))
-      })
-      return flatOut
-    } else {
-      try {
-        const dfobFlow = this.buildDfobFlow(currentFlow, dfobPathTab, key, keepArray);
-        return dfobFlow;
-      } catch (error) {
-        console.error('error',error);
-        return undefined;
-      }
-    }
-  }
-
-  buildDfobFlow(currentFlow, dfobPathTab, key, keepArray) {
-    // console.log('dfobPathTab',dfobPathTab)
-    if (dfobPathTab.length > 0) {
-      if (Array.isArray(currentFlow)) {
-        let currentdFob = dfobPathTab[0]
-        let flatOut = []
-        currentFlow.forEach((f, i) => {
-          flatOut = flatOut.concat(this.buildDfobFlowArray(f, dfobPathTab, currentdFob, keepArray))
-        })
-        return flatOut
-      } else {
-        // let newDfobPathTab = JSON.parse(JSON.stringify(dfobPathTab))
-        const newDfobPathTab = [...dfobPathTab];
-        const currentdFob = newDfobPathTab.shift();
-        const propertyExist =  currentFlow.hasOwnProperty(currentdFob) 
-        const flowOfKey = propertyExist ? currentFlow[currentdFob] : undefined;
-
-        if(propertyExist){
-          // TODO complex algorythm, To improve
-          if (newDfobPathTab.length > 0) {
-            return (this.buildDfobFlow(flowOfKey, newDfobPathTab, currentdFob, keepArray))
-          } else {
-            if (Array.isArray(flowOfKey) && keepArray != true) {
-              return (this.buildDfobFlow(flowOfKey, newDfobPathTab, currentdFob, keepArray))
-            } else {
-              return (this.buildDfobFlow(currentFlow, newDfobPathTab, currentdFob, keepArray))
-            }
-          }
-        }else{
-          // throw new Error(`dfobPath '${dfobPathTab}' isn't achievable`)
-          return {
-            objectToProcess: undefined,
-          }
-        }
-      }
-    } else {
-      let out
-      if (Array.isArray(currentFlow) && keepArray != true) {
-        out = currentFlow.map((r, i) => {
-          return {
-            objectToProcess: currentFlow,
-            key: i
-          }
-        })
-      } else {
-        out = [{
-          objectToProcess: currentFlow,
-          key: key
-        }]
-      }
-      return out
-    }
-  }
-
   async buildDfobFragmentFlow(fragment, dfobTable, keepArray) {
-    if (this.config.quietLog != true)  console.time("buildDfobFragmentFlow_"+this.processId+'_'+this.workflow.name);
-    // console.log('buildDfobFragmentFlow',fragment)
-    // console.log('_________copyFragUntilPath call 3')
-    // console.trace()
-    const out=  await this.fragment_lib_scylla.copyFragUntilPath(fragment, dfobTable,keepArray);
-    // console.log('out',out);
-    if (this.config.quietLog != true)  console.timeEnd("buildDfobFragmentFlow_"+this.processId+'_'+this.workflow.name);
-    // throw new Error('tmp')
+    if (config.quietLog != true) console.time("buildDfobFragmentFlow_" + this.processId + '_' + this.workflow.name);
+    const out = await fragment_lib.copyFragUntilPath(fragment, dfobTable, keepArray);
+    if (config.quietLog != true) console.timeEnd("buildDfobFragmentFlow_" + this.processId + '_' + this.workflow.name);
     return out;
   }
 
-  async rebuildFrag_focus_work_persist(processingNode,fragment, dfob, primaryflow, secondaryFlow) {
-    // console.log('_________rebuildFrag_focus_work_persist',fragment)
-    let module = this.technicalComponentDirectory[processingNode.component.module]
-    const {dfobTable,pipeNb, keepArray}=dfob
+  async rebuildFrag_focus_work_persist(processingNode, fragment, dfob, primaryflow, secondaryFlowDefraged, secondaryFlowFragments) {
+    let module = technicalComponentDirectory[processingNode.component.module]
+    const { dfobTable, pipeNb, keepArray } = dfob
     let rebuildData;
+    let workWithFragments = module.workWithFragments;
 
+    if (!workWithFragments) {
+      try {
+        rebuildData = await fragment_lib.getWithResolutionByBranch(fragment.id);
+        // console.log('_____ rebuildData',rebuildData)
+        // for (let i = 0; i < rebuildData.length; i++) {
+        //   for (let j = 0; j < rebuildData[i].length; j++) { 
+        //     console.log('_____ rebuildData[i][j]',rebuildData[i][j])
+        //   }
+        // }
+        dfob = undefined;
 
-    try {
-      // if (this.config.quietLog != true) console.time("primary_getWithResolutionByBranch");
-
-      // rebuildData = await this.fragment_lib.getWithResolutionByBranch(fragment._id);
-      // console.log('_________BEFORE getWithResolutionByBranch')
-      rebuildData = await this.fragment_lib_scylla.getWithResolutionByBranch(fragment.id);
-      // console.log('_________AFTER getWithResolutionByBranch')
-      dfob=undefined;
-      // if (this.config.quietLog != true) console.timeEnd("primary_getWithResolutionByBranch");
-
-      const needDfob = dfobTable.length>0 || (Array.isArray(rebuildData)&&!keepArray&&!fragment.branchOriginFrag);
-  
-      if(needDfob){
-        // console.log('WITH DFOB',dfobTable);
-        // if (this.config.quietLog != true) console.time("build-DfobFlow");
-        try {
-          const dfobFlow = this.buildDfobFlow(
+        const needDfob = dfobTable.length > 0 || (Array.isArray(rebuildData) && !keepArray && !fragment.branchOriginFrag);
+        // console.log('_____ needDfob',needDfob);
+        if (needDfob) {
+          rebuildData = await DfobProcessor.processDfobFlow(
             rebuildData,
-            dfobTable,
-            undefined,
-            keepArray
-          )
+            { pipeNb, dfobTable, keepArray },
+            module,
+            module.pull,
+            (item) => {
+              // console.log('_____ item',item);
+              const recomposedFlow = [{
+                data: item,
+                componentId: primaryflow.componentId
+              }, ...secondaryFlowDefraged];
 
-          let paramArray = dfobFlow.map(item => {
-            var recomposedFlow = [];
-      
-            recomposedFlow = recomposedFlow.concat([{
-              data: item?.key != undefined ? item.objectToProcess[item.key] : item.objectToProcess,
-              componentId: primaryflow.componentId
-            }]);
-            recomposedFlow = recomposedFlow.concat(secondaryFlow);
-  
-            return [
-              processingNode.component,
-              recomposedFlow,
-              processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams,
-              this.processId
-            ]
-          });
-
-          const componentFlowDfob = await this.promiseOrchestrator.execute(module, module.pull, paramArray, {
-            beamNb: pipeNb,
-            logIteration: true,
-            continueChekFunction: async () => {
-              const process = await this.workspace_lib.getCurrentProcess(this.processId);
-              if (process.state == 'stop') {
-                return false
-              } else {
-                return true
-              }
+              return [
+                processingNode.component,
+                recomposedFlow,
+                processingNode.queryParams?.queryParams,
+                this.processId
+              ];
+            },
+            async () => {
+              const process = await workspace_lib.getCurrentProcess(this.processId);
+              return process.state !== 'stop';
             }
-          }, this.config);
-
-  
-          for (var componentFlowDfobKey in componentFlowDfob) {
-            try{
-            if ('data' in componentFlowDfob[componentFlowDfobKey]) {
-              if (dfobFlow[componentFlowDfobKey].key != undefined) {
-                dfobFlow[componentFlowDfobKey].objectToProcess[dfobFlow[componentFlowDfobKey].key] =
-                  componentFlowDfob[componentFlowDfobKey].data
-              } else {
-                // all keys to replace because no key defined because root dfob
-                for (let key of Object.keys(dfobFlow[componentFlowDfobKey].objectToProcess)) {
-                  dfobFlow[componentFlowDfobKey].objectToProcess[key] = undefined;
-                }
-                for (let key of Object.keys(componentFlowDfob[componentFlowDfobKey].data)) {
-                  dfobFlow[componentFlowDfobKey].objectToProcess[key] = componentFlowDfob[componentFlowDfobKey].data[key];
-                }
-              }
-            } else if (componentFlowDfob[componentFlowDfobKey].error != undefined) {
-              if (dfobFlow[componentFlowDfobKey].key != undefined && dfobFlow[componentFlowDfobKey].objectToProcess != undefined) {
-                dfobFlow[componentFlowDfobKey].objectToProcess[dfobFlow[componentFlowDfobKey].key] =
-                  componentFlowDfob[componentFlowDfobKey]
-                }
-              }
-            } catch (error) {
-              // console.warning('error during recompose-DfobFlow',error);
-            }
-          }
-        } catch (error) {
-          console.log('error',error);
-          //if exception during buildDfobFlow or other buildDfobFlow is not impact
+          );
+        } else {
+          let workResult
+          let recomposedFlow = [];
+          recomposedFlow = recomposedFlow.concat([{
+            data: rebuildData,
+            componentId: primaryflow.componentId
+          }]);
+          recomposedFlow = recomposedFlow.concat(secondaryFlowDefraged);
+          // console.log('_____ recomposedFlow',recomposedFlow);
+          // console.log('_____ recomposedFlow?.data',recomposedFlow[0]?.data);
+          workResult = await module.pull(processingNode.component, recomposedFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams, this.processId)
+          rebuildData = workResult.data;
+          dfob = workResult.dfob
         }
-       
-        // if (this.config.quietLog != true) console.timeEnd("recompose-DfobFlow");
-      } else {
-        // console.log('WITHOUT DFOB');
+      } catch (error) {
+        console.error(error);
+        rebuildData = {
+          error: error.message
+        };
+      }
+
+      let pesristedFragment
+      try {
+        pesristedFragment = await fragment_lib.persist(rebuildData, undefined, fragment);
+
+      } catch (error) {
+        console.error("persist ERROR", error);
+      }
+      return {
+        frag: pesristedFragment,
+        dfob
+      }
+    }
+
+    if (workWithFragments) {
+      try {
         let workResult
         let recomposedFlow = [];
         recomposedFlow = recomposedFlow.concat([{
-          data: rebuildData,
-          componentId: primaryflow.componentId
+          fragment: fragment,
+          componentId: primaryflow.componentId,
+          dfob: { dfobTable, pipeNb, keepArray },
         }]);
-        recomposedFlow = recomposedFlow.concat(secondaryFlow);
+        recomposedFlow = recomposedFlow.concat(secondaryFlowFragments);
+        workResult = await module.workWithFragments(processingNode.component, recomposedFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams, this.processId)
 
-        // if (this.config.quietLog != true) console.time("work");
-        workResult = await module.pull(processingNode.component, recomposedFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams,this.processId)
-        // if (this.config.quietLog != true) console.timeEnd("work");
-        rebuildData=workResult.data;
-        dfob = workResult.dfob
+        return {
+          frag: workResult,
+          dfob
+        }
+      } catch (error) {
+        const errorData = {
+          error: error.message
+        };
+
+        console.error(error);
+
+        await fragment_lib.persist(errorData, undefined, fragment);
       }
-    } catch (error) {
-      console.error(error);
-      rebuildData={
-        error : error.message
-      };
     }
-
-    let pesristedFragment
-    try {
-        // console.log('BEFORE persist',rebuildData,fragment)
-        // if (this.config.quietLog != true) console.time("persist");
-        pesristedFragment = await this.fragment_lib_scylla.persist(rebuildData,undefined,fragment);
-        // if (this.config.quietLog != true) console.timeEnd("persist");
-
-        // console.log('AFTER persist',JSON.stringify(pesristedFragment))
-    } catch (error) {
-      console.error("persist ERROR",error);
-    }
-    return {
-      frag : pesristedFragment, // not needed because frag of component ever known by main execution
-      dfob
-    }
-
   }
+
 
   buildPathResolution(workspace, component, requestDirection, depth, usableComponents, buildPath, queryParams, buildPathCauseLink) {
     if (depth < 100) {
@@ -907,12 +701,12 @@ class Engine {
         buildPath.nodes = []
       }
 
-      let module = this.technicalComponentDirectory[component.module]
+      let module = technicalComponentDirectory[component.module]
 
       if (module.buildQueryParam != undefined) {
         queryParams = {
           origin: component._id,
-          queryParams: module.buildQueryParam(queryParams?queryParams.queryParams:undefined, component.specificData)
+          queryParams: module.buildQueryParam(queryParams ? queryParams.queryParams : undefined, component.specificData)
         }
       }
 
@@ -928,7 +722,7 @@ class Engine {
         }
       }
 
-      let existingNodes = buildPath.nodes.filter(this.sift(existingNodesFilter));
+      let existingNodes = buildPath.nodes.filter(sift(existingNodesFilter));
 
       let buildPathNode
       if (existingNodes.length == 0) {
@@ -954,11 +748,11 @@ class Engine {
         }
       }
 
-      let connectionsBefore = workspace.links.filter(this.sift({
+      let connectionsBefore = workspace.links.filter(sift({
         target: component._id
       }));
 
-      let connectionsAfter = workspace.links.filter(this.sift({
+      let connectionsAfter = workspace.links.filter(sift({
         source: component._id
       }));
 
@@ -968,8 +762,7 @@ class Engine {
           !(requestDirection == 'pull' && module.stepNode == true)
         ) {
           for (var beforelink of connectionsBefore) {
-            // console.log(beforeComponent);
-            var beforeComponentObject = usableComponents.filter(this.sift({
+            var beforeComponentObject = usableComponents.filter(sift({
               _id: beforelink.source
             }))[0];
 
@@ -985,21 +778,17 @@ class Engine {
                 }
               }
 
-              var existingLink = buildPath.links.filter(this.sift(existingLinkFilter));
+              var existingLink = buildPath.links.filter(sift(existingLinkFilter));
               if (existingLink.length == 0) {
                 var linkToProcess = {
-                  // sourceComponentId: beforeComponentObject._id,
                   target: buildPathNode,
                   requestDirection: 'pull',
                   queryParams: queryParams,
                   linkId: beforelink._id,
                   targetInput: beforelink.targetInput
                 }
-                // linkToProcess.status='waiting';
                 buildPath.links.push(linkToProcess)
                 buildPathNode.sources.push(linkToProcess)
-                // console.log(linkToProcess);
-                // buildPath.push(out);
                 this.buildPathResolution(
                   workspace,
                   beforeComponentObject,
@@ -1021,13 +810,10 @@ class Engine {
           !(requestDirection == 'push' && module.stepNode == true)
         ) {
           for (var afterlink of connectionsAfter) {
-            // console.log(beforeComponent);
-            var afterComponentObject = usableComponents.filter(this.sift({
+            var afterComponentObject = usableComponents.filter(sift({
               _id: afterlink.target
             }))[0];
 
-            // console.log("beforeComponentObject",beforeComponentObject);
-            // protection against dead link
             if (afterComponentObject) {
               let existingLinkFilter = {
                 'linkId': afterlink._id
@@ -1039,11 +825,10 @@ class Engine {
                   $eq: undefined
                 }
               }
-              var existingLink = buildPath.links.filter(this.sift(existingLinkFilter));
+              var existingLink = buildPath.links.filter(sift(existingLinkFilter));
 
               if (existingLink.length == 0) {
                 var linkToProcess = {
-                  // sourceComponentId: beforeComponentObject._id,
                   source: buildPathNode,
                   requestDirection: 'push',
                   queryParams: queryParams,
@@ -1076,9 +861,8 @@ class Engine {
 }
 
 module.exports = {
-  execute: function(component, requestDirection, stompClient, callerId, pushData, queryParams,tracerId) {
-    // console.log('_____________tracerId',tracerId)
-    let engine = new Engine(component, requestDirection, stompClient, callerId, pushData, queryParams,tracerId);
+  execute: function (component, requestDirection, stompClient, callerId, pushData, queryParams, tracerId) {
+    let engine = new Engine(component, requestDirection, stompClient, callerId, pushData, queryParams, tracerId);
     return engine.resolveComponent()
   }
 }

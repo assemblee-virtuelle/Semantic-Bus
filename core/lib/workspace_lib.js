@@ -1,13 +1,12 @@
 "use strict";
 
-var fragment_lib = require('./fragment_lib.js');
-var fragment_lib_scylla = require('./fragment_lib_scylla.js');
+var fragment_lib = require('./fragment_lib_scylla.js');
 var file_lib_scylla = require('./file_lib_scylla.js');
 var user_lib = require('./user_lib.js');
 var workspaceComponentModel = require("../models/workspace_component_model");
 var workspaceModel = require("../models/workspace_model");
 // var fragmentModel = require("../models/fragment_model");
-var fragmentModelScylla = require("../models/fragments_model_scylla");
+var fragmentModel = require("../models/fragments_model_scylla");
 var userModel = require("../models/user_model");
 var cacheModel = require("../models/cache_model");
 
@@ -19,7 +18,7 @@ var graphTraitement = require("../helpers/graph-traitment");
 var fetch = require('node-fetch');
 const Error = require('../helpers/error.js');
 const ObjectID = require('bson').ObjectID;
-const {  validate: uuidValidate } = require('uuid');
+const { validate: uuidValidate } = require('uuid');
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -72,13 +71,13 @@ function _createOrUpdateHistoriqueEnd(historique) {
       reject(new Error.DataBaseProcessError(e));
     }
   });
-} 
+}
 
 function _addDataHistoriqueEnd(historicId, data) {
   return new Promise(async (resolve, reject) => {
     let frag;
     try {
-      frag = await fragment_lib_scylla.persist(data);
+      frag = await fragment_lib.persist(data);
       const result = await historiqueEndModel.getInstance().model.findOneAndUpdate({
         _id: historicId
       }, {
@@ -101,7 +100,7 @@ function _addFragHistoriqueEnd(historicId, frag) {
       const result = await historiqueEndModel.getInstance().model.findOneAndUpdate({
         _id: historicId
       }, {
-        frag: (frag.id||frag._id).toString()
+        frag: (frag.id || frag._id).toString()
       }, {
         new: true,
         upsert: true
@@ -182,7 +181,7 @@ function _cleanGarbage() {
 
     try {
       console.log('-------- START normal clean fragment garbage');
-      await fragmentModelScylla.deleteMany({
+      await fragmentModel.deleteManyFragments({
         garbageTag: true
       });
       console.log('-------- END normal clean fragment garbage');
@@ -205,9 +204,11 @@ function _cleanGarbageForgotten() {
       let totalHistoriqueEndToRemove = [];
 
       const processGarbageId = Math.floor(Math.random() * 10000);
+      // const processGarbageId = 777;
 
-      console.log('--- start tag all fragment as garbage');
-      await fragmentModelScylla.updateMany({}, { garbageProcess: processGarbageId });
+      const count = await fragmentModel.countDocuments({});
+      console.log('--- start tag all fragment as garbage', count);
+      await fragmentModel.updateMultipleFragments({}, { garbageProcess: processGarbageId },true);
       console.log('--- end tag all fragment as garbage');
       for (var workflow of workspaces) {
         console.log("--- stack data to keep ", workflow.name);
@@ -219,63 +220,61 @@ function _cleanGarbageForgotten() {
         } = await _getOldProcessAndHistoriqueEnd(workflow);
 
         let fragsToKeepId = keepedHistoriqueEnds.map(h => h.frag);
+        // console.log('Historique frags', keepedHistoriqueEnds.map(h => h.frag))
 
         const cacheComponents = await workspaceComponentModel.getInstance().model.find({
           module: "cacheNosql",
           workspaceId: workflow._id
         }).lean().exec();
 
+
         const caches = await cacheModel.getInstance().model.find({
           _id: {
             $in: cacheComponents.map(c => c._id)
           },
         }).lean().exec();
+        // console.log('caches frags', caches.map(c => c.frag))
 
         fragsToKeepId = fragsToKeepId.concat(caches.map(c => c.frag));
         fragsToKeepId = fragsToKeepId.filter(id => uuidValidate(id));
 
-        // Traitement par lots de 100
-        for (let i = 0; i < fragsToKeepId.length; i += 100) {
-          const batch = fragsToKeepId.slice(i, i + 100);
-          const fragsToKeep = await fragmentModelScylla.find({
-            id: batch
-          },
-          undefined,
-          {
-            rootFrag: 1,
-            id: 1
-          });
-          console.log('--- fragsToKeep length:', fragsToKeep.length);
-          for (let frag of fragsToKeep) {
+        for (let fragId of fragsToKeepId) {
+          try {
+            const frag = await fragmentModel.getFragmentById(fragId);
+            // console.log('__frag', frag.id,' / ', frag.rootFrag)
             if (frag.rootFrag != undefined && frag.rootFrag != null) {
-              await fragmentModelScylla.updateMany({
+              await fragmentModel.updateMultipleFragments({
                 originFrag: frag.rootFrag
               }, {
                 garbageProcess: 0
               });
             }
-            await fragmentModelScylla.updateMany({
+
+            await fragmentModel.updateMultipleFragments({
               id: frag.id
             }, {
               garbageProcess: 0
             });
+          } catch (e) {
+            console.warn('error tag fragment to keep', fragId, e);
           }
         }
+
         totalHistoriqueEndToRemove = totalHistoriqueEndToRemove.concat(oldHistoriqueEnds.map(h => h._id));
         totalProcessToRemove = totalProcessToRemove.concat(oldProcesses.map(p => p._id));
-  
+
       }
- 
-      const totalFragmentsBeforeDeletion = await fragmentModelScylla.countDocuments({
+
+      const totalFragmentsBeforeDeletion = await fragmentModel.countDocuments({
         garbageProcess: processGarbageId
       });
 
       console.log(`--- START total fragment garbage collector : ${totalFragmentsBeforeDeletion} fragments`);
-      await fragmentModelScylla.deleteMany({
+      await fragmentModel.deleteManyFragments({
         garbageProcess: processGarbageId
-      })
+      },true)
       console.log('--- END total fragment garbage collector');
-      
+
       console.log('--- remove garbage historic')
       await historiqueEndModel.getInstance().model.deleteMany({
         _id: {
@@ -296,6 +295,7 @@ function _cleanGarbageForgotten() {
 
       resolve(workspaces);
     } catch (e) {
+      console.error('cleanGarbageForgotten Canceled du to error');
       reject(new Error.DataBaseProcessError(e))
     }
   });
@@ -361,19 +361,24 @@ function _getOldProcessAndHistoriqueEnd(workflow) {
       let allProcesses = await processModel.getInstance().model.find({
         workflowId: workflow._id
       })
-      .sort({
-        timeStamp: -1
-      })
-      .select({
-        _id: 1,
-        state: 1
-      })
-      .lean().exec();
+        .sort({
+          timeStamp: -1
+        })
+        .select({
+          _id: 1,
+          state: 1,
+          timeStamp: 1
+        })
+        .lean().exec();
 
-      let keepedProcessesRun = allProcesses.filter(process => process.state === 'run');
+      const twentyFourHoursAgo = new Date(Date.now() - 24 * 60 * 60 * 1000);
+
+      let keepedProcessesRun = allProcesses.filter(process => 
+        process.state === 'run' && new Date(process.timeStamp) > twentyFourHoursAgo
+      );
       let keepedProcessesHistoric = allProcesses.filter(process => process.state !== 'run').slice(0, limit);
       let keepedProcesses = keepedProcessesHistoric.concat(keepedProcessesRun);
-      
+
       // Détermination de oldProcesses
       let oldProcesses = allProcesses.filter(process => !keepedProcesses.some(keeped => keeped._id.equals(process._id)));
 
@@ -383,12 +388,12 @@ function _getOldProcessAndHistoriqueEnd(workflow) {
           $in: allProcesses.map(p => p._id)
         }
       })
-      .select({
-        _id: 1,
-        frag: 1,
-        processId: 1
-      })
-      .lean().exec();
+        .select({
+          _id: 1,
+          frag: 1,
+          processId: 1
+        })
+        .lean().exec();
 
       let keepedHistoriqueEnds = historiqueEnds.filter(h => keepedProcesses.some(p => p._id.equals(h.processId)));
       let oldHistoriqueEnds = historiqueEnds.filter(h => oldProcesses.some(p => p._id.equals(h.processId)));
@@ -418,15 +423,20 @@ function _cleanOldProcessByWorkflow(workflow) {
         oldHistoriqueEnds
       } = await _getOldProcessAndHistoriqueEnd(workflow);
 
-      for (let oldHistoriqueEnd of oldHistoriqueEnds){
-        if(oldHistoriqueEnd.frag != undefined){
-          await fragment_lib_scylla.tagGarbage(oldHistoriqueEnd.frag);
+      for (let oldHistoriqueEnd of oldHistoriqueEnds) {
+        if (oldHistoriqueEnd.frag != undefined) {
+          try {
+            // await fragment_lib.tagGarbage(oldHistoriqueEnd.frag);
+            await fragment_lib.cleanFrag(oldHistoriqueEnd.frag)
+          } catch (e) {
+            console.warn('error taging or cleaning garbage', e);
+          }
         }
       }
       // console.log(`--------- delete files of old processes`,oldProcesses.map(p=>p._id))
       await file_lib_scylla.deleteMany({
-        processId: oldProcesses.map(p=>p._id.toString())
-      }); 
+        processId: oldProcesses.map(p => p._id.toString())
+      });
 
       await historiqueEndModel.getInstance().model.deleteMany({
         _id: {
@@ -454,7 +464,7 @@ function _markProcessAsResolved(process) {
       const processMongoose = await processModel.getInstance().model.findOne({
         _id: process._id
       }).exec();
-      processMongoose.state='resolved';
+      processMongoose.state = 'resolved';
       process = await processMongoose.save();
       resolve(process);
     } catch (e) {
@@ -469,11 +479,11 @@ function _get_process_byWorkflow(workflowId) {
   return new Promise(async (resolve, reject) => {
     // console.log('--- TRACE 1');
 
-    let workflow = await    workspaceModel.getInstance().model.findOne({
+    let workflow = await workspaceModel.getInstance().model.findOne({
       _id: workflowId
     })
-    .lean()
-    .exec();
+      .lean()
+      .exec();
     if (workflow == null) {
       return reject(new Error.EntityNotFoundError('workspaceModel'))
     }
@@ -483,14 +493,14 @@ function _get_process_byWorkflow(workflowId) {
     }).sort({
       timeStamp: -1
     })
-    .limit(workflow.limitHistoric)
-    .lean()
-    .exec();
+      .limit(workflow.limitHistoric)
+      .lean()
+      .exec();
     let historicPromises = [];
     for (let process of processes) {
       historicPromises.push(new Promise(async (resolve, reject) => {
 
-        let historiqueEnd = await  historiqueEndModel.getInstance().model.find({
+        let historiqueEnd = await historiqueEndModel.getInstance().model.find({
           processId: process._id
         }).select({
           data: 0
@@ -526,16 +536,16 @@ function _get_process_byWorkflow(workflowId) {
 function _update_simple(workspaceupdate) {
   return new Promise(async (resolve, reject) => {
     try {
-      const workspaceUpdate = await  workspaceModel.getInstance().model
-      .findOneAndUpdate({
+      const workspaceUpdate = await workspaceModel.getInstance().model
+        .findOneAndUpdate({
           _id: workspaceupdate._id
         },
-        workspaceupdate, {
+          workspaceupdate, {
           upsert: true,
           new: true
         }
-      )
-      .exec();
+        )
+        .exec();
       resolve(workspaceUpdate);
     } catch (error) {
       reject(error);
@@ -547,15 +557,15 @@ function _update_simple(workspaceupdate) {
 
 function check_workspace_data(workspaceData) {
   let workspace_final = workspaceData;
-  return new Promise(function(resolve, reject) {
-    let name = new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
+    let name = new Promise(function (resolve, reject) {
       if (!workspaceData.name) {
         reject(new Error.PropertyValidationError('nom'))
       } else {
         resolve(workspaceData.name)
       }
     });
-    let limitHistoric = new Promise(function(resolve, reject) {
+    let limitHistoric = new Promise(function (resolve, reject) {
       if (parseInt(workspaceData.limitHistoric) && parseInt(workspaceData.limitHistoric) > 0) {
         resolve(workspaceData.limitHistoric)
       } else {
@@ -584,21 +594,21 @@ async function _create(userId, workspaceData) {
     throw e;
   }
 
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
-      const user =  await userModel.getInstance().model.findByIdAndUpdate({
+      const user = await userModel.getInstance().model.findByIdAndUpdate({
         _id: userId
       });
-  
+
       const workspaceModelInstance = workspaceModel.getInstance().model;
       let workspace = new workspaceModelInstance({
         name: workspaceDataCheck.name,
         limitHistoric: workspaceDataCheck.limitHistoric,
         description: workspaceDataCheck.description,
         components: workspaceDataCheck.components[0],
-        users :[{
-          email:user.credentials.email,
-          role:'owner'
+        users: [{
+          email: user.credentials.email,
+          role: 'owner'
         }]
       });
       const savedWorkspace = await workspace.save();
@@ -614,7 +624,7 @@ async function _create(userId, workspaceData) {
 // --------------------------------------------------------------------------------
 
 function _destroy(userId, workspaceId) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     try {
       const user = await userModel.getInstance().model.findByIdAndUpdate({
         _id: userId
@@ -633,7 +643,7 @@ function _destroy(userId, workspaceId) {
           workspace[0].components != undefined ||
           workspace[0].components != null
         ) {
-          workspace[0].components.forEach(async function(workspaceComp) {
+          workspace[0].components.forEach(async function (workspaceComp) {
             // if (config.quietLog != true) {}
             await workspaceComponentModel.getInstance().model.deleteOne({
               _id: workspaceComp
@@ -641,11 +651,11 @@ function _destroy(userId, workspaceId) {
           });
         }
       }
-  
-      await workspaceModel.getInstance().model.findOneAndRemove({
+
+      await workspaceModel.getInstance().model.findOneAndDelete({
         _id: workspaceId
       });
-      resolve(workspace); 
+      resolve(workspace);
     } catch (error) {
       reject(error)
     }
@@ -677,8 +687,8 @@ function _get_all(userID, role, config) {
     } else {
 
       let workspaces;
-      console.log("data user",data)
-      if(data.admin){
+      console.log("data user", data)
+      if (data.admin) {
         workspaces = await workspaceModel.getInstance().model.find({}).lean().exec();
         workspaces = workspaces.map(w => ({
           ...w,
@@ -687,34 +697,34 @@ function _get_all(userID, role, config) {
 
       } else {
         const InversRelationWorkspaces = await workspaceModel.getInstance().model.find({
-          "users.email":data.credentials.email
+          "users.email": data.credentials.email
         }).lean().exec();
-        data.workspaces=InversRelationWorkspaces;
+        data.workspaces = InversRelationWorkspaces;
         data.workspaces = data.workspaces.filter(sift({
           _id: {
             $ne: null
           }
         }));
         data.workspaces = data.workspaces.map(w => {
-          const userOfWorkspace = w.users.find(u=>u.email===data.credentials.email);
+          const userOfWorkspace = w.users.find(u => u.email === data.credentials.email);
           // console.log("XXXX workspace",w)
           return {
             workspace: w,
             role: userOfWorkspace.role
           };
         });
-  
-        if(role){
-          workspaces= data.workspaces.filter(w=>w.role===role);
-        }else{
-          workspaces=[...data.workspaces];
+
+        if (role) {
+          workspaces = data.workspaces.filter(w => w.role === role);
+        } else {
+          workspaces = [...data.workspaces];
         }
-        workspaces=workspaces.map(w=>({
+        workspaces = workspaces.map(w => ({
           ...w.workspace,
-          role:w.role
+          role: w.role
         }));
       }
-     
+
 
       const ProcessPromiseArray = [];
 
@@ -724,17 +734,17 @@ function _get_all(userID, role, config) {
           if (workspace.status == undefined) {
 
 
-            let processes= await processModel.getInstance().model.find({
+            let processes = await processModel.getInstance().model.find({
               workflowId: workspace._id
             }).sort({
               timeStamp: -1
             })
-            .limit(1)
-            .lean()
-            .exec();
+              .limit(1)
+              .lean()
+              .exec();
 
             if (processes[0]) {
-              let  historiqueEnd = await  historiqueEndModel.getInstance().model.find({
+              let historiqueEnd = await historiqueEndModel.getInstance().model.find({
                 processId: processes[0]._id
               }).select({
                 data: 0
@@ -788,7 +798,7 @@ function _get_all(userID, role, config) {
 // --------------------------------------------------------------------------------
 
 function _update(workspace) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     _update_mainprocess(workspace)
       .then((data) => {
         resolve(data);
@@ -809,24 +819,24 @@ function _update_mainprocess(preData) {
       return reject(e)
     }
     // console.log(workspaceCheck)
-    let componentUpdated = await  workspaceModel.getInstance().model
-    .findOneAndUpdate({
+    let componentUpdated = await workspaceModel.getInstance().model
+      .findOneAndUpdate({
         _id: workspaceCheck._id
       },
-      workspaceCheck, {
+        workspaceCheck, {
         upsert: true,
         new: true,
         fields: {
           consumption_history: 0
         }
       }
-    )
-    .populate({
-      path: "components",
-      select: "-consumption_history"
-    })
-    .lean()
-    .exec();
+      )
+      .populate({
+        path: "components",
+        select: "-consumption_history"
+      })
+      .lean()
+      .exec();
 
     resolve(componentUpdated);
 
@@ -835,10 +845,10 @@ function _update_mainprocess(preData) {
 
 // --------------------------------------------------------------------------------
 function _get_workspace_simple(workspace_id) {
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     workspaceModel.getInstance().model.findOne({
-        _id: workspace_id
-      })
+      _id: workspace_id
+    })
       .then((workspace) => {
         if (workspace == null) {
           return reject(new Error.EntityNotFoundError('workspaceModel'))
@@ -855,16 +865,16 @@ function _get_workspace_simple(workspace_id) {
 
 function _get_workspace(workspace_id) {
   // console.log("get workspace", workspace_id)
-  return new Promise(function(resolve, reject) {
+  return new Promise(function (resolve, reject) {
     //TODO : review model decalration architecture
     //TODO : conception error if getInstance isn't call, schema is not register
     workspaceComponentModel.getInstance();
     let workspace;
     workspaceModel.getInstance().model.findOne({
-        _id: workspace_id
-      }, {
-        consumption_history: 0
-      })
+      _id: workspace_id
+    }, {
+      consumption_history: 0
+    })
       .populate({
         path: "components",
         select: "-consumption_history",
@@ -903,16 +913,16 @@ function _get_workspace(workspace_id) {
           if (workspace.status != undefined) {
             resolve(workspace);
           } else {
-            let  processes = await processModel.getInstance().model.find({
+            let processes = await processModel.getInstance().model.find({
               workflowId: workspace._id
             }).sort({
               timeStamp: -1
             })
-            .limit(1)
-            .lean()
-            .exec();
+              .limit(1)
+              .lean()
+              .exec();
             if (processes[0]) {
-              let historiqueEnd = await  historiqueEndModel.getInstance().model.find({
+              let historiqueEnd = await historiqueEndModel.getInstance().model.find({
                 processId: processes[0]._id
               }).select({
                 data: 0
@@ -942,7 +952,7 @@ function _get_workspace(workspace_id) {
               }
 
               resolve(workspace)
-              
+
             } else {
               workspace.status = 'no-start';
               resolve(workspace)
@@ -964,34 +974,34 @@ function _get_workspace_graph_data(workspaceId) {
   return new Promise(async (resolve, reject) => {
     let result = await historiqueEndModel.getInstance().model.aggregate(
       [{
-          $match: {
-            workflowId: workspaceId
-          }
-        },
-        {
-          $group: {
-            _id: {
-              workflowComponentId: "$workflowComponentId",
-              roundDate: "$roundDate"
-            },
-            totalPrice: {
-              $sum: "$recordPrice"
-            },
-            totalMo: {
-              $sum: "$moCount"
-            },
-            components: {
-              $push: "$$ROOT"
-            }
+        $match: {
+          workflowId: workspaceId
+        }
+      },
+      {
+        $group: {
+          _id: {
+            workflowComponentId: "$workflowComponentId",
+            roundDate: "$roundDate"
+          },
+          totalPrice: {
+            $sum: "$recordPrice"
+          },
+          totalMo: {
+            $sum: "$moCount"
+          },
+          components: {
+            $push: "$$ROOT"
           }
         }
-      ]);
-      try {
-        const graph = graphTraitement.formatDataWorkspaceGraph(result)
-        resolve(graph);
-      } catch (e) {
-        reject(new Error.InternalProcessError(e))
       }
+      ]);
+    try {
+      const graph = graphTraitement.formatDataWorkspaceGraph(result)
+      resolve(graph);
+    } catch (e) {
+      reject(new Error.InternalProcessError(e))
+    }
   });
 } // <= _get_workspace_graph_data
 
@@ -1012,19 +1022,19 @@ function _addConnection(workspaceId, source, target, input) {
       workspace.links.push({
         source: source,
         target: target,
-        targetInput : input
+        targetInput: input
       });
       // console.log('workspace add connection',workspace)
       return workspaceModel.getInstance().model.findOneAndUpdate({
-            _id: workspace._id
-          },
-          workspace, {
-            new: true
-          }
-        ).populate({
-          path: "components",
-          select: "-consumption_history"
-        }).lean()
+        _id: workspace._id
+      },
+        workspace, {
+        new: true
+      }
+      ).populate({
+        path: "components",
+        select: "-consumption_history"
+      }).lean()
         .exec();
     }).then(workspaceUpdate => {
       resolve(workspaceUpdate.links)
@@ -1055,15 +1065,15 @@ function _removeConnection(workspaceId, linkId) {
       if (targetLink != undefined) {
         workspace.links.splice(workspace.links.indexOf(targetLink), 1);
         return workspaceModel.getInstance().model.findOneAndUpdate({
-              _id: workspace._id
-            },
-            workspace, {
-              new: true
-            }
-          ).populate({
-            path: "components",
-            select: "-consumption_history"
-          })
+          _id: workspace._id
+        },
+          workspace, {
+          new: true
+        }
+        ).populate({
+          path: "components",
+          select: "-consumption_history"
+        })
           .lean()
           .exec();
       } else {
@@ -1072,7 +1082,7 @@ function _removeConnection(workspaceId, linkId) {
     }).then(workspaceUpdate => {
       resolve(workspaceUpdate.links);
     }).catch(e => {
-      console.log('error',e)
+      console.log('error', e)
       return reject(new Error.DataBaseProcessError(e))
     });
   })
