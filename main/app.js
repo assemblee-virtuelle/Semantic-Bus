@@ -18,7 +18,7 @@ const url = env.CONFIG_URL;
 const errorHandling = require('../core/helpers/errorHandling');
 const cron = require('node-cron');
 const workspace_lib = require('../core/lib/workspace_lib')
-const { createFragmentTable } = require('../core/db/dynamodb_admin');
+// const { createFragmentTable } = require('../core/db/dynamodb_admin');
 const { createFileTable } = require('../core/db/scylla_admin');
 const { migrateFragmentsDataFromScyllaToDynamoDB } = require('../core/db/migration'); 
 
@@ -96,7 +96,7 @@ technicalComponentDirectory.setAmqpClient(channelWrapper);
 
 // Use async/await to ensure sequential execution
 (async () => {
-  await createFragmentTable();
+  // await createFragmentTable();
   await createFileTable();
   // await migrateFragmentsDataFromScyllaToDynamoDB();
 })();
