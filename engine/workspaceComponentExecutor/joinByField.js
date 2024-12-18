@@ -1,7 +1,7 @@
 'use strict';
 const fragment_lib = require('../../core/lib/fragment_lib_scylla.js');
 const Loki = require('lokijs');
-const db = new Loki('inMemoryDB', {
+const db = new Loki('joinByField', {
   verbose: true
 });
 const sift = require('sift').default;
@@ -19,7 +19,6 @@ function startCollectionCleanup() {
       if (createdAt < oneHourAgo) {
         db.removeCollection(name);
         delete collections[name];
-        console.log(`Collection ${name} removed due to inactivity.`);
       }
     }
   }, 1000);
@@ -103,15 +102,19 @@ class JoinByField {
                   return collection.find(filter);
                 }
               }).flat();
-
+              results = results.map(r=>{delete r.$loki; return r})
               item[data.specificData.primaryFlowFKName] = results;
             } else {
-              // Handle single value (existing logic)
-              let filter = {
-                [data.specificData.secondaryFlowId]: primaryValue
-              };
-              let result = collection.find(filter);
-              item[data.specificData.primaryFlowFKName] = data.specificData.multipleJoin ? result : result[0];
+              if(!isLiteral(primaryValue)){
+                item[data.specificData.primaryFlowFKName]= {error: 'join can only process literal'};
+              } else{
+                let filter = {
+                  [data.specificData.secondaryFlowId]: primaryValue
+                };
+                let results = collection.find(filter);
+                results = results.map(r=>{delete r.$loki; return r})
+                item[data.specificData.primaryFlowFKName] = data.specificData.multipleJoin ? results : results[0];
+              }
             }
             resolve(item);
           // } else {
@@ -170,7 +173,7 @@ class JoinByField {
         let collection = db.getCollection(collectionName);
 
         if (!collection) {
-          collection = db.addCollection(collectionName, { indices: [data.specificData.secondaryFlowId] });
+          collection = db.addCollection(collectionName, { indices: [data.specificData.secondaryFlowId] , disableMeta:true});
 
           await fragment_lib.getWithResolutionByBranch(secondaryFlowFragment, {
             deeperFocusActivated: true,
@@ -201,8 +204,6 @@ class JoinByField {
           },
           async () => {
             return true;
-            // const process = await workspace_lib.getCurrentProcess(processId);
-            // return process.state !== 'stop';
           }
         )
 

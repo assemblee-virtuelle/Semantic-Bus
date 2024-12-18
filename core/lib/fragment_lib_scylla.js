@@ -232,7 +232,13 @@ module.exports = {
 
     rebuildFragDataByBranch: async function (data, options = { pathTable: undefined, callBackOnPath: undefined, deeperFocusActivated: false }) {
         if (options.callBackOnPath && Array.isArray(options.pathTable) && options.pathTable.length == 0) {
-            await options.callBackOnPath(data);
+            if (options.deeperFocusActivated) { 
+                for (let item of data) {
+                    await options.callBackOnPath(item);
+                }
+            } else {
+                await options.callBackOnPath(data);
+            }
         }
         else {
             if (data != null && data._frag) {

@@ -1,58 +1,85 @@
 'use strict'
+
+// Move all requires before the class definition
+const fragment_lib = require('../../core/lib/fragment_lib_scylla.js');
+const DfobProcessor = require('../../core/helpers/dfobProcessor.js');
+const sift = require('sift').default;
+const Loki = require('lokijs');
+
+const stringReplacer = require('../utils/stringReplacer.js');
+const objectTransformation = require('../utils/objectTransformationV2.js');
+let collections = {}
+const db = new Loki('filter', {
+  verbose: true
+});
+
 class Filter {
   constructor() {
-    this.sift = require('sift').default;
-    // this.siftDate = require('sift-date');
-    this.stringReplacer = require('../utils/stringReplacer.js');
-    this.objectTransformation = require('../utils/objectTransformationV2.js');
   }
 
+
+
   pull(data, flowData, pullParams) {
-    // this.sift.use(this.siftDate)
-    // let test = this.sift({
-    //   'mandate-start': {
-    //     $older: new Date('2014-01-01')
-    //   }
-    // }, [{
-    //   'mandate-start': new Date('2013-01-01')
-    // }, {
-    //   'mandate-start': new Date('2015-01-01')
-    // }])
-
     return new Promise((resolve, reject) => {
-
-
       try {
-
-        // let usableData=JSON.parse(JSON.stringify(flowData[0].data));
         let usableData = flowData[0].data
         if (!Array.isArray(usableData)) {
           throw new Error('input data is not an array')
         }
 
         let filterString = data.specificData.filterString
-        // filterString = filterString.replace(/£./g, '$.')
         let filter = JSON.parse(filterString)
-        // (source, pullParams, jsonTransformPattern, options) {
-        // console.log('filter',filter);
-        // console.log('usableData',usableData);
-        // console.log('pullParams',pullParams);
-        let filterResult = this.objectTransformation.execute(usableData, pullParams, filter);
-        // console.log('filterResult',filterResult);
-        var resultData = usableData.filter(this.sift(filterResult));
-        // console.log('resultData',resultData)
+        let filterResult = objectTransformation.execute(usableData, pullParams, filter);
+        var resultData = usableData.filter(sift(filterResult));
         resolve({
           data: resultData
         })
       } catch (e) {
-        // console.error(e);
-        // console.log('REJECT');
         reject(e)
       } finally {
-
       }
-
     })
+  }
+
+  async workWithFragments(data, flowData, pullParams, processId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // Get the input fragment and dfob
+        const inputFragment = flowData[0].fragment;
+        const inputDfob = flowData[0].dfob;
+
+
+        const collectionName = `${processId}-${data._id.toString()}`;
+        // console.log('collectionName',collectionName);
+
+        let collection = db.addCollection(collectionName, {disableMeta:true});
+        await fragment_lib.getWithResolutionByBranch(inputFragment, {
+          deeperFocusActivated: true,
+          pathTable: [],
+          callBackOnPath: async (item) => {
+            delete item['$loki'];
+            collection.insert(item);
+          }
+        });
+        // Parse filter string
+        let filterString = data.specificData.filterString;
+        let filter = JSON.parse(filterString);
+        let onlyOneItem = undefined;
+        if (collection.count() == 1) {  
+          onlyOneItem = collection.findOne();
+        }
+        let filterResult = objectTransformation.execute(onlyOneItem, pullParams, filter);
+        console.log('filterResult',filterResult);
+        let resultData = collection.find(filterResult);
+        resultData = resultData.map(r=>{delete r['$loki']; return r})
+        await fragment_lib.persist(resultData, undefined, inputFragment);
+        db.removeCollection(collectionName);
+        resolve();
+      } catch (e) {
+        console.error(e);
+        reject(e);
+      }
+    });
   }
 }
 
