@@ -1,14 +1,9 @@
 'use strict';
-
-const fs = require('fs');
-const https = require('https');
 const fileLib = require('../../core/lib/file_lib_scylla.js');
 const fileConvertor = require('../../core/dataTraitmentLibrary/file_convertor.js');
 const dotProp = require('dot-prop');
-const fetch = require('node-fetch');
 const stringReplacer = require('../utils/stringReplacer.js');
 const formUrlencoded = require('form-urlencoded').default;
-const { AbortController, abortableFetch } = require('abortcontroller-polyfill/dist/cjs-ponyfill');
 const xml2js = require('xml2js');
 const propertyNormalizer = require('../utils/propertyNormalizer.js');
 const config = require('../config.json');
@@ -110,13 +105,10 @@ class HttpConsumer {
             bodyObject = dotProp.get(bodyObject, componentConfig.bodyPath);
           }
 
-          // console.log("bodyObject",bodyObject);
           switch (componentConfig.contentType) {
             case 'text/plain':
               body = bodyObject.toString();
-              // "airSensors,sensor_id=TLM0201";
               break;
-            //console.log("new here ! ",flowData[0].data);
             case 'application/json':
             case 'application/ld+json':
               body = JSON.stringify(bodyObject);
@@ -127,53 +119,41 @@ class HttpConsumer {
             default:
               reject(new Error(`${componentConfig.contentType} contentType not Supported by this component`));
           }
-          // console.log('body1',body);
         }
 
         let url = componentConfig.url;
-        // console.log('_url', url);
-        // console.log('flowData',flowData);
+
         if ((flowData && flowData[0].data) || queryParams) {
           url = stringReplacer.execute(componentConfig.url, queryParams, flowData ? flowData[0].data : undefined);
         }
 
         let response;
         let errorMessage;
-        // console.log('body2',body);
+
         if (componentConfig.contentType && body) {
           headers['Content-Type'] = componentConfig.contentType;
         }
 
-        // console.log('headers',headers);
-        // console.log('BEFORE CALL');
-        let agentOptions = undefined;
         let options = {
           method: componentConfig.method || 'GET',
           body: body,
           headers: headers
         };
         if (flowData && flowData[0].data && componentConfig.certificateProperty && componentConfig.certificatePassphrase) {
-          console.log('_certification');
-          // console.log ('fileId',flowData[0],flowData[0].data[componentConfig.certificateProperty])
+
           const fileObject = await fileLib.get(flowData[0].data[componentConfig.certificateProperty]?._file);
-          console.log('_  fileObject',fileObject),
-          console.log('_  componentConfig.certificatePassphrase',componentConfig.certificatePassphrase)
-          // let file =fs.readFileSync(fileObjectc.filePath);
-          // console.log('fileObject', fileObject)
-          console.log('_  options.agentOptions',componentConfig.agentOptions)
           options.agentOptions = {
             pfx: fileObject.binary,
             passphrase: componentConfig.certificatePassphrase,
             rejectUnauthorized: true
           };
         }
-        // console.log('options', url, options);
+
         this.call_url(url, options,
           undefined,
           componentConfig.timeout,
           componentConfig.retry ? componentConfig.retry - 1 : undefined
         ).then(async (response) => {
-          // console.log('AFTER CALL',response.status);
           let responseObject;
 
           if (response) {
@@ -186,13 +166,11 @@ class HttpConsumer {
                 responseObject = undefined;
               } else {
                 responseObject = await this.convertResponseToData(response, componentConfig);
-                // console.log('responseObject',responseObject);
               }
             } catch (e) {
               errorMessage = e.message;
             }
           }
-          console.log('response.headers', response.headers);
 
           if (errorMessage) {
             resolve({
@@ -222,7 +200,6 @@ class HttpConsumer {
         }).catch((e) => {
           console.log('error', e);
           errorMessage = e.message;
-          // console.log('flowData[0].data',flowData[0]);
           resolve({
             data: {
               request: {
@@ -235,9 +212,7 @@ class HttpConsumer {
           });
         });
 
-        // console.log('AFTER CALL');
       } catch (e) {
-        // console.log('error', e);
         reject(e);
       }
     });

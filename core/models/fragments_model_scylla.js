@@ -32,7 +32,8 @@ const processFragmentRead = (fragmentData) => {
   processedFragment.rootFrag = processedFragment?.rootFrag?.toString();
   processedFragment.branchOriginFrag = processedFragment?.branchOriginFrag?.toString();
   processedFragment.branchFrag = processedFragment?.branchFrag?.toString(); 
-  processedFragment.originFrag = processedFragment?.originFrag?.toString();  
+  processedFragment.originFrag = processedFragment?.originFrag?.toString(); 
+  
 
   return processedFragment;
 };
@@ -47,6 +48,19 @@ const processFragmentWrite = (fragment) => {
 
   processedFragment.id = fragment?.id?.toString(); // Ensure id is a string
   return processedFragment;
+};
+
+// Fonction utilitaire pour traiter les critères et options
+const processCriteriaAndOptions = (criteria) => {
+  if (criteria?.index) {
+    criteria.indexarray = criteria.index;
+    delete criteria.index;
+  }
+  if (criteria?.maxIndex) {
+    criteria.maxIndexarray = criteria.maxIndex;
+    delete criteria.maxIndex;
+  }
+  return criteria
 };
 
 const insertFragment = async (fragment) => {
@@ -114,18 +128,7 @@ const persistFragment = async (fragment) => {
   }
 };
 
-// Fonction utilitaire pour traiter les critères et options
-const processCriteriaAndOptions = (criteria) => {
-  if (criteria?.index) {
-    criteria.indexarray = criteria.index;
-    delete criteria.index;
-  }
-  if (criteria?.maxIndex) {
-    criteria.maxIndexarray = criteria.maxIndex;
-    delete criteria.maxIndex;
-  }
-  return criteria
-};
+
 
 
 const getFragmentById = async (id) => {
@@ -147,7 +150,7 @@ const getFragmentById = async (id) => {
 const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, selectedFields = {}, limit = Infinity, callback = null) => {
   // Traitement des critères et options
   searchCriteria = processCriteriaAndOptions(searchCriteria); 
-  sortOptions = processCriteriaAndOptions(sortOptions); 
+  // sortOptions = processCriteriaAndOptions(sortOptions); 
 
   const fieldNames = Object.keys(searchCriteria);
   
@@ -210,18 +213,13 @@ const updateMultipleFragments = async (searchCriteria, updateFields, showSpinner
   }
 
   for (let i = 0; i < idsToUpdate.length; i += batchSize) {
-    // console.log('__idsToUpdate', idsToUpdate)
-    // console.log('__i', i)
     const batchIds = idsToUpdate.slice(i, i + batchSize);
-    // console.log('__batchIds', batchIds)
     const whereClause = `id IN (${batchIds.map(() => '?').join(', ')})`;
     const query = `UPDATE fragment SET ${setClause} WHERE ${whereClause}`;
     const queryValues = [...values, ...batchIds];
-    // console.log('query', query, 'queryValues', queryValues)
 
     // Exécuter chaque mise à jour de lot une par une
     const result = await client.execute(query, queryValues, { prepare: true });
-    // console.log('result', result)
 
     // Mettre à jour le spinner avec la progression
     if (showSpinner) {
@@ -237,7 +235,6 @@ const updateMultipleFragments = async (searchCriteria, updateFields, showSpinner
 const deleteManyFragments = async (searchCriteria) => {
   searchCriteria = processCriteriaAndOptions(searchCriteria);
   const itemsToDelete = await searchFragmentByField(searchCriteria, undefined, { id: 1 });
-  // console.log('fragment to Delete : ', toGarbage.length);
   const idsToDelete = itemsToDelete.map(fragment => fragment.id);
   if (idsToDelete.length === 0) return; 
 
@@ -249,12 +246,11 @@ const deleteManyFragments = async (searchCriteria) => {
     const query = `DELETE FROM fragment WHERE ${whereClause}`;
     await client.execute(query, batchIds, { prepare: true }); // Exécuter chaque suppression de lot une par une
   }
-  // console.log(`${idsToDelete.length} fragments deleted`);
+
 };
 
 const countDocuments = async (searchCriteria) => {
   const ids = await searchFragmentByField(searchCriteria, undefined, { id: 1 }); // Sélectionne uniquement les IDs
-  // console.log('countDocuments : ', ids.length,searchCriteria)
   return ids.length; // Retourne le nombre d'IDs trouvés
 };
 
@@ -266,7 +262,6 @@ const getAllFragments = async (query, params, limit = Infinity, callback = null)
   do {
     pageCount++; // Incrémentation du compteur de pages
     result = await client.execute(query, params, { prepare: true, pageState: result?.pageState });
-    // console.log('Page count:', pageCount, 'Records retrieved:', allRows.length);
 
     if (callback) {
       const processedRows = result.rows.map(row => processFragmentRead(row));
@@ -282,7 +277,6 @@ const getAllFragments = async (query, params, limit = Infinity, callback = null)
     }
   } while (result.pageState);
 
-  // console.log('Total pages:', pageCount); // Affichage du nombre total de pages
   if (!callback) {
     return allRows.map(row => processFragmentRead(row));
   }

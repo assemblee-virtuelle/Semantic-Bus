@@ -16,17 +16,12 @@ class DfobProcessor {
     const { pipeNb, dfobTable, keepArray } = dfobOptions;
 
     const needDfob = dfobTable.length > 0 || (Array.isArray(rebuildData) && !keepArray);
-    // console.log('_____ needDfob',needDfob);
     if (!needDfob) {
       const params = buildParamArrayCallback(rebuildData)
       rebuildData = await method.apply(module, params)
     } else {
-      // console.log('_____rebuildData', rebuildData);
       const dfobFlow = DfobHelper.buildDfobFlow(rebuildData, dfobTable, undefined, keepArray);
-
-      // console.log('_____dfobFlow', dfobFlow);
       const paramArray = dfobFlow.map((item) => {
-        // console.log('_____ item', item);
         let objectToProcess;
         if (item.key !== undefined) {
           objectToProcess = item.objectToProcess[item.key];
@@ -48,14 +43,10 @@ class DfobProcessor {
         config
       );
 
-      // console.log('__________componentFlowDfob', componentFlowDfob);
 
       Object.entries(componentFlowDfob).forEach(([key, value]) => {
-        // console.log('__ POST processDfobFlow', key, value);
         try {
           const dfobItem = dfobFlow[key];
-          // console.log('__________dfobItem', dfobItem);
-          // console.log('__________value', value);
           if ('data' in value) {
             if (dfobItem.key !== undefined) {
               dfobItem.objectToProcess[dfobItem.key] = value.data;
@@ -69,12 +60,10 @@ class DfobProcessor {
             if (dfobItem.key !== undefined) {
               dfobItem.objectToProcess[dfobItem.key] = value;
             } else {
-              // console.log('__________ replace all properties');
               Object.keys(dfobItem.objectToProcess).forEach(k => {
                 dfobItem.objectToProcess[k] = undefined;
               });
               Object.assign(dfobItem.objectToProcess, value);
-              // console.log('__________ result of replace all properties', dfobItem.objectToProcess);
             }
           }
         } catch (error) {

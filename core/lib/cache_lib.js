@@ -35,9 +35,6 @@ module.exports = {
 
     let frag = await this.fragment_lib.persist(data);
 
-    // console.log('allo3')
-    // console.log('___frag', frag)
-
     cachedData.frag = frag.id.toString();
     cachedData.date = new Date();
     if (history == true) {

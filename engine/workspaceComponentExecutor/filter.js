@@ -27,7 +27,6 @@ class Filter {
         // let usableData=JSON.parse(JSON.stringify(flowData[0].data));
         let usableData = flowData[0].data
         if (!Array.isArray(usableData)) {
-          console.log('_____ usableData', usableData);
           throw new Error('input data is not an array')
         }
 

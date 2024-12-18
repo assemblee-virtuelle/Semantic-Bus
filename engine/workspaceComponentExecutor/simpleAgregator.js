@@ -4,6 +4,7 @@ const fragment_lib = require('../../core/lib/fragment_lib_scylla');
 class SimpleAgregator {
   constructor() {
   }
+
   async getPrimaryFlow(data, dataFlow) {
     dataFlow.sort((a, b) => {
       let componentIdA = a.componentId.toString();
@@ -11,21 +12,20 @@ class SimpleAgregator {
       const diff = componentIdA.localeCompare(componentIdB);
       return diff;
     });
-
+    //TODO : refactor and search an other solution because the rootArrayFrag is not referenced by process history and so not deleted
     const newRooFrag = await fragment_lib.createRootArrayFragFromFrags(dataFlow.map(df => df.fragment))
-
-    // console.log('____________newRooFrag',newRooFrag)
 
     return {
       fragment: newRooFrag.id
     }
   }
+
   async getSecondaryFlow(data, flowData) {
     return []
   }
+
   pull(data, flowData) {
     return new Promise((resolve, reject) => {
-      // console.log('___',flowData)
       var resultFlow = []
       for (let flow of flowData) {
         if (Array.isArray(flow.data)) {

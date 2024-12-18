@@ -241,7 +241,6 @@ function _cleanGarbageForgotten() {
         for (let fragId of fragsToKeepId) {
           try {
             const frag = await fragmentModel.getFragmentById(fragId);
-            // console.log('__frag', frag.id,' / ', frag.rootFrag)
             if (frag.rootFrag != undefined && frag.rootFrag != null) {
               await fragmentModel.updateMultipleFragments({
                 originFrag: frag.rootFrag

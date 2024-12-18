@@ -76,15 +76,11 @@ class HttpProvider {
     })
 
     amqpConnection.consume('process-end', (msg) => {
-      // console.log('_______process-end 1')
       const messageObject = JSON.parse(msg.content.toString())
-      // console.log('_______process-end 2')
       const pendingWork = this.pendingWork[messageObject.tracerId]
-      // console.log('_______process-end 3')
       if (pendingWork) {
         delete this.pendingWork[messageObject.tracerId];
       }
-      // console.log('_______process-end 4')
     }, {
       noAck: true
     })
@@ -100,7 +96,6 @@ class HttpProvider {
             error: 'engine error'
           })
         }
-        // console.log('_______________4 delete error',pendingWork.component._id.toString());
         delete this.pendingWork[tracerId];
         delete this.currentCall[pendingWork.component._id.toString()];
         this.pop(pendingWork.component._id.toString());
@@ -114,20 +109,15 @@ class HttpProvider {
 
   initialise(router) {
     router.all('/api/*', async (req, res, next) => {
-      // console.log('req.params[0]',req.params[0]);
-      // console.log('_______________0.1');
-      // const urlRequiered = req.params[0].split('/')[1];
-      // console.log('urlRequiered',urlRequiered);
+
       const urlRequieredFull = req.params[0].replace('/', '');
-      // console.log('urlRequieredFull',urlRequieredFull);
       const query = req.query;
-      // console.log();
       let targetedComponent;
       const regex = /([^-]*)-.*/g;
       let componentId = regex.exec(urlRequieredFull)[1];
-      // let component;
+
       try {
-        // console.log('______componentId',componentId);
+
         let component;
         try {
           component = await this.workspace_component_lib.get({
@@ -138,7 +128,6 @@ class HttpProvider {
         }
 
         if (component != undefined && component.specificData.url != undefined) {
-          // console.log('_______________0.2');
           req.setTimeout(0);
           let keys = []
           let regexp = this.pathToRegexp(component.specificData.url, keys);
@@ -167,10 +156,7 @@ class HttpProvider {
             res.send();
           }
 
-          // console.log('_______________1 add call',component.workspaceId,component._id.toString(),component.specificData.url);
-          // console.log('_______________1 add call',component._id.toString());
           const callStack = this.pendingCall[component._id];
-          // console.log('req.body', req.body);
           const callContent = {
             queryParams: {
               query: req.query,
@@ -202,9 +188,7 @@ class HttpProvider {
 
   pop(componentId, unrestrictedExecution) {
     const callStack = this.pendingCall[componentId];
-    // console.log(callStack.length);
     if (unrestrictedExecution || !this.currentCall[componentId] && Array.isArray(callStack) && callStack.length > 0) {
-      // console.log('_______________3 pop GO',componentId,' - ',callStack.length);
       if (!unrestrictedExecution) {
         this.currentCall[componentId] = true;
         // if engin never send end of process becaus crash; this settime free lock

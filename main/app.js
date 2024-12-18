@@ -88,7 +88,6 @@ var channelWrapper = connection.createChannel({
   
 });
 const onConnect = (channel) => {
-  console.log('_______onConnect');
   technicalComponentDirectory.setAmqpChannel(channel)
 }
 

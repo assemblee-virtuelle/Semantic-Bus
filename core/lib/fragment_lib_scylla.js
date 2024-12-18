@@ -138,7 +138,7 @@ module.exports = {
     },
     createRootArrayFragFromFrags: async function (frags) {
         let newRootFrag = await this.createArrayFrag()
-        let index = 0;
+        let index = 1;
         for (let frag of frags) {
             await this.addFragToArrayFrag(frag, newRootFrag, index);
             index++;
@@ -149,7 +149,6 @@ module.exports = {
 
     get: function (id) {
         return new Promise(async (resolve, reject) => {
-            // console.log('___get', id)
             const fragmentReturn = await this.fragmentModel.getFragmentById(id);
 
             if (fragmentReturn.branchFrag) {
@@ -158,7 +157,6 @@ module.exports = {
                 }, {
                     index: 'ASC'
                 })
-                // console.log('_________frags', frags)
 
                 fragmentReturn.data = frags.map(f => {
                     return {
@@ -196,14 +194,10 @@ module.exports = {
 
         if (fragToResolve.branchFrag) {
             if (options.callBackOnPath && options.pathTable && options.pathTable.length == 0 && options.deeperFocusActivated) {
-                // console.log('_____ callBackOnPath on branchFrag');
                 await this.fragmentModel.searchFragmentByField({
                     branchOriginFrag: fragToResolve.branchFrag
                 }, undefined, undefined, undefined, async (fragments) => {
-                    //TODO: recall getWithResolutionByBranch if item contains a branchFrag
-                    // console.log('_____ searchFragmentByField item', items.length);
                     fragments.forEach(async (fragment) => { 
-                        // console.log('_____ searchFragmentByField fragment', fragment.data);
                         await options.callBackOnPath(fragment.data);
                     });
                 });
@@ -237,7 +231,6 @@ module.exports = {
     },
 
     rebuildFragDataByBranch: async function (data, options = { pathTable: undefined, callBackOnPath: undefined, deeperFocusActivated: false }) {
-        // console.log('data',data)
         if (options.callBackOnPath && Array.isArray(options.pathTable) && options.pathTable.length == 0) {
             await options.callBackOnPath(data);
         }
@@ -473,7 +466,6 @@ module.exports = {
     },
 
     cleanFrag: async function (id) {
-        // console.log('___ cleanFrag', id)
         if (uuidValidate(id)) {
             const targetFrag = await this.fragmentModel.getFragmentById(id);
             await this.fragmentModel.deleteMany({
@@ -486,7 +478,6 @@ module.exports = {
     },
 
     tagGarbage: async function (id) {
-        // console.log('___ tagGarbage', id)
         if (uuidValidate(id)) {
             const targetFrag = await this.fragmentModel.getFragmentById(id);
             if (targetFrag.rootFrag) {
@@ -561,7 +552,7 @@ module.exports = {
                 garbageProcess: false
             }
 
-            let newFrag = new model(newFragRaw)
+            let newFrag = new model(newFragRaw);
             const processedData = await this.copyDataUntilPath(newFrag.data, dfobTable, keepArray, relativHistoryTable, newFrag);
             newFrag.data = processedData.data;
             await this.fragmentModel.persistFragment(newFrag);

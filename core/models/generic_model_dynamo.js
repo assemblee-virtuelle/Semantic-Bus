@@ -74,9 +74,7 @@ class FragmentModel {
       }
 
       if (isCompressed) {
-        // item[name] = this.compressData(value);
         item[name] = value;
-        // console.log('___compressData')
       } else {
         item[name] = requiresToString ? value.toString() : (value ?? defaultValue ?? null);
       }

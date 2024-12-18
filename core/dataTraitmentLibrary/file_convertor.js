@@ -78,10 +78,10 @@ function addFileToTree(tree,fileObject,leaf, parts) {
 }
 
 function _data_from_file(filename, dataBuffer, contentType, extractionParams) {
-  console.log('extractionParams', extractionParams);
+  // console.log('extractionParams', extractionParams);
   const extension= _extension(filename, contentType);
 
-  console.log('extension',extension);
+  // console.log('extension',extension);
 
   return new Promise(async function(resolve, reject) {
     switch (extension) {

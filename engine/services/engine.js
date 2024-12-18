@@ -283,7 +283,6 @@ class Engine {
               this.processNextBuildPath('flow ko')
             } else {
               if (componentFlow.deeperFocusData) {
-                // console.log('_____ deeperFocusData')
                 try {
 
                   let { dfobPath, keepArray, pipeNb } = componentFlow.deeperFocusData;
@@ -315,7 +314,6 @@ class Engine {
                   } else {
                     const secondaryFlowDefraged = [];
                     if (!module.workWithFragments) {
-                      // console.log('_____ module.workWithFragments', module.workWithFragments)
                       if (config.quietLog != true) console.time("secondary_getWithResolutionByBranch" + '_' + this.processId + '_' + this.workflow.name);
                       for (let sf of componentFlow.secondaryFlow) {
                         secondaryFlowDefraged.push({
@@ -393,7 +391,7 @@ class Engine {
                   this.processNextBuildPath('dfob catch')
                 }
               } else {
-                // console.log('_____ NO deeperFocusData')
+                // this code occure when no input dependency because dfob is set by defaut when input dependency exist
                 try {
                   //TODO: methode can be workWithFragments
                   const componentFlow = await module.pull(processingNode.component, dataFlow, processingNode.queryParams?.queryParams, this.processId);
@@ -595,16 +593,9 @@ class Engine {
     if (!workWithFragments) {
       try {
         rebuildData = await fragment_lib.getWithResolutionByBranch(fragment.id);
-        // console.log('_____ rebuildData',rebuildData)
-        // for (let i = 0; i < rebuildData.length; i++) {
-        //   for (let j = 0; j < rebuildData[i].length; j++) { 
-        //     console.log('_____ rebuildData[i][j]',rebuildData[i][j])
-        //   }
-        // }
         dfob = undefined;
 
         const needDfob = dfobTable.length > 0 || (Array.isArray(rebuildData) && !keepArray && !fragment.branchOriginFrag);
-        // console.log('_____ needDfob',needDfob);
         if (needDfob) {
           rebuildData = await DfobProcessor.processDfobFlow(
             rebuildData,
@@ -612,7 +603,6 @@ class Engine {
             module,
             module.pull,
             (item) => {
-              // console.log('_____ item',item);
               const recomposedFlow = [{
                 data: item,
                 componentId: primaryflow.componentId
@@ -638,8 +628,6 @@ class Engine {
             componentId: primaryflow.componentId
           }]);
           recomposedFlow = recomposedFlow.concat(secondaryFlowDefraged);
-          // console.log('_____ recomposedFlow',recomposedFlow);
-          // console.log('_____ recomposedFlow?.data',recomposedFlow[0]?.data);
           workResult = await module.pull(processingNode.component, recomposedFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams, this.processId)
           rebuildData = workResult.data;
           dfob = workResult.dfob

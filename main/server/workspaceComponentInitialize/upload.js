@@ -33,9 +33,7 @@ class Upload {
   }
 
   initialise (router) {
-    console.log('_______initialise');
     router.post('/upload/:compId', (req, res, next) => {
-      console.log('________UPLOAD', req.params.compId);
       var compId = req.params.compId
 
       var busboyInstance = new busboy({

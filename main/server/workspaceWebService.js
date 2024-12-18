@@ -119,9 +119,7 @@ module.exports = function (router) {
     workspace_component_lib.get_component_result(componentId, processId).then(function (data) {
       if (data !== undefined) {
         if (data.frag !== undefined) {
-          // console.log('data.frag',data.frag)
           fragment_lib.get(data.frag).then(frag => {
-            // console.log('__________fragment', frag)
             if (frag != null) {
               data.data = frag.data
             } else {

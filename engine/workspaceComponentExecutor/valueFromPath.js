@@ -95,10 +95,7 @@ class ValueFromPath {
 
   resolve(source, specificData) {
     let matches = specificData.path.split('.')
-    // console.log('matches',matches);
     let result = this.progress(source, matches, {}, 'root', 0)
-    //let result = source;
-    // console.log('________________________result',result);
     return (result)
   }
 

@@ -12,9 +12,7 @@ const { isLiteral, processLiteral, testAllLiteralArray } = require('../../core/h
 let collections = {}
 
 function startCollectionCleanup() {
-  // console.log('_____ startCollectionCleanup');
   setInterval(() => {
-    // console.log('_____ tCollectionCleanup');
     const hoursAgo = 1; // nombre d'heures
     const oneHourAgo = new Date(Date.now() - hoursAgo * 3600000); // heures en millisecondes
     for (const [name, { createdAt }] of Object.entries(collections)) {
@@ -41,7 +39,6 @@ class JoinByField {
       let primaryFlow = flowData.find(f => f.componentId == data.specificData.primaryComponentId);
       return primaryFlow;
     } else {
-      // console.log('_____ getPrimaryFlow flowData',flowData);
       throw new Error('Primary Flow could not be identified');
     }
   }
@@ -131,7 +128,6 @@ class JoinByField {
   }
 
   joinWithLokiSupportingArray(item, collection, data,) {
-    // console.log('_____ item',item)
     if (Array.isArray(item)) {
       return item.map(i => this.joinWithLoki(i, collection, data));
     } else {
@@ -246,7 +242,6 @@ class JoinByField {
             }
           })
         } else if (primaryFlowData == undefined) {
-          console.log('_____ primaryFlowData', flowData);
           resolve({
             data: {
               error: 'Primary Flow is undefined'

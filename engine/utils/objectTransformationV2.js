@@ -154,12 +154,9 @@ module.exports = {
       if (arrayRegex.length > 0) {
         const dotPath = arrayRegex[0][1];
         const dotPropResult = this.dotProp.get(source, dotPath);
-        // console.log('___dotProp',source, dotPath,dotPropResult)
         return dotPropResult;
       } else if (arrayRegexPull.length > 0) {
         const dotPath = arrayRegexPull[0][1];
-        // console.log('-dotPath',dotPath)
-        // console.log('this.dotProp.get(pullParams, dotPath)',this.dotProp.get(pullParams, dotPath));
         return this.dotProp.get(pullParams, dotPath);
       } else {
         return pattern;
