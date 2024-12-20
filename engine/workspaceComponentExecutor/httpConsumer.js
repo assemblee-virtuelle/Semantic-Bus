@@ -198,8 +198,23 @@ class HttpConsumer {
             });
           }
         }).catch((e) => {
-          console.log('error', e);
+          console.log('error pull', e);
           errorMessage = e.message;
+          // resolve({
+          //   data: {
+          //     request: {
+          //       url: url,
+          //       headers: headers,
+          //       body: bodyObject
+          //     },
+          //     response: {
+          //       body: responseObject,
+          //       status: response?.status,
+          //       headers: response?.headers
+          //     },
+          //     error: errorMessage
+          //   }
+          // });
           resolve({
             data: {
               request: {
@@ -241,9 +256,12 @@ class HttpConsumer {
     return new Promise(async (resolve, reject) => {
       if (numRetry === undefined) numRetry = 0;
       retry = retry || 0;
-
+      // console.log('_url', url);
       try {
-        let request = superagent(options.method, url)
+        // Encode the URL
+        const encodedUrl = encodeURI(url);
+
+        let request = superagent(options.method, encodedUrl)
           .set(options.headers)
           .timeout({
             response: 20000,
@@ -281,32 +299,41 @@ class HttpConsumer {
           const response = await request;
           resolve(response);
         } catch (e) {
-          if (config != undefined && config.quietLog != true) {
-            console.warn(`Post consumer component ${options.method} to ${url} failed ${numRetry + 1} times : ${e.message}`);
+          console.log('error call_url', e.status);
+          if (e.response){
+            resolve(e.response)
+          }else{
+            if (config != undefined && config.quietLog != true) {
+              console.warn(`Post consumer component ${options.method} to ${url} failed ${numRetry + 1} times : ${e.message}`);
+            }
+  
+            if (numRetry >= retry) {
+              if (config != undefined && config.quietLog != true) {
+                console.error(JSON.stringify(e.message));
+              }
+              if (e.timeout) {
+                reject(new Error(`request aborted due to timeout (20s) config ${numRetry + 1} times`));
+              } else {
+                reject(new Error(`${e.message} ${numRetry + 1} times`));
+              }
+            } else {
+              const retryInterval = 5;
+              if (config != undefined && config.quietLog != true) {
+                console.warn(`trying again in ${retryInterval}s... `);
+              }
+              setTimeout(async () => {
+                this.call_url(url, options, numRetry + 1, retry).then((postponeFetch) => {
+                  resolve(postponeFetch);
+                }).catch((e) => {
+                  reject(e);
+                });
+              }, retryInterval * 1000);
+            }
           }
 
-          if (numRetry >= retry) {
-            if (config != undefined && config.quietLog != true) {
-              console.error(JSON.stringify(e.message));
-            }
-            if (e.timeout) {
-              reject(new Error(`request aborted due to timeout (20s) config ${numRetry + 1} times`));
-            } else {
-              reject(new Error(`${e.message} ${numRetry + 1} times`));
-            }
-          } else {
-            const retryInterval = 5;
-            if (config != undefined && config.quietLog != true) {
-              console.warn(`trying again in ${retryInterval}s... `);
-            }
-            setTimeout(async () => {
-              this.call_url(url, options, numRetry + 1, retry).then((postponeFetch) => {
-                resolve(postponeFetch);
-              }).catch((e) => {
-                reject(e);
-              });
-            }, retryInterval * 1000);
-          }
+
+
+        
         }
       } catch (error) {
         reject(error);

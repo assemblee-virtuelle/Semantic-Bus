@@ -11,24 +11,23 @@ class SftpConsumer {
 
   dataProcessing(dataPath, readableStream, processId, specificData) {
     return new Promise(async (resolve, reject) => {
-      const fakeName = dataPath.replace('/','_');
-
-      let rawFile= true;
-      if (specificData.rawFile!=true){
-        try{
+      const fakeName = dataPath.replace('/', '_');
+      let rawFile = true;
+      if (specificData.rawFile != true) {
+        try {
           const result = await this.dataTraitment.type.data_from_file(fakeName, readableStream, rawFile)
           let data = this.propertyNormalizer.execute(result.data);
-          rawFile= false;
+          rawFile = false;
           resolve({
             data: data,
             path: dataPath
           });
-        }catch(e){
+        } catch (e) {
           console.warning(e);
         }
       }
 
-      if (rawFile){
+      if (rawFile) {
         const file = new this.File({
           binary: readableStream,
           filename: fakeName,
@@ -37,12 +36,12 @@ class SftpConsumer {
         await this.fileLib.create(file);
         resolve(
           {
-            file :{
-              _file : file.id
+            file: {
+              _file: file.id
             }
           }
         );
-      }     
+      }
     })
   }
 
@@ -56,9 +55,11 @@ class SftpConsumer {
         if (typeof specificData[key] === 'string' || specificData[key] instanceof String) {
           try {
             specificDataParsed[key] = this.stringReplacer.execute(specificData[key], pullParams, data);
-        } catch (e) {
+          } catch (e) {
             specificDataParsed[key] = { error: e.message };
           }
+        }else{
+          specificDataParsed[key]=specificData[key];
         }
       });
 
@@ -84,11 +85,11 @@ class SftpConsumer {
             // console.log('FILE');
             sftp.get(specificDataParsed.path)
               .then(readableStream => {
-               return this.dataProcessing(specificDataParsed.path, readableStream, processId, specificDataParsed);
+                return this.dataProcessing(specificDataParsed.path, readableStream, processId, specificDataParsed);
               })
               .then(result => {
                 resolve({
-                  data:result
+                  data: result
                 });
               }).catch(e => {
                 reject(e);
@@ -102,7 +103,7 @@ class SftpConsumer {
                   // if the elements are files
                   let elementPath = specificDataParsed.path + element.name;
                   if (element.type === "-") {
-                    if (specificDataParsed.resolvefilePath){
+                    if (specificDataParsed.resolvefilePath) {
                       return sftp.get(elementPath)
                         .then(readableStream => {
                           return this.dataProcessing(elementPath, readableStream, processId, specificDataParsed);
@@ -116,7 +117,7 @@ class SftpConsumer {
                       )
                     }
 
-                  } else if (element.type === "d"){
+                  } else if (element.type === "d") {
                     return Promise.resolve(
                       {
                         path: elementPath,
@@ -134,10 +135,10 @@ class SftpConsumer {
                   data: dataArray
                 });
               });
-          } else if  (typeOfPath === false) {
+          } else if (typeOfPath === false) {
             reject(new Error(`path ${specificDataParsed.path} not found`))
           }
-        }).catch(e=>{
+        }).catch(e => {
           reject(e);
         });
     });

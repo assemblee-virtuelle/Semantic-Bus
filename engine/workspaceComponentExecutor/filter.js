@@ -52,7 +52,7 @@ class Filter {
         const collectionName = `${processId}-${data._id.toString()}`;
         // console.log('collectionName',collectionName);
 
-        let collection = db.addCollection(collectionName, {disableMeta:true});
+        let collection = db.addCollection(collectionName, { disableMeta: true });
         await fragment_lib.getWithResolutionByBranch(inputFragment, {
           deeperFocusActivated: true,
           pathTable: [],
@@ -65,13 +65,28 @@ class Filter {
         let filterString = data.specificData.filterString;
         let filter = JSON.parse(filterString);
         let onlyOneItem = undefined;
-        if (collection.count() == 1) {  
+        if (collection.count() == 1) {
           onlyOneItem = collection.findOne();
         }
+        //case when onlyOneItem is no clear. when a property have to be compare whith an other.
         let filterResult = objectTransformation.execute(onlyOneItem, pullParams, filter);
-        console.log('filterResult',filterResult);
-        let resultData = collection.find(filterResult);
-        resultData = resultData.map(r=>{delete r['$loki']; return r})
+        console.log('filterResult', filterResult);
+        let resultData;
+        if (filterResult.hasOwnProperty('$where')) {
+          // Check if the filterResult only contains the '$where' property
+          if (Object.keys(filterResult).length === 1) {
+            const whereCondition = filterResult['$where'].replace(/this/g, 'obj');
+            resultData = collection.where((obj) => {
+              const evaluation =eval(whereCondition)
+              return evaluation == true
+            });
+          } else {
+            reject({ error: '$where have to be the only property when it is used' })
+          }
+        } else {
+          resultData = collection.find(filterResult);
+        }
+        resultData = resultData.map(r => { delete r['$loki']; return r })
         await fragment_lib.persist(resultData, undefined, inputFragment);
         db.removeCollection(collectionName);
         resolve();
