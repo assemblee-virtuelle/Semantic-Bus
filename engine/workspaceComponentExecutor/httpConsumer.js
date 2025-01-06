@@ -35,7 +35,7 @@ class HttpConsumer {
           } catch (e) {
             resolve({ error: e });
           }
-        } else if (contentType.includes('xml')) {
+        } else if (contentType.includes('application/xml')) {
           let text = response.text;
           if (!text) {
             reject(new Error('No XML content found in response'));
@@ -49,7 +49,7 @@ class HttpConsumer {
               resolve(propertyNormalizer.execute(result));
             }
           });
-        } else if (contentType.includes('json')) {
+        } else if (contentType.includes('application/json')) {
           // console.log(response.text);
           let responseObject = JSON.parse(response.text); 
           // let responseObject = []
