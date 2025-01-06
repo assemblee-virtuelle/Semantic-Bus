@@ -261,7 +261,16 @@ class Scrapper {
 
           client.url(url)
             .then(() => {
-              this.aggregateAction(actions, client, data, specificData).then((res) => {
+              let actionsProccessed = actions.map(a=>({...a}));
+              for( let action of actionsProccessed){
+                if(action.selector){
+                  action.selector = this.stringReplacer.execute( action.selector, queryParams, flowData);
+                }
+                if(action.attribut){
+                  action.attribut = this.stringReplacer.execute( action.attribut, queryParams, flowData);
+                }
+              }
+              this.aggregateAction(actionsProccessed, client, data, specificData).then((res) => {
                 // console.log("--traitmeent terminé final ----", res)
                 resolve({
                   data: res
