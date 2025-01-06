@@ -23,7 +23,7 @@ class HttpConsumer {
           reject(new Error(`no content-type in response or overided by component`));
         }
 
-        if (response.headers['content-encoding'] === 'gzip' && response._body) {
+        if (response.headers['content-encoding'] === 'gzip' && response._body && response.text==undefined) {
           response.text = response._body.toString('utf-8');
         }
 
@@ -50,7 +50,9 @@ class HttpConsumer {
             }
           });
         } else if (contentType.includes('json')) {
-          let responseObject = JSON.parse(response.text); // superagent automatically parses JSON
+          // console.log(response.text);
+          let responseObject = JSON.parse(response.text); 
+          // let responseObject = []
           resolve(propertyNormalizer.execute(responseObject));
         } else if (
           contentType.includes('octet-stream') ||
