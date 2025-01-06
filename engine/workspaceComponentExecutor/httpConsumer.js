@@ -59,10 +59,12 @@ class HttpConsumer {
           contentType.includes('zip') ||
           contentType.includes('ics') ||
           contentType.includes('csv') ||
-          contentType.includes('xlsx')
+          contentType.includes('xlsx') ||
+          contentType.includes('vnd.openxmlformats-officedocument')
         ) {
           let buffer = response.body; // superagent stores binary data here
-          fileConvertor.data_from_file(response.headers['content-disposition'], buffer).then((result) => {
+          // console.log('___buffer',buffer,response.headers['content-disposition']);
+          fileConvertor.data_from_file(response.headers['content-disposition'], buffer,contentType).then((result) => {
             resolve(propertyNormalizer.execute(result));
           }).catch((err) => {
             let fullError = new Error(err);

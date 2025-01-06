@@ -18,20 +18,34 @@ module.exports = {
 };
 
 function _extension(filename, contentType) {
-  if (filename != null) {
-    var regex = /\.(\w*)/g;
-    let matches = filename.match(regex);
-    let extention = matches.pop();
-    extention = extention.replace(';', '').replace('.', '')
-    return extention;
-  } else if (contentType) {
+  // console.log('_extension',filename,contentType);
+  let extension;
+  if (filename != null  && filename!=undefined) {
+    try {
+      var regex = /\.(\w*)/g;
+      let matches = filename.match(regex);
+      extension = matches.pop();
+      extension = extension.replace(';', '').replace('.', '')
+    } catch (error) {
+
+    }
+  }
+  if (!extension && contentType) {
     var regex = /\/(.+)/g;
     var reg = new RegExp(regex, 'g');
     let regResult = reg.exec(contentType)
-    return regResult.pop()
-  } else {
-    throw new Error('filename or contentType have to be set');
+    extension = regResult.pop()
+    if(extension.includes('vnd.openxmlformats-officedocument')) {
+      extension = "ods";
+    }
+    if(extension.includes('vnd.ms-excel')) {
+      extension = "xlsx";
+    }
   }
+  if (!extension) {
+    throw new Error('filename or contentType have to be set by valid values');
+  }
+  return extension;
 }
 
 function _buildFile(filename, dataString, dataBuffer, out, contentType) {
@@ -39,6 +53,7 @@ function _buildFile(filename, dataString, dataBuffer, out, contentType) {
   return new Promise(function(resolve, reject) {
     switch (extension) {
       case ("vnd.ms-excel"):
+      case ("vnd.openxmlformats-officedocument"):
       case ("xlsx"):
         resolve(exel.json_to_exel(JSON.parse(dataString)));
         break;
@@ -79,9 +94,10 @@ function addFileToTree(tree,fileObject,leaf, parts) {
 
 function _data_from_file(filename, dataBuffer, contentType, extractionParams) {
   // console.log('extractionParams', extractionParams);
+  // console.log('_data_from_file  ',filename, contentType, extractionParams);
   const extension= _extension(filename, contentType);
 
-  // console.log('extension',extension);
+  console.log('extension',extension,filename,contentType);
 
   return new Promise(async function(resolve, reject) {
     switch (extension) {
