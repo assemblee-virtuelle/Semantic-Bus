@@ -23,7 +23,7 @@ class HttpConsumer {
           reject(new Error(`no content-type in response or overided by component`));
         }
 
-        if (response.headers['content-encoding'] === 'gzip' && response._body && response.text==undefined) {
+        if (response.headers['content-encoding'] === 'gzip' && response._body && response.text == undefined) {
           response.text = response._body.toString('utf-8');
         }
 
@@ -49,9 +49,12 @@ class HttpConsumer {
               resolve(propertyNormalizer.execute(result));
             }
           });
-        } else if (contentType.includes('application/json')) {
+        } else if (
+          contentType.includes('application/json') ||
+          contentType.includes('application/ld+json')
+        ) {
           // console.log(response.text);
-          let responseObject = JSON.parse(response.text); 
+          let responseObject = JSON.parse(response.text);
           // let responseObject = []
           resolve(propertyNormalizer.execute(responseObject));
         } else if (
@@ -64,7 +67,7 @@ class HttpConsumer {
         ) {
           let buffer = response.body; // superagent stores binary data here
           // console.log('___buffer',buffer,response.headers['content-disposition']);
-          fileConvertor.data_from_file(response.headers['content-disposition'], buffer,contentType).then((result) => {
+          fileConvertor.data_from_file(response.headers['content-disposition'], buffer, contentType).then((result) => {
             resolve(propertyNormalizer.execute(result));
           }).catch((err) => {
             let fullError = new Error(err);
@@ -283,7 +286,7 @@ class HttpConsumer {
               options.agentOptions.pfx,
               options.agentOptions.passphrase
             );
-            
+
             request = request
               .ca(cert)
               .key(key)
@@ -304,13 +307,13 @@ class HttpConsumer {
           resolve(response);
         } catch (e) {
           console.log('error call_url', e.status);
-          if (e.response){
+          if (e.response) {
             resolve(e.response)
-          }else{
+          } else {
             if (config != undefined && config.quietLog != true) {
               console.warn(`Post consumer component ${options.method} to ${url} failed ${numRetry + 1} times : ${e.message}`);
             }
-  
+
             if (numRetry >= retry) {
               if (config != undefined && config.quietLog != true) {
                 console.error(JSON.stringify(e.message));
@@ -337,7 +340,7 @@ class HttpConsumer {
 
 
 
-        
+
         }
       } catch (error) {
         reject(error);
