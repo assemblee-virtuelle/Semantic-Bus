@@ -138,7 +138,7 @@ function _update(componentToUpdate) {
       })
       .lean()
       .exec();
-      console.log('componentUpdated', componentUpdated);
+      // console.log('componentUpdated', componentUpdated);
       resolve(componentUpdated)
     }
   });

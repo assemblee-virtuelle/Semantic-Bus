@@ -50,7 +50,7 @@ class HttpConsumer {
             }
           });
         } else if (contentType.includes('json')) {
-          let responseObject = response.body; // superagent automatically parses JSON
+          let responseObject = JSON.parse(response.text); // superagent automatically parses JSON
           resolve(propertyNormalizer.execute(responseObject));
         } else if (
           contentType.includes('octet-stream') ||
