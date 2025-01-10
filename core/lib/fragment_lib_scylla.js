@@ -47,7 +47,7 @@ module.exports = {
                 const paramArray = data.map((item, index) => ([
                     item,
                     fargToPersist,
-                    index+1
+                    index + 1
                 ]));
                 const addToArrayOcherstrator = new this.PromiseOrchestrator()
                 await addToArrayOcherstrator.execute(this, this.addDataToArrayFrag, paramArray, { beamNb: 1000 }, { quietLog: false });
@@ -72,7 +72,7 @@ module.exports = {
             const objectData = await this.persistObject(data, fargToPersist)
             fargToPersist.data = objectData;
             fargToPersist.branchFrag = undefined;
-            if(fargToPersist.index==0){
+            if (fargToPersist.index == 0) {
                 console.log('___fargToPersist', fargToPersist)
             }
             return await this.fragmentModel.persistFragment(fargToPersist);
@@ -161,11 +161,11 @@ module.exports = {
                     branchOriginFrag: fragmentReturn.branchFrag
                 }, {
                     index: 'ASC'
-                },{
-                    index:1,
-                    id:1
+                }, {
+                    index: 1,
+                    id: 1
                 })
-
+                console.log('___frags', frags.map(f => f.index))
                 fragmentReturn.data = frags.map(f => {
                     return {
                         _frag: f.id
@@ -205,7 +205,7 @@ module.exports = {
                 await this.fragmentModel.searchFragmentByField({
                     branchOriginFrag: fragToResolve.branchFrag
                 }, undefined, undefined, undefined, async (fragments) => {
-                    fragments.forEach(async (fragment) => { 
+                    fragments.forEach(async (fragment) => {
                         await options.callBackOnPath(fragment.data);
                     });
                 });
@@ -235,7 +235,7 @@ module.exports = {
             }
 
         } else {
-            // console.log(' ___ call direct');
+
             return await this.rebuildFragDataByBranch(fragToResolve.data, options);
         }
     },
@@ -249,19 +249,16 @@ module.exports = {
      * @param {Object} [options] - The options for resolving the fragment.
      * @param {Array} [options.pathTable] - The path table to be used during resolution.
      */
-    
+
     rebuildFragDataByBranch: async function (data, options = { pathTable: undefined, callBackOnPath: undefined, deeperFocusActivated: false }) {
-        // console.log('___rebuildFragDataByBranch', options.pathTable, options.callBackOnPath);
+
         if (options.callBackOnPath && Array.isArray(options.pathTable) && options.pathTable.length == 0) {
-            // console.log('___rebuildFragDataByBranch callBackOnPath', options.pathTable, data);
-            // console.trace();
-            if (options.deeperFocusActivated && Array.isArray(data)) { 
+
+            if (options.deeperFocusActivated && Array.isArray(data)) {
                 for (let item of data) {
                     await options.callBackOnPath(item);
                 }
             } else {
-                console.log('___rebuildFragDataByBranch callBackOnPath', data);
-                console.trace();
                 await options.callBackOnPath(data);
             }
         }
@@ -287,26 +284,15 @@ module.exports = {
                     return arrayDefrag;
                 } else {
                     for (let key in data) {
-                        let callOptions = {...options};
-                        if (callOptions.pathTable && callOptions.pathTable.length > 0) {
-                            const firstPath = callOptions.pathTable[0];
-                            if (firstPath && firstPath.includes(key)) {
-                                callOptions.pathTable.shift();
-                                // console.log('___rebuildFragDataByBranch callOptions',key, callOptions);
-                                const valueOfkey = await this.rebuildFragDataByBranch(data[key], callOptions);
-                                if (valueOfkey) {
-                                    data[key] = valueOfkey;
-                                }
-                            }
-                            //  else {
-                            //     callOptions.pathTable = [];
-                            //     callOptions.callBackOnPath = undefined;
-                            // }
-                            // console.log('___rebuildFragDataByBranch callOptions',key, callOptions);
-                            // const valueOfkey = await this.rebuildFragDataByBranch(data[key], callOptions);
-                            // if (valueOfkey) {
-                            //     data[key] = valueOfkey;
-                            // }
+                        let callOptions = { ...options };
+                        const firstPath = callOptions.pathTable?.[0];
+                        if (firstPath && firstPath.includes(key)) {
+                            callOptions.pathTable.shift();
+                        }
+
+                        const valueOfkey = await this.rebuildFragDataByBranch(data[key], callOptions);
+                        if (valueOfkey) {
+                            data[key] = valueOfkey;
                         }
 
                         // data = this.replaceMongoNotSupportedKey(data, false);

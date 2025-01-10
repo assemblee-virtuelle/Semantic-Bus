@@ -6,6 +6,7 @@ class ValueFromPath {
   }
 
   progress(node, pathArray, pathObject, currentKey, counter) {
+    // console.log('___progress', node, pathArray, pathObject, currentKey, counter)
 
     if (node===undefined){
       return undefined;

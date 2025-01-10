@@ -112,19 +112,23 @@ module.exports = function (router) {
   // --------------------------------------------------------------------------------
 
   router.get('/workspaces/:id/components/:componentId/process/:processId', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
+    // console.log('___req.params', req.params)
     const componentId = req.params.componentId
     const processId = req.params.processId
     
     //return historicEnd
     workspace_component_lib.get_component_result(componentId, processId).then(function (data) {
       if (data !== undefined) {
+        // console.log('___data', data)
         if (data.frag !== undefined) {
           fragment_lib.get(data.frag).then(frag => {
+            console.log('___frag', frag)
             if (frag != null) {
               data.data = frag.data
             } else {
               data.error = { error: "frag of cache doesn't exist" }
             }
+            // console.log('___data', data)
             res.send(data)
           }).catch(e => {
             // next(e)

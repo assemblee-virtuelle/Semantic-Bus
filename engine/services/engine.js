@@ -621,7 +621,7 @@ class Engine {
             }
           );
         } else {
-          console.log('___Pull without dfob')
+          // console.log('___Pull without dfob')
           let workResult
           let recomposedFlow = [];
           recomposedFlow = recomposedFlow.concat([{
@@ -630,7 +630,7 @@ class Engine {
           }]);
           recomposedFlow = recomposedFlow.concat(secondaryFlowDefraged);
           workResult = await module.pull(processingNode.component, recomposedFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams, this.processId)
-          console.log('___workResult', workResult.data)
+          // console.log('___workResult', workResult.data)
           rebuildData = workResult.data;
           dfob = workResult.dfob
         }
