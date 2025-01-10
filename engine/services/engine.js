@@ -402,8 +402,8 @@ class Engine {
                   } = componentFlow;
                   processingNode.dataResolution = dataResolution;
                   processingNode.status = 'resolved';
-
                   const frag = await fragment_lib.persist(data)
+
                   await this.historicEndAndCredit(processingNode, startTime, frag, undefined)
 
 
@@ -621,6 +621,7 @@ class Engine {
             }
           );
         } else {
+          console.log('___Pull without dfob')
           let workResult
           let recomposedFlow = [];
           recomposedFlow = recomposedFlow.concat([{
@@ -629,6 +630,7 @@ class Engine {
           }]);
           recomposedFlow = recomposedFlow.concat(secondaryFlowDefraged);
           workResult = await module.pull(processingNode.component, recomposedFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams, this.processId)
+          console.log('___workResult', workResult.data)
           rebuildData = workResult.data;
           dfob = workResult.dfob
         }

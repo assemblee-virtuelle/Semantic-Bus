@@ -13,7 +13,7 @@ class CacheNosql {
     return new Promise((resolve, reject) => {
       if (flowData != undefined && flowData[0].data != undefined) {
         // resolve({data:flowData[0].data});
-        // console.log('PERSIST CACHE',flowData[0].data)
+        // console.log('PERSIST CACHE')
         this.cache_lib.persist(data, flowData[0].data, data.specificData.history,processId.toString()).then(cachedData => {
           resolve({ data: flowData[0].data })
         }).catch(e => {
@@ -22,7 +22,7 @@ class CacheNosql {
       } else {
         // console.log('cache PULL',data);
         this.cache_lib.get(data, true, processId.toString()).then(cachedData => {
-          // console.log('cachedData',cachedData);
+          // console.log('cachedData',cachedData[0]);
           if (cachedData != undefined) {
             resolve({ data: cachedData })
           } else {

@@ -36,6 +36,7 @@ module.exports = {
             rootFrag: fragCaller?.rootFrag != undefined || fragCaller?.originFrag != undefined ? undefined : uuidv4(),
             originFrag: fragCaller?.rootFrag || fragCaller?.originFrag,
         })
+
         if (isLiteral(data)) {
             fargToPersist.data = data;
             return await this.fragmentModel.persistFragment(fargToPersist);
@@ -46,7 +47,7 @@ module.exports = {
                 const paramArray = data.map((item, index) => ([
                     item,
                     fargToPersist,
-                    index
+                    index+1
                 ]));
                 const addToArrayOcherstrator = new this.PromiseOrchestrator()
                 await addToArrayOcherstrator.execute(this, this.addDataToArrayFrag, paramArray, { beamNb: 1000 }, { quietLog: false });
@@ -71,6 +72,9 @@ module.exports = {
             const objectData = await this.persistObject(data, fargToPersist)
             fargToPersist.data = objectData;
             fargToPersist.branchFrag = undefined;
+            if(fargToPersist.index==0){
+                console.log('___fargToPersist', fargToPersist)
+            }
             return await this.fragmentModel.persistFragment(fargToPersist);
         }
     },
@@ -122,6 +126,7 @@ module.exports = {
         fragObject.branchOriginFrag = arrayFrag.branchFrag;
         fragObject.originFrag = arrayFrag.rootFrag || arrayFrag.originFrag;
         if (index != undefined) {
+            // console.log('___addFragToArrayFrag index', index)
             fragObject.index = index;
             return await this.fragmentModel.persistFragment(fragObject);
         } else {
@@ -156,6 +161,9 @@ module.exports = {
                     branchOriginFrag: fragmentReturn.branchFrag
                 }, {
                     index: 'ASC'
+                },{
+                    index:1,
+                    id:1
                 })
 
                 fragmentReturn.data = frags.map(f => {
@@ -185,7 +193,6 @@ module.exports = {
      * @throws {Error} - If the fragment is not set.
      */
     getWithResolutionByBranch: async function (frag, options = { pathTable: undefined, deeperFocusActivated: false, callBackOnPath: undefined }) {
-
         if (!frag) {
             throw new Error('frag have to be set');
         }
@@ -193,6 +200,7 @@ module.exports = {
         const fragToResolve = isObjectFrag ? frag : await this.fragmentModel.getFragmentById(frag);
 
         if (fragToResolve.branchFrag) {
+            // console.log('___fragToResolve.branchFrag', fragToResolve.branchFrag);
             if (options.callBackOnPath && options.pathTable && options.pathTable.length == 0 && options.deeperFocusActivated) {
                 await this.fragmentModel.searchFragmentByField({
                     branchOriginFrag: fragToResolve.branchFrag
@@ -207,6 +215,7 @@ module.exports = {
                 }, {
                     index: 'ASC'
                 });
+
                 const childrenData = [];
                 for (let child of children) {
                     if (child.branchFrag) {
@@ -226,17 +235,33 @@ module.exports = {
             }
 
         } else {
+            // console.log(' ___ call direct');
             return await this.rebuildFragDataByBranch(fragToResolve.data, options);
         }
     },
 
+    /**
+     * This function retrieves and data throw properties
+     * If a property is a fragment, getWithResolutionByBranch is called
+     * The function also supports callback functions to be executed on the resolved path.
+     *
+     * @param {Object|string} frag - The fragment to resolve. It can be an object or a fragment ID.
+     * @param {Object} [options] - The options for resolving the fragment.
+     * @param {Array} [options.pathTable] - The path table to be used during resolution.
+     */
+    
     rebuildFragDataByBranch: async function (data, options = { pathTable: undefined, callBackOnPath: undefined, deeperFocusActivated: false }) {
+        // console.log('___rebuildFragDataByBranch', options.pathTable, options.callBackOnPath);
         if (options.callBackOnPath && Array.isArray(options.pathTable) && options.pathTable.length == 0) {
-            if (options.deeperFocusActivated) { 
+            // console.log('___rebuildFragDataByBranch callBackOnPath', options.pathTable, data);
+            // console.trace();
+            if (options.deeperFocusActivated && Array.isArray(data)) { 
                 for (let item of data) {
                     await options.callBackOnPath(item);
                 }
             } else {
+                console.log('___rebuildFragDataByBranch callBackOnPath', data);
+                console.trace();
                 await options.callBackOnPath(data);
             }
         }
@@ -262,22 +287,28 @@ module.exports = {
                     return arrayDefrag;
                 } else {
                     for (let key in data) {
-
-                        if (options.pathTable) {
-                            if (options.pathTable.length > 0) {
-                                const firstPath = options.pathTable[0];
-                                if (firstPath && firstPath.includes(key)) {
-                                    options.pathTable.shift();
-                                } else {
-                                    options.pathTable = [];
-                                    options.callBackOnPath = undefined;
+                        let callOptions = {...options};
+                        if (callOptions.pathTable && callOptions.pathTable.length > 0) {
+                            const firstPath = callOptions.pathTable[0];
+                            if (firstPath && firstPath.includes(key)) {
+                                callOptions.pathTable.shift();
+                                // console.log('___rebuildFragDataByBranch callOptions',key, callOptions);
+                                const valueOfkey = await this.rebuildFragDataByBranch(data[key], callOptions);
+                                if (valueOfkey) {
+                                    data[key] = valueOfkey;
                                 }
                             }
+                            //  else {
+                            //     callOptions.pathTable = [];
+                            //     callOptions.callBackOnPath = undefined;
+                            // }
+                            // console.log('___rebuildFragDataByBranch callOptions',key, callOptions);
+                            // const valueOfkey = await this.rebuildFragDataByBranch(data[key], callOptions);
+                            // if (valueOfkey) {
+                            //     data[key] = valueOfkey;
+                            // }
                         }
-                        const valueOfkey = await this.rebuildFragDataByBranch(data[key], options);
-                        if (valueOfkey) {
-                            data[key] = valueOfkey;
-                        }
+
                         // data = this.replaceMongoNotSupportedKey(data, false);
                     }
                     return data;
@@ -548,6 +579,7 @@ module.exports = {
                 newFrag: newFrag
             };
         } else {
+            // console.log('___fragToCopy', fragToCopy.index)
             const newFragRaw = {
                 data: fragToCopy.data,
                 originFrag: callerFrag ? callerFrag.originFrag || callerFrag.rootFrag : undefined,

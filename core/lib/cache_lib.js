@@ -69,7 +69,8 @@ module.exports = {
           if (cachedData.frag != undefined) {
             if (resolveFrag == true) {
               dataDefraged = await this.fragment_lib.getWithResolutionByBranch(cachedData.frag);
-              console.log('CACHE processId', processId);
+              // console.log('___dataDefraged', dataDefraged[0])
+              // console.log('CACHE processId', processId);
               await this.duplicateFile(dataDefraged, processId, null);
             } else {
               dataDefraged = await this.fragment_lib.get(cachedData.frag);

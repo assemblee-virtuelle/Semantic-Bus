@@ -95,8 +95,11 @@ const updateFragment = async (fragment) => {
     WHERE id = ?
   `;
 
+  if(processedFragment.index==0){
+    console.log('___processedFragment', processedFragment)
+  }
   const updatedFields = [
-    processedFragment.data,
+    processedFragment.data!=undefined ? processedFragment.data : null,
     processedFragment.originFrag !== undefined ? processedFragment.originFrag : null,
     processedFragment.rootFrag !== undefined ? processedFragment.rootFrag : null,
     processedFragment.branchOriginFrag !== undefined ? processedFragment.branchOriginFrag : null,
@@ -107,6 +110,9 @@ const updateFragment = async (fragment) => {
     processedFragment.maxIndex !== undefined ? processedFragment.maxIndex : null, // Ajout de maxIndex
     processedFragment.id
   ];
+  if(processedFragment.index==0){
+    console.log('___updatedFields', updatedFields);
+  }
 
   const result = await client.execute(query, updatedFields, { prepare: true });
   return processFragmentRead(processedFragment);
@@ -150,6 +156,7 @@ const getFragmentById = async (id) => {
 const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, selectedFields = {}, limit = Infinity, callback = null) => {
   // Traitement des critères et options
   searchCriteria = processCriteriaAndOptions(searchCriteria); 
+  selectedFields = processCriteriaAndOptions(selectedFields);
   // sortOptions = processCriteriaAndOptions(sortOptions); 
 
   const fieldNames = Object.keys(searchCriteria);
@@ -163,6 +170,7 @@ const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, sele
   const whereClause = whereClauses.length > 0 ? `WHERE ${whereClauses.join(' AND ')}` : ''; // Ajout conditionnel de WHERE
 
   const selectedFieldNames = Object.keys(selectedFields).filter(field => selectedFields[field] === 1).join(', ') || '*';
+  // console.log('___selectedFieldNames', selectedFieldNames)
   const limitClause = limit !== Infinity ? `LIMIT ${limit}` : ''; // Ne pas ajouter LIMIT si limit est Infinity
   const queryString = `SELECT ${selectedFieldNames} FROM fragment ${whereClause} ${limitClause}`;
   const queryParams = fieldNames.flatMap(field => Array.isArray(searchCriteria[field]) ? searchCriteria[field] : [searchCriteria[field]]);
@@ -173,12 +181,23 @@ const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, sele
     let rows = resultProcessed;
     if (sortOptions) {
       rows.sort((a, b) => {
+        let compare;
         for (const [key, order] of Object.entries(sortOptions)) {
           const orderLower = order.toLowerCase();
-          if (a[key] < b[key]) return orderLower === 'asc' ? -1 : 1;
-          if (a[key] > b[key]) return orderLower === 'asc' ? 1 : -1;
+          const aValue = a[key] !== undefined ? a[key] : Number.MAX_SAFE_INTEGER; // Place undefined at the end
+          const bValue = b[key] !== undefined ? b[key] : Number.MAX_SAFE_INTEGER; // Place undefined at the end
+
+          if (aValue < bValue){
+            compare = orderLower === 'asc' ? -1 : 1 ;
+            break;
+          } else if (aValue > bValue){
+            compare = orderLower === 'asc' ? 1 : -1;
+            break;
+          }
         }
-        return 0;
+        
+        compare=compare||0;
+        return compare;
       });
     }
     return rows; // Utilisation de processFragmentRead

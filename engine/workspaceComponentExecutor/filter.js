@@ -8,7 +8,7 @@ const Loki = require('lokijs');
 
 const stringReplacer = require('../utils/stringReplacer.js');
 const objectTransformation = require('../utils/objectTransformationV2.js');
-let collections = {}
+
 const db = new Loki('filter', {
   verbose: true
 });
@@ -41,57 +41,127 @@ class Filter {
     })
   }
 
-  async workWithFragments(data, flowData, pullParams, processId) {
+  async filterRawItems(items , filter, data) {
+    // console.log('___filterRawItItems', items, filter, data);
     return new Promise(async (resolve, reject) => {
       try {
-        // Get the input fragment and dfob
-        const inputFragment = flowData[0].fragment;
-        const inputDfob = flowData[0].dfob;
-
-
-        const collectionName = `${processId}-${data._id.toString()}`;
-        // console.log('collectionName',collectionName);
-
+        const collectionName = `${data._id.toString()}-${Math.floor(Math.random() * 10000)}`;
         let collection = db.addCollection(collectionName, { disableMeta: true });
-        await fragment_lib.getWithResolutionByBranch(inputFragment, {
-          deeperFocusActivated: true,
-          pathTable: [],
-          callBackOnPath: async (item) => {
-            delete item['$loki'];
-            collection.insert(item);
-          }
-        });
-        // Parse filter string
-        let filterString = data.specificData.filterString;
-        let filter = JSON.parse(filterString);
-        let onlyOneItem = undefined;
-        if (collection.count() == 1) {
-          onlyOneItem = collection.findOne();
+        try {
+          collection.insert(items)
+        } catch (e) {
+          throw new Error('Error inserting items into collection for filter');
         }
-        //case when onlyOneItem is no clear. when a property have to be compare whith an other.
-        let filterResult = objectTransformation.execute(onlyOneItem, pullParams, filter);
-        console.log('filterResult', filterResult);
+
+        let resultFiltered = await this.filter(collection, filter, data);
+
+        if (!Array.isArray(items)) {
+          if(resultFiltered.length === 1) {
+            resultFiltered = resultFiltered[0]
+          } else {
+            resultFiltered=undefined;
+          }
+        }
+        // console.log('___resultData', resultFiltered);
+        db.removeCollection(collectionName);
+        resolve(resultFiltered);
+      } catch (e) {
+        reject(e)
+      }
+    })
+  }
+
+  async filter(collection  , filter, data) {
+    return new Promise(async (resolve, reject) => {
+      try {
         let resultData;
-        if (filterResult.hasOwnProperty('$where')) {
+        if (filter.hasOwnProperty('$where')) {
           // Check if the filterResult only contains the '$where' property
-          if (Object.keys(filterResult).length === 1) {
-            const whereCondition = filterResult['$where'].replace(/this/g, 'obj');
+          if (Object.keys(filter).length === 1) {
+            const whereCondition = filter['$where'].replace(/this/g, 'obj');
             resultData = collection.where((obj) => {
               const evaluation =eval(whereCondition)
+              // console.log('___evaluation', evaluation);
               return evaluation == true
             });
           } else {
             reject({ error: '$where have to be the only property when it is used' })
           }
         } else {
-          resultData = collection.find(filterResult);
+          resultData = collection.find(filter);
         }
         resultData = resultData.map(r => { delete r['$loki']; return r })
-        await fragment_lib.persist(resultData, undefined, inputFragment);
-        db.removeCollection(collectionName);
+        resolve(resultData);
+      } catch (e) {
+        reject(e)
+      }
+    })
+  } 
+
+  async workWithFragments(data, flowData, pullParams, processId) {
+    // console.log('___workWithFragments', data, flowData, pullParams, processId);
+    return new Promise(async (resolve, reject) => {
+      try {
+        // Get the input fragment and dfob
+        const inputFragment = flowData[0].fragment;
+        const inputDfob = flowData[0].dfob;
+        const pathTable = [...inputDfob.dfobTable];
+
+
+
+
+
+        // Parse filter string
+        let filterString = data.specificData.filterString;
+        let filter = JSON.parse(filterString);
+        let onlyOneItem = undefined;
+        if (! Array.isArray(inputFragment.data) ) {
+          onlyOneItem = inputFragment.data;
+        }
+        //case when onlyOneItem is no clear. when a property have to be compare whith an other.
+        let filterResult = objectTransformation.execute(onlyOneItem, pullParams, filter);
+
+        let rebuildData;
+        if (inputFragment.branchFrag) {
+          const collectionName = `${processId}-${data._id.toString()}`;
+          let collection = db.addCollection(collectionName, { disableMeta: true });
+          await fragment_lib.getWithResolutionByBranch(inputFragment, {
+            deeperFocusActivated: true,
+            pathTable: pathTable,
+            callBackOnPath: async (item) => {
+              // console.log('___item', item);
+              delete item['$loki'];
+              collection.insert(item);
+            }
+          });
+          rebuildData = this.filter(collection, filter, data);
+          db.removeCollection(collectionName);
+          // console.log('___out', out);
+        } else {
+          const inputData = inputFragment.data
+          rebuildData = await DfobProcessor.processDfobFlow(
+            inputData,
+            { pipeNb: inputDfob.pipeNb, dfobTable: inputDfob.dfobTable, keepArray: inputDfob.keepArray },
+            this,
+            this.filterRawItems,
+            (items) => {
+              return [items, filterResult, data]
+            },
+            async () => {
+              return true;
+            }
+          )
+          // console.log('___rebuildData', rebuildData);
+        }
+
+
+        // resultData = resultData.map(r => { delete r['$loki']; return r })
+
+        await fragment_lib.persist(rebuildData, undefined, inputFragment);
+        
         resolve();
       } catch (e) {
-        console.error(e);
+        // console.error(e);
         reject(e);
       }
     });
