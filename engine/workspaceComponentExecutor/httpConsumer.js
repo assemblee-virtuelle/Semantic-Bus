@@ -273,8 +273,8 @@ class HttpConsumer {
         let request = superagent(options.method, encodedUrl)
           .set(options.headers)
           .timeout({
-            response: options.timeout,
-            deadline: options.timeout
+            response: options.timeout*1000,
+            deadline: options.timeout*1000
           });
 
         if (options.body) {
@@ -321,7 +321,7 @@ class HttpConsumer {
                 console.error(JSON.stringify(e.message));
               }
               if (e.timeout) {
-                reject(new Error(`request aborted due to timeout (20s) config ${numRetry + 1} times`));
+                reject(new Error(`request aborted due to timeout (${(options.timeout)}s) config ${numRetry + 1} times`));
               } else {
                 reject(new Error(`${e.message} ${numRetry + 1} times`));
               }
