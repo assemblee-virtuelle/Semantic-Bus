@@ -86,6 +86,7 @@ class HttpConsumer {
 
   pull(data, flowData, queryParams) {
     const componentConfig = data.specificData;
+    console.log('___componentConfig', componentConfig)
     let body;
 
     return new Promise(async (resolve, reject) => {
@@ -157,8 +158,6 @@ class HttpConsumer {
         }
 
         this.call_url(url, options,
-          undefined,
-          componentConfig.timeout,
           componentConfig.retry ? componentConfig.retry - 1 : undefined
         ).then(async (response) => {
           let responseObject;
@@ -261,8 +260,10 @@ class HttpConsumer {
 
   async call_url(url, options, numRetry, retry) {
     return new Promise(async (resolve, reject) => {
+      console.log('___numRetry0', numRetry, retry)
       if (numRetry === undefined) numRetry = 0;
       retry = retry || 0;
+      console.log('___numRetry1', numRetry, retry)
       // console.log('_url', url);
       try {
         // Encode the URL
@@ -306,14 +307,14 @@ class HttpConsumer {
           const response = await request;
           resolve(response);
         } catch (e) {
-          console.log('error call_url', e.status);
+          console.log('error call_url', e);
           if (e.response) {
             resolve(e.response)
           } else {
             if (config != undefined && config.quietLog != true) {
               console.warn(`Post consumer component ${options.method} to ${url} failed ${numRetry + 1} times : ${e.message}`);
             }
-
+            console.log('___numRetry3', numRetry, retry)
             if (numRetry >= retry) {
               if (config != undefined && config.quietLog != true) {
                 console.error(JSON.stringify(e.message));
