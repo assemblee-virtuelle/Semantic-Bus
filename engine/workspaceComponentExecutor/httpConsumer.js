@@ -145,7 +145,8 @@ class HttpConsumer {
         let options = {
           method: componentConfig.method || 'GET',
           body: body,
-          headers: headers
+          headers: headers,
+          timeout: Number(componentConfig.timeout) || 20000,
         };
         if (flowData && flowData[0].data && componentConfig.certificateProperty && componentConfig.certificatePassphrase) {
 
@@ -260,10 +261,10 @@ class HttpConsumer {
 
   async call_url(url, options, numRetry, retry) {
     return new Promise(async (resolve, reject) => {
-      console.log('___numRetry0', numRetry, retry)
+      console.log('___options', options)
       if (numRetry === undefined) numRetry = 0;
       retry = retry || 0;
-      console.log('___numRetry1', numRetry, retry)
+
       // console.log('_url', url);
       try {
         // Encode the URL
@@ -272,8 +273,8 @@ class HttpConsumer {
         let request = superagent(options.method, encodedUrl)
           .set(options.headers)
           .timeout({
-            response: 20000,
-            deadline: 20000
+            response: options.timeout,
+            deadline: options.timeout
           });
 
         if (options.body) {
@@ -307,7 +308,7 @@ class HttpConsumer {
           const response = await request;
           resolve(response);
         } catch (e) {
-          console.log('error call_url', e);
+          // console.log('error call_url', e);
           if (e.response) {
             resolve(e.response)
           } else {
