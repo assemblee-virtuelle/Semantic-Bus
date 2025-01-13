@@ -122,7 +122,7 @@ module.exports = function (router) {
         // console.log('___data', data)
         if (data.frag !== undefined) {
           fragment_lib.get(data.frag).then(frag => {
-            console.log('___frag', frag)
+            // console.log('___frag', frag)
             if (frag != null) {
               data.data = frag.data
             } else {

@@ -165,7 +165,7 @@ module.exports = {
                     index: 1,
                     id: 1
                 })
-                console.log('___frags', frags.map(f => f.index))
+                // console.log('___frags', frags.map(f => f.index))
                 fragmentReturn.data = frags.map(f => {
                     return {
                         _frag: f.id

@@ -18,6 +18,9 @@ class HttpConsumer {
   convertResponseToData(response, componentConfig) {
     return new Promise(async (resolve, reject) => {
       try {
+        console.log('___response',response);
+        console.log('___response body',response.body);
+        console.log('___response text',response.text);
         let contentType = componentConfig.overidedContentType || response.headers['content-type'];
         if (!contentType) {
           reject(new Error(`no content-type in response or overided by component`));
@@ -65,9 +68,14 @@ class HttpConsumer {
           contentType.includes('xlsx') ||
           contentType.includes('vnd.openxmlformats-officedocument')
         ) {
-          let buffer = response.body; // superagent stores binary data here
+          let data;
+          if (response.text) {  
+            data = response.text; // text attachement
+          } else {
+            data = response.body; // superagent stores binary data here
+          }
           // console.log('___buffer',buffer,response.headers['content-disposition']);
-          fileConvertor.data_from_file(response.headers['content-disposition'], buffer, contentType).then((result) => {
+          fileConvertor.data_from_file(response.headers['content-disposition'], data, contentType).then((result) => {
             resolve(propertyNormalizer.execute(result));
           }).catch((err) => {
             let fullError = new Error(err);
@@ -149,7 +157,6 @@ class HttpConsumer {
           timeout: Number(componentConfig.timeout) || 20000,
         };
         if (flowData && flowData[0].data && componentConfig.certificateProperty && componentConfig.certificatePassphrase) {
-
           const fileObject = await fileLib.get(flowData[0].data[componentConfig.certificateProperty]?._file);
           options.agentOptions = {
             pfx: fileObject.binary,
@@ -161,6 +168,7 @@ class HttpConsumer {
         this.call_url(url, options,
           componentConfig.retry ? componentConfig.retry - 1 : undefined
         ).then(async (response) => {
+          // console.log('___response',response);
           let responseObject;
 
           if (response) {
