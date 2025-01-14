@@ -18,10 +18,11 @@ class HttpConsumer {
   convertResponseToData(response, componentConfig) {
     return new Promise(async (resolve, reject) => {
       try {
-        console.log('___response',response);
-        console.log('___response body',response.body);
-        console.log('___response text',response.text);
+        // console.log('___response',response);
+        // console.log('___response body',response.body);
+        // console.log('___response text',response.text);
         let contentType = componentConfig.overidedContentType || response.headers['content-type'];
+        // console.log('___contentType',contentType);
         if (!contentType) {
           reject(new Error(`no content-type in response or overided by component`));
         }
@@ -64,18 +65,30 @@ class HttpConsumer {
           contentType.includes('octet-stream') ||
           contentType.includes('zip') ||
           contentType.includes('ics') ||
+          contentType.includes('gz') ||
           contentType.includes('csv') ||
           contentType.includes('xlsx') ||
           contentType.includes('vnd.openxmlformats-officedocument')
         ) {
           let data;
           if (response.text) {  
-            data = response.text; // text attachement
+            data = response.text;
           } else {
-            data = response.body; // superagent stores binary data here
+            // await response.buffer(true).parse(superagent.parse['application/octet-stream']);
+            data = response.body; 
           }
-          // console.log('___buffer',buffer,response.headers['content-disposition']);
-          fileConvertor.data_from_file(response.headers['content-disposition'], data, contentType).then((result) => {
+          let filename = response.headers['content-disposition']?.split('filename=')[1]?.replace(/['"]/g, '');
+          if (!filename) {
+            try {
+              const url = response.request.url;
+              const urlParts = url.split('/');
+              filename = urlParts.pop();
+            } catch (e) {
+              console.error('Failed to determine filename from URL:', e);
+            }
+          }
+          console.log('___buffer',data,filename);
+          fileConvertor.data_from_file(filename, data, contentType).then((result) => {
             resolve(propertyNormalizer.execute(result));
           }).catch((err) => {
             let fullError = new Error(err);
@@ -283,7 +296,8 @@ class HttpConsumer {
           .timeout({
             response: options.timeout*1000,
             deadline: options.timeout*1000
-          });
+          })
+          .buffer(true);
 
         if (options.body) {
           request = request.send(options.body);

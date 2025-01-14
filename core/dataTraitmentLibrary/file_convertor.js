@@ -11,6 +11,7 @@ const csv = require('./csv/csv_traitment.js');
 const ics = require('./ics/index.js');
 var zlib = require('zlib');
 const JSZip = require('jszip');
+const FileType = require('file-type');
 
 module.exports = {
   data_from_file: _data_from_file,
@@ -92,9 +93,20 @@ function addFileToTree(tree,fileObject,leaf, parts) {
   }
 }
 
-function _data_from_file(filename, dataBuffer, contentType, extractionParams) {
+async function _data_from_file(filename, dataBuffer, contentType, extractionParams) {
   // console.log('extractionParams', extractionParams);
   // console.log('_data_from_file  ',filename, contentType, extractionParams);
+  // Si dataBuffer est un octet-stream, il doit être transformé en fichier pour trouver son filename avant de rechercher l'extension
+
+  if (!filename) {
+    const fileType = await FileType.fromBuffer(dataBuffer);
+    if (fileType) {
+      filename = `file.${fileType.ext}`; // Utilisez l'extension détectée pour créer un nom de fichier temporaire
+    } else {
+      throw new Error('Impossible de déterminer le type de fichier à partir du buffer');
+    }
+  }
+  
   const extension= _extension(filename, contentType);
 
   console.log('extension',extension,filename,contentType);

@@ -50,6 +50,7 @@
     "dot-prop": "^5.2.0",
     "error-stack-parser": "^2.0.1",
     "express": "^4.16.3",
+    "file-type": "version-16",
     "follow-redirects": "^1.4.1",
     "form-urlencoded": "^4.2.1",
     "fs": "0.0.1-security",
@@ -93,8 +94,7 @@
     "validator": "^12.0.0",
     "webdriverio": "^5.16.6",
     "xlsx": "^0.16.6",
-    "xml2js": "^0.4.19",
-    "zlib": "^1.0.5"
+    "xml2js": "^0.4.19"
   },
   "devDependencies": {
     "@types/amqplib": "^0.5.9",

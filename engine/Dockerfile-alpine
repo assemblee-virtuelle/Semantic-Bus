@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM node:18-alpine
 
 WORKDIR /data/engine
 
@@ -23,8 +23,7 @@ ENV BROADCAST_LOGS 1
 ENV FORCE_INSPECTOR 1
 
 # install tool for npm lib compile in C
-RUN apk add --update --no-cache autoconf libtool automake python3 py3-pip alpine-sdk
-RUN apk update && apk add bash
+RUN apk add --update --no-cache autoconf libtool automake python3 py3-pip alpine-sdk make g++ bash curl
 
 # Install app dependencies
 COPY ./engine/package.json /data/
