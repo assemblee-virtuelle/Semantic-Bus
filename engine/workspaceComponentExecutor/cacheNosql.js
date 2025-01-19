@@ -22,7 +22,7 @@ class CacheNosql {
       } else {
         // console.log('cache PULL',data);
         this.cache_lib.get(data, true, processId.toString()).then(cachedData => {
-          // console.log('cachedData',cachedData[0]);
+          // console.log('cachedData',cachedData);
           if (cachedData != undefined) {
             resolve({ data: cachedData })
           } else {

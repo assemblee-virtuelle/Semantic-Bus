@@ -53,6 +53,20 @@
     <div class="cardInput">
       <input class="inputComponents" type="text" oninput={updateSpecificData} value={data.specificData.extractionParams.cellRange} data-key="cellRange" />
     </div>
+    <label class="labelFormStandard">First Line As Header:</label>
+    <div class="cardInput">
+      <label class="switch">
+          <input type="checkbox" name="rawFileInput" ref="rawFileInput" checked={data.specificData.extractionParams.firstLineAsHeader} onchange={firstLineAsHeaderChange}/>
+          <span class="slider round"></span>
+      </label>
+    </div>
+    <label class="labelFormStandard">Use Column Letters:</label>
+    <div class="cardInput">
+      <label class="switch">
+          <input type="checkbox" name="rawFileInput" ref="rawFileInput" checked={data.specificData.extractionParams.useColumnLetters} onchange={useColumnLettersChange}/>
+          <span class="slider round"></span>
+      </label>
+    </div>
   </div>
 
   <div id="rdfInputs" data-file-type="rdf,owl,ttl">
@@ -151,6 +165,14 @@
       this.data.specificData.fileType = e.currentTarget.value;
       this.updateVisibility();
       this.update();
+    }
+
+    firstLineAsHeaderChange(event) {
+      this.data.specificData.extractionParams.firstLineAsHeader = event.target.checked;
+    }
+
+    useColumnLettersChange(event) {
+      this.data.specificData.extractionParams.useColumnLetters = event.target.checked;
     }
   </script>
   <style>

@@ -10,6 +10,7 @@ const config = require('../config.json');
 const himalaya = require('himalaya');
 const superagent = require('superagent');
 const forge = require('node-forge');
+const File = require('../../core/model_schemas/file_schema_scylla.js');
 
 class HttpConsumer {
   constructor() {
@@ -21,8 +22,10 @@ class HttpConsumer {
         // console.log('___response',response);
         // console.log('___response body',response.body);
         // console.log('___response text',response.text);
+
+
         let contentType = componentConfig.overidedContentType || response.headers['content-type'];
-        // console.log('___contentType',contentType);
+        console.log('___contentType',contentType);
         if (!contentType) {
           reject(new Error(`no content-type in response or overided by component`));
         }
@@ -31,16 +34,46 @@ class HttpConsumer {
           response.text = response._body.toString('utf-8');
         }
 
+        if (componentConfig.rawFile) {
+          // Get filename from headers or URL
+          let filename = response.headers['content-disposition']?.split('filename=')[1]?.replace(/['"]/g, '');
+          if (!filename) {
+            try {
+              const url = response.request.url;
+              const urlParts = url.split('/');
+              filename = urlParts.pop();
+            } catch (e) {
+              filename = 'downloaded_file';
+              console.warn('Failed to determine filename from URL:', e);
+            }
+          }
+          // console.log('___response',response.body);
+          // Create and save file
+          const file = new File({
+            binary: response.body,
+            filename: filename,
+            // TODO: processId is not provided by component
+            processId: componentConfig.processId
+          });
+          await fileLib.create(file);
+          resolve({
+            file: {
+              _file: file.id
+            }
+          });
+          return;
+        } 
+
         if (contentType.includes('html')) {
           try {
-            const text = response.text; // superagent stores response text here
+            const text = response.body.toString(); // superagent stores response text here
             const json = himalaya.parse(text);
             resolve(json);
           } catch (e) {
             resolve({ error: e });
           }
         } else if (contentType.includes('application/xml')) {
-          let text = response.text;
+          let text = response.body.toString();
           if (!text) {
             reject(new Error('No XML content found in response'));
             return;
@@ -57,8 +90,7 @@ class HttpConsumer {
           contentType.includes('application/json') ||
           contentType.includes('application/ld+json')
         ) {
-          // console.log(response.text);
-          let responseObject = JSON.parse(response.text);
+          let responseObject = JSON.parse(response.body.toString());
           // let responseObject = []
           resolve(propertyNormalizer.execute(responseObject));
         } else if (
@@ -70,13 +102,6 @@ class HttpConsumer {
           contentType.includes('xlsx') ||
           contentType.includes('vnd.openxmlformats-officedocument')
         ) {
-          let data;
-          if (response.text) {  
-            data = response.text;
-          } else {
-            // await response.buffer(true).parse(superagent.parse['application/octet-stream']);
-            data = response.body; 
-          }
           let filename = response.headers['content-disposition']?.split('filename=')[1]?.replace(/['"]/g, '');
           if (!filename) {
             try {
@@ -84,11 +109,11 @@ class HttpConsumer {
               const urlParts = url.split('/');
               filename = urlParts.pop();
             } catch (e) {
-              console.error('Failed to determine filename from URL:', e);
+              console.warn('Failed to determine filename from URL:', e);
             }
           }
-          console.log('___buffer',data,filename);
-          fileConvertor.data_from_file(filename, data, contentType).then((result) => {
+          // console.log('___buffer',data,filename);
+          fileConvertor.data_from_file(filename, response.body, contentType).then((result) => {
             resolve(propertyNormalizer.execute(result));
           }).catch((err) => {
             let fullError = new Error(err);
@@ -297,7 +322,8 @@ class HttpConsumer {
             response: options.timeout*1000,
             deadline: options.timeout*1000
           })
-          .buffer(true);
+          .buffer(true)
+          .responseType('blob');
 
         if (options.body) {
           request = request.send(options.body);

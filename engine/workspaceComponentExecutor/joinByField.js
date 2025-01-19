@@ -81,6 +81,8 @@ class JoinByField {
   }
 
   joinWithLoki(item, collection, data) {
+    console.log('____item',item);
+    console.log('____data',data);
     return new Promise(async (resolve, reject) => {
       try {
         if (item[data.specificData.primaryFlowFKId] == undefined) {
@@ -148,7 +150,7 @@ class JoinByField {
   workWithFragments(data, flowData, pullParams, processId) {
     return new Promise(async (resolve, reject) => {
       try {
-
+        lo
         const secondaryFlowByConnection = flowData.find(f => f.targetInput == 'second');
         let secondaryFlowFragment;
         let primaryFlowFragment;
@@ -189,10 +191,8 @@ class JoinByField {
         }
 
         let rebuildDataRaw = await fragment_lib.getWithResolutionByBranch(primaryFlowFragment.id, {
-          deeperFocusActivated: false,
-          pathTable: []
+          pathTable: primaryFlowDfob.dfobTable
         });
-
 
         const rebuildData = await DfobProcessor.processDfobFlow(
           rebuildDataRaw,

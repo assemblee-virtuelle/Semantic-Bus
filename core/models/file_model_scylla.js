@@ -4,6 +4,13 @@ const File = require('../model_schemas/file_schema_scylla');
 const { v4: uuidv4 } = require('uuid');
 
 const insertFile = async (file) => {
+  // Check file size and throw error if it exceeds maximum size
+  const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB in bytes
+  if (file.binary && file.binary.length > MAX_FILE_SIZE) {
+    throw new Error(`The file is too large (${(file.binary.length / 1024 / 1024).toFixed(2)}MB). The maximum allowed size is 15MB.`);
+  }
+
+  console.log('insertFile',file);
   const query = `
     INSERT INTO file (id, binary, frag, filename, processId, cacheId)
     VALUES (?, ?, ?, ?, ?, ?)
@@ -15,7 +22,9 @@ const insertFile = async (file) => {
     file.filename,
     file.processId, 
     file.cacheId 
-  ], { prepare: true });
+  ], { 
+    prepare: true
+  });
 
   return file;
 };

@@ -263,13 +263,7 @@ module.exports = {
             }
         }
         else {
-            if (data != null && data._frag) {
-                if (options.pathTable && options.pathTable.length == 0) {
-                    return data;
-                } else {
-                    return await this.getWithResolutionByBranch(data._frag, options);
-                }
-            } else if (data == null) {
+            if (data == null) {
                 return null;
             } else if (isLiteral(data)) {
                 return data;
@@ -284,13 +278,25 @@ module.exports = {
                     return arrayDefrag;
                 } else {
                     for (let key in data) {
-                        let callOptions = { ...options };
+                        let callOptions = { ...options,pathTable:[options.pathTable]};
                         const firstPath = callOptions.pathTable?.[0];
+                        let continueFragByPath =false;
                         if (firstPath && firstPath.includes(key)) {
                             callOptions.pathTable.shift();
+                            continueFragByPath = true;
+                        }else{
+                            callOptions.pathTable = undefined;
+                            callOptions.deeperFocusActivated=false;
+                        }
+                        let continueFrag = !options.pathTable || continueFragByPath;
+
+                        let valueOfkey;
+                        if (data[key]._frag && continueFrag) {
+                            valueOfkey = await this.getWithResolutionByBranch(data[key]._frag, callOptions);
+                        } else {
+                            valueOfkey = await this.rebuildFragDataByBranch(data[key], callOptions);
                         }
 
-                        const valueOfkey = await this.rebuildFragDataByBranch(data[key], callOptions);
                         if (valueOfkey) {
                             data[key] = valueOfkey;
                         }

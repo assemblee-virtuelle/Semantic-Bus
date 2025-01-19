@@ -12,6 +12,7 @@ const ics = require('./ics/index.js');
 var zlib = require('zlib');
 const JSZip = require('jszip');
 const FileType = require('file-type');
+const { exitCode } = require('process');
 
 module.exports = {
   data_from_file: _data_from_file,
@@ -103,7 +104,7 @@ async function _data_from_file(filename, dataBuffer, contentType, extractionPara
     if (fileType) {
       filename = `file.${fileType.ext}`; // Utilisez l'extension détectée pour créer un nom de fichier temporaire
     } else {
-      throw new Error('Impossible de déterminer le type de fichier à partir du buffer');
+      console.warn('Impossible de déterminer le type de fichier à partir du buffer');
     }
   }
   
@@ -207,21 +208,21 @@ async function _data_from_file(filename, dataBuffer, contentType, extractionPara
         // EXEL/CSV/XLSX DONE
       case ("xls"):
       case ("xlsx"):
-      case ("ods"):
-        //console.log('ALLO3');
-        exel.exel_to_json(dataBuffer, extractionParams).then((resultat) => {
-          //console.log("RESULTAT", resultat)
+        exel.exel_to_json_stream(dataBuffer, extractionParams).then((resultat) => {
           resolve({
             data: resultat
           })
-          // exel.exel_traitment_server(resultat, true).then(function(exelTraite) {
-          //   //console.log("FINAL", exelTraite)
-          //   resolve({
-          //     data: exelTraite
-          //   })
-          // })
         }, function(err) {
-          console.log(err);
+          // console.log(err);
+          reject("votre fichier n'est pas au norme ou pas du bon format " + extension)
+        })
+        break;
+      case ("ods"):
+        exel.exel_to_json(dataBuffer, extractionParams).then((resultat) => {
+          resolve({
+            data: resultat
+          })
+        }, function(err) {
           reject("votre fichier n'est pas au norme ou pas du bon format " + extension)
         })
         break;

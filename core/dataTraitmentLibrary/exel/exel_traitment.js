@@ -1,12 +1,14 @@
 'use strict';
 var XLSX = require('xlsx')
-
+const ExcelJS = require('exceljs');
+const { Readable } = require('stream');
 
 module.exports = {
   exel_traitment_server: _exel_traitment_server,
   exel_traitment_client: _exel_traitment_client,
   json_to_exel: _json_to_exel,
-  exel_to_json: _exel_to_json
+  exel_to_json: _exel_to_json,
+  exel_to_json_stream: _exel_to_json_stream
 };
 
 
@@ -47,36 +49,31 @@ function _json_to_exel(jsonData, header) {
 }
 
 function _exel_to_json(buffer, header) {
-
-  //console.log('ALLO');
   return new Promise((resolve, reject) => {
     try {
-
-      let wb = XLSX.read(buffer, {
-        type: "buffer"
+      // Calculate and log the buffer size
+      const bufferSizeInMB = (buffer.length / (1024 * 1024)).toFixed(2);
+      console.log("Buffer size :", bufferSizeInMB, "MB");
+      // Create stream reader with options
+      const wb = XLSX.read(buffer, {
+        type: 'buffer'
       });
 
+      const sheetsData = wb.SheetNames.map(sheetName => {
+        const sheet = wb.Sheets[sheetName];
+        const rows = XLSX.utils.sheet_to_json(sheet);
+        return {
+          name: sheetName,
+          data: rows
+        };
+      });
+      resolve(sheetsData);
 
-      let out = [];
-      for (let ws in wb.Sheets) {
-        // console.log('ws',wb.Sheets[ws]);
-        let json = XLSX.utils.sheet_to_json(wb.Sheets[ws], {
-          header: 'A'
-        });
 
-        out.push({
-          name: ws,
-          data: json
-        });
-      }
-      resolve(out);
-    } catch (e) {
-      reject(e);
-    } finally {
-
+    } catch (error) {
+      reject(error);
     }
-
-  })
+  });
 }
 
 function decode_utf8(s) {
@@ -168,4 +165,95 @@ function _exel_traitment_server(data, uploadBoolean) {
       })
     })
   })
+}
+
+/**
+ * Converts an Excel buffer to JSON using streaming.
+ * @param {Buffer} buffer - The Excel file buffer.
+ * @param {Object} [options={}] - Options for processing.
+ * @param {boolean} [options.firstLineAsHeader=false] - Use the first line as headers.
+ * @param {boolean} [options.useColumnLetters=false] - Use column letters as property names.
+ * @returns {Promise<Array<Object|Array>>} - A promise that resolves to the JSON representation of the Excel data.
+ */
+async function _exel_to_json_stream(buffer, options = {}) {
+  const workbook = new ExcelJS.stream.xlsx.WorkbookReader();
+  const sheetsData = [];
+
+  return new Promise((resolve, reject) => {
+    let currentSheet = null;
+    let headers = [];
+    workbook.on('error', (err) => {
+      console.error('WorkbookReader error:', err);
+      reject(err);
+    });
+
+    workbook.on('worksheet', (worksheet) => {
+      currentSheet = {
+        name: worksheet.name,
+        data: []
+      };
+
+      worksheet.on('row', (row) => {
+        // Priority to firstLineAsHeader
+        if (options.firstLineAsHeader && row.number === 1) {
+          headers = row.values.slice(1).map(value => String(value).trim());
+          return; // Skip processing the header row as data
+        }
+
+        let rowData = {};
+
+        if (options.firstLineAsHeader) {
+          row.eachCell((cell, colNumber) => {
+            const headerName = headers[colNumber - 1] || `Column${colNumber}`;
+            rowData[headerName] = cell.value;
+          });
+        } else if (options.useColumnLetters) {
+          row.eachCell((cell, colNumber) => {
+            const columnLetter = getExcelAlpha(colNumber);
+            rowData[columnLetter] = cell.value;
+          });
+        } else {
+          // If no options are set, use an array of cell values
+          rowData = row.values.slice(1);
+        }
+
+        currentSheet.data.push(rowData);
+      });
+
+      worksheet.on('finished', () => {
+        sheetsData.push(currentSheet);
+        currentSheet = null;
+        headers = []; // Reset headers for the next sheet
+      });
+    });
+
+    workbook.on('end', () => {
+      resolve(sheetsData);
+    });
+
+    // Convert the buffer into a readable stream
+    const stream = new Readable({
+      read() {
+        this.push(buffer);
+        this.push(null);
+      }
+    });
+
+    workbook.read(stream);
+  });
+}
+
+// Utility function to convert column number to letter
+function getExcelAlpha(colNumber) {
+  let dividend = colNumber;
+  let columnName = '';
+  let modulo;
+
+  while (dividend > 0) {
+    modulo = (dividend - 1) % 26;
+    columnName = String.fromCharCode(65 + modulo) + columnName;
+    dividend = Math.floor((dividend - modulo) / 26);
+  }
+
+  return columnName;
 }
