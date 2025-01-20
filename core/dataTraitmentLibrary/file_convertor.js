@@ -110,7 +110,7 @@ async function _data_from_file(filename, dataBuffer, contentType, extractionPara
   
   const extension= _extension(filename, contentType);
 
-  console.log('extension',extension,filename,contentType);
+  // console.log('extension',extension,filename,contentType);
 
   return new Promise(async function(resolve, reject) {
     switch (extension) {

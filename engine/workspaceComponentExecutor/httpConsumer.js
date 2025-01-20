@@ -25,7 +25,7 @@ class HttpConsumer {
 
 
         let contentType = componentConfig.overidedContentType || response.headers['content-type'];
-        console.log('___contentType',contentType);
+        // console.log('___contentType',contentType);
         if (!contentType) {
           reject(new Error(`no content-type in response or overided by component`));
         }

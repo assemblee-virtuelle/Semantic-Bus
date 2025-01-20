@@ -18,7 +18,7 @@ function decode_utf8(s) {
 }
 
 function _csvtojson(data, extractionParams) {
-  console.log('extractionParams', extractionParams);
+  // console.log('extractionParams', extractionParams);
   return new Promise((resolve, reject) => {
     // console.log(  csv({
     //     noheader: true,
