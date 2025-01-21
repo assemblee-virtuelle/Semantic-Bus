@@ -95,8 +95,10 @@ class ValueFromPath {
   }
 
   resolve(source, specificData) {
+    // console.log('___resolve', source[0][0].organization)
     let matches = specificData.path.split('.')
     let result = this.progress(source, matches, {}, 'root', 0)
+    // console.log('___result', result[0][0])
     return (result)
   }
 

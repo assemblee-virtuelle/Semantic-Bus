@@ -641,6 +641,8 @@ class Engine {
         };
       }
 
+      // console.log('___rebuildData', rebuildData[0][0])
+
       let pesristedFragment
       try {
         pesristedFragment = await fragment_lib.persist(rebuildData, undefined, fragment);

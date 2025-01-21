@@ -154,27 +154,31 @@ module.exports = {
 
     get: function (id) {
         return new Promise(async (resolve, reject) => {
-            const fragmentReturn = await this.fragmentModel.getFragmentById(id);
+            try {
+                const fragmentReturn = await this.fragmentModel.getFragmentById(id);
 
-            if (fragmentReturn.branchFrag) {
-                const frags = await this.fragmentModel.searchFragmentByField({
-                    branchOriginFrag: fragmentReturn.branchFrag
-                }, {
-                    index: 'ASC'
-                }, {
-                    index: 1,
-                    id: 1
-                })
-                // console.log('___frags', frags.map(f => f.index))
-                fragmentReturn.data = frags.map(f => {
-                    return {
-                        _frag: f.id
-                    }
-                });
-            } else {
-                // keep fragmentReturn as is
+                if (fragmentReturn.branchFrag) {
+                    const frags = await this.fragmentModel.searchFragmentByField({
+                        branchOriginFrag: fragmentReturn.branchFrag
+                    }, {
+                        index: 'ASC'
+                    }, {
+                        index: 1,
+                        id: 1
+                    })
+                    // console.log('___frags', frags.map(f => f.index))
+                    fragmentReturn.data = frags.map(f => {
+                        return {
+                            _frag: f.id
+                        }
+                    });
+                } else {
+                    // keep fragmentReturn as is
+                }
+                resolve(fragmentReturn)
+            } catch (e) {
+                reject(e)
             }
-            resolve(fragmentReturn)
         });
     },
 
@@ -222,7 +226,6 @@ module.exports = {
                         const data = await this.getWithResolutionByBranch(child, options);
                         childrenData.push(data);
                     } else {
-
                         const data = await this.rebuildFragDataByBranch(child.data, options);
                         childrenData.push(data);
                     }
@@ -271,24 +274,29 @@ module.exports = {
                 if (Array.isArray(data)) {
                     let arrayDefrag = [];
                     for (let item of data) {
-                        let itemDefrag = await this.rebuildFragDataByBranch(item, options);
-                        // itemDefrag = this.replaceMongoNotSupportedKey(itemDefrag, false);
+                        let itemDefrag; 
+                        if (item._frag) {   
+                            itemDefrag = await this.getWithResolutionByBranch(item._frag, options);
+                        }else{
+                            itemDefrag = await this.rebuildFragDataByBranch(item, options);
+                        }
                         arrayDefrag.push(itemDefrag);
                     }
                     return arrayDefrag;
                 } else {
                     for (let key in data) {
-                        let callOptions = { ...options,pathTable:[options.pathTable]};
+                        let callOptions = { ...options, pathTable: [options.pathTable] };
                         const firstPath = callOptions.pathTable?.[0];
-                        let continueFragByPath =false;
+                        let continueFragByPath = false;
                         if (firstPath && firstPath.includes(key)) {
                             callOptions.pathTable.shift();
                             continueFragByPath = true;
-                        }else{
+                        } else {
                             callOptions.pathTable = undefined;
-                            callOptions.deeperFocusActivated=false;
+                            callOptions.deeperFocusActivated = false;
                         }
                         let continueFrag = !options.pathTable || continueFragByPath;
+                        // console.log('___continueFrag', key, continueFrag)
 
                         let valueOfkey;
                         if (data[key]._frag && continueFrag) {
