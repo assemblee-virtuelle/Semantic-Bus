@@ -275,7 +275,7 @@ module.exports = {
                     let arrayDefrag = [];
                     for (let item of data) {
                         let itemDefrag; 
-                        if (item._frag) {   
+                        if (item?._frag) {   
                             itemDefrag = await this.getWithResolutionByBranch(item._frag, options);
                         }else{
                             itemDefrag = await this.rebuildFragDataByBranch(item, options);
