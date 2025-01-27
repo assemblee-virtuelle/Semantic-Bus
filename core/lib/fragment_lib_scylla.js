@@ -72,9 +72,6 @@ module.exports = {
             const objectData = await this.persistObject(data, fargToPersist)
             fargToPersist.data = objectData;
             fargToPersist.branchFrag = undefined;
-            if (fargToPersist.index == 0) {
-                console.log('___fargToPersist', fargToPersist)
-            }
             return await this.fragmentModel.persistFragment(fargToPersist);
         }
     },

@@ -618,7 +618,8 @@ class Engine {
             async () => {
               const process = await workspace_lib.getCurrentProcess(this.processId);
               return process.state !== 'stop';
-            }
+            },
+            true
           );
         } else {
           // console.log('___Pull without dfob')

@@ -11,7 +11,8 @@ class DfobProcessor {
     module,
     method,
     buildParamArrayCallback,
-    continueCheckFunction
+    continueCheckFunction,
+    flowInDataProperty
   ) {
     const { pipeNb, dfobTable, keepArray } = dfobOptions;
 
@@ -43,11 +44,10 @@ class DfobProcessor {
         config
       );
 
-
       Object.entries(componentFlowDfob).forEach(([key, value]) => {
         try {
           const dfobItem = dfobFlow[key];
-          if ('data' in value) {
+          if (flowInDataProperty && 'data' in value) {
             if (dfobItem.key !== undefined) {
               dfobItem.objectToProcess[dfobItem.key] = value.data;
             } else {
@@ -71,7 +71,7 @@ class DfobProcessor {
         }
       });
     }
-    
+
     return rebuildData;
   }
 }
