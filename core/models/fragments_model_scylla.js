@@ -95,9 +95,6 @@ const updateFragment = async (fragment) => {
     WHERE id = ?
   `;
 
-  if(processedFragment.index==0){
-    console.log('___processedFragment', processedFragment)
-  }
   const updatedFields = [
     processedFragment.data!=undefined ? processedFragment.data : null,
     processedFragment.originFrag !== undefined ? processedFragment.originFrag : null,
@@ -110,9 +107,7 @@ const updateFragment = async (fragment) => {
     processedFragment.maxIndex !== undefined ? processedFragment.maxIndex : null, // Ajout de maxIndex
     processedFragment.id
   ];
-  if(processedFragment.index==0){
-    console.log('___updatedFields', updatedFields);
-  }
+
 
   const result = await client.execute(query, updatedFields, { prepare: true });
   return processFragmentRead(processedFragment);

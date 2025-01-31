@@ -592,17 +592,20 @@ class Engine {
 
     if (!workWithFragments) {
       try {
+
         rebuildData = await fragment_lib.getWithResolutionByBranch(fragment.id);
         dfob = undefined;
 
         const needDfob = dfobTable.length > 0 || (Array.isArray(rebuildData) && !keepArray && !fragment.branchOriginFrag);
         if (needDfob) {
+
           rebuildData = await DfobProcessor.processDfobFlow(
             rebuildData,
             { pipeNb, dfobTable, keepArray },
             module,
             module.pull,
             (item) => {
+
               const recomposedFlow = [{
                 data: item,
                 componentId: primaryflow.componentId
@@ -622,7 +625,7 @@ class Engine {
             true
           );
         } else {
-          // console.log('___Pull without dfob')
+
           let workResult
           let recomposedFlow = [];
           recomposedFlow = recomposedFlow.concat([{

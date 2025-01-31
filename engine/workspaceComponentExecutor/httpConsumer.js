@@ -90,6 +90,7 @@ class HttpConsumer {
           contentType.includes('application/json') ||
           contentType.includes('application/ld+json')
         ) {
+
           let responseObject = JSON.parse(response.body.toString());
           // let responseObject = []
           resolve(propertyNormalizer.execute(responseObject));

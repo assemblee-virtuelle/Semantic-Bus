@@ -12,7 +12,7 @@ class CacheNosql {
     // console.log('pull cache : ',processId)
     return new Promise((resolve, reject) => {
       if (flowData != undefined && flowData[0].data != undefined) {
-        // resolve({data:flowData[0].data});
+        resolve({data:flowData[0].data});
         // console.log('PERSIST CACHE')
         this.cache_lib.persist(data, flowData[0].data, data.specificData.history,processId.toString()).then(cachedData => {
           resolve({ data: flowData[0].data })

@@ -296,7 +296,8 @@ module.exports = {
                         // console.log('___continueFrag', key, continueFrag)
 
                         let valueOfkey;
-                        if (data[key]._frag && continueFrag) {
+                        // console.log('___data[key]',data,key, data[key]);
+                        if (data[key]?._frag && continueFrag) {
                             valueOfkey = await this.getWithResolutionByBranch(data[key]._frag, callOptions);
                         } else {
                             valueOfkey = await this.rebuildFragDataByBranch(data[key], callOptions);
