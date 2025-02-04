@@ -315,9 +315,12 @@ class HttpConsumer {
       // console.log('_url', url);
       try {
         // Encode the URL
-        const encodedUrl = encodeURI(url);
+        // const encodedUrl = encodeURI(url);
 
-        let request = superagent(options.method, encodedUrl)
+        // console.log('___encodedUrl', encodedUrl);
+        // console.log('___url', url);
+
+        let request = superagent(options.method, url)
           .set(options.headers)
           .timeout({
             response: options.timeout*1000,
