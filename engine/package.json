@@ -69,6 +69,7 @@
     "jsonpath-object-transform": "^1.0.4",
     "jszip": "^3.10.1",
     "jwt-simple": "^0.5.1",
+    "lodash": "^4.17.21",
     "lokijs": "^1.5.12",
     "mailparser": "^3.7.1",
     "moment": "^2.20.1",

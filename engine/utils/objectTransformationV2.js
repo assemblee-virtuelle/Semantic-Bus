@@ -8,6 +8,7 @@ const path = require('path');
 const fs = require('fs');
 const cheerio = require('cheerio');
 const removeMarkdown = require('remove-markdown');
+const lodash = require('lodash');
 // Charger toutes les données CLDR nécessaires pour toutes les locales
 
 const allLocales = cldrData.availableLocales;
@@ -90,22 +91,27 @@ module.exports = {
       const arrayRegexEval = [...jsonTransformPattern.matchAll(regexpeEval)]
       if (arrayRegexEval.length > 0) {
         let patternEval = arrayRegexEval[0][1];
-        const regexpeDot = /{(.*?)}/gm;
+        let patternEvalPretty = patternEval;
+        const regexpeDot = /{(\$.*?|£.*)}/gm;
         const arrayRegexDot = [...patternEval.matchAll(regexpeDot)];
         let logEval = false;
         for (const valueDot of arrayRegexDot) {
           // console.log('--valueDot[1]',valueDot[1])
           let sourceDotValue = this.getValueFromSource(source, pullParams, valueDot[1]);
-
-          if (typeof sourceDotValue === 'string' || sourceDotValue instanceof String) {
-            sourceDotValue = "this.resolveString('" + this.escapeString(sourceDotValue) + "')"
-          } else if (typeof sourceDotValue === 'object') {
-            sourceDotValue = "this.parseAndResolveString('" + JSON.stringify(this.escapeString(sourceDotValue)) + "')";
-          } else if (typeof sourceDotValue == 'number' || !isNaN(sourceDotValue)) {
-            const type = typeof sourceDotValue;
-            sourceDotValue = `Number(${sourceDotValue})`
+          let sourceDotValueEval = this.getValueFromSource(source, pullParams, valueDot[1]);;
+          if (typeof sourceDotValueEval === 'string' || sourceDotValueEval instanceof String) {
+            sourceDotValueEval = "this.resolveString('" + this.escapeString(sourceDotValueEval) + "')"
+            patternEvalPretty = patternEvalPretty.replace(valueDot[0], `"${sourceDotValue}"`);
+          } else if (typeof sourceDotValueEval === 'object') {
+            sourceDotValueEval = "this.parseAndResolveString('" + JSON.stringify(this.escapeString(sourceDotValueEval)) + "')";
+            patternEvalPretty = patternEvalPretty.replace(valueDot[0], sourceDotValue);
+          } else if (typeof sourceDotValueEval == 'number' || !isNaN(sourceDotValueEval)) {
+            // const type = typeof sourceDotValueEval;
+            sourceDotValueEval = `Number(${sourceDotValueEval})`
+            patternEvalPretty = patternEvalPretty.replace(valueDot[0], sourceDotValue);
           }
-          patternEval = patternEval.replace(valueDot[0], sourceDotValue);
+          patternEval = patternEval.replace(valueDot[0], sourceDotValueEval);
+
         }
         // console.log(' -> patternEval', patternEval);
         try {
@@ -128,7 +134,7 @@ module.exports = {
           return {
             error: 'Javascript Eval failed',
             errorDetail: {
-              evalString: patternEval,
+              evalString: patternEvalPretty,
               cause: e.message
             }
           }
