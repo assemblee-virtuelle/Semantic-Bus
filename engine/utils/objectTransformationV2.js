@@ -6,6 +6,8 @@ const Globalize = require("globalize");
 const cldrData = require("cldr-data");
 const path = require('path');
 const fs = require('fs');
+const cheerio = require('cheerio');
+const removeMarkdown = require('remove-markdown');
 // Charger toutes les données CLDR nécessaires pour toutes les locales
 
 const allLocales = cldrData.availableLocales;
@@ -59,6 +61,14 @@ const loadCldrData = () => {
 
 // Initialisation de Globalize avec toutes les locales
 loadCldrData();
+
+function decodeUnicode(str) {
+  // On définit le pattern : '\\\\u' pour \u et '([\\dA-Fa-f]{4})' pour les 4 chiffres hexadécimaux
+  const regex = new RegExp('\\\\u([\\dA-Fa-f]{4})', 'g');
+  return str.replace(regex, (match, grp) =>
+    String.fromCharCode(parseInt(grp, 16))
+  );
+}
 
 
 

@@ -1,7 +1,12 @@
 'use strict'
 class Scrapper {
   constructor() {
-    this.webdriverio = require('webdriverio');
+    // Use dynamic import for webdriverio
+    import('webdriverio').then((webdriverio) => {
+      this.webdriverio = webdriverio;
+    }).catch((err) => {
+      console.error('Failed to load webdriverio:', err);
+    });
     this.base = require('./wdio.conf.base');
     this.stringReplacer = require('../../utils/stringReplacer');
   }
