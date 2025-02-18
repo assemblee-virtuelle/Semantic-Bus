@@ -92,7 +92,7 @@ module.exports = {
       if (arrayRegexEval.length > 0) {
         let patternEval = arrayRegexEval[0][1];
         let patternEvalPretty = patternEval;
-        const regexpeDot = /{(\$.*?|£.*)}/gm;
+        const regexpeDot = /{(\$.*?|£.*?)}/gm;
         const arrayRegexDot = [...patternEval.matchAll(regexpeDot)];
         let logEval = false;
         for (const valueDot of arrayRegexDot) {
@@ -111,9 +111,7 @@ module.exports = {
             patternEvalPretty = patternEvalPretty.replace(valueDot[0], sourceDotValue);
           }
           patternEval = patternEval.replace(valueDot[0], sourceDotValueEval);
-
         }
-        // console.log(' -> patternEval', patternEval);
         try {
           const evalResult = eval(patternEval);
           // console.log('-> evalResult',evalResult)
