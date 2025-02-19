@@ -1,0 +1,176 @@
+{
+  "main": {
+    "so-DJ": {
+      "identity": {
+        "version": {
+          "_cldrVersion": "36"
+        },
+        "language": "so",
+        "territory": "DJ"
+      },
+      "localeDisplayNames": {
+        "localeDisplayPattern": {
+          "localePattern": "{0} ({1})",
+          "localeSeparator": "{0}, {1}",
+          "localeKeyTypePattern": "{0}: {1}"
+        },
+        "keys": {
+          "calendar": "Habeentiris",
+          "cf": "Habka Lacagta",
+          "collation": "Kala Soocidda Dalabka",
+          "currency": "Lacagta",
+          "hc": "Wareegga Saacadda (12 ilaa 24)",
+          "lb": "Habka Jebinta Xariiqda",
+          "ms": "Nidaamka Cabbiraadda",
+          "numbers": "Tirooyinka"
+        },
+        "types": {
+          "calendar": {
+            "buddhist": "Habeentiriska Buudhist",
+            "chinese": "Habeetiriska Shiinaha",
+            "coptic": "coptic",
+            "dangi": "Habeetiriska Dangi",
+            "ethiopic": "Habeentiriska Itoobiya",
+            "ethiopic-amete-alem": "ethiopic-amete-alem",
+            "gregorian": "Habeetiriska Geregoriyaan",
+            "hebrew": "Habeentiriska yuhuudda",
+            "indian": "indian",
+            "islamic": "Habeentiriska islaamka",
+            "islamic-civil": "islamic-civil",
+            "islamic-rgsa": "islamic-rgsa",
+            "islamic-tbla": "islamic-tbla",
+            "islamic-umalqura": "islamic-umalqura",
+            "iso8601": "Habeentiriska ISO-8601",
+            "japanese": "Habeentiriska jabbaanka",
+            "persian": "Habeentiriska Baarshiyaanka",
+            "roc": "Habeentiriska Minguwo"
+          },
+          "cf": {
+            "account": "Habka Xisaabinta Lacagta",
+            "standard": "Habka Heerka Lacagta"
+          },
+          "collation": {
+            "big5han": "big5han",
+            "compat": "compat",
+            "dictionary": "dictionary",
+            "ducet": "Lambar Sireedka Caalamiga ee Kala Soocidda Dalabka",
+            "emoji": "emoji",
+            "eor": "eor",
+            "gb2312han": "gb2312han",
+            "phonebook": "phonebook",
+            "pinyin": "pinyin",
+            "reformed": "reformed",
+            "search": "Raadinta Guud",
+            "searchjl": "searchjl",
+            "standard": "Amarka Kala Soocidda Caadiga ah",
+            "stroke": "stroke",
+            "traditional": "traditional",
+            "unihan": "unihan",
+            "zhuyin": "zhuyin"
+          },
+          "hc": {
+            "h11": "12 Saac ee Nidaamka Saacadda (0–12)",
+            "h12": "12 Saac ee Nidaamka Saacadda (1–12)",
+            "h23": "24 Saac ee Nidaamka Saacadda (0–23)",
+            "h24": "24 Saac ee Nidaamka Saacadda (1–24)"
+          },
+          "lb": {
+            "loose": "Habka Jabinta Xariiqda Dabacsan",
+            "normal": "Habka Jabinta Xariiqda Caadiga ah",
+            "strict": "Habka Jabinta Xariiqda Adag"
+          },
+          "ms": {
+            "metric": "Nidaamka Metric",
+            "uksystem": "Nidaamka Cabbirka Imperial-ka",
+            "ussystem": "Nidaamka Cabbirka ee US"
+          },
+          "numbers": {
+            "ahom": "ahom",
+            "arab": "Gdadka Carabi-Hindiya",
+            "arabext": "Tirooyinka Dheeraadka ah ee Godadka Carabi-Hindiya",
+            "armn": "Nidaam Tireedka Armeeniya",
+            "armnlow": "Nidaam Tireedka Yaryar ee Armeeniya",
+            "bali": "bali",
+            "beng": "Godadka Banglaa",
+            "brah": "brah",
+            "cakm": "cakm",
+            "cham": "cham",
+            "cyrl": "cyrl",
+            "deva": "Godadka Defangaari",
+            "ethi": "Nidaam Tireedka Itoobiya",
+            "fullwide": "Ballac Godadka Buuxa",
+            "geor": "Nidaam Tireedka Giyoorgiyaanka",
+            "gong": "gong",
+            "gonm": "gonm",
+            "grek": "Nidaam Tireedka Giriiga",
+            "greklow": "Nidaam Tireedka Yaryar ee Giriiga",
+            "gujr": "Godadka Gujaraati",
+            "guru": "Godadka Gurmukhi",
+            "hanidec": "Nidaamka Tireedka Tobanle ee Shiinaha",
+            "hans": "Nidaam Tireedka Hore La Fududeeyay ee Shiinaha",
+            "hansfin": "Nidaam Tireedka Hore La Fududeeyay ee Dhaqaalaha Shiinaha",
+            "hant": "Nidaam Tireedka Hore ee Shiinaha",
+            "hantfin": "Nidaam Tireedkii Hore ee Dhaqaalaha Shiinaha",
+            "hebr": "Nidaam Tireedka Cibraanka",
+            "hmng": "hmng",
+            "hmnp": "hmnp",
+            "java": "java",
+            "jpan": "Nidaam Tireedka Jabbaanka",
+            "jpanfin": "Nidaam Tireedka Dhaqaalaha Jabbaanka",
+            "kali": "kali",
+            "khmr": "Godadka Khamer",
+            "knda": "Godadka Kanada",
+            "lana": "lana",
+            "lanatham": "lanatham",
+            "laoo": "Godadka Laao",
+            "latn": "Godadka Ree Galbeedka",
+            "lepc": "lepc",
+            "limb": "limb",
+            "mathbold": "mathbold",
+            "mathdbl": "mathdbl",
+            "mathmono": "mathmono",
+            "mathsanb": "mathsanb",
+            "mathsans": "mathsans",
+            "mlym": "Godadka Malayalam",
+            "modi": "modi",
+            "mong": "mong",
+            "mroo": "mroo",
+            "mtei": "mtei",
+            "mymr": "Godadka Mayanmaar",
+            "mymrshan": "mymrshan",
+            "mymrtlng": "mymrtlng",
+            "nkoo": "nkoo",
+            "olck": "olck",
+            "orya": "Godadka Oodhiya",
+            "osma": "osma",
+            "rohg": "rohg",
+            "roman": "Nidaam Tireedka Roomaanka",
+            "romanlow": "Nidaam Tireedka yaryar ee Roomaanka",
+            "saur": "saur",
+            "shrd": "shrd",
+            "sind": "sind",
+            "sinh": "sinh",
+            "sora": "sora",
+            "sund": "sund",
+            "takr": "takr",
+            "talu": "talu",
+            "taml": "Nidaam Tireedki Hore ee Taaamiil",
+            "tamldec": "Godka Tirada Taamiil",
+            "telu": "Godka Tirada Telugu",
+            "thai": "Godka Tirada Thai",
+            "tibt": "Godka Tirada Tibetan",
+            "tirh": "tirh",
+            "vaii": "vaii",
+            "wara": "wara",
+            "wcho": "wcho"
+          }
+        },
+        "codePatterns": {
+          "language": "Luuqad : {0}",
+          "script": "Qoraal: {0}",
+          "territory": "Gobol : {0}"
+        }
+      }
+    }
+  }
+}

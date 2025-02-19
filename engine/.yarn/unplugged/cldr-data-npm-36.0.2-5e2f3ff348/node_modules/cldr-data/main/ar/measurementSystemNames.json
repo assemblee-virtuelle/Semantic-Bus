@@ -1,0 +1,19 @@
+{
+  "main": {
+    "ar": {
+      "identity": {
+        "version": {
+          "_cldrVersion": "36"
+        },
+        "language": "ar"
+      },
+      "localeDisplayNames": {
+        "measurementSystemNames": {
+          "metric": "النظام المتري",
+          "UK": "المملكة المتحدة",
+          "US": "النظام الأمريكي"
+        }
+      }
+    }
+  }
+}

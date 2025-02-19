@@ -1,0 +1,20 @@
+{
+  "main": {
+    "ps-PK": {
+      "identity": {
+        "version": {
+          "_cldrVersion": "36"
+        },
+        "language": "ps",
+        "territory": "PK"
+      },
+      "localeDisplayNames": {
+        "measurementSystemNames": {
+          "metric": "مېټرک",
+          "UK": "بريتاني",
+          "US": "متحده ايالات"
+        }
+      }
+    }
+  }
+}

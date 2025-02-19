@@ -1,0 +1,18 @@
+{
+  "main": {
+    "as": {
+      "identity": {
+        "version": {
+          "_cldrVersion": "36"
+        },
+        "language": "as"
+      },
+      "posix": {
+        "messages": {
+          "yesstr": "yes:y",
+          "nostr": "no:n"
+        }
+      }
+    }
+  }
+}

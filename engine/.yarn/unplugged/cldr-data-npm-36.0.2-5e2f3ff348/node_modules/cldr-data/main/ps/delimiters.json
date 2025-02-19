@@ -1,0 +1,18 @@
+{
+  "main": {
+    "ps": {
+      "identity": {
+        "version": {
+          "_cldrVersion": "36"
+        },
+        "language": "ps"
+      },
+      "delimiters": {
+        "quotationStart": "“",
+        "quotationEnd": "”",
+        "alternateQuotationStart": "‘",
+        "alternateQuotationEnd": "’"
+      }
+    }
+  }
+}
