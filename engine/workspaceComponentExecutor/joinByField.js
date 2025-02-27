@@ -81,8 +81,8 @@ class JoinByField {
   }
 
   joinWithLoki(item, collection, data) {
-    console.log('____item',item);
-    console.log('____data',data);
+    // console.log('____item',item);
+    // console.log('____data',data);
     return new Promise(async (resolve, reject) => {
       try {
         if (item[data.specificData.primaryFlowFKId] == undefined) {
