@@ -49,4 +49,5 @@ module.exports = {
     googleAuth: require('../workspaceComponentExecutor/googleAuth.js'),
     imap: require('../workspaceComponentExecutor/imap.js'),
     binaryExtractor: require('../workspaceComponentExecutor/binaryExtractor.js'),
+    sftpUploader: require('../workspaceComponentExecutor/sftpUploader.js'),
 }

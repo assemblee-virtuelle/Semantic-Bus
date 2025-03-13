@@ -523,6 +523,9 @@ class Engine {
 
       let specificData = processingNode.component.specificData;
       let current_component = config.components_information[module];
+      if(!current_component){
+        throw new Error(`Component ${module} not found in prices`);
+      }
       let current_component_price;
       let roundDate = new Date();
       roundDate.setMinutes(0);

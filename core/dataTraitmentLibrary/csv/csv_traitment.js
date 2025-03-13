@@ -1,8 +1,10 @@
 'use strict';
 var csv = require('csvtojson');
+const { Parser } = require('@json2csv/plainjs');
 
 module.exports = {
   csvtojson: _csvtojson,
+  json_to_csv: _json_to_csv
 };
 
 
@@ -39,3 +41,31 @@ function _csvtojson(data, extractionParams) {
     }
   });
 }
+
+function _json_to_csv(data, extractionParams) {
+  return new Promise((resolve, reject) => {
+      const delimiter = extractionParams?.delimiter || ",";
+      try {
+        
+        // Define fields based on the first object in data array
+        // or use fields from extractionParams if provided
+        const fields = extractionParams?.fields || 
+                      (data && data.length > 0 ? Object.keys(data[0]) : []);
+        
+        const opts = { 
+          fields,
+          delimiter 
+        };
+        
+        const parser = new Parser(opts);
+        const csvString = parser.parse(data);
+        
+        // Convert the CSV string to a Buffer before resolving
+        const csvBuffer = Buffer.from(csvString);
+        resolve(csvBuffer);
+      } catch (e) {
+        reject(e);
+      }
+  });
+} 
+

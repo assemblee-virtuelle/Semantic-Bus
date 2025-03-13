@@ -16,13 +16,14 @@ const { exitCode } = require('process');
 
 module.exports = {
   data_from_file: _data_from_file,
-  buildFile: _buildFile
+  buildFile: _buildFile,
+  extension: _extension
 };
 
 function _extension(filename, contentType) {
   // console.log('_extension',filename,contentType);
   let extension;
-  if (filename != null  && filename!=undefined) {
+  if (filename != null && filename != undefined) {
     try {
       var regex = /\.(\w*)/g;
       let matches = filename.match(regex);
@@ -37,10 +38,10 @@ function _extension(filename, contentType) {
     var reg = new RegExp(regex, 'g');
     let regResult = reg.exec(contentType)
     extension = regResult.pop()
-    if(extension.includes('vnd.openxmlformats-officedocument')) {
+    if (extension.includes('vnd.openxmlformats-officedocument')) {
       extension = "ods";
     }
-    if(extension.includes('vnd.ms-excel')) {
+    if (extension.includes('vnd.ms-excel')) {
       extension = "xlsx";
     }
   }
@@ -51,8 +52,8 @@ function _extension(filename, contentType) {
 }
 
 function _buildFile(filename, dataString, dataBuffer, out, contentType) {
-  const extension = _extension(undefined, contentType);
-  return new Promise(function(resolve, reject) {
+  const extension = _extension(filename, contentType);
+  return new Promise(function (resolve, reject) {
     switch (extension) {
       case ("vnd.ms-excel"):
       case ("vnd.openxmlformats-officedocument"):
@@ -63,19 +64,23 @@ function _buildFile(filename, dataString, dataBuffer, out, contentType) {
         resolve(rdf.json_to_rdf(JSON.parse(dataString)));
         break;
       case ("ics"):
-          //console.log('ALLO');
-          resolve(ics.json_to_ics(JSON.parse(dataString)));
-          break;
+        //console.log('ALLO');
+        resolve(ics.json_to_ics(JSON.parse(dataString)));
+        break;
+      case ('csv'):
+        resolve(csv.json_to_csv(JSON.parse(dataString)));
+        break;
+
       default:
         //console.log("in default")
-        reject("erreur, votre fichier n'est pas au bon format");
+        reject("erreur, le format de fichier demandé n'est pas supporté");
         break;
     }
   })
 
 }
 
-function addFileToTree(tree,fileObject,leaf, parts) {
+function addFileToTree(tree, fileObject, leaf, parts) {
 
 
 
@@ -85,12 +90,12 @@ function addFileToTree(tree,fileObject,leaf, parts) {
 
   const part = parts.shift();
   if (parts.length === 0) {
-      // Si c'est un fichier
-      tree[part] = 'file';
+    // Si c'est un fichier
+    tree[part] = 'file';
   } else {
-      // Si c'est un dossier
-      if (!tree[part]) tree[part] = {};
-      addFileToTree(tree[part], parts);
+    // Si c'est un dossier
+    if (!tree[part]) tree[part] = {};
+    addFileToTree(tree[part], parts);
   }
 }
 
@@ -107,39 +112,39 @@ async function _data_from_file(filename, dataBuffer, contentType, extractionPara
       console.warn('Impossible de déterminer le type de fichier à partir du buffer');
     }
   }
-  
-  const extension= _extension(filename, contentType);
+
+  const extension = _extension(filename, contentType);
 
   // console.log('extension',extension,filename,contentType);
 
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async function (resolve, reject) {
     switch (extension) {
       // GZ decompression
-      case("zip"):
+      case ("zip"):
         const zip = new JSZip();
         try {
-          const contents = await  zip.loadAsync(dataBuffer);
+          const contents = await zip.loadAsync(dataBuffer);
           // console.log('UNZIP!!',contents)
-          let files=[];
+          let files = [];
           for (const fileName of Object.keys(zip.files)) {
-            const fileObject=zip.files[fileName]
-            if(fileObject.dir==false){
+            const fileObject = zip.files[fileName]
+            if (fileObject.dir == false) {
               const pathTab = fileObject.name.split('/').filter(Boolean);
-              const name= pathTab.pop();
+              const name = pathTab.pop();
               const fileItem = {
-                fullPath :fileObject.name,
-                name : name,
-                path : pathTab.join('/')
+                fullPath: fileObject.name,
+                name: name,
+                path: pathTab.join('/')
               }
 
               try {
-                const bufferFile= await fileObject.async('nodebuffer');
+                const bufferFile = await fileObject.async('nodebuffer');
                 const data = await _data_from_file(name, bufferFile, undefined, extractionParams);
                 // console.log(data)
-                fileItem.data= data.data;
+                fileItem.data = data.data;
               } catch (error) {
                 // console.error(error)
-                fileItem.data= {error:error};
+                fileItem.data = { error: error };
               } finally {
                 files.push(fileItem);
               }
@@ -154,20 +159,20 @@ async function _data_from_file(filename, dataBuffer, contentType, extractionPara
 
         break;
       // GZ decompression
-      case("gz"):
+      case ("gz"):
         // decompression of a data buffer with Gunzip
         const newBuffer = zlib.gunzipSync(dataBuffer);
         // the file in a decompressed string
         const newString = newBuffer.toString('utf-8');
         // we remove the .gz at the end of the name of the file so that
         // we can find the right file's extension type
-        const newFileName = filename.substring(filename, filename.length-3);
+        const newFileName = filename.substring(filename, filename.length - 3);
 
         _data_from_file(newFileName, newBuffer, undefined, extractionParams).then((result) => {
           resolve({
             data: result.data
           })
-        }).catch(err=> {
+        }).catch(err => {
           reject("Il y a eu un problème après la décompression du fichier : " + err)
         })
         break;
@@ -183,7 +188,7 @@ async function _data_from_file(filename, dataBuffer, contentType, extractionPara
         })
         break;
 
-        // RDF TTL DONE
+      // RDF TTL DONE
       case ("ttl"):
         // rdf.rdf_traitmentTTL(dataBuffer.toString()).then((result) => {
         //   //console.log(reusltat)
@@ -195,7 +200,7 @@ async function _data_from_file(filename, dataBuffer, contentType, extractionPara
         // })
         break;
 
-        // RDF XML DONE IF TEST PARSE
+      // RDF XML DONE IF TEST PARSE
       case ("rdf"):
       case ("owl"):
         // rdf.rdf_traitmentXML(dataBuffer.toString()).then(result => {
@@ -205,14 +210,14 @@ async function _data_from_file(filename, dataBuffer, contentType, extractionPara
         // })
         break;
 
-        // EXEL/CSV/XLSX DONE
+      // EXEL/CSV/XLSX DONE
       case ("xls"):
       case ("xlsx"):
         exel.exel_to_json_stream(dataBuffer, extractionParams).then((resultat) => {
           resolve({
             data: resultat
           })
-        }, function(err) {
+        }, function (err) {
           // console.log(err);
           reject("votre fichier n'est pas au norme ou pas du bon format " + extension)
         })
@@ -222,22 +227,22 @@ async function _data_from_file(filename, dataBuffer, contentType, extractionPara
           resolve({
             data: resultat
           })
-        }, function(err) {
+        }, function (err) {
           reject("votre fichier n'est pas au norme ou pas du bon format " + extension)
         })
         break;
 
-        // XML DONE
+      // XML DONE
       case ("xml"):
       case ("kml"):
-      // console.log(dataBuffer)
-      xml.xml_traitment(dataBuffer.toString(), extractionParams).then(function(result) {
+        // console.log(dataBuffer)
+        xml.xml_traitment(dataBuffer.toString(), extractionParams).then(function (result) {
           // //console.log("FINAL", reusltat)
           //console.log("FINAL", reusltat)
           resolve({
             data: result
           })
-        }, function(err) {
+        }, function (err) {
           reject("votre fichier n'est pas au norme ou pas du bon format " + extension)
         })
         break;
@@ -248,7 +253,7 @@ async function _data_from_file(filename, dataBuffer, contentType, extractionPara
           resolve({
             data: result
           })
-        }, function(err) {
+        }, function (err) {
           console.log('err', err);
           reject("votre fichier n'est pas au norme ou pas du bon format " + extension)
         })
@@ -261,7 +266,7 @@ async function _data_from_file(filename, dataBuffer, contentType, extractionPara
           resolve({
             data: result
           })
-        }, function(err) {
+        }, function (err) {
           // console.log('err', err);
           reject("votre fichier n'est pas au norme ou pas du bon format " + extension)
         })
@@ -271,7 +276,7 @@ async function _data_from_file(filename, dataBuffer, contentType, extractionPara
 
         break;
     }
-    
+
   })
 
 }

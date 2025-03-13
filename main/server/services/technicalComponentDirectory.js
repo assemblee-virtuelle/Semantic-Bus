@@ -49,6 +49,7 @@ module.exports = {
   imap: require('../workspaceComponentInitialize/imap.js'),
   googleAuth: require('../workspaceComponentInitialize/googleAuth.js'),
   binaryExtractor: require('../workspaceComponentInitialize/binaryExtractor.js'),
+  sftpUploader: require('../workspaceComponentInitialize/sftpUploader.js'),
   // ---ENDOFPART---
 
   /* some other modules you want */
