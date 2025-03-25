@@ -24,6 +24,7 @@ class HttpProvider {
     this.json2yaml = require('json2yaml')
     this.request = require('request')
     this.config = require('../../config.json')
+    this.file_lib = require('../../../core/lib/file_lib_scylla')
 
     const {
       pathToRegexp,
@@ -232,9 +233,30 @@ class HttpProvider {
 
   }
 
-  sendResult(component, dataToSend, res) {
+  async sendResult(component, dataToSend, res) {
     if (component.specificData != undefined) { // exception in previous promise
-      if (component.specificData.contentType != undefined && component.specificData.contentType != '') {
+      // Option to return raw file without content-type transformation
+      if (component.specificData.returnRawFile && component.specificData.rawFileProperty) {
+        // Set content-type if provided
+        if (component.specificData.contentType) {
+          res.setHeader('content-type', component.specificData.contentType);
+        }
+        
+        // Set content-disposition if filename is provided
+        if (component.specificData.filename) {
+          res.setHeader('Content-disposition', 'attachment; filename=' + component.specificData.filename);
+        }
+        
+        // Send the raw file data from the specified property
+        const rawFileData = dataToSend[component.specificData.rawFileProperty];
+        if (rawFileData) {
+          const file = await this.file_lib.get(rawFileData._file);
+          res.setHeader('Content-Type', 'application/octet-stream');
+          res.send(file.binary);
+        } else {
+          res.status(400).send(`Property '${component.specificData.rawFileProperty}' not found in data`);
+        }
+      } else if (component.specificData.contentType != undefined && component.specificData.contentType != '') {
         // console.log('contentType',component.specificData.contentType);
         if (dataToSend == undefined) {
           res.status(201).send()
