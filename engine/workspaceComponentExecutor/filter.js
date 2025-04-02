@@ -134,7 +134,7 @@ class Filter {
               collection.insert(item);
             }
           });
-          rebuildData = this.filter(collection, filter, data);
+          rebuildData = this.filter(collection, filterResult, data);
           db.removeCollection(collectionName);
           // console.log('___out', out);
         } else {

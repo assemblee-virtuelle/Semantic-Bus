@@ -1,4 +1,7 @@
 'use strict'
+const fragment_lib = require('../../core/lib/fragment_lib_scylla.js');
+const DfobProcessor = require('../../core/helpers/dfobProcessor.js');
+
 class ObjectTransformer {
   constructor() {
     this.objectTransformation = require('../utils/objectTransformation.js');
@@ -36,6 +39,63 @@ class ObjectTransformer {
     // }
     // console.log(('transformer out',out));
     return out;
+  }
+
+  async workWithFragments(data, flowData, pullParams, processId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // Get the input fragment and dfob
+        const inputFragment = flowData[0]?.fragment;
+        const inputDfob = flowData[0]?.dfob;
+        
+        if (!inputFragment) {
+          resolve();
+          return;
+        }
+
+        // Get data from fragment
+        let rebuildDataRaw = await fragment_lib.getWithResolutionByBranch(inputFragment.id, {
+          pathTable: inputDfob?.dfobTable || []
+        });
+
+        // Process the data with transformation
+        const rebuildData = await DfobProcessor.processDfobFlow(
+          rebuildDataRaw,
+          { 
+            pipeNb: inputDfob?.pipeNb, 
+            dfobTable: inputDfob?.dfobTable, 
+            keepArray: inputDfob?.keepArray 
+          },
+          this,
+          this.transformItem,
+          (item) => {
+            return [
+              item, 
+              data.specificData.transformObject, 
+              pullParams, 
+              {
+                evaluationDetail: data.specificData.evaluationDetail,
+                version: data.specificData.version,
+                keepSource: data.specificData.keepSource
+              }
+            ];
+          },
+          async () => {
+            return true;
+          }
+        );
+
+        // Persist the transformed data
+        await fragment_lib.persist(rebuildData, undefined, inputFragment);
+        resolve();
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+  
+  transformItem(item, transformObject, pullParams, options) {
+    return this.jsonTransform(item, transformObject, pullParams, options);
   }
 
   pull(data, flowData, pullParams) {

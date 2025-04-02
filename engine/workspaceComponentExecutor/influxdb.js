@@ -1,6 +1,8 @@
 'use strict';
 
 const { json } = require('body-parser');
+const fragment_lib = require('../../core/lib/fragment_lib_scylla.js');
+const DfobProcessor = require('../../core/helpers/dfobProcessor.js');
 
 class InfluxdbConnector {
   constructor () {
@@ -8,136 +10,6 @@ class InfluxdbConnector {
     this.influxdbClientApi = require('@influxdata/influxdb-client-apis');
     this.stringReplacer = require('../utils/stringReplacer.js');
   }
-
-    /* TODO :
-    - gérer les types : strings ou api influx (integer only?)
-    - gérer temps de suppression données start et end
-
-    optimisation :
-    - batchs de 5000 lignes
-    - ordonner les tags par clé ordre lexicographique
-    - compression gzip requête http post -> créer composant gzip 
-  */
-
-  /*
-  // OLD CODE used to send data in influxdbbucket with 2 other components HTTP consumer 
-  // (Post Request) and a Js Evaluation with an accumulator function to put 
-  // every data in the same string
-  
-  stringDataBuilder(jsonData,data,fieldsetString,tagString) {
-    // you should refer to the pages on the influxdb line protocol
-    // https://docs.influxdata.com/influxdb/cloud/reference/syntax/line-protocol/#naming-restrictions
-
-    // influxdb data type = string
-    const measurementName = data.measurement;
-
-    const fieldSet = fieldsetString;
-
-    // the timestamp needs to be in the ISO format
-    // like this : ,               1654940402000, the influxISO format
-    //     1677687240000 13
-    // has 6 more 0s at the end -> 1422568543702900257 19
-    let result;
-    let timestamp = '';
-    if(jsonData[data.timestamp]){
-      const date = new Date(jsonData[data.timestamp]);
-      if(date.toDateString().toLowerCase() !== 'invalid date'){
-        timestamp = date.getTime().toString();
-        if(timestamp.length < 19){
-          const nberOfZerosToAdd = 18 - timestamp.length;
-          for (let index = 0; index < nberOfZerosToAdd; index++) {
-            timestamp+="0";
-          }
-        }
-        result = measurementName +
-        // optional
-        tagString
-        // the blank space separates the measurement
-        // name and tag set from the field set
-        + " " +
-        fieldSet;
-
-        if(timestamp){
-          result += " " + timestamp
-        }
-        // each data is a line separated by a /n
-        result += + " " + "\n";
-      }
-    }
-    return result
-  }
-
-  fieldsetStringBuilder(jsonData,fields){
-    let fieldsetString = '';
-    for (let index = 0; index < fields.length; index++) {
-      const field = fields[index];
-      const field_value = jsonData[field];
-      fieldsetString += (field + "=" + field_value);
-      if(index != (fields.length-1)){
-        fieldsetString += ","
-      }
-    }
-    return fieldsetString
-  }
-
-  tagStringBuilder(jsonData,tags){
-    let tagString = '';
-    for (let index = 0; index < tags.length; index++) {
-      const tag = tags[index];
-      const tag_value = jsonData[tag];
-      tagString += ("," + tag + "=" + tag_value);
-    }
-    return tagString
-  }
-
-
-  // CODE IN BODY OF INFLUXDB COMPONENT ->>>>
-    const jsonData = flowData[0].data;
-    let result = '';
-    if(!(data.specificData && data.specificData.measurement)){
-      reject(new Error("Il faut fournir le nom de la mesure"))
-    }
-
-    if(!(flowData[0].data)){
-    } else {
-      const tags = this.getTags(data.specificData);
-
-      // every field entered by the user
-      const inputFields = [data.specificData.timestamp];
-      if(tags.length != 0){
-        inputFields.push(...tags);
-      }
-
-      const fields = this.getRemainingFields(jsonData,inputFields);
-
-      if(!(fields.length > 0)){
-        reject(new Error("Il faut qu'il y ait au moins un champs en entrée (field)."))
-      }
-
-      // array containing every used field :
-      const everyField = Array.from(fields);
-      everyField.push(...inputFields);
-      everyField.push(data.specificData.measurement);
-
-      everyField.forEach(element => {
-        // https://docs.influxdata.com/influxdb/v1.8/write_protocols/line_protocol_tutorial/
-        if(element && (element == "_field" || element == "measurement" || element == "time")){
-          reject(new Error("Un nom de champs s'appelle time ou _field ou _measurement."))
-        }
-      });
-
-      const fieldsetString = this.fieldsetStringBuilder(jsonData,fields);
-      const tagString = this.tagStringBuilder(jsonData,tags);
-
-      result = this.stringDataBuilder(jsonData,data.specificData,fieldsetString,tagString)
-      if(result !== undefined){
-        resolve({
-          data: result
-        })
-      }
-      else {
-        return
-      }*/
 
   // only works with integer fields !!!
   // add fields to the Point influxdb object
@@ -383,6 +255,129 @@ class InfluxdbConnector {
 
   // doc of the influx client API on ->>>
   // https://github.com/influxdata/influxdb-client-js/blob/master/examples/write.mjs
+  async workWithFragments(data, flowData, pullParams, processId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // Get the input fragment and dfob
+        const inputFragment = flowData[0]?.fragment;
+        const inputDfob = flowData[0]?.dfob;
+        
+        if (!inputFragment) {
+          resolve();
+          return;
+        }
+
+        // Get data from fragment
+        let rebuildDataRaw = await fragment_lib.getWithResolutionByBranch(inputFragment.id, {
+          pathTable: inputDfob?.dfobTable || []
+        });
+
+        // Process the data with InfluxDB operations
+        const rebuildData = await DfobProcessor.processDfobFlow(
+          rebuildDataRaw,
+          { 
+            pipeNb: inputDfob?.pipeNb, 
+            dfobTable: inputDfob?.dfobTable, 
+            keepArray: inputDfob?.keepArray 
+          },
+          this,
+          this.processInfluxItem,
+          (item) => {
+            return [
+              data, 
+              [{ data: item }], 
+              pullParams
+            ];
+          },
+          async () => {
+            return true;
+          }
+        );
+
+        // Persist the transformed data
+        await fragment_lib.persist(rebuildData, undefined, inputFragment);
+        resolve();
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
+  
+  async processInfluxItem(data, flowData, pullParams) {
+    // This function will process a single item using the same logic as pull
+    try {
+      if(!(data.specificData && data.specificData.url && data.specificData.apiKey)){
+        throw new Error("Il faut fournir l'url et la clé influx");
+      }
+      if(!(data.specificData && data.specificData.organization)){
+        throw new Error("Il faut fournir le nom de l'organisation");
+      }
+
+      const insertData = data.specificData.insertChecked == 'checked' ? true : false;
+      const deleteData = data.specificData.deleteChecked == 'checked' ? true : false;
+      const requestData = data.specificData.requestChecked == 'checked' ? true : false;
+
+      const url = data.specificData.url;
+      const token = data.specificData.apiKey;
+      const org = data.specificData.organization;
+      // depends on the choice made ->>>
+      const jsonData = flowData ? flowData[0].data : {};
+
+      // creation of the communication interface for influxdb
+      const influxDB = new this.influxdbClient.InfluxDB({url, token, timeout: 1000000});
+
+      let insertDataReturned;
+      let requestDataReturned;
+
+      if(deleteData){
+        if(!(data.specificData && data.specificData.measurementDelete && data.specificData.bucketDelete)){
+          throw new Error("Il faut fournir le nom de la mesure et le nom du bucket pour la suppression.");
+        }
+
+        let bucket = data.specificData.bucketDelete;
+        let measurementType = data.specificData.measurementDelete;
+
+        // we delete everything in the bucket from now to year 1950
+        const deleteTags = data.specificData.tagDelete;
+
+        await this.deleteData(influxDB, org, bucket, measurementType, deleteTags);
+      }
+      
+      if(insertData){
+        if(!(data.specificData && data.specificData.measurementInsert && data.specificData.bucketInsert)){
+          throw new Error("Il faut fournir le nom de la mesure te le nom du bucket");
+        }
+        const bucket = data.specificData.bucketInsert;
+        const measurementType = data.specificData.measurementInsert;
+
+        insertDataReturned = this.prepareData(data, jsonData, influxDB, org, bucket, measurementType);
+      }
+      
+      if(requestData){
+        const querySelectString = data.specificData.querySelect;
+        const querySelect = this.stringReplacer.execute(querySelectString, pullParams, flowData?flowData[0].data:undefined);
+
+        requestDataReturned = await this.queryGenerator(influxDB, querySelect, org);
+      }
+
+      // Return appropriate data based on operations performed
+      if(requestData){
+        return requestDataReturned;
+      }
+      else if((!deleteData && insertData && !requestData) || 
+        (deleteData && insertData && !requestData)){
+        return insertDataReturned;
+      }
+      else if(deleteData && !insertData && !requestData) {
+        return jsonData;
+      } else{
+        return {};
+      }
+    } catch(e) {
+      throw e;
+    }
+  }
+
   pull (data, flowData, pullParams) {
     return new Promise(async (resolve, reject) => {
       try {

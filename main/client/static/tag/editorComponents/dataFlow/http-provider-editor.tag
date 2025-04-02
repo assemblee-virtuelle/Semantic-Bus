@@ -3,6 +3,12 @@
   <div class="contenaireH" style="margin-left:97%">
     <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-HTTP-Provider" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
   </div>
+  
+  <!-- Bouton croix pour retour à la liste -->
+  <div class="contenaireH closeButton" style="float:right; cursor:pointer; margin-right:10px;" onclick={closeEditor}>
+    <img src="./image/cross.svg" alt="Fermer" width="25px" height="25px">
+  </div>
+  
  <!-- Titre du composant -->
   <div class="contenaireV title-component">{data.type}</div>
   <div>
@@ -169,6 +175,11 @@
       RiotControl.trigger('workspace_current_refresh');
 
     });
+    
+    this.closeEditor = function() {
+      RiotControl.trigger('workspace_item_current_unselect');
+    }.bind(this);
+    
     this.on('unmount', function () {
       RiotControl.off('item_current_changed', this.updateData);
       RiotControl.off('workspace_current_changed', this.updateWorkspace);
