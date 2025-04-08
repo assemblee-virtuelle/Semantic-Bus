@@ -116,6 +116,7 @@ class SftpUploader {
               }
             });
           } catch (e) {
+            await sftp.end();
             console.log('error upload');
             reject(e);
           }

@@ -268,9 +268,7 @@ class InfluxdbConnector {
         }
 
         // Get data from fragment
-        let rebuildDataRaw = await fragment_lib.getWithResolutionByBranch(inputFragment.id, {
-          pathTable: inputDfob?.dfobTable || []
-        });
+        let rebuildDataRaw = await fragment_lib.getWithResolutionByBranch(inputFragment.id);
 
         // Process the data with InfluxDB operations
         const rebuildData = await DfobProcessor.processDfobFlow(

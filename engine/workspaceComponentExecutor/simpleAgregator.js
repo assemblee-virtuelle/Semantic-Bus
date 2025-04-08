@@ -1,4 +1,5 @@
 const fragment_lib = require('../../core/lib/fragment_lib_scylla');
+const fragmentModel = require('../../core/models/fragments_model_scylla');
 
 'use strict';
 class SimpleAgregator {
@@ -22,6 +23,47 @@ class SimpleAgregator {
 
   async getSecondaryFlow(data, flowData) {
     return []
+  }
+
+  async workWithFragments(data, flowData, queryParams, processId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+
+        let resultFragment = await fragment_lib.createArrayFrag(undefined,true);
+        let index = 1;
+
+        const inputFragment = flowData[0]?.fragment;
+        const inputDfob = flowData[0]?.dfob;
+
+        
+        const childrenFlow = await fragmentModel.searchFragmentByField({
+          branchOriginFrag: inputFragment.branchFrag
+        }, {
+          index: 'ASC'
+        });
+
+        for (const childFlow of childrenFlow) {
+          const childrenFragments = await fragmentModel.searchFragmentByField({
+            branchOriginFrag: childFlow.branchFrag
+          }, {
+            index: 'ASC'
+          });
+
+          for (const childFragment of childrenFragments) {
+            await fragment_lib.addFragToArrayFrag(childFragment, resultFragment, index);
+            index++;
+          }
+        } 
+        
+
+        resultFragment.id = inputFragment.id;
+        await fragmentModel.updateFragment(resultFragment);
+
+        resolve();
+      } catch (e) {
+        reject(e);
+      }
+    });
   }
 
   pull(data, flowData) {

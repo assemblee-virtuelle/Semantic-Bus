@@ -20,12 +20,18 @@ module.exports = {
     // testAllLiteralArray,
 
     testFragArray: function (arrayToTest) {
-        if (arrayToTest.length <= 100) {
-            return false;
-        } else if (testAllLiteralArray(arrayToTest)) {
-            return false
+        // if (arrayToTest.length <= 100) {
+        //     return false;
+        // } else if (testAllLiteralArray(arrayToTest)) {
+        //     return false
+        // } else {
+        //     return true
+        // }
+
+        if (Array.isArray(arrayToTest)) {
+            return true;
         } else {
-            return true
+            return false;
         }
     },
 
@@ -96,7 +102,7 @@ module.exports = {
         }
     },
 
-    createArrayFrag: async function (exitingFrag) {
+    createArrayFrag: async function (exitingFrag,omitPersist) {
 
         const model = this.fragmentModel.model;
         let arrayFrag = exitingFrag || new model({
@@ -105,8 +111,12 @@ module.exports = {
         arrayFrag.data = [];
         arrayFrag.branchFrag = uuidv4();
         arrayFrag.maxIndex = 0;
-        const result = await this.fragmentModel.persistFragment(arrayFrag);
-        return result;
+        if (!omitPersist) {
+            const result = await this.fragmentModel.persistFragment(arrayFrag);
+            return result;
+        } else {
+            return arrayFrag;
+        }
     },
     //call without index not support parallel calls (PromiseOrchestrator for ex)
     addFragToArrayFrag: async function (frag, arrayFrag, index) {

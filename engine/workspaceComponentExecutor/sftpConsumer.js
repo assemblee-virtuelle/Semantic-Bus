@@ -7,6 +7,7 @@ class SftpConsumer {
     this.stringReplacer = require('../utils/stringReplacer.js');
     this.fileLib = require('../../core/lib/file_lib_scylla.js');
     this.File = require('../../core/model_schemas/file_schema_scylla.js');
+    this.fragment_lib = require('../../core/lib/fragment_lib_scylla.js');
   }
 
   dataProcessing(dataPath, readableStream, processId, specificData) {
@@ -88,10 +89,12 @@ class SftpConsumer {
                 return this.dataProcessing(specificDataParsed.path, readableStream, processId, specificDataParsed);
               })
               .then(result => {
+                sftp.end();
                 resolve({
                   data: result
                 });
               }).catch(e => {
+                sftp.end();
                 reject(e);
               });
           } else if (typeOfPath === "d") {
@@ -131,19 +134,55 @@ class SftpConsumer {
 
                 return Promise.all(promisesArray2);
               }).then(dataArray => {
+                sftp.end();
                 resolve({
                   data: dataArray
                 });
               });
           } else if (typeOfPath === false) {
+            sftp.end();
             reject(new Error(`path ${specificDataParsed.path} not found`))
           }
         }).catch(e => {
+          sftp.end();
           reject(e);
         });
     });
   }
 
+  async workWithFragments(data, flowData, pullParams, processId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        // Get the input fragment and dfob
+        const inputFragment = flowData[0]?.fragment;
+        const inputDfob = flowData[0]?.dfob;
+        
+        if (!inputFragment) {
+          resolve();
+          return;
+        }
+
+        // Get data from fragment
+        let rebuildDataRaw = await this.fragment_lib.getWithResolutionByBranch(inputFragment.id, {
+          pathTable: inputDfob?.dfobTable || []
+        });
+
+        // Process the data with SFTP consumer
+        const result = await this.getFile(
+          data.specificData, 
+          rebuildDataRaw, 
+          pullParams, 
+          processId
+        );
+
+        // Persist the transformed data
+        await this.fragment_lib.persist(result.data, undefined, inputFragment);
+        resolve();
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
 
   pull(data, flowData, pullParams) {
     return this.getFile(data.specificData, flowData ? flowData[0].data : undefined, pullParams);
