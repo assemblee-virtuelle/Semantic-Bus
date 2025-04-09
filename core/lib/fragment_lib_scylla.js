@@ -542,13 +542,18 @@ module.exports = {
     },
 
     // frag support fragId or frag object
-    copyFragUntilPath: async function (frag, dfobTable, keepArray, relativHistoryTable = [], callerFrag = undefined) {
+    copyFragUntilPath: async function (frag, dfobOptions = { dfobTable: [], keepArray: false, tableDepth: Infinity }, relativHistoryTable = [], callerFrag = undefined, tableDepthHistory=0) {
         if (!frag) {
             throw new Error('frag have to be set');
         }
         const isObjectFrag = frag instanceof this.fragmentModel.model;
         const model = this.fragmentModel.model;
         const fragToCopy = isObjectFrag ? frag : await this.fragmentModel.getFragmentById(frag);
+        
+        // Extract options
+        const dfobTable = dfobOptions.dfobTable || [];
+        const keepArray = dfobOptions.keepArray || false;
+        const tableDepth = dfobOptions.tableDepth || Infinity;
 
         if (fragToCopy.branchFrag) {
             const newFrag = new model({
@@ -567,8 +572,13 @@ module.exports = {
             const fragleaves = await this.fragmentModel.searchFragmentByField({ branchOriginFrag: fragToCopy.branchFrag })
             let arrayOut = [];
             let fragmentSelected = [];
+
+
+
+
+
             for (let record of fragleaves) {
-                const processedData = await this.copyFragUntilPath(record.id, dfobTable, keepArray, relativHistoryTable, newFrag);
+                const processedData = await this.copyFragUntilPath(record.id, dfobOptions, relativHistoryTable, newFrag, tableDepthHistory+1);
                 arrayOut.push(processedData.data);
                 fragmentSelected = fragmentSelected.concat(processedData.dfobFragmentSelected);
             }
@@ -580,6 +590,14 @@ module.exports = {
                     relativDfobTable: []
                 }];
             }
+            if (tableDepthHistory == tableDepth && dfobTable.length == 0){
+                fragmentSelected = [{
+                    frag: newFrag,
+                    relativHistoryTableSelected: [],
+                    relativDfobTable: []
+                }];
+            }
+
             return {
                 data: arrayOut,
                 dfobFragmentSelected: fragmentSelected,
@@ -599,7 +617,7 @@ module.exports = {
             }
 
             let newFrag = new model(newFragRaw);
-            const processedData = await this.copyDataUntilPath(newFrag.data, dfobTable, keepArray, relativHistoryTable, newFrag);
+            const processedData = await this.copyDataUntilPath(newFrag.data, dfobOptions, relativHistoryTable, newFrag);
             newFrag.data = processedData.data;
             await this.fragmentModel.persistFragment(newFrag);
             const isDfobFragmentSelected = processedData.dfobFragmentSelected && processedData.dfobFragmentSelected.length > 0;
@@ -615,11 +633,14 @@ module.exports = {
                 rootFrag: newFrag.rootFrag,
                 newFrag: newFrag
             };
-
         }
-
     },
-    copyDataUntilPath: async function (data, dfobTable, keepArray, relativHistoryTable = [], callerFrag) {
+    
+    copyDataUntilPath: async function (data, dfobOptions = { dfobTable: [], keepArray: false }, relativHistoryTable = [], callerFrag) {
+        // Extract options
+        const dfobTable = dfobOptions.dfobTable || [];
+        const keepArray = dfobOptions.keepArray || false;
+        
         if (data == undefined) {
             return {
                 data: undefined,
@@ -641,10 +662,10 @@ module.exports = {
                 let fragmentSelected = [];
                 let relativHistoryTableSelected = []
                 for (let item of data) {
-                    const processedData = await this.copyDataUntilPath(item, dfobTable, keepArray, relativHistoryTable);
+                    const processedData = await this.copyDataUntilPath(item, dfobOptions, relativHistoryTable);
                     let itemDefrag = processedData.data;
                     arrayDefrag.push(itemDefrag);
-                    fragmentSelected = fragmentSelected.concat(fragmentSelected);
+                    fragmentSelected = fragmentSelected.concat(processedData.dfobFragmentSelected);
                     relativHistoryTableSelected = processedData.relativHistoryTableSelected?.length > relativHistoryTableSelected ? processedData.relativHistoryTableSelected : relativHistoryTableSelected;
                 }
                 return {
@@ -653,7 +674,6 @@ module.exports = {
                     dfobFragmentSelected: fragmentSelected
                 };
             } else {
-
                 let relativHistoryTableCopy = [...relativHistoryTable]
                 let fragmentSelected = [];
                 let relativHistoryTableSelected = [];
@@ -670,7 +690,8 @@ module.exports = {
                     }
                     if (data[key] && data[key] != null && data[key]._frag) {
                         if (dfobTableCurrent.length > 0) {
-                            const persitedFrag = await this.copyFragUntilPath(data[key]._frag, dfobTableCopy, keepArray, [], callerFrag)
+                            const newDfobOptions = { dfobTable: dfobTableCopy, keepArray };
+                            const persitedFrag = await this.copyFragUntilPath(data[key]._frag, newDfobOptions, [], callerFrag)
                             data[key] = {
                                 _frag: persitedFrag.newFrag.id.toString()
                             };
@@ -679,7 +700,8 @@ module.exports = {
                             }
                         }
                     } else {
-                        const processedData = await this.copyDataUntilPath(data[key], dfobTableCopy, keepArray, relativHistoryTableCopy, callerFrag);
+                        const newDfobOptions = { dfobTable: dfobTableCopy, keepArray };
+                        const processedData = await this.copyDataUntilPath(data[key], newDfobOptions, relativHistoryTableCopy, callerFrag);
                         data[key] = processedData.data;
                         if (processedData.dfobFragmentSelected) {
                             fragmentSelected = fragmentSelected.concat(processedData.dfobFragmentSelected)

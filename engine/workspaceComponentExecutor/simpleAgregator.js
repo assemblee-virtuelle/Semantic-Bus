@@ -43,16 +43,24 @@ class SimpleAgregator {
         });
 
         for (const childFlow of childrenFlow) {
-          const childrenFragments = await fragmentModel.searchFragmentByField({
-            branchOriginFrag: childFlow.branchFrag
-          }, {
-            index: 'ASC'
-          });
 
-          for (const childFragment of childrenFragments) {
-            await fragment_lib.addFragToArrayFrag(childFragment, resultFragment, index);
+          if(childFlow.branchFrag){
+            const childrenFragments = await fragmentModel.searchFragmentByField({
+              branchOriginFrag: childFlow.branchFrag
+            }, {
+              index: 'ASC'
+            });
+  
+            for (const childFragment of childrenFragments) {
+              await fragment_lib.addFragToArrayFrag(childFragment, resultFragment, index);
+              index++;
+            }
+          } else {
+            await fragment_lib.addFragToArrayFrag(childFlow, resultFragment, index);
             index++;
           }
+
+
         } 
         
 

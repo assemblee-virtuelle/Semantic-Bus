@@ -81,8 +81,6 @@ class JoinByField {
   }
 
   joinWithLoki(item, collection, data) {
-    // console.log('____item',item);
-    // console.log('____data',data);
     return new Promise(async (resolve, reject) => {
       try {
         if (item[data.specificData.primaryFlowFKId] == undefined) {
@@ -118,7 +116,6 @@ class JoinByField {
                 item[data.specificData.primaryFlowFKName] = data.specificData.multipleJoin ? results : results[0];
               }
             }
-            console.log('____item resolved',item);
             resolve(item);
           // } else {
           //   throw (new Error('join can only process literal'))

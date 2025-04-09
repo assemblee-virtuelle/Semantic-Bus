@@ -252,7 +252,8 @@ class Engine {
               componentFlow.deeperFocusData = {
                 keepArray: componentFlow.deeperFocusData.keepArray != undefined ? componentFlow.deeperFocusData.keepArray : componentFlow.deeperFocusData.dfobKeepArray,
                 dfobPath: componentFlow.deeperFocusData.path != undefined ? componentFlow.deeperFocusData.path : componentFlow.deeperFocusData.dfobPath,
-                pipeNb: componentFlow.deeperFocusData.beanNb != undefined ? componentFlow.deeperFocusData.beanNb : componentFlow.deeperFocusData.pipeNb != undefined ? componentFlow.deeperFocusData.pipeNb : componentFlow.deeperFocusData.dfobNbPipe
+                pipeNb: componentFlow.deeperFocusData.beanNb != undefined ? componentFlow.deeperFocusData.beanNb : componentFlow.deeperFocusData.pipeNb != undefined ? componentFlow.deeperFocusData.pipeNb : componentFlow.deeperFocusData.dfobNbPipe,
+                tableDepth: componentFlow.deeperFocusData.tableDepth != undefined ? componentFlow.deeperFocusData.tableDepth : componentFlow.deeperFocusData.dfobTableDepth
               }
 
               if (module.getPrimaryFlow != undefined) {
@@ -285,7 +286,7 @@ class Engine {
               if (componentFlow.deeperFocusData) {
                 try {
 
-                  let { dfobPath, keepArray, pipeNb } = componentFlow.deeperFocusData;
+                  let { dfobPath, keepArray, pipeNb, tableDepth } = componentFlow.deeperFocusData;
 
                   if (dfobPath == undefined) {
                     dfobPath = '';
@@ -296,8 +297,7 @@ class Engine {
 
                   let dfobFragmentFlow = await this.buildDfobFragmentFlow(
                     componentFlow.primaryflow.fragment,
-                    dfobTab,
-                    keepArray
+                    { dfobTable: dfobTab, keepArray, tableDepth },
                   )
 
                   const newFrag = dfobFragmentFlow.newFrag;
@@ -580,14 +580,15 @@ class Engine {
 
   }
 
-  async buildDfobFragmentFlow(fragment, dfobTable, keepArray) {
+  async buildDfobFragmentFlow(fragment, dfobOptions) {
     if (config.quietLog != true) console.time("buildDfobFragmentFlow_" + this.processId + '_' + this.workflow.name);
-    const out = await fragment_lib.copyFragUntilPath(fragment, dfobTable, keepArray);
+    const out = await fragment_lib.copyFragUntilPath(fragment, dfobOptions);
     if (config.quietLog != true) console.timeEnd("buildDfobFragmentFlow_" + this.processId + '_' + this.workflow.name);
     return out;
   }
 
   async rebuildFrag_focus_work_persist(processingNode, fragment, dfob, primaryflow, secondaryFlowDefraged, secondaryFlowFragments) {
+    
     let module = technicalComponentDirectory[processingNode.component.module]
     const { dfobTable, pipeNb, keepArray } = dfob
     let rebuildData;
@@ -665,12 +666,13 @@ class Engine {
 
     if (workWithFragments) {
       try {
+
         let workResult
         let recomposedFlow = [];
         recomposedFlow = recomposedFlow.concat([{
           fragment: fragment,
           componentId: primaryflow.componentId,
-          dfob: { dfobTable, pipeNb, keepArray },
+          dfob: { dfobTable, pipeNb, keepArray :true },
         }]);
         recomposedFlow = recomposedFlow.concat(secondaryFlowFragments);
         workResult = await module.workWithFragments(processingNode.component, recomposedFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams, this.processId)
