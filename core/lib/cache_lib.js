@@ -11,13 +11,13 @@ module.exports = {
     }).lean().exec();
     cachedData = cachedDataIn;
 
-    // console.log('allo1')
+
     if (cachedDataIn&&cachedDataIn!=null){
       if(cachedDataIn.frag){
         try{
-          await this.fragment_lib.tagGarbage(cachedDataIn.frag)
+          await this.fragment_lib.cleanFrag(cachedDataIn.frag)
         }catch(e){
-          console.warn('cache not tag to garbage', cachedDataIn.frag)
+          console.warn('cache not cleaned', cachedDataIn.frag)
         }
       }
     } else {
@@ -34,6 +34,9 @@ module.exports = {
     // console.log('data after',data);
 
     let frag = await this.fragment_lib.persist(data);
+
+    // await this.fragment_lib.displayFragTree(frag.id)
+    // await new Promise(resolve => setTimeout(resolve, 1000));
 
     cachedData.frag = frag.id.toString();
     cachedData.date = new Date();
@@ -67,8 +70,12 @@ module.exports = {
       if (cachedData != undefined) {
         if (component.specificData.historyOut != true) {
           if (cachedData.frag != undefined) {
+
             if (resolveFrag == true) {
-              dataDefraged = await this.fragment_lib.getWithResolutionByBranch(cachedData.frag);
+              // console.log('_____resolveFrag_____', cachedData.frag)
+              // this.fragment_lib.displayFragTree(cachedData.frag)
+              // await new Promise(resolve => setTimeout(resolve, 1000));
+              dataDefraged = await this.fragment_lib.getWithResolutionByBranch(cachedData.frag,);
               // console.log('___dataDefraged', dataDefraged[0])
               // console.log('CACHE processId', processId);
               await this.duplicateFile(dataDefraged, processId, null);

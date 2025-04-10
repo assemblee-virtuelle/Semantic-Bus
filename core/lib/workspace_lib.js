@@ -425,6 +425,9 @@ function _cleanOldProcessByWorkflow(workflow) {
       for (let oldHistoriqueEnd of oldHistoriqueEnds) {
         if (oldHistoriqueEnd.frag != undefined) {
           try {
+            // console.log('oldHistoriqueEnd',oldHistoriqueEnd)
+              // await fragment_lib.displayFragTree(oldHistoriqueEnd.frag)
+              // await new Promise(resolve => setTimeout(resolve, 1000));
             // await fragment_lib.tagGarbage(oldHistoriqueEnd.frag);
             await fragment_lib.cleanFrag(oldHistoriqueEnd.frag)
           } catch (e) {

@@ -400,9 +400,15 @@ class Engine {
                     data,
                     ...dataResolution
                   } = componentFlow;
+
+                  // console.log('____frag persist when no input dependency_____DATA',data)
                   processingNode.dataResolution = dataResolution;
                   processingNode.status = 'resolved';
                   const frag = await fragment_lib.persist(data)
+
+                  // console.log('____frag persist when no input dependency_____FRAG', frag)
+                  // fragment_lib.displayFragTree(frag.id)
+                  // await new Promise(resolve => setTimeout(resolve, 1000));
 
                   await this.historicEndAndCredit(processingNode, startTime, frag, undefined)
 
@@ -583,6 +589,7 @@ class Engine {
   async buildDfobFragmentFlow(fragment, dfobOptions) {
     if (config.quietLog != true) console.time("buildDfobFragmentFlow_" + this.processId + '_' + this.workflow.name);
     const out = await fragment_lib.copyFragUntilPath(fragment, dfobOptions);
+    // console.log('out', out)
     if (config.quietLog != true) console.timeEnd("buildDfobFragmentFlow_" + this.processId + '_' + this.workflow.name);
     return out;
   }

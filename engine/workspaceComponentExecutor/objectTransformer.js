@@ -53,9 +53,14 @@ class ObjectTransformer {
           return;
         }
 
+        // fragment_lib.displayFragTree(inputFragment.id)
+        // await new Promise(resolve => setTimeout(resolve, 100));
+
         // Get data from fragment
         let rebuildDataRaw = await fragment_lib.getWithResolutionByBranch(inputFragment.id);
 
+        // console.log('____rebuildDataRaw____',rebuildDataRaw)  
+        // console.log('____inputDfob____',inputDfob)
         // Process the data with transformation
         const rebuildData = await DfobProcessor.processDfobFlow(
           rebuildDataRaw,

@@ -66,6 +66,7 @@ services:
       context: .
       dockerfile: ./engine/Dockerfile-alpine
     container_name: engine
+    restart: always
     environment:
         - APP_PORT=92
         - NODE_ENV=development_docker
@@ -87,7 +88,7 @@ services:
     depends_on:
         - scylla
         - rabbitmq
-    command: bash -c "/data/scripts/wait-for-it.sh rabbitmq:5672 -t 60 -- nodemon --watch /data/engine --watch /data/core --ignore configuration.js --max-old-space-size=8192 /data/engine/app.js"
+    command: bash -c "/data/scripts/wait-for-it.sh rabbitmq:5672 -t 60 -- nodemon --exitcrash --watch /data/engine --watch /data/core --ignore configuration.js --max-old-space-size=8192 /data/engine/app.js"
 
 
   main:
@@ -95,6 +96,7 @@ services:
       context: .
       dockerfile: ./main/Dockerfile-alpine
     container_name: main
+    restart: always
     image: semanticbus/main
     tty: true
     environment:
@@ -118,7 +120,7 @@ services:
         condition: service_started
       scylla:
         condition: service_healthy
-    command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "nodemon", "-L", "--watch", "/data/main/*",  "--watch", "/data/core/*",  "--ignore", "configuration.js", "--max-old-space-size=8192",  "/data/main/app.js"]
+    command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "nodemon", "-L","--exitcrash" ,"--watch", "/data/main/*",  "--watch", "/data/core/*",  "--ignore", "configuration.js", "--max-old-space-size=8192",  "/data/main/app.js"]
 
   rabbitmq:
     image: semanticbus/rabbitmq-stomp

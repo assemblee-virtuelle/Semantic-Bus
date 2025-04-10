@@ -107,10 +107,6 @@ class Filter {
         const inputDfob = flowData[0].dfob;
         const pathTable = [...inputDfob.dfobTable];
 
-
-
-
-
         // Parse filter string
         let filterString = data.specificData.filterString;
         let filter = JSON.parse(filterString);
@@ -134,7 +130,7 @@ class Filter {
               collection.insert(item);
             }
           });
-          rebuildData = this.filter(collection, filterResult, data);
+          rebuildData = await this.filter(collection, filterResult, data);
           db.removeCollection(collectionName);
           // console.log('___out', out);
         } else {

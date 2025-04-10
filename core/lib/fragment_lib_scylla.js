@@ -37,6 +37,8 @@ module.exports = {
 
     persist: async function (data, fragCaller, exitingFrag) {
 
+        // console.log('____persist____',fragCaller,exitingFrag)
+
         const model = this.fragmentModel.model;
         let fargToPersist = exitingFrag || new model({
             rootFrag: fragCaller?.rootFrag != undefined || fragCaller?.originFrag != undefined ? undefined : uuidv4(),
@@ -102,7 +104,7 @@ module.exports = {
         }
     },
 
-    createArrayFrag: async function (exitingFrag,omitPersist) {
+    createArrayFrag: async function (exitingFrag, omitPersist) {
 
         const model = this.fragmentModel.model;
         let arrayFrag = exitingFrag || new model({
@@ -112,9 +114,11 @@ module.exports = {
         arrayFrag.branchFrag = uuidv4();
         arrayFrag.maxIndex = 0;
         if (!omitPersist) {
+            // console.log('____createArrayFrag____',arrayFrag)
             const result = await this.fragmentModel.persistFragment(arrayFrag);
             return result;
         } else {
+
             return arrayFrag;
         }
     },
@@ -281,10 +285,10 @@ module.exports = {
                 if (Array.isArray(data)) {
                     let arrayDefrag = [];
                     for (let item of data) {
-                        let itemDefrag; 
-                        if (item?._frag) {   
+                        let itemDefrag;
+                        if (item?._frag) {
                             itemDefrag = await this.getWithResolutionByBranch(item._frag, options);
-                        }else{
+                        } else {
                             itemDefrag = await this.rebuildFragDataByBranch(item, options);
                         }
                         arrayDefrag.push(itemDefrag);
@@ -292,6 +296,7 @@ module.exports = {
                     return arrayDefrag;
                 } else {
                     for (let key in data) {
+                        // console.log('_____ key', key)
                         let callOptions = { ...options, pathTable: [options.pathTable] };
                         const firstPath = callOptions.pathTable?.[0];
                         let continueFragByPath = false;
@@ -308,6 +313,7 @@ module.exports = {
                         let valueOfkey;
                         // console.log('___data[key]',data,key, data[key]);
                         if (data[key]?._frag && continueFrag) {
+                            // console.log('_____ continue defrag', key, data[key]._frag)
                             valueOfkey = await this.getWithResolutionByBranch(data[key]._frag, callOptions);
                         } else {
                             valueOfkey = await this.rebuildFragDataByBranch(data[key], callOptions);
@@ -513,6 +519,19 @@ module.exports = {
     cleanFrag: async function (id) {
         if (uuidValidate(id)) {
             const targetFrag = await this.fragmentModel.getFragmentById(id);
+            // const children = await this.fragmentModel.searchFragmentByField({
+            //     originFrag: targetFrag.rootFrag
+            // });
+            // console.table(children.map(c=>{
+            //     return {
+            //         id: c.id,
+            //         branchFrag: c.branchFrag,
+            //         branchOriginFrag: c.branchOriginFrag,
+            //         originFrag: c.originFrag,
+            //         rootFrag: c.rootFrag
+            //     }
+            // }))
+
             await this.fragmentModel.deleteMany({
                 originFrag: targetFrag.rootFrag
             });
@@ -542,20 +561,21 @@ module.exports = {
     },
 
     // frag support fragId or frag object
-    copyFragUntilPath: async function (frag, dfobOptions = { dfobTable: [], keepArray: false, tableDepth: Infinity }, relativHistoryTable = [], callerFrag = undefined, tableDepthHistory=0) {
+    copyFragUntilPath: async function (frag, dfobOptions = { dfobTable: [], keepArray: false, tableDepth: Infinity }, relativHistoryTable = [], callerFrag = undefined, tableDepthHistory = 0) {
         if (!frag) {
             throw new Error('frag have to be set');
         }
         const isObjectFrag = frag instanceof this.fragmentModel.model;
         const model = this.fragmentModel.model;
         const fragToCopy = isObjectFrag ? frag : await this.fragmentModel.getFragmentById(frag);
-        
+
         // Extract options
         const dfobTable = dfobOptions.dfobTable || [];
         const keepArray = dfobOptions.keepArray || false;
         const tableDepth = dfobOptions.tableDepth || Infinity;
 
         if (fragToCopy.branchFrag) {
+
             const newFrag = new model({
                 id: undefined,
                 data: fragToCopy.data,
@@ -569,16 +589,20 @@ module.exports = {
                 garbageProcess: false
             })
             await this.fragmentModel.persistFragment(newFrag);
+
+            // console.log('__________');
+            // console.log('_____fragToCopy_____', fragToCopy);
+            // console.log('_____callerFrag_____', callerFrag);
+            // console.log('_____newFrag_____', newFrag);
+
+
             const fragleaves = await this.fragmentModel.searchFragmentByField({ branchOriginFrag: fragToCopy.branchFrag })
             let arrayOut = [];
             let fragmentSelected = [];
 
 
-
-
-
             for (let record of fragleaves) {
-                const processedData = await this.copyFragUntilPath(record.id, dfobOptions, relativHistoryTable, newFrag, tableDepthHistory+1);
+                const processedData = await this.copyFragUntilPath(record.id, dfobOptions, relativHistoryTable, newFrag, tableDepthHistory + 1);
                 arrayOut.push(processedData.data);
                 fragmentSelected = fragmentSelected.concat(processedData.dfobFragmentSelected);
             }
@@ -590,7 +614,7 @@ module.exports = {
                     relativDfobTable: []
                 }];
             }
-            if (tableDepthHistory == tableDepth && dfobTable.length == 0){
+            if (tableDepthHistory == tableDepth && dfobTable.length == 0) {
                 fragmentSelected = [{
                     frag: newFrag,
                     relativHistoryTableSelected: [],
@@ -605,7 +629,7 @@ module.exports = {
                 newFrag: newFrag
             };
         } else {
-            // console.log('___fragToCopy', fragToCopy.index)
+            
             const newFragRaw = {
                 data: fragToCopy.data,
                 originFrag: callerFrag ? callerFrag.originFrag || callerFrag.rootFrag : undefined,
@@ -619,7 +643,10 @@ module.exports = {
             let newFrag = new model(newFragRaw);
             const processedData = await this.copyDataUntilPath(newFrag.data, dfobOptions, relativHistoryTable, newFrag);
             newFrag.data = processedData.data;
+            // console.log('_____ newFrag_____', newFrag)
             await this.fragmentModel.persistFragment(newFrag);
+            // await this.displayFragTree(newFrag.id)  
+            // await new Promise(resolve => setTimeout(resolve, 100));
             const isDfobFragmentSelected = processedData.dfobFragmentSelected && processedData.dfobFragmentSelected.length > 0;
 
             return {
@@ -635,12 +662,12 @@ module.exports = {
             };
         }
     },
-    
+
     copyDataUntilPath: async function (data, dfobOptions = { dfobTable: [], keepArray: false }, relativHistoryTable = [], callerFrag) {
         // Extract options
         const dfobTable = dfobOptions.dfobTable || [];
         const keepArray = dfobOptions.keepArray || false;
-        
+
         if (data == undefined) {
             return {
                 data: undefined,
@@ -689,12 +716,14 @@ module.exports = {
                         dfobTableCurrent = [];
                     }
                     if (data[key] && data[key] != null && data[key]._frag) {
+                        
+                        const newDfobOptions = { dfobTable: dfobTableCopy, keepArray };
+                        const persitedFrag = await this.copyFragUntilPath(data[key]._frag, newDfobOptions, [], callerFrag)
+
+                        data[key] = {
+                            _frag: persitedFrag.newFrag.id.toString()
+                        };
                         if (dfobTableCurrent.length > 0) {
-                            const newDfobOptions = { dfobTable: dfobTableCopy, keepArray };
-                            const persitedFrag = await this.copyFragUntilPath(data[key]._frag, newDfobOptions, [], callerFrag)
-                            data[key] = {
-                                _frag: persitedFrag.newFrag.id.toString()
-                            };
                             if (persitedFrag.dfobFragmentSelected) {
                                 fragmentSelected = fragmentSelected.concat(persitedFrag.dfobFragmentSelected);
                             }
@@ -713,6 +742,7 @@ module.exports = {
                             relativHistoryTableSelected = relativHistoryTableCopy
                         }
                     }
+                    // console.log('_____ data_____', data)
                 }
                 return {
                     data,
@@ -725,6 +755,42 @@ module.exports = {
                 data,
                 relativHistoryTable
             };
+        }
+    },
+
+    displayFragTree: async function (id, depth = 0, key) {
+        const frag = await this.fragmentModel.getFragmentById(id);
+        const indent = ' '.repeat(depth * 4);
+        console.log(`${indent} - ${key} - frag - ${frag.id} - | ${frag.rootFrag} x ${frag.originFrag} |`);
+        if (frag.branchFrag) {
+            const children = await this.fragmentModel.searchFragmentByField({
+                branchOriginFrag: frag.branchFrag
+            });
+            for (let index in children) {
+                // console.log(`${indent} ${child.id}`);
+                await this.displayFragTree(children[index].id, depth + 1, index);
+            }
+        } else {
+            // console.log('frag',frag)
+            await this.displayDataTree(frag.data, depth + 1, key);
+        }
+    },
+
+    displayDataTree: async function (data, depth = 0, key) {
+        const indent = ' '.repeat(depth * 4);
+        console.log(`${indent} - ${key} - data - ${data}`);
+        if (Array.isArray(data)) {
+            for (let index in data) {
+                await this.displayDataTree(data[index], depth + 1, index);
+            }
+        } else if (data instanceof Object) {
+            for (let key in data) {
+                if (data[key]._frag) {
+                    await this.displayFragTree(data[key]._frag, depth + 1, key);
+                } else {
+                    await this.displayDataTree(data[key], depth + 1, key);
+                }
+            }
         }
     }
 };
