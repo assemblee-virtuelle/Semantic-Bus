@@ -35,8 +35,12 @@ services:
     expose:
       - "100"
     depends_on:
-        - mongodb
-        - rabbitmq
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      scylla:
+        condition: service_healthy
     command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "nodemon", "-L", "--watch", "/data/timer/*",  "--watch", "/data/core/*",  "--ignore", "configuration.js",  "/data/timer/app.js"]
 
   # engineV1:
@@ -86,9 +90,13 @@ services:
       - traefik.http.routers.engine.middlewares=strip-v2-segment
       - "traefik.http.services.engine.loadbalancer.server.port=92"
     depends_on:
-        - scylla
-        - rabbitmq
-    command: bash -c "/data/scripts/wait-for-it.sh rabbitmq:5672 -t 60 -- nodemon --exitcrash --watch /data/engine --watch /data/core --ignore configuration.js --max-old-space-size=8192 /data/engine/app.js"
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      scylla:
+        condition: service_healthy
+    command: bash -c "nodemon --exitcrash --watch /data/engine --watch /data/core --ignore configuration.js --max-old-space-size=8192 /data/engine/app.js"
 
 
   main:
@@ -115,12 +123,12 @@ services:
       - "80"
     depends_on:
       mongodb:
-        condition: service_started
+        condition: service_healthy
       rabbitmq:
-        condition: service_started
+        condition: service_healthy
       scylla:
         condition: service_healthy
-    command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "nodemon", "-L","--exitcrash" ,"--watch", "/data/main/*",  "--watch", "/data/core/*",  "--ignore", "configuration.js", "--max-old-space-size=8192",  "/data/main/app.js"]
+    command: ["nodemon", "-L","--exitcrash" ,"--watch", "/data/main/*",  "--watch", "/data/core/*",  "--ignore", "configuration.js", "--max-old-space-size=8192",  "/data/main/app.js"]
 
   rabbitmq:
     image: semanticbus/rabbitmq-stomp
@@ -131,6 +139,11 @@ services:
       - 15672:15672
     networks:
       - bus
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "list_connections"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
 
   mongodb:
     image: mongo:4.0.6
@@ -144,20 +157,30 @@ services:
     volumes:
       - data:/data/db
     command: --smallfiles
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
 
-  mongodb_flow:
-    image: mongo:7.0.11 # Fixer la version de l'image
-    container_name: mongodb_flow
-    networks:
-      - bus
-    ports:
-      - "27018:27017"
-    expose:
-      - "27017"
-    volumes:
-      - data_flow:/data/db
-    command: >
-      mongod --wiredTigerCacheSizeGB 2
+  # mongodb_flow:
+  #   image: mongo:7.0.11 # Fixer la version de l'image
+  #   container_name: mongodb_flow
+  #   networks:
+  #     - bus
+  #   ports:
+  #     - "27018:27017"
+  #   expose:
+  #     - "27017"
+  #   volumes:
+  #     - data_flow:/data/db
+  #   command: >
+  #     mongod --wiredTigerCacheSizeGB 2
+  #   healthcheck:
+  #     test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+  #     interval: 15s
+  #     timeout: 10s
+  #     retries: 10
 
   scylla:
     image: scylladb/scylla:latest
@@ -187,19 +210,19 @@ services:
       interval: 15s
       timeout: 10s
       retries: 10
-  # Nouveau service pour charger le keyspace
-  scylla-load-keyspace:
-    container_name: scylla-load-keyspace
-    image: scylladb/scylla:latest
-    depends_on:
-      scylla:
-        condition: service_healthy
-    networks:
-      - bus
-    entrypoint: ["/scylla-entrypoint.sh"]
-    volumes:
-      - ./init-scripts/scylla-initdb.cql:/scylla-initdb.cql
-      - ./init-scripts/scylla-entrypoint.sh:/scylla-entrypoint.sh
+  # service pour charger le keyspace
+  # scylla-load-keyspace:
+  #   container_name: scylla-load-keyspace
+  #   image: scylladb/scylla:latest
+  #   depends_on:
+  #     scylla:
+  #       condition: service_healthy
+  #   networks:
+  #     - bus
+  #   entrypoint: ["/scylla-entrypoint.sh"]
+  #   volumes:
+  #     - ./init-scripts/scylla-initdb.cql:/scylla-initdb.cql
+  #     - ./init-scripts/scylla-entrypoint.sh:/scylla-entrypoint.sh
 volumes:
   data:
   data_flow:

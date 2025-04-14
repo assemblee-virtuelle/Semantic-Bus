@@ -3,9 +3,9 @@ var workspaceComponentModel = require('../models/workspace_component_model');
 var workspaceModel = require('../models/workspace_model');
 var historiqueEndModel = require("../models/historiqueEnd_model");
 var sift = require('sift').default;
-var fragment_lib = require('./fragment_lib.js');
+// var fragment_lib = require('./fragment_lib.js');
 const Error = require('../helpers/error.js');
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
