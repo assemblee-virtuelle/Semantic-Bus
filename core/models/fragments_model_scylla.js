@@ -3,6 +3,7 @@ const zlib = require('zlib');
 const Fragment = require('../model_schemas/fragments_schema_scylla');
 const { validate: uuidValidate } = require('uuid');
 const Spinnies = require('spinnies');
+const spinnies = new Spinnies();
 
 // Helper function to compress data
 const compressData = (data) => {
@@ -31,9 +32,9 @@ const processFragmentRead = (fragmentData) => {
   processedFragment.id = processedFragment.id.toString();
   processedFragment.rootFrag = processedFragment?.rootFrag?.toString();
   processedFragment.branchOriginFrag = processedFragment?.branchOriginFrag?.toString();
-  processedFragment.branchFrag = processedFragment?.branchFrag?.toString(); 
-  processedFragment.originFrag = processedFragment?.originFrag?.toString(); 
-  
+  processedFragment.branchFrag = processedFragment?.branchFrag?.toString();
+  processedFragment.originFrag = processedFragment?.originFrag?.toString();
+
 
   return processedFragment;
 };
@@ -96,7 +97,7 @@ const updateFragment = async (fragment) => {
   `;
 
   const updatedFields = [
-    processedFragment.data!=undefined ? processedFragment.data : null,
+    processedFragment.data != undefined ? processedFragment.data : null,
     processedFragment.originFrag !== undefined ? processedFragment.originFrag : null,
     processedFragment.rootFrag !== undefined ? processedFragment.rootFrag : null,
     processedFragment.branchOriginFrag !== undefined ? processedFragment.branchOriginFrag : null,
@@ -150,12 +151,12 @@ const getFragmentById = async (id) => {
 // Mise à jour de searchFragmentByField
 const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, selectedFields = {}, limit = Infinity, callback = null) => {
   // Traitement des critères et options
-  searchCriteria = processCriteriaAndOptions(searchCriteria); 
+  searchCriteria = processCriteriaAndOptions(searchCriteria);
   selectedFields = processCriteriaAndOptions(selectedFields);
   // sortOptions = processCriteriaAndOptions(sortOptions); 
 
   const fieldNames = Object.keys(searchCriteria);
-  
+
   const whereClauses = fieldNames.map(field => {
     if (Array.isArray(searchCriteria[field])) {
       return `${field} IN (${searchCriteria[field].map(() => '?').join(', ')})`;
@@ -182,16 +183,16 @@ const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, sele
           const aValue = a[key] !== undefined ? a[key] : Number.MAX_SAFE_INTEGER; // Place undefined at the end
           const bValue = b[key] !== undefined ? b[key] : Number.MAX_SAFE_INTEGER; // Place undefined at the end
 
-          if (aValue < bValue){
-            compare = orderLower === 'asc' ? -1 : 1 ;
+          if (aValue < bValue) {
+            compare = orderLower === 'asc' ? -1 : 1;
             break;
-          } else if (aValue > bValue){
+          } else if (aValue > bValue) {
             compare = orderLower === 'asc' ? 1 : -1;
             break;
           }
         }
-        
-        compare=compare||0;
+
+        compare = compare || 0;
         return compare;
       });
     }
@@ -210,83 +211,84 @@ const updateMultipleFragments = async (searchCriteria, updateFields, showSpinner
   const values = fields.map(field => updateFieldsProcessed[field]);
   const setClause = fields.map(field => `${field} = ?`).join(', ');
 
-  // Récupérer les fragments à mettre à jour
-  const fragmentsToUpdate = await searchFragmentByField(searchCriteriaProcessed, null, { id: 1 });
-  // console.log('fragmentsToUpdate', fragmentsToUpdate)
-  const idsToUpdate = fragmentsToUpdate.map(fragment => fragment.id);
-
-  // console.log('idsToUpdate', idsToUpdate)
-
-  if (idsToUpdate.length === 0) return; 
-
-  // Diviser les IDs en lots de 100
-  const batchSize = 100;
+  let count = 0;
 
   if (showSpinner) {
     spinnies.add('update', { text: 'Updating fragments...' });
   }
 
-  for (let i = 0; i < idsToUpdate.length; i += batchSize) {
-    const batchIds = idsToUpdate.slice(i, i + batchSize);
-    const whereClause = `id IN (${batchIds.map(() => '?').join(', ')})`;
-    const query = `UPDATE fragment SET ${setClause} WHERE ${whereClause}`;
-    const queryValues = [...values, ...batchIds];
-
-    // Exécuter chaque mise à jour de lot une par une
-    const result = await client.execute(query, queryValues, { prepare: true });
-
-    // Mettre à jour le spinner avec la progression
+  await searchFragmentByField(searchCriteriaProcessed, null, { id: 1 }, undefined, async (rows) => {
+    count += rows.length;
     if (showSpinner) {
-      spinnies.update('update', { text: `Updating fragments... (${Math.min(i + batchSize, idsToUpdate.length)}/${idsToUpdate.length})` });
+      spinnies.update('update', { text: `Updating fragments... (${count})` });
     }
-  }
+
+    const idsToUpdate = rows.map(fragment => fragment.id);
+    const whereClause = `id IN (${idsToUpdate.map(() => '?').join(', ')})`;
+    const query = `UPDATE fragment SET ${setClause} WHERE ${whereClause}`;
+    const queryValues = [...values, ...idsToUpdate];
+    await client.execute(query, queryValues, { prepare: true });
+
+  });
 
   if (showSpinner) {
     spinnies.succeed('update', { text: 'Fragments updated successfully!' });
   }
 };
 
-const deleteManyFragments = async (searchCriteria) => {
+const deleteManyFragments = async (searchCriteria, showSpinner = false) => {
   searchCriteria = processCriteriaAndOptions(searchCriteria);
-  const itemsToDelete = await searchFragmentByField(searchCriteria, undefined, { id: 1 });
-  const idsToDelete = itemsToDelete.map(fragment => fragment.id);
-  if (idsToDelete.length === 0) return; 
-
-  // Diviser les IDs en lots de 100
-  const batchSize = 100;
-  for (let i = 0; i < idsToDelete.length; i += batchSize) {
-    const batchIds = idsToDelete.slice(i, i + batchSize);
+  let count = 0;
+  if (showSpinner) {
+    spinnies.add('delete', { text: 'Deleting fragments...' });
+  }
+  await searchFragmentByField(searchCriteria, undefined, { id: 1 }, undefined, async (rows) => {
+    count += rows.length;
+    if (showSpinner) {
+      spinnies.update('delete', { text: `Deleting fragments... (${count})` });
+    }
+    const batchIds = rows.map(fragment => fragment.id);
     const whereClause = `id IN (${batchIds.map(() => '?').join(', ')})`;
     const query = `DELETE FROM fragment WHERE ${whereClause}`;
-    await client.execute(query, batchIds, { prepare: true }); // Exécuter chaque suppression de lot une par une
-  }
+    await client.execute(query, batchIds, { prepare: true });
+  });
 
+  if (showSpinner) {
+    spinnies.succeed('delete', { text: 'Fragments deleted successfully!' });
+  }
 };
 
 const countDocuments = async (searchCriteria) => {
-  const ids = await searchFragmentByField(searchCriteria, undefined, { id: 1 }); // Sélectionne uniquement les IDs
-  return ids.length; // Retourne le nombre d'IDs trouvés
+  let count = 0;
+  await searchFragmentByField(searchCriteria, undefined, { id: 1 }, undefined, async (rows) => {
+    count = rows.length;
+  });
+  return count; // Retourne le nombre d'IDs trouvés
 };
 
 const getAllFragments = async (query, params, limit = Infinity, callback = null) => {
   let allRows = [];
-  let pageCount = 0; // Initialisation du compteur de pages
+  let pageCount = 0;
   let result;
+  const pageSize = 100; // Maximum page size
 
   do {
-    pageCount++; // Incrémentation du compteur de pages
-    result = await client.execute(query, params, { prepare: true, pageState: result?.pageState });
+    pageCount++;
+    result = await client.execute(query, params, { 
+      prepare: true, 
+      pageState: result?.pageState,
+      fetchSize: pageSize // Add page size limit
+    });
 
     if (callback) {
       const processedRows = result.rows.map(row => processFragmentRead(row));
-      await callback(processedRows); // Appeler le callback avec tous les rows de la page
+      await callback(processedRows);
     } else {
       allRows = allRows.concat(result.rows);
     }
 
-    // Arrêter la pagination si la limite est atteinte, sauf si la limite est Infinity
     if (limit !== Infinity && allRows.length >= limit) {
-      allRows = allRows.slice(0, limit); // S'assurer que le nombre de lignes ne dépasse pas la limite
+      allRows = allRows.slice(0, limit);
       break;
     }
   } while (result.pageState);

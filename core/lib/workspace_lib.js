@@ -183,7 +183,7 @@ function _cleanGarbage() {
       console.log('-------- START normal clean fragment garbage');
       await fragmentModel.deleteManyFragments({
         garbageTag: true
-      });
+      },true);
       console.log('-------- END normal clean fragment garbage');
     } catch (e) {
       reject(new Error.DataBaseProcessError(e));
@@ -206,8 +206,8 @@ function _cleanGarbageForgotten() {
       const processGarbageId = Math.floor(Math.random() * 10000);
       // const processGarbageId = 777;
 
-      const count = await fragmentModel.countDocuments({});
-      console.log('--- start tag all fragment as garbage', count);
+      // const count = await fragmentModel.countDocuments({});
+      console.log('--- start tag all fragment as garbage');
       await fragmentModel.updateMultipleFragments({}, { garbageProcess: processGarbageId },true);
       console.log('--- end tag all fragment as garbage');
       for (var workflow of workspaces) {
@@ -264,11 +264,11 @@ function _cleanGarbageForgotten() {
 
       }
 
-      const totalFragmentsBeforeDeletion = await fragmentModel.countDocuments({
-        garbageProcess: processGarbageId
-      });
+      // const totalFragmentsBeforeDeletion = await fragmentModel.countDocuments({
+      //   garbageProcess: processGarbageId
+      // });
 
-      console.log(`--- START total fragment garbage collector : ${totalFragmentsBeforeDeletion} fragments`);
+      console.log(`--- START total fragment garbage collector`);
       await fragmentModel.deleteManyFragments({
         garbageProcess: processGarbageId
       },true)
