@@ -75,7 +75,11 @@ module.exports = {
               // console.log('_____resolveFrag_____', cachedData.frag)
               // this.fragment_lib.displayFragTree(cachedData.frag)
               // await new Promise(resolve => setTimeout(resolve, 1000));
-              dataDefraged = await this.fragment_lib.getWithResolutionByBranch(cachedData.frag,);
+              try{
+                dataDefraged = await this.fragment_lib.getWithResolutionByBranch(cachedData.frag,);
+              }catch(e){
+                console.log('reding cache', e)
+              }
               // console.log('___dataDefraged', dataDefraged[0])
               // console.log('CACHE processId', processId);
               await this.duplicateFile(dataDefraged, processId, null);
