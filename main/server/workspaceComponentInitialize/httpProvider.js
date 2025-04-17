@@ -52,6 +52,7 @@ class HttpProvider {
       if (responseComponentId == messageObject.componentId) {
         const dataResponse = await this.fragment_lib.getWithResolutionByBranch(messageObject.frag);
         if (pendingWork?.component?.specificData.responseWithoutExecution != true) {
+          console.log('___dataResponse', dataResponse)
           this.sendResult(pendingWork?.component, dataResponse, pendingWork.res);
         }
       }

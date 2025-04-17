@@ -23,14 +23,14 @@ class Slice {
                     result = undefined;
                 }
                 else {
-                    console.log('usableData',usableData.length,startIndex,endIndex)
+                    // console.log('usableData',usableData.length,startIndex,endIndex)
                     if (Array.isArray(usableData)){
                         result = usableData.slice(startIndex,endIndex);
                     }
                     else{
                         throw new Error("Data are not an array structure.")
                     }
-                    console.log('result',result.length)
+                    // console.log('result',result.length)
                 }
                 resolve({
                     data: result

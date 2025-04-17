@@ -134,7 +134,7 @@ class Engine {
   }
 
   processNextBuildPath() {
-    setTimeout(this.processNextBuildPathDelayed.bind(this), 100)
+    setTimeout(this.processNextBuildPathDelayed.bind(this), 10)
   }
 
   async processNextBuildPathDelayed(owner) {
@@ -299,6 +299,7 @@ class Engine {
                     componentFlow.primaryflow.fragment,
                     { dfobTable: dfobTab, keepArray, tableDepth },
                   )
+                  // console.log('____dfobFragmentFlow', dfobFragmentFlow)
 
                   const newFrag = dfobFragmentFlow.newFrag;
                   let dfobFragmentSelected = dfobFragmentFlow.dfobFragmentSelected;
@@ -312,6 +313,9 @@ class Engine {
                     await this.historicEndAndCredit(processingNode, startTime, newFrag, undefined)
                     this.processNextBuildPath('dfob empty')
                   } else {
+                    // for (const df of dfobFragmentSelected) {
+                    //   await fragment_lib.displayFragTree(df.frag.id)
+                    // }
                     const secondaryFlowDefraged = [];
                     if (!module.workWithFragments) {
                       if (config.quietLog != true) console.time("secondary_getWithResolutionByBranch" + '_' + this.processId + '_' + this.workflow.name);
@@ -329,10 +333,11 @@ class Engine {
                     if (config.quietLog != true) console.time("rebuildFrag_focus_work_persist" + '_' + this.processId + '_' + this.workflow.name);
                     try {
                       let dfob = undefined;
-                      let paramArray = dfobFragmentSelected.map(item => {
+                      let paramArray = dfobFragmentSelected.map((item) => {
+                        
                         return [
                           processingNode,
-                          item.frag,
+                          item.frag,  
                           { dfobTable: item.relativDfobTable || [], pipeNb, keepArray },
                           componentFlow.primaryflow,
                           secondaryFlowDefraged,
@@ -603,7 +608,6 @@ class Engine {
 
     if (!workWithFragments) {
       try {
-
         rebuildData = await fragment_lib.getWithResolutionByBranch(fragment.id);
         dfob = undefined;
 

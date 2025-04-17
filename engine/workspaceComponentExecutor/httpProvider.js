@@ -9,7 +9,7 @@ class HttpProvider {
   }
   pull (data, flowData, pullParams) {
     return new Promise((resolve, reject) => {
-      // console.log('flowData',flowData);
+      // console.log('__flowData',flowData[0].data);
       if(flowData && flowData[0]){
         resolve({data:flowData[0].data})
       } else if (pullParams) {

@@ -7,14 +7,36 @@ const spinnies = new Spinnies();
 
 // Helper function to compress data
 const compressData = (data) => {
-  if (!data) return null;
-  return zlib.deflateSync(Buffer.from(JSON.stringify(data), 'utf-8'));
+  // if (data === undefined || data === null) return null;
+  // Cas spécial pour une chaîne vide - nous pouvons utiliser un marqueur spécial
+
+  // console.log('___data', JSON.stringify(data)) 
+  if (data === ''){
+    return Buffer.from('__EMPTY_STRING__');
+  } else if (data === undefined){
+    return Buffer.from('__UNDEFINED__');
+  } else if (data === null){
+    return Buffer.from('__NULL__');
+  } else { 
+    return zlib.deflateSync(Buffer.from(JSON.stringify(data), 'utf-8'));
+  }
 };
 
 // Helper function to decompress data
 const decompressData = (compressedData) => {
-  if (!compressedData) return null;
-  return JSON.parse(zlib.inflateSync(compressedData).toString('utf-8'));
+  // Vérifier si c'est notre marqueur de chaîne vide
+  let output;
+  if (compressedData.toString() === '__EMPTY_STRING__'){
+    output = '';
+  } else if (compressedData.toString() === '__UNDEFINED__'){
+    output = undefined;
+  } else if (compressedData.toString() === '__NULL__'){
+    output = null;
+  } else {
+    output = JSON.parse(zlib.inflateSync(compressedData).toString('utf-8'));
+  }
+  // console.log('___output', JSON.stringify(output))
+  return output;
 };
 
 // Function to process a fragment for reading
@@ -41,11 +63,12 @@ const processFragmentRead = (fragmentData) => {
 
 // Function to process a fragment for writing
 const processFragmentWrite = (fragment) => {
+  
   const processedFragment = { ...fragment };
 
-  if (fragment?.data) {
-    processedFragment.data = compressData(fragment.data);
-  }
+  // console.log('___ update fragment', JSON.stringify(fragment))
+  processedFragment.data = compressData(fragment.data);
+  
 
   processedFragment.id = fragment?.id?.toString(); // Ensure id is a string
   return processedFragment;
@@ -88,7 +111,6 @@ const insertFragment = async (fragment) => {
 };
 
 const updateFragment = async (fragment) => {
-
   const processedFragment = processFragmentWrite(fragment);
   const query = `
     UPDATE fragment 
@@ -97,18 +119,17 @@ const updateFragment = async (fragment) => {
   `;
 
   const updatedFields = [
-    processedFragment.data != undefined ? processedFragment.data : null,
+    processedFragment.data,
     processedFragment.originFrag !== undefined ? processedFragment.originFrag : null,
     processedFragment.rootFrag !== undefined ? processedFragment.rootFrag : null,
     processedFragment.branchOriginFrag !== undefined ? processedFragment.branchOriginFrag : null,
     processedFragment.branchFrag !== undefined ? processedFragment.branchFrag : null,
     processedFragment.garbageTag !== undefined ? processedFragment.garbageTag : null,
     processedFragment.garbageProcess !== undefined ? processedFragment.garbageProcess : null,
-    processedFragment.index !== undefined ? processedFragment.index : null, // Changement de index en indexArray
-    processedFragment.maxIndex !== undefined ? processedFragment.maxIndex : null, // Ajout de maxIndex
+    processedFragment.index !== undefined ? processedFragment.index : null,
+    processedFragment.maxIndex !== undefined ? processedFragment.maxIndex : null,
     processedFragment.id
   ];
-
 
   const result = await client.execute(query, updatedFields, { prepare: true });
   return processFragmentRead(processedFragment);
@@ -116,7 +137,7 @@ const updateFragment = async (fragment) => {
 
 const persistFragment = async (fragment) => {
   try {
-
+    console.log('___persistFragment')
     const existingFragment = await getFragmentById(fragment.id);
 
     return await updateFragment(fragment);

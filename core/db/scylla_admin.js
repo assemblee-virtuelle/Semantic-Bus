@@ -1,35 +1,7 @@
 const client = require('./scylla_client');
 
 const createFileTable = async () => {
-  // Check and create keyspace if it doesn't exist
-  const checkKeyspaceQuery = `
-    SELECT keyspace_name 
-    FROM system_schema.keyspaces 
-    WHERE keyspace_name = 'mykeyspace'
-  `;
 
-  const createKeyspaceQuery = `
-    CREATE KEYSPACE IF NOT EXISTS mykeyspace
-    WITH replication = {
-      'class': 'SimpleStrategy',
-      'replication_factor': 1
-    }
-  `;
-
-  try {
-    // Check if keyspace exists
-    const keyspaceExistsResult = await client.execute(checkKeyspaceQuery);
-    if (keyspaceExistsResult.rowLength === 0) {
-      console.log('Creating mykeyspace...');
-      await client.execute(createKeyspaceQuery);
-      console.log('mykeyspace created successfully');
-    }
-  } catch (err) {
-    console.error('Error checking/creating keyspace:', err);
-    throw err;
-  }
-
-  // Vérifier l'existence de la table
   const checkTableExistsQuery = `
     SELECT table_name 
     FROM system_schema.tables 

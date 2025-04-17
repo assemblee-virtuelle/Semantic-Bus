@@ -9,8 +9,8 @@ const isObject = require('isobject');
  * @returns {boolean} True if the value is a literal, false otherwise
  */
 function isLiteral(data) {
-  return (data == null ||
-    data == undefined ||
+  return (data === null ||
+    data === undefined ||
     (typeof data) == 'function' ||
     uuidValidate(data) ||
     (data?.constructor?.name == 'Buffer') ||

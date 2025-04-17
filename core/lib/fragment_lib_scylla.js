@@ -47,7 +47,11 @@ module.exports = {
 
         if (isLiteral(data)) {
             fargToPersist.data = data;
-            return await this.fragmentModel.persistFragment(fargToPersist);
+            if(exitingFrag){    
+                return await this.fragmentModel.updateFragment(fargToPersist);
+            } else {
+                return await this.fragmentModel.insertFragment(fargToPersist);
+            }
         } else if (Array.isArray(data)) {
 
             if (this.testFragArray(data)) {
@@ -74,13 +78,21 @@ module.exports = {
                 }
                 fargToPersist.data = arrayReadyToPersit;
                 fargToPersist.branchFrag = undefined;
-                return await this.fragmentModel.persistFragment(fargToPersist);
+                if(exitingFrag){
+                    return await this.fragmentModel.updateFragment(fargToPersist);
+                } else {
+                    return await this.fragmentModel.insertFragment(fargToPersist);
+                }
             }
         } else {
             const objectData = await this.persistObject(data, fargToPersist)
             fargToPersist.data = objectData;
             fargToPersist.branchFrag = undefined;
-            return await this.fragmentModel.persistFragment(fargToPersist);
+            if(exitingFrag){    
+                return await this.fragmentModel.updateFragment(fargToPersist);
+            } else {
+                return await this.fragmentModel.insertFragment(fargToPersist);
+            }
         }
     },
 
@@ -114,8 +126,11 @@ module.exports = {
         arrayFrag.branchFrag = uuidv4();
         arrayFrag.maxIndex = 0;
         if (!omitPersist) {
-            // console.log('____createArrayFrag____',arrayFrag)
-            const result = await this.fragmentModel.persistFragment(arrayFrag);
+            let result;
+
+
+            result = await this.fragmentModel.insertFragment(arrayFrag);
+            
             return result;
         } else {
 
@@ -123,7 +138,7 @@ module.exports = {
         }
     },
     //call without index not support parallel calls (PromiseOrchestrator for ex)
-    addFragToArrayFrag: async function (frag, arrayFrag, index) {
+    addFragToArrayFrag: async function (frag, arrayFrag, index, callbackBeforePersist = null) {
         const model = this.fragmentModel.model;
         let fragObject;
         if (!frag) {
@@ -139,17 +154,34 @@ module.exports = {
         if (index != undefined) {
             // console.log('___addFragToArrayFrag index', index)
             fragObject.index = index;
-            return await this.fragmentModel.persistFragment(fragObject);
+            if (callbackBeforePersist) {
+                fragObject = await callbackBeforePersist(fragObject);
+            }
+            if(!frag){
+                return await this.fragmentModel.insertFragment(fragObject);
+            } else {
+                return await this.fragmentModel.updateFragment(fragObject);
+            }
         } else {
             fragObject.index = arrayFrag.maxIndex + 1;
             arrayFrag.maxIndex = fragObject.index;
-            await this.fragmentModel.persistFragment(arrayFrag);
-            return await this.fragmentModel.persistFragment(fragObject);
+            await this.fragmentModel.updateFragment(arrayFrag);
+            if (callbackBeforePersist) {
+                fragObject = await callbackBeforePersist(arrayFrag);
+            }
+            if(!frag){
+                return await this.fragmentModel.insertFragment(fragObject);
+            } else {
+                return await this.fragmentModel.updateFragment(fragObject);
+            }
         }
     },
     addDataToArrayFrag: async function (data, arrayFrag, index) {
-        const emptyFrag = await this.addFragToArrayFrag(undefined, arrayFrag, index)
-        const frag = await this.persist(data, arrayFrag, emptyFrag)
+        const emptyFrag = await this.addFragToArrayFrag(undefined, arrayFrag, index, (frag) => {
+            frag.data = data;
+            return frag;
+        })
+        // const frag = await this.persist(data, arrayFrag, emptyFrag)
 
     },
     createRootArrayFragFromFrags: async function (frags) {
@@ -249,8 +281,8 @@ module.exports = {
             }
 
         } else {
-
-            return await this.rebuildFragDataByBranch(fragToResolve.data, options);
+            const data = await this.rebuildFragDataByBranch(fragToResolve.data, options);
+            return data;
         }
     },
 
@@ -277,9 +309,7 @@ module.exports = {
             }
         }
         else {
-            if (data == null) {
-                return null;
-            } else if (isLiteral(data)) {
+            if (isLiteral(data)) {
                 return data;
             } else if (data instanceof Object) {
                 if (Array.isArray(data)) {
@@ -588,7 +618,7 @@ module.exports = {
                 branchOriginFrag: callerFrag ? callerFrag.branchFrag : undefined,
                 garbageProcess: false
             })
-            await this.fragmentModel.persistFragment(newFrag);
+            await this.fragmentModel.insertFragment(newFrag);
 
             // console.log('__________');
             // console.log('_____fragToCopy_____', fragToCopy);
@@ -643,8 +673,7 @@ module.exports = {
             let newFrag = new model(newFragRaw);
             const processedData = await this.copyDataUntilPath(newFrag.data, dfobOptions, relativHistoryTable, newFrag);
             newFrag.data = processedData.data;
-            // console.log('_____ newFrag_____', newFrag)
-            await this.fragmentModel.persistFragment(newFrag);
+            await this.fragmentModel.insertFragment(newFrag);
             // await this.displayFragTree(newFrag.id)  
             // await new Promise(resolve => setTimeout(resolve, 100));
             const isDfobFragmentSelected = processedData.dfobFragmentSelected && processedData.dfobFragmentSelected.length > 0;
@@ -692,7 +721,9 @@ module.exports = {
                     const processedData = await this.copyDataUntilPath(item, dfobOptions, relativHistoryTable);
                     let itemDefrag = processedData.data;
                     arrayDefrag.push(itemDefrag);
-                    fragmentSelected = fragmentSelected.concat(processedData.dfobFragmentSelected);
+                    if(dfobTable.length > 0 && processedData.dfobFragmentSelected){
+                        fragmentSelected = fragmentSelected.concat(processedData.dfobFragmentSelected);
+                    }
                     relativHistoryTableSelected = processedData.relativHistoryTableSelected?.length > relativHistoryTableSelected ? processedData.relativHistoryTableSelected : relativHistoryTableSelected;
                 }
                 return {
@@ -733,6 +764,7 @@ module.exports = {
                         const processedData = await this.copyDataUntilPath(data[key], newDfobOptions, relativHistoryTableCopy, callerFrag);
                         data[key] = processedData.data;
                         if (processedData.dfobFragmentSelected) {
+                            // console.log('____processedData.dfobFragmentSelected', key, data[key], processedData.dfobFragmentSelected)
                             fragmentSelected = fragmentSelected.concat(processedData.dfobFragmentSelected)
                         }
                         if (processedData?.relativHistoryTableSelected?.length > relativHistoryTableSelected.length) {
@@ -742,8 +774,10 @@ module.exports = {
                             relativHistoryTableSelected = relativHistoryTableCopy
                         }
                     }
+
                     // console.log('_____ data_____', data)
                 }
+                // console.log('____fragmentSelected in copyDataUntilPath', fragmentSelected)
                 return {
                     data,
                     relativHistoryTableSelected: relativHistoryTableSelected,

@@ -81,6 +81,7 @@ class JoinByField {
   }
 
   joinWithLoki(item, collection, data) {
+    // console.log('joining with loki', item, collection, data)
     return new Promise(async (resolve, reject) => {
       try {
         if (item[data.specificData.primaryFlowFKId] == undefined) {
@@ -111,7 +112,9 @@ class JoinByField {
                 let filter = {
                   [data.specificData.secondaryFlowId]: primaryValue
                 };
+                // console.log('filter', filter)
                 let results = collection.find(filter);
+                // console.log('results', results)
                 results = results.map(r=>{delete r.$loki; return r})
                 item[data.specificData.primaryFlowFKName] = data.specificData.multipleJoin ? results : results[0];
               }
@@ -132,7 +135,13 @@ class JoinByField {
 
   joinWithLokiSupportingArray(item, collection, data,) {
     if (Array.isArray(item)) {
-      return item.map(i => this.joinWithLoki(i, collection, data));
+      return  new Promise(async (resolve, reject) => {  
+        let resultArray = []; 
+        for(let i = 0; i < item.length; i++){
+          resultArray.push(await this.joinWithLoki(item[i], collection, data))
+        } 
+        resolve(resultArray);
+      })
     } else {
       return this.joinWithLoki(item, collection, data);
     }
@@ -148,8 +157,8 @@ class JoinByField {
   workWithFragments(data, flowData, pullParams, processId) {
     return new Promise(async (resolve, reject) => {
       try {
-        lo
         const secondaryFlowByConnection = flowData.find(f => f.targetInput == 'second');
+        // console.log('____secondaryFlowByConnection', secondaryFlowByConnection)
         let secondaryFlowFragment;
         let primaryFlowFragment;
         let primaryFlowDfob;
@@ -174,7 +183,6 @@ class JoinByField {
 
         if (!collection) {
           collection = db.addCollection(collectionName, { indices: [data.specificData.secondaryFlowId] , disableMeta:true});
-
           await fragment_lib.getWithResolutionByBranch(secondaryFlowFragment, {
             deeperFocusActivated: true,
             pathTable: [],
@@ -191,7 +199,7 @@ class JoinByField {
         let rebuildDataRaw = await fragment_lib.getWithResolutionByBranch(primaryFlowFragment.id, {
           pathTable: primaryFlowDfob.dfobTable
         });
-
+        // console.log('rebuilding data', rebuildDataRaw)
         const rebuildData = await DfobProcessor.processDfobFlow(
           rebuildDataRaw,
           { pipeNb: primaryFlowDfob.pipeNb, dfobTable: primaryFlowDfob.dfobTable, keepArray: primaryFlowDfob.keepArray },
@@ -204,7 +212,6 @@ class JoinByField {
             return true;
           }
         )
-        // console.log('____rebuildData',rebuildData);
 
         await fragment_lib.persist(rebuildData, undefined, primaryFlowFragment);
         resolve();

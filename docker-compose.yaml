@@ -210,19 +210,18 @@ services:
       interval: 15s
       timeout: 10s
       retries: 10
-  # service pour charger le keyspace
-  # scylla-load-keyspace:
-  #   container_name: scylla-load-keyspace
-  #   image: scylladb/scylla:latest
-  #   depends_on:
-  #     scylla:
-  #       condition: service_healthy
-  #   networks:
-  #     - bus
-  #   entrypoint: ["/scylla-entrypoint.sh"]
-  #   volumes:
-  #     - ./init-scripts/scylla-initdb.cql:/scylla-initdb.cql
-  #     - ./init-scripts/scylla-entrypoint.sh:/scylla-entrypoint.sh
+  scylla-load-keyspace:
+    container_name: scylla-load-keyspace
+    image: scylladb/scylla:latest
+    depends_on:
+      scylla:
+        condition: service_healthy
+    networks:
+      - bus
+    entrypoint: ["/scylla-entrypoint.sh"]
+    volumes:
+      - ./init-scripts/scylla-initdb.cql:/scylla-initdb.cql
+      - ./init-scripts/scylla-entrypoint.sh:/scylla-entrypoint.sh
 volumes:
   data:
   data_flow:
