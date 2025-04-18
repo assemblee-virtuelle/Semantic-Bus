@@ -1,4 +1,8 @@
 'use strict';
+const fragment_lib = require('../../core/lib/fragment_lib_scylla.js');
+const DfobProcessor = require('../../core/helpers/dfobProcessor.js');
+
+
 class SftpConsumer {
   constructor() {
     this.sftpClient = require('ssh2-sftp-client');
@@ -7,7 +11,6 @@ class SftpConsumer {
     this.stringReplacer = require('../utils/stringReplacer.js');
     this.fileLib = require('../../core/lib/file_lib_scylla.js');
     this.File = require('../../core/model_schemas/file_schema_scylla.js');
-    this.fragment_lib = require('../../core/lib/fragment_lib_scylla.js');
   }
 
   dataProcessing(dataPath, readableStream, processId, specificData) {
@@ -156,6 +159,7 @@ class SftpConsumer {
         // Get the input fragment and dfob
         const inputFragment = flowData[0]?.fragment;
         const inputDfob = flowData[0]?.dfob;
+        console.log('inputFragment', inputFragment)
         
         if (!inputFragment) {
           resolve();
@@ -163,20 +167,38 @@ class SftpConsumer {
         }
 
         // Get data from fragment
-        let rebuildDataRaw = await this.fragment_lib.getWithResolutionByBranch(inputFragment.id, {
+        let rebuildDataRaw = await fragment_lib.getWithResolutionByBranch(inputFragment.id, {
           pathTable: inputDfob?.dfobTable || []
         });
 
-        // Process the data with SFTP consumer
-        const result = await this.getFile(
-          data.specificData, 
-          rebuildDataRaw, 
-          pullParams, 
-          processId
+        const rebuildData = await DfobProcessor.processDfobFlow(
+          rebuildDataRaw,
+          inputDfob,
+          this,
+          this.getFile,
+          (item) => {
+            return [
+              data.specificData,
+              item,
+              pullParams, 
+              processId
+            ];
+          },
+          async () => {
+            return true;
+          }
         );
 
+        // // Process the data with SFTP consumer
+        // const result = await this.getFile(
+        //   data.specificData, 
+        //   rebuildDataRaw, 
+        //   pullParams, 
+        //   processId
+        // );
+
         // Persist the transformed data
-        await this.fragment_lib.persist(result.data, undefined, inputFragment);
+        await fragment_lib.persist(rebuildData, undefined, inputFragment);
         resolve();
       } catch (e) {
         reject(e);
