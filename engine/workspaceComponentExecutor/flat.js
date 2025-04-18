@@ -51,20 +51,31 @@ class Flat {
                 index++;  
               }
             }else{
-              //nothind to do if no ARray (frag or data)
+              //nothind to do if no Array (frag or data)
             }
           }
         } else if (Array.isArray(inputFragment.data)){
           for(let i = 0; i < inputFragment.data.length; i++){
             const item = inputFragment.data[i];
             if (item._frag){
-              await this.fragment_lib.addFragToArrayFrag(item._frag, resultFragment, index);
-              index++;
+              const fragmentObject = await fragmentModel.getFragmentById(item._frag);
+              const childrenOfChild = await fragmentModel.searchFragmentByField({
+                branchOriginFrag: fragmentObject.branchFrag
+              }, {
+                index: 'ASC'
+              });
+              for (const child of childrenOfChild) {
+                //TODO thi erase data frome input component output
+                await this.fragment_lib.addFragToArrayFrag(child, resultFragment, index);
+                index++;
+              }
             } else if (Array.isArray(item)){
               for(let j = 0; j < item.length; j++){
                 await this.fragment_lib.addDataToArrayFrag(item[j], resultFragment, index);
                 index++;
               }
+            }else{
+              //nothind to do if no Array (frag or data)
             }
           }
         } else {
