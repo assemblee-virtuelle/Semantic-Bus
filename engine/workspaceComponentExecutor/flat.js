@@ -58,7 +58,7 @@ class Flat {
           for(let i = 0; i < inputFragment.data.length; i++){
             const item = inputFragment.data[i];
             if (item._frag){
-              await this.fragment_lib.addFragToArrayFrag(item, resultFragment, index);
+              await this.fragment_lib.addFragToArrayFrag(item._frag, resultFragment, index);
               index++;
             } else if (Array.isArray(item)){
               for(let j = 0; j < item.length; j++){

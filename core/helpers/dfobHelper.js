@@ -32,7 +32,7 @@ class DfobHelper {
             tableDepthNext = tableDepthAsked - 1;
           }
         }
-        console.log('__tableDepthNext', tableDepthNext)
+        // console.log('__tableDepthNext', tableDepthNext)
         if (
           dfobPathTab.length <= 0 && 
           (

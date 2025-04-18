@@ -155,7 +155,7 @@ class SftpConsumer {
         // Get the input fragment and dfob
         const inputFragment = flowData[0]?.fragment;
         const inputDfob = flowData[0]?.dfob;
-        console.log('inputFragment', inputFragment)
+        // console.log('inputFragment', inputFragment)
         
         if (!inputFragment) {
           resolve();
@@ -185,7 +185,7 @@ class SftpConsumer {
           }
         );
 
-        console.log('rebuildData', rebuildData)
+        // console.log('rebuildData', rebuildData)
 
         // // Process the data with SFTP consumer
         // const result = await this.getFile(
