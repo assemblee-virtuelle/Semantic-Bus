@@ -93,9 +93,7 @@ class SftpConsumer {
               })
               .then(result => {
                 sftp.end();
-                resolve({
-                  data: result
-                });
+                resolve(result);
               }).catch(e => {
                 sftp.end();
                 reject(e);
@@ -138,9 +136,7 @@ class SftpConsumer {
                 return Promise.all(promisesArray2);
               }).then(dataArray => {
                 sftp.end();
-                resolve({
-                  data: dataArray
-                });
+                resolve(dataArray);
               });
           } else if (typeOfPath === false) {
             sftp.end();
@@ -188,6 +184,8 @@ class SftpConsumer {
             return true;
           }
         );
+
+        console.log('rebuildData', rebuildData)
 
         // // Process the data with SFTP consumer
         // const result = await this.getFile(
