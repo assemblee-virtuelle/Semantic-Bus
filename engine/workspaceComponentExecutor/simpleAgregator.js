@@ -29,40 +29,67 @@ class SimpleAgregator {
     return new Promise(async (resolve, reject) => {
       try {
 
-        let resultFragment = await fragment_lib.createArrayFrag(undefined,true);
+        let resultFragment = await fragment_lib.createArrayFrag(undefined, true);
         let index = 1;
 
         const inputFragment = flowData[0]?.fragment;
         const inputDfob = flowData[0]?.dfob;
+        // console.log('inputFragment', inputFragment)
 
-        
-        const childrenFlow = await fragmentModel.searchFragmentByField({
-          branchOriginFrag: inputFragment.branchFrag
-        }, {
-          index: 'ASC'
-        });
-
-        for (const childFlow of childrenFlow) {
-
-          if(childFlow.branchFrag){
-            const childrenFragments = await fragmentModel.searchFragmentByField({
-              branchOriginFrag: childFlow.branchFrag
-            }, {
-              index: 'ASC'
-            });
-  
-            for (const childFragment of childrenFragments) {
-              await fragment_lib.addFragToArrayFrag(childFragment, resultFragment, index);
+        if (inputFragment.branchFrag) {
+          const childrenFlow = await fragmentModel.searchFragmentByField({
+            branchOriginFrag: inputFragment.branchFrag
+          }, {
+            index: 'ASC'
+          });
+          for (const childFlow of childrenFlow) {
+            if (childFlow.branchFrag) {
+              const childrenFragments = await fragmentModel.searchFragmentByField({
+                branchOriginFrag: childFlow.branchFrag
+              }, {
+                index: 'ASC'
+              });
+              for (const childFragment of childrenFragments) {
+                await fragment_lib.addFragToArrayFrag(childFragment, resultFragment, index);
+                index++;
+              }
+            } else if (Array.isArray(childFlow.data)) {
+              for (const item of childFlow.data) {
+                await fragment_lib.addDataToArrayFrag(item, resultFragment, index);
+                index++;
+              }
+            } else {
+              await fragment_lib.addDataToArrayFrag(childFlow.data, resultFragment, index);
               index++;
             }
-          } else {
-            await fragment_lib.addFragToArrayFrag(childFlow, resultFragment, index);
-            index++;
           }
+        } else if (Array.isArray(inputFragment.data)) {
+          for (const childFlow of inputFragment.data) {
+            if (childFlow._frag) {
+              const childArrayFrag = await fragmentModel.getFragmentById(item._frag);
+              const childrenFragments = await fragmentModel.searchFragmentByField({
+                branchOriginFrag: childArrayFrag.branchFrag
+              }, {
+                index: 'ASC'
+              });
+              for (const childFragment of childrenFragments) {
+                await fragment_lib.addFragToArrayFrag(childFragment, resultFragment, index);
+                index++;
+              }
+            } else if (Array.isArray(childFlow.data)) {
+              for (const item of childFlow.data) {
+                await fragment_lib.addDataToArrayFrag(item, resultFragment, index);
+                index++;
+              }
+            } else {
+              await fragment_lib.addDataToArrayFrag(childFlow, resultFragment, index);
+              index++;
+            }
 
+          }
+        } else {
 
-        } 
-        
+        }
 
         resultFragment.id = inputFragment.id;
         await fragmentModel.updateFragment(resultFragment);

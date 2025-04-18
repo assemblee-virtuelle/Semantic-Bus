@@ -6,7 +6,7 @@ class ValueFromPath {
   }
 
   progress(node, pathArray, pathObject, currentKey, counter) {
-    // console.log('___progress', node, pathArray, pathObject, currentKey, counter)
+    // console.log('___progress',  pathArray, currentKey)
 
     if (node===undefined){
       return undefined;
@@ -34,6 +34,8 @@ class ValueFromPath {
         // console.log('r after', r);
       })
       // console.log('out',out);
+      // console.log('__POGRESS return', out.length);
+      // console.log('__POGRESS return', JSON.stringify(out));
       return out
     } else {
       if (pathArray.length == 0) {
@@ -79,10 +81,8 @@ class ValueFromPath {
 
         if (node.hasOwnProperty(key)) {
           let out = this.progress(node[key], pathArray, pathObject, key, ++counter);
-          // console.log('out',out);
           return out;
         } else {
-          // console.log('RETURN UNDEFINED')
           return undefined
         }
         // console.log('pathObject increment',pathObject);
@@ -96,8 +96,10 @@ class ValueFromPath {
 
   resolve(source, specificData) {
     // console.log('___resolve', source[0][0].organization)
-    let matches = specificData.path.split('.')
-    let result = this.progress(source, matches, {}, 'root', 0)
+    let matches = specificData.path.split('.');
+    // console.log('__resolve', JSON.stringify(source), JSON.stringify(matches))
+    let result = this.progress(source, matches, {}, 'root', 0);
+    // console.log('__RESOLVE', JSON.stringify(result));
     // console.log('___result', result[0][0])
     return (result)
   }
@@ -109,7 +111,7 @@ class ValueFromPath {
       // let value=this.dotProp.get(flowData[0].data, data.specificData.path)
       try {
         let value = this.resolve(flowData[0].data, data.specificData);
-        // console.log('RESOLVE',value);
+        // console.log('RESOLVE',JSON.stringify(value));
         resolve({
           data: value
         })

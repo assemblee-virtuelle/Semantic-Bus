@@ -20,24 +20,29 @@ module.exports = {
     // testAllLiteralArray,
 
     testFragArray: function (arrayToTest) {
-        // if (arrayToTest.length <= 100) {
-        //     return false;
-        // } else if (testAllLiteralArray(arrayToTest)) {
+        if (arrayToTest.length <= 100) {
+            return false;
+        } else if (testAllLiteralArray(arrayToTest)) {
+            return false
+        } else {
+            return true
+        }
+
+        // if (testAllLiteralArray(arrayToTest)) {
         //     return false
         // } else {
         //     return true
         // }
 
-        if (Array.isArray(arrayToTest)) {
-            return true;
-        } else {
-            return false;
-        }
+        // return true
     },
 
     persist: async function (data, fragCaller, exitingFrag) {
 
-        // console.log('____persist____',fragCaller,exitingFrag)
+        // if (!fragCaller){
+        //     console.log('____persist____',fragCaller,exitingFrag)
+        //     console.log('____persist data____',JSON.stringify(data))
+        // }
 
         const model = this.fragmentModel.model;
         let fargToPersist = exitingFrag || new model({
@@ -100,7 +105,8 @@ module.exports = {
         if (isLiteral(data)) {
             return processLiteral(data);
         } else if (Array.isArray(data) && this.testFragArray(data)) {
-            return await this.persist(data, fragCaller, exitingFrag)
+            const fragment = await this.persist(data, fragCaller, exitingFrag)
+            return fragment;
         } else {
             for (let key in data) {
                 const persistReturn = await this.persistObject(data[key], fragCaller);
@@ -155,7 +161,7 @@ module.exports = {
             // console.log('___addFragToArrayFrag index', index)
             fragObject.index = index;
             if (callbackBeforePersist) {
-                fragObject = await callbackBeforePersist(fragObject);
+                fragObject = await callbackBeforePersist(arrayFrag,fragObject);
             }
             if(!frag){
                 return await this.fragmentModel.insertFragment(fragObject);
@@ -167,7 +173,7 @@ module.exports = {
             arrayFrag.maxIndex = fragObject.index;
             await this.fragmentModel.updateFragment(arrayFrag);
             if (callbackBeforePersist) {
-                fragObject = await callbackBeforePersist(arrayFrag);
+                fragObject = await callbackBeforePersist(arrayFrag,fragObject);
             }
             if(!frag){
                 return await this.fragmentModel.insertFragment(fragObject);
@@ -176,10 +182,20 @@ module.exports = {
             }
         }
     },
+
+
     addDataToArrayFrag: async function (data, arrayFrag, index) {
-        const emptyFrag = await this.addFragToArrayFrag(undefined, arrayFrag, index, (frag) => {
-            frag.data = data;
-            return frag;
+        // console.log('addDataToArrayFrag', data, arrayFrag, index)
+        const emptyFrag = await this.addFragToArrayFrag(undefined, arrayFrag, index, async (arrayFrag,readyToPersistFrag) => {
+            const persistedObject = await this.persistObject(data, readyToPersistFrag)
+
+            if (persistedObject instanceof this.fragmentModel.model) {
+                readyToPersistFrag.branchFrag = persistedObject.branchFrag;
+                readyToPersistFrag.data = persistedObject.data;
+            } else {
+                readyToPersistFrag.data = persistedObject;
+            }
+            return readyToPersistFrag;
         })
         // const frag = await this.persist(data, arrayFrag, emptyFrag)
 
@@ -641,14 +657,16 @@ module.exports = {
                     frag: newFrag,
                     //relativHistoryTable is [] cause by copyDataUntilPath call or dafault.
                     relativHistoryTableSelected: relativHistoryTable,
-                    relativDfobTable: []
+                    relativDfobTable: [],
+                    tableDepth: tableDepth - tableDepthHistory
                 }];
             }
             if (tableDepthHistory == tableDepth && dfobTable.length == 0) {
                 fragmentSelected = [{
                     frag: newFrag,
                     relativHistoryTableSelected: [],
-                    relativDfobTable: []
+                        relativDfobTable: [],
+                    tableDepth: tableDepth - tableDepthHistory
                 }];
             }
 
@@ -656,7 +674,7 @@ module.exports = {
                 data: arrayOut,
                 dfobFragmentSelected: fragmentSelected,
                 rootFrag: newFrag.rootFrag,
-                newFrag: newFrag
+                newFrag: newFrag,
             };
         } else {
             
@@ -684,10 +702,11 @@ module.exports = {
                 dfobFragmentSelected: isDfobFragmentSelected ? processedData.dfobFragmentSelected : [{
                     frag: newFrag,
                     relativHistoryTableSelected: processedData.relativHistoryTableSelected,
-                    relativDfobTable: dfobTable
+                    relativDfobTable: dfobTable,
+                    tableDepth: tableDepth - tableDepthHistory
                 }],
                 rootFrag: newFrag.rootFrag,
-                newFrag: newFrag
+                newFrag: newFrag,
             };
         }
     },

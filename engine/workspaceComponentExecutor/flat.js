@@ -44,14 +44,31 @@ class Flat {
                 await this.fragment_lib.addFragToArrayFrag(childOfChild, resultFragment, index);
                 index++;
               }
-            }else{
+            }else if (Array.isArray(child.data)){
               for(let i = 0; i < child.data.length; i++){
                 // console.log('adding child by data', child.data[i])
                 await this.fragment_lib.addDataToArrayFrag(child.data[i], resultFragment, index);
                 index++;  
               }
+            }else{
+              //nothind to do if no ARray (frag or data)
             }
           }
+        } else if (Array.isArray(inputFragment.data)){
+          for(let i = 0; i < inputFragment.data.length; i++){
+            const item = inputFragment.data[i];
+            if (item._frag){
+              await this.fragment_lib.addFragToArrayFrag(item, resultFragment, index);
+              index++;
+            } else if (Array.isArray(item)){
+              for(let j = 0; j < item.length; j++){
+                await this.fragment_lib.addDataToArrayFrag(item[j], resultFragment, index);
+                index++;
+              }
+            }
+          }
+        } else {
+          throw new Error("Data are not in an array structure.")
         }
 
         resultFragment.id = inputFragment.id;

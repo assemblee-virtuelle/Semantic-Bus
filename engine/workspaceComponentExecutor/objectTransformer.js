@@ -44,9 +44,11 @@ class ObjectTransformer {
   async workWithFragments(data, flowData, pullParams, processId) {
     return new Promise(async (resolve, reject) => {
       try {
+        // console.log('workWithFragments', flowData[0]?.fragment)
         // Get the input fragment and dfob
         const inputFragment = flowData[0]?.fragment;
         const inputDfob = flowData[0]?.dfob;
+        // console.log('inputDfob', inputDfob)
         
         if (!inputFragment) {
           resolve();
@@ -67,7 +69,8 @@ class ObjectTransformer {
           { 
             pipeNb: inputDfob?.pipeNb, 
             dfobTable: inputDfob?.dfobTable, 
-            keepArray: inputDfob?.keepArray 
+            keepArray: inputDfob?.keepArray ,
+            tableDepth: inputDfob?.tableDepth
           },
           this,
           this.transformItem,

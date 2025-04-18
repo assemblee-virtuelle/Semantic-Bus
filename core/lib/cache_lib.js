@@ -5,6 +5,7 @@ module.exports = {
   file_lib: require('./file_lib_scylla.js'),
   PromiseOrchestrator: require('../helpers/promiseOrchestrator.js'),
   persist: async function(component, data, history,processId) {
+    // console.log('__persisting cache', data)
     let cachedData;
     let cachedDataIn = await this.cacheModel.getInstance().model.findOne({
       _id: component._id

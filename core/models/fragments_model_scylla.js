@@ -88,6 +88,7 @@ const processCriteriaAndOptions = (criteria) => {
 };
 
 const insertFragment = async (fragment) => {
+  // console.log('___insertFragment',fragment.data)
   const processedFragment = processFragmentWrite(fragment);
   const query = `
     INSERT INTO fragment (id, data, originFrag, rootFrag, branchOriginFrag, branchFrag, garbageTag, garbageProcess, indexArray, maxIndexArray)
@@ -111,6 +112,7 @@ const insertFragment = async (fragment) => {
 };
 
 const updateFragment = async (fragment) => {
+  // console.log('___updateFragment')
   const processedFragment = processFragmentWrite(fragment);
   const query = `
     UPDATE fragment 

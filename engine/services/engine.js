@@ -334,11 +334,11 @@ class Engine {
                     try {
                       let dfob = undefined;
                       let paramArray = dfobFragmentSelected.map((item) => {
-                        
+                        // console.log('__item', item)
                         return [
                           processingNode,
                           item.frag,  
-                          { dfobTable: item.relativDfobTable || [], pipeNb, keepArray },
+                          { dfobTable: item.relativDfobTable || [], pipeNb, keepArray,tableDepth: item.tableDepth },
                           componentFlow.primaryflow,
                           secondaryFlowDefraged,
                           componentFlow.secondaryFlow
@@ -600,9 +600,9 @@ class Engine {
   }
 
   async rebuildFrag_focus_work_persist(processingNode, fragment, dfob, primaryflow, secondaryFlowDefraged, secondaryFlowFragments) {
-    
+
     let module = technicalComponentDirectory[processingNode.component.module]
-    const { dfobTable, pipeNb, keepArray } = dfob
+    const { dfobTable, pipeNb, keepArray, tableDepth } = dfob
     let rebuildData;
     let workWithFragments = module.workWithFragments;
 
@@ -613,10 +613,10 @@ class Engine {
 
         const needDfob = dfobTable.length > 0 || (Array.isArray(rebuildData) && !keepArray && !fragment.branchOriginFrag);
         if (needDfob) {
-
+          
           rebuildData = await DfobProcessor.processDfobFlow(
             rebuildData,
-            { pipeNb, dfobTable, keepArray },
+            { pipeNb, dfobTable, keepArray, tableDepth },
             module,
             module.pull,
             (item) => {
@@ -649,7 +649,7 @@ class Engine {
           }]);
           recomposedFlow = recomposedFlow.concat(secondaryFlowDefraged);
           workResult = await module.pull(processingNode.component, recomposedFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams, this.processId)
-          // console.log('___workResult', workResult.data)
+          // console.log('___workResult', JSON.stringify(workResult.data))
           rebuildData = workResult.data;
           dfob = workResult.dfob
         }
@@ -683,7 +683,7 @@ class Engine {
         recomposedFlow = recomposedFlow.concat([{
           fragment: fragment,
           componentId: primaryflow.componentId,
-          dfob: { dfobTable, pipeNb, keepArray :true },
+          dfob: { dfobTable, pipeNb, keepArray ,tableDepth},
         }]);
         recomposedFlow = recomposedFlow.concat(secondaryFlowFragments);
         workResult = await module.workWithFragments(processingNode.component, recomposedFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams, this.processId)
