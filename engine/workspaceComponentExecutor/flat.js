@@ -60,7 +60,9 @@ class Flat {
 
           resultFragment.id = inputFragment.id;
           await fragmentModel.updateFragment(resultFragment);
-        } else if (Array.isArray(inputFragment.data) && inputDfob.dfobTable.length == 0) {
+        } else if (Array.isArray(inputFragment.data) && inputDfob.dfobTable.length == 0 && (!inputDfob.tableDepth || inputDfob.tableDepth == 0)) {
+          // exact implementation for Array at root of inputFragment.data
+          // could be use when dfobTable or tableDepth but not implemented yet
           let resultFragment = await this.fragment_lib.createArrayFrag(undefined, true);
           let index = 1;
           for (let i = 0; i < inputFragment.data.length; i++) {
@@ -88,7 +90,9 @@ class Flat {
           }
           resultFragment.id = inputFragment.id;
           await fragmentModel.updateFragment(resultFragment);
-        } else if (inputDfob.dfobTable.length > 0) {
+        } else if (inputDfob.dfobTable.length > 0 || inputDfob?.tableDepth > 0) {
+          // partial implementation when dfobTable or tableDepth is used
+          // this.flatFragment could be improved using same implementaiton as previous case
           const postProcessedData = await DfobProcessor.processDfobFlow(
             inputFragment.data,
             inputDfob,
@@ -99,16 +103,11 @@ class Flat {
             }, async () => {
               return true;
             })
-          console.log('postProcessedData', postProcessedData)
+          // console.log('postProcessedData', postProcessedData)
           inputFragment.data = postProcessedData;
           await fragmentModel.updateFragment(inputFragment);  
-          
-          // console.log('XXXX data are not in an array structure.')
-          // throw new Error("Data are not in an array structure.")
         }
 
-        // resultFragment.id = inputFragment.id;
-        // await fragmentModel.updateFragment(resultFragment);
 
         resolve();
       } catch (e) {
