@@ -1,5 +1,6 @@
 'use strict';
 const fragmentModel = require('../../core/models/fragments_model_scylla.js');
+const DfobProcessor = require('../../core/helpers/dfobProcessor.js');
 
 class Flat {
   constructor() {
@@ -18,12 +19,15 @@ class Flat {
           return;
         }
 
-        // Create a new array fragment to store the flattened results
-        let resultFragment = await this.fragment_lib.createArrayFrag(undefined, true);
-        let index = 1;
+        console.log('inputFragment', inputFragment)
 
-        const isArrayFrag = inputFragment.branchFrag != undefined;
-        if (isArrayFrag) {
+        console.log('inputDfob', inputDfob)
+        // Create a new array fragment to store the flattened results
+
+
+        if (inputFragment.branchFrag != undefined) {
+          let resultFragment = await this.fragment_lib.createArrayFrag(undefined, true);
+          let index = 1;
           // console.log('inputFragment is arrayFrag', inputFragment)
           const arrayChildren = await fragmentModel.searchFragmentByField({
             branchOriginFrag: inputFragment.branchFrag
@@ -32,8 +36,7 @@ class Flat {
           });
           // console.log('arrayChildren', arrayChildren)
           for (const child of arrayChildren) {
-            const isChildArrayFrag = child.branchFrag != undefined;
-            if (isChildArrayFrag) {
+            if (child.branchFrag != undefined) {
               const childrenOfChild = await fragmentModel.searchFragmentByField({
                 branchOriginFrag: child.branchFrag
               }, {
@@ -44,20 +47,25 @@ class Flat {
                 await this.fragment_lib.addFragToArrayFrag(childOfChild, resultFragment, index);
                 index++;
               }
-            }else if (Array.isArray(child.data)){
-              for(let i = 0; i < child.data.length; i++){
+            } else if (Array.isArray(child.data)) {
+              for (let i = 0; i < child.data.length; i++) {
                 // console.log('adding child by data', child.data[i])
                 await this.fragment_lib.addDataToArrayFrag(child.data[i], resultFragment, index);
-                index++;  
+                index++;
               }
-            }else{
+            } else {
               //nothind to do if no Array (frag or data)
             }
           }
-        } else if (Array.isArray(inputFragment.data)){
-          for(let i = 0; i < inputFragment.data.length; i++){
+
+          resultFragment.id = inputFragment.id;
+          await fragmentModel.updateFragment(resultFragment);
+        } else if (Array.isArray(inputFragment.data) && inputDfob.dfobTable.length == 0) {
+          let resultFragment = await this.fragment_lib.createArrayFrag(undefined, true);
+          let index = 1;
+          for (let i = 0; i < inputFragment.data.length; i++) {
             const item = inputFragment.data[i];
-            if (item._frag){
+            if (item._frag) {
               const fragmentObject = await fragmentModel.getFragmentById(item._frag);
               const childrenOfChild = await fragmentModel.searchFragmentByField({
                 branchOriginFrag: fragmentObject.branchFrag
@@ -69,27 +77,50 @@ class Flat {
                 await this.fragment_lib.addFragToArrayFrag(child, resultFragment, index);
                 index++;
               }
-            } else if (Array.isArray(item)){
-              for(let j = 0; j < item.length; j++){
+            } else if (Array.isArray(item)) {
+              for (let j = 0; j < item.length; j++) {
                 await this.fragment_lib.addDataToArrayFrag(item[j], resultFragment, index);
                 index++;
               }
-            }else{
+            } else {
               //nothind to do if no Array (frag or data)
             }
           }
-        } else {
-          throw new Error("Data are not in an array structure.")
+          resultFragment.id = inputFragment.id;
+          await fragmentModel.updateFragment(resultFragment);
+        } else if (inputDfob.dfobTable.length > 0) {
+          const postProcessedData = await DfobProcessor.processDfobFlow(
+            inputFragment.data,
+            inputDfob,
+            this,
+            this.flatFragment,
+            (item) => {
+              return [item, data]
+            }, async () => {
+              return true;
+            })
+          console.log('postProcessedData', postProcessedData)
+          inputFragment.data = postProcessedData;
+          await fragmentModel.updateFragment(inputFragment);  
+          
+          // console.log('XXXX data are not in an array structure.')
+          // throw new Error("Data are not in an array structure.")
         }
 
-        resultFragment.id = inputFragment.id;
-        await fragmentModel.updateFragment(resultFragment);
+        // resultFragment.id = inputFragment.id;
+        // await fragmentModel.updateFragment(resultFragment);
 
         resolve();
       } catch (e) {
         reject(e);
       }
     });
+  }
+
+  flatFragment(item, data) {
+    console.log('item', item)
+    return item.flat();
+    // console.log('data', data)
   }
 
   pull(data, flowData, pullParams) {
