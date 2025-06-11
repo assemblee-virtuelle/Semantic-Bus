@@ -20,7 +20,7 @@ class Flat {
         }
 
 
-        if (inputFragment.branchFrag != undefined) {
+        if (inputFragment.branchFrag != undefined && inputFragment.dfobTable.length == 0 && (!inputDfob.tableDepth || inputDfob.tableDepth==Infinity || inputDfob.tableDepth == 0)) {
           let resultFragment = await this.fragment_lib.createArrayFrag(undefined, true);
           let index = 1;
           const arrayChildren = await fragmentModel.searchFragmentByField({
