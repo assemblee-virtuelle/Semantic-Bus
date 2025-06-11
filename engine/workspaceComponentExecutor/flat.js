@@ -19,22 +19,15 @@ class Flat {
           return;
         }
 
-        console.log('inputFragment', inputFragment)
-
-        console.log('inputDfob', inputDfob)
-        // Create a new array fragment to store the flattened results
-
 
         if (inputFragment.branchFrag != undefined) {
           let resultFragment = await this.fragment_lib.createArrayFrag(undefined, true);
           let index = 1;
-          // console.log('inputFragment is arrayFrag', inputFragment)
           const arrayChildren = await fragmentModel.searchFragmentByField({
             branchOriginFrag: inputFragment.branchFrag
           }, {
             index: 'ASC'
           });
-          // console.log('arrayChildren', arrayChildren)
           for (const child of arrayChildren) {
             if (child.branchFrag != undefined) {
               const childrenOfChild = await fragmentModel.searchFragmentByField({
@@ -60,7 +53,7 @@ class Flat {
 
           resultFragment.id = inputFragment.id;
           await fragmentModel.updateFragment(resultFragment);
-        } else if (Array.isArray(inputFragment.data) && inputDfob.dfobTable.length == 0 && (!inputDfob.tableDepth || inputDfob.tableDepth == 0)) {
+        } else if (Array.isArray(inputFragment.data) && inputDfob.dfobTable.length == 0 && (!inputDfob.tableDepth || inputDfob.tableDepth==Infinity || inputDfob.tableDepth == 0)) {
           // exact implementation for Array at root of inputFragment.data
           // could be use when dfobTable or tableDepth but not implemented yet
           let resultFragment = await this.fragment_lib.createArrayFrag(undefined, true);
@@ -93,8 +86,12 @@ class Flat {
         } else if (inputDfob.dfobTable.length > 0 || inputDfob?.tableDepth > 0) {
           // partial implementation when dfobTable or tableDepth is used
           // this.flatFragment could be improved using same implementaiton as previous case
+          const dereferencedData = await this.fragment_lib.getWithResolutionByBranch(inputFragment,{
+            deeperFocusActivated: true,
+            dfobTable: inputDfob.dfobTable
+          });
           const postProcessedData = await DfobProcessor.processDfobFlow(
-            inputFragment.data,
+            dereferencedData,
             inputDfob,
             this,
             this.flatFragment,
@@ -103,7 +100,6 @@ class Flat {
             }, async () => {
               return true;
             })
-          // console.log('postProcessedData', postProcessedData)
           inputFragment.data = postProcessedData;
           await fragmentModel.updateFragment(inputFragment);  
         }
@@ -117,9 +113,7 @@ class Flat {
   }
 
   flatFragment(item, data) {
-    console.log('item', item)
     return item.flat();
-    // console.log('data', data)
   }
 
   pull(data, flowData, pullParams) {
