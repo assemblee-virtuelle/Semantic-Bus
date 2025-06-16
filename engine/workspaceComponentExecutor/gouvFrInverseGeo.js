@@ -18,14 +18,14 @@ class GouvFrInverseGeo {
       lng: flowData[specificData.longitudePath]
     }
     const urlString = 'http://api-adresse.data.gouv.fr/reverse/?lon=' + geoLoc.lng + '&lat=' + geoLoc.lat;
-    console.log(urlString)
+    // console.log(urlString)
     const geoResponse = await fetch(urlString);
 
 
     if(geoResponse.status==200){
 
       const geoResponseObject = await geoResponse.json();
-      console.log(geoResponseObject)
+      // console.log(geoResponseObject)
       if(geoResponseObject.features.length>0){
         if(specificData.CPPath){  //CPPath is optional
         flowData[specificData.CPPath] = geoResponseObject.features[0].properties.postcode;
