@@ -10,6 +10,7 @@ const cheerio = require('cheerio');
 const removeMarkdown = require('remove-markdown');
 const lodash = require('lodash');
 const sanitizeHtml = require('sanitize-html');
+const crypto = require('crypto');
 // Charger toutes les données CLDR nécessaires pour toutes les locales
 
 const allLocales = cldrData.availableLocales;
