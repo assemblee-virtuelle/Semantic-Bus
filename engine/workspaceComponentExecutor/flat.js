@@ -20,7 +20,8 @@ class Flat {
         }
 
 
-        if (inputFragment.branchFrag != undefined && inputFragment.dfobTable.length == 0 && (!inputDfob.tableDepth || inputDfob.tableDepth==Infinity || inputDfob.tableDepth == 0)) {
+        if (inputFragment.branchFrag != undefined && inputDfob.dfobTable.length == 0 && (!inputDfob.tableDepth || inputDfob.tableDepth==Infinity || inputDfob.tableDepth == 0)) {
+          // console.log('XXXXXX branchFrag != undefined and dfobTable.length == 0 and tableDepth is not set');
           let resultFragment = await this.fragment_lib.createArrayFrag(undefined, true);
           let index = 1;
           const arrayChildren = await fragmentModel.searchFragmentByField({
@@ -28,6 +29,7 @@ class Flat {
           }, {
             index: 'ASC'
           });
+          // console.log('XXXXXX arrayChildren', arrayChildren);
           for (const child of arrayChildren) {
             if (child.branchFrag != undefined) {
               const childrenOfChild = await fragmentModel.searchFragmentByField({
@@ -41,12 +43,15 @@ class Flat {
                 index++;
               }
             } else if (Array.isArray(child.data)) {
+              // console.log('_____child.data', child.data);
               for (let i = 0; i < child.data.length; i++) {
-                // console.log('adding child by data', child.data[i])
+                // console.log('_____adding child by data', child.data[i])
                 await this.fragment_lib.addDataToArrayFrag(child.data[i], resultFragment, index);
                 index++;
               }
             } else {
+              // console.log('_____child.data is not an array', child.data);
+              await this.fragment_lib.addDataToArrayFrag(child.data, resultFragment, index);
               //nothind to do if no Array (frag or data)
             }
           }
