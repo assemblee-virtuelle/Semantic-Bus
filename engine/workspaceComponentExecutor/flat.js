@@ -97,7 +97,7 @@ class Flat {
           });
           const postProcessedData = await DfobProcessor.processDfobFlow(
             dereferencedData,
-            inputDfob,
+            { ...inputDfob, delayMs: inputDfob.delayMs || 0 },
             this,
             this.flatFragment,
             (item) => {

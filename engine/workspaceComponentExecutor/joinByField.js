@@ -202,7 +202,7 @@ class JoinByField {
         // console.log('rebuilding data', rebuildDataRaw)
         const rebuildData = await DfobProcessor.processDfobFlow(
           rebuildDataRaw,
-          { pipeNb: primaryFlowDfob.pipeNb, dfobTable: primaryFlowDfob.dfobTable, keepArray: primaryFlowDfob.keepArray },
+          { pipeNb: primaryFlowDfob.pipeNb, dfobTable: primaryFlowDfob.dfobTable, keepArray: primaryFlowDfob.keepArray, delayMs: primaryFlowDfob.delayMs || 0 },
           this,
           this.joinWithLokiSupportingArray,
           (item) => {

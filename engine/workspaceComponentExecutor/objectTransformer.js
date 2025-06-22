@@ -69,8 +69,9 @@ class ObjectTransformer {
           { 
             pipeNb: inputDfob?.pipeNb, 
             dfobTable: inputDfob?.dfobTable, 
-            keepArray: inputDfob?.keepArray ,
-            tableDepth: inputDfob?.tableDepth
+            keepArray: inputDfob?.keepArray,
+            tableDepth: inputDfob?.tableDepth,
+            delayMs: inputDfob?.delayMs || 0
           },
           this,
           this.transformItem,

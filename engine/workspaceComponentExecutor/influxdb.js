@@ -276,7 +276,8 @@ class InfluxdbConnector {
           { 
             pipeNb: inputDfob?.pipeNb, 
             dfobTable: inputDfob?.dfobTable, 
-            keepArray: inputDfob?.keepArray 
+            keepArray: inputDfob?.keepArray,
+            delayMs: inputDfob?.delayMs || 0
           },
           this,
           this.processInfluxItem,

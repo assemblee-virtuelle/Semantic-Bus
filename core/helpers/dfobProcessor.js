@@ -14,7 +14,7 @@ class DfobProcessor {
     continueCheckFunction,
     flowInDataProperty
   ) {
-    const { pipeNb, dfobTable, keepArray, tableDepth } = dfobOptions;
+    const { pipeNb, dfobTable, keepArray, tableDepth, delayMs } = dfobOptions;
     // console.log('__rebuildData', rebuildData)
     // console.log('__dfobOptions', dfobOptions)
 
@@ -43,7 +43,8 @@ class DfobProcessor {
         {
           beamNb: pipeNb,
           logIteration: true,
-          continueCheckFunction: continueCheckFunction
+          continueCheckFunction: continueCheckFunction,
+          delayMs: delayMs || 0
         },
         config
       );

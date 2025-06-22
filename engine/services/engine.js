@@ -253,7 +253,8 @@ class Engine {
                 keepArray: componentFlow.deeperFocusData.keepArray != undefined ? componentFlow.deeperFocusData.keepArray : componentFlow.deeperFocusData.dfobKeepArray,
                 dfobPath: componentFlow.deeperFocusData.path != undefined ? componentFlow.deeperFocusData.path : componentFlow.deeperFocusData.dfobPath,
                 pipeNb: componentFlow.deeperFocusData.beanNb != undefined ? componentFlow.deeperFocusData.beanNb : componentFlow.deeperFocusData.pipeNb != undefined ? componentFlow.deeperFocusData.pipeNb : componentFlow.deeperFocusData.dfobNbPipe,
-                tableDepth: componentFlow.deeperFocusData.tableDepth != undefined ? componentFlow.deeperFocusData.tableDepth : componentFlow.deeperFocusData.dfobTableDepth
+                tableDepth: componentFlow.deeperFocusData.tableDepth != undefined ? componentFlow.deeperFocusData.tableDepth : componentFlow.deeperFocusData.dfobTableDepth,
+                delayMs: componentFlow.deeperFocusData.delayMs != undefined ? componentFlow.deeperFocusData.delayMs : 0
               }
 
               if (module.getPrimaryFlow != undefined) {
@@ -286,7 +287,7 @@ class Engine {
               if (componentFlow.deeperFocusData) {
                 try {
 
-                  let { dfobPath, keepArray, pipeNb, tableDepth } = componentFlow.deeperFocusData;
+                  let { dfobPath, keepArray, pipeNb, tableDepth, delayMs } = componentFlow.deeperFocusData;
 
                   if (dfobPath == undefined) {
                     dfobPath = '';
@@ -338,7 +339,7 @@ class Engine {
                         return [
                           processingNode,
                           item.frag,  
-                          { dfobTable: item.relativDfobTable || [], pipeNb, keepArray,tableDepth: item.tableDepth },
+                          { dfobTable: item.relativDfobTable || [], pipeNb, keepArray,tableDepth: item.tableDepth, delayMs },
                           componentFlow.primaryflow,
                           secondaryFlowDefraged,
                           componentFlow.secondaryFlow
@@ -349,6 +350,7 @@ class Engine {
                         const workResult = await this.promiseOrchestrator.execute(this, this.rebuildFrag_focus_work_persist, paramArray, {
                           beamNb: pipeNb,
                           logIteration: true,
+                          delayMs: delayMs || 0,
                           continueCheckFunction: async () => {
                             const process = await workspace_lib.getCurrentProcess(this.processId);
                             if (process.state == 'stop') {
@@ -602,7 +604,7 @@ class Engine {
   async rebuildFrag_focus_work_persist(processingNode, fragment, dfob, primaryflow, secondaryFlowDefraged, secondaryFlowFragments) {
 
     let module = technicalComponentDirectory[processingNode.component.module]
-    const { dfobTable, pipeNb, keepArray, tableDepth } = dfob
+    const { dfobTable, pipeNb, keepArray, tableDepth, delayMs } = dfob
     let rebuildData;
     let workWithFragments = module.workWithFragments;
 
@@ -616,7 +618,7 @@ class Engine {
           
           rebuildData = await DfobProcessor.processDfobFlow(
             rebuildData,
-            { pipeNb, dfobTable, keepArray, tableDepth },
+            { pipeNb, dfobTable, keepArray, tableDepth, delayMs },
             module,
             module.pull,
             (item) => {
@@ -683,7 +685,7 @@ class Engine {
         recomposedFlow = recomposedFlow.concat([{
           fragment: fragment,
           componentId: primaryflow.componentId,
-          dfob: { dfobTable, pipeNb, keepArray ,tableDepth},
+          dfob: { dfobTable, pipeNb, keepArray ,tableDepth, delayMs},
         }]);
         recomposedFlow = recomposedFlow.concat(secondaryFlowFragments);
         workResult = await module.workWithFragments(processingNode.component, recomposedFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams, this.processId)

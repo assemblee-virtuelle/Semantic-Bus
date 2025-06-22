@@ -137,7 +137,7 @@ class Filter {
           const inputData = inputFragment.data
           rebuildData = await DfobProcessor.processDfobFlow(
             inputData,
-            { pipeNb: inputDfob.pipeNb, dfobTable: inputDfob.dfobTable, keepArray: inputDfob.keepArray },
+            { pipeNb: inputDfob.pipeNb, dfobTable: inputDfob.dfobTable, keepArray: inputDfob.keepArray, delayMs: inputDfob.delayMs || 0 },
             this,
             this.filterRawItems,
             (items) => {

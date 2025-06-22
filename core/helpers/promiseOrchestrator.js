@@ -70,6 +70,12 @@ class PromisesExecutor {
           if (this.config != undefined && this.config.quietLog != true) {
             // console.log(`promiseOrchestrator ${this.increment}/${this.paramArray.length}`);
           }
+          
+          // Add delay before executing if delayMs is specified
+          if (this.option.delayMs && this.option.delayMs > 0) {
+            await new Promise(resolve => setTimeout(resolve, this.option.delayMs));
+          }
+          
           let promiseExecutor = new PromiseExecutor(this.context, this.workFunction, this.paramArray, this.option, this.increment);
           this.increment++;
           promiseExecutor.execute().then((currentOut) => {

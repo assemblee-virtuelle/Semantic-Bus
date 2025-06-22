@@ -134,7 +134,7 @@ class SftpConsumer {
 
         const rebuildData = await DfobProcessor.processDfobFlow(
           rebuildDataRaw,
-          inputDfob,
+          { ...inputDfob, delayMs: inputDfob?.delayMs || 0 },
           this,
           this.getFile,
           (item) => {
