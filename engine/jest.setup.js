@@ -1,12 +1,11 @@
-// Configuration globale pour les tests Jest
+// Configuration de setup pour les tests du module engine
 
-// Mock du fichier de configuration par défaut
-jest.mock('./config.json', () => ({
-  quietLog: true,
-  database: {
-    type: 'mock'
-  }
-}), { virtual: true });
+// Polyfills pour Node.js < 18
+const { Readable } = require('stream');
+const { ReadableStream } = require('stream/web') || { ReadableStream: Readable };
+global.ReadableStream = ReadableStream;
+global.WritableStream = global.WritableStream || class WritableStream {};
+global.TransformStream = global.TransformStream || class TransformStream {};
 
 // Mock global pour les modules externes problématiques
 jest.mock('mongodb', () => ({
@@ -39,10 +38,6 @@ jest.mock('uuid', () => ({
   v1: jest.fn(() => 'mock-uuid-v1-12345')
 }));
 
-// Les mocks Scylla sont maintenant gérés par moduleNameMapper
-
-// Tous les mocks core sont maintenant gérés par moduleNameMapper
-
 // Configuration des timeouts
 jest.setTimeout(10000);
 
@@ -61,4 +56,4 @@ afterAll(() => {
   console.log = originalConsoleLog;
   console.warn = originalConsoleWarn;
   console.error = originalConsoleError;
-});
+}); 

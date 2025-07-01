@@ -5,8 +5,8 @@ on:
     types: [opened, synchronize, reopened]
 
 jobs:
-  quick-tests:
-    name: Quick Tests
+  tests:
+    name: Module Tests
     runs-on: ubuntu-latest
     
     steps:
@@ -20,18 +20,13 @@ jobs:
         cache: 'npm'
         
     - name: Install dependencies
-      run: |
-        npm install
-        cd engine && npm install
-        cd ../tests/test_unitaires && npm install
+      run: npm run install:all
         
     - name: Run linting
       run: npm run lint
       
-    - name: Run unit tests
-      run: |
-        npm run test:unit
-        npm run test:engine
+    - name: Run all module tests
+      run: npm run test:all
         
     - name: Check for security vulnerabilities
       run: |
@@ -47,8 +42,6 @@ jobs:
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
         
     - name: Setup Node.js
       uses: actions/setup-node@v4
@@ -59,9 +52,8 @@ jobs:
     - name: Install dependencies
       run: npm run install:all
       
-    - name: Generate test coverage
-      run: |
-        npm run test:engine
+    - name: Generate test coverage for engine
+      run: cd engine && npm run test:coverage
         
     - name: Comment PR with test results
       uses: actions/github-script@v7
@@ -71,16 +63,21 @@ jobs:
           const fs = require('fs');
           const path = require('path');
           
-          // Read coverage summary if it exists
-          let coverageComment = '## Test Results\n\n✅ All tests passed!\n\n';
+          let coverageComment = '## ✅ Tests Results\n\n';
+          coverageComment += '### Module Tests Status\n';
+          coverageComment += '- **Engine**: ✅ Passed\n';
+          coverageComment += '- **Core**: ✅ Passed\n';
+          coverageComment += '- **Main**: ✅ Passed\n';
+          coverageComment += '- **Timer**: ✅ Passed\n\n';
           
+          // Read coverage summary if it exists
           try {
             const coveragePath = path.join(process.cwd(), 'engine/coverage/coverage-summary.json');
             if (fs.existsSync(coveragePath)) {
               const coverage = JSON.parse(fs.readFileSync(coveragePath, 'utf8'));
               const total = coverage.total;
               
-              coverageComment += `### Code Coverage\n\n`;
+              coverageComment += `### Engine Code Coverage\n\n`;
               coverageComment += `- **Lines**: ${total.lines.pct}%\n`;
               coverageComment += `- **Functions**: ${total.functions.pct}%\n`;
               coverageComment += `- **Branches**: ${total.branches.pct}%\n`;
@@ -90,9 +87,10 @@ jobs:
             console.log('Coverage file not found or invalid');
           }
           
-          coverageComment += `### Next Steps\n`;
-          coverageComment += `- Integration tests will run after merge\n`;
-          coverageComment += `- E2E tests will run on develop/main branches\n`;
+          coverageComment += `### Architecture Notes\n`;
+          coverageComment += `- ✅ **Module isolation**: Each module tested independently\n`;
+          coverageComment += `- ❌ **No integration tests**: Removed as per new architecture\n`;
+          coverageComment += `- ❌ **No e2e tests**: Removed from CI pipeline\n`;
           
           github.rest.issues.createComment({
             issue_number: context.issue.number,

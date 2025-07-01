@@ -5,6 +5,9 @@
   "private": true,
   "main": "",
   "scripts": {
+    "test": "jest --detectOpenHandles --verbose",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
     "lint": "npx eslint *.js scripts/**/*.js server/**/*.js",
     "fix": "npx eslint --fix *.js scripts/**/*.js server/**/*.js",
     "start": "node app.js"
@@ -70,6 +73,7 @@
     "eslint-plugin-import": "2.14.0",
     "eslint-plugin-node": "8.0.1",
     "eslint-plugin-promise": "4.0.1",
-    "eslint-plugin-standard": "4.0.0"
+    "eslint-plugin-standard": "4.0.0",
+    "jest": "^29.7.0"
   }
 }

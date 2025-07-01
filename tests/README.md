@@ -1,161 +1,92 @@
 # Tests Structure
 
-Ce répertoire contient l'ensemble des tests pour le projet Semantic Bus.
+Ce répertoire contient uniquement la documentation sur l'infrastructure des tests pour le projet Semantic Bus.
 
-## Structure des tests
+## Structure des tests (Nouvelle Architecture)
+
+Les tests sont maintenant organisés **par module** directement dans chaque module :
 
 ```
-tests/
-├── test_unitaires/          # Tests unitaires existants
-├── test_integrations/       # Tests d'intégration
-│   ├── auth/               # Tests d'authentification
-│   ├── user/               # Tests de gestion des utilisateurs
-│   └── workspaces/         # Tests de gestion des workspaces
-└── e2e/                    # Tests end-to-end avec CodeceptJS
+engine/
+├── __tests__/              # Tests du moteur
+│   ├── utils/              # Tests des utilitaires du moteur
+│   ├── services/           # Tests des services du moteur
+│   └── workspaceComponentExecutor/  # Tests des exécuteurs de composants
+├── jest.config.js          # Configuration Jest pour le moteur
+└── jest.setup.js           # Setup Jest pour le moteur
+
+core/
+├── __tests__/              # Tests du core (à créer selon les besoins)
+├── jest.config.js          # Configuration Jest pour le core
+└── jest.setup.js           # Setup Jest pour le core
+
+main/
+├── __tests__/              # Tests du main (à créer selon les besoins)
+├── jest.config.js          # Configuration Jest pour le main
+└── jest.setup.js           # Setup Jest pour le main
+
+timer/
+├── __tests__/              # Tests du timer (à créer selon les besoins)
+├── jest.config.js          # Configuration Jest pour le timer
+└── jest.setup.js           # Setup Jest pour le timer
 ```
 
-## Types de tests
+## Principe de la nouvelle architecture
 
-### 1. Tests unitaires (`test_unitaires/`)
+### 1. Isolation des modules
+- Chaque module (`engine`, `core`, `main`, `timer`) a ses propres tests
+- **Aucun test ne doit dépendre de plusieurs modules**
+- Chaque module est testé indépendamment        
 
-Tests des fonctions individuelles et des modules isolés :
-- Tests de transformation d'objets (V1 et V2)
-- Tests des utilitaires
-- Tests des composants du moteur
-
-**Commande :** `npm run test:unit`
-
-### 2. Tests d'intégration (`test_integrations/`)
-
-Tests de l'interaction entre les différents modules :
-- **auth/** : Tests du système d'authentification
-- **user/** : Tests de la gestion des utilisateurs
-- **workspaces/** : Tests de la gestion des workspaces
-
-**Commandes :**
-- `npm run test:integration` (tous)
-- `npm run test:integration:auth`
-- `npm run test:integration:user`
-- `npm run test:integration:workspaces`
-
-### 3. Tests end-to-end (`e2e/`)
-
-Tests complets de l'application avec CodeceptJS :
-- Tests de l'interface utilisateur
-- Tests des workflows complets
-- Tests avec navigateur
-
-**⚠️ Configuration spéciale requise**
-Les tests E2E nécessitent Docker Compose et ne sont **pas inclus dans la CI principale**.
-
-**Commandes :**
-- `npm run test:e2e` (nécessite Docker)
-- `npm run test:e2e:optional` (affiche les instructions)
-
-## Tests du moteur (`engine/__tests__/`)
-
-Tests spécifiques au moteur de traitement :
-- Tests des utilitaires (`utils/`)
-- Tests des services (`services/`)
-- Tests des exécuteurs de composants (`workspaceComponentExecutor/`)
-
-**Commande :** `npm run test:engine`
-
-## Configuration
-
-### Jest
-
-Les tests utilisent Jest comme framework de test avec les configurations suivantes :
-- `engine/jest.config.js` : Configuration pour les tests du moteur
-- `engine/jest.setup.js` : Setup global pour les tests
-
-### Coverage
-
-La couverture de code est générée automatiquement et disponible dans :
-- `engine/coverage/` : Rapports de couverture du moteur
-- Rapports HTML disponibles dans `coverage/lcov-report/index.html`
+### 2. Configuration par module
+- Chaque module a sa propre configuration Jest (`jest.config.js`)
+- Chaque module a son propre setup Jest (`jest.setup.js`) avec ses mocks spécifiques
+- Pas de `node_modules` de test dans git
 
 ## Exécution des tests
 
-### Localement
+### Par module
 
 ```bash
-# Installer toutes les dépendances
-npm run install:all
+# Tests du moteur
+cd engine && npm test
 
-# Exécuter tous les tests (unitaires + intégration + moteur)
+# Tests du core
+cd core && npm test
+
+# Tests du main
+cd main && npm test
+
+# Tests du timer
+cd timer && npm test
+```
+
+### Depuis la racine
+
+```bash
+# Tous les tests de tous les modules
 npm run test:all
 
-# Exécuter des tests spécifiques
-npm run test:unit
+# Tests spécifiques par module
 npm run test:engine
-npm run test:integration
-
-# Tests E2E (nécessitent Docker)
-make test-build && make test-start
-
-# Avec couverture
-cd engine && npm test -- --coverage
+npm run test:core
+npm run test:main
+npm run test:timer
 ```
 
-### En CI/CD
+### Avec couverture
 
-Les tests sont exécutés automatiquement via GitHub Actions :
-- **Pull Requests** : Tests unitaires, moteur et linting
-- **Push sur main/develop** : Tests complets (unitaires + intégration + moteur)
-- **Tests E2E** : Workflow manuel uniquement (hors CI)
-
-## Ajout de nouveaux tests
-
-### Tests unitaires du moteur
-
-Créer un fichier dans `engine/__tests__/` suivant la structure :
-```
-engine/__tests__/
-├── utils/
-│   └── nouveauModule.test.js
-├── services/
-│   └── nouveauService.test.js
-└── workspaceComponentExecutor/
-    └── nouveauComposant.test.js
-```
-
-### Tests d'intégration
-
-Ajouter dans le répertoire approprié sous `test_integrations/` avec un `package.json` et des fichiers `.test.js`.
-
-### Tests e2e
-
-Ajouter des scénarios dans `e2e/acceptance/` en suivant la syntaxe CodeceptJS.
-
-## Mocking
-
-Les tests utilisent des mocks pour :
-- Les dépendances externes (MongoDB, RabbitMQ)
-- Les modules de fichiers
-- Les appels HTTP
-- La configuration
-
-Voir `engine/jest.setup.js` pour les mocks globaux.
-
-## Debugging
-
-Pour déboguer les tests :
 ```bash
-# Mode verbose
-npm test -- --verbose
-
-# Exécuter un test spécifique
-npm test -- --testNamePattern="nom du test"
-
-# Mode watch
-npm test -- --watch
+cd engine && npm run test:coverage
+cd core && npm run test:coverage
+cd main && npm run test:coverage
+cd timer && npm run test:coverage
 ```
 
-## Bonnes pratiques
+## Scripts disponibles
 
-1. **Isolation** : Chaque test doit être indépendant
-2. **Mocking** : Mocker les dépendances externes
-3. **Nommage** : Noms descriptifs pour les tests
-4. **Coverage** : Viser une couverture élevée mais pertinente
-5. **Performance** : Tests rapides et efficaces
+Chaque module dispose des scripts suivants dans son `package.json` :
+
+- `npm test` : Exécuter les tests
+- `npm run test:coverage` : Tests avec couverture
+- `npm run test:watch` : Tests en mode watch
