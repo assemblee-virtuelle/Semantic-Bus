@@ -12,7 +12,9 @@
   },
   "jest": {
     "testEnvironment": "node",
-    "setupFilesAfterEnv": ["<rootDir>/setup.js"],
+    "setupFilesAfterEnv": [
+      "<rootDir>/setup.js"
+    ],
     "testMatch": [
       "**/__tests__/**/*.js",
       "**/?(*.)+(spec|test).js"
@@ -23,19 +25,31 @@
       "!../../engine/configuration.js"
     ],
     "coverageDirectory": "./coverage",
-    "coverageReporters": ["text", "lcov", "html"],
+    "coverageReporters": [
+      "text",
+      "lcov",
+      "html"
+    ],
     "transform": {},
-    "moduleFileExtensions": ["js", "json"],
+    "moduleFileExtensions": [
+      "js",
+      "json"
+    ],
     "testPathIgnorePatterns": [
       "/node_modules/",
       "/coverage/"
     ]
   },
   "devDependencies": {
-    "jest": "^29.7.0",
-    "supertest": "^4.0.2",
     "@types/jest": "^29.5.5",
+    "jest": "^29.7.0",
     "mongodb-memory-server": "^8.15.1",
-    "sinon": "^15.2.0"
+    "sinon": "^15.2.0",
+    "supertest": "^4.0.2"
+  },
+  "dependencies": {
+    "clone": "^2.1.2",
+    "dot-prop": "^9.0.0",
+    "mongoose": "^8.16.1"
   }
 }

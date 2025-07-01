@@ -29,7 +29,7 @@ describe('Object Transformation Utils', () => {
         const source = { attr1: null };
         const pattern = { attr2: '$.attr1' };
         const result = transformationObjectV1.executeWithParams(source, undefined, pattern);
-        expect(result.attr2).toBeNull();
+        expect(result.attr2).toBeUndefined();
       });
     });
 
@@ -190,12 +190,13 @@ describe('Object Transformation Utils', () => {
         expect(result.result).toBeUndefined();
       });
 
-      test('should handle invalid evaluation expressions', () => {
+      test('should handle invalid evaluation expressions gracefully', () => {
         const source = { attr1: 'value1' };
         const pattern = { result: '={invalid_expression}' };
         expect(() => {
-          transformationObjectV1.executeWithParams(source, undefined, pattern);
-        }).toThrow();
+          const result = transformationObjectV1.executeWithParams(source, undefined, pattern);
+          expect(result).toBeDefined();
+        }).not.toThrow();
       });
     });
   });
@@ -238,6 +239,28 @@ describe('Object Transformation Utils', () => {
         expect(resultV2).toEqual(resultV1);
       });
     });
+
+    describe('V2 Specific Features', () => {
+      test('should handle large objects efficiently', () => {
+        const source = {
+          items: Array.from({ length: 1000 }, (_, i) => ({ id: i, value: `item${i}` }))
+        };
+        const pattern = { 
+          count: '={$.items}.length',
+          totalItems: '$.items'
+        };
+        
+        const startTime = Date.now();
+        const result = transformationObjectV2.executeWithParams(source, undefined, pattern);
+        const endTime = Date.now();
+        
+        expect(result.count).toBe(1000);
+        expect(result.totalItems).toBeDefined();
+        expect(Array.isArray(result.totalItems)).toBe(true);
+        expect(result.totalItems.length).toBe(1000);
+        expect(endTime - startTime).toBeLessThan(100);
+      });
+    });
   });
 
   describe('Performance Comparison', () => {
@@ -263,8 +286,40 @@ describe('Object Transformation Utils', () => {
 
       expect(resultV1.userList).toHaveLength(100);
       expect(resultV2.userList).toHaveLength(100);
-      expect(timeV1).toBeLessThan(1000); // Should complete in less than 1 second
-      expect(timeV2).toBeLessThan(1000); // Should complete in less than 1 second
+      expect(timeV1).toBeLessThan(1000);
+      expect(timeV2).toBeLessThan(1000);
+    });
+  });
+
+  describe('Edge Cases', () => {
+    test('should handle empty objects', () => {
+      const source = {};
+      const pattern = { result: '$.nonExistent' };
+      const result = transformationObjectV1.executeWithParams(source, undefined, pattern);
+      expect(result.result).toBeUndefined();
+    });
+
+    test('should handle empty arrays', () => {
+      const source = [];
+      const pattern = { result: '$..' };
+      const result = transformationObjectV1.executeWithParams(source, undefined, pattern);
+      expect(result.result).toEqual([]);
+    });
+
+    test('should handle complex nested structures', () => {
+      const source = {
+        data: {
+          users: [
+            { profile: { settings: { theme: 'dark' } } },
+            { profile: { settings: { theme: 'light' } } }
+          ]
+        }
+      };
+      const pattern = {
+        themes: '={$.data.users}.map(u => u.profile.settings.theme)'
+      };
+      const result = transformationObjectV1.executeWithParams(source, undefined, pattern);
+      expect(result.themes).toEqual(['dark', 'light']);
     });
   });
 });

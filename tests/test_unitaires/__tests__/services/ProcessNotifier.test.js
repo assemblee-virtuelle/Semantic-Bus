@@ -55,14 +55,8 @@ describe('ProcessNotifier Service', () => {
 
       expect(mockAmqpClient.publish).toHaveBeenCalledWith(
         'amq.topic',
-        `workspace.${mockWorkspaceId}.process.start`,
-        expect.objectContaining({
-          processId: processData._id,
-          callerId: processData.callerId,
-          tracerId: processData.tracerId,
-          timeStamp: processData.timeStamp,
-          steps: processData.steps
-        })
+        `process-start.${mockWorkspaceId}`,
+        processData
       );
     });
 
@@ -75,10 +69,8 @@ describe('ProcessNotifier Service', () => {
 
       expect(mockAmqpClient.publish).toHaveBeenCalledWith(
         'amq.topic',
-        `workspace.${mockWorkspaceId}.process.start`,
-        expect.objectContaining({
-          processId: processData._id
-        })
+        `process-start.${mockWorkspaceId}`,
+        processData
       );
     });
 
@@ -89,15 +81,15 @@ describe('ProcessNotifier Service', () => {
 
       expect(mockAmqpClient.publish).toHaveBeenCalledWith(
         'amq.topic',
-        `workspace.${mockWorkspaceId}.process.start`,
-        expect.any(Object)
+        `process-start.${mockWorkspaceId}`,
+        undefined
       );
     });
   });
 
-  describe('update method', () => {
-    test('should send update notification with process updates', () => {
-      const updateData = {
+  describe('progress method', () => {
+    test('should send progress notification with process updates', () => {
+      const progressData = {
         processId: 'process-123',
         componentId: 'comp-1',
         status: 'completed',
@@ -105,80 +97,62 @@ describe('ProcessNotifier Service', () => {
         error: null
       };
 
-      processNotifier.update(updateData);
+      processNotifier.progress(progressData);
 
       expect(mockAmqpClient.publish).toHaveBeenCalledWith(
         'amq.topic',
-        `workspace.${mockWorkspaceId}.process.update`,
-        expect.objectContaining({
-          processId: updateData.processId,
-          componentId: updateData.componentId,
-          status: updateData.status,
-          data: updateData.data,
-          error: updateData.error
-        })
+        `process-progress.${mockWorkspaceId}`,
+        progressData
       );
     });
 
-    test('should handle error in update', () => {
-      const updateData = {
+    test('should handle error in progress', () => {
+      const progressData = {
         processId: 'process-123',
         componentId: 'comp-1',
         status: 'error',
         error: new Error('Processing failed')
       };
 
-      processNotifier.update(updateData);
+      processNotifier.progress(progressData);
 
       expect(mockAmqpClient.publish).toHaveBeenCalledWith(
         'amq.topic',
-        `workspace.${mockWorkspaceId}.process.update`,
-        expect.objectContaining({
-          processId: updateData.processId,
-          componentId: updateData.componentId,
-          status: updateData.status,
-          error: expect.any(Error)
-        })
+        `process-progress.${mockWorkspaceId}`,
+        progressData
       );
     });
   });
 
-  describe('complete method', () => {
-    test('should send completion notification', () => {
-      const completionData = {
+  describe('end method', () => {
+    test('should send end notification', () => {
+      const endData = {
         processId: 'process-123',
         result: { final: 'result' },
         duration: 1500,
         componentsProcessed: 5
       };
 
-      processNotifier.complete(completionData);
+      processNotifier.end(endData);
 
       expect(mockAmqpClient.publish).toHaveBeenCalledWith(
         'amq.topic',
-        `workspace.${mockWorkspaceId}.process.complete`,
-        expect.objectContaining({
-          processId: completionData.processId,
-          result: completionData.result,
-          duration: completionData.duration,
-          componentsProcessed: completionData.componentsProcessed
-        })
+        `process-end.${mockWorkspaceId}`,
+        endData
       );
     });
 
-    test('should handle completion without result data', () => {
-      const completionData = {
+    test('should handle end without result data', () => {
+      const endData = {
         processId: 'process-123'
       };
 
-      processNotifier.complete(completionData);
+      processNotifier.end(endData);
 
       expect(mockAmqpClient.publish).toHaveBeenCalledWith(
         'amq.topic',
-        `workspace.${mockWorkspaceId}.process.complete`,
-        expect.objectContaining({
-          processId: completionData.processId
-        })
+        `process-end.${mockWorkspaceId}`,
+        endData
       );
     });
   });
@@ -196,13 +170,8 @@ describe('ProcessNotifier Service', () => {
 
       expect(mockAmqpClient.publish).toHaveBeenCalledWith(
         'amq.topic',
-        `workspace.${mockWorkspaceId}.process.error`,
-        expect.objectContaining({
-          processId: errorData.processId,
-          componentId: errorData.componentId,
-          error: expect.any(Error),
-          stack: errorData.stack
-        })
+        `process-error.${mockWorkspaceId}`,
+        errorData
       );
     });
 
@@ -216,11 +185,8 @@ describe('ProcessNotifier Service', () => {
 
       expect(mockAmqpClient.publish).toHaveBeenCalledWith(
         'amq.topic',
-        `workspace.${mockWorkspaceId}.process.error`,
-        expect.objectContaining({
-          processId: errorData.processId,
-          error: errorData.error
-        })
+        `process-error.${mockWorkspaceId}`,
+        errorData
       );
     });
   });
@@ -237,12 +203,8 @@ describe('ProcessNotifier Service', () => {
 
       expect(mockAmqpClient.publish).toHaveBeenCalledWith(
         'amq.topic',
-        `workspace.${mockWorkspaceId}.process.information`,
-        expect.objectContaining({
-          processId: infoData._id,
-          tracerId: infoData.tracerId,
-          information: infoData.information
-        })
+        `process-information.${mockWorkspaceId}`,
+        infoData
       );
     });
 
@@ -256,11 +218,43 @@ describe('ProcessNotifier Service', () => {
 
       expect(mockAmqpClient.publish).toHaveBeenCalledWith(
         'amq.topic',
-        `workspace.${mockWorkspaceId}.process.information`,
-        expect.objectContaining({
-          processId: infoData._id,
-          information: infoData.information
-        })
+        `process-information.${mockWorkspaceId}`,
+        infoData
+      );
+    });
+  });
+
+  describe('persist method', () => {
+    test('should send persist notification', () => {
+      const persistData = {
+        processId: 'process-123',
+        componentId: 'comp-1',
+        data: { persisted: 'data' }
+      };
+
+      processNotifier.persist(persistData);
+
+      expect(mockAmqpClient.publish).toHaveBeenCalledWith(
+        'amq.topic',
+        `process-persist.${mockWorkspaceId}`,
+        persistData
+      );
+    });
+  });
+
+  describe('processCleaned method', () => {
+    test('should send processCleaned notification', () => {
+      const cleanedData = {
+        processId: 'process-123',
+        cleanedAt: new Date()
+      };
+
+      processNotifier.processCleaned(cleanedData);
+
+      expect(mockAmqpClient.publish).toHaveBeenCalledWith(
+        'amq.topic',
+        `workflow-processCleaned.${mockWorkspaceId}`,
+        cleanedData
       );
     });
   });
@@ -280,34 +274,46 @@ describe('ProcessNotifier Service', () => {
       const processId = 'process-123';
 
       processNotifier.start({ _id: processId });
-      processNotifier.update({ processId });
-      processNotifier.complete({ processId });
+      processNotifier.progress({ processId });
+      processNotifier.end({ processId });
       processNotifier.error({ processId });
       processNotifier.information({ _id: processId });
+      processNotifier.persist({ processId });
+      processNotifier.processCleaned({ processId });
 
       expect(mockAmqpClient.publish).toHaveBeenCalledWith(
         'amq.topic',
-        `workspace.${mockWorkspaceId}.process.start`,
+        `process-start.${mockWorkspaceId}`,
         expect.any(Object)
       );
       expect(mockAmqpClient.publish).toHaveBeenCalledWith(
         'amq.topic',
-        `workspace.${mockWorkspaceId}.process.update`,
+        `process-progress.${mockWorkspaceId}`,
         expect.any(Object)
       );
       expect(mockAmqpClient.publish).toHaveBeenCalledWith(
         'amq.topic',
-        `workspace.${mockWorkspaceId}.process.complete`,
+        `process-end.${mockWorkspaceId}`,
         expect.any(Object)
       );
       expect(mockAmqpClient.publish).toHaveBeenCalledWith(
         'amq.topic',
-        `workspace.${mockWorkspaceId}.process.error`,
+        `process-error.${mockWorkspaceId}`,
         expect.any(Object)
       );
       expect(mockAmqpClient.publish).toHaveBeenCalledWith(
         'amq.topic',
-        `workspace.${mockWorkspaceId}.process.information`,
+        `process-information.${mockWorkspaceId}`,
+        expect.any(Object)
+      );
+      expect(mockAmqpClient.publish).toHaveBeenCalledWith(
+        'amq.topic',
+        `process-persist.${mockWorkspaceId}`,
+        expect.any(Object)
+      );
+      expect(mockAmqpClient.publish).toHaveBeenCalledWith(
+        'amq.topic',
+        `workflow-processCleaned.${mockWorkspaceId}`,
         expect.any(Object)
       );
     });
@@ -328,15 +334,12 @@ describe('ProcessNotifier Service', () => {
         }
       };
 
-      processNotifier.update(complexData);
+      processNotifier.progress(complexData);
 
       expect(mockAmqpClient.publish).toHaveBeenCalledWith(
         'amq.topic',
-        `workspace.${mockWorkspaceId}.process.update`,
-        expect.objectContaining({
-          processId: complexData.processId,
-          data: expect.any(Object)
-        })
+        `process-progress.${mockWorkspaceId}`,
+        complexData
       );
     });
 
@@ -348,7 +351,7 @@ describe('ProcessNotifier Service', () => {
       circularData.data.self = circularData.data;
 
       expect(() => {
-        processNotifier.update(circularData);
+        processNotifier.progress(circularData);
       }).not.toThrow();
     });
   });
@@ -363,12 +366,46 @@ describe('ProcessNotifier Service', () => {
 
       const startTime = Date.now();
       notifications.forEach(notification => {
-        processNotifier.update(notification);
+        processNotifier.progress(notification);
       });
       const endTime = Date.now();
 
       expect(endTime - startTime).toBeLessThan(1000); // Should complete in less than 1 second
       expect(mockAmqpClient.publish).toHaveBeenCalledTimes(100);
+    });
+  });
+
+  describe('Private publish method', () => {
+    test('should format routing key correctly', () => {
+      const testData = { test: 'data' };
+      
+      // Test the publish method through a public method
+      processNotifier.start(testData);
+      
+      expect(mockAmqpClient.publish).toHaveBeenCalledWith(
+        'amq.topic',
+        `process-start.${mockWorkspaceId}`,
+        testData
+      );
+    });
+
+    test('should handle publish promise resolution', async () => {
+      const testData = { test: 'data' };
+      mockAmqpClient.publish.mockResolvedValue(true);
+      
+      expect(() => {
+        processNotifier.start(testData);
+      }).not.toThrow();
+    });
+
+    test('should handle publish promise rejection', async () => {
+      const testData = { test: 'data' };
+      mockAmqpClient.publish.mockRejectedValue(new Error('Publish failed'));
+      
+      // Should not throw error, but should log it
+      expect(() => {
+        processNotifier.start(testData);
+      }).not.toThrow();
     });
   });
 });
