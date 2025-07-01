@@ -1,0 +1,24 @@
+# Code Owners pour Semantic Bus Engine
+# Ces utilisateurs seront automatiquement demandés pour review
+
+# Global owners
+* @your-team/semantic-bus-maintainers
+
+# Engine core
+/engine/ @your-team/engine-team
+/engine/services/ @your-team/backend-team
+/engine/utils/ @your-team/utils-team
+
+# Tests
+/tests/ @your-team/qa-team
+/.github/workflows/ @your-team/devops-team
+
+# Configuration et documentation
+/docker-compose*.yml @your-team/devops-team
+/Dockerfile @your-team/devops-team
+/Makefile @your-team/devops-team
+*.md @your-team/documentation-team
+
+# Security sensitive files
+/engine/security/ @your-team/security-team
+/.github/ @your-team/devops-team

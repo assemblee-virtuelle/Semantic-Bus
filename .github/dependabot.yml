@@ -1,0 +1,81 @@
+version: 2
+updates:
+  # Dépendances npm pour les tests
+  - package-ecosystem: "npm"
+    directory: "/tests/test_unitaires"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "09:00"
+      timezone: "Europe/Paris"
+    open-pull-requests-limit: 10
+    reviewers:
+      - "your-team/qa-team"
+    assignees:
+      - "your-team/maintainers"
+    commit-message:
+      prefix: "npm"
+      prefix-development: "npm-dev"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "npm"
+    ignore:
+      # Ignorer les mises à jour majeures pour Jest (stabilité)
+      - dependency-name: "jest"
+        update-types: ["version-update:semver-major"]
+
+  # Dépendances npm racine (si applicable)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "monday"
+      time: "10:00"
+      timezone: "Europe/Paris"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "your-team/backend-team"
+    commit-message:
+      prefix: "npm"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "npm"
+      - "engine"
+
+  # Dépendances Docker
+  - package-ecosystem: "docker"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "tuesday"
+      time: "09:00"
+      timezone: "Europe/Paris"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "your-team/devops-team"
+    commit-message:
+      prefix: "docker"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "docker"
+
+  # GitHub Actions
+  - package-ecosystem: "github-actions"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+      day: "wednesday"
+      time: "09:00"
+      timezone: "Europe/Paris"
+    open-pull-requests-limit: 5
+    reviewers:
+      - "your-team/devops-team"
+    commit-message:
+      prefix: "github-actions"
+      include: "scope"
+    labels:
+      - "dependencies"
+      - "github-actions"

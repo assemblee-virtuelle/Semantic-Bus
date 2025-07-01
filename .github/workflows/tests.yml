@@ -1,0 +1,182 @@
+name: Tests Semantic Bus Engine
+
+on:
+  push:
+    branches: [ main, develop ]
+  pull_request:
+    branches: [ main, develop ]
+  workflow_dispatch: # Permet de lancer manuellement
+
+jobs:
+  unit-tests:
+    name: Tests Unitaires
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        node-version: [18.x, 20.x]
+    
+    steps:
+    - name: Checkout du code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js ${{ matrix.node-version }}
+      uses: actions/setup-node@v4
+      with:
+        node-version: ${{ matrix.node-version }}
+        cache: 'npm'
+        cache-dependency-path: 'tests/test_unitaires/package-lock.json'
+    
+    - name: Installation des dépendances
+      working-directory: tests/test_unitaires
+      run: npm ci
+    
+    - name: Lancement des tests unitaires
+      working-directory: tests/test_unitaires
+      run: npm test
+    
+    - name: Tests avec couverture de code
+      working-directory: tests/test_unitaires
+      run: npm run test:coverage
+    
+    - name: Upload de la couverture vers Codecov
+      uses: codecov/codecov-action@v3
+      with:
+        file: ./tests/test_unitaires/coverage/lcov.info
+        flags: unittests
+        name: codecov-umbrella
+        fail_ci_if_error: false
+
+  integration-tests:
+    name: Tests d'Intégration
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    
+    services:
+      mongodb:
+        image: mongo:5.0
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd mongo
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 5
+      
+      rabbitmq:
+        image: rabbitmq:3.9-management
+        ports:
+          - 5672:5672
+          - 15672:15672
+        options: >-
+          --health-cmd "rabbitmq-diagnostics -q ping"
+          --health-interval 30s
+          --health-timeout 30s
+          --health-retries 3
+    
+    steps:
+    - name: Checkout du code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+    
+    - name: Installation des dépendances principales
+      run: npm install
+    
+    - name: Attendre MongoDB
+      run: |
+        until nc -z localhost 27017; do
+          echo "Attente de MongoDB..."
+          sleep 2
+        done
+    
+    - name: Attendre RabbitMQ
+      run: |
+        until nc -z localhost 5672; do
+          echo "Attente de RabbitMQ..."
+          sleep 2
+        done
+    
+    - name: Tests d'intégration
+      run: make test-integration
+      env:
+        MONGODB_URI: mongodb://localhost:27017/test
+        RABBITMQ_URL: amqp://localhost:5672
+
+  docker-tests:
+    name: Tests Docker
+    runs-on: ubuntu-latest
+    needs: unit-tests
+    
+    steps:
+    - name: Checkout du code
+      uses: actions/checkout@v4
+      
+    - name: Setup Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Tests avec Docker Compose
+      run: |
+        docker-compose -f docker-compose.test.yaml up --build --abort-on-container-exit
+        docker-compose -f docker-compose.test.yaml down
+
+  security-scan:
+    name: Analyse de Sécurité
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout du code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+    
+    - name: Audit de sécurité npm
+      working-directory: tests/test_unitaires
+      run: npm audit --audit-level=moderate
+      continue-on-error: true
+    
+    - name: Scan CodeQL
+      uses: github/codeql-action/init@v2
+      with:
+        languages: javascript
+    
+    - name: Analyse CodeQL
+      uses: github/codeql-action/analyze@v2
+
+  quality-check:
+    name: Contrôle Qualité
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout du code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        cache-dependency-path: 'tests/test_unitaires/package-lock.json'
+    
+    - name: Installation des dépendances
+      working-directory: tests/test_unitaires
+      run: npm ci
+    
+    - name: Lint du code
+      working-directory: tests/test_unitaires
+      run: |
+        npx eslint ../../engine --ext .js --format=github
+      continue-on-error: true
+    
+    - name: Vérification format du code
+      working-directory: tests/test_unitaires
+      run: |
+        npx prettier --check ../../engine/**/*.js
+      continue-on-error: true
