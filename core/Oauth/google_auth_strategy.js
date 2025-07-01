@@ -17,7 +17,6 @@ module.exports = (passport) => {
       proxy: true
     },
     function (res, token, refreshToken, profile, done) {
-      console.log('____________________NEXT TICK');
       process.nextTick(async function () {
         const user = await UserModel.getInstance().model.findOne({
           'googleId': profile.id
@@ -28,14 +27,6 @@ module.exports = (passport) => {
           await UserModel.getInstance().model.findByIdAndUpdate(user._id,user);
           console.log('user',user)
           return done(null, user)
-          // return done(new error.OauthError())
-          // UserModel.getInstance().model.findByIdAndUpdate(user._id, user, function (err, resp) {
-          //   if (err) {
-          //     // res.status(500).send()
-          //     return done(new error.OauthError())
-          //   }
-          //   return done(null, user)
-          // })
         } else {
           const UserModelInstance = UserModel.getInstance().model
           var newUser = new UserModelInstance({

@@ -1,3 +1,38 @@
+/**
+ * @module TechnicalComponentStore
+ * 
+ * @description
+ * This module manages the technical components and their categories within the application.
+ * It provides methods for loading and refreshing technical components and their categories.
+ * 
+ * @param {Object} utilStore - Utility store for making AJAX calls.
+ * 
+ * @fires TechnicalComponentStore#technicalComponent_collection_changed
+ * @fires TechnicalComponentStore#technicalComponent_current_changed
+ * @fires TechnicalComponentStore#componentsCategoriesTree_changed
+ * 
+ * @function load
+ * @description Loads the technical component collection if not already loaded.
+ * 
+ * @function onTechnicalComponentCollectionLoad
+ * @description Event handler for loading the technical component collection.
+ * 
+ * @function onTechnicalComponentCurrentInit
+ * @description Initializes the current technical component with default values.
+ * 
+ * @function onComponentsCategoriesTreeRefresh
+ * @description Refreshes the components categories tree.
+ * 
+ * @event TechnicalComponentStore#technicalComponent_collection_changed
+ * @description Triggered when the technical component collection changes.
+ * 
+ * @event TechnicalComponentStore#technicalComponent_current_changed
+ * @description Triggered when the current technical component changes.
+ * 
+ * @event TechnicalComponentStore#componentsCategoriesTree_changed
+ * @description Triggered when the components categories tree changes.
+ */
+
 function TechnicalComponentStore (utilStore) {
   riot.observable(this) // Riot provides our event emitter.
 

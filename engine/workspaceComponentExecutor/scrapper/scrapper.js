@@ -1,13 +1,18 @@
 'use strict'
 class Scrapper {
   constructor() {
-    this.webdriverio = require('webdriverio');
+    // Use dynamic import for webdriverio
+    import('webdriverio').then((webdriverio) => {
+      this.webdriverio = webdriverio;
+    }).catch((err) => {
+      console.error('Failed to load webdriverio:', err);
+    });
     this.base = require('./wdio.conf.base');
     this.stringReplacer = require('../../utils/stringReplacer');
   }
 
   getPriceState(specificData, moPrice, recordPrice) {
-    if (specificData.sauceLabToken != null) {
+    if (specificData.key != null) {
       return {
         moPrice: moPrice,
         recordPrice: 0
@@ -223,8 +228,8 @@ class Scrapper {
         let options = Object.assign(this.base.config, {
           capabilities: {
             browserName: 'chrome',
-            version: '56',
-            platform: 'windows 10',
+            version: 'latest',
+            platform: 'windows 11',
             // tags: ['examples'],
             name: saucelabname || 'Example Test',
 
@@ -261,7 +266,16 @@ class Scrapper {
 
           client.url(url)
             .then(() => {
-              this.aggregateAction(actions, client, data, specificData).then((res) => {
+              let actionsProccessed = actions.map(a=>({...a}));
+              for( let action of actionsProccessed){
+                if(action.selector){
+                  action.selector = this.stringReplacer.execute( action.selector, queryParams, flowData);
+                }
+                if(action.attribut){
+                  action.attribut = this.stringReplacer.execute( action.attribut, queryParams, flowData);
+                }
+              }
+              this.aggregateAction(actionsProccessed, client, data, specificData).then((res) => {
                 // console.log("--traitmeent terminé final ----", res)
                 resolve({
                   data: res

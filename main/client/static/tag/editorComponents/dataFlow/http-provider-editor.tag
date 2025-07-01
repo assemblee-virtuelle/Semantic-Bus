@@ -23,18 +23,45 @@
   <div class="cardInput">
     <a class="linkApi" ref="link" target="_blank" href={window.location.origin +'/data/api/'+data.specificData.url}>{window.location.origin +'/data/api/'+data.specificData.url}</a>
   </div>
-  <label class="labelFormStandard">Content-type</label>
+  <label class="labelFormStandard">Retourner un fichier brut (necessite d'avour un fichier brut dans une propriété)</label>
   <div class="cardInput">
-    <select class="inputComponents" name="contentTypeInput" ref="contentTypeInput" onchange={contentTypeInputChanged}>
-      <option value="application/json" selected={data.specificData.contentType==='application/json'}>application/json</option>
-      <option value="application/ld+json" selected={data.specificData.contentType==='application/ld+json'}>application/ld+json</option>
-      <option value="application/xml" selected={data.specificData.contentType==='application/xml'}>application/xml</option>
-      <option value="application/x-yaml" selected={data.specificData.contentType==='application/x-yaml'}>application/x-yaml</option>
-      <option value="application/vnd.ms-excel" selected={data.specificData.contentType==='application/vnd.ms-excel'}>application/vnd.ms-excel</option>
-      <option value="application/rdf+xml" selected={data.specificData.contentType==='application/rdf+xml'}>application/rdf+xml</option>
-      <option value="application/ics" selected={data.specificData.contentType==='application/ics'}>application/ics</option>
-    </select>
+    <label class="switch">
+        <input type="checkbox" name="returnRawFile" ref="returnRawFileInput" checked={data.specificData.returnRawFile} onchange={returnRawFileChange}/>
+        <span class="slider round"></span>
+    </label>
   </div>
+  
+  <div if={!data.specificData.returnRawFile}>
+    <label class="labelFormStandard">Content-type</label>
+    <div class="cardInput">
+      <select class="inputComponents" name="contentTypeInput" ref="contentTypeInput" onchange={contentTypeInputChanged}>
+        <option value="application/json" selected={data.specificData.contentType==='application/json'}>application/json</option>
+        <option value="application/ld+json" selected={data.specificData.contentType==='application/ld+json'}>application/ld+json</option>
+        <option value="application/xml" selected={data.specificData.contentType==='application/xml'}>application/xml</option>
+        <option value="application/x-yaml" selected={data.specificData.contentType==='application/x-yaml'}>application/x-yaml</option>
+        <option value="application/vnd.ms-excel" selected={data.specificData.contentType==='application/vnd.ms-excel'}>application/vnd.ms-excel</option>
+        <option value="application/rdf+xml" selected={data.specificData.contentType==='application/rdf+xml'}>application/rdf+xml</option>
+        <option value="application/ics" selected={data.specificData.contentType==='application/ics'}>application/ics</option>
+      </select>
+    </div>
+  </div>
+  
+  <div if={data.specificData.returnRawFile}>
+    <div class="cardInput">
+      <p class="infoText">Le Content-type sera déterminé automatiquement par l'extension du fichier</p>
+    </div>
+    
+    <label class="labelFormStandard">Propriété contenant le fichier brut</label>
+    <div class="cardInput">
+      <input class="inputComponents" placeholder="Nom de la propriété" type="text" name="rawFileProperty" ref="rawFilePropertyInput" onchange={rawFilePropertyChanged} value={data.specificData.rawFileProperty}></input>
+    </div>
+    
+    <label class="labelFormStandard">Nom du fichier (optionnel)</label>
+    <div class="cardInput">
+      <input class="inputComponents" placeholder="Nom du fichier téléchargé" type="text" name="filename" ref="filenameInput" onchange={filenameChanged} value={data.specificData.filename}></input>
+    </div>
+  </div>
+  
   <label class="labelFormStandard">execution sans file d'attente ni blocage</label>
   <div class="cardInput">
     <label class="switch">
@@ -58,7 +85,7 @@
         <span class="slider round"></span>
     </label>
   </div>
-  <div>
+  
   <div if={!data.specificData.responseWithoutExecution}>
     <label class="labelFormStandard">Composant qui effectura la reponse http</label>
     <div class="cardInput">
@@ -98,6 +125,18 @@
 
     unrestrictedExecutionChange(event){
         this.data.specificData.unrestrictedExecution = event.target.checked
+    }
+
+    returnRawFileChange(event){
+        this.data.specificData.returnRawFile = event.target.checked
+    }
+
+    rawFilePropertyChanged(e){
+        this.data.specificData.rawFileProperty = e.currentTarget.value;
+    }
+
+    filenameChanged(e){
+        this.data.specificData.filename = e.currentTarget.value;
     }
 
     unlockComponentIdInputChanged(e){
@@ -170,6 +209,12 @@
     }
     .linkApi{
       color:rgb(180,180,180);
+    }
+    .infoText {
+      color: #666;
+      font-style: italic;
+      font-size: 0.9em;
+      margin: 5px 0;
     }
   </style>
 </http-provider-editor>

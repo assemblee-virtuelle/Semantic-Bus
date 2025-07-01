@@ -1,9 +1,83 @@
 'use strict'
 // need NodeJs >=12
+const dayjs = require('dayjs-with-plugins');
+const he = require('he');
+const Globalize = require("globalize");
+const cldrData = require("cldr-data");
+const path = require('path');
+const fs = require('fs');
+const cheerio = require('cheerio');
+const removeMarkdown = require('remove-markdown');
+const lodash = require('lodash');
+const sanitizeHtml = require('sanitize-html');
+const crypto = require('crypto');
+// Charger toutes les données CLDR nécessaires pour toutes les locales
+
+const allLocales = cldrData.availableLocales;
+
+const loadCldrData = () => {
+  const localesCldrCategories = [
+    "main/{locale}/numbers",
+    "main/{locale}/currencies",
+    "main/{locale}/ca-gregorian",
+    "main/{locale}/timeZoneNames",
+    "main/{locale}/listPatterns",
+    "main/{locale}/units",
+    "main/{locale}/measurementSystemNames",
+    "main/{locale}/dateFields",
+    "main/{locale}/posix"
+  ];
+  const supplementalsCldrCategories = [
+    "supplemental/likelySubtags",
+    "supplemental/numberingSystems",
+    "supplemental/plurals",
+    "supplemental/timeData",
+    "supplemental/weekData",
+    "supplemental/currencyData",
+    "supplemental/aliases",
+    "supplemental/parentLocales",
+    "supplemental/dayPeriods",
+    "supplemental/ordinals",
+  ];
+
+
+  supplementalsCldrCategories.forEach(category => {
+    Globalize.load(cldrData(category));
+  });
+
+  allLocales.forEach(locale => {
+    localesCldrCategories.forEach(category => {
+      const path = category.replace("{locale}", locale);
+      try {
+        Globalize.load(cldrData(path));
+        // Globalize.load(
+        //   cldrData.entireMainFor(locale),
+        //   cldrData.entireSupplemental()
+        // );
+      } catch (err) {
+        console.warn(`Could not load data for locale ${locale}: ${err.message}`);
+      }
+    });
+  });
+
+};
+
+// Initialisation de Globalize avec toutes les locales
+loadCldrData();
+
+function decodeUnicode(str) {
+  // On définit le pattern : '\\\\u' pour \u et '([\\dA-Fa-f]{4})' pour les 4 chiffres hexadécimaux
+  const regex = new RegExp('\\\\u([\\dA-Fa-f]{4})', 'g');
+  return str.replace(regex, (match, grp) =>
+    String.fromCharCode(parseInt(grp, 16))
+  );
+}
+
+
 
 module.exports = {
-  Intl: require('intl'),
-  moment: require('moment'),
+  // Intl: require('intl'),
+  // moment: require('moment'),
   dotProp: require('dot-prop'),
   unicode: require('unicode-encode'),
   executeWithParams: function (source, pullParams, jsonTransformPattern, options, config) {
@@ -19,32 +93,35 @@ module.exports = {
       const arrayRegexEval = [...jsonTransformPattern.matchAll(regexpeEval)]
       if (arrayRegexEval.length > 0) {
         let patternEval = arrayRegexEval[0][1];
-        const regexpeDot = /{(.*?)}/gm;
+        let patternEvalPretty = patternEval;
+        const regexpeDot = /{(\$.*?|£.*?)}/gm;
         const arrayRegexDot = [...patternEval.matchAll(regexpeDot)];
         let logEval = false;
         for (const valueDot of arrayRegexDot) {
           // console.log('--valueDot[1]',valueDot[1])
           let sourceDotValue = this.getValueFromSource(source, pullParams, valueDot[1]);
-
-          if (typeof sourceDotValue === 'string' || sourceDotValue instanceof String) {
-            sourceDotValue = "this.resolveString('" + this.escapeString(sourceDotValue) + "')"
-          } else if (typeof sourceDotValue === 'object') {
-            sourceDotValue = "this.parseAndResolveString('" + JSON.stringify(this.escapeString(sourceDotValue)) + "')";
-          } else if (typeof sourceDotValue == 'number' || !isNaN(sourceDotValue)) {
-            const type = typeof sourceDotValue;
-            sourceDotValue = `Number(${sourceDotValue})`
+          let sourceDotValueEval = this.getValueFromSource(source, pullParams, valueDot[1]);;
+          if (typeof sourceDotValueEval === 'string' || sourceDotValueEval instanceof String) {
+            sourceDotValueEval = "this.resolveString('" + this.escapeString(sourceDotValueEval) + "')"
+            patternEvalPretty = patternEvalPretty.replace(valueDot[0], `"${sourceDotValue}"`);
+          } else if (typeof sourceDotValueEval === 'object') {
+            sourceDotValueEval = "this.parseAndResolveString('" + JSON.stringify(this.escapeString(sourceDotValueEval)) + "')";
+            patternEvalPretty = patternEvalPretty.replace(valueDot[0], sourceDotValue);
+          } else if (typeof sourceDotValueEval == 'number' || !isNaN(sourceDotValueEval)) {
+            // const type = typeof sourceDotValueEval;
+            sourceDotValueEval = `Number(${sourceDotValueEval})`
+            patternEvalPretty = patternEvalPretty.replace(valueDot[0], sourceDotValue);
           }
-          patternEval = patternEval.replace(valueDot[0], sourceDotValue);
+          patternEval = patternEval.replace(valueDot[0], sourceDotValueEval);
         }
-        // console.log(' -> patternEval', patternEval);
         try {
           const evalResult = eval(patternEval);
           // console.log('-> evalResult',evalResult)
           // if (options && options.evaluationDetail == true) {
           //   return { eval: evalResult };
           // } else {
-            // console.log('return evalResult',evalResult);
-            return evalResult;
+          // console.log('return evalResult',evalResult);
+          return evalResult;
           // }
         } catch (e) {
           // console.error(e)
@@ -57,7 +134,7 @@ module.exports = {
           return {
             error: 'Javascript Eval failed',
             errorDetail: {
-              evalString: patternEval,
+              evalString: patternEvalPretty,
               cause: e.message
             }
           }
@@ -93,12 +170,9 @@ module.exports = {
       if (arrayRegex.length > 0) {
         const dotPath = arrayRegex[0][1];
         const dotPropResult = this.dotProp.get(source, dotPath);
-        // console.log('___dotProp',source, dotPath,dotPropResult)
         return dotPropResult;
       } else if (arrayRegexPull.length > 0) {
         const dotPath = arrayRegexPull[0][1];
-        // console.log('-dotPath',dotPath)
-        // console.log('this.dotProp.get(pullParams, dotPath)',this.dotProp.get(pullParams, dotPath));
         return this.dotProp.get(pullParams, dotPath);
       } else {
         return pattern;

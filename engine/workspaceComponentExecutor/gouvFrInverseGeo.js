@@ -18,26 +18,31 @@ class GouvFrInverseGeo {
       lng: flowData[specificData.longitudePath]
     }
     const urlString = 'http://api-adresse.data.gouv.fr/reverse/?lon=' + geoLoc.lng + '&lat=' + geoLoc.lat;
-    console.log(urlString)
+    // console.log(urlString)
     const geoResponse = await fetch(urlString);
 
 
     if(geoResponse.status==200){
 
       const geoResponseObject = await geoResponse.json();
-      console.log(geoResponseObject)
+      // console.log(geoResponseObject)
       if(geoResponseObject.features.length>0){
-        // console.log(geoLocalisations[geoLocalisationKey].features[0].properties);
+        if(specificData.CPPath){  //CPPath is optional
         flowData[specificData.CPPath] = geoResponseObject.features[0].properties.postcode;
-        flowData[specificData.INSEEPath] = geoResponseObject.features[0].properties.citycode;
-        flowData[specificData.VillePath] = geoResponseObject.features[0].properties.city;
+        }
+        if(specificData.INSEEPath){ //INSEEPath is optional
+          flowData[specificData.INSEEPath] = geoResponseObject.features[0].properties.citycode;
+        }
+        if(specificData.VillePath){ //VillePath is optional
+          flowData[specificData.VillePath] = geoResponseObject.features[0].properties.city;
+        }
       }else{
         flowData[specificData.CPPath]="no adress finded";
         flowData[specificData.INSEEPath]="no adress finded";
         flowData[specificData.VillePath] = "no adress finded"
       }
   
-      return flowData;
+      return {data:flowData};
     } else {
       throw new Error(geoResponseObject.message)
     }

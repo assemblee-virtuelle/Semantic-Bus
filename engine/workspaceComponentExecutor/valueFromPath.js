@@ -6,6 +6,11 @@ class ValueFromPath {
   }
 
   progress(node, pathArray, pathObject, currentKey, counter) {
+    // console.log('___progress',  pathArray, currentKey)
+
+    if (node===undefined){
+      return undefined;
+    }
 
     // console.log('progress',counter,pathArray,currentKey);
 
@@ -29,9 +34,13 @@ class ValueFromPath {
         // console.log('r after', r);
       })
       // console.log('out',out);
+      // console.log('__POGRESS return', out.length);
+      // console.log('__POGRESS return', JSON.stringify(out));
       return out
     } else {
+
       if (pathArray.length == 0) {
+        // console.log('__progress 2',node,currentKey);
         // console.log('RFP end',node,currentKey,pathObject);
         let out = node;
         if (Array.isArray(node)) {
@@ -62,11 +71,12 @@ class ValueFromPath {
 
         return out;
       } else {
+        // console.log('__progress 1',node,currentKey);
         // console.log('RFP1',node,currentKey);
         let key = pathArray.shift()
         for (let keyNode in node) {
           // console.log('copare',keyNode,key,keyNode.localeCompare(key));
-          if (keyNode.localeCompare(key) != 0 && this.objectSizeOf(node[keyNode]) < 1000 && !Array.isArray(node[keyNode])) {
+          if (keyNode.localeCompare(key) != 0 && this.objectSizeOf(node[keyNode]) < 100000) {
             // let targetKey=currentKey==undefined?keyNode:targetKey+'-'+keyNode;
             pathObject[currentKey + '-' + keyNode] = node[keyNode]
           }
@@ -74,10 +84,8 @@ class ValueFromPath {
 
         if (node.hasOwnProperty(key)) {
           let out = this.progress(node[key], pathArray, pathObject, key, ++counter);
-          // console.log('out',out);
           return out;
         } else {
-          // console.log('RETURN UNDEFINED')
           return undefined
         }
         // console.log('pathObject increment',pathObject);
@@ -90,22 +98,24 @@ class ValueFromPath {
   }
 
   resolve(source, specificData) {
-    let matches = specificData.path.split('.')
-    // console.log('matches',matches);
-    let result = this.progress(source, matches, {}, 'root', 0)
-    //let result = source;
-    // console.log('________________________result',result);
+    // console.log('___resolve', source[0][0].organization)
+    let matches = specificData.path.split('.');
+    // console.log('__resolve', JSON.stringify(source), JSON.stringify(matches))
+    let result = this.progress(source, matches, {}, 'root', 0);
+    // console.log('__RESOLVE', JSON.stringify(result));
+    // console.log('___result', result[0][0])
     return (result)
   }
 
   pull(data, flowData) {
     return new Promise((resolve, reject) => {
       // console.log('VALUE FROM PATH START');
-      // console.log(flowData[0].data,data.specificData.path);
+      console.log(flowData[0].data,data.specificData.path);
       // let value=this.dotProp.get(flowData[0].data, data.specificData.path)
       try {
         let value = this.resolve(flowData[0].data, data.specificData);
-        // console.log('RESOLVE',value);
+        // console.log('RESOLVE',JSON.stringify(value));
+        console.log('__RESOLVE',value);
         resolve({
           data: value
         })

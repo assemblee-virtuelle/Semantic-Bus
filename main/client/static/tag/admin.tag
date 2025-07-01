@@ -1,17 +1,24 @@
 <admin class="containerV" style="flex-grow:1">
 
 
+  <label class="labelFormStandard">supprimer les fragments marqués</label>
+  <div onclick={cleanGarbageSimpleClick} class="btnFil commandButtonImage">
+    Nettoyer (fragments)
+    <img class="imgFil" src="./image/Administrative-Tools-256.png" title="Nettoyer les fragments">
+    <input ref="import" type="file" style="display:none;"/>
+  </div>
+
   <label class="labelFormStandard">Suprimer les processus d'execution périmés + marquer les fragments à supprimer + supprimer les fragments marqués</label>
   <div onclick={cleanProcessClick} class="btnFil commandButtonImage">
-    Nettoyer
-    <img class="imgFil" src="./image/Administrative-Tools-256.png" title="Nettoyer process">
+    Nettoyer (processus + fragments)
+    <img class="imgFil" src="./image/Administrative-Tools-256.png" title="Nettoyer process et les fragments associés">
     <input ref="import" type="file" style="display:none;"/>
   </div>
 
   <label class="labelFormStandard">Supprimer les fragments marqués à supprimer + Supprimer brutalement (algo independant) les fragments des processus périmés + supprimer les processus d'execution périmés</label>
   <div onclick={cleanGarbageClick} class="btnFil commandButtonImage">
     Nettoyer (Brut)
-    <img class="imgFil" src="./image/Administrative-Tools-256.png" title="Nettoyer données périmées">
+    <img class="imgFil" src="./image/Administrative-Tools-256.png" title="Nettoyer les fragments périmées">
     <input ref="import" type="file" style="display:none;"/>
   </div>
 
@@ -37,6 +44,10 @@
 
     cleanProcessClick(e) {
       RiotControl.trigger('clean_process');
+    }
+
+    cleanGarbageSimpleClick(e) {
+      RiotControl.trigger('clean_garbage_simple');
     }
 
     executeTimersClick(e) {

@@ -64,6 +64,14 @@
     <input class="inputComponents" placeholder="" type="text" ref="overidedContentTypeInput" value={data.specificData.overidedContentType} onchange={overidedContentTypeInputChange}></input>
   </div>
 
+  <label class="labelFormStandard">conservation du fichier binaire:</label>
+  <div class="cardInput">
+    <label class="switch">
+        <input type="checkbox" name="rawFileInput" ref="rawFileInput" checked={data.specificData.rawFile} onchange={rawFileChange}/>
+        <span class="slider round"></span>
+    </label>
+  </div>
+
   <div class="options">
     <label class="labelFormStandard">certification</label>
     <div class="cardInput">
@@ -86,7 +94,7 @@
   <div class="cardInput">
     <div onclick={addRowClick} class="btnFil commandButtonImage">
       Ajouter
-      <img class="imgFil" src="./image/ajout_composant.svg" title="Importer un Workflow">
+      <img class="imgFil" src="./image/ajout_composant.svg" title="Importer un header">
       <input onchange={import} ref="import" type="file" style="display:none;"/>
     </div>
   </div>
@@ -187,6 +195,10 @@
       this.update();
     }.bind(this);
 
+    rawFileChange(event) {
+      this.data.specificData.rawFile = event.target.checked;
+    }
+
 
     this.updateData = dataToUpdate => {
       this.data = dataToUpdate;
@@ -209,6 +221,8 @@
     this.on('unmount', function () {
       RiotControl.off('item_current_changed', this.updateData);
     });
+
+
   </script>
   <style>
   .hide {

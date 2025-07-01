@@ -5,34 +5,34 @@ const config = require('../../config.json')
 // --------------------------------------------------------------------------------
 class Security {
 
-  wrapperSecurity (req, res, next, role, entity){
+  wrapperSecurity(req, res, next, role, entity) {
     // console.log('wrapperSecurity',role,entity);
     switch (entity) {
       case 'workflow':
         this.securityWorkspace(req, role)
-        .then((authorized) => {
-          if (authorized) {
-            next()
-          } else {
-            res.status(403).send({
-              success: false,
-              message: 'No right'
-            })
-          }
-        })
+          .then((authorized) => {
+            if (authorized) {
+              next()
+            } else {
+              res.status(403).send({
+                success: false,
+                message: 'No right'
+              })
+            }
+          })
         break;
       case 'bigdataflow':
         this.securityBigdataflow(req, role)
-        .then((authorized) => {
-          if (authorized) {
-            next()
-          } else {
-            res.status(403).send({
-              success: false,
-              message: 'No right'
-            })
-          }
-        })
+          .then((authorized) => {
+            if (authorized) {
+              next()
+            } else {
+              res.status(403).send({
+                success: false,
+                message: 'No right'
+              })
+            }
+          })
         break;
       default:
 
@@ -40,7 +40,7 @@ class Security {
 
   }
 
-  securityWorkspace (req, role) {
+  securityWorkspace(req, role) {
     return new Promise(resolve => {
       // here token is obligatory good because after first middleware
       const token = req.body.token || req.query.token || req.headers['authorization']
@@ -52,25 +52,30 @@ class Security {
       if (req.body && req.body.workspaceId) workspaceId = req.body.workspaceId
       if (req.params && req.params.id) workspaceId = req.params.id
       user_lib.getWithRelations(
-        decodeToken.iss,config
+        decodeToken.iss, config
       ).then((result) => {
         // !!!!!! Don't use ===  here because workspace Id is noT same type than params !!!!!
         let isAuthorized
-        // console.log('XXXX securityWorkspace user',workspaceId,result.credentials.email)
-        if (role === 'owner') {
-          isAuthorized =
-            result.workspaces.filter((l) => l.workspace._id == workspaceId).length &&
-            result.workspaces.filter((l) => l.workspace._id == workspaceId)[0].role == 'owner'
+        if (result.admin) {
+          isAuthorized = true;
         } else {
-          isAuthorized = result.workspaces.filter((l) => l.workspace._id == workspaceId).length > 0
+          // console.log('XXXX securityWorkspace user',workspaceId,result.credentials.email)
+          if (role === 'owner') {
+            isAuthorized =
+              result.workspaces.filter((l) => l.workspace._id == workspaceId).length &&
+              result.workspaces.filter((l) => l.workspace._id == workspaceId)[0].role == 'owner'
+          } else {
+            isAuthorized = result.workspaces.filter((l) => l.workspace._id == workspaceId).length > 0
+          }
+          // console.log(role,isAuthorized)
         }
-        // console.log(role,isAuthorized)
+
         resolve(isAuthorized)
       })
     })
   }
 
-  securityBigdataflow (req, role) {
+  securityBigdataflow(req, role) {
     return new Promise(resolve => {
       // here token is obligatory good because after first middleware
       const token = req.body.token || req.query.token || req.headers['authorization']
@@ -82,7 +87,7 @@ class Security {
       if (req.body && req.body.bigdataflowId) bigdataflowId = req.body.workspaceId
       if (req.params && req.params.id) bigdataflowId = req.params.id
       user_lib.getWithRelations(
-        decodeToken.iss,config
+        decodeToken.iss, config
       ).then((result) => {
         // console.log('result',JSON.stringify(result));
         // !!!!!! Don't use ===  here because workspace Id is noT same type than params !!!!!
@@ -99,11 +104,11 @@ class Security {
     })
   }
 
-  securityAPI (req, res, next) {
+  securityAPI(req, res, next) {
     auth_lib_jwt.security_API(req, res, next)
   }
 
-  require_token (token) {
+  require_token(token) {
     return new Promise(function (resolve, reject) {
       auth_lib_jwt.require_token(token).then(function (res) {
         resolve(res)

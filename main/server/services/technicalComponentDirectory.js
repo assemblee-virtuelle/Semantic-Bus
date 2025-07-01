@@ -46,6 +46,10 @@ module.exports = {
   slice: require('../workspaceComponentInitialize/slice.js'),
   incrementTable: require('../workspaceComponentInitialize/incrementTable.js'),
   jsonLdConversion: require('../workspaceComponentInitialize/jsonld-conversion.js'),
+  imap: require('../workspaceComponentInitialize/imap.js'),
+  googleAuth: require('../workspaceComponentInitialize/googleAuth.js'),
+  binaryExtractor: require('../workspaceComponentInitialize/binaryExtractor.js'),
+  sftpUploader: require('../workspaceComponentInitialize/sftpUploader.js'),
   // ---ENDOFPART---
 
   /* some other modules you want */
@@ -68,17 +72,24 @@ module.exports = {
     return directory
   },
 
-  initialise: function (router, unSafeRouteur,engineTracer) {
+  initialise: function (router, unSafeRouteur) {
     // console.log('initialise')
     // this.restApiPost.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
     // this.restApiGet.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
-    this.httpProvider.initialise(unSafeRouteur,engineTracer)
-    this.upload.initialise(router,engineTracer)
-    this.cacheNosql.initialise(router,engineTracer) // NO SECURE CHANGE ROUTER
+    this.httpProvider.initialise(unSafeRouteur)
+    this.upload.initialise(router)
+    this.cacheNosql.initialise(router) // NO SECURE CHANGE ROUTER
+    this.imap.initialise()
+    this.googleAuth.initialise(unSafeRouteur)
   },
 
-  setAmqp : function (channel){
+  setAmqpClient : function (channel){
     // console.log('setAmqp')
+    // this.httpProvider.setAmqpClient(channel);
+    // this.upload.setAmqpClient(channel)
+  },
+
+  setAmqpChannel : function (channel){
     this.httpProvider.setAmqp(channel);
     this.upload.setAmqp(channel)
   }

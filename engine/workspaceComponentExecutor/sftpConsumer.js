@@ -1,43 +1,69 @@
 'use strict';
+const fragment_lib = require('../../core/lib/fragment_lib_scylla.js');
+const DfobProcessor = require('../../core/helpers/dfobProcessor.js');
+
+
 class SftpConsumer {
   constructor() {
     this.sftpClient = require('ssh2-sftp-client');
     this.dataTraitment = require('../../core/dataTraitmentLibrary/index.js');
     this.propertyNormalizer = require('../utils/propertyNormalizer.js')
     this.stringReplacer = require('../utils/stringReplacer.js');
+    this.fileLib = require('../../core/lib/file_lib_scylla.js');
+    this.File = require('../../core/model_schemas/file_schema_scylla.js');
   }
 
-  dataProcessing(dataPath, readableStream) {
-    return new Promise((resolve, reject) => {
-      const fakeName = dataPath.replace('/','_');
+  dataProcessing(dataPath, readableStream, processId, specificData) {
+    return new Promise(async (resolve, reject) => {
+      const fakeName = dataPath.replace('/', '_');
+      let rawFile = true;
+      if (specificData.rawFile != true) {
+        try {
+          const result = await this.dataTraitment.type.data_from_file(fakeName, readableStream, rawFile)
+          let data = this.propertyNormalizer.execute(result.data);
+          rawFile = false;
+          resolve({
+            data: data,
+            path: dataPath
+          });
+        } catch (e) {
+          console.warning(e);
+        }
+      }
 
-      this.dataTraitment.type.data_from_file(fakeName, readableStream)
-      .then((result) => {
-        let data = this.propertyNormalizer.execute(result.data);
-        // console.log(data);
-        resolve({
-          data: data,
-          path: dataPath
+      if (rawFile) {
+        const file = new this.File({
+          binary: readableStream,
+          filename: fakeName,
+          processId: processId
         });
-      }, (err) => {
-        let fullError = new Error(err);
-        fullError.displayMessage = 'SFTP : Erreur lors du traitement du fichier';
-        reject(fullError);
-      });     
+        await this.fileLib.create(file);
+        resolve(
+          {
+            file: {
+              _file: file.id
+            }
+          }
+        );
+      }
     })
   }
 
-  getFile(specificData, data, pullParams) {
-    return new Promise((resolve, reject) => {
+  getFile(specificData, data, pullParams, processId) {
+    return new Promise(async (resolve, reject) => {
       let sftp = new this.sftpClient();
 
       const specificDataParsed = {};
 
       Object.keys(specificData).forEach(key => {
-        try {
-          specificDataParsed[key] = this.stringReplacer.execute(specificData[key], pullParams, data);
-        } catch (e) {
-          specificDataParsed[key] = { error: e.message };
+        if (typeof specificData[key] === 'string' || specificData[key] instanceof String) {
+          try {
+            specificDataParsed[key] = this.stringReplacer.execute(specificData[key], pullParams, data);
+          } catch (e) {
+            specificDataParsed[key] = { error: e.message };
+          }
+        } else {
+          specificDataParsed[key] = specificData[key];
         }
       });
 
@@ -49,85 +75,101 @@ class SftpConsumer {
         password: specificDataParsed.password
       }
 
-      sftp.connect(config)
-        .then(() => {
-          // console.log('exists',specificDataParsed.path);
-          // we check if the path entered is for a file or folder
-          return sftp.exists(specificDataParsed.path);
-        })
-        .then(typeOfPath => {
-          // console.log('typeOfPath',typeOfPath);
-          // if the path leads to a file we return it
-          if (typeOfPath === "-") {
-            // we get the file and we return its data
-            // console.log('FILE');
-            sftp.get(specificDataParsed.path)
-              .then(readableStream => {
-               return this.dataProcessing(specificDataParsed.path, readableStream);
-              })
-              .then(result => {
-                resolve({
-                  data:result
-                });
-              }).catch(e => {
-                reject(e);
-              });
-          } else if (typeOfPath === "d") {
-            // if the path leads to a folder
-            // list every element in the folder
-            sftp.list(specificDataParsed.path)
-              .then(elements => {
-                const promisesArray2 = elements.map(element => {
-                  // if the elements are files
-                  let elementPath = specificDataParsed.path + element.name;
-                  if (element.type === "-") {
+      try {
+        const connection = await sftp.connect(config);
+        const typeOfPath = await sftp.exists(specificDataParsed.path);
+        console.log('typeOfPath', typeOfPath);
+        if (typeOfPath.includes('-')) {
+          const readableStream = await sftp.get(specificDataParsed.path)
+          const data = await this.dataProcessing(specificDataParsed.path, readableStream, processId, specificDataParsed);
+          resolve(data);
+        } else if (typeOfPath.includes('d')) {
+          const elements = await sftp.list(specificDataParsed.path)
+          // console.log('elements', elements);
+          const data = elements.map(async element => {
+            const elementPath = specificDataParsed.path + element.name;
+            if (element.type.includes('-')) {
+              return {
+                path: elementPath,
+                type: 'file'
+              }
+            } else if (element.type.includes('d')) {
+              return {
+                path: elementPath,
+                type: 'folder'
+              }
+            }
+          })
+          resolve(data);
+        } else {
+          reject(new Error(`path ${specificDataParsed.path} not found`))
+        }
+      } catch (e) {
+        reject(e);
+      } finally {
+        await sftp.end();
+      }
 
-
-
-                    if (specificDataParsed.resolvefilePath){
-                      return sftp.get(elementPath)
-                        .then(readableStream => {
-                          return this.dataProcessing(elementPath, readableStream);
-                        });
-                    } else {
-                      return Promise.resolve(
-                        {
-                          path: elementPath,
-                          type: "file"
-                        }
-                      )
-                    }
-
-                  } else if (element.type === "d"){
-                    return Promise.resolve(
-                      {
-                        path: elementPath,
-                        type: "folder"
-                      }
-                    );
-                  } else {
-                    return Promise.resolve();
-                  }
-                });
-
-                return Promise.all(promisesArray2);
-              }).then(dataArray => {
-                resolve({
-                  data: dataArray
-                });
-              });
-          } else if  (typeOfPath === false) {
-            reject(new Error(`path ${specificDataParsed.path} not found`))
-          }
-        }).catch(e=>{
-          reject(e);
-        });
     });
   }
 
+  async workWithFragments(data, flowData, pullParams, processId) {
+    return new Promise(async (resolve, reject) => {
+      try {
+        console.log('workWithFragments')
+        // Get the input fragment and dfob
+        const inputFragment = flowData[0]?.fragment;
+        const inputDfob = flowData[0]?.dfob;
+        // console.log('inputFragment', inputFragment)
+
+        if (!inputFragment) {
+          resolve();
+          return;
+        }
+
+        // Get data from fragment
+        let rebuildDataRaw = await fragment_lib.getWithResolutionByBranch(inputFragment.id, {
+          pathTable: inputDfob?.dfobTable || []
+        });
+
+        const rebuildData = await DfobProcessor.processDfobFlow(
+          rebuildDataRaw,
+          { ...inputDfob, delayMs: inputDfob?.delayMs || 0 },
+          this,
+          this.getFile,
+          (item) => {
+            return [
+              data.specificData,
+              item,
+              pullParams,
+              processId
+            ];
+          },
+          async () => {
+            return true;
+          }
+        );
+
+        // Persist the transformed data
+        await fragment_lib.persist(rebuildData, undefined, inputFragment);
+        resolve();
+      } catch (e) {
+        reject(e);
+      }
+    });
+  }
 
   pull(data, flowData, pullParams) {
-    return this.getFile(data.specificData, flowData ? flowData[0].data : undefined, pullParams);
+    return new Promise(async (resolve, reject) =>   {
+      try {
+        const result = await this.getFile(data.specificData, flowData ? flowData[0].data : undefined, pullParams)
+        resolve({
+          data: result
+        })
+      } catch (e) {
+        reject(e);
+      }
+    })
   }
 }
 module.exports = new SftpConsumer()
