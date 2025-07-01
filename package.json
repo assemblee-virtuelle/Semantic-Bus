@@ -26,7 +26,6 @@
     "clean:core": "cd core && rm -rf node_modules package-lock.json"
   },
   "devDependencies": {
-    "jest": "^29.7.0",
     "supertest": "^6.3.3",
     "eslint": "^8.0.0"
   },
