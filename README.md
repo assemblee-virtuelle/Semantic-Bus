@@ -1,3 +1,122 @@
+# SemanticBus
+
+[![license](https://img.shields.io/github/license/assemblee-virtuelle/Semantic-Bus.svg)](https://github.com/assemblee-virtuelle/Semantic-Bus)
+[![GitHub issues](https://img.shields.io/github/issues/assemblee-virtuelle/Semantic-Bus.svg)](https://github.com/assemblee-virtuelle/Semantic-Bus/issues)
+[![GitHub forks](https://img.shields.io/github/forks/assemblee-virtuelle/Semantic-Bus.svg)](https://github.com/assemblee-virtuelle/Semantic-Bus/network)
+[![GitHub stars](https://img.shields.io/github/stars/assemblee-virtuelle/Semantic-Bus.svg)](https://github.com/assemblee-virtuelle/Semantic-Bus/stargazers)
+
+## ETL style data middleware transformation embedded in an ESB for all kinds of data
+
+Semantic Bus is a new generation of API management software. It treats data as a flow, which makes it easy to transform on the fly, extract and merge data from multiple sources.
+
+Transform with ease any kind of data : Excel files, CSV files, JSON, XML, TTL (Turtle), Images, even Emails and many more !
+
+Use Semantic Bus to build reactive architectures (event-sourcing), and easily develop decentralized and autonomous applications.
+
+It can automatically analyze unstructured data and extract objects so that you can use them in a semantic way.
+
+SematinBus handles millions of objects and thousands of endpoints in production.
+
+Don't build integration web services manually. Describe them, and SematicBus will auto-generate.
+
+## Online live demo
+
+A live demo is available at [tour.semapps.org](http://tour.semapps.org)
+
+## docker / docker-compose install
+
+### Quick start
+
+For a demo environment use
+
+```
+make demo
+```
+
+For a development environment use 
+
+```
+make develop
+```
+
+A sample config config.local.json is available at the root and will start basic service. 
+
+Complete doc about docker is here in the repo : [Docker README](DOCKER.md)
+
+## Development / Local installation
+
+### Required dependencies
+
+- Node.js (v16+)
+- Git
+- MongoDB (v4+)
+- RabbitMQ (v3.8+)
+
+### clone this repo
+
+```
+git clone https://github.com/assemblee-virtuelle/Semantic-Bus
+cd Semantic-Bus
+```
+
+then install the three packages 
+
+```
+cd engine && npm install
+cd ../main && npm install
+cd ../timer && npm install
+```
+
+### Launch
+
+Start MongoDB instance (on Linux)
+
+```
+sudo systemctl start mongod
+```
+
+Start RabbitMQ instance (on Linux)
+
+```
+sudo systemctl start rabbitmq-server
+```
+
+start the main module 
+
+```
+cd main && node app.js
+```
+
+and the main engine in another shell 
+
+```
+cd engine && node app.js
+```
+
+and optionally the timer 
+
+```
+cd timer && node app.js
+```
+
+Check if everything is working as expected visiting [http://localhost:8080](http://localhost:8080)
+
+## Documentation
+
+For a complete documentation of the project, see the [documentation site](https://doc.semapps.org) (in french) and the [quick tutorial](https://github.com/assemblee-virtuelle/Semantic-Bus/blob/master/TUTORIAL.md).
+
+## Contributing
+
+Please check out our [contributing guidelines](CONTRIBUTING.md).
+
+## Architecture
+
+SemanticBus is based on a multi-module architecture with independent testing and deployment.
+
+---
+
+*Tests CI/CD powered by GitHub Actions* ✅
+
 # Semantic-Bus
 
 Semantic data transformation & semantic container crawling
