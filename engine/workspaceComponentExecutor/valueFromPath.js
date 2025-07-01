@@ -38,7 +38,9 @@ class ValueFromPath {
       // console.log('__POGRESS return', JSON.stringify(out));
       return out
     } else {
+
       if (pathArray.length == 0) {
+        // console.log('__progress 2',node,currentKey);
         // console.log('RFP end',node,currentKey,pathObject);
         let out = node;
         if (Array.isArray(node)) {
@@ -69,6 +71,7 @@ class ValueFromPath {
 
         return out;
       } else {
+        // console.log('__progress 1',node,currentKey);
         // console.log('RFP1',node,currentKey);
         let key = pathArray.shift()
         for (let keyNode in node) {
@@ -107,11 +110,12 @@ class ValueFromPath {
   pull(data, flowData) {
     return new Promise((resolve, reject) => {
       // console.log('VALUE FROM PATH START');
-      // console.log(flowData[0].data,data.specificData.path);
+      console.log(flowData[0].data,data.specificData.path);
       // let value=this.dotProp.get(flowData[0].data, data.specificData.path)
       try {
         let value = this.resolve(flowData[0].data, data.specificData);
         // console.log('RESOLVE',JSON.stringify(value));
+        console.log('__RESOLVE',value);
         resolve({
           data: value
         })
