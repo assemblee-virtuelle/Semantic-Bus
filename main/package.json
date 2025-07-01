@@ -5,8 +5,8 @@
   "private": true,
   "main": "",
   "scripts": {
-    "lint": "./node_modules/.bin/eslint *.js scripts/**/*.js server/**/*.js",
-    "fix": "./node_modules/.bin/eslint --fix *.js scripts/**/*.js server/**/*.js",
+    "lint": "npx eslint *.js scripts/**/*.js server/**/*.js",
+    "fix": "npx eslint --fix *.js scripts/**/*.js server/**/*.js",
     "start": "node app.js"
   },
   "author": "Simon Louvet <simon.louvet.zen@gmail.com> && Boceno Alexandre <bocenoalex@gmail.com>",

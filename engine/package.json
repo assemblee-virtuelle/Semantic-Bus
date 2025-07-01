@@ -6,8 +6,8 @@
   "main": "",
   "scripts": {
     "test": "jest --detectOpenHandles --verbose",
-    "lint": "./node_modules/.bin/eslint *.js utils/**/*.js services/**/*.js workspaceComponentExecutor/**/*.js communication/**/*.js",
-    "fix": "./node_modules/.bin/eslint --fix *.js utils/**/*.js services/**/*.js workspaceComponentExecutor/**/*.js communication/**/*.js",
+    "lint": "npx eslint *.js utils/**/*.js services/**/*.js workspaceComponentExecutor/**/*.js communication/**/*.js",
+    "fix": "npx eslint --fix *.js utils/**/*.js services/**/*.js workspaceComponentExecutor/**/*.js communication/**/*.js",
     "start": "node app.js",
     "mongoPull": "sudo docker pull mongo:3.6",
     "mongoClean": "sudo docker volume rm data",
