@@ -1,0 +1,28 @@
+# Ignore node_modules
+node_modules/
+
+# Ignore build output
+dist/
+build/
+
+# Ignore files with syntax errors
+server/workspaceComponentInitialize/httpProvider.js
+server/workspaceComponentInitialize/restApiPost.js
+
+# Ignore generated files
+*.min.js
+*.bundle.js
+
+# Ignore coverage reports
+coverage/
+
+# Ignore logs
+logs/
+*.log
+
+# Ignore configuration files
+config.json
+
+# Ignore reports
+report.html
+*.json
