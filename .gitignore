@@ -95,7 +95,6 @@ ehthumbs.db
 Thumbs.db
 
 # Jest
-jest.config.js
 coverage/
 
 # Build outputs
