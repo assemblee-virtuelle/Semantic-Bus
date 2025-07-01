@@ -16,6 +16,7 @@ lib-cov
 
 # Coverage directory used by tools like istanbul
 coverage
+*.lcov
 
 # nyc test coverage
 .nyc_output
@@ -36,10 +37,13 @@ main/build/Release
 data/
 
 # Dependency directories
+node_modules/
 main/node_modules/
 engine/node_modules/
 timer/node_modules/
 core/node_modules/
+tests/test_unitaires/node_modules/
+tests/e2e/node_modules/
 jspm_packages/
 
 # Typescript v1 declaration files
@@ -68,6 +72,7 @@ typings/
 
 # test result
 test/test_result/
+tests/logs/
 
 #config
 configuration.js
@@ -75,3 +80,30 @@ config.local.json
 
 #IDE-specific
 .idea
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Jest
+jest.config.js
+coverage/
+
+# Build outputs
+dist/
+build/
+*.tgz
+*.tar.gz
+
+# Temporary files
+tmp/
+temp/

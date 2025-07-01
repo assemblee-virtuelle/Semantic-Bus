@@ -1,0 +1,12 @@
+{
+  "name": "semantic-bus-integration-tests-auth",
+  "private": true,
+  "description": "Semantic Bus integration tests for authentication",
+  "scripts": {
+    "test": "jest --detectOpenHandles --verbose"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
+  }
+}

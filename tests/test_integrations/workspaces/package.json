@@ -1,0 +1,12 @@
+{
+  "name": "semantic-bus-integration-tests-workspaces",
+  "private": true,
+  "description": "Semantic Bus integration tests for workspace management",
+  "scripts": {
+    "test": "jest --detectOpenHandles --verbose"
+  },
+  "devDependencies": {
+    "jest": "^29.7.0",
+    "supertest": "^6.3.3"
+  }
+}
