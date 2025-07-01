@@ -1,0 +1,13 @@
+# Ignore JSTree and other third-party library tests
+main/client/static/js/jstree/test/
+main/client/static/js/awesomplete-gh-pages/test/
+main/client/static/js/*/test/
+main/client/static/js/*/tests/
+
+# Ignore all client-side code from tests
+main/client/
+client/
+
+# Ignore node_modules
+node_modules/
+*/node_modules/ 

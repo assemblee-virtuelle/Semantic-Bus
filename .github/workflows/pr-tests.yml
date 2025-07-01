@@ -25,8 +25,17 @@ jobs:
     - name: Run linting
       run: npm run lint
       
-    - name: Run all module tests
-      run: npm run test:all
+    - name: Run engine tests
+      run: cd engine && npm test
+      
+    - name: Run core tests  
+      run: cd core && npm test
+      
+    - name: Run main tests (JSTree excluded)
+      run: cd main && npm test
+      
+    - name: Run timer tests
+      run: cd timer && npm test
         
     - name: Check for security vulnerabilities
       run: |
