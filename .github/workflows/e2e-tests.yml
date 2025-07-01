@@ -11,9 +11,6 @@ on:
         options:
         - staging
         - production
-  schedule:
-    # Run E2E tests every night at 2 AM UTC
-    - cron: '0 2 * * *'
 
 jobs:
   test-e2e:

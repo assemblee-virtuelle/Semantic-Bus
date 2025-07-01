@@ -103,7 +103,7 @@ cd engine && npm test -- --coverage
 Les tests sont exécutés automatiquement via GitHub Actions :
 - **Pull Requests** : Tests unitaires, moteur et linting
 - **Push sur main/develop** : Tests complets (unitaires + intégration + moteur)
-- **Tests E2E** : Workflow manuel ou programmé (chaque nuit)
+- **Tests E2E** : Workflow manuel uniquement (hors CI)
 
 ## Ajout de nouveaux tests
 
