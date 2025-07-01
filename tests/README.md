@@ -45,7 +45,12 @@ Tests complets de l'application avec CodeceptJS :
 - Tests des workflows complets
 - Tests avec navigateur
 
-**Commande :** `npm run test:e2e`
+**⚠️ Configuration spéciale requise**
+Les tests E2E nécessitent Docker Compose et ne sont **pas inclus dans la CI principale**.
+
+**Commandes :**
+- `npm run test:e2e` (nécessite Docker)
+- `npm run test:e2e:optional` (affiche les instructions)
 
 ## Tests du moteur (`engine/__tests__/`)
 
@@ -78,14 +83,16 @@ La couverture de code est générée automatiquement et disponible dans :
 # Installer toutes les dépendances
 npm run install:all
 
-# Exécuter tous les tests
-npm test
+# Exécuter tous les tests (unitaires + intégration + moteur)
+npm run test:all
 
 # Exécuter des tests spécifiques
 npm run test:unit
 npm run test:engine
 npm run test:integration
-npm run test:e2e
+
+# Tests E2E (nécessitent Docker)
+make test-build && make test-start
 
 # Avec couverture
 cd engine && npm test -- --coverage
@@ -94,8 +101,9 @@ cd engine && npm test -- --coverage
 ### En CI/CD
 
 Les tests sont exécutés automatiquement via GitHub Actions :
-- **Pull Requests** : Tests unitaires et linting
-- **Push sur main/develop** : Tests complets (unitaires + intégration + e2e)
+- **Pull Requests** : Tests unitaires, moteur et linting
+- **Push sur main/develop** : Tests complets (unitaires + intégration + moteur)
+- **Tests E2E** : Workflow manuel ou programmé (chaque nuit)
 
 ## Ajout de nouveaux tests
 
