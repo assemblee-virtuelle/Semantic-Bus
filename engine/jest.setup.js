@@ -33,41 +33,15 @@ jest.mock('cassandra-driver', () => ({
   }
 }));
 
-// Mock des modules Scylla
-jest.mock('../core/db/scylla_client.js', () => ({
-  connect: jest.fn(),
-  execute: jest.fn(),
-  shutdown: jest.fn()
-}), { virtual: true });
+// Mock UUID module
+jest.mock('uuid', () => ({
+  v4: jest.fn(() => 'mock-uuid-12345'),
+  v1: jest.fn(() => 'mock-uuid-v1-12345')
+}));
 
-jest.mock('../core/models/file_model_scylla.js', () => {
-  return jest.fn().mockImplementation((data) => ({
-    id: 'mock-file-id',
-    ...data,
-    save: jest.fn()
-  }));
-}, { virtual: true });
+// Les mocks Scylla sont maintenant gérés par moduleNameMapper
 
-// Mock des modules core manquants
-jest.mock('../core/lib/file_lib_scylla.js', () => ({
-  create: jest.fn(),
-  get: jest.fn()
-}), { virtual: true });
-
-jest.mock('../core/dataTraitmentLibrary/file_convertor.js', () => ({
-  data_from_file: jest.fn()
-}), { virtual: true });
-
-jest.mock('../core/model_schemas/file_schema_scylla.js', () => {
-  return jest.fn().mockImplementation((data) => ({
-    id: 'mock-file-id',
-    ...data
-  }));
-}, { virtual: true });
-
-jest.mock('../core/lib/fragment_lib_scylla.js', () => ({
-  // Mock des fonctions nécessaires
-}), { virtual: true });
+// Tous les mocks core sont maintenant gérés par moduleNameMapper
 
 // Configuration des timeouts
 jest.setTimeout(10000);

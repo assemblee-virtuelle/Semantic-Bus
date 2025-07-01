@@ -1,5 +1,12 @@
 // Test du module httpConsumer avec mocks appropriés
 
+// Mock complet du client Scylla pour éviter les problèmes de dépendances
+jest.mock('../../../core/db/scylla_client.js', () => ({
+  connect: jest.fn().mockResolvedValue(),
+  execute: jest.fn().mockResolvedValue({ rows: [] }),
+  shutdown: jest.fn().mockResolvedValue()
+}), { virtual: true });
+
 const httpConsumer = require('../../workspaceComponentExecutor/httpConsumer.js');
 
 describe('HttpConsumer', () => {
