@@ -1,9 +1,9 @@
-'use strict'
+'use strict';
 // need NodeJs >=12
 const dayjs = require('dayjs-with-plugins');
 const he = require('he');
-const Globalize = require("globalize");
-const cldrData = require("cldr-data");
+const Globalize = require('globalize');
+const cldrData = require('cldr-data');
 const path = require('path');
 const fs = require('fs');
 const cheerio = require('cheerio');
@@ -17,27 +17,27 @@ const allLocales = cldrData.availableLocales;
 
 const loadCldrData = () => {
   const localesCldrCategories = [
-    "main/{locale}/numbers",
-    "main/{locale}/currencies",
-    "main/{locale}/ca-gregorian",
-    "main/{locale}/timeZoneNames",
-    "main/{locale}/listPatterns",
-    "main/{locale}/units",
-    "main/{locale}/measurementSystemNames",
-    "main/{locale}/dateFields",
-    "main/{locale}/posix"
+    'main/{locale}/numbers',
+    'main/{locale}/currencies',
+    'main/{locale}/ca-gregorian',
+    'main/{locale}/timeZoneNames',
+    'main/{locale}/listPatterns',
+    'main/{locale}/units',
+    'main/{locale}/measurementSystemNames',
+    'main/{locale}/dateFields',
+    'main/{locale}/posix'
   ];
   const supplementalsCldrCategories = [
-    "supplemental/likelySubtags",
-    "supplemental/numberingSystems",
-    "supplemental/plurals",
-    "supplemental/timeData",
-    "supplemental/weekData",
-    "supplemental/currencyData",
-    "supplemental/aliases",
-    "supplemental/parentLocales",
-    "supplemental/dayPeriods",
-    "supplemental/ordinals",
+    'supplemental/likelySubtags',
+    'supplemental/numberingSystems',
+    'supplemental/plurals',
+    'supplemental/timeData',
+    'supplemental/weekData',
+    'supplemental/currencyData',
+    'supplemental/aliases',
+    'supplemental/parentLocales',
+    'supplemental/dayPeriods',
+    'supplemental/ordinals',
   ];
 
 
@@ -47,7 +47,7 @@ const loadCldrData = () => {
 
   allLocales.forEach(locale => {
     localesCldrCategories.forEach(category => {
-      const path = category.replace("{locale}", locale);
+      const path = category.replace('{locale}', locale);
       try {
         Globalize.load(cldrData(path));
         // Globalize.load(
@@ -82,34 +82,34 @@ module.exports = {
   unicode: require('unicode-encode'),
   executeWithParams: function (source, pullParams, jsonTransformPattern, options, config) {
     // console.log('config',config);
-    let out = this.execute(source, pullParams, jsonTransformPattern, options, config)
-    return out
+    const out = this.execute(source, pullParams, jsonTransformPattern, options, config);
+    return out;
   },
 
   execute: function (source, pullParams, jsonTransformPattern, options, config) {
 
     if (typeof jsonTransformPattern === 'string' || jsonTransformPattern instanceof String) {
       const regexpeEval = /^\=(.*)/gm;
-      const arrayRegexEval = [...jsonTransformPattern.matchAll(regexpeEval)]
+      const arrayRegexEval = [...jsonTransformPattern.matchAll(regexpeEval)];
       if (arrayRegexEval.length > 0) {
         let patternEval = arrayRegexEval[0][1];
         let patternEvalPretty = patternEval;
         const regexpeDot = /{(\$.*?|£.*?)}/gm;
         const arrayRegexDot = [...patternEval.matchAll(regexpeDot)];
-        let logEval = false;
+        const logEval = false;
         for (const valueDot of arrayRegexDot) {
           // console.log('--valueDot[1]',valueDot[1])
-          let sourceDotValue = this.getValueFromSource(source, pullParams, valueDot[1]);
-          let sourceDotValueEval = this.getValueFromSource(source, pullParams, valueDot[1]);;
+          const sourceDotValue = this.getValueFromSource(source, pullParams, valueDot[1]);
+          let sourceDotValueEval = this.getValueFromSource(source, pullParams, valueDot[1]);
           if (typeof sourceDotValueEval === 'string' || sourceDotValueEval instanceof String) {
-            sourceDotValueEval = "this.resolveString('" + this.escapeString(sourceDotValueEval) + "')"
+            sourceDotValueEval = 'this.resolveString(\'' + this.escapeString(sourceDotValueEval) + '\')';
             patternEvalPretty = patternEvalPretty.replace(valueDot[0], `"${sourceDotValue}"`);
           } else if (typeof sourceDotValueEval === 'object') {
-            sourceDotValueEval = "this.parseAndResolveString('" + JSON.stringify(this.escapeString(sourceDotValueEval)) + "')";
+            sourceDotValueEval = 'this.parseAndResolveString(\'' + JSON.stringify(this.escapeString(sourceDotValueEval)) + '\')';
             patternEvalPretty = patternEvalPretty.replace(valueDot[0], sourceDotValue);
-          } else if (typeof sourceDotValueEval == 'number' || !isNaN(sourceDotValueEval)) {
+          } else if (typeof sourceDotValueEval === 'number' || !isNaN(sourceDotValueEval)) {
             // const type = typeof sourceDotValueEval;
-            sourceDotValueEval = `Number(${sourceDotValueEval})`
+            sourceDotValueEval = `Number(${sourceDotValueEval})`;
             patternEvalPretty = patternEvalPretty.replace(valueDot[0], sourceDotValue);
           }
           patternEval = patternEval.replace(valueDot[0], sourceDotValueEval);
@@ -137,23 +137,23 @@ module.exports = {
               evalString: patternEvalPretty,
               cause: e.message
             }
-          }
+          };
           // }
         }
       } else {
         return this.getValueFromSource(source, pullParams, jsonTransformPattern);
       }
     } else if (Array.isArray(jsonTransformPattern)) {
-      return jsonTransformPattern.map((r, i) => this.execute(source, pullParams, r, options, config))
+      return jsonTransformPattern.map((r, i) => this.execute(source, pullParams, r, options, config));
     } else if (typeof jsonTransformPattern === 'object') {
-      let out = {};
+      const out = {};
       for (const jsonTransformPatternKey in jsonTransformPattern) {
         // const jsonTransformPatternValue = jsonTransformPattern[jsonTransformPatternKey]
-        out[jsonTransformPatternKey] = this.execute(source, pullParams, jsonTransformPattern[jsonTransformPatternKey], options, config)
+        out[jsonTransformPatternKey] = this.execute(source, pullParams, jsonTransformPattern[jsonTransformPatternKey], options, config);
       }
-      return out
+      return out;
     } else {
-      return jsonTransformPattern
+      return jsonTransformPattern;
     }
   },
   getValueFromSource(source, pullParams, pattern) {
@@ -162,10 +162,10 @@ module.exports = {
     } else if (pattern.localeCompare('£..') == 0 || pattern.localeCompare('£') == 0) {
       return pullParams;
     } else {
-      let regexp = /\$\.(.*)/gm;
-      let arrayRegex = [...pattern.matchAll(regexp)];
-      let regexpPull = /\£\.(.*)/gm;
-      let arrayRegexPull = [...pattern.matchAll(regexpPull)];
+      const regexp = /\$\.(.*)/gm;
+      const arrayRegex = [...pattern.matchAll(regexp)];
+      const regexpPull = /\£\.(.*)/gm;
+      const arrayRegexPull = [...pattern.matchAll(regexpPull)];
       // console.log('-arrayRegexPull',arrayRegexPull);
       if (arrayRegex.length > 0) {
         const dotPath = arrayRegex[0][1];
@@ -183,31 +183,31 @@ module.exports = {
     // console.log('escapeString',source);
     if (typeof source === 'string' || source instanceof String) {
       // Échappe la chaîne de caractères en utilisant unicode
-      return `eval(this.unicode.atou(\`${this.unicode.utoa(source)}\`))`
+      return `eval(this.unicode.atou(\`${this.unicode.utoa(source)}\`))`;
     } else if (Array.isArray(source)) {
-      return source.map(r => this.escapeString(r))
+      return source.map(r => this.escapeString(r));
     } else if (source != null && source.toJSON !== undefined) {
-      let out = {};
-      let json = source.toJSON();
-      return this.escapeString(json)
+      const out = {};
+      const json = source.toJSON();
+      return this.escapeString(json);
     } else if (source != null && typeof source === 'object') {
-      let out = {}
+      const out = {};
       for (const key in source) {
         const unicodeKey = this.unicode.utoa(key);
         out[unicodeKey] = this.escapeString(source[key]);
       }
-      return out
+      return out;
     } else {
       return source;
     }
   },
   parseAndResolveString(source) {
-    return (this.resolveString(JSON.parse(source)))
+    return (this.resolveString(JSON.parse(source)));
   },
   resolveString(source) {
     if (typeof source === 'string' || source instanceof String) {
-      let regexp = /eval\((.*)\)/gm;
-      let arrayRegex = [...source.matchAll(regexp)];
+      const regexp = /eval\((.*)\)/gm;
+      const arrayRegex = [...source.matchAll(regexp)];
       if (arrayRegex.length > 0) {
         return eval(arrayRegex[0][1]);
       } else {
@@ -215,16 +215,16 @@ module.exports = {
       }
 
     } else if (Array.isArray(source)) {
-      return source.map(r => this.resolveString(r))
+      return source.map(r => this.resolveString(r));
     } else if (source != null && typeof source === 'object') {
-      let out = {}
+      const out = {};
       for (const key in source) {
-        const decodeKey = this.unicode.atou(key)
+        const decodeKey = this.unicode.atou(key);
         out[decodeKey] = this.resolveString(source[key]);
       }
-      return out
+      return out;
     } else {
       return source;
     }
   }
-}
+};

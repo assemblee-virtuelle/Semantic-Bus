@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 class DeeperFocusOpeningBracket {
   constructor () {
     this.type = 'Deeper Focus'

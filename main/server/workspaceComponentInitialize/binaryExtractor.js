@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 class BinaryExtractor {
   constructor () {
     this.type = 'Binary Extractor'
@@ -11,4 +11,4 @@ class BinaryExtractor {
     ]
   }
 }
-module.exports = new BinaryExtractor() 
+module.exports = new BinaryExtractor()

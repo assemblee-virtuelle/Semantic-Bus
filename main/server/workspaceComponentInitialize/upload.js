@@ -1,8 +1,8 @@
 'use strict'
 
-const path = require('path');
-const fs = require('fs');
-const busboy = require('busboy');
+const path = require('path')
+const fs = require('fs')
+const busboy = require('busboy')
 const file_lib = require('../../../core/lib/file_lib_scylla')
 const file_model_scylla = require('../../../core/models/file_model_scylla')
 
@@ -27,9 +27,9 @@ class Upload {
     this.config = require('../../config.json')
   }
 
-  setAmqp(amqpConnection){
+  setAmqp (amqpConnection) {
     console.log('set AMQP')
-    this.amqpConnection=amqpConnection;
+    this.amqpConnection = amqpConnection
   }
 
   initialise (router) {
@@ -43,13 +43,13 @@ class Upload {
       let fileName = null
       let saveTo = null
       busboyInstance.on('file', (fieldname, file, filename, encoding, mimetype) => {
-        console.log('UPLOAD', filename);
-        fileName = filename;
-        let buffer = Buffer.alloc(0);
+        console.log('UPLOAD', filename)
+        fileName = filename
+        let buffer = Buffer.alloc(0)
 
         file.on('data', (data) => {
-          buffer = Buffer.concat([buffer, data]);
-        });
+          buffer = Buffer.concat([buffer, data])
+        })
 
         file.on('end', async () => {
           try {
@@ -57,19 +57,19 @@ class Upload {
             const fileData = new file_model_scylla.model({
               binary: buffer, // Utiliser la chaîne hexadécimale ici
               filename: fileName,
-              frag: null, // ou toute autre propriété dont vous avez besoin
-            });
+              frag: null // ou toute autre propriété dont vous avez besoin
+            })
 
-            const file = await file_lib.create(fileData);
+            const file = await file_lib.create(fileData)
 
             const workParams = {
               id: compId,
               queryParams: {
-                _file: file.id,
-              },
-            };
+                _file: file.id
+              }
+            }
 
-            console.log('workParams',workParams);
+            console.log('workParams', workParams)
 
             this.amqpConnection.sendToQueue(
               'work-ask',
@@ -77,24 +77,24 @@ class Upload {
               null,
               (err, ok) => {
                 if (err !== null) {
-                  console.error('Erreur lors de l\'envoi du message :', err);
+                  console.error('Erreur lors de l\'envoi du message :', err)
                   res.status(500).send({
-                    error: 'AMQP server no connected',
-                  });
+                    error: 'AMQP server no connected'
+                  })
                 }
               }
-            );
+            )
 
             res.json({
-              message: 'file upload ok',
-            });
+              message: 'file upload ok'
+            })
           } catch (error) {
-            console.error('Error processing file:', error);
+            console.error('Error processing file:', error)
             res.status(500).send({
-              error: 'Error processing file',
-            });
+              error: 'Error processing file'
+            })
           }
-        });
+        })
       })
       // busboyInstance.on('finish', async () => {
       //   res.json({
@@ -141,9 +141,6 @@ class Upload {
       req.pipe(busboyInstance)
     })
   }
-
 }
 
 module.exports = new Upload()
-
-

@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 class QueryParamsCreation {
   constructor () {
     this.type = 'Params transform'

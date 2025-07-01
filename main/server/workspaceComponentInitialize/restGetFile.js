@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 class HttpGet {
   constructor () {
     this.type = 'File consumer'

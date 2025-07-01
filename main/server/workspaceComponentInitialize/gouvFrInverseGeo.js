@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 class GouvFrInverseGeo {
   constructor () {
     this.type = 'data.gouv reverse geocoding'

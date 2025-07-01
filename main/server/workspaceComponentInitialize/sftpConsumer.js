@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 class SftpConsumer {
   constructor () {
     this.type = 'SFTP consumer'

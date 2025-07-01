@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 class HttpConsumerFile {
   constructor () {
     this.type = 'File consumer'

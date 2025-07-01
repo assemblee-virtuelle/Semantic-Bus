@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 class SftpUploader {
   constructor () {
     this.type = 'SFTP Uploader'
@@ -12,4 +12,4 @@ class SftpUploader {
   }
 }
 
-module.exports = new SftpUploader() 
+module.exports = new SftpUploader()

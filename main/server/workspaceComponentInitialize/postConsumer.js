@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 class PostConsumer {
   constructor () {
     this.type = 'HTTP consumer'

@@ -1,4 +1,4 @@
-const workspace_component_lib = require('../../core/lib/workspace_component_lib')
+const workspace_component_lib = require('../../core/lib/workspace_component_lib');
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -10,11 +10,11 @@ class Communication {
       // console.log('VERSION',req.params.engineVersion)
 
       req.setTimeout(0);
-      const componentId = req.params.componentId
-      const pushData = req.body.pushData
-      const queryParams = req.body.queryParams
+      const componentId = req.params.componentId;
+      const pushData = req.body.pushData;
+      const queryParams = req.body.queryParams;
 
-      const direction = req.body.direction || 'work'
+      const direction = req.body.direction || 'work';
       try {
         console.log('get component', componentId);
         const data = await workspace_component_lib.get({ _id: componentId });
@@ -36,7 +36,7 @@ class Communication {
         console.log('error global', e);
         res.status(500).send(e);
       }
-    })
+    });
   }
 
   async setAmqpChannel(channel) {
@@ -67,4 +67,4 @@ class Communication {
   }
 }
 
-module.exports =new Communication()
+module.exports =new Communication();

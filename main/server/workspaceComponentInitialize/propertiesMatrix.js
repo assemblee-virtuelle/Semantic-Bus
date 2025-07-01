@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 class PropertiesMatrix {
   constructor () {
     this.type = 'Property matrix'

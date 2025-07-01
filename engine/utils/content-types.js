@@ -8,4 +8,4 @@ module.exports = {
   'svg'  : 'image/svg+xml',
   'js'   : 'application/javascript',
   'map'  : 'application/json'
-}
+};
