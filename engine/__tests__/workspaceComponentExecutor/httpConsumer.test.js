@@ -1,22 +1,5 @@
 // Test du module httpConsumer avec mocks appropriés
 
-// Mock des dépendances avant le require
-jest.mock('../../core/lib/file_lib_scylla.js', () => ({
-  create: jest.fn(),
-  get: jest.fn()
-}), { virtual: true });
-
-jest.mock('../../core/dataTraitmentLibrary/file_convertor.js', () => ({
-  data_from_file: jest.fn()
-}), { virtual: true });
-
-jest.mock('../../core/model_schemas/file_schema_scylla.js', () => {
-  return jest.fn().mockImplementation((data) => ({
-    id: 'mock-file-id',
-    ...data
-  }));
-}, { virtual: true });
-
 const httpConsumer = require('../../workspaceComponentExecutor/httpConsumer.js');
 
 describe('HttpConsumer', () => {

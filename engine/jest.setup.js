@@ -19,6 +19,35 @@ jest.mock('amqp-connection-manager', () => ({
   connect: jest.fn()
 }));
 
+// Mock Cassandra driver
+jest.mock('cassandra-driver', () => ({
+  Client: jest.fn().mockImplementation(() => ({
+    connect: jest.fn(),
+    execute: jest.fn(),
+    shutdown: jest.fn()
+  })),
+  types: {
+    Uuid: {
+      random: jest.fn(() => 'mock-uuid')
+    }
+  }
+}));
+
+// Mock des modules Scylla
+jest.mock('../core/db/scylla_client.js', () => ({
+  connect: jest.fn(),
+  execute: jest.fn(),
+  shutdown: jest.fn()
+}), { virtual: true });
+
+jest.mock('../core/models/file_model_scylla.js', () => {
+  return jest.fn().mockImplementation((data) => ({
+    id: 'mock-file-id',
+    ...data,
+    save: jest.fn()
+  }));
+}, { virtual: true });
+
 // Mock des modules core manquants
 jest.mock('../core/lib/file_lib_scylla.js', () => ({
   create: jest.fn(),
