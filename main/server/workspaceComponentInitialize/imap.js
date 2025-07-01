@@ -2,8 +2,7 @@
 // note google : https://developers.google.com/gmail/imap/xoauth2-protocol?hl=fr
 
 const workspaceComponentLib = require('../../../core/lib/workspace_component_lib')
-const { MailListener } = require('mail-listener5')
-const nodeImap = require('node-imap') // Remplace mail-listener5 par node-imap
+const nodeImap = require('imap') // Client IMAP moderne et sécurisé
 const { simpleParser } = require('mailparser')
 
 class Imap {
