@@ -2,7 +2,7 @@
 
 ## Résumé des améliorations
 
-J'ai mis en place une structure de tests complète pour le projet Semantic Bus, en remplaçant CircleCI par GitHub Actions et en créant des tests pour tous les composants du moteur.
+J'ai mis en place une structure de tests complète pour le projet Semantic Bus avec GitHub Actions et créé des tests pour tous les composants du moteur.
 
 ## Structure mise en place
 
@@ -100,7 +100,7 @@ npm run install:all        # Installation de toutes les dépendances
 - ✅ Mocks appropriés pour les dépendances externes
 
 ### 3. CI/CD modernisée
-- ✅ Remplacement de CircleCI par GitHub Actions
+- ✅ Configuration de GitHub Actions pour CI/CD
 - ✅ Pipeline multi-étapes (test → build → deploy)
 - ✅ Tests sur plusieurs versions de Node.js
 - ✅ Intégration des services (MongoDB, RabbitMQ)
