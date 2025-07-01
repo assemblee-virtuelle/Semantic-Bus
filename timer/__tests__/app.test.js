@@ -50,7 +50,7 @@ describe('Timer Module', () => {
 
       expect(workParams.id).toBeDefined();
       expect(workParams.workspaceId).toBeDefined();
-      expect(workParams.timestamp).toBeInstanceOf(Number);
+      expect(typeof workParams.timestamp).toBe('number');
     });
   });
 }); 
