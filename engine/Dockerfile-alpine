@@ -1,4 +1,4 @@
-FROM node:16-alpine
+FROM node:18-alpine
 
 WORKDIR /data/engine
 
@@ -6,25 +6,24 @@ WORKDIR /data/engine
 RUN node -v
 RUN npm -v
 
-ARG CONFIG_URL
-ARG PM2_PUBLIC_KEY
-ARG PM2_SECRET_KEY
+#ARG CONFIG_URL
+#ARG PM2_PUBLIC_KEY
+#ARG PM2_SECRET_KEY
 ARG ENV
 
 #install pm2 to production (monitoring)
-RUN npm install pm2 -g
+#RUN npm install pm2 -g
 #install nodemon to dev (support hot realoading) (need specific command in compose)
 RUN npm install nodemon -g
 
-ENV CONFIG_URL=$CONFIG_URL
-ENV PM2_PUBLIC_KEY=$PM2_PUBLIC_KEY
-ENV PM2_SECRET_KEY=$PM2_SECRET_KEY
+#ENV CONFIG_URL=$CONFIG_URL
+#ENV PM2_PUBLIC_KEY=$PM2_PUBLIC_KEY
+#ENV PM2_SECRET_KEY=$PM2_SECRET_KEY
 ENV BROADCAST_LOGS 1
 ENV FORCE_INSPECTOR 1
 
 # install tool for npm lib compile in C
-RUN apk add --update --no-cache autoconf libtool automake python3 py3-pip alpine-sdk
-RUN apk update && apk add bash
+RUN apk add --update --no-cache autoconf libtool automake python3 py3-pip alpine-sdk make g++ bash curl
 
 # Install app dependencies
 COPY ./engine/package.json /data/
@@ -46,4 +45,5 @@ COPY ./wait-for.sh /data/scripts/
 # Expose ports (for orchestrators and dynamic reverse proxies)
 EXPOSE 8080
 
-CMD [ "pm2-runtime", "app.js", "--name" ,"engine"]
+# CMD [ "pm2-runtime", "app.js", "--name" ,"engine"]
+CMD ["node", "app.js"]

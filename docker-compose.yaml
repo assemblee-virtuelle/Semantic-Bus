@@ -35,8 +35,12 @@ services:
     expose:
       - "100"
     depends_on:
-        - mongodb
-        - rabbitmq
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      scylla:
+        condition: service_healthy
     command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "nodemon", "-L", "--watch", "/data/timer/*",  "--watch", "/data/core/*",  "--ignore", "configuration.js",  "/data/timer/app.js"]
 
   # engineV1:
@@ -66,6 +70,7 @@ services:
       context: .
       dockerfile: ./engine/Dockerfile-alpine
     container_name: engine
+    restart: always
     environment:
         - APP_PORT=92
         - NODE_ENV=development_docker
@@ -85,9 +90,13 @@ services:
       - traefik.http.routers.engine.middlewares=strip-v2-segment
       - "traefik.http.services.engine.loadbalancer.server.port=92"
     depends_on:
-        - mongodb
-        - rabbitmq
-    command: bash -c "/data/scripts/wait-for-it.sh rabbitmq:5672 -t 60 -- nodemon --watch /data/engine --watch /data/core --ignore configuration.js --max-old-space-size=4096 /data/engine/app.js"
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      scylla:
+        condition: service_healthy
+    command: bash -c "nodemon --exitcrash --watch /data/engine --watch /data/core --ignore configuration.js --max-old-space-size=8192 /data/engine/app.js"
 
 
   main:
@@ -95,11 +104,12 @@ services:
       context: .
       dockerfile: ./main/Dockerfile-alpine
     container_name: main
+    restart: always
     image: semanticbus/main
+    tty: true
     environment:
         - APP_PORT=80
         - NODE_ENV=development_docker
-        - CONFIG_URL=$CONFIG_URL
     volumes:
       - ./main:/data/main/
       - ./core:/data/core/
@@ -112,9 +122,13 @@ services:
     expose:
       - "80"
     depends_on:
-        - mongodb
-        - rabbitmq
-    command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "nodemon", "-L", "--watch", "/data/main/*",  "--watch", "/data/core/*",  "--ignore", "configuration.js", "--max-old-space-size=8192",  "/data/main/app.js"]
+      mongodb:
+        condition: service_healthy
+      rabbitmq:
+        condition: service_healthy
+      scylla:
+        condition: service_healthy
+    command: ["nodemon", "-L","--exitcrash" ,"--watch", "/data/main/*",  "--watch", "/data/core/*",  "--ignore", "configuration.js", "--max-old-space-size=8192",  "/data/main/app.js"]
 
   rabbitmq:
     image: semanticbus/rabbitmq-stomp
@@ -125,6 +139,11 @@ services:
       - 15672:15672
     networks:
       - bus
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "list_connections"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
 
   mongodb:
     image: mongo:4.0.6
@@ -138,26 +157,78 @@ services:
     volumes:
       - data:/data/db
     command: --smallfiles
+    healthcheck:
+      test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
 
-  mongodb_flow:
-    image: mongo:7.0.11 # Fixer la version de l'image
-    container_name: mongodb_flow
+  # mongodb_flow:
+  #   image: mongo:7.0.11 # Fixer la version de l'image
+  #   container_name: mongodb_flow
+  #   networks:
+  #     - bus
+  #   ports:
+  #     - "27018:27017"
+  #   expose:
+  #     - "27017"
+  #   volumes:
+  #     - data_flow:/data/db
+  #   command: >
+  #     mongod --wiredTigerCacheSizeGB 2
+  #   healthcheck:
+  #     test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+  #     interval: 15s
+  #     timeout: 10s
+  #     retries: 10
+
+  scylla:
+    image: scylladb/scylla:latest
+    container_name: scylla
+    ports:
+      - "9042:9042" # Port par défaut pour CQL
+      - "9180:9180" # Port par défaut pour l'API REST
+      - "8000:8000" # Port pour Alternator
     networks:
       - bus
-    ports:
-      - "27018:27017"
-    expose:
-      - "27017"
     volumes:
-      - /volumes/data_flow:/data/db
+      - scylla_data:/var/lib/scylla
+      # - ./init-scripts/scylla.yaml:/etc/scylla/scylla.yaml
     command: >
-      mongod --wiredTigerCacheSizeGB 2
-
-
+      --smp 4
+      --memory 6G
+      --overprovisioned 1
+      --api-address 0.0.0.0
+      --cluster-name "fragments_cluster"
+      --alternator-port=8000
+      --alternator-write-isolation always
+    environment:
+      - ALTERNATOR_ACCESS_KEY_ID=yourAccessKeyId
+      - ALTERNATOR_SECRET_ACCESS_KEY=yourSecretAccessKey
+    healthcheck:
+      test: ["CMD", "cqlsh","-e describe keyspaces"]
+      interval: 15s
+      timeout: 10s
+      retries: 10
+  scylla-load-keyspace:
+    container_name: scylla-load-keyspace
+    image: scylladb/scylla:latest
+    depends_on:
+      scylla:
+        condition: service_healthy
+    networks:
+      - bus
+    entrypoint: ["/scylla-entrypoint.sh"]
+    volumes:
+      - ./init-scripts/scylla-initdb.cql:/scylla-initdb.cql
+      - ./init-scripts/scylla-entrypoint.sh:/scylla-entrypoint.sh
 volumes:
   data:
+  data_flow:
+  scylla_data: # Volume pour les données de ScyllaDB
 
 networks:
   bus:
     name: bus_network
     # external: true
+

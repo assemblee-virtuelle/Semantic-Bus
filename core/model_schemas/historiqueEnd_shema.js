@@ -36,8 +36,7 @@ var HistoriqueEndSchema = mongoose.Schema({
         type : Boolean,
     },
     frag: {
-      type: String,
-      ref: "fragment"
+      type: String
     },
     error:{
         type: Object,

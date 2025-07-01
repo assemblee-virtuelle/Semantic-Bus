@@ -6,7 +6,8 @@ var inscription = require('./inscription_lib');
 var workspace = require('./workspace_lib')
 var workspaceComponent = require('./workspace_component_lib')
 var error = require('./error_lib')
-var fragment = require('./fragment_lib')
+// var fragment = require('./fragment_lib')
+var fragment = require('./fragment_lib_scylla')
 
 
 // --------------------------------------------------------------------------------

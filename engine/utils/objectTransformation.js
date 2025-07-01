@@ -2,7 +2,7 @@
 
 module.exports = {
   transform: require('jsonpath-object-transform'),
-  Intl: require('intl'),
+  // Intl: require('intl'),
   executeWithParams: function(source, pullParams, jsonTransformPattern,options) {
     // console.log('executeWithParams',source);
 
@@ -392,7 +392,7 @@ module.exports = {
     let charCodeRegex = /(:)/g;
     let charCodeRegexReverse = /{charcode\((\d*)\)}/g;
     var nodeOut
-    Intl = this.Intl
+    // Intl = this.Intl
 
     if (Array.isArray(nodeInData)) {
       nodeOut = []

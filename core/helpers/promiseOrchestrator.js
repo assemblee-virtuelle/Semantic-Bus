@@ -52,10 +52,10 @@ class PromisesExecutor {
     try {
       // console.log(this.option);
       let continueChekresult= true;
-      if(this.option && this.option.continueChekFunction){
-        // console.log('continueChekFunction call');
+      if(this.option && this.option.continueCheckFunction){
+        // console.log('continueCheckFunction call');
 
-        continueChekresult = await this.option.continueChekFunction()
+        continueChekresult = await this.option.continueCheckFunction()
         // console.log(continueChekresult);
       }
 
@@ -70,6 +70,12 @@ class PromisesExecutor {
           if (this.config != undefined && this.config.quietLog != true) {
             // console.log(`promiseOrchestrator ${this.increment}/${this.paramArray.length}`);
           }
+          
+          // Add delay before executing if delayMs is specified
+          if (this.option.delayMs && this.option.delayMs > 0) {
+            await new Promise(resolve => setTimeout(resolve, this.option.delayMs));
+          }
+          
           let promiseExecutor = new PromiseExecutor(this.context, this.workFunction, this.paramArray, this.option, this.increment);
           this.increment++;
           promiseExecutor.execute().then((currentOut) => {

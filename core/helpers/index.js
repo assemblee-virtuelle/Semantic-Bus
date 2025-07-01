@@ -7,5 +7,5 @@ var patterns = require('./_patterns');
 // --------------------------------------------------------------------------------
 
 module.exports = {
-  patterns: patterns
+  patterns: patterns,
 };

@@ -4,7 +4,7 @@ class GoogleGeoLocaliser {
     this.url = require('url')
     this.editor = 'google-geolocaliser-editor'
     this.https = require('https'),
-    this.configuration = require('../configuration.js')
+    this.configuration = require('../config.json')
   }
   initComponent(entity) {
     return entity

@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "cassandra-driver": "^4.7.2",
     "ical-js-parser": "^0.7.4"
   }
 }

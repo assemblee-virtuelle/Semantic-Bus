@@ -56,9 +56,17 @@
         <div class="cardInput">
           <input class="inputComponents" placeholder="vide=racine" type="text" name="dfobPathInput" ref="dfobPathInput" value={itemCurrent.deeperFocusData.dfobPath} onchange={dfobPathChange}></input>
         </div>
+        <label class="labelFormStandard">Profondeur de tableau:</label>
+        <div class="cardInput">
+          <input class="inputComponents" placeholder="vide=max" type="number" name="tableDepthInput" ref="tableDepthInput" value={itemCurrent.deeperFocusData.tableDepth} onchange={tableDepthChange}></input>
+        </div>
         <label class="labelFormStandard">Nombre de traitements parallèles:</label>
         <div class="cardInput">
           <input class="inputComponents" placeholder="" type="text" name="pipeNbInput" ref="pipeNbInput" value={itemCurrent.deeperFocusData.pipeNb} onchange={pipeNbChange}></input>
+        </div>
+        <label class="labelFormStandard">Temps d'attente entre les opérations (ms):</label>
+        <div class="cardInput">
+          <input class="inputComponents" placeholder="0" type="number" name="delayMsInput" ref="delayMsInput" value={itemCurrent.deeperFocusData.delayMs} onchange={delayMsChange} min="0"></input>
         </div>
         <label class="labelFormStandard">Le chemin désigne une structure de tableau à conserver en tableau (décomposé en objet par défaut):</label>
         <label class="cardInput">
@@ -90,6 +98,14 @@
     pipeNbChange(e) {
       this.itemCurrent.deeperFocusData.pipeNb = e.target.value;
     }
+    tableDepthChange(e) {
+      this.itemCurrent.deeperFocusData.tableDepth = e.target.value;
+    }
+
+    delayMsChange(e) {
+      this.itemCurrent.deeperFocusData.delayMs = parseInt(e.target.value) || 0;
+    }
+
     keepArrayChange(e) {
       this.itemCurrent.deeperFocusData.keepArray = e.target.checked;
     }

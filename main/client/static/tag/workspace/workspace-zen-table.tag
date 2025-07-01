@@ -10,7 +10,7 @@
     />
   </div>
 
-  <zenTable show={filteredData.length > 0} drag={false} disallowselect={true} ref="zentable" disallowdelete={opts.disallowdelete}>
+  <zenTable ref="zentable" show={filteredData.length > 0} drag={false} disallowselect={true} disallowdelete={opts.disallowdelete}>
     <yield to="header">
       <div class="containerTitle">
         <div class="tableTitleName">STATUT</div>
@@ -89,8 +89,11 @@
     this.on('mount', () => {
       this.reload()
       // this.tags.zentable.on('rowNavigation', (data) => route('workspace/' + data._id + '/component'))
-      this.tags.zentable.on('rowNavigation', (data) => this.trigger('rowNavigation',data))
-      this.tags.zentable.on('delRow', (data) => this.trigger('delRow', data))
+      this.refs.zentable.on('rowNavigation', (data) => this.trigger('rowNavigation',data))
+      this.refs.zentable.on('delRow', (data) => {
+        //console.log('delRow workspace-zen-table', data)
+        this.trigger('delRow', data)
+      })
 
       this.update()
     })

@@ -1,3 +1,5 @@
+// TODO: This module is legacy. it could be removed.
+
 function BigdataflowStore (utilStore, stompClient) {
   riot.observable(this)
   this.bigdataflowCollection;

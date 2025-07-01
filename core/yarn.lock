@@ -2,6 +2,35 @@
 # yarn lockfile v1
 
 
+"@types/long@~5.0.0":
+  version "5.0.0"
+  resolved "https://registry.yarnpkg.com/@types/long/-/long-5.0.0.tgz#daaa7b7f74c919c946ff74889d5ca2afe363b2cd"
+  integrity sha512-eQs9RsucA/LNjnMoJvWG/nXa7Pot/RbBzilF/QRIU/xRl+0ApxrSUFsV5lmf01SvSlqMzJ7Zwxe440wmz2SJGA==
+  dependencies:
+    long "*"
+
+"@types/node@>=8":
+  version "22.0.0"
+  resolved "https://registry.yarnpkg.com/@types/node/-/node-22.0.0.tgz#04862a2a71e62264426083abe1e27e87cac05a30"
+  integrity sha512-VT7KSYudcPOzP5Q0wfbowyNLaVR8QWUdw+088uFWwfvpY6uCWaXpqV6ieLAu9WBcnTa7H4Z5RLK8I5t2FuOcqw==
+  dependencies:
+    undici-types "~6.11.1"
+
+adm-zip@~0.5.10:
+  version "0.5.14"
+  resolved "https://registry.yarnpkg.com/adm-zip/-/adm-zip-0.5.14.tgz#2c557c0bf12af4311cf6d32970f4060cf8133b2a"
+  integrity sha512-DnyqqifT4Jrcvb8USYjp6FHtBpEIz1mnXu6pTRHZ0RL69LbQYiO+0lDFg5+OKA7U29oWSs3a/i8fhn8ZcceIWg==
+
+cassandra-driver@^4.7.2:
+  version "4.7.2"
+  resolved "https://registry.yarnpkg.com/cassandra-driver/-/cassandra-driver-4.7.2.tgz#87f120b6d73d64f0ff3e91cdd4e56bec416fca48"
+  integrity sha512-gwl1DeYvL8Wy3i1GDMzFtpUg5G473fU7EnHFZj7BUtdLB7loAfgZgB3zBhROc9fbaDSUDs6YwOPPojS5E1kbSA==
+  dependencies:
+    "@types/long" "~5.0.0"
+    "@types/node" ">=8"
+    adm-zip "~0.5.10"
+    long "~5.2.3"
+
 datez@0.0.7:
   version "0.0.7"
   resolved "https://registry.yarnpkg.com/datez/-/datez-0.0.7.tgz#8cb1df78e6eef4b57b3cd9611257a957529b911e"
@@ -17,6 +46,11 @@ ical-js-parser@^0.7.4:
     datez "0.0.7"
     luxon "3.1.1"
 
+long@*, long@~5.2.3:
+  version "5.2.3"
+  resolved "https://registry.yarnpkg.com/long/-/long-5.2.3.tgz#a3ba97f3877cf1d778eccbcb048525ebb77499e1"
+  integrity sha512-lcHwpNoggQTObv5apGNCTdJrO69eHOZMi4BNC+rTLER8iHAqGrUVeLh/irVIM7zTw2bOXA8T6uNPeujwOLg/2Q==
+
 luxon@3.1.1:
   version "3.1.1"
   resolved "https://registry.yarnpkg.com/luxon/-/luxon-3.1.1.tgz#b492c645b2474fb86f3bd3283213846b99c32c1e"
@@ -26,3 +60,8 @@ timezone-soft@1.4.1:
   version "1.4.1"
   resolved "https://registry.yarnpkg.com/timezone-soft/-/timezone-soft-1.4.1.tgz#854eb224545645d9ddad8bcd09144522b0652156"
   integrity sha512-AnKhVnQmOjKHhdQXXe7cO7MyRGIHEGzedax4Y2N7nOr9dOYEFEBkWFJJwJTvPQvXsEtbWfa6xJj34iZKdC+W+g==
+
+undici-types@~6.11.1:
+  version "6.11.1"
+  resolved "https://registry.yarnpkg.com/undici-types/-/undici-types-6.11.1.tgz#432ea6e8efd54a48569705a699e62d8f4981b197"
+  integrity sha512-mIDEX2ek50x0OlRgxryxsenE5XaQD4on5U2inY7RApK3SOJpofyw7uW2AyfMKkhAxXIceo2DeWGVGwyvng1GNQ==

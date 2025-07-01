@@ -31,7 +31,7 @@ module.exports = {
                         }
                     });
                 }).then((res)=>{
-                    console.log('Update worskpace done', res)
+                    console.log('Migration Update worskpace done', res)
                 });
             });
         })
@@ -52,7 +52,7 @@ module.exports = {
                         }
                     });
                 }).then((res)=>{
-                    console.log('Update worskpace_component done', res)
+                    console.log('Migration Update worskpace_component done', res)
                 });
             });
         })

@@ -3,9 +3,9 @@ var workspaceComponentModel = require('../models/workspace_component_model');
 var workspaceModel = require('../models/workspace_model');
 var historiqueEndModel = require("../models/historiqueEnd_model");
 var sift = require('sift').default;
-var fragment_lib = require('./fragment_lib.js');
+// var fragment_lib = require('./fragment_lib.js');
 const Error = require('../helpers/error.js');
-const mongoose = require('mongoose');
+// const mongoose = require('mongoose');
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -129,7 +129,7 @@ function _update(componentToUpdate) {
   return new Promise(async (resolve, reject) => {
 
     if (componentToUpdate) {
-
+      // console.log('componentToUpdate', componentToUpdate);
       let componentUpdated = await  workspaceComponentModel.getInstance().model.findOneAndUpdate({
         _id: componentToUpdate._id
       }, componentToUpdate, {
@@ -137,7 +137,8 @@ function _update(componentToUpdate) {
         new: true
       })
       .lean()
-      .exec()
+      .exec();
+      // console.log('componentUpdated', componentUpdated);
       resolve(componentUpdated)
     }
   });

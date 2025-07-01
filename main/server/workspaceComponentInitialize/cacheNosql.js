@@ -11,12 +11,13 @@ class CacheNosql {
     ]
     this.workspace_component_lib = require('../../../core/lib/workspace_component_lib')
     this.cache_lib = require('../../../core/lib/cache_lib')
-    this.fragment_lib = require('../../../core/lib/fragment_lib')
+    // this.fragment_lib = require('../../../core/lib/fragment_lib_scylla')
     this.stepNode = true
   }
 
   initialise (router) {
     router.get('/getCache/:compId', async function (req, res, next) {
+      // console.log('CACHE getCache');
       try {
         var compId = req.params.compId
         const component = await  this.workspace_component_lib.get({

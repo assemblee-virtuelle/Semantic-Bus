@@ -2,10 +2,11 @@ const workspace_lib = require('../../core/lib/workspace_lib')
 const user_lib = require('../../core').user
 const auth_lib_jwt = require('../../core/lib/auth_lib')
 const workspace_component_lib = require('../../core/lib/workspace_component_lib')
-const fragment_lib = require('../../core/lib/fragment_lib')
+// const fragment_lib = require('../../core/lib/fragment_lib')
+const fragment_lib = require('../../core/lib/fragment_lib_scylla')
 const technicalComponentDirectory = require('./services/technicalComponentDirectory.js')
 const securityService = require('./services/security')
-
+const config = require('../config.json')
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -36,7 +37,7 @@ module.exports = function (router) {
   // Get workspaces
 
   router.get('/workspaces/me/owner', function (req, res, next) {
-    workspace_lib.getAll(UserIdFromToken(req), 'owner').then(function (workspaces) {
+    workspace_lib.getAll(UserIdFromToken(req), 'owner', config).then(function (workspaces) {
       res.json(workspaces)
     }).catch(e => {
       next(e)
@@ -46,7 +47,7 @@ module.exports = function (router) {
   // ---------------------------------------------------------------------------------
 
   router.get('/workspaces/me/shared', function (req, res, next) {
-    workspace_lib.getAll(UserIdFromToken(req), 'editor').then(function (workspaces) {
+    workspace_lib.getAll(UserIdFromToken(req), 'editor', config).then(function (workspaces) {
       res.json(workspaces)
     }).catch(e => {
       next(e)
@@ -56,7 +57,7 @@ module.exports = function (router) {
     // ---------------------------------------------------------------------------------
 
     router.get('/workspaces/me/all', function (req, res, next) {
-      workspace_lib.getAll(UserIdFromToken(req), undefined).then(function (workspaces) {
+      workspace_lib.getAll(UserIdFromToken(req), undefined, config).then(function (workspaces) {
         res.json(workspaces)
       }).catch(e => {
         next(e)
@@ -111,20 +112,37 @@ module.exports = function (router) {
   // --------------------------------------------------------------------------------
 
   router.get('/workspaces/:id/components/:componentId/process/:processId', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
+    // console.log('___req.params', req.params)
     const componentId = req.params.componentId
     const processId = req.params.processId
+    
     //return historicEnd
     workspace_component_lib.get_component_result(componentId, processId).then(function (data) {
       if (data !== undefined) {
+        // console.log('___data', data)
         if (data.frag !== undefined) {
           fragment_lib.get(data.frag).then(frag => {
+            // console.log('___frag', frag)
             if (frag != null) {
               data.data = frag.data
             } else {
               data.error = { error: "frag of cache doesn't exist" }
             }
+            // console.log('___data', data)
             res.send(data)
+          }).catch(e => {
+            // next(e)
           })
+
+
+          // fragment_lib.get(data.frag).then(frag => {
+          //   if (frag != null) {
+          //     data.data = frag.data
+          //   } else {
+          //     data.error = { error: "frag of cache doesn't exist" }
+          //   }
+          //   res.send(data)
+          // })
         } else {
           res.send(data)
         }
@@ -339,7 +357,7 @@ module.exports = function (router) {
     if (user && IdOfConnectedUser!= user._id) {
       let workspaceOrigin = await workspace_lib.get_workspace_simple(workspace_id);
       workspaceOrigin.users=workspaceOrigin.users.filter(u=>u.email!==user.credentials.email);
-      console.log('workspace',workspaceOrigin)
+      // console.log('workspace',workspaceOrigin)
       const updatedWorkspace = await workspace_lib.updateSimple(workspaceOrigin);
       const workspace = await workspace_lib.getWorkspace(workspace_id);
       for (var c of workspace.components) {

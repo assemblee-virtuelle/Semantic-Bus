@@ -1,6 +1,6 @@
 'use strict';
 
-const ObjectId = require('bson').ObjectID
+const { ObjectId } = require('mongodb');
 
 class MongoConnector {
   constructor () {
@@ -13,7 +13,7 @@ class MongoConnector {
     this.PromiseOrchestrator = require('../../core/helpers/promiseOrchestrator.js')
     this.ArraySegmentator = require('../../core/helpers/ArraySegmentator.js')
     this.stringReplacer = require('../utils/stringReplacer.js'),
-    this.ObjectID = require('bson').ObjectID
+    this.ObjectID = ObjectId
   }
 
   mongoInitialise (url) {
@@ -36,22 +36,14 @@ class MongoConnector {
   }
 
   mongoRequest (client, querysTable, database, collectionName, queryParams,flowdata) {
+    //console.log('mongoRequest',querysTable);
     return new Promise(async (resolve, reject) => {
       try {
-
-        // console.log('mongoRequest');
         const db = client.db(database)
-        // console.log(db);
         const collection = db.collection(collectionName)
-        // console.log('collection',collection);
-        const forcedData = await (await collection.find()).toArray();
-        // console.log('forcedData',forcedData);
-            // console.log('REQUEST', querysTable);
         const normalizedQuerysTable = this.stringReplacer.execute(querysTable, queryParams, flowdata, true);
-        // const normalizedQuerysTable = this.normalizeQuerysTable(querysTable, queryParams, flowdata, true)
-        // console.log('normalizedQuerysTable',normalizedQuerysTable);
+        //console.log('normalizedQuerysTable',normalizedQuerysTable);
         const evaluation = eval('collection.' + normalizedQuerysTable);
-        // console.log('evaluation',evaluation);
         let mongoPromise
         if (evaluation instanceof Promise) {
           mongoPromise = evaluation
@@ -59,14 +51,18 @@ class MongoConnector {
           mongoPromise = evaluation.toArray()
         }
 
-        // console.log('mongoPromise',mongoPromise);
+        const result = await mongoPromise;
+        if (Array.isArray(result)) {
+          result.forEach(item => {
+            item._id = item._id.toString();
+          });
+        }else{
+          result._id = result._id.toString();
+        }
 
-        mongoPromise.then(result => {
-          // console.log('result',result);
-          resolve({
-            result: result,
-            client: client
-          })
+        resolve({
+          result: result,
+          client: client
         })
       } catch (e) {
         reject(e)
@@ -118,42 +114,6 @@ class MongoConnector {
     }.bind(this))
   }
 
-  // request (querysTable, modelShema, queryParams) {
-  //   if (querysTable == null || querysTable.length == 0) {
-  //     return modelShema.model
-  //       .find()
-  //       .lean()
-  //       .exec()
-  //       .catch(error => {
-  //         let fullError = new Error(error)
-  //         fullError.displayMessage = 'Connecteur Mongo :  nous avons rencontré un probleme avec MongoDB';
-  //         throw fullError
-  //       })
-  //   } else {
-  //     try {
-  //       console.log('querysTable',querysTable);
-  //       const normalizedQuerysTable = this.normalizeQuerysTable(querysTable, queryParams);
-  //       console.log('normalizedQuerysTable',normalizedQuerysTable);
-  //       return eval('modelShema.model.' + normalizedQuerysTable + '.lean()')
-  //         .exec()
-  //         .then(data => data || [])
-  //         .catch(error => {
-  //           let fullError = new Error(error)
-  //           fullError.displayMessage = 'Connecteur Mongo :  nous avons rencontré un probleme avec votre query MongoDB';
-  //           throw fullError
-  //         })
-  //     } catch (e) {
-  //       if (e instanceof SyntaxError) {
-  //         let fullError = new Error(e)
-  //         fullError.displayMessage = "Connecteur Mongo : Veuillez entre une query valide  ex: findOne({name:'thomas')}"
-  //         return Promise.reject(fullError)
-  //       } else {
-  //         return Promise.reject(e)
-  //       }
-  //     }
-  //   }
-  // }
-
   normalizeQuerysTable (querysTable, queryParams) {
     let processingQuerysTable = querysTable
     const regex = /{(\£.*?)}/g
@@ -164,114 +124,70 @@ class MongoConnector {
 
         processingQuerysTable = processingQuerysTable.replace(match, JSON.stringify(this.dotProp.get(queryParams, ObjectKey)))
       }
-      // console.log(processingQuerysTable);
     }
     return processingQuerysTable
   }
 
-  // insert (dataFlow, modelShema) {
-  //
-  //   return modelShema.model
-  //     .remove({})
-  //     .exec()
-  //     .then(() => {
-  //       const arraySegmentator = new this.ArraySegmentator()
-  //       const segments = arraySegmentator.segment(dataFlow, 100)
-  //       const paramArray = segments.map(s => [modelShema, s])
-  //       const promiseOrchestrator = new this.PromiseOrchestrator()
-  //       promiseOrchestrator.execute(this, this.insertPromise, paramArray, {
-  //         beamNb: 10
-  //       })
-  //     })
-  // }
-
   mongoInsert (client, database, collectionName, dataFlow,notErase) {
-    console.log('mongoInsert');
     return new Promise(async (resolve, reject) => {
       try {
         const db = client.db(database)
-
-        // console.log('db',db);
         const collection = db.collection(collectionName);
         if (notErase!==true){
           await collection.remove({});
         }
 
-
-          // console.log('mongoInsert : records removed');
         const arraySegmentator = new this.ArraySegmentator()
         let segmentFlow;
-        // console.log('dataFlow',dataFlow);
         if(!Array.isArray(dataFlow)){
           segmentFlow=[dataFlow];
         }else{
           segmentFlow=dataFlow;
         }
 
-        // console.log('segmentFlow',segmentFlow);
-
         for (let data of segmentFlow){
           const {_id,...noId}=data;
-          // console.log(_id);
-          // console.log(noId);
           try {
-            await collection.findOneAndUpdate({
-              _id:new this.ObjectID(_id)
-            },
-            {
-              $set:noId
-            },
-            {
-                upsert:true,
-                returnNewDocument: true
-            })
+            if (_id) {
+              let objectId;
+              try {
+                objectId = new this.ObjectID(_id);
+              } catch (e) {
+                objectId = _id;
+              }
+              
+              await collection.findOneAndUpdate({
+                _id: objectId
+              },
+              {
+                $set:noId
+              },
+              {
+                  upsert:true,
+                  returnNewDocument: true
+              })
+            } else {
+              await collection.insertOne(noId);
+            }
           } catch (e) {
             console.log(e);
           }
-
         }
 
         resolve();
-
-
-        // const segments = arraySegmentator.segment(segmentFlow, 100)
-        //
-        // const paramArray = segments.map(s => [collection, s])
-        // const promiseOrchestrator = new this.PromiseOrchestrator()
-        // promiseOrchestrator.execute(this, this.mongoInsertPromise, paramArray, {
-        //   beamNb: 10
-        // }).then(() => {
-        //   // console.log('mongoInsert : records inserted');
-        //   resolve()
-        // })
-
       } catch (e) {
         reject(e)
-      } finally {
-        // client.close();
       }
     })
   }
 
   mongoInsertPromise (collection, data) {
-    // console.log("mongoInsertPromise",collection,data.length);
-    // console.log('data',data[0]);
-    // console.log('data newStart',data[0].newStart);
-    // console.log('data Date',data[0].newStart instanceof Date);
-    // console.log('data String',data[0].newStart instanceof String);
-    // console.log('data typeof',typeof data[0].newStart);
     return collection.insertMany(data)
   }
 
-  // insertPromise (modelShema, data) {
-  //   return modelShema.model.insertMany(data).exec()
-  // }
-
   pull (data, dataFlow, queryParams) {
-
     if (data.specificData.querySelect !== undefined && data.specificData.querySelect !== undefined && data.specificData.querySelect !== '') {
-      // console.log('Mongo READ');
-      // console.log('data.specificData.querySelect',data.specificData.querySelect);
+      // console.log('pull',data.specificData.querySelect);
       return new Promise(async (resolve, reject) => {
         let client;
         try {
@@ -284,14 +200,11 @@ class MongoConnector {
         } catch (error) {
           reject(error)
         } finally {
-          // console.log('before close');
           client.close();
-          // console.log('after close');
         }
       })
     } else {
       const writeFlow= dataFlow!=undefined?dataFlow[0].data:[{}];
-      console.log('Mongo write',dataFlow[0].data);
       return new Promise(async (resolve, reject) => {
         let client
         try {

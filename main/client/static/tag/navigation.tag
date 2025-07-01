@@ -142,7 +142,7 @@
       // console.log('profil',profil);
       this.currentName = profil? profil.name: '';
       this.adminAvaible = profil? profil.admin: false;
-      this.update()
+      this.update();
     }.bind(this);
 
     RiotControl.on('user_from_storage', this.reload_profil);

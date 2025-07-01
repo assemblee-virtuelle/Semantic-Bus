@@ -6,6 +6,14 @@ var configuration = require('../config.json')
 
 module.exports = function (router) {
 
+  router.post('/cleanGarbageSimple', function (req, res, next) {
+    workspace_lib.cleanGarbage().then(() => {
+      res.send("well cleaned")
+    }).catch(e => {
+      next(e)
+    })
+  })
+
   router.post('/cleanGarbage', function (req, res, next) {
     workspace_lib.cleanGarbageForgotten().then(() => {
       res.send("well cleaned")
@@ -32,7 +40,7 @@ module.exports = function (router) {
   })
 
   router.post('/executeTimers', function (req, res, next) {
-    console.log("configuration",configuration);
+    // console.log("configuration",configuration);
     workspace_lib.executeAllTimers(configuration).then(() => {
       res.send("well executed")
     }).catch(e => {
