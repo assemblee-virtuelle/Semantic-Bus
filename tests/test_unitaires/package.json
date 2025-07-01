@@ -3,10 +3,39 @@
   "private": true,
   "description": "Semantic Bus unit tests",
   "scripts": {
-    "test": "jest --detectOpenHandles --verbose"
+    "test": "jest --detectOpenHandles --verbose",
+    "test:watch": "jest --detectOpenHandles --verbose --watch",
+    "test:coverage": "jest --detectOpenHandles --verbose --coverage",
+    "test:engine": "jest --detectOpenHandles --verbose --testPathPattern=engine",
+    "test:utils": "jest --detectOpenHandles --verbose --testPathPattern=utils",
+    "test:services": "jest --detectOpenHandles --verbose --testPathPattern=services"
+  },
+  "jest": {
+    "testEnvironment": "node",
+    "setupFilesAfterEnv": ["<rootDir>/setup.js"],
+    "testMatch": [
+      "**/__tests__/**/*.js",
+      "**/?(*.)+(spec|test).js"
+    ],
+    "collectCoverageFrom": [
+      "../../engine/**/*.js",
+      "!../../engine/node_modules/**",
+      "!../../engine/configuration.js"
+    ],
+    "coverageDirectory": "./coverage",
+    "coverageReporters": ["text", "lcov", "html"],
+    "transform": {},
+    "moduleFileExtensions": ["js", "json"],
+    "testPathIgnorePatterns": [
+      "/node_modules/",
+      "/coverage/"
+    ]
   },
   "devDependencies": {
     "jest": "^29.7.0",
-    "supertest": "^4.0.2"
+    "supertest": "^4.0.2",
+    "@types/jest": "^29.5.5",
+    "mongodb-memory-server": "^8.15.1",
+    "sinon": "^15.2.0"
   }
 }
