@@ -1,0 +1,11 @@
+Test de suppression de CircleCI
+===============================
+
+Ce fichier sert à tester que CircleCI ne se déclenche plus 
+lors de la création d'une nouvelle branche ou PR.
+
+Si ce commit ne déclenche que GitHub Actions (et pas CircleCI),
+alors la suppression a réussi.
+
+Date de test: $(date)
+Branche: test-no-circleci 
