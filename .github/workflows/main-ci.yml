@@ -24,6 +24,8 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
+          cache-dependency-path: |
+            packages/*/package-lock.json
 
       - name: Install dependencies for all modules
         run: |
@@ -69,15 +71,11 @@ jobs:
         if: always()
 
   # ===========================================
-  # ÉTAPE 2: CONTRÔLE DE MISE EN FORME
+  # ÉTAPE 2A: CONTRÔLE DE MISE EN FORME - MAIN
   # ===========================================
-  code-standards:
-    name: ✨ Code Standards
+  code-standards-main:
+    name: ✨ Code Standards (main)
     runs-on: ubuntu-latest
-    
-    strategy:
-      matrix:
-        module: [main, engine]  # Only modules with lint scripts
     
     steps:
       - name: Checkout code
@@ -88,23 +86,64 @@ jobs:
         with:
           node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
-          cache-dependency-path: 'packages/${{ matrix.module }}/package-lock.json'
+          cache-dependency-path: packages/main/package-lock.json
 
       - name: Install dependencies
         run: |
-          cd packages/${{ matrix.module }}
+          cd packages/main
           npm ci
 
       - name: Run linting
         run: |
-          echo "✨ Linting ${{ matrix.module }}..."
-          cd packages/${{ matrix.module }}
+          echo "✨ Linting main module..."
+          cd packages/main
           npm run lint
         continue-on-error: true
 
       - name: Check code formatting (if available)
         run: |
-          cd packages/${{ matrix.module }}
+          cd packages/main
+          if npm run | grep -q "format"; then
+            echo "🎨 Checking code formatting..."
+            npm run format:check || echo "⚠️ Formatting issues found"
+          else
+            echo "ℹ️  No formatting script available"
+          fi
+        continue-on-error: true
+
+  # ===========================================
+  # ÉTAPE 2B: CONTRÔLE DE MISE EN FORME - ENGINE
+  # ===========================================
+  code-standards-engine:
+    name: ✨ Code Standards (engine)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
+          cache-dependency-path: packages/engine/package-lock.json
+
+      - name: Install dependencies
+        run: |
+          cd packages/engine
+          npm ci
+
+      - name: Run linting
+        run: |
+          echo "✨ Linting engine module..."
+          cd packages/engine
+          npm run lint
+        continue-on-error: true
+
+      - name: Check code formatting (if available)
+        run: |
+          cd packages/engine
           if npm run | grep -q "format"; then
             echo "🎨 Checking code formatting..."
             npm run format:check || echo "⚠️ Formatting issues found"
@@ -119,7 +158,7 @@ jobs:
   tests:
     name: 🧪 Tests
     runs-on: ubuntu-latest
-    needs: [quality-control, code-standards]
+    needs: [quality-control, code-standards-main, code-standards-engine]
     
     strategy:
       matrix:
@@ -135,7 +174,7 @@ jobs:
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
-          cache-dependency-path: 'packages/${{ matrix.module }}/package-lock.json'
+          cache-dependency-path: packages/${{ matrix.module }}/package-lock.json
 
       - name: Install dependencies
         run: |
@@ -169,7 +208,7 @@ jobs:
   summary:
     name: 📋 Pipeline Summary
     runs-on: ubuntu-latest
-    needs: [quality-control, code-standards, tests]
+    needs: [quality-control, code-standards-main, code-standards-engine, tests]
     if: always()
     
     steps:
@@ -179,18 +218,26 @@ jobs:
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### ✅ Completed Steps:" >> $GITHUB_STEP_SUMMARY
           echo "- 🔍 Quality Control: ${{ needs.quality-control.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- ✨ Code Standards: ${{ needs.code-standards.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ✨ Code Standards (main): ${{ needs.code-standards-main.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ✨ Code Standards (engine): ${{ needs.code-standards-engine.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- 🧪 Tests: ${{ needs.tests.result }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📊 Metrics:" >> $GITHUB_STEP_SUMMARY
           echo "- **Modules tested**: 4 (core, main, engine, timer)" >> $GITHUB_STEP_SUMMARY
           echo "- **Node versions**: 2 (18.x, 20.x)" >> $GITHUB_STEP_SUMMARY
           echo "- **Total test jobs**: 8" >> $GITHUB_STEP_SUMMARY
+          echo "- **Linting jobs**: 2 (main, engine) - Independent" >> $GITHUB_STEP_SUMMARY
           echo "- **Workflow**: Development only (no build/deploy)" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 🚀 Status:" >> $GITHUB_STEP_SUMMARY
-          if [[ "${{ needs.quality-control.result }}" == "success" && "${{ needs.code-standards.result }}" == "success" && "${{ needs.tests.result }}" == "success" ]]; then
+          if [[ "${{ needs.quality-control.result }}" == "success" && "${{ needs.code-standards-main.result }}" == "success" && "${{ needs.code-standards-engine.result }}" == "success" && "${{ needs.tests.result }}" == "success" ]]; then
             echo "✅ **All checks passed!** Code ready for review." >> $GITHUB_STEP_SUMMARY
           else
             echo "⚠️ **Some checks failed.** Please review the issues above." >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+            echo "**Individual Results:**" >> $GITHUB_STEP_SUMMARY
+            echo "- Quality Control: ${{ needs.quality-control.result }}" >> $GITHUB_STEP_SUMMARY
+            echo "- Code Standards (main): ${{ needs.code-standards-main.result }}" >> $GITHUB_STEP_SUMMARY
+            echo "- Code Standards (engine): ${{ needs.code-standards-engine.result }}" >> $GITHUB_STEP_SUMMARY
+            echo "- Tests: ${{ needs.tests.result }}" >> $GITHUB_STEP_SUMMARY
           fi 
