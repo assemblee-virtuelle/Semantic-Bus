@@ -1,0 +1,106 @@
+name: ✨ Code Quality & Linting
+
+on:
+  push:
+    branches: [ master, main, develop, dependency-update-and-quality-control ]
+
+jobs:
+  lint-core:
+    name: 💎 Lint Core Package
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+
+      - name: Install dependencies
+        run: |
+          cd packages/core
+          npm ci
+
+      - name: Run linting
+        run: |
+          echo "✨ Linting core package..."
+          cd packages/core
+          npm run lint || echo "⚠️ Linting issues in core"
+        continue-on-error: true
+
+  lint-main:
+    name: 🌐 Lint Main Package
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+
+      - name: Install dependencies
+        run: |
+          cd packages/main
+          npm ci
+
+      - name: Run linting
+        run: |
+          echo "✨ Linting main package..."
+          cd packages/main
+          npm run lint || echo "⚠️ Linting issues in main"
+        continue-on-error: true
+
+  lint-engine:
+    name: ⚙️ Lint Engine Package
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+
+      - name: Install dependencies
+        run: |
+          cd packages/engine
+          npm ci
+
+      - name: Run linting
+        run: |
+          echo "✨ Linting engine package..."
+          cd packages/engine
+          npm run lint || echo "⚠️ Linting issues in engine"
+        continue-on-error: true
+
+  lint-timer:
+    name: ⏰ Lint Timer Package
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18.x'
+
+      - name: Install dependencies
+        run: |
+          cd packages/timer
+          npm ci
+
+      - name: Run linting
+        run: |
+          echo "✨ Linting timer package..."
+          cd packages/timer
+          npm run lint || echo "⚠️ Linting issues in timer"
+        continue-on-error: true 
