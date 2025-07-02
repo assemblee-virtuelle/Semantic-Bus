@@ -35,7 +35,7 @@ jobs:
       run: cd tests/test_unitaires && npm install
       
     - name: Run unit tests (existing)
-      run: npm run test:unit
+      run: npm run test:all
       
     - name: Run engine tests
       run: npm run test:engine
@@ -65,7 +65,7 @@ jobs:
       run: npm run install:all
       
     - name: Run integration tests
-      run: npm run test:integration
+      run: npm run test:all
 
   # test-e2e:
   #   name: E2E Tests
@@ -142,7 +142,7 @@ jobs:
       run: npm run install:all
       
     - name: Run linting
-      run: npm run lint
+      run: npm run lint:all
 
   # Security audit moved to dependency-quality-control.yml to avoid duplication
 

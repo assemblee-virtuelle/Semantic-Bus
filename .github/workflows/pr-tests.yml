@@ -22,7 +22,7 @@ jobs:
       run: npm run install:all
         
     - name: Run linting
-      run: npm run lint
+      run: npm run lint:all
       
     - name: Run engine tests
       run: cd packages/engine && npm test
