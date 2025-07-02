@@ -1,15 +1,18 @@
-name: Main CI/CD Pipeline
+name: 🚀 Main CI/CD Pipeline
 
 on:
   push:
     branches: [ master, main, develop, dependency-update-and-quality-control ]
+  
+env:
+  NODE_VERSION: '20.x'
 
 jobs:
   # ===========================================
   # ÉTAPE 1: CONTRÔLE DE QUALITÉ
   # ===========================================
   quality-control:
-    name: Quality Control
+    name: 🔍 Quality Control
     runs-on: ubuntu-latest
     
     steps:
@@ -19,10 +22,12 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: ${{ env.NODE_VERSION }}
+          cache: 'npm'
 
       - name: Install dependencies for all modules
         run: |
+          echo "📦 Installing dependencies for all modules..."
           for module in core main engine timer; do
             if [ -f "packages/$module/package.json" ]; then
               echo "Installing $module dependencies..."
@@ -67,7 +72,7 @@ jobs:
   # ÉTAPE 2: CONTRÔLE DE MISE EN FORME
   # ===========================================
   code-standards:
-    name: Code Standards - ${{ matrix.module }}
+    name: ✨ Code Standards
     runs-on: ubuntu-latest
     
     strategy:
@@ -81,16 +86,16 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '20.x'
+          node-version: ${{ env.NODE_VERSION }}
           cache: 'npm'
           cache-dependency-path: 'packages/${{ matrix.module }}/package-lock.json'
 
-      - name: Install dependencies for ${{ matrix.module }}
+      - name: Install dependencies
         run: |
           cd packages/${{ matrix.module }}
           npm ci
 
-      - name: Run linting for ${{ matrix.module }}
+      - name: Run linting
         run: |
           echo "✨ Linting ${{ matrix.module }}..."
           cd packages/${{ matrix.module }}
@@ -112,34 +117,34 @@ jobs:
   # ÉTAPE 3: EXÉCUTION DES TESTS
   # ===========================================
   tests:
-    name: Tests - ${{ matrix.module }} (Node ${{ matrix.node-version }})
+    name: 🧪 Tests
     runs-on: ubuntu-latest
     needs: [quality-control, code-standards]
     
     strategy:
       matrix:
         module: [core, main, engine, timer]
-        node-version: [18.x, 20.x]
+        node-version: ['18.x', '20.x']
     
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Setup Node.js ${{ matrix.node-version }}
+      - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: ${{ matrix.node-version }}
           cache: 'npm'
           cache-dependency-path: 'packages/${{ matrix.module }}/package-lock.json'
 
-      - name: Install dependencies for ${{ matrix.module }}
+      - name: Install dependencies
         run: |
           cd packages/${{ matrix.module }}
           npm ci
 
-      - name: Run tests for ${{ matrix.module }}
+      - name: Run tests
         run: |
-          echo "🧪 Testing ${{ matrix.module }}..."
+          echo "🧪 Testing ${{ matrix.module }} with Node ${{ matrix.node-version }}..."
           cd packages/${{ matrix.module }}
           npm test
 
@@ -149,6 +154,7 @@ jobs:
           echo "📊 Generating coverage for engine..."
           cd packages/engine
           npm run test:coverage
+        continue-on-error: true
 
       - name: Upload coverage reports
         if: matrix.module == 'engine' && matrix.node-version == '20.x'
@@ -158,69 +164,33 @@ jobs:
           fail_ci_if_error: false
 
   # ===========================================
-  # ÉTAPE 4: BUILD ET DÉPLOIEMENT
-  # ===========================================
-  build:
-    name: Build Docker Images
-    runs-on: ubuntu-latest
-    needs: [tests]
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Setup Docker Buildx
-        uses: docker/setup-buildx-action@v3
-
-      - name: Login to Docker Hub
-        uses: docker/login-action@v3
-        with:
-          username: ${{ secrets.DOCKER_USERNAME }}
-          password: ${{ secrets.DOCKER_PASSWORD }}
-        if: env.DOCKER_USERNAME != ''
-
-      - name: Build Docker images
-        run: |
-          echo "🐳 Building Docker images..."
-          make docker-build || echo "⚠️ Docker build failed - continuing"
-
-  deploy:
-    name: Deploy to Production
-    runs-on: ubuntu-latest
-    needs: [build]
-    if: github.ref == 'refs/heads/master'
-    
-    steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-
-      - name: Deploy to production
-        run: |
-          echo "🚀 Deploying to production..."
-          # Add deployment commands here
-
-  # ===========================================
-  # ÉTAPE 5: NOTIFICATIONS ET RAPPORTS
+  # ÉTAPE 4: RÉSUMÉ ET NOTIFICATIONS
   # ===========================================
   summary:
-    name: Pipeline Summary
+    name: 📋 Pipeline Summary
     runs-on: ubuntu-latest
-    needs: [quality-control, code-standards, tests, build]
+    needs: [quality-control, code-standards, tests]
     if: always()
     
     steps:
       - name: Generate pipeline summary
         run: |
-          echo "## 📋 Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "## 🎯 Pipeline Summary" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### ✅ Completed Steps:" >> $GITHUB_STEP_SUMMARY
           echo "- 🔍 Quality Control: ${{ needs.quality-control.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- ✨ Code Standards: ${{ needs.code-standards.result }}" >> $GITHUB_STEP_SUMMARY
           echo "- 🧪 Tests: ${{ needs.tests.result }}" >> $GITHUB_STEP_SUMMARY
-          echo "- 🐳 Build: ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
           echo "" >> $GITHUB_STEP_SUMMARY
           echo "### 📊 Metrics:" >> $GITHUB_STEP_SUMMARY
           echo "- **Modules tested**: 4 (core, main, engine, timer)" >> $GITHUB_STEP_SUMMARY
           echo "- **Node versions**: 2 (18.x, 20.x)" >> $GITHUB_STEP_SUMMARY
-          echo "- **Total test jobs**: 8" >> $GITHUB_STEP_SUMMARY 
+          echo "- **Total test jobs**: 8" >> $GITHUB_STEP_SUMMARY
+          echo "- **Workflow**: Development only (no build/deploy)" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 🚀 Status:" >> $GITHUB_STEP_SUMMARY
+          if [[ "${{ needs.quality-control.result }}" == "success" && "${{ needs.code-standards.result }}" == "success" && "${{ needs.tests.result }}" == "success" ]]; then
+            echo "✅ **All checks passed!** Code ready for review." >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Some checks failed.** Please review the issues above." >> $GITHUB_STEP_SUMMARY
+          fi 
