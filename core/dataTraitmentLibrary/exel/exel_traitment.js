@@ -53,7 +53,7 @@ function _exel_to_json(buffer, header) {
     try {
       // Calculate and log the buffer size
       const bufferSizeInMB = (buffer.length / (1024 * 1024)).toFixed(2);
-      console.log("Buffer size :", bufferSizeInMB, "MB");
+  
       // Create stream reader with options
       const wb = XLSX.read(buffer, {
         type: 'buffer'

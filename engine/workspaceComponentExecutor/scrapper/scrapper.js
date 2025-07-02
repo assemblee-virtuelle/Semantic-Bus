@@ -216,9 +216,7 @@ class Scrapper {
     return new Promise(async (resolve, reject) => {
       try {
         let timeout = specificData.timeout == undefined ? 20000 : specificData.timeout * 1000;
-        console.log('specificData.url',specificData.url)
         let url = this.stringReplacer.execute(specificData.url, queryParams, flowData);
-        console.log('url',url)
 
         let user = specificData.user;
         let key = specificData.key;

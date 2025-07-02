@@ -814,7 +814,6 @@ module.exports = {
     displayFragTree: async function (id, depth = 0, key) {
         const frag = await this.fragmentModel.getFragmentById(id);
         const indent = ' '.repeat(depth * 4);
-        console.log(`${indent} - ${key} - frag - ${frag.id} - | ${frag.rootFrag} x ${frag.originFrag} |`);
         if (frag.branchFrag) {
             const children = await this.fragmentModel.searchFragmentByField({
                 branchOriginFrag: frag.branchFrag
@@ -831,7 +830,6 @@ module.exports = {
 
     displayDataTree: async function (data, depth = 0, key) {
         const indent = ' '.repeat(depth * 4);
-        console.log(`${indent} - ${key} - data - ${data}`);
         if (Array.isArray(data)) {
             for (let index in data) {
                 await this.displayDataTree(data[index], depth + 1, index);

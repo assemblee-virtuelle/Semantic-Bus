@@ -36,15 +36,15 @@ class Upload {
     router.post('/upload/:compId', (req, res, next) => {
       var compId = req.params.compId
 
-      var busboyInstance = new busboy({
+      var busboyInstance = busboy({
         headers: req.headers
       })
 
       let fileName = null
       let saveTo = null
-      busboyInstance.on('file', (fieldname, file, filename, encoding, mimetype) => {
-        console.log('UPLOAD', filename)
-        fileName = filename
+      busboyInstance.on('file', (fieldname, file, info) => {
+        console.log('UPLOAD', info)
+        fileName = info.filename
         let buffer = Buffer.alloc(0)
 
         file.on('data', (data) => {

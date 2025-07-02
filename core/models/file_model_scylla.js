@@ -9,8 +9,6 @@ const insertFile = async (file) => {
   if (file.binary && file.binary.length > MAX_FILE_SIZE) {
     throw new Error(`The file is too large (${(file.binary.length / 1024 / 1024).toFixed(2)}MB). The maximum allowed size is 15MB.`);
   }
-
-  console.log('insertFile',file);
   const query = `
     INSERT INTO file (id, binary, frag, filename, processId, cacheId)
     VALUES (?, ?, ?, ?, ?, ?)

@@ -314,7 +314,6 @@ class FragmentModel {
       Object.entries(searchCriteria).forEach(([key, value]) => {
         addExpression(key, value);
       });
-      console.log('IndexName', IndexName)
       const params = {
         TableName: this.tableName,
         KeyConditionExpression: KeyConditionExpression.join(' AND '),

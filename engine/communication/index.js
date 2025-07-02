@@ -40,7 +40,7 @@ class Communication {
   }
 
   async setAmqpChannel(channel) {
-    console.log('setAmqpChannel');
+
     channel.consume('work-ask', async (msg) => {
       // console.log('msg', msg);
       const messageObject = JSON.parse(msg.content.toString());
