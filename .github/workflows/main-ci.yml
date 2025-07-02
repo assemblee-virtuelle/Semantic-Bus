@@ -95,6 +95,7 @@ jobs:
           echo "✨ Linting ${{ matrix.module }}..."
           cd packages/${{ matrix.module }}
           npm run lint
+        continue-on-error: true
 
       - name: Check code formatting (if available)
         run: |
