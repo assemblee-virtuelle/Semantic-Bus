@@ -9,7 +9,7 @@
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
     "lint": "npx eslint *.js utils/**/*.js services/**/*.js workspaceComponentExecutor/**/*.js communication/**/*.js",
-    "fix": "npx eslint --fix *.js utils/**/*.js services/**/*.js workspaceComponentExecutor/**/*.js communication/**/*.js",
+    "lint:fix": "npx eslint --fix *.js utils/**/*.js services/**/*.js workspaceComponentExecutor/**/*.js communication/**/*.js",
     "start": "node app.js",
     "dev": "nodemon app.js",
     "clean": "rm -rf node_modules",

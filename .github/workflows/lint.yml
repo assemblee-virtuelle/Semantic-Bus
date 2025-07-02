@@ -44,15 +44,7 @@ jobs:
         run: |
           echo "✨ Attempting automatic formatting for core package..."
           cd packages/core
-          # Essayer ESLint --fix si disponible
-          if npm run | grep -q "lint:fix"; then
-            npm run lint:fix
-          elif npm run | grep -q "format"; then
-            npm run format
-          else
-            echo "⚠️ No auto-formatting script available - trying eslint --fix"
-            npx eslint . --fix --ext .js || echo "ESLint fix attempted"
-          fi
+          npm run lint:fix
 
       - name: Check for formatting changes
         id: format-check
@@ -124,14 +116,7 @@ jobs:
         run: |
           echo "✨ Attempting automatic formatting for main package..."
           cd packages/main
-          if npm run | grep -q "lint:fix"; then
-            npm run lint:fix
-          elif npm run | grep -q "format"; then
-            npm run format
-          else
-            echo "⚠️ No auto-formatting script available - trying eslint --fix"
-            npx eslint . --fix --ext .js || echo "ESLint fix attempted"
-          fi
+          npm run lint:fix
 
       - name: Check for formatting changes
         id: format-check
@@ -203,14 +188,7 @@ jobs:
         run: |
           echo "✨ Attempting automatic formatting for engine package..."
           cd packages/engine
-          if npm run | grep -q "lint:fix"; then
-            npm run lint:fix
-          elif npm run | grep -q "format"; then
-            npm run format
-          else
-            echo "⚠️ No auto-formatting script available - trying eslint --fix"
-            npx eslint . --fix --ext .js || echo "ESLint fix attempted"
-          fi
+          npm run lint:fix
 
       - name: Check for formatting changes
         id: format-check
@@ -282,14 +260,7 @@ jobs:
         run: |
           echo "✨ Attempting automatic formatting for timer package..."
           cd packages/timer
-          if npm run | grep -q "lint:fix"; then
-            npm run lint:fix
-          elif npm run | grep -q "format"; then
-            npm run format
-          else
-            echo "⚠️ No auto-formatting script available - trying eslint --fix"
-            npx eslint . --fix --ext .js || echo "ESLint fix attempted"
-          fi
+          npm run lint:fix
 
       - name: Check for formatting changes
         id: format-check

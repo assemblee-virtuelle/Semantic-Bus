@@ -9,7 +9,7 @@
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
     "lint": "npx eslint *.js scripts/**/*.js server/**/*.js",
-    "fix": "npx eslint --fix *.js scripts/**/*.js server/**/*.js",
+    "lint:fix": "npx eslint --fix *.js scripts/**/*.js server/**/*.js",
     "start": "node app.js",
     "dev": "nodemon app.js",
     "clean": "rm -rf node_modules"

@@ -8,6 +8,8 @@
     "test": "jest --detectOpenHandles --verbose",
     "test:coverage": "jest --coverage",
     "test:watch": "jest --watch",
+    "lint": "npx eslint *.js",
+    "lint:fix": "npx eslint --fix *.js",
     "start": "node app.js",
     "dev": "nodemon app.js",
     "clean": "rm -rf node_modules"
@@ -19,6 +21,7 @@
     "amqp-connection-manager": "^4.1.14"
   },
   "devDependencies": {
+    "eslint": "^9.30.1",
     "jest": "^30.0.3",
     "nodemon": "^3.0.0"
   }
