@@ -170,6 +170,7 @@ jobs:
     runs-on: ubuntu-latest
     
     strategy:
+      fail-fast: false  # Continue all tests even if one fails
       matrix:
         include:
           # Core - test on all Node versions used by other packages
