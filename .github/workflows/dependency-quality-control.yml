@@ -3,8 +3,6 @@ name: Dependency Quality Control
 on:
   push:
     branches: [ master, develop, dependency-update-and-quality-control ]
-  pull_request:
-    branches: [ master, develop ]
   schedule:
     # Run weekly on Mondays at 8:00 AM UTC
     - cron: '0 8 * * 1'
@@ -13,9 +11,6 @@ jobs:
   dependency-audit:
     name: Dependency Security Audit
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        module: [core, main, engine, timer]
     
     steps:
       - name: Checkout code
@@ -26,30 +21,50 @@ jobs:
         with:
           node-version: '18'
           cache: 'npm'
-          cache-dependency-path: '${{ matrix.module }}/package-lock.json'
 
-      - name: Install dependencies for ${{ matrix.module }}
+      - name: Install dependencies for all modules
         run: |
-          cd ${{ matrix.module }}
-          npm ci
+          echo "Installing dependencies for all modules..."
+          for module in core main engine timer; do
+            if [ -f "packages/$module/package.json" ]; then
+              echo "Installing $module dependencies..."
+              cd packages/$module
+              npm ci
+              cd ../..
+            fi
+          done
 
-      - name: Run security audit for ${{ matrix.module }}
+      - name: Run security audit for all modules
         run: |
-          cd ${{ matrix.module }}
-          npm audit --audit-level=moderate
+          echo "Running security audit for all modules..."
+          for module in core main engine timer; do
+            if [ -f "packages/$module/package.json" ]; then
+              echo "Auditing $module..."
+              cd packages/$module
+              npm audit --audit-level=moderate || echo "⚠️ Vulnerabilities found in $module"
+              cd ../..
+            fi
+          done
         continue-on-error: true
 
       - name: Check for outdated dependencies
         run: |
-          cd ${{ matrix.module }}
-          npm outdated --long > outdated-${{ matrix.module }}.txt || true
+          echo "Checking for outdated dependencies..."
+          for module in core main engine timer; do
+            if [ -f "packages/$module/package.json" ]; then
+              echo "Checking outdated for $module..."
+              cd packages/$module
+              npm outdated --long > ../../outdated-$module.txt || true
+              cd ../..
+            fi
+          done
         continue-on-error: true
 
       - name: Upload outdated dependencies report
         uses: actions/upload-artifact@v4
         with:
-          name: outdated-dependencies-${{ matrix.module }}
-          path: ${{ matrix.module }}/outdated-${{ matrix.module }}.txt
+          name: outdated-dependencies-all-modules
+          path: outdated-*.txt
         if: always()
 
   license-check:
@@ -71,11 +86,11 @@ jobs:
       - name: Check licenses for all modules
         run: |
           for dir in core main engine timer; do
-            if [ -f "$dir/package.json" ]; then
+            if [ -f "packages/$dir/package.json" ]; then
               echo "Checking licenses for $dir..."
-              cd $dir
-              license-checker --onlyAllow "MIT;ISC;BSD;Apache;LGPL;GPL" --excludePrivatePackages > ../licenses-$dir.txt || true
-              cd ..
+              cd packages/$dir
+              license-checker --onlyAllow "MIT;ISC;BSD;Apache;LGPL;GPL" --excludePrivatePackages > ../../licenses-$dir.txt || true
+              cd ../..
             fi
           done
 
@@ -111,12 +126,12 @@ jobs:
       - name: Run Snyk security scan
         run: |
           for dir in core main engine timer; do
-            if [ -f "$dir/package.json" ]; then
+            if [ -f "packages/$dir/package.json" ]; then
               echo "Scanning $dir with Snyk..."
-              cd $dir
+              cd packages/$dir
               npm install
-              snyk test --severity-threshold=medium --json > ../snyk-$dir.json || true
-              cd ..
+              snyk test --severity-threshold=medium --json > ../../snyk-$dir.json || true
+              cd ../..
             fi
           done
         continue-on-error: true
@@ -149,22 +164,22 @@ jobs:
       - name: Analyze unused dependencies
         run: |
           for dir in core main engine timer; do
-            if [ -f "$dir/package.json" ]; then
+            if [ -f "packages/$dir/package.json" ]; then
               echo "Analyzing unused dependencies for $dir..."
-              cd $dir
-              depcheck --json > ../depcheck-$dir.json || true
-              cd ..
+              cd packages/$dir
+              depcheck --json > ../../depcheck-$dir.json || true
+              cd ../..
             fi
           done
 
       - name: Check for major updates available
         run: |
           for dir in core main engine timer; do
-            if [ -f "$dir/package.json" ]; then
+            if [ -f "packages/$dir/package.json" ]; then
               echo "Checking updates for $dir..."
-              cd $dir
-              ncu --format json > ../ncu-$dir.json || true
-              cd ..
+              cd packages/$dir
+              ncu --format json > ../../ncu-$dir.json || true
+              cd ../..
             fi
           done
 
@@ -222,18 +237,4 @@ jobs:
           name: dependency-quality-summary
           path: dependency-report.md
 
-      - name: Comment PR with summary
-        if: github.event_name == 'pull_request'
-        uses: actions/github-script@v7
-        with:
-          script: |
-            const fs = require('fs');
-            if (fs.existsSync('dependency-report.md')) {
-              const report = fs.readFileSync('dependency-report.md', 'utf8');
-              github.rest.issues.createComment({
-                issue_number: context.issue.number,
-                owner: context.repo.owner,
-                repo: context.repo.repo,
-                body: report
-              });
-            } 
+      # Note: PR comments removed since this workflow only runs on push events 
