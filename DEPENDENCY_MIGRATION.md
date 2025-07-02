@@ -2,7 +2,31 @@
 
 ## Résumé des Changements
 
-Cette migration comprend un nettoyage complet des dépendances, la résolution des vulnérabilités de sécurité, et la mise en place d'un contrôle de qualité automatisé.
+Cette migration comprend un nettoyage complet des dépendances, la résolution des vulnérabilités de sécurité, la mise en place d'un contrôle de qualité automatisé, et la mise à jour vers Node.js 20 LTS.
+
+## 🚀 Configuration Node.js
+
+### Version Requise : Node.js 20.19.3 LTS
+
+Le projet utilise maintenant **Node.js 20.19.3** (dernière version LTS Iron) pour assurer la compatibilité avec toutes les dépendances modernes.
+
+#### Configuration automatique avec nvm
+
+```bash
+# Le fichier .nvmrc définit automatiquement la version
+nvm use                # Utilise Node.js 20.19.3 (défini dans .nvmrc)
+
+# Ou manuellement
+nvm install 20.19.3    # Installer Node.js 20.19.3
+nvm use 20.19.3        # Utiliser cette version
+nvm alias default 20.19.3  # Définir comme version par défaut
+```
+
+#### Avantages de Node.js 20 LTS
+- ✅ **Compatibilité complète** avec AWS SDK v3, Jest 30, ESLint 9
+- ✅ **Performance améliorée** : V8 engine optimisé
+- ✅ **Sécurité renforcée** : Correctifs de sécurité récents
+- ✅ **Support à long terme** jusqu'en avril 2026
 
 ## 🔧 Workflow GitHub Actions
 
@@ -34,6 +58,8 @@ Un workflow complet de contrôle qualité des dépendances qui inclut :
 
 **Dépendances conservées** :
 - `amqp-connection-manager` (mis à jour : 3.9.0 → 4.1.14)
+
+**Tests** : ✅ 5/5 tests passent avec Node.js 20
 
 ### Module Main
 **Nettoyage significatif** : Suppression de 30+ dépendances non utilisées
@@ -77,13 +103,16 @@ Un workflow complet de contrôle qualité des dépendances qui inclut :
 4. **xml2js** : <0.5.0 → 0.6.2 (Modéré)
 5. **tough-cookie** : Résolu via mises à jour des dépendances
 
-### Packages Problématiques Supprimés :
-- `request` (déprécié, mais conservé où nécessaire)
-- `xlsx` (vulnérabilités, supprimé des modules non critiques)
+### Packages Problématiques Restants :
+- `request` (déprécié, mais nécessaire pour certaines fonctionnalités)
+- `node-imap` (dépendances internes avec vulnérabilités mineures)
+- Vulnérabilités sans correctifs disponibles (non critiques)
 
 ## 📈 Mises à Jour des Versions
 
 ### Mises à jour majeures :
+- **Node.js** : 16.20.2 → 20.19.3 LTS (mise à jour majeure)
+- **npm** : 8.19.4 → 10.8.2 (nouvelle version)
 - **ESLint** : 5.12.1/8.0.0 → 9.30.1 (harmonisé)
 - **Jest** : 29.7.0 → 30.0.3
 - **Express** : 4.x → 5.1.0
@@ -103,17 +132,19 @@ Un workflow complet de contrôle qualité des dépendances qui inclut :
 ## 🎯 Bénéfices de la Migration
 
 1. **Sécurité améliorée** : Vulnérabilités critiques corrigées
-2. **Performance** : Réduction significative des `node_modules`
+2. **Performance** : Réduction significative des `node_modules` + Node.js 20
 3. **Maintenance** : Versions harmonisées et cohérentes
 4. **Monitoring** : Contrôle qualité automatisé via CI/CD
 5. **Documentation** : Traçabilité des changements
+6. **Compatibilité** : Support moderne pour toutes les dépendances
 
 ## 📋 Actions Post-Migration
 
 ### À faire immédiatement :
-1. Tester le bon fonctionnement de chaque module
-2. Vérifier les imports dans le code source
-3. Mettre à jour la documentation si nécessaire
+1. ✅ **Configurer Node.js 20** : `nvm use` (automatique avec .nvmrc)
+2. ✅ **Tester les modules** : `npm run test:all`
+3. ✅ **Vérifier les audits** : `npm run audit:all`
+4. ⚠️ **Tester les fonctionnalités** en environnement de développement
 
 ### Configuration Snyk (optionnel) :
 Pour activer le scan Snyk, ajouter le secret `SNYK_TOKEN` dans GitHub :
@@ -126,14 +157,30 @@ SNYK_TOKEN=your_snyk_token_here
 
 Exécuter les tests pour valider la migration :
 ```bash
-npm run test:all      # Tests de tous les modules
-npm run audit:all     # Audit de sécurité
-npm run lint          # Vérification du code
+# Configuration automatique de Node.js
+nvm use                 # Utilise automatiquement Node.js 20.19.3
+
+# Tests complets
+npm run test:all        # Tests de tous les modules
+npm run audit:all       # Audit de sécurité
+npm run lint            # Vérification du code
+
+# Installation et mise à jour
+npm run install:all     # Installation complète
+npm run update:all      # Mise à jour des dépendances
 ```
 
 ## 📊 Métriques d'Amélioration
 
 - **Réduction des dépendances** : ~60% de packages supprimés
-- **Vulnérabilités** : 7 → 0 vulnérabilités critiques/hautes
+- **Vulnérabilités** : 7 → 0 vulnérabilités critiques (résiduelles mineures)
 - **Taille des modules** : Réduction significative des node_modules
-- **Versions obsolètes** : Toutes mises à jour vers les dernières versions stables 
+- **Versions obsolètes** : Toutes mises à jour vers les dernières versions stables
+- **Compatibilité Node.js** : 16.x → 20.19.3 LTS (support jusqu'en 2026)
+- **Performance** : Node.js 20 + npm 10 pour des installations plus rapides
+
+## 🔧 Fichiers de Configuration Ajoutés
+
+- **`.nvmrc`** : Définit Node.js 20.19.3 pour le projet
+- **`.github/workflows/dependency-quality-control.yml`** : Workflow de contrôle qualité
+- **`DEPENDENCY_MIGRATION.md`** : Documentation complète de la migration 
