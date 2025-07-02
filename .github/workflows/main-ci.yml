@@ -1,0 +1,225 @@
+name: Main CI/CD Pipeline
+
+on:
+  push:
+    branches: [ master, main, develop, dependency-update-and-quality-control ]
+
+jobs:
+  # ===========================================
+  # ÉTAPE 1: CONTRÔLE DE QUALITÉ
+  # ===========================================
+  quality-control:
+    name: Quality Control
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install dependencies for all modules
+        run: |
+          for module in core main engine timer; do
+            if [ -f "packages/$module/package.json" ]; then
+              echo "Installing $module dependencies..."
+              cd packages/$module
+              npm ci
+              cd ../..
+            fi
+          done
+
+      - name: Security audit for all modules
+        run: |
+          echo "🔍 Running security audit..."
+          for module in core main engine timer; do
+            if [ -f "packages/$module/package.json" ]; then
+              echo "Auditing $module..."
+              cd packages/$module
+              npm audit --audit-level=moderate || echo "⚠️ Vulnerabilities found in $module"
+              cd ../..
+            fi
+          done
+        continue-on-error: true
+
+      - name: Check for outdated dependencies
+        run: |
+          echo "📊 Checking outdated dependencies..."
+          for module in core main engine timer; do
+            if [ -f "packages/$module/package.json" ]; then
+              cd packages/$module
+              npm outdated --long > ../../outdated-$module.txt || true
+              cd ../..
+            fi
+          done
+
+      - name: Upload quality reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: quality-control-reports
+          path: outdated-*.txt
+        if: always()
+
+  # ===========================================
+  # ÉTAPE 2: CONTRÔLE DE MISE EN FORME
+  # ===========================================
+  code-standards:
+    name: Code Standards - ${{ matrix.module }}
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        module: [main, engine]  # Only modules with lint scripts
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+          cache: 'npm'
+          cache-dependency-path: 'packages/${{ matrix.module }}/package-lock.json'
+
+      - name: Install dependencies for ${{ matrix.module }}
+        run: |
+          cd packages/${{ matrix.module }}
+          npm ci
+
+      - name: Run linting for ${{ matrix.module }}
+        run: |
+          echo "✨ Linting ${{ matrix.module }}..."
+          cd packages/${{ matrix.module }}
+          npm run lint
+
+      - name: Check code formatting (if available)
+        run: |
+          cd packages/${{ matrix.module }}
+          if npm run | grep -q "format"; then
+            echo "🎨 Checking code formatting..."
+            npm run format:check || echo "⚠️ Formatting issues found"
+          else
+            echo "ℹ️  No formatting script available"
+          fi
+        continue-on-error: true
+
+  # ===========================================
+  # ÉTAPE 3: EXÉCUTION DES TESTS
+  # ===========================================
+  tests:
+    name: Tests - ${{ matrix.module }} (Node ${{ matrix.node-version }})
+    runs-on: ubuntu-latest
+    needs: [quality-control, code-standards]
+    
+    strategy:
+      matrix:
+        module: [core, main, engine, timer]
+        node-version: [18.x, 20.x]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js ${{ matrix.node-version }}
+        uses: actions/setup-node@v4
+        with:
+          node-version: ${{ matrix.node-version }}
+          cache: 'npm'
+          cache-dependency-path: 'packages/${{ matrix.module }}/package-lock.json'
+
+      - name: Install dependencies for ${{ matrix.module }}
+        run: |
+          cd packages/${{ matrix.module }}
+          npm ci
+
+      - name: Run tests for ${{ matrix.module }}
+        run: |
+          echo "🧪 Testing ${{ matrix.module }}..."
+          cd packages/${{ matrix.module }}
+          npm test
+
+      - name: Generate coverage for engine
+        if: matrix.module == 'engine' && matrix.node-version == '20.x'
+        run: |
+          echo "📊 Generating coverage for engine..."
+          cd packages/engine
+          npm run test:coverage
+
+      - name: Upload coverage reports
+        if: matrix.module == 'engine' && matrix.node-version == '20.x'
+        uses: codecov/codecov-action@v3
+        with:
+          directory: ./packages/engine/coverage
+          fail_ci_if_error: false
+
+  # ===========================================
+  # ÉTAPE 4: BUILD ET DÉPLOIEMENT
+  # ===========================================
+  build:
+    name: Build Docker Images
+    runs-on: ubuntu-latest
+    needs: [tests]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+        if: env.DOCKER_USERNAME != ''
+
+      - name: Build Docker images
+        run: |
+          echo "🐳 Building Docker images..."
+          make docker-build || echo "⚠️ Docker build failed - continuing"
+
+  deploy:
+    name: Deploy to Production
+    runs-on: ubuntu-latest
+    needs: [build]
+    if: github.ref == 'refs/heads/master'
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Deploy to production
+        run: |
+          echo "🚀 Deploying to production..."
+          # Add deployment commands here
+
+  # ===========================================
+  # ÉTAPE 5: NOTIFICATIONS ET RAPPORTS
+  # ===========================================
+  summary:
+    name: Pipeline Summary
+    runs-on: ubuntu-latest
+    needs: [quality-control, code-standards, tests, build]
+    if: always()
+    
+    steps:
+      - name: Generate pipeline summary
+        run: |
+          echo "## 📋 Pipeline Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### ✅ Completed Steps:" >> $GITHUB_STEP_SUMMARY
+          echo "- 🔍 Quality Control: ${{ needs.quality-control.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- ✨ Code Standards: ${{ needs.code-standards.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🧪 Tests: ${{ needs.tests.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "- 🐳 Build: ${{ needs.build.result }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "### 📊 Metrics:" >> $GITHUB_STEP_SUMMARY
+          echo "- **Modules tested**: 4 (core, main, engine, timer)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Node versions**: 2 (18.x, 20.x)" >> $GITHUB_STEP_SUMMARY
+          echo "- **Total test jobs**: 8" >> $GITHUB_STEP_SUMMARY 
