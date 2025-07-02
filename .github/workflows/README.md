@@ -9,7 +9,7 @@
 ### 🎯 **Principe Clé**
 **TOUS LES JOBS S'EXÉCUTENT SIMULTANÉMENT** - Aucune dépendance, temps minimal
 
-## 🏗️ Jobs de la Pipeline (10 jobs simultanés)
+## 🏗️ Jobs de la Pipeline (9 jobs simultanés)
 
 ### 🔍 1. CONTRÔLE DE QUALITÉ (1 job)
 - **Job** : `quality-control`
@@ -27,19 +27,18 @@
   - ✅ Version Node appropriée (16.x pour timer, 18.x pour autres)
   - ✅ `continue-on-error: true` - Non bloquant
 
-### 🧪 3. TESTS (5 jobs parallèles)
-- **Stratégie** : Tests intelligents par version Node réelle
+### 🧪 3. TESTS (4 jobs parallèles)
+- **Stratégie** : Tests sur Node 18 (unifié sur tous les packages)
 - **Jobs** :
-  - `tests (core, 16.x)` - Compatible avec timer
-  - `tests (core, 18.x)` - Compatible avec main/engine  
-  - `tests (main, 18.x)` - Version Dockerfile-alpine
+  - `tests (core, 18.x)` - Package partagé
+  - `tests (main, 18.x)` - Version Dockerfile-alpine  
   - `tests (engine, 18.x)` - Version Dockerfile-alpine
-  - `tests (timer, 16.x)` - Version Dockerfile-alpine
+  - `tests (timer, 18.x)` - Version Dockerfile-alpine
 
 ## 🎯 Avantages de cette Architecture
 
 ### ⚡ **Performance Maximale**
-- **10 jobs simultanés** : Aucune attente séquentielle
+- **9 jobs simultanés** : Aucune attente séquentielle
 - **Temps minimal** : ~3-5 minutes au lieu de 8-15 minutes
 - **Feedback instantané** : Tous les problèmes détectés en même temps
 
@@ -48,8 +47,8 @@
 - **Pas de tolérance** : Sécurité prioritaire absolue
 
 ### 🔧 **Optimisation Intelligente**
-- **Tests ciblés** : Core testé sur toutes les versions, autres sur leur version
-- **5 jobs tests** au lieu de 8 (optimisation -37%)
+- **Tests unifiés** : Tous les packages sur Node 18 (cohérence maximale)
+- **4 jobs tests** optimisés et ciblés
 - **Standards pour tous** : 4 packages lintés
 
 ### 🚀 **Isolation Parfaite**
@@ -71,12 +70,12 @@ on:
 
 | Métrique | Valeur |
 |----------|--------|
-| **Jobs totaux** | **10 jobs** (parallèles) |
+| **Jobs totaux** | **9 jobs** (parallèles) |
 | **Quality control** | 1 job (BLOQUANT) |
 | **Code standards** | 4 jobs (tous packages) |
-| **Tests** | 5 jobs (optimisés) |
+| **Tests** | 4 jobs (Node 18 unifié) |
 | **Modules testés** | 4 modules |
-| **Versions Node** | 16.x + 18.x (réelles) |
+| **Version Node** | 18.x (unifié) |
 | **Temps estimé** | **~3-5 minutes** |
 | **Parallélisme** | **100%** |
 
@@ -86,7 +85,7 @@ on:
 |--------|----------|---------------|
 | **Dépendances** | Séquentiel | **100% parallèle** |
 | **Quality control** | Non-bloquant | **BLOQUANT critique** |
-| **Tests** | 8 jobs redondants | **5 jobs optimisés** |
+| **Tests** | 8 jobs redondants | **4 jobs optimisés** |
 | **Standards** | 2 packages | **4 packages complets** |
 | **Temps** | ~8-15 min | **~3-5 min** |
 | **Build/Deploy** | Inclus | **Supprimé** (focus dev) |
@@ -100,9 +99,9 @@ on:
 3. Ajouter un job `tests` avec la bonne version Node
 
 ### Modifier les versions Node
-1. Vérifier les Dockerfiles utilisés
+1. Vérifier les Dockerfiles utilisés (actuellement tous sur Node 18)
 2. Modifier la matrice dans le job `tests`
-3. Core : testé sur toutes les versions des autres packages
+3. Mettre à jour les jobs `code-standards-*` si nécessaire
 
 ### Modifier les contrôles qualité
 1. Le job `quality-control` contrôle déjà tous les modules
