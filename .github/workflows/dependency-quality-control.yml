@@ -1,0 +1,239 @@
+name: Dependency Quality Control
+
+on:
+  push:
+    branches: [ master, develop, dependency-update-and-quality-control ]
+  pull_request:
+    branches: [ master, develop ]
+  schedule:
+    # Run weekly on Mondays at 8:00 AM UTC
+    - cron: '0 8 * * 1'
+
+jobs:
+  dependency-audit:
+    name: Dependency Security Audit
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        module: [core, main, engine, timer]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+          cache: 'npm'
+          cache-dependency-path: '${{ matrix.module }}/package-lock.json'
+
+      - name: Install dependencies for ${{ matrix.module }}
+        run: |
+          cd ${{ matrix.module }}
+          npm ci
+
+      - name: Run security audit for ${{ matrix.module }}
+        run: |
+          cd ${{ matrix.module }}
+          npm audit --audit-level=moderate
+        continue-on-error: true
+
+      - name: Check for outdated dependencies
+        run: |
+          cd ${{ matrix.module }}
+          npm outdated --long > outdated-${{ matrix.module }}.txt || true
+        continue-on-error: true
+
+      - name: Upload outdated dependencies report
+        uses: actions/upload-artifact@v4
+        with:
+          name: outdated-dependencies-${{ matrix.module }}
+          path: ${{ matrix.module }}/outdated-${{ matrix.module }}.txt
+        if: always()
+
+  license-check:
+    name: License Compliance Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install license checker
+        run: npm install -g license-checker
+
+      - name: Check licenses for all modules
+        run: |
+          for dir in core main engine timer; do
+            if [ -f "$dir/package.json" ]; then
+              echo "Checking licenses for $dir..."
+              cd $dir
+              license-checker --onlyAllow "MIT;ISC;BSD;Apache;LGPL;GPL" --excludePrivatePackages > ../licenses-$dir.txt || true
+              cd ..
+            fi
+          done
+
+      - name: Upload license reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: license-reports
+          path: licenses-*.txt
+        if: always()
+
+  vulnerability-scan:
+    name: Advanced Vulnerability Scan
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install Snyk CLI
+        run: npm install -g snyk
+
+      - name: Authenticate with Snyk
+        run: snyk auth ${{ secrets.SNYK_TOKEN }}
+        if: env.SNYK_TOKEN != ''
+        env:
+          SNYK_TOKEN: ${{ secrets.SNYK_TOKEN }}
+
+      - name: Run Snyk security scan
+        run: |
+          for dir in core main engine timer; do
+            if [ -f "$dir/package.json" ]; then
+              echo "Scanning $dir with Snyk..."
+              cd $dir
+              npm install
+              snyk test --severity-threshold=medium --json > ../snyk-$dir.json || true
+              cd ..
+            fi
+          done
+        continue-on-error: true
+
+      - name: Upload Snyk reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: snyk-security-reports
+          path: snyk-*.json
+        if: always()
+
+  dependency-analysis:
+    name: Dependency Analysis & Recommendations
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '18'
+
+      - name: Install analysis tools
+        run: |
+          npm install -g npm-check-updates
+          npm install -g depcheck
+
+      - name: Analyze unused dependencies
+        run: |
+          for dir in core main engine timer; do
+            if [ -f "$dir/package.json" ]; then
+              echo "Analyzing unused dependencies for $dir..."
+              cd $dir
+              depcheck --json > ../depcheck-$dir.json || true
+              cd ..
+            fi
+          done
+
+      - name: Check for major updates available
+        run: |
+          for dir in core main engine timer; do
+            if [ -f "$dir/package.json" ]; then
+              echo "Checking updates for $dir..."
+              cd $dir
+              ncu --format json > ../ncu-$dir.json || true
+              cd ..
+            fi
+          done
+
+      - name: Upload analysis reports
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-analysis-reports
+          path: |
+            depcheck-*.json
+            ncu-*.json
+        if: always()
+
+  summary-report:
+    name: Generate Summary Report
+    runs-on: ubuntu-latest
+    needs: [dependency-audit, license-check, vulnerability-scan, dependency-analysis]
+    if: always()
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Download all artifacts
+        uses: actions/download-artifact@v4
+
+      - name: Generate dependency quality summary
+        run: |
+          echo "# Dependency Quality Control Report" > dependency-report.md
+          echo "Generated on: $(date)" >> dependency-report.md
+          echo "" >> dependency-report.md
+          
+          echo "## Security Audit Results" >> dependency-report.md
+          for file in outdated-dependencies-*/outdated-*.txt; do
+            if [ -f "$file" ]; then
+              module=$(basename "$file" .txt | sed 's/outdated-//')
+              echo "### $module" >> dependency-report.md
+              echo '```' >> dependency-report.md
+              head -20 "$file" >> dependency-report.md
+              echo '```' >> dependency-report.md
+            fi
+          done
+          
+          echo "## License Compliance" >> dependency-report.md
+          for file in license-reports/licenses-*.txt; do
+            if [ -f "$file" ]; then
+              module=$(basename "$file" .txt | sed 's/licenses-//')
+              echo "### $module Licenses" >> dependency-report.md
+              echo "License check completed for $module module" >> dependency-report.md
+            fi
+          done
+
+      - name: Upload summary report
+        uses: actions/upload-artifact@v4
+        with:
+          name: dependency-quality-summary
+          path: dependency-report.md
+
+      - name: Comment PR with summary
+        if: github.event_name == 'pull_request'
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            if (fs.existsSync('dependency-report.md')) {
+              const report = fs.readFileSync('dependency-report.md', 'utf8');
+              github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: report
+              });
+            } 

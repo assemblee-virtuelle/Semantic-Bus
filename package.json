@@ -23,11 +23,21 @@
     "clean:engine": "cd engine && rm -rf node_modules package-lock.json",
     "clean:main": "cd main && rm -rf node_modules package-lock.json",
     "clean:timer": "cd timer && rm -rf node_modules package-lock.json",
-    "clean:core": "cd core && rm -rf node_modules package-lock.json"
+    "clean:core": "cd core && rm -rf node_modules package-lock.json",
+    "update:all": "npm run update:engine && npm run update:main && npm run update:timer && npm run update:core",
+    "update:engine": "cd engine && npm update",
+    "update:main": "cd main && npm update",
+    "update:timer": "cd timer && npm update",
+    "update:core": "cd core && npm update",
+    "audit:all": "npm run audit:engine && npm run audit:main && npm run audit:timer && npm run audit:core",
+    "audit:engine": "cd engine && npm audit",
+    "audit:main": "cd main && npm audit", 
+    "audit:timer": "cd timer && npm audit",
+    "audit:core": "cd core && npm audit"
   },
   "devDependencies": {
-    "supertest": "^6.3.3",
-    "eslint": "^8.0.0"
+    "eslint": "^9.30.1",
+    "supertest": "^7.1.1"
   },
   "author": "Simon Louvet <simon.louvet.zen@gmail.com> && Boceno Alexandre <bocenoalex@gmail.com>",
   "license": "GNUV3"
