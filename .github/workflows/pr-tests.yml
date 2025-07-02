@@ -1,13 +1,17 @@
-name: Pull Request Tests
+name: Module Tests & Quality
 
 on:
-  pull_request:
-    types: [opened, synchronize, reopened]
+  push:
+    branches: [ master, main, develop, dependency-update-and-quality-control ]
 
 jobs:
   tests:
-    name: Module Tests
+    name: Tests - ${{ matrix.module }}
     runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        module: [core, main, engine, timer]
     
     steps:
     - name: Checkout code
@@ -17,29 +21,52 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20.x'
+        cache: 'npm'
+        cache-dependency-path: 'packages/${{ matrix.module }}/package-lock.json'
         
-    - name: Install dependencies
-      run: npm run install:all
+    - name: Install dependencies for ${{ matrix.module }}
+      run: |
+        cd packages/${{ matrix.module }}
+        npm ci
         
-    - name: Run linting
-      run: npm run lint:all
-      
-    - name: Run engine tests
-      run: cd packages/engine && npm test
-      
-    - name: Run core tests  
-      run: cd packages/core && npm test
-      
-    - name: Run main tests (JSTree excluded)
-      run: cd packages/main && npm test
-      
-    - name: Run timer tests
-      run: cd packages/timer && npm test
-        
+    - name: Run tests for ${{ matrix.module }}
+      run: |
+        cd packages/${{ matrix.module }}
+        npm test
+    
     # Security audit moved to dependency-quality-control.yml to avoid duplication
 
+  linting:
+    name: Linting - ${{ matrix.module }}
+    runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        module: [main, engine]  # Only modules that have lint script
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Setup Node.js
+      uses: actions/setup-node@v4
+      with:
+        node-version: '20.x'
+        cache: 'npm'
+        cache-dependency-path: 'packages/${{ matrix.module }}/package-lock.json'
+        
+    - name: Install dependencies for ${{ matrix.module }}
+      run: |
+        cd packages/${{ matrix.module }}
+        npm ci
+        
+    - name: Run linting for ${{ matrix.module }}
+      run: |
+        cd packages/${{ matrix.module }}
+        npm run lint
+
   code-quality:
-    name: Code Quality
+    name: Code Coverage - Engine
     runs-on: ubuntu-latest
     
     steps:
@@ -50,56 +77,20 @@ jobs:
       uses: actions/setup-node@v4
       with:
         node-version: '20.x'
+        cache: 'npm'
+        cache-dependency-path: 'packages/engine/package-lock.json'
         
-    - name: Install dependencies
-      run: npm run install:all
+    - name: Install dependencies for engine
+      run: |
+        cd packages/engine
+        npm ci
       
     - name: Generate test coverage for engine
-      run: cd packages/engine && npm run test:coverage
+      run: |
+        cd packages/engine
+        npm run test:coverage
         
-    - name: Comment PR with test results
-      uses: actions/github-script@v7
-      if: github.event_name == 'pull_request'
-      with:
-        script: |
-          const fs = require('fs');
-          const path = require('path');
-          
-          let coverageComment = '## ✅ Tests Results\n\n';
-          coverageComment += '### Module Tests Status\n';
-          coverageComment += '- **Engine**: ✅ Passed\n';
-          coverageComment += '- **Core**: ✅ Passed\n';
-          coverageComment += '- **Main**: ✅ Passed\n';
-          coverageComment += '- **Timer**: ✅ Passed\n\n';
-          
-          // Read coverage summary if it exists
-          try {
-            const coveragePath = path.join(process.cwd(), 'engine/coverage/coverage-summary.json');
-            if (fs.existsSync(coveragePath)) {
-              const coverage = JSON.parse(fs.readFileSync(coveragePath, 'utf8'));
-              const total = coverage.total;
-              
-              coverageComment += `### Engine Code Coverage\n\n`;
-              coverageComment += `- **Lines**: ${total.lines.pct}%\n`;
-              coverageComment += `- **Functions**: ${total.functions.pct}%\n`;
-              coverageComment += `- **Branches**: ${total.branches.pct}%\n`;
-              coverageComment += `- **Statements**: ${total.statements.pct}%\n\n`;
-            }
-          } catch (e) {
-            console.log('Coverage file not found or invalid');
-          }
-          
-          coverageComment += `### Architecture Notes\n`;
-          coverageComment += `- ✅ **Module isolation**: Each module tested independently\n`;
-          coverageComment += `- ❌ **No integration tests**: Removed as per new architecture\n`;
-          coverageComment += `- ❌ **No e2e tests**: Removed from CI pipeline\n`;
-          
-          github.rest.issues.createComment({
-            issue_number: context.issue.number,
-            owner: context.repo.owner,
-            repo: context.repo.repo,
-            body: coverageComment
-          });
+          # No PR comments since this workflow only runs on push events
 
   dependency-check:
     name: Dependency Check

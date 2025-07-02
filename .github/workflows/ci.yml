@@ -2,18 +2,17 @@ name: CI/CD Pipeline
 
 on:
   push:
-    branches: [ main, develop ]
-  pull_request:
-    branches: [ main, develop ]
+    branches: [ master, main, develop, dependency-update-and-quality-control ]
 
 jobs:
   test-unit:
-    name: Unit Tests
+    name: Tests - ${{ matrix.module }} (Node ${{ matrix.node-version }})
     runs-on: ubuntu-latest
     
     strategy:
       matrix:
         node-version: [18.x, 20.x]
+        module: [core, main, engine, timer]
     
     steps:
     - name: Checkout code
@@ -24,48 +23,26 @@ jobs:
       with:
         node-version: ${{ matrix.node-version }}
         cache: 'npm'
+        cache-dependency-path: 'packages/${{ matrix.module }}/package-lock.json'
         
-    - name: Install root dependencies
-      run: npm install
+    - name: Install dependencies for ${{ matrix.module }}
+      run: |
+        cd packages/${{ matrix.module }}
+        npm ci
       
-    - name: Install engine dependencies
-      run: cd packages/engine && npm install
+    - name: Run tests for ${{ matrix.module }}
+      run: |
+        cd packages/${{ matrix.module }}
+        npm test
       
-    - name: Install tests dependencies
-      run: cd tests/test_unitaires && npm install
-      
-    - name: Run unit tests (existing)
-      run: npm run test:all
-      
-    - name: Run engine tests
-      run: npm run test:engine
-      
-    - name: Upload coverage reports
+    - name: Upload coverage reports for ${{ matrix.module }}
+      if: matrix.module == 'engine'
       uses: codecov/codecov-action@v3
       with:
-        directory: ./engine/coverage
+        directory: ./packages/engine/coverage
         fail_ci_if_error: false
 
-  test-integration:
-    name: Integration Tests
-    runs-on: ubuntu-latest
-    needs: test-unit
-    
-    steps:
-    - name: Checkout code
-      uses: actions/checkout@v4
-      
-    - name: Setup Node.js
-      uses: actions/setup-node@v4
-      with:
-        node-version: '20.x'
-        cache: 'npm'
-        
-    - name: Install dependencies
-      run: npm run install:all
-      
-    - name: Run integration tests
-      run: npm run test:all
+  # Integration tests removed - handled per module in test-unit job
 
   # test-e2e:
   #   name: E2E Tests
@@ -125,8 +102,12 @@ jobs:
   #     run: make test-start
 
   lint:
-    name: Linting
+    name: Linting - ${{ matrix.module }}
     runs-on: ubuntu-latest
+    
+    strategy:
+      matrix:
+        module: [main, engine]  # Only modules that have lint script
     
     steps:
     - name: Checkout code
@@ -137,20 +118,25 @@ jobs:
       with:
         node-version: '20.x'
         cache: 'npm'
+        cache-dependency-path: 'packages/${{ matrix.module }}/package-lock.json'
         
-    - name: Install dependencies
-      run: npm run install:all
-      
-    - name: Run linting
-      run: npm run lint:all
+    - name: Install dependencies for ${{ matrix.module }}
+      run: |
+        cd packages/${{ matrix.module }}
+        npm ci
+        
+    - name: Run linting for ${{ matrix.module }}
+      run: |
+        cd packages/${{ matrix.module }}
+        npm run lint
 
   # Security audit moved to dependency-quality-control.yml to avoid duplication
 
   build:
     name: Build Docker Images
     runs-on: ubuntu-latest
-    needs: [test-unit, test-integration, lint]
-    if: github.event_name == 'push' && (github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
+    needs: [test-unit, lint]
+    if: github.event_name == 'push' && (github.ref == 'refs/heads/master' || github.ref == 'refs/heads/main' || github.ref == 'refs/heads/develop')
     
     steps:
     - name: Checkout code
@@ -174,7 +160,7 @@ jobs:
     name: Deploy
     runs-on: ubuntu-latest
     needs: [build]
-    if: github.ref == 'refs/heads/main'
+    if: github.ref == 'refs/heads/master'
     
     steps:
     - name: Checkout code
