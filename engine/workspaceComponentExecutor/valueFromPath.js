@@ -110,12 +110,10 @@ class ValueFromPath {
   pull(data, flowData) {
     return new Promise((resolve, reject) => {
       // console.log('VALUE FROM PATH START');
-      console.log(flowData[0].data,data.specificData.path);
       // let value=this.dotProp.get(flowData[0].data, data.specificData.path)
       try {
         let value = this.resolve(flowData[0].data, data.specificData);
         // console.log('RESOLVE',JSON.stringify(value));
-        console.log('__RESOLVE',value);
         resolve({
           data: value
         })

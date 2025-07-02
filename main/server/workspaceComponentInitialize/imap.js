@@ -1,124 +1,119 @@
-'use strict';
+'use strict'
 // note google : https://developers.google.com/gmail/imap/xoauth2-protocol?hl=fr
 
-
-
-const workspaceComponentLib = require('../../../core/lib/workspace_component_lib');
-const { MailListener } = require("mail-listener5");
-const nodeImap = require('node-imap'); // Remplace mail-listener5 par node-imap
-const { simpleParser } = require('mailparser');
-
+const workspaceComponentLib = require('../../../core/lib/workspace_component_lib')
+const nodeImap = require('imap') // Client IMAP moderne et sécurisé
+const { simpleParser } = require('mailparser')
 
 class Imap {
-  constructor() {
-    this.type = 'IMAP';
-    this.description = 'Se connecter à une source IMAP pour récupérer des emails.';
-    this.editor = 'imap-editor';
-    this.graphIcon = 'default.svg';
+  constructor () {
+    this.type = 'IMAP'
+    this.description = 'Se connecter à une source IMAP pour récupérer des emails.'
+    this.editor = 'imap-editor'
+    this.graphIcon = 'default.svg'
     this.tags = [
       'http://semantic-bus.org/data/tags/inComponents',
       'http://semantic-bus.org/data/tags/APIComponents'
-    ];
-    this.mailListeners = new Map();
+    ]
+    this.mailListeners = new Map()
   }
 
-  async connectToImap(specificData) {
+  async connectToImap (specificData) {
     const imapConfig = {
       host: specificData.host,
       port: specificData.port,
       tls: 1
-    };
+    }
 
     if (specificData.accessToken) {
       const xoauth2 = Buffer.from(
         `user=${specificData.username}\x01auth=Bearer ${specificData.accessToken}\x01\x01`
-      ).toString('base64');
+      ).toString('base64')
 
-      imapConfig.xoauth2 = xoauth2;
+      imapConfig.xoauth2 = xoauth2
     } else {
-      imapConfig.user = specificData.user;
-      imapConfig.password = specificData.password;
+      imapConfig.user = specificData.user
+      imapConfig.password = specificData.password
     }
 
-    console.log('imapConfig', imapConfig);
-    const nodeImapInstance = new nodeImap(imapConfig);
+    console.log('imapConfig', imapConfig)
+    const nodeImapInstance = new nodeImap(imapConfig)
 
-    nodeImapInstance.once('ready', function() {
-      console.log('IMAP connection ready');
-      nodeImapInstance.openBox('INBOX', false, function(err, box) {
-        if (err) throw err;
+    nodeImapInstance.once('ready', function () {
+      console.log('IMAP connection ready')
+      nodeImapInstance.openBox('INBOX', false, function (err, box) {
+        if (err) throw err
         // Rechercher les emails marqués comme importants
-        nodeImapInstance.search([['X-GM-RAW', 'is:important']], function(err, results) {
-          if (err) throw err;
-          console.log('Emails importants:', results.length);
+        nodeImapInstance.search([['X-GM-RAW', 'is:important']], function (err, results) {
+          if (err) throw err
+          console.log('Emails importants:', results.length)
           if (results.length > 0) {
             // Inverser l'ordre des résultats pour obtenir les plus récents
-            const limitedResults = results.reverse().slice(0, 10);
-            const fetch = nodeImapInstance.fetch(limitedResults, { bodies: '' });
-            fetch.on('message', function(msg, seqno) {
+            const limitedResults = results.reverse().slice(0, 10)
+            const fetch = nodeImapInstance.fetch(limitedResults, { bodies: '' })
+            fetch.on('message', function (msg, seqno) {
               // console.log('Message #%d', seqno);
-              let emailContent = '';
-              msg.on('body', function(stream, info) {
-                stream.on('data', function(chunk) {
-                  emailContent += chunk.toString('utf8');
-                });
-              });
-              msg.once('end', function() {
+              let emailContent = ''
+              msg.on('body', function (stream, info) {
+                stream.on('data', function (chunk) {
+                  emailContent += chunk.toString('utf8')
+                })
+              })
+              msg.once('end', function () {
                 simpleParser(emailContent, (err, parsed) => {
                   if (err) {
-                    console.error('Erreur lors de l\'analyse de l\'email:', err);
+                    console.error('Erreur lors de l\'analyse de l\'email:', err)
                   } else {
-                    console.log('Sujet:', parsed.subject);
-                    console.log('De:', parsed.from.text);
-                    console.log('Corps de l\'email:', parsed.text); // ou parsed.html pour le HTML
-                    console.log('--------------------------------------------------');
+                    console.log('Sujet:', parsed.subject)
+                    console.log('De:', parsed.from.text)
+                    console.log('Corps de l\'email:', parsed.text) // ou parsed.html pour le HTML
+                    console.log('--------------------------------------------------')
                   }
-                });
-              });
-            });
-            fetch.once('error', function(err) {
-              console.error('Erreur lors de la récupération des emails:', err);
-            });
-            fetch.once('end', function() {
-              console.log('Fin de la récupération des emails.');
-              nodeImapInstance.end();
-            });
+                })
+              })
+            })
+            fetch.once('error', function (err) {
+              console.error('Erreur lors de la récupération des emails:', err)
+            })
+            fetch.once('end', function () {
+              console.log('Fin de la récupération des emails.')
+              nodeImapInstance.end()
+            })
           } else {
-            console.log('Aucun email important trouvé.');
-            nodeImapInstance.end();
+            console.log('Aucun email important trouvé.')
+            nodeImapInstance.end()
           }
-        });
-      });
-    });
+        })
+      })
+    })
 
-    nodeImapInstance.once('error', function(err) {
-      console.error('IMAP connection error: ', err);
-    });
+    nodeImapInstance.once('error', function (err) {
+      console.error('IMAP connection error: ', err)
+    })
 
-    nodeImapInstance.once('end', function() {
-      console.log('IMAP connection ended');
-    });
+    nodeImapInstance.once('end', function () {
+      console.log('IMAP connection ended')
+    })
 
-    nodeImapInstance.once('close', function() {
-      console.log('close');
-    });
+    nodeImapInstance.once('close', function () {
+      console.log('close')
+    })
 
-    nodeImapInstance.connect();
+    nodeImapInstance.connect()
   }
 
-  async initialise() {
+  async initialise () {
     try {
-      const imapComponents = await workspaceComponentLib.get_all({type:'IMAP'});
+      const imapComponents = await workspaceComponentLib.get_all({ type: 'IMAP' })
       // console.log('imapComponents', imapComponents);
-      
+
       // for (const component of imapComponents) {
       //   await this.connectToImap(component.specificData);
       // }
     } catch (error) {
-      console.error('Erreur lors de l\'initialisation des composants IMAP:', error);
+      console.error('Erreur lors de l\'initialisation des composants IMAP:', error)
     }
   }
-
 }
 
-module.exports = new Imap();
+module.exports = new Imap()

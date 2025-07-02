@@ -16,11 +16,8 @@ class PropertiesMatrix {
         let maxLength = 0
         for (let fieldObject of data.specificData.fields) {
           let field = fieldObject.field
-          console.log('field',field,flowData[0].data?.[field]?.length)
           maxLength = Math.max(maxLength, (flowData[0].data?.[field]?.length)||0)
         }
-
-        console.log('maxLength',maxLength)
 
         for (let i = 0; i < maxLength; i++) {
           let currentOject = {}

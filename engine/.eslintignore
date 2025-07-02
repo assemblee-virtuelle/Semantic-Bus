@@ -1,0 +1,26 @@
+# Ignore node_modules
+node_modules/
+
+# Ignore build output
+dist/
+build/
+
+# Ignore test files with parsing errors
+workspaceComponentExecutor/scrapper/scrapper.js
+
+# Ignore configuration files with different formatting
+workspaceComponentExecutor/scrapper/wdio.conf.base.js
+
+# Ignore files with syntax errors
+services/engine.js
+
+# Ignore generated files
+*.min.js
+*.bundle.js
+
+# Ignore coverage reports
+coverage/
+
+# Ignore logs
+logs/
+*.log

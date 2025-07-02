@@ -1,9 +1,9 @@
 'use strict'
 
-const { v4: uuidv4 } = require('uuid');
+const { v4: uuidv4 } = require('uuid')
 const MODE = 'AMQP' // MODE could be AMQP when all workflow will migrate over V1
 class RestApiPost {
-  constructor() {
+  constructor () {
     // this.type = 'HTTP provider'
     // this.description = `Mettre à disposition une API HTTP; Permettre à votre workflow d'être appelé par une requete HTTP.`
     // this.editor = 'rest-api-post-editor'
@@ -18,7 +18,7 @@ class RestApiPost {
     // this.json2yaml = require('json2yaml')
     // this.request = require('request')
     // this.config = require('../../config.json')
-    
+
     // const {
     //   pathToRegexp,
     //   match,
@@ -192,7 +192,7 @@ class RestApiPost {
   //                  'work-ask',
   //                  Buffer.from(JSON.stringify(workParams)),
   //                  null,
- 
+
   //                  (err, ok) => {
   //                    if (err !== null) {
   //                      console.error('Erreur lors de l\'envoi du message :', err);

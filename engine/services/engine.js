@@ -151,7 +151,7 @@ class Engine {
         if (this.owner.credit >= 0 || (config.privateScript && config.privateScript.length == 0) || config.free == true) {
 
           this.fackCounter++
-          console.log(`---------- processNextBuildPath ----------- ${this.workflow.name} ${this.fackCounter}/${this.pathResolution.nodes.length}`)
+      
           if (config.quietLog != true) {
           }
           let processingNode
@@ -192,7 +192,7 @@ class Engine {
 
           if (processingNode != undefined) {
             if (config.quietLog != true) {
-              console.log(`           processingNode ----------- ${processingNode.component._id} type:'${processingNode.component.type}' name:'${processingNode.component.name}'`)
+        
             }
             let startTime = new Date()
 

@@ -19,7 +19,7 @@ module.exports = {
     let workspaceComponentModelTarget = conn.model('workspaceComponent', this.workspaceComponentSchema)
     let workspaceComponentModelSource = conn2.model('workspaceComponent', this.workspaceComponentSchema)
     let userModelTarget = conn.model('user', this.userSchema)
-    //console.log('workspaces remove');
+    // console.log('workspaces remove');
 
     console.log('workspaces import')
     workspaceModelTarget.remove({}).then(message => {
@@ -58,7 +58,6 @@ module.exports = {
         workspaceComponentModelTarget.insertMany(WSToImport, (error, docs) => {
           console.log(error)
           console.log('workspaces component inserted', docs.length)
-
         })
       })
     })

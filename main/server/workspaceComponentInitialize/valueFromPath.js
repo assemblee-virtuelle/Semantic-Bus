@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 class ValueFromPath {
   constructor () {
     this.type = 'Root from path'

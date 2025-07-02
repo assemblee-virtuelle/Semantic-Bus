@@ -39,16 +39,14 @@ class HttpConsumer {
           let filename = response.headers['content-disposition']?.split('filename=')[1]?.replace(/['"]/g, '');
           if (!filename) {
             try {
-              const url = response.request.url;
-              const urlParts = url.split('/');
-              filename = urlParts.pop();
+              const extension = fileConvertor.extension(filename, contentType);
+              filename = "file." + extension; 
             } catch (e) {
-              filename = 'downloaded_file';
-              console.warn('Failed to determine filename from URL:', e);
+              filename = "file"
+              console.warn('Failed to determine extension:', e);
             }
           }
-          // console.log('___response',response.body);
-          // Create and save file
+
           const file = new File({
             binary: response.body,
             filename: filename,
@@ -101,19 +99,19 @@ class HttpConsumer {
           contentType.includes('gz') ||
           contentType.includes('csv') ||
           contentType.includes('xlsx') ||
-          contentType.includes('vnd.openxmlformats-officedocument')
+          contentType.includes('vnd.openxmlformats-officedocument') ||
+          contentType.includes('calendar')
         ) {
           let filename = response.headers['content-disposition']?.split('filename=')[1]?.replace(/['"]/g, '');
           if (!filename) {
             try {
-              const url = response.request.url;
-              const urlParts = url.split('/');
-              filename = urlParts.pop();
+              const extension = fileConvertor.extension(filename, contentType);
+              filename = "file." + extension; 
             } catch (e) {
-              console.warn('Failed to determine filename from URL:', e);
+              filename = "file"
+              console.warn('Failed to determine extension:', e);
             }
           }
-          // console.log('___buffer',data,filename);
           fileConvertor.data_from_file(filename, response.body, contentType).then((result) => {
             resolve(propertyNormalizer.execute(result));
           }).catch((err) => {

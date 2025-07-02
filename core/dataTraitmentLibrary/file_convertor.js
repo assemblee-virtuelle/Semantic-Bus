@@ -38,11 +38,17 @@ function _extension(filename, contentType) {
     var reg = new RegExp(regex, 'g');
     let regResult = reg.exec(contentType)
     extension = regResult.pop()
+    // Remove additional parameters from content-type (like charset)
+    extension = extension.split(';')[0].trim();
+    
     if (extension.includes('vnd.openxmlformats-officedocument')) {
       extension = "ods";
     }
     if (extension.includes('vnd.ms-excel')) {
       extension = "xlsx";
+    }
+    if (extension === 'calendar') {
+      extension = "ics";
     }
   }
   if (!extension) {

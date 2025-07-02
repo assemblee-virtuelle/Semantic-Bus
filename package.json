@@ -1,0 +1,34 @@
+{
+  "name": "semantic-bus-monorepo",
+  "version": "0.9.1",
+  "description": "ETL style data middleware transformation embedded in an ESB for all kind of data",
+  "private": true,
+  "scripts": {
+    "test:all": "npm run test:engine && npm run test:core && npm run test:main && npm run test:timer",
+    "test:engine": "cd engine && npm test",
+    "test:core": "cd core && npm test",
+    "test:main": "cd main && npm test",
+    "test:timer": "cd timer && npm test",
+    "install:all": "npm run install:engine && npm run install:main && npm run install:timer && npm run install:core",
+    "install:engine": "cd engine && npm install",
+    "install:main": "cd main && npm install", 
+    "install:timer": "cd timer && npm install",
+    "install:core": "cd core && npm install",
+    "lint": "npm run lint:engine && npm run lint:main",
+    "lint:engine": "cd engine && npm run lint",
+    "lint:main": "cd main && npm run lint",
+    "start": "docker-compose up -d",
+    "stop": "docker-compose down",
+    "clean": "npm run clean:engine && npm run clean:main && npm run clean:timer && npm run clean:core",
+    "clean:engine": "cd engine && rm -rf node_modules package-lock.json",
+    "clean:main": "cd main && rm -rf node_modules package-lock.json",
+    "clean:timer": "cd timer && rm -rf node_modules package-lock.json",
+    "clean:core": "cd core && rm -rf node_modules package-lock.json"
+  },
+  "devDependencies": {
+    "supertest": "^6.3.3",
+    "eslint": "^8.0.0"
+  },
+  "author": "Simon Louvet <simon.louvet.zen@gmail.com> && Boceno Alexandre <bocenoalex@gmail.com>",
+  "license": "GNUV3"
+}

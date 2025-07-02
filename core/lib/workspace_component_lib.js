@@ -40,7 +40,6 @@ function _create(workspaceComponents) {
       out.push(newComponent);
       
     }
-    console.log(out)
     resolve(out);
 
 
@@ -176,7 +175,6 @@ function _remove(componentToDelete) {
         }]
       }));
       await workspace.save();
-      console.log('END REMOVE',componentToDelete)
       resolve(componentToDelete);
     } else {
       reject(new Error.DataBaseProcessError('workflow not finded'))

@@ -8,7 +8,7 @@ var error = require('../helpers/error')
 
 module.exports = (passport) => {
   if (config.googleAuth && config.googleAuth.clientID && config.googleAuth.clientID.length>0 && config.googleAuth.clientSecret && config.googleAuth.clientSecret.length>0) {
-    console.log('GOOGLE auth activ');
+
     passport.use(new GoogleStrategy({
       clientID: config.googleAuth.clientID,
       clientSecret: config.googleAuth.clientSecret,
@@ -25,7 +25,7 @@ module.exports = (passport) => {
         if (user) {
           user.googleToken = token
           await UserModel.getInstance().model.findByIdAndUpdate(user._id,user);
-          console.log('user',user)
+
           return done(null, user)
         } else {
           const UserModelInstance = UserModel.getInstance().model

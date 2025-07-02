@@ -8,7 +8,7 @@ const { failure } = require('io-ts/lib/PathReporter')
  * @param {Decoder<A>} type
  * @return {Function}
  */
-function validateRequestInput(type) {
+function validateRequestInput (type) {
   return (req, res, next) => {
     type.decode(req.body)
       .map(normalizedValue => {

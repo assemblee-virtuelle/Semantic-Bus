@@ -689,7 +689,7 @@ function _get_all(userID, role, config) {
     } else {
 
       let workspaces;
-      console.log("data user", data)
+  
       if (data.admin) {
         workspaces = await workspaceModel.getInstance().model.find({}).lean().exec();
         workspaces = workspaces.map(w => ({

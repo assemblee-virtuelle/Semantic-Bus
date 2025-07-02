@@ -9,7 +9,6 @@ class JsonLdConversion {
     return new Promise(async (resolve, reject) => {
       try {
         let result=flowData[0].data;
-        console.log('specificData',specificData)
         if (specificData.configObject){
           result = await jsonld.frame(result, specificData.configObject);
         }

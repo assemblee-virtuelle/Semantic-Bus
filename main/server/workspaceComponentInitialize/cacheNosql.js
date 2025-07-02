@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 class CacheNosql {
   constructor () {
     this.type = 'Cache NoSQL'
@@ -20,11 +20,11 @@ class CacheNosql {
       // console.log('CACHE getCache');
       try {
         var compId = req.params.compId
-        const component = await  this.workspace_component_lib.get({
+        const component = await this.workspace_component_lib.get({
           _id: compId
-        });
+        })
 
-        const cachedData = await this.cache_lib.get(component, false);
+        const cachedData = await this.cache_lib.get(component, false)
 
         if (cachedData != undefined) {
           res.json(cachedData.data)

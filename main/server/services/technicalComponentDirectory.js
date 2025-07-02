@@ -83,14 +83,14 @@ module.exports = {
     this.googleAuth.initialise(unSafeRouteur)
   },
 
-  setAmqpClient : function (channel){
+  setAmqpClient: function (channel) {
     // console.log('setAmqp')
     // this.httpProvider.setAmqpClient(channel);
     // this.upload.setAmqpClient(channel)
   },
 
-  setAmqpChannel : function (channel){
-    this.httpProvider.setAmqp(channel);
+  setAmqpChannel: function (channel) {
+    this.httpProvider.setAmqp(channel)
     this.upload.setAmqp(channel)
   }
 }

@@ -139,7 +139,6 @@ const updateFragment = async (fragment) => {
 
 const persistFragment = async (fragment) => {
   try {
-    console.log('___persistFragment')
     const existingFragment = await getFragmentById(fragment.id);
 
     return await updateFragment(fragment);

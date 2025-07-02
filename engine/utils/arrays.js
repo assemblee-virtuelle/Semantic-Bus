@@ -2,7 +2,7 @@ module.exports = {
   isEmpty,
   nonEmpty,
   flatMap
-}
+};
 
 /**
  * @template A
@@ -10,7 +10,7 @@ module.exports = {
  * @return {boolean}
  */
 function isEmpty(array) {
-  return array === undefined || array === null || array.length === 0
+  return array === undefined || array === null || array.length === 0;
 }
 
 /**
@@ -19,7 +19,7 @@ function isEmpty(array) {
  * @return {boolean}
  */
 function nonEmpty(array) {
-  return !isEmpty(array)
+  return !isEmpty(array);
 }
 
 /**
@@ -30,8 +30,8 @@ function nonEmpty(array) {
  */
 function flatMap(array, op) {
   if (nonEmpty(array)) {
-    return array.map(op).reduce((acc, current) => [...acc, ...current], [])
+    return array.map(op).reduce((acc, current) => [...acc, ...current], []);
   } else {
-    return []
+    return [];
   }
 }

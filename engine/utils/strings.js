@@ -1,14 +1,14 @@
 module.exports = {
   isEmpty,
   nonEmpty
-}
+};
 
 /**
  * @param {string | null | undefined} string
  * @return {boolean}
  */
 function isEmpty(string) {
-  return string === undefined || string === null || string === ''
+  return string === undefined || string === null || string === '';
 }
 
 /**
@@ -16,5 +16,5 @@ function isEmpty(string) {
  * @return {boolean}
  */
 function nonEmpty(string) {
-  return !isEmpty(string)
+  return !isEmpty(string);
 }

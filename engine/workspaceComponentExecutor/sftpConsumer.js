@@ -78,7 +78,6 @@ class SftpConsumer {
       try {
         const connection = await sftp.connect(config);
         const typeOfPath = await sftp.exists(specificDataParsed.path);
-        console.log('typeOfPath', typeOfPath);
         if (typeOfPath.includes('-')) {
           const readableStream = await sftp.get(specificDataParsed.path)
           const data = await this.dataProcessing(specificDataParsed.path, readableStream, processId, specificDataParsed);
@@ -116,7 +115,6 @@ class SftpConsumer {
   async workWithFragments(data, flowData, pullParams, processId) {
     return new Promise(async (resolve, reject) => {
       try {
-        console.log('workWithFragments')
         // Get the input fragment and dfob
         const inputFragment = flowData[0]?.fragment;
         const inputDfob = flowData[0]?.dfob;
