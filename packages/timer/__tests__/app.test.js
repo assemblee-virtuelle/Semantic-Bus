@@ -139,7 +139,7 @@ describe('Timer Module', () => {
       // Simulation de la configuration du canal AMQP
       const mockChannelSetup = {
         json: true,
-        setup: expect.any(Function)
+        setup: jest.fn()
       };
 
       expect(mockChannelSetup.json).toBe(true);
@@ -221,12 +221,12 @@ describe('Timer Module', () => {
 
       // Simulation de la validation de configuration
       const isValidConfig = (config) => {
-        return config.socketServer && 
+        return !!(config.socketServer && 
                typeof config.socketServer === 'string' && 
                config.socketServer.length > 0 &&
                config.amqpHost && 
                typeof config.amqpHost === 'string' && 
-               config.amqpHost.length > 0;
+               config.amqpHost.length > 0);
       };
 
       expect(isValidConfig(invalidConfig)).toBe(false);
