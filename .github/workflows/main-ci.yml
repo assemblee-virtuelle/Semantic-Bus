@@ -148,7 +148,7 @@ jobs:
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
-          node-version: '16.x'  # Timer uses Node 16 in Dockerfile
+          node-version: '18.x'  # Timer uses Node 18 in Dockerfile
 
       - name: Install dependencies
         run: |
@@ -173,11 +173,9 @@ jobs:
       fail-fast: false  # Continue all tests even if one fails
       matrix:
         include:
-          # Core - test on all Node versions used by other packages
+          # Core - test on Node 18 (all packages now use Node 18)
           - module: core
-            node-version: '16.x'  # timer version
-          - module: core
-            node-version: '18.x'  # main/engine version
+            node-version: '18.x'
           
           # Main - uses Node 18 in Dockerfile-alpine
           - module: main
@@ -187,9 +185,9 @@ jobs:
           - module: engine
             node-version: '18.x'
           
-          # Timer - uses Node 16 in Dockerfile-alpine
+          # Timer - uses Node 18 in Dockerfile-alpine
           - module: timer
-            node-version: '16.x'
+            node-version: '18.x'
     
     steps:
       - name: Checkout code
