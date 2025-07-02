@@ -21,6 +21,7 @@
     "amqp-connection-manager": "^4.1.14"
   },
   "devDependencies": {
+    "@eslint/js": "^9.30.1",
     "eslint": "^9.30.1",
     "jest": "^30.0.3",
     "nodemon": "^3.0.0"
