@@ -190,6 +190,9 @@ Cette architecture privilégie :
 - 🎨 **Qualité** : Formatage automatique et standards de code
 - 🔧 **Maintenance** : Modifications ciblées et sûres
 
+---
+*Workflows mis à jour - Version 2024*
+
 ## 🎨 Nomenclature des Jobs
 
 ### Émojis par domaine
