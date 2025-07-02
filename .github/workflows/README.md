@@ -27,20 +27,23 @@
   - 💥 **BLOQUE la CI** si vulnérabilités critiques détectées
   - ✅ Tests sur les 4 packages (core, main, engine, timer)
 
-### ✨ 2. CODE QUALITY & LINTING (4 jobs parallèles)
+### ✨ 2. CODE QUALITY & AUTO-FORMATTING (4 jobs parallèles)
 **Fichier** : `lint.yml`  
 **Déclenchement** : Push sur branches principales
 
 - **Jobs parallèles** :
-  - `lint-core` 💎 - "Lint Core Package"
-  - `lint-main` 🌐 - "Lint Main Package"  
-  - `lint-engine` ⚙️ - "Lint Engine Package"
-  - `lint-timer` ⏰ - "Lint Timer Package"
-- **Objectif** : Standards de code pour tous les packages
+  - `lint-core` 💎 - "Lint & Format Core Package"
+  - `lint-main` 🌐 - "Lint & Format Main Package"  
+  - `lint-engine` ⚙️ - "Lint & Format Engine Package"
+  - `lint-timer` ⏰ - "Lint & Format Timer Package"
+- **Objectif** : Standards de code + formatage automatique
 - **Actions** :
-  - ✅ ESLint indépendant par package
-  - ✅ Node 18.x pour tous
-  - ✅ `continue-on-error: true` - Non bloquant
+  - 🔍 **Check linting** : Vérification initiale des erreurs
+  - ✨ **Auto-formatting** : Correction automatique (lint:fix/format/eslint --fix)
+  - 📝 **Détection changements** : `git diff` pour détecter les modifications
+  - 🚀 **Commit auto** : Si changements → commit avec `[skip ci]`
+  - ✅ **Vérification finale** : Linting doit passer après formatage
+  - ❌ **Échec si impossible** : Job échoue si formatage ne résout pas les problèmes
 
 ### 🧪 3. TESTS SUITE (4 jobs parallèles)
 **Fichier** : `tests.yml`  
@@ -56,6 +59,43 @@
   - ✅ Jest sur chaque package indépendamment
   - ✅ Node 18.x unifié (cohérence Dockerfiles)
   - ✅ Isolation complète des échecs
+
+## 🎨 Formatage Automatique
+
+### 🔄 **Workflow Auto-Formatting**
+
+Le workflow `lint.yml` implémente un **formatage automatique intelligent** :
+
+#### **Étapes d'exécution** :
+1. 🔍 **Vérification initiale** : `npm run lint` pour détecter les erreurs
+2. ✨ **Tentative de correction** : 
+   - Recherche `npm run lint:fix` (priorité 1)
+   - Sinon `npm run format` (priorité 2)
+   - Sinon `npx eslint . --fix` (fallback)
+3. 📝 **Détection des changements** : `git diff --quiet`
+4. 🚀 **Commit automatique** : Si modifications détectées
+5. ✅ **Vérification finale** : `npm run lint` doit passer
+
+#### **Commit automatique** :
+```
+🎨 Auto-format: [Package] package code formatting
+
+- Automatic code formatting applied by CI
+- ESLint/Prettier fixes applied
+- [skip ci] to prevent infinite loops
+```
+
+#### **Comportements** :
+- ✅ **Pas de changements** → Continue normalement
+- 📝 **Changements appliqués** → Commit + Push automatique  
+- ❌ **Erreurs non-corrigibles** → Échec du job (bloquant)
+- 🔄 **Protection boucles** → `[skip ci]` évite les déclenchements en cascade
+
+#### **Permissions requises** :
+```yaml
+permissions:
+  contents: write  # Pour les commits automatiques
+```
 
 ## 🎯 Avantages de cette Architecture
 
@@ -79,6 +119,12 @@
 - **Noms explicites** : Compréhension immédiate du rôle de chaque job
 - **Configuration simple** : Un workflow = une préoccupation
 
+### 🎨 **Formatage Automatique**
+- **Correction intelligente** : Essaie plusieurs stratégies de formatage
+- **Commits automatiques** : Pas d'intervention manuelle nécessaire
+- **Protection anti-boucles** : `[skip ci]` évite les déclenchements infinis  
+- **Bloquant si nécessaire** : Échoue si le formatage ne résout pas les problèmes
+
 ## 🚦 Déclencheurs
 
 Tous les workflows utilisent le même déclencheur :
@@ -95,7 +141,7 @@ on:
 | Workflow | Jobs | Fonction | Bloquant |
 |----------|------|----------|----------|
 | **Security** | 1 job | Vulnérabilités critiques | ✅ OUI |
-| **Lint** | 4 jobs | Qualité de code | ❌ Non |
+| **Lint & Format** | 4 jobs | Qualité + formatage auto | ✅ OUI |
 | **Tests** | 4 jobs | Tests fonctionnels | ✅ OUI |
 | **TOTAL** | **9 jobs** | **CI complète** | **Modulaire** |
 
@@ -117,10 +163,11 @@ on:
 - **Scope** : Uniquement l'audit de vulnérabilités
 - **Impact** : Aucun sur lint ou tests
 
-### Modifier le linting
+### Modifier le linting/formatage
 - **Fichier** : `lint.yml`  
-- **Scope** : Standards de code uniquement
+- **Scope** : Standards de code + formatage automatique
 - **Impact** : Aucun sur sécurité ou tests
+- **Scripts supportés** : `lint:fix`, `format`, ou fallback `eslint --fix`
 
 ### Modifier les tests
 - **Fichier** : `tests.yml`
@@ -140,6 +187,7 @@ Cette architecture privilégie :
 - 🔀 **Modularité** : Séparation des préoccupations
 - ⚡ **Vitesse** : Parallélisme maximal dans chaque domaine
 - 🛡️ **Sécurité** : Focus dédié sur les vulnérabilités
+- 🎨 **Qualité** : Formatage automatique et standards de code
 - 🔧 **Maintenance** : Modifications ciblées et sûres
 
 ## 🎨 Nomenclature des Jobs
