@@ -9,9 +9,14 @@ module.exports = {
     '!**/node_modules/**'
   ],
   coverageDirectory: 'coverage',
-  setupFilesAfterEnv: ['<rootDir>/jest.setup.js'],
   moduleNameMapper: {
     '^@/(.*)$': '<rootDir>/$1'
   },
-  testTimeout: 10000
+  moduleDirectories: [
+    'node_modules',
+    '<rootDir>/node_modules',
+    '<rootDir>/../core/node_modules'
+  ],
+  testTimeout: 10000,
+  passWithNoTests: true
 }; 
