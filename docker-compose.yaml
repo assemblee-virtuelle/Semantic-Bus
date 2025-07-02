@@ -17,7 +17,7 @@ services:
   timer:
     build:
       context: .
-      dockerfile: ./timer/Dockerfile-alpine
+      dockerfile: ./packages/timer/Dockerfile-alpine
     container_name: timer
     image: semanticbus/timer
     environment:
@@ -25,9 +25,9 @@ services:
         - NODE_ENV=development_docker
         - CONFIG_URL=$CONFIG_URL
     volumes:
-      - ./timer:/data/timer/
-      - ./core:/data/core/
-      - ./config.local.json:/data/timer/config.json
+      - ./packages/timer:/data/packages/timer/
+      - ./packages/core:/data/packages/core/
+      - ./config.local.json:/data/packages/timer/config.json
     networks:
       - bus
     ports:
@@ -41,7 +41,7 @@ services:
         condition: service_healthy
       scylla:
         condition: service_healthy
-    command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "nodemon", "-L", "--watch", "/data/timer/*",  "--watch", "/data/core/*",  "--ignore", "configuration.js",  "/data/timer/app.js"]
+    command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "nodemon", "-L", "--watch", "/data/packages/timer/*",  "--watch", "/data/packages/core/*",  "--ignore", "configuration.js",  "/data/packages/timer/app.js"]
 
   # engineV1:
   #   image: dataplayers/semantic-bus-engine:v1.0
@@ -68,16 +68,16 @@ services:
   engine:
     build:
       context: .
-      dockerfile: ./engine/Dockerfile-alpine
+      dockerfile: ./packages/engine/Dockerfile-alpine
     container_name: engine
     restart: always
     environment:
         - APP_PORT=92
         - NODE_ENV=development_docker
     volumes:
-      - ./engine:/data/engine/
-      - ./core:/data/core/
-      - ./config.local.json:/data/engine/config.json
+      - ./packages/engine:/data/packages/engine/
+      - ./packages/core:/data/packages/core/
+      - ./config.local.json:/data/packages/engine/config.json
       - ./uploads:/data/uploads/
     networks:
       - bus
@@ -96,13 +96,13 @@ services:
         condition: service_healthy
       scylla:
         condition: service_healthy
-    command: bash -c "nodemon --exitcrash --watch /data/engine --watch /data/core --ignore configuration.js --max-old-space-size=8192 /data/engine/app.js"
+    command: bash -c "nodemon --exitcrash --watch /data/packages/engine --watch /data/packages/core --ignore configuration.js --max-old-space-size=8192 /data/packages/engine/app.js"
 
 
   main:
     build:
       context: .
-      dockerfile: ./main/Dockerfile-alpine
+      dockerfile: ./packages/main/Dockerfile-alpine
     container_name: main
     restart: always
     image: semanticbus/main
@@ -111,10 +111,10 @@ services:
         - APP_PORT=80
         - NODE_ENV=development_docker
     volumes:
-      - ./main:/data/main/
-      - ./core:/data/core/
+      - ./packages/main:/data/packages/main/
+      - ./packages/core:/data/packages/core/
       - ./uploads:/data/uploads/
-      - ./config.local.json:/data/main/config.json
+      - ./config.local.json:/data/packages/main/config.json
     networks:
       - bus
     ports:
@@ -128,7 +128,7 @@ services:
         condition: service_healthy
       scylla:
         condition: service_healthy
-    command: ["nodemon", "-L","--exitcrash" ,"--watch", "/data/main/*",  "--watch", "/data/core/*",  "--ignore", "configuration.js", "--max-old-space-size=8192",  "/data/main/app.js"]
+    command: ["nodemon", "-L","--exitcrash" ,"--watch", "/data/packages/main/*",  "--watch", "/data/packages/core/*",  "--ignore", "configuration.js", "--max-old-space-size=8192",  "/data/packages/main/app.js"]
 
   rabbitmq:
     image: semanticbus/rabbitmq-stomp
@@ -146,7 +146,7 @@ services:
       retries: 10
 
   mongodb:
-    image: mongo:4.0.6
+    image: mongo:4.4.29
     container_name: mongodb
     networks:
       - bus
@@ -156,7 +156,6 @@ services:
       - "27017"
     volumes:
       - data:/data/db
-    command: --smallfiles
     healthcheck:
       test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
       interval: 15s

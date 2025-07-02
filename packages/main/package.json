@@ -1,0 +1,47 @@
+{
+  "name": "@semantic-bus/main",
+  "version": "0.9.1",
+  "description": "Main application module for Semantic Bus",
+  "private": true,
+  "main": "app.js",
+  "scripts": {
+    "test": "jest --detectOpenHandles --verbose",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "lint": "npx eslint *.js scripts/**/*.js server/**/*.js",
+    "fix": "npx eslint --fix *.js scripts/**/*.js server/**/*.js",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "clean": "rm -rf node_modules"
+  },
+  "author": "Simon Louvet <simon.louvet.zen@gmail.com> && Boceno Alexandre <bocenoalex@gmail.com>",
+  "license": "GNUV3",
+  "dependencies": {
+    "@semantic-bus/core": "file:../core",
+    "amqp-connection-manager": "^4.1.14",
+    "body-parser": "^1.20.3",
+    "busboy": "^1.6.0",
+    "cors": "^2.8.4",
+    "imap": "^0.8.19",
+    "data2xml": "^1.2.5",
+    "express": "^4.16.3",
+    "google-auth-library": "^10.1.0",
+    "io-ts": "^2.2.22",
+    "json2yaml": "^1.1.0",
+    "jwt-simple": "^0.5.1",
+    "mailparser": "^3.7.4",
+    "moment": "^2.30.1",
+    "mongoose": "^8.16.1",
+    "node-cron": "^4.2.0",
+    "nodemailer": "^7.0.4",
+    "path-to-regexp": "^6.3.0",
+    "request": "^2.88.2",
+    "uuid": "^11.1.0",
+    "xml-js": "^1.6.11"
+  },
+  "devDependencies": {
+    "eslint": "^9.30.1",
+    "jest": "^30.0.3",
+    "nodemon": "^3.0.0"
+  }
+}

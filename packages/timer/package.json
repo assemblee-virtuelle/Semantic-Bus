@@ -1,0 +1,25 @@
+{
+  "name": "@semantic-bus/timer",
+  "version": "0.9.1",
+  "description": "Timer scheduler module for Semantic Bus",
+  "private": true,
+  "main": "app.js",
+  "scripts": {
+    "test": "jest --detectOpenHandles --verbose",
+    "test:coverage": "jest --coverage",
+    "test:watch": "jest --watch",
+    "start": "node app.js",
+    "dev": "nodemon app.js",
+    "clean": "rm -rf node_modules"
+  },
+  "author": "Simon Louvet <simon.louvet.zen@gmail.com> && Boceno Alexandre <bocenoalex@gmail.com>",
+  "license": "GNUV3",
+  "dependencies": {
+    "@semantic-bus/core": "file:../core",
+    "amqp-connection-manager": "^4.1.14"
+  },
+  "devDependencies": {
+    "jest": "^30.0.3",
+    "nodemon": "^3.0.0"
+  }
+}
