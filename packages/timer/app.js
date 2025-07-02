@@ -1,17 +1,17 @@
-"use strict";
-const configJson = require('./config.json')
-var http = require('http');
-var https = require('https');
+'use strict';
+const configJson = require('./config.json');
+const http = require('http');
+const https = require('https');
 http.globalAgent.maxSockets = 1000000000;
 const requestHandler = (request, response) => {
-  response.end('Hello Node.js Server!')
-}
-var server = http.Server(requestHandler);
-var env = process.env;
+  response.end('Hello Node.js Server!');
+};
+const server = http.Server(requestHandler);
+const env = process.env;
 const amqpManager = require('amqp-connection-manager');
-var url = require('url');
-var fs = require('fs');
-const configUrl = env.CONFIG_URL
+const url = require('url');
+const fs = require('fs');
+const configUrl = env.CONFIG_URL;
 const parsedUrl = url.parse(configUrl);
 const requestOptions = {
   hostname: parsedUrl.hostname,
@@ -19,23 +19,22 @@ const requestOptions = {
   port: parsedUrl.port,
   headers: {
     Accept: 'text/plain, application/xml , application/ld+json',
-    'user-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0',
+    'user-agent': 'Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:44.0) Gecko/20100101 Firefox/44.0'
   }
 };
 
 
-const content = 'module.exports = ' + JSON.stringify(configJson)
+const content = 'module.exports = ' + JSON.stringify(configJson);
 // fs.writeFile('configuration.js', content, 'utf8', function(err) {
-server.listen(env.PORT, function () {
-  console.log('~~ server started ')
+server.listen(env.PORT, () => {
+  console.log('~~ server started ');
+});
 
-})
-
-console.log('🔗 AMQP:', configJson.socketServer + '/' + configJson.amqpHost)
-let connection = amqpManager.connect([configJson.socketServer + '/' + configJson.amqpHost])
-var channelWrapper = connection.createChannel({
+console.log('🔗 AMQP:', configJson.socketServer + '/' + configJson.amqpHost);
+const connection = amqpManager.connect([configJson.socketServer + '/' + configJson.amqpHost]);
+const channelWrapper = connection.createChannel({
   json: true,
-  setup: (channel)=>{
+  setup: (channel) => {
     // console.log('allo')
     // channel.assertExchange('amq.topic','topic', {
     //   durable: true
@@ -48,13 +47,13 @@ var channelWrapper = connection.createChannel({
     //   channel.bindQueue(q.queue, 'amq.topic', "process-start.*");
     // })
     onConnect(channel);
-  } 
-  
+  }
+
 });
 const onConnect = (channel) => {
   console.log('✅ AMQP connected');
   require('@semantic-bus/core/timerScheduler').run(channel);
-}
+};
 
 // })
 
