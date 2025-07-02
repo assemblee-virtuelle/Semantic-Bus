@@ -168,7 +168,6 @@ jobs:
   tests:
     name: 🧪 Tests
     runs-on: ubuntu-latest
-    needs: [quality-control, code-standards-core, code-standards-main, code-standards-engine, code-standards-timer]
     
     strategy:
       matrix:
