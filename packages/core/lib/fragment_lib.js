@@ -171,29 +171,27 @@ module.exports = {
   },
 
 
-  get: function (id) {
-    return new Promise(async (resolve, reject) => {
-      const model = (await this.fragmentModel.getInstance()).model;
-      const fragmentReturn = await model.findOne({
-        _id: id
-      })
-        .lean()
-        .exec();
+  get: async function (id) {
+    const model = (await this.fragmentModel.getInstance()).model;
+    const fragmentReturn = await model.findOne({
+      _id: id
+    })
+      .lean()
+      .exec();
 
-      if (fragmentReturn.branchFrag) {
-        const frags = await model.find({
-          branchOriginFrag: fragmentReturn.branchFrag
-        }).lean().exec();
-        fragmentReturn.data = frags.map(f => {
-          return {
-            _frag: f._id
-          }
-        });
-      } else {
-        fragmentReturn.data = this.replaceMongoNotSupportedKey(fragmentReturn.data, true);
-      }
-      resolve(fragmentReturn)
-    });
+    if (fragmentReturn.branchFrag) {
+      const frags = await model.find({
+        branchOriginFrag: fragmentReturn.branchFrag
+      }).lean().exec();
+      fragmentReturn.data = frags.map(f => {
+        return {
+          _frag: f._id
+        }
+      });
+    } else {
+      fragmentReturn.data = this.replaceMongoNotSupportedKey(fragmentReturn.data, true);
+    }
+    return fragmentReturn;
   },
 
   getWithResolutionByBranch: async function (frag) {
@@ -257,61 +255,49 @@ module.exports = {
     }
   },
 
-  getWithResolution: function (id) {
-    return new Promise(async (resolve, reject) => {
-      try {
-        let fragmentReturn;
-        const model = (await this.fragmentModel.getInstance()).model;
-        model.findOne({
-          _id: id
-        })
-          .lean()
-          .exec()
-          .then((fragmentReturnIn) => {
-            fragmentReturn = fragmentReturnIn;
+  getWithResolution: async function (id) {
+    try {
+      let fragmentReturn;
+      const model = (await this.fragmentModel.getInstance()).model;
+      fragmentReturn = await model.findOne({
+        _id: id
+      })
+        .lean()
+        .exec();
 
-            if (fragmentReturn.rootFrag) {
-
-              return model.find({
-                originFrag: fragmentReturn.rootFrag
-              }).lean().exec();
-            } else {
-              // console.log('not fragRoot' );
-              return Promise.resolve([])
-            }
-          }).then(async framentParts => {
-
-            try {
-              //all fragments whith originFrag (index by id)
-              let partDirectory = {}
-              //fragments group by originFrag (index by branchOriginFrag)
-              let arrayDirectory = {}
-              if (framentParts) {
-                let partBinding = framentParts.forEach(frag => {
-                  if (frag.branchOriginFrag) {
-                    if (arrayDirectory[frag.branchOriginFrag]) {
-                      arrayDirectory[frag.branchOriginFrag].push(frag);
-                    } else {
-                      arrayDirectory[frag.branchOriginFrag] = [frag];
-                    }
-                  }
-                  partDirectory[frag._id] = frag;
-                });
-              }
-              let resolution = await this.rebuildFrag(fragmentReturn, partDirectory, arrayDirectory);
-              fragmentReturn.data = resolution;
-              resolve(fragmentReturn);
-            } catch (e) {
-              reject(e);
-            }
-          }).catch(err => {
-            reject(err);
-            console.log('-------- FAGMENT LIB ERROR -------| ', err);
-          });
-      } catch (e) {
-        reject(e);
+      let framentParts;
+      if (fragmentReturn.rootFrag) {
+        framentParts = await model.find({
+          originFrag: fragmentReturn.rootFrag
+        }).lean().exec();
+      } else {
+        // console.log('not fragRoot' );
+        framentParts = [];
       }
-    });
+
+      //all fragments whith originFrag (index by id)
+      let partDirectory = {}
+      //fragments group by originFrag (index by branchOriginFrag)
+      let arrayDirectory = {}
+      if (framentParts) {
+        let partBinding = framentParts.forEach(frag => {
+          if (frag.branchOriginFrag) {
+            if (arrayDirectory[frag.branchOriginFrag]) {
+              arrayDirectory[frag.branchOriginFrag].push(frag);
+            } else {
+              arrayDirectory[frag.branchOriginFrag] = [frag];
+            }
+          }
+          partDirectory[frag._id] = frag;
+        });
+      }
+      let resolution = await this.rebuildFrag(fragmentReturn, partDirectory, arrayDirectory);
+      fragmentReturn.data = resolution;
+      return fragmentReturn;
+    } catch (e) {
+      console.log('-------- FAGMENT LIB ERROR -------| ', e);
+      throw e;
+    }
   },
 
   rebuildFrag: async function (frag, partDirectory, arrayDirectory, counter) {

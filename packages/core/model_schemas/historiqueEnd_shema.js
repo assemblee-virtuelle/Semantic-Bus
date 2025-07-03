@@ -52,9 +52,6 @@ var HistoriqueEndSchema = mongoose.Schema({
     componentPrice: {
       type: Number,
     },
-    componentModule: {
-      type: String,
-    },
     moCount: {
       type: Number
     },
