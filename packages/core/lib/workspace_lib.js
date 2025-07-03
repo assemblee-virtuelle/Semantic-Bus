@@ -1,5 +1,8 @@
 'use strict';
 
+// TEST: Vérification du comportement du workflow auto-formatage
+// Si le code est déjà optimisé, ce commit ne devrait PAS déclencher d'auto-commit
+
 const fragment_lib = require('./fragment_lib_scylla.js');
 const file_lib_scylla = require('./file_lib_scylla.js');
 const user_lib = require('./user_lib.js');
