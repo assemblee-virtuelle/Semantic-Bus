@@ -191,7 +191,7 @@ Cette architecture privilégie :
 - 🔧 **Maintenance** : Modifications ciblées et sûres
 
 ---
-*Workflows mis à jour - Version 2024*
+*Workflows mis à jour - Version 2024 - Dernière mise à jour: ESLint CommonJS fixes*
 
 ## 🎨 Nomenclature des Jobs
 
