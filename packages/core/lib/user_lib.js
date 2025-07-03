@@ -53,32 +53,31 @@ function _create(bodyParams) {
   });
 } // <= _create
 
-function _create_mainprocess(preData) {
-  return new Promise(async(resolve, reject) => {
-    const userModelInstance = userModel.getInstance().model;
-    try {
-      const user = new userModelInstance({
-        credentials: {
-          email: preData.email,
-          hashed_password: preData.hashedPassword
-        },
-        mailid: preData.mailid,
-        name: preData.name,
-        society: preData.society,
-        job: preData.job,
-        dates: {
-          created_at: new Date(),
-          updated_at: new Date()
-        }
-      });
-      const userData = await user.save();
-      resolve(userData);
-    } catch (error) {
-      if (error.code == 11000) {
-        reject(new Error.UniqueEntityError('User'));
+async function _create_mainprocess(preData) {
+  const userModelInstance = userModel.getInstance().model;
+  try {
+    const user = new userModelInstance({
+      credentials: {
+        email: preData.email,
+        hashed_password: preData.hashedPassword
+      },
+      mailid: preData.mailid,
+      name: preData.name,
+      society: preData.society,
+      job: preData.job,
+      dates: {
+        created_at: new Date(),
+        updated_at: new Date()
       }
+    });
+    const userData = await user.save();
+    return userData;
+  } catch (error) {
+    if (error.code == 11000) {
+      throw new Error.UniqueEntityError('User');
     }
-  });
+    throw error;
+  }
 } // <= _create_mainprocess
 
 function _create_preprocess(userParams) {
@@ -155,141 +154,133 @@ function _create_preprocess(userParams) {
   });
 } // <= _create_preprocess
 
-function _get_all(options) {
-  return new Promise(async(resolve, reject) => {
-    const users = await userModel.getInstance().model
-      .find(options.filters)
-      .limit(options.limit)
-      .select(options.select)
-      .skip(options.skip)
-      .sort(options.sort)
-      .lean()
-      .exec();
-    resolve(users);
-  });
+async function _get_all(options) {
+  const users = await userModel.getInstance().model
+    .find(options.filters)
+    .limit(options.limit)
+    .select(options.select)
+    .skip(options.skip)
+    .sort(options.sort)
+    .lean()
+    .exec();
+  return users;
 } // <= _get_all
 
-function _get(filter) {
-  return new Promise(async(resolve, reject) => {
-    try {
-      const userData = await userModel.getInstance().model
-        .findOne(filter)
-        .lean()
-        .exec();
-      if( userData == null) {
-        reject(new Error.EntityNotFoundError());
-      } else {
-        resolve(userData);
-      }
-    } catch (error) {
-      reject(new Error.DataBaseProcessError(error));
+async function _get(filter) {
+  try {
+    const userData = await userModel.getInstance().model
+      .findOne(filter)
+      .lean()
+      .exec();
+    if( userData == null) {
+      throw new Error.EntityNotFoundError();
+    } else {
+      return userData;
     }
-    // userModel.getInstance().model
-    //   .findOne(filter)
-    //   .lean()
-    //   .exec(function (err, userData) {
-    //     if(err){
-    //       return reject(new Error.DataBaseProcessError(err))
-    //     } if( userData == null){
-    //       reject(new Error.EntityNotFoundError(err))
-    //     } else {
-    //       resolve(userData);
-    //     }
-    //   });
-  });
+  } catch (error) {
+    if (error instanceof Error.EntityNotFoundError) {
+      throw error;
+    }
+    throw new Error.DataBaseProcessError(error);
+  }
+  // userModel.getInstance().model
+  //   .findOne(filter)
+  //   .lean()
+  //   .exec(function (err, userData) {
+  //     if(err){
+  //       return reject(new Error.DataBaseProcessError(err))
+  //     } if( userData == null){
+  //       reject(new Error.EntityNotFoundError(err))
+  //     } else {
+  //       resolve(userData);
+  //     }
+  //   });
 } // <= _get
 
-function _getWithRelations(userID, config) {
-  return new Promise(async(resolve, reject) => {
-    try {
-      const data = await userModel.getInstance().model
-        .findOne({
-          _id: userID
-        })
-      // .populate({
-      //   path: "workspaces._id",
-      //   select: "name description"
-      // })
-      // .populate({
-      //   path: "bigdataflow._id",
-      //   select: "name description"
-      // })
-        .lean()
-        .exec();
+async function _getWithRelations(userID, config) {
+  const data = await userModel.getInstance().model
+    .findOne({
+      _id: userID
+    })
+  // .populate({
+  //   path: "workspaces._id",
+  //   select: "name description"
+  // })
+  // .populate({
+  //   path: "bigdataflow._id",
+  //   select: "name description"
+  // })
+    .lean()
+    .exec();
 
-      const InversRelationWorkspaces = await workspaceModel.getInstance().model.find({
-        'users.email': data.credentials.email
-      }).lean().exec();
-      // console.log('XXXX InversRelationWorkspaces',InversRelationWorkspaces)
-      data.workspaces = InversRelationWorkspaces;
-      data.workspaces = data.workspaces.filter(sift({
-        _id: {
-          $ne: null
-        }
-      }));
-
-      data.workspaces = data.workspaces.map(w => {
-        const userOfWorkspace = w.users.find(u => u.email === data.credentials.email);
-        // console.log("XXXX workspace",w)
-        return {
-          workspace: w,
-          role: userOfWorkspace.role
-        };
-      });
-      if (config.adminUsers) {
-        let adminUsers = config.adminUsers;
-        if (!Array.isArray(config.adminUsers)) {
-          adminUsers = [adminUsers];
-        }
-        if (adminUsers.includes(data.credentials.email)) {
-          data.admin = true;
-        } else {
-          data.admin = false;
-        }
-      }else {
-        data.admin = true;
-      }
-      // TODO REFACTORING and suppression
-      // if(data.bigdataflow!=undefined){
-      //   data.bigdataflow = data.bigdataflow.filter(sift({
-      //     _id: {
-      //       $ne: null
-      //     }
-      //   }));
-      //   Array.isArray(data.bigdataflow) ?
-      //   data.bigdataflow = data.bigdataflow.map(r => {
-      //     return {
-      //       bigdataflow: r._id,
-      //       role: r.role
-      //     };
-      //   }) : data.bigdataflow = []
-      // }else {
-      //   data.bigdataflow = []
-      // }
-
-
-      resolve(data);
-
-      // userModel.getInstance().model
-      //   .findOne({
-      //     _id: userID
-      //   })
-      //   // .populate({
-      //   //   path: "workspaces._id",
-      //   //   select: "name description"
-      //   // })
-      //   // .populate({
-      //   //   path: "bigdataflow._id",
-      //   //   select: "name description"
-      //   // })
-      //   .lean()
-      //   .exec(async (error, data) => {
-
-      //   });
-    } catch (e) {
-      reject(e);
+  const InversRelationWorkspaces = await workspaceModel.getInstance().model.find({
+    'users.email': data.credentials.email
+  }).lean().exec();
+  // console.log('XXXX InversRelationWorkspaces',InversRelationWorkspaces)
+  data.workspaces = InversRelationWorkspaces;
+  data.workspaces = data.workspaces.filter(sift({
+    _id: {
+      $ne: null
     }
+  }));
+
+  data.workspaces = data.workspaces.map(w => {
+    const userOfWorkspace = w.users.find(u => u.email === data.credentials.email);
+    // console.log("XXXX workspace",w)
+    return {
+      workspace: w,
+      role: userOfWorkspace.role
+    };
   });
+  if (config.adminUsers) {
+    let adminUsers = config.adminUsers;
+    if (!Array.isArray(config.adminUsers)) {
+      adminUsers = [adminUsers];
+    }
+    if (adminUsers.includes(data.credentials.email)) {
+      data.admin = true;
+    } else {
+      data.admin = false;
+    }
+  }else {
+    data.admin = true;
+  }
+  // TODO REFACTORING and suppression
+  // if(data.bigdataflow!=undefined){
+  //   data.bigdataflow = data.bigdataflow.filter(sift({
+  //     _id: {
+  //       $ne: null
+  //     }
+  //   }));
+  //   Array.isArray(data.bigdataflow) ?
+  //   data.bigdataflow = data.bigdataflow.map(r => {
+  //     return {
+  //       bigdataflow: r._id,
+  //       role: r.role
+  //     };
+  //   }) : data.bigdataflow = []
+  // }else {
+  //   data.bigdataflow = []
+  // }
+
+  return data;
+
+  // userModel.getInstance().model
+  //   .findOne({
+  //     _id: userID
+  //   })
+  //   // .populate({
+  //   //   path: "workspaces._id",
+  //   //   select: "name description"
+  //   // })
+  //   // .populate({
+  //   //   path: "bigdataflow._id",
+  //   //   select: "name description"
+  //   // })
+  //   .lean()
+  //   .exec(async (error, data) => {
+
+  //   });
 } // <= _getWithWorkspace
 
 function _userGraph(userId) {
@@ -414,116 +405,114 @@ function _update(user, mailChange) {
 
 // --------------------------------------------------------------------------------
 
-function _update_mainprocess(preData) {
+async function _update_mainprocess(preData) {
   // transformer le model business en model de persistance
-  return new Promise(async(resolve, reject) => {
-    const toUpdate = {};
-    if (preData.email) {
-      if (!toUpdate['$set']) {
-        toUpdate['$set'] = {};
-      }
-
-      toUpdate['$set']['credentials.email'] = preData.email;
+  const toUpdate = {};
+  if (preData.email) {
+    if (!toUpdate['$set']) {
+      toUpdate['$set'] = {};
     }
 
-    if (preData.hash_password) {
-      if (!toUpdate['$set']) {
-        toUpdate['$set'] = {};
-      }
+    toUpdate['$set']['credentials.email'] = preData.email;
+  }
 
-      toUpdate['$set']['credentials.hashed_password'] = preData.hash_password;
+  if (preData.hash_password) {
+    if (!toUpdate['$set']) {
+      toUpdate['$set'] = {};
     }
 
-    if (preData.credit) {
-      if (!toUpdate['$set']) {
-        toUpdate['$set'] = {};
-      }
+    toUpdate['$set']['credentials.hashed_password'] = preData.hash_password;
+  }
 
-      toUpdate['$set']['credit'] = preData.credit;
+  if (preData.credit) {
+    if (!toUpdate['$set']) {
+      toUpdate['$set'] = {};
     }
 
-    if (preData.job) {
-      if (!toUpdate['$set']) {
-        toUpdate['$set'] = {};
-      }
-      toUpdate['$set']['job'] = preData.job;
+    toUpdate['$set']['credit'] = preData.credit;
+  }
+
+  if (preData.job) {
+    if (!toUpdate['$set']) {
+      toUpdate['$set'] = {};
     }
+    toUpdate['$set']['job'] = preData.job;
+  }
 
 
-    if (preData.name) {
-      if (!toUpdate['$set']) {
-        toUpdate['$set'] = {};
-      }
-      toUpdate['$set']['name'] = preData.name;
+  if (preData.name) {
+    if (!toUpdate['$set']) {
+      toUpdate['$set'] = {};
     }
+    toUpdate['$set']['name'] = preData.name;
+  }
 
-    if (preData.society) {
-      if (!toUpdate['$set']) {
-        toUpdate['$set'] = {};
-      }
-      toUpdate['$set']['society'] = preData.society;
+  if (preData.society) {
+    if (!toUpdate['$set']) {
+      toUpdate['$set'] = {};
     }
+    toUpdate['$set']['society'] = preData.society;
+  }
 
-    if (preData.workspaces) {
-      if (!toUpdate['$set']) {
-        toUpdate['$set'] = {};
-      }
-      toUpdate['$set']['workspaces'] = preData.workspaces;
+  if (preData.workspaces) {
+    if (!toUpdate['$set']) {
+      toUpdate['$set'] = {};
     }
+    toUpdate['$set']['workspaces'] = preData.workspaces;
+  }
 
-    if (preData.bigdataflow) {
-      if (!toUpdate['$set']) {
-        toUpdate['$set'] = {};
-      }
-      toUpdate['$set']['bigdataflow'] = preData.bigdataflow;
+  if (preData.bigdataflow) {
+    if (!toUpdate['$set']) {
+      toUpdate['$set'] = {};
     }
+    toUpdate['$set']['bigdataflow'] = preData.bigdataflow;
+  }
 
-    if (preData.active) {
-      if (!toUpdate['$set']) {
-        toUpdate['$set'] = {};
-      }
-      toUpdate['$set']['active'] = preData.active;
+  if (preData.active) {
+    if (!toUpdate['$set']) {
+      toUpdate['$set'] = {};
     }
+    toUpdate['$set']['active'] = preData.active;
+  }
 
-    if (preData.resetpasswordtoken) {
-      if (!toUpdate['$set']) {
-        toUpdate['$set'] = {};
-      }
-      toUpdate['$set']['resetpasswordtoken'] = preData.resetpasswordtoken;
+  if (preData.resetpasswordtoken) {
+    if (!toUpdate['$set']) {
+      toUpdate['$set'] = {};
     }
+    toUpdate['$set']['resetpasswordtoken'] = preData.resetpasswordtoken;
+  }
 
-    if (preData.resetpasswordmdp) {
-      if (!toUpdate['$set']) {
-        toUpdate['$set'] = {};
-      }
-      toUpdate['$set']['resetpasswordmdp'] = preData.resetpasswordmdp;
+  if (preData.resetpasswordmdp) {
+    if (!toUpdate['$set']) {
+      toUpdate['$set'] = {};
     }
+    toUpdate['$set']['resetpasswordmdp'] = preData.resetpasswordmdp;
+  }
 
-    try {
-      const userData = await userModel.getInstance().model.findByIdAndUpdate(
-        preData._id,
-        toUpdate, {
-          new: true
-        }).exec();
-      resolve(userData);
-    } catch (error) {
-      reject(new Error.DataBaseProcessError(error));
-    }
-    // userModel.getInstance().model.findByIdAndUpdate(
-    //   preData._id,
-    //   toUpdate, {
-    //     new: true
-    //   },
-    //   function (err, userData) {
-    //     if (err) {
-    //       return reject(new Error.DataBaseProcessError(err))
-    //     } else {
+  try {
+    const userData = await userModel.getInstance().model.findByIdAndUpdate(
+      preData._id,
+      toUpdate, {
+        new: true
+      }).exec();
+    return userData;
+  } catch (error) {
+    throw new Error.DataBaseProcessError(error);
+  }
+  // userModel.getInstance().model.findByIdAndUpdate(
+  //   preData._id,
+  //   toUpdate, {
+  //     new: true
+  //   },
+  //   function (err, userData) {
+  //     if (err) {
+  //       return reject(new Error.DataBaseProcessError(err))
+  //     } else {
 
-    //       resolve(userData);
-    //     }
-    //   }
-    // );
-  });
+  //       resolve(userData);
+  //     }
+  //   }
+  // );
 } // <= _update_mainprocess
 
 // --------------------------------------------------------------------------------
@@ -710,42 +699,40 @@ function _hash_password(password, passwordConfirm) {
 
 // --------------------------------------------------------------------------------
 
-function _is_google_user(user) {
-  return new Promise(async(resolve, reject) => {
-    try {
-      const userData = await userModel.getInstance().model
-        .findOne({
-          'credentials.email': user.email
-        })
-        .exec();
-      if (userData) {
-        if (userData.googleId != null) {
-          resolve(true);
-        } else {
-          resolve(false);
-        }
+async function _is_google_user(user) {
+  try {
+    const userData = await userModel.getInstance().model
+      .findOne({
+        'credentials.email': user.email
+      })
+      .exec();
+    if (userData) {
+      if (userData.googleId != null) {
+        return true;
       } else {
-        resolve(false);
+        return false;
       }
-    } catch (error) {
-      return reject(new Error.DataBaseProcessError(error));
+    } else {
+      return false;
     }
-    // userModel.getInstance().model
-    //   .findOne({
-    //     "credentials.email": user.email
-    //   })
-    //   .exec(function (err, userData) {
-    //     if (userData) {
-    //       if (userData.googleId != null) {
-    //         resolve(true);
-    //       } else {
-    //         resolve(false);
-    //       }
-    //     } else {
-    //       resolve(false);
-    //     }
-    //   });
-  });
+  } catch (error) {
+    throw new Error.DataBaseProcessError(error);
+  }
+  // userModel.getInstance().model
+  //   .findOne({
+  //     "credentials.email": user.email
+  //   })
+  //   .exec(function (err, userData) {
+  //     if (userData) {
+  //       if (userData.googleId != null) {
+  //         resolve(true);
+  //       } else {
+  //         resolve(false);
+  //       }
+  //     } else {
+  //       resolve(false);
+  //     }
+  //   });
 } // <= _is_google_user
 
 // --------------------------------------------------------------------------------

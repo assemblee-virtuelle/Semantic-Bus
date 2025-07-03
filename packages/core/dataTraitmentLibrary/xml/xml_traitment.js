@@ -13,9 +13,9 @@ module.exports = {
 
 function _xml_traitment(sourceXML) {
   return new Promise((resolve, reject) => {
-  		xml2js.parseString(sourceXML, { attrkey: 'attr', 'trim': true }, (err, result) => {
-    		resolve(result);
-  		});
+    xml2js.parseString(sourceXML, { attrkey: 'attr', 'trim': true }, (err, result) => {
+      resolve(result);
+    });
   });
 }
 
