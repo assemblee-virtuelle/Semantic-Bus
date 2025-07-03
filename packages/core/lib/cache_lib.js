@@ -61,7 +61,7 @@ module.exports = {
   get: async function(component, resolveFrag, processId) {
     // console.log('CACHE processId', processId);
     const promiseOrchestrator = new this.PromiseOrchestrator();
-    
+
     const cachedData = await this.cacheModel.getInstance().model.findOne({
       _id: component._id
     }).lean().exec();
