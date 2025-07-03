@@ -9,17 +9,12 @@ module.exports = {
       resolve(file);
     });
   },
-  create: function(file) {
-    return new Promise(async(resolve, reject) => {
-      const fileModelInstance = fileModel.getInstance().model;
-      const fileObject = new fileModelInstance({ ...file });
-      resolve(await fileObject.save());
-    });
+  create: async function(file) {
+    const fileModelInstance = fileModel.getInstance().model;
+    const fileObject = new fileModelInstance({ ...file });
+    return await fileObject.save();
   },
-  remove: function(fileId) {
-    return new Promise(async(resolve, reject) => {
-      await certificateModel.getInstance().model.deleteOne({ _id: fileId });
-      resolve();
-    });
+  remove: async function(fileId) {
+    await fileModel.getInstance().model.deleteOne({ _id: fileId });
   }
 };

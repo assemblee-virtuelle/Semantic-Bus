@@ -58,54 +58,53 @@ module.exports = {
     }).lean().exec();
   },
 
-  get: function(component, resolveFrag, processId) {
+  get: async function(component, resolveFrag, processId) {
     // console.log('CACHE processId', processId);
     const promiseOrchestrator = new this.PromiseOrchestrator();
-    return new Promise(async(resolve, reject) => {
-      const cachedData = await this.cacheModel.getInstance().model.findOne({
-        _id: component._id
-      }).lean().exec();
+    
+    const cachedData = await this.cacheModel.getInstance().model.findOne({
+      _id: component._id
+    }).lean().exec();
 
-      let dataDefraged;
+    let dataDefraged;
 
-      if (cachedData != undefined) {
-        if (component.specificData.historyOut != true) {
-          if (cachedData.frag != undefined) {
-            if (resolveFrag == true) {
-              // console.log('_____resolveFrag_____', cachedData.frag)
-              // this.fragment_lib.displayFragTree(cachedData.frag)
-              // await new Promise(resolve => setTimeout(resolve, 1000));
-              try{
-                dataDefraged = await this.fragment_lib.getWithResolutionByBranch(cachedData.frag);
-              }catch(e) {
-                console.log('reding cache', e);
-              }
-              // console.log('___dataDefraged', dataDefraged[0])
-              // console.log('CACHE processId', processId);
-              await this.duplicateFile(dataDefraged, processId, null);
-            } else {
-              dataDefraged = await this.fragment_lib.get(cachedData.frag);
+    if (cachedData != undefined) {
+      if (component.specificData.historyOut != true) {
+        if (cachedData.frag != undefined) {
+          if (resolveFrag == true) {
+            // console.log('_____resolveFrag_____', cachedData.frag)
+            // this.fragment_lib.displayFragTree(cachedData.frag)
+            // await new Promise(resolve => setTimeout(resolve, 1000));
+            try{
+              dataDefraged = await this.fragment_lib.getWithResolutionByBranch(cachedData.frag);
+            }catch(e) {
+              console.log('reding cache', e);
             }
+            // console.log('___dataDefraged', dataDefraged[0])
+            // console.log('CACHE processId', processId);
+            await this.duplicateFile(dataDefraged, processId, null);
           } else {
-            reject(new Error('frag of cache doesn\'t exist'));
+            dataDefraged = await this.fragment_lib.get(cachedData.frag);
           }
         } else {
-          const arrayParam = cachedData.history.map(r => [r.frag]);
-          return await promiseOrchestrator.execute(this.fragment_lib, this.fragment_lib.getWithResolutionByBranch, arrayParam);
+          throw new Error('frag of cache doesn\'t exist');
         }
       } else {
-        resolve(undefined);
+        const arrayParam = cachedData.history.map(r => [r.frag]);
+        return await promiseOrchestrator.execute(this.fragment_lib, this.fragment_lib.getWithResolutionByBranch, arrayParam);
       }
-      if (dataDefraged != undefined) {
-        if (Array.isArray(dataDefraged)) {
-          resolve(dataDefraged.map(f => f));
-        } else {
-          resolve(dataDefraged);
-        }
+    } else {
+      return undefined;
+    }
+    if (dataDefraged != undefined) {
+      if (Array.isArray(dataDefraged)) {
+        return dataDefraged.map(f => f);
       } else {
-        reject(new Error('corrupted cache fragmentation'));
+        return dataDefraged;
       }
-    });
+    } else {
+      throw new Error('corrupted cache fragmentation');
+    }
   },
 
   duplicateFile: async function(data, processId, cacheId) {

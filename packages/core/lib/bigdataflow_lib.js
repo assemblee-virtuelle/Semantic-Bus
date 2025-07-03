@@ -138,9 +138,9 @@ function _get_all(userID, role) {
 
 // --------------------------------------------------------------------------------
 
-function _update(bigdataflow) {
-  return new Promise(async(resolve, reject) => {
-    bigdataflowModel.getInstance().model
+async function _update(bigdataflow) {
+  try {
+    const bigdataflowUpdated = await bigdataflowModel.getInstance().model
       .findOneAndUpdate({
         _id: bigdataflow._id
       },
@@ -153,14 +153,11 @@ function _update(bigdataflow) {
       }
       )
       .lean()
-      .exec((err, bigdataflowUpdated) => {
-        if (err) {
-          return reject(new Error.DataBaseProcessError(e));
-        } else {
-          resolve(bigdataflowUpdated);
-        }
-      });
-  });
+      .exec();
+    return bigdataflowUpdated;
+  } catch (err) {
+    throw new Error.DataBaseProcessError(err);
+  }
 } // <= _update
 
 // --------------------------------------------------------------------------------
