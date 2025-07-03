@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 
 module.exports = {
 
@@ -10,32 +10,32 @@ module.exports = {
   // --------------------------------------------------------------------------------
   // --------------------------------------------------------------------------------
 
-  work: function () {
-    this._migration_workspace_links()
+  work: function() {
+    this._migration_workspace_links();
   },
 
-  _migration_workspace_links: function () {
-    console.log('Votre migration commence')
+  _migration_workspace_links: function() {
+    console.log('Votre migration commence');
     try {
       this.workspace_model.find().populate({
         path: 'components',
         select: '-consumption_history'
-      }).lean().exec(function (err, workspaces) {
+      }).lean().exec((err, workspaces) => {
         // console.log(workspaces);
-        let workspace_promises = []
+        const workspace_promises = [];
         workspaces.forEach(workspace => {
           // console.log(this);
-          let promise = new Promise((resolve, reject) => {
-            workspace.links = []
+          const promise = new Promise((resolve, reject) => {
+            workspace.links = [];
             workspace.components.forEach(component => {
               component.connectionsAfter.forEach(connection => {
                 // console.log(component._id);
                 workspace.links.push({
                   source: component._id,
                   target: connection
-                })
-              })
-            })
+                });
+              });
+            });
 
             this.workspace_model.findOneAndUpdate({
               _id: workspace._id
@@ -43,24 +43,24 @@ module.exports = {
               new: true
             }).lean().exec((err, workspaceUpdated) => {
               if (err) {
-                reject(err)
+                reject(err);
               } else {
-                resolve(workspaceUpdated)
+                resolve(workspaceUpdated);
               }
-            })
-          })
-          workspace_promises.push(promise)
-        })
+            });
+          });
+          workspace_promises.push(promise);
+        });
         Promise.all(workspace_promises).then(workspaces => {
-          console.log('all links migrate')
+          console.log('all links migrate');
           // resolve(workspaces);
         }).catch(e => {
-          console.log(e)
+          console.log(e);
           // reject(e);
-        })
-      }.bind(this))
+        });
+      });
     } catch (e) {
-      console.log(e)
+      console.log(e);
     }
   }
-}
+};

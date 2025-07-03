@@ -1,4 +1,4 @@
-'use strict'
+'use strict';
 module.exports = {
   type: 'adresse.data.gouv.fr geolocaliser par lot',
   description: 'MAINTENANCE',
@@ -8,7 +8,7 @@ module.exports = {
     'http://semantic-bus.org/data/tags/middleComponents',
     'http://semantic-bus.org/data/tags/middleGeocodeComponents'
   ],
-  initComponent: function (entity) {
-    return entity
+  initComponent: function(entity) {
+    return entity;
   }
-}
+};

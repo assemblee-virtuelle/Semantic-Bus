@@ -1,9 +1,9 @@
-'use strict'
+'use strict';
 
-const { v4: uuidv4 } = require('uuid')
-const MODE = 'AMQP' // MODE could be AMQP when all workflow will migrate over V1
+const { v4: uuidv4 } = require('uuid');
+const MODE = 'AMQP'; // MODE could be AMQP when all workflow will migrate over V1
 class RestApiPost {
-  constructor () {
+  constructor() {
     // this.type = 'HTTP provider'
     // this.description = `Mettre à disposition une API HTTP; Permettre à votre workflow d'être appelé par une requete HTTP.`
     // this.editor = 'rest-api-post-editor'
@@ -285,4 +285,4 @@ class RestApiPost {
   // }
 }
 
-module.exports = new RestApiPost()
+module.exports = new RestApiPost();
