@@ -72,7 +72,7 @@ class DfobHelper {
       } else {
         const newDfobPathTab = [...dfobPathTab];
         const currentdFob = newDfobPathTab.shift();
-        const propertyExist = currentFlow.hasOwnProperty(currentdFob);
+        const propertyExist = Object.prototype.hasOwnProperty.call(currentFlow, currentdFob);
         const flowOfKey = propertyExist ? currentFlow[currentdFob] : undefined;
 
         if (propertyExist) {

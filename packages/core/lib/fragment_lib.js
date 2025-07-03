@@ -134,7 +134,7 @@ module.exports = {
   },
   // call without index not support parallel calls (PromiseOrchestrator for ex)
   addFragToArrayFrag: async function(frag, arrayFrag, index) {
-    const isObjectFrag = frag._id && !frag instanceof mongoose.Types.ObjectId;
+    const isObjectFrag = frag._id && !(frag instanceof mongoose.Types.ObjectId);
     const fragmentModelInstance = await this.fragmentModel.getInstance();
     const model = fragmentModelInstance.model;
     const fragObject = isObjectFrag ? frag : await model.findOne({ _id: frag }).exec();
@@ -194,7 +194,7 @@ module.exports = {
     }
     const fragmentModelInstance = await this.fragmentModel.getInstance();
     // console.log('frag',frag);
-    const isObjectFrag = frag._id && !frag instanceof mongoose.Types.ObjectId;
+    const isObjectFrag = frag._id && !(frag instanceof mongoose.Types.ObjectId);
 
     // console.log('fragmentModelInstance',fragmentModelInstance);
     const model = fragmentModelInstance.model;
@@ -465,7 +465,7 @@ module.exports = {
       throw new Error('frag have to be set');
     }
     console.time('copyFragUntilPath init' + '_' + frag);
-    const isObjectFrag = frag._id && !frag instanceof mongoose.Types.ObjectId;
+    const isObjectFrag = frag._id && !(frag instanceof mongoose.Types.ObjectId);
     const fragmentModelInstance = await this.fragmentModel.getInstance();
     const model = fragmentModelInstance.model;
     const fragToCopy = isObjectFrag ? frag : await model.findOne({ _id: frag }).exec();

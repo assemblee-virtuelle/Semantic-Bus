@@ -111,7 +111,7 @@ module.exports = {
   duplicateFile: async function(data, processId, cacheId) {
     // console.log('CACHE 2 processId', processId);
     for (const key in data) {
-      if (data.hasOwnProperty(key)) {
+      if (Object.prototype.hasOwnProperty.call(data, key)) {
         if (key === '_file') {
           // console.log(`Property _file found: ${data[key]}`);
           const file = await this.file_lib.get(data[key]);
