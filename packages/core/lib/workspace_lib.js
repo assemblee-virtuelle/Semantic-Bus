@@ -50,70 +50,63 @@ module.exports = {
   updateCurrentProcess: _updateCurrentProcess
 };
 
-function _createOrUpdateHistoriqueEnd(historique) {
-  return new Promise(async(resolve, reject) => {
-    if (historique.error != undefined) {
-      historique.error = {
-        message: historique.error.message
-      };
-    }
+async function _createOrUpdateHistoriqueEnd(historique) {
+  if (historique.error != undefined) {
+    historique.error = {
+      message: historique.error.message
+    };
+  }
 
-    try {
-      const persisted = await historiqueEndModel.getInstance().model.findOneAndUpdate({
-        processId: historique.processId,
-        componentId: historique.componentId
-      }, historique, {
-        new: true,
-        upsert: true
-      }).lean().exec();
-      resolve(persisted);
-    } catch (e) {
-      reject(new Error.DataBaseProcessError(e));
-    }
-  });
+  try {
+    const persisted = await historiqueEndModel.getInstance().model.findOneAndUpdate({
+      processId: historique.processId,
+      componentId: historique.componentId
+    }, historique, {
+      new: true,
+      upsert: true
+    }).lean().exec();
+    return persisted;
+  } catch (e) {
+    throw new Error.DataBaseProcessError(e);
+  }
 }
 
-function _addDataHistoriqueEnd(historicId, data) {
-  return new Promise(async(resolve, reject) => {
-    let frag;
-    try {
-      frag = await fragment_lib.persist(data);
-      const result = await historiqueEndModel.getInstance().model.findOneAndUpdate({
-        _id: historicId
-      }, {
-        frag: frag._id.toString()
-      }, {
-        new: true,
-        upsert: true
-      }).lean().exec();
-      resolve(result);
-    } catch (e) {
-      console.error(e);
-      reject(new Error.DataBaseProcessError(e));
-    }
-  });
+async function _addDataHistoriqueEnd(historicId, data) {
+  try {
+    const frag = await fragment_lib.persist(data);
+    const result = await historiqueEndModel.getInstance().model.findOneAndUpdate({
+      _id: historicId
+    }, {
+      frag: frag._id.toString()
+    }, {
+      new: true,
+      upsert: true
+    }).lean().exec();
+    return result;
+  } catch (e) {
+    console.error(e);
+    throw new Error.DataBaseProcessError(e);
+  }
 }
 
-function _addFragHistoriqueEnd(historicId, frag) {
-  return new Promise(async(resolve, reject) => {
-    try {
-      const result = await historiqueEndModel.getInstance().model.findOneAndUpdate({
-        _id: historicId
-      }, {
-        frag: (frag.id || frag._id).toString()
-      }, {
-        new: true,
-        upsert: true
-      }).lean().exec();
-      resolve(result);
-    } catch (e) {
-      console.error(e);
-      reject(new Error.DataBaseProcessError(e));
-    }
-  });
+async function _addFragHistoriqueEnd(historicId, frag) {
+  try {
+    const result = await historiqueEndModel.getInstance().model.findOneAndUpdate({
+      _id: historicId
+    }, {
+      frag: (frag.id || frag._id).toString()
+    }, {
+      new: true,
+      upsert: true
+    }).lean().exec();
+    return result;
+  } catch (e) {
+    console.error(e);
+    throw new Error.DataBaseProcessError(e);
+  }
 }
 
-function _createProcess(process) {
+async function _createProcess(process) {
   const processModelObject = processModel.getInstance().model({
     workflowId: process.workflowId,
     roundDate: process.roundDate,
@@ -123,78 +116,64 @@ function _createProcess(process) {
     steps: process.steps
   });
 
-  return new Promise(async(resolve, reject) => {
-    try {
-      const work = await processModelObject.save();
-      resolve(work);
-    } catch (error) {
-      reject(new Error.DataBaseProcessError(error));
-    }
-  });
+  try {
+    const work = await processModelObject.save();
+    return work;
+  } catch (error) {
+    throw new Error.DataBaseProcessError(error);
+  }
 }
 
-function _getCurrentProcess(processId) {
-  return new Promise(async(resolve, reject) => {
-    try {
-      const process = await processModel.getInstance().model.findById(processId).lean().exec();
-      resolve(process);
-    } catch (error) {
-      reject(new Error.DataBaseProcessError(error));
-    }
+async function _getCurrentProcess(processId) {
+  try {
+    const process = await processModel.getInstance().model.findById(processId).lean().exec();
+    return process;
+  } catch (error) {
+    throw new Error.DataBaseProcessError(error);
+  }
 
-    // processModel.getInstance().model.findOne(processId, (err, process) => {
-    //   if (err) {
-    //     reject(new Error.DataBaseProcessError(err))
-    //   } else {
-    //     resolve(process);
-    //   }
-    // });
-  });
+  // processModel.getInstance().model.findOne(processId, (err, process) => {
+  //   if (err) {
+  //     reject(new Error.DataBaseProcessError(err))
+  //   } else {
+  //     resolve(process);
+  //   }
+  // });
 }
 
-function _updateCurrentProcess(processId, workspaceId, state) {
-  return new Promise(async(resolve, reject) => {
-    try {
-      if (processId != undefined) {
-        await processModel.getInstance().model.findByIdAndUpdate(processId, {
-          state
-        });
-      }
-      if (state == 'stop' && workspaceId != undefined) {
-        await workspaceModel.getInstance().model.findByIdAndUpdate(workspaceId, {
-          status: 'stoped'
-        });
-      }
-      resolve(processId);
-    } catch (error) {
-      reject(error);
-    }
-  });
+async function _updateCurrentProcess(processId, workspaceId, state) {
+  if (processId != undefined) {
+    await processModel.getInstance().model.findByIdAndUpdate(processId, {
+      state
+    });
+  }
+  if (state == 'stop' && workspaceId != undefined) {
+    await workspaceModel.getInstance().model.findByIdAndUpdate(workspaceId, {
+      status: 'stoped'
+    });
+  }
+  return processId;
 }
 
 // --------------------------------------------------------------------------------
 
 // clenGarbage not use fragmentLib.cleanFrag and it is normal. clean gargabe don't have to depend of cleanFrag execution
-function _cleanGarbage() {
-  return new Promise(async(resolve, reject) => {
-    // console.log("_cleanGarbage Normal");
+async function _cleanGarbage() {
+  // console.log("_cleanGarbage Normal");
 
-    try {
-      // console.log('-------- START normal clean fragment garbage');
-      await fragmentModel.deleteManyFragments({
-        garbageTag: true
-      }, true);
-      // console.log('-------- END normal clean fragment garbage');
-    } catch (e) {
-      reject(new Error.DataBaseProcessError(e));
-    }
-    resolve();
-  });
+  try {
+    // console.log('-------- START normal clean fragment garbage');
+    await fragmentModel.deleteManyFragments({
+      garbageTag: true
+    }, true);
+    // console.log('-------- END normal clean fragment garbage');
+  } catch (e) {
+    throw new Error.DataBaseProcessError(e);
+  }
 }
 
-function _cleanGarbageForgotten() {
-  return new Promise(async(resolve, reject) => {
-    await _cleanGarbage();
+async function _cleanGarbageForgotten() {
+  await _cleanGarbage();
 
     // console.log("--- cleanGarbage Forgotten");
 
@@ -291,16 +270,15 @@ function _cleanGarbageForgotten() {
       console.log(`--- ${totalHistoriqueEndToRemove.length} historic removed`);
       console.log(`--- ${totalProcessToRemove.length} process removed`);
 
-      resolve(workspaces);
+      return workspaces;
     } catch (e) {
       console.error('cleanGarbageForgotten Canceled du to error');
-      reject(new Error.DataBaseProcessError(e));
+      throw new Error.DataBaseProcessError(e);
     }
-  });
 }
 
-function _cleanAllOldProcess() {
-  return new Promise(async(resolve, reject) => {
+async function _cleanAllOldProcess() {
+  try {
     const workspaces = await workspaceModel.getInstance().model.find({}).lean().exec();
     const keepedProcessesIds = [];
     for (const workflow of workspaces) {
@@ -310,48 +288,43 @@ function _cleanAllOldProcess() {
       // keepedProcessesIds = keepedProcessIds.concat(processNormalCleaned);
     }
 
-    resolve(workspaces);
-  }).catch(e => {
-    reject(new Error(e));
-  });
+    return workspaces;
+  } catch (e) {
+    throw new Error(e);
+  }
 }
 
-function _executeAllTimers(config) {
-  return new Promise(async(resolve, reject) => {
-    try {
-      const cacheComponents = await workspaceComponentModel.getInstance().model.find({
-        module: 'timer'
+async function _executeAllTimers(config) {
+  try {
+    const cacheComponents = await workspaceComponentModel.getInstance().model.find({
+      module: 'timer'
+    }).lean().exec();
+    // console.log(cacheComponents.length);
+    for (const component of cacheComponents) {
+      // console.log("component",component);
+      const wokspace = await workspaceModel.getInstance().model.findOne({
+        _id: component.workspaceId
       }).lean().exec();
-      // console.log(cacheComponents.length);
-      for (const component of cacheComponents) {
-        // console.log("component",component);
-        const wokspace = await workspaceModel.getInstance().model.findOne({
-          _id: component.workspaceId
-        }).lean().exec();
-        if (wokspace != null) {
-          // console.log("wokspace",wokspace.name,'-',wokspace.status);
-          // console.log("wokspace",wokspace.name,'-',wokspace.status);
-          const execution = await fetch(config.engineUrl + '/work-ask/' + component._id, {
-            method: 'POST'
-          });
-          const result = await execution.text();
-          // console.log("result",result);
-        } else {
-          'orphan timer';
-        }
+      if (wokspace != null) {
+        // console.log("wokspace",wokspace.name,'-',wokspace.status);
+        // console.log("wokspace",wokspace.name,'-',wokspace.status);
+        const execution = await fetch(config.engineUrl + '/work-ask/' + component._id, {
+          method: 'POST'
+        });
+        const result = await execution.text();
+        // console.log("result",result);
+      } else {
+        'orphan timer';
       }
-
-      resolve();
-    } catch (e) {
-      console.error(e);
-      reject(new Error.DataBaseProcessError(e));
     }
-  });
+  } catch (e) {
+    console.error(e);
+    throw new Error.DataBaseProcessError(e);
+  }
 }
 
-function _getOldProcessAndHistoriqueEnd(workflow) {
-  return new Promise(async(resolve, reject) => {
-    try {
+async function _getOldProcessAndHistoriqueEnd(workflow) {
+  try {
       const limit = workflow.limitHistoric || 1;
       const allProcesses = await processModel.getInstance().model.find({
         workflowId: workflow._id
@@ -393,22 +366,20 @@ function _getOldProcessAndHistoriqueEnd(workflow) {
       const keepedHistoriqueEnds = historiqueEnds.filter(h => keepedProcesses.some(p => p._id.equals(h.processId)));
       const oldHistoriqueEnds = historiqueEnds.filter(h => oldProcesses.some(p => p._id.equals(h.processId)));
 
-      resolve({
+      return {
         keepedProcesses,
         oldProcesses,
         keepedHistoriqueEnds,
         oldHistoriqueEnds
-      });
+      };
     } catch (e) {
-      reject(new Error.DataBaseProcessError(e));
+      throw new Error.DataBaseProcessError(e);
     }
-  });
 }
 
 
-function _cleanOldProcessByWorkflow(workflow) {
-  return new Promise(async(resolve, reject) => {
-    try {
+async function _cleanOldProcessByWorkflow(workflow) {
+  try {
       console.log(`--------- start clean By Workflow ${workflow.name}`);
       const {
         keepedProcesses,
@@ -447,106 +418,97 @@ function _cleanOldProcessByWorkflow(workflow) {
         }
       }).exec();
       console.log(`--------- end clean ${workflow.name}, ${oldHistoriqueEnds.length} historic removed and tag fragment as garbage, ${oldProcesses.length} process removed`);
-      resolve();
     } catch (e) {
-      reject(new Error.DataBaseProcessError(e));
+      throw new Error.DataBaseProcessError(e);
     }
-  });
 } // <= _cleanOldProcessByWorkflow
 
-function _markProcessAsResolved(process) {
-  return new Promise(async(resolve, reject) => {
-    try {
-      // console.log(`--------- start clean By process`,process)
-      const processMongoose = await processModel.getInstance().model.findOne({
-        _id: process._id
-      }).exec();
-      processMongoose.state = 'resolved';
-      process = await processMongoose.save();
-      resolve(process);
-    } catch (e) {
-      reject(new Error.DataBaseProcessError(e));
-    }
-  });
+async function _markProcessAsResolved(process) {
+  try {
+    // console.log(`--------- start clean By process`,process)
+    const processMongoose = await processModel.getInstance().model.findOne({
+      _id: process._id
+    }).exec();
+    processMongoose.state = 'resolved';
+    process = await processMongoose.save();
+    return process;
+  } catch (e) {
+    throw new Error.DataBaseProcessError(e);
+  }
 } // <= _cleanOldProcess
 
 // --------------------------------------------------------------------------------
 
-function _get_process_byWorkflow(workflowId) {
-  return new Promise(async(resolve, reject) => {
-    // console.log('--- TRACE 1');
+async function _get_process_byWorkflow(workflowId) {
+  // console.log('--- TRACE 1');
 
-    const workflow = await workspaceModel.getInstance().model.findOne({
-      _id: workflowId
-    })
-      .lean()
-      .exec();
-    if (workflow == null) {
-      return reject(new Error.EntityNotFoundError('workspaceModel'));
-    }
+  const workflow = await workspaceModel.getInstance().model.findOne({
+    _id: workflowId
+  })
+    .lean()
+    .exec();
+  if (workflow == null) {
+    throw new Error.EntityNotFoundError('workspaceModel');
+  }
 
-    const processes = await processModel.getInstance().model.find({
-      workflowId: workflow._id
-    }).sort({
-      timeStamp: -1
-    })
-      .limit(workflow.limitHistoric)
-      .lean()
-      .exec();
-    const historicPromises = [];
-    for (const process of processes) {
-      historicPromises.push(new Promise(async(resolve, reject) => {
-        const historiqueEnd = await historiqueEndModel.getInstance().model.find({
-          processId: process._id
-        }).select({
-          data: 0
-        }).lean().exec();
-        for (const step of process.steps) {
-          const historiqueEndFinded = historiqueEnd.filter(sift({
-            componentId: step.componentId
-          }))[0];
-          if (historiqueEndFinded != undefined) {
-            if (historiqueEndFinded.error != undefined) {
-              step.status = 'error';
-            } else {
-              step.status = 'resolved';
-            }
+  const processes = await processModel.getInstance().model.find({
+    workflowId: workflow._id
+  }).sort({
+    timeStamp: -1
+  })
+    .limit(workflow.limitHistoric)
+    .lean()
+    .exec();
+  
+  const historicPromises = [];
+  for (const process of processes) {
+    historicPromises.push((async () => {
+      const historiqueEnd = await historiqueEndModel.getInstance().model.find({
+        processId: process._id
+      }).select({
+        data: 0
+      }).lean().exec();
+      for (const step of process.steps) {
+        const historiqueEndFinded = historiqueEnd.filter(sift({
+          componentId: step.componentId
+        }))[0];
+        if (historiqueEndFinded != undefined) {
+          if (historiqueEndFinded.error != undefined) {
+            step.status = 'error';
           } else {
-            step.status = 'waiting';
+            step.status = 'resolved';
           }
+        } else {
+          step.status = 'waiting';
         }
-        resolve(process);
-      }));
-    }
-    Promise.all(historicPromises).then(data => {
-      resolve(data);
-    }).catch(e => {
-      console.error('--- REJECT ', e);
-      reject(e);
-    });
-  });
+      }
+      return process;
+    })());
+  }
+  
+  try {
+    const data = await Promise.all(historicPromises);
+    return data;
+  } catch (e) {
+    console.error('--- REJECT ', e);
+    throw e;
+  }
 } // <= _get_process_byWorkflow
 
 // --------------------------------------------------------------------------------
 
-function _update_simple(workspaceupdate) {
-  return new Promise(async(resolve, reject) => {
-    try {
-      const workspaceUpdate = await workspaceModel.getInstance().model
-        .findOneAndUpdate({
-          _id: workspaceupdate._id
-        },
-        workspaceupdate, {
-          upsert: true,
-          new: true
-        }
-        )
-        .exec();
-      resolve(workspaceUpdate);
-    } catch (error) {
-      reject(error);
+async function _update_simple(workspaceupdate) {
+  const workspaceUpdate = await workspaceModel.getInstance().model
+    .findOneAndUpdate({
+      _id: workspaceupdate._id
+    },
+    workspaceupdate, {
+      upsert: true,
+      new: true
     }
-  });
+    )
+    .exec();
+  return workspaceUpdate;
 } // <= _update_simple
 
 // --------------------------------------------------------------------------------
@@ -583,99 +545,81 @@ function check_workspace_data(workspaceData) {
 // --------------------------------------------------------------------------------
 
 async function _create(userId, workspaceData) {
-  let workspaceDataCheck;
-  try {
-    workspaceDataCheck = await check_workspace_data(workspaceData);
-  } catch (e) {
-    throw e;
-  }
+  const workspaceDataCheck = await check_workspace_data(workspaceData);
 
-  return new Promise(async(resolve, reject) => {
-    try {
-      const user = await userModel.getInstance().model.findByIdAndUpdate({
-        _id: userId
-      });
-
-      const workspaceModelInstance = workspaceModel.getInstance().model;
-      const workspace = new workspaceModelInstance({
-        name: workspaceDataCheck.name,
-        limitHistoric: workspaceDataCheck.limitHistoric,
-        description: workspaceDataCheck.description,
-        components: workspaceDataCheck.components[0],
-        users: [{
-          email: user.credentials.email,
-          role: 'owner'
-        }]
-      });
-      const savedWorkspace = await workspace.save();
-      resolve(savedWorkspace);
-    } catch (error) {
-      reject(error);
-    }
+  const user = await userModel.getInstance().model.findByIdAndUpdate({
+    _id: userId
   });
+
+  const workspaceModelInstance = workspaceModel.getInstance().model;
+  const workspace = new workspaceModelInstance({
+    name: workspaceDataCheck.name,
+    limitHistoric: workspaceDataCheck.limitHistoric,
+    description: workspaceDataCheck.description,
+    components: workspaceDataCheck.components[0],
+    users: [{
+      email: user.credentials.email,
+      role: 'owner'
+    }]
+  });
+  const savedWorkspace = await workspace.save();
+  return savedWorkspace;
 } // <= _create
 
 // --------------------------------------------------------------------------------
 
-function _destroy(userId, workspaceId) {
-  return new Promise(async(resolve, reject) => {
-    try {
-      const user = await userModel.getInstance().model.findByIdAndUpdate({
-        _id: userId
-      }, {
-        $pull: {
-          workspaces: {
-            _id: workspaceId
-          }
-        }
-      });
-      const workspace = await workspaceModel.getInstance().model.find({
+async function _destroy(userId, workspaceId) {
+  const user = await userModel.getInstance().model.findByIdAndUpdate({
+    _id: userId
+  }, {
+    $pull: {
+      workspaces: {
         _id: workspaceId
-      });
-      if (workspace[0]) {
-        if (
-          workspace[0].components != undefined ||
-          workspace[0].components != null
-        ) {
-          workspace[0].components.forEach(async(workspaceComp) => {
-            // if (config.quietLog != true) {}
-            await workspaceComponentModel.getInstance().model.deleteOne({
-              _id: workspaceComp
-            });
-          });
-        }
       }
-
-      await workspaceModel.getInstance().model.findOneAndDelete({
-        _id: workspaceId
-      });
-      resolve(workspace);
-    } catch (error) {
-      reject(error);
     }
   });
+  const workspace = await workspaceModel.getInstance().model.find({
+    _id: workspaceId
+  });
+  if (workspace[0]) {
+    if (
+      workspace[0].components != undefined ||
+      workspace[0].components != null
+    ) {
+      workspace[0].components.forEach(async(workspaceComp) => {
+        // if (config.quietLog != true) {}
+        await workspaceComponentModel.getInstance().model.deleteOne({
+          _id: workspaceComp
+        });
+      });
+    }
+  }
+
+  await workspaceModel.getInstance().model.findOneAndDelete({
+    _id: workspaceId
+  });
+  return workspace;
 } // <= _destroy
 
 // --------------------------------------------------------------------------------
 
-function _get_all(userID, role, config) {
-  return new Promise(async(resolve, reject) => {
-    // let data = await  userModel.getInstance().model
-    // .findOne({
-    //   _id: userID
-    // })
-    // // .populate({
-    // //   path: "workspaces._id",
-    // //   select: "name description updatedAt status"
-    // // })
-    // .lean()
-    // .exec();
+async function _get_all(userID, role, config) {
+  // let data = await  userModel.getInstance().model
+  // .findOne({
+  //   _id: userID
+  // })
+  // // .populate({
+  // //   path: "workspaces._id",
+  // //   select: "name description updatedAt status"
+  // // })
+  // .lean()
+  // .exec();
 
-    const data = await user_lib.getWithRelations(userID, config);
+  const data = await user_lib.getWithRelations(userID, config);
 
-    if (!data) {
-      reject(new Error.EntityNotFoundError(`user ${userID} not exists`));
-    } else {
+  if (!data) {
+    throw new Error.EntityNotFoundError(`user ${userID} not exists`);
+  } else {
       let workspaces;
 
       if (data.admin) {
@@ -718,7 +662,7 @@ function _get_all(userID, role, config) {
       const ProcessPromiseArray = [];
 
       workspaces.forEach((workspace) => {
-        const ProcessPromise = new Promise(async(resolve, reject) => {
+        const ProcessPromise = (async () => {
           // console.log('workspace',workspace);
           if (workspace.status == undefined) {
             const processes = await processModel.getInstance().model.find({
@@ -758,24 +702,23 @@ function _get_all(userID, role, config) {
                 }
               }
               this.updateSimple(workspace);
-              resolve(workspace);
+              return workspace;
             } else {
               workspace.status = 'no-start';
               this.updateSimple(workspace);
-              resolve(workspace);
+              return workspace;
             }
           } else {
-            resolve(workspace);
+            return workspace;
           }
-        });
+        })();
         ProcessPromiseArray.push(ProcessPromise);
       });
 
       await Promise.all(ProcessPromiseArray);
 
-      resolve(workspaces);
+      return workspaces;
     }
-  });
 } // <= _get_all_by_role
 
 // --------------------------------------------------------------------------------
@@ -792,37 +735,35 @@ function _update(workspace) {
   });
 } // <= _update
 
-function _update_mainprocess(preData) {
-  return new Promise(async(resolve, reject) => {
-    let workspaceCheck;
-    try {
-      workspaceCheck = await check_workspace_data(preData);
-    } catch (e) {
-      console.log(e);
-      return reject(e);
-    }
-    // console.log(workspaceCheck)
-    const componentUpdated = await workspaceModel.getInstance().model
-      .findOneAndUpdate({
-        _id: workspaceCheck._id
-      },
-      workspaceCheck, {
-        upsert: true,
-        new: true,
-        fields: {
-          consumption_history: 0
-        }
+async function _update_mainprocess(preData) {
+  let workspaceCheck;
+  try {
+    workspaceCheck = await check_workspace_data(preData);
+  } catch (e) {
+    console.log(e);
+    throw e;
+  }
+  // console.log(workspaceCheck)
+  const componentUpdated = await workspaceModel.getInstance().model
+    .findOneAndUpdate({
+      _id: workspaceCheck._id
+    },
+    workspaceCheck, {
+      upsert: true,
+      new: true,
+      fields: {
+        consumption_history: 0
       }
-      )
-      .populate({
-        path: 'components',
-        select: '-consumption_history'
-      })
-      .lean()
-      .exec();
+    }
+    )
+    .populate({
+      path: 'components',
+      select: '-consumption_history'
+    })
+    .lean()
+    .exec();
 
-    resolve(componentUpdated);
-  });
+  return componentUpdated;
 } // <= _update_mainprocess
 
 // --------------------------------------------------------------------------------
@@ -891,9 +832,9 @@ function _get_workspace(workspace_id) {
           }]
         }));
 
-        const ProcessPromise = new Promise(async(resolve, reject) => {
+        const ProcessPromise = (async () => {
           if (workspace.status != undefined) {
-            resolve(workspace);
+            return workspace;
           } else {
             const processes = await processModel.getInstance().model.find({
               workflowId: workspace._id
@@ -921,7 +862,7 @@ function _get_workspace(workspace_id) {
                   if (historiqueEndFinded != undefined) {
                     if (historiqueEndFinded.error != undefined) {
                       workspace.status = 'error';
-                      return resolve(workspace);
+                      return workspace;
                     } else {
                       workspace.status = 'resolved';
                     }
@@ -931,13 +872,13 @@ function _get_workspace(workspace_id) {
                 }
               }
 
-              resolve(workspace);
+              return workspace;
             } else {
               workspace.status = 'no-start';
-              resolve(workspace);
+              return workspace;
             }
           }
-        });
+        })();
         await ProcessPromise;
         resolve(workspace);
       })
@@ -949,39 +890,37 @@ function _get_workspace(workspace_id) {
 
 // --------------------------------------------------------------------------------
 
-function _get_workspace_graph_data(workspaceId) {
-  return new Promise(async(resolve, reject) => {
-    const result = await historiqueEndModel.getInstance().model.aggregate(
-      [{
-        $match: {
-          workflowId: workspaceId
-        }
-      },
-      {
-        $group: {
-          _id: {
-            workflowComponentId: '$workflowComponentId',
-            roundDate: '$roundDate'
-          },
-          totalPrice: {
-            $sum: '$recordPrice'
-          },
-          totalMo: {
-            $sum: '$moCount'
-          },
-          components: {
-            $push: '$$ROOT'
-          }
+async function _get_workspace_graph_data(workspaceId) {
+  const result = await historiqueEndModel.getInstance().model.aggregate(
+    [{
+      $match: {
+        workflowId: workspaceId
+      }
+    },
+    {
+      $group: {
+        _id: {
+          workflowComponentId: '$workflowComponentId',
+          roundDate: '$roundDate'
+        },
+        totalPrice: {
+          $sum: '$recordPrice'
+        },
+        totalMo: {
+          $sum: '$moCount'
+        },
+        components: {
+          $push: '$$ROOT'
         }
       }
-      ]);
-    try {
-      const graph = graphTraitement.formatDataWorkspaceGraph(result);
-      resolve(graph);
-    } catch (e) {
-      reject(new Error.InternalProcessError(e));
     }
-  });
+    ]);
+  try {
+    const graph = graphTraitement.formatDataWorkspaceGraph(result);
+    return graph;
+  } catch (e) {
+    throw new Error.InternalProcessError(e);
+  }
 } // <= _get_workspace_graph_data
 
 // --------------------------------------------------------------------------------

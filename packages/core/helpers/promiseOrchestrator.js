@@ -121,28 +121,26 @@ class PromiseExecutor {
     this.index = index;
   }
 
-  execute() {
+  async execute() {
     // console.log('PromiseExecutor : execute');
 
-    return new Promise(async(resolve, reject) => {
-      const currentParams = this.paramArray[this.index];
-      // console.log('apply',currentParams);
-      try {
-        const currentOut = await this.workFunction.apply(this.context, currentParams);
-        resolve({
-          index: this.index,
-          value: currentOut
-        });
-      } catch (e) {
-        console.error(e);
-        resolve({
-          index: this.index,
-          value: {
-            'error': e.message
-          }
-        });
-      }
-    });
+    const currentParams = this.paramArray[this.index];
+    // console.log('apply',currentParams);
+    try {
+      const currentOut = await this.workFunction.apply(this.context, currentParams);
+      return {
+        index: this.index,
+        value: currentOut
+      };
+    } catch (e) {
+      console.error(e);
+      return {
+        index: this.index,
+        value: {
+          'error': e.message
+        }
+      };
+    }
   }
 }
 

@@ -97,7 +97,7 @@ function _rdf_traitmentRDFA(dataHTMLRDFA) {
 }
 
 async function _json_to_rdf(jsonData, header) {
-  const rdfSerialise = new Promise(async(resolve, reject) => {
+  return new Promise((resolve, reject) => {
     let result = '';
 
     const myParser = new JsonLdParser();
@@ -133,7 +133,6 @@ async function _json_to_rdf(jsonData, header) {
         ds_scriber.end();
       });
   });
-  return await rdfSerialise;
 }
 
 
