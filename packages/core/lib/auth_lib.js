@@ -10,7 +10,8 @@ const userModel = require('../models/user_model');
 const authenticationModel = require('../models/auth_model');
 require('../Oauth/google_auth_strategy')(passport);
 /** @type Configuration */
-const config = require('@semantic-bus/main/config.json');
+const getConfiguration = require('../getConfiguration.js');
+const config = getConfiguration() || { secret: 'test-secret-for-testing' }; // Fallback pour les tests
 const Error = require('../helpers/error.js');
 
 /** @typedef {{authentication: AuthenticationParam}} BodyParam */
@@ -29,28 +30,28 @@ class AuthLib {
   async create(bodyParams) {
     // Validate authentication parameters
     if (!bodyParams || !bodyParams.authentication) {
-      throw new Error.PropertyValidationError('authentication object is required')
+      throw new Error.PropertyValidationError('authentication object is required');
     }
-    
+
     if (!bodyParams.authentication.email) {
-      throw new Error.PropertyValidationError('email is required')
+      throw new Error.PropertyValidationError('email is required');
     }
-    
+
     if (!bodyParams.authentication.password) {
-      throw new Error.PropertyValidationError('password is required')
+      throw new Error.PropertyValidationError('password is required');
     }
 
     // Check if user is a Google user (should use OAuth instead)
-    const isGoogleUser = await this._is_google_user(bodyParams.authentication)
+    const isGoogleUser = await this._is_google_user(bodyParams.authentication);
     if (isGoogleUser) {
-      throw new Error.PropertyValidationError('mail ( Utilisateur Google ) ')
+      throw new Error.PropertyValidationError('mail ( Utilisateur Google ) ');
     }
 
     // Authenticate user (verify email and password)
-    const userData = await this._authenticateUser(bodyParams.authentication)
-    
+    const userData = await this._authenticateUser(bodyParams.authentication);
+
     // Generate authentication token
-    return await this._create_mainprocess(userData, bodyParams.authentication)
+    return await this._create_mainprocess(userData, bodyParams.authentication);
   }
 
   /**
@@ -65,13 +66,13 @@ class AuthLib {
         'credentials.email': authenticationParams.email
       })
       .lean()
-      .exec()
-    
+      .exec();
+
     if (!user) {
-      throw new Error.EntityNotFoundError('User not found')
+      throw new Error.EntityNotFoundError('User not found');
     }
-    
-    return user
+
+    return user;
   }
 
   /**
@@ -83,9 +84,9 @@ class AuthLib {
    */
   async _verifyPassword(authenticationParams, userData) {
     try {
-      return await bcrypt.compare(authenticationParams.password, userData.credentials.hashed_password)
+      return await bcrypt.compare(authenticationParams.password, userData.credentials.hashed_password);
     } catch (error) {
-      throw new Error.PropertyValidationError('password')
+      throw new Error.PropertyValidationError('password');
     }
   }
 
@@ -97,16 +98,16 @@ class AuthLib {
    */
   async _authenticateUser(authenticationParams) {
     // Find user by email
-    const userData = await this._findUserByEmail(authenticationParams)
-    
+    const userData = await this._findUserByEmail(authenticationParams);
+
     // Verify password
-    const isPasswordValid = await this._verifyPassword(authenticationParams, userData)
-    
+    const isPasswordValid = await this._verifyPassword(authenticationParams, userData);
+
     if (!isPasswordValid) {
-      throw new Error.PropertyValidationError('password')
+      throw new Error.PropertyValidationError('password');
     }
-    
-    return userData
+
+    return userData;
   }
 
 
@@ -117,13 +118,12 @@ class AuthLib {
    * @private
    */
   _create_mainprocess(user) {
-
     const payload = {
       exp: moment().add(14, 'days').unix(),
       iat: moment().unix(),
       iss: user._id,
-      subject: user.googleid,
-    }
+      subject: user.googleid
+    };
 
     const token = jwt.encode(payload, config.secret);
 
@@ -137,7 +137,7 @@ class AuthLib {
       }
     });
     return authentication.save()
-      .catch(err => Promise.reject(TypeError(err)))
+      .catch(err => Promise.reject(TypeError(err)));
   }
 
   /**
@@ -157,13 +157,12 @@ class AuthLib {
    * @public
    */
   google_auth_callbackURL(router) {
-    const url = '../../ihm/login.html?google_token='
+    const url = '../../ihm/login.html?google_token=';
     router.get('/oauth-callback', passport.authenticate('google', {
       failureRedirect: '../../ihm/login.html',
       session: false
     }), (req, res) => {
-
-      console.log('res.req.user', res.req.user)
+      console.log('res.req.user', res.req.user);
       res.redirect(url + res.req.user.googleToken);
     });
   }
@@ -184,14 +183,14 @@ class AuthLib {
           .exec()
           .then(async user => {
             user.googleToken = null;
-            user.active = true
+            user.active = true;
             const user_update = userModel.getInstance().model.findByIdAndUpdate(user._id, user).lean().exec();
             const payload = {
               exp: moment().add(14, 'days').unix(),
               iat: moment().unix(),
               iss: user._id,
-              subject: user.googleid,
-            }
+              subject: user.googleid
+            };
             const token = jwt.encode(payload, config.secret);
             res.send({
               user: user_update,
@@ -199,13 +198,13 @@ class AuthLib {
             });
           })
           .catch((e) => {
-            console.error(e)
-            res.sendStatus('401')
-          })
+            console.error(e);
+            res.sendStatus('401');
+          });
       } else {
         res.sendStatus('401');
       }
-    })
+    });
   }
 
   // <-------------------------------------------  Security  ------------------------------------------->
@@ -221,7 +220,7 @@ class AuthLib {
         'credentials.email': user.email
       })
       .exec()
-      .then(userData => !!userData && userData.googleId != null)
+      .then(userData => !!userData && userData.googleId != null);
   }
 
   /**
@@ -245,14 +244,14 @@ class AuthLib {
    */
   require_token(token) {
     return new Promise((resolve, reject) => {
-      ////console.log(token);
+      // //console.log(token);
       try {
         if (token == null) {
-          resolve(false)
+          resolve(false);
         } else {
-          ////console.log("in service jwt", token );
-          const decodedToken = jwt.decode(token, config.secret)
-          ////console.log(decodedToken)
+          // //console.log("in service jwt", token );
+          const decodedToken = jwt.decode(token, config.secret);
+          // //console.log(decodedToken)
           if (token.exp <= Date.now()) {
             resolve(false);
           } else {
@@ -260,9 +259,9 @@ class AuthLib {
           }
         }
       } catch (e) {
-        reject(false)
+        reject(false);
       }
-    })
+    });
   }
 
   /**
@@ -273,30 +272,28 @@ class AuthLib {
    * @public
    */
   security_API(req, res, next) {
-    const token = req.body.token || req.query.token || req.headers['authorization']
+    const token = req.body.token || req.query.token || req.headers['authorization'];
     let decodedToken;
     if (!token) {
       res.statusMessage = 'Unauthorized: Token not found';
       res.sendStatus('401').end();
     } else {
       try {
-        token.split("");
+        token.split('');
         decodedToken = jwt.decode(token.substring(4, token.length), config.secret);
-        if (!decodedToken.iss || new Date(decodedToken.exp*1000) < Date.now()) {
+        if (!decodedToken.iss || new Date(decodedToken.exp * 1000) < Date.now()) {
           res.statusMessage = 'Unauthorized : Token is either invalid or expired';
           res.sendStatus('401');
         } else {
-          next()
+          next();
         }
       } catch(e) {
         res.statusMessage = 'Unauthorized: Invalid token';
         res.sendStatus('401');
         return;
       }
-
-
     }
   }
 }
 
-module.exports = new AuthLib()
+module.exports = new AuthLib();
