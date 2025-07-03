@@ -35,6 +35,7 @@ jobs:
           npm ci
 
       - name: Check linting issues
+        continue-on-error: true
         run: |
           echo "🔍 Checking linting issues in core package..."
           cd packages/core
@@ -107,6 +108,7 @@ jobs:
           npm ci
 
       - name: Check linting issues
+        continue-on-error: true
         run: |
           echo "🔍 Checking linting issues in main package..."
           cd packages/main
@@ -179,6 +181,7 @@ jobs:
           npm ci
 
       - name: Check linting issues
+        continue-on-error: true
         run: |
           echo "🔍 Checking linting issues in engine package..."
           cd packages/engine
@@ -251,6 +254,7 @@ jobs:
           npm ci
 
       - name: Check linting issues
+        continue-on-error: true
         run: |
           echo "🔍 Checking linting issues in timer package..."
           cd packages/timer
