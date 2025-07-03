@@ -1,7 +1,6 @@
 const client = require('./scylla_client');
 
-const createFileTable = async () => {
-
+const createFileTable = async() => {
   const checkTableExistsQuery = `
     SELECT table_name 
     FROM system_schema.tables 
@@ -25,11 +24,11 @@ const createFileTable = async () => {
 
   // Individual column addition queries
   const columnQueries = [
-    "ALTER TABLE mykeyspace.file ADD binary blob",
-    "ALTER TABLE mykeyspace.file ADD frag UUID",
-    "ALTER TABLE mykeyspace.file ADD filename text",
-    "ALTER TABLE mykeyspace.file ADD cacheId text",
-    "ALTER TABLE mykeyspace.file ADD processId text"
+    'ALTER TABLE mykeyspace.file ADD binary blob',
+    'ALTER TABLE mykeyspace.file ADD frag UUID',
+    'ALTER TABLE mykeyspace.file ADD filename text',
+    'ALTER TABLE mykeyspace.file ADD cacheId text',
+    'ALTER TABLE mykeyspace.file ADD processId text'
   ];
 
   try {
@@ -43,7 +42,7 @@ const createFileTable = async () => {
 
     // Retrieve existing columns
     const existingColumnsResult = await client.execute(
-      "SELECT column_name FROM system_schema.columns WHERE keyspace_name = 'mykeyspace' AND table_name = 'file'"
+      'SELECT column_name FROM system_schema.columns WHERE keyspace_name = \'mykeyspace\' AND table_name = \'file\''
     );
     const existingColumns = new Set(existingColumnsResult.rows.map(row => row.column_name));
 
@@ -63,16 +62,15 @@ const createFileTable = async () => {
 
     // Log the list of existing tables
     try {
-      const tablesResult = await client.execute("SELECT table_name FROM system_schema.tables WHERE keyspace_name = 'mykeyspace'");
+      const tablesResult = await client.execute('SELECT table_name FROM system_schema.tables WHERE keyspace_name = \'mykeyspace\'');
       const tables = tablesResult.rows.map(row => row.table_name);
       console.log('Tables in Scylla (Cassandra) mykeyspace:', tables);
     } catch (err) {
       console.error('Error retrieving list of tables:', err);
     }
 
-    
-    console.log('File table setup completed successfully');
 
+    console.log('File table setup completed successfully');
   } catch (error) {
     console.error('Error setting up file table:', error);
     throw error;
@@ -80,6 +78,6 @@ const createFileTable = async () => {
 };
 
 
-module.exports = { 
-  createFileTable,
-}; 
+module.exports = {
+  createFileTable
+};

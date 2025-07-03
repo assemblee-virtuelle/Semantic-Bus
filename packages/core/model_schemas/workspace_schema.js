@@ -1,21 +1,21 @@
 'use strict';
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 // var workspaceComponent = require('./workspace_component_schema')
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
-var WorkspaceSchema = mongoose.Schema({
+const WorkspaceSchema = mongoose.Schema({
   name: String,
   description: String,
   components: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: "workspaceComponent"
+    ref: 'workspaceComponent'
   }],
   dates: {
-    created_at: Date,
+    created_at: Date
   },
-  rowid:{
+  rowid: {
     type: Number,
     default: null
   },
@@ -26,15 +26,15 @@ var WorkspaceSchema = mongoose.Schema({
   }],
   users: [{
     email: String,
-    role: String,
+    role: String
   }],
-  limitHistoric:{
+  limitHistoric: {
     type: Number,
     default: 1
   },
-  engineVersion:String,
-  status: String,
-},{ timestamps: true }, { minimize: false });
+  engineVersion: String,
+  status: String
+}, { timestamps: true }, { minimize: false });
 
 
 // --------------------------------------------------------------------------------

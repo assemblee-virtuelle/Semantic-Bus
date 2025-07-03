@@ -27,7 +27,6 @@ class Fragment {
     this.index = lowerCamelData.index;
     this.maxIndex = lowerCamelData.maxIndex;
   }
-
 }
 
 module.exports = Fragment;

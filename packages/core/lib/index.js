@@ -1,13 +1,13 @@
 'use strict';
 
-var user = require('./user_lib');
-var authentification = require('./auth_lib');
-var inscription = require('./inscription_lib');
-var workspace = require('./workspace_lib')
-var workspaceComponent = require('./workspace_component_lib')
-var error = require('./error_lib')
+const user = require('./user_lib');
+const authentification = require('./auth_lib');
+const inscription = require('./inscription_lib');
+const workspace = require('./workspace_lib');
+const workspaceComponent = require('./workspace_component_lib');
+const error = require('./error_lib');
 // var fragment = require('./fragment_lib')
-var fragment = require('./fragment_lib_scylla')
+const fragment = require('./fragment_lib_scylla');
 
 
 // --------------------------------------------------------------------------------
@@ -20,6 +20,6 @@ module.exports = {
   inscription: inscription,
   workspace: workspace,
   workspaceComponent: workspaceComponent,
-  fragment : fragment,
-  error:error
-}
+  fragment: fragment,
+  error: error
+};

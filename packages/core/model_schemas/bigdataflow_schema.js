@@ -1,9 +1,9 @@
 'use strict';
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 // var workspaceComponent = require('./workspace_component_schema')
 
 // --------------------------------------------------------------------------------
-var BigdataflowSchema = mongoose.Schema({
+const BigdataflowSchema = mongoose.Schema({
   name: String,
   description: String,
   componentIn: {
@@ -13,8 +13,8 @@ var BigdataflowSchema = mongoose.Schema({
     editor: String,
     icon: String,
     specificData: {
-        type: Object,
-        default: {}
+      type: Object,
+      default: {}
     }
   },
   componentOut: {
@@ -24,23 +24,23 @@ var BigdataflowSchema = mongoose.Schema({
     editor: String,
     icon: String,
     specificData: {
-        type: Object,
-        default: {}
+      type: Object,
+      default: {}
     }
   },
-  workflowUr:String,
+  workflowUr: String,
   dates: {
-    created_at: Date,
+    created_at: Date
   },
-  rowid:{
+  rowid: {
     type: Number,
     default: null
   },
   users: [{
     email: String,
-    role: String,
+    role: String
   }]
-},{ timestamps: true }, { minimize: false });
+}, { timestamps: true }, { minimize: false });
 
 // --------------------------------------------------------------------------------
 

@@ -1,39 +1,39 @@
 'use strict';
 
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-var FragmentSchema = mongoose.Schema({
+const FragmentSchema = mongoose.Schema({
   data: Object,
-  originFrag : {
+  originFrag: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "fragment"
+    ref: 'fragment'
   },
-  rootFrag : {
+  rootFrag: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "fragment"
+    ref: 'fragment'
   },
-  branchOriginFrag : {
+  branchOriginFrag: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "fragment"
+    ref: 'fragment'
   },
-  branchFrag : {
+  branchFrag: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "fragment"
+    ref: 'fragment'
   },
-  frags : [{
+  frags: [{
     type: mongoose.Schema.Types.ObjectId,
-    ref: "fragment"
-  }],garbageTag : {
-    type : Boolean
+    ref: 'fragment'
+  }], garbageTag: {
+    type: Boolean
   },
-  garbageProcess : {
-    type : Number
+  garbageProcess: {
+    type: Number
   }
-}, { minimize: false} );
+}, { minimize: false } );
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------

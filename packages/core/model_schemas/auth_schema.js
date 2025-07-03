@@ -1,12 +1,12 @@
 'use strict';
 
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-var AuthenticationSchema = mongoose.Schema({
+const AuthenticationSchema = mongoose.Schema({
   token: {
     type: String,
     required: true
@@ -19,7 +19,6 @@ var AuthenticationSchema = mongoose.Schema({
     created_at: Date
   }
 });
-
 
 
 // --------------------------------------------------------------------------------

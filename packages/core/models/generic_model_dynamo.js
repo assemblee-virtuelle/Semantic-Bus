@@ -1,14 +1,14 @@
 const { v4: uuidv4 } = require('uuid');
 const dynamoDBClientsPromise = require('../db/dynamodb_client');
 const zlib = require('zlib');
-const { PutCommand, GetCommand, UpdateCommand, QueryCommand, ScanCommand, DeleteCommand } = require("@aws-sdk/lib-dynamodb");
-const { TransactWriteItemsCommand} = require("@aws-sdk/client-dynamodb");
+const { PutCommand, GetCommand, UpdateCommand, QueryCommand, ScanCommand, DeleteCommand } = require('@aws-sdk/lib-dynamodb');
+const { TransactWriteItemsCommand } = require('@aws-sdk/client-dynamodb');
 const Spinnies = require('spinnies');
 
 class FragmentModel {
   /**
    * Constructs a new FragmentModel instance.
-   * 
+   *
    * @param {string} tableName - The name of the DynamoDB table.
    * @param {Array<Object>} fields - An array of field definitions.
    * @param {Function} model - The model constructor function.
@@ -209,11 +209,11 @@ class FragmentModel {
     searchCriteria = this.processCriteriaAndOptions(searchCriteria);
     let items = [];
     const batchSizeDefault = Infinity;
-    
+
     if (Object.keys(searchCriteria).length === 0) {
       const params = {
         TableName: this.tableName,
-        ProjectionExpression: Object.keys(selectedFields).length > 0 ? Object.keys(selectedFields).join(', ') : undefined,
+        ProjectionExpression: Object.keys(selectedFields).length > 0 ? Object.keys(selectedFields).join(', ') : undefined
       };
 
       let lastEvaluatedKey = undefined;
@@ -259,11 +259,10 @@ class FragmentModel {
       }
     }
     else {
-
-      let KeyConditionExpression = [];
-      let FilterExpression = [];
-      let ExpressionAttributeValues = {};
-      let ExpressionAttributeNames = {};
+      const KeyConditionExpression = [];
+      const FilterExpression = [];
+      const ExpressionAttributeValues = {};
+      const ExpressionAttributeNames = {};
       let IndexName = null;
 
       // Utility function to handle expressions
@@ -307,7 +306,7 @@ class FragmentModel {
 
       // Ensure there is at least one KeyConditionExpression
       if (KeyConditionExpression.length === 0) {
-        throw new Error("Query must have a KeyConditionExpression");
+        throw new Error('Query must have a KeyConditionExpression');
       }
 
       // Handle remaining search criteria for FilterExpression
@@ -336,7 +335,7 @@ class FragmentModel {
 
         const result = await docClient.send(new QueryCommand(params));
         // const batchItems = result.Items.map(item => this.processFragmentRead(item));
-        const batchItems = result.Items;  
+        const batchItems = result.Items;
 
         if (callback) {
           await callback(batchItems); // Call the callback with a batch of items
@@ -349,7 +348,7 @@ class FragmentModel {
       } while (lastEvaluatedKey && (limit === null || itemCount < limit));
 
       if (!callback) {
-        let processedItems = items.map(item => this.processFragmentRead(item));
+        const processedItems = items.map(item => this.processFragmentRead(item));
 
         if (sortOptions) {
           processedItems.sort((a, b) => {
@@ -373,31 +372,31 @@ class FragmentModel {
     const spinnies = new Spinnies();
 
     if (logProgress) {
-        spinnies.add('spinner1', { text: 'multi update' });
+      spinnies.add('spinner1', { text: 'multi update' });
     }
 
     // Limit the fields to only 'id' since it's needed for the update
     const selectedFields = { id: true };
 
-    await this.searchFragmentByField(searchCriteria, undefined, selectedFields, Infinity, async (items) => {
-        // Appel de updateFragment pour chaque élément en parallèle
-        // console.log('items : ', items.length);
-        await Promise.all(items.map(async (item) => {
-            try {
-                await this.updateFragment({ ...item, ...updateFields });
-            } catch (err) {
-                console.error("Error updating fragment: ", err);
-            }
-        }));
-
-        processedCount += items.length;
-        if (logProgress) {
-            spinnies.update('spinner1', { text: `multi update (${processedCount} processed)` });
+    await this.searchFragmentByField(searchCriteria, undefined, selectedFields, Infinity, async(items) => {
+      // Appel de updateFragment pour chaque élément en parallèle
+      // console.log('items : ', items.length);
+      await Promise.all(items.map(async(item) => {
+        try {
+          await this.updateFragment({ ...item, ...updateFields });
+        } catch (err) {
+          console.error('Error updating fragment: ', err);
         }
+      }));
+
+      processedCount += items.length;
+      if (logProgress) {
+        spinnies.update('spinner1', { text: `multi update (${processedCount} processed)` });
+      }
     });
 
     if (logProgress) {
-        spinnies.succeed('spinner1', { text: `multi update Done! Total processed: ${processedCount}` });
+      spinnies.succeed('spinner1', { text: `multi update Done! Total processed: ${processedCount}` });
     }
   }
 
@@ -407,34 +406,34 @@ class FragmentModel {
     const spinnies = new Spinnies();
 
     if (logProgress) {
-        spinnies.add('deleteSpinner', { text: 'Deleting fragments...' });
+      spinnies.add('deleteSpinner', { text: 'Deleting fragments...' });
     }
 
     // Limit the fields to only 'id' since it's needed for the delete
     const selectedFields = { id: true };
 
-    await this.searchFragmentByField(searchCriteria, undefined, selectedFields, Infinity, async (items) => {
-        // Delete each item in parallel
-        await Promise.all(items.map(async (item) => {
-            try {
-                const params = {
-                    TableName: this.tableName,
-                    Key: { 'id': item.id }
-                };
-                await docClient.send(new DeleteCommand(params));
-            } catch (err) {
-                console.error("Error deleting fragment: ", err);
-            }
-        }));
-
-        processedCount += items.length;
-        if (logProgress) {
-            spinnies.update('deleteSpinner', { text: `Deleting fragments... (${processedCount} processed)` });
+    await this.searchFragmentByField(searchCriteria, undefined, selectedFields, Infinity, async(items) => {
+      // Delete each item in parallel
+      await Promise.all(items.map(async(item) => {
+        try {
+          const params = {
+            TableName: this.tableName,
+            Key: { 'id': item.id }
+          };
+          await docClient.send(new DeleteCommand(params));
+        } catch (err) {
+          console.error('Error deleting fragment: ', err);
         }
+      }));
+
+      processedCount += items.length;
+      if (logProgress) {
+        spinnies.update('deleteSpinner', { text: `Deleting fragments... (${processedCount} processed)` });
+      }
     });
 
     if (logProgress) {
-        spinnies.succeed('deleteSpinner', { text: `Deleting fragments... Done! Total processed: ${processedCount}` });
+      spinnies.succeed('deleteSpinner', { text: `Deleting fragments... Done! Total processed: ${processedCount}` });
     }
   }
 
@@ -444,13 +443,13 @@ class FragmentModel {
 
     const params = {
       TableName: this.tableName,
-      Select: "COUNT"
+      Select: 'COUNT'
     };
 
-    let KeyConditionExpression = [];
-    let FilterExpression = [];
-    let ExpressionAttributeNames = {};
-    let ExpressionAttributeValues = {};
+    const KeyConditionExpression = [];
+    const FilterExpression = [];
+    const ExpressionAttributeNames = {};
+    const ExpressionAttributeValues = {};
     let IndexName = null;
 
     // Utility function to handle expressions
@@ -531,4 +530,4 @@ class FragmentModel {
     return totalCount;
   }
 }
-module.exports = FragmentModel; 
+module.exports = FragmentModel;

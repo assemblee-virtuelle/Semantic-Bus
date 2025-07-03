@@ -1,17 +1,17 @@
 'use strict';
 
-var authentication = require('./auth_schema');
-var user = require('./user_schema');
-var workspace = require('./workspace_schema');
-var workspaceComponent = require('./workspace_component_schema');
-var transaction  = require('./transaction_schema');
-var cacheSchema = require('./cache_schema');
-var errorSchema = require('./error_schema');
-var historiqueEndSchema = require('./historiqueEnd_schema');
-var passwordUpdate = require('./password_update');
-var processSchema = require('./process_schema');
-var fragmentSchema = require('./fragment_schema');
-
+const authentication = require('./auth_schema');
+const user = require('./user_schema');
+const workspace = require('./workspace_schema');
+const workspaceComponent = require('./workspace_component_schema');
+const transaction = require('./transaction_schema');
+const cacheSchema = require('./cache_schema');
+const errorSchema = require('./error_schema');
+const historiqueEndSchema = require('./historiqueEnd_schema');
+const passwordUpdate = require('./password_update');
+const processSchema = require('./process_schema');
+const fragmentSchema = require('./fragment_schema');
+const fileSchema = require('./file_schema');
 
 
 // --------------------------------------------------------------------------------
@@ -19,17 +19,17 @@ var fragmentSchema = require('./fragment_schema');
 // --------------------------------------------------------------------------------
 
 module.exports = {
-    authentication: authentication,
-    user: user,
-    passwordUpdate,
-    processSchema,
-    workspace: workspace,
-    workspaceComponent: workspaceComponent,
-    transaction: transaction,
-    cache: cacheSchema,
-    error: errorSchema,
-    historiqueEnd: historiqueEndSchema,
-    process: pocessSchema,
-    fragment: fragmentSchema,
-    file : fileSchema
-}
+  authentication: authentication,
+  user: user,
+  passwordUpdate,
+  processSchema,
+  workspace: workspace,
+  workspaceComponent: workspaceComponent,
+  transaction: transaction,
+  cache: cacheSchema,
+  error: errorSchema,
+  historiqueEnd: historiqueEndSchema,
+  process: processSchema,
+  fragment: fragmentSchema,
+  file: fileSchema
+};

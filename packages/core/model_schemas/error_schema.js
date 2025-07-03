@@ -1,20 +1,20 @@
 'use strict';
 
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-var ErrorSchema = mongoose.Schema({
+const ErrorSchema = mongoose.Schema({
   stack: {
     type: String
   },
-  message:{
+  message: {
     type: String,
     required: true
   },
-  userId:{
+  userId: {
     type: String
   },
   stackArray: [{
@@ -24,10 +24,9 @@ var ErrorSchema = mongoose.Schema({
   date: {
     type: Date,
     required: true,
-    default: Date.now,
+    default: Date.now
   }
 });
-
 
 
 // --------------------------------------------------------------------------------

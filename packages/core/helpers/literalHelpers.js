@@ -11,12 +11,12 @@ const isObject = require('isobject');
 function isLiteral(data) {
   return (data === null ||
     data === undefined ||
-    (typeof data) == 'function' ||
+    (typeof data) === 'function' ||
     uuidValidate(data) ||
     (data?.constructor?.name == 'Buffer') ||
     (data instanceof Date && !isNaN(data)) ||
     !isObject(data)) &&
-    !Array.isArray(data)
+    !Array.isArray(data);
 }
 
 /**
@@ -25,7 +25,7 @@ function isLiteral(data) {
  * @returns {*} The processed value
  */
 function processLiteral(data) {
-  if ((typeof data) == 'function' ||
+  if ((typeof data) === 'function' ||
       uuidValidate(data) ||
       (data?.constructor?.name == 'Buffer')) {
     return data.toString();
@@ -42,13 +42,13 @@ function processLiteral(data) {
 function testAllLiteralArray(arrayToTest) {
   const oneNotLiteral = arrayToTest.some(i => {
     const isNotLiteral = !isLiteral(i);
-    return isNotLiteral
-  })
-  return !oneNotLiteral
+    return isNotLiteral;
+  });
+  return !oneNotLiteral;
 }
 
 module.exports = {
   isLiteral,
   processLiteral,
   testAllLiteralArray
-}; 
+};

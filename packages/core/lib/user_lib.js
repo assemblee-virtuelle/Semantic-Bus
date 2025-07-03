@@ -1,17 +1,17 @@
-"use strict";
+'use strict';
 
-let userModel = require("../models/user_model");
-let pattern = require("../helpers").patterns;
-let bcrypt = require("bcryptjs");
-let sift = require("sift").default;
-let graphTraitement = require("../helpers/graph-traitment");
-let historiqueModel = require("../models").historiqueEnd;
-let SecureMailModel = require("../models/security_mail");
-let workspaceModel = require("../models").workspace;
-let certificateModel = require("../models").certificate;
+const userModel = require('../models/user_model');
+const pattern = require('../helpers').patterns;
+const bcrypt = require('bcryptjs');
+const sift = require('sift').default;
+const graphTraitement = require('../helpers/graph-traitment');
+const historiqueModel = require('../models').historiqueEnd;
+const SecureMailModel = require('../models/security_mail');
+const workspaceModel = require('../models').workspace;
+const certificateModel = require('../models').certificate;
 // let bigdataflowModel = require("../models").bigdataflow;
 const Error = require('../helpers/error.js');
-var validator = require('validator');
+const validator = require('validator');
 
 
 // --------------------------------------------------------------------------------
@@ -42,8 +42,7 @@ module.exports = {
 // 2 - save in bdd user model
 
 function _create(bodyParams) {
-
-  return new Promise(function (resolve, reject) {
+  return new Promise((resolve, reject) => {
     _create_preprocess(bodyParams.user).then((preData) => {
       return _create_mainprocess(preData);
     }).then(user => {
@@ -55,7 +54,7 @@ function _create(bodyParams) {
 } // <= _create
 
 function _create_mainprocess(preData) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async(resolve, reject) => {
     const userModelInstance = userModel.getInstance().model;
     try {
       const user = new userModelInstance({
@@ -73,68 +72,66 @@ function _create_mainprocess(preData) {
         }
       });
       const userData = await user.save();
-      resolve(userData)
+      resolve(userData);
     } catch (error) {
-      if (error.code == 11000){
-        reject(new Error.UniqueEntityError("User"))
-      } 
+      if (error.code == 11000) {
+        reject(new Error.UniqueEntityError('User'));
+      }
     }
   });
 } // <= _create_mainprocess
 
 function _create_preprocess(userParams) {
   const user_final = {};
-  return new Promise(function (resolve, reject) {
-    let mail = new Promise(function (resolve, reject) {
-      const Usermail = Object.assign({}, userParams)
-      const check = _check_email(Usermail.email)
-      if (validator.isEmail(Usermail.email) === false){
-        reject(new Error.PropertyValidationError('mail'))
+  return new Promise((resolve, reject) => {
+    const mail = new Promise((resolve, reject) => {
+      const Usermail = Object.assign({}, userParams);
+      const check = _check_email(Usermail.email);
+      if (validator.isEmail(Usermail.email) === false) {
+        reject(new Error.PropertyValidationError('mail'));
       } else {
-        resolve(Usermail.email)
+        resolve(Usermail.email);
       }
     });
-    let job = new Promise(function (resolve, reject) {
+    const job = new Promise((resolve, reject) => {
       if (!userParams.job) {
         resolve(null);
       }
-      _check_job(userParams.job).then(function (boolean) {
-
+      _check_job(userParams.job).then((boolean) => {
         if (!boolean) {
-          reject(new Error.PropertyValidationError('job'))
+          reject(new Error.PropertyValidationError('job'));
         } else {
           resolve(userParams.job);
         }
       });
     });
-    let name = new Promise(function (resolve, reject) {
+    const name = new Promise((resolve, reject) => {
       if (!userParams.name) {
         resolve(null);
       }
-      _check_name(userParams.name).then(function (boolean) {
-
+      _check_name(userParams.name).then((boolean) => {
         if (!boolean) {
-          reject(new Error.PropertyValidationError('name'))
+          reject(new Error.PropertyValidationError('name'));
         } else {
           resolve(userParams.name);
         }
       });
     });
-    let hash_password = new Promise(function (resolve) {
+    const hash_password = new Promise((resolve) => {
       _hash_password(userParams.password, userParams.passwordConfirm).then(
-        function (hashedPassword) {
+        (hashedPassword) => {
           resolve(hashedPassword);
         }
       );
     });
-    let society = new Promise(function (resolve, reject) {
+    const society = new Promise((resolve, reject) => {
       if (userParams.society) {
         resolve(userParams.society);
       } else {
         resolve(null);
       }
     });
-    let mailid = new Promise(function (resolve, reject) {
+    const mailid = new Promise((resolve, reject) => {
       if (userParams.mailid) {
         resolve(userParams.mailid);
       } else {
@@ -144,12 +141,12 @@ function _create_preprocess(userParams) {
 
     Promise.all([mail, name, hash_password, job, society, mailid])
       .then((userPromise) => {
-        user_final["email"] = userPromise[0];
-        user_final["name"] = userPromise[1];
-        user_final["hashedPassword"] = userPromise[2];
-        user_final["job"] = userPromise[3];
-        user_final["society"] = userPromise[4];
-        user_final["mailid"] = userPromise[5];
+        user_final['email'] = userPromise[0];
+        user_final['name'] = userPromise[1];
+        user_final['hashedPassword'] = userPromise[2];
+        user_final['job'] = userPromise[3];
+        user_final['society'] = userPromise[4];
+        user_final['mailid'] = userPromise[5];
         resolve(user_final);
       })
       .catch((err) => {
@@ -159,34 +156,33 @@ function _create_preprocess(userParams) {
 } // <= _create_preprocess
 
 function _get_all(options) {
-
-  return new Promise(async function (resolve, reject) {
-    const users = await  userModel.getInstance().model
-    .find(options.filters)
-    .limit(options.limit)
-    .select(options.select)
-    .skip(options.skip)
-    .sort(options.sort)
-    .lean()
-    .exec();
+  return new Promise(async(resolve, reject) => {
+    const users = await userModel.getInstance().model
+      .find(options.filters)
+      .limit(options.limit)
+      .select(options.select)
+      .skip(options.skip)
+      .sort(options.sort)
+      .lean()
+      .exec();
     resolve(users);
   });
 } // <= _get_all
 
 function _get(filter) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async(resolve, reject) => {
     try {
-      const userData= await userModel.getInstance().model
-      .findOne(filter)
-      .lean()
-      .exec();
-      if( userData == null){
-        reject(new Error.EntityNotFoundError())
+      const userData = await userModel.getInstance().model
+        .findOne(filter)
+        .lean()
+        .exec();
+      if( userData == null) {
+        reject(new Error.EntityNotFoundError());
       } else {
         resolve(userData);
       }
     } catch (error) {
-      reject(new Error.DataBaseProcessError(error))
+      reject(new Error.DataBaseProcessError(error));
     }
     // userModel.getInstance().model
     //   .findOne(filter)
@@ -203,13 +199,13 @@ function _get(filter) {
   });
 } // <= _get
 
-function _getWithRelations(userID,config) {
-  return new Promise(async function (resolve, reject) {
+function _getWithRelations(userID, config) {
+  return new Promise(async(resolve, reject) => {
     try {
-      let data = await  userModel.getInstance().model
-      .findOne({
-        _id: userID
-      })
+      const data = await userModel.getInstance().model
+        .findOne({
+          _id: userID
+        })
       // .populate({
       //   path: "workspaces._id",
       //   select: "name description"
@@ -218,14 +214,14 @@ function _getWithRelations(userID,config) {
       //   path: "bigdataflow._id",
       //   select: "name description"
       // })
-      .lean()
-      .exec();
+        .lean()
+        .exec();
 
       const InversRelationWorkspaces = await workspaceModel.getInstance().model.find({
-        "users.email":data.credentials.email
+        'users.email': data.credentials.email
       }).lean().exec();
       // console.log('XXXX InversRelationWorkspaces',InversRelationWorkspaces)
-      data.workspaces=InversRelationWorkspaces;
+      data.workspaces = InversRelationWorkspaces;
       data.workspaces = data.workspaces.filter(sift({
         _id: {
           $ne: null
@@ -233,28 +229,27 @@ function _getWithRelations(userID,config) {
       }));
 
       data.workspaces = data.workspaces.map(w => {
-        const userOfWorkspace = w.users.find(u=>u.email===data.credentials.email);
+        const userOfWorkspace = w.users.find(u => u.email === data.credentials.email);
         // console.log("XXXX workspace",w)
         return {
           workspace: w,
           role: userOfWorkspace.role
         };
       });
-      if (config.adminUsers){
-        let adminUsers=config.adminUsers
-        if (!Array.isArray(config.adminUsers)){
-          adminUsers=[adminUsers];
+      if (config.adminUsers) {
+        let adminUsers = config.adminUsers;
+        if (!Array.isArray(config.adminUsers)) {
+          adminUsers = [adminUsers];
         }
-        if (adminUsers.includes(data.credentials.email)){
-            data.admin=true
+        if (adminUsers.includes(data.credentials.email)) {
+          data.admin = true;
         } else {
-          data.admin=false
+          data.admin = false;
         }
-
       }else {
-        data.admin=true;
+        data.admin = true;
       }
-      //TODO REFACTORING and suppression
+      // TODO REFACTORING and suppression
       // if(data.bigdataflow!=undefined){
       //   data.bigdataflow = data.bigdataflow.filter(sift({
       //     _id: {
@@ -289,12 +284,11 @@ function _getWithRelations(userID,config) {
       //   // })
       //   .lean()
       //   .exec(async (error, data) => {
-         
+
       //   });
     } catch (e) {
       reject(e);
     }
-
   });
 } // <= _getWithWorkspace
 
@@ -308,15 +302,15 @@ function _userGraph(userId) {
       },
       {
         $group: {
-          _id: { workspaceId: "$workspaceId", roundDate: { $dayOfMonth: "$date" } },
+          _id: { workspaceId: '$workspaceId', roundDate: { $dayOfMonth: '$date' } },
           totalPrice: {
-            $sum: "$totalPrice"
+            $sum: '$totalPrice'
           },
           totalMo: {
-            $sum: "$moCount"
+            $sum: '$moCount'
           },
           workspaces: {
-            $push: "$$ROOT"
+            $push: '$$ROOT'
           }
         }
       }
@@ -327,7 +321,7 @@ function _userGraph(userId) {
           const array = [];
 
           result[0].workspaces.forEach(histo => {
-            let id = histo.workflowId + histo.roundDate;
+            const id = histo.workflowId + histo.roundDate;
             if (c[id]) {
               c[id].totalPrice += histo.totalPrice;
               c[id].totalMo += histo.moCount;
@@ -386,7 +380,7 @@ function updateProfil(id, userPatch) {
     .exec()
     .then(user => {
       if (user.googleId != null) {
-        return Promise.reject(new Error('google_user'))
+        return Promise.reject(new Error('google_user'));
       } else {
         return userModel.getInstance().model
           .findByIdAndUpdate(
@@ -395,17 +389,16 @@ function updateProfil(id, userPatch) {
             { new: true }
           )
           .exec()
-          .catch(error => Promise.reject(new Error.DataBaseProcessError(error)))
+          .catch(error => Promise.reject(new Error.DataBaseProcessError(error)));
       }
-    })
+    });
 }
 
 function _update(user, mailChange) {
-  return new Promise(function (resolve, reject) {
-    _is_google_user(user).then(function (boolean) {
+  return new Promise((resolve, reject) => {
+    _is_google_user(user).then((boolean) => {
       if (boolean == true) {
-
-        reject("google_user");
+        reject('google_user');
       } else {
         return _update_preprocess(user, mailChange);
       }
@@ -413,97 +406,97 @@ function _update(user, mailChange) {
       return _update_mainprocess(preData);
     }).then((user) => {
       resolve(user);
-    }).catch(function (err) {
+    }).catch((err) => {
       reject(err);
-    });;
+    });
   });
 } // <= _update
 
 // --------------------------------------------------------------------------------
 
 function _update_mainprocess(preData) {
-  //transformer le model business en model de persistance
-  return new Promise(async function (resolve, reject) {
-    var toUpdate = {};
+  // transformer le model business en model de persistance
+  return new Promise(async(resolve, reject) => {
+    const toUpdate = {};
     if (preData.email) {
-      if (!toUpdate["$set"]) {
-        toUpdate["$set"] = {};
+      if (!toUpdate['$set']) {
+        toUpdate['$set'] = {};
       }
 
-      toUpdate["$set"]["credentials.email"] = preData.email;
+      toUpdate['$set']['credentials.email'] = preData.email;
     }
 
     if (preData.hash_password) {
-      if (!toUpdate["$set"]) {
-        toUpdate["$set"] = {};
+      if (!toUpdate['$set']) {
+        toUpdate['$set'] = {};
       }
 
-      toUpdate["$set"]["credentials.hashed_password"] = preData.hash_password;
+      toUpdate['$set']['credentials.hashed_password'] = preData.hash_password;
     }
 
     if (preData.credit) {
-      if (!toUpdate["$set"]) {
-        toUpdate["$set"] = {};
+      if (!toUpdate['$set']) {
+        toUpdate['$set'] = {};
       }
 
-      toUpdate["$set"]["credit"] = preData.credit;
+      toUpdate['$set']['credit'] = preData.credit;
     }
 
     if (preData.job) {
-      if (!toUpdate["$set"]) {
-        toUpdate["$set"] = {};
+      if (!toUpdate['$set']) {
+        toUpdate['$set'] = {};
       }
-      toUpdate["$set"]["job"] = preData.job;
+      toUpdate['$set']['job'] = preData.job;
     }
 
 
     if (preData.name) {
-      if (!toUpdate["$set"]) {
-        toUpdate["$set"] = {};
+      if (!toUpdate['$set']) {
+        toUpdate['$set'] = {};
       }
-      toUpdate["$set"]["name"] = preData.name;
+      toUpdate['$set']['name'] = preData.name;
     }
 
     if (preData.society) {
-      if (!toUpdate["$set"]) {
-        toUpdate["$set"] = {};
+      if (!toUpdate['$set']) {
+        toUpdate['$set'] = {};
       }
-      toUpdate["$set"]["society"] = preData.society;
+      toUpdate['$set']['society'] = preData.society;
     }
 
     if (preData.workspaces) {
-      if (!toUpdate["$set"]) {
-        toUpdate["$set"] = {};
+      if (!toUpdate['$set']) {
+        toUpdate['$set'] = {};
       }
-      toUpdate["$set"]["workspaces"] = preData.workspaces;
+      toUpdate['$set']['workspaces'] = preData.workspaces;
     }
 
     if (preData.bigdataflow) {
-      if (!toUpdate["$set"]) {
-        toUpdate["$set"] = {};
+      if (!toUpdate['$set']) {
+        toUpdate['$set'] = {};
       }
-      toUpdate["$set"]["bigdataflow"] = preData.bigdataflow;
+      toUpdate['$set']['bigdataflow'] = preData.bigdataflow;
     }
 
     if (preData.active) {
-      if (!toUpdate["$set"]) {
-        toUpdate["$set"] = {};
+      if (!toUpdate['$set']) {
+        toUpdate['$set'] = {};
       }
-      toUpdate["$set"]["active"] = preData.active;
+      toUpdate['$set']['active'] = preData.active;
     }
 
     if (preData.resetpasswordtoken) {
-      if (!toUpdate["$set"]) {
-        toUpdate["$set"] = {};
+      if (!toUpdate['$set']) {
+        toUpdate['$set'] = {};
       }
-      toUpdate["$set"]["resetpasswordtoken"] = preData.resetpasswordtoken;
+      toUpdate['$set']['resetpasswordtoken'] = preData.resetpasswordtoken;
     }
 
     if (preData.resetpasswordmdp) {
-      if (!toUpdate["$set"]) {
-        toUpdate["$set"] = {};
+      if (!toUpdate['$set']) {
+        toUpdate['$set'] = {};
       }
-      toUpdate["$set"]["resetpasswordmdp"] = preData.resetpasswordmdp;
+      toUpdate['$set']['resetpasswordmdp'] = preData.resetpasswordmdp;
     }
 
     try {
@@ -511,10 +504,10 @@ function _update_mainprocess(preData) {
         preData._id,
         toUpdate, {
           new: true
-        }).exec()
-        resolve(userData);
+        }).exec();
+      resolve(userData);
     } catch (error) {
-      reject(new Error.DataBaseProcessError(error))
+      reject(new Error.DataBaseProcessError(error));
     }
     // userModel.getInstance().model.findByIdAndUpdate(
     //   preData._id,
@@ -536,60 +529,60 @@ function _update_mainprocess(preData) {
 // --------------------------------------------------------------------------------
 
 function _update_preprocess(userParams) {
-  //controler les regles métier
-  return new Promise(function (resolve, reject) {
-    var credit = new Promise(function (resolve, reject) {
+  // controler les regles métier
+  return new Promise((resolve, reject) => {
+    const credit = new Promise((resolve, reject) => {
       if (!userParams.credit) {
         resolve(null);
       } else resolve(userParams.credit);
     });
 
-    var job = new Promise(function (resolve, reject) {
+    const job = new Promise((resolve, reject) => {
       if (!userParams.job) {
         resolve(null);
       } else {
-        _check_job(userParams.job).then(function (boolean) {
-          if (!boolean) reject("bad_format_job");
+        _check_job(userParams.job).then((boolean) => {
+          if (!boolean) reject('bad_format_job');
           else resolve(userParams.job);
         });
       }
     });
 
-    var society = new Promise(function (resolve, reject) {
+    const society = new Promise((resolve, reject) => {
       if (!userParams.society) {
         resolve(null);
       } else {
-        _check_job(userParams.society).then(function (boolean) {
-          if (!boolean) reject("bad_format_society");
+        _check_job(userParams.society).then((boolean) => {
+          if (!boolean) reject('bad_format_society');
           else resolve(userParams.society);
         });
       }
     });
 
-    var name = new Promise(function (resolve, reject) {
+    const name = new Promise((resolve, reject) => {
       if (!userParams.name) {
         resolve(null);
       } else {
-        _check_name(userParams.name).then(function (boolean) {
-          if (!boolean) reject("bad_format_name");
+        _check_name(userParams.name).then((boolean) => {
+          if (!boolean) reject('bad_format_name');
           else resolve(userParams.name);
         });
       }
     });
 
-    var workspace = new Promise(function (resolve, reject) {
+    const workspace = new Promise((resolve, reject) => {
       if (!userParams.workspaces) {
         resolve(null);
       } else resolve(userParams.workspaces);
     });
 
-    var bigdataflow = new Promise(function (resolve, reject) {
+    const bigdataflow = new Promise((resolve, reject) => {
       if (!userParams.bigdataflow) {
         resolve(null);
       } else resolve(userParams.bigdataflow);
     });
 
-    var active = new Promise(function (resolve, reject) {
+    const active = new Promise((resolve, reject) => {
       if (userParams.active) {
         resolve(userParams.active);
       } else {
@@ -597,27 +590,27 @@ function _update_preprocess(userParams) {
       }
     });
 
-    var resetpasswordtoken = new Promise(function (resolve, reject) {
+    const resetpasswordtoken = new Promise((resolve, reject) => {
       if (!userParams.resetpasswordtoken) {
         resolve(null);
       } else resolve(userParams.resetpasswordtoken);
     });
 
-    var resetpasswordmdp = new Promise(function (resolve, reject) {
+    const resetpasswordmdp = new Promise((resolve, reject) => {
       if (!userParams.resetpasswordmdp) {
         resolve(null);
       } else resolve(userParams.resetpasswordmdp);
     });
 
-    var hash_password = new Promise(function (resolve, reject) {
+    const hash_password = new Promise((resolve, reject) => {
       if (userParams.new_password) {
         _hash_password(userParams.new_password)
-          .then(function (hashedPassword) {
+          .then((hashedPassword) => {
             resolve(hashedPassword);
           })
-          .catch(function (err) {
+          .catch((err) => {
             reject({
-              err: "bad_format_password"
+              err: 'bad_format_password'
             });
           });
       } else {
@@ -635,39 +628,39 @@ function _update_preprocess(userParams) {
       resetpasswordmdp,
       hash_password,
       credit,
-      bigdataflow,
+      bigdataflow
     ])
-      .then(function (user_update_data) {
-        let o = {};
-        o["email"] = userParams.credentials.email;
-        o["job"] = user_update_data[0];
-        o["society"] = user_update_data[1];
-        o["workspaces"] = user_update_data[2];
-        o["name"] = user_update_data[3];
-        o["active"] = user_update_data[4];
-        o["resetpasswordtoken"] = user_update_data[5];
-        o["resetpasswordmdp"] = user_update_data[6];
-        o["hash_password"] = user_update_data[7];
-        o["credit"] = user_update_data[8];
-        o["bigdataflow"] = user_update_data[9];
+      .then((user_update_data) => {
+        const o = {};
+        o['email'] = userParams.credentials.email;
+        o['job'] = user_update_data[0];
+        o['society'] = user_update_data[1];
+        o['workspaces'] = user_update_data[2];
+        o['name'] = user_update_data[3];
+        o['active'] = user_update_data[4];
+        o['resetpasswordtoken'] = user_update_data[5];
+        o['resetpasswordmdp'] = user_update_data[6];
+        o['hash_password'] = user_update_data[7];
+        o['credit'] = user_update_data[8];
+        o['bigdataflow'] = user_update_data[9];
         o._id = userParams._id;
 
         resolve(o);
       })
-      .catch(function (err) {
+      .catch((err) => {
         reject(err);
       });
-  })
+  });
 } // <= _update_preprocess
 
 // --------------------------------------------------------------------------------
 
 function _check_email(email) {
-  return pattern.email.test(email)
+  return pattern.email.test(email);
 } // <= _check_email
 
 function _check_name(name) {
-  return new Promise(function (resolve, reject) {
+  return new Promise((resolve, reject) => {
     // if (pattern.name.test(name)) {
     resolve(true);
     // } else {
@@ -677,9 +670,8 @@ function _check_name(name) {
 } // <= _check_name
 
 function _check_job(job) {
-  return new Promise(function (resolve, reject) {
+  return new Promise((resolve, reject) => {
     if (pattern.job.test(job)) {
-
       resolve(true);
     } else {
       resolve(false);
@@ -690,24 +682,24 @@ function _check_job(job) {
 // --------------------------------------------------------------------------------
 
 function _hash_password(password, passwordConfirm) {
-  return new Promise(function (resolve, reject) {
+  return new Promise((resolve, reject) => {
     if (passwordConfirm) {
       if (password != passwordConfirm) {
         reject(403);
-        return reject(new Error.PropertyValidationError("password"))
+        return reject(new Error.PropertyValidationError('password'));
       }
     }
     if (!pattern.password.test(password)) {
-      return reject("Le mot de passe doit avoir entre 6 et 20 caractères.")
+      return reject('Le mot de passe doit avoir entre 6 et 20 caractères.');
     }
 
-    bcrypt.genSalt(10, function (err, salt) {
+    bcrypt.genSalt(10, (err, salt) => {
       if (err) {
-        return reject(new Error.PropertyValidationError("password"))
+        return reject(new Error.PropertyValidationError('password'));
       }
-      bcrypt.hash(password, salt, function (err, hash) {
+      bcrypt.hash(password, salt, (err, hash) => {
         if (err) {
-          return reject(new Error.PropertyValidationError("password"))
+          return reject(new Error.PropertyValidationError('password'));
         } else {
           resolve(hash);
         }
@@ -719,13 +711,13 @@ function _hash_password(password, passwordConfirm) {
 // --------------------------------------------------------------------------------
 
 function _is_google_user(user) {
-  return new Promise(async function (resolve, reject) {
+  return new Promise(async(resolve, reject) => {
     try {
-      const userData= await  userModel.getInstance().model
-      .findOne({
-        "credentials.email": user.email
-      })
-      .exec();
+      const userData = await userModel.getInstance().model
+        .findOne({
+          'credentials.email': user.email
+        })
+        .exec();
       if (userData) {
         if (userData.googleId != null) {
           resolve(true);
@@ -736,7 +728,7 @@ function _is_google_user(user) {
         resolve(false);
       }
     } catch (error) {
-      return reject(new Error.DataBaseProcessError(error))
+      return reject(new Error.DataBaseProcessError(error));
     }
     // userModel.getInstance().model
     //   .findOne({
@@ -774,17 +766,17 @@ async function _createUpdatePasswordEntity(userMail, token) {
 // --------------------------------------------------------------------------------
 
 function _getPasswordEntity(mail) {
-  return new Promise(function (resolve, reject) {
+  return new Promise((resolve, reject) => {
     SecureMailModel.get()
-      .findOne({userMail: mail})
+      .findOne({ userMail: mail })
       .exec((err, data) => {
-        if(err){
-          return reject(new Error.DataBaseProcessError(err))
+        if(err) {
+          return reject(new Error.DataBaseProcessError(err));
         }
-        if( data == null){
-          reject(new Error.EntityNotFoundError(err))
+        if( data == null) {
+          reject(new Error.EntityNotFoundError(err));
         } else {
-          resolve(data)
+          resolve(data);
         }
       });
   });

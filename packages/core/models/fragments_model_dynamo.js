@@ -17,4 +17,4 @@ const fragmentModelInstance = new GenerictModel('fragment', fields, Fragment);
 
 // console.log('fragmentModelInstance', fragmentModelInstance);
 
-module.exports = fragmentModelInstance; 
+module.exports = fragmentModelInstance;

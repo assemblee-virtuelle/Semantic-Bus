@@ -1,5 +1,5 @@
 'use strict';
-var XLSX = require('xlsx')
+const XLSX = require('xlsx');
 const ExcelJS = require('exceljs');
 const { Readable } = require('stream');
 
@@ -16,12 +16,12 @@ module.exports = {
 
 
 function _exel_traitment_client(urlEXEL) {
-  //console.log("urlEXEL", urlEXEL)
-  return new Promise(function(resolve, reject) {
-    var buffer = Buffer.concat(urlEXEL);
+  // console.log("urlEXEL", urlEXEL)
+  return new Promise((resolve, reject) => {
+    const buffer = Buffer.concat(urlEXEL);
     try {
-      var exel = XLSX.read(buffer, {
-        type: "buffer"
+      const exel = XLSX.read(buffer, {
+        type: 'buffer'
       });
       resolve({
         data: exel.Sheets
@@ -29,22 +29,22 @@ function _exel_traitment_client(urlEXEL) {
     } catch (e) {
       reject(e);
     }
-  })
+  });
 }
 
 function _json_to_exel(jsonData, header) {
-  //return XLSX.utils.json_to_sheet(jsonData, {header: header});
-  let ws = XLSX.utils.json_to_sheet(jsonData, {
+  // return XLSX.utils.json_to_sheet(jsonData, {header: header});
+  const ws = XLSX.utils.json_to_sheet(jsonData, {
     header: header
-  })
-  let wb = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(wb, ws, "data");
+  });
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'data');
   const wopts = {
     bookType: 'xlsx',
     bookSST: false,
     type: 'buffer'
   };
-  let buffer = XLSX.write(wb, wopts);
+  const buffer = XLSX.write(wb, wopts);
   return buffer;
 }
 
@@ -53,7 +53,7 @@ function _exel_to_json(buffer, header) {
     try {
       // Calculate and log the buffer size
       const bufferSizeInMB = (buffer.length / (1024 * 1024)).toFixed(2);
-  
+
       // Create stream reader with options
       const wb = XLSX.read(buffer, {
         type: 'buffer'
@@ -68,8 +68,6 @@ function _exel_to_json(buffer, header) {
         };
       });
       resolve(sheetsData);
-
-
     } catch (error) {
       reject(error);
     }
@@ -77,32 +75,32 @@ function _exel_to_json(buffer, header) {
 }
 
 function decode_utf8(s) {
-  //console.log("in decode",s)
+  // console.log("in decode",s)
   try {
-    return decodeURIComponent(escape(s))
+    return decodeURIComponent(escape(s));
   } catch (e) {
-    return s
+    return s;
   }
 }
 
 function _exel_traitment_server(data, uploadBoolean) {
-  //console.log("_exel server traitment initiliaze")
-  var final_tab = []
-  var count_table = []
-  var regnumero = /[0-9].*/g
-  var regLettre = /.*[a-zA-Z]/g
-  var i = 0
+  // console.log("_exel server traitment initiliaze")
+  const final_tab = [];
+  const count_table = [];
+  const regnumero = /[0-9].*/g;
+  const regLettre = /.*[a-zA-Z]/g;
+  const i = 0;
   return new Promise((resolve, reject) => {
-    for (var sheets in data) {
-      var cellContent = [];
-      for (var sheet in data[sheets]) {
-        for (var st in data[sheets][sheet]) {
-          //console.log("in data", data[sheets][sheet][st].v)
-          var cell = {
+    for (const sheets in data) {
+      const cellContent = [];
+      for (const sheet in data[sheets]) {
+        for (const st in data[sheets][sheet]) {
+          // console.log("in data", data[sheets][sheet][st].v)
+          const cell = {
             [st]: decode_utf8(data[sheets][sheet][st].v),
             feuille: Object.keys(data[sheets])[0]
-          }
-          cellContent.push(cell)
+          };
+          cellContent.push(cell);
         }
       }
       final_tab.push({
@@ -110,61 +108,60 @@ function _exel_traitment_server(data, uploadBoolean) {
           name: Object.keys(data[sheets])[0],
           content: cellContent
         }
-      })
+      });
     }
-    //console.log("final_tab", final_tab)
+    // console.log("final_tab", final_tab)
     resolve(
       final_tab
-    )
-  }).then(function(feuilles) {
+    );
+  }).then((feuilles) => {
     // //console.log(feuilles)
-    return new Promise(function(resolve, reject) {
-      var result = []
-      feuilles.forEach(function(feuille) {
-        var exel_table_to_json = [];
-        var cell = {};
+    return new Promise((resolve, reject) => {
+      const result = [];
+      feuilles.forEach((feuille) => {
+        const exel_table_to_json = [];
+        let cell = {};
         if (feuille) {
-          feuille.feuille.content.forEach(function(content, index) {
+          feuille.feuille.content.forEach((content, index) => {
             if (content.feuille == feuille.feuille.name) {
-
               if (feuille.feuille.content[index + 1]) {
                 if (Object.keys(content)[0].match(regnumero) != null && Object.keys(feuille.feuille.content[index + 1])[0].match(regnumero) != null) {
-                  var val = Object.keys(content).map(function(key) {
+                  var val = Object.keys(content).map((key) => {
                     return content[key];
                   });
                   if (Object.keys(content)[0].match(regnumero)[0] < Object.keys(feuille.feuille.content[index + 1])[0].match(regnumero)[0]) {
-                    var c = {}
-                    //console.log(val[0]);
-                    c[Object.keys(content)[0].match(regLettre)[0]] = val[0]
+                    var c = {};
+                    // console.log(val[0]);
+                    c[Object.keys(content)[0].match(regLettre)[0]] = val[0];
                     Object.assign(cell, c);
-                    exel_table_to_json.push(cell)
-                    cell = {}
+                    exel_table_to_json.push(cell);
+                    cell = {};
                   } else {
-                    var c = {}
-                    c[Object.keys(content)[0].match(regLettre)[0]] = val[0]
+                    var c = {};
+                    c[Object.keys(content)[0].match(regLettre)[0]] = val[0];
                     Object.assign(cell, c);
                   }
                 } else {
-                  var val = Object.keys(content).map(function(key) {
+                  var val = Object.keys(content).map((key) => {
                     return content[key];
                   });
-                  var c = {}
-                  c[Object.keys(content)[0].match(regLettre)[0]] = val[0]
+                  var c = {};
+                  c[Object.keys(content)[0].match(regLettre)[0]] = val[0];
                   Object.assign(cell, c);
-                  exel_table_to_json.push(cell)
+                  exel_table_to_json.push(cell);
                 }
               }
             }
-          })
+          });
         }
         result.push({
           sheet: feuille.feuille.name,
           data: exel_table_to_json
-        })
-        resolve(result)
-      })
-    })
-  })
+        });
+        resolve(result);
+      });
+    });
+  });
 }
 
 /**

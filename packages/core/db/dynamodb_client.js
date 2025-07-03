@@ -5,7 +5,7 @@ const { DynamoDBDocumentClient } = require('@aws-sdk/lib-dynamodb');
 let dynamoDBClients = null; // Variable to store the initialized clients
 
 // Function to initialize DynamoDB client
-const initializeDynamoDB = async () => {
+const initializeDynamoDB = async() => {
   // console.log('INIT initializeDynamoDB');
   if (dynamoDBClients) {
     // Return existing clients if already initialized
@@ -55,4 +55,4 @@ process.on('SIGINT', () => {
   process.exit(0);
 });
 
-module.exports = dynamoDBClientsPromise; 
+module.exports = dynamoDBClientsPromise;

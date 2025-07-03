@@ -1,5 +1,5 @@
 'use strict';
-////console.log(__filename);
+// //console.log(__filename);
 const MongoClient = require('../db/mongo_client');
 const userSchema = require('../model_schemas/user_schema');
 const WorkspaceModel = require('../models/workspace_model');
@@ -10,7 +10,7 @@ class UserModelSingleton {
   constructor() {
   }
 
-  static getInstance(){
+  static getInstance() {
     if (this.instance == undefined) {
       this.instance = new UserModel();
     }
@@ -20,18 +20,18 @@ class UserModelSingleton {
 
 class UserModel {
   constructor() {
-    //User dependency : User Model need Worksapce Model instanciation for populate
-    //TODO : review model decalration architecture
+    // User dependency : User Model need Worksapce Model instanciation for populate
+    // TODO : review model decalration architecture
     WorkspaceModel.getInstance();
     BigdataflowModel.getInstance();
 
     this._model = MongoClient.getInstance().connection.model('User', userSchema);
   }
 
-  get model(){
+  get model() {
     return this._model;
   }
 }
 
 module.exports = UserModelSingleton;
-//module.exports = mongoClient.getInstance().connection.model('User', userSchema);
+// module.exports = mongoClient.getInstance().connection.model('User', userSchema);

@@ -1,8 +1,8 @@
 'use strict';
-var workspaceComponentModel = require('../models/workspace_component_model');
-var workspaceModel = require('../models/workspace_model');
-var historiqueEndModel = require("../models/historiqueEnd_model");
-var sift = require('sift').default;
+const workspaceComponentModel = require('../models/workspace_component_model');
+const workspaceModel = require('../models/workspace_model');
+const historiqueEndModel = require('../models/historiqueEnd_model');
+const sift = require('sift').default;
 // var fragment_lib = require('./fragment_lib.js');
 const Error = require('../helpers/error.js');
 // const mongoose = require('mongoose');
@@ -28,142 +28,136 @@ module.exports = {
 
 
 function _create(workspaceComponents) {
-  return new Promise(async function(resolve, reject) {
-    var componentArray = Array.isArray(workspaceComponents)?workspaceComponents:[workspaceComponents];
-    let out=[];
-    for (let component of componentArray ) {
+  return new Promise(async(resolve, reject) => {
+    const componentArray = Array.isArray(workspaceComponents) ? workspaceComponents : [workspaceComponents];
+    const out = [];
+    for (const component of componentArray ) {
       let newComponent = new (workspaceComponentModel.getInstance().model)(component);
       newComponent = await newComponent.save();
       // const workspace = await workspaceModel.getInstance().model.findOne({_id:component.workspaceId});
       // workspace.components.push(newComponent._id);
       // await workspace.save();
       out.push(newComponent);
-      
     }
     resolve(out);
-
-
-  })
+  });
 }
 
 // --------------------------------------------------------------------------------
 
 
 function _get(filter) {
-  return new Promise(async function(resolve, reject) {
+  return new Promise(async(resolve, reject) => {
     try {
       const workspaceComponent = await workspaceComponentModel.getInstance().model.findOne(filter).lean().exec();
-      if(workspaceComponent == null){
-        reject(new Error.EntityNotFoundError('workspaceComponent'))
+      if(workspaceComponent == null) {
+        reject(new Error.EntityNotFoundError('workspaceComponent'));
       } else {
         workspaceComponent.specificData = workspaceComponent.specificData || {};
-        resolve(workspaceComponent)
+        resolve(workspaceComponent);
       }
-
     } catch (error) {
-      reject(new Error.DataBaseProcessError(error))
+      reject(new Error.DataBaseProcessError(error));
     }
-  })
+  });
 } // <= _get
 
 // --------------------------------------------------------------------------------
 function _get_all(filter) {
-  return new Promise(async function(resolve, reject) {
-      try {
-            const workspaceComponents = await workspaceComponentModel.getInstance().model.find(filter, {
-              'consumption_history': 0
-            })
-            .lean()
-            .exec();
-            workspaceComponents.forEach(c => {
-              c.specificData = c.specificData || {}
-            });
-            resolve(workspaceComponents);
-      } catch (error) {
-            reject(new Error.DataBaseProcessError(error))
-      }
-  })
+  return new Promise(async(resolve, reject) => {
+    try {
+      const workspaceComponents = await workspaceComponentModel.getInstance().model.find(filter, {
+        'consumption_history': 0
+      })
+        .lean()
+        .exec();
+      workspaceComponents.forEach(c => {
+        c.specificData = c.specificData || {};
+      });
+      resolve(workspaceComponents);
+    } catch (error) {
+      reject(new Error.DataBaseProcessError(error));
+    }
+  });
 } // <= _get_all
 
 // --------------------------------------------------------------------------------
 function _get_all_withConsomation(filter) {
-  return new Promise(function(resolve, reject) {
+  return new Promise((resolve, reject) => {
     workspaceComponentModel.getInstance().model.find(filter)
       .lean()
       .exec()
       .then(workspaceComponents => {
         workspaceComponents.forEach(c => {
-          c.specificData = c.specificData || {}
+          c.specificData = c.specificData || {};
         });
         resolve(workspaceComponents);
       })
       .catch(err => {
-        reject(new Error.DataBaseProcessError(err))
+        reject(new Error.DataBaseProcessError(err));
       });
-  })
+  });
 }
 
 
 // --------------------------------------------------------------------------------
 function _get_connectBefore_connectAfter(filter) {
-  return new Promise(function(resolve, reject) {
+  return new Promise((resolve, reject) => {
     workspaceComponentModel.getInstance().model.findOne(filter, {
-        'consumption_history': 0
-      })
+      'consumption_history': 0
+    })
       .populate('connectionsBefore')
       .populate('connectionsAfter')
-      .lean().exec(function(err, worksapceComponent) {
+      .lean().exec((err, worksapceComponent) => {
         if (err) {
-          reject(new Error.DataBaseProcessError(err))
+          reject(new Error.DataBaseProcessError(err));
         } else {
           worksapceComponent.specificData = worksapceComponent.specificData || {};
           resolve(worksapceComponent);
         }
       });
-  })
+  });
 } // <= _get_connectBefore_connectAfter
 
 // --------------------------------------------------------------------------------
 function _update(componentToUpdate) {
-  return new Promise(async (resolve, reject) => {
-
+  return new Promise(async(resolve, reject) => {
     if (componentToUpdate) {
       // console.log('componentToUpdate', componentToUpdate);
-      let componentUpdated = await  workspaceComponentModel.getInstance().model.findOneAndUpdate({
+      const componentUpdated = await workspaceComponentModel.getInstance().model.findOneAndUpdate({
         _id: componentToUpdate._id
       }, componentToUpdate, {
         upsert: true,
         new: true
       })
-      .lean()
-      .exec();
+        .lean()
+        .exec();
       // console.log('componentUpdated', componentUpdated);
-      resolve(componentUpdated)
+      resolve(componentUpdated);
     }
   });
-
 } // <= _update
 
 // --------------------------------------------------------------------------------
 
 function _remove(componentToDelete) {
-  return new Promise(async (resolve, reject) => {
-    let component = await workspaceComponentModel.getInstance().model.findOne({
+  return new Promise(async(resolve, reject) => {
+    const component = await workspaceComponentModel.getInstance().model.findOne({
       _id: componentToDelete._id
     }).exec();
-    let workspace= await workspaceModel.getInstance().model.findOne({
-     _id:component.workspaceId
+    const workspace = await workspaceModel.getInstance().model.findOne({
+      _id: component.workspaceId
     }, {
-      'consumption_history': 0,
+      'consumption_history': 0
     })
-    .exec();
-    if (workspace){
-      let  res = await workspaceComponentModel.getInstance().model.deleteOne({
+      .exec();
+    if (workspace) {
+      const res = await workspaceComponentModel.getInstance().model.deleteOne({
         _id: componentToDelete._id
       }).exec();
 
-  
-      workspace.links =workspace.links.filter(sift({
+
+      workspace.links = workspace.links.filter(sift({
         $and: [{
           source: {
             $ne: componentToDelete._id
@@ -177,27 +171,24 @@ function _remove(componentToDelete) {
       await workspace.save();
       resolve(componentToDelete);
     } else {
-      reject(new Error.DataBaseProcessError('workflow not finded'))
+      reject(new Error.DataBaseProcessError('workflow not finded'));
     }
-
-
-
   });
 } // <= remove
 
 // --------------------------------------------------------------------------------
 function _get_component_result(componentId, processId) {
-  return new Promise(async (resolve, reject) => {
+  return new Promise(async(resolve, reject) => {
     try {
-      const historiqueEnd = await  historiqueEndModel.getInstance().model.findOne({
+      const historiqueEnd = await historiqueEndModel.getInstance().model.findOne({
         processId: processId,
         componentId: componentId
       })
-      .lean()
-      .exec();
+        .lean()
+        .exec();
       resolve(historiqueEnd);
     } catch (error) {
-      reject(new Error.DataBaseProcessError(error))
+      reject(new Error.DataBaseProcessError(error));
     }
     // historiqueEndModel.getInstance().model.findOne({
     //     processId: processId,
@@ -215,5 +206,5 @@ function _get_component_result(componentId, processId) {
     //       resolve(historiqueEnd);
     //     }
     //   })
-  })
+  });
 }

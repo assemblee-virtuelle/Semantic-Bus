@@ -1,16 +1,15 @@
-"use strict";
+'use strict';
 class PromiseOrchestrator {
   constructor() {}
 
   execute(context, workFunction, paramArray, option, config) {
     // console.log('execute',paramArray);
-    let executor = new PromisesExecutor(context, workFunction, paramArray, option, config);
+    const executor = new PromisesExecutor(context, workFunction, paramArray, option, config);
     return executor.execute();
   }
-
 }
 
-//maxSametimeExecution,intervalBewtwenExecution,workFunction
+// maxSametimeExecution,intervalBewtwenExecution,workFunction
 class PromisesExecutor {
   constructor(context, workFunction, paramArray, option, config) {
     this.increment = 0;
@@ -22,8 +21,8 @@ class PromisesExecutor {
     this.option = option || {};
     this.option.beamNb = this.option.beamNb || 1;
     this.option.beamNb = parseInt(this.option.beamNb);
-    if(isNaN(this.option.beamNb)){
-      throw new Error("beamNb have to be a number")
+    if(isNaN(this.option.beamNb)) {
+      throw new Error('beamNb have to be a number');
     }
     this.config = config;
   }
@@ -34,7 +33,7 @@ class PromisesExecutor {
       this.initialPromiseReject = reject;
       // console.log("length",this.paramArray.length);
       try {
-        if(this.paramArray.length==0){
+        if(this.paramArray.length == 0) {
           this.initialPromiseResolve([]);
         }else{
           for (let i = 0; i < Math.min(this.option.beamNb, this.paramArray.length); i++) {
@@ -51,71 +50,65 @@ class PromisesExecutor {
   async incrementExecute() {
     try {
       // console.log(this.option);
-      let continueChekresult= true;
-      if(this.option && this.option.continueCheckFunction){
+      let continueChekresult = true;
+      if(this.option && this.option.continueCheckFunction) {
         // console.log('continueCheckFunction call');
 
-        continueChekresult = await this.option.continueCheckFunction()
+        continueChekresult = await this.option.continueCheckFunction();
         // console.log(continueChekresult);
       }
 
       // console.log('continueChekresult',continueChekresult);
-      if(continueChekresult){
+      if(continueChekresult) {
         if (this.incrementResolved == this.paramArray.length) {
           // console.log('this.globalOut',this.globalOut);
-          this.promiseResolved==true;
+          this.promiseResolved == true;
           this.initialPromiseResolve(this.globalOut);
         } else if (this.increment < this.paramArray.length) {
-          //console.log('new PromiseExecutor',this.increment);
+          // console.log('new PromiseExecutor',this.increment);
           if (this.config != undefined && this.config.quietLog != true) {
             // console.log(`promiseOrchestrator ${this.increment}/${this.paramArray.length}`);
           }
-          
+
           // Add delay before executing if delayMs is specified
           if (this.option.delayMs && this.option.delayMs > 0) {
             await new Promise(resolve => setTimeout(resolve, this.option.delayMs));
           }
-          
-          let promiseExecutor = new PromiseExecutor(this.context, this.workFunction, this.paramArray, this.option, this.increment);
+
+          const promiseExecutor = new PromiseExecutor(this.context, this.workFunction, this.paramArray, this.option, this.increment);
           this.increment++;
           promiseExecutor.execute().then((currentOut) => {
-            //console.log("currentOut",currentOut);
-            //console.log('Promise Sucess');
-            this.globalOut[currentOut.index] = currentOut==undefined?undefined:currentOut.value;
+            // console.log("currentOut",currentOut);
+            // console.log('Promise Sucess');
+            this.globalOut[currentOut.index] = currentOut == undefined ? undefined : currentOut.value;
             this.incrementResolved++;
-            setTimeout(this.incrementExecute.bind(this),1)
-            //this.incrementExecute();
+            setTimeout(this.incrementExecute.bind(this), 1);
+            // this.incrementExecute();
           }).catch((e) => {
-            //this.globalOut[currentOut.index]=currentOut.value;
+            // this.globalOut[currentOut.index]=currentOut.value;
             this.globalOut[e.index] = e.value;
             this.incrementResolved++;
 
-            setTimeout(this.incrementExecute.bind(this),1)
-            //this.incrementExecute();
-
+            setTimeout(this.incrementExecute.bind(this), 1);
+            // this.incrementExecute();
           }).then(() => {
-            //console.log('XX');
+            // console.log('XX');
             // this.increment++;
             // this.incrementExecute(context,workFunction,paramArray,option);
           });
-
-
         }
       }else{
-        if(this.increment==this.incrementResolved && this.promiseResolved!=true){
-          this.promiseResolved==true;
+        if(this.increment == this.incrementResolved && this.promiseResolved != true) {
+          this.promiseResolved == true;
           // console.log('No Continue and resolve out',this.globalOut);
           this.initialPromiseResolve(this.globalOut);
         }
-
       }
-
     } catch (e) {
-      //console.log(e);
-      this.promiseResolved==true;
+      // console.log(e);
+      this.promiseResolved == true;
       this.initialPromiseReject(e);
     }
-
   }
 }
 
@@ -131,11 +124,11 @@ class PromiseExecutor {
   execute() {
     // console.log('PromiseExecutor : execute');
 
-    return new Promise(async (resolve, reject) => {
-      let currentParams = this.paramArray[this.index];
+    return new Promise(async(resolve, reject) => {
+      const currentParams = this.paramArray[this.index];
       // console.log('apply',currentParams);
       try {
-        let currentOut=  await this.workFunction.apply(this.context, currentParams);
+        const currentOut = await this.workFunction.apply(this.context, currentParams);
         resolve({
           index: this.index,
           value: currentOut

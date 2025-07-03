@@ -4,21 +4,21 @@ module.exports = {
   fragment_lib: require('./fragment_lib_scylla.js'),
   file_lib: require('./file_lib_scylla.js'),
   PromiseOrchestrator: require('../helpers/promiseOrchestrator.js'),
-  persist: async function(component, data, history,processId) {
+  persist: async function(component, data, history, processId) {
     // console.log('__persisting cache', data)
     let cachedData;
-    let cachedDataIn = await this.cacheModel.getInstance().model.findOne({
+    const cachedDataIn = await this.cacheModel.getInstance().model.findOne({
       _id: component._id
     }).lean().exec();
     cachedData = cachedDataIn;
 
 
-    if (cachedDataIn&&cachedDataIn!=null){
-      if(cachedDataIn.frag){
+    if (cachedDataIn && cachedDataIn != null) {
+      if(cachedDataIn.frag) {
         try{
-          await this.fragment_lib.cleanFrag(cachedDataIn.frag)
-        }catch(e){
-          console.warn('cache not cleaned', cachedDataIn.frag)
+          await this.fragment_lib.cleanFrag(cachedDataIn.frag);
+        }catch(e) {
+          console.warn('cache not cleaned', cachedDataIn.frag);
         }
       }
     } else {
@@ -31,10 +31,10 @@ module.exports = {
     });
 
     // console.log('data before', data);
-    await this.duplicateFile(data,null,component._id);
+    await this.duplicateFile(data, null, component._id);
     // console.log('data after',data);
 
-    let frag = await this.fragment_lib.persist(data);
+    const frag = await this.fragment_lib.persist(data);
 
     // await this.fragment_lib.displayFragTree(frag.id)
     // await new Promise(resolve => setTimeout(resolve, 1000));
@@ -50,19 +50,19 @@ module.exports = {
     }
 
     return await this.cacheModel.getInstance().model.findOneAndUpdate({
-        _id: component._id
-      },
-      cachedData, {
-        upsert: true,
-        new: true
-      }).lean().exec();    
+      _id: component._id
+    },
+    cachedData, {
+      upsert: true,
+      new: true
+    }).lean().exec();
   },
 
   get: function(component, resolveFrag, processId) {
     // console.log('CACHE processId', processId);
-    let promiseOrchestrator = new this.PromiseOrchestrator();
-    return new Promise(async (resolve, reject) => {
-      let cachedData = await this.cacheModel.getInstance().model.findOne({
+    const promiseOrchestrator = new this.PromiseOrchestrator();
+    return new Promise(async(resolve, reject) => {
+      const cachedData = await this.cacheModel.getInstance().model.findOne({
         _id: component._id
       }).lean().exec();
 
@@ -71,15 +71,14 @@ module.exports = {
       if (cachedData != undefined) {
         if (component.specificData.historyOut != true) {
           if (cachedData.frag != undefined) {
-
             if (resolveFrag == true) {
               // console.log('_____resolveFrag_____', cachedData.frag)
               // this.fragment_lib.displayFragTree(cachedData.frag)
               // await new Promise(resolve => setTimeout(resolve, 1000));
               try{
-                dataDefraged = await this.fragment_lib.getWithResolutionByBranch(cachedData.frag,);
-              }catch(e){
-                console.log('reding cache', e)
+                dataDefraged = await this.fragment_lib.getWithResolutionByBranch(cachedData.frag);
+              }catch(e) {
+                console.log('reding cache', e);
               }
               // console.log('___dataDefraged', dataDefraged[0])
               // console.log('CACHE processId', processId);
@@ -88,11 +87,11 @@ module.exports = {
               dataDefraged = await this.fragment_lib.get(cachedData.frag);
             }
           } else {
-            reject(new Error("frag of cache doesn't exist"));
+            reject(new Error('frag of cache doesn\'t exist'));
           }
         } else {
-          let arrayParam = cachedData.history.map(r => [r.frag]);
-          return await promiseOrchestrator.execute(this.fragment_lib, this.fragment_lib.getWithResolutionByBranch, arrayParam)
+          const arrayParam = cachedData.history.map(r => [r.frag]);
+          return await promiseOrchestrator.execute(this.fragment_lib, this.fragment_lib.getWithResolutionByBranch, arrayParam);
         }
       } else {
         resolve(undefined);
@@ -115,7 +114,7 @@ module.exports = {
       if (data.hasOwnProperty(key)) {
         if (key === '_file') {
           // console.log(`Property _file found: ${data[key]}`);
-          let file = await this.file_lib.get(data[key]);
+          const file = await this.file_lib.get(data[key]);
           // console.log('file', file);
           const newFile = await this.file_lib.duplicate(file, {
             processId: processId,
@@ -125,7 +124,7 @@ module.exports = {
           data[key] = newFile.id;
         }
         if (typeof data[key] === 'object' && data[key] !== null) {
-          await this.duplicateFile(data[key],processId,cacheId);
+          await this.duplicateFile(data[key], processId, cacheId);
         }
       }
     }

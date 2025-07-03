@@ -19,12 +19,12 @@ class MongoClient {
 
     const conStr = this.config.mlabDB;
     console.log('🔗 MongoDB:', conStr);
-    
-    let options = {
+
+    const options = {
       useNewUrlParser: true,
       useUnifiedTopology: true,
       minPoolSize: 5, // Nombre minimum de connexions dans le pool
-      maxPoolSize: 10, // Nombre maximum de connexions dans le pool
+      maxPoolSize: 10 // Nombre maximum de connexions dans le pool
     };
     if (conStr.includes('tls') || conStr.includes('ssl')) {
       options.ssl = true;
@@ -33,15 +33,15 @@ class MongoClient {
     // console.log('------------------ CREATE CONNECTION --------------');
     const db = this.mongoose.createConnection(conStr, options);
 
-    db.on('connected', function () {
+    db.on('connected', () => {
       console.log('✅ Mongoose connected');
     });
 
-    db.on('error', function (err) {
+    db.on('error', (err) => {
       console.log('❌ Mongoose default connection error: ' + err);
     });
 
-    db.on('disconnected', function () {
+    db.on('disconnected', () => {
       console.log('⚠️  Mongoose default connection disconnected');
     });
 

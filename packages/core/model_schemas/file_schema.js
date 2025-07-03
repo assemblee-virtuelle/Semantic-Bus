@@ -1,12 +1,12 @@
 'use strict';
 
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-var FileSchema = mongoose.Schema({
+const FileSchema = mongoose.Schema({
   filePath: {
     type: String,
     required: true
@@ -17,7 +17,7 @@ var FileSchema = mongoose.Schema({
   },
   user: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: "User"
+    ref: 'User'
   },
   created_at: {
     type: Date,

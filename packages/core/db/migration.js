@@ -4,11 +4,9 @@ const Spinnies = require('spinnies');
 const spinnies = new Spinnies();
 
 async function migrateFragmentsDataFromScyllaToDynamoDB() {
-
-
   const limit = Infinity;
   console.log('Starting migration from Scylla to DynamoDB...');
-  
+
   // Count the number of records before starting the migration
   let totalRecords = await scyllaModel.countDocuments({});
   totalRecords = Math.min(totalRecords, limit);
@@ -22,7 +20,7 @@ async function migrateFragmentsDataFromScyllaToDynamoDB() {
     const now = Date.now();
     if (!hasLoggedInactivity && now - lastProcessedTime >= 1000) {
       // console.log(`Total migrated: ${totalMigrated}`);
-      spinnies.succeed('migration', { text: `Migration in progress: ${totalMigrated} records migrated`});
+      spinnies.succeed('migration', { text: `Migration in progress: ${totalMigrated} records migrated` });
       hasLoggedInactivity = true; // Set the flag to true after logging
     } else if (!hasLoggedInactivity) {
       setTimeout(logIfInactive, 1000); // Schedule the next check only if not logged
@@ -32,7 +30,7 @@ async function migrateFragmentsDataFromScyllaToDynamoDB() {
   // Initial call to start the timeout chain
   setTimeout(logIfInactive, 1000);
 
-  const processRecords = async (scyllaDataArray) => {
+  const processRecords = async(scyllaDataArray) => {
     for (const scyllaData of scyllaDataArray) {
       lastProcessedTime = Date.now(); // Update the last processed time
       hasLoggedInactivity = false; // Reset the flag when a record is processed
@@ -75,7 +73,6 @@ async function migrateFragmentsDataFromScyllaToDynamoDB() {
   scyllaModel.searchFragmentByField({}, {}, {}, limit, processRecords);
 
   // console.log(`Migration completed. Total records migrated: ${totalMigrated}`);
-
 }
 
-module.exports = { migrateFragmentsDataFromScyllaToDynamoDB }; 
+module.exports = { migrateFragmentsDataFromScyllaToDynamoDB };

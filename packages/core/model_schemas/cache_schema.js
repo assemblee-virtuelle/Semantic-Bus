@@ -1,12 +1,12 @@
 'use strict';
 
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 // --------------------------------------------------------------------------------
 
-var CacheSchema = mongoose.Schema({
+const CacheSchema = mongoose.Schema({
   frag: {
-    type: String,
+    type: String
   },
   date: {
     type: Date,
@@ -18,9 +18,9 @@ var CacheSchema = mongoose.Schema({
       default: Date.now
     },
     frag: {
-      type: String,
+      type: String
     }
-  }],
+  }]
 });
 
 // --------------------------------------------------------------------------------

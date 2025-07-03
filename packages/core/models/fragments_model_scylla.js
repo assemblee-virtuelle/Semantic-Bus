@@ -10,14 +10,14 @@ const compressData = (data) => {
   // if (data === undefined || data === null) return null;
   // Cas spécial pour une chaîne vide - nous pouvons utiliser un marqueur spécial
 
-  // console.log('___data', JSON.stringify(data)) 
-  if (data === ''){
+  // console.log('___data', JSON.stringify(data))
+  if (data === '') {
     return Buffer.from('__EMPTY_STRING__');
-  } else if (data === undefined){
+  } else if (data === undefined) {
     return Buffer.from('__UNDEFINED__');
-  } else if (data === null){
+  } else if (data === null) {
     return Buffer.from('__NULL__');
-  } else { 
+  } else {
     return zlib.deflateSync(Buffer.from(JSON.stringify(data), 'utf-8'));
   }
 };
@@ -26,11 +26,11 @@ const compressData = (data) => {
 const decompressData = (compressedData) => {
   // Vérifier si c'est notre marqueur de chaîne vide
   let output;
-  if (compressedData.toString() === '__EMPTY_STRING__'){
+  if (compressedData.toString() === '__EMPTY_STRING__') {
     output = '';
-  } else if (compressedData.toString() === '__UNDEFINED__'){
+  } else if (compressedData.toString() === '__UNDEFINED__') {
     output = undefined;
-  } else if (compressedData.toString() === '__NULL__'){
+  } else if (compressedData.toString() === '__NULL__') {
     output = null;
   } else {
     output = JSON.parse(zlib.inflateSync(compressedData).toString('utf-8'));
@@ -49,7 +49,7 @@ const processFragmentRead = (fragmentData) => {
     }
   }
 
-  let processedFragment = new Fragment(fragmentData);
+  const processedFragment = new Fragment(fragmentData);
 
   processedFragment.id = processedFragment.id.toString();
   processedFragment.rootFrag = processedFragment?.rootFrag?.toString();
@@ -63,12 +63,11 @@ const processFragmentRead = (fragmentData) => {
 
 // Function to process a fragment for writing
 const processFragmentWrite = (fragment) => {
-  
   const processedFragment = { ...fragment };
 
   // console.log('___ update fragment', JSON.stringify(fragment))
   processedFragment.data = compressData(fragment.data);
-  
+
 
   processedFragment.id = fragment?.id?.toString(); // Ensure id is a string
   return processedFragment;
@@ -84,10 +83,10 @@ const processCriteriaAndOptions = (criteria) => {
     criteria.maxIndexarray = criteria.maxIndex;
     delete criteria.maxIndex;
   }
-  return criteria
+  return criteria;
 };
 
-const insertFragment = async (fragment) => {
+const insertFragment = async(fragment) => {
   // console.log('___insertFragment',fragment.data)
   const processedFragment = processFragmentWrite(fragment);
   const query = `
@@ -111,7 +110,7 @@ const insertFragment = async (fragment) => {
   return processFragmentRead(processedFragment);
 };
 
-const updateFragment = async (fragment) => {
+const updateFragment = async(fragment) => {
   // console.log('___updateFragment')
   const processedFragment = processFragmentWrite(fragment);
   const query = `
@@ -137,7 +136,7 @@ const updateFragment = async (fragment) => {
   return processFragmentRead(processedFragment);
 };
 
-const persistFragment = async (fragment) => {
+const persistFragment = async(fragment) => {
   try {
     const existingFragment = await getFragmentById(fragment.id);
 
@@ -153,10 +152,8 @@ const persistFragment = async (fragment) => {
 };
 
 
-
-
-const getFragmentById = async (id) => {
-  const query = `SELECT * FROM fragment WHERE id = ?`;
+const getFragmentById = async(id) => {
+  const query = 'SELECT * FROM fragment WHERE id = ?';
   const result = await client.execute(query, [id], { prepare: true });
   if (result.rowLength > 0) {
     const fragmentData = result.rows[0];
@@ -171,11 +168,11 @@ const getFragmentById = async (id) => {
 
 
 // Mise à jour de searchFragmentByField
-const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, selectedFields = {}, limit = Infinity, callback = null) => {
+const searchFragmentByField = async(searchCriteria = {}, sortOptions = {}, selectedFields = {}, limit = Infinity, callback = null) => {
   // Traitement des critères et options
   searchCriteria = processCriteriaAndOptions(searchCriteria);
   selectedFields = processCriteriaAndOptions(selectedFields);
-  // sortOptions = processCriteriaAndOptions(sortOptions); 
+  // sortOptions = processCriteriaAndOptions(sortOptions);
 
   const fieldNames = Object.keys(searchCriteria);
 
@@ -191,12 +188,12 @@ const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, sele
   // console.log('___selectedFieldNames', selectedFieldNames)
   const limitClause = limit !== Infinity ? `LIMIT ${limit}` : ''; // Ne pas ajouter LIMIT si limit est Infinity
   const queryString = `SELECT ${selectedFieldNames} FROM fragment ${whereClause} ${limitClause}`;
-  const queryParams = fieldNames.flatMap(field => Array.isArray(searchCriteria[field]) ? searchCriteria[field] : [searchCriteria[field]]);
+  const queryParams = fieldNames.flatMap(field => (Array.isArray(searchCriteria[field]) ? searchCriteria[field] : [searchCriteria[field]]));
 
   const resultProcessed = await getAllFragments(queryString, queryParams, limit, callback); // Transmettre la limite
 
   if (!callback) {
-    let rows = resultProcessed;
+    const rows = resultProcessed;
     if (sortOptions) {
       rows.sort((a, b) => {
         let compare;
@@ -223,7 +220,7 @@ const searchFragmentByField = async (searchCriteria = {}, sortOptions = {}, sele
   // Ne retourne rien si un callback est fourni
 };
 
-const updateMultipleFragments = async (searchCriteria, updateFields, showSpinner = false) => {
+const updateMultipleFragments = async(searchCriteria, updateFields, showSpinner = false) => {
   const spinnies = new Spinnies();
   const searchCriteriaProcessed = processCriteriaAndOptions(searchCriteria); // Appel de la fonction utilitaire
   const updateFieldsProcessed = processFragmentWrite(updateFields); // Application de processFragmentWrite
@@ -239,7 +236,7 @@ const updateMultipleFragments = async (searchCriteria, updateFields, showSpinner
     spinnies.add('update', { text: 'Updating fragments...' });
   }
 
-  await searchFragmentByField(searchCriteriaProcessed, null, { id: 1 }, undefined, async (rows) => {
+  await searchFragmentByField(searchCriteriaProcessed, null, { id: 1 }, undefined, async(rows) => {
     count += rows.length;
     if (showSpinner) {
       spinnies.update('update', { text: `Updating fragments... (${count})` });
@@ -250,7 +247,6 @@ const updateMultipleFragments = async (searchCriteria, updateFields, showSpinner
     const query = `UPDATE fragment SET ${setClause} WHERE ${whereClause}`;
     const queryValues = [...values, ...idsToUpdate];
     await client.execute(query, queryValues, { prepare: true });
-
   });
 
   if (showSpinner) {
@@ -258,13 +254,13 @@ const updateMultipleFragments = async (searchCriteria, updateFields, showSpinner
   }
 };
 
-const deleteManyFragments = async (searchCriteria, showSpinner = false) => {
+const deleteManyFragments = async(searchCriteria, showSpinner = false) => {
   searchCriteria = processCriteriaAndOptions(searchCriteria);
   let count = 0;
   if (showSpinner) {
     spinnies.add('delete', { text: 'Deleting fragments...' });
   }
-  await searchFragmentByField(searchCriteria, undefined, { id: 1 }, undefined, async (rows) => {
+  await searchFragmentByField(searchCriteria, undefined, { id: 1 }, undefined, async(rows) => {
     count += rows.length;
     if (showSpinner) {
       spinnies.update('delete', { text: `Deleting fragments... (${count})` });
@@ -280,15 +276,15 @@ const deleteManyFragments = async (searchCriteria, showSpinner = false) => {
   }
 };
 
-const countDocuments = async (searchCriteria) => {
+const countDocuments = async(searchCriteria) => {
   let count = 0;
-  await searchFragmentByField(searchCriteria, undefined, { id: 1 }, undefined, async (rows) => {
+  await searchFragmentByField(searchCriteria, undefined, { id: 1 }, undefined, async(rows) => {
     count = rows.length;
   });
   return count; // Retourne le nombre d'IDs trouvés
 };
 
-const getAllFragments = async (query, params, limit = Infinity, callback = null) => {
+const getAllFragments = async(query, params, limit = Infinity, callback = null) => {
   let allRows = [];
   let pageCount = 0;
   let result;
@@ -296,8 +292,8 @@ const getAllFragments = async (query, params, limit = Infinity, callback = null)
 
   do {
     pageCount++;
-    result = await client.execute(query, params, { 
-      prepare: true, 
+    result = await client.execute(query, params, {
+      prepare: true,
       pageState: result?.pageState,
       fetchSize: pageSize // Add page size limit
     });

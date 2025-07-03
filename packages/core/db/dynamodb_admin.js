@@ -77,7 +77,7 @@ const commonParams = {
   ]
 };
 
-const createTable = async (tableName, params) => {
+const createTable = async(tableName, params) => {
   const { dynamodb } = await dynamoDBClients;
   try {
     const createTableCommand = new CreateTableCommand(params);
@@ -149,7 +149,7 @@ const compareTableStructure = (existingTable, commonParams) => {
   return attributesMatch && keySchemaMatch && indexesMatch;
 };
 
-const createFragmentTable = async () => {
+const createFragmentTable = async() => {
   const { dynamodb } = await dynamoDBClients;
 
   try {
@@ -166,7 +166,6 @@ const createFragmentTable = async () => {
       console.log('Table structure matches commonParams, no update needed.');
       // console.log('existingTable',JSON.stringify(existingTable));
     }
-
   } catch (error) {
     if (error.name === 'ResourceNotFoundException') {
       // Table does not exist, create it
@@ -188,7 +187,7 @@ const createFragmentTable = async () => {
   }
 };
 
-const backupAndRecreateTable = async () => {
+const backupAndRecreateTable = async() => {
   const { dynamodb } = await dynamoDBClients;
 
   try {
@@ -239,14 +238,13 @@ const backupAndRecreateTable = async () => {
     const deleteBackupTableCommand = new DeleteTableCommand({ TableName: 'fragmentBackup' });
     await dynamodb.send(deleteBackupTableCommand);
     console.log('Backup table fragmentBackup deleted successfully');
-
   } catch (error) {
     console.error('Error during backup and recreation process:', error);
     throw error;
   }
 };
 
-const copyTableData = async (sourceTable, destinationTable) => {
+const copyTableData = async(sourceTable, destinationTable) => {
   const { dynamodb } = await dynamoDBClients;
   console.log(`Copying data from ${sourceTable} to ${destinationTable}`);
 
@@ -282,4 +280,4 @@ const copyTableData = async (sourceTable, destinationTable) => {
   }
 };
 
-module.exports = { createFragmentTable, backupAndRecreateTable }; 
+module.exports = { createFragmentTable, backupAndRecreateTable };

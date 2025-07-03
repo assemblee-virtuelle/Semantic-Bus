@@ -3,7 +3,7 @@ const client = require('../db/scylla_client');
 const File = require('../model_schemas/file_schema_scylla');
 const { v4: uuidv4 } = require('uuid');
 
-const insertFile = async (file) => {
+const insertFile = async(file) => {
   // Check file size and throw error if it exceeds maximum size
   const MAX_FILE_SIZE = 15 * 1024 * 1024; // 15MB in bytes
   if (file.binary && file.binary.length > MAX_FILE_SIZE) {
@@ -18,22 +18,22 @@ const insertFile = async (file) => {
     file.binary,
     file.frag,
     file.filename,
-    file.processId, 
-    file.cacheId 
-  ], { 
+    file.processId,
+    file.cacheId
+  ], {
     prepare: true
   });
 
   return file;
 };
 
-const deleteFileById = async (id) => {
-  const query = `DELETE FROM file WHERE id = ?`;
+const deleteFileById = async(id) => {
+  const query = 'DELETE FROM file WHERE id = ?';
   await client.execute(query, [id], { prepare: true });
 };
 
-const getFileById = async (id) => {
-  const query = `SELECT * FROM file WHERE id = ?`;
+const getFileById = async(id) => {
+  const query = 'SELECT * FROM file WHERE id = ?';
   const result = await client.execute(query, [id], { prepare: true });
 
   if (result.rowLength > 0) {
@@ -44,9 +44,9 @@ const getFileById = async (id) => {
   }
 };
 
-const searchFileByField = async (searchCriteria = {}, sortOptions = {}, selectedFields = {}) => {
+const searchFileByField = async(searchCriteria = {}, sortOptions = {}, selectedFields = {}) => {
   const fieldNames = Object.keys(searchCriteria);
-  
+
   const whereClauses = fieldNames.map(field => {
     if (Array.isArray(searchCriteria[field])) {
       return `${field} IN (${searchCriteria[field].map(() => '?').join(', ')})`;
@@ -58,16 +58,16 @@ const searchFileByField = async (searchCriteria = {}, sortOptions = {}, selected
 
   const selectedFieldNames = Object.keys(selectedFields).filter(field => selectedFields[field] === 1).join(', ') || '*';
   let queryString = `SELECT ${selectedFieldNames} FROM file ${whereClause}`;
-  
+
   // Ajouter ALLOW FILTERING si nous utilisons IN dans la clause WHERE
   if (whereClauses.some(clause => clause.includes('IN'))) {
     queryString += ' ALLOW FILTERING';
   }
-  
-  const queryParams = fieldNames.flatMap(field => Array.isArray(searchCriteria[field]) ? searchCriteria[field] : [searchCriteria[field]]);
+
+  const queryParams = fieldNames.flatMap(field => (Array.isArray(searchCriteria[field]) ? searchCriteria[field] : [searchCriteria[field]]));
   const result = await getAllFiles(queryString, queryParams);
 
-  let rows = result;
+  const rows = result;
   if (sortOptions) {
     rows.sort((a, b) => {
       for (const [key, order] of Object.entries(sortOptions)) {
@@ -82,7 +82,7 @@ const searchFileByField = async (searchCriteria = {}, sortOptions = {}, selected
   return rows.map(row => new File(row));
 };
 
-const getAllFiles = async (query, params) => {
+const getAllFiles = async(query, params) => {
   let result = await client.execute(query, params, { prepare: true });
   let allRows = result.rows;
 
@@ -94,7 +94,7 @@ const getAllFiles = async (query, params) => {
   return allRows;
 };
 
-const updateFile = async (file) => {
+const updateFile = async(file) => {
   const query = `
     UPDATE file 
     SET binary = ?, filename = ?, processId = ?, cacheId = ?
@@ -114,14 +114,14 @@ const updateFile = async (file) => {
   return file;
 };
 
-const duplicateFile = async (existingFile, newFileProperties) => {
+const duplicateFile = async(existingFile, newFileProperties) => {
   // Créer un nouvel objet File en combinant les propriétés de l'ancien fichier et les nouvelles propriétés
   const newFileData = {
     ...existingFile,
     ...newFileProperties,
     id: undefined // Laisser le constructeur générer un nouvel ID
   };
-  
+
   const newFile = new File(newFileData);
 
   // Persister le nouveau fichier dans la base de données
@@ -130,11 +130,11 @@ const duplicateFile = async (existingFile, newFileProperties) => {
   return newFile;
 };
 
-const deleteManyFile = async (criteria) => {
+const deleteManyFile = async(criteria) => {
   // console.log('start deleteManyFile : ',criteria)
 
   const filesToDelete = await searchFileByField(criteria);
-  
+
   const fileIds = filesToDelete.map(file => file.id);
 
   // console.log('deleteManyFile : ',fileIds)
@@ -142,7 +142,6 @@ const deleteManyFile = async (criteria) => {
   const query = `DELETE FROM file WHERE id IN (${fileIds.map(() => '?').join(', ')})`;
 
   await client.execute(query, fileIds, { prepare: true });
-  
 };
 
 module.exports = {

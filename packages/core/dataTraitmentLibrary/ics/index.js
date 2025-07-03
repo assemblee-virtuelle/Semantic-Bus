@@ -4,18 +4,18 @@ const ICAL = require('ical.js');
 
 module.exports = {
   icstojson: _icstojson,
-  json_to_ics: _jsontoics,
+  json_to_ics: _jsontoics
 };
 
 
 // --------------------------------------------------------------------------------
 
 function decode_utf8(s) {
-  //console.log("in decode",s)
+  // console.log("in decode",s)
   try {
-    return decodeURIComponent(escape(s))
+    return decodeURIComponent(escape(s));
   } catch (e) {
-    return s
+    return s;
   }
 }
 
@@ -25,7 +25,7 @@ function _icstojson(icsData) {
       // Parse ICS data with ical.js
       const jcalData = ICAL.parse(icsData);
       const comp = new ICAL.Component(jcalData);
-      
+
       // Convert to JSON format
       const events = comp.getAllSubcomponents('vevent').map(vevent => {
         const event = new ICAL.Event(vevent);
@@ -38,9 +38,9 @@ function _icstojson(icsData) {
           uid: event.uid
         };
       });
-      
+
       resolve({ events });
-    }catch(e){
+    }catch(e) {
       console.log(e);
       reject(e);
     }
@@ -54,7 +54,7 @@ function _jsontoics(jsonData, header) {
       const comp = new ICAL.Component(['vcalendar', [], []]);
       comp.updatePropertyWithValue('version', '2.0');
       comp.updatePropertyWithValue('prodid', '-//Semantic Bus//ICS Converter//EN');
-      
+
       // Add events from JSON data
       if (jsonData.events) {
         jsonData.events.forEach(eventData => {
@@ -74,15 +74,15 @@ function _jsontoics(jsonData, header) {
           comp.addSubcomponent(vevent);
         });
       }
-      
+
       const resultICS = comp.toString();
       resolve(resultICS);
-    }catch(e){
+    }catch(e) {
       console.log(e);
       resolve({
-        error:{
-          message: "Unable to parse the data, see https://www.npmjs.com/package/ical.js and https://en.wikipedia.org/wiki/ICalendar",
-          libMessage : e.message
+        error: {
+          message: 'Unable to parse the data, see https://www.npmjs.com/package/ical.js and https://en.wikipedia.org/wiki/ICalendar',
+          libMessage: e.message
         }
       });
     }

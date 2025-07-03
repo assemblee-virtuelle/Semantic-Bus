@@ -1,12 +1,12 @@
 'use strict';
 
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
-var TransactionSchema = mongoose.Schema({
+const TransactionSchema = mongoose.Schema({
   amount_details: {
     amount: Number,
     currency: {

@@ -21,8 +21,8 @@ class DfobProcessor {
     const needDfob = dfobTable.length > 0 || (Array.isArray(rebuildData) && !keepArray);
     // console.log('__needDfob', needDfob)
     if (!needDfob) {
-      const params = buildParamArrayCallback(rebuildData)
-      rebuildData = await method.apply(module, params)
+      const params = buildParamArrayCallback(rebuildData);
+      rebuildData = await method.apply(module, params);
     } else {
       const dfobFlow = DfobHelper.buildDfobFlow(rebuildData, dfobTable, undefined, keepArray, tableDepth);
       // console.log('__dfobFlow', dfobFlow)
@@ -33,7 +33,7 @@ class DfobProcessor {
         } else {
           objectToProcess = item.objectToProcess;
         }
-        return buildParamArrayCallback(objectToProcess)
+        return buildParamArrayCallback(objectToProcess);
       });
 
       const componentFlowDfob = await promiseOrchestrator.execute(
@@ -54,7 +54,7 @@ class DfobProcessor {
         // console.log('__processedItem', processedItem)
         const initialItem = dfobFlow[index];
         // console.log('__initialItem', initialItem)
-        const finalValue=flowInDataProperty ? processedItem.data : processedItem;
+        const finalValue = flowInDataProperty ? processedItem.data : processedItem;
 
         if(initialItem.key !== undefined) {
           initialItem.objectToProcess[initialItem.key] = finalValue;
@@ -68,7 +68,7 @@ class DfobProcessor {
       //     const dfobItem = dfobFlow[key];
       //     // console.log('__dfobItem', dfobItem)
       //     // flowInDataProperty is used to know if the data is in the data property of the object
-      //     // dfobItem without 
+      //     // dfobItem without
       //     if (flowInDataProperty && 'data' in value) {
       //       if (dfobItem.key !== undefined) {
       //         dfobItem.objectToProcess[dfobItem.key] = value.data;
@@ -99,4 +99,4 @@ class DfobProcessor {
   }
 }
 
-module.exports = DfobProcessor; 
+module.exports = DfobProcessor;

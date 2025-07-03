@@ -53,7 +53,7 @@ class FragmentModel {
       });
 
       this._model = conn.model('fragment', FragmentSchema);
-     // conn.on('disconnected', function () {
+      // conn.on('disconnected', function () {
       //   console.log('Mongoose default connection disconnected');
       // });
     } catch (err) {

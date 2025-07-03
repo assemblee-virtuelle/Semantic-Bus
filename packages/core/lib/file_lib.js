@@ -1,6 +1,6 @@
 'use strict';
 
-const fileModel =require('../models/file_model');
+const fileModel = require('../models/file_model');
 
 module.exports = {
   get: function(fileId) {
@@ -10,16 +10,16 @@ module.exports = {
     });
   },
   create: function(file) {
-    return new Promise(async (resolve, reject) => {
+    return new Promise(async(resolve, reject) => {
       const fileModelInstance = fileModel.getInstance().model;
-      let fileObject = new fileModelInstance({...file});
+      const fileObject = new fileModelInstance({ ...file });
       resolve(await fileObject.save());
     });
   },
-  remove: function(fileId){
-    return new Promise(async function (resolve, reject) {
-      await certificateModel.getInstance().model.deleteOne({_id:fileId});
+  remove: function(fileId) {
+    return new Promise(async(resolve, reject) => {
+      await certificateModel.getInstance().model.deleteOne({ _id: fileId });
       resolve();
-    })
+    });
   }
 };

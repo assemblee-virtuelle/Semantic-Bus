@@ -20,12 +20,12 @@ const client = new cassandra.Client({
     readTimeout: config.CASSANDRA.socketOptions.readTimeout // Durée d'attente pour une réponse
   },
   authProvider: new cassandra.auth.PlainTextAuthProvider(config.CASSANDRA.authProvider.username, config.CASSANDRA.authProvider.password), // Authentification
-//   sslOptions: { // Options SSL pour sécuriser la connexion
-//     cert: fs.readFileSync('path/to/cert.pem'),
-//     key: fs.readFileSync('path/to/key.pem'),
-//     ca: [fs.readFileSync('path/to/ca.pem')],
-//     rejectUnauthorized: true
-//   },
+  //   sslOptions: { // Options SSL pour sécuriser la connexion
+  //     cert: fs.readFileSync('path/to/cert.pem'),
+  //     key: fs.readFileSync('path/to/key.pem'),
+  //     ca: [fs.readFileSync('path/to/ca.pem')],
+  //     rejectUnauthorized: true
+  //   },
   policies: {
     loadBalancing: new cassandra.policies.loadBalancing.RoundRobinPolicy() // Politique de répartition de charge
   }

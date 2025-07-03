@@ -1,14 +1,13 @@
 'use strict';
 
-var mongoose = require('mongoose');
+const mongoose = require('mongoose');
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
 
 
-
-var ProcessSchema = mongoose.Schema({
+const ProcessSchema = mongoose.Schema({
 
   timeStamp: {
     type: Date,
@@ -24,19 +23,19 @@ var ProcessSchema = mongoose.Schema({
     required: true
   },
   callerId: {
-    type: String,
-    //required: true
+    type: String
+    // required: true
   },
   state: {
     type: String,
     default: 'run'
   },
-  originComponentId:{
+  originComponentId: {
     type: String,
     required: true
   },
   steps: [{
-      componentId: String
+    componentId: String
   }]
 });
 // --------------------------------------------------------------------------------
