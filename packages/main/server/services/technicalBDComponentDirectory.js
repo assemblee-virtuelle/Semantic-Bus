@@ -7,9 +7,9 @@ module.exports = {
   /* some other modules you want */
 
   // --------------------------------------------------------------------------------
-  buildDictionnaryArray: function () {
-    var directory = []
-    for (var technicalComponent in this) {
+  buildDictionnaryArray: function() {
+    const directory = [];
+    for (const technicalComponent in this) {
       if (technicalComponent != 'initialise' && technicalComponent != 'buildDictionnaryArray') {
         directory.push({
           module: technicalComponent,
@@ -18,13 +18,13 @@ module.exports = {
           editor: this[technicalComponent].editor,
           graphIcon: this[technicalComponent].graphIcon,
           tags: this[technicalComponent].tags
-        })
+        });
       }
     }
-    return directory
+    return directory;
   },
 
-  initialise: function (router, unSafeRouteur) {
+  initialise: function(router, unSafeRouteur) {
 
   }
-}
+};

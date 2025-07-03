@@ -18,4 +18,4 @@ module.exports = {
     '^@/(.*)$': '<rootDir>/$1'
   },
   testTimeout: 10000
-}; 
+};

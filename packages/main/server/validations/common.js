@@ -1,4 +1,4 @@
-const t = require('io-ts')
+const t = require('io-ts');
 
 /**
  * @callback ErrorMessage
@@ -13,20 +13,20 @@ const t = require('io-ts')
  * @param {ErrorMessage?} errorMessage
  * @return {Type<string, string, *>}
  */
-function regex (regexToUse, errorMessage) {
+function regex(regexToUse, errorMessage) {
   return new t.Type(
     'regex',
     (value) => value instanceof String,
     (input, context) =>
       t.string.validate(input, context).chain(value => {
         if (regexToUse.test(value)) {
-          return t.success(value)
+          return t.success(value);
         } else {
-          return t.failure(input, context, errorMessage ? errorMessage(input, context) : undefined)
+          return t.failure(input, context, errorMessage ? errorMessage(input, context) : undefined);
         }
       }),
     value => value
-  )
+  );
 }
 
 /**
@@ -34,8 +34,8 @@ function regex (regexToUse, errorMessage) {
  * @param {ErrorMessage?} errorMessage
  * @return {Type<string, string, *>}
  */
-function optionalRegex (regexToUse, errorMessage) {
-  return optionalString(regex(regexToUse, errorMessage))
+function optionalRegex(regexToUse, errorMessage) {
+  return optionalString(regex(regexToUse, errorMessage));
 }
 
 /**
@@ -43,38 +43,38 @@ function optionalRegex (regexToUse, errorMessage) {
  * @param {Type<A, A, *>} innerType
  * @return {Type<A | undefined, A | undefined, *>}
  */
-function optional (innerType) {
+function optional(innerType) {
   return new t.Type(
     'optional',
     value => value === undefined || value === null || innerType.is(value),
     (input, context) => {
       if (input === undefined || input === null) {
-        return t.success(undefined)
+        return t.success(undefined);
       } else {
-        return innerType.validate(input, context)
+        return innerType.validate(input, context);
       }
     },
     value => value
-  )
+  );
 }
 
 /**
  * @param {Type<string, string, *>} innerType
  * @return {Type<string, string, *>}
  */
-function optionalString (innerType) {
+function optionalString(innerType) {
   return optional(new t.Type(
     'optionalString',
     value => value === undefined || value === null || typeof value === 'string',
     (input, context) => {
       if (input === undefined || input === null || input === '') {
-        return t.success(undefined)
+        return t.success(undefined);
       } else {
-        return innerType.validate(input, context)
+        return innerType.validate(input, context);
       }
     },
     value => value
-  ))
+  ));
 }
 
 module.exports = {
@@ -82,4 +82,4 @@ module.exports = {
   optionalRegex,
   optional,
   optionalString
-}
+};

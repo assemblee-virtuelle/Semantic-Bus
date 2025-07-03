@@ -29,12 +29,12 @@ module.exports = [
     rules: {
       // Erreurs importantes
       'no-console': 'off', // Autorisé car c'est un serveur
-      'no-unused-vars': ['warn', { 
+      'no-unused-vars': ['warn', {
         argsIgnorePattern: '^_',
         varsIgnorePattern: '^_'
       }],
       'no-undef': 'warn',
-      
+
       // Style de code (rules similaires à standard mais en warnings)
       'indent': ['warn', 2],
       'quotes': ['warn', 'single'],
@@ -51,7 +51,7 @@ module.exports = [
       'no-multiple-empty-lines': ['warn', { max: 2 }],
       'padded-blocks': ['warn', 'never'],
       'spaced-comment': 'warn',
-      
+
       // Bonnes pratiques
       'eqeqeq': 'warn',
       'no-eval': 'warn',
@@ -70,7 +70,7 @@ module.exports = [
       'no-irregular-whitespace': 'warn',
       'no-multi-spaces': 'warn',
       'space-infix-ops': 'warn',
-      
+
       // Variables
       'no-delete-var': 'error',
       'no-label-var': 'error',
@@ -78,7 +78,7 @@ module.exports = [
       'no-shadow-restricted-names': 'error',
       'no-use-before-define': 'warn',
       'no-redeclare': 'warn',
-      
+
       // ES6
       'no-confusing-arrow': 'warn',
       'no-duplicate-imports': 'warn',
@@ -98,4 +98,4 @@ module.exports = [
       'client/static/js/vendor/**'
     ]
   }
-]; 
+];

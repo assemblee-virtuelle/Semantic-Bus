@@ -1,4 +1,4 @@
-const { failure } = require('io-ts/lib/PathReporter')
+const { failure } = require('io-ts/lib/PathReporter');
 
 /**
  * Validate and normalize the input (body) of the request.
@@ -8,21 +8,21 @@ const { failure } = require('io-ts/lib/PathReporter')
  * @param {Decoder<A>} type
  * @return {Function}
  */
-function validateRequestInput (type) {
+function validateRequestInput(type) {
   return (req, res, next) => {
     type.decode(req.body)
       .map(normalizedValue => {
-        req.body = normalizedValue
-        next()
+        req.body = normalizedValue;
+        next();
       })
       .getOrElseL(error => {
         res
           .status(400)
-          .send({ message: failure(error).join('\n') })
-      })
-  }
+          .send({ message: failure(error).join('\n') });
+      });
+  };
 }
 
 module.exports = {
   validateRequestInput
-}
+};

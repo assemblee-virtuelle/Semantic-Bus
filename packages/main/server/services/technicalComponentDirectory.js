@@ -55,9 +55,9 @@ module.exports = {
   /* some other modules you want */
 
   // --------------------------------------------------------------------------------
-  buildDictionnaryArray: function () {
-    var directory = []
-    for (var technicalComponent in this) {
+  buildDictionnaryArray: function() {
+    const directory = [];
+    for (const technicalComponent in this) {
       if (technicalComponent != 'initialise' && technicalComponent != 'buildDictionnaryArray' && this[technicalComponent].tags != undefined) {
         directory.push({
           module: technicalComponent,
@@ -66,31 +66,31 @@ module.exports = {
           editor: this[technicalComponent].editor,
           graphIcon: this[technicalComponent].graphIcon,
           tags: this[technicalComponent].tags
-        })
+        });
       }
     }
-    return directory
+    return directory;
   },
 
-  initialise: function (router, unSafeRouteur) {
+  initialise: function(router, unSafeRouteur) {
     // console.log('initialise')
     // this.restApiPost.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
     // this.restApiGet.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
-    this.httpProvider.initialise(unSafeRouteur)
-    this.upload.initialise(router)
-    this.cacheNosql.initialise(router) // NO SECURE CHANGE ROUTER
-    this.imap.initialise()
-    this.googleAuth.initialise(unSafeRouteur)
+    this.httpProvider.initialise(unSafeRouteur);
+    this.upload.initialise(router);
+    this.cacheNosql.initialise(router); // NO SECURE CHANGE ROUTER
+    this.imap.initialise();
+    this.googleAuth.initialise(unSafeRouteur);
   },
 
-  setAmqpClient: function (channel) {
+  setAmqpClient: function(channel) {
     // console.log('setAmqp')
     // this.httpProvider.setAmqpClient(channel);
     // this.upload.setAmqpClient(channel)
   },
 
-  setAmqpChannel: function (channel) {
-    this.httpProvider.setAmqp(channel)
-    this.upload.setAmqp(channel)
+  setAmqpChannel: function(channel) {
+    this.httpProvider.setAmqp(channel);
+    this.upload.setAmqp(channel);
   }
-}
+};
