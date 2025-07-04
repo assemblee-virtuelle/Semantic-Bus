@@ -36,8 +36,8 @@ COPY packages/core/package.json /data/packages/core/
 # Install all workspace dependencies from root
 RUN cd /data/ && npm cache clean --force && npm install --legacy-peer-deps --loglevel verbose
 
-RUN curl https://raw.githubusercontent.com/eficode/wait-for/v2.2.3/wait-for --create-dirs -o /data/scripts/wait-for-it.sh
-RUN chmod u+x /data/scripts/wait-for-it.sh
+# RUN curl https://raw.githubusercontent.com/eficode/wait-for/v2.2.3/wait-for --create-dirs -o /data/scripts/wait-for-it.sh
+# RUN chmod u+x /data/scripts/wait-for-it.sh # Removed: using healthchecks instead
 
 # Copy source code maintaining workspace structure
 COPY packages/core /data/packages/core/
@@ -46,8 +46,8 @@ COPY packages/engine /data/packages/engine/
 # Keep working directory as engine for compatibility
 WORKDIR /data/packages/engine
 
-COPY ./wait-for-it.sh /data/scripts/
-COPY ./wait-for.sh /data/scripts/
+# COPY ./wait-for-it.sh /data/scripts/ # Removed: using healthchecks instead
+# COPY ./wait-for.sh /data/scripts/ # Removed: using healthchecks instead
 
 
 # Expose ports (for orchestrators and dynamic reverse proxies)

@@ -33,7 +33,7 @@ COPY packages/main /data/packages/main/
 # Keep working directory as main for compatibility
 WORKDIR /data/packages/main
 
-COPY ./wait-for-it.sh /data/scripts/
+# COPY ./wait-for-it.sh /data/scripts/ # Removed: using healthchecks instead
 
 # Expose ports (for orchestrators and dynamic reverse proxies)
 EXPOSE 8080

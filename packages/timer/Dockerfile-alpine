@@ -44,7 +44,7 @@ COPY packages/timer /data/packages/timer/
 # Keep working directory as timer for compatibility
 WORKDIR /data/packages/timer
 
-COPY ./wait-for-it.sh /data/scripts/
+# COPY ./wait-for-it.sh /data/scripts/ # Removed: using healthchecks instead
 
 # Expose ports (for orchestrators and dynamic reverse proxies)
 EXPOSE 8080

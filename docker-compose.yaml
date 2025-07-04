@@ -41,7 +41,7 @@ services:
         condition: service_healthy
       scylla:
         condition: service_healthy
-    command: ["/data/scripts/wait-for-it.sh", "rabbitmq:5672", "-t", "25", "--", "nodemon", "-L", "--watch", "/data/packages/timer/*",  "--watch", "/data/packages/core/*",  "--ignore", "configuration.js",  "/data/packages/timer/app.js"]
+    command: ["nodemon", "-L", "--watch", "/data/packages/timer/*",  "--watch", "/data/packages/core/*",  "--ignore", "configuration.js",  "/data/packages/timer/app.js"]
 
   # engineV1:
   #   image: dataplayers/semantic-bus-engine:v1.0
