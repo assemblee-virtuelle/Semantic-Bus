@@ -34,7 +34,6 @@
     "@influxdata/influxdb-client": "^1.33.2",
     "@influxdata/influxdb-client-apis": "^1.33.2",
     "@semantic-bus/core": "file:../core",
-    "amqplib": "^0.10.8",
     "amqp-connection-manager": "^4.1.14",
     "body-parser": "^2.2.0",
     "cheerio": "^1.1.0",
