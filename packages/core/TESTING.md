@@ -208,23 +208,20 @@ packages/core/
 3. **Données prévisibles** : Les mocks retournent des données prévisibles pour les assertions
 4. **Pas de side effects** : Aucune vraie connexion ou modification externe
 
-## 🛠️ Extension pour Autres Modules
+## 🛠️ Utilisation dans d'Autres Modules
 
-Pour utiliser cette configuration dans d'autres modules (engine, main, timer) :
-
-```bash
-# Depuis le répertoire core
-node copy-mocks-to-other-modules.js
-```
-
-Ou ajoutez manuellement dans le `jest.config.js` de chaque module :
+Les mocks sont centralisés dans le package `core`. Si d'autres modules ont besoin d'utiliser `@semantic-bus/core` dans leurs tests, ajoutez manuellement dans leur `jest.config.js` :
 
 ```javascript
 moduleNameMapper: {
   // Références aux mocks du module core
   '^mongoose$': '<rootDir>/../core/__mocks__/mongoose.js',
   '^cassandra-driver$': '<rootDir>/../core/__mocks__/cassandra-driver.js',
-  // ... autres mocks
+  '^@aws-sdk/client-dynamodb$': '<rootDir>/../core/__mocks__/@aws-sdk/client-dynamodb.js',
+  '^@aws-sdk/lib-dynamodb$': '<rootDir>/../core/__mocks__/@aws-sdk/lib-dynamodb.js',
+  '^imap$': '<rootDir>/../core/__mocks__/imap.js',
+  '^passport$': '<rootDir>/../core/__mocks__/passport.js',
+  '^passport-google-oauth$': '<rootDir>/../core/__mocks__/passport-google-oauth.js'
 }
 ```
 
