@@ -1,0 +1,102 @@
+name: 🧪 Tests Suite
+
+on:
+  push:
+    branches: [ master, main, develop, dependency-update-and-quality-control ]
+
+jobs:
+  test-core:
+    name: 💎 Test Core Package
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install dependencies
+        run: |
+          cd packages/core
+          npm ci
+
+      - name: Run tests
+        run: |
+          echo "🧪 Testing core package with Node 20..."
+          cd packages/core
+          npm test
+
+  test-main:
+    name: 🌐 Test Main Package
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install dependencies
+        run: |
+          cd packages/main
+          npm ci
+
+      - name: Run tests
+        run: |
+          echo "🧪 Testing main package with Node 20..."
+          cd packages/main
+          npm test
+
+  test-engine:
+    name: ⚙️ Test Engine Package
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install dependencies
+        run: |
+          cd packages/engine
+          npm ci
+
+      - name: Run tests
+        run: |
+          echo "🧪 Testing engine package with Node 20..."
+          cd packages/engine
+          npm test
+
+  test-timer:
+    name: ⏰ Test Timer Package
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install dependencies
+        run: |
+          cd packages/timer
+          npm ci
+
+      - name: Run tests
+        run: |
+          echo "🧪 Testing timer package with Node 20..."
+          cd packages/timer
+          npm test 

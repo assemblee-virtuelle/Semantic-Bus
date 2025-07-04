@@ -1,0 +1,195 @@
+{
+  "privateScript": [],
+  "pk_stripe": null,
+  "secret_stripe_private": null,
+  "secret_stripe_public": null,
+  "components_information": {
+    "cacheNosql": {
+      "price": 10
+    },
+    "deeperFocusOpeningBracket": {
+      "price": 0
+    },
+    "filter": {
+      "price": 40
+    },
+    "framcalcGetCsv": {
+      "price": 20
+    },
+    "googleGeoLocaliser": {
+      "price": 20,
+      "record_price": 10
+    },
+    "googleGetJson": {
+      "price": 20
+    },
+    "gouvFrGeoLocaliser": {
+      "price": 20
+    },
+    "gouvFrInverseGeo":{
+      "price": 20
+    },
+    "httpGet": {
+      "price": 40
+    },
+    "httpConsumer":{
+      "price": 20
+    },
+    "httpProvider":{
+      "price": 10
+    },
+    "sftpConsumer":{
+      "price": 40
+    },
+    "joinByField": {
+      "price": 60
+    },
+    "keyToArray": {
+      "price": 40
+    },
+    "mongoConnector": {
+      "price": 20
+    },
+    "objectTransformer": {
+      "price": 80
+    },
+    "propertiesMatrix": {
+      "price": 40
+    },
+    "queryParamsCreation": {
+      "price": 20
+    },
+    "restApiGet": {
+      "price": 10
+    },
+    "restApiPost": {
+      "price": 10
+    },
+    "restGetJson": {
+      "price": 20
+    },
+    "scrapper": {
+      "price": 60
+    },
+    "simpleAgregator": {
+      "price": 20
+    },
+    "sparqlRequest": {
+      "price": 60
+    },
+    "sqlConnector": {
+      "price": 20
+    },
+    "timer": {
+      "price": 10
+    },
+    "unicity": {
+      "price": 60
+    },
+    "upload": {
+      "price": 40
+    },
+    "valueFromPath": {
+      "price": 20
+    },
+    "valueMapping": {
+      "price": 40
+    },
+    "postConsumer":{
+      "price": 20
+    },
+    "flat":{
+      "price": 20
+    },
+    "jsEvaluation":{
+      "price": 40
+    },
+    "regex":{
+      "price": 20
+    },
+    "slugify":{
+      "price": 20
+    },
+    "influxdbConnector": {
+      "price": 20
+    },
+    "slice": {
+      "price": 20
+    },
+    "incrementTable": {
+      "price": 20
+    },
+    "jsonLdConversion": {
+      "price": 20
+    },
+    "googleAuth": {
+      "price": 20
+    },
+    "imap": {
+      "price": 20
+    },
+    "binaryExtractor": {
+      "price": 20
+    },
+    "sftpUploader": {
+      "price": 20
+    }
+  },
+  "googleAuth": {
+    "callbackURL": "/auth/",
+    "clientID": "497545161510-jevr8h52tl51j5gsd208icp5bbbi9suq.apps.googleusercontent.com",
+    "clientSecret": "e-0uRyWiFqkbpCVWQGMh-EpW"
+  },
+  "engineUrl":"http://engine:92/engine",
+  "mlabDB": "mongodb://mongodb:27017/admin",
+  "mongodbFlowDB": "mongodb://mongodb_flow:27017/admin",
+  "socketClient": "ws://localhost:15674/ws/",
+  "amqpHost": "devLocal",
+  "socketServer": "amqp://rabbitmq:5672",
+  "secret": "secret",
+  "timer": {
+    "port": 8081,
+    "secret": "secret",
+    "target": "http://localhost:8080"
+  },
+  "CASSANDRA": {
+    "contactPoints": ["scylla"],
+    "localDataCenter": "datacenter1",
+    "keyspace": "mykeyspace",
+    "pooling": {
+      "maxRequestsPerConnection": 32768,
+      "coreConnectionsPerHost": {
+        "local": 5,
+        "remote": 1
+      }
+    },
+    "socketOptions": {
+      "readTimeout": 600000
+    },
+    "authProvider": {
+      "username": "username",
+      "password": "password"
+    },
+    "policies": {
+      "loadBalancing": "RoundRobinPolicy"
+    }
+  },
+
+  "DYNAMODB": {
+    "accessKeyId": "yourAccessKeyId",
+    "secretAccessKey": "yourSecretAccessKey",
+    "maxRetries": 3,
+    "timeout": 5000,
+    "connectTimeout": 5000
+  },
+
+  "smtp": {
+    "host": "smtp.gmail.com",
+    "port": 587,
+    "secure": false,
+    "auth": {
+      "user": "your-email@gmail.com",
+      "pass": "your-app-password"
+    }
+  }
+}

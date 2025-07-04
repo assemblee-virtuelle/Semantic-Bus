@@ -57,9 +57,23 @@ Semantic data transformation & semantic container crawling
 - Timer (./timer) ( service for schedule workflow )
 
 ## Config
-You have to duplicate config.js to local.config.js.
-Some config properties as googleAuth can be fullfill.
-Your local.config.js file will be ignore by git.
+
+**Important**: Pour que les volumes Docker fonctionnent correctement, vous devez copier le fichier de configuration :
+
+```bash
+cp config.json config.local.json
+```
+
+- `config.json` : Configuration par défaut (versionnée dans git)
+- `config.local.json` : Configuration locale (ignorée par git)
+
+Vous pouvez ensuite personnaliser `config.local.json` selon vos besoins :
+- Authentification Google (googleAuth)
+- Configuration SMTP
+- Clés d'API externes
+- Paramètres de base de données
+
+⚠️ **Ne jamais modifier directement `config.json`** - utilisez toujours `config.local.json` pour vos configurations locales.
 
 ## Launch with docker (recommended)
 ### make (recommended)
