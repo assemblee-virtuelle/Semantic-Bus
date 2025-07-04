@@ -1,0 +1,302 @@
+name: ✨ Code Quality & Auto-Formatting
+
+on:
+  push:
+    branches: [ master, main, develop, dependency-update-and-quality-control ]
+
+# Permissions pour permettre les commits automatiques
+permissions:
+  contents: write
+
+jobs:
+  lint-core:
+    name: 💎 Lint & Format Core Package
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Configure Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: Install dependencies
+        run: |
+          cd packages/core
+          npm ci
+
+      - name: Check linting issues
+        continue-on-error: true
+        run: |
+          echo "🔍 Checking linting issues in core package..."
+          cd packages/core
+          npm run lint
+
+      - name: Attempt automatic formatting
+        run: |
+          echo "✨ Attempting automatic formatting for core package..."
+          cd packages/core
+          npm run lint:fix
+
+      - name: Check for formatting changes
+        id: format-check
+        run: |
+          cd packages/core
+          if git diff --quiet; then
+            echo "✅ No formatting changes needed"
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "📝 Formatting changes detected"
+            echo "changes=true" >> $GITHUB_OUTPUT
+            git add .
+          fi
+
+      - name: Commit formatting changes
+        if: steps.format-check.outputs.changes == 'true'
+        run: |
+          cd packages/core
+          git commit -m "🎨 Auto-format: Core package code formatting
+
+          - Automatic code formatting applied by CI
+          - ESLint/Prettier fixes applied
+          - [skip ci] to prevent infinite loops" || echo "Nothing to commit"
+
+      - name: Push formatting changes
+        if: steps.format-check.outputs.changes == 'true'
+        run: |
+          echo "🚀 Pushing automatic formatting changes..."
+          git push origin ${{ github.ref_name }}
+
+      - name: Final linting verification
+        run: |
+          echo "✅ Final linting verification for core package..."
+          cd packages/core
+          npm run lint
+
+  lint-main:
+    name: 🌐 Lint & Format Main Package
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Configure Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: Install dependencies
+        run: |
+          cd packages/main
+          npm ci
+
+      - name: Check linting issues
+        continue-on-error: true
+        run: |
+          echo "🔍 Checking linting issues in main package..."
+          cd packages/main
+          npm run lint
+
+      - name: Attempt automatic formatting
+        run: |
+          echo "✨ Attempting automatic formatting for main package..."
+          cd packages/main
+          npm run lint:fix
+
+      - name: Check for formatting changes
+        id: format-check
+        run: |
+          cd packages/main
+          if git diff --quiet; then
+            echo "✅ No formatting changes needed"
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "📝 Formatting changes detected"
+            echo "changes=true" >> $GITHUB_OUTPUT
+            git add .
+          fi
+
+      - name: Commit formatting changes
+        if: steps.format-check.outputs.changes == 'true'
+        run: |
+          cd packages/main
+          git commit -m "🎨 Auto-format: Main package code formatting
+
+          - Automatic code formatting applied by CI
+          - ESLint/Prettier fixes applied
+          - [skip ci] to prevent infinite loops" || echo "Nothing to commit"
+
+      - name: Push formatting changes
+        if: steps.format-check.outputs.changes == 'true'
+        run: |
+          echo "🚀 Pushing automatic formatting changes..."
+          git push origin ${{ github.ref_name }}
+
+      - name: Final linting verification
+        run: |
+          echo "✅ Final linting verification for main package..."
+          cd packages/main
+          npm run lint
+
+  lint-engine:
+    name: ⚙️ Lint & Format Engine Package
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Configure Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: Install dependencies
+        run: |
+          cd packages/engine
+          npm ci
+
+      - name: Check linting issues
+        continue-on-error: true
+        run: |
+          echo "🔍 Checking linting issues in engine package..."
+          cd packages/engine
+          npm run lint
+
+      - name: Attempt automatic formatting
+        run: |
+          echo "✨ Attempting automatic formatting for engine package..."
+          cd packages/engine
+          npm run lint:fix
+
+      - name: Check for formatting changes
+        id: format-check
+        run: |
+          cd packages/engine
+          if git diff --quiet; then
+            echo "✅ No formatting changes needed"
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "📝 Formatting changes detected"
+            echo "changes=true" >> $GITHUB_OUTPUT
+            git add .
+          fi
+
+      - name: Commit formatting changes
+        if: steps.format-check.outputs.changes == 'true'
+        run: |
+          cd packages/engine
+          git commit -m "🎨 Auto-format: Engine package code formatting
+
+          - Automatic code formatting applied by CI
+          - ESLint/Prettier fixes applied
+          - [skip ci] to prevent infinite loops" || echo "Nothing to commit"
+
+      - name: Push formatting changes
+        if: steps.format-check.outputs.changes == 'true'
+        run: |
+          echo "🚀 Pushing automatic formatting changes..."
+          git push origin ${{ github.ref_name }}
+
+      - name: Final linting verification
+        run: |
+          echo "✅ Final linting verification for engine package..."
+          cd packages/engine
+          npm run lint
+
+  lint-timer:
+    name: ⏰ Lint & Format Timer Package
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Configure Git
+        run: |
+          git config --local user.email "action@github.com"
+          git config --local user.name "GitHub Action"
+
+      - name: Install dependencies
+        run: |
+          cd packages/timer
+          npm ci
+
+      - name: Check linting issues
+        continue-on-error: true
+        run: |
+          echo "🔍 Checking linting issues in timer package..."
+          cd packages/timer
+          npm run lint
+
+      - name: Attempt automatic formatting
+        run: |
+          echo "✨ Attempting automatic formatting for timer package..."
+          cd packages/timer
+          npm run lint:fix
+
+      - name: Check for formatting changes
+        id: format-check
+        run: |
+          cd packages/timer
+          if git diff --quiet; then
+            echo "✅ No formatting changes needed"
+            echo "changes=false" >> $GITHUB_OUTPUT
+          else
+            echo "📝 Formatting changes detected"
+            echo "changes=true" >> $GITHUB_OUTPUT
+            git add .
+          fi
+
+      - name: Commit formatting changes
+        if: steps.format-check.outputs.changes == 'true'
+        run: |
+          cd packages/timer
+          git commit -m "🎨 Auto-format: Timer package code formatting
+
+          - Automatic code formatting applied by CI
+          - ESLint/Prettier fixes applied
+          - [skip ci] to prevent infinite loops" || echo "Nothing to commit"
+
+      - name: Push formatting changes
+        if: steps.format-check.outputs.changes == 'true'
+        run: |
+          echo "🚀 Pushing automatic formatting changes..."
+          git push origin ${{ github.ref_name }}
+
+      - name: Final linting verification
+        run: |
+          echo "✅ Final linting verification for timer package..."
+          cd packages/timer
+          npm run lint 

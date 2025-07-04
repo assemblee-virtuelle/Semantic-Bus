@@ -39,5 +39,5 @@ test-build:
 	$(DOCKER_COMPOSE_TEST) build --no-cache
 
 test-start:
-	$(DOCKER_COMPOSE_TEST) run e2e bash ./wait-for-it.sh semanticbus:80 -t 45
+	$(DOCKER_COMPOSE_TEST) run e2e bash -c "sleep 10 && curl -f http://semanticbus:80 || exit 1"
 	$(DOCKER_COMPOSE_TEST) run e2e xvfb-run -a codeceptjs run --grep @local --steps

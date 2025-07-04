@@ -1,0 +1,54 @@
+name: 🛡️ Security Audit
+
+on:
+  push:
+    branches: [ master, main, develop, dependency-update-and-quality-control ]
+
+jobs:
+  security-audit:
+    name: 🔍 Security Vulnerabilities Check
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install dependencies for all modules
+        run: |
+          echo "📦 Installing dependencies for security audit..."
+          for module in core main engine timer; do
+            if [ -f "packages/$module/package.json" ]; then
+              echo "Installing $module dependencies..."
+              cd packages/$module
+              npm ci
+              cd ../..
+            fi
+          done
+
+      - name: Critical security vulnerabilities audit
+        run: |
+          echo "🚨 Running critical security audit - BLOCKING on critical vulnerabilities..."
+          EXIT_CODE=0
+          for module in core main engine timer; do
+            if [ -f "packages/$module/package.json" ]; then
+              echo "🔍 Auditing $module for critical vulnerabilities..."
+              cd packages/$module
+              if ! npm audit --audit-level=critical; then
+                echo "❌ CRITICAL vulnerabilities found in $module - BLOCKING CI"
+                EXIT_CODE=1
+              else
+                echo "✅ No critical vulnerabilities in $module"
+              fi
+              cd ../..
+            fi
+          done
+          if [ $EXIT_CODE -ne 0 ]; then
+            echo "💥 PIPELINE BLOCKED: Critical vulnerabilities detected"
+            exit 1
+          fi
+          echo "✅ Security audit passed - no critical vulnerabilities" 
