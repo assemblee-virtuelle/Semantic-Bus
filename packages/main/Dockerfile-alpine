@@ -24,7 +24,7 @@ COPY packages/main/package.json /data/packages/main/
 COPY packages/core/package.json /data/packages/core/
 
 # Install all workspace dependencies from root
-RUN cd /data/ && npm cache clean --force && npm install --loglevel verbose
+RUN cd /data/ && npm cache clean --force && npm install --legacy-peer-deps --loglevel verbose
 
 # Copy source code maintaining workspace structure
 COPY packages/core /data/packages/core/

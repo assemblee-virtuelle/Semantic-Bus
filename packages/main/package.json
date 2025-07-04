@@ -18,6 +18,7 @@
   "license": "GNUV3",
   "dependencies": {
     "@semantic-bus/core": "file:../core",
+    "amqplib": "^0.10.4",
     "amqp-connection-manager": "^4.1.14",
     "body-parser": "^1.20.3",
     "busboy": "^1.6.0",
@@ -25,6 +26,7 @@
     "imap": "^0.8.19",
     "data2xml": "^1.2.5",
     "express": "^4.16.3",
+    "fp-ts": "^2.20.0",
     "google-auth-library": "^10.1.0",
     "io-ts": "^2.2.22",
     "json2yaml": "^1.1.0",
