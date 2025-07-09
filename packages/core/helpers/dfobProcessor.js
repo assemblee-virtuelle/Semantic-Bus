@@ -25,8 +25,11 @@ class DfobProcessor {
       rebuildData = await method.apply(module, params);
     } else {
       const dfobFlow = DfobHelper.buildDfobFlow(rebuildData, dfobTable, undefined, keepArray, tableDepth);
-      // console.log('__dfobFlow', dfobFlow)
-      const paramArray = dfobFlow.map((item) => {
+      // On filtre les items invalides (chemin inexistant)
+      const validDfobFlow = dfobFlow.filter(
+        item => item.objectToProcess !== undefined
+      );
+      const paramArray = validDfobFlow.map((item) => {
         let objectToProcess;
         if (item.key !== undefined) {
           objectToProcess = item.objectToProcess[item.key];
@@ -52,7 +55,7 @@ class DfobProcessor {
       for (const [index, processedItem] of Object.entries(componentFlowDfob)) {
         // console.log('__index', index)
         // console.log('__processedItem', processedItem)
-        const initialItem = dfobFlow[index];
+        const initialItem = validDfobFlow[index];
         // console.log('__initialItem', initialItem)
         const finalValue = flowInDataProperty ? processedItem.data : processedItem;
 
