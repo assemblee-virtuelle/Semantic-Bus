@@ -1,11 +1,12 @@
 'use strict';
 
-const { ObjectId } = require('mongodb');
+const { ObjectId,MongoClient } = require('mongodb');
+const { EJSON } = require('bson'); // Ajout de l'import EJSON
 
 class MongoConnector {
   constructor () {
-    this.mongoose = require('mongoose')
-    this.MongoClient = require('mongodb').MongoClient
+    // this.mongoose = require('mongoose')
+    // this.MongoClient = require('mongodb').MongoClient
     this.dotProp = require('dot-prop')
     this.schema = null
     this.modelShema = null
@@ -19,7 +20,8 @@ class MongoConnector {
   mongoInitialise (url) {
     return new Promise((resolve, reject) => {
       if (url) {
-          this.MongoClient.connect(url).then(client => {
+          MongoClient.connect(url).then(client => {
+            // console.log('client',client)
             resolve(client)
           }).catch(e => {
             e.displayMessage = 'connection to MongoDB database failed'
@@ -42,7 +44,6 @@ class MongoConnector {
         const db = client.db(database)
         const collection = db.collection(collectionName)
         const normalizedQuerysTable = this.stringReplacer.execute(querysTable, queryParams, flowdata, true);
-        //console.log('normalizedQuerysTable',normalizedQuerysTable);
         const evaluation = eval('collection.' + normalizedQuerysTable);
         let mongoPromise
         if (evaluation instanceof Promise) {
@@ -52,16 +53,10 @@ class MongoConnector {
         }
 
         const result = await mongoPromise;
-        if (Array.isArray(result)) {
-          result.forEach(item => {
-            item._id = item._id.toString();
-          });
-        }else{
-          result._id = result._id.toString();
-        }
-
+        let serializableResult;
+        serializableResult = JSON.parse(EJSON.stringify(result));
         resolve({
-          result: result,
+          result: serializableResult,
           client: client
         })
       } catch (e) {
@@ -88,31 +83,31 @@ class MongoConnector {
     })
   }
 
-  createmodel (modelName, data, url) {
-    return new Promise(function (resolve, reject) {
-      const db = this.mongoose.createConnection(url, (error) => {
-        if (error) {
-          let fullError = new Error(error)
-          fullError.displayMessage = 'Connecteur Mongo : Veuillez entre une uri de connexion valide';
-          reject(fullError)
-        } else {
-          const modelShema = db.model(modelName, new this.mongoose.Schema({}, {
-            strict: false
-          }), modelName)
-          if (modelName != null) {
-            resolve({
-              db: db,
-              model: modelShema
-            })
-          } else {
-            let fullError = new Error("vous n'avez pas saisie de nom de table à requeter")
-            fullError.displayMessage = "Connecteur Mongo : vous n'avez pas saisie de nom de table à requeter "
-            reject(fullError)
-          }
-        }
-      })
-    }.bind(this))
-  }
+  // createmodel (modelName, data, url) {
+  //   return new Promise(function (resolve, reject) {
+  //     const db = this.mongoose.createConnection(url, (error) => {
+  //       if (error) {
+  //         let fullError = new Error(error)
+  //         fullError.displayMessage = 'Connecteur Mongo : Veuillez entre une uri de connexion valide';
+  //         reject(fullError)
+  //       } else {
+  //         const modelShema = db.model(modelName, new this.mongoose.Schema({}, {
+  //           strict: false
+  //         }), modelName)
+  //         if (modelName != null) {
+  //           resolve({
+  //             db: db,
+  //             model: modelShema
+  //           })
+  //         } else {
+  //           let fullError = new Error("vous n'avez pas saisie de nom de table à requeter")
+  //           fullError.displayMessage = "Connecteur Mongo : vous n'avez pas saisie de nom de table à requeter "
+  //           reject(fullError)
+  //         }
+  //       }
+  //     })
+  //   }.bind(this))
+  // }
 
   normalizeQuerysTable (querysTable, queryParams) {
     let processingQuerysTable = querysTable
