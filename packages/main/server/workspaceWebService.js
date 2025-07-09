@@ -289,7 +289,7 @@ module.exports = function (router) {
 
   // ---------------------------------------------------------------------------------
 
-  router.put('/workspaces/:id/process{/:processid}', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
+  router.put('/workspaces/:id/process/:processid', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     workspace_lib.updateCurrentProcess(req.params.processid,req.params.id, req.body.state).then((workspaceProcess) => {
       res.json(workspaceProcess)
     }).catch(e => {

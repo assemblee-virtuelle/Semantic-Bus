@@ -91,7 +91,6 @@ class ObjectTransformer {
             return true;
           }
         );
-
         // Persist the transformed data
         await fragment_lib.persist(rebuildData, undefined, inputFragment);
         resolve();
@@ -102,7 +101,9 @@ class ObjectTransformer {
   }
   
   transformItem(item, transformObject, pullParams, options) {
-    return this.jsonTransform(item, transformObject, pullParams, options);
+    // console.log('transformItem', item, transformObject, pullParams, options)
+    const out = this.jsonTransform(item, transformObject, pullParams, options);   
+    return out;
   }
 
   pull(data, flowData, pullParams) {

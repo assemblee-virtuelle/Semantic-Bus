@@ -106,3 +106,7 @@ build/
 # Temporary files
 tmp/
 temp/
+
+# Exceptions for dist directories
+!/packages/main/client/static/js/jsonEditor/dist/
+!/packages/main/client/static/js/jszip/dist/
