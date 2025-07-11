@@ -24,7 +24,11 @@ class DfobProcessor {
       const params = buildParamArrayCallback(rebuildData);
       rebuildData = await method.apply(module, params);
     } else {
-      const dfobFlow = DfobHelper.buildDfobFlow(rebuildData, dfobTable, undefined, keepArray, tableDepth);
+      let dfobFlow = DfobHelper.buildDfobFlow(rebuildData, dfobTable, undefined, keepArray, tableDepth);
+      // protect filter by force array  
+      if (!Array.isArray(dfobFlow)) {
+        dfobFlow = [dfobFlow];
+      }
       // On filtre les items invalides (chemin inexistant)
       const validDfobFlow = dfobFlow.filter(
         item => item.objectToProcess !== undefined
@@ -65,36 +69,6 @@ class DfobProcessor {
           rebuildData = finalValue;
         }
       }
-
-      // Object.entries(componentFlowDfob).forEach(([key, value]) => {
-      //   try {
-      //     const dfobItem = dfobFlow[key];
-      //     // console.log('__dfobItem', dfobItem)
-      //     // flowInDataProperty is used to know if the data is in the data property of the object
-      //     // dfobItem without
-      //     if (flowInDataProperty && 'data' in value) {
-      //       if (dfobItem.key !== undefined) {
-      //         dfobItem.objectToProcess[dfobItem.key] = value.data;
-      //       } else {
-      //         Object.keys(dfobItem.objectToProcess).forEach(k => {
-      //           dfobItem.objectToProcess[k] = undefined;
-      //         });
-      //         Object.assign(dfobItem.objectToProcess, value.data);
-      //       }
-      //     } else if (dfobItem.objectToProcess !== undefined) {
-      //       if (dfobItem.key !== undefined) {
-      //         dfobItem.objectToProcess[dfobItem.key] = value;
-      //       } else {
-      //         Object.keys(dfobItem.objectToProcess).forEach(k => {
-      //           dfobItem.objectToProcess[k] = undefined;
-      //         });
-      //         Object.assign(dfobItem.objectToProcess, value);
-      //       }
-      //     }
-      //   } catch (error) {
-      //     console.error('Error processing dfobFlow', error);
-      //   }
-      // });
     }
     // console.log('__rebuildData', rebuildData)
 
