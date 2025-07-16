@@ -126,8 +126,12 @@ class Filter {
             pathTable: pathTable,
             callBackOnPath: async (item) => {
               // console.log('___item', item);
-              delete item['$loki'];
-              collection.insert(item);
+              if (item!==undefined && item!==null) {
+                delete item['$loki'];
+              }
+              if (item!==undefined) {
+                collection.insert(item);
+              }
             }
           });
           rebuildData = await this.filter(collection, filterResult, data);
