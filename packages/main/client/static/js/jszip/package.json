@@ -51,7 +51,7 @@
     "package-json-versionify": "~1.0.2",
     "qunit-cli": "~0.2.0",
     "qunitjs": "~1.23.0",
-    "tmp": "0.0.28"
+    "tmp": "0.2.4"
   },
   "dependencies": {
     "core-js": "~2.3.0",
