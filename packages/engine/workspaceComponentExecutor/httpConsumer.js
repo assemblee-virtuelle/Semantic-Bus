@@ -3,7 +3,7 @@ const fileLib = require('@semantic-bus/core/lib/file_lib_scylla.js');
 const fileConvertor = require('@semantic-bus/core/dataTraitmentLibrary/file_convertor.js');
 const dotProp = require('dot-prop');
 const stringReplacer = require('../utils/stringReplacer.js');
-const formUrlencoded = require('form-urlencoded').default;
+const querystring = require('querystring');
 const xml2js = require('xml2js');
 const propertyNormalizer = require('../utils/propertyNormalizer.js');
 const config = require('../config.json');
@@ -40,7 +40,7 @@ class HttpConsumer {
           if (!filename) {
             try {
               const extension = fileConvertor.extension(filename, contentType);
-              filename = "file." + extension; 
+              filename = "file." + extension;
             } catch (e) {
               filename = "file"
               console.warn('Failed to determine extension:', e);
@@ -60,7 +60,7 @@ class HttpConsumer {
             }
           });
           return;
-        } 
+        }
 
         if (contentType.includes('html')) {
           try {
@@ -106,7 +106,7 @@ class HttpConsumer {
           if (!filename) {
             try {
               const extension = fileConvertor.extension(filename, contentType);
-              filename = "file." + extension; 
+              filename = "file." + extension;
             } catch (e) {
               filename = "file"
               console.warn('Failed to determine extension:', e);
@@ -167,7 +167,7 @@ class HttpConsumer {
               body = JSON.stringify(bodyObject);
               break;
             case 'application/x-www-form-urlencoded':
-              body = formUrlencoded(bodyObject);
+              body = querystring.stringify(bodyObject);
               break;
             default:
               reject(new Error(`${componentConfig.contentType} contentType not Supported by this component`));
@@ -321,8 +321,8 @@ class HttpConsumer {
         let request = superagent(options.method, url)
           .set(options.headers)
           .timeout({
-            response: options.timeout*1000,
-            deadline: options.timeout*1000
+            response: options.timeout * 1000,
+            deadline: options.timeout * 1000
           })
           .buffer(true)
           .responseType('blob');
