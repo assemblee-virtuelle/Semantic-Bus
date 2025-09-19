@@ -3,6 +3,8 @@ name: ✨ Code Quality & Auto-Formatting
 on:
   push:
     branches: [ master, main, develop, dependency-update-and-quality-control ]
+  pull_request:
+    branches: [ master, main ]
 
 # Permissions pour permettre les commits automatiques
 permissions:
@@ -61,7 +63,7 @@ jobs:
           fi
 
       - name: Commit formatting changes
-        if: steps.format-check.outputs.changes == 'true'
+        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push'
         run: |
           cd packages/core
           git commit -m "🎨 Auto-format: Core package code formatting
@@ -71,10 +73,17 @@ jobs:
           - [skip ci] to prevent infinite loops" || echo "Nothing to commit"
 
       - name: Push formatting changes
-        if: steps.format-check.outputs.changes == 'true'
+        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push'
         run: |
           echo "🚀 Pushing automatic formatting changes..."
           git push origin ${{ github.ref_name }}
+          
+      - name: Show formatting changes for PR (Core)
+        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'pull_request'
+        run: |
+          echo "📝 Formatting changes detected in PR for core package - showing diff:"
+          cd packages/core
+          git diff --stat
 
       - name: Final linting verification
         run: |
@@ -134,7 +143,7 @@ jobs:
           fi
 
       - name: Commit formatting changes
-        if: steps.format-check.outputs.changes == 'true'
+        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push'
         run: |
           cd packages/main
           git commit -m "🎨 Auto-format: Main package code formatting
@@ -144,10 +153,17 @@ jobs:
           - [skip ci] to prevent infinite loops" || echo "Nothing to commit"
 
       - name: Push formatting changes
-        if: steps.format-check.outputs.changes == 'true'
+        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push'
         run: |
           echo "🚀 Pushing automatic formatting changes..."
           git push origin ${{ github.ref_name }}
+          
+      - name: Show formatting changes for PR (Main)
+        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'pull_request'
+        run: |
+          echo "📝 Formatting changes detected in PR for main package - showing diff:"
+          cd packages/main
+          git diff --stat
 
       - name: Final linting verification
         run: |
@@ -207,7 +223,7 @@ jobs:
           fi
 
       - name: Commit formatting changes
-        if: steps.format-check.outputs.changes == 'true'
+        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push'
         run: |
           cd packages/engine
           git commit -m "🎨 Auto-format: Engine package code formatting
@@ -217,10 +233,17 @@ jobs:
           - [skip ci] to prevent infinite loops" || echo "Nothing to commit"
 
       - name: Push formatting changes
-        if: steps.format-check.outputs.changes == 'true'
+        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push'
         run: |
           echo "🚀 Pushing automatic formatting changes..."
           git push origin ${{ github.ref_name }}
+          
+      - name: Show formatting changes for PR (Engine)
+        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'pull_request'
+        run: |
+          echo "📝 Formatting changes detected in PR for engine package - showing diff:"
+          cd packages/engine
+          git diff --stat
 
       - name: Final linting verification
         run: |
@@ -280,7 +303,7 @@ jobs:
           fi
 
       - name: Commit formatting changes
-        if: steps.format-check.outputs.changes == 'true'
+        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push'
         run: |
           cd packages/timer
           git commit -m "🎨 Auto-format: Timer package code formatting
@@ -290,10 +313,17 @@ jobs:
           - [skip ci] to prevent infinite loops" || echo "Nothing to commit"
 
       - name: Push formatting changes
-        if: steps.format-check.outputs.changes == 'true'
+        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push'
         run: |
           echo "🚀 Pushing automatic formatting changes..."
           git push origin ${{ github.ref_name }}
+          
+      - name: Show formatting changes for PR (Timer)
+        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'pull_request'
+        run: |
+          echo "📝 Formatting changes detected in PR for timer package - showing diff:"
+          cd packages/timer
+          git diff --stat
 
       - name: Final linting verification
         run: |
