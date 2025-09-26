@@ -17,8 +17,6 @@ class Filter {
   constructor() {
   }
 
-
-
   pull(data, flowData, pullParams) {
     return new Promise((resolve, reject) => {
       try {
@@ -41,8 +39,7 @@ class Filter {
     })
   }
 
-  async filterRawItems(items , filter, data) {
-    // console.log('___filterRawItItems', items, filter, data);
+  async filterRawItems(items, filter, data) {
     return new Promise(async (resolve, reject) => {
       try {
         const collectionName = `${data._id.toString()}-${Math.floor(Math.random() * 10000)}`;
@@ -80,7 +77,7 @@ class Filter {
           if (Object.keys(filter).length === 1) {
             const whereCondition = filter['$where'].replace(/this/g, 'obj');
             resultData = collection.where((obj) => {
-              const evaluation =eval(whereCondition)
+              const evaluation = eval(whereCondition)
               // console.log('___evaluation', evaluation);
               return evaluation == true
             });
@@ -99,7 +96,6 @@ class Filter {
   } 
 
   async workWithFragments(data, flowData, pullParams, processId) {
-    // console.log('___workWithFragments', data, flowData, pullParams, processId);
     return new Promise(async (resolve, reject) => {
       try {
         // Get the input fragment and dfob

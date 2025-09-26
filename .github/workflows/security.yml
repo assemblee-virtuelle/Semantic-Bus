@@ -3,6 +3,8 @@ name: 🛡️ Security Audit
 on:
   push:
     branches: [ master, main, develop, dependency-update-and-quality-control ]
+  pull_request:
+    branches: [ master, main ]
 
 jobs:
   security-audit:
