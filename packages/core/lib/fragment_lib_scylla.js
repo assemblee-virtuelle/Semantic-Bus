@@ -18,7 +18,7 @@ module.exports = {
 
   // testAllLiteralArray,
 
-  testFragArray: function(arrayToTest) {
+  testFragArray: function (arrayToTest) {
     if (arrayToTest.length <= 100) {
       return false;
     } else if (testAllLiteralArray(arrayToTest)) {
@@ -36,7 +36,7 @@ module.exports = {
     // return true
   },
 
-  persist: async function(data, fragCaller, exitingFrag) {
+  persist: async function (data, fragCaller, exitingFrag) {
     // if (!fragCaller){
     //     console.log('____persist____',fragCaller,exitingFrag)
     //     console.log('____persist data____',JSON.stringify(data))
@@ -50,7 +50,7 @@ module.exports = {
 
     if (isLiteral(data)) {
       fargToPersist.data = data;
-      if(exitingFrag) {
+      if (exitingFrag) {
         return await this.fragmentModel.updateFragment(fargToPersist);
       } else {
         return await this.fragmentModel.insertFragment(fargToPersist);
@@ -80,7 +80,7 @@ module.exports = {
         }
         fargToPersist.data = arrayReadyToPersit;
         fargToPersist.branchFrag = undefined;
-        if(exitingFrag) {
+        if (exitingFrag) {
           return await this.fragmentModel.updateFragment(fargToPersist);
         } else {
           return await this.fragmentModel.insertFragment(fargToPersist);
@@ -90,7 +90,7 @@ module.exports = {
       const objectData = await this.persistObject(data, fargToPersist);
       fargToPersist.data = objectData;
       fargToPersist.branchFrag = undefined;
-      if(exitingFrag) {
+      if (exitingFrag) {
         return await this.fragmentModel.updateFragment(fargToPersist);
       } else {
         return await this.fragmentModel.insertFragment(fargToPersist);
@@ -98,7 +98,7 @@ module.exports = {
     }
   },
 
-  persistObject: async function(data, fragCaller, exitingFrag) {
+  persistObject: async function (data, fragCaller, exitingFrag) {
     if (isLiteral(data)) {
       return processLiteral(data);
     } else if (Array.isArray(data) && this.testFragArray(data)) {
@@ -119,7 +119,7 @@ module.exports = {
     }
   },
 
-  createArrayFrag: async function(exitingFrag, omitPersist) {
+  createArrayFrag: async function (exitingFrag, omitPersist) {
     const model = this.fragmentModel.model;
     const arrayFrag = exitingFrag || new model({
       rootFrag: uuidv4()
@@ -139,7 +139,7 @@ module.exports = {
     }
   },
   // call without index not support parallel calls (PromiseOrchestrator for ex)
-  addFragToArrayFrag: async function(frag, arrayFrag, index, callbackBeforePersist = null) {
+  addFragToArrayFrag: async function (frag, arrayFrag, index, callbackBeforePersist = null) {
     const model = this.fragmentModel.model;
     let fragObject;
     if (!frag) {
@@ -157,7 +157,7 @@ module.exports = {
       if (callbackBeforePersist) {
         fragObject = await callbackBeforePersist(arrayFrag, fragObject);
       }
-      if(!frag) {
+      if (!frag) {
         return await this.fragmentModel.insertFragment(fragObject);
       } else {
         return await this.fragmentModel.updateFragment(fragObject);
@@ -169,7 +169,7 @@ module.exports = {
       if (callbackBeforePersist) {
         fragObject = await callbackBeforePersist(arrayFrag, fragObject);
       }
-      if(!frag) {
+      if (!frag) {
         return await this.fragmentModel.insertFragment(fragObject);
       } else {
         return await this.fragmentModel.updateFragment(fragObject);
@@ -178,9 +178,9 @@ module.exports = {
   },
 
 
-  addDataToArrayFrag: async function(data, arrayFrag, index) {
+  addDataToArrayFrag: async function (data, arrayFrag, index) {
     // console.log('addDataToArrayFrag', data, arrayFrag, index)
-    const emptyFrag = await this.addFragToArrayFrag(undefined, arrayFrag, index, async(arrayFrag, readyToPersistFrag) => {
+    const emptyFrag = await this.addFragToArrayFrag(undefined, arrayFrag, index, async (arrayFrag, readyToPersistFrag) => {
       const persistedObject = await this.persistObject(data, readyToPersistFrag);
 
       if (persistedObject instanceof this.fragmentModel.model) {
@@ -193,7 +193,7 @@ module.exports = {
     });
     // const frag = await this.persist(data, arrayFrag, emptyFrag)
   },
-  createRootArrayFragFromFrags: async function(frags) {
+  createRootArrayFragFromFrags: async function (frags) {
     const newRootFrag = await this.createArrayFrag();
     let index = 1;
     for (const frag of frags) {
@@ -204,7 +204,7 @@ module.exports = {
   },
 
 
-  get: async function(id) {
+  get: async function (id) {
     const fragmentReturn = await this.fragmentModel.getFragmentById(id);
 
     if (fragmentReturn.branchFrag) {
@@ -242,7 +242,7 @@ module.exports = {
      *
      * @throws {Error} - If the fragment is not set.
      */
-  getWithResolutionByBranch: async function(frag, options = { pathTable: undefined, deeperFocusActivated: false, callBackOnPath: undefined }) {
+  getWithResolutionByBranch: async function (frag, options = { pathTable: undefined, deeperFocusActivated: false, callBackOnPath: undefined }) {
     if (!frag) {
       throw new Error('frag have to be set');
     }
@@ -254,8 +254,8 @@ module.exports = {
       if (options.callBackOnPath && options.pathTable && options.pathTable.length == 0 && options.deeperFocusActivated) {
         await this.fragmentModel.searchFragmentByField({
           branchOriginFrag: fragToResolve.branchFrag
-        }, undefined, undefined, undefined, async(fragments) => {
-          fragments.forEach(async(fragment) => {
+        }, undefined, undefined, undefined, async (fragments) => {
+          fragments.forEach(async (fragment) => {
             await options.callBackOnPath(fragment.data);
           });
         });
@@ -298,7 +298,7 @@ module.exports = {
      * @param {Array} [options.pathTable] - The path table to be used during resolution.
      */
 
-  rebuildFragDataByBranch: async function(data, options = { pathTable: undefined, callBackOnPath: undefined, deeperFocusActivated: false }) {
+  rebuildFragDataByBranch: async function (data, options = { pathTable: undefined, callBackOnPath: undefined, deeperFocusActivated: false }) {
     if (options.callBackOnPath && Array.isArray(options.pathTable) && options.pathTable.length == 0) {
       if (options.deeperFocusActivated && Array.isArray(data)) {
         for (const item of data) {
@@ -363,7 +363,7 @@ module.exports = {
     }
   },
 
-  getWithResolution: async function(id) {
+  getWithResolution: async function (id) {
     const fragmentReturn = await this.fragmentModel.searchFragmentById(id);
     if (fragmentReturn.rootFrag) {
       const framentParts = await this.fragmentModel.searchFragmentByField({
@@ -394,7 +394,7 @@ module.exports = {
     }
   },
 
-  rebuildFrag: async function(frag, partDirectory, arrayDirectory, counter) {
+  rebuildFrag: async function (frag, partDirectory, arrayDirectory, counter) {
     counter = counter || 0;
     counter++;
     let result;
@@ -414,7 +414,7 @@ module.exports = {
     }
   },
 
-  rebuildFragData: async function(object, partDirectory, arrayDirectory, counter) {
+  rebuildFragData: async function (object, partDirectory, arrayDirectory, counter) {
     counter = counter || 0;
     counter++;
 
@@ -435,8 +435,8 @@ module.exports = {
         return null;
       } else if (
         (typeof object) === 'function' ||
-                object instanceof this.fragmentModel.model ||
-                object.constructor.name == 'Buffer') {
+        object instanceof this.fragmentModel.model ||
+        object.constructor.name == 'Buffer') {
         return object.toString();
       } else if (object instanceof Object) {
         if (Array.isArray(object)) {
@@ -458,7 +458,7 @@ module.exports = {
     }
   },
 
-  replaceMongoNotSupportedKey: function(object, deep) {
+  replaceMongoNotSupportedKey: function (object, deep) {
     if (Array.isArray(object)) {
       const out = [];
       for (const item of object) {
@@ -488,7 +488,7 @@ module.exports = {
     }
   },
 
-  cleanFrag: async function(id) {
+  cleanFrag: async function (id) {
     if (uuidValidate(id)) {
       const targetFrag = await this.fragmentModel.getFragmentById(id);
       // const children = await this.fragmentModel.searchFragmentByField({
@@ -513,7 +513,7 @@ module.exports = {
     }
   },
 
-  tagGarbage: async function(id) {
+  tagGarbage: async function (id) {
     if (uuidValidate(id)) {
       const targetFrag = await this.fragmentModel.getFragmentById(id);
       if (targetFrag.rootFrag) {
@@ -533,7 +533,7 @@ module.exports = {
   },
 
   // frag support fragId or frag object
-  copyFragUntilPath: async function(frag, dfobOptions = { dfobTable: [], keepArray: false, tableDepth: Infinity }, relativHistoryTable = [], callerFrag = undefined, tableDepthHistory = 0) {
+  copyFragUntilPath: async function (frag, dfobOptions = { dfobTable: [], keepArray: false, tableDepth: Infinity }, relativHistoryTable = [], callerFrag = undefined, tableDepthHistory = 0) {
     if (!frag) {
       throw new Error('frag have to be set');
     }
@@ -618,24 +618,30 @@ module.exports = {
       await this.fragmentModel.insertFragment(newFrag);
       // await this.displayFragTree(newFrag.id)
       // await new Promise(resolve => setTimeout(resolve, 100));
-      const isDfobFragmentSelected = processedData.dfobFragmentSelected && processedData.dfobFragmentSelected.length > 0;
+
+      // new frag is alway add to dfobFragmentSelected because processedData.dfobFragmentSelected ca contains frags but somme data can be not considers par fragselection and are embended in root frag
+      const rootSelected = [{
+        frag: newFrag,
+        relativHistoryTableSelected: processedData.relativHistoryTableSelected,
+        relativDfobTable: dfobTable,
+        tableDepth: tableDepth - tableDepthHistory
+      }];
+
+      const dfobFragmentSelected = rootSelected.concat(processedData.dfobFragmentSelected);
 
       return {
         data: processedData.data,
         // if no processedData.dfobFragmentSelected but algo is here, that means this step create fragment
-        dfobFragmentSelected: isDfobFragmentSelected ? processedData.dfobFragmentSelected : [{
-          frag: newFrag,
-          relativHistoryTableSelected: processedData.relativHistoryTableSelected,
-          relativDfobTable: dfobTable,
-          tableDepth: tableDepth - tableDepthHistory
-        }],
+        dfobFragmentSelected: dfobFragmentSelected,
         rootFrag: newFrag.rootFrag,
         newFrag: newFrag
       };
+
+
     }
   },
 
-  copyDataUntilPath: async function(data, dfobOptions = { dfobTable: [], keepArray: false }, relativHistoryTable = [], callerFrag) {
+  copyDataUntilPath: async function (data, dfobOptions = { dfobTable: [], keepArray: false }, relativHistoryTable = [], callerFrag) {
     // Extract options
     const dfobTable = dfobOptions.dfobTable || [];
     const keepArray = dfobOptions.keepArray || false;
@@ -664,7 +670,7 @@ module.exports = {
           const processedData = await this.copyDataUntilPath(item, dfobOptions, relativHistoryTable);
           const itemDefrag = processedData.data;
           arrayDefrag.push(itemDefrag);
-          if(dfobTable.length > 0 && processedData.dfobFragmentSelected) {
+          if (dfobTable.length > 0 && processedData.dfobFragmentSelected) {
             fragmentSelected = fragmentSelected.concat(processedData.dfobFragmentSelected);
           }
           relativHistoryTableSelected = processedData.relativHistoryTableSelected?.length > relativHistoryTableSelected ? processedData.relativHistoryTableSelected : relativHistoryTableSelected;
@@ -734,7 +740,7 @@ module.exports = {
     }
   },
 
-  displayFragTree: async function(id, depth = 0, key) {
+  displayFragTree: async function (id, depth = 0, key) {
     const frag = await this.fragmentModel.getFragmentById(id);
     const indent = ' '.repeat(depth * 4);
     if (frag.branchFrag) {
@@ -751,7 +757,7 @@ module.exports = {
     }
   },
 
-  displayDataTree: async function(data, depth = 0, key) {
+  displayDataTree: async function (data, depth = 0, key) {
     const indent = ' '.repeat(depth * 4);
     if (Array.isArray(data)) {
       for (const index in data) {
