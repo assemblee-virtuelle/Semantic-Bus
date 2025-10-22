@@ -619,7 +619,7 @@ module.exports = {
       // await this.displayFragTree(newFrag.id)
       // await new Promise(resolve => setTimeout(resolve, 100));
 
-      // new frag is alway add to dfobFragmentSelected because processedData.dfobFragmentSelected ca contains frags but somme data can be not considers par fragselection and are embended in root frag
+      // new frag is alway add to dfobFragmentSelected because processedData.dfobFragmentSelected ca contains frags but somme data can be not considers par frag selection and are embended in root frag
       const rootSelected = [{
         frag: newFrag,
         relativHistoryTableSelected: processedData.relativHistoryTableSelected,
@@ -667,13 +667,30 @@ module.exports = {
         let fragmentSelected = [];
         let relativHistoryTableSelected = [];
         for (const item of data) {
-          const processedData = await this.copyDataUntilPath(item, dfobOptions, relativHistoryTable);
-          const itemDefrag = processedData.data;
-          arrayDefrag.push(itemDefrag);
-          if (dfobTable.length > 0 && processedData.dfobFragmentSelected) {
-            fragmentSelected = fragmentSelected.concat(processedData.dfobFragmentSelected);
+          // Check if item contains a fragment reference
+          if (item && item != null && item._frag) {
+            const newDfobOptions = { dfobTable, keepArray };
+            const persitedFrag = await this.copyFragUntilPath(item._frag, newDfobOptions, [], callerFrag);
+
+            const itemDefrag = {
+              _frag: persitedFrag.newFrag.id.toString()
+            };
+            arrayDefrag.push(itemDefrag);
+
+            if (dfobTable.length > 0) {
+              if (persitedFrag.dfobFragmentSelected) {
+                fragmentSelected = fragmentSelected.concat(persitedFrag.dfobFragmentSelected);
+              }
+            }
+          } else {
+            const processedData = await this.copyDataUntilPath(item, dfobOptions, relativHistoryTable);
+            const itemDefrag = processedData.data;
+            arrayDefrag.push(itemDefrag);
+            if (dfobTable.length > 0 && processedData.dfobFragmentSelected) {
+              fragmentSelected = fragmentSelected.concat(processedData.dfobFragmentSelected);
+            }
+            relativHistoryTableSelected = processedData.relativHistoryTableSelected?.length > relativHistoryTableSelected ? processedData.relativHistoryTableSelected : relativHistoryTableSelected;
           }
-          relativHistoryTableSelected = processedData.relativHistoryTableSelected?.length > relativHistoryTableSelected ? processedData.relativHistoryTableSelected : relativHistoryTableSelected;
         }
         return {
           data: arrayDefrag,
