@@ -8,17 +8,19 @@ class ValueFromPath {
   progress(node, pathArray, pathObject, currentKey, counter) {
     // console.log('___progress',  pathArray, currentKey)
 
-    if (node===undefined){
+    if (node === undefined) {
       return undefined;
     }
+
+
 
     // console.log('progress',counter,pathArray,currentKey);
 
     // if(counter<100){
     // pathArray = JSON.parse(JSON.stringify(pathArray))
-    pathArray= [...pathArray];
+    pathArray = [...pathArray];
     // pathObject = JSON.parse(JSON.stringify(pathObject))
-    pathObject = {...pathObject};
+    pathObject = { ...pathObject };
 
     // console.log('progress', pathArray,node, pathObject);
 
@@ -27,7 +29,7 @@ class ValueFromPath {
     if (Array.isArray(node) && isNaN(index) && pathArray.length > 0) {
 
       let out = []
-      node.forEach((r,i) => {
+      node.forEach((r, i) => {
         // console.log(`${i}/${node.length}`);
         // console.log('r before', r);
         out.push(this.progress(r, pathArray, pathObject, currentKey, ++counter))
@@ -45,7 +47,7 @@ class ValueFromPath {
         let out = node;
         if (Array.isArray(node)) {
           out = [];
-          node.forEach((n,i) => {
+          node.forEach((n, i) => {
             // if (i%100==0){
             //   console.log(`${i}/${node.length}`);
             // }
@@ -98,7 +100,7 @@ class ValueFromPath {
   }
 
   resolve(source, specificData) {
-    // console.log('___resolve', source[0][0].organization)
+    console.log('___resolve', source)
     let matches = specificData.path.split('.');
     // console.log('__resolve', JSON.stringify(source), JSON.stringify(matches))
     let result = this.progress(source, matches, {}, 'root', 0);
