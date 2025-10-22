@@ -105,7 +105,7 @@ class ValueFromPath {
     // console.log('__resolve', JSON.stringify(source), JSON.stringify(matches))
     let result = this.progress(source, matches, {}, 'root', 0);
     // console.log('__RESOLVE', JSON.stringify(result));
-    // console.log('___result', result[0][0])
+    console.log('___result', result.map(item => item.length))
     return (result)
   }
 
