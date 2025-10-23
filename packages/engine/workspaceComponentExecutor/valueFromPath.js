@@ -100,12 +100,12 @@ class ValueFromPath {
   }
 
   resolve(source, specificData) {
-    console.log('___resolve', source)
+    // console.log('___resolve', source)
     let matches = specificData.path.split('.');
     // console.log('__resolve', JSON.stringify(source), JSON.stringify(matches))
     let result = this.progress(source, matches, {}, 'root', 0);
     // console.log('__RESOLVE', JSON.stringify(result));
-    console.log('___result', result.map(item => item.length))
+    // console.log('___result', result.map(item => item.length))
     return (result)
   }
 
