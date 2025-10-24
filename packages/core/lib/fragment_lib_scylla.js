@@ -256,7 +256,8 @@ module.exports = {
           branchOriginFrag: fragToResolve.branchFrag
         }, undefined, undefined, undefined, async (fragments) => {
           fragments.forEach(async (fragment) => {
-            await options.callBackOnPath(fragment.data);
+            // console.log('___callBackOnPath');
+            await options.callBackOnPath(fragment.data, fragment.index);
           });
         });
       } else {
@@ -266,19 +267,23 @@ module.exports = {
           index: 'ASC'
         });
 
+
+
         const childrenData = [];
         for (const child of children) {
           if (child.branchFrag) {
             const data = await this.getWithResolutionByBranch(child, options);
-            childrenData.push(data);
+            if (!options.callBackOnPath) {
+              childrenData.push(data);
+            }
           } else {
             const data = await this.rebuildFragDataByBranch(child.data, options);
-            childrenData.push(data);
+            if (!options.callBackOnPath) {
+              childrenData.push(data);
+            }
           }
         }
-        if (options.callBackOnPath && options.pathTable && options.pathTable.length == 0 && !options.deeperFocusActivated) {
-          await options.callBackOnPath(childrenData);
-        } else {
+        if (!options.callBackOnPath) {
           return childrenData;
         }
       }
@@ -542,9 +547,9 @@ module.exports = {
     const fragToCopy = isObjectFrag ? frag : await this.fragmentModel.getFragmentById(frag);
 
     // Extract options
-    const dfobTable = dfobOptions.dfobTable || [];
-    const keepArray = dfobOptions.keepArray || false;
-    const tableDepth = dfobOptions.tableDepth || Infinity;
+    const dfobTable = dfobOptions.dfobTable == undefined ? [] : dfobOptions.dfobTable;
+    const keepArray = dfobOptions.keepArray == undefined ? false : dfobOptions.keepArray;
+    const tableDepth = dfobOptions.tableDepth == undefined ? Infinity : dfobOptions.tableDepth;
 
     if (fragToCopy.branchFrag) {
       const newFrag = new model({
@@ -570,10 +575,14 @@ module.exports = {
       const fragleaves = await this.fragmentModel.searchFragmentByField({ branchOriginFrag: fragToCopy.branchFrag });
       const arrayOut = [];
       let fragmentSelected = [];
-
+      let newDfobOptions = { dfobTable, keepArray, tableDepth: tableDepth };
+      if (dfobTable.length == 0) {
+        newDfobOptions.tableDepth = tableDepth - 1;
+      }
 
       for (const record of fragleaves) {
-        const processedData = await this.copyFragUntilPath(record.id, dfobOptions, relativHistoryTable, newFrag, tableDepthHistory + 1);
+
+        const processedData = await this.copyFragUntilPath(record.id, newDfobOptions, relativHistoryTable, newFrag, tableDepthHistory + 1);
         arrayOut.push(processedData.data);
         fragmentSelected = fragmentSelected.concat(processedData.dfobFragmentSelected);
       }
@@ -614,6 +623,7 @@ module.exports = {
 
       const newFrag = new model(newFragRaw);
       const processedData = await this.copyDataUntilPath(newFrag.data, dfobOptions, relativHistoryTable, newFrag);
+      // console.log('processedData', processedData.dfobFragmentSelected)
       newFrag.data = processedData.data;
       await this.fragmentModel.insertFragment(newFrag);
       // await this.displayFragTree(newFrag.id)
@@ -641,11 +651,12 @@ module.exports = {
     }
   },
 
-  copyDataUntilPath: async function (data, dfobOptions = { dfobTable: [], keepArray: false }, relativHistoryTable = [], callerFrag) {
-    // Extract options
-    const dfobTable = dfobOptions.dfobTable || [];
-    const keepArray = dfobOptions.keepArray || false;
+  copyDataUntilPath: async function (data, dfobOptions = { dfobTable: [], keepArray: false, tableDepth: Infinity }, relativHistoryTable = [], callerFrag) {
 
+    // Extract options
+    const dfobTable = dfobOptions.dfobTable == undefined ? [] : dfobOptions.dfobTable;
+    const keepArray = dfobOptions.keepArray == undefined ? false : dfobOptions.keepArray;
+    const tableDepth = dfobOptions.tableDepth == undefined ? Infinity : dfobOptions.tableDepth;
     if (data == undefined) {
       return {
         data: undefined,
@@ -666,10 +677,13 @@ module.exports = {
         const arrayDefrag = [];
         let fragmentSelected = [];
         let relativHistoryTableSelected = [];
+        let newDfobOptions = { dfobTable, keepArray, tableDepth: tableDepth };
+        if (dfobTable.length == 0) {
+          newDfobOptions.tableDepth = tableDepth - 1;
+        }
         for (const item of data) {
           // Check if item contains a fragment reference
           if (item && item != null && item._frag) {
-            const newDfobOptions = { dfobTable, keepArray };
             const persitedFrag = await this.copyFragUntilPath(item._frag, newDfobOptions, [], callerFrag);
 
             const itemDefrag = {
@@ -677,16 +691,15 @@ module.exports = {
             };
             arrayDefrag.push(itemDefrag);
 
-            if (dfobTable.length > 0) {
-              if (persitedFrag.dfobFragmentSelected) {
-                fragmentSelected = fragmentSelected.concat(persitedFrag.dfobFragmentSelected);
-              }
+            if (persitedFrag.dfobFragmentSelected && tableDepth >= 0 && dfobTable.length >= 0) {
+              fragmentSelected = fragmentSelected.concat(persitedFrag.dfobFragmentSelected);
             }
+            // relativHistoryTableSelected = processedData.relativHistoryTableSelected?.length > relativHistoryTableSelected ? processedData.relativHistoryTableSelected : relativHistoryTableSelected;
           } else {
-            const processedData = await this.copyDataUntilPath(item, dfobOptions, relativHistoryTable);
+            const processedData = await this.copyDataUntilPath(item, newDfobOptions, relativHistoryTable);
             const itemDefrag = processedData.data;
             arrayDefrag.push(itemDefrag);
-            if (dfobTable.length > 0 && processedData.dfobFragmentSelected) {
+            if (processedData.dfobFragmentSelected) {
               fragmentSelected = fragmentSelected.concat(processedData.dfobFragmentSelected);
             }
             relativHistoryTableSelected = processedData.relativHistoryTableSelected?.length > relativHistoryTableSelected ? processedData.relativHistoryTableSelected : relativHistoryTableSelected;

@@ -151,7 +151,7 @@ class Engine {
         if (this.owner.credit >= 0 || (config.privateScript && config.privateScript.length == 0) || config.free == true) {
 
           this.fackCounter++;
-      
+
           if (config.quietLog != true) {
           }
           let processingNode;
@@ -192,7 +192,7 @@ class Engine {
 
           if (processingNode != undefined) {
             if (config.quietLog != true) {
-        
+
             }
             const startTime = new Date();
 
@@ -288,7 +288,9 @@ class Engine {
                 try {
 
                   let { dfobPath, keepArray, pipeNb, tableDepth, delayMs } = componentFlow.deeperFocusData;
-
+                  tableDepth = parseInt(tableDepth);
+                  pipeNb = parseInt(pipeNb);
+                  delayMs = parseInt(delayMs);
                   if (dfobPath == undefined) {
                     dfobPath = '';
                   }
@@ -304,7 +306,6 @@ class Engine {
 
                   const newFrag = dfobFragmentFlow.newFrag;
                   let dfobFragmentSelected = dfobFragmentFlow.dfobFragmentSelected;
-                  // console.log('dfobFragmentSelected',dfobFragmentSelected)
 
                   dfobFragmentSelected = Array.isArray(dfobFragmentSelected) ? dfobFragmentSelected : [dfobFragmentSelected];
 
@@ -338,8 +339,8 @@ class Engine {
                         // console.log('__item', item)
                         return [
                           processingNode,
-                          item.frag,  
-                          { dfobTable: item.relativDfobTable || [], pipeNb, keepArray,tableDepth: item.tableDepth, delayMs },
+                          item.frag,
+                          { dfobTable: item.relativDfobTable || [], pipeNb, keepArray, tableDepth: item.tableDepth, delayMs },
                           componentFlow.primaryflow,
                           secondaryFlowDefraged,
                           componentFlow.secondaryFlow
@@ -383,7 +384,7 @@ class Engine {
                     }
                     if (config.quietLog != true) console.timeEnd('rebuildFrag_focus_work_persist' + '_' + this.processId + '_' + this.workflow.name);
                     if (module.endWork) {
-                      await module.endWork(processingNode.component,this.processId);
+                      await module.endWork(processingNode.component, this.processId);
                     }
                   }
                 } catch (e) {
@@ -393,7 +394,7 @@ class Engine {
                   await this.historicEndAndCredit(processingNode, startTime, undefined, e);
                   processingNode.status = 'error';
                   if (module.endWork) {
-                    await module.endWork(processingNode,this.processId);
+                    await module.endWork(processingNode, this.processId);
                   }
                   this.processNextBuildPath('dfob catch');
                 }
@@ -536,7 +537,7 @@ class Engine {
 
       const specificData = processingNode.component.specificData;
       const current_component = config.components_information[module];
-      if(!current_component){
+      if (!current_component) {
         throw new Error(`Component ${module} not found in prices`);
       }
       let current_component_price;
@@ -615,7 +616,7 @@ class Engine {
 
         const needDfob = dfobTable.length > 0 || (Array.isArray(rebuildData) && !keepArray && !fragment.branchOriginFrag);
         if (needDfob) {
-          
+
           rebuildData = await DfobProcessor.processDfobFlow(
             rebuildData,
             { pipeNb, dfobTable, keepArray, tableDepth, delayMs },
@@ -685,7 +686,7 @@ class Engine {
         recomposedFlow = recomposedFlow.concat([{
           fragment: fragment,
           componentId: primaryflow.componentId,
-          dfob: { dfobTable, pipeNb, keepArray ,tableDepth, delayMs},
+          dfob: { dfobTable, pipeNb, keepArray, tableDepth, delayMs },
         }]);
         recomposedFlow = recomposedFlow.concat(secondaryFlowFragments);
         workResult = await module.workWithFragments(processingNode.component, recomposedFlow, processingNode.queryParams == undefined ? undefined : processingNode.queryParams.queryParams, this.processId);
