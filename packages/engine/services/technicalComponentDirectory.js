@@ -50,4 +50,5 @@ module.exports = {
   imap: require('../workspaceComponentExecutor/imap.js'),
   binaryExtractor: require('../workspaceComponentExecutor/binaryExtractor.js'),
   sftpUploader: require('../workspaceComponentExecutor/sftpUploader.js'),
+  arraySplitByCondition: require('../workspaceComponentExecutor/arraySplitByCondition.js'),
 };

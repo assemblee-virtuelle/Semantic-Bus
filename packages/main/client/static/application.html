@@ -14,7 +14,8 @@
   <link href='./js/jsonEditor/dist/jsoneditor.min.css' rel='stylesheet' type='text/css'>
   <link href="./image/grappe-log-01.png" rel="icon" type="image/png">
   <link rel="stylesheet" href="./js/awesomplete-gh-pages/awesomplete.css" />
-  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flexboxgrid/6.3.1/flexboxgrid.min.css" type="text/css">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/flexboxgrid/6.3.1/flexboxgrid.min.css"
+    type="text/css">
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jstree/3.3.5/themes/default/style.min.css" />
 </head>
 
@@ -145,6 +146,7 @@
   <script type="riot/tag" src="tag/editorComponents/transformation/slice-editor.tag"></script>
   <script type="riot/tag" src="tag/editorComponents/transformation/increment-table-editor.tag"></script>
   <script type="riot/tag" src="tag/editorComponents/transformation/jsonld-conversion-editor.tag"></script>
+  <script type="riot/tag" src="tag/editorComponents/transformation/array-split-by-condition-editor.tag"></script>
   <!-- ---ENDOFPART--- -->
 
   <script type="riot/tag" src="tag/editorComponents/utilities/deeper-focus-opening-bracket-editor.tag"></script>
@@ -228,11 +230,11 @@
       const mainController = new MainController(allStore, utilStore);
       RiotControl.addStore(mainController);
 
-      RiotControl.on('login_redirect', function() {
+      RiotControl.on('login_redirect', function () {
         window.open("../ihm/login.html", "_self");
       })
 
-      riot.compile(function() {
+      riot.compile(function () {
         riot.mount('*');
       });
 
@@ -262,7 +264,7 @@
         RiotControl.trigger('AMQP disconnected')
         // console.log('AMQP disconnected or imposible to connect, try to reconnect in 5 seconds');
         // console.log('ERROR',client);
-        setTimeout(()=>{
+        setTimeout(() => {
           stompClient = webstomp.client(configuration.url, {
             heartbeat: {
               incoming: 10000,
@@ -274,21 +276,21 @@
           // console.log('retry connect',stompClientProxy,login,password,onConnect,onError,configuration.hos);
           console.log(('AMQP try to reconnect'));
           stompClientProxy.connect(login, password, onConnect, onError, configuration.host);
-        },5000)
+        }, 5000)
 
       }
 
 
       const objectHandler = {
-        get: function(target, propKey, receiver) {
+        get: function (target, propKey, receiver) {
           //I only want to intercept method calls, not property access
           var propValue = target[propKey];
           if (typeof propValue != "function") {
             return propValue;
           } else {
-            return function() {
+            return function () {
               // console.log("intercepting call to " + propKey + " in cat " + target.name);
-              if (target.connected == false && propKey=="send") {
+              if (target.connected == false && propKey == "send") {
                 // alert('amqp seem disconnected, please refresh your browser');
                 RiotControl.trigger('ajax_fail', 'AMQP disconnected')
               }

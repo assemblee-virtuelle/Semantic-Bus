@@ -50,12 +50,13 @@ module.exports = {
   googleAuth: require('../workspaceComponentInitialize/googleAuth.js'),
   binaryExtractor: require('../workspaceComponentInitialize/binaryExtractor.js'),
   sftpUploader: require('../workspaceComponentInitialize/sftpUploader.js'),
+  arraySplitByCondition: require('../workspaceComponentInitialize/arraySplitByCondition.js'),
   // ---ENDOFPART---
 
   /* some other modules you want */
 
   // --------------------------------------------------------------------------------
-  buildDictionnaryArray: function() {
+  buildDictionnaryArray: function () {
     const directory = [];
     for (const technicalComponent in this) {
       if (technicalComponent != 'initialise' && technicalComponent != 'buildDictionnaryArray' && this[technicalComponent].tags != undefined) {
@@ -72,7 +73,7 @@ module.exports = {
     return directory;
   },
 
-  initialise: function(router, unSafeRouteur) {
+  initialise: function (router, unSafeRouteur) {
     // console.log('initialise')
     // this.restApiPost.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
     // this.restApiGet.initialise(unSafeRouteur,engineTracer) // NO SECURE CHANGE ROUTER
@@ -83,13 +84,13 @@ module.exports = {
     this.googleAuth.initialise(unSafeRouteur);
   },
 
-  setAmqpClient: function(channel) {
+  setAmqpClient: function (channel) {
     // console.log('setAmqp')
     // this.httpProvider.setAmqpClient(channel);
     // this.upload.setAmqpClient(channel)
   },
 
-  setAmqpChannel: function(channel) {
+  setAmqpChannel: function (channel) {
     this.httpProvider.setAmqp(channel);
     this.upload.setAmqp(channel);
   }
