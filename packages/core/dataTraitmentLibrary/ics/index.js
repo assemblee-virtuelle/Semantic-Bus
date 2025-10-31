@@ -40,7 +40,7 @@ function _icstojson(icsData) {
       });
 
       resolve({ events });
-    }catch(e) {
+    } catch (e) {
       console.log(e);
       reject(e);
     }
@@ -77,7 +77,7 @@ function _jsontoics(jsonData, header) {
 
       const resultICS = comp.toString();
       resolve(resultICS);
-    }catch(e) {
+    } catch (e) {
       console.log(e);
       resolve({
         error: {

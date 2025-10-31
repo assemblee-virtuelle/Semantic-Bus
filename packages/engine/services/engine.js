@@ -403,7 +403,6 @@ class Engine {
                 try {
                   //TODO: methode can be workWithFragments
                   const componentFlow = await module.pull(processingNode.component, dataFlow, processingNode.queryParams?.queryParams, this.processId);
-
                   const {
                     data,
                     ...dataResolution

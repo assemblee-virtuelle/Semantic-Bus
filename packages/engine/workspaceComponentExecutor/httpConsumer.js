@@ -23,9 +23,8 @@ class HttpConsumer {
         // console.log('___response body',response.body);
         // console.log('___response text',response.text);
 
-
         let contentType = componentConfig.overidedContentType || response.headers['content-type'];
-        // console.log('___contentType',contentType);
+        // console.log('___contentType', contentType);
         if (!contentType) {
           reject(new Error(`no content-type in response or overided by component`));
         }
@@ -113,7 +112,8 @@ class HttpConsumer {
             }
           }
           fileConvertor.data_from_file(filename, response.body, contentType).then((result) => {
-            resolve(propertyNormalizer.execute(result));
+            const resultOutput = propertyNormalizer.execute(result);
+            resolve(resultOutput);
           }).catch((err) => {
             let fullError = new Error(err);
             fullError.displayMessage = 'HTTP GET : Erreur lors du traitement de votre fichier';
