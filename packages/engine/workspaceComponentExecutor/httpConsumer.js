@@ -99,7 +99,8 @@ class HttpConsumer {
           contentType.includes('csv') ||
           contentType.includes('xlsx') ||
           contentType.includes('vnd.openxmlformats-officedocument') ||
-          contentType.includes('calendar')
+          contentType.includes('calendar') ||
+          contentType.includes('vnd.oasis.opendocument.spreadsheet')
         ) {
           let filename = response.headers['content-disposition']?.split('filename=')[1]?.replace(/['"]/g, '');
           if (!filename) {
