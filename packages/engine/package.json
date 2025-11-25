@@ -21,7 +21,7 @@
     "@semantic-bus/core": "file:../core",
     "amqp-connection-manager": "^4.1.14",
     "amqplib": "^0.10.8",
-    "body-parser": "^2.2.0",
+    "body-parser": "^2.2.1",
     "cheerio": "^1.1.0",
     "cldr-data": "^36.0.2",
     "clone": "^2.1.2",
