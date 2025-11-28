@@ -545,6 +545,7 @@ module.exports = {
     const isObjectFrag = frag instanceof this.fragmentModel.model;
     const model = this.fragmentModel.model;
     const fragToCopy = isObjectFrag ? frag : await this.fragmentModel.getFragmentById(frag);
+    console.log('_____fragToCopy_____', fragToCopy);
 
     // Extract options
     const dfobTable = dfobOptions.dfobTable == undefined ? [] : dfobOptions.dfobTable;
@@ -623,8 +624,10 @@ module.exports = {
 
       const newFrag = new model(newFragRaw);
       const processedData = await this.copyDataUntilPath(newFrag.data, dfobOptions, relativHistoryTable, newFrag);
+      console.log('_____processedData_____', processedData);
       // console.log('processedData', processedData.dfobFragmentSelected)
       newFrag.data = processedData.data;
+      console.log('_____newFrag_____', newFrag);
       await this.fragmentModel.insertFragment(newFrag);
       // await this.displayFragTree(newFrag.id)
       // await new Promise(resolve => setTimeout(resolve, 100));
@@ -637,7 +640,13 @@ module.exports = {
         tableDepth: tableDepth - tableDepthHistory
       }];
 
-      const dfobFragmentSelected = rootSelected.concat(processedData.dfobFragmentSelected);
+      let dfobFragmentSelected;
+      if (processedData.dfobFragmentSelected) {
+        dfobFragmentSelected = rootSelected.concat(processedData.dfobFragmentSelected);
+      } else {
+        dfobFragmentSelected = rootSelected;
+      }
+      console.log('_____dfobFragmentSelected_____', dfobFragmentSelected);
 
       return {
         data: processedData.data,

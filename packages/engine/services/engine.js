@@ -190,6 +190,8 @@ class Engine {
             });
           }
 
+          console.log('_______processingNode', processingNode)
+
           if (processingNode != undefined) {
             if (config.quietLog != true) {
 
@@ -285,6 +287,7 @@ class Engine {
               this.processNextBuildPath('flow ko');
             } else {
               if (componentFlow.deeperFocusData) {
+                console.log('___________componentFlow.deeperFocusData', componentFlow.deeperFocusData);
                 try {
 
                   let { dfobPath, keepArray, pipeNb, tableDepth, delayMs } = componentFlow.deeperFocusData;
@@ -336,6 +339,9 @@ class Engine {
                     try {
                       let dfob = undefined;
                       const paramArray = dfobFragmentSelected.map((item) => {
+                        if (!item) {
+                          throw new Error('item in dfobFragmentSelected is undefined');
+                        }
                         // console.log('__item', item)
                         return [
                           processingNode,
@@ -346,6 +352,8 @@ class Engine {
                           componentFlow.secondaryFlow
                         ];
                       });
+
+                      console.log('___________call rebuildFrag_focus_work_persist');
 
                       try {
                         const workResult = await this.promiseOrchestrator.execute(this, this.rebuildFrag_focus_work_persist, paramArray, {
@@ -402,6 +410,7 @@ class Engine {
                 // this code occure when no input dependency because dfob is set by defaut when input dependency exist
                 try {
                   //TODO: methode can be workWithFragments
+
                   const componentFlow = await module.pull(processingNode.component, dataFlow, processingNode.queryParams?.queryParams, this.processId);
                   const {
                     data,
@@ -412,6 +421,8 @@ class Engine {
                   processingNode.dataResolution = dataResolution;
                   processingNode.status = 'resolved';
                   const frag = await fragment_lib.persist(data);
+
+                  console.log('___________frag after persist', frag);
 
                   // console.log('____frag persist when no input dependency_____FRAG', frag)
                   // fragment_lib.displayFragTree(frag.id)
@@ -608,6 +619,8 @@ class Engine {
     let rebuildData;
     const workWithFragments = module.workWithFragments;
 
+    console.log('___rebuildFrag_focus_work_persist');
+
     if (!workWithFragments) {
       try {
         rebuildData = await fragment_lib.getWithResolutionByBranch(fragment.id);
@@ -666,6 +679,7 @@ class Engine {
 
       let pesristedFragment;
       try {
+        console.log('___rebuildData', rebuildData);
         pesristedFragment = await fragment_lib.persist(rebuildData, undefined, fragment);
 
       } catch (error) {
