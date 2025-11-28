@@ -637,7 +637,12 @@ module.exports = {
         tableDepth: tableDepth - tableDepthHistory
       }];
 
-      const dfobFragmentSelected = rootSelected.concat(processedData.dfobFragmentSelected);
+      let dfobFragmentSelected;
+      if (processedData.dfobFragmentSelected) {
+        dfobFragmentSelected = rootSelected.concat(processedData.dfobFragmentSelected);
+      } else {
+        dfobFragmentSelected = rootSelected;
+      }
 
       return {
         data: processedData.data,

@@ -336,6 +336,9 @@ class Engine {
                     try {
                       let dfob = undefined;
                       const paramArray = dfobFragmentSelected.map((item) => {
+                        if (!item) {
+                          throw new Error('item in dfobFragmentSelected is undefined');
+                        }
                         // console.log('__item', item)
                         return [
                           processingNode,
@@ -402,6 +405,7 @@ class Engine {
                 // this code occure when no input dependency because dfob is set by defaut when input dependency exist
                 try {
                   //TODO: methode can be workWithFragments
+
                   const componentFlow = await module.pull(processingNode.component, dataFlow, processingNode.queryParams?.queryParams, this.processId);
                   const {
                     data,
