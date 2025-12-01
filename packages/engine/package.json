@@ -31,7 +31,7 @@
     "dayjs": "^1.11.13",
     "dayjs-with-plugins": "^1.0.4",
     "dot-prop": "^5.2.0",
-    "express": "^5.1.0",
+    "express": "^5.2.0",
     "file-type": "version-16",
     "fix-esm": "^1.0.1",
     "follow-redirects": "^1.4.1",
