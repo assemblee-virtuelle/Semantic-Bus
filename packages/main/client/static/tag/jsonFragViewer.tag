@@ -1,10 +1,40 @@
 <jsonfragviewer class="containerV">
   <div id="jsonfrageditor" ref="jsonfrageditor" class="containerV scrollable" style="margin: 1vh"></div>
+  
+  <!-- Popup for load more options -->
+  <div if={showLoadMorePopup} class="load-more-overlay" onclick={closeLoadMorePopup}>
+    <div class="load-more-popup" onclick={preventClosePopup}>
+      <div class="popup-header">
+        <h3>Charger plus d'éléments</h3>
+        <span onclick={closeLoadMorePopup} class="close-button">×</span>
+      </div>
+      <div class="popup-content">
+        <p>Il reste {loadMoreRemainingCount} {loadMoreIsArray ? 'éléments' : 'propriétés'} à charger.</p>
+        <label for="batchSizeInput">Nombre d'éléments à charger:</label>
+        <input type="number" id="batchSizeInput" value={loadMoreBatchSize} min="1" max={loadMoreRemainingCount} onchange={updateBatchSize}>
+      </div>
+      <div class="popup-actions">
+        <button onclick={loadMoreItemsWithBatch}>Charger {loadMoreBatchSize} élément(s)</button>
+        <button onclick={loadAllRemainingItems}>Charger tout ({loadMoreRemainingCount})</button>
+      </div>
+    </div>
+  </div>
+  
   <script>
     //var tag = this
     this.title = "";
     this.option = {};
     this.currentContextMenu;
+    
+    // Popup state for load more
+    this.showLoadMorePopup = false;
+    this.loadMoreNodeId = null;
+    this.loadMoreRemainingCount = 0;
+    this.loadMoreBatchSize = 100;
+    this.loadMoreIsArray = false;
+    
+    // Cache to store full data and pagination info by node path
+    this.paginationCache = new Map();
     Object.defineProperty(this, "data", {
       set: function (data) {
         this.mountEditor(data).then(editor => {
@@ -35,13 +65,10 @@
       this.editor.delete_node(children);
       let focus =  this.editor.get_node(nodeId);
       let keyText = focus.original.key;
-      console.log('focus', focus);
       let jsTreeNodes = this.jsonToJsTree(data,focus.original.key,focus.original.path);
       this.editor.rename_node(nodeId,jsTreeNodes[0].text);
       jsTreeNodes[0].children.forEach(c => {
-        this.editor.create_node(nodeId, c, 'last', function (e) {
-          console.log(e);
-        });
+        this.editor.create_node(nodeId, c, 'last');
       })
 
       this.editor.open_node(nodeId);
@@ -62,6 +89,139 @@
       console.log('testFunction');
     }
 
+    this.preventClosePopup = function(e) {
+      e.stopPropagation();
+    }
+
+    this.closeLoadMorePopup = function() {
+      this.showLoadMorePopup = false;
+      this.update();
+    }.bind(this);
+
+    this.updateBatchSize = function(e) {
+      this.loadMoreBatchSize = parseInt(e.target.value) || 100;
+      this.update();
+    }.bind(this);
+
+    this.showLoadMoreDialog = function(loadMoreNodeId) {
+      const loadMoreNode = this.editor.get_node(loadMoreNodeId);
+      if (loadMoreNode && loadMoreNode.data._isLoadMore) {
+        this.loadMoreNodeId = loadMoreNodeId;
+        this.loadMoreRemainingCount = loadMoreNode.data._remainingCount;
+        this.loadMoreBatchSize = Math.min(100, loadMoreNode.data._remainingCount);
+        this.loadMoreIsArray = loadMoreNode.data._isArray;
+        this.showLoadMorePopup = true;
+        this.update();
+      }
+    }.bind(this);
+
+    this.loadMoreItemsWithBatch = function(e) {
+      e.stopPropagation();
+      this.closeLoadMorePopup();
+      
+      // Show global loader
+      RiotControl.trigger('persist_start');
+      
+      // Use setTimeout to allow UI to update with spinner
+      setTimeout(() => {
+        this.loadMoreItems(this.loadMoreNodeId, this.loadMoreBatchSize);
+        // Hide global loader
+        RiotControl.trigger('persist_end');
+      }, 100);
+    }.bind(this);
+
+    this.loadAllRemainingItems = function(e) {
+      e.stopPropagation();
+      this.closeLoadMorePopup();
+      
+      // Show global loader
+      RiotControl.trigger('persist_start');
+      
+      // Use setTimeout to allow UI to update with spinner
+      setTimeout(() => {
+        this.loadMoreItems(this.loadMoreNodeId, this.loadMoreRemainingCount);
+        // Hide global loader
+        RiotControl.trigger('persist_end');
+      }, 100);
+    }.bind(this);
+
+    this.loadMoreItems = function(loadMoreNodeId, batchSize) {
+      const loadMoreNode = this.editor.get_node(loadMoreNodeId);
+      if (!loadMoreNode) {
+        console.error('loadMoreNode not found');
+        return;
+      }
+
+      // Get parent node
+      const parentNode = this.editor.get_node(loadMoreNode.parent);
+      if (!parentNode) {
+        console.error('Parent node not found');
+        return;
+      }
+
+      // Get pagination cache
+      const parentPath = loadMoreNode.data._parentPath;
+      const cacheEntry = this.paginationCache.get(parentPath);
+      if (!cacheEntry) {
+        console.error('Cache entry not found for path:', parentPath);
+        return;
+      }
+
+      const fullData = cacheEntry.fullData;
+      const currentDisplayed = loadMoreNode.data._currentCount;
+      const totalCount = loadMoreNode.data._totalCount;
+      const isArray = loadMoreNode.data._isArray;
+
+      // Calculate new range
+      const newStartIndex = currentDisplayed;
+      const newEndIndex = Math.min(currentDisplayed + batchSize, totalCount);
+      
+      // Delete the load more node
+      this.editor.delete_node(loadMoreNode);
+
+      // Add new items
+      let keyCounter = 0;
+      for (let key in fullData) {
+        keyCounter++;
+        
+        if (keyCounter > newStartIndex && keyCounter <= newEndIndex) {
+          let insertingNodes = this.jsonToJsTree(
+            fullData[key],
+            isArray ? key : key,
+            parentPath
+          );
+          insertingNodes.forEach(node => {
+            this.editor.create_node(parentNode.id, node, 'last');
+          });
+        }
+      }
+
+      // Add new load more node if there are still more items
+      if (newEndIndex < totalCount) {
+        const remainingCount = totalCount - newEndIndex;
+        const newLoadMoreNode = {
+          text: `<div style="display:flex;flex-direction:row;align-items:center;cursor:pointer;color:#0066cc;">
+              <div class="load-more-node" data-path="${parentPath}" data-remaining="${remainingCount}" data-is-array="${isArray}">
+                ⋯ ${remainingCount} ${isArray ? 'éléments' : 'propriétés'} masqué(s) - Cliquer pour charger plus
+              </div>
+            </div>`,
+          key: '__load_more__',
+          path: parentPath,
+          data: {
+            _isLoadMore: true,
+            _remainingCount: remainingCount,
+            _currentCount: newEndIndex,
+            _totalCount: totalCount,
+            _isArray: isArray,
+            _parentPath: parentPath
+          }
+        };
+        this.editor.create_node(parentNode.id, newLoadMoreNode, 'last');
+      }
+
+      // Keep the parent node open
+      this.editor.open_node(parentNode.id);
+    }.bind(this);
 
     this.jsonToJsTree = function (data, key, path) {
       // console.log('tree Generation', data, key);
@@ -112,18 +272,32 @@
             children: []
           }
           let showDataLenght = 100;
+          let hasMoreData = false;
+          let totalCount = 0;
+          
           if (Array.isArray(data)) {
-            if (data.length > showDataLenght) {
-              let hideDataLenght = data.length - showDataLenght
-              data = data.slice(0, showDataLenght);
-              data.push(hideDataLenght + ' records hidden');
-            }
+            totalCount = data.length;
+            hasMoreData = data.length > showDataLenght;
+          } else {
+            totalCount = Object.keys(data).length;
+            hasMoreData = totalCount > showDataLenght;
           }
+          
+          // Store pagination info in cache if there's more data
+          if (hasMoreData) {
+            this.paginationCache.set(newPath, {
+              fullData: data,
+              totalCount: totalCount,
+              currentDisplayed: showDataLenght,
+              isArray: Array.isArray(data)
+            });
+          }
+          
           let keyCounter=0;
           for (let key in data) {
             keyCounter++;
             
-            if(keyCounter<=showDataLenght+1){
+            if(keyCounter<=showDataLenght){
               let insertingNodes = this.jsonToJsTree(
                 data[key],
                 Array.isArray(data)
@@ -135,6 +309,28 @@
             }else{
               break;
             }
+          }
+          
+          // Add "load more" node if there are hidden items
+          if (hasMoreData) {
+            let remainingCount = totalCount - showDataLenght;
+            node.children.push({
+              text: `<div style="display:flex;flex-direction:row;align-items:center;cursor:pointer;color:#0066cc;">
+                  <div class="load-more-node" data-path="${newPath}" data-remaining="${remainingCount}" data-is-array="${Array.isArray(data)}">
+                    ⋯ ${remainingCount} ${Array.isArray(data) ? 'éléments' : 'propriétés'} masqué(s) - Cliquer pour charger plus
+                  </div>
+                </div>`,
+              key: '__load_more__',
+              path: newPath,
+              data: {
+                _isLoadMore: true,
+                _remainingCount: remainingCount,
+                _currentCount: showDataLenght,
+                _totalCount: totalCount,
+                _isArray: Array.isArray(data),
+                _parentPath: newPath
+              }
+            });
           }
         }
 
@@ -262,6 +458,44 @@
 
       this.clickListener = (e) => {
         const target= e.target;
+        
+        // Check if clicking on load-more node
+        let loadMoreTarget = target;
+        while (loadMoreTarget && !loadMoreTarget.classList.contains('load-more-node')) {
+          loadMoreTarget = loadMoreTarget.parentElement;
+        }
+        
+        if (loadMoreTarget && loadMoreTarget.classList.contains('load-more-node')) {
+          e.preventDefault();
+          e.stopPropagation();
+          
+          // Find the jstree anchor
+          let anchor = loadMoreTarget;
+          while (anchor && !anchor.classList.contains('jstree-anchor')) {
+            anchor = anchor.parentElement;
+            if (anchor && anchor.id === 'jsonfrageditor') {
+              // We've reached the root without finding the anchor
+              console.error('Could not find jstree anchor');
+              return;
+            }
+          }
+          
+          if (anchor) {
+            try {
+              const node = this.editor.get_node(anchor);
+              if (node && node.id) {
+                const nodeId = node.id;
+                this.showLoadMoreDialog(nodeId);
+              } else {
+                console.error('Node not found for anchor:', anchor);
+              }
+            } catch (error) {
+              console.error('Error getting node:', error);
+            }
+          }
+          return;
+        }
+        
         if (target.getAttribute('data-fileid') != undefined) {
           RiotControl.trigger("cache_file_download", target.getAttribute('data-fileid'),target.getAttribute('data-filename'))
           //this.trigger("cache_file_download", target.getAttribute('data-fileid'))
@@ -332,6 +566,117 @@
       height: auto !important;
       max-width: 95%;  /* Limite la largeur à 100% du conteneur parent */
       box-sizing: border-box;
+    }
+    
+    /* Popup styles */
+    .load-more-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      z-index: 10000;
+    }
+    
+    .load-more-popup {
+      background-color: #fff;
+      padding: 20px;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+      width: 400px;
+      max-width: 90%;
+    }
+    
+    .popup-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 15px;
+      border-bottom: 1px solid #e0e0e0;
+      padding-bottom: 10px;
+    }
+    
+    .popup-header h3 {
+      margin: 0;
+      color: #333;
+      font-size: 1.2em;
+    }
+    
+    .close-button {
+      cursor: pointer;
+      font-size: 1.8em;
+      line-height: 1;
+      color: #999;
+      transition: color 0.2s;
+    }
+    
+    .close-button:hover {
+      color: #333;
+    }
+    
+    .popup-content {
+      margin-bottom: 20px;
+    }
+    
+    .popup-content p {
+      margin-bottom: 15px;
+      color: #555;
+    }
+    
+    .popup-content label {
+      display: block;
+      margin-bottom: 8px;
+      color: #333;
+      font-weight: 500;
+    }
+    
+    .popup-content input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 1em;
+      box-sizing: border-box;
+    }
+    
+    .popup-content input:focus {
+      outline: none;
+      border-color: #0066cc;
+    }
+    
+    .popup-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 10px;
+    }
+    
+    .popup-actions button {
+      padding: 10px 20px;
+      border: none;
+      border-radius: 4px;
+      cursor: pointer;
+      background-color: #0066cc;
+      color: white;
+      font-size: 1em;
+      transition: background-color 0.2s;
+    }
+    
+    .popup-actions button:hover {
+      background-color: #0052a3;
+    }
+    
+    .load-more-node {
+      cursor: pointer;
+      user-select: none;
+    }
+    
+    .load-more-node:hover {
+      text-decoration: underline;
     }
   </style>
 
