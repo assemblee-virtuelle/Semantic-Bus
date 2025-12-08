@@ -226,7 +226,7 @@
  * @description Unsubscribes from previous STOMP subscriptions.
  */
 
-function WorkspaceStore (utilStore, specificStoreList) {
+function WorkspaceStore(utilStore, specificStoreList) {
   riot.observable(this)
   for (specificStore of specificStoreList) {
     specificStore.genericStore = this
@@ -247,9 +247,9 @@ function WorkspaceStore (utilStore, specificStoreList) {
   this.modeConnectAfter = false
   this.position = {}
 
-  this.setStompClient = function(stompClient){
+  this.setStompClient = function (stompClient) {
     this.stompClient = stompClient;
-    if(this.workspaceCurrent){
+    if (this.workspaceCurrent) {
       this.subscribeToComponents();
     }
   }
@@ -315,7 +315,7 @@ function WorkspaceStore (utilStore, specificStoreList) {
         text: record.type,
         id: record._id,
         graphIcon: record.graphIcon,
-        secondFlowConnector : record.secondFlowConnector,
+        secondFlowConnector: record.secondFlowConnector,
         component: record
       }
       CompteConnexion[record._id] = {}
@@ -366,7 +366,7 @@ function WorkspaceStore (utilStore, specificStoreList) {
           id: link.target
         }, this.graph.nodes)[0],
         id: id,
-        targetInput : link.targetInput,
+        targetInput: link.targetInput,
         scb: CompteConnexion[link.source].connectionsBefore,
         sca: CompteConnexion[link.source].connectionsAfter,
         tcb: CompteConnexion[link.target].connectionsBefore,
@@ -375,7 +375,7 @@ function WorkspaceStore (utilStore, specificStoreList) {
       })
     }
 
-    this.trigger('workspace_graph_compute_done', {graph: this.graph, position })
+    this.trigger('workspace_graph_compute_done', { graph: this.graph, position })
   }
 
   // --------------------------------------------------------------------------------
@@ -387,7 +387,7 @@ function WorkspaceStore (utilStore, specificStoreList) {
       components: [],
       users: [],
       links: [],
-      limitHistoric:1,
+      limitHistoric: 1,
     }
     this.action = action
     this.workspaceCurrent.mode = 'init'
@@ -641,11 +641,11 @@ function WorkspaceStore (utilStore, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   this.on('stop_current_process', () => {
-    let url = '../data/core/workspaces/' + this.workspaceCurrent._id + '/process/' + (this.currentProcess?._id!=undefined?this.currentProcess?._id:'');
-    console.log('url',url)
+    let url = '../data/core/workspaces/' + this.workspaceCurrent._id + '/process/' + (this.currentProcess?._id != undefined ? this.currentProcess?._id : '');
+    console.log('url', url)
     this.utilStore.ajaxCall({
       method: 'put',
-      url ,
+      url,
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
       },
@@ -729,17 +729,27 @@ function WorkspaceStore (utilStore, specificStoreList) {
 
   this.on('navigation', function (entity, id, action, secondId, secondAction) {
     if (entity === 'workspace') {
-      console.log('NAVIGATION', id,action);
-      this.action=action;
+      this.action = action;
       if (id === 'new') {
         this.initializeNewWorkspace(entity, action)
         this.trigger('navigation_control_done', entity, action)
       } else if (this.workspaceCurrent !== undefined && this.workspaceCurrent._id === id) {
-        console.log('NO RELOAD');
         this.reloadWorkspace(entity, action)
         if (action === 'component' && secondId !== undefined) {
           this.loadComponentPart(secondId, secondAction)
           this.trigger('navigation_control_done', 'workspace', secondAction)
+        } else if (action === 'workPreview' && secondId !== undefined && secondAction !== undefined) {
+          // Load preview data for component and process
+          this.utilStore.ajaxCall({
+            method: 'get',
+            url: '../data/core/workspaces/' + id + '/components/' + secondId + '/process/' + secondAction
+          }, true).then(data => {
+            this.currentPreview = data
+            this.trigger('previewJSON', this.currentPreview)
+            this.trigger('navigation_control_done', action)
+          }).catch(err => {
+            this.trigger('navigation_control_done', action)
+          })
         } else {
           this.trigger('navigation_control_done', entity, action, secondAction)
         }
@@ -752,6 +762,18 @@ function WorkspaceStore (utilStore, specificStoreList) {
             if (action === 'component' && secondId !== undefined) {
               this.loadComponentPart(secondId, secondAction)
               this.trigger('navigation_control_done', 'workspace', secondAction)
+            } else if (action === 'workPreview' && secondId !== undefined && secondAction !== undefined) {
+              // Load preview data for component and process
+              this.utilStore.ajaxCall({
+                method: 'get',
+                url: '../data/core/workspaces/' + id + '/components/' + secondId + '/process/' + secondAction
+              }, true).then(data => {
+                this.currentPreview = data
+                this.trigger('previewJSON', this.currentPreview)
+                this.trigger('navigation_control_done', action)
+              }).catch(err => {
+                this.trigger('navigation_control_done', action)
+              })
             } else {
               this.trigger('navigation_control_done', entity, action, secondAction)
             }
@@ -781,14 +803,14 @@ function WorkspaceStore (utilStore, specificStoreList) {
     this.graph.links.forEach(l => {
       l.selected = false
     })
-    if(data!=undefined){
+    if (data != undefined) {
       sift({
         'component._id': data._id
       }, this.graph.nodes).forEach(n => {
         n.selected = true
       })
     }
-    console.log('graph',this.graph)
+    console.log('graph', this.graph)
     this.trigger('workspace_graph_selection_changed', this.graph)
   })
 
@@ -798,7 +820,7 @@ function WorkspaceStore (utilStore, specificStoreList) {
     console.log('component_current_set_2')
     this.itemCurrent = data
   })
-  
+
 
   // --------------------------------------------------------------------------------
 
@@ -861,7 +883,7 @@ function WorkspaceStore (utilStore, specificStoreList) {
 
   this.on('workspace_current_updateField', function (message) {
     this.workspaceCurrent[message.field] = message.data
-    console.log('this.workspaceCurrent',this.workspaceCurrent)
+    console.log('this.workspaceCurrent', this.workspaceCurrent)
     this.workspaceCurrent.synchronized = false
     this.trigger('workspace_current_changed', this.workspaceCurrent)
   }) // <= workspace_current_updateField
@@ -969,15 +991,15 @@ function WorkspaceStore (utilStore, specificStoreList) {
       method: 'post',
       url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/components',
       data: JSON.stringify(this.componentSelectedToAdd.map((c) => {
-        c.graphPositionX=position.graphPositionX;
-        c.graphPositionY=position.graphPositionY;
+        c.graphPositionX = position.graphPositionX;
+        c.graphPositionY = position.graphPositionY;
         return this.workspaceBusiness.serialiseWorkspaceComponent(c)
       }))
     }, true).then(data => {
-      console.log('add data',data)
+      console.log('add data', data)
       this.workspaceCurrent.components = this.workspaceCurrent.components.concat(data)
       if (this.viewBox) {
-        this.computeGraph(null, { x: 0, y: 0})
+        this.computeGraph(null, { x: 0, y: 0 })
       }
     })
   }.bind(this))
@@ -1112,14 +1134,14 @@ function WorkspaceStore (utilStore, specificStoreList) {
 
   // --------------------------------------------------------------------------------
 
-  this.on('connect_components', function (source, target,input) {
+  this.on('connect_components', function (source, target, input) {
     this.utilStore.ajaxCall({
       method: 'post',
       url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/components/connection',
       data: JSON.stringify({
         source: source._id,
         target: target._id,
-        input:input
+        input: input
       })
     }, true).then(links => {
       this.workspaceCurrent.links = links
@@ -1157,13 +1179,8 @@ function WorkspaceStore (utilStore, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   this.on('component_preview', () => {
-    this.utilStore.ajaxCall({
-      method: 'get',
-      url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/components/' + this.itemCurrent._id + '/process/' + this.currentProcess._id
-    }, true).then(data => {
-      this.currentPreview = data
-      this.trigger('process_result', this.currentPreview)
-    })
+    // Navigate to the new workPreview URL
+    route('workspace/' + this.workspaceCurrent._id + '/workPreview/' + this.itemCurrent._id + '/' + this.currentProcess._id)
   })
 
 
@@ -1201,7 +1218,7 @@ function WorkspaceStore (utilStore, specificStoreList) {
   // ----------------------------------------- WEB STOMP CALL  -----------------------------------------
 
   this.on('item_current_work', function (message) {
-    console.log('item_current_work',this.itemCurrent);
+    console.log('item_current_work', this.itemCurrent);
     this.stompClient.send('/queue/work-ask', JSON.stringify({
       id: this.itemCurrent._id,
       workspaceId: this.itemCurrent.workspaceId,
@@ -1329,20 +1346,20 @@ function WorkspaceStore (utilStore, specificStoreList) {
     this.subscription_workspace_current_process_progress = this.stompClient.subscribe('/topic/process-progress.' + this.workspaceCurrent._id, message => {
       // console.log('STOMP PROCESS PROGRESS raw',message.body);
       let body = JSON.parse(message.body)
-      console.log('STOMP PROCESS PROGRESS',typeof( body), body);
+      console.log('STOMP PROCESS PROGRESS', typeof (body), body);
       // if (body.error == undefined) {
-      console.log('this.processCollection',body.processId,this.processCollection);
+      console.log('this.processCollection', body.processId, this.processCollection);
       let targetProcess = sift({
         _id: body.processId
       }, this.processCollection)[0]
 
       if (targetProcess !== undefined) {
-        console.log('targetProcess',targetProcess);
+        console.log('targetProcess', targetProcess);
         let targetStep = sift({
           componentId: body.componentId
         }, targetProcess.steps)[0]
         if (targetStep !== undefined) {
-          console.log('targetStep',targetStep);
+          console.log('targetStep', targetStep);
           if (body.error === undefined) {
             targetStep.status = 'resolved'
           } else {
