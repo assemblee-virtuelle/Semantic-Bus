@@ -7,8 +7,8 @@ class SqlConnector {
     this.editor = 'sql-connecteur-editor';
     this.graphIcon = 'Sql.svg';
     this.tags = [
-      'http://semantic-bus.org/data/tags/inComponents',
-      'http://semantic-bus.org/data/tags/BDDComponents'
+      'http://semantic-bus.org/data/tags/integration',
+      'http://semantic-bus.org/data/tags/integrationDatabase'
     ];
   }
 }

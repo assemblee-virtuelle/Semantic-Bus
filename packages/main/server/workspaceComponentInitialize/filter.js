@@ -6,8 +6,8 @@ class Filter {
     this.editor = 'filter-editor';
     this.graphIcon = 'Filter.svg';
     this.tags = [
-      'http://semantic-bus.org/data/tags/middleComponents',
-      'http://semantic-bus.org/data/tags/middleQueryingComponents'
+      'http://semantic-bus.org/data/tags/manipulation',
+      'http://semantic-bus.org/data/tags/manipulationCollections'
     ];
   }
 }

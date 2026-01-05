@@ -7,8 +7,8 @@ class ValueMapping {
     this.editor = 'value-mapping-editor';
     this.graphIcon = 'Value_mapping.svg';
     this.tags = [
-      'http://semantic-bus.org/data/tags/middleComponents',
-      'http://semantic-bus.org/data/tags/middleQueryingComponents'
+      'http://semantic-bus.org/data/tags/manipulation',
+      'http://semantic-bus.org/data/tags/manipulationMapping'
     ];
     this.secondFlowConnector = true;
   }

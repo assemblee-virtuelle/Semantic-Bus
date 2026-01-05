@@ -2,13 +2,14 @@
 class SftpConsumer {
   constructor() {
     this.type = 'SFTP consumer';
-    this.description = 'Interroger un fichier mis à disposition sur un serveur FTP.';
+    this.description = 'Récupérer un fichier depuis un serveur SFTP.';
     this.editor = 'sftp-consumer-editor';
-    this.graphIcon = 'File_consumer.svg';
+    this.graphIcon = 'default.svg';
     this.tags = [
-      'http://semantic-bus.org/data/tags/inComponents',
-      'http://semantic-bus.org/data/tags/fileComponents'
+      'http://semantic-bus.org/data/tags/integration',
+      'http://semantic-bus.org/data/tags/integrationFiles'
     ];
   }
 }
+
 module.exports = new SftpConsumer();

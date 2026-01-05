@@ -6,9 +6,8 @@ class HttpConsumer {
     this.editor = 'http-consumer-editor';
     this.graphIcon = 'Post_consumer.svg';
     this.tags = [
-      'http://semantic-bus.org/data/tags/inComponents',
-      'http://semantic-bus.org/data/tags/outComponents',
-      'http://semantic-bus.org/data/tags/APIComponents'
+      'http://semantic-bus.org/data/tags/integration',
+      'http://semantic-bus.org/data/tags/integrationApi'
     ];
   }
 }

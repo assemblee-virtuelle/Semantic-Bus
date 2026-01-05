@@ -6,8 +6,8 @@ class ValueFromPath {
     this.editor = 'value-from-path-editor';
     this.graphIcon = 'Root_from_path.svg';
     this.tags = [
-      'http://semantic-bus.org/data/tags/middleComponents',
-      'http://semantic-bus.org/data/tags/middleQueryingComponents'
+      'http://semantic-bus.org/data/tags/manipulation',
+      'http://semantic-bus.org/data/tags/manipulationMapping'
     ];
   }
 }

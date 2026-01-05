@@ -13,8 +13,9 @@ class Upload {
     this.editor = 'upload-editor';
     this.graphIcon = 'Upload.svg';
     this.tags = [
-      'http://semantic-bus.org/data/tags/inComponents',
-      'http://semantic-bus.org/data/tags/fileComponents'
+      'http://semantic-bus.org/data/tags/integration',
+      'http://semantic-bus.org/data/tags/integrationFiles',
+      'http://semantic-bus.org/data/tags/triggers'
     ];
     // this.dataTraitment = require('../../../core/dataTraitmentLibrary/index.js')
     this.file_convertor = require('@semantic-bus/core/dataTraitmentLibrary/file_convertor.js');

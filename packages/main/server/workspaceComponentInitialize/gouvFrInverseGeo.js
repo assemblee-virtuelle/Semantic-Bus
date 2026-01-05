@@ -6,8 +6,10 @@ class GouvFrInverseGeo {
     this.editor = 'data-gouv-inverse-geolocaliser-editor';
     this.graphIcon = 'Gouv_geocoding.svg';
     this.tags = [
-      'http://semantic-bus.org/data/tags/middleComponents',
-      'http://semantic-bus.org/data/tags/middleGeocodeComponents'
+      'http://semantic-bus.org/data/tags/integration',
+      'http://semantic-bus.org/data/tags/integrationGeocoding',
+      'http://semantic-bus.org/data/tags/manipulation',
+      'http://semantic-bus.org/data/tags/manipulationEnrichment'
     ];
   }
 

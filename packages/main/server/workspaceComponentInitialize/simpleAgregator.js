@@ -7,8 +7,8 @@ class SimpleAgregator {
     this.editor = 'simple-agregator-editor';
     this.graphIcon = 'Aggregate.svg';
     this.tags = [
-      'http://semantic-bus.org/data/tags/middleComponents',
-      'http://semantic-bus.org/data/tags/middleComponentsAgregation'
+      'http://semantic-bus.org/data/tags/manipulation',
+      'http://semantic-bus.org/data/tags/manipulationAggregation'
     ];
   }
 }

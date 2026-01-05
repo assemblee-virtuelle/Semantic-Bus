@@ -13,6 +13,9 @@
     "filter": {
       "price": 40
     },
+    "sort": {
+      "price": 40
+    },
     "framcalcGetCsv": {
       "price": 20
     },

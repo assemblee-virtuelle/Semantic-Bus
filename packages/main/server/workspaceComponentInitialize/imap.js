@@ -12,8 +12,8 @@ class Imap {
     this.editor = 'imap-editor';
     this.graphIcon = 'default.svg';
     this.tags = [
-      'http://semantic-bus.org/data/tags/inComponents',
-      'http://semantic-bus.org/data/tags/APIComponents'
+      'http://semantic-bus.org/data/tags/integration',
+      'http://semantic-bus.org/data/tags/integrationMessaging'
     ];
     this.mailListeners = new Map();
   }
