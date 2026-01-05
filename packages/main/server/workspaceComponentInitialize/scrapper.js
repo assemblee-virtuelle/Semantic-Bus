@@ -1,13 +1,13 @@
 'use strict';
 class Scrapper {
   constructor() {
-    this.type = 'Scrapper';
-    this.description = 'Scrapper une page HTML.';
+    this.type = 'Web scrapper';
+    this.description = 'Extraire des données d\'une page web.';
     this.editor = 'scrapper-editor';
     this.graphIcon = 'Scrapper.svg';
     this.tags = [
-      'http://semantic-bus.org/data/tags/inComponents',
-      'http://semantic-bus.org/data/tags/scrapperComponents'
+      'http://semantic-bus.org/data/tags/integration',
+      'http://semantic-bus.org/data/tags/integrationApi'
     ];
   }
 }

@@ -6,8 +6,7 @@ class CacheNosql {
     this.editor = 'cache-nosql-editor';
     this.graphIcon = 'Cache_NoSQL.svg';
     this.tags = [
-      'http://semantic-bus.org/data/tags/persistComponents',
-      'http://semantic-bus.org/data/tags/persistCacheComponents'
+      'http://semantic-bus.org/data/tags/utilities'
     ];
     this.workspace_component_lib = require('@semantic-bus/core/lib/workspace_component_lib');
     this.cache_lib = require('@semantic-bus/core/lib/cache_lib');

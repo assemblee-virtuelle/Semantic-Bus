@@ -6,8 +6,8 @@ class JoinByField {
     this.editor = 'join-by-field-editor';
     this.graphIcon = 'Join.svg';
     this.tags = [
-      'http://semantic-bus.org/data/tags/middleComponents',
-      'http://semantic-bus.org/data/tags/middleComponentsAgregation'
+      'http://semantic-bus.org/data/tags/manipulation',
+      'http://semantic-bus.org/data/tags/manipulationAggregation'
     ];
     this.secondFlowConnector = true;
   }

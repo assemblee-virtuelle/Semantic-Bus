@@ -9,9 +9,9 @@ class HttpProvider {
     this.editor = 'http-provider-editor';
     this.graphIcon = 'Post_provider.svg';
     this.tags = [
-      'http://semantic-bus.org/data/tags/inComponents',
-      'http://semantic-bus.org/data/tags/outComponents',
-      'http://semantic-bus.org/data/tags/APIComponents'
+      'http://semantic-bus.org/data/tags/integration',
+      'http://semantic-bus.org/data/tags/integrationApi',
+      'http://semantic-bus.org/data/tags/triggers'
     ],
     this.stepNode = false;
     this.workspace_component_lib = require('@semantic-bus/core/lib/workspace_component_lib');

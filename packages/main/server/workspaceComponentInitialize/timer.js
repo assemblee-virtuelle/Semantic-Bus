@@ -7,8 +7,7 @@ class Timer {
     this.graphIcon = 'Timer.svg';
     this.stepNode = false;
     this.tags = [
-      'http://semantic-bus.org/data/tags/middleComponents',
-      'http://semantic-bus.org/data/tags/middleUtilitiesComponents'
+      'http://semantic-bus.org/data/tags/triggers'
     ];
   }
 }

@@ -20,6 +20,7 @@ module.exports = {
   joinByField: require('../workspaceComponentInitialize/joinByField.js'),
   deeperFocusOpeningBracket: require('../workspaceComponentInitialize/deeperFocusOpeningBracket.js'),
   filter: require('../workspaceComponentInitialize/filter.js'),
+  sort: require('../workspaceComponentInitialize/sort.js'),
   upload: require('../workspaceComponentInitialize/upload.js'),
   scrapper: require('../workspaceComponentInitialize/scrapper.js'),
   httpGet: require('../workspaceComponentInitialize/restGetFile.js'),

@@ -6,8 +6,10 @@ class GouvFrGeoLocaliser {
     this.editor = 'data-gouv-geolocaliser-editor';
     this.graphIcon = 'Gouv_geocoding.svg';
     this.tags = [
-      'http://semantic-bus.org/data/tags/middleComponents',
-      'http://semantic-bus.org/data/tags/middleGeocodeComponents'
+      'http://semantic-bus.org/data/tags/integration',
+      'http://semantic-bus.org/data/tags/integrationGeocoding',
+      'http://semantic-bus.org/data/tags/manipulation',
+      'http://semantic-bus.org/data/tags/manipulationEnrichment'
     ];
     this.RequestCount = 0;
   }

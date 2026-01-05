@@ -6,8 +6,8 @@ class QueryParamsCreation {
     this.editor = 'query-params-creation-editor';
     this.graphIcon = 'Query_params.svg';
     this.tags = [
-      'http://semantic-bus.org/data/tags/middleComponents',
-      'http://semantic-bus.org/data/tags/middleUtilitiesComponents'
+      'http://semantic-bus.org/data/tags/manipulation',
+      'http://semantic-bus.org/data/tags/manipulationMapping'
     ];
   }
 }

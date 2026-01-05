@@ -11,8 +11,9 @@ class GoogleAuth {
     this.editor = 'google-auth-editor';
     this.graphIcon = 'default.svg';
     this.tags = [
-      'http://semantic-bus.org/data/tags/inComponents',
-      'http://semantic-bus.org/data/tags/authComponents'
+      'http://semantic-bus.org/data/tags/integration',
+      'http://semantic-bus.org/data/tags/integrationServices',
+      'http://semantic-bus.org/data/tags/utilities'
     ];
   }
 

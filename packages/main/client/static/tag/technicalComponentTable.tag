@@ -14,6 +14,18 @@
       </div>
     </div>
     
+    <!-- Search input for filtering components by name -->
+    <div class="containerH searchContainer">
+      <input 
+        type="text" 
+        ref="searchInput"
+        class="searchInput" 
+        placeholder="Rechercher un composant..." 
+        oninput={onSearchInput}
+      />
+      <img if={searchText} onclick={clearSearch} src="./image/cross.svg" class="clearSearchBtn" title="Effacer la recherche"/>
+    </div>
+    
     <zentable ref="technicalComponentTable" dragout={true} disallowdelete={true} disallownavigation={true}>
       <yield to="row">
         <div>
@@ -44,6 +56,7 @@
     this.secondLevelCriteria = [];
     this.selectedTags = [];
     this.rawData = [];
+    this.searchText = '';
 
     this.isTagInSelectedTags = function (item) {
       let out = false;
@@ -57,6 +70,17 @@
 
     this.addComponentClick = (e) => {
       RiotControl.trigger("workspace_current_add_components",{graphPositionX:0,graphPositionY:0})
+    }
+
+    this.onSearchInput = (e) => {
+      this.searchText = e.target.value.toLowerCase();
+      this.applyFilters();
+    }
+
+    this.clearSearch = () => {
+      this.searchText = '';
+      this.refs.searchInput.value = '';
+      this.applyFilters();
     }
 
     firstLevelCriteriaClick(e) {
@@ -86,18 +110,34 @@
       this.updateComponentsByTags();
     }
 
-    this.updateComponentsByTags = function () {
+    this.applyFilters = function () {
+      let filteredData = this.rawData;
+
+      // Filter by selected tags
       if (this.selectedTags.length > 0) {
-        this.tags.zentable.data = sift({
+        filteredData = sift({
           'tags': {
             $all: this.selectedTags.map(t => t['@id'])
           }
-        }, this.rawData);
-
-      } else {
-        this.tags.zentable.data = this.rawData;
-
+        }, filteredData);
       }
+
+      // Filter by search text
+      if (this.searchText && this.searchText.trim() !== '') {
+        const searchLower = this.searchText.toLowerCase();
+        filteredData = filteredData.filter(component => {
+          const typeName = (component.type || '').toLowerCase();
+          const description = (component.description || '').toLowerCase();
+          return typeName.includes(searchLower) || description.includes(searchLower);
+        });
+      }
+
+      this.tags.zentable.data = filteredData;
+      this.update();
+    }
+
+    this.updateComponentsByTags = function () {
+      this.applyFilters();
     }
 
     this.updateData = function (dataToUpdate) {
@@ -178,6 +218,39 @@
     }
     .containerFilter {
       width: 100%;
+    }
+    .searchContainer {
+      width: 90%;
+      padding: 0.5vh 1vh;
+      position: relative;
+      align-items: center;
+      margin-bottom: 1vh;
+    }
+    .searchInput {
+      width: 100%;
+      padding: 8px 30px 8px 12px;
+      border: 1px solid #ccc;
+      border-radius: 4px;
+      font-size: 14px;
+      outline: none;
+      transition: border-color 0.2s;
+    }
+    .searchInput:focus {
+      border-color: rgb(26,145,194);
+    }
+    .searchInput::placeholder {
+      color: #aaa;
+    }
+    .clearSearchBtn {
+      position: absolute;
+      right: 2vh;
+      width: 16px;
+      height: 16px;
+      cursor: pointer;
+      opacity: 0.6;
+    }
+    .clearSearchBtn:hover {
+      opacity: 1;
     }
     .containerValidate {
       position: absolute;
