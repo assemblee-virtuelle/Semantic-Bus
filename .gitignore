@@ -36,6 +36,9 @@ main/build/Release
 #mongoDB local data
 data/
 
+# Uploaded files
+upload/
+
 # Dependency directories
 node_modules/
 main/node_modules/
