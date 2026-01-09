@@ -44,10 +44,28 @@ class Filter {
       try {
         const collectionName = `${data._id.toString()}-${Math.floor(Math.random() * 10000)}`;
         let collection = db.addCollection(collectionName, { disableMeta: true });
-        try {
-          collection.insert(items)
-        } catch (e) {
-          throw new Error('Error inserting items into collection for filter');
+        const insertionErrors = [];
+        
+        // Handle both array and single item cases
+        const itemsToInsert = Array.isArray(items) ? items : [items];
+        for (const item of itemsToInsert) {
+          if (item !== undefined && item !== null) {
+            if (typeof item === 'object') {
+              try {
+                collection.insert(item);
+              } catch (insertError) {
+                insertionErrors.push({
+                  error: insertError.message,
+                  item: item
+                });
+              }
+            } else {
+              insertionErrors.push({
+                error: 'Filter component: item is not an object and cannot be filtered',
+                item: item
+              });
+            }
+          }
         }
 
         let resultFiltered = await this.filter(collection, filter, data);
@@ -59,6 +77,15 @@ class Filter {
             resultFiltered=undefined;
           }
         }
+        
+        // Attach errors to result if any occurred
+        if (insertionErrors.length > 0) {
+          resultFiltered = {
+            filteredData: resultFiltered,
+            errors: insertionErrors
+          };
+        }
+        
         // console.log('___resultData', resultFiltered);
         db.removeCollection(collectionName);
         resolve(resultFiltered);
@@ -114,6 +141,7 @@ class Filter {
         let filterResult = objectTransformation.execute(onlyOneItem, pullParams, filter);
 
         let rebuildData;
+        const insertionErrors = [];
         if (inputFragment.branchFrag) {
           const collectionName = `${processId}-${data._id.toString()}`;
           let collection = db.addCollection(collectionName, { disableMeta: true });
@@ -126,11 +154,33 @@ class Filter {
                 delete item['$loki'];
               }
               if (item!==undefined) {
-                collection.insert(item);
+                // Check if item is an object before inserting (LokiJS requires objects)
+                if (typeof item === 'object' && item !== null) {
+                  try {
+                    collection.insert(item);
+                  } catch (insertError) {
+                    insertionErrors.push({
+                      error: insertError.message,
+                      item: item
+                    });
+                  }
+                } else {
+                  insertionErrors.push({
+                    error: 'Filter component: item is not an object and cannot be filtered',
+                    item: item
+                  });
+                }
               }
             }
           });
           rebuildData = await this.filter(collection, filterResult, data);
+          // Attach errors to rebuildData if any occurred
+          if (insertionErrors.length > 0) {
+            rebuildData = {
+              filteredData: rebuildData,
+              errors: insertionErrors
+            };
+          }
           db.removeCollection(collectionName);
           // console.log('___out', out);
         } else {
