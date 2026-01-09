@@ -9,6 +9,7 @@ class HttpConsumer {
       'http://semantic-bus.org/data/tags/integration',
       'http://semantic-bus.org/data/tags/integrationApi'
     ];
+    this.order = 1;
   }
 }
 

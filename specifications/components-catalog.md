@@ -89,7 +89,6 @@ Components that trigger workflow execution:
 |-----------|------|-------------|
 | `objectTransformer` | Transform | Map and transform objects using transformation rules |
 | `valueMapping` | Value Mapping | Map values using correspondence tables |
-| `valueFromPath` | Root from Path | Extract value from JSON path |
 | `queryParamsCreation` | Params Transform | Create query parameters in the flow |
 
 ### Évaluation (`manipulationEvaluation`)
@@ -111,6 +110,7 @@ Components that trigger workflow execution:
 
 | Component | Type | Description |
 |-----------|------|-------------|
+| `valueFromPath` | Root from Path | Extract value from JSON path |
 | `keyToArray` | Key to Array | Convert object keys to array |
 | `flat` | Flat | Flatten nested structures |
 | `propertiesMatrix` | Properties Matrix | Create matrix of property combinations |
@@ -260,7 +260,7 @@ Some components belong to multiple categories:
 |-----------|------------|
 | `httpProvider` | integration, integrationApi, triggers |
 | `upload` | integration, integrationFiles, triggers |
-| `googleAuth` | integration, integrationServices, utilities |
+| `googleAuth` | integration, integrationServices |
 | `googleGeoLocaliser` | integration, integrationGeocoding, manipulation, manipulationEnrichment |
 | `gouvFrGeoLocaliser` | integration, integrationGeocoding, manipulation, manipulationEnrichment |
 | `gouvFrInverseGeo` | integration, integrationGeocoding, manipulation, manipulationEnrichment |
