@@ -225,7 +225,14 @@
 
     this.jsonToJsTree = function (data, key, path) {
       // console.log('tree Generation', data, key);
-      const newPath =  path ? [path, key].join('.') : key;
+      // Calculate newPath: if key exists, append to path; otherwise use '$' for root
+      let newPath;
+      if (key !== undefined && key !== null) {
+        newPath = path ? [path, key].join('.') : key.toString();
+      } else {
+        // Root level - use '$' as root identifier
+        newPath = path || '$';
+      }
       let prefix = '';
       if (key != undefined) {
         prefix = key.toString();
@@ -262,7 +269,7 @@
           }
           node = {
             text: `<div style="display:flex;flex-direction:row;align-items:flex-start;">
-                <div class="menuAvailable" data-property="${prefix}" data-path="${path}" data-type="property">${prefix}</div>
+                <div class="menuAvailable" data-property="${prefix}" data-path="${newPath}" data-type="property">${prefix}</div>
                 <div>&nbsp;${separator}&nbsp;</div>
                 <div>${openingChar}${size.toString()}${closingChar}</div>
               </div>`,
@@ -351,7 +358,7 @@
         return [
           {
             text: `<div style="display:flex;flex-direction:row;align-items:flex-start;">
-              <div class="menuAvailable" data-property="${prefix}" data-path="${[path,key].join('.')}" data-type="property">${prefix}</div>
+              <div class="menuAvailable" data-property="${prefix}" data-path="${newPath}" data-type="property">${prefix}</div>
               <div>&nbsp;${separator}&nbsp;</div>
               <div style="white-space: nowrap; max-height:100px;overflow:auto;" class="menuAvailable" data-type="value" data-content=${JSON.stringify(this.escapeHtml(value))}>${value}</div>
             </div>`
@@ -396,6 +403,46 @@
 
     this.on('mount', function () {
       this.mountEditor();
+
+      // Helper function to get deep object data from a jstree node
+      const getDeepObjectData = (nodeData, nodePath) => {
+        // If node has _frag or _file, it's a lazy-loaded node - return as-is
+        if (nodeData && (nodeData._frag || nodeData._file)) {
+          return nodeData;
+        }
+        // If it's a primitive value or null, return as-is
+        if (nodeData === null || nodeData === undefined || typeof nodeData !== 'object') {
+          return nodeData;
+        }
+        // Check if we have full data in pagination cache (for paginated objects with >100 items)
+        if (nodePath && this.paginationCache.has(nodePath)) {
+          const cacheEntry = this.paginationCache.get(nodePath);
+          if (cacheEntry && cacheEntry.fullData) {
+            return cacheEntry.fullData;
+          }
+        }
+        // Return the full object data
+        return nodeData;
+      };
+
+      // Helper function to find jstree node from DOM element
+      const findJsTreeNode = (element) => {
+        let anchor = element;
+        while (anchor && !anchor.classList.contains('jstree-anchor')) {
+          anchor = anchor.parentElement;
+          if (anchor && anchor.id === 'jsonfrageditor') {
+            return null;
+          }
+        }
+        if (anchor && this.editor) {
+          try {
+            return this.editor.get_node(anchor);
+          } catch (e) {
+            return null;
+          }
+        }
+        return null;
+      };
 
       // Add event listener for right-click 
       this.contextMenuListener = (e) => {
@@ -450,6 +497,20 @@
               text : 'download file',
               type: 'download'
             })
+          }
+
+          // Add "copy deep object" option for object/array nodes
+          const jsTreeNode = findJsTreeNode(target);
+          if (jsTreeNode && jsTreeNode.data && typeof jsTreeNode.data === 'object') {
+            const nodePath = jsTreeNode.original ? jsTreeNode.original.path : null;
+            const deepData = getDeepObjectData(jsTreeNode.data, nodePath);
+            if (deepData && typeof deepData === 'object' && !deepData._frag && !deepData._file) {
+              menus.push({
+                content: JSON.stringify(deepData, null, 2),
+                text: 'copy deep object',
+                type: 'copy'
+              })
+            }
           }
 
           showContextMenu(e,menus);
