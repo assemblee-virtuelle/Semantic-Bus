@@ -7,7 +7,7 @@ class ValueFromPath {
     this.graphIcon = 'Root_from_path.svg';
     this.tags = [
       'http://semantic-bus.org/data/tags/manipulation',
-      'http://semantic-bus.org/data/tags/manipulationMapping'
+      'http://semantic-bus.org/data/tags/manipulationRestructure'
     ];
   }
 }

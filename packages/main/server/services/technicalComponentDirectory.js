@@ -67,10 +67,13 @@ module.exports = {
           description: this[technicalComponent].description,
           editor: this[technicalComponent].editor,
           graphIcon: this[technicalComponent].graphIcon,
-          tags: this[technicalComponent].tags
+          tags: this[technicalComponent].tags,
+          order: this[technicalComponent].order || 100
         });
       }
     }
+    // Sort by order (lower values first)
+    directory.sort((a, b) => a.order - b.order);
     return directory;
   },
 
