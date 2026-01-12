@@ -26,6 +26,21 @@ Before making any changes, consult the specifications directory:
 
 ---
 
+## ✨ Development Best Practices
+
+### File Management
+
+- **DO NOT create intermediate report or analysis files** unless explicitly requested by the user
+- Examples of files to avoid creating automatically:
+  - Analysis reports (`.md`, `.txt`)
+  - Summary documents
+  - Debug logs or trace files
+  - Temporary documentation files
+- If analysis is needed, provide it directly in the chat response
+- Only create such files when the user explicitly asks for them
+
+---
+
 ## 🚀 Production Deployment
 
 To deploy changes to production, follow these steps:
