@@ -23,3 +23,41 @@ Before making any changes, consult the specifications directory:
 2. **Follow the development guide** for code conventions and workflows
 3. **Check the components catalog** when working on components
 4. **Review configuration** for environment setup
+
+---
+
+## 🚀 Production Deployment
+
+To deploy changes to production, follow these steps:
+
+1. **Commit changes on master branch**
+   ```bash
+   git add .
+   git commit -m "Your commit message"
+   ```
+
+2. **Push master branch**
+   ```bash
+   git push origin master
+   ```
+
+3. **Switch to production branch**
+   ```bash
+   git checkout production
+   ```
+
+4. **Commit on production branch**
+   ```bash
+   git merge master
+   git commit -m "Deploy to production"
+   ```
+
+5. **Push production branch**
+   ```bash
+   git push origin production
+   ```
+
+6. **Switch back to master branch**
+   ```bash
+   git checkout master
+   ```
