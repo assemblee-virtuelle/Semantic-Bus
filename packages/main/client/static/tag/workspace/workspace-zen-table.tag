@@ -83,56 +83,37 @@
       this.refs.zentable.data = this.filteredData
     }
 
-    // Helper function to normalize URL for comparison
-    this.normalizeProviderUrl = (url) => {
+    // Helper function to extract component ID from URL
+    // Extracts the 24-character MongoDB ObjectId, ignoring suffix like "-out", "-in"
+    this.extractComponentId = (url) => {
       if (!url) return null;
       
-      // Extract path from full URL (e.g., /data/api/xxx-out)
-      const fullUrlPattern = /^https?:\/\/[^\/]+(\/data\/api\/[^?#]+)/;
-      const fullMatch = url.match(fullUrlPattern);
-      if (fullMatch) {
-        return fullMatch[1];
+      // Pattern to match 24-character hex string (MongoDB ObjectId)
+      const objectIdPattern = /([a-f0-9]{24})/i;
+      const match = url.match(objectIdPattern);
+      
+      if (match) {
+        return match[1].toLowerCase();
       }
       
-      // If it starts with /data/api/, return as is
-      if (url.startsWith('/data/api/')) {
-        return url;
-      }
-      
-      // If it's just the component identifier (e.g., "696518bec4d126b4fab958cb-out")
-      if (!url.includes('/')) {
-        return '/data/api/' + url;
-      }
-      
-      return url;
+      return null;
     }
 
-    // Find workspaces that have a provider matching the given URL
+    // Find workspaces that have a provider matching the given URL (by component ID)
     this.findWorkspacesWithProviderUrl = (searchUrl) => {
-      if (!searchUrl || !this.providerLinks) return [];
+      if (!searchUrl) return [];
       
-      const normalizedSearchUrl = this.normalizeProviderUrl(searchUrl);
-      if (!normalizedSearchUrl) return [];
+      // Extract the component ID from the search URL
+      const searchComponentId = this.extractComponentId(searchUrl);
+      if (!searchComponentId) return [];
       
       const matchingWorkspaceIds = [];
       
-      // providerLinks is: { providerId -> [consumers] }
-      // We need to find providers whose URL matches, then get their workspaceId
-      // But providerLinks doesn't contain the provider URL...
-      // We need to use a different approach: search in providerByPath from backend
-      
-      // Actually, we need to request the full http-links data with URL info
-      // For now, let's check if any provider in providerLinks has consumers
-      // and match by looking at the stored data
-      
-      // Better approach: store provider info when loading http_links
+      // providersByUrl is now keyed by component ID
       if (this.providersByUrl) {
-        for (const [path, providerInfo] of Object.entries(this.providersByUrl)) {
-          if (path === normalizedSearchUrl || 
-              providerInfo.originalUrl === searchUrl ||
-              providerInfo.originalUrl.includes(searchUrl.replace(/^https?:\/\/[^\/]+/, ''))) {
-            matchingWorkspaceIds.push(providerInfo.workspaceId);
-          }
+        const providerInfo = this.providersByUrl[searchComponentId];
+        if (providerInfo) {
+          matchingWorkspaceIds.push(providerInfo.workspaceId);
         }
       }
       

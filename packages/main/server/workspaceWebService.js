@@ -69,185 +69,80 @@ module.exports = function (router) {
   // Get HTTP Provider/Consumer links - returns provider->consumers and consumer->provider mappings
   router.get('/workspaces/http-links', async function (req, res, next) {
     try {
-      // console.log('[HTTP_LINKS] Route /workspaces/http-links called');
-      
-      // Helper function to parse URLs - extracts domain and path
-      const parseUrl = (url) => {
+      // Extract component ID (24-char MongoDB ObjectId) from any URL
+      const extractId = (url) => {
         if (!url) return null;
-        
-        // Extract domain and path from full URL
-        const fullUrlPattern = /^(https?:\/\/([^\/]+))(\/data\/api\/[^?#]+)/;
-        const fullMatch = url.match(fullUrlPattern);
-        
-        if (fullMatch) {
-          return {
-            domain: fullMatch[2].toLowerCase(), // e.g., "localhost", "main", "api.example.com"
-            path: fullMatch[3],                  // e.g., "/data/api/xxx"
-            original: url
-          };
-        }
-        
-        // Relative URL starting with /data/api/
-        const relativePattern = /^(\/data\/api\/[^?#]+)/;
-        const relativeMatch = url.match(relativePattern);
-        if (relativeMatch) {
-          return {
-            domain: null, // No domain specified
-            path: relativeMatch[1],
-            original: url
-          };
-        }
-        
-        // Just the component identifier (e.g., "696518bec4d126b4fab958cb-out")
-        if (!url.includes('/')) {
-          return {
-            domain: null,
-            path: '/data/api/' + url,
-            original: url
-          };
-        }
-        
-        return null;
-      };
-      
-      // Helper function to check if two domains are compatible
-      // Domains are compatible if:
-      // 1. Both are null (relative URLs)
-      // 2. They are identical
-      // 3. They are in the same equivalence group (e.g., localhost and main for dev)
-      const areDomainsCompatible = (domain1, domain2) => {
-        // Both null = compatible (relative URLs)
-        if (!domain1 && !domain2) return true;
-        
-        // One null, one specified = compatible (relative matches any domain)
-        if (!domain1 || !domain2) return true;
-        
-        // Exact match
-        if (domain1 === domain2) return true;
-        
-        // Development environment aliases
-        const devAliases = ['localhost', 'main', '127.0.0.1'];
-        const isDomain1Dev = devAliases.includes(domain1);
-        const isDomain2Dev = devAliases.includes(domain2);
-        
-        // Both are dev domains = compatible
-        if (isDomain1Dev && isDomain2Dev) return true;
-        
-        // Different domains in production = NOT compatible
-        return false;
+        const match = url.match(/([a-f0-9]{24})/i);
+        return match ? match[1].toLowerCase() : null;
       };
       
       // Get all workspaces for the user
       const workspacesList = await workspace_lib.getAll(UserIdFromToken(req), undefined, config);
       
-      // Fetch full details for each workspace (including components)
+      // Fetch full workspace details
       const workspaces = [];
       for (const ws of workspacesList) {
         try {
-          const fullWorkspace = await workspace_lib.getWorkspace(ws._id);
-          workspaces.push(fullWorkspace);
+          workspaces.push(await workspace_lib.getWorkspace(ws._id));
         } catch (e) {
-          console.error('[HTTP_LINKS] Error fetching workspace', ws._id, ':', e.message);
+          console.error('[HTTP_LINKS] Error fetching workspace', ws._id);
         }
       }
       
-      // Build mapping of provider URLs to provider info
-      const providerByUrl = {};
-      const providerLinks = {}; // provider._id -> [consumer infos]
-      const consumerLinks = {}; // consumer._id -> provider info
+      const providerById = {};   // targetId -> provider info
+      const providerLinks = {};  // provider._id -> [consumer infos]
+      const consumerLinks = {};  // consumer._id -> provider info
       
-      // First pass: collect all HTTP providers
-      const providers = []; // Array of parsed provider info
-      
+      // Collect HTTP providers
       for (const workspace of workspaces) {
-        if (workspace.components) {
-          for (const component of workspace.components) {
+        for (const component of workspace.components || []) {
+          if ((component.module === 'httpProvider' || component.type === 'HTTP provider') && 
+              component.specificData?.url) {
+            const targetId = extractId(component.specificData.url);
+            if (targetId) {
+              providerById[targetId] = {
+                componentId: component._id,
+                componentName: component.name,
+                workspaceId: workspace._id,
+                workspaceName: workspace.name,
+                url: component.specificData.url
+              };
+              providerLinks[component._id] = [];
+            }
+          }
+        }
+      }
+      
+      // Link consumers to providers
+      for (const workspace of workspaces) {
+        for (const component of workspace.components || []) {
+          if ((component.module === 'httpConsumer' || component.type === 'HTTP consumer') && 
+              component.specificData?.url) {
+            const targetId = extractId(component.specificData.url);
+            const provider = targetId && providerById[targetId];
             
-            if ((component.module === 'httpProvider' || component.type === 'HTTP provider') && 
-                component.specificData && component.specificData.url) {
-              const providerUrl = component.specificData.url;
-              const parsed = parseUrl(providerUrl);
+            if (provider) {
+              consumerLinks[component._id] = {
+                providerComponentId: provider.componentId,
+                providerComponentName: provider.componentName,
+                providerWorkspaceId: provider.workspaceId,
+                providerWorkspaceName: provider.workspaceName,
+                providerUrl: provider.url
+              };
               
-              if (parsed) {
-                providers.push({
-                  componentId: component._id,
-                  componentName: component.name,
-                  workspaceId: workspace._id,
-                  workspaceName: workspace.name,
-                  originalUrl: providerUrl,
-                  domain: parsed.domain,
-                  path: parsed.path
-                });
-                providerLinks[component._id] = [];
-              }
-            }
-          }
-        }
-      }
-      
-      // Second pass: find consumers and link them to providers
-      for (const workspace of workspaces) {
-        if (workspace.components) {
-          for (const component of workspace.components) {
-            if ((component.module === 'httpConsumer' || component.type === 'HTTP consumer') && 
-                component.specificData && component.specificData.url) {
-              const consumerUrl = component.specificData.url;
-              const consumerParsed = parseUrl(consumerUrl);
-              
-              if (!consumerParsed) continue;
-              
-              // Find matching provider with same path AND compatible domain
-              for (const provider of providers) {
-                // Check if paths match
-                if (provider.path !== consumerParsed.path) continue;
-                
-                // Check if domains are compatible
-                if (!areDomainsCompatible(provider.domain, consumerParsed.domain)) {
-                  continue;
-                }
-                
-                consumerLinks[component._id] = {
-                  providerComponentId: provider.componentId,
-                  providerComponentName: provider.componentName,
-                  providerWorkspaceId: provider.workspaceId,
-                  providerWorkspaceName: provider.workspaceName,
-                  providerUrl: provider.originalUrl
-                };
-                
-                // Add consumer to provider's list
-                providerLinks[provider.componentId].push({
-                  consumerComponentId: component._id,
-                  consumerComponentName: component.name || '',
-                  consumerWorkspaceId: workspace._id,
-                  consumerWorkspaceName: workspace.name,
-                  consumerUrl: consumerUrl
-                });
-                
-                // Stop after first match (one consumer can only link to one provider)
-                break;
-              }
+              providerLinks[provider.componentId].push({
+                consumerComponentId: component._id,
+                consumerComponentName: component.name || '',
+                consumerWorkspaceId: workspace._id,
+                consumerWorkspaceName: workspace.name,
+                consumerUrl: component.specificData.url
+              });
             }
           }
         }
       }
 
-      // Build providersByUrl map for URL search feature
-      const providersByUrl = {};
-      for (const provider of providers) {
-        providersByUrl[provider.path] = {
-          componentId: provider.componentId,
-          componentName: provider.componentName,
-          workspaceId: provider.workspaceId,
-          workspaceName: provider.workspaceName,
-          originalUrl: provider.originalUrl
-        };
-      }
-
-      res.json({
-        consumerLinks,   // consumer._id -> provider info
-        providerLinks,   // provider._id -> [consumer infos]
-        providersByUrl   // path -> provider info (for URL search)
-      });
+      res.json({ consumerLinks, providerLinks, providersByUrl: providerById });
     } catch (e) {
       console.error('[HTTP_LINKS] Error:', e);
       next(e);
