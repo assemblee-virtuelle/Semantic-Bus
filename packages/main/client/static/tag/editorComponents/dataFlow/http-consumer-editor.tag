@@ -15,8 +15,52 @@
   </div>
 
   <label class="labelFormStandard">URL externe où envoyer les données:</label>
-  <div class="cardInput">
-    <input class="inputComponents" placeholder="" type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.url}></input>
+  <div class="cardInput" style="display: flex; align-items: center; gap: 10px;">
+    <input class="inputComponents" placeholder="" type="text" name="urlInput" ref="urlInput" onChange={urlInputChanged} value={data.specificData.url} style="flex: 1;"></input>
+    <span if={linkedProvider} onclick={showProviderPopup}
+          title="Lié au composant provider" 
+          style="display: flex; align-items: center; cursor: pointer; color: #0066cc;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M10.59 13.41c.41.39.41 1.03 0 1.42-.39.39-1.03.39-1.42 0a5.003 5.003 0 0 1 0-7.07l3.54-3.54a5.003 5.003 0 0 1 7.07 0 5.003 5.003 0 0 1 0 7.07l-1.49 1.49c.01-.82-.12-1.64-.4-2.42l.47-.48a2.982 2.982 0 0 0 0-4.24 2.982 2.982 0 0 0-4.24 0l-3.53 3.53a2.982 2.982 0 0 0 0 4.24zm2.82-4.24c.39-.39 1.03-.39 1.42 0a5.003 5.003 0 0 1 0 7.07l-3.54 3.54a5.003 5.003 0 0 1-7.07 0 5.003 5.003 0 0 1 0-7.07l1.49-1.49c-.01.82.12 1.64.4 2.43l-.47.47a2.982 2.982 0 0 0 0 4.24 2.982 2.982 0 0 0 4.24 0l3.53-3.53a2.982 2.982 0 0 0 0-4.24.973.973 0 0 1 0-1.42z"/>
+      </svg>
+    </span>
+    <span if={!linkedProvider} 
+          title="Aucun lien vers un provider" 
+          style="display: flex; align-items: center; color: #cccccc;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor">
+        <path d="M10.59 13.41c.41.39.41 1.03 0 1.42-.39.39-1.03.39-1.42 0a5.003 5.003 0 0 1 0-7.07l3.54-3.54a5.003 5.003 0 0 1 7.07 0 5.003 5.003 0 0 1 0 7.07l-1.49 1.49c.01-.82-.12-1.64-.4-2.42l.47-.48a2.982 2.982 0 0 0 0-4.24 2.982 2.982 0 0 0-4.24 0l-3.53 3.53a2.982 2.982 0 0 0 0 4.24zm2.82-4.24c.39-.39 1.03-.39 1.42 0a5.003 5.003 0 0 1 0 7.07l-3.54 3.54a5.003 5.003 0 0 1-7.07 0 5.003 5.003 0 0 1 0-7.07l1.49-1.49c-.01.82.12 1.64.4 2.43l-.47.47a2.982 2.982 0 0 0 0 4.24 2.982 2.982 0 0 0 4.24 0l3.53-3.53a2.982 2.982 0 0 0 0-4.24.973.973 0 0 1 0-1.42z"/>
+      </svg>
+    </span>
+  </div>
+  
+  <!-- Popup for provider info -->
+  <div if={showProviderListPopup} class="provider-overlay" onclick={closeProviderPopup}>
+    <div class="provider-popup" onclick={preventClosePopup}>
+      <div class="popup-header">
+        <h3>Provider lié à ce consumer</h3>
+        <span onclick={closeProviderPopup} class="close-button">×</span>
+      </div>
+      <div class="popup-content">
+        <div if={linkedProvider} class="table-container">
+          <div class="table-header">
+            <div class="table-col-name">NOM</div>
+            <div class="table-col-description">DESCRIPTION</div>
+            <div class="table-col-action"></div>
+          </div>
+          <div class="table-body">
+            <div class="table-row">
+              <div class="table-col-name">{linkedProvider.providerWorkspaceName || 'Workflow'}</div>
+              <div class="table-col-description">{linkedProvider.providerComponentName || ''}</div>
+              <div class="table-col-action">
+                <a href={'#workspace/' + linkedProvider.providerWorkspaceId + '/component/' + linkedProvider.providerComponentId + '/edit-component'}>
+                  <img class="commandButtonImage" src="./image/pencil.svg" height="20px" title="Éditer le composant">
+                </a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
   <div class="options">
     <label class="labelFormStandard">corp de requête vide:</label>
@@ -107,9 +151,43 @@
 
   <script>
     this.data = {};
+    this.linkedProvider = null;
+    this.showProviderListPopup = false;
+    
     urlInputChanged = e => {
       this.data.specificData.url = e.currentTarget.value;
+      this.checkHttpLinks();
     };
+    
+    this.showProviderPopup = function(e) {
+      e.stopPropagation();
+      if (this.linkedProvider) {
+        this.showProviderListPopup = true;
+        this.update();
+      }
+    }.bind(this);
+    
+    this.closeProviderPopup = function() {
+      this.showProviderListPopup = false;
+      this.update();
+    }.bind(this);
+    
+    this.preventClosePopup = function(e) {
+      e.stopPropagation();
+    };
+    
+    this.checkHttpLinks = function() {
+      if (this.data && this.data._id) {
+        RiotControl.trigger('http_links_get_provider_for_consumer', this.data._id);
+      }
+    }.bind(this);
+    
+    this.updateHttpLinks = function(result) {
+      if (result && result.consumerComponentId === this.data._id) {
+        this.linkedProvider = result.providerInfo;
+        this.update();
+      }
+    }.bind(this);
 
     timeoutInputChanged = e => {
       this.data.specificData.timeout = e.currentTarget.value;
@@ -205,6 +283,7 @@
       this.refs.headerTable.data = this.data.specificData.headers || [];
       this.methodInputVisibility();
       this.certificateUsingInputVisibility();
+      this.checkHttpLinks();
       this.update();
     };
     this.on('mount', function () {
@@ -216,10 +295,15 @@
       });
       RiotControl.on('item_current_changed', this.updateData);
       RiotControl.on('profil_certificates_changed', this.profilCertificatesChanged);
-      RiotControl.trigger('profil_get_certificates')
+      RiotControl.on('http_links_provider_for_consumer_result', this.updateHttpLinks);
+      RiotControl.on('http_links_loaded', this.checkHttpLinks);
+      RiotControl.trigger('profil_get_certificates');
+      RiotControl.trigger('http_links_load');
     });
     this.on('unmount', function () {
       RiotControl.off('item_current_changed', this.updateData);
+      RiotControl.off('http_links_provider_for_consumer_result', this.updateHttpLinks);
+      RiotControl.off('http_links_loaded', this.checkHttpLinks);
     });
 
 
@@ -227,6 +311,132 @@
   <style>
   .hide {
     display: none;
+  }
+  
+  /* Popup styles - similar to jsonFragViewer.tag */
+  .provider-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 10000;
+  }
+  
+  .provider-popup {
+    background-color: #fff;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    width: 600px;
+    max-width: 90%;
+    max-height: 80vh;
+    overflow-y: auto;
+  }
+  
+  .popup-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    border-bottom: 1px solid #e0e0e0;
+    padding-bottom: 10px;
+  }
+  
+  .popup-header h3 {
+    margin: 0;
+    color: #333;
+    font-size: 1.2em;
+  }
+  
+  .close-button {
+    cursor: pointer;
+    font-size: 1.8em;
+    line-height: 1;
+    color: #999;
+    transition: color 0.2s;
+  }
+  
+  .close-button:hover {
+    color: #333;
+  }
+  
+  .popup-content {
+    margin-bottom: 10px;
+  }
+  
+  /* Table styles - similar to workspace-zen-table.tag */
+  .table-container {
+    width: 100%;
+  }
+  
+  .table-header {
+    border-radius: 2px;
+    display: flex;
+    align-items: center;
+    background-color: rgb(26,145,194);
+    padding: 8px 0;
+  }
+  
+  .table-header .table-col-name,
+  .table-header .table-col-description {
+    font-size: 0.85em;
+    color: white;
+    padding-left: 10px;
+  }
+  
+  .table-col-name {
+    flex: 0.4;
+  }
+  
+  .table-col-description {
+    flex: 0.45;
+  }
+  
+  .table-col-action {
+    flex: 0.15;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+  }
+  
+  .table-body {
+    display: flex;
+    flex-direction: column;
+  }
+  
+  .table-row {
+    display: flex;
+    align-items: center;
+    padding: 10px 0;
+    color: #333;
+    border-bottom: 1px solid #e0e0e0;
+    background-color: white;
+    border-radius: 2px;
+  }
+  
+  .table-row:hover {
+    background-color: #f5f5f5;
+  }
+  
+  .table-row .table-col-name,
+  .table-row .table-col-description {
+    font-size: 0.85em;
+    padding-left: 10px;
+  }
+  
+  .table-row .table-col-action img {
+    cursor: pointer;
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+  
+  .table-row:hover .table-col-action img {
+    opacity: 1;
   }
   </style>
 </http-consumer-editor>

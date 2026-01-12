@@ -1,13 +1,23 @@
 <workspace-zen-table class="containerV" style="flex-grow:1">
   <div class="containerH containerSearch">
-    <input
-      class="searchbox inputStandard"
-      type="text"
-      name="inputSearch"
-      ref="inputSearch"
-      placeholder="Saisissez votre recherche..."
-      oninput={updateSearch}
-    />
+    <div class="search-wrapper">
+      <input
+        class="searchbox inputStandard"
+        type="text"
+        name="inputSearch"
+        ref="inputSearch"
+        placeholder="Recherche par nom..."
+        oninput={updateSearch}
+      />
+      <input
+        class="searchbox inputStandard"
+        type="text"
+        name="inputSearchUrl"
+        ref="inputSearchUrl"
+        placeholder="Recherche par URL de provider..."
+        oninput={updateSearchUrl}
+      />
+    </div>
   </div>
 
   <zenTable ref="zentable" show={filteredData.length > 0} drag={false} disallowselect={true} disallowdelete={opts.disallowdelete}>
@@ -63,27 +73,123 @@
         'dec.'][new Date(date).getMonth()]} ${new Date(date).getFullYear()}`
     )
     this.filter = ''
+    this.providerUrlFilter = ''
     this.filteredData = []
+    this.providerLinks = {}
+    this.matchingProviderWorkspaces = []
 
     this.reload = () => {
       this.filteredData = this.filterData(this.opts.data)
       this.refs.zentable.data = this.filteredData
     }
 
+    // Helper function to normalize URL for comparison
+    this.normalizeProviderUrl = (url) => {
+      if (!url) return null;
+      
+      // Extract path from full URL (e.g., /data/api/xxx-out)
+      const fullUrlPattern = /^https?:\/\/[^\/]+(\/data\/api\/[^?#]+)/;
+      const fullMatch = url.match(fullUrlPattern);
+      if (fullMatch) {
+        return fullMatch[1];
+      }
+      
+      // If it starts with /data/api/, return as is
+      if (url.startsWith('/data/api/')) {
+        return url;
+      }
+      
+      // If it's just the component identifier (e.g., "696518bec4d126b4fab958cb-out")
+      if (!url.includes('/')) {
+        return '/data/api/' + url;
+      }
+      
+      return url;
+    }
+
+    // Find workspaces that have a provider matching the given URL
+    this.findWorkspacesWithProviderUrl = (searchUrl) => {
+      if (!searchUrl || !this.providerLinks) return [];
+      
+      const normalizedSearchUrl = this.normalizeProviderUrl(searchUrl);
+      if (!normalizedSearchUrl) return [];
+      
+      const matchingWorkspaceIds = [];
+      
+      // providerLinks is: { providerId -> [consumers] }
+      // We need to find providers whose URL matches, then get their workspaceId
+      // But providerLinks doesn't contain the provider URL...
+      // We need to use a different approach: search in providerByPath from backend
+      
+      // Actually, we need to request the full http-links data with URL info
+      // For now, let's check if any provider in providerLinks has consumers
+      // and match by looking at the stored data
+      
+      // Better approach: store provider info when loading http_links
+      if (this.providersByUrl) {
+        for (const [path, providerInfo] of Object.entries(this.providersByUrl)) {
+          if (path === normalizedSearchUrl || 
+              providerInfo.originalUrl === searchUrl ||
+              providerInfo.originalUrl.includes(searchUrl.replace(/^https?:\/\/[^\/]+/, ''))) {
+            matchingWorkspaceIds.push(providerInfo.workspaceId);
+          }
+        }
+      }
+      
+      return matchingWorkspaceIds;
+    }
+
     this.filterData = (data) => {
-      if (this.filter === undefined || this.filter === null || this.filter === '') {
-        return data
-      } else {
-        return sift(
+      let result = data;
+      
+      // Filter by name
+      if (this.filter !== undefined && this.filter !== null && this.filter !== '') {
+        result = sift(
           { name: { $regex: new RegExp(this.filter, 'i') } },
-          data
+          result
         )
       }
+      
+      // Filter by provider URL
+      if (this.providerUrlFilter !== undefined && this.providerUrlFilter !== null && this.providerUrlFilter !== '') {
+        if (this.matchingProviderWorkspaces.length > 0) {
+          result = result.filter(workspace => 
+            this.matchingProviderWorkspaces.includes(workspace._id)
+          );
+        } else {
+          // If URL filter is set but no matches, return empty
+          result = [];
+        }
+      }
+      
+      return result;
     }
 
     this.updateSearch = (event) => {
       this.filter = event.target.value
       this.reload()
+    }
+
+    this.updateSearchUrl = (event) => {
+      this.providerUrlFilter = event.target.value
+      
+      if (this.providerUrlFilter) {
+        // Search for matching providers
+        this.matchingProviderWorkspaces = this.findWorkspacesWithProviderUrl(this.providerUrlFilter);
+      } else {
+        this.matchingProviderWorkspaces = [];
+      }
+      
+      this.reload()
+      this.update()
+    }
+
+    this.onHttpLinksLoaded = (data) => {
+      this.providerLinks = data.providerLinks || {};
+      // Build a map of provider URLs to workspace info
+      // We need to fetch this from the raw data
+      this.reload();
+      this.update();
     }
 
     this.on('mount', () => {
@@ -95,7 +201,29 @@
         this.trigger('delRow', data)
       })
 
+      // Listen for http links data
+      RiotControl.on('http_links_loaded', this.onHttpLinksLoaded);
+      RiotControl.on('http_links_providers_by_url', this.onProvidersbyUrlLoaded);
+      
+      // Request providers by URL data
+      RiotControl.trigger('http_links_load');
+      RiotControl.trigger('http_links_get_providers_by_url');
+
       this.update()
+    })
+
+    this.onProvidersbyUrlLoaded = (data) => {
+      this.providersByUrl = data || {};
+      if (this.providerUrlFilter) {
+        this.matchingProviderWorkspaces = this.findWorkspacesWithProviderUrl(this.providerUrlFilter);
+        this.reload();
+        this.update();
+      }
+    }
+
+    this.on('unmount', () => {
+      RiotControl.off('http_links_loaded', this.onHttpLinksLoaded);
+      RiotControl.off('http_links_providers_by_url', this.onProvidersbyUrlLoaded);
     })
 
     this.on('update', () => {
@@ -122,10 +250,21 @@
     }
 
     .containerSearch {
-      height:80px;
+      height: 80px;
       justify-content: center;
       align-items: center;
-      flex-shrink:0;
+      flex-shrink: 0;
+    }
+    
+    .search-wrapper {
+      display: flex;
+      gap: 20px;
+      width: 90%;
+      max-width: 900px;
+    }
+    
+    .search-wrapper .searchbox {
+      flex: 1;
     }
     ::placeholder{
       color: rgb(200,200,200);

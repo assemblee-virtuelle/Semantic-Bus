@@ -103,8 +103,21 @@ technicalComponentDirectory.setAmqpClient(channelWrapper);
 app.get('/', (req, res, next) => {
   res.redirect('/ihm/application.html#myWorkspaces');
 });
+
+// Detect development environment
+const isDevelopment = process.env.NODE_ENV && process.env.NODE_ENV.includes('development');
+
 app.use('/ihm', express.static('client/static', {
-  etag: false
+  etag: false,
+  maxAge: isDevelopment ? 0 : undefined,
+  setHeaders: (res, path) => {
+    // Disable cache for .tag files in development
+    if (isDevelopment && path.endsWith('.tag')) {
+      res.setHeader('Cache-Control', 'no-store, no-cache, must-revalidate, proxy-revalidate');
+      res.setHeader('Pragma', 'no-cache');
+      res.setHeader('Expires', '0');
+    }
+  }
 }));
 
 app.use('/browserify', express.static('browserify'));

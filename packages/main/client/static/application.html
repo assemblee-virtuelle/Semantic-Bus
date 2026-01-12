@@ -58,6 +58,7 @@
   <script src="./store/mainController.js"></script>
   <script src="./store/sqlStore.js"></script>
   <script src="./store/utilStore.js"></script>
+  <script src="./store/httpLinksStore.js"></script>
 
   <script type="riot/tag" src="tag/zenTable.tag"></script>
   <script type="riot/tag" src="tag/zenDate.tag"></script>
@@ -223,6 +224,10 @@
       RiotControl.addStore(sqlStore);
       specificStoreList.push(sqlStore)
       allStore['sqlStore'] = sqlStore;
+
+      const httpLinksStore = new HttpLinksStore(utilStore);
+      RiotControl.addStore(httpLinksStore);
+      allStore['httpLinksStore'] = httpLinksStore;
 
       const workspaceStore = new WorkspaceStore(utilStore, specificStoreList);
       RiotControl.addStore(workspaceStore);
