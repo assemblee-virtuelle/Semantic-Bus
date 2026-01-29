@@ -24,7 +24,6 @@ class Upload {
     this.workspace_component_lib = require('@semantic-bus/core/lib/workspace_component_lib');
     this.configuration = require('../../config.json');
     this.stepNode = false;
-    this.request = require('request');
     this.config = require('../../config.json');
   }
 

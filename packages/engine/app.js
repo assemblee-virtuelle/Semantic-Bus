@@ -12,7 +12,6 @@ const env = process.env;
 const fs = require('fs');
 const url = env.CONFIG_URL;
 const errorHandling = require('@semantic-bus/core/helpers/errorHandling');
-const request = require('request');
 const configJson = require('./config.json');
 
 http.globalAgent.maxSockets = 1000000000;

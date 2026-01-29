@@ -11,7 +11,6 @@ const amqpManager = require('amqp-connection-manager');
 const safe = express.Router();
 const unSafeRouteur = express.Router();
 const bodyParser = require('body-parser');
-const request = require('request');
 const env = process.env;
 const fs = require('fs');
 const url = env.CONFIG_URL;

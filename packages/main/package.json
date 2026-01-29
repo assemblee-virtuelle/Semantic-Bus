@@ -37,7 +37,6 @@
     "node-cron": "^4.2.0",
     "nodemailer": "^7.0.4",
     "path-to-regexp": "^6.3.0",
-    "request": "^2.88.2",
     "uuid": "^11.1.0",
     "xml-js": "^1.6.11"
   },
