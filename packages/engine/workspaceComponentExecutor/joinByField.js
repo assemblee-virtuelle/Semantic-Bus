@@ -96,37 +96,37 @@ class JoinByField {
           resolve(item);
         } else {
           // if (isLiteral(item[data.specificData.primaryFlowFKId])) {
-            const primaryValue = item[data.specificData.primaryFlowFKId];
-            
-            if (Array.isArray(primaryValue)) {
-              // Handle array of values
-              let results = primaryValue.map(value => {
-                if(!isLiteral(value)){
-                  return {error: 'join can only process literal'};
-                }else{
-                  const filter = {
-                    [data.specificData.secondaryFlowId]: value
-                  };
-                  return collection.find(filter);
-                }
-              }).flat();
-              results = results.map(r=>{delete r.$loki; return r})
-              item[data.specificData.primaryFlowFKName] = results;
-            } else {
-              if(!isLiteral(primaryValue)){
-                item[data.specificData.primaryFlowFKName]= {error: 'join can only process literal'};
-              } else{
-                let filter = {
-                  [data.specificData.secondaryFlowId]: primaryValue
+          const primaryValue = item[data.specificData.primaryFlowFKId];
+
+          if (Array.isArray(primaryValue)) {
+            // Handle array of values
+            let results = primaryValue.map(value => {
+              if (!isLiteral(value)) {
+                return { error: 'join can only process literal' };
+              } else {
+                const filter = {
+                  [data.specificData.secondaryFlowId]: value
                 };
-                // console.log('filter', filter)
-                let results = collection.find(filter);
-                // console.log('results', results)
-                results = results.map(r=>{delete r.$loki; return r})
-                item[data.specificData.primaryFlowFKName] = data.specificData.multipleJoin ? results : results[0];
+                return collection.find(filter);
               }
+            }).flat();
+            results = results.map(r => { delete r.$loki; return r })
+            item[data.specificData.primaryFlowFKName] = results;
+          } else {
+            if (!isLiteral(primaryValue)) {
+              item[data.specificData.primaryFlowFKName] = { error: 'join can only process literal' };
+            } else {
+              let filter = {
+                [data.specificData.secondaryFlowId]: primaryValue
+              };
+              // console.log('filter', filter)
+              let results = collection.find(filter);
+              // console.log('results', results)
+              results = results.map(r => { delete r.$loki; return r })
+              item[data.specificData.primaryFlowFKName] = data.specificData.multipleJoin ? results : results[0];
             }
-            resolve(item);
+          }
+          resolve(item);
           // } else {
           //   throw (new Error('join can only process literal'))
           // }
@@ -148,11 +148,11 @@ class JoinByField {
 
   joinWithLokiSupportingArray(item, collection, data,) {
     if (Array.isArray(item)) {
-      return  new Promise(async (resolve, reject) => {  
-        let resultArray = []; 
-        for(let i = 0; i < item.length; i++){
+      return new Promise(async (resolve, reject) => {
+        let resultArray = [];
+        for (let i = 0; i < item.length; i++) {
           resultArray.push(await this.joinWithLoki(item[i], collection, data))
-        } 
+        }
         resolve(resultArray);
       })
     } else {
@@ -195,7 +195,7 @@ class JoinByField {
         let collection = db.getCollection(collectionName);
 
         if (!collection) {
-          collection = db.addCollection(collectionName, { indices: [data.specificData.secondaryFlowId] , disableMeta:true});
+          collection = db.addCollection(collectionName, { indices: [data.specificData.secondaryFlowId], disableMeta: true });
           await fragment_lib.getWithResolutionByBranch(secondaryFlowFragment, {
             deeperFocusActivated: true,
             pathTable: [],

@@ -13,7 +13,7 @@ class HttpProvider {
       'http://semantic-bus.org/data/tags/integrationApi',
       'http://semantic-bus.org/data/tags/triggers'
     ],
-    this.stepNode = false;
+      this.stepNode = false;
     this.workspace_component_lib = require('@semantic-bus/core/lib/workspace_component_lib');
     this.workspace_lib = require('@semantic-bus/core/lib/workspace_lib');
     // this.fragment_lib = require('../../../core/lib/fragment_lib')
@@ -41,7 +41,7 @@ class HttpProvider {
   setAmqp(amqpConnection) {
     console.log('set AMQP');
     this.amqpConnection = amqpConnection;
-    amqpConnection.consume('process-persist', async(msg) => {
+    amqpConnection.consume('process-persist', async (msg) => {
       const messageObject = JSON.parse(msg.content.toString());
       const tracerId = messageObject.tracerId;
       const pendingWork = this.pendingWork[tracerId];
@@ -105,7 +105,7 @@ class HttpProvider {
   }
 
   initialise(router) {
-    router.all('/api/*', async(req, res, next) => {
+    router.all('/api/*', async (req, res, next) => {
       console.log('API CALL');
 
       const urlRequieredFull = req.params[0].replace('/', '');
@@ -230,7 +230,7 @@ class HttpProvider {
       if (component.specificData.returnRawFile && component.specificData.rawFileProperty) {
         if (dataToSend == undefined || dataToSend == null || dataToSend[component.specificData.rawFileProperty] == undefined || dataToSend[component.specificData.rawFileProperty] == null) {
           res.status(404).send('data is undefined or null or property ' + component.specificData.rawFileProperty + ' not found in data : ' + JSON.stringify(dataToSend));
-        } else{
+        } else {
           if (component.specificData.contentType) {
             res.setHeader('content-type', component.specificData.contentType);
           }
