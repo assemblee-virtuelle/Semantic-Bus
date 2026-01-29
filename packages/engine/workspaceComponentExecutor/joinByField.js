@@ -84,6 +84,13 @@ class JoinByField {
     // console.log('joining with loki', item, collection, data)
     return new Promise(async (resolve, reject) => {
       try {
+        // Verify that item is an object before processing
+        if (typeof item !== 'object' || item === null) {
+          return resolve({
+            error: `Cannot join: item is not an object, it is a ${typeof item} (${JSON.stringify(item)})`
+          });
+        }
+
         if (item[data.specificData.primaryFlowFKId] == undefined) {
           item[data.specificData.primaryFlowFKName] = undefined;
           resolve(item);
@@ -93,7 +100,7 @@ class JoinByField {
             
             if (Array.isArray(primaryValue)) {
               // Handle array of values
-              const results = primaryValue.map(value => {
+              let results = primaryValue.map(value => {
                 if(!isLiteral(value)){
                   return {error: 'join can only process literal'};
                 }else{
@@ -125,6 +132,12 @@ class JoinByField {
           // }
         }
       } catch (e) {
+        // If item is not an object, we can't assign properties to it
+        if (typeof item !== 'object' || item === null) {
+          return resolve({
+            error: `Error processing non-object item: ${e.message}`
+          });
+        }
         item[data.specificData.primaryFlowFKName] = {
           error: e.message
         }
