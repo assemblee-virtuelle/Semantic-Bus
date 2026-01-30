@@ -180,9 +180,27 @@
       this.update();
     }.bind(this);
 
-    this.handleOAuthRedirect = function() {
+    this.handleOAuthRedirect = async function() {
+      // Check if scopes are selected
+      if (!this.data.specificData.selectedScopes || this.data.specificData.selectedScopes.length === 0) {
+        alert('Veuillez sélectionner au moins un scope');
+        return;
+      }
+
       const componentId = this.data._id;
       const scopes = this.data.specificData.selectedScopes.join(' ');
+      
+      try {
+        // Save the component data with selected scopes before redirecting
+        // This ensures the scopes are available on the server side
+        RiotControl.trigger('item_save', this.data);
+        
+        // Give some time for the save to complete
+        await new Promise(resolve => setTimeout(resolve, 500));
+      } catch (error) {
+        console.error('Error saving component:', error);
+      }
+      
       const authUrl = `../data/specific/anonymous/google-auth?componentId=${componentId}&scopes=${encodeURIComponent(scopes)}`;
       window.location.href = authUrl;
     }
