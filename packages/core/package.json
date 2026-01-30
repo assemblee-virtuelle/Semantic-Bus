@@ -38,7 +38,6 @@
     "passport": "^0.7.0",
     "passport-google-oauth": "^2.0.0",
     "rdf-parser-n3": "^1.1.1",
-    "request": "^2.88.2",
     "sift": "^17.1.3",
     "spinnies": "^0.5.1",
     "uuid": "^11.1.0",

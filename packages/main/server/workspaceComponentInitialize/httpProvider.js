@@ -22,7 +22,6 @@ class HttpProvider {
     this.xmlJS = require('xml-js');
     this.dataTraitment = require('@semantic-bus/core/dataTraitmentLibrary/index.js');
     this.json2yaml = require('json2yaml');
-    this.request = require('request');
     this.config = require('../../config.json');
     this.file_lib = require('@semantic-bus/core/lib/file_lib_scylla');
 

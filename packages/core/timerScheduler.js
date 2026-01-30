@@ -6,7 +6,6 @@ module.exports = {
   moment: require('moment'),
   http: require('http'),
   url: require('url'),
-  request: require('request'),
   config: require('@semantic-bus/timer/config.json'),
   runTimers: function(amqpConnection) {
     // console.log('----- Timer Cron')
