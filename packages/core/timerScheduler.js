@@ -1,4 +1,6 @@
 'use strict';
+const Error = require('./helpers/error.js');
+
 module.exports = {
   componentLib: require('./lib/workspace_component_lib.js'),
   workspaceLib: require('./lib/workspace_lib.js'),
@@ -7,7 +9,8 @@ module.exports = {
   http: require('http'),
   url: require('url'),
   config: require('@semantic-bus/timer/config.json'),
-  runTimers: function(amqpConnection) {
+  intervalId: null,
+  runTimers: function (amqpConnection) {
     // console.log('----- Timer Cron')
     this.componentLib.get_all_withConsomation({
       module: 'timer'
@@ -52,15 +55,33 @@ module.exports = {
           }
         })
           .catch(e => {
-            console.error(c, e);
-            // console.error(`orchan timer ${c.workspaceId}-${c._id}`);
+            // Check if workspace was not found (orphan timer component)
+            if (e instanceof Error.EntityNotFoundError) {
+              console.warn(`Workspace ${c.workspaceId} not found for timer ${c._id}, removing orphan component`);
+              this.componentLib.remove({ _id: c._id })
+                .then(() => {
+                  console.log(`Orphan timer component ${c._id} successfully removed`);
+                })
+                .catch(removeErr => {
+                  console.error(`Failed to remove orphan timer component ${c._id}:`, removeErr);
+                });
+            } else {
+              console.error(c, e);
+            }
           });
       });
     });
   },
-  run: function(amqpConnection) {
+  run: function (amqpConnection) {
     // this.address = address;
     this.runTimers(amqpConnection);
-    setInterval(this.runTimers.bind(this, amqpConnection), 60000);
+    this.intervalId = setInterval(this.runTimers.bind(this, amqpConnection), 60000);
+  },
+  stop: function () {
+    if (this.intervalId) {
+      clearInterval(this.intervalId);
+      this.intervalId = null;
+      console.log('Timer scheduler stopped');
+    }
   }
 };
