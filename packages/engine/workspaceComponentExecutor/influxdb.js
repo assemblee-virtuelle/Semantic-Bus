@@ -135,15 +135,16 @@ class InfluxdbConnector {
         throw new Error("Il faut fournir un timestamp et des données valides dans les tags.");
       }
 
-      let insertData = true;
+      // let insertData = true;
       // checking that the data for the tags isn't empty or undefined
       tags.forEach(tag => {
         if (!(jsonData[tag])) {
-          insertData = false;
+          throw new Error(`Tag "${tag}" not found or value is invalid in the provided data.`);
         }
       })
 
-      if (insertData && writeApi) {
+
+      if (writeApi) {
         // if we have valid tag values,
         // a valid timestamp and at least one field then
         // we insert the data
@@ -151,7 +152,7 @@ class InfluxdbConnector {
           .timestamp(date)
         const point2 = this.addTagsToPoint(jsonData, point1, tags)
         const point3 = this.addFieldsToPoint(jsonData, point2, fields);
-        // console.log('point3',point3)
+        // console.log('point3', point3)
 
         // then we write the data
         writeApi.writePoint(point3);
@@ -159,7 +160,7 @@ class InfluxdbConnector {
         writeApi.close();
       }
     } catch (e) {
-      console.log('Error : ', e);
+      result = { error: e.message };
     }
     return result;
   }
@@ -198,7 +199,7 @@ class InfluxdbConnector {
           result.push(point3);
         }
       } catch (e) {
-        console.log('Error : ', e);
+        result.push({ error: e.message });
       }
     });
     // we let the api connection open until the end
@@ -243,11 +244,14 @@ class InfluxdbConnector {
         if (!(fields.length > 0)) {
           throw new Error("Il faut qu'il y ait au moins un champs en entrée (field).");
         }
-        result = this.writeDatum(tags, fields, timestamp, measurementType, jsonData, writeApi);
+        try {
+          result = this.writeDatum(tags, fields, timestamp, measurementType, jsonData, writeApi);
+        } catch (e) {
+          result = { error: e.message };
+        }
       }
-    }
-    catch (e) {
-      throw new Error(e);
+    } catch (e) {
+      result = { error: e.message };
     }
 
     return result;

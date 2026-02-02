@@ -32,18 +32,36 @@ class GoogleAuth {
     router.get('/google-auth', async(req, res) => {
       console.log('ALLO');
       const componentId = req.query.componentId;
+      const scopes = req.query.scopes; // Retrieve scopes from URL parameter
       try {
         const component = await workspaceComponentLib.get({ _id: componentId });
         console.log('component', component);
+        
+        // Parse scopes if they come as a string (space-separated)
+        let scopeArray = [];
+        if (scopes) {
+          // If scopes is a string, split by space
+          scopeArray = typeof scopes === 'string' ? scopes.split(' ') : scopes;
+        } else if (component.specificData.selectedScopes) {
+          // Fallback to component data if available
+          scopeArray = component.specificData.selectedScopes;
+        }
+        
+        // Ensure scope is not empty
+        if (!scopeArray || scopeArray.length === 0) {
+          return res.status(400).send('No scopes selected. Please select at least one scope.');
+        }
+        
         const oAuth2Client = this.createOAuth2Client(req);
         const authorizeUrl = oAuth2Client.generateAuthUrl({
           access_type: 'offline',
           prompt: 'consent',
-          scope: component.specificData.selectedScopes,
+          scope: scopeArray,
           state: componentId
         });
         res.redirect(authorizeUrl);
       } catch (error) {
+        console.error('Error:', error);
         res.status(500).send('Erreur lors de la récupération des informations du composant');
       }
     });

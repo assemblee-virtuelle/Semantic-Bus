@@ -145,12 +145,14 @@ async function _remove(componentToDelete) {
     'consumption_history': 0
   })
     .exec();
+
+  // Delete the component
+  await workspaceComponentModel.getInstance().model.deleteOne({
+    _id: componentToDelete._id
+  }).exec();
+
+  // Clean workspace links if workspace exists
   if (workspace) {
-    const res = await workspaceComponentModel.getInstance().model.deleteOne({
-      _id: componentToDelete._id
-    }).exec();
-
-
     workspace.links = workspace.links.filter(sift({
       $and: [{
         source: {
@@ -163,10 +165,11 @@ async function _remove(componentToDelete) {
       }]
     }));
     await workspace.save();
-    return componentToDelete;
   } else {
-    throw new Error.DataBaseProcessError('workflow not finded');
+    console.log(`Orphan component ${componentToDelete._id} removed (workspace not found)`);
   }
+
+  return componentToDelete;
 } // <= remove
 
 // --------------------------------------------------------------------------------
