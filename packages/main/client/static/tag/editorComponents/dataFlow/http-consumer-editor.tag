@@ -116,6 +116,14 @@
     </label>
   </div>
 
+  <label class="labelFormStandard">inclure la requête dans la sortie:</label>
+  <div class="cardInput">
+    <label class="switch">
+        <input type="checkbox" name="includeRequestInOutputInput" ref="includeRequestInOutputInput" checked={data.specificData.includeRequestInOutput} onchange={includeRequestInOutputChange}/>
+        <span class="slider round"></span>
+    </label>
+  </div>
+
   <div class="options">
     <label class="labelFormStandard">certification</label>
     <div class="cardInput">
@@ -275,6 +283,10 @@
 
     rawFileChange(event) {
       this.data.specificData.rawFile = event.target.checked;
+    }
+
+    includeRequestInOutputChange(event) {
+      this.data.specificData.includeRequestInOutput = event.target.checked;
     }
 
 

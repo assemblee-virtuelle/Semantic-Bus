@@ -243,13 +243,30 @@ class HttpConsumer {
             });
           } else {
             // console.log('___responseObject', responseObject);
-            resolve({
-              data: {
-                body: responseObject,
-                status: response?.status,
-                headers: response?.headers
-              }
-            });
+            if (componentConfig.includeRequestInOutput) {
+              resolve({
+                data: {
+                  request: {
+                    url: url,
+                    headers: headers,
+                    body: bodyObject
+                  },
+                  response: {
+                    body: responseObject,
+                    status: response?.status,
+                    headers: response?.headers
+                  }
+                }
+              });
+            } else {
+              resolve({
+                data: {
+                  body: responseObject,
+                  status: response?.status,
+                  headers: response?.headers
+                }
+              });
+            }
           }
         }).catch((e) => {
           console.log('error pull', e);

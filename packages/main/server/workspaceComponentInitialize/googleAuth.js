@@ -30,12 +30,10 @@ class GoogleAuth {
 
   async initialise(router) {
     router.get('/google-auth', async(req, res) => {
-      console.log('ALLO');
       const componentId = req.query.componentId;
       const scopes = req.query.scopes; // Retrieve scopes from URL parameter
       try {
         const component = await workspaceComponentLib.get({ _id: componentId });
-        console.log('component', component);
         
         // Parse scopes if they come as a string (space-separated)
         let scopeArray = [];
