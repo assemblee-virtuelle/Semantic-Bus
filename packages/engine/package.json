@@ -49,7 +49,7 @@
     "mailparser": "^3.7.1",
     "moment": "^2.30.1",
     "mongodb": "^6.17.0",
-    "mongoose": "^8.16.1",
+    "mongoose": "^8.23.1",
     "node-fetch": "^2.3.0",
     "node-forge": "^1.3.1",
     "object-sizeof": "^1.2.0",
