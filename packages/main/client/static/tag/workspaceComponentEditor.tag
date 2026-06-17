@@ -138,7 +138,11 @@
     }
 
     this.mountEdition = function (editor) {
-      this.editionContainer = riot.mount('#editionContainer', editor)[0];
+      var mounted = riot.mount('#editionContainer', editor);
+      if (!mounted || mounted.length === 0) {
+        mounted = riot.mount('#editionContainer', 'no-editor');
+      }
+      this.editionContainer = mounted[0];
     };
 
     this.itemCurrentEditorChanged = function (editor) {
