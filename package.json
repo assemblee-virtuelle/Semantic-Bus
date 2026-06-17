@@ -1,6 +1,6 @@
 {
   "name": "semantic-bus-monorepo",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "ETL style data middleware transformation embedded in an ESB for all kind of data",
   "private": true,
   "workspaces": [

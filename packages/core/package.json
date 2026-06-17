@@ -1,6 +1,6 @@
 {
   "name": "@semantic-bus/core",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Core module for Semantic Bus",
   "private": true,
   "main": "index.js",
