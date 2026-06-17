@@ -1,6 +1,6 @@
 {
   "name": "@semantic-bus/main",
-  "version": "0.10.0",
+  "version": "0.11.0",
   "description": "Main application module for Semantic Bus",
   "private": true,
   "main": "app.js",
