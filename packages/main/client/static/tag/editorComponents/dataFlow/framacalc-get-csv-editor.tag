@@ -1,7 +1,4 @@
-<!-- TODO: le nom du tag contient un typo (framcalc au lieu de framacalc).
-     Conservé ainsi pour compatibilité avec les composants déjà en base.
-     Voir framcalcGetCsv.js côté serveur. -->
-<framcalc-get-csv-editor>
+<framacalc-get-csv-editor>
   <!-- bouton aide -->
   <div class="contenaireH" style="margin-left:97%">
     <a href="https://github.com/assemblee-virtuelle/Semantic-Bus/wiki/Composant:-Framacalc" target="_blank"><img src="./image/help.png" alt="Aide" width="25px" height="25px"></a>
@@ -66,4 +63,4 @@
     });
 
   </script>
-</framcalc-get-csv-editor>
+</framacalc-get-csv-editor>
