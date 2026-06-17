@@ -2,7 +2,7 @@
 module.exports = {
   type: 'adresse.data.gouv.fr geolocaliser par lot',
   description: 'MAINTENANCE',
-  editor: 'data-gouv-geolocaliser-mass-editor',
+  // editor: 'data-gouv-geolocaliser-mass-editor', // tag archivé - plus disponible
   graphIcon: 'Gouv_geocoding.svg',
   tags: [
     'http://semantic-bus.org/data/tags/middleComponents',
