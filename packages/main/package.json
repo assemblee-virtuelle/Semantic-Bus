@@ -33,7 +33,7 @@
     "jwt-simple": "^0.5.1",
     "mailparser": "^3.7.4",
     "moment": "^2.30.1",
-    "mongoose": "^8.16.1",
+    "mongoose": "^8.23.1",
     "node-cron": "^4.2.0",
     "nodemailer": "^7.0.4",
     "path-to-regexp": "^6.3.0",
