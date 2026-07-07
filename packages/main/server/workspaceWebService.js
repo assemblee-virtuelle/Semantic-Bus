@@ -215,7 +215,8 @@ module.exports = function (router) {
             // console.log('___data', data)
             res.send(data)
           }).catch(e => {
-            // next(e)
+            data.error = { error: "frag of cache doesn't exist" }
+            res.send(data)
           })
 
 
