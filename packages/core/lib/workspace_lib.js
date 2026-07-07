@@ -309,7 +309,9 @@ async function _executeAllTimers(config) {
         // console.log("wokspace",wokspace.name,'-',wokspace.status);
         // console.log("wokspace",wokspace.name,'-',wokspace.status);
         const execution = await fetch(config.engineUrl + '/work-ask/' + component._id, {
-          method: 'POST'
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ pushData: {}, queryParams: {}, direction: 'work' })
         });
         const result = await execution.text();
         // console.log("result",result);
