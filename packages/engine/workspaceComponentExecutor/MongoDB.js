@@ -195,7 +195,7 @@ class MongoConnector {
         } catch (error) {
           reject(error)
         } finally {
-          client.close();
+          if (client) client.close();
         }
       })
     } else {
@@ -209,7 +209,7 @@ class MongoConnector {
         } catch (error) {
           reject(error)
         } finally {
-          client.close()
+          if (client) client.close()
         }
       })
     }
