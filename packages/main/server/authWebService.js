@@ -174,6 +174,23 @@ module.exports = function (router) {
     }
   }) // <= authentification
 
+  // --------------------------------------------------------------------------------
+  // STOMP credentials : fournit au navigateur les login/pass RabbitMQ (STOMP)
+  // pour qu'il puisse se connecter au broker. Exige un JWT valide (utilisateur
+  // authentifié). Les credentials ne sont PAS en dur dans le code client : ils
+  // sont servis ici, côté serveur, à un utilisateur authentifié.
+  // Route accessible via /data/auth/stomp-credentials
+  // --------------------------------------------------------------------------------
+
+  router.get('/stomp-credentials', auth_lib_user.security_API, function (req, res) {
+    const login = config.amqpStompLogin || process.env.AMQP_STOMP_LOGIN;
+    const password = config.amqpStompPassword || process.env.AMQP_STOMP_PASSWORD;
+    if (!login || !password) {
+      return res.status(500).send({ error: 'STOMP credentials not configured' });
+    }
+    res.send({ login, password });
+  }) // <= stomp-credentials
+
   // <-------------------------------------   GOOGLE AUTH   ------------------------------------->
 
   auth_lib_user.google_auth(router)

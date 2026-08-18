@@ -15,6 +15,7 @@ const env = process.env;
 const fs = require('fs');
 const url = env.CONFIG_URL;
 const errorHandling = require('@semantic-bus/core/helpers/errorHandling');
+const { buildAmqpUrl } = require('@semantic-bus/core/lib/amqpUrl');
 const cron = require('node-cron');
 const workspace_lib = require('@semantic-bus/core/lib/workspace_lib');
 // const { createFragmentTable } = require('@semantic-bus/core/db/dynamodb_admin');
@@ -55,7 +56,7 @@ require('./server/fragmentWebService')(safe);
 require('./server/fileWebservices')(safe);
 
 console.log('🔗 AMQP:', configJson.socketServer + '/' + configJson.amqpHost);
-const connection = amqpManager.connect([configJson.socketServer + '/' + configJson.amqpHost]);
+const connection = amqpManager.connect([buildAmqpUrl(configJson)]);
 const channelWrapper = connection.createChannel({
   json: true,
   setup: (channel) => {

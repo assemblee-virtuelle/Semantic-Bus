@@ -1222,7 +1222,8 @@ function WorkspaceStore(utilStore, specificStoreList) {
     this.stompClient.send('/queue/work-ask', JSON.stringify({
       id: this.itemCurrent._id,
       workspaceId: this.itemCurrent.workspaceId,
-      callerId: localStorage.user_id
+      callerId: localStorage.user_id,
+      token: localStorage.token
     }))
   }) // <= item_current_work
 
