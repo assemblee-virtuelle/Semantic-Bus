@@ -4,7 +4,6 @@
 const bigdataflowModel = require('../models/bigdataflow_model');
 const userModel = require('../models/user_model');
 const config = require('../getConfiguration.js')();
-const sift = require('sift').default;
 const Error = require('../helpers/error.js');
 
 // --------------------------------------------------------------------------------
@@ -112,12 +111,7 @@ function _get_all(userID, role) {
       .lean()
       .exec(async(_error, data) => {
         data.bigdataflow = data.bigdataflow || [];
-        data.bigdataflow = data.bigdataflow.filter(sift({
-          _id: {
-            $ne: null
-          }
-        }
-        ));
+        data.bigdataflow = data.bigdataflow.filter(b => b._id != null);
         Array.isArray(data.bigdataflow) ?
           data.bigdataflow = data.bigdataflow.map(r => {
             return {
@@ -125,10 +119,7 @@ function _get_all(userID, role) {
               role: r.role
             };
           }) : data.bigdataflow = [];
-        const bigdataflows = data.bigdataflow.filter(sift({
-          role: role
-        }
-        )).map(r => r.bigdataflow);
+        const bigdataflows = data.bigdataflow.filter(r => r.role === role).map(r => r.bigdataflow);
 
 
         resolve(bigdataflows);

@@ -13,12 +13,12 @@ const cacheModel = require('../models/cache_model');
 // var config = require("../getConfiguration.js")();
 const historiqueEndModel = require('../models/historiqueEnd_model');
 const processModel = require('../models/process_model');
-const sift = require('sift').default;
 const graphTraitement = require('../helpers/graph-traitment');
 const fetch = require('node-fetch');
 const Error = require('../helpers/error.js');
 const ObjectID = require('bson').ObjectID;
 const { validate: uuidValidate } = require('uuid');
+const hmac_lib = require('./hmac_lib.js');
 
 // --------------------------------------------------------------------------------
 // --------------------------------------------------------------------------------
@@ -308,10 +308,16 @@ async function _executeAllTimers(config) {
       if (wokspace != null) {
         // console.log("wokspace",wokspace.name,'-',wokspace.status);
         // console.log("wokspace",wokspace.name,'-',wokspace.status);
+        const body = JSON.stringify({ pushData: {}, queryParams: {}, direction: 'work' });
+        const { signature, timestamp } = hmac_lib.sign(component._id, { pushData: {}, queryParams: {}, direction: 'work' });
         const execution = await fetch(config.engineUrl + '/work-ask/' + component._id, {
           method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ pushData: {}, queryParams: {}, direction: 'work' })
+          headers: {
+            'Content-Type': 'application/json',
+            [hmac_lib.HMAC_HEADER]: signature,
+            [hmac_lib.HMAC_TIMESTAMP_HEADER]: timestamp
+          },
+          body: body
         });
         const result = await execution.text();
         // console.log("result",result);
@@ -471,9 +477,7 @@ async function _get_process_byWorkflow(workflowId) {
         data: 0
       }).lean().exec();
       for (const step of process.steps) {
-        const historiqueEndFinded = historiqueEnd.filter(sift({
-          componentId: step.componentId
-        }))[0];
+        const historiqueEndFinded = historiqueEnd.find(h => h.componentId === step.componentId);
         if (historiqueEndFinded != undefined) {
           if (historiqueEndFinded.error != undefined) {
             step.status = 'error';
@@ -635,11 +639,7 @@ async function _get_all(userID, role, config) {
         'users.email': data.credentials.email
       }).lean().exec();
       data.workspaces = InversRelationWorkspaces;
-      data.workspaces = data.workspaces.filter(sift({
-        _id: {
-          $ne: null
-        }
-      }));
+      data.workspaces = data.workspaces.filter(w => w._id != null);
       data.workspaces = data.workspaces.map(w => {
         const userOfWorkspace = w.users.find(u => u.email === data.credentials.email);
         // console.log("XXXX workspace",w)
@@ -683,9 +683,7 @@ async function _get_all(userID, role, config) {
               data: 0
             }).lean().exec();
             for (const step of processes[0].steps) {
-              const historiqueEndFinded = historiqueEnd.filter(sift({
-                componentId: step.componentId
-              }))[0];
+              const historiqueEndFinded = historiqueEnd.find(h => h.componentId === step.componentId);
 
               if (processes[0].state === 'stop') {
                 workspace.status = 'stoped';
@@ -814,25 +812,15 @@ function _get_workspace(workspace_id) {
         }
         workspace = workspaceIn;
         // protection against broken link and empty specificData : corrupt data
-        workspace.components = workspace.components.filter(sift({
-          $ne: null
-        })).map(c => {
+        workspace.components = workspace.components.filter(c => c != null).map(c => {
           c.specificData = c.specificData || {};
           return c;
         });
 
         const componentsId = workspace.components.map(c => c._id);
-        workspace.links = workspace.links.filter(sift({
-          $and: [{
-            source: {
-              $in: componentsId
-            }
-          }, {
-            target: {
-              $in: componentsId
-            }
-          }]
-        }));
+        // compare by string value to keep sift $in semantics on ObjectId instances
+        const componentsIdSet = new Set(componentsId.map(id => id.toString()));
+        workspace.links = workspace.links.filter(l => componentsIdSet.has(l.source.toString()) && componentsIdSet.has(l.target.toString()));
 
         const ProcessPromise = (async() => {
           if (workspace.status != undefined) {
@@ -854,9 +842,7 @@ function _get_workspace(workspace_id) {
               }).lean().exec();
 
               for (const step of processes[0].steps) {
-                const historiqueEndFinded = historiqueEnd.filter(sift({
-                  componentId: step.componentId
-                }))[0];
+                const historiqueEndFinded = historiqueEnd.find(h => h.componentId === step.componentId);
 
                 if (processes[0].state === 'stop') {
                   workspace.status = 'stoped';
@@ -977,9 +963,7 @@ function _removeConnection(workspaceId, linkId) {
         return reject(new Error.EntityNotFoundError('workspaceModel'));
       }
       // console.log('workspace.links',workspace.links)
-      const targetLink = workspace.links.filter(sift({
-        _id: linkId
-      }))[0];
+      const targetLink = workspace.links.find(l => l._id && l._id.toString() === linkId.toString());
       // console.log('targetLink',targetLink)
       if (targetLink != undefined) {
         workspace.links.splice(workspace.links.indexOf(targetLink), 1);

@@ -2,9 +2,9 @@
 const workspaceComponentModel = require('../models/workspace_component_model');
 const workspaceModel = require('../models/workspace_model');
 const historiqueEndModel = require('../models/historiqueEnd_model');
-const sift = require('sift').default;
 // var fragment_lib = require('./fragment_lib.js');
 const Error = require('../helpers/error.js');
+const { validateSpecificData } = require('./specificDataValidator.js');
 // const mongoose = require('mongoose');
 
 // --------------------------------------------------------------------------------
@@ -31,6 +31,11 @@ async function _create(workspaceComponents) {
   const componentArray = Array.isArray(workspaceComponents) ? workspaceComponents : [workspaceComponents];
   const out = [];
   for (const component of componentArray ) {
+    // SÉCURITÉ : sanitise le specificData à l'écriture (retrait clés dangereuses
+    // __proto__/constructor/prototype + getters, profondeur/size bornées).
+    if (component && component.specificData !== undefined) {
+      component.specificData = validateSpecificData(component.specificData);
+    }
     let newComponent = new (workspaceComponentModel.getInstance().model)(component);
     newComponent = await newComponent.save();
     // const workspace = await workspaceModel.getInstance().model.findOne({_id:component.workspaceId});
@@ -119,6 +124,10 @@ function _get_connectBefore_connectAfter(filter) {
 // --------------------------------------------------------------------------------
 async function _update(componentToUpdate) {
   if (componentToUpdate) {
+    // SÉCURITÉ : sanitise le specificData à l'écriture (comme à la création).
+    if (componentToUpdate.specificData !== undefined) {
+      componentToUpdate.specificData = validateSpecificData(componentToUpdate.specificData);
+    }
     // console.log('componentToUpdate', componentToUpdate);
     const componentUpdated = await workspaceComponentModel.getInstance().model.findOneAndUpdate({
       _id: componentToUpdate._id
@@ -153,17 +162,8 @@ async function _remove(componentToDelete) {
 
   // Clean workspace links if workspace exists
   if (workspace) {
-    workspace.links = workspace.links.filter(sift({
-      $and: [{
-        source: {
-          $ne: componentToDelete._id
-        }
-      }, {
-        target: {
-          $ne: componentToDelete._id
-        }
-      }]
-    }));
+    const deletedId = componentToDelete._id.toString();
+    workspace.links = workspace.links.filter(l => !(l.source && l.source.toString() === deletedId) && !(l.target && l.target.toString() === deletedId));
     await workspace.save();
   } else {
     console.log(`Orphan component ${componentToDelete._id} removed (workspace not found)`);
