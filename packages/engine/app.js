@@ -12,6 +12,7 @@ const env = process.env;
 const fs = require('fs');
 const url = env.CONFIG_URL;
 const errorHandling = require('@semantic-bus/core/helpers/errorHandling');
+const { buildAmqpUrl } = require('@semantic-bus/core/lib/amqpUrl');
 const configJson = require('./config.json');
 
 http.globalAgent.maxSockets = 1000000000;
@@ -27,7 +28,10 @@ app.use(bodyParser.urlencoded({
 unsafe.use(bodyParser.json());
 
 console.log('🔗 AMQP:', (configJson.socketServerEngine ? configJson.socketServerEngine : configJson.socketServer) + '/' + configJson.amqpHost);
-const connection = amqpManager.connect([(configJson.socketServerEngine ? configJson.socketServerEngine : configJson.socketServer) + '/' + configJson.amqpHost]);
+const amqpConfig = Object.assign({}, configJson, {
+  socketServer: configJson.socketServerEngine || configJson.socketServer
+});
+const connection = amqpManager.connect([buildAmqpUrl(amqpConfig)]);
 const communication = require('./communication');
 const onConnect = (channel) => {
   console.log('✅ AMQP connected');
