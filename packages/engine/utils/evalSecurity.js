@@ -307,9 +307,11 @@ function runWhereInWorker(expression, items, timeoutMs = 2000) {
  * @param {string} route '/eval' ou '/where'
  * @param {Object} body corps lisible { expression, variables | items, timeoutMs }
  * @param {number} httpTimeoutMs
+ * @param {string} [resultKey='result'] champ du résultat dans la réponse —
+ *   `/eval` répond `{ ok:true, result }`, `/where` répond `{ ok:true, matches }`.
  * @returns {Promise<*>} le résultat (déjà désérialisé)
  */
-async function postEval(route, body, httpTimeoutMs) {
+async function postEval(route, body, httpTimeoutMs, resultKey = 'result') {
   const { signature, timestamp } = hmac_lib.sign(EVAL_SIGN_COMPONENT, body);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), httpTimeoutMs);
@@ -331,7 +333,7 @@ async function postEval(route, body, httpTimeoutMs) {
     if (!data.ok) {
       throw new Error(data.error || 'eval-service error');
     }
-    return data.result;
+    return data[resultKey];
   } finally {
     clearTimeout(timer);
   }
@@ -358,7 +360,7 @@ async function runEvalInRemote(expression, variables = {}, timeoutMs = 10000) {
  * @returns {Promise<Array<number>>} indices des items matchant
  */
 async function runWhereInRemote(expression, items, timeoutMs = 2000) {
-  return postEval('/where', { expression, items, timeoutMs }, EVAL_HTTP_TIMEOUT_MS);
+  return postEval('/where', { expression, items, timeoutMs }, EVAL_HTTP_TIMEOUT_MS, 'matches');
 }
 
 module.exports = {

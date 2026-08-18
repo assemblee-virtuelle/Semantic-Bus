@@ -1,4 +1,6 @@
-const { runWhereInWorker } = require('../../utils/evalSecurity.js');
+const { runWhereInWorker, runWhereInRemote } = require('../../utils/evalSecurity.js');
+jest.mock('node-fetch', () => jest.fn());
+const fetch = require('node-fetch');
 
 describe('runWhereInWorker - évaluation $where en worker terminable', () => {
   test('retourne les indices des items matchant (== true)', async () => {
@@ -44,4 +46,31 @@ describe('runWhereInWorker - évaluation $where en worker terminable', () => {
     expect(error).toBeDefined();
     expect(`${error.message}`).toMatch(/timed out/);
   }, 5000);
+});
+
+describe('runWhereInRemote - appel signé au eval-service (/where)', () => {
+  test('retourne le champ `matches` de la réponse /where (pas `result`)', async () => {
+    // La réponse de la route /where est { ok:true, matches:[...] } — différente
+    // de /eval ({ ok:true, result }). postEval doit lire `matches`.
+    fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ ok: true, matches: [1, 2] })
+    });
+    const items = [{ age: 10 }, { age: 25 }, { age: 18 }];
+    const matches = await runWhereInRemote('obj.age >= 18', items);
+    expect(matches).toEqual([1, 2]);
+  });
+
+  test('réponse { ok:false, error } -> rejet', async () => {
+    fetch.mockResolvedValue({
+      ok: true,
+      json: async () => ({ ok: false, error: 'boom' })
+    });
+    await expect(runWhereInRemote('obj.x', [{ x: 1 }])).rejects.toThrow(/boom/);
+  });
+
+  test('HTTP non-OK -> rejet', async () => {
+    fetch.mockResolvedValue({ ok: false, status: 500 });
+    await expect(runWhereInRemote('obj.x', [{ x: 1 }])).rejects.toThrow(/eval-service HTTP 500/);
+  });
 });
