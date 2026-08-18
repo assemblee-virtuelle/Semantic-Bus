@@ -199,10 +199,13 @@ coordonnée, 90 jours). Approche adoptée en définitive (après plusieurs virag
     - Résultat : **8 604/8 604 composants compatibles**.
     - Fichier : `specifications/compatibility-matrix-prod.md`.
 15. **Config prod préparée** (`semantic-bus-prod-all/`) — `config.json` (ajout
-    `amqpStompLogin`/`amqpStompPassword`), `docker-compose.yaml` (rabbitmq standard + volumes +
-    env STOMP sur les services), `rabbit/custom_definitions.json` (user `stomp-user`, **guest
-    supprimé**), `rabbit/rabbitmq.conf` + `entrypoint.sh`, `.env.example`,
-    Makefile (`rabbit-reset`).
+     `amqpStompLogin`/`amqpStompPassword`), `docker-compose.yaml` (rabbitmq standard + volumes +
+     eval-service avec config.json montée, **aucune env**, pas de `.env`), `rabbit/custom_definitions.json`
+     (user `stomp-user`, mot de passe fort réel committé — repo privé, **guest supprimé**),
+     `rabbit/rabbitmq.conf` + `entrypoint.sh`, Makefile (`rabbit-reset`).
+     ⚠️ **Stratégie de config du projet : tout est dans `config.json`** (MongoDB, SMTP,
+     Google OAuth, Stripe, `amqpStomp*`, `secret`). Même le eval-service monte `config.json`
+     pour lire le secret HMAC (symlink `@semantic-bus/engine` dans l'image).
 16. **User `guest` supprimé** — vérifié non utilisé (frontend via stomp-user, services via
     stomp-user) → retiré des définitions RabbitMQ (repo principal + prod). Plus aucun user
     `guest` avec droits.
@@ -294,14 +297,16 @@ coordonnée, 90 jours). Approche adoptée en définitive (après plusieurs virag
      Mais ⚠️ le job `test-eval-service` fait `npm ci` dans eval-service : il faut confirmer que
      ça installe bien les deps du workspace (core + jest) pour que le `npx jest` racine marche.
 
-3. **Secret HMAC du eval-service : `ENGINE_HMAC_SECRET`.**
-   - `hmac_lib.secret()` = `process.env.ENGINE_HMAC_SECRET || config.engineHmacSecret || config.secret`.
-   - En CI, `getConfiguration()` (core) échoue parfois (`Cannot find module '@semantic-bus/timer/config.json'`)
-     → secret fallback `test-secret-for-testing`. Le container eval-service utilise
-     `ENGINE_HMAC_SECRET` (= `secret` par défaut dans docker-compose). **Incohérence → 401.**
-   - **Correctif fait** : le job CI et `make test-eval` définissent `ENGINE_HMAC_SECRET=secret`.
-   - ⚠️ En prod, `ENGINE_HMAC_SECRET` doit = `config.secret` réel (docker-compose prod l'expose
-     via `${ENGINE_HMAC_SECRET:-CHANGE-ME-PROD-SECRET}`).
+3. **Secret HMAC du eval-service — plus d'env, config.json montée.**
+   - Le `eval-service` monte désormais `config.json` (`/data/packages/engine/config.json`)
+     et son image expose un symlink `@semantic-bus/engine` → `getConfiguration`
+     résout la config montée → `hmac_lib.secret()` = `config.secret`, identique à
+     l'engine. **Plus aucune variable `ENGINE_HMAC_SECRET` / `.env` requise.**
+   - En CI, `getConfiguration()` (core) échoue parfois (`Cannot find module
+     '@semantic-bus/timer/config.json'`) → secret fallback `test-secret-for-testing`.
+     Le job CI et `make test-eval` définissent donc `ENGINE_HMAC_SECRET=secret`
+     **uniquement côté test** (signature du client de test), aligné sur le secret
+     de dev. En prod, `test-eval` lit le secret depuis `config.json`.
 
 4. **`npm test` en CI vs local.**
    - Les tests passent en local avec `npx jest --forceExit`. Le `npm test` (= `jest --detectOpenHandles`)
