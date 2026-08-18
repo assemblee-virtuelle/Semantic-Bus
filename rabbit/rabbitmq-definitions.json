@@ -1,0 +1,61 @@
+{
+  "rabbit_version": "3.9.0",
+  "users": [
+    {
+      "name": "stomp-user",
+      "password_hash": "GeQ3SRoOOyNejUvqu3xujLhfQaEFGKWKRq/0EW7tZ1uQQ0MI",
+      "hashing_algorithm": "rabbit_password_hashing_sha256",
+      "tags": "monitoring"
+    }
+  ],
+  "vhosts": [
+    { "name": "/" },
+    { "name": "devLocal" },
+    { "name": "dataPlayersProd" }
+  ],
+  "permissions": [
+    {
+      "user": "stomp-user",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    },
+    {
+      "user": "stomp-user",
+      "vhost": "devLocal",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    },
+    {
+      "user": "stomp-user",
+      "vhost": "dataPlayersProd",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
+  "topic_permissions": [],
+  "parameters": [],
+  "global_parameters": [],
+  "policies": [],
+  "queues": [
+    {
+      "name": "work-ask",
+      "vhost": "devLocal",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "work-ask",
+      "vhost": "dataPlayersProd",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    }
+  ],
+  "exchanges": [],
+  "bindings": []
+}
