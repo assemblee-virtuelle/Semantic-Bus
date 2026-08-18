@@ -48,6 +48,21 @@ describe('hmac_lib - signature HMAC des appels d\'exécution', () => {
     const b = hmac.sign('x', { b: 2, a: 1 }, ts);
     expect(a.signature).toBe(b.signature);
   });
+
+  test('sign avec un ObjectId bson : la signature survive à un aller-retour JSON (normalisation)', () => {
+    // Cas réel : workspace_lib (timer) signe avec component._id (ObjectId mongo)
+    // et le vérificateur reçoit le corps après un aller-retour JSON (hex).
+    const { ObjectId } = require('mongodb');
+    const oid = new ObjectId('696518bec4d126b4fab958cb');
+    const body = { id: oid, queryParams: { a: 1 } };
+    const { signature, timestamp } = hmac.sign(oid, body);
+    // Round-trip JSON = ce que voit le vérificateur (requête HTTP)
+    const roundTrippedBody = JSON.parse(JSON.stringify(body));
+    expect(hmac.verify(String(oid), roundTrippedBody, {
+      [hmac.HMAC_HEADER]: signature,
+      [hmac.HMAC_TIMESTAMP_HEADER]: timestamp
+    })).toBe(true);
+  });
 });
 
 describe('hmac_lib - signMessage/verifyMessage (messages AMQP work-ask)', () => {
@@ -79,5 +94,18 @@ describe('hmac_lib - signMessage/verifyMessage (messages AMQP work-ask)', () => 
 
   test('verifyMessage ignore un message signé en JWT (pas de champ hmac)', () => {
     expect(hmac.verifyMessage({ id: 'comp1', token: 'abc.def.ghi' })).toBe(false);
+  });
+
+  test('signMessage avec un ObjectId : verifyMessage valide après round-trip JSON', () => {
+    // Cas réel : httpProvider/upload signent avec component._id (ObjectId mongo)
+    // et le message est sérialisé JSON puis reparsé côté engine.
+    const { ObjectId } = require('mongodb');
+    const oid = new ObjectId('696518bec4d126b4fab958cb');
+    const msg = hmac.signMessage(oid, {
+      id: oid,
+      queryParams: { query: {}, body: {}, headers: {}, method: 'GET' }
+    });
+    const roundTripped = JSON.parse(JSON.stringify(msg));
+    expect(hmac.verifyMessage(roundTripped)).toBe(true);
   });
 });

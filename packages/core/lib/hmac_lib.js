@@ -58,7 +58,15 @@ function canonicalStringify(value) {
  */
 function sign(componentId, body, timestamp) {
   const ts = timestamp || Date.now();
-  const message = `${componentId}.${ts}.${canonicalStringify(body || {})}`;
+  // Normalisation JSON : les valeurs bson (ObjectId mongo...) deviennent leur
+  // représentation sérialisée (hex). Le vérificateur reçoit toujours le corps
+  // après un aller-retour JSON (requête HTTP ou message AMQP), donc la
+  // signature doit être calculée sur cette forme normalisée — sinon le
+  // canonicalStringify d'un ObjectId (`{}`, propriétés non énumérables) ne
+  // correspond jamais à la valeur hex reçue côté vérification.
+  const rawBody = body == null ? {} : body;
+  const normalizedBody = JSON.parse(JSON.stringify(rawBody));
+  const message = `${String(componentId)}.${ts}.${canonicalStringify(normalizedBody)}`;
   const signature = crypto.createHmac('sha256', secret()).update(message).digest('hex');
   return { signature, timestamp: ts };
 }
