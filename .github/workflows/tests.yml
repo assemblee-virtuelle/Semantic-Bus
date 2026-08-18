@@ -101,4 +101,43 @@ jobs:
         run: |
           echo "🧪 Testing timer package with Node 20..."
           cd packages/timer
-          npm test 
+          npm test
+
+  test-eval-service:
+    name: 🔒 Test Eval-Service (container d'évaluation)
+    runs-on: ubuntu-latest
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20.x'
+
+      - name: Install dependencies
+        run: |
+          cd packages/eval-service
+          npm ci
+
+      - name: Build & start eval-service container
+        run: |
+          echo "🐳 Building and starting eval-service container..."
+          docker compose -f docker-compose.yaml up -d --build eval-service
+
+      - name: Wait for eval-service health
+        run: |
+          for i in $(seq 1 60); do
+            if curl -sf http://localhost:8083/health >/dev/null 2>&1; then
+              echo "✅ eval-service healthy"
+              break
+            fi
+            sleep 2
+          done
+          curl -sf http://localhost:8083/health || { echo "❌ eval-service not healthy"; docker logs eval-service; exit 1; }
+
+      - name: Run eval-service integration tests
+        run: |
+          echo "🧪 Testing eval-service (container) with real prod patterns..."
+          EVAL_SERVICE_URL=http://localhost:8083 ENGINE_HMAC_SECRET=${ENGINE_HMAC_SECRET:-secret} npx jest packages/eval-service/__tests__/eval-service.integration.test.js
