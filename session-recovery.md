@@ -97,6 +97,15 @@ coordonnée, 90 jours). Approche adoptée en définitive (après plusieurs virag
 
 ### ✅ Fait dans cette reprise (suite de la session)
 
+0. **Fix HMAC : normalisation du corps avant signature (ObjectId mongo)** —
+   `canonicalStringify` d'un ObjectId retournait `{}` (propriétés non énumérables)
+   → la signature était calculée sur `"id":{}` alors que le vérificateur reçoit le
+   corps après un aller-retour JSON (`"id":"<hex>"`) → refus systématique des
+   work-ask du httpProvider/upload (`unauthenticated message refused`) et des
+   appels HTTP du timer/eval-service. `hmac_lib.sign()` normalise désormais le
+   corps (`JSON.parse(JSON.stringify(body))`) avant le calcul. 2 tests ajoutés.
+   Commit `9e63c450`.
+
 1. **Câbler le timeout (point 3)** — `runEvalInWorker` dans `evalSecurity.js` exécute
    le `eval` des transformations dans un **`worker_threads` TERMINABLE** (`evalWorker.js`),
    avec un timeout strict (configurable via `config.evalTimeoutMs`, défaut 10 s). Le `eval`
@@ -247,8 +256,9 @@ coordonnée, 90 jours). Approche adoptée en définitive (après plusieurs virag
 - **Engine : 11 suites, 123 tests passent** (`cd packages/engine && npx jest`)
   (100 + 7 whereWorker + 6 validateExpression [crypto/proto-pollution/eval/Buffer] + 6 compat
   prod [eval/Buffer] + 4 sécurité runtime eval/require)
-- **Core : 6 suites, 42 tests passent** (`cd packages/core && npx jest`)
-  (11 initiaux + 6 hmac + 6 specificDataValidator + 6 hmac signMessage + 9 engineWorkAuth + 4 amqpUrl)
+- **Core : 6 suites, 44 tests passent** (`cd packages/core && npx jest`)
+  (11 initiaux + 6 hmac + 6 specificDataValidator + 6 hmac signMessage + 9 engineWorkAuth + 4 amqpUrl
+  + **2 tests ObjectId HMAC**)
 - **Timer : 1 suite, 17 tests passent** (`cd packages/timer && npx jest`)
 - **Eval-service : 13 tests d'intégration passent** (`make test-eval`, container + cas réels prod)
 - Lint : 0 erreur sur les fichiers modifiés/créés (warnings de style pré-existants).
