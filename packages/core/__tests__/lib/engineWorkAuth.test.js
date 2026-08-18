@@ -4,34 +4,36 @@ jest.mock('../../lib/user_lib.js', () => ({
 jest.mock('../../lib/workspace_component_lib.js', () => ({
   get: jest.fn()
 }));
-jest.mock('../../lib/auth_lib.js', () => ({
-  get_decoded_jwt: jest.fn()
+jest.mock('jwt-simple', () => ({
+  decode: jest.fn()
 }));
 
 const user_lib = require('../../lib/user_lib.js');
 const workspace_component_lib = require('../../lib/workspace_component_lib.js');
-const auth_lib = require('../../lib/auth_lib.js');
+const jwt = require('jwt-simple');
 const { authorizeWorkAsk, getUserFromToken } = require('../../lib/engineWorkAuth.js');
 
 const config = { adminUsers: ['admin@example.com'] };
 
 // Simule un JWT valide/non expiré pour l'utilisateur `userId`.
 function mockValidToken(userId) {
-  auth_lib.get_decoded_jwt.mockReturnValue({
+  jwt.decode.mockReturnValue({
     iss: userId,
     exp: Math.floor(Date.now() / 1000) + 3600
   });
 }
 // Simule un JWT expiré.
 function mockExpiredToken(userId) {
-  auth_lib.get_decoded_jwt.mockReturnValue({
+  jwt.decode.mockReturnValue({
     iss: userId,
     exp: Math.floor(Date.now() / 1000) - 100
   });
 }
-// Simule un JWT invalide (get_decoded_jwt renvoie false).
+// Simule un JWT invalide (decode lève une exception).
 function mockInvalidToken() {
-  auth_lib.get_decoded_jwt.mockReturnValue(false);
+  jwt.decode.mockImplementation(() => {
+    throw new Error('invalid token');
+  });
 }
 
 describe('engineWorkAuth - autorisation des messages work-ask', () => {
@@ -119,7 +121,7 @@ describe('engineWorkAuth - autorisation des messages work-ask', () => {
 
   test('getUserFromToken retourne null pour un token invalide/absent', () => {
     expect(getUserFromToken(null)).toBe(null);
-    auth_lib.get_decoded_jwt.mockReturnValue(false);
+    mockInvalidToken();
     expect(getUserFromToken('bad')).toBe(null);
   });
 });

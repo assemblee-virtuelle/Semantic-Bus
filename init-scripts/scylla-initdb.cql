@@ -1,9 +1,11 @@
 -- Créez le keyspace avec une stratégie de réplication adaptée
+-- TABLETS disabled : préserve le comportement classique (vnodes) attendu par
+-- l'app (SimpleStrategy ne supporte pas les tablets des Scylla 2026+).
 CREATE KEYSPACE IF NOT EXISTS mykeyspace 
 WITH replication = {
   'class': 'SimpleStrategy',  -- Pour la production, envisagez 'NetworkTopologyStrategy'
   'replication_factor': 1     -- Pour la production, utilisez un facteur de réplication plus élevé
-};
+} AND TABLETS = { 'enabled': false };
 
 -- Créez la table avec uniquement la colonne id si elle n'existe pas
 CREATE TABLE IF NOT EXISTS mykeyspace.fragment (

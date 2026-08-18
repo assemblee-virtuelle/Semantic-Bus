@@ -142,6 +142,7 @@ services:
     image: rabbitmq:3-management
     container_name: rabbitmq
     entrypoint: /rabbit/entrypoint.sh
+    command: ["rabbitmq-server"]
     ports:
       - 5672:5672
       - 15674:15674

@@ -14,9 +14,15 @@
 // l'exécution d'un workflow auquel il n'a pas accès.
 // -----------------------------------------------------------------------------
 
-const auth_lib_jwt = require('./auth_lib.js');
+const jwt = require('jwt-simple');
+const getConfiguration = require('../getConfiguration.js');
 const user_lib = require('./user_lib.js');
 const workspace_component_lib = require('./workspace_component_lib.js');
+
+// Config de l'engine (getConfiguration tombe sur @semantic-bus/engine/config.json
+// dans le container engine). On évite auth_lib.js qui tire passport/Google
+// (google_auth_strategy exige ../../main/config.json, absent du container engine).
+const config = getConfiguration();
 
 // Rôles autorisés à déclencher l'exécution d'un composant.
 const ALLOWED_ROLES = new Set(['owner', 'editor']);
@@ -28,7 +34,12 @@ const ALLOWED_ROLES = new Set(['owner', 'editor']);
  */
 function getUserFromToken(token) {
   if (!token || typeof token !== 'string') return null;
-  const decoded = auth_lib_jwt.get_decoded_jwt(token);
+  let decoded;
+  try {
+    decoded = jwt.decode(token, config.secret);
+  } catch {
+    return null;
+  }
   if (!decoded || !decoded.iss) return null;
   if (!decoded.exp || new Date(decoded.exp * 1000) < Date.now()) return null;
   return decoded.iss;
