@@ -79,7 +79,6 @@ services:
         - AMQP_STOMP_LOGIN=${AMQP_STOMP_LOGIN:-stomp-user}
         - AMQP_STOMP_PASSWORD=${AMQP_STOMP_PASSWORD:-change-me-stomp-password}
         - EVAL_SERVICE_URL=http://eval-service:8083
-        - ENGINE_HMAC_SECRET=${ENGINE_HMAC_SECRET:-secret}
     volumes:
       - ./packages/engine:/data/packages/engine/
       - ./packages/core:/data/packages/core/
@@ -169,7 +168,8 @@ services:
     environment:
       - APP_PORT=8083
       - EVAL_TIMEOUT_MS=10000
-      - ENGINE_HMAC_SECRET=${ENGINE_HMAC_SECRET:-secret}
+    volumes:
+      - ./config.local.json:/data/packages/engine/config.json
     ports:
       - "8083:8083"
     networks:
