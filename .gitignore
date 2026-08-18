@@ -113,3 +113,10 @@ temp/
 # Exceptions for dist directories
 !/packages/main/client/static/js/jsonEditor/dist/
 !/packages/main/client/static/js/jszip/dist/
+
+# Local dev tooling (not part of the project)
+.cgcignore
+.playwright-mcp/
+filter-proxy.py
+graph-proxy.py
+graphify-out/
