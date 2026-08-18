@@ -1,6 +1,6 @@
 .DEFAULT_GOAL := help
 .PHONY: docker-build docker-up build start log stop restart \
-        rabbit-up rabbit-reset rabbit-set-password rabbit-hash \
+        rabbit-up rabbit-reset \
         eval-up test-eval
 
 DOCKER_COMPOSE=docker compose -f docker-compose.yaml
@@ -39,19 +39,6 @@ rabbit-reset:
 	$(DOCKER_COMPOSE) rm -fv rabbitmq || true
 	docker volume ls -q | grep rabbitmq_data | xargs -r docker volume rm -f
 	$(DOCKER_COMPOSE) up -d --force-recreate rabbitmq
-
-# Régénère le password_hash RabbitMQ de stomp-user pour un nouveau mot de passe.
-# Usage : make rabbit-set-password PASSWORD=<nouveau-mot-de-passe>
-rabbit-set-password:
-	@test -n "$(PASSWORD)" || (echo "Usage: make rabbit-set-password PASSWORD=<mdp>"; exit 1)
-	python3 rabbit/hash_password.py "$(PASSWORD)"
-
-# Affiche le hash actuel sans modifier (rappel de la commande)
-rabbit-hash:
-	@echo "Pour changer le mot de passe stomp-user :"
-	@echo "  make rabbit-set-password PASSWORD=<nouveau-mot-de-passe>"
-	@echo "Puis rejouer les définitions : make rabbit-reset"
-	@echo "Et aligner l'env/config (AMQP_STOMP_PASSWORD / amqpStompPassword)."
 
 # Eval-service (container d'évaluation isolé)
 eval-up:

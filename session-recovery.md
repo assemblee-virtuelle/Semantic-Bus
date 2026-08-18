@@ -157,9 +157,10 @@ coordonnée, 90 jours). Approche adoptée en définitive (après plusieurs virag
     - `make rabbit-up` : (re)crée le conteneur rabbitmq.
     - `make rabbit-reset` : **reconstruit proprement** RabbitMQ (stop + rm + suppression du
       volume `rabbitmq_data` + up) → recharge les définitions (users/vhosts/queues) au démarrage.
-    - `make rabbit-set-password PASSWORD=<mdp>` : régénère le `password_hash` de `stomp-user`
-      dans `rabbit/rabbitmq-definitions.json` via `rabbit/hash_password.py`.
-    - `make rabbit-hash` : rappel de la procédure.
+    - Le user `stomp-user` est défini avec son **mot de passe en clair** dans les définitions
+      (dev, pas un vrai secret ; la prod est dans un repo privé séparé). Pour changer le mot de
+      passe : éditer `"password"` dans `rabbit/rabbitmq-definitions.json` + `amqpStompPassword`
+      (config) puis `make rabbit-reset`.
 11. **`$where` (filter/arraySplitByCondition) exécuté dans le eval-service (container)** — la
     condition `$where` (validée par `validateExpression`) est évaluée via `runWhereInRemote`
     (route `/where` du eval-service), cohérent avec le transformateur : isolation + timeout
@@ -191,8 +192,8 @@ coordonnée, 90 jours). Approche adoptée en définitive (après plusieurs virag
 15. **Config prod préparée** (`semantic-bus-prod-all/`) — `config.json` (ajout
     `amqpStompLogin`/`amqpStompPassword`), `docker-compose.yaml` (rabbitmq standard + volumes +
     env STOMP sur les services), `rabbit/custom_definitions.json` (user `stomp-user`, **guest
-    supprimé**), `rabbit/rabbitmq.conf` + `entrypoint.sh` + `hash_password.py`, `.env.example`,
-    Makefile (`rabbit-reset`, `rabbit-set-password`).
+    supprimé**), `rabbit/rabbitmq.conf` + `entrypoint.sh`, `.env.example`,
+    Makefile (`rabbit-reset`).
 16. **User `guest` supprimé** — vérifié non utilisé (frontend via stomp-user, services via
     stomp-user) → retiré des définitions RabbitMQ (repo principal + prod). Plus aucun user
     `guest` avec droits.
@@ -229,9 +230,9 @@ coordonnée, 90 jours). Approche adoptée en définitive (après plusieurs virag
   (racine) comme sa config** — c'est le même fichier copié dans tous les conteneurs. Les
   fichiers vides ne posent donc problème **qu'en exécution hors docker** (standalone) où
   `require('./config.json')` retournerait `{}`. Ne pas bloquant si on passe par docker.
-- **Changement du mot de passe STOMP** : utiliser `make rabbit-set-password PASSWORD=<mdp>`
-  (met à jour les définitions), puis `make rabbit-reset` (rejoue les définitions), puis aligner
-  l'env/config (`AMQP_STOMP_PASSWORD` / `amqpStompPassword`) + config prod.
+- **Changement du mot de passe STOMP** : éditer `"password"` dans
+  `rabbit/rabbitmq-definitions.json` (dev) et aligner l'env/config
+  (`AMQP_STOMP_PASSWORD` / `amqpStompPassword`) + config prod, puis `make rabbit-reset`.
 - **RabbitMQ `load_definitions`** : les définitions ne s'appliquent **qu'au premier démarrage**
   (base vide). Pour recharger sur un volume existant, utiliser **`make rabbit-reset`** (supprime
   le volume `rabbitmq_data` puis recrée le conteneur).
@@ -326,4 +327,4 @@ npm install --legacy-peer-deps               # restaure tout le workspace
 - Le container `eval-service` a été construit et lancé via `docker compose up -d --force-recreate
   eval-service` (port 8083). Si absent, `make test-eval` le recrée.
 - Le mot de passe STOMP `stomp-user` reste `change-me-stomp-password` (dev) — à renforcer en prod
-  via `make rabbit-set-password`.
+  (définitions prod + config, puis `make rabbit-reset`).
