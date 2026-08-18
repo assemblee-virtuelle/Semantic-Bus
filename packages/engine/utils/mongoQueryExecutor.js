@@ -228,10 +228,11 @@ async function executeQuery(collection, queryString) {
 
   // Matérialise un cursor en array si l'objet ressemble à un cursor Mongo
   // (toArray + itérable) — indépendamment du nom de la classe (les mocks et
-  // les versions du driver diffèrent).
+  // les versions du driver diffèrent). Les cursors du driver sont
+  // async-itérables (`Symbol.asyncIterator`), pas sync (`Symbol.iterator`).
   function isCursorLike(obj) {
     return obj != null && typeof obj.toArray === 'function' &&
-      typeof obj[Symbol.iterator] === 'function';
+      (typeof obj[Symbol.iterator] === 'function' || typeof obj[Symbol.asyncIterator] === 'function');
   }
 
   for (let i = 0; i < steps.length; i++) {

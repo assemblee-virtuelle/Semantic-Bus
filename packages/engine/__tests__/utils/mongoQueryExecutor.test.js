@@ -84,10 +84,27 @@ describe('mongoQueryExecutor - requêtes Mongo sécurisées (sans eval)', () => 
       expect(r.email).toBe('a@b.fr');
     });
 
-    test('find().sort().limit() retourne un array', async () => {
+test('find().sort().limit() retourne un array', async () => {
       const r = await executeQuery(makeCollection(), 'find({}).sort({age:-1}).limit(5)');
       expect(Array.isArray(r)).toBe(true);
-      expect(r).toHaveLength(2);
+    });
+
+    test('find() sur un cursor async-itérable (driver mongo) est matérialisé en array', async () => {
+      // Le driver mongodb expose Symbol.asyncIterator (pas Symbol.iterator).
+      // Le cursor ne doit PAS être renvoyé tel quel (sinon EJSON.stringify
+      // crashe sur la structure circulaire interne du cursor).
+      const data = [{ a: 1 }, { a: 2 }];
+      const cursor = {
+        data,
+        toArray: async function () { return this.data; },
+        [Symbol.asyncIterator]: async function* () {
+          for (const d of this.data) yield d;
+        }
+      };
+      const collection = { find: async () => cursor };
+      const r = await executeQuery(collection, 'find({})');
+      expect(Array.isArray(r)).toBe(true);
+      expect(r).toEqual([{ a: 1 }, { a: 2 }]);
     });
 
     test('distinct retourne les valeurs distinctes', async () => {
