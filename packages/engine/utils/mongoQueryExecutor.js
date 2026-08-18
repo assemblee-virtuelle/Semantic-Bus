@@ -13,8 +13,9 @@
 //   - METHODE   ∈ whitelist (find, findOne, sort, limit, skip, count,
 //               countDocuments, distinct, aggregate, toArray, project, ...)
 //   - argsJSON  = littéraux JSON uniquement (objets, tableaux, strings,
-//               nombres, booléens, null). Aucun identifiant, aucune fonction,
-//               aucune expression.
+//               nombres, booléens, null) + constructeurs whitelistés
+//               (ObjectId, ISODate, Date, NumberLong, NumberDecimal) qui sont
+//               déterministes et ne permettent aucune exécution de code.
 //
 // La validation se fait SUR LA CHAÎNE FINALE, APRÈS interpolation par
 // stringReplacer (les valeurs {£.x}/{$.y} peuvent provenir de sources
@@ -36,6 +37,16 @@ const ALLOWED_METHODS = new Set([
 const CURSOR_METHODS = new Set([
   'find', 'aggregate'
 ]);
+
+// Constructeurs autorisés en position de valeur (types BSON). Ils sont
+// déterministes (pas d'exécution de code) : ObjectId("..."), ISODate("..."),
+// Date("..."), NumberLong(42), NumberDecimal("1.5"). Remplacent les appels
+// `new ObjectId(...)` de l'ancien code basé sur eval.
+const ALLOWED_CONSTRUCTORS = new Set([
+  'ObjectId', 'ISODate', 'Date', 'NumberLong', 'NumberDecimal'
+]);
+
+const { ObjectId, Long, Decimal128 } = require('mongodb');
 
 class MongoQueryValidationError extends Error {}
 
@@ -163,6 +174,26 @@ function parseQuery(queryString) {
     else if (source.startsWith('false', pos)) { pos += 5; return false; }
     else if (source.startsWith('null', pos)) { pos += 4; return null; }
     else if (source.startsWith('undefined', pos)) { pos += 9; return undefined; }
+    // Constructeurs whitelistés : `new ObjectId("...")` ou `ObjectId("...")`.
+    // Marqueur `__mongoCtor` résolu à l'exécution en instance BSON réelle.
+    const ctorMatch = /^(?:new\s+)?(ObjectId|ISODate|Date|NumberLong|NumberDecimal)\s*\(/.exec(source.slice(pos));
+    if (ctorMatch) {
+      pos += ctorMatch[0].length;
+      const args = [];
+      skipWhitespace();
+      if (source[pos] === ')') {
+        pos++;
+      } else {
+        while (pos < source.length) {
+          args.push(parseLiteral(depth + 1));
+          skipWhitespace();
+          if (source[pos] === ',') { pos++; continue; }
+          if (source[pos] === ')') { pos++; break; }
+          throw new MongoQueryValidationError(`Expected ',' or ')' at position ${pos}`);
+        }
+      }
+      return { __mongoCtor: ctorMatch[1], args };
+    }
     throw new MongoQueryValidationError(`Unexpected token at position ${pos}: '${source.slice(pos, pos + 20)}'`);
   };
 
@@ -226,6 +257,29 @@ async function executeQuery(collection, queryString) {
   let current = collection;
   const cursorMethods = new Set(CURSOR_METHODS);
 
+  // Résout récursivement les marqueurs de constructeurs (ObjectId, Date, ...)
+  // en instances BSON réelles, avant l'appel de la méthode.
+  function resolveValue(v) {
+    if (Array.isArray(v)) return v.map(resolveValue);
+    if (v && typeof v === 'object' && v.__mongoCtor) {
+      const name = v.__mongoCtor;
+      const args = v.args.map(resolveValue);
+      switch (name) {
+        case 'ObjectId': return new ObjectId(args[0]);
+        case 'ISODate':
+        case 'Date': return new Date(args[0]);
+        case 'NumberLong': return Long.fromNumber(args[0]);
+        case 'NumberDecimal': return Decimal128.fromString(String(args[0]));
+      }
+    }
+    if (v && typeof v === 'object') {
+      const out = {};
+      for (const k of Object.keys(v)) out[k] = resolveValue(v[k]);
+      return out;
+    }
+    return v;
+  }
+
   // Matérialise un cursor en array si l'objet ressemble à un cursor Mongo
   // (toArray + itérable) — indépendamment du nom de la classe (les mocks et
   // les versions du driver diffèrent). Les cursors du driver sont
@@ -242,7 +296,8 @@ async function executeQuery(collection, queryString) {
       throw new MongoQueryValidationError(`Method ${method} is not available on this object`);
     }
     // Les arguments ont déjà été validés comme littéraux JSON à la compilation.
-    current = await fn.apply(current, args);
+    const resolvedArgs = args.map(resolveValue);
+    current = await fn.apply(current, resolvedArgs);
 
     // Si on a un cursor (find/aggregate) et que c'est la dernière étape,
     // on matérialise en array.

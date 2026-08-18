@@ -121,4 +121,49 @@ test('find().sort().limit() retourne un array', async () => {
       await expect(executeQuery(makeCollection(), '')).rejects.toThrow();
     });
   });
+
+  describe('constructeurs whitelistés (ObjectId, ISODate, NumberLong, ...)', () => {
+    test('parse `new ObjectId("...")` en marqueur résolu à l\'exécution', async () => {
+      const steps = parseQuery('find({ project: new ObjectId("67f3b279bb24fd7b3a5ff36b") })');
+      expect(steps[0].args[0].project).toEqual({
+        __mongoCtor: 'ObjectId',
+        args: ['67f3b279bb24fd7b3a5ff36b']
+      });
+      const { ObjectId } = require('mongodb');
+      const collection = {
+        find: async (filter) => {
+          expect(filter.project).toBeInstanceOf(ObjectId);
+          expect(filter.project.toHexString()).toBe('67f3b279bb24fd7b3a5ff36b');
+          return [filter];
+        }
+      };
+      const r = await executeQuery(collection, 'find({ project: new ObjectId("67f3b279bb24fd7b3a5ff36b") })');
+      expect(r[0].project.toHexString()).toBe('67f3b279bb24fd7b3a5ff36b');
+    });
+
+    test('ObjectId sans `new` et ISODate dans un aggregate', async () => {
+      const steps = parseQuery('aggregate([{ $match: { _id: ObjectId("abc"), createdAt: { $gte: ISODate("2024-01-01T00:00:00Z") } } }])');
+      const match = steps[0].args[0][0].$match;
+      expect(match._id.__mongoCtor).toBe('ObjectId');
+      expect(match.createdAt.$gte).toEqual({ __mongoCtor: 'ISODate', args: ['2024-01-01T00:00:00Z'] });
+    });
+
+    test('NumberLong et NumberDecimal résolus', async () => {
+      const collection = {
+        find: async (filter) => {
+          expect(filter.n).toBeInstanceOf(require('mongodb').Long);
+          expect(filter.d).toBeInstanceOf(require('mongodb').Decimal128);
+          return [filter];
+        }
+      };
+      const r = await executeQuery(collection, 'find({ n: NumberLong(42), d: NumberDecimal("1.5") })');
+      expect(r[0].n.toNumber()).toBe(42);
+      expect(r[0].d.toString()).toBe('1.5');
+    });
+
+    test('constructeur non whitelisté rejeté', () => {
+      expect(() => parseQuery('find({ a: eval("1+1") })')).toThrow(/Unexpected token/);
+      expect(() => parseQuery('find({ a: ObjectIdMath(1) })')).toThrow(/Unexpected token/);
+    });
+  });
 });
