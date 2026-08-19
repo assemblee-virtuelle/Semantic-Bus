@@ -120,3 +120,6 @@ temp/
 filter-proxy.py
 graph-proxy.py
 graphify-out/
+
+# Internal security follow-up docs (non public)
+advisories/internal/
