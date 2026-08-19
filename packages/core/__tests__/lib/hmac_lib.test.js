@@ -52,7 +52,9 @@ describe('hmac_lib - signature HMAC des appels d\'exécution', () => {
   test('sign avec un ObjectId bson : la signature survive à un aller-retour JSON (normalisation)', () => {
     // Cas réel : workspace_lib (timer) signe avec component._id (ObjectId mongo)
     // et le vérificateur reçoit le corps après un aller-retour JSON (hex).
-    const { ObjectId } = require('mongodb');
+    // NB: bson (dépendance directe de core) fournit ObjectId — mongodb n'est
+    // pas déclaré comme dép de core (résolution CI par package).
+    const { ObjectId } = require('bson');
     const oid = new ObjectId('696518bec4d126b4fab958cb');
     const body = { id: oid, queryParams: { a: 1 } };
     const { signature, timestamp } = hmac.sign(oid, body);
@@ -155,7 +157,7 @@ describe('hmac_lib - signMessage/verifyMessage (messages AMQP work-ask)', () => 
   test('signMessage avec un ObjectId : verifyMessage valide après round-trip JSON', () => {
     // Cas réel : httpProvider/upload signent avec component._id (ObjectId mongo)
     // et le message est sérialisé JSON puis reparsé côté engine.
-    const { ObjectId } = require('mongodb');
+    const { ObjectId } = require('bson');
     const oid = new ObjectId('696518bec4d126b4fab958cb');
     const msg = hmac.signMessage(oid, {
       id: oid,
