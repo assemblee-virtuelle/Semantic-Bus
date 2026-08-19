@@ -3,7 +3,6 @@
 const userModel = require('../models/user_model');
 const pattern = require('../helpers').patterns;
 const bcrypt = require('bcryptjs');
-const sift = require('sift').default;
 const graphTraitement = require('../helpers/graph-traitment');
 const historiqueModel = require('../models').historiqueEnd;
 const SecureMailModel = require('../models/security_mail');
@@ -218,11 +217,7 @@ async function _getWithRelations(userID, config) {
   }).lean().exec();
   // console.log('XXXX InversRelationWorkspaces',InversRelationWorkspaces)
   data.workspaces = InversRelationWorkspaces;
-  data.workspaces = data.workspaces.filter(sift({
-    _id: {
-      $ne: null
-    }
-  }));
+  data.workspaces = data.workspaces.filter(w => w._id != null);
 
   data.workspaces = data.workspaces.map(w => {
     const userOfWorkspace = w.users.find(u => u.email === data.credentials.email);

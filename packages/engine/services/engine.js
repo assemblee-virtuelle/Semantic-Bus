@@ -5,7 +5,6 @@ const ProcessNotifier = require('./ProcessNotifier');
 const clone = require('clone');
 const DfobHelper = require('@semantic-bus/core/helpers/dfobHelper');
 const technicalComponentDirectory = require('./technicalComponentDirectory.js');
-const sift = require('sift').default;
 const objectSizeOf = require('object-sizeof');
 const workspace_component_lib = require('@semantic-bus/core/lib/workspace_component_lib');
 const fragment_lib = require('@semantic-bus/core/lib/fragment_lib_scylla');
@@ -42,9 +41,9 @@ class Engine {
       console.log(' ---------- Start Engine-----------', this.workflow.name);
       this.workflow.status = 'running';
       await workspace_lib.updateSimple(this.workflow);
-      const ownerUserMail = this.workflow.users.filter(
-        sift({ role: 'owner' })
-      )[0];
+      const ownerUserMail = this.workflow.users.find(
+        u => u.role === 'owner'
+      );
       const user = await user_lib.get({
         'credentials.email': ownerUserMail.email
       });
@@ -52,16 +51,14 @@ class Engine {
         component.specificData = component.specificData || {};
       });
 
-      this.originComponent = this.componentsResolving.filter(sift({
-        _id: this.originComponent._id
-      }))[0];
+      this.originComponent = this.componentsResolving.find(c => c._id && c._id.toString() === this.originComponent._id.toString());
 
       const workAskModule = technicalComponentDirectory[this.originComponent.module];
       if (workAskModule.workAsk != undefined) {
         await workAskModule.workAsk(this.originComponent);
       }
 
-      this.pathResolution = this.buildPathResolution(
+      this.pathResolution = await this.buildPathResolution(
         workflow,
         this.originComponent,
         this.requestDirection,
@@ -155,31 +152,19 @@ class Engine {
           if (config.quietLog != true) {
           }
           let processingNode;
-          const nodeWithoutIncoming = this.pathResolution.nodes.filter(sift({
-            $and: [{
-              sources: {
-                $size: 0
-              }
-            },
-            {
-              status: 'waiting'
-            }
-            ]
-          }));
+          const nodeWithoutIncoming = this.pathResolution.nodes.filter(n =>
+            n.sources.length === 0 && n.status === 'waiting'
+          );
 
 
           if (nodeWithoutIncoming.length > 0) {
             processingNode = nodeWithoutIncoming[0];
           } else {
 
-            const nodeWithAllIncomingResolved = this.pathResolution.nodes.filter(sift({
-              status: 'waiting'
-            }));
+            const nodeWithAllIncomingResolved = this.pathResolution.nodes.filter(n => n.status === 'waiting');
 
             nodeWithAllIncomingResolved.every(n => {
-              const nbSourcesResolved = n.sources.filter(sift({
-                'source.status': 'resolved'
-              })).length;
+              const nbSourcesResolved = n.sources.filter(s => s.source.status === 'resolved').length;
 
               if (n.sources.length == nbSourcesResolved) {
                 processingNode = n;
@@ -438,9 +423,7 @@ class Engine {
             }
           } else {
 
-            const nodeOnError = this.pathResolution.nodes.filter(sift({
-              status: 'error'
-            }));
+            const nodeOnError = this.pathResolution.nodes.filter(n => n.status === 'error');
 
             if (nodeOnError.length > 0) {
               this.processNotifier.error({
@@ -711,7 +694,7 @@ class Engine {
   }
 
 
-  buildPathResolution(workspace, component, requestDirection, depth, usableComponents, buildPath, queryParams, buildPathCauseLink) {
+  async buildPathResolution(workspace, component, requestDirection, depth, usableComponents, buildPath, queryParams, buildPathCauseLink) {
     if (depth < 100) {
       if (buildPath == undefined) {
         buildPath = {};
@@ -724,23 +707,18 @@ class Engine {
       if (module.buildQueryParam != undefined) {
         queryParams = {
           origin: component._id,
-          queryParams: module.buildQueryParam(queryParams ? queryParams.queryParams : undefined, component.specificData)
+          queryParams: await module.buildQueryParam(queryParams ? queryParams.queryParams : undefined, component.specificData)
         };
       }
 
-      const existingNodesFilter = {
-        'component._id': component._id
-      };
-
-      if (queryParams != undefined) {
-        existingNodesFilter['queryParams.origin'] = queryParams.origin;
-      } else {
-        existingNodesFilter['queryParams'] = {
-          $eq: undefined
-        };
-      }
-
-      const existingNodes = buildPath.nodes.filter(sift(existingNodesFilter));
+      const existingNodes = buildPath.nodes.filter(n =>
+        n.component && n.component._id && n.component._id.toString() === component._id.toString() &&
+        (
+          queryParams != undefined
+            ? n.queryParams != null && n.queryParams.origin != null && n.queryParams.origin.toString() === queryParams.origin.toString()
+            : n.queryParams == null
+        )
+      );
 
       let buildPathNode;
       if (existingNodes.length == 0) {
@@ -766,13 +744,10 @@ class Engine {
         }
       }
 
-      const connectionsBefore = workspace.links.filter(sift({
-        target: component._id
-      }));
+      const componentId = component._id && component._id.toString();
+      const connectionsBefore = workspace.links.filter(l => l.target && l.target.toString() === componentId);
 
-      const connectionsAfter = workspace.links.filter(sift({
-        source: component._id
-      }));
+      const connectionsAfter = workspace.links.filter(l => l.source && l.source.toString() === componentId);
 
       if (requestDirection != 'push') {
         if (
@@ -780,23 +755,19 @@ class Engine {
           !(requestDirection == 'pull' && module.stepNode == true)
         ) {
           for (const beforelink of connectionsBefore) {
-            const beforeComponentObject = usableComponents.filter(sift({
-              _id: beforelink.source
-            }))[0];
+            const beforeComponentObject = usableComponents.find(c => c._id && c._id.toString() === beforelink.source.toString());
 
             if (beforeComponentObject) {
-              const existingLinkFilter = {
-                'linkId': beforelink._id
-              };
-              if (queryParams != undefined) {
-                existingLinkFilter['queryParams.origin'] = queryParams.origin;
-              } else {
-                existingLinkFilter['queryParams'] = {
-                  $eq: undefined
-                };
-              }
+              const linkId = beforelink._id && beforelink._id.toString();
 
-              var existingLink = buildPath.links.filter(sift(existingLinkFilter));
+              var existingLink = buildPath.links.filter(link =>
+                link.linkId && link.linkId.toString() === linkId &&
+                (
+                  queryParams != undefined
+                    ? link.queryParams != null && link.queryParams.origin != null && link.queryParams.origin.toString() === queryParams.origin.toString()
+                    : link.queryParams == null
+                )
+              );
               if (existingLink.length == 0) {
                 var linkToProcess = {
                   target: buildPathNode,
@@ -807,7 +778,7 @@ class Engine {
                 };
                 buildPath.links.push(linkToProcess);
                 buildPathNode.sources.push(linkToProcess);
-                this.buildPathResolution(
+                await this.buildPathResolution(
                   workspace,
                   beforeComponentObject,
                   'pull',
@@ -828,22 +799,19 @@ class Engine {
           !(requestDirection == 'push' && module.stepNode == true)
         ) {
           for (const afterlink of connectionsAfter) {
-            const afterComponentObject = usableComponents.filter(sift({
-              _id: afterlink.target
-            }))[0];
+            const afterComponentObject = usableComponents.find(c => c._id && c._id.toString() === afterlink.target.toString());
 
             if (afterComponentObject) {
-              const existingLinkFilter = {
-                'linkId': afterlink._id
-              };
-              if (queryParams != undefined) {
-                existingLinkFilter['queryParams.origin'] = queryParams.origin;
-              } else {
-                existingLinkFilter['queryParams'] = {
-                  $eq: undefined
-                };
-              }
-              var existingLink = buildPath.links.filter(sift(existingLinkFilter));
+              const linkId = afterlink._id && afterlink._id.toString();
+
+              var existingLink = buildPath.links.filter(link =>
+                link.linkId && link.linkId.toString() === linkId &&
+                (
+                  queryParams != undefined
+                    ? link.queryParams != null && link.queryParams.origin != null && link.queryParams.origin.toString() === queryParams.origin.toString()
+                    : link.queryParams == null
+                )
+              );
 
               if (existingLink.length == 0) {
                 var linkToProcess = {
@@ -857,7 +825,7 @@ class Engine {
                 buildPath.links.push(linkToProcess);
                 buildPathNode.targets.push(linkToProcess);
 
-                this.buildPathResolution(
+                await this.buildPathResolution(
                   workspace,
                   afterComponentObject,
                   'push',

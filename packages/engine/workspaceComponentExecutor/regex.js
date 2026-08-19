@@ -1,4 +1,5 @@
 'use strict';
+const { runRegexInWorker } = require('../utils/evalSecurity.js');
 class Regex {
   constructor () {
     this.objectTransformation = require('../utils/objectTransformationV2.js');
@@ -13,14 +14,17 @@ class Regex {
         if(flowDataPrimary === undefined){
           throw new Error('input data can not be undefined');
         }
-        const builtRegex = new RegExp(data.specificData.regex, 'gm')
-        let result = [...flowDataPrimary.matchAll(builtRegex)]
-        
-        result = result.map(r=>r.splice(1));
-        // result = result.flat();
-        resolve({
-          data: result
-        })
+        // SÉCURITÉ (point 3 / ReDoS) : le motif specificData.regex (utilisateur)
+        // est appliqué via un worker_threads TERMINABLE avec limites de longueur
+        // et timeout. Un motif catastrophique (backtracking exponentiel) ne peut
+        // plus bloquer indéfiniment le process engine.
+        runRegexInWorker(data.specificData.regex, 'gm', flowDataPrimary)
+          .then((result) => {
+            resolve({ data: result });
+          })
+          .catch((e) => {
+            reject(e);
+          });
       } catch (e) {
         reject (e)
       }

@@ -11,6 +11,8 @@ const removeMarkdown = require('remove-markdown');
 const lodash = require('lodash');
 const sanitizeHtml = require('sanitize-html');
 const crypto = require('crypto');
+const { validateExpression } = require('./validateExpression.js');
+const { sanitizeValue, runEvalInRemote } = require('./evalSecurity.js');
 // Charger toutes les données CLDR nécessaires pour toutes les locales
 
 const allLocales = cldrData.availableLocales;
@@ -77,16 +79,16 @@ function decodeUnicode(str) {
 
 module.exports = {
   // Intl: require('intl'),
-  // moment: require('moment'),
+  moment: require('moment'),
   dotProp: require('dot-prop'),
   unicode: require('unicode-encode'),
-  executeWithParams: function (source, pullParams, jsonTransformPattern, options, config) {
+  executeWithParams: async function (source, pullParams, jsonTransformPattern, options, config) {
     // console.log('config',config);
-    const out = this.execute(source, pullParams, jsonTransformPattern, options, config);
+    const out = await this.execute(source, pullParams, jsonTransformPattern, options, config);
     return out;
   },
 
-  execute: function (source, pullParams, jsonTransformPattern, options, config) {
+  execute: async function (source, pullParams, jsonTransformPattern, options, config) {
 
     if (typeof jsonTransformPattern === 'string' || jsonTransformPattern instanceof String) {
       const regexpeEval = /^\=(.*)/gm;
@@ -97,40 +99,43 @@ module.exports = {
         const regexpeDot = /{(\$.*?|£.*?)}/gm;
         const arrayRegexDot = [...patternEval.matchAll(regexpeDot)];
         const logEval = false;
+        // Résolution des valeurs {$.path}/{£.path} À L'EXTÉRIEUR du container
+        // d'évaluation : on remplace chaque motif par un nom de variable
+        // (v0, v1, ...) et on collecte les valeurs (sanitisées) dans `variables`,
+        // envoyées SÉPARÉMENT au eval-service. Le container ne reçoit que
+        // l'expression épurée + les variables, il ne fait QUE l'évaluation.
+        const variables = {};
+        let varIndex = 0;
         for (const valueDot of arrayRegexDot) {
-          // console.log('--valueDot[1]',valueDot[1])
-          const sourceDotValue = this.getValueFromSource(source, pullParams, valueDot[1]);
-          let sourceDotValueEval = this.getValueFromSource(source, pullParams, valueDot[1]);
-          if (typeof sourceDotValueEval === 'string' || sourceDotValueEval instanceof String) {
-            sourceDotValueEval = 'this.resolveString(\'' + this.escapeString(sourceDotValueEval) + '\')';
-            patternEvalPretty = patternEvalPretty.replace(valueDot[0], `"${sourceDotValue}"`);
-          } else if (typeof sourceDotValueEval === 'object') {
-            sourceDotValueEval = 'this.parseAndResolveString(\'' + JSON.stringify(this.escapeString(sourceDotValueEval)) + '\')';
-            patternEvalPretty = patternEvalPretty.replace(valueDot[0], sourceDotValue);
-          } else if (typeof sourceDotValueEval === 'number' || !isNaN(sourceDotValueEval)) {
-            // const type = typeof sourceDotValueEval;
-            sourceDotValueEval = `Number(${sourceDotValueEval})`;
-            patternEvalPretty = patternEvalPretty.replace(valueDot[0], sourceDotValue);
-          }
-          patternEval = patternEval.replace(valueDot[0], sourceDotValueEval);
+          // SÉCURITÉ : sanitise la valeur (filtre clés dangereuses __proto__/
+          // constructor/prototype + getters) avant envoi.
+          const rawValue = this.getValueFromSource(source, pullParams, valueDot[1]);
+          const sourceDotValue = sanitizeValue(rawValue);
+          const varName = `v${varIndex++}`;
+          variables[varName] = sourceDotValue === undefined ? null : sourceDotValue;
+          patternEval = patternEval.replace(valueDot[0], varName);
+          patternEvalPretty = patternEvalPretty.replace(valueDot[0], JSON.stringify(sourceDotValue));
         }
+        // Les expressions de prod peuvent référencer `source`/`pullParams`
+        // directement (ex. `= source.data.map(...)`). On les expose en variables.
+        variables.source = sanitizeValue(source);
+        variables.pullParams = sanitizeValue(pullParams);
         try {
-          const evalResult = eval(patternEval);
+          // SÉCURITÉ : validation statique de l'expression épurée AVANT toute
+          // évaluation. Bloque process/require/globalThis/constructor/__proto__/...,
+          // limite `new`, interdit les structures de code (boucles, fonctions, I/O).
+          validateExpression(patternEval);
+          // SÉCURITÉ : exécution dans le eval-service (container isolé), appelé en
+          // HTTP signé. Pas de fallback : une erreur réseau/timeout lève ici.
+          const evalResult = await runEvalInRemote(patternEval, variables, (config && config.evalTimeoutMs) || 10000);
           // console.log('-> evalResult',evalResult)
-          // if (options && options.evaluationDetail == true) {
-          //   return { eval: evalResult };
-          // } else {
-          // console.log('return evalResult',evalResult);
           return evalResult;
-          // }
         } catch (e) {
           // console.error(e)
           // console.log('config',config.quietLog );
           if (config != undefined && config.quietLog != true) {
             console.warn(`Transformer Javascript Error : ${e.message}`);
           }
-          // if(options  && options.evaluationDetail==true){
-          // console.log('ERROR:', patternEval);
           return {
             error: 'Javascript Eval failed',
             errorDetail: {
@@ -138,22 +143,69 @@ module.exports = {
               cause: e.message
             }
           };
-          // }
         }
       } else {
         return this.getValueFromSource(source, pullParams, jsonTransformPattern);
       }
     } else if (Array.isArray(jsonTransformPattern)) {
-      return jsonTransformPattern.map((r, i) => this.execute(source, pullParams, r, options, config));
+      const results = [];
+      for (let i = 0; i < jsonTransformPattern.length; i++) {
+        results.push(await this.execute(source, pullParams, jsonTransformPattern[i], options, config));
+      }
+      return results;
     } else if (typeof jsonTransformPattern === 'object') {
       const out = {};
       for (const jsonTransformPatternKey in jsonTransformPattern) {
         // const jsonTransformPatternValue = jsonTransformPattern[jsonTransformPatternKey]
-        out[jsonTransformPatternKey] = this.execute(source, pullParams, jsonTransformPattern[jsonTransformPatternKey], options, config);
+        out[jsonTransformPatternKey] = await this.execute(source, pullParams, jsonTransformPattern[jsonTransformPatternKey], options, config);
       }
       return out;
     } else {
       return jsonTransformPattern;
+    }
+  },
+  escapeString(source) {
+    if (typeof source === 'string' || source instanceof String) {
+      return `eval(this.unicode.atou(\`${this.unicode.utoa(source)}\`))`;
+    } else if (Array.isArray(source)) {
+      return source.map(r => this.escapeString(r));
+    } else if (source != null && source.toJSON !== undefined) {
+      return this.escapeString(source.toJSON());
+    } else if (source != null && typeof source === 'object') {
+      const out = {};
+      for (const key in source) {
+        out[this.unicode.utoa(key)] = this.escapeString(source[key]);
+      }
+      return out;
+    } else {
+      return source;
+    }
+  },
+  parseAndResolveString(source) {
+    return this.resolveString(JSON.parse(source));
+  },
+  resolveString(source) {
+    if (typeof source === 'string' || source instanceof String) {
+      // SÉCURITÉ (point 1) : on ne décode que la forme EXACTE produite par notre
+      // `escapeString` : `eval(this.unicode.atou(\`...\`))`. Toute autre string
+      // est retournée telle quelle sans eval, même si elle contient un `eval(...)`
+      // — empêche `this.resolveString(donnéeUtilisateur)` de contourner le
+      // validateur en exécutant du code embarqué dans une valeur.
+      const strict = /^eval\(this\.unicode\.atou\(`([^`]*)`\)\)$/.exec(source);
+      if (strict) {
+        return this.unicode.atou(strict[1]);
+      }
+      return source;
+    } else if (Array.isArray(source)) {
+      return source.map(r => this.resolveString(r));
+    } else if (source != null && typeof source === 'object') {
+      const out = {};
+      for (const key in source) {
+        out[this.unicode.atou(key)] = this.resolveString(source[key]);
+      }
+      return out;
+    } else {
+      return source;
     }
   },
   getValueFromSource(source, pullParams, pattern) {
@@ -177,54 +229,6 @@ module.exports = {
       } else {
         return pattern;
       }
-    }
-  },
-  escapeString(source) {
-    // console.log('escapeString',source);
-    if (typeof source === 'string' || source instanceof String) {
-      // Échappe la chaîne de caractères en utilisant unicode
-      return `eval(this.unicode.atou(\`${this.unicode.utoa(source)}\`))`;
-    } else if (Array.isArray(source)) {
-      return source.map(r => this.escapeString(r));
-    } else if (source != null && source.toJSON !== undefined) {
-      const out = {};
-      const json = source.toJSON();
-      return this.escapeString(json);
-    } else if (source != null && typeof source === 'object') {
-      const out = {};
-      for (const key in source) {
-        const unicodeKey = this.unicode.utoa(key);
-        out[unicodeKey] = this.escapeString(source[key]);
-      }
-      return out;
-    } else {
-      return source;
-    }
-  },
-  parseAndResolveString(source) {
-    return (this.resolveString(JSON.parse(source)));
-  },
-  resolveString(source) {
-    if (typeof source === 'string' || source instanceof String) {
-      const regexp = /eval\((.*)\)/gm;
-      const arrayRegex = [...source.matchAll(regexp)];
-      if (arrayRegex.length > 0) {
-        return eval(arrayRegex[0][1]);
-      } else {
-        return source;
-      }
-
-    } else if (Array.isArray(source)) {
-      return source.map(r => this.resolveString(r));
-    } else if (source != null && typeof source === 'object') {
-      const out = {};
-      for (const key in source) {
-        const decodeKey = this.unicode.atou(key);
-        out[decodeKey] = this.resolveString(source[key]);
-      }
-      return out;
-    } else {
-      return source;
     }
   }
 };

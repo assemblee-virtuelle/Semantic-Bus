@@ -254,16 +254,46 @@
       };
 
 
-      const login = 'guest';
-      const password = 'guest';
-      let stompClient = webstomp.client(configuration.url, {
-        heartbeat: {
-          incoming: 10000,
-          outgoing: 10000
-        },
-        debug: false
-      })
+      // Les credentials STOMP ne sont pas en dur dans le client : ils sont
+      // fournis par le backend via une API authentifiée JWT
+      // (/data/auth/stomp-credentials). On ne se connecte au broker que si un
+      // utilisateur est authentifié (localStorage.token présent).
+      const getStompCredentials = () => {
+        return new Promise((resolve) => {
+          const token = localStorage.token;
+          if (!token) {
+            resolve({ login: null, password: null });
+            return;
+          }
+          $.ajax({
+            method: 'get',
+            url: '/data/auth/stomp-credentials',
+            headers: { 'Authorization': 'JTW ' + token }
+          }).done((creds) => {
+            resolve(creds);
+          }).fail(() => {
+            resolve({ login: null, password: null });
+          });
+        });
+      };
 
+      let login = null;
+      let password = null;
+      let stompClient;
+      let stompClientProxy;
+
+      const connectStomp = () => {
+        if (!login || !password) return;
+        stompClient = webstomp.client(configuration.url, {
+          heartbeat: {
+            incoming: 10000,
+            outgoing: 10000
+          },
+          debug: false
+        });
+        stompClientProxy = new Proxy(stompClient, objectHandler);
+        stompClientProxy.connect(login, password, onConnect, onError, configuration.host);
+      };
 
       var onError = (client) => {
         console.log('AMQP disconnected');
@@ -271,20 +301,17 @@
         // console.log('AMQP disconnected or imposible to connect, try to reconnect in 5 seconds');
         // console.log('ERROR',client);
         setTimeout(() => {
-          stompClient = webstomp.client(configuration.url, {
-            heartbeat: {
-              incoming: 10000,
-              outgoing: 10000
-            },
-            debug: false
-          })
-          stompClientProxy = new Proxy(stompClient, objectHandler);
-          // console.log('retry connect',stompClientProxy,login,password,onConnect,onError,configuration.hos);
           console.log(('AMQP try to reconnect'));
-          stompClientProxy.connect(login, password, onConnect, onError, configuration.host);
+          connectStomp();
         }, 5000)
 
       }
+
+      getStompCredentials().then((creds) => {
+        login = creds.login;
+        password = creds.password;
+        connectStomp();
+      });
 
 
       const objectHandler = {
@@ -306,15 +333,8 @@
         }
       }
 
-
-      let stompClientProxy = new Proxy(stompClient, objectHandler);
-
-      // console.log('configuration.host',configuration.host)
-      if (configuration.host != undefined && configuration.host.length > 0) {
-        stompClientProxy.connect(login, password, onConnect, onError, configuration.host);
-      } else {
-        stompClientProxy.connect(login, password, onConnect, onError);
-      }
+      // La connexion STOMP est gérée par connectStomp() (après récupération des
+      // credentials via /data/auth/stomp-credentials). Rien à connecter ici.
     })
   </script>
   <style>

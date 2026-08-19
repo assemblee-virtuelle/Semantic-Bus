@@ -1,13 +1,14 @@
-'use strict'
+'use strict';
 
 // Move all requires before the class definition
 const fragment_lib = require('@semantic-bus/core/lib/fragment_lib_scylla.js');
 const DfobProcessor = require('@semantic-bus/core/helpers/dfobProcessor.js');
-const sift = require('sift').default;
 const Loki = require('lokijs');
 
 const stringReplacer = require('../utils/stringReplacer.js');
 const objectTransformation = require('../utils/objectTransformationV2.js');
+const { validateExpression } = require('../utils/validateExpression.js');
+const { runWhereInRemote } = require('../utils/evalSecurity.js');
 
 const db = new Loki('filter', {
   verbose: true
@@ -17,33 +18,48 @@ class Filter {
   constructor() {
   }
 
-  pull(data, flowData, pullParams) {
-    return new Promise((resolve, reject) => {
-      try {
-        let usableData = flowData[0].data
-        if (!Array.isArray(usableData)) {
-          throw new Error('input data is not an array')
-        }
-
-        let filterString = data.specificData.filterString
-        let filter = JSON.parse(filterString)
-        let filterResult = objectTransformation.execute(usableData, pullParams, filter);
-        var resultData = usableData.filter(sift(filterResult));
-        resolve({
-          data: resultData
-        })
-      } catch (e) {
-        reject(e)
-      } finally {
-      }
-    })
-  }
+  // -----------------------------------------------------------------------------
+  // NOTE: The `pull` path below is DEAD CODE in the current engine.
+  //
+  // The engine (services/engine.js) routes the Filter component through
+  // `workWithFragments` (see engine.js `rebuildFrag_focus_work_persist`, which
+  // dispatches to workWithFragments whenever the module exposes it). The `pull`
+  // method is therefore never invoked with usable data at runtime.
+  //
+  // It is kept (commented out) only as an historical reference. It used the
+  // `sift` library whose `$where` operator compiles a string into `new Function`
+  // (RCE sink). Since `workWithFragments` takes over with a Loki-based
+  // implementation, this sift-based path must NOT be reactivated without a
+  // security review (see SECURITY spec for eval/$where handling).
+  //
+  //   pull(data, flowData, pullParams) {
+  //     return new Promise((resolve, reject) => {
+  //       try {
+  //         let usableData = flowData[0].data
+  //         if (!Array.isArray(usableData)) {
+  //           throw new Error('input data is not an array')
+  //         }
+  //
+  //         let filterString = data.specificData.filterString
+  //         let filter = JSON.parse(filterString)
+  //         let filterResult = objectTransformation.execute(usableData, pullParams, filter);
+  //         var resultData = usableData.filter(sift(filterResult));  // sift $where -> new Function sink
+  //         resolve({
+  //           data: resultData
+  //         })
+  //       } catch (e) {
+  //         reject(e)
+  //       } finally {
+  //       }
+  //     })
+  //   }
+  // -----------------------------------------------------------------------------
 
   async filterRawItems(items, filter, data) {
     return new Promise(async (resolve, reject) => {
       try {
         const collectionName = `${data._id.toString()}-${Math.floor(Math.random() * 10000)}`;
-        let collection = db.addCollection(collectionName, { disableMeta: true });
+        const collection = db.addCollection(collectionName, { disableMeta: true });
         const insertionErrors = [];
         
         // Handle both array and single item cases
@@ -72,7 +88,7 @@ class Filter {
 
         if (!Array.isArray(items)) {
           if(resultFiltered.length === 1) {
-            resultFiltered = resultFiltered[0]
+            resultFiltered = resultFiltered[0];
           } else {
             resultFiltered=undefined;
           }
@@ -90,37 +106,41 @@ class Filter {
         db.removeCollection(collectionName);
         resolve(resultFiltered);
       } catch (e) {
-        reject(e)
+        reject(e);
       }
-    })
+    });
   }
 
-  async filter(collection  , filter, data) {
+  async filter(collection, filter, data) {
     return new Promise(async (resolve, reject) => {
       try {
         let resultData;
         if (filter.hasOwnProperty('$where')) {
           // Check if the filterResult only contains the '$where' property
           if (Object.keys(filter).length === 1) {
+            // SECURITY: la condition $where (expression JS utilisateur) est
+            // validée statiquement AVANT toute exécution (bloque process/require/
+            // constructor/__proto__/structures de code...), puis évaluée dans un
+            // worker_threads TERMINABLE (protection ReDoS/DoS), cohérent avec le
+            // transformateur et le composant regex. `this` est réécrit en `obj`.
             const whereCondition = filter['$where'].replace(/this/g, 'obj');
-            resultData = collection.where((obj) => {
-              const evaluation = eval(whereCondition)
-              // console.log('___evaluation', evaluation);
-              return evaluation == true
-            });
+            validateExpression(whereCondition);
+            const whereItems = collection.find({});
+            const whereMatches = await runWhereInRemote(whereCondition, whereItems);
+            resultData = whereMatches.map(i => whereItems[i]);
           } else {
-            reject({ error: '$where have to be the only property when it is used' })
+            reject({ error: '$where have to be the only property when it is used' });
           }
         } else {
           resultData = collection.find(filter);
         }
-        resultData = resultData.map(r => { delete r['$loki']; return r })
+        resultData = resultData.map(r => { delete r['$loki']; return r; });
         resolve(resultData);
       } catch (e) {
-        reject(e)
+        reject(e);
       }
-    })
-  } 
+    });
+  }
 
   async workWithFragments(data, flowData, pullParams, processId) {
     return new Promise(async (resolve, reject) => {
@@ -131,20 +151,20 @@ class Filter {
         const pathTable = [...inputDfob.dfobTable];
 
         // Parse filter string
-        let filterString = data.specificData.filterString;
-        let filter = JSON.parse(filterString);
+        const filterString = data.specificData.filterString;
+        const filter = JSON.parse(filterString);
         let onlyOneItem = undefined;
         if (! Array.isArray(inputFragment.data) ) {
           onlyOneItem = inputFragment.data;
         }
         //case when onlyOneItem is no clear. when a property have to be compare whith an other.
-        let filterResult = objectTransformation.execute(onlyOneItem, pullParams, filter);
+        const filterResult = await objectTransformation.execute(onlyOneItem, pullParams, filter);
 
         let rebuildData;
         const insertionErrors = [];
         if (inputFragment.branchFrag) {
           const collectionName = `${processId}-${data._id.toString()}`;
-          let collection = db.addCollection(collectionName, { disableMeta: true });
+          const collection = db.addCollection(collectionName, { disableMeta: true });
           await fragment_lib.getWithResolutionByBranch(inputFragment, {
             deeperFocusActivated: true,
             pathTable: pathTable,
@@ -184,19 +204,19 @@ class Filter {
           db.removeCollection(collectionName);
           // console.log('___out', out);
         } else {
-          const inputData = inputFragment.data
+          const inputData = inputFragment.data;
           rebuildData = await DfobProcessor.processDfobFlow(
             inputData,
             { pipeNb: inputDfob.pipeNb, dfobTable: inputDfob.dfobTable, keepArray: inputDfob.keepArray, delayMs: inputDfob.delayMs || 0 },
             this,
             this.filterRawItems,
             (items) => {
-              return [items, filterResult, data]
+              return [items, filterResult, data];
             },
             async () => {
               return true;
             }
-          )
+          );
           // console.log('___rebuildData', rebuildData);
         }
 
@@ -214,4 +234,4 @@ class Filter {
   }
 }
 
-module.exports = new Filter()
+module.exports = new Filter();

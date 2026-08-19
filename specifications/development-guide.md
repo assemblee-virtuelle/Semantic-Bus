@@ -185,6 +185,92 @@ npm run lint:all    # Check code style
 
 ---
 
+## ⚙️ Operations & Runbook
+
+> Commandes et points de vigilance opérationnels, en particulier liés au `eval-service`
+> (service d'évaluation isolé) et à RabbitMQ.
+
+### Services Docker
+
+Le workspace comprend 4 packages : `core`, `main`, `engine`, `timer`, et un service
+`eval-service` (évaluation JS isolée en container). Voir `docker-compose.yaml` (racine) et
+`packages/eval-service/`.
+
+### Tests
+
+```bash
+# Tests unitaires (sans container)
+cd packages/core && npx jest                 # core
+cd packages/engine && npx jest --forceExit   # engine (workers : --forceExit utile en local)
+cd packages/timer && npx jest                # timer
+
+# Tests d'intégration du eval-service (nécessite le container)
+cd /home/simon/GIT/Bus/Semantic-Bus
+make test-eval                              # build + démarre le container + lance les tests d'intégration
+
+# Si `npm ci` isolé dans un sous-package a cassé le node_modules partagé :
+npm install --legacy-peer-deps               # restaure tout le workspace
+```
+
+### CI (`.github/workflows/`)
+
+- **`tests.yml`** : 5 jobs — `test-core`, `test-main`, `test-engine`, `test-timer`,
+  `test-eval-service`. Chaque job fait `cd packages/X && npm ci` puis `npm test`.
+  Le job `test-eval-service` fait en plus `docker compose up -d --build eval-service` +
+  attente health + `npx jest packages/eval-service/__tests__/eval-service.integration.test.js`.
+- **`lint.yml`** : lint de core/main/engine (et auto-format). **N'inclut PAS eval-service.**
+- **`security.yml`** : `npm audit --audit-level=critical` sur core/main/engine/timer
+  (N'inclut PAS eval-service).
+
+### Points de vigilance (reprise / CI)
+
+1. **Le `package-lock.json` racine doit être COMMITÉ avec le workspace `eval-service`.**
+   Sans ce lockfile, `npm ci` dans `packages/eval-service` échouera ("lock file not up to
+   date" / workspace introuvable). Les autres packages n'ont pas de lockfile propre → ils
+   utilisent le lockfile racine.
+2. **`npm ci` isolé dans un sous-package CASSE le node_modules partagé en local.**
+   Ex. : `cd packages/eval-service && npm ci` supprime `lokijs` du node_modules racine → les
+   tests engine échouent (`Cannot find module 'lokijs'`). Résolu par `npm install
+   --legacy-peer-deps` racine. **En CI, chaque job a son propre runner → pas de partage → pas
+   de problème.**
+3. **Secret HMAC du eval-service — plus d'env, config.json montée.** Le eval-service monte
+   `config.json` (`/data/packages/engine/config.json`) et son image expose un symlink
+   `@semantic-bus/engine` → `getConfiguration` résout la config → `hmac_lib.secret()` =
+   `config.secret`. **Plus de variable `ENGINE_HMAC_SECRET` / `.env` requise en prod.**
+   En CI / test, `getConfiguration()` peut échouer → secret fallback
+   `test-secret-for-testing` ; `make test-eval` et les tests définissent donc
+   `ENGINE_HMAC_SECRET=secret` **côté test uniquement**.
+4. **`npm test` en CI vs local.** Les tests passent en local avec `npx jest --forceExit`
+   (les workers "failed to exit gracefully" peuvent timeout le shell local) ; en CI headless
+   ça se termine normalement (warning non bloquant).
+5. **`security.yml`** : si `npm audit` détecte des vulnérabilités critiques dans
+   core/main/engine/timer, le job (qui bloque sur `critical`) échouera.
+6. **`lint.yml`** : les erreurs de style pré-existantes (`no-async-promise-executor`,
+   `semi`, indentation de `arraySplitByCondition`) peuvent faire échouer `npm run lint`.
+
+### RabbitMQ
+
+- **`make rabbit-up`** : (re)crée le conteneur rabbitmq.
+- **`make rabbit-reset`** : **reconstruit proprement** RabbitMQ (stop + rm + suppression du
+  volume `rabbitmq_data` + up) → recharge les définitions (users/vhosts/queues) au démarrage.
+- Les définitions ne s'appliquent **qu'au premier démarrage** (base vide) ; pour recharger sur
+  un volume existant, utiliser **`make rabbit-reset`**.
+- **User `guest` supprimé** ; services + navigateur utilisent `stomp-user` (défini dans les
+  définitions RabbitMQ + `amqpStompLogin`/`amqpStompPassword` en config).
+- **Changer le mot de passe STOMP** : éditer `"password"` dans les définitions RabbitMQ (dev)
+  + aligner `amqpStompPassword` (config) puis `make rabbit-reset`.
+
+### Configuration
+
+- **Tout est dans `config.json`** (MongoDB, SMTP, Google OAuth, Stripe, `amqpStomp*`,
+  `secret`) — **pas de `.env`**. Voir `specifications/configuration.md`.
+- Les `packages/engine/config.json` et `packages/timer/config.json` sont **vides** dans le
+  repo, mais en docker chaque service monte `config.local.json` (racine) comme sa config.
+  Les fichiers vides ne posent problème qu'en exécution **hors docker** (standalone) où
+  `require('./config.json')` retournerait `{}`.
+
+---
+
 ## 📚 Additional Documentation
 
 - [packages/core/TESTING.md](../packages/core/TESTING.md) - Testing guidelines

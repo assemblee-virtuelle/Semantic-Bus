@@ -8,6 +8,7 @@ module.exports = {
   moment: require('moment'),
   http: require('http'),
   url: require('url'),
+  hmac_lib: require('./lib/hmac_lib.js'),
   config: require('@semantic-bus/timer/config.json'),
   intervalId: null,
   runTimers: function (amqpConnection) {
@@ -32,9 +33,9 @@ module.exports = {
                 console.log(`--------------- execution ${workspace._id}-${c._id} status:${workspace.status} name:${workspace.name}`);
 
 
-                const workParams = {
+                const workParams = hmac_lib.signMessage(c._id, {
                   id: c._id
-                };
+                });
 
                 amqpConnection.sendToQueue(
                   'work-ask',

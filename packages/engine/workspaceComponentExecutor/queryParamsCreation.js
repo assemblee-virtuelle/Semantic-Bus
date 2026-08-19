@@ -4,13 +4,13 @@ class QueryParamsCreation {
     this.objectTransformation = require('../utils/objectTransformationV2.js')
   }
 
-  buildQueryParam (previousQueryParam, specificData) {
+  async buildQueryParam (previousQueryParam, specificData) {
     let stringPattern = JSON.stringify(specificData.queryParamsCreationObject)
     stringPattern = stringPattern.replace(/£./g, '$.')
     let objectPattern = JSON.parse(stringPattern)
 
     // console.log(previousQueryParam,objectPattern);
-    let out = this.objectTransformation.executeWithParams(previousQueryParam,{}, objectPattern)
+    let out = await this.objectTransformation.executeWithParams(previousQueryParam,{}, objectPattern)
 
     // console.log('out',out);
     return out

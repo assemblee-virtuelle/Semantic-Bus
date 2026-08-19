@@ -4,15 +4,16 @@ const Loki = require('lokijs');
 const db = new Loki('joinByField', {
   verbose: true
 });
-const sift = require('sift').default;
 const PromiseOrchestrator = require('@semantic-bus/core/helpers/promiseOrchestrator.js');
 const lo = require('dayjs/locale/lo.js');
 const DfobProcessor = require('@semantic-bus/core/helpers/dfobProcessor.js');
 const { isLiteral, processLiteral, testAllLiteralArray } = require('@semantic-bus/core/helpers/literalHelpers');
-let collections = {}
+const collections = {};
 
 function startCollectionCleanup() {
-  setInterval(() => {
+  // `unref()` : ce timer de fond (nettoyage du cache Loki) ne doit pas maintenir
+  // le process en vie à la sortie (sinon `jest --detectOpenHandles` timeout en CI).
+  const timer = setInterval(() => {
     const hoursAgo = 1; // nombre d'heures
     const oneHourAgo = new Date(Date.now() - hoursAgo * 3600000); // heures en millisecondes
     for (const [name, { createdAt }] of Object.entries(collections)) {
@@ -22,6 +23,7 @@ function startCollectionCleanup() {
       }
     }
   }, 1000);
+  timer.unref();
 }
 
 class JoinByField {
@@ -30,12 +32,12 @@ class JoinByField {
   }
 
   async getPrimaryFlow(data, flowData) {
-    let secondaryFlowByConnection = flowData.find(f => f.targetInput == 'second');
+    const secondaryFlowByConnection = flowData.find(f => f.targetInput == 'second');
     if (secondaryFlowByConnection) {
-      let primaryFlow = flowData.find(f => f.componentId != secondaryFlowByConnection.componentId);
+      const primaryFlow = flowData.find(f => f.componentId != secondaryFlowByConnection.componentId);
       return primaryFlow;
     } else if (data.specificData.primaryComponentId) {
-      let primaryFlow = flowData.find(f => f.componentId == data.specificData.primaryComponentId);
+      const primaryFlow = flowData.find(f => f.componentId == data.specificData.primaryComponentId);
       return primaryFlow;
     } else {
       throw new Error('Primary Flow could not be identified');
@@ -44,15 +46,15 @@ class JoinByField {
   join(primaryRecord, secondaryFlowData, data) {
     return new Promise(async (resolve, reject) => {
       try {
-        let filter = {};
+        const filter = {};
         let result = [];
         const valueToJoin = primaryRecord[data.specificData.primaryFlowFKId];
         if (!valueToJoin) {
           result = [];
         } else {
           if (Array.isArray(valueToJoin)) {
-            let paramArray = valueToJoin.map(v => [secondaryFlowData, filter, v, data]);
-            let promiseOrchestrator = new PromiseOrchestrator();
+            const paramArray = valueToJoin.map(v => [secondaryFlowData, filter, v, data]);
+            const promiseOrchestrator = new PromiseOrchestrator();
             result = await promiseOrchestrator.execute(this, this.createFilterAndGetResult, paramArray, {
               beamNb: 10
             }, this.config);
@@ -71,8 +73,11 @@ class JoinByField {
   }
 
   createFilterAndGetResult(secondaryFlowData, filter, valueToJoin, data) {
-    filter[data.specificData.secondaryFlowId] = valueToJoin;
-    let result = secondaryFlowData.filter(sift(filter));
+    const fieldName = data.specificData.secondaryFlowId;
+    // Simple equality join: the UI only exposes a field name to match, never a
+    // filter expression. sift was only used for this equality; native filter
+    // keeps the same behaviour without any query-engine code execution surface.
+    let result = secondaryFlowData.filter(item => item != null && item[fieldName] === valueToJoin);
 
     if (!data.specificData.multipleJoin == true) {
       result = result[0];
@@ -96,37 +101,37 @@ class JoinByField {
           resolve(item);
         } else {
           // if (isLiteral(item[data.specificData.primaryFlowFKId])) {
-            const primaryValue = item[data.specificData.primaryFlowFKId];
+          const primaryValue = item[data.specificData.primaryFlowFKId];
             
-            if (Array.isArray(primaryValue)) {
-              // Handle array of values
-              let results = primaryValue.map(value => {
-                if(!isLiteral(value)){
-                  return {error: 'join can only process literal'};
-                }else{
-                  const filter = {
-                    [data.specificData.secondaryFlowId]: value
-                  };
-                  return collection.find(filter);
-                }
-              }).flat();
-              results = results.map(r=>{delete r.$loki; return r})
-              item[data.specificData.primaryFlowFKName] = results;
-            } else {
-              if(!isLiteral(primaryValue)){
-                item[data.specificData.primaryFlowFKName]= {error: 'join can only process literal'};
-              } else{
-                let filter = {
-                  [data.specificData.secondaryFlowId]: primaryValue
+          if (Array.isArray(primaryValue)) {
+            // Handle array of values
+            let results = primaryValue.map(value => {
+              if(!isLiteral(value)){
+                return {error: 'join can only process literal'};
+              }else{
+                const filter = {
+                  [data.specificData.secondaryFlowId]: value
                 };
-                // console.log('filter', filter)
-                let results = collection.find(filter);
-                // console.log('results', results)
-                results = results.map(r=>{delete r.$loki; return r})
-                item[data.specificData.primaryFlowFKName] = data.specificData.multipleJoin ? results : results[0];
+                return collection.find(filter);
               }
+            }).flat();
+            results = results.map(r => {delete r.$loki; return r;});
+            item[data.specificData.primaryFlowFKName] = results;
+          } else {
+            if(!isLiteral(primaryValue)){
+              item[data.specificData.primaryFlowFKName]= {error: 'join can only process literal'};
+            } else{
+              const filter = {
+                [data.specificData.secondaryFlowId]: primaryValue
+              };
+                // console.log('filter', filter)
+              let results = collection.find(filter);
+              // console.log('results', results)
+              results = results.map(r => {delete r.$loki; return r;});
+              item[data.specificData.primaryFlowFKName] = data.specificData.multipleJoin ? results : results[0];
             }
-            resolve(item);
+          }
+          resolve(item);
           // } else {
           //   throw (new Error('join can only process literal'))
           // }
@@ -140,7 +145,7 @@ class JoinByField {
         }
         item[data.specificData.primaryFlowFKName] = {
           error: e.message
-        }
+        };
         resolve(item);
       }
     });
@@ -149,12 +154,12 @@ class JoinByField {
   joinWithLokiSupportingArray(item, collection, data,) {
     if (Array.isArray(item)) {
       return  new Promise(async (resolve, reject) => {  
-        let resultArray = []; 
+        const resultArray = []; 
         for(let i = 0; i < item.length; i++){
-          resultArray.push(await this.joinWithLoki(item[i], collection, data))
+          resultArray.push(await this.joinWithLoki(item[i], collection, data));
         } 
         resolve(resultArray);
-      })
+      });
     } else {
       return this.joinWithLoki(item, collection, data);
     }
@@ -180,15 +185,9 @@ class JoinByField {
           primaryFlowFragment = flowData.find(f => f.targetInput == undefined)?.fragment;
           primaryFlowDfob = flowData.find(f => f.targetInput == undefined)?.dfob;
         } else {
-          secondaryFlowFragment = flowData.filter(sift({
-            componentId: data.specificData.secondaryComponentId
-          }))[0].fragment;
-          primaryFlowFragment = flowData.filter(sift({
-            componentId: data.specificData.primaryComponentId
-          }))[0].fragment;
-          primaryFlowDfob = flowData.filter(sift({
-            componentId: data.specificData.primaryComponentId
-          }))[0].dfob;
+          secondaryFlowFragment = flowData.find(f => f.componentId && f.componentId.toString() === data.specificData.secondaryComponentId.toString())?.fragment;
+          primaryFlowFragment = flowData.find(f => f.componentId && f.componentId.toString() === data.specificData.primaryComponentId.toString())?.fragment;
+          primaryFlowDfob = flowData.find(f => f.componentId && f.componentId.toString() === data.specificData.primaryComponentId.toString())?.dfob;
         }
 
         const collectionName = `${processId}-${data._id.toString()}`;
@@ -209,7 +208,7 @@ class JoinByField {
           };
         }
 
-        let rebuildDataRaw = await fragment_lib.getWithResolutionByBranch(primaryFlowFragment.id, {
+        const rebuildDataRaw = await fragment_lib.getWithResolutionByBranch(primaryFlowFragment.id, {
           pathTable: primaryFlowDfob.dfobTable
         });
         // console.log('rebuilding data', rebuildDataRaw)
@@ -219,12 +218,12 @@ class JoinByField {
           this,
           this.joinWithLokiSupportingArray,
           (item) => {
-            return [item, collection, data]
+            return [item, collection, data];
           },
           async () => {
             return true;
           }
-        )
+        );
 
         await fragment_lib.persist(rebuildData, undefined, primaryFlowFragment);
         resolve();
@@ -247,12 +246,8 @@ class JoinByField {
           secondaryFlowData = secondaryFlowByConnection.data;
           primaryFlowData = flowData.find(f => f.targetInput == undefined)?.data;
         } else {
-          secondaryFlowData = flowData.filter(sift({
-            componentId: data.specificData.secondaryComponentId
-          }))[0].data;
-          primaryFlowData = flowData.filter(sift({
-            componentId: data.specificData.primaryComponentId
-          }))[0].data;
+          secondaryFlowData = flowData.find(f => f.componentId && f.componentId.toString() === data.specificData.secondaryComponentId.toString())?.data;
+          primaryFlowData = flowData.find(f => f.componentId && f.componentId.toString() === data.specificData.primaryComponentId.toString())?.data;
         }
 
         if (!Array.isArray(secondaryFlowData)) {
@@ -260,51 +255,51 @@ class JoinByField {
             data: {
               error: 'Secondary Flow have to be an array'
             }
-          })
+          });
         } else if (primaryFlowData == undefined) {
           resolve({
             data: {
               error: 'Primary Flow is undefined'
             }
-          })
+          });
         } else if (primaryFlowData.length == 0) {
           resolve({
             data: []
-          })
+          });
         } else {
           let forcedArray = false;
           if (!Array.isArray(primaryFlowData)) {
             forcedArray = true;
             primaryFlowData = [primaryFlowData];
           }
-          secondaryFlowData = JSON.parse(JSON.stringify(secondaryFlowData))
-          let paramArray = primaryFlowData.map(r => {
-            return [r, secondaryFlowData, data]
-          })
+          secondaryFlowData = JSON.parse(JSON.stringify(secondaryFlowData));
+          const paramArray = primaryFlowData.map(r => {
+            return [r, secondaryFlowData, data];
+          });
 
-          let promiseOrchestrator = new PromiseOrchestrator()
+          const promiseOrchestrator = new PromiseOrchestrator();
           promiseOrchestrator.execute(this, this.join, paramArray, {
             beamNb: 10
           }, this.config).then(primaryFlowCompleted => {
             if (forcedArray == true) {
               resolve({
                 data: primaryFlowCompleted[0]
-              })
+              });
             } else {
               resolve({
                 data: primaryFlowCompleted
-              })
+              });
             }
-          })
+          });
         }
       } catch (e) {
         console.error(e);
-        reject(e)
+        reject(e);
       }
-    })
+    });
   }
 }
 
 startCollectionCleanup();
 
-module.exports = new JoinByField()
+module.exports = new JoinByField();

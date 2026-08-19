@@ -2,6 +2,7 @@
 
 const { ObjectId,MongoClient } = require('mongodb');
 const { EJSON } = require('bson'); // Ajout de l'import EJSON
+const mongoQueryExecutor = require('../utils/mongoQueryExecutor.js');
 
 class MongoConnector {
   constructor () {
@@ -44,12 +45,16 @@ class MongoConnector {
         const db = client.db(database)
         const collection = db.collection(collectionName)
         const normalizedQuerysTable = this.stringReplacer.execute(querysTable, queryParams, flowdata, true);
-        const evaluation = eval('collection.' + normalizedQuerysTable);
+        // SECURITY: la requête est parsée et exécutée SANS eval. Seules les
+        // méthodes whitelistées avec des arguments littéraux JSON sont
+        // autorisées. La validation se fait sur la chaîne APRÈS interpolation
+        // (les valeurs {£.x}/{$.y} peuvent provenir de sources anonymes).
+        const evaluation = await mongoQueryExecutor.executeQuery(collection, normalizedQuerysTable);
         let mongoPromise
         if (evaluation instanceof Promise) {
           mongoPromise = evaluation
         } else {
-          mongoPromise = evaluation.toArray()
+          mongoPromise = Promise.resolve(evaluation);
         }
 
         const result = await mongoPromise;
@@ -195,7 +200,7 @@ class MongoConnector {
         } catch (error) {
           reject(error)
         } finally {
-          client.close();
+          if (client) client.close();
         }
       })
     } else {
@@ -209,7 +214,7 @@ class MongoConnector {
         } catch (error) {
           reject(error)
         } finally {
-          client.close()
+          if (client) client.close()
         }
       })
     }

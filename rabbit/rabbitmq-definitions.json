@@ -1,0 +1,66 @@
+{
+  "rabbit_version": "3.9.0",
+  "users": [
+    {
+      "name": "stomp-user",
+      "password": "change-me-stomp-password",
+      "tags": "monitoring"
+    }
+  ],
+  "vhosts": [
+    {
+      "name": "/"
+    },
+    {
+      "name": "devLocal"
+    },
+    {
+      "name": "dataPlayersProd"
+    }
+  ],
+  "permissions": [
+    {
+      "user": "stomp-user",
+      "vhost": "/",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    },
+    {
+      "user": "stomp-user",
+      "vhost": "devLocal",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    },
+    {
+      "user": "stomp-user",
+      "vhost": "dataPlayersProd",
+      "configure": ".*",
+      "write": ".*",
+      "read": ".*"
+    }
+  ],
+  "topic_permissions": [],
+  "parameters": [],
+  "global_parameters": [],
+  "policies": [],
+  "queues": [
+    {
+      "name": "work-ask",
+      "vhost": "devLocal",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    },
+    {
+      "name": "work-ask",
+      "vhost": "dataPlayersProd",
+      "durable": true,
+      "auto_delete": false,
+      "arguments": {}
+    }
+  ],
+  "exchanges": [],
+  "bindings": []
+}

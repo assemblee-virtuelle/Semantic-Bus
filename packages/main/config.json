@@ -149,6 +149,8 @@
   "socketClient": "ws://localhost:15674/ws/",
   "amqpHost": "devLocal",
   "socketServer": "amqp://rabbitmq:5672",
+  "amqpStompLogin": "stomp-user",
+  "amqpStompPassword": "change-me-stomp-password",
   "secret": "secret",
   "timer": {
     "port": 8081,

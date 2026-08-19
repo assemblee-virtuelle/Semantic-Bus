@@ -1,6 +1,8 @@
 'use strict';
 
 const { v4: uuidv4 } = require('uuid');
+const { rateLimitByIp } = require('../utils/rateLimiter.js');
+const hmac_lib = require('@semantic-bus/core/lib/hmac_lib');
 const MODE = 'AMQP'; // MODE could be AMQP when all workflow will migrate over V1
 class HttpProvider {
   constructor() {
@@ -105,7 +107,11 @@ class HttpProvider {
   }
 
   initialise(router) {
-    router.all('/api/*', async(req, res, next) => {
+    // SÉCURITÉ : cette API est volontairement publique (seul moyen d'appeler les
+    // endpoints de workflow). Elle reste donc accessible sans auth, mais est
+    // protégée par une limitation de débit par IP (anti-DoS). La sécurité
+    // applicative relève du workflow lui-même.
+    router.all('/api/*', rateLimitByIp, async(req, res, next) => {
       console.log('API CALL');
 
       const urlRequieredFull = req.params[0].replace('/', '');
@@ -194,11 +200,11 @@ class HttpProvider {
       }
       const currentCallItem = callStack.shift();
       const tracerId = uuidv4();
-      const workParams = {
+      const workParams = hmac_lib.signMessage(currentCallItem.component._id, {
         tracerId,
         id: currentCallItem.component._id,
         queryParams: currentCallItem.queryParams
-      };
+      });
       this.pendingWork[tracerId] = {
         component: currentCallItem.component,
         res: currentCallItem.res

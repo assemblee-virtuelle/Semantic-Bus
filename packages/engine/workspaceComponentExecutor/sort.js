@@ -17,7 +17,7 @@ class Sort {
   }
 
   pull(data, flowData, pullParams) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
         let usableData = flowData[0].data
         if (!Array.isArray(usableData)) {
@@ -26,7 +26,7 @@ class Sort {
 
         let sortString = data.specificData.sortString;
         let sortConfig = JSON.parse(sortString);
-        let sortResult = objectTransformation.execute(usableData, pullParams, sortConfig);
+        let sortResult = await objectTransformation.execute(usableData, pullParams, sortConfig);
         
         var resultData = this.sortArray(usableData, sortResult);
         resolve({
@@ -179,7 +179,7 @@ class Sort {
           onlyOneItem = inputFragment.data;
         }
         // Case when onlyOneItem is not clear - when a property has to be compared with another
-        let sortResult = objectTransformation.execute(onlyOneItem, pullParams, sortConfig);
+        let sortResult = await objectTransformation.execute(onlyOneItem, pullParams, sortConfig);
 
         let rebuildData;
         if (inputFragment.branchFrag) {

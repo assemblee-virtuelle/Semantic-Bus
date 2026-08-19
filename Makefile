@@ -1,5 +1,7 @@
 .DEFAULT_GOAL := help
-.PHONY: docker-build docker-up build start log stop restart
+.PHONY: docker-build docker-up build start log stop restart \
+        rabbit-up rabbit-reset \
+        eval-up test-eval
 
 DOCKER_COMPOSE=docker compose -f docker-compose.yaml
 DOCKER_COMPOSE_TEST=docker compose -f docker-compose.test.yaml
@@ -10,7 +12,7 @@ docker-build:
 	$(DOCKER_COMPOSE) build
 
 docker-up:
-	$(DOCKER_COMPOSE) up -d --remove-orphans amqp mongo
+	$(DOCKER_COMPOSE) up -d --remove-orphans rabbitmq mongo
 
 docker-stop:
 	$(DOCKER_COMPOSE) kill
@@ -25,6 +27,34 @@ docker-restart:
 
 log:
 	$(DOCKER_COMPOSE) logs -f engine main timer
+
+# RabbitMQ
+rabbit-up:
+	$(DOCKER_COMPOSE) up -d --force-recreate rabbitmq
+
+# Reconstruit RabbitMQ proprement : recharge les définitions (users/vhosts/queues)
+# au premier démarrage. Supprime le volume de données puis recrée le conteneur.
+rabbit-reset:
+	$(DOCKER_COMPOSE) stop rabbitmq || true
+	$(DOCKER_COMPOSE) rm -fv rabbitmq || true
+	docker volume ls -q | grep rabbitmq_data | xargs -r docker volume rm -f
+	$(DOCKER_COMPOSE) up -d --force-recreate rabbitmq
+
+# Eval-service (container d'évaluation isolé)
+eval-up:
+	$(DOCKER_COMPOSE) up -d --force-recreate eval-service
+
+# Tests d'intégration du eval-service (cas réels de production).
+# Démarre le container si nécessaire, attend sa disponibilité, puis exécute les
+# tests via HTTP signé (HMAC).
+test-eval:
+	$(DOCKER_COMPOSE) up -d --force-recreate eval-service
+	@echo "⏳ Attente du eval-service (health)..."
+	@for i in $$(seq 1 30); do \
+	  if curl -sf http://localhost:8083/health >/dev/null 2>&1; then echo "✅ eval-service prêt"; break; fi; \
+	  sleep 2; \
+	done
+	EVAL_SERVICE_URL=http://localhost:8083 ENGINE_HMAC_SECRET=${ENGINE_HMAC_SECRET:-secret} npx jest packages/eval-service/__tests__/eval-service.integration.test.js
 
 # Start
 start: docker-restart
