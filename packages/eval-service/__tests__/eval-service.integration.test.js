@@ -17,12 +17,15 @@ const SIGN_COMPONENT = 'eval';
 
 async function call(route, body, sign = true) {
   const headers = { 'Content-Type': 'application/json' };
+  // Corps sérialisé UNE FOIS puis signé sur ses octets bruts (signBuffer),
+  // conformément au protocole du eval-service (verifyBuffer).
+  const rawBody = Buffer.from(JSON.stringify(body), 'utf8');
   if (sign) {
-    const { signature, timestamp } = hmac.sign(SIGN_COMPONENT, body);
+    const { signature, timestamp } = hmac.signBuffer(SIGN_COMPONENT, rawBody);
     headers[hmac.HMAC_HEADER] = signature;
     headers[hmac.HMAC_TIMESTAMP_HEADER] = timestamp;
   }
-  const res = await fetch(URL + route, { method: 'POST', headers, body: JSON.stringify(body) });
+  const res = await fetch(URL + route, { method: 'POST', headers, body: rawBody });
   return { status: res.status, data: await res.json() };
 }
 

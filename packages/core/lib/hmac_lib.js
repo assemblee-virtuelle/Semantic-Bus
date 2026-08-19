@@ -95,6 +95,52 @@ function verify(componentId, body, headers) {
   return crypto.timingSafeEqual(a, b);
 }
 
+/**
+ * Signe le CORPS BRUT (Buffer) d'une requête HTTP. Contrairement à `sign`,
+ * qui sérialise l'objet de façon canonique (insensible à l'ordre des clés/aux
+ * espaces), ici la signature lie EXACTEMENT les octets transportés : le
+ * récepteur vérifie sur les mêmes octets, sans aucune re-sérialisation.
+ * Idéal pour un aller-retour JSON (eval-service) : 1 sérialisation à l'émetteur
+ * + 1 parse au récepteur, 0 re-sérialisation de vérification.
+ * @param {string} componentId
+ * @param {Buffer|string} rawBody octets exacts du corps HTTP
+ * @param {number} [timestamp]
+ * @returns {{signature: string, timestamp: number}}
+ */
+function signBuffer(componentId, rawBody, timestamp) {
+  const ts = timestamp || Date.now();
+  const body = Buffer.isBuffer(rawBody) ? rawBody : Buffer.from(String(rawBody));
+  const message = `${String(componentId)}.${ts}.${body.toString('base64')}`;
+  const signature = crypto.createHmac('sha256', secret()).update(message).digest('hex');
+  return { signature, timestamp: ts };
+}
+
+/**
+ * Vérifie la signature d'une requête Express dont le corps brut (Buffer) est
+ * disponible. Retourne true si valide.
+ * @param {string} componentId
+ * @param {Buffer|string} rawBody octets exacts du corps HTTP reçu
+ * @param {Object} headers headers de la requête
+ * @returns {boolean}
+ */
+function verifyBuffer(componentId, rawBody, headers) {
+  const signature = headers[HMAC_HEADER];
+  const timestamp = headers[HMAC_TIMESTAMP_HEADER];
+  if (!signature || !timestamp) return false;
+
+  const ts = parseInt(timestamp, 10);
+  if (isNaN(ts) || Math.abs(Date.now() - ts) > MAX_AGE_MS) return false;
+
+  const body = Buffer.isBuffer(rawBody) ? rawBody : Buffer.from(String(rawBody));
+  const message = `${String(componentId)}.${ts}.${body.toString('base64')}`;
+  const expected = crypto.createHmac('sha256', secret()).update(message).digest('hex');
+
+  const a = Buffer.from(String(expected));
+  const b = Buffer.from(String(signature));
+  if (a.length !== b.length) return false;
+  return crypto.timingSafeEqual(a, b);
+}
+
 // Champs injectés dans un message AMQP/STOMP pour authentifier un caller interne.
 const HMAC_MSG_SIGNATURE = 'signature';
 const HMAC_MSG_TIMESTAMP = 'timestamp';
@@ -151,6 +197,8 @@ function verifyMessage(message) {
 module.exports = {
   sign,
   verify,
+  signBuffer,
+  verifyBuffer,
   signMessage,
   verifyMessage,
   secret,

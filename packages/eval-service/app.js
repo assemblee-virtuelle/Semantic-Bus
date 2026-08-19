@@ -26,12 +26,14 @@
 // -----------------------------------------------------------------------------
 
 const express = require('express');
-const bodyParser = require('body-parser');
 const hmac_lib = require('@semantic-bus/core/lib/hmac_lib');
 const { WorkerPool } = require('./workerPool.js');
 
 const app = express();
-app.use(bodyParser.json({ limit: '10mb' }));
+// Corps reçu en OCTETS BRUTS (Buffer). La signature HMAC est calculée sur ces
+// mêmes octets (signBuffer/verifyBuffer) : pas de re-sérialisation canonique.
+// On ne parse JSON qu'APRÈS vérification de la signature.
+app.use(express.raw({ type: 'application/json', limit: '10mb' }));
 
 // Identifiant "composant" utilisé pour la signature HMAC de ce service.
 const SIGN_COMPONENT = 'eval';
@@ -55,15 +57,27 @@ process.on('SIGTERM', () => {
   process.exit(0);
 });
 
-app.post('/eval', async (req, res) => {
-  // 1. Vérification de la signature HMAC (body + timestamp).
-  if (!hmac_lib.verify(SIGN_COMPONENT, req.body, req.headers)) {
+// Lit un corps brut signé (Buffer), vérifie la signature sur ces octets puis
+// parse le JSON. Retourne `null` si la signature est invalide.
+function readSignedBody(req, res) {
+  if (!hmac_lib.verifyBuffer(SIGN_COMPONENT, req.body, req.headers)) {
     res.status(401).send({ ok: false, error: 'Unauthorized: missing or invalid signature' });
-    return;
+    return null;
   }
+  try {
+    return JSON.parse(req.body.toString('utf8') || '{}');
+  } catch (e) {
+    res.status(400).send({ ok: false, error: 'Invalid JSON body' });
+    return null;
+  }
+}
+
+app.post('/eval', async (req, res) => {
+  const body = readSignedBody(req, res);
+  if (body === null) return;
 
   // 2. Validation du body (lisible et simple).
-  const { expression, variables } = req.body || {};
+  const { expression, variables } = body;
   if (typeof expression !== 'string' || expression.length === 0) {
     res.status(400).send({ ok: false, error: 'expression (string) is required' });
     return;
@@ -76,7 +90,7 @@ app.post('/eval', async (req, res) => {
     res.status(400).send({ ok: false, error: 'variables must be an object' });
     return;
   }
-  const timeoutMs = (req.body && req.body.timeoutMs) ? Number(req.body.timeoutMs) : DEFAULT_TIMEOUT_MS;
+  const timeoutMs = (body && body.timeoutMs) ? Number(body.timeoutMs) : DEFAULT_TIMEOUT_MS;
 
   // 3. Évaluation dans un worker du pool (contexte vm neuf par job).
   try {
@@ -94,12 +108,10 @@ app.post('/eval', async (req, res) => {
 // Réponse : { "ok": true, "matches": [0, 2] }  |  { "ok": false, "error": "..." }
 // -----------------------------------------------------------------------------
 app.post('/where', async (req, res) => {
-  if (!hmac_lib.verify(SIGN_COMPONENT, req.body, req.headers)) {
-    res.status(401).send({ ok: false, error: 'Unauthorized: missing or invalid signature' });
-    return;
-  }
+  const body = readSignedBody(req, res);
+  if (body === null) return;
 
-  const { expression, items } = req.body || {};
+  const { expression, items } = body;
   if (typeof expression !== 'string' || expression.length === 0) {
     res.status(400).send({ ok: false, error: 'expression (string) is required' });
     return;
@@ -112,7 +124,7 @@ app.post('/where', async (req, res) => {
     res.status(400).send({ ok: false, error: 'items must be an array' });
     return;
   }
-  const timeoutMs = (req.body && req.body.timeoutMs) ? Number(req.body.timeoutMs) : DEFAULT_TIMEOUT_MS;
+  const timeoutMs = (body && body.timeoutMs) ? Number(body.timeoutMs) : DEFAULT_TIMEOUT_MS;
 
   try {
     const matches = await wherePool.exec({ expression, items, timeoutMs }, timeoutMs, EVAL_MAX_QUEUE);

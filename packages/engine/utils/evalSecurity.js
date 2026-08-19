@@ -322,7 +322,12 @@ function runWhereInWorker(expression, items, timeoutMs = 2000) {
  * @returns {Promise<*>} le résultat (déjà désérialisé)
  */
 async function postEval(route, body, httpTimeoutMs, resultKey = 'result') {
-  const { signature, timestamp } = hmac_lib.sign(EVAL_SIGN_COMPONENT, body);
+  // Sérialisation UNIQUE : on produit les octets du corps une fois, on les
+  // signe (signBuffer) et on les envoie tels quels. Le eval-service vérifie la
+  // signature sur ces mêmes octets (verifyBuffer) puis parse le JSON une seule
+  // fois — plus aucune re-sérialisation canonique des deux côtés.
+  const rawBody = Buffer.from(JSON.stringify(body), 'utf8');
+  const { signature, timestamp } = hmac_lib.signBuffer(EVAL_SIGN_COMPONENT, rawBody);
   const controller = new AbortController();
   const timer = setTimeout(() => controller.abort(), httpTimeoutMs);
   try {
@@ -333,7 +338,7 @@ async function postEval(route, body, httpTimeoutMs, resultKey = 'result') {
         [hmac_lib.HMAC_HEADER]: signature,
         [hmac_lib.HMAC_TIMESTAMP_HEADER]: timestamp
       },
-      body: JSON.stringify(body),
+      body: rawBody,
       signal: controller.signal,
       agent: EVAL_SERVICE_AGENT
     });

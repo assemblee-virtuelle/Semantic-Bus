@@ -65,6 +65,62 @@ describe('hmac_lib - signature HMAC des appels d\'exécution', () => {
   });
 });
 
+describe('hmac_lib - signBuffer/verifyBuffer (corps bruts, aller-retour HTTP eval-service)', () => {
+  test('signBuffer + verifyBuffer valide sur les mêmes octets', () => {
+    const raw = Buffer.from(JSON.stringify({ expression: '1+1', variables: {} }));
+    const { signature, timestamp } = hmac.signBuffer('eval', raw);
+    expect(hmac.verifyBuffer('eval', raw, {
+      [hmac.HMAC_HEADER]: signature,
+      [hmac.HMAC_TIMESTAMP_HEADER]: timestamp
+    })).toBe(true);
+  });
+
+  test('signBuffer + verifyBuffer valide avec une string (pas Buffer)', () => {
+    const rawStr = '{"expression":"1+1"}';
+    const { signature, timestamp } = hmac.signBuffer('eval', rawStr);
+    expect(hmac.verifyBuffer('eval', rawStr, {
+      [hmac.HMAC_HEADER]: signature,
+      [hmac.HMAC_TIMESTAMP_HEADER]: timestamp
+    })).toBe(true);
+  });
+
+  test('refuse un octet modifié (binding exact des octets)', () => {
+    const raw = Buffer.from('{"expression":"1+1"}');
+    const { signature, timestamp } = hmac.signBuffer('eval', raw);
+    const tampered = Buffer.from('{"expression":"1+2"}');
+    expect(hmac.verifyBuffer('eval', tampered, {
+      [hmac.HMAC_HEADER]: signature,
+      [hmac.HMAC_TIMESTAMP_HEADER]: timestamp
+    })).toBe(false);
+  });
+
+  test('refuse un componentId différent', () => {
+    const raw = Buffer.from('{}');
+    const { signature, timestamp } = hmac.signBuffer('eval', raw);
+    expect(hmac.verifyBuffer('other', raw, {
+      [hmac.HMAC_HEADER]: signature,
+      [hmac.HMAC_TIMESTAMP_HEADER]: timestamp
+    })).toBe(false);
+  });
+
+  test('refuse un timestamp expiré', () => {
+    const raw = Buffer.from('{}');
+    const { signature, timestamp } = hmac.signBuffer('eval', raw);
+    expect(hmac.verifyBuffer('eval', raw, {
+      [hmac.HMAC_HEADER]: signature,
+      [hmac.HMAC_TIMESTAMP_HEADER]: timestamp - hmac.MAX_AGE_MS - 1000
+    })).toBe(false);
+  });
+
+  test('la signature varie si la représentation (espaces) change (bind octets bruts)', () => {
+    // Contrairement à sign() (canonique), signBuffer lie la représentation exacte.
+    const ts = Date.now();
+    const a = hmac.signBuffer('x', '{"a":1}', ts);
+    const b = hmac.signBuffer('x', '{ "a" : 1 }', ts);
+    expect(a.signature).not.toBe(b.signature);
+  });
+});
+
 describe('hmac_lib - signMessage/verifyMessage (messages AMQP work-ask)', () => {
   test('signMessage puis verifyMessage valide pour le bon composant', () => {
     const msg = hmac.signMessage('comp1', { id: 'comp1', queryParams: { a: 1 } });
