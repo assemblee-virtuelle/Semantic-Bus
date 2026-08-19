@@ -109,7 +109,7 @@ Vulnérabilité signalée par **Maxim Yakovlev** (divulgation coordonnée).
 ---
 
 ## Annexe — Bonnes pratiques suivies (source : recherche Perplexity)
-- **Nom de fichier local** : descriptif (`advisories/2026-08-semantic-bus-rce-eval.md`),
+- **Nom de fichier local** : descriptif (`advisories/SB-RCE-2026-01/2026-08-semantic-bus-rce-eval.md`),
   **pas** le GHSA/CVE ID (ceux-ci sont assignés par GitHub/CNA lors de la publication).
 - **`SECURITY.md`** : politique de signalement du dépôt (séparée de l'advisory).
 - **Publication** : après la disponibilité du correctif ; au plus tard à J+90 en divulgation

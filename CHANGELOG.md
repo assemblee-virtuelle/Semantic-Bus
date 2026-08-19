@@ -5,8 +5,8 @@
 ### Security
 
 - **RCE via `eval` corrigée** (divulgation coordonnée, chercheur Maxim Yakovlev). Voir
-  `advisories/public/2026-08-semantic-bus-rce-eval.md` et le dossier de cas
-  (interne, `advisories/internal/SB-RCE-2026-01-case-file.md`).
+  `advisories/SB-RCE-2026-01/2026-08-semantic-bus-rce-eval.md` et le dossier de cas
+  (interne, `advisories/SB-RCE-2026-01/SB-RCE-2026-01-case-file.md`).
 - **Retrait de `sift`** (RCE via `new Function`) → filtres natifs.
 - **Validation statique AST** (`validateExpression`) avant toute évaluation JS.
 - **`eval` isolé dans le container `eval-service`** (plus d'`eval` dans le process principal
