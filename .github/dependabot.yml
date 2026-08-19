@@ -1,0 +1,41 @@
+# Dependabot configuration
+#
+# Objectif : aligner les PR Dependabot sur le workflow de sécurité
+# (`.github/workflows/security.yml`, qui bloque sur `npm audit --audit-level=critical`).
+#
+# Stratégie : DÉSACTIVER les "version-updates" (qui proposent des bumps pour TOUTES
+# les dépendances, créant du bruit non lié à la sécurité) via `open-pull-requests-limit: 0`.
+# On conserve uniquement les "security-updates" (PR de correctifs pour vulnérabilités
+# connues), qui sont activés par défaut dans les paramètres GitHub et non contrôlés ici.
+
+version: 2
+updates:
+  # Monorepo npm (racine + workspaces packages/*)
+  - package-ecosystem: "npm"
+    directory: "/"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 0
+
+  # Bibliothèques client embarquées (statiques, non publiées en tant que packages npm)
+  # — désactivation des version-updates pour éviter le bruit.
+  - package-ecosystem: "npm"
+    directory: "/packages/main/client/static/js/awesomplete-gh-pages"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 0
+  - package-ecosystem: "npm"
+    directory: "/packages/main/client/static/js/jszip"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 0
+  - package-ecosystem: "npm"
+    directory: "/packages/main/client/static/js/jsonEditor"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 0
+  - package-ecosystem: "npm"
+    directory: "/packages/main/client/static/js/jstree"
+    schedule:
+      interval: "weekly"
+    open-pull-requests-limit: 0
