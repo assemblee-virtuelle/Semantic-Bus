@@ -1,6 +1,6 @@
 # Changelog
 
-## [Unreleased] - security fix (RCE eval) — branche `security/remove-sift-and-secure-eval`
+## [0.11.1] - 2026-08-19
 
 ### Security
 
@@ -61,6 +61,7 @@
 - **Component search**: barre de recherche dans le catalogue de composants
 - **New category system**: réorganisation des catégories de composants
 
+[0.11.1]: https://github.com/assemblee-virtuelle/Semantic-Bus/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/assemblee-virtuelle/Semantic-Bus/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/assemblee-virtuelle/Semantic-Bus/compare/v0.9.1...v0.10.0
 [0.9.1]: https://github.com/assemblee-virtuelle/Semantic-Bus/compare/v0.9.0...v0.9.1
