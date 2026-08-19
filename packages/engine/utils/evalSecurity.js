@@ -13,6 +13,8 @@
 // -----------------------------------------------------------------------------
 
 const path = require('path');
+const http = require('http');
+const https = require('https');
 const { Worker } = require('worker_threads');
 const fetch = require('node-fetch');
 const hmac_lib = require('@semantic-bus/core/lib/hmac_lib');
@@ -23,6 +25,14 @@ const EVAL_SERVICE_URL = process.env.EVAL_SERVICE_URL || 'http://eval-service:80
 const EVAL_SIGN_COMPONENT = 'eval';
 // Timeout HTTP par défaut vers le eval-service.
 const EVAL_HTTP_TIMEOUT_MS = Number(process.env.EVAL_HTTP_TIMEOUT_MS || 15000);
+
+// Agent HTTP keep-alive partagé par TOUTES les requêtes vers le eval-service.
+// node-fetch v2 ne réutilise pas les connexions par défaut : chaque postEval
+// ouvrait une nouvelle connexion TCP (handshake) -> agent keepAlive partagé
+// pour réutiliser les sockets (gain ~1-3ms par requête).
+const EVAL_SERVICE_AGENT = EVAL_SERVICE_URL.startsWith('https')
+  ? new https.Agent({ keepAlive: true, maxSockets: 32 })
+  : new http.Agent({ keepAlive: true, maxSockets: 32 });
 
 // Clés dont la présence dans les données injectées est une tentative d'attaque
 // (prototype pollution / pollution de chaîne de prototypes).
@@ -324,7 +334,8 @@ async function postEval(route, body, httpTimeoutMs, resultKey = 'result') {
         [hmac_lib.HMAC_TIMESTAMP_HEADER]: timestamp
       },
       body: JSON.stringify(body),
-      signal: controller.signal
+      signal: controller.signal,
+      agent: EVAL_SERVICE_AGENT
     });
     if (!res.ok) {
       throw new Error(`eval-service HTTP ${res.status}`);
