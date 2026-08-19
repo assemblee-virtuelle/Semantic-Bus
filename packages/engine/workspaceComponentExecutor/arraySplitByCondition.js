@@ -1,6 +1,8 @@
 'use strict';
 
 const objectTransformation = require('../utils/objectTransformationV2.js');
+const { validateExpression } = require('../utils/validateExpression.js');
+const { runWhereInRemote } = require('../utils/evalSecurity.js');
 const fragment_lib = require('@semantic-bus/core/lib/fragment_lib_scylla.js');
 const DfobProcessor = require('@semantic-bus/core/helpers/dfobProcessor.js');
 const Loki = require('lokijs');
@@ -30,7 +32,7 @@ class ArraySplitByCondition {
                 let conditionFilter = JSON.parse(data.specificData.conditionString);
 
                 // Transform the filter with pullParams to resolve dynamic references (like filter does)
-                let filterResult = objectTransformation.execute(usableData, pullParams, conditionFilter);
+                let filterResult = await objectTransformation.execute(usableData, pullParams, conditionFilter);
 
                 // Use splitRawItems with Loki
                 const collectionName = `${data._id.toString()}-${Math.floor(Math.random() * 10000)}`;
@@ -52,11 +54,15 @@ class ArraySplitByCondition {
                 if (filter.hasOwnProperty('$where')) {
                     // Check if the filter only contains the '$where' property
                     if (Object.keys(filter).length === 1) {
+                        // SECURITY: la condition $where (expression JS utilisateur)
+                        // est validée statiquement AVANT exécution, puis évaluée dans
+                        // un worker_threads TERMINABLE (protection ReDoS/DoS), item
+                        // exposé comme `obj`.
                         const whereCondition = filter['$where'].replace(/this/g, 'obj');
-                        resultData = collection.where((obj) => {
-                            const evaluation = eval(whereCondition);
-                            return evaluation == true;
-                        });
+                        validateExpression(whereCondition);
+                        const whereItems = collection.find({});
+                        const whereMatches = await runWhereInRemote(whereCondition, whereItems);
+                        resultData = whereMatches.map(i => whereItems[i]);
                     } else {
                         reject({ error: '$where have to be the only property when it is used' });
                     }
@@ -183,7 +189,7 @@ class ArraySplitByCondition {
                 }
 
                 // Transform the condition with pullParams
-                let filterResult = objectTransformation.execute(onlyOneItem, pullParams, condition);
+                let filterResult = await objectTransformation.execute(onlyOneItem, pullParams, condition);
 
                 let rebuildData;
                 const collectionName = `${processId}-${data._id.toString()}`;

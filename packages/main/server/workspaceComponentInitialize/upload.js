@@ -5,6 +5,7 @@ const fs = require('fs');
 const busboy = require('busboy');
 const file_lib = require('@semantic-bus/core/lib/file_lib_scylla');
 const file_model_scylla = require('@semantic-bus/core/models/file_model_scylla');
+const hmac_lib = require('@semantic-bus/core/lib/hmac_lib');
 
 class Upload {
   constructor() {
@@ -61,12 +62,12 @@ class Upload {
 
             const file = await file_lib.create(fileData);
 
-            const workParams = {
+            const workParams = hmac_lib.signMessage(compId, {
               id: compId,
               queryParams: {
                 _file: file.id
               }
-            };
+            });
 
             console.log('workParams', workParams);
 

@@ -1,5 +1,38 @@
 # Changelog
 
+## [0.11.1] - 2026-08-19
+
+### Security
+
+- **RCE via `eval` corrigée** (divulgation coordonnée, chercheur Maxim Yakovlev). Voir
+  `advisories/SB-RCE-2026-01/2026-08-semantic-bus-rce-eval.md` et le dossier de cas
+  (interne, `advisories/SB-RCE-2026-01/SB-RCE-2026-01-case-file.md`).
+- **Retrait de `sift`** (RCE via `new Function`) → filtres natifs.
+- **Validation statique AST** (`validateExpression`) avant toute évaluation JS.
+- **`eval` isolé dans le container `eval-service`** (plus d'`eval` dans le process principal
+  de l'engine) : validation + sanitisation + worker_threads persistants (contexte vm neuf par
+  job) + timeout.
+- **`MongoDB.js`** : plus d'`eval`, grammaire stricte (`mongoQueryExecutor`).
+- **Auth des points d'exécution** : signature HMAC sur `POST /engine/work-ask/:componentId`,
+  JWT + autorisation sur la file AMQP `work-ask`, rate-limit IP sur `/data/api/*`.
+- **Validation `specificData` à l'écriture** des composants.
+- **RabbitMQ** : user `guest` supprimé, `stomp-user` dédié + credentials JWT pour le navigateur.
+
+### Performance
+
+- **Agent HTTP keep-alive** vers le eval-service (réutilisation des sockets).
+- **Pool de workers persistants** dans le eval-service (contexte vm neuf par job).
+- **Signature HMAC sur octets bruts** (`signBuffer`/`verifyBuffer`) : 1 sérialisation + 1 parse.
+- Résultat : ~900 ms → ~7 ms par évaluation (bout en bout, prod).
+
+### Fixed
+
+- HMAC : normalisation du corps avant signature (ObjectId mongo).
+- `$where` : `runWhereInRemote` lit le champ `matches` (réponse `/where`).
+- Mongo : matérialisation des cursors async-itérables (driver).
+- Mongo : constructeurs whitelistés (`ObjectId`, `ISODate`, `Date`, `NumberLong`,
+  `NumberDecimal`).
+
 ## [0.11.0] - 2026-06-17
 
 ### Fixed
@@ -28,6 +61,7 @@
 - **Component search**: barre de recherche dans le catalogue de composants
 - **New category system**: réorganisation des catégories de composants
 
+[0.11.1]: https://github.com/assemblee-virtuelle/Semantic-Bus/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/assemblee-virtuelle/Semantic-Bus/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/assemblee-virtuelle/Semantic-Bus/compare/v0.9.1...v0.10.0
 [0.9.1]: https://github.com/assemblee-virtuelle/Semantic-Bus/compare/v0.9.0...v0.9.1

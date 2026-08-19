@@ -1219,10 +1219,12 @@ function WorkspaceStore(utilStore, specificStoreList) {
 
   this.on('item_current_work', function (message) {
     console.log('item_current_work', this.itemCurrent);
+    if (!this.stompClient) return;
     this.stompClient.send('/queue/work-ask', JSON.stringify({
       id: this.itemCurrent._id,
       workspaceId: this.itemCurrent.workspaceId,
-      callerId: localStorage.user_id
+      callerId: localStorage.user_id,
+      token: localStorage.token
     }))
   }) // <= item_current_work
 
@@ -1232,6 +1234,7 @@ function WorkspaceStore(utilStore, specificStoreList) {
     utilStore.objectSetFieldValue(this.itemCurrent, message.field, message.data)
     // this.itemCurrent[message.field] = message.data;
     this.trigger('item_current_changed', this.itemCurrent)
+    if (!this.stompClient) return;
     this.stompClient.send('/topic/workspace_current_updateComponentField.' + this.workspaceCurrent._id, JSON.stringify({
       field: message.field,
       data: message.data,
@@ -1243,6 +1246,7 @@ function WorkspaceStore(utilStore, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   this.on('workspace_current_move_component', function (component) {
+    if (!this.stompClient) return;
     this.stompClient.send('/topic/workspace_current_move_component.' + this.workspaceCurrent._id, JSON.stringify({
       componentId: component.id,
       x: component.x,
@@ -1254,6 +1258,9 @@ function WorkspaceStore(utilStore, specificStoreList) {
   // --------------------------------------------------------------------------------
 
   this.subscribeToComponents = function () {
+    // STOMP pas encore connecté (fetch async des credentials) : on ne crashe pas.
+    // setStompClient() relancera subscribeToComponents dès que le client est prêt.
+    if (!this.stompClient) return;
 
     this.subscription_workspace_current_move_component = this.stompClient.subscribe('/topic/workspace_current_move_component.' + this.workspaceCurrent._id, message => {
       let body = JSON.parse(message.body)

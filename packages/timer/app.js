@@ -9,6 +9,7 @@ const requestHandler = (request, response) => {
 const server = http.Server(requestHandler);
 const env = process.env;
 const amqpManager = require('amqp-connection-manager');
+const { buildAmqpUrl } = require('@semantic-bus/core/lib/amqpUrl');
 const url = require('url');
 const fs = require('fs');
 const configUrl = env.CONFIG_URL;
@@ -31,7 +32,7 @@ server.listen(env.PORT, () => {
 });
 
 console.log('🔗 AMQP:', configJson.socketServer + '/' + configJson.amqpHost);
-const connection = amqpManager.connect([configJson.socketServer + '/' + configJson.amqpHost]);
+const connection = amqpManager.connect([buildAmqpUrl(configJson)]);
 const channelWrapper = connection.createChannel({
   json: true,
   setup: (channel) => {

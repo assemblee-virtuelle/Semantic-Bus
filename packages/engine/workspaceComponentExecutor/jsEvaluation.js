@@ -4,7 +4,7 @@ class JsEvaluation {
     this.objectTransformation = require('../utils/objectTransformationV2.js');
   }
   pull (data, flowData, pullParams) {
-    return new Promise((resolve, reject) => {
+    return new Promise(async (resolve, reject) => {
       try {
         var result = []
         // Data on which the code will be used
@@ -12,7 +12,7 @@ class JsEvaluation {
         // JS code to execute
         let jsString = `=${data.specificData.jsString}`
         // console.log('usableData',usableData);
-        let jsResult = this.objectTransformation.execute(usableData,pullParams,jsString);
+        let jsResult = await this.objectTransformation.execute(usableData,pullParams,jsString);
 
         result = jsResult
 

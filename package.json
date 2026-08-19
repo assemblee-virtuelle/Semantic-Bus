@@ -1,6 +1,6 @@
 {
   "name": "semantic-bus-monorepo",
-  "version": "0.11.0",
+  "version": "0.11.1",
   "description": "ETL style data middleware transformation embedded in an ESB for all kind of data",
   "private": true,
   "workspaces": [
@@ -39,6 +39,11 @@
     "concurrently": "^8.2.2",
     "eslint": "^9.30.1",
     "supertest": "^7.1.1"
+  },
+  "overrides": {
+    "fast-xml-parser": "^5.5.7",
+    "basic-ftp": "^5.3.1",
+    "shell-quote": "^1.8.4"
   },
   "engines": {
     "node": ">=20.19.3",
