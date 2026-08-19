@@ -180,8 +180,14 @@ function runEvalInWorker(expression, scope = {}, timeoutMs = 10000) {
       } else {
         settle(reject, new Error((msg && msg.error) || 'Unknown eval error'));
       }
+      // Worker jetable : on le ferme après le résultat (évite un handle ouvert,
+      // qui ferait timeout `jest --detectOpenHandles` en CI).
+      worker.terminate().catch(() => {});
     });
-    worker.on('error', (err) => settle(reject, err));
+    worker.on('error', (err) => {
+      settle(reject, err);
+      worker.terminate().catch(() => {});
+    });
     worker.on('exit', (code) => {
       if (code !== 0 && !settled) {
         settle(reject, new Error(`Eval worker exited with code ${code}`));
@@ -244,8 +250,13 @@ function runRegexInWorker(pattern, flags, input, timeoutMs = REGEX_DEFAULT_TIMEO
       } else {
         settle(reject, new Error((msg && msg.error) || 'Unknown regex error'));
       }
+      // Worker jetable : fermeture après le résultat (évite handle ouvert en CI).
+      worker.terminate().catch(() => {});
     });
-    worker.on('error', (err) => settle(reject, err));
+    worker.on('error', (err) => {
+      settle(reject, err);
+      worker.terminate().catch(() => {});
+    });
     worker.on('exit', (code) => {
       if (code !== 0 && !settled) {
         settle(reject, new Error(`Regex worker exited with code ${code}`));
@@ -301,8 +312,13 @@ function runWhereInWorker(expression, items, timeoutMs = 2000) {
       } else {
         settle(reject, new Error((msg && msg.error) || 'Unknown $where error'));
       }
+      // Worker jetable : fermeture après le résultat (évite handle ouvert en CI).
+      worker.terminate().catch(() => {});
     });
-    worker.on('error', (err) => settle(reject, err));
+    worker.on('error', (err) => {
+      settle(reject, err);
+      worker.terminate().catch(() => {});
+    });
     worker.on('exit', (code) => {
       if (code !== 0 && !settled) {
         settle(reject, new Error(`$where worker exited with code ${code}`));

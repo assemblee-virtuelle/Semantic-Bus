@@ -121,6 +121,15 @@ jobs:
           cd packages/eval-service
           npm ci
 
+      - name: Prepare eval-service config (config.local.json absent du repo)
+        run: |
+          # Le eval-service monte config.local.json pour lire le secret HMAC.
+          # Ce fichier est ignoré par git (absent du runner CI) → on en crée un
+          # minimal pour que le container résolve config.secret.
+          if [ ! -f config.local.json ]; then
+            echo '{"secret":"secret"}' > config.local.json
+          fi
+
       - name: Build & start eval-service container
         run: |
           echo "🐳 Building and starting eval-service container..."

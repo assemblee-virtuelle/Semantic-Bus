@@ -22,7 +22,10 @@ const workspace_component_lib = require('./workspace_component_lib.js');
 // Config de l'engine (getConfiguration tombe sur @semantic-bus/engine/config.json
 // dans le container engine). On évite auth_lib.js qui tire passport/Google
 // (google_auth_strategy exige ../../main/config.json, absent du container engine).
-const config = getConfiguration();
+// Fallback sûr (même convention que hmac_lib) : en CI/unit, getConfiguration peut
+// retourner undefined (workspace réduit sans main/engine/timer) — on ne doit pas
+// crasher sur config.secret.
+const config = getConfiguration() || {};
 
 // Rôles autorisés à déclencher l'exécution d'un composant.
 const ALLOWED_ROLES = new Set(['owner', 'editor']);

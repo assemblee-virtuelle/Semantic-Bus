@@ -11,7 +11,9 @@ const { isLiteral, processLiteral, testAllLiteralArray } = require('@semantic-bu
 const collections = {};
 
 function startCollectionCleanup() {
-  setInterval(() => {
+  // `unref()` : ce timer de fond (nettoyage du cache Loki) ne doit pas maintenir
+  // le process en vie à la sortie (sinon `jest --detectOpenHandles` timeout en CI).
+  const timer = setInterval(() => {
     const hoursAgo = 1; // nombre d'heures
     const oneHourAgo = new Date(Date.now() - hoursAgo * 3600000); // heures en millisecondes
     for (const [name, { createdAt }] of Object.entries(collections)) {
@@ -21,6 +23,7 @@ function startCollectionCleanup() {
       }
     }
   }, 1000);
+  timer.unref();
 }
 
 class JoinByField {
