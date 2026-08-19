@@ -4,7 +4,8 @@
 > Contexte : audit de sécurité suite au signalement d'une RCE par le composant Filter (chercheur Maxim Yakovlev, divulgation coordonnée).
 > Mise à jour : branche `security/remove-sift-and-secure-eval`.
 > Approche finale : retour au `eval` master + validateur AST (`validateExpression`) + sanitisation
-> des données injectées (`evalSecurity`) + **exécution en worker_threads terminable (timeout)**.
+> des données injectées (`evalSecurity`) + **exécution dans le container `eval-service`**
+> (worker_threads persistants, contexte vm neuf par job, timeout). Voir §8.5.
 > **Le sandbox isolated-vm a été abandonné** (voir §5.1-B).
 
 ---
@@ -345,8 +346,61 @@ Vérifié par tests. Aucun `eval` non validé n'est exécuté.
       `FORBIDDEN_IDENTIFIERS` → `= crypto.createHash(...)` / `crypto.randomUUID()` à nouveau
       utilisables (4 composants en prod).
 - [ ] Re-audit externe après correction + coordination de la divulgation. ✅ Tests de
-      non-régression à jour (engine 123, core 42, timer 17, eval-service 13).
+      non-régression à jour (engine 131, core 50, timer 17, eval-service 25 : 10 unitaires pool + 15 d'intégration).
 - [ ] Coordonner la divulgation (GitHub Security Advisory, CVE, répondeur).
+
+---
+
+## 8.5 Architecture et performance du `eval-service` (container d'évaluation isolé)
+
+Le `eval-service` (`packages/eval-service/`) est le **seul moteur d'évaluation** du logiciel
+(transformations `= expr`, `$where`). L'engine ne fait plus de `eval` dans son process
+principal : il appelle le container en HTTP signé.
+
+### Flux d'appel
+
+1. L'engine (`objectTransformationV2.execute`) résout les `{$.x}`/`{£.x}` **à l'extérieur**
+   du container : chaque valeur devient une variable `vN`, envoyée séparément dans `variables`.
+   Le container ne reçoit que l'expression épurée + les variables.
+2. **Signature HMAC sur octets bruts** (`signBuffer`/`verifyBuffer`) : l'engine sérialise le
+   corps **une seule fois** (`Buffer.from(JSON.stringify(body))`), le signe, et l'envoie tel
+   quel. Le service lit le corps en **octets bruts** (`express.raw()`), vérifie la signature
+   sur ces mêmes octets (`verifyBuffer`), puis fait **un seul `JSON.parse`**. → 1 sérialisation
+   à l'émetteur + 1 parse au récepteur, **0 re-sérialisation canonique** de vérification
+   (contrairement à `sign`/`verify` sur objets, utilisés pour l'AMQP/work-ask).
+3. **Agent HTTP keep-alive** (`http.Agent({ keepAlive: true })`) partagé côté engine : les
+   sockets TCP vers le eval-service sont réutilisés entre requêtes (plus de handshake par éval).
+
+### Isolation & performance (worker pool)
+
+- Chaque éval s'exécute dans un **worker_threads** du container, **persistant** (créé au boot,
+  pas de `new Worker` par requête). Les libs (dayjs, moment, lodash, cheerio, ...) sont
+  chargées **une seule fois** au démarrage du worker.
+- **Aucun passage d'état entre deux évals** : chaque job s'exécute dans un **contexte `vm`
+  neuf** (`vm.runInContext`), et les libs/helpers partagés sont **gelés** (`Object.freeze`).
+  Une éval ne peut pas laisser de global, muter un helper, ni polluer un prototype vers le job
+  suivant. Pas de recyclage périodique.
+- **File FIFO** (`WorkerPool`) quand tous les workers sont occupés ; tailles configurables par
+  env (`EVAL_POOL_SIZE`=4, `WHERE_POOL_SIZE`=2, `EVAL_MAX_QUEUE`=200).
+- **Timeout** : `vm` timeout coupe les boucles JS ; en secours, le worker est **terminé et
+  remplacé** (couvre aussi les regex natives catastrophiques que le timeout vm ne peut pas
+  interrompre). Un worker qui meurt est remplacé, son job en cours rejeté.
+- `require`/`module`/`process`/`global`/`console` sont retirés du `globalThis` du worker
+  (`workerGlobals.js`) → un `eval` interne ne peut pas accéder au système.
+
+### Ordres de grandeur
+
+Mesuré en prod (engine → eval-service, bout en bout) : **~6-7 ms/éval** (contre ~900 ms avec
+l'ancien `new Worker(...)` par évaluation, soit ~90× plus rapide). La suite d'intégration du
+eval-service est passée de ~15 s à ~1.6 s.
+
+### Tests
+
+- **Unitaires pool** (`workerPool.test.js`) : isolation d'état, FIFO, timeout → remplacement,
+  file pleine, crash → remplacement. 10 tests.
+- **Intégration** (`eval-service.integration.test.js`) : cas réels de prod (dayjs, moment,
+  he.decode, crypto, eval Date, Buffer, clés unicode, $where) + sécurité (require/process
+  inaccessibles, signature) + isolation d'état et timeout via HTTP. 15 tests.
 
 ---
 
