@@ -1,20 +1,28 @@
 'use strict';
 
 // -----------------------------------------------------------------------------
-// evalWorker (eval-service) — worker_threads interne qui exécute UNE évaluation
-// dans un thread isolé et TERMINABLE (timeout).
+// evalWorker (eval-service) — worker_threads PERSISTANT qui exécute les
+// évaluations reçues par message (pool de workers, voir workerPool.js).
 //
-// Le service d'évaluation lance chaque éval dans ce worker : il expose les libs
-// (dayjs, moment, lodash, he, ...) + les variables résolues à l'extérieur, puis
-// évalue l'expression. Le thread principal du service tue ce worker en cas de
-// timeout (DoS contenu dans le container).
+// Chaque job est exécuté dans un contexte vm NEUF : aucun état ne peut
+// transiter entre deux évaluations (globals posés, pollution de prototype,
+// mutation d'un helper) — tout reste dans le contexte jeté à la fin du job.
 //
-// Les globals Node dangereux (require/module/process/global/console) sont retirés
-// du `globalThis` AVANT l'évaluation : un `eval` interne (compat production, ex.
-// `eval('new '+...)`) ne peut donc PAS accéder au système.
+// Les libs (dayjs, moment, lodash, ...) sont chargées UNE SEULE FOIS à la
+// création du worker puis injectées dans chaque contexte, GELÉES pour
+// empêcher une éval de muter un objet partagé entre jobs.
+//
+// Le timeout du `vm.runInContext` coupe les boucles JS ; le pool termine le
+// worker (timer de secours) pour les regex natives catastrophiques que le
+// timeout vm ne peut pas interrompre.
+//
+// Les globals Node dangereux (require/module/process/global/console) sont
+// retirés du worker AVANT tout job ; le contexte vm n'expose de toute façon
+// que les helpers + variables listés ci-dessous.
 // -----------------------------------------------------------------------------
 
-const { parentPort, workerData } = require('worker_threads');
+const { parentPort } = require('worker_threads');
+const vm = require('vm');
 const { stripDangerousGlobals } = require('./workerGlobals.js');
 
 const dayjs = require('dayjs-with-plugins');
@@ -40,7 +48,7 @@ function resolveString(source) {
     if (strict) return unicode.atou(strict[1]);
     return source;
   } else if (Array.isArray(source)) {
-    return source.map(r => resolveString(r));
+    return source.map((r) => resolveString(r));
   } else if (source != null && typeof source === 'object') {
     const out = {};
     for (const key in source) out[unicode.atou(key)] = resolveString(source[key]);
@@ -52,7 +60,7 @@ function escapeString(source) {
   if (typeof source === 'string' || source instanceof String) {
     return `eval(this.unicode.atou(\`${unicode.utoa(source)}\`))`;
   } else if (Array.isArray(source)) {
-    return source.map(r => escapeString(r));
+    return source.map((r) => escapeString(r));
   } else if (source != null && source.toJSON !== undefined) {
     return escapeString(source.toJSON());
   } else if (source != null && typeof source === 'object') {
@@ -66,42 +74,58 @@ function parseAndResolveString(source) {
   return resolveString(JSON.parse(source));
 }
 
-// Expose les libs + helpers (mêmes identifiants que le scope master).
-globalThis.dayjs = dayjs;
-globalThis.moment = moment;
-globalThis.lodash = lodash;
-globalThis.he = he;
-globalThis.removeMarkdown = removeMarkdown;
-globalThis.sanitizeHtml = sanitizeHtml;
-globalThis.cheerio = cheerio;
-globalThis.decodeUnicode = decodeUnicode;
-globalThis.dotProp = dotProp;
-globalThis.unicode = unicode;
-Object.defineProperty(globalThis, 'crypto', {
-  value: crypto, writable: true, configurable: true, enumerable: true
-});
-globalThis.resolveString = resolveString;
-globalThis.escapeString = escapeString;
-globalThis.parseAndResolveString = parseAndResolveString;
-
-// Variables résolues à l'extérieur du container (séparées de l'expression).
-if (workerData && workerData.variables) {
-  for (const key of Object.keys(workerData.variables)) {
-    globalThis[key] = workerData.variables[key];
+// Libs/helpers exposés aux expressions (mêmes identifiants que le scope
+// master). Gelés : une éval ne peut pas ajouter/écraser de propriété sur un
+// objet partagé entre jobs.
+const helpers = {
+  dayjs,
+  moment,
+  lodash,
+  he,
+  removeMarkdown,
+  sanitizeHtml,
+  cheerio,
+  decodeUnicode,
+  dotProp,
+  unicode,
+  crypto,
+  resolveString,
+  escapeString,
+  parseAndResolveString,
+  Buffer
+};
+for (const name of Object.keys(helpers)) {
+  const value = helpers[name];
+  if (value && (typeof value === 'object' || typeof value === 'function')) {
+    try {
+      Object.freeze(value);
+    } catch (e) {
+      /* non gelable : on continue */
+    }
   }
 }
 
-// Retire les globals Node dangereux AVANT l'évaluation.
 stripDangerousGlobals();
 
-let result;
-try {
-  // Indirect eval : `this` pointe sur le global (scope master).
-  // eslint-disable-next-line no-eval
-  result = (0, eval)(workerData.expression);
-} catch (e) {
-  parentPort.postMessage({ ok: false, error: e && e.message ? e.message : String(e) });
-  return;
-}
+parentPort.on('message', (msg) => {
+  if (!msg || msg.type !== 'job') return;
+  const { jobId, expression, variables, timeoutMs } = msg;
 
-parentPort.postMessage({ ok: true, result });
+  // Contexte NEUF à chaque job : l'expression ne voit que CE contexte.
+  const ctx = vm.createContext({});
+  Object.assign(ctx, helpers);
+  if (variables) Object.assign(ctx, variables);
+
+  try {
+    // eslint-disable-next-line no-eval
+    const result = vm.runInContext(expression, ctx, { timeout: timeoutMs });
+    parentPort.postMessage({ type: 'result', jobId, ok: true, result });
+  } catch (e) {
+    parentPort.postMessage({
+      type: 'result',
+      jobId,
+      ok: false,
+      error: e && e.message ? e.message : String(e)
+    });
+  }
+});

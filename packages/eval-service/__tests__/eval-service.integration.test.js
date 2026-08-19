@@ -107,4 +107,22 @@ describe('eval-service — cas réels de production', () => {
     const { status } = await call('/eval', { expression: '1+1', variables: {} }, false);
     expect(status).toBe(401);
   });
+
+  test('pool : aucun passage d\'état entre deux évals (contexte vm neuf)', async () => {
+    const r1 = await call('/eval', { expression: 'globalThis.leakPool = 123; 1', variables: {} });
+    expect(r1.data.ok).toBe(true);
+
+    const r2 = await call('/eval', { expression: 'typeof globalThis.leakPool', variables: {} });
+    expect(r2.data.ok).toBe(true);
+    expect(r2.data.result).toBe('undefined');
+  });
+
+  test('pool : une boucle infinie est interrompue (timeout) et le service reste dispo', async () => {
+    const t0 = await call('/eval', { expression: 'while (true) {}', variables: {}, timeoutMs: 400 });
+    expect(t0.data.ok).toBe(false);
+
+    const after = await call('/eval', { expression: '6 * 7', variables: {} });
+    expect(after.data.ok).toBe(true);
+    expect(after.data.result).toBe(42);
+  });
 });

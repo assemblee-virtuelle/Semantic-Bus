@@ -17,17 +17,18 @@
 // Réponse :
 //   { "ok": true, "result": "2020-01-02" }  |  { "ok": false, "error": "..." }
 //
-// Chaque évaluation est exécutée dans un worker_threads INTERNE terminable
-// (timeout) : un DoS (boucle, ReDoS, allocation mémoire) est contenu dans ce
-// container isolé (pas d'accès réseau aux autres services, pas de variables
-// système de l'engine, limites CPU/mémoire docker).
+// Chaque évaluation est exécutée dans un pool de worker_threads PERSISTANTS :
+// un DoS (boucle, ReDoS, allocation mémoire) est contenu dans ce container
+// isolé (pas d'accès réseau aux autres services, pas de variables système de
+// l'engine, limites CPU/mémoire docker). Les workers sont créés au boot et
+// traitent les jobs par message ; chacun exécute chaque job dans un contexte
+// vm neuf (aucun état ne transite entre deux évaluations).
 // -----------------------------------------------------------------------------
 
 const express = require('express');
 const bodyParser = require('body-parser');
-const path = require('path');
-const { Worker } = require('worker_threads');
 const hmac_lib = require('@semantic-bus/core/lib/hmac_lib');
+const { WorkerPool } = require('./workerPool.js');
 
 const app = express();
 app.use(bodyParser.json({ limit: '10mb' }));
@@ -39,66 +40,20 @@ const DEFAULT_TIMEOUT_MS = Number(process.env.EVAL_TIMEOUT_MS || 10000);
 // Longueur max d'expression.
 const MAX_EXPRESSION_LENGTH = 20000;
 
-/**
- * Exécute une expression dans un worker_threads terminable (timeout).
- * @param {string} expression
- * @param {Object} variables
- * @param {number} timeoutMs
- * @returns {Promise<*>}
- */
-function runEvalInWorker(expression, variables, timeoutMs) {
-  return new Promise((resolve, reject) => {
-    const worker = new Worker(path.join(__dirname, 'evalWorker.js'), {
-      workerData: { expression, variables }
-    });
-    let settled = false;
-    const settle = (fn, val) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      fn(val);
-    };
-    const timer = setTimeout(() => {
-      worker.terminate();
-      settle(reject, new Error(`eval timed out after ${timeoutMs}ms`));
-    }, timeoutMs);
-    worker.on('message', (msg) => {
-      if (msg && msg.ok === true) settle(resolve, msg.result);
-      else settle(reject, new Error((msg && msg.error) || 'unknown eval error'));
-    });
-    worker.on('error', (err) => settle(reject, err));
-    worker.on('exit', (code) => {
-      if (code !== 0 && !settled) settle(reject, new Error(`eval worker exited with code ${code}`));
-    });
-  });
-}
+// Pools de workers : tailles configurables par env (défauts raisonnables).
+const EVAL_POOL_SIZE = Number(process.env.EVAL_POOL_SIZE || 4);
+const WHERE_POOL_SIZE = Number(process.env.WHERE_POOL_SIZE || 2);
+const EVAL_MAX_QUEUE = Number(process.env.EVAL_MAX_QUEUE || 200);
 
-function runWhereInWorker(expression, items, timeoutMs) {
-  return new Promise((resolve, reject) => {
-    const worker = new Worker(path.join(__dirname, 'whereWorker.js'), {
-      workerData: { expression, items }
-    });
-    let settled = false;
-    const settle = (fn, val) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      fn(val);
-    };
-    const timer = setTimeout(() => {
-      worker.terminate();
-      settle(reject, new Error(`where timed out after ${timeoutMs}ms`));
-    }, timeoutMs);
-    worker.on('message', (msg) => {
-      if (msg && msg.ok === true) settle(resolve, msg.matches);
-      else settle(reject, new Error((msg && msg.error) || 'unknown where error'));
-    });
-    worker.on('error', (err) => settle(reject, err));
-    worker.on('exit', (code) => {
-      if (code !== 0 && !settled) settle(reject, new Error(`where worker exited with code ${code}`));
-    });
-  });
-}
+const evalPool = new WorkerPool({ script: 'evalWorker.js', size: EVAL_POOL_SIZE });
+const wherePool = new WorkerPool({ script: 'whereWorker.js', size: WHERE_POOL_SIZE });
+
+// Arrêt propre : termine les workers au signal SIGTERM (docker stop).
+process.on('SIGTERM', () => {
+  evalPool.close();
+  wherePool.close();
+  process.exit(0);
+});
 
 app.post('/eval', async (req, res) => {
   // 1. Vérification de la signature HMAC (body + timestamp).
@@ -123,9 +78,9 @@ app.post('/eval', async (req, res) => {
   }
   const timeoutMs = (req.body && req.body.timeoutMs) ? Number(req.body.timeoutMs) : DEFAULT_TIMEOUT_MS;
 
-  // 3. Évaluation dans un worker interne terminable.
+  // 3. Évaluation dans un worker du pool (contexte vm neuf par job).
   try {
-    const result = await runEvalInWorker(expression, variables || {}, timeoutMs);
+    const result = await evalPool.exec({ expression, variables: variables || {}, timeoutMs }, timeoutMs, EVAL_MAX_QUEUE);
     res.send({ ok: true, result });
   } catch (e) {
     res.status(200).send({ ok: false, error: e && e.message ? e.message : String(e) });
@@ -160,7 +115,7 @@ app.post('/where', async (req, res) => {
   const timeoutMs = (req.body && req.body.timeoutMs) ? Number(req.body.timeoutMs) : DEFAULT_TIMEOUT_MS;
 
   try {
-    const matches = await runWhereInWorker(expression, items, timeoutMs);
+    const matches = await wherePool.exec({ expression, items, timeoutMs }, timeoutMs, EVAL_MAX_QUEUE);
     res.send({ ok: true, matches });
   } catch (e) {
     res.status(200).send({ ok: false, error: e && e.message ? e.message : String(e) });
