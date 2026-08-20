@@ -62,6 +62,17 @@ class ArraySplitByCondition {
                         // ITÈRE sur les items (boucle ci-dessous) et appelle le
                         // eval-service de façon ATOMIQUE par item (variables.obj).
                         // Le container ne fait qu'une évaluation à la fois.
+                        //
+                        // POURQUOI PAS le callback Loki `collection.where(callback)` ?
+                        // Le callback Loki est SYNCHRONE (Loki itère et attend un
+                        // retour booléen immédiat), alors que l'évaluation passe par
+                        // un appel HTTP ASYNCHRONE au eval-service (sécurité : éval
+                        // isolée du process). On ne peut pas faire un fetch async dans
+                        // un callback synchrone (l'event loop doit tourner pour recevoir
+                        // la réponse). Les alternatives sync (execSync/deasync)
+                        // bloqueraient tout l'engine ; réintroduire un eval sync dans le
+                        // process réouvrirait la RCE. => boucle for...await (équivalent
+                        // fonctionnel, sûr et async).
                         const whereCondition = filter['$where'].replace(/this/g, 'obj');
                         validateExpression(whereCondition);
                         const whereItems = collection.find({});
