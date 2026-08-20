@@ -72,6 +72,12 @@ describe('eval-service — cas réels de production', () => {
     expect(data.result).toBe(15);
   });
 
+  test('compat prod : new Date() (constructeur autorisé)', async () => {
+    const r = await call('/eval', { expression: 'new Date("2020-01-15").getUTCFullYear()', variables: {} });
+    expect(r.data.ok).toBe(true);
+    expect(r.data.result).toBe(2020);
+  });
+
   test('Buffer.from(...).toString("base64") (prod)', async () => {
     const { data } = await call('/eval', { expression: 'Buffer.from(vS).toString("base64")', variables: { vS: '2020-01-15' } });
     expect(data.ok).toBe(true);
@@ -170,6 +176,55 @@ describe('eval-service — cas réels de production', () => {
     const after = await call('/eval', { expression: '6 * 7', variables: {} });
     expect(after.data.ok).toBe(true);
     expect(after.data.result).toBe(42);
+  });
+
+  test('compat prod : removeMarkdown', async () => {
+    const r = await call('/eval', { expression: 'removeMarkdown(md)', variables: { md: '**bold**' } });
+    expect(r.data.ok).toBe(true);
+    expect(r.data.result).toBe('bold');
+  });
+
+  test('compat prod : cheerio (parse DOM)', async () => {
+    const r = await call('/eval', {
+      expression: 'cheerio.load("<li>a</li>")("li").text()',
+      variables: {}
+    });
+    expect(r.data.ok).toBe(true);
+    expect(r.data.result).toBe('a');
+  });
+
+  test('compat prod : sanitizeHtml', async () => {
+    const r = await call('/eval', {
+      expression: 'sanitizeHtml(html, { allowedTags: ["p"] })',
+      variables: { html: '<p onclick="evil()">Hello</p>' }
+    });
+    expect(r.data.ok).toBe(true);
+    expect(r.data.result).toBe('<p>Hello</p>');
+  });
+
+  test('compat prod : decodeUnicode', async () => {
+    const r = await call('/eval', { expression: 'decodeUnicode(s)', variables: { s: '\\u0041' } });
+    expect(r.data.ok).toBe(true);
+    expect(r.data.result).toBe('A');
+  });
+
+  test('compat prod : crypto.randomUUID et randomBytes', async () => {
+    const u = await call('/eval', { expression: 'crypto.randomUUID()', variables: {} });
+    expect(u.data.ok).toBe(true);
+    expect(u.data.result).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+
+    const b = await call('/eval', { expression: 'crypto.randomBytes(16)', variables: {} });
+    expect(b.data.ok).toBe(true);
+    expect(typeof b.data.result).toBe('string');
+  });
+
+  test('compat prod : lodash.truncate (whitelistée)', async () => {
+    const r = await call('/eval', {
+      expression: 'lodash.truncate("un long texte", { length: 5 })',
+      variables: {}
+    });
+    expect(r.data.ok).toBe(true);
+    expect(r.data.result).toBe('un...');
   });
 
   test('pool : aucun passage d\'état entre deux évals (contexte vm neuf)', async () => {
