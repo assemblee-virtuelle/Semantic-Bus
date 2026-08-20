@@ -272,78 +272,16 @@ function runRegexInWorker(pattern, flags, input, timeoutMs = REGEX_DEFAULT_TIMEO
   });
 }
 
-// Nombre max d'items traités par un appel $where (anti-bombement).
-const MAX_WHERE_ITEMS = 100000;
-
-/**
- * Évalue une condition `$where` (expression JS utilisateur, validée par
- * validateExpression) sur un ensemble d'items dans un worker_threads TERMINABLE
- * (protection ReDoS/DoS, cohérente avec runEvalInWorker / runRegexInWorker).
- *
- * @param {string} expression condition $where (déjà validée, `this`→`obj`)
- * @param {Array<*>} items items à évaluer (obj = item courant)
- * @param {number} [timeoutMs=2000] délai maximal avant terminaison du worker
- * @returns {Promise<Array<number>>} indices des items matchant `== true`
- */
-function runWhereInWorker(expression, items, timeoutMs = 2000) {
-  return new Promise((resolve, reject) => {
-    if (!Array.isArray(items)) {
-      reject(new Error('$where items must be an array'));
-      return;
-    }
-    if (items.length > MAX_WHERE_ITEMS) {
-      reject(new Error(`$where too many items (max ${MAX_WHERE_ITEMS})`));
-      return;
-    }
-
-    const worker = new Worker(path.join(__dirname, 'whereWorker.js'), {
-      workerData: { expression, items }
-    });
-
-    let settled = false;
-    const settle = (fn, val) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      fn(val);
-    };
-
-    const timer = setTimeout(() => {
-      worker.terminate();
-      settle(reject, new Error(`$where evaluation timed out after ${timeoutMs}ms`));
-    }, timeoutMs);
-
-    worker.on('message', (msg) => {
-      if (msg && msg.ok === true) {
-        settle(resolve, msg.matches);
-      } else {
-        settle(reject, new Error((msg && msg.error) || 'Unknown $where error'));
-      }
-      // Worker jetable : fermeture après le résultat (évite handle ouvert en CI).
-      worker.terminate().catch(() => {});
-    });
-    worker.on('error', (err) => {
-      settle(reject, err);
-      worker.terminate().catch(() => {});
-    });
-    worker.on('exit', (code) => {
-      if (code !== 0 && !settled) {
-        settle(reject, new Error(`$where worker exited with code ${code}`));
-      }
-    });
-  });
-}
-
 /**
  * POST signé (HMAC) vers le eval-service (container d'évaluation isolé).
- * Pas de fallback : si le service n'est pas joignable (timeout HTTP), on lève.
- * @param {string} route '/eval' ou '/where'
- * @param {Object} body corps lisible { expression, variables | items, timeoutMs }
- * @param {number} httpTimeoutMs
- * @param {string} [resultKey='result'] champ du résultat dans la réponse —
- *   `/eval` répond `{ ok:true, result }`, `/where` répond `{ ok:true, matches }`.
- * @returns {Promise<*>} le résultat (déjà désérialisé)
- */
+  * Pas de fallback : si le service n'est pas joignable (timeout HTTP), on lève.
+  * @param {string} route chemin HTTP (ex. '/eval')
+  * @param {Object} body corps lisible { expression, variables, timeoutMs }
+  * @param {number} httpTimeoutMs
+  * @param {string} [resultKey='result'] champ du résultat dans la réponse —
+  *   `/eval` répond `{ ok:true, result }`.
+  * @returns {Promise<*>} le résultat (déjà désérialisé)
+  */
 async function postEval(route, body, httpTimeoutMs, resultKey = 'result') {
   // Sérialisation UNIQUE : on produit les octets du corps une fois, on les
   // signe (signBuffer) et on les envoie tels quels. Le eval-service vérifie la
@@ -391,25 +329,12 @@ async function runEvalInRemote(expression, variables = {}, timeoutMs = 10000) {
   return postEval('/eval', { expression, variables, timeoutMs }, EVAL_HTTP_TIMEOUT_MS);
 }
 
-/**
- * Évalue une condition $where sur un ensemble d'items dans le eval-service.
- * @param {string} expression condition $where (validée, `this`→`obj`)
- * @param {Array<*>} items items à évaluer
- * @param {number} [timeoutMs] timeout d'exécution côté service
- * @returns {Promise<Array<number>>} indices des items matchant
- */
-async function runWhereInRemote(expression, items, timeoutMs = 2000) {
-  return postEval('/where', { expression, items, timeoutMs }, EVAL_HTTP_TIMEOUT_MS, 'matches');
-}
-
 module.exports = {
   sanitizeValue,
   evalWithTimeout,
   runEvalInWorker,
   runRegexInWorker,
-  runWhereInWorker,
   runEvalInRemote,
-  runWhereInRemote,
   DANGEROUS_KEYS,
   LODASH_PROTO_POLLUTION_FUNCS,
   LODASH_CODE_EXECUTION_FUNCS

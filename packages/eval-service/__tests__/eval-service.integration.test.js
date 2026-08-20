@@ -90,10 +90,16 @@ describe('eval-service — cas réels de production', () => {
     expect(data.result).toEqual([2, 4, 6]);
   });
 
-  test('/where filtre les items (prod $where)', async () => {
-    const { data } = await call('/where', { expression: 'obj.age >= 18', items: [{ age: 10 }, { age: 25 }, { age: 18 }] });
-    expect(data.ok).toBe(true);
-    expect(data.matches).toEqual([1, 2]);
+  test('/eval évalue une condition $where atomiquement (obj = item)', async () => {
+    // Le eval-service est atomique : /eval avec variables.obj = item (le code
+    // appelant — filter.js, comme Loki — itère sur les items).
+    const r1 = await call('/eval', { expression: 'obj.age >= 18', variables: { obj: { age: 25 } } });
+    expect(r1.data.ok).toBe(true);
+    expect(r1.data.result).toBe(true);
+
+    const r2 = await call('/eval', { expression: 'obj.age >= 18', variables: { obj: { age: 10 } } });
+    expect(r2.data.ok).toBe(true);
+    expect(r2.data.result).toBe(false);
   });
 
   test('sécurité : eval(require) inaccessible (pas de RCE)', async () => {

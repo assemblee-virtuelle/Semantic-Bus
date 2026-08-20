@@ -26,7 +26,9 @@ function makeEvalPoolSecure(size = 1) {
 }
 
 function makeWherePool(size = 1) {
-  return new WorkerPool({ script: 'whereWorker.js', size });
+  // Le $where utilise désormais le worker ATOMIQUE (evalWorker.js) avec
+  // variables.obj = item — pas de worker dédié, pas de boucle côté worker.
+  return new WorkerPool({ script: 'evalWorker.js', size });
 }
 
 describe('WorkerPool — eval', () => {
@@ -177,16 +179,15 @@ describe('WorkerPool — eval', () => {
   });
 });
 
-describe('WorkerPool — where', () => {
-  test('évalue une condition $where et renvoie les indices', async () => {
+describe('WorkerPool — $where atomique (retour Loki)', () => {
+  test('évalue une condition $where atomiquement (variables.obj = item)', async () => {
     const pool = makeWherePool(1);
     try {
-      const matches = await pool.exec({
-        expression: 'obj.age >= 18',
-        items: [{ age: 10 }, { age: 25 }, { age: 18 }],
-        timeoutMs: 5000
-      });
-      expect(matches).toEqual([1, 2]);
+      // Chaque job = une évaluation atomique sur un item (obj).
+      const r1 = await pool.exec({ expression: 'obj.age >= 18', variables: { obj: { age: 25 } }, timeoutMs: 5000 }, 5000);
+      expect(r1).toBe(true);
+      const r2 = await pool.exec({ expression: 'obj.age >= 18', variables: { obj: { age: 10 } }, timeoutMs: 5000 }, 5000);
+      expect(r2).toBe(false);
     } finally {
       pool.close();
     }
@@ -195,13 +196,13 @@ describe('WorkerPool — where', () => {
   test('aucun passage d\'état entre deux jobs $where', async () => {
     const pool = makeWherePool(1);
     try {
-      await pool.exec({ expression: 'globalThis.leakW = 1', items: [{}], timeoutMs: 5000 });
-      const matches = await pool.exec({
+      await pool.exec({ expression: 'globalThis.leakW = 1', variables: { obj: {} }, timeoutMs: 5000 }, 5000);
+      const r = await pool.exec({
         expression: 'typeof globalThis.leakW === "undefined" && obj.age >= 18',
-        items: [{ age: 18 }],
+        variables: { obj: { age: 18 } },
         timeoutMs: 5000
-      });
-      expect(matches).toEqual([0]);
+      }, 5000);
+      expect(r).toBe(true);
     } finally {
       pool.close();
     }

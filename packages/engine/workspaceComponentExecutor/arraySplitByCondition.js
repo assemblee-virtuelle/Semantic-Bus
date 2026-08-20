@@ -2,7 +2,7 @@
 
 const objectTransformation = require('../utils/objectTransformationV2.js');
 const { validateExpression } = require('../utils/validateExpression.js');
-const { runWhereInRemote } = require('../utils/evalSecurity.js');
+const { runEvalInRemote } = require('../utils/evalSecurity.js');
 const fragment_lib = require('@semantic-bus/core/lib/fragment_lib_scylla.js');
 const DfobProcessor = require('@semantic-bus/core/helpers/dfobProcessor.js');
 const Loki = require('lokijs');
@@ -56,12 +56,20 @@ class ArraySplitByCondition {
                     if (Object.keys(filter).length === 1) {
                         // SECURITY: la condition $where (expression JS utilisateur)
                         // est validée statiquement AVANT exécution, puis évaluée dans
-                        // un worker_threads TERMINABLE (protection ReDoS/DoS), item
-                        // exposé comme `obj`.
+                        // le eval-service (container isolé), item exposé comme `obj`.
+                        //
+                        // Retour au comportement Loki d'origine : le code appelant
+                        // ITÈRE sur les items (boucle ci-dessous) et appelle le
+                        // eval-service de façon ATOMIQUE par item (variables.obj).
+                        // Le container ne fait qu'une évaluation à la fois.
                         const whereCondition = filter['$where'].replace(/this/g, 'obj');
                         validateExpression(whereCondition);
                         const whereItems = collection.find({});
-                        const whereMatches = await runWhereInRemote(whereCondition, whereItems);
+                        const whereMatches = [];
+                        for (let i = 0; i < whereItems.length; i++) {
+                            const res = await runEvalInRemote(whereCondition, { obj: whereItems[i] });
+                            if (res == true) whereMatches.push(i);
+                        }
                         resultData = whereMatches.map(i => whereItems[i]);
                     } else {
                         reject({ error: '$where have to be the only property when it is used' });

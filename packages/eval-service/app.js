@@ -44,7 +44,6 @@ const MAX_EXPRESSION_LENGTH = 20000;
 
 // Pools de workers : tailles configurables par env (défauts raisonnables).
 const EVAL_POOL_SIZE = Number(process.env.EVAL_POOL_SIZE || 4);
-const WHERE_POOL_SIZE = Number(process.env.WHERE_POOL_SIZE || 2);
 const EVAL_MAX_QUEUE = Number(process.env.EVAL_MAX_QUEUE || 200);
 // Recyclage des workers (sécurité, optionnel) : nombre de jobs par worker avant
 // remplacement. Défaut élevé (100000) pour préserver le pool persistant — le
@@ -52,13 +51,15 @@ const EVAL_MAX_QUEUE = Number(process.env.EVAL_MAX_QUEUE || 200);
 // PAS par le recyclage. Configurable pour un filet de sécurité plus strict.
 const EVAL_RECYCLE_AFTER = Number(process.env.EVAL_RECYCLE_AFTER || 100000);
 
+// Un SEUL pool de workers ATOMIQUES : chaque worker évalue une expression une
+// seule fois (mode eval) ou sur un item donné (mode $where via `obj`). La boucle
+// sur les items d'un $where est gérée par ce service (app.js), pas par le worker
+// — retour au comportement Loki d'origine (le moteur itère, on évalue atomiquement).
 const evalPool = new WorkerPool({ script: 'evalWorker.js', size: EVAL_POOL_SIZE, recycleAfter: EVAL_RECYCLE_AFTER });
-const wherePool = new WorkerPool({ script: 'whereWorker.js', size: WHERE_POOL_SIZE, recycleAfter: EVAL_RECYCLE_AFTER });
 
 // Arrêt propre : termine les workers au signal SIGTERM (docker stop).
 process.on('SIGTERM', () => {
   evalPool.close();
-  wherePool.close();
   process.exit(0);
 });
 
@@ -106,38 +107,10 @@ app.post('/eval', async (req, res) => {
   }
 });
 
-// -----------------------------------------------------------------------------
-// POST /where — évalue une condition $where sur un ensemble d'items.
-// Body :
-//   { "expression": "obj.age >= 18", "items": [ {...}, ... ] }
-// Réponse : { "ok": true, "matches": [0, 2] }  |  { "ok": false, "error": "..." }
-// -----------------------------------------------------------------------------
-app.post('/where', async (req, res) => {
-  const body = readSignedBody(req, res);
-  if (body === null) return;
-
-  const { expression, items } = body;
-  if (typeof expression !== 'string' || expression.length === 0) {
-    res.status(400).send({ ok: false, error: 'expression (string) is required' });
-    return;
-  }
-  if (expression.length > MAX_EXPRESSION_LENGTH) {
-    res.status(400).send({ ok: false, error: `expression too long (max ${MAX_EXPRESSION_LENGTH})` });
-    return;
-  }
-  if (!Array.isArray(items)) {
-    res.status(400).send({ ok: false, error: 'items must be an array' });
-    return;
-  }
-  const timeoutMs = (body && body.timeoutMs) ? Number(body.timeoutMs) : DEFAULT_TIMEOUT_MS;
-
-  try {
-    const matches = await wherePool.exec({ expression, items, timeoutMs }, timeoutMs, EVAL_MAX_QUEUE);
-    res.send({ ok: true, matches });
-  } catch (e) {
-    res.status(200).send({ ok: false, error: e && e.message ? e.message : String(e) });
-  }
-});
+// POST /eval est la SEULE route d'évaluation : atomique (une expression par appel).
+// Le $where (filtre/arraySplitByCondition) appelle /eval une fois PAR ITEM avec
+// variables.obj = item, et c'est le code appelant (engine, comme Loki) qui itère.
+// Aucune boucle ici : le container fait une évaluation atomique à la fois.
 
 app.get('/health', (req, res) => res.send({ ok: true }));
 
