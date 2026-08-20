@@ -29,21 +29,35 @@ const dotProp = require('dot-prop');
 const nodeCrypto = require('crypto');
 const { stripDangerousGlobals } = require('./workerGlobals.js');
 
-// Fonctions lodash qui COMPILENT / EXÉCUTENT du code (host realm, hors vm).
-// lodash.template compile son corps avec un Function du host realm → échappe au
-// contexte vm et à stripDangerousGlobals (RCE signalée par Maxim Yakovlev). On
-// expose une copie de lodash SANS ces fonctions (défense en profondeur).
-const LODASH_STRIPPED = ['template', 'templateSettings'];
-
 function decodeUnicode(str) {
   const regex = new RegExp('\\\\u([\\dA-Fa-f]{4})', 'g');
   return str.replace(regex, (m, g) => String.fromCharCode(parseInt(g, 16)));
 }
 
 function makeSafeLodash() {
+  // N'expose QU'UN SOUS-ENSEMBLE de lodash (whitelist de fonctions sûres et
+  // utiles pour les transformations de données). On exclut volontairement :
+  //   - les fonctions qui COMPILENT du code (template/templateSettings — RCE) ;
+  //   - les fonctions de proto-pollution (merge/set/defaultsDeep/update/transform/
+  //     create/assign/defaults/...) ;
+  //   - les fonctions de temporisation (debounce/throttle — timers non pertinents).
+  // Les expressions de prod utilisent surtout des fonctions de manipulation de
+  // données (map/filter/get/truncate/...). Réduit fortement la surface d'attaque.
+  const WHITELIST = [
+    'truncate', 'map', 'filter', 'get', 'has', 'keys', 'values', 'omit', 'pick',
+    'clone', 'cloneDeep', 'isEqual', 'isArray', 'isObject', 'isString', 'isNumber',
+    'isBoolean', 'isNil', 'isEmpty', 'toLower', 'toUpper', 'trim', 'replace', 'split',
+    'join', 'slice', 'find', 'findIndex', 'includes', 'reduce', 'each', 'forEach',
+    'flatMap', 'uniq', 'groupBy', 'orderBy', 'sortBy', 'findLast', 'head', 'last',
+    'first', 'size', 'range', 'fill', 'reverse', 'concat', 'flatten', 'flattenDeep',
+    'compact', 'take', 'drop', 'chunk', 'zip', 'unzip', 'max', 'min', 'sum', 'mean',
+    'round', 'ceil', 'floor', 'parseInt', 'parseFloat', 'escape', 'unescape', 'capitalize',
+    'startsWith', 'endsWith', 'padStart', 'padEnd', 'repeat', 'toInteger', 'toNumber',
+    'toString', 'identity', 'property', 'matches', 'constant'
+  ];
   const safe = {};
-  for (const key of Object.keys(lodash)) {
-    if (!LODASH_STRIPPED.includes(key)) safe[key] = lodash[key];
+  for (const key of WHITELIST) {
+    if (typeof lodash[key] === 'function') safe[key] = lodash[key];
   }
   try {
     Object.freeze(safe);
@@ -104,12 +118,33 @@ const safeHe = {
   encode: (str) => he.encode(str == null ? '' : String(str))
 };
 
+// -----------------------------------------------------------------------------
+// Whitelist des méthodes STATIQUES exposées sur dayjs/moment. La fonction
+// d'appel (dayjs(...)/moment(...)) crée un objet date avec son API de chaînage
+// (format/add/diff/...). On n'expose que les utilitaires statiques réellement
+// utiles en prod, pas l'ensemble des API (tz/plugins/etc.).
+// -----------------------------------------------------------------------------
+function safeLib(fn, staticWhitelist) {
+  const safe = (...args) => fn(...args);
+  for (const key of staticWhitelist) {
+    if (typeof fn[key] === 'function') safe[key] = fn[key];
+  }
+  return safe;
+}
+const DAYJS_STATIC = ['unix', 'utc', 'locale', 'isDayjs', 'duration', 'max', 'min'];
+const MOMENT_STATIC = ['utc', 'unix', 'locale', 'duration', 'min', 'max', 'now', 'isMoment'];
+const safeDayjs = safeLib(dayjs, DAYJS_STATIC);
+const safeMoment = safeLib(moment, MOMENT_STATIC);
+
+// removeMarkdown : fonction simple, sûr, exposée telle quelle (pas de surface
+// d'objets). dotProp : fonctions de manipulation de chemin, on garde get/set.
+
 // Libs/helpers exposés aux expressions (mêmes identifiants que le scope master),
 // en version épurée, réduite et gelée.
 function makeHelpers() {
   const helpers = {
-    dayjs,
-    moment,
+    dayjs: safeDayjs,
+    moment: safeMoment,
     lodash: makeSafeLodash(),
     he: safeHe,               // wrapper minimal (decode/encode)
     removeMarkdown,
@@ -149,6 +184,5 @@ function createSecureContext() {
 module.exports = {
   createSecureContext,
   helpers,
-  stripDangerousGlobals,
-  LODASH_STRIPPED
+  stripDangerousGlobals
 };
