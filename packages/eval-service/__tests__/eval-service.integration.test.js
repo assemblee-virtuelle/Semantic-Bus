@@ -72,6 +72,12 @@ describe('eval-service — cas réels de production', () => {
     expect(data.result).toBe(15);
   });
 
+  test('compat prod : new Date() (constructeur autorisé)', async () => {
+    const r = await call('/eval', { expression: 'new Date("2020-01-15").getUTCFullYear()', variables: {} });
+    expect(r.data.ok).toBe(true);
+    expect(r.data.result).toBe(2020);
+  });
+
   test('Buffer.from(...).toString("base64") (prod)', async () => {
     const { data } = await call('/eval', { expression: 'Buffer.from(vS).toString("base64")', variables: { vS: '2020-01-15' } });
     expect(data.ok).toBe(true);
@@ -90,15 +96,36 @@ describe('eval-service — cas réels de production', () => {
     expect(data.result).toEqual([2, 4, 6]);
   });
 
-  test('/where filtre les items (prod $where)', async () => {
-    const { data } = await call('/where', { expression: 'obj.age >= 18', items: [{ age: 10 }, { age: 25 }, { age: 18 }] });
-    expect(data.ok).toBe(true);
-    expect(data.matches).toEqual([1, 2]);
+  test('/eval évalue une condition $where atomiquement (obj = item)', async () => {
+    // Le eval-service est atomique : /eval avec variables.obj = item (le code
+    // appelant — filter.js, comme Loki — itère sur les items).
+    const r1 = await call('/eval', { expression: 'obj.age >= 18', variables: { obj: { age: 25 } } });
+    expect(r1.data.ok).toBe(true);
+    expect(r1.data.result).toBe(true);
+
+    const r2 = await call('/eval', { expression: 'obj.age >= 18', variables: { obj: { age: 10 } } });
+    expect(r2.data.ok).toBe(true);
+    expect(r2.data.result).toBe(false);
   });
 
   test('sécurité : eval(require) inaccessible (pas de RCE)', async () => {
     const { data } = await call('/eval', { expression: 'eval("require(\'fs\').readFileSync(\'/etc/passwd\')")', variables: {} });
     expect(data.ok).toBe(false);
+  });
+
+  test('sécurité : lodash.template retiré du scope (RCE host realm bloquée)', async () => {
+    // Bypass signalé par le chercheur : lodash.template compilait son corps avec
+    // un Function du host realm, échappant au vm. Le worker expose désormais un
+    // lodash sans template/templateSettings.
+    const r = await call('/eval', { expression: 'typeof lodash.template', variables: {} });
+    expect(r.data.ok).toBe(true);
+    expect(r.data.result).toBe('undefined');
+  });
+
+  test('sécurité : import() dynamique rejeté dans le worker', async () => {
+    const r = await call('/eval', { expression: 'import("fs")', variables: {} });
+    // soit erreur, soit "function" (mais pas de chargement effectif)
+    expect(r.data.ok).toBe(false);
   });
 
   test('sécurité : eval(process) inaccessible', async () => {
@@ -109,6 +136,95 @@ describe('eval-service — cas réels de production', () => {
   test('sécurité : signature manquante -> 401', async () => {
     const { status } = await call('/eval', { expression: '1+1', variables: {} }, false);
     expect(status).toBe(401);
+  });
+
+  test('sécurité : fetch/WebSocket strippés (pas d\'egress réseau)', async () => {
+    const r1 = await call('/eval', { expression: 'typeof fetch', variables: {} });
+    expect(r1.data.ok).toBe(true);
+    expect(r1.data.result).toBe('undefined');
+
+    const r2 = await call('/eval', { expression: 'typeof WebSocket', variables: {} });
+    expect(r2.data.ok).toBe(true);
+    expect(r2.data.result).toBe('undefined');
+  });
+
+  test('sécurité : Buffer réduit (seul from exposé, pas alloc/prototype)', async () => {
+    const r1 = await call('/eval', { expression: 'typeof Buffer.alloc', variables: {} });
+    expect(r1.data.ok).toBe(true);
+    expect(r1.data.result).toBe('undefined');
+
+    const r2 = await call('/eval', { expression: 'typeof Buffer.prototype', variables: {} });
+    expect(r2.data.ok).toBe(true);
+    expect(r2.data.result).toBe('undefined');
+
+    // Buffer.from reste fonctionnel (cas prod)
+    const r3 = await call('/eval', { expression: 'Buffer.from("x").toString("base64")', variables: {} });
+    expect(r3.data.ok).toBe(true);
+    expect(r3.data.result).toBe(Buffer.from('x').toString('base64'));
+  });
+
+  test('sécurité : expression ReDoS interrompue par timeout (eval)', async () => {
+    // regex catastrophique (backtracking exponentiel) -> doit être interrompue
+    const t0 = await call('/eval', {
+      expression: 'new RegExp("(a+)+$").test("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!")',
+      variables: {},
+      timeoutMs: 300
+    });
+    expect(t0.data.ok).toBe(false);
+
+    // le service reste disponible après
+    const after = await call('/eval', { expression: '6 * 7', variables: {} });
+    expect(after.data.ok).toBe(true);
+    expect(after.data.result).toBe(42);
+  });
+
+  test('compat prod : removeMarkdown', async () => {
+    const r = await call('/eval', { expression: 'removeMarkdown(md)', variables: { md: '**bold**' } });
+    expect(r.data.ok).toBe(true);
+    expect(r.data.result).toBe('bold');
+  });
+
+  test('compat prod : cheerio (parse DOM)', async () => {
+    const r = await call('/eval', {
+      expression: 'cheerio.load("<li>a</li>")("li").text()',
+      variables: {}
+    });
+    expect(r.data.ok).toBe(true);
+    expect(r.data.result).toBe('a');
+  });
+
+  test('compat prod : sanitizeHtml', async () => {
+    const r = await call('/eval', {
+      expression: 'sanitizeHtml(html, { allowedTags: ["p"] })',
+      variables: { html: '<p onclick="evil()">Hello</p>' }
+    });
+    expect(r.data.ok).toBe(true);
+    expect(r.data.result).toBe('<p>Hello</p>');
+  });
+
+  test('compat prod : decodeUnicode', async () => {
+    const r = await call('/eval', { expression: 'decodeUnicode(s)', variables: { s: '\\u0041' } });
+    expect(r.data.ok).toBe(true);
+    expect(r.data.result).toBe('A');
+  });
+
+  test('compat prod : crypto.randomUUID et randomBytes', async () => {
+    const u = await call('/eval', { expression: 'crypto.randomUUID()', variables: {} });
+    expect(u.data.ok).toBe(true);
+    expect(u.data.result).toMatch(/^[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[0-9a-f]{4}-[0-9a-f]{12}$/i);
+
+    const b = await call('/eval', { expression: 'crypto.randomBytes(16)', variables: {} });
+    expect(b.data.ok).toBe(true);
+    expect(typeof b.data.result).toBe('string');
+  });
+
+  test('compat prod : lodash.truncate (whitelistée)', async () => {
+    const r = await call('/eval', {
+      expression: 'lodash.truncate("un long texte", { length: 5 })',
+      variables: {}
+    });
+    expect(r.data.ok).toBe(true);
+    expect(r.data.result).toBe('un...');
   });
 
   test('pool : aucun passage d\'état entre deux évals (contexte vm neuf)', async () => {

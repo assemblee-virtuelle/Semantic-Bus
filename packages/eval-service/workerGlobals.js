@@ -5,9 +5,10 @@
 // avant toute évaluation de code utilisateur (eval). Un worker_threads expose
 // require/module/process/global/console ; sans nettoyage, un `eval('require("fs")')
 // accéderait au système. `Buffer`/`crypto` sont conservés (usage de prod sûr).
+// `fetch`/`WebSocket` sont aussi retirés (défense en profondeur : limiter l'egress).
 // -----------------------------------------------------------------------------
 
-const DANGEROUS_GLOBALS = ['require', 'module', 'process', 'global', 'console'];
+const DANGEROUS_GLOBALS = ['require', 'module', 'process', 'global', 'console', 'fetch', 'WebSocket'];
 
 function stripDangerousGlobals() {
   for (const name of DANGEROUS_GLOBALS) {

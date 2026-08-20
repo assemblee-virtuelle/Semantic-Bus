@@ -8,7 +8,7 @@ const Loki = require('lokijs');
 const stringReplacer = require('../utils/stringReplacer.js');
 const objectTransformation = require('../utils/objectTransformationV2.js');
 const { validateExpression } = require('../utils/validateExpression.js');
-const { runWhereInRemote } = require('../utils/evalSecurity.js');
+const { runEvalInRemote } = require('../utils/evalSecurity.js');
 
 const db = new Loki('filter', {
   verbose: true
@@ -120,13 +120,31 @@ class Filter {
           if (Object.keys(filter).length === 1) {
             // SECURITY: la condition $where (expression JS utilisateur) est
             // validée statiquement AVANT toute exécution (bloque process/require/
-            // constructor/__proto__/structures de code...), puis évaluée dans un
-            // worker_threads TERMINABLE (protection ReDoS/DoS), cohérent avec le
-            // transformateur et le composant regex. `this` est réécrit en `obj`.
+            // constructor/__proto__/structures de code...), puis évaluée dans le
+            // eval-service (container isolé). `this` est réécrit en `obj`.
+            //
+            // Retour au comportement Loki d'origine : le code appelant ITÈRE sur
+            // les items (boucle ci-dessous) et appelle le eval-service de façon
+            // ATOMIQUE par item (variables.obj = item). Le container ne fait
+            // qu'une évaluation à la fois — pas de boucle côté service.
+            //
+            // POURQUOI PAS le callback Loki `collection.where(callback)` ?
+            // Le callback Loki est SYNCHRONE (Loki itère et attend un retour
+            // booléen immédiat), alors que l'évaluation passe par un appel HTTP
+            // ASYNCHRONE au eval-service (sécurité : éval isolée du process).
+            // On ne peut pas faire un fetch async dans un callback synchrone
+            // (l'event loop doit tourner pour recevoir la réponse). Les
+            // alternatives sync (execSync/deasync) bloqueraient tout l'engine ;
+            // réintroduire un eval sync dans le process réouvrirait la RCE.
+            // => boucle for...await (équivalent fonctionnel, sûr et async).
             const whereCondition = filter['$where'].replace(/this/g, 'obj');
             validateExpression(whereCondition);
             const whereItems = collection.find({});
-            const whereMatches = await runWhereInRemote(whereCondition, whereItems);
+            const whereMatches = [];
+            for (let i = 0; i < whereItems.length; i++) {
+              const res = await runEvalInRemote(whereCondition, { obj: whereItems[i] });
+              if (res == true) whereMatches.push(i);
+            }
             resultData = whereMatches.map(i => whereItems[i]);
           } else {
             reject({ error: '$where have to be the only property when it is used' });

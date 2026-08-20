@@ -14,12 +14,21 @@
 
 const { WorkerPool } = require('../workerPool.js');
 
+// Pool "normal" : recycleAfter élevé → les workers sont réutilisés (permet de
+// tester la file d'attente et le comportement de réutilisation).
 function makeEvalPool(size = 1) {
-  return new WorkerPool({ script: 'evalWorker.js', size });
+  return new WorkerPool({ script: 'evalWorker.js', size, recycleAfter: 1000 });
+}
+
+// Pool "sécurisé" : recycleAfter = 1 → worker recyclé après chaque job.
+function makeEvalPoolSecure(size = 1) {
+  return new WorkerPool({ script: 'evalWorker.js', size, recycleAfter: 1 });
 }
 
 function makeWherePool(size = 1) {
-  return new WorkerPool({ script: 'whereWorker.js', size });
+  // Le $where utilise désormais le worker ATOMIQUE (evalWorker.js) avec
+  // variables.obj = item — pas de worker dédié, pas de boucle côté worker.
+  return new WorkerPool({ script: 'evalWorker.js', size });
 }
 
 describe('WorkerPool — eval', () => {
@@ -152,18 +161,33 @@ describe('WorkerPool — eval', () => {
       pool.close();
     }
   });
+
+  test('recyclage : worker recréé après chaque job (recycleAfter=1)', async () => {
+    const pool = makeEvalPoolSecure(1);
+    try {
+      const w1 = pool.idle[0];
+      await pool.exec({ expression: '1+1', variables: {}, timeoutMs: 5000 }, 5000);
+      // après le job, le worker a été recyclé (terminé + remplacé)
+      const w2 = pool.idle[0];
+      expect(w2).not.toBe(w1); // un NOUVEAU worker
+      // et il fonctionne encore
+      const r = await pool.exec({ expression: '6*7', variables: {}, timeoutMs: 5000 }, 5000);
+      expect(r).toBe(42);
+    } finally {
+      pool.close();
+    }
+  });
 });
 
-describe('WorkerPool — where', () => {
-  test('évalue une condition $where et renvoie les indices', async () => {
+describe('WorkerPool — $where atomique (retour Loki)', () => {
+  test('évalue une condition $where atomiquement (variables.obj = item)', async () => {
     const pool = makeWherePool(1);
     try {
-      const matches = await pool.exec({
-        expression: 'obj.age >= 18',
-        items: [{ age: 10 }, { age: 25 }, { age: 18 }],
-        timeoutMs: 5000
-      });
-      expect(matches).toEqual([1, 2]);
+      // Chaque job = une évaluation atomique sur un item (obj).
+      const r1 = await pool.exec({ expression: 'obj.age >= 18', variables: { obj: { age: 25 } }, timeoutMs: 5000 }, 5000);
+      expect(r1).toBe(true);
+      const r2 = await pool.exec({ expression: 'obj.age >= 18', variables: { obj: { age: 10 } }, timeoutMs: 5000 }, 5000);
+      expect(r2).toBe(false);
     } finally {
       pool.close();
     }
@@ -172,13 +196,13 @@ describe('WorkerPool — where', () => {
   test('aucun passage d\'état entre deux jobs $where', async () => {
     const pool = makeWherePool(1);
     try {
-      await pool.exec({ expression: 'globalThis.leakW = 1', items: [{}], timeoutMs: 5000 });
-      const matches = await pool.exec({
+      await pool.exec({ expression: 'globalThis.leakW = 1', variables: { obj: {} }, timeoutMs: 5000 }, 5000);
+      const r = await pool.exec({
         expression: 'typeof globalThis.leakW === "undefined" && obj.age >= 18',
-        items: [{ age: 18 }],
+        variables: { obj: { age: 18 } },
         timeoutMs: 5000
-      });
-      expect(matches).toEqual([0]);
+      }, 5000);
+      expect(r).toBe(true);
     } finally {
       pool.close();
     }
