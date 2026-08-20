@@ -72,7 +72,17 @@ describe('validateExpression - contrôle du contenu avant éval', () => {
       'new Foo()',
       'while(true){}',
       'for(;;){}',
-      'let x = 1'
+      'let x = 1',
+      // Vecteurs natifs Node (objets natifs) — bloqués par le validateur
+      'Array.constructor("return process")()',
+      '({}).constructor("return process")()',
+      'String.prototype.toLowerCase()',
+      'Array.prototype.map',
+      'Object.constructor("return process")()',
+      'obj.constructor.constructor("return process")()',
+      'Function.constructor("return process")()',
+      'Symbol.constructor("return process")()',
+      'Date.constructor("return process")()'
     ];
     for (const attack of attacks) {
       test(`bloque: ${attack.slice(0, 40)}`, () => {
