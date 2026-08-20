@@ -101,6 +101,21 @@ describe('eval-service — cas réels de production', () => {
     expect(data.ok).toBe(false);
   });
 
+  test('sécurité : lodash.template retiré du scope (RCE host realm bloquée)', async () => {
+    // Bypass signalé par le chercheur : lodash.template compilait son corps avec
+    // un Function du host realm, échappant au vm. Le worker expose désormais un
+    // lodash sans template/templateSettings.
+    const r = await call('/eval', { expression: 'typeof lodash.template', variables: {} });
+    expect(r.data.ok).toBe(true);
+    expect(r.data.result).toBe('undefined');
+  });
+
+  test('sécurité : import() dynamique rejeté dans le worker', async () => {
+    const r = await call('/eval', { expression: 'import("fs")', variables: {} });
+    // soit erreur, soit "function" (mais pas de chargement effectif)
+    expect(r.data.ok).toBe(false);
+  });
+
   test('sécurité : eval(process) inaccessible', async () => {
     const { data } = await call('/eval', { expression: 'eval("process.env")', variables: {} });
     expect(data.ok).toBe(false);

@@ -45,6 +45,13 @@ const LODASH_PROTO_POLLUTION_FUNCS = new Set([
   'update', 'updateWith', 'zipObjectDeep', 'transform', 'create'
 ]);
 
+// Fonctions lodash qui COMPILENT / EXÉCUTENT du code utilisateur (host realm),
+// échappant au contexte vm du worker (RCE via lodash.template, signalée par le
+// chercheur Maxim Yakovlev). À bloquer statiquement AVANT exécution.
+const LODASH_CODE_EXECUTION_FUNCS = new Set([
+  'template', 'templateSettings'
+]);
+
 /**
  * Clone une valeur en profondeur SANS getters ni prototypes « vivants », et en
  * filtrant les clés dangereuses (points 2 + 4).
@@ -404,5 +411,6 @@ module.exports = {
   runEvalInRemote,
   runWhereInRemote,
   DANGEROUS_KEYS,
-  LODASH_PROTO_POLLUTION_FUNCS
+  LODASH_PROTO_POLLUTION_FUNCS,
+  LODASH_CODE_EXECUTION_FUNCS
 };

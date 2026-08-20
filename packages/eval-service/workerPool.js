@@ -22,12 +22,13 @@ class WorkerPool {
    * @param {string} script nom du script worker (ex. 'evalWorker.js')
    * @param {number} size nombre de workers créés au boot
    */
-  constructor({ script, size }) {
+  constructor({ script, size, recycleAfter = 1 }) {
     if (!Number.isInteger(size) || size < 1) {
       throw new Error(`Invalid pool size: ${size}`);
     }
     this.script = script;
     this.size = size;
+    this.recycleAfter = recycleAfter;
     this.idle = []; // workers libres
     this.jobs = new Map(); // jobId -> { jobId, payload, resolve, reject, timer, wrapper }
     this.queue = []; // jobs en attente (tous workers occupés)
@@ -41,7 +42,8 @@ class WorkerPool {
       worker: new Worker(path.join(__dirname, this.script)),
       busy: false,
       jobId: null,
-      dead: false
+      dead: false,
+      jobsDone: 0
     };
     wrapper.worker.on('message', (msg) => this.onMessage(wrapper, msg));
     wrapper.worker.on('error', (err) => this.onWorkerDead(wrapper, err));
@@ -110,6 +112,19 @@ class WorkerPool {
   free(wrapper) {
     wrapper.busy = false;
     wrapper.jobId = null;
+    wrapper.jobsDone++;
+
+    // Sécurité (défense en profondeur) : recycler le worker après `recycleAfter`
+    // jobs. Une éval malveillante qui échapperait au contexte vm (ex. via une
+    // fonction compilant du code en host realm comme lodash.template) pourrait
+    // laisser tourner un `import().then(...)` asynchrone ; recycler le worker
+    // borne la fenêtre et empêche toute persistance d'état/side-effect entre jobs.
+    // Par défaut recyclage après CHAQUE job (le plus sûr). Configurable via env.
+    if (wrapper.jobsDone >= (this.recycleAfter || 1)) {
+      this.killAndReplace(wrapper);
+      return;
+    }
+
     if (this.queue.length > 0) {
       this.dispatch(wrapper, this.queue.shift());
     } else {

@@ -27,7 +27,7 @@
 // -----------------------------------------------------------------------------
 
 const acorn = require('acorn');
-const { LODASH_PROTO_POLLUTION_FUNCS } = require('./evalSecurity.js');
+const { LODASH_PROTO_POLLUTION_FUNCS, LODASH_CODE_EXECUTION_FUNCS } = require('./evalSecurity.js');
 
 class ExpressionValidationError extends Error {}
 
@@ -148,6 +148,12 @@ function validateExpression(source, options = {}) {
       if (node.property && node.property.type === 'PrivateIdentifier') {
         throw new ExpressionValidationError('Private members are forbidden');
       }
+      // Bloque les ACCÈS de propriété lodash.template / lodash.templateSettings
+      // (pas seulement les appels) — ces fonctions compilent du code en host realm.
+      if (prop !== undefined && LODASH_CODE_EXECUTION_FUNCS.has(prop) &&
+          isLodashReceptor(node.object)) {
+        throw new ExpressionValidationError(`Forbidden code-executing lodash access: ${prop}`);
+      }
     }
 
     // 3. new : whitelist de constructeurs
@@ -220,6 +226,15 @@ function validateExpression(source, options = {}) {
         // UNIQUEMENT si le récepteur racine est lodash/underscore (un `.update()`
         // sur un objet Hash crypto est légitime et ne doit PAS être bloqué).
         throw new ExpressionValidationError(`Forbidden prototype-polluting call: ${node.callee.property.name}`);
+      }
+      if (node.callee.type === 'MemberExpression' &&
+          node.callee.property.type === 'Identifier' &&
+          LODASH_CODE_EXECUTION_FUNCS.has(node.callee.property.name) &&
+          isLodashReceptor(node.callee.object)) {
+        // bloque lodash.template / _.templateSettings — ces fonctions COMPILENT
+        // leur corps avec un Function du host realm, échappant au contexte vm
+        // (RCE signalée par Maxim Yakovlev). Un `{...}` non-lodash reste autorisé.
+        throw new ExpressionValidationError(`Forbidden code-executing lodash call: ${node.callee.property.name}`);
       }
       break;
     }

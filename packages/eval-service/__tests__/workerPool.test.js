@@ -14,8 +14,15 @@
 
 const { WorkerPool } = require('../workerPool.js');
 
+// Pool "normal" : recycleAfter élevé → les workers sont réutilisés (permet de
+// tester la file d'attente et le comportement de réutilisation).
 function makeEvalPool(size = 1) {
-  return new WorkerPool({ script: 'evalWorker.js', size });
+  return new WorkerPool({ script: 'evalWorker.js', size, recycleAfter: 1000 });
+}
+
+// Pool "sécurisé" : recycleAfter = 1 → worker recyclé après chaque job.
+function makeEvalPoolSecure(size = 1) {
+  return new WorkerPool({ script: 'evalWorker.js', size, recycleAfter: 1 });
 }
 
 function makeWherePool(size = 1) {
@@ -147,6 +154,22 @@ describe('WorkerPool — eval', () => {
       await expect(jobP).rejects.toThrow();
       // Le pool a remplacé le worker : le service reste utilisable.
       const r = await pool.exec({ expression: '40 + 2', variables: {}, timeoutMs: 5000 }, 5000);
+      expect(r).toBe(42);
+    } finally {
+      pool.close();
+    }
+  });
+
+  test('recyclage : worker recréé après chaque job (recycleAfter=1)', async () => {
+    const pool = makeEvalPoolSecure(1);
+    try {
+      const w1 = pool.idle[0];
+      await pool.exec({ expression: '1+1', variables: {}, timeoutMs: 5000 }, 5000);
+      // après le job, le worker a été recyclé (terminé + remplacé)
+      const w2 = pool.idle[0];
+      expect(w2).not.toBe(w1); // un NOUVEAU worker
+      // et il fonctionne encore
+      const r = await pool.exec({ expression: '6*7', variables: {}, timeoutMs: 5000 }, 5000);
       expect(r).toBe(42);
     } finally {
       pool.close();

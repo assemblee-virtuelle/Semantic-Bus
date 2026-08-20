@@ -74,13 +74,30 @@ function parseAndResolveString(source) {
   return resolveString(JSON.parse(source));
 }
 
+// Fonctions lodash qui COMPILENT / EXÉCUTENT du code (host realm, hors vm).
+// lodash.template compile son corps avec un Function du host realm → échappe au
+// contexte vm et à stripDangerousGlobals (RCE signalée par Maxim Yakovlev). On
+// expose une copie de lodash SANS ces fonctions (défense en profondeur : même si
+// le validateur était contourné, elles ne sont pas disponibles dans le worker).
+const LODASH_STRIPPED = ['template', 'templateSettings'];
+function makeSafeLodash() {
+  const safe = {};
+  for (const key of Object.keys(lodash)) {
+    if (!LODASH_STRIPPED.includes(key)) safe[key] = lodash[key];
+  }
+  try {
+    Object.freeze(safe);
+  } catch (e) { /* non gelable */ }
+  return safe;
+}
+
 // Libs/helpers exposés aux expressions (mêmes identifiants que le scope
 // master). Gelés : une éval ne peut pas ajouter/écraser de propriété sur un
 // objet partagé entre jobs.
 const helpers = {
   dayjs,
   moment,
-  lodash,
+  lodash: makeSafeLodash(),
   he,
   removeMarkdown,
   sanitizeHtml,
@@ -112,7 +129,13 @@ parentPort.on('message', (msg) => {
   const { jobId, expression, variables, timeoutMs } = msg;
 
   // Contexte NEUF à chaque job : l'expression ne voit que CE contexte.
-  const ctx = vm.createContext({});
+  // importModuleDynamically : on rejette TOUT import() dynamique (les imports
+  // depuis le contexte vm doivent échouer). NB : ne couvre PAS le host realm
+  // (via une fonction compilant du code comme lodash.template) — géré par le
+  // validateur + lodash stripped + recyclage du worker.
+  const ctx = vm.createContext({}, {
+    importModuleDynamically: () => Promise.reject(new Error('dynamic import is forbidden in eval-service'))
+  });
   Object.assign(ctx, helpers);
   if (variables) Object.assign(ctx, variables);
 

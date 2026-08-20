@@ -42,6 +42,16 @@ describe('validateExpression - contrôle du contenu avant éval', () => {
       expect(() => validateExpression('_.defaultsDeep(a, b)')).toThrow();
       expect(() => validateExpression('lodash.update(a, "x", f)')).toThrow();
     });
+
+    test('lodash.template bloqué (RCE host realm via Function)', () => {
+      // PoC du chercheur (Maxim Yakovlev) : lodash.template compile son corps
+      // avec un Function du host realm, échappant au contexte vm.
+      expect(() => validateExpression("lodash.template('<% import(\"fs\") %>')()")).toThrow(/code-executing lodash call: template/);
+      expect(() => validateExpression('_.template("x")')).toThrow(/template/);
+      expect(() => validateExpression('lodash.templateSettings')).toThrow(/templateSettings/);
+      // lodash.truncate (légitime) reste autorisé
+      expect(() => validateExpression('lodash.truncate(a, { length: 5 })')).not.toThrow();
+    });
   });
 
   describe('attaques bloquées', () => {
