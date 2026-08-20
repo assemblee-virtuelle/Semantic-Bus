@@ -1,5 +1,27 @@
 # Changelog
 
+## [0.11.2] - 2026-08-20
+
+### Security
+
+- **Correctif du bypass RCE `lodash.template`** (signalé par Maxim Yakovlev) : `lodash.template`
+  compilait son corps avec un `Function` du host realm, échappant au contexte vm → `import()`
+  chargeait des modules Node → RCE dans le eval-service.
+- **Whitelist par lib dans le validateur** (analyse statique, pas de Proxy) : les fonctions
+  statiques des libs exposées (lodash, he, dayjs, moment, Buffer, crypto) sont explicitement
+  autorisées ; toute autre méthode est bloquée.
+- **Réduction du scope d'exposition** : `Buffer`, `crypto`, `he` exposés en wrappers minimaux ;
+  `lodash` en whitelist stricte ; `dayjs`/`moment` méthodes statiques whitelistées.
+- **`import()` dynamique rejeté** dans le worker (`importModuleDynamically`).
+- **`fetch`/`WebSocket` strippés** (défense en profondeur).
+- **Retour au comportement Loki** : évaluation atomique par item, la boucle du `$where` est
+  gérée par l'engine (le container ne fait qu'une évaluation à la fois).
+
+### Fixed
+
+- `runWhereInWorker`/`runWhereInRemote` retirés (obsolètes — remplacés par l'éval atomique).
+- `crypto.randomBytes` exposé (cas prod).
+
 ## [0.11.1] - 2026-08-19
 
 ### Security
@@ -61,6 +83,7 @@
 - **Component search**: barre de recherche dans le catalogue de composants
 - **New category system**: réorganisation des catégories de composants
 
+[0.11.2]: https://github.com/assemblee-virtuelle/Semantic-Bus/compare/v0.11.1...v0.11.2
 [0.11.1]: https://github.com/assemblee-virtuelle/Semantic-Bus/compare/v0.11.0...v0.11.1
 [0.11.0]: https://github.com/assemblee-virtuelle/Semantic-Bus/compare/v0.10.0...v0.11.0
 [0.10.0]: https://github.com/assemblee-virtuelle/Semantic-Bus/compare/v0.9.1...v0.10.0

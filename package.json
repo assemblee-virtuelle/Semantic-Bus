@@ -1,6 +1,6 @@
 {
   "name": "semantic-bus-monorepo",
-  "version": "0.11.1",
+  "version": "0.11.2",
   "description": "ETL style data middleware transformation embedded in an ESB for all kind of data",
   "private": true,
   "workspaces": [
@@ -9,7 +9,7 @@
   "scripts": {
     "test:all": "npm run test --workspaces",
     "test:core": "npm run test --workspace=packages/core",
-    "test:main": "npm run test --workspace=packages/main", 
+    "test:main": "npm run test --workspace=packages/main",
     "test:engine": "npm run test --workspace=packages/engine",
     "test:timer": "npm run test --workspace=packages/timer",
     "install:all": "npm install",
