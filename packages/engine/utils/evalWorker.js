@@ -79,7 +79,12 @@ function parseAndResolveString(source) {
 // global pour que `this.resolveString(...)` et `dayjs(...)` fonctionnent.
 globalThis.dayjs = dayjs;
 globalThis.moment = moment;
-globalThis.lodash = lodash;
+// lodash épuré : on retire template/templateSettings (compilent du code en host
+// realm, échappent au vm → RCE). Défense en profondeur (moteur de test).
+const LODASH_STRIPPED = ['template', 'templateSettings'];
+globalThis.lodash = Object.fromEntries(
+  Object.entries(lodash).filter(([k]) => !LODASH_STRIPPED.includes(k))
+);
 globalThis.he = he;
 globalThis.removeMarkdown = removeMarkdown;
 globalThis.sanitizeHtml = sanitizeHtml;

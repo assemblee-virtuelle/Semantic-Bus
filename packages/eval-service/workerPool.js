@@ -22,12 +22,13 @@ class WorkerPool {
    * @param {string} script nom du script worker (ex. 'evalWorker.js')
    * @param {number} size nombre de workers créés au boot
    */
-  constructor({ script, size }) {
+  constructor({ script, size, recycleAfter = 100000 }) {
     if (!Number.isInteger(size) || size < 1) {
       throw new Error(`Invalid pool size: ${size}`);
     }
     this.script = script;
     this.size = size;
+    this.recycleAfter = recycleAfter;
     this.idle = []; // workers libres
     this.jobs = new Map(); // jobId -> { jobId, payload, resolve, reject, timer, wrapper }
     this.queue = []; // jobs en attente (tous workers occupés)
@@ -41,7 +42,8 @@ class WorkerPool {
       worker: new Worker(path.join(__dirname, this.script)),
       busy: false,
       jobId: null,
-      dead: false
+      dead: false,
+      jobsDone: 0
     };
     wrapper.worker.on('message', (msg) => this.onMessage(wrapper, msg));
     wrapper.worker.on('error', (err) => this.onWorkerDead(wrapper, err));
@@ -110,6 +112,19 @@ class WorkerPool {
   free(wrapper) {
     wrapper.busy = false;
     wrapper.jobId = null;
+    wrapper.jobsDone++;
+
+    // Sécurité optionnelle : recycler le worker après `recycleAfter` jobs.
+    // NB : le bypass connu (lodash.template → host realm) est NEUTRALISÉ par le
+    // validateur + le lodash épuré du scope, PAS par le recyclage. Un recyclage
+    // fréquent rechargerait les libs à chaque job (~448ms/éval vs ~21ms) et
+    // annulerait le gain du pool. On garde donc un recyclage très rare (valeur
+    // haute) comme simple filet de secours, configurable via EVAL_RECYCLE_AFTER.
+    if (wrapper.jobsDone >= (this.recycleAfter || 100000)) {
+      this.killAndReplace(wrapper);
+      return;
+    }
+
     if (this.queue.length > 0) {
       this.dispatch(wrapper, this.queue.shift());
     } else {

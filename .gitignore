@@ -123,3 +123,5 @@ graphify-out/
 
 # Internal security follow-up docs (non public) — case files internes par faille
 advisories/*/*-case-file.md
+# Correspondance interne (emails du chercheur, interventions, preuves) — non publié
+advisories/*/correspondance/

@@ -4,42 +4,22 @@
 // evalWorker (eval-service) — worker_threads PERSISTANT qui exécute les
 // évaluations reçues par message (pool de workers, voir workerPool.js).
 //
-// Chaque job est exécuté dans un contexte vm NEUF : aucun état ne peut
-// transiter entre deux évaluations (globals posés, pollution de prototype,
-// mutation d'un helper) — tout reste dans le contexte jeté à la fin du job.
-//
-// Les libs (dayjs, moment, lodash, ...) sont chargées UNE SEULE FOIS à la
-// création du worker puis injectées dans chaque contexte, GELÉES pour
-// empêcher une éval de muter un objet partagé entre jobs.
+// Chaque job est exécuté dans un contexte vm NEUF, construit par
+// secureContext.js (factorisation des protections communes avec whereWorker) :
+//   - contexte vm neuf (aucun état ne transite entre jobs) ;
+//   - import() dynamique rejeté (importModuleDynamically) ;
+//   - libs épurées et gelées (lodash sans template/templateSettings) ;
+//   - stripDangerousGlobals (require/process/global/console/fetch/WebSocket).
 //
 // Le timeout du `vm.runInContext` coupe les boucles JS ; le pool termine le
 // worker (timer de secours) pour les regex natives catastrophiques que le
 // timeout vm ne peut pas interrompre.
-//
-// Les globals Node dangereux (require/module/process/global/console) sont
-// retirés du worker AVANT tout job ; le contexte vm n'expose de toute façon
-// que les helpers + variables listés ci-dessous.
 // -----------------------------------------------------------------------------
 
 const { parentPort } = require('worker_threads');
 const vm = require('vm');
-const { stripDangerousGlobals } = require('./workerGlobals.js');
-
-const dayjs = require('dayjs-with-plugins');
-const he = require('he');
-const lodash = require('lodash');
-const removeMarkdown = require('remove-markdown');
-const sanitizeHtml = require('sanitize-html');
-const cheerio = require('cheerio');
-const moment = require('moment');
 const unicode = require('unicode-encode');
-const dotProp = require('dot-prop');
-const crypto = require('crypto');
-
-function decodeUnicode(str) {
-  const regex = new RegExp('\\\\u([\\dA-Fa-f]{4})', 'g');
-  return str.replace(regex, (m, g) => String.fromCharCode(parseInt(g, 16)));
-}
+const { createSecureContext, stripDangerousGlobals } = require('./secureContext.js');
 
 // Helpers compatibles avec le scope master (utilisés par certaines expressions).
 function resolveString(source) {
@@ -74,36 +54,14 @@ function parseAndResolveString(source) {
   return resolveString(JSON.parse(source));
 }
 
-// Libs/helpers exposés aux expressions (mêmes identifiants que le scope
-// master). Gelés : une éval ne peut pas ajouter/écraser de propriété sur un
-// objet partagé entre jobs.
-const helpers = {
-  dayjs,
-  moment,
-  lodash,
-  he,
-  removeMarkdown,
-  sanitizeHtml,
-  cheerio,
-  decodeUnicode,
-  dotProp,
+// Helpers locaux (spécifiques à l'éval d'une expression) injectés EN PLUS du
+// contexte sécurisé fourni par secureContext.js.
+const localHelpers = {
   unicode,
-  crypto,
   resolveString,
   escapeString,
-  parseAndResolveString,
-  Buffer
+  parseAndResolveString
 };
-for (const name of Object.keys(helpers)) {
-  const value = helpers[name];
-  if (value && (typeof value === 'object' || typeof value === 'function')) {
-    try {
-      Object.freeze(value);
-    } catch (e) {
-      /* non gelable : on continue */
-    }
-  }
-}
 
 stripDangerousGlobals();
 
@@ -111,9 +69,9 @@ parentPort.on('message', (msg) => {
   if (!msg || msg.type !== 'job') return;
   const { jobId, expression, variables, timeoutMs } = msg;
 
-  // Contexte NEUF à chaque job : l'expression ne voit que CE contexte.
-  const ctx = vm.createContext({});
-  Object.assign(ctx, helpers);
+  // Contexte vm NEUF et SÉCURISÉ (libs épurées/gelées + import bloqué) par job.
+  const ctx = createSecureContext();
+  Object.assign(ctx, localHelpers);
   if (variables) Object.assign(ctx, variables);
 
   try {

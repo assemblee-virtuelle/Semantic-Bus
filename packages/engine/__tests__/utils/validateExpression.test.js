@@ -42,6 +42,16 @@ describe('validateExpression - contrôle du contenu avant éval', () => {
       expect(() => validateExpression('_.defaultsDeep(a, b)')).toThrow();
       expect(() => validateExpression('lodash.update(a, "x", f)')).toThrow();
     });
+
+    test('lodash.template bloqué (RCE host realm via Function)', () => {
+      // PoC du chercheur (Maxim Yakovlev) : lodash.template compile son corps
+      // avec un Function du host realm, échappant au contexte vm.
+      expect(() => validateExpression("lodash.template('<% import(\"fs\") %>')()")).toThrow(/Forbidden method call on lodash: template/);
+      expect(() => validateExpression('_.template("x")')).toThrow(/Forbidden method call on lodash: template/);
+      expect(() => validateExpression('lodash.templateSettings')).toThrow(/Forbidden method on lodash: templateSettings/);
+      // lodash.truncate (légitime) reste autorisé
+      expect(() => validateExpression('lodash.truncate(a, { length: 5 })')).not.toThrow();
+    });
   });
 
   describe('attaques bloquées', () => {
@@ -62,7 +72,17 @@ describe('validateExpression - contrôle du contenu avant éval', () => {
       'new Foo()',
       'while(true){}',
       'for(;;){}',
-      'let x = 1'
+      'let x = 1',
+      // Vecteurs natifs Node (objets natifs) — bloqués par le validateur
+      'Array.constructor("return process")()',
+      '({}).constructor("return process")()',
+      'String.prototype.toLowerCase()',
+      'Array.prototype.map',
+      'Object.constructor("return process")()',
+      'obj.constructor.constructor("return process")()',
+      'Function.constructor("return process")()',
+      'Symbol.constructor("return process")()',
+      'Date.constructor("return process")()'
     ];
     for (const attack of attacks) {
       test(`bloque: ${attack.slice(0, 40)}`, () => {
