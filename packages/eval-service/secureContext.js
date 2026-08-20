@@ -108,7 +108,8 @@ function safeCreateHashWrapper(algorithm) {
 }
 const safeCrypto = {
   createHash: safeCreateHashWrapper,
-  randomUUID: () => nodeCrypto.randomUUID()
+  randomUUID: () => nodeCrypto.randomUUID(),
+  randomBytes: (size) => nodeCrypto.randomBytes(size).toString('hex')
 };
 
 // he minimal : expose uniquement decode/encode (les 2 seuls utilisés en prod pour

@@ -56,6 +56,45 @@ const FORBIDDEN_PROPERTIES = new Set([
   'caller', 'arguments', 'callee'
 ]);
 
+// -----------------------------------------------------------------------------
+// WHITELIST par lib exposée (objets importés dans le scope eval).
+// Une formule `lib.methode()` n'est autorisée que si `methode` figure dans la
+// whitelist de `lib`. Stratégie WHITELIST (permettre explicitement) plutôt que
+// blacklist (retirer une liste) : toute nouvelle méthode doit être ajoutée ici,
+// ce qui passe par une revue (PR) et garantit qu'aucune fonction compilant du
+// code host-realm (comme lodash.template) ne peut être appelée.
+// Ces whitelists doivent rester COHÉRENTES avec secureContext.js (eval-service).
+// -----------------------------------------------------------------------------
+const LIB_METHOD_WHITELISTS = {
+  // Alias lodash/underscore
+  lodash: new Set([
+    'truncate', 'map', 'filter', 'get', 'has', 'keys', 'values', 'omit', 'pick',
+    'clone', 'cloneDeep', 'isEqual', 'isArray', 'isObject', 'isString', 'isNumber',
+    'isBoolean', 'isNil', 'isEmpty', 'toLower', 'toUpper', 'trim', 'replace', 'split',
+    'join', 'slice', 'find', 'findIndex', 'includes', 'reduce', 'each', 'forEach',
+    'flatMap', 'uniq', 'groupBy', 'orderBy', 'sortBy', 'findLast', 'head', 'last',
+    'first', 'size', 'range', 'fill', 'reverse', 'concat', 'flatten', 'flattenDeep',
+    'compact', 'take', 'drop', 'chunk', 'zip', 'unzip', 'max', 'min', 'sum', 'mean',
+    'round', 'ceil', 'floor', 'parseInt', 'parseFloat', 'escape', 'unescape', 'capitalize',
+    'startsWith', 'endsWith', 'padStart', 'padEnd', 'repeat', 'toInteger', 'toNumber',
+    'toString', 'identity', 'property', 'matches', 'constant'
+  ]),
+  _: null, // alias -> voir lodash ci-dessous (géré par getReceptorLib)
+  underscore: null, // alias -> voir lodash
+  he: new Set(['decode', 'encode']),
+  dayjs: new Set(['unix', 'utc', 'locale', 'isDayjs', 'duration', 'max', 'min']),
+  moment: new Set(['utc', 'unix', 'locale', 'duration', 'min', 'max', 'now', 'isMoment']),
+  Buffer: new Set(['from']),
+  crypto: new Set(['createHash', 'randomUUID', 'randomBytes'])
+};
+// Méthodes statiques dont l'accès est TOUJOURS interdit sur les libs exposées
+// (compilation de code / proto-pollution / évasion) — blacklist complémentaire.
+const LIB_FORBIDDEN_METHODS = new Set([
+  'template', 'templateSettings',
+  'merge', 'mergeWith', 'defaultsDeep', 'set', 'setWith', 'assign', 'defaults',
+  'update', 'updateWith', 'zipObjectDeep', 'transform', 'create'
+]);
+
 // Constructeurs autorisés pour `new` par défaut (sûrs).
 const DEFAULT_NEW_WHITELIST = new Set([
   'Array', 'BigInt', 'Boolean', 'Date', 'Error', 'Map', 'Number', 'Object',
@@ -87,21 +126,31 @@ const ALLOWED_BARE_CALLS = new Set([
  * `lodash` (ex. this.lodash.merge). Un `.update()` sur un objet Hash crypto
  * (récepteur = crypto.createHash()) n'est PAS lodash et reste autorisé.
  */
-function isLodashReceptor(node) {
+/**
+ * Identifie si le récepteur racine d'un appel de méthode est une de nos libs
+ * exposées (lodash/_, he, dayjs, moment, Buffer, crypto) et retourne son nom
+ * canonical. Retourne null si ce n'est pas une lib exposée (ex. un tableau, un
+ * objet de données, ou un objet retourné par dayjs()/cheerio()).
+ */
+function getReceptorLib(node) {
+  // remonte la chaîne de MemberExpression jusqu'à l'identifiant racine
   let cur = node;
   const visited = new Set();
   while (cur && cur.type === 'MemberExpression' && !cur.computed && !visited.has(cur)) {
     visited.add(cur);
-    if (cur.property && cur.property.type === 'Identifier' &&
-        (cur.property.name === 'lodash' || cur.property.name === '_' || cur.property.name === 'underscore')) {
-      return true;
-    }
     cur = cur.object;
   }
   if (cur && cur.type === 'Identifier') {
-    return cur.name === 'lodash' || cur.name === '_' || cur.name === 'underscore';
+    const name = cur.name;
+    if (name === '_' || name === 'underscore') return 'lodash';
+    if (LIB_METHOD_WHITELISTS[name]) return name;
   }
-  return false;
+  return null;
+}
+
+// Maintient isLodashReceptor (utilisé plus bas) en se basant sur getReceptorLib.
+function isLodashReceptor(node) {
+  return getReceptorLib(node) === 'lodash';
 }
 
 /**
@@ -148,11 +197,20 @@ function validateExpression(source, options = {}) {
       if (node.property && node.property.type === 'PrivateIdentifier') {
         throw new ExpressionValidationError('Private members are forbidden');
       }
-      // Bloque les ACCÈS de propriété lodash.template / lodash.templateSettings
-      // (pas seulement les appels) — ces fonctions compilent du code en host realm.
-      if (prop !== undefined && LODASH_CODE_EXECUTION_FUNCS.has(prop) &&
-          isLodashReceptor(node.object)) {
-        throw new ExpressionValidationError(`Forbidden code-executing lodash access: ${prop}`);
+      // WHITELIST par lib exposée (accès de propriété, ex. `lodash.template`,
+      // `he.decode`, `dayjs.utc`). Si le récepteur est une lib exposée, la
+      // propriété accédée doit être dans la whitelist de cette lib.
+      const lib = getReceptorLib(node.object);
+      if (lib && prop !== undefined && typeof prop === 'string') {
+        const whitelist = LIB_METHOD_WHITELISTS[lib];
+        if (whitelist && !whitelist.has(prop)) {
+          throw new ExpressionValidationError(`Forbidden method on ${lib}: ${prop}`);
+        }
+      }
+      // Blacklist complémentaire : méthodes toujours interdites (compilation de
+      // code host-realm / proto-pollution) sur toute lib exposée.
+      if (lib && prop !== undefined && LIB_FORBIDDEN_METHODS.has(prop)) {
+        throw new ExpressionValidationError(`Forbidden method on ${lib}: ${prop}`);
       }
     }
 
@@ -219,22 +277,23 @@ function validateExpression(source, options = {}) {
         }
       }
       if (node.callee.type === 'MemberExpression' &&
-          node.callee.property.type === 'Identifier' &&
-          LODASH_PROTO_POLLUTION_FUNCS.has(node.callee.property.name) &&
-          isLodashReceptor(node.callee.object)) {
-        // bloque les appels type lodash.merge / _.set / _.defaultsDeep / ...
-        // UNIQUEMENT si le récepteur racine est lodash/underscore (un `.update()`
-        // sur un objet Hash crypto est légitime et ne doit PAS être bloqué).
-        throw new ExpressionValidationError(`Forbidden prototype-polluting call: ${node.callee.property.name}`);
-      }
-      if (node.callee.type === 'MemberExpression' &&
-          node.callee.property.type === 'Identifier' &&
-          LODASH_CODE_EXECUTION_FUNCS.has(node.callee.property.name) &&
-          isLodashReceptor(node.callee.object)) {
-        // bloque lodash.template / _.templateSettings — ces fonctions COMPILENT
-        // leur corps avec un Function du host realm, échappant au contexte vm
-        // (RCE signalée par Maxim Yakovlev). Un `{...}` non-lodash reste autorisé.
-        throw new ExpressionValidationError(`Forbidden code-executing lodash call: ${node.callee.property.name}`);
+          node.callee.property.type === 'Identifier') {
+        // WHITELIST par lib exposée sur les APPELS de méthode : `lib.methode()`.
+        // La méthode doit figurer dans la whitelist de la lib. Couvre à la fois
+        // la proto-pollution (lodash.merge/_.set), la compilation de code
+        // host-realm (lodash.template) et toute autre méthode non autorisée.
+        const lib = getReceptorLib(node.callee.object);
+        if (lib) {
+          const whitelist = LIB_METHOD_WHITELISTS[lib];
+          const meth = node.callee.property.name;
+          if (whitelist && !whitelist.has(meth)) {
+            throw new ExpressionValidationError(`Forbidden method call on ${lib}: ${meth}`);
+          }
+          // Blacklist complémentaire (même si whitelist undefined — alias).
+          if (LIB_FORBIDDEN_METHODS.has(meth)) {
+            throw new ExpressionValidationError(`Forbidden method call on ${lib}: ${meth}`);
+          }
+        }
       }
       break;
     }
