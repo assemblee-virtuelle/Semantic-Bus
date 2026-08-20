@@ -7,13 +7,14 @@
 // `obj` est l'item courant ; la condition a été validée par validateExpression
 // à l'extérieur et `this` y est déjà réécrit en `obj`.
 //
-// Un contexte vm par JOB (pas par item : coût négligeable, expression simple)
-// garantit qu'aucun état ne transite d'un job $where à l'autre.
+// Un contexte vm NEUF et SÉCURISÉ par JOB (construit par secureContext.js —
+// import() bloqué, libs épurées/gelées, stripDangerousGlobals) garantit qu'aucun
+// état ne transite d'un job $where à l'autre.
 // -----------------------------------------------------------------------------
 
 const { parentPort } = require('worker_threads');
 const vm = require('vm');
-const { stripDangerousGlobals } = require('./workerGlobals.js');
+const { createSecureContext, stripDangerousGlobals } = require('./secureContext.js');
 
 stripDangerousGlobals();
 
@@ -21,7 +22,8 @@ parentPort.on('message', (msg) => {
   if (!msg || msg.type !== 'job') return;
   const { jobId, expression, items, timeoutMs } = msg;
 
-  const ctx = vm.createContext({});
+  // Contexte vm NEUF et SÉCURISÉ par job.
+  const ctx = createSecureContext();
   ctx.Buffer = Buffer;
 
   try {
