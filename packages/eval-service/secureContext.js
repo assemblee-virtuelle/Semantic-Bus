@@ -92,7 +92,17 @@ function safeCreateHashWrapper(algorithm) {
     }
   };
 }
-const safeCrypto = { createHash: safeCreateHashWrapper };
+const safeCrypto = {
+  createHash: safeCreateHashWrapper,
+  randomUUID: () => nodeCrypto.randomUUID()
+};
+
+// he minimal : expose uniquement decode/encode (les 2 seuls utilisés en prod pour
+// l'échappement HTML). Pas de version/escape/unescape ni d'autres accès.
+const safeHe = {
+  decode: (str) => he.decode(str == null ? '' : String(str)),
+  encode: (str) => he.encode(str == null ? '' : String(str))
+};
 
 // Libs/helpers exposés aux expressions (mêmes identifiants que le scope master),
 // en version épurée, réduite et gelée.
@@ -101,15 +111,15 @@ function makeHelpers() {
     dayjs,
     moment,
     lodash: makeSafeLodash(),
-    he,
+    he: safeHe,               // wrapper minimal (decode/encode)
     removeMarkdown,
     sanitizeHtml,
     cheerio,
     decodeUnicode,
     dotProp,
     unicode,
-    crypto: safeCrypto,       // wrapper minimal (createHash uniquement)
-    Buffer: safeBuffer       // wrapper minimal (from uniquement)
+    crypto: safeCrypto,       // wrapper minimal (createHash/randomUUID)
+    Buffer: safeBuffer        // wrapper minimal (from uniquement)
   };
   for (const name of Object.keys(helpers)) {
     const value = helpers[name];
