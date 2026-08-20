@@ -46,9 +46,11 @@ const MAX_EXPRESSION_LENGTH = 20000;
 const EVAL_POOL_SIZE = Number(process.env.EVAL_POOL_SIZE || 4);
 const WHERE_POOL_SIZE = Number(process.env.WHERE_POOL_SIZE || 2);
 const EVAL_MAX_QUEUE = Number(process.env.EVAL_MAX_QUEUE || 200);
-// Recyclage des workers (sécurité) : nombre de jobs par worker avant remplacement.
-// Défaut 1 (le plus sûr) — une éval malveillante ne persiste pas au-delà d'un job.
-const EVAL_RECYCLE_AFTER = Number(process.env.EVAL_RECYCLE_AFTER || 1);
+// Recyclage des workers (sécurité, optionnel) : nombre de jobs par worker avant
+// remplacement. Défaut élevé (100000) pour préserver le pool persistant — le
+// bypass connu (lodash.template) est neutralisé par le validateur + lodash épuré,
+// PAS par le recyclage. Configurable pour un filet de sécurité plus strict.
+const EVAL_RECYCLE_AFTER = Number(process.env.EVAL_RECYCLE_AFTER || 100000);
 
 const evalPool = new WorkerPool({ script: 'evalWorker.js', size: EVAL_POOL_SIZE, recycleAfter: EVAL_RECYCLE_AFTER });
 const wherePool = new WorkerPool({ script: 'whereWorker.js', size: WHERE_POOL_SIZE, recycleAfter: EVAL_RECYCLE_AFTER });

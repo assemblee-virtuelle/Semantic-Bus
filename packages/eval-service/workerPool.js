@@ -22,7 +22,7 @@ class WorkerPool {
    * @param {string} script nom du script worker (ex. 'evalWorker.js')
    * @param {number} size nombre de workers créés au boot
    */
-  constructor({ script, size, recycleAfter = 1 }) {
+  constructor({ script, size, recycleAfter = 100000 }) {
     if (!Number.isInteger(size) || size < 1) {
       throw new Error(`Invalid pool size: ${size}`);
     }
@@ -114,13 +114,13 @@ class WorkerPool {
     wrapper.jobId = null;
     wrapper.jobsDone++;
 
-    // Sécurité (défense en profondeur) : recycler le worker après `recycleAfter`
-    // jobs. Une éval malveillante qui échapperait au contexte vm (ex. via une
-    // fonction compilant du code en host realm comme lodash.template) pourrait
-    // laisser tourner un `import().then(...)` asynchrone ; recycler le worker
-    // borne la fenêtre et empêche toute persistance d'état/side-effect entre jobs.
-    // Par défaut recyclage après CHAQUE job (le plus sûr). Configurable via env.
-    if (wrapper.jobsDone >= (this.recycleAfter || 1)) {
+    // Sécurité optionnelle : recycler le worker après `recycleAfter` jobs.
+    // NB : le bypass connu (lodash.template → host realm) est NEUTRALISÉ par le
+    // validateur + le lodash épuré du scope, PAS par le recyclage. Un recyclage
+    // fréquent rechargerait les libs à chaque job (~448ms/éval vs ~21ms) et
+    // annulerait le gain du pool. On garde donc un recyclage très rare (valeur
+    // haute) comme simple filet de secours, configurable via EVAL_RECYCLE_AFTER.
+    if (wrapper.jobsDone >= (this.recycleAfter || 100000)) {
       this.killAndReplace(wrapper);
       return;
     }
