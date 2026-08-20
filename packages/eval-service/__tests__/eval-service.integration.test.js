@@ -132,6 +132,46 @@ describe('eval-service — cas réels de production', () => {
     expect(status).toBe(401);
   });
 
+  test('sécurité : fetch/WebSocket strippés (pas d\'egress réseau)', async () => {
+    const r1 = await call('/eval', { expression: 'typeof fetch', variables: {} });
+    expect(r1.data.ok).toBe(true);
+    expect(r1.data.result).toBe('undefined');
+
+    const r2 = await call('/eval', { expression: 'typeof WebSocket', variables: {} });
+    expect(r2.data.ok).toBe(true);
+    expect(r2.data.result).toBe('undefined');
+  });
+
+  test('sécurité : Buffer réduit (seul from exposé, pas alloc/prototype)', async () => {
+    const r1 = await call('/eval', { expression: 'typeof Buffer.alloc', variables: {} });
+    expect(r1.data.ok).toBe(true);
+    expect(r1.data.result).toBe('undefined');
+
+    const r2 = await call('/eval', { expression: 'typeof Buffer.prototype', variables: {} });
+    expect(r2.data.ok).toBe(true);
+    expect(r2.data.result).toBe('undefined');
+
+    // Buffer.from reste fonctionnel (cas prod)
+    const r3 = await call('/eval', { expression: 'Buffer.from("x").toString("base64")', variables: {} });
+    expect(r3.data.ok).toBe(true);
+    expect(r3.data.result).toBe(Buffer.from('x').toString('base64'));
+  });
+
+  test('sécurité : expression ReDoS interrompue par timeout (eval)', async () => {
+    // regex catastrophique (backtracking exponentiel) -> doit être interrompue
+    const t0 = await call('/eval', {
+      expression: 'new RegExp("(a+)+$").test("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaa!")',
+      variables: {},
+      timeoutMs: 300
+    });
+    expect(t0.data.ok).toBe(false);
+
+    // le service reste disponible après
+    const after = await call('/eval', { expression: '6 * 7', variables: {} });
+    expect(after.data.ok).toBe(true);
+    expect(after.data.result).toBe(42);
+  });
+
   test('pool : aucun passage d\'état entre deux évals (contexte vm neuf)', async () => {
     const r1 = await call('/eval', { expression: 'globalThis.leakPool = 123; 1', variables: {} });
     expect(r1.data.ok).toBe(true);
