@@ -48,7 +48,6 @@ app.use('/data', unSafeRouteur);
 require('./server/initialiseWebService')(unSafeRouteur);
 require('./server/authWebService')(unSafeRouteur);
 require('./server/workspaceWebService')(safe);
-require('./server/bigdataflowService')(safe);
 require('./server/adminWebService')(safe);
 const technicalComponentDirectory = require('./server/technicalComponentWebService')(safe, unSafeRouteur);
 require('./server/userWebservices')(safe);
