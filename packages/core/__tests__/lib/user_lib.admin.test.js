@@ -145,7 +145,10 @@ describe('user_lib.getAdminUsersStats - stats admin (workflows, dates)', () => {
         })
       })
     });
-    workspaceAggregateMock.mockResolvedValue([{ _id: 'alice@example.com', count: 3 }]);
+    workspaceAggregateMock.mockResolvedValue([
+      { _id: { email: 'alice@example.com', role: 'owner' }, count: 2 },
+      { _id: { email: 'alice@example.com', role: 'editor' }, count: 1 }
+    ]);
     processAggregateMock.mockResolvedValue([{ _id: 'u1', lastExecution: new Date('2026-08-20') }]);
   }
 
@@ -156,7 +159,8 @@ describe('user_lib.getAdminUsersStats - stats admin (workflows, dates)', () => {
     const u = res[0];
     expect(u.email).toBe('alice@example.com');
     expect(u.admin).toBe(true);
-    expect(u.workspaceCount).toBe(3);
+    expect(u.workspaceCount).toBe(2);
+    expect(u.contributorCount).toBe(1);
     expect(u.createdAt).toEqual(new Date('2026-01-01'));
     expect(u.lastLogin).toEqual(new Date('2026-08-01'));
     expect(u.lastExecution).toEqual(new Date('2026-08-20'));
@@ -176,6 +180,7 @@ describe('user_lib.getAdminUsersStats - stats admin (workflows, dates)', () => {
     processAggregateMock.mockResolvedValue([]);
     const res = await user_lib.getAdminUsersStats();
     expect(res[0].workspaceCount).toBe(0);
+    expect(res[0].contributorCount).toBe(0);
     expect(res[0].createdAt).toBe(null);
     expect(res[0].lastExecution).toBe(null);
   });
