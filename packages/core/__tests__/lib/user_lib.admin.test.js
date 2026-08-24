@@ -271,6 +271,11 @@ describe('user_lib.deleteUser - suppression d un user (admin)', () => {
       select: () => ({ lean: () => ({ exec: () => Promise.resolve({ _id: 'ws1' }) }) })
     });
     await expect(user_lib.deleteUser('u1')).rejects.toMatchObject({ code: 'USER_IS_WORKSPACE_OWNER' });
+    // La garde owner doit utiliser $elemMatch (pas un filtre plat qui matcherait
+    // deux éléments différents du tableau users).
+    expect(workspaceFindOneMock).toHaveBeenCalledWith(
+      { users: { $elemMatch: { email: 'bob@example.com', role: 'owner' } } }
+    );
   });
 
   test('retire les contributions et supprime le user + auths', async () => {

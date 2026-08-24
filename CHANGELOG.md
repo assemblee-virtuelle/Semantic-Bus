@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.11.9] - 2026-08-24
+
+### Fixed
+
+- **Admin — suppression d'un utilisateur** : la garde « propriétaire de workflow(s) »
+  utilisait un filtre qui pouvait matcher deux membres différents du workspace → un
+  simple **contributeur** était refusé à tort. Corrigé avec `$elemMatch` (même membre).
+
 ## [0.11.8] - 2026-08-24
 
 ### Added
