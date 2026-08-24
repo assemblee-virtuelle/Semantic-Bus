@@ -69,13 +69,14 @@ function fail(msg) {
     const rows = Array.from(admin.querySelectorAll('.userRow'));
     const header = admin.querySelector('.containerTitle');
     const headerText = header ? header.textContent.replace(/\s+/g, ' ').trim() : '';
-    return { mounted: true, rowCount: rows.length, header: headerText };
+    const firstRowCells = rows[0] ? Array.from(rows[0].querySelectorAll('.tableRowName, .tableRowEmail, .tableRowRole, .tableRowCount, .tableRowDate')).map(c => c.textContent.trim()) : [];
+    return { mounted: true, rowCount: rows.length, header: headerText, firstRowCells };
   });
 
   console.log('Rendu admin:', JSON.stringify(result));
   if (!result.mounted) fail('tag admin non monté');
   if (result.rowCount === 0) fail('aucune ligne user affichée');
-  if (!result.header || !result.header.includes('WORKFLOWS')) fail('header incomplet: ' + result.header);
+  if (!result.header || !result.header.includes('CONTRIBUTEUR')) fail('header incomplet: ' + result.header);
   if (errors.length > 0) fail('erreurs console: ' + errors.join(' | '));
 
   // 4. Vérifier le tri (clic sur l'en-tête WORKFLOWS)

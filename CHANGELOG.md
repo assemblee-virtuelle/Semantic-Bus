@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.11.5] - 2026-08-24
+
+### Added
+
+- **Admin — nb de workflows séparé** : les colonnes « OWNER » et « CONTRIBUTEUR »
+  (rôle non-owner) remplacent la colonne unique « WORKFLOWS » dans le tableau des
+  utilisateurs. Les deux sont triables.
+
 ## [0.11.4] - 2026-08-24
 
 ### Added
