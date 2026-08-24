@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.11.7] - 2026-08-24
+
+### Fixed
+
+- **Admin — lignes du tableau des utilisateurs** : avec beaucoup d'utilisateurs, les
+  lignes étaient compressées (hauteur quasi nulle → invisibles) à cause du
+  `flex-shrink:1` imposé par `flex.css`. Les lignes gardent désormais leur hauteur
+  (`flex-shrink:0`) et le tableau **scrolle** (conteneur `overflow-y:auto`).
+
 ## [0.11.6] - 2026-08-24
 
 ### Added
