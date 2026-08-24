@@ -8,6 +8,7 @@ const historiqueModel = require('../models').historiqueEnd;
 const SecureMailModel = require('../models/security_mail');
 const workspaceModel = require('../models').workspace;
 const processModel = require('../models').process;
+const authenticationModel = require('../models').authentication;
 const certificateModel = require('../models').certificate;
 // let bigdataflowModel = require("../models").bigdataflow;
 const Error = require('../helpers/error.js');
@@ -30,6 +31,7 @@ module.exports = {
   getWithRelations: _getWithRelations,
   getAdminUsersStats: _getAdminUsersStats,
   getUserWorkflows: _getUserWorkflows,
+  deleteUser: _deleteUser,
   userGraph: _userGraph,
   createUpdatePasswordEntity: _createUpdatePasswordEntity,
   getPasswordEntity: _getPasswordEntity,
@@ -376,6 +378,49 @@ async function _getUserWorkflows(userId) {
     };
   });
 } // <= _getUserWorkflows
+
+// Suppression d'un user (admin) :
+// - refusée si le user est owner d'au moins un workspace (sinon données orphelines) ;
+// - retire le user (email) des workspaces où il est contributeur ;
+// - supprime le user et ses authentifications.
+// L'auto-suppression est gérée au niveau de la route (wrapperAdmin + check caller).
+async function _deleteUser(userId) {
+  const user = await userModel.getInstance().model
+    .findOne({ _id: userId })
+    .select('credentials.email')
+    .lean()
+    .exec();
+  if (!user) {
+    throw new Error.EntityNotFoundError('User');
+  }
+  const email = user.credentials.email;
+
+  // Interdire la suppression si le user est owner d'un workspace.
+  const ownedWorkspaces = await workspaceModel.getInstance().model
+    .findOne({ 'users.email': email, 'users.role': 'owner' })
+    .select('_id')
+    .lean()
+    .exec();
+  if (ownedWorkspaces) {
+    const err = new global.Error('user_is_workspace_owner');
+    err.code = 'USER_IS_WORKSPACE_OWNER';
+    throw err;
+  }
+
+  // Retirer le user des workspaces où il est contributeur (email retiré de users[]).
+  await workspaceModel.getInstance().model.updateMany(
+    { 'users.email': email },
+    { $pull: { users: { email } } }
+  ).exec();
+
+  // Supprimer les authentifications puis le user.
+  await authenticationModel.getInstance().model.deleteMany({ user: userId }).exec();
+  const result = await userModel.getInstance().model.deleteOne({ _id: userId }).exec();
+  if (!result.deletedCount) {
+    throw new Error.EntityNotFoundError('User');
+  }
+  return { deleted: true, email };
+} // <= _deleteUser
 
 function _userGraph(userId) {
   return new Promise(resolve => {
