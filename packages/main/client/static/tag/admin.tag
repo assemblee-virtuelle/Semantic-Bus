@@ -20,7 +20,7 @@
         <div class="tableTitleAction">ACTION</div>
       </div>
       <div class="containerV userTableBody">
-        <div class="containerH tableRow userRow" each={sortedUsers}>
+        <div class="containerH tableRow userRow" each={sortedUsers()}>
           <div class="tableRowName">{name || '-'}</div>
           <div class="tableRowEmail">{email}</div>
           <div class="tableRowRole">
@@ -36,7 +36,7 @@
           </div>
         </div>
       </div>
-      <div if={sortedUsers.length === 0} class="containerH" style="justify-content:center;">
+      <div if={sortedUsers().length === 0} class="containerH" style="justify-content:center;">
         <div class="containerV" style="flex-basis:1;justify-content:center;margin:50px">
           <h1 style="text-align: center;color: rgb(119,119,119);">Aucun utilisateur.</h1>
         </div>
