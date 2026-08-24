@@ -1,5 +1,30 @@
 # Changelog
 
+## [0.11.3] - 2026-08-24
+
+### Security
+
+- **Broken Access Control (IDOR) sur `POST /workspaces/:id/import` corrigé** (divulgation
+  coordonnée, chercheur Maxim Yakovlev). Voir
+  `advisories/SB-IDOR-2026-01/2026-08-idor-workspace-import.md`.
+- **`wrapperSecurity` (owner/editor) ajouté** sur l'import de composants dans un workspace
+  (`POST /workspaces/:id/import`) — un utilisateur authentifié ne peut plus écrire de
+  composants/liens dans un workspace auquel il n'est ni owner ni editor.
+- **Défaut admin moindre privilège** : sans `adminUsers` configuré, plus aucun utilisateur
+  n'est admin par défaut (avant : tout le monde). Bootstrap : le **premier utilisateur** d'une
+  instance vide devient admin.
+- **`GET /users` restreint aux admins** (`wrapperAdmin`) — la liste des utilisateurs n'est
+  plus exposée à tout utilisateur authentifié.
+- **Gestion admin par l'UI** : écran `#admin` avec onglets « Utilisateurs » / « Nettoyage »,
+  boutons « Promouvoir admin » / « Retirer admin » (`PUT /users/:id/admin`), garde
+  anti-lockout (un admin ne peut pas se dépromouvoir lui-même).
+
+### Fixed
+
+- **`GET /users/emails`** : nouvel endpoint (authentifié JWT, emails seulement) pour
+  l'autocomplétion du partage de workflow — le partage d'un non-admin ne casse plus.
+- `user_lib.getWithRelations` : garde contre `config` undefined.
+
 ## [0.11.2] - 2026-08-20
 
 ### Security

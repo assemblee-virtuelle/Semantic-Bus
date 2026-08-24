@@ -9,6 +9,7 @@ const moment = require('moment')
 const validations = require('./validations')
 const userValidations = require('./validations/userValidations')
 const config = require('../config.json')
+const securityService = require('./services/security')
 // const upload = require('./workspaceComponentInitialize/upload')
 const Busboy = require('busboy');
 const fs = require('fs');
@@ -43,13 +44,47 @@ const encodeToken = (mail, action) => {
 module.exports = function (router) {
   // ---------------------------------------  ALL USERS  -----------------------------------------
 
-  router.get('/users', function (req, res, next) {
+  router.get('/users', (req, res, next) => securityService.wrapperAdmin(req, res, next), function (req, res, next) {
     user_lib.get_all({}).then(function (users) {
       res.send(users)
     }).catch(e => {
       next(e)
     })
   })
+
+  // ---------------------------------------------------------------------------------
+
+  // Emails des users pour l'autocomplétion du partage de workflow.
+  // Accessible à tout user authentifié (JWT) — ne renvoie que les emails.
+  router.get('/users/emails', function (req, res, next) {
+    user_lib.get_all({}).then(function (users) {
+      const emails = users
+        .filter(u => u.credentials && u.credentials.email)
+        .map(u => u.credentials.email)
+      res.send(emails)
+    }).catch(e => {
+      next(e)
+    })
+  })
+
+  // ---------------------------------------------------------------------------------
+
+  router.put('/users/:id/admin', (req, res, next) => securityService.wrapperAdmin(req, res, next), async function (req, res, next) {
+    try {
+      const isAdmin = req.body.admin === true
+      const callerId = UserIdFromToken(req)
+      if (req.params.id == callerId && !isAdmin) {
+        return res.status(400).send({
+          success: false,
+          message: 'Vous ne pouvez pas retirer votre propre rôle administrateur.'
+        })
+      }
+      const user = await user_lib.updateAdmin(req.params.id, isAdmin)
+      res.send({ user, admin: isAdmin })
+    } catch (e) {
+      next(e)
+    }
+  }) // <= set_admin
 
   // ---------------------------------------------------------------------------------
 

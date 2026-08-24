@@ -1,41 +1,128 @@
 <admin class="containerV" style="flex-grow:1">
 
-
-  <label class="labelFormStandard">supprimer les fragments marqués</label>
-  <div onclick={cleanGarbageSimpleClick} class="btnFil commandButtonImage">
-    Nettoyer (fragments)
-    <img class="imgFil" src="./image/Administrative-Tools-256.png" title="Nettoyer les fragments">
-    <input ref="import" type="file" style="display:none;"/>
+  <!--  boutons des tabs  -->
+  <div class="tab">
+    <button id="usersBtn" class="tablinks active" onclick={openTab}>Utilisateurs</button>
+    <button id="cleanBtn" class="tablinks" onclick={openTab}>Nettoyage</button>
   </div>
 
-  <label class="labelFormStandard">Suprimer les processus d'execution périmés + marquer les fragments à supprimer + supprimer les fragments marqués</label>
-  <div onclick={cleanProcessClick} class="btnFil commandButtonImage">
-    Nettoyer (processus + fragments)
-    <img class="imgFil" src="./image/Administrative-Tools-256.png" title="Nettoyer process et les fragments associés">
-    <input ref="import" type="file" style="display:none;"/>
+  <!--  contenu du tab Utilisateurs  -->
+  <div id="users" class="containerV tabcontent" style="flex-grow:1; background-color: rgb(238,242,249);">
+    <div class="containerV" style="flex-grow:1;width:90%;align-self:center;">
+      <div class="containerTitle">
+        <div class="tableTitleName">NOM</div>
+        <div class="tableTitleEmail">EMAIL</div>
+        <div class="tableTitleRole">ADMIN</div>
+        <div class="tableTitleAction">ACTION</div>
+      </div>
+      <div class="containerV userTableBody">
+        <div class="containerH tableRow userRow" each={users}>
+          <div class="tableRowName">{name || '-'}</div>
+          <div class="tableRowEmail">{credentials.email}</div>
+          <div class="tableRowRole">
+            <span class={admin? 'admin-badge is-admin' : 'admin-badge'}> {admin? 'admin' : 'user'} </span>
+          </div>
+          <div class="tableRowAction">
+            <button if={!admin} data-user-id={_id} onclick={promoteUser} class="admin-btn promote">Promouvoir admin</button>
+            <button if={admin} data-user-id={_id} onclick={demoteUser} class="admin-btn demote">Retirer admin</button>
+          </div>
+        </div>
+      </div>
+      <div if={users.length === 0} class="containerH" style="justify-content:center;">
+        <div class="containerV" style="flex-basis:1;justify-content:center;margin:50px">
+          <h1 style="text-align: center;color: rgb(119,119,119);">Aucun utilisateur.</h1>
+        </div>
+      </div>
+    </div>
   </div>
 
-  <label class="labelFormStandard">Supprimer les fragments marqués à supprimer + Supprimer brutalement (algo independant) les fragments des processus périmés + supprimer les processus d'execution périmés</label>
-  <div onclick={cleanGarbageClick} class="btnFil commandButtonImage">
-    Nettoyer (Brut)
-    <img class="imgFil" src="./image/Administrative-Tools-256.png" title="Nettoyer les fragments périmées">
-    <input ref="import" type="file" style="display:none;"/>
-  </div>
+  <!--  contenu du tab Nettoyage  -->
+  <div id="clean" class="containerV tabcontent" style="flex-grow:1; background-color: rgb(238,242,249); display: none;">
+    <div class="containerV box-flex" style="flex-grow:1;">
+      <div class="containerH admin-clean-item">
+        <div class="containerV admin-clean-info">
+          <span class="admin-clean-title">Nettoyer les fragments</span>
+          <span class="admin-clean-desc">Supprimer les fragments marqués à supprimer.</span>
+        </div>
+        <button class="admin-clean-btn" onclick={cleanGarbageSimpleClick}>Nettoyer</button>
+      </div>
 
+      <div class="containerH admin-clean-item">
+        <div class="containerV admin-clean-info">
+          <span class="admin-clean-title">Nettoyer processus + fragments</span>
+          <span class="admin-clean-desc">Supprimer les processus d'exécution périmés puis marquer et supprimer les fragments associés.</span>
+        </div>
+        <button class="admin-clean-btn" onclick={cleanProcessClick}>Nettoyer</button>
+      </div>
 
-  <label class="labelFormStandard">Executer tous les timers</label>
-  <div onclick={executeTimersClick} class="btnFil commandButtonImage">
-    Executer
-    <img class="imgFil" src="./image/Administrative-Tools-256.png" title="executer timers">
-    <input ref="import" type="file" style="display:none;"/>
+      <div class="containerH admin-clean-item">
+        <div class="containerV admin-clean-info">
+          <span class="admin-clean-title">Nettoyage brutal</span>
+          <span class="admin-clean-desc">Supprimer brutalement (algorithme indépendant) les fragments des processus périmés.</span>
+        </div>
+        <button class="admin-clean-btn danger" onclick={cleanGarbageClick}>Nettoyer</button>
+      </div>
+
+      <div class="containerH admin-clean-item">
+        <div class="containerV admin-clean-info">
+          <span class="admin-clean-title">Exécuter tous les timers</span>
+          <span class="admin-clean-desc">Déclencher immédiatement l'exécution de tous les timers planifiés.</span>
+        </div>
+        <button class="admin-clean-btn" onclick={executeTimersClick}>Exécuter</button>
+      </div>
+    </div>
   </div>
 
   <script>
     this.data = {}
+    this.users = []
 
     this.refreshData = (data) => {
       this.data = data
       this.update()
+    }
+
+    this.refreshUsers = (users) => {
+      this.users = users || []
+      this.update()
+    }
+
+    this.promoteUser = (e) => {
+      const userId = (e && e.item && e.item._id) || (e && e.currentTarget && e.currentTarget.getAttribute('data-user-id'))
+      RiotControl.trigger('set_user_admin', userId, true)
+    }
+
+    this.demoteUser = (e) => {
+      const userId = (e && e.item && e.item._id) || (e && e.currentTarget && e.currentTarget.getAttribute('data-user-id'))
+      RiotControl.trigger('set_user_admin', userId, false)
+    }
+
+    this.userAdminChanged = (data) => {
+      if (data && data.user) {
+        for (u of this.users) {
+          if (u._id == data.user._id) {
+            u.admin = data.admin
+          }
+        }
+        this.update()
+      }
+    }
+
+    openTab(e) {
+      var i, tabcontent, tablinks, id;
+      tabcontent = document.getElementsByClassName("tabcontent");
+      for (i = 0; i < tabcontent.length; i++) {
+        tabcontent[i].style.display = "none";
+      }
+
+      tablinks = document.getElementsByClassName("tablinks");
+      for (i = 0; i < tablinks.length; i++) {
+        tablinks[i].className = tablinks[i].className.replace("active", "");
+      }
+
+      id = e.srcElement.id.replace('Btn', '');
+      document.getElementById(id).style.display = "flex";
+      e.currentTarget.className += " active";
     }
 
     cleanGarbageClick(e) {
@@ -70,32 +157,164 @@
       RiotControl.on('garbage_cleaned', this.garbageCleaned);
       RiotControl.on('process_cleaned', this.processCleaned);
       RiotControl.on('timers_executed', this.timersExecuted);
-      // RiotControl.trigger('workspace_collection_load');
+      RiotControl.on('users_loaded', this.refreshUsers);
+      RiotControl.on('user_admin_changed', this.userAdminChanged);
+      RiotControl.trigger('load_users');
     })
 
     this.on('unmount', () => {
       RiotControl.off('garbage_cleaned', this.garbageCleaned)
       RiotControl.off('process_cleaned', this.processCleaned)
       RiotControl.off('timers_executed', this.timersExecuted);
+      RiotControl.off('users_loaded', this.refreshUsers);
+      RiotControl.off('user_admin_changed', this.userAdminChanged);
     })
   </script>
   <style>
 
-    .btnFil {
-      justify-content: space-evenly;
-      display: flex;
-      flex-direction: row;
-      align-items: center;
-      border: solid;
-      border-width: 1px;
-      border-radius: 2px;
-      width: 15vw;
-      height: 5vh;
-      color: rgb(26,145,194);
+    /* Table utilisateurs — colonnes à largeur fixe (alignées header/lignes) */
+    .containerTitle,
+    .tableRow,
+    .tableRowName,
+    .tableRowEmail,
+    .tableRowRole,
+    .tableRowAction,
+    .tableTitleName,
+    .tableTitleEmail,
+    .tableTitleRole,
+    .tableTitleAction {
+      box-sizing: border-box;
     }
-    .imgFil {
-      width: 3vh;
-      height: 3vh;
+    .tableRowName,
+    .tableTitleName {
+      flex: 0 0 25%;
+      width: 25%;
+    }
+    .tableRowEmail,
+    .tableTitleEmail {
+      flex: 0 0 35%;
+      width: 35%;
+    }
+    .tableRowRole,
+    .tableTitleRole {
+      flex: 0 0 15%;
+      width: 15%;
+    }
+    .tableRowAction,
+    .tableTitleAction {
+      flex: 0 0 25%;
+      width: 25%;
+    }
+
+    .tableRowName,
+    .tableRowEmail,
+    .tableRowRole,
+    .tableRowAction {
+      font-size: 0.85em;
+      padding: 10px;
+    }
+    .tableRowAction {
+      justify-content: flex-end;
+    }
+
+    .containerTitle {
+      border-radius: 2px;
+      width: 90%;
+      flex-direction: row;
+      display: flex;
+      justify-content: flex-start;
+      align-items: center;
+      background-color: rgb(26,145,194);
+    }
+    .tableTitleName,
+    .tableTitleEmail,
+    .tableTitleRole,
+    .tableTitleAction {
+      font-size: 0.85em;
+      color: white;
+      flex-shrink: 0;
+      padding-left: 10px;
+    }
+
+    .userTableBody {
+      width: 90%;
+      background-color: white;
+    }
+    .userRow {
+      border-bottom: 1px solid #f2f3f5;
+      align-items: center;
+    }
+
+    .admin-clean-item {
+      align-items: center;
+      padding: 14px 10px;
+      border-bottom: 1px solid #f2f3f5;
+    }
+    .admin-clean-info {
+      flex: 1;
+      align-items: flex-start;
+    }
+    .admin-clean-title {
+      font-size: 0.95em;
+      color: rgb(40,50,60);
+    }
+    .admin-clean-desc {
+      font-size: 0.8em;
+      color: rgb(140,150,160);
+      margin-top: 2px;
+    }
+    .admin-clean-btn {
+      border: none;
+      border-radius: 4px;
+      background-color: rgb(26,145,194);
+      color: white;
+      padding: 8px 18px;
+      cursor: pointer;
+      font-size: 0.85em;
+    }
+    .admin-clean-btn:hover {
+      background-color: rgb(20,120,165);
+    }
+    .admin-clean-btn.danger {
+      background-color: #ff6f69;
+    }
+    .admin-clean-btn.danger:hover {
+      background-color: #e55a54;
+    }
+
+    .admin-badge {
+      padding: 3px 10px;
+      border-radius: 10px;
+      color: white;
+      font-size: 0.75em;
+      text-transform: uppercase;
+    }
+    .admin-badge.is-admin {
+      background-color: #88d8b0;
+    }
+    .admin-badge:not(.is-admin) {
+      background-color: rgb(170,180,190);
+    }
+
+    .admin-btn {
+      border: none;
+      border-radius: 4px;
+      color: white;
+      padding: 6px 14px;
+      cursor: pointer;
+      font-size: 0.85em;
+    }
+    .admin-btn.promote {
+      background-color: rgb(26,145,194);
+    }
+    .admin-btn.promote:hover {
+      background-color: rgb(20,120,165);
+    }
+    .admin-btn.demote {
+      background-color: #ff6f69;
+    }
+    .admin-btn.demote:hover {
+      background-color: #e55a54;
     }
   </style>
 </admin>
