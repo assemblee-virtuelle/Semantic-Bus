@@ -102,4 +102,18 @@ function AdminStore (utilStore) {
     })
   })
 
+  this.on('delete_user', (userId) => {
+    return new Promise((resolve, reject) => {
+      this.utilStore.ajaxCall({
+        method: 'delete',
+        url: '../data/core/users/' + userId
+      }, true).then(data => {
+        this.trigger('user_deleted', { userId })
+        resolve(data)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  })
+
 }

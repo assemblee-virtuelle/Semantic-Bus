@@ -9,27 +9,38 @@ jest.mock('../../models/user_model', () => {
   const countDocuments = jest.fn();
   const findByIdAndUpdate = jest.fn();
   const find = jest.fn();
+  const deleteOne = jest.fn();
   return {
     __findOne: findOne,
     __countDocuments: countDocuments,
     __findByIdAndUpdate: findByIdAndUpdate,
     __find: find,
-    getInstance: jest.fn(() => ({ model: { findOne, countDocuments, findByIdAndUpdate, find } }))
+    __deleteOne: deleteOne,
+    getInstance: jest.fn(() => ({ model: { findOne, countDocuments, findByIdAndUpdate, find, deleteOne } }))
   };
 });
 jest.mock('../../models', () => {
   const find = jest.fn();
   const workspaceAggregate = jest.fn();
   const processAggregate = jest.fn();
+  const workspaceFindOne = jest.fn();
+  const workspaceUpdateMany = jest.fn();
+  const authDeleteMany = jest.fn();
   return {
     __find: find,
     __workspaceAggregate: workspaceAggregate,
     __processAggregate: processAggregate,
+    __workspaceFindOne: workspaceFindOne,
+    __workspaceUpdateMany: workspaceUpdateMany,
+    __authDeleteMany: authDeleteMany,
     workspace: {
-      getInstance: jest.fn(() => ({ model: { find, aggregate: () => ({ exec: workspaceAggregate }) } }))
+      getInstance: jest.fn(() => ({ model: { find, findOne: workspaceFindOne, updateMany: workspaceUpdateMany, aggregate: () => ({ exec: workspaceAggregate }) } }))
     },
     process: {
       getInstance: jest.fn(() => ({ model: { aggregate: () => ({ exec: processAggregate }) } }))
+    },
+    authentication: {
+      getInstance: jest.fn(() => ({ model: { deleteMany: authDeleteMany } }))
     },
     historiqueEnd: {},
     certificate: {}
@@ -51,6 +62,9 @@ const countDocumentsMock = userModel.__countDocuments;
 const findMock = models.__find;
 const workspaceAggregateMock = models.__workspaceAggregate;
 const processAggregateMock = models.__processAggregate;
+const workspaceFindOneMock = models.__workspaceFindOne;
+const workspaceUpdateManyMock = models.__workspaceUpdateMany;
+const authDeleteManyMock = models.__authDeleteMany;
 
 describe('user_lib.getWithRelations - défaut admin (moindre privilège)', () => {
   function mockModels(email, admin = false) {
@@ -233,5 +247,54 @@ describe('user_lib.getUserWorkflows - détail des workflows d un user', () => {
       })
     });
     await expect(user_lib.getUserWorkflows('uX')).rejects.toThrow();
+  });
+});
+
+describe('user_lib.deleteUser - suppression d un user (admin)', () => {
+  const userDeleteOneMock = userModel.__deleteOne;
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  function mockUserFound() {
+    findOneMock.mockReturnValue({
+      select: () => ({
+        lean: () => ({ exec: () => Promise.resolve({ _id: 'u1', credentials: { email: 'bob@example.com' } }) })
+      })
+    });
+  }
+
+  test('refuse si le user est owner d un workspace', async () => {
+    mockUserFound();
+    workspaceFindOneMock.mockReturnValue({
+      select: () => ({ lean: () => ({ exec: () => Promise.resolve({ _id: 'ws1' }) }) })
+    });
+    await expect(user_lib.deleteUser('u1')).rejects.toMatchObject({ code: 'USER_IS_WORKSPACE_OWNER' });
+  });
+
+  test('retire les contributions et supprime le user + auths', async () => {
+    mockUserFound();
+    workspaceFindOneMock.mockReturnValue({
+      select: () => ({ lean: () => ({ exec: () => Promise.resolve(null) }) })
+    });
+    workspaceUpdateManyMock.mockReturnValue({ exec: () => Promise.resolve({ modifiedCount: 1 }) });
+    authDeleteManyMock.mockReturnValue({ exec: () => Promise.resolve({ deletedCount: 2 }) });
+    userDeleteOneMock.mockReturnValue({ exec: () => Promise.resolve({ deletedCount: 1 }) });
+
+    const res = await user_lib.deleteUser('u1');
+    expect(res).toEqual({ deleted: true, email: 'bob@example.com' });
+    expect(workspaceUpdateManyMock).toHaveBeenCalledWith(
+      { 'users.email': 'bob@example.com' },
+      { $pull: { users: { email: 'bob@example.com' } } }
+    );
+    expect(authDeleteManyMock).toHaveBeenCalledWith({ user: 'u1' });
+  });
+
+  test('lève une erreur si le user est introuvable', async () => {
+    findOneMock.mockReturnValue({
+      select: () => ({ lean: () => ({ exec: () => Promise.resolve(null) }) })
+    });
+    await expect(user_lib.deleteUser('uX')).rejects.toThrow();
   });
 });

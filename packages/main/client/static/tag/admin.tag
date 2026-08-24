@@ -37,6 +37,7 @@
               <button data-user-id={_id} onclick={toggleWorkflows} class="admin-btn details">Détails</button>
               <button if={!admin} data-user-id={_id} onclick={promoteUser} class="admin-btn promote">Promouvoir</button>
               <button if={admin} data-user-id={_id} onclick={demoteUser} class="admin-btn demote">Retirer</button>
+              <button data-user-id={_id} onclick={deleteUserClick} class="admin-btn delete">Supprimer</button>
             </div>
           </div>
           <div if={expandedId === _id} class="containerV userWorkflowDetail">
@@ -138,6 +139,25 @@
     this.userWorkflowsLoaded = (data) => {
       if (data && data.userId === this.expandedId) {
         this.userWorkflows = data.workflows || []
+        this.update()
+      }
+    }
+
+    this.deleteUserClick = (e) => {
+      const userId = (e && e.currentTarget && e.currentTarget.getAttribute('data-user-id'))
+      const email = (this.users.find(u => u._id == userId) || {}).email || ''
+      if (!confirm('Supprimer définitivement le compte ' + email + ' ?')) return
+      RiotControl.trigger('delete_user', userId)
+    }
+
+    this.userDeleted = (data) => {
+      if (data && data.userId) {
+        this.users = this.users.filter(u => u._id != data.userId)
+        if (this.expandedId === data.userId) {
+          this.expandedId = null
+          this.userWorkflows = []
+        }
+        this.computeDisplay()
         this.update()
       }
     }
@@ -266,6 +286,7 @@
       RiotControl.on('users_loaded', this.refreshUsers);
       RiotControl.on('user_admin_changed', this.userAdminChanged);
       RiotControl.on('user_workflows_loaded', this.userWorkflowsLoaded);
+      RiotControl.on('user_deleted', this.userDeleted);
       RiotControl.trigger('load_users');
     })
 
@@ -276,6 +297,7 @@
       RiotControl.off('users_loaded', this.refreshUsers);
       RiotControl.off('user_admin_changed', this.userAdminChanged);
       RiotControl.off('user_workflows_loaded', this.userWorkflowsLoaded);
+      RiotControl.off('user_deleted', this.userDeleted);
     })
   </script>
   <style>
@@ -498,6 +520,12 @@
     }
     .admin-btn.details:hover {
       background-color: rgb(70,130,170);
+    }
+    .admin-btn.delete {
+      background-color: #d9534f;
+    }
+    .admin-btn.delete:hover {
+      background-color: #c9302c;
     }
 
     /* Accordéon détail des workflows d'un user */
