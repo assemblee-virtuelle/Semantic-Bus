@@ -85,13 +85,26 @@ describe('engineWorkAuth - autorisation des messages work-ask', () => {
     expect(r.authorized).toBe(true);
   });
 
-  test('ne traite pas comme admin un user sans adminUsers configuré (fallback par défaut)', async () => {
+  test('autorise un admin persisté (bootstrap admin) sans adminUsers configuré', async () => {
     mockValidToken('u1');
     workspace_component_lib.get.mockResolvedValue({ _id: 'comp1', workspaceId: 'ws1' });
-    // getWithRelations renvoie admin=true par défaut, mais SANS adminUsers on ne s'y fie pas
+    // bootstrap admin : getWithRelations renvoie admin=true (persisté en base)
     user_lib.getWithRelations.mockResolvedValue({
       credentials: { email: 'u@x.com' },
       admin: true,
+      workspaces: []
+    });
+    const r = await authorizeWorkAsk('any.token', 'comp1', {});
+    expect(r.authorized).toBe(true);
+  });
+
+  test('ne traite pas comme admin un user admin=false sans adminUsers configuré', async () => {
+    mockValidToken('u1');
+    workspace_component_lib.get.mockResolvedValue({ _id: 'comp1', workspaceId: 'ws1' });
+    // non-admin persisté, aucun rôle sur le workspace → refusé
+    user_lib.getWithRelations.mockResolvedValue({
+      credentials: { email: 'u@x.com' },
+      admin: false,
       workspaces: []
     });
     const r = await authorizeWorkAsk('any.token', 'comp1', {});

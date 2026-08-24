@@ -29,7 +29,8 @@ module.exports = {
   getWithRelations: _getWithRelations,
   userGraph: _userGraph,
   createUpdatePasswordEntity: _createUpdatePasswordEntity,
-  getPasswordEntity: _getPasswordEntity
+  getPasswordEntity: _getPasswordEntity,
+  updateAdmin: _updateAdmin
 };
 
 // --------------------------------------------------------------------------------
@@ -55,11 +56,16 @@ function _create(bodyParams) {
 async function _create_mainprocess(preData) {
   const userModelInstance = userModel.getInstance().model;
   try {
+    // Bootstrap admin : le premier utilisateur créé sur une instance vide devient
+    // admin (persisté en DB), pour qu'un déploiement neuf soit exploitable sans
+    // configurer adminUsers dans config.json.
+    const userCount = await userModelInstance.countDocuments({});
     const user = new userModelInstance({
       credentials: {
         email: preData.email,
         hashed_password: preData.hashedPassword
       },
+      admin: userCount === 0,
       mailid: preData.mailid,
       name: preData.name,
       society: preData.society,
@@ -227,7 +233,7 @@ async function _getWithRelations(userID, config) {
       role: userOfWorkspace.role
     };
   });
-  if (config.adminUsers) {
+  if (config && config.adminUsers) {
     let adminUsers = config.adminUsers;
     if (!Array.isArray(config.adminUsers)) {
       adminUsers = [adminUsers];
@@ -237,8 +243,10 @@ async function _getWithRelations(userID, config) {
     } else {
       data.admin = false;
     }
-  }else {
-    data.admin = true;
+  } else {
+    // Pas d'adminUsers configuré : moindre privilège, on conserve le statut persisté
+    // (bootstrap admin : premier utilisateur créé sur une instance vide).
+    data.admin = data.admin === true;
   }
   // TODO REFACTORING and suppression
   // if(data.bigdataflow!=undefined){
@@ -399,6 +407,21 @@ function _update(user, mailChange) {
 } // <= _update
 
 // --------------------------------------------------------------------------------
+
+async function _updateAdmin(userId, isAdmin) {
+  const user = await userModel.getInstance().model
+    .findByIdAndUpdate(
+      userId,
+      { $set: { admin: isAdmin } },
+      { new: true }
+    )
+    .lean()
+    .exec();
+  if (user == null) {
+    throw new Error.EntityNotFoundError('User');
+  }
+  return user;
+} // <= _updateAdmin
 
 async function _update_mainprocess(preData) {
   // transformer le model business en model de persistance

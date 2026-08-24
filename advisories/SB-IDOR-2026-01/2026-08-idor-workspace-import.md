@@ -35,7 +35,7 @@ CVSS à calculer (probablement ~8.x : réseau + authentifié faible + impact él
   au moins jusqu'à v0.11.2.
 
 ## Versions corrigées (Patched versions)
-- À définir lors de la release du correctif.
+- À définir lors de la release du correctif (correctif développé et testé — voir §Correctif proposé).
 
 ## Détails (Details)
 - `POST /workspaces/:id/import` (`packages/main/server/workspaceWebService.js:244`) :
@@ -51,9 +51,33 @@ CVSS à calculer (probablement ~8.x : réseau + authentifié faible + impact él
   (config.json par défaut) — second problème à corriger.
 
 ## Correctif proposé
-- Appliquer `wrapperSecurity` (owner/editor) à `POST /workspaces/:id/import`.
-- Vérifier/ajouter `wrapperSecurity` à `POST /workspaces/` (création).
-- Corriger `user_lib.js` : ne pas traiter tout utilisateur comme admin si `adminUsers` absent.
+- ✅ **`wrapperSecurity` (owner/editor) ajouté à `POST /workspaces/:id/import`** —
+  `packages/main/server/workspaceWebService.js:244` (même pattern que les routes sœurs,
+  rôle `undefined` = owner OU editor, entité `workflow`).
+- ✅ **`user_lib.js` corrigé** : ne plus traiter tout utilisateur comme admin si
+  `adminUsers` absent (défaut moindre privilège) + garde contre `config` undefined
+  (`packages/core/lib/user_lib.js:230-242`).
+- ✅ **Bootstrap admin** : le premier utilisateur créé sur une instance vide devient
+  `admin: true` (persisté en base) — un déploiement neuf reste exploitable sans
+  configurer `adminUsers`. `adminUsers` configuré **prime** sur le statut persisté.
+  (`user_lib.js:55-80` création, `:230-242` lecture) — `engineWorkAuth` respecte aussi
+  ce statut persisté.
+- ✅ **`GET /users` restreint aux admins** : middleware `wrapperAdmin` ajouté
+  (`security.js`) — plus aucun utilisateur authentifié ne peut lister les users.
+- ✅ **Gestion admin** : nouvel endpoint `PUT /users/:id/admin` (admin-only) pour
+  promouvoir/dépromouvoir un user (`user_lib.updateAdmin`, `userWebservices.js:57`).
+  Garde anti-lockout : un admin ne peut pas se dépromouvoir lui-même (400).
+- ✅ **Interface admin** : écran `#admin` enrichi — liste des users + boutons
+  « Promouvoir admin » / « Retirer admin » (`admin.tag`, `adminStore.js`).
+- ✅ **Compatibilité partage** : `GET /users/emails` (authentifié JWT, emails seulement)
+  créé pour l'autocomplétion du partage de workflow — `profilStore.js` basculé dessus.
+  Le partage d'un non-admin ne casse plus.
+- ℹ️ **`POST /workspaces/` (création)** : vérifié — pas un IDOR. La route crée un workspace
+  dont l'appelant est l'owner (`workspace_lib.create(userIdBody, ...)`, owner dérivé du JWT) ;
+  il n'y a pas de workspace cible cross-tenant à autoriser. Rien à ajouter.
+- ⚠️ **Note opérationnelle** : sur une instance existante (utilisateurs déjà présents, sans
+  `adminUsers` configuré), aucun utilisateur n'est admin par défaut — configurer `adminUsers`
+  ou promouvoir via `PUT /users/:id/admin`.
 
 ## CWE
 - **CWE-639** : Authorization Bypass Through User-Controlled Key (IDOR)
@@ -66,10 +90,14 @@ Signalée par **Maxim Yakovlev** (`batam111`) — divulgation coordonnée.
 | Date | Étape |
 |---|---|
 | 2026-08-20 | Réception du rapport par le chercheur |
+| 2026-08-24 | Correctif développé + testé (wrapperSecurity sur import + user_lib admin défaut) |
 | (à compléter) | Confirmation / correctif |
 | (à compléter) | Publication |
 
 ## Références (References)
-- `packages/main/server/workspaceWebService.js:244` (route import sans wrapperSecurity)
+- `packages/main/server/workspaceWebService.js:244` (route import — wrapperSecurity ajouté)
+- `packages/core/lib/user_lib.js:230-242` (défaut admin moindre privilège)
 - `packages/main/server/services/security.js` (wrapperSecurity)
+- Tests : `packages/main/__tests__/server/workspaceSecurity.test.js`,
+  `packages/core/__tests__/lib/user_lib.admin.test.js`
 - À compléter : lien PR de correctif + release.

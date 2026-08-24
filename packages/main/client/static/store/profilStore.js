@@ -40,19 +40,13 @@ function ProfilStore (utilStore) {
   this.on('load_all_profil_by_email', function (message) {
     this.utilStore.ajaxCall({
       method: 'get',
-      url: '../data/core/users',
+      url: '../data/core/users/emails',
       headers: {
         'Authorization': 'JTW' + ' ' + localStorage.token
       },
       contentType: 'application/json'
     }).then(function (data) {
-      var emails = []
-      data.forEach(function (user) {
-        if (user.credentials) {
-          emails.push(user.credentials.email)
-        }
-      })
-      this.trigger('all_profil_by_email_load', emails)
+      this.trigger('all_profil_by_email_load', data)
     }.bind(this))
   })
 
