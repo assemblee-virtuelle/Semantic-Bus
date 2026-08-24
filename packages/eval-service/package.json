@@ -1,6 +1,6 @@
 {
   "name": "@semantic-bus/eval-service",
-  "version": "0.11.11",
+  "version": "0.11.12",
   "description": "Service d'évaluation JavaScript isolé en container (dédié aux eval des transformations / $where).",
   "private": true,
   "main": "app.js",

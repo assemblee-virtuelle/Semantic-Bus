@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.11.12] - 2026-08-24
+
+### Security
+
+- **Routes de maintenance admin réservées aux admins** : `cleanGarbage`, `cleanProcess`,
+  `executeTimers` passent par `wrapperAdmin` (avant : tout user authentifié pouvait les
+  déclencher).
+- **IDOR de lecture sur les fichiers fermé** : `GET /file/:fileId` et `/download`
+  vérifient désormais que le user est **owner ou editor** du workflow lié au fichier
+  (via `processId` → `workflowId`), ou admin (403 sinon).
+
 ## [0.11.11] - 2026-08-24
 
 ### Security
