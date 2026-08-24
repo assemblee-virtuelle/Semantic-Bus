@@ -105,6 +105,39 @@ class Security {
     auth_lib_jwt.security_API(req, res, next);
   }
 
+  // Autorise uniquement les admins (statut persisté ou config.adminUsers).
+  // À utiliser sur les endpoints d'administration (ex. liste des users, gestion admin).
+  wrapperAdmin(req, res, next) {
+    const token = req.body.token || req.query.token || req.headers['authorization'];
+    token.split('');
+    const tokenAfter = token.substring(4, token.length);
+    const decodeToken = auth_lib_jwt.get_decoded_jwt(tokenAfter);
+    if (!decodeToken || !decodeToken.iss) {
+      res.status(403).send({
+        success: false,
+        message: 'No right'
+      });
+      return;
+    }
+    user_lib.getWithRelations(
+      decodeToken.iss, config
+    ).then((result) => {
+      if (result && result.admin) {
+        next();
+      } else {
+        res.status(403).send({
+          success: false,
+          message: 'No right'
+        });
+      }
+    }).catch(() => {
+      res.status(403).send({
+        success: false,
+        message: 'No right'
+      });
+    });
+  }
+
   require_token(token) {
     return new Promise((resolve, reject) => {
       auth_lib_jwt.require_token(token).then((res) => {

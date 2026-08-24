@@ -241,7 +241,7 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.post('/workspaces/:id/import', function (req, res, next) {
+  router.post('/workspaces/:id/import', (req, res, next) => securityService.wrapperSecurity(req, res, next, undefined, 'workflow'), function (req, res, next) {
     const newWorkspace = req.body
     const newComponents = newWorkspace.components.map(c => {
       return {

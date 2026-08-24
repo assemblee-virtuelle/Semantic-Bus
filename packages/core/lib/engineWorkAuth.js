@@ -79,15 +79,15 @@ async function authorizeWorkAsk(token, componentId, config) {
     return { authorized: false, reason: 'user not found' };
   }
 
-  // Admin UNIQUEMENT si une liste d'admins est explicitement configurée et
-  // contient l'utilisateur. NB : getWithRelations renvoie admin=true par défaut
-  // quand adminUsers est absent ; on ne s'y fie PAS ici (sinon tout utilisateur
-  // JWT serait autorisé). L'autorisation repose donc sur le rôle workspace.
+  // Admin : liste explicite config.adminUsers OU statut admin persisté en base
+  // (bootstrap admin : premier utilisateur créé sur une instance vide, quand
+  // adminUsers n'est pas configuré). getWithRelations ne renvoie plus admin=true
+  // par défaut pour tout le monde ; on s'y fie donc pour le statut persisté.
   const adminList = config && config.adminUsers
     ? (Array.isArray(config.adminUsers) ? config.adminUsers : [config.adminUsers])
     : [];
   if (user && user.credentials && user.credentials.email &&
-      adminList.includes(user.credentials.email)) {
+      (adminList.includes(user.credentials.email) || user.admin === true)) {
     return { authorized: true };
   }
 
