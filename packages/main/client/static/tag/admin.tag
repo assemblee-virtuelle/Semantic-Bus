@@ -8,27 +8,35 @@
 
   <!--  contenu du tab Utilisateurs  -->
   <div id="users" class="containerV tabcontent" style="flex-grow:1; background-color: rgb(238,242,249);">
-    <div class="containerV" style="flex-grow:1;width:90%;align-self:center;">
+    <div class="containerV" style="flex-grow:1;width:95%;align-self:center;">
       <div class="containerTitle">
-        <div class="tableTitleName">NOM</div>
-        <div class="tableTitleEmail">EMAIL</div>
-        <div class="tableTitleRole">ADMIN</div>
+        <div class="tableTitleName sortable" data-sort="name" onclick={sortBy}>NOM {sortArrow('name')}</div>
+        <div class="tableTitleEmail sortable" data-sort="email" onclick={sortBy}>EMAIL {sortArrow('email')}</div>
+        <div class="tableTitleRole sortable" data-sort="admin" onclick={sortBy}>ADMIN {sortArrow('admin')}</div>
+        <div class="tableTitleCount sortable" data-sort="workspaceCount" onclick={sortBy}>WORKFLOWS {sortArrow('workspaceCount')}</div>
+        <div class="tableTitleDate sortable" data-sort="createdAt" onclick={sortBy}>INSCRIPTION {sortArrow('createdAt')}</div>
+        <div class="tableTitleDate sortable" data-sort="lastLogin" onclick={sortBy}>DERNIÈRE CONNEXION {sortArrow('lastLogin')}</div>
+        <div class="tableTitleDate sortable" data-sort="lastExecution" onclick={sortBy}>DERNIÈRE EXÉCUTION {sortArrow('lastExecution')}</div>
         <div class="tableTitleAction">ACTION</div>
       </div>
       <div class="containerV userTableBody">
-        <div class="containerH tableRow userRow" each={users}>
+        <div class="containerH tableRow userRow" each={sortedUsers}>
           <div class="tableRowName">{name || '-'}</div>
-          <div class="tableRowEmail">{credentials.email}</div>
+          <div class="tableRowEmail">{email}</div>
           <div class="tableRowRole">
             <span class={admin? 'admin-badge is-admin' : 'admin-badge'}> {admin? 'admin' : 'user'} </span>
           </div>
+          <div class="tableRowCount">{workspaceCount}</div>
+          <div class="tableRowDate">{formatDate(createdAt)}</div>
+          <div class="tableRowDate">{formatDate(lastLogin)}</div>
+          <div class="tableRowDate">{formatDate(lastExecution)}</div>
           <div class="tableRowAction">
             <button if={!admin} data-user-id={_id} onclick={promoteUser} class="admin-btn promote">Promouvoir admin</button>
             <button if={admin} data-user-id={_id} onclick={demoteUser} class="admin-btn demote">Retirer admin</button>
           </div>
         </div>
       </div>
-      <div if={users.length === 0} class="containerH" style="justify-content:center;">
+      <div if={sortedUsers.length === 0} class="containerH" style="justify-content:center;">
         <div class="containerV" style="flex-basis:1;justify-content:center;margin:50px">
           <h1 style="text-align: center;color: rgb(119,119,119);">Aucun utilisateur.</h1>
         </div>
@@ -76,6 +84,8 @@
   <script>
     this.data = {}
     this.users = []
+    this.sortKey = null
+    this.sortAsc = true
 
     this.refreshData = (data) => {
       this.data = data
@@ -85,6 +95,47 @@
     this.refreshUsers = (users) => {
       this.users = users || []
       this.update()
+    }
+
+    this.sortedUsers = () => {
+      if (!this.sortKey) return this.users
+      const sorted = this.users.slice().sort((a, b) => {
+        let va = a[this.sortKey]
+        let vb = b[this.sortKey]
+        if (va === null || va === undefined) va = ''
+        if (vb === null || vb === undefined) vb = ''
+        if (typeof va === 'number' && typeof vb === 'number') {
+          return this.sortAsc ? va - vb : vb - va
+        }
+        va = String(va)
+        vb = String(vb)
+        return this.sortAsc ? va.localeCompare(vb) : vb.localeCompare(va)
+      })
+      return sorted
+    }
+
+    this.sortBy = (e) => {
+      const key = e.currentTarget.getAttribute('data-sort')
+      if (this.sortKey === key) {
+        this.sortAsc = !this.sortAsc
+      } else {
+        this.sortKey = key
+        this.sortAsc = true
+      }
+      this.update()
+    }
+
+    this.sortArrow = (key) => {
+      if (this.sortKey !== key) return ''
+      return this.sortAsc ? '▲' : '▼'
+    }
+
+    this.formatDate = (d) => {
+      if (!d) return '-'
+      const date = new Date(d)
+      const dd = String(date.getDate()).padStart(2, '0')
+      const mm = String(date.getMonth() + 1).padStart(2, '0')
+      return `${dd}/${mm}/${date.getFullYear()}`
     }
 
     this.promoteUser = (e) => {
@@ -172,6 +223,25 @@
   </script>
   <style>
 
+    /* Bandeau d'onglets : hauteur fixe, non compressible quand la liste est longue */
+    .tab {
+      flex-shrink: 0;
+      height: 48px;
+      min-height: 48px;
+      align-items: center;
+    }
+    .tab button {
+      padding: 12px 18px;
+      height: 100%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .tabcontent {
+      overflow-y: auto;
+      min-height: 0;
+    }
+
     /* Table utilisateurs — colonnes à largeur fixe (alignées header/lignes) */
     .containerTitle,
     .tableRow,
@@ -179,39 +249,58 @@
     .tableRowEmail,
     .tableRowRole,
     .tableRowAction,
+    .tableRowCount,
+    .tableRowDate,
     .tableTitleName,
     .tableTitleEmail,
     .tableTitleRole,
-    .tableTitleAction {
+    .tableTitleAction,
+    .tableTitleCount,
+    .tableTitleDate {
       box-sizing: border-box;
     }
     .tableRowName,
     .tableTitleName {
-      flex: 0 0 25%;
-      width: 25%;
+      flex: 0 0 14%;
+      width: 14%;
     }
     .tableRowEmail,
     .tableTitleEmail {
-      flex: 0 0 35%;
-      width: 35%;
+      flex: 0 0 18%;
+      width: 18%;
     }
     .tableRowRole,
     .tableTitleRole {
-      flex: 0 0 15%;
-      width: 15%;
+      flex: 0 0 8%;
+      width: 8%;
+    }
+    .tableRowCount,
+    .tableTitleCount {
+      flex: 0 0 9%;
+      width: 9%;
+    }
+    .tableRowDate,
+    .tableTitleDate {
+      flex: 0 0 12%;
+      width: 12%;
     }
     .tableRowAction,
     .tableTitleAction {
-      flex: 0 0 25%;
-      width: 25%;
+      flex: 0 0 15%;
+      width: 15%;
     }
 
     .tableRowName,
     .tableRowEmail,
     .tableRowRole,
+    .tableRowCount,
+    .tableRowDate,
     .tableRowAction {
       font-size: 0.85em;
       padding: 10px;
+    }
+    .tableRowCount {
+      text-align: center;
     }
     .tableRowAction {
       justify-content: flex-end;
@@ -219,7 +308,7 @@
 
     .containerTitle {
       border-radius: 2px;
-      width: 90%;
+      width: 95%;
       flex-direction: row;
       display: flex;
       justify-content: flex-start;
@@ -229,15 +318,31 @@
     .tableTitleName,
     .tableTitleEmail,
     .tableTitleRole,
+    .tableTitleCount,
+    .tableTitleDate,
     .tableTitleAction {
       font-size: 0.85em;
       color: white;
       flex-shrink: 0;
       padding-left: 10px;
     }
+    .tableTitleName.sortable,
+    .tableTitleEmail.sortable,
+    .tableTitleRole.sortable,
+    .tableTitleCount.sortable,
+    .tableTitleDate.sortable {
+      cursor: pointer;
+    }
+    .tableTitleName.sortable:hover,
+    .tableTitleEmail.sortable:hover,
+    .tableTitleRole.sortable:hover,
+    .tableTitleCount.sortable:hover,
+    .tableTitleDate.sortable:hover {
+      text-decoration: underline;
+    }
 
     .userTableBody {
-      width: 90%;
+      width: 95%;
       background-color: white;
     }
     .userRow {

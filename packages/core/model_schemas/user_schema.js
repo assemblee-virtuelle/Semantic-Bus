@@ -76,6 +76,10 @@ const UserSchema = mongoose.Schema({
     created_at: Date,
     updated_at: Date
   },
+  lastLogin: {
+    type: Date,
+    default: null
+  },
   googleToken: {
     type: String,
     default: null

@@ -50,6 +50,12 @@ class AuthLib {
     // Authenticate user (verify email and password)
     const userData = await this._authenticateUser(bodyParams.authentication);
 
+    // Enregistrer la date de dernière connexion (utilisée dans l'admin user list)
+    await userModel.getInstance().model
+      .findByIdAndUpdate(userData._id, { $set: { lastLogin: new Date() } })
+      .lean()
+      .exec();
+
     // Generate authentication token
     return await this._create_mainprocess(userData, bodyParams.authentication);
   }
@@ -184,6 +190,7 @@ class AuthLib {
           .then(async user => {
             user.googleToken = null;
             user.active = true;
+            user.lastLogin = new Date();
             const user_update = userModel.getInstance().model.findByIdAndUpdate(user._id, user).lean().exec();
             const payload = {
               exp: moment().add(14, 'days').unix(),
