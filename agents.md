@@ -41,7 +41,40 @@ Before making any changes, consult the specifications directory:
 
 ---
 
-## 🚀 Production Deployment
+## 🖥️ Validation UI avant merge (Playwright)
+
+> **Règle** : toute feature/modif touchant l'**interface** (client/static) doit être
+> **validée localement par un test E2E Playwright AVANT de merger la PR**.
+
+### Prérequis (une fois)
+
+- Démarrer l'infra locale : `docker compose -f docker-compose.yaml up -d rabbitmq mongodb scylla main`
+- Le container `main` monte `./packages/main` et `./packages/core` en volume → les
+  changements front sont servis sans rebuild.
+- Créer un user admin en base (ou réutiliser un compte admin existant).
+
+### Exécuter la validation
+
+```bash
+node tests/e2e/admin-users-render.js          # écran admin (liste users + tri)
+```
+
+Variables d'env optionnelles : `BASE_URL`, `ADMIN_EMAIL`, `ADMIN_PASS`, `CHROMIUM_PATH`.
+
+### Critères de sortie
+
+Le script échoue (exit 1) si : le tag ne monte pas, la liste est vide, le header est
+incomplet, ou une erreur console survient. **Ne merger la PR que si le test passe.**
+
+### Arrêter l'infra
+
+```bash
+docker compose -f docker-compose.yaml kill && docker compose -f docker-compose.yaml rm -fv
+```
+
+---
+
+## 🚀 Production Deployment (référence historique)
 
 To deploy changes to production, follow these steps:
 
