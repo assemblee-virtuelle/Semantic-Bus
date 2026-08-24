@@ -8,7 +8,7 @@
 
   <!--  contenu du tab Utilisateurs  -->
   <div id="users" class="containerV tabcontent" style="flex-grow:1; background-color: rgb(238,242,249);">
-    <div class="containerV" style="flex-grow:1;width:95%;align-self:center;">
+    <div class="containerV" style="flex-grow:1;width:95%;align-self:center;min-height:0;overflow-y:auto;">
       <div class="containerTitle">
         <div class="tableTitleName sortable" data-sort="name" onclick={sortBy}>NOM {sortArrow('name')}</div>
         <div class="tableTitleEmail sortable" data-sort="email" onclick={sortBy}>EMAIL {sortArrow('email')}</div>
@@ -299,6 +299,19 @@
       min-height: 0;
     }
 
+    /* Les lignes de users ne doivent jamais être compressées (hauteur fine/invisible)
+       quand la liste est longue : le tabcontent scroll, les lignes gardent leur taille.
+       NB : flex.css impose .containerV>.containerV { flex-shrink:1 } — il faut !important. */
+    .userRowBlock {
+      flex-shrink: 0 !important;
+    }
+    .userRowBlock > .userRow {
+      flex-shrink: 0 !important;
+    }
+    .userTableBody {
+      flex-shrink: 0 !important;
+    }
+
     /* Table utilisateurs — colonnes à largeur fixe (alignées header/lignes) */
     .containerTitle,
     .tableRow,
@@ -401,6 +414,8 @@
     .userTableBody {
       width: 95%;
       background-color: white;
+      overflow: visible;
+      min-height: 0;
     }
     .userRow {
       border-bottom: 1px solid #f2f3f5;
