@@ -20,7 +20,7 @@
         <div class="tableTitleAction">ACTION</div>
       </div>
       <div class="containerV userTableBody">
-        <div class="containerH tableRow userRow" each={sortedUsers()}>
+        <div class="containerH tableRow userRow" each={displayUsers}>
           <div class="tableRowName">{name || '-'}</div>
           <div class="tableRowEmail">{email}</div>
           <div class="tableRowRole">
@@ -36,7 +36,7 @@
           </div>
         </div>
       </div>
-      <div if={sortedUsers().length === 0} class="containerH" style="justify-content:center;">
+      <div if={displayUsers.length === 0} class="containerH" style="justify-content:center;">
         <div class="containerV" style="flex-basis:1;justify-content:center;margin:50px">
           <h1 style="text-align: center;color: rgb(119,119,119);">Aucun utilisateur.</h1>
         </div>
@@ -84,6 +84,7 @@
   <script>
     this.data = {}
     this.users = []
+    this.displayUsers = []
     this.sortKey = null
     this.sortAsc = true
 
@@ -94,24 +95,27 @@
 
     this.refreshUsers = (users) => {
       this.users = users || []
+      this.computeDisplay()
       this.update()
     }
 
-    this.sortedUsers = () => {
-      if (!this.sortKey) return this.users
-      const sorted = this.users.slice().sort((a, b) => {
-        let va = a[this.sortKey]
-        let vb = b[this.sortKey]
-        if (va === null || va === undefined) va = ''
-        if (vb === null || vb === undefined) vb = ''
-        if (typeof va === 'number' && typeof vb === 'number') {
-          return this.sortAsc ? va - vb : vb - va
-        }
-        va = String(va)
-        vb = String(vb)
-        return this.sortAsc ? va.localeCompare(vb) : vb.localeCompare(va)
-      })
-      return sorted
+    this.computeDisplay = () => {
+      if (!this.sortKey) {
+        this.displayUsers = this.users
+      } else {
+        this.displayUsers = this.users.slice().sort((a, b) => {
+          let va = a[this.sortKey]
+          let vb = b[this.sortKey]
+          if (va === null || va === undefined) va = ''
+          if (vb === null || vb === undefined) vb = ''
+          if (typeof va === 'number' && typeof vb === 'number') {
+            return this.sortAsc ? va - vb : vb - va
+          }
+          va = String(va)
+          vb = String(vb)
+          return this.sortAsc ? va.localeCompare(vb) : vb.localeCompare(va)
+        })
+      }
     }
 
     this.sortBy = (e) => {
@@ -122,6 +126,7 @@
         this.sortKey = key
         this.sortAsc = true
       }
+      this.computeDisplay()
       this.update()
     }
 
@@ -155,6 +160,7 @@
             u.admin = data.admin
           }
         }
+        this.computeDisplay()
         this.update()
       }
     }
