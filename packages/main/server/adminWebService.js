@@ -1,12 +1,13 @@
 var error_lib = require('@semantic-bus/core').error
 var workspace_lib = require('@semantic-bus/core').workspace
 var configuration = require('../config.json')
+var securityService = require('./services/security')
 
 //  ------------------------- THIS PART IS DISABLE FOR NOW  -------------------------------
 
 module.exports = function (router) {
 
-  router.post('/cleanGarbageSimple', function (req, res, next) {
+  router.post('/cleanGarbageSimple', (req, res, next) => securityService.wrapperAdmin(req, res, next), function (req, res, next) {
     workspace_lib.cleanGarbage().then(() => {
       res.send("well cleaned")
     }).catch(e => {
@@ -14,7 +15,7 @@ module.exports = function (router) {
     })
   })
 
-  router.post('/cleanGarbage', function (req, res, next) {
+  router.post('/cleanGarbage', (req, res, next) => securityService.wrapperAdmin(req, res, next), function (req, res, next) {
     workspace_lib.cleanGarbageForgotten().then(() => {
       res.send("well cleaned")
     }).catch(e => {
@@ -22,7 +23,7 @@ module.exports = function (router) {
     })
   })
 
-  router.post('/cleanProcess', async function (req, res, next) {
+  router.post('/cleanProcess', (req, res, next) => securityService.wrapperAdmin(req, res, next), async function (req, res, next) {
     try{
       await workspace_lib.cleanAllOldProcess();
       await workspace_lib.cleanGarbage();
@@ -39,7 +40,7 @@ module.exports = function (router) {
     // })
   })
 
-  router.post('/executeTimers', function (req, res, next) {
+  router.post('/executeTimers', (req, res, next) => securityService.wrapperAdmin(req, res, next), function (req, res, next) {
     // console.log("configuration",configuration);
     workspace_lib.executeAllTimers(configuration).then(() => {
       res.send("well executed")
