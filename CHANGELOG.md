@@ -1,5 +1,20 @@
 # Changelog
 
+## [0.11.4] - 2026-08-24
+
+### Added
+
+- **Statistiques users dans l'écran admin** (`#admin` → Utilisateurs) : nombre de
+  workflows, date d'inscription, dernière connexion, dernière exécution de workflow.
+- **Tri par colonnes** dans le tableau des utilisateurs (nom, email, admin, workflows,
+  inscription, dernière connexion, dernière exécution) — clic sur l'en-tête (▲/▼).
+- **`lastLogin`** : nouveau champ user, renseigné à chaque connexion (classique + Google).
+
+### Fixed
+
+- **Bandeau d'onglets de l'admin** : hauteur fixe (48px) — plus de compression/illisibilité
+  quand la liste des utilisateurs est longue ; la liste scrolle désormais.
+
 ## [0.11.3] - 2026-08-24
 
 ### Security
