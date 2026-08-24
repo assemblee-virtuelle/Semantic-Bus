@@ -362,14 +362,20 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.delete('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
-    workspace_component_lib.remove({
-      _id: req.body._id
-    }).then(() => {
+  router.delete('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), async function (req, res, next) {
+    try {
+      // SÉCURITÉ : le composant cible doit appartenir au workspace autorisé (req.params.id).
+      await workspace_component_lib.assertComponentInWorkspace(req.body._id, req.params.id)
+      await workspace_component_lib.remove({
+        _id: req.body._id
+      })
       res.json(req.body)
-    }).catch(e => {
+    } catch (e) {
+      if (e && e.status) {
+        return res.status(e.status).send({ success: false, message: e.message || 'Forbidden' })
+      }
       next(e)
-    })
+    }
   })// <= delete_components #share
 
   // ---------------------------------------------------------------------------------
@@ -384,12 +390,21 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.put('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
-    workspace_component_lib.update(req.body)
-      .then((componentUpdated) => (res.json(componentUpdated)))
-      .catch(e => {
-        next(e)
-      })
+  router.put('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), async function (req, res, next) {
+    try {
+      // SÉCURITÉ : le composant cible doit appartenir au workspace autorisé (req.params.id).
+      if (req.body && req.body._id) {
+        await workspace_component_lib.assertComponentInWorkspace(req.body._id, req.params.id)
+        req.body.workspaceId = req.params.id
+      }
+      const componentUpdated = await workspace_component_lib.update(req.body)
+      res.json(componentUpdated)
+    } catch (e) {
+      if (e && e.status) {
+        return res.status(e.status).send({ success: false, message: e.message || 'Forbidden' })
+      }
+      next(e)
+    }
   })// <= update_component #share
 
   // --------------------------------------------------------------------------------
@@ -471,6 +486,9 @@ module.exports = function (router) {
 
   router.put('/workspaces/:id', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     if (req.body != null) {
+      // SÉCURITÉ : lier la cible d'écriture au workspace autorisé par wrapperSecurity.
+      // Ne jamais autoriser sur req.params.id et écrire sur req.body._id (confused deputy).
+      req.body._id = req.params.id
       workspace_lib.update(req.body).then(workspaceUpdate => {
         for (var c of workspaceUpdate.components) {
           if (technicalComponentDirectory[c.module] != null) {
