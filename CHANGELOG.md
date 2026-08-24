@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.11.8] - 2026-08-24
+
+### Added
+
+- **Admin — suppression d'un utilisateur** : bouton « Supprimer » (avec confirmation).
+  Refusé si le compte est propriétaire de workflow(s) ou si c'est le compte de l'admin
+  connecté. La suppression retire le user des workspaces où il est contributeur.
+
 ## [0.11.7] - 2026-08-24
 
 ### Fixed
