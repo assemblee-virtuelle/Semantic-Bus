@@ -396,8 +396,11 @@ async function _deleteUser(userId) {
   const email = user.credentials.email;
 
   // Interdire la suppression si le user est owner d'un workspace.
+  // NB : $elemMatch est obligatoire — un filtre { 'users.email': email, 'users.role': 'owner' }
+  // matcherait un document dont DEUX éléments différents satisfont chacun une clause
+  // (ex. email editor + role owner sur un autre membre), d'où un faux positif.
   const ownedWorkspaces = await workspaceModel.getInstance().model
-    .findOne({ 'users.email': email, 'users.role': 'owner' })
+    .findOne({ users: { $elemMatch: { email, role: 'owner' } } })
     .select('_id')
     .lean()
     .exec();
