@@ -165,6 +165,9 @@ module.exports = function (router) {
 
   router.put('/bigdataflow/:id', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'bigdataflow'), (req, res, next)=> {
     if (req.body != null) {
+      // SÉCURITÉ : lier la cible d'écriture au bigdataflow autorisé par wrapperSecurity.
+      // Ne jamais autoriser sur req.params.id et écrire sur req.body._id (confused deputy).
+      req.body._id = req.params.id
       bigdataflow_lib.update(req.body).then(workspaceUpdated => {
         res.send(workspaceUpdated)
       }).catch(e => {

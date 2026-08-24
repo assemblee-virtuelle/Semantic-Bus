@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.11.11] - 2026-08-24
+
+### Security
+
+- **Routes legacy `bigdataflow` désactivées** : fonctionnalité inutilisée (0 bigdataflow
+  en prod, front archivé). La route `PUT /bigdataflow/:id` présentait le même confused
+  deputy que les routes workspace (autoriser sur `req.params.id`, écrire sur
+  `req.body._id`). Le service n'est plus monté dans `app.js` (surface d'attaque fermée) ;
+  correctif de secours conservé dans le service.
+
 ## [0.11.10] - 2026-08-24
 
 ### Security
