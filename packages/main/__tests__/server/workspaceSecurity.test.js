@@ -7,10 +7,22 @@ jest.mock('../../server/services/security', () => ({
   wrapperSecurity: jest.fn((req, res, next, role, entity) => next())
 }));
 
-jest.mock('@semantic-bus/core/lib/workspace_lib', () => ({}));
+jest.mock('@semantic-bus/core/lib/workspace_lib', () => ({
+  update: jest.fn(() => Promise.resolve({ components: [] })),
+  getWorkspace: jest.fn(),
+  addConnection: jest.fn(),
+  get_workspace_simple: jest.fn(),
+  updateSimple: jest.fn()
+}));
 jest.mock('@semantic-bus/core', () => ({ user: {} }));
 jest.mock('@semantic-bus/core/lib/auth_lib', () => ({}));
-jest.mock('@semantic-bus/core/lib/workspace_component_lib', () => ({}));
+jest.mock('@semantic-bus/core/lib/workspace_component_lib', () => ({
+  create: jest.fn(() => Promise.resolve([])),
+  update: jest.fn(() => Promise.resolve({})),
+  remove: jest.fn(() => Promise.resolve({})),
+  assertComponentInWorkspace: jest.fn(() => Promise.resolve({ _id: 'comp', workspaceId: 'ws' })),
+  get: jest.fn()
+}));
 jest.mock('@semantic-bus/core/lib/fragment_lib_scylla', () => ({}));
 jest.mock('../../server/services/technicalComponentDirectory', () => ({}));
 
@@ -67,5 +79,72 @@ describe('workspaceWebService - autorisation par workspace (IDOR)', () => {
       expect(mw).toBeDefined();
       expect(routeProtected(mw)).toBe(true);
     }
+  });
+});
+
+describe('workspaceWebService - confused deputy sur les routes sœurs (SB-IDOR-2026-01)', () => {
+  const securityService = require('../../server/services/security');
+  const workspaceLib = require('@semantic-bus/core/lib/workspace_lib');
+  const workspaceComponentLib = require('@semantic-bus/core/lib/workspace_component_lib');
+
+  let routes;
+  function makeRouter() {
+    const store = { post: {}, put: {}, delete: {}, get: {} };
+    return {
+      post: (path, ...mw) => { store.post[path] = mw; },
+      put: (path, ...mw) => { store.put[path] = mw; },
+      delete: (path, ...mw) => { store.delete[path] = mw; },
+      get: (path, ...mw) => { store.get[path] = mw; },
+      store
+    };
+  }
+
+  beforeEach(() => {
+    securityService.wrapperSecurity.mockClear();
+    jest.clearAllMocks();
+    routes = makeRouter();
+    registerRoutes(routes);
+  });
+
+  test('PUT /workspaces/:id lie la cible d écriture à req.params.id', async () => {
+    const mw = routes.store.put['/workspaces/:id'];
+    const req = { params: { id: 'WS_AUTHORIZED' }, body: { _id: 'WS_ATTACKER', name: 'PWNED' } };
+    const res = { send: jest.fn() };
+    const next = jest.fn();
+    await mw[1](req, res, next);
+    // le body._id doit être écrasé par req.params.id (pas de confused deputy)
+    expect(workspaceLib.update).toHaveBeenCalledWith(expect.objectContaining({ _id: 'WS_AUTHORIZED' }));
+    expect(req.body._id).toBe('WS_AUTHORIZED');
+  });
+
+  test('PUT /workspaces/:id/components vérifie l appartenance du composant au workspace', async () => {
+    const mw = routes.store.put['/workspaces/:id/components'];
+    const req = { params: { id: 'WS_AUTHORIZED' }, body: { _id: 'COMP_X', name: 'x' } };
+    const res = { json: jest.fn() };
+    const next = jest.fn();
+    await mw[1](req, res, next);
+    expect(workspaceComponentLib.assertComponentInWorkspace).toHaveBeenCalledWith('COMP_X', 'WS_AUTHORIZED');
+    expect(workspaceComponentLib.update).toHaveBeenCalled();
+  });
+
+  test('DELETE /workspaces/:id/components vérifie l appartenance du composant au workspace', async () => {
+    const mw = routes.store.delete['/workspaces/:id/components'];
+    const req = { params: { id: 'WS_AUTHORIZED' }, body: { _id: 'COMP_X' } };
+    const res = { json: jest.fn() };
+    const next = jest.fn();
+    await mw[1](req, res, next);
+    expect(workspaceComponentLib.assertComponentInWorkspace).toHaveBeenCalledWith('COMP_X', 'WS_AUTHORIZED');
+    expect(workspaceComponentLib.remove).toHaveBeenCalledWith({ _id: 'COMP_X' });
+  });
+
+  test('DELETE /workspaces/:id/components propage l erreur si composant hors workspace', async () => {
+    const mw = routes.store.delete['/workspaces/:id/components'];
+    workspaceComponentLib.assertComponentInWorkspace.mockRejectedValueOnce(new Error('component_not_in_workspace'));
+    const req = { params: { id: 'WS_AUTHORIZED' }, body: { _id: 'COMP_X' } };
+    const res = { json: jest.fn() };
+    const next = jest.fn();
+    await mw[1](req, res, next);
+    expect(workspaceComponentLib.remove).not.toHaveBeenCalled();
+    expect(next).toHaveBeenCalledWith(expect.any(Error));
   });
 });
