@@ -79,13 +79,41 @@ function fail(msg) {
   if (!result.header || !result.header.includes('CONTRIBUTEUR')) fail('header incomplet: ' + result.header);
   if (errors.length > 0) fail('erreurs console: ' + errors.join(' | '));
 
-  // 4. Vérifier le tri (clic sur l'en-tête WORKFLOWS)
+  // 4. Vérifier l'accordéon « Détails » des workflows d'un user
+  await page.evaluate(() => {
+    const btn = document.querySelector('admin .admin-btn.details');
+    btn.click();
+  });
+  await page.waitForTimeout(2500);
+
+  const accord = await page.evaluate(() => {
+    const admin = document.querySelector('admin');
+    const detail = admin.querySelector('.userWorkflowDetail');
+    if (!detail) return { accordeon: false };
+    const rows = Array.from(detail.querySelectorAll('.workflowRow:not(.workflowHeader)'));
+    const links = Array.from(detail.querySelectorAll('.wf-open'));
+    return {
+      accordeon: true,
+      visible: getComputedStyle(detail).display !== 'none',
+      workflowRows: rows.length,
+      hasHeader: !!detail.querySelector('.workflowHeader'),
+      hasLink: links.length > 0
+    };
+  });
+  console.log('Accordéon:', JSON.stringify(accord));
+  if (!accord.accordeon || !accord.visible) fail('accordéon non ouvert');
+  if (!accord.hasHeader) fail('accordéon sans header');
+  if (accord.workflowRows === 0) fail('aucun workflow affiché');
+  if (!accord.hasLink) fail('aucun lien Ouvrir');
+  if (errors.length > 0) fail('erreurs console: ' + errors.join(' | '));
+
+  // 5. Vérifier le tri (clic sur l'en-tête WORKFLOWS)
   await page.evaluate(() => {
     const th = document.querySelector('admin .tableTitleCount');
     th.click();
   });
   await page.waitForTimeout(500);
 
-  console.log('✅ Rendu admin OK : ' + result.rowCount + ' user(s) affichés, tri OK, 0 erreur console');
+  console.log('✅ Rendu admin OK : ' + result.rowCount + ' user(s) affichés, tri OK, accordéon OK, 0 erreur console');
   await browser.close();
 })().catch(e => { console.error('❌ FATAL', e.message); process.exit(1); });

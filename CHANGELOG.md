@@ -1,5 +1,13 @@
 # Changelog
 
+## [0.11.6] - 2026-08-24
+
+### Added
+
+- **Admin — détail des workflows d'un user** : bouton « Détails » par utilisateur →
+  accordéon listant ses workflows (nom, badge owner/contributeur, dernière exécution)
+  avec un lien « Ouvrir ↗ » vers le workflow (nouvel onglet).
+
 ## [0.11.5] - 2026-08-24
 
 ### Added

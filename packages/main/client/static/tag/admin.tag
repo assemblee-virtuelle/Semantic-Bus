@@ -21,20 +21,44 @@
         <div class="tableTitleAction">ACTION</div>
       </div>
       <div class="containerV userTableBody">
-        <div class="containerH tableRow userRow" each={displayUsers}>
-          <div class="tableRowName">{name || '-'}</div>
-          <div class="tableRowEmail">{email}</div>
-          <div class="tableRowRole">
-            <span class={admin? 'admin-badge is-admin' : 'admin-badge'}> {admin? 'admin' : 'user'} </span>
+        <div class="containerV userRowBlock" each={displayUsers}>
+          <div class="containerH tableRow userRow">
+            <div class="tableRowName">{name || '-'}</div>
+            <div class="tableRowEmail">{email}</div>
+            <div class="tableRowRole">
+              <span class={admin? 'admin-badge is-admin' : 'admin-badge'}> {admin? 'admin' : 'user'} </span>
+            </div>
+            <div class="tableRowCount">{workspaceCount}</div>
+            <div class="tableRowCount">{contributorCount}</div>
+            <div class="tableRowDate">{formatDate(createdAt)}</div>
+            <div class="tableRowDate">{formatDate(lastLogin)}</div>
+            <div class="tableRowDate">{formatDate(lastExecution)}</div>
+            <div class="tableRowAction">
+              <button data-user-id={_id} onclick={toggleWorkflows} class="admin-btn details">Détails</button>
+              <button if={!admin} data-user-id={_id} onclick={promoteUser} class="admin-btn promote">Promouvoir</button>
+              <button if={admin} data-user-id={_id} onclick={demoteUser} class="admin-btn demote">Retirer</button>
+            </div>
           </div>
-          <div class="tableRowCount">{workspaceCount}</div>
-          <div class="tableRowCount">{contributorCount}</div>
-          <div class="tableRowDate">{formatDate(createdAt)}</div>
-          <div class="tableRowDate">{formatDate(lastLogin)}</div>
-          <div class="tableRowDate">{formatDate(lastExecution)}</div>
-          <div class="tableRowAction">
-            <button if={!admin} data-user-id={_id} onclick={promoteUser} class="admin-btn promote">Promouvoir admin</button>
-            <button if={admin} data-user-id={_id} onclick={demoteUser} class="admin-btn demote">Retirer admin</button>
+          <div if={expandedId === _id} class="containerV userWorkflowDetail">
+            <div class="containerV workflowDetailInner">
+              <div if={userWorkflows.length === 0} class="workflowEmpty">Aucun workflow.</div>
+              <div class="containerH workflowRow workflowHeader">
+                <div class="wfCol wfName">NOM</div>
+                <div class="wfCol wfRole">RÔLE</div>
+                <div class="wfCol wfLast">DERNIÈRE EXÉCUTION</div>
+                <div class="wfCol wfAction">OUVRIR</div>
+              </div>
+              <div class="containerH workflowRow" each={userWorkflows}>
+                <div class="wfCol wfName">{name}</div>
+                <div class="wfCol wfRole">
+                  <span class={isOwner? 'wf-badge is-owner' : 'wf-badge is-contributor'}> {isOwner? 'owner' : 'contributeur'} </span>
+                </div>
+                <div class="wfCol wfLast">{formatDate(lastExecution)}</div>
+                <div class="wfCol wfAction">
+                  <a href={'application.html#workspace/' + _id + '/component'} target="_blank" class="wf-open">Ouvrir ↗</a>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
       </div>
@@ -89,10 +113,33 @@
     this.displayUsers = []
     this.sortKey = null
     this.sortAsc = true
+    this.expandedId = null
+    this.userWorkflows = []
 
     this.refreshData = (data) => {
       this.data = data
       this.update()
+    }
+
+    this.toggleWorkflows = (e) => {
+      const userId = (e && e.currentTarget && e.currentTarget.getAttribute('data-user-id'))
+      if (this.expandedId === userId) {
+        this.expandedId = null
+        this.userWorkflows = []
+        this.update()
+      } else {
+        this.expandedId = userId
+        this.userWorkflows = []
+        RiotControl.trigger('load_user_workflows', userId)
+        this.update()
+      }
+    }
+
+    this.userWorkflowsLoaded = (data) => {
+      if (data && data.userId === this.expandedId) {
+        this.userWorkflows = data.workflows || []
+        this.update()
+      }
     }
 
     this.refreshUsers = (users) => {
@@ -218,6 +265,7 @@
       RiotControl.on('timers_executed', this.timersExecuted);
       RiotControl.on('users_loaded', this.refreshUsers);
       RiotControl.on('user_admin_changed', this.userAdminChanged);
+      RiotControl.on('user_workflows_loaded', this.userWorkflowsLoaded);
       RiotControl.trigger('load_users');
     })
 
@@ -227,6 +275,7 @@
       RiotControl.off('timers_executed', this.timersExecuted);
       RiotControl.off('users_loaded', this.refreshUsers);
       RiotControl.off('user_admin_changed', this.userAdminChanged);
+      RiotControl.off('user_workflows_loaded', this.userWorkflowsLoaded);
     })
   </script>
   <style>
@@ -428,6 +477,65 @@
     }
     .admin-btn.demote:hover {
       background-color: #e55a54;
+    }
+    .admin-btn.details {
+      background-color: rgb(90,150,190);
+    }
+    .admin-btn.details:hover {
+      background-color: rgb(70,130,170);
+    }
+
+    /* Accordéon détail des workflows d'un user */
+    .userWorkflowDetail {
+      width: 100%;
+      background-color: rgb(244,247,250);
+      border-left: 3px solid rgb(26,145,194);
+    }
+    .workflowDetailInner {
+      width: 100%;
+      padding: 12px 20px;
+    }
+    .workflowEmpty {
+      color: rgb(140,150,160);
+      font-size: 0.9em;
+      padding: 8px 0;
+    }
+    .workflowRow {
+      width: 100%;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid #e4e9ef;
+    }
+    .workflowHeader {
+      font-weight: 600;
+      color: rgb(80,90,100);
+      font-size: 0.8em;
+      text-transform: uppercase;
+    }
+    .wfCol {
+      font-size: 0.85em;
+      padding: 0 8px;
+    }
+    .wfName { flex: 0 0 40%; width: 40%; }
+    .wfRole { flex: 0 0 20%; width: 20%; }
+    .wfLast { flex: 0 0 25%; width: 25%; }
+    .wfAction { flex: 0 0 15%; width: 15%; }
+    .wf-badge {
+      padding: 3px 10px;
+      border-radius: 10px;
+      color: white;
+      font-size: 0.75em;
+      text-transform: uppercase;
+    }
+    .wf-badge.is-owner { background-color: rgb(26,145,194); }
+    .wf-badge.is-contributor { background-color: rgb(170,180,190); }
+    .wf-open {
+      color: rgb(26,145,194);
+      text-decoration: none;
+      font-size: 0.85em;
+    }
+    .wf-open:hover {
+      text-decoration: underline;
     }
   </style>
 </admin>

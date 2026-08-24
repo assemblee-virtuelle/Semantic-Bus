@@ -185,3 +185,53 @@ describe('user_lib.getAdminUsersStats - stats admin (workflows, dates)', () => {
     expect(res[0].lastExecution).toBe(null);
   });
 });
+
+describe('user_lib.getUserWorkflows - détail des workflows d un user', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
+
+  test('retourne les workflows avec rôle et dernière exécution', async () => {
+    // user par id
+    findOneMock.mockReturnValue({
+      select: () => ({
+        lean: () => ({
+          exec: () => Promise.resolve({ _id: 'u1', credentials: { email: 'alice@example.com' } })
+        })
+      })
+    });
+    // workspaces du user
+    findMock.mockReturnValue({
+      select: () => ({
+        lean: () => ({
+          exec: () => Promise.resolve([
+            { _id: 'ws1', name: 'Flux A', users: [{ email: 'alice@example.com', role: 'owner' }] },
+            { _id: 'ws2', name: 'Flux B', users: [{ email: 'alice@example.com', role: 'editor' }] }
+          ])
+        })
+      })
+    });
+    // dernières exécutions par workflow
+    processAggregateMock.mockResolvedValue([
+      { _id: 'ws1', lastExecution: new Date('2026-08-20') }
+    ]);
+
+    const res = await user_lib.getUserWorkflows('u1');
+    expect(res).toHaveLength(2);
+    expect(res[0]).toEqual({
+      _id: 'ws1', name: 'Flux A', role: 'owner', isOwner: true, lastExecution: new Date('2026-08-20')
+    });
+    expect(res[1]).toEqual({
+      _id: 'ws2', name: 'Flux B', role: 'editor', isOwner: false, lastExecution: null
+    });
+  });
+
+  test('lève une erreur si le user est introuvable', async () => {
+    findOneMock.mockReturnValue({
+      select: () => ({
+        lean: () => ({ exec: () => Promise.resolve(null) })
+      })
+    });
+    await expect(user_lib.getUserWorkflows('uX')).rejects.toThrow();
+  });
+});
