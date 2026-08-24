@@ -29,6 +29,7 @@ module.exports = {
   updateProfil,
   getWithRelations: _getWithRelations,
   getAdminUsersStats: _getAdminUsersStats,
+  getUserWorkflows: _getUserWorkflows,
   userGraph: _userGraph,
   createUpdatePasswordEntity: _createUpdatePasswordEntity,
   getPasswordEntity: _getPasswordEntity,
@@ -335,6 +336,46 @@ async function _getAdminUsersStats() {
     lastExecution: procMap.get(u._id.toString()) || null
   }));
 } // <= _getAdminUsersStats
+
+// Détail des workflows d'un user (admin) : nom, rôle (owner/contributeur),
+// dernière exécution, id du workspace. Utilisée par GET /users/:id/workflows.
+async function _getUserWorkflows(userId) {
+  const user = await userModel.getInstance().model
+    .findOne({ _id: userId })
+    .select('credentials.email')
+    .lean()
+    .exec();
+  if (!user) {
+    throw new Error.EntityNotFoundError('User');
+  }
+  const email = user.credentials.email;
+
+  const [workspaces, lastExecutions] = await Promise.all([
+    workspaceModel.getInstance().model
+      .find({ 'users.email': email })
+      .select('_id name users')
+      .lean()
+      .exec(),
+
+    processModel.getInstance().model.aggregate([
+      { $sort: { timeStamp: -1 } },
+      { $group: { _id: '$workflowId', lastExecution: { $first: '$timeStamp' } } }
+    ]).exec()
+  ]);
+
+  const execMap = new Map(lastExecutions.map(p => [p._id.toString(), p.lastExecution]));
+
+  return workspaces.map(w => {
+    const member = (w.users || []).find(u => u.email === email);
+    return {
+      _id: w._id,
+      name: w.name || '(sans titre)',
+      role: (member && member.role) || 'unknown',
+      isOwner: member ? member.role === 'owner' : false,
+      lastExecution: execMap.get(w._id.toString()) || null
+    };
+  });
+} // <= _getUserWorkflows
 
 function _userGraph(userId) {
   return new Promise(resolve => {

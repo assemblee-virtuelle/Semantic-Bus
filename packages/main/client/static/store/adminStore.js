@@ -88,4 +88,18 @@ function AdminStore (utilStore) {
     })
   })
 
+  this.on('load_user_workflows', (userId) => {
+    return new Promise((resolve, reject) => {
+      this.utilStore.ajaxCall({
+        method: 'get',
+        url: '../data/core/users/' + userId + '/workflows'
+      }, true).then(workflows => {
+        this.trigger('user_workflows_loaded', { userId, workflows })
+        resolve(workflows)
+      }).catch(error => {
+        reject(error)
+      })
+    })
+  })
+
 }
