@@ -7,6 +7,7 @@ const graphTraitement = require('../helpers/graph-traitment');
 const historiqueModel = require('../models').historiqueEnd;
 const SecureMailModel = require('../models/security_mail');
 const workspaceModel = require('../models').workspace;
+const processModel = require('../models').process;
 const certificateModel = require('../models').certificate;
 // let bigdataflowModel = require("../models").bigdataflow;
 const Error = require('../helpers/error.js');
@@ -27,6 +28,7 @@ module.exports = {
   update: _update,
   updateProfil,
   getWithRelations: _getWithRelations,
+  getAdminUsersStats: _getAdminUsersStats,
   userGraph: _userGraph,
   createUpdatePasswordEntity: _createUpdatePasswordEntity,
   getPasswordEntity: _getPasswordEntity,
@@ -285,6 +287,44 @@ async function _getWithRelations(userID, config) {
 
   //   });
 } // <= _getWithWorkspace
+
+// Statistiques admin sur les users : nb de workflows, date d'inscription, dernière
+// connexion, dernière exécution de workflow. Utilisée par la route admin GET /users.
+// Le nb de workflows et la dernière exécution sont calculés par aggregation groupée
+// (une requête par source, pas une par user).
+async function _getAdminUsersStats() {
+  const [users, workspaceCounts, lastProcesses] = await Promise.all([
+    userModel.getInstance().model
+      .find({})
+      .select('name credentials.email admin dates.created_at lastLogin')
+      .lean()
+      .exec(),
+
+    workspaceModel.getInstance().model.aggregate([
+      { $unwind: '$users' },
+      { $group: { _id: '$users.email', count: { $sum: 1 } } }
+    ]).exec(),
+
+    processModel.getInstance().model.aggregate([
+      { $sort: { timeStamp: -1 } },
+      { $group: { _id: '$ownerId', lastExecution: { $first: '$timeStamp' } } }
+    ]).exec()
+  ]);
+
+  const wsMap = new Map(workspaceCounts.map(w => [w._id, w.count]));
+  const procMap = new Map(lastProcesses.map(p => [p._id.toString(), p.lastExecution]));
+
+  return users.map(u => ({
+    _id: u._id,
+    name: u.name,
+    email: u.credentials.email,
+    admin: u.admin === true,
+    workspaceCount: wsMap.get(u.credentials.email) || 0,
+    createdAt: (u.dates && u.dates.created_at) || null,
+    lastLogin: u.lastLogin || null,
+    lastExecution: procMap.get(u._id.toString()) || null
+  }));
+} // <= _getAdminUsersStats
 
 function _userGraph(userId) {
   return new Promise(resolve => {

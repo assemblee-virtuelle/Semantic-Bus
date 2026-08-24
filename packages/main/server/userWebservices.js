@@ -45,7 +45,7 @@ module.exports = function (router) {
   // ---------------------------------------  ALL USERS  -----------------------------------------
 
   router.get('/users', (req, res, next) => securityService.wrapperAdmin(req, res, next), function (req, res, next) {
-    user_lib.get_all({}).then(function (users) {
+    user_lib.getAdminUsersStats().then(function (users) {
       res.send(users)
     }).catch(e => {
       next(e)
