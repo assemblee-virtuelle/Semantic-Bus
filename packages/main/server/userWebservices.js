@@ -88,6 +88,17 @@ module.exports = function (router) {
 
   // ---------------------------------------------------------------------------------
 
+  router.get('/users/:id/workflows', (req, res, next) => securityService.wrapperAdmin(req, res, next), async function (req, res, next) {
+    try {
+      const workflows = await user_lib.getUserWorkflows(req.params.id)
+      res.send(workflows)
+    } catch (e) {
+      next(e)
+    }
+  }) // <= get_user_workflows
+
+  // ---------------------------------------------------------------------------------
+
   router.post('/users/mail', async (req, res, next) => {
     try {
       const token = encodeToken(req.query.mail, 'verify')
