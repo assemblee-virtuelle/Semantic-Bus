@@ -114,6 +114,19 @@ function fail(msg) {
   });
   await page.waitForTimeout(500);
 
-  console.log('✅ Rendu admin OK : ' + result.rowCount + ' user(s) affichés, tri OK, accordéon OK, 0 erreur console');
+  // 6. Vérifier la garde de suppression : l'admin ne peut pas se supprimer lui-même (400)
+  const selfDelete = await page.evaluate(async (adminEmail) => {
+    const token = localStorage.token;
+    const listResp = await fetch('/data/core/users', { headers: { Authorization: 'JTW ' + token } });
+    const users = await listResp.json();
+    const me = users.find(u => u.email === adminEmail);
+    if (!me) return { status: 'no-me' };
+    const r = await fetch('/data/core/users/' + me._id, { method: 'DELETE', headers: { Authorization: 'JTW ' + token } });
+    return { status: r.status };
+  }, ADMIN_EMAIL);
+  console.log('Auto-suppression:', JSON.stringify(selfDelete));
+  if (selfDelete.status !== 400) fail('l admin peut se supprimer lui-même (statut=' + selfDelete.status + ')');
+
+  console.log('✅ Rendu admin OK : ' + result.rowCount + ' user(s) affichés, tri OK, accordéon OK, suppression gardée, 0 erreur console');
   await browser.close();
 })().catch(e => { console.error('❌ FATAL', e.message); process.exit(1); });

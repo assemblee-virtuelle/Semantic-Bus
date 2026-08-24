@@ -99,6 +99,30 @@ module.exports = function (router) {
 
   // ---------------------------------------------------------------------------------
 
+  router.delete('/users/:id', (req, res, next) => securityService.wrapperAdmin(req, res, next), async function (req, res, next) {
+    try {
+      const callerId = UserIdFromToken(req)
+      if (req.params.id == callerId) {
+        return res.status(400).send({
+          success: false,
+          message: 'Vous ne pouvez pas supprimer votre propre compte.'
+        })
+      }
+      const result = await user_lib.deleteUser(req.params.id)
+      res.send(result)
+    } catch (e) {
+      if (e && e.code === 'USER_IS_WORKSPACE_OWNER') {
+        return res.status(400).send({
+          success: false,
+          message: 'Ce compte est propriétaire de workflow(s) et ne peut pas être supprimé.'
+        })
+      }
+      next(e)
+    }
+  }) // <= delete_user
+
+  // ---------------------------------------------------------------------------------
+
   router.post('/users/mail', async (req, res, next) => {
     try {
       const token = encodeToken(req.query.mail, 'verify')
