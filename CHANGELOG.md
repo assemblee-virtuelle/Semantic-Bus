@@ -1,5 +1,17 @@
 # Changelog
 
+## [0.11.10] - 2026-08-24
+
+### Security
+
+- **Confused deputy sur les routes sœurs** (signalé par Maxim Yakovlev) : les routes
+  `PUT /workspaces/:id`, `PUT /workspaces/:id/components` et
+  `DELETE /workspaces/:id/components` autorisaient sur `req.params.id` mais écrivaient
+  sur `req.body._id` (jamais vérifié) → cross-tenant overwrite, **ownership takeover**,
+  update/create/delete arbitraire de composants. La cible d'écriture est désormais liée
+  à `req.params.id`, et les routes composants vérifient que le composant appartient au
+  workspace autorisé.
+
 ## [0.11.9] - 2026-08-24
 
 ### Fixed
