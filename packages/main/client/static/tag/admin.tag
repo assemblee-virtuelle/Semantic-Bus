@@ -13,7 +13,8 @@
         <div class="tableTitleName sortable" data-sort="name" onclick={sortBy}>NOM {sortArrow('name')}</div>
         <div class="tableTitleEmail sortable" data-sort="email" onclick={sortBy}>EMAIL {sortArrow('email')}</div>
         <div class="tableTitleRole sortable" data-sort="admin" onclick={sortBy}>ADMIN {sortArrow('admin')}</div>
-        <div class="tableTitleCount sortable" data-sort="workspaceCount" onclick={sortBy}>WORKFLOWS {sortArrow('workspaceCount')}</div>
+        <div class="tableTitleCount sortable" data-sort="workspaceCount" onclick={sortBy}>OWNER {sortArrow('workspaceCount')}</div>
+        <div class="tableTitleCount sortable" data-sort="contributorCount" onclick={sortBy}>CONTRIBUTEUR {sortArrow('contributorCount')}</div>
         <div class="tableTitleDate sortable" data-sort="createdAt" onclick={sortBy}>INSCRIPTION {sortArrow('createdAt')}</div>
         <div class="tableTitleDate sortable" data-sort="lastLogin" onclick={sortBy}>DERNIÈRE CONNEXION {sortArrow('lastLogin')}</div>
         <div class="tableTitleDate sortable" data-sort="lastExecution" onclick={sortBy}>DERNIÈRE EXÉCUTION {sortArrow('lastExecution')}</div>
@@ -27,6 +28,7 @@
             <span class={admin? 'admin-badge is-admin' : 'admin-badge'}> {admin? 'admin' : 'user'} </span>
           </div>
           <div class="tableRowCount">{workspaceCount}</div>
+          <div class="tableRowCount">{contributorCount}</div>
           <div class="tableRowDate">{formatDate(createdAt)}</div>
           <div class="tableRowDate">{formatDate(lastLogin)}</div>
           <div class="tableRowDate">{formatDate(lastExecution)}</div>
@@ -272,28 +274,28 @@
     }
     .tableRowEmail,
     .tableTitleEmail {
-      flex: 0 0 18%;
-      width: 18%;
+      flex: 0 0 16%;
+      width: 16%;
     }
     .tableRowRole,
     .tableTitleRole {
-      flex: 0 0 8%;
-      width: 8%;
+      flex: 0 0 7%;
+      width: 7%;
     }
     .tableRowCount,
     .tableTitleCount {
-      flex: 0 0 9%;
-      width: 9%;
+      flex: 0 0 8%;
+      width: 8%;
     }
     .tableRowDate,
     .tableTitleDate {
-      flex: 0 0 12%;
-      width: 12%;
+      flex: 0 0 10%;
+      width: 10%;
     }
     .tableRowAction,
     .tableTitleAction {
-      flex: 0 0 15%;
-      width: 15%;
+      flex: 0 0 12%;
+      width: 12%;
     }
 
     .tableRowName,

@@ -288,10 +288,10 @@ async function _getWithRelations(userID, config) {
   //   });
 } // <= _getWithWorkspace
 
-// Statistiques admin sur les users : nb de workflows, date d'inscription, dernière
-// connexion, dernière exécution de workflow. Utilisée par la route admin GET /users.
-// Le nb de workflows et la dernière exécution sont calculés par aggregation groupée
-// (une requête par source, pas une par user).
+// Statistiques admin sur les users : nb de workflows (owner/contributeur), date
+// d'inscription, dernière connexion, dernière exécution de workflow. Utilisée par
+// la route admin GET /users. Le nb de workflows et la dernière exécution sont
+// calculés par aggregation groupée (une requête par source, pas une par user).
 async function _getAdminUsersStats() {
   const [users, workspaceCounts, lastProcesses] = await Promise.all([
     userModel.getInstance().model
@@ -302,7 +302,7 @@ async function _getAdminUsersStats() {
 
     workspaceModel.getInstance().model.aggregate([
       { $unwind: '$users' },
-      { $group: { _id: '$users.email', count: { $sum: 1 } } }
+      { $group: { _id: { email: '$users.email', role: '$users.role' }, count: { $sum: 1 } } }
     ]).exec(),
 
     processModel.getInstance().model.aggregate([
@@ -311,7 +311,16 @@ async function _getAdminUsersStats() {
     ]).exec()
   ]);
 
-  const wsMap = new Map(workspaceCounts.map(w => [w._id, w.count]));
+  // Comptes par email, séparés owner vs contributeur (tout rôle non-owner).
+  const wsMap = new Map();
+  for (const w of workspaceCounts) {
+    const email = w._id.email;
+    const isOwner = w._id.role === 'owner';
+    const entry = wsMap.get(email) || { ownerCount: 0, contributorCount: 0 };
+    if (isOwner) entry.ownerCount += w.count;
+    else entry.contributorCount += w.count;
+    wsMap.set(email, entry);
+  }
   const procMap = new Map(lastProcesses.map(p => [p._id.toString(), p.lastExecution]));
 
   return users.map(u => ({
@@ -319,7 +328,8 @@ async function _getAdminUsersStats() {
     name: u.name,
     email: u.credentials.email,
     admin: u.admin === true,
-    workspaceCount: wsMap.get(u.credentials.email) || 0,
+    workspaceCount: (wsMap.get(u.credentials.email) || {}).ownerCount || 0,
+    contributorCount: (wsMap.get(u.credentials.email) || {}).contributorCount || 0,
     createdAt: (u.dates && u.dates.created_at) || null,
     lastLogin: u.lastLogin || null,
     lastExecution: procMap.get(u._id.toString()) || null
