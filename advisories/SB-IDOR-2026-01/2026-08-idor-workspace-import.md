@@ -35,7 +35,7 @@ CVSS à calculer (probablement ~8.x : réseau + authentifié faible + impact él
   au moins jusqu'à v0.11.2.
 
 ## Versions corrigées (Patched versions)
-- À définir lors de la release du correctif (correctif développé et testé — voir §Correctif proposé).
+- **v0.11.3** (correctif IDOR + gestion admin en base) — PR sur master, release à venir.
 
 ## Détails (Details)
 - `POST /workspaces/:id/import` (`packages/main/server/workspaceWebService.js:244`) :
@@ -91,7 +91,8 @@ Signalée par **Maxim Yakovlev** (`batam111`) — divulgation coordonnée.
 |---|---|
 | 2026-08-20 | Réception du rapport par le chercheur |
 | 2026-08-24 | Correctif développé + testé (wrapperSecurity sur import + user_lib admin défaut) |
-| (à compléter) | Confirmation / correctif |
+| 2026-08-24 | Migration prod : admins `adminUsers` passés en base (`admin=true`), `adminUsers` retiré de config.json |
+| (à compléter) | PR master + release v0.11.3 |
 | (à compléter) | Publication |
 
 ## Références (References)
