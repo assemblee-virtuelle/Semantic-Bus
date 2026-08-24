@@ -19,7 +19,8 @@ module.exports = {
   get_all_withConsomation: _get_all_withConsomation,
   get_all: _get_all,
   remove: _remove,
-  get_component_result: _get_component_result
+  get_component_result: _get_component_result,
+  assertComponentInWorkspace: _assertComponentInWorkspace
 };
 
 // --------------------------------------------------------------------------------
@@ -143,6 +144,35 @@ async function _update(componentToUpdate) {
 } // <= _update
 
 // --------------------------------------------------------------------------------
+
+// SÉCURITÉ : vérifie qu'un composant appartient bien au workspace autorisé.
+// Utilisé par les routes PUT/DELETE /workspaces/:id/components pour empêcher
+// un confused deputy (autoriser sur req.params.id, écrire sur un body._id d'un
+// autre workspace). Lève une erreur si le composant n'existe pas ou n'appartient
+// pas au workspace donné.
+async function _assertComponentInWorkspace(componentId, workspaceId) {
+  if (!componentId) {
+    const err = new global.Error('component_not_found');
+    err.status = 404;
+    throw err;
+  }
+  const component = await workspaceComponentModel.getInstance().model
+    .findOne({ _id: componentId })
+    .select('workspaceId')
+    .lean()
+    .exec();
+  if (!component) {
+    const err = new global.Error('component_not_found');
+    err.status = 404;
+    throw err;
+  }
+  if (component.workspaceId && component.workspaceId.toString() !== workspaceId.toString()) {
+    const err = new global.Error('component_not_in_workspace');
+    err.status = 403;
+    throw err;
+  }
+  return component;
+} // <= _assertComponentInWorkspace
 
 async function _remove(componentToDelete) {
   const component = await workspaceComponentModel.getInstance().model.findOne({
