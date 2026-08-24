@@ -63,7 +63,7 @@ jobs:
           fi
 
       - name: Commit formatting changes
-        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push'
+        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push' && github.ref_name != 'master' && github.ref_name != 'main' && github.ref_name != 'production'
         run: |
           cd packages/core
           git commit -m "🎨 Auto-format: Core package code formatting
@@ -73,7 +73,7 @@ jobs:
           - [skip ci] to prevent infinite loops" || echo "Nothing to commit"
 
       - name: Push formatting changes
-        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push'
+        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push' && github.ref_name != 'master' && github.ref_name != 'main' && github.ref_name != 'production'
         run: |
           echo "🚀 Pushing automatic formatting changes..."
           git push origin ${{ github.ref_name }}
@@ -143,7 +143,7 @@ jobs:
           fi
 
       - name: Commit formatting changes
-        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push'
+        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push' && github.ref_name != 'master' && github.ref_name != 'main' && github.ref_name != 'production'
         run: |
           cd packages/main
           git commit -m "🎨 Auto-format: Main package code formatting
@@ -153,7 +153,7 @@ jobs:
           - [skip ci] to prevent infinite loops" || echo "Nothing to commit"
 
       - name: Push formatting changes
-        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push'
+        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push' && github.ref_name != 'master' && github.ref_name != 'main' && github.ref_name != 'production'
         run: |
           echo "🚀 Pushing automatic formatting changes..."
           git push origin ${{ github.ref_name }}
@@ -223,7 +223,7 @@ jobs:
           fi
 
       - name: Commit formatting changes
-        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push'
+        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push' && github.ref_name != 'master' && github.ref_name != 'main' && github.ref_name != 'production'
         run: |
           cd packages/engine
           git commit -m "🎨 Auto-format: Engine package code formatting
@@ -233,7 +233,7 @@ jobs:
           - [skip ci] to prevent infinite loops" || echo "Nothing to commit"
 
       - name: Push formatting changes
-        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push'
+        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push' && github.ref_name != 'master' && github.ref_name != 'main' && github.ref_name != 'production'
         run: |
           echo "🚀 Pushing automatic formatting changes..."
           git push origin ${{ github.ref_name }}
@@ -303,7 +303,7 @@ jobs:
           fi
 
       - name: Commit formatting changes
-        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push'
+        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push' && github.ref_name != 'master' && github.ref_name != 'main' && github.ref_name != 'production'
         run: |
           cd packages/timer
           git commit -m "🎨 Auto-format: Timer package code formatting
@@ -313,7 +313,7 @@ jobs:
           - [skip ci] to prevent infinite loops" || echo "Nothing to commit"
 
       - name: Push formatting changes
-        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push'
+        if: steps.format-check.outputs.changes == 'true' && github.event_name == 'push' && github.ref_name != 'master' && github.ref_name != 'main' && github.ref_name != 'production'
         run: |
           echo "🚀 Pushing automatic formatting changes..."
           git push origin ${{ github.ref_name }}
