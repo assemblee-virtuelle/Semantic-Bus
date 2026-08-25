@@ -33,7 +33,7 @@ module.exports = {
                 console.log(`--------------- execution ${workspace._id}-${c._id} status:${workspace.status} name:${workspace.name}`);
 
 
-                const workParams = hmac_lib.signMessage(c._id, {
+                const workParams = this.hmac_lib.signMessage(c._id, {
                   id: c._id
                 });
 
