@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.11.15] - 2026-08-24
+
+### Fixed
+
+- **Composant Filter : accepte les items tableau** (ex. lignes d'un xlsx/csv via
+  upload → valueFromPath). LokiJS n'acceptant que des objets, les items tableau sont
+  désormais enveloppés dans `{ _wrapped }` à l'insertion puis dé-enveloppés avant
+  l'évaluation `$where` et dans le résultat. Plus d'erreurs « Object cannot be null » /
+  « Document needs to be an object » sur les flux de fichiers.
+
 ## [0.11.14] - 2026-08-24
 
 ### Security

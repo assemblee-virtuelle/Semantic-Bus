@@ -66,3 +66,37 @@ describe('filter $where - eval validé (validateExpression)', () => {
     });
   });
 });
+
+describe('filter - accepte les items tableau (lignes xlsx/csv)', () => {
+  function makeWrappedCollection(items) {
+    const db = new Loki('test-arrays');
+    const col = db.addCollection('items', { disableMeta: true });
+    // reproduit filterRawItems : les tableaux sont enveloppés dans { _wrapped }
+    for (const item of items) {
+      col.insert(Array.isArray(item) ? { _wrapped: item } : item);
+    }
+    return col;
+  }
+
+  test('filter dé-enveloppe les items tableau (cas find simple)', async () => {
+    const col = makeWrappedCollection([{ name: 'obj' }, ['a', 'b'], []]);
+    const result = await Filter.filter(col, { name: { $exists: true } }, {});
+    // le filtre non-$where matche l objet ; vérifions aussi le dé-enveloppement global
+    expect(result).toHaveLength(1);
+    expect(result[0].name).toBe('obj');
+  });
+
+  test('filterRawItems accepte un tableau de tableaux sans erreur (lignes xlsx)', async () => {
+    const items = [
+      [null, null, 'SOLIS', null],
+      [],
+      ['Nom', 'Age'],
+      [null, 'Alice', 30]
+    ];
+    const filter = { $where: 'this.length > 0' };
+    const data = { _id: 'comp-filter' };
+    const result = await Filter.filterRawItems(items, filter, data);
+    // aucun erreur d insertion (Loki ne rejette plus les tableaux)
+    expect(result.errors).toBeUndefined();
+  });
+});
