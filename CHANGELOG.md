@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.11.14] - 2026-08-24
+
+### Security
+
+- **Cible composant déplacée dans l'URL** : `PUT`/`DELETE /workspaces/:id/components/:componentId`
+  (au lieu de `body._id`) — la cible d'écriture vient des params, le body ne porte que le
+  contenu. Élimine la dépendance à `body._id` comme cible non contrôlée.
+- `PUT /workspaces/:id` et `bigdataflow` : objet intermédiaire `{...body, _id: params.id}`
+  (le body d'origine n'est plus muté).
+
 ## [0.11.13] - 2026-08-24
 
 ### Security
