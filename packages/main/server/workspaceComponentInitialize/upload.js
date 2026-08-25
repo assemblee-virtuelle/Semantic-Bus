@@ -6,6 +6,9 @@ const busboy = require('busboy');
 const file_lib = require('@semantic-bus/core/lib/file_lib_scylla');
 const file_model_scylla = require('@semantic-bus/core/models/file_model_scylla');
 const hmac_lib = require('@semantic-bus/core/lib/hmac_lib');
+const auth_lib_jwt = require('@semantic-bus/core/lib/auth_lib');
+const user_lib = require('@semantic-bus/core/lib/user_lib');
+const config = require('../../config.json');
 
 class Upload {
   constructor() {
@@ -32,9 +35,36 @@ class Upload {
     this.amqpConnection = amqpConnection;
   }
 
+  // SÉCURITÉ : l'upload d'un fichier n'est autorisé que si l'appelant est
+  // owner ou editor du workspace auquel appartient le composant cible (compId),
+  // ou admin. Retourne le workspaceId du composant, ou null si non autorisé.
+  async assertUploadAccess(req, compId) {
+    const component = await this.workspace_component_lib.get({ _id: compId }).catch(() => null);
+    if (!component || !component.workspaceId) return null;
+    const workspaceId = component.workspaceId.toString();
+    const token = req.body.token || req.query.token || req.headers['authorization'];
+    if (!token) return null;
+    const decoded = auth_lib_jwt.get_decoded_jwt(token.substring(4, token.length));
+    if (!decoded || !decoded.iss) return null;
+    const result = await user_lib.getWithRelations(decoded.iss, config);
+    if (!result) return null;
+    if (result.admin) return workspaceId;
+    const member = (result.workspaces || []).find(w =>
+      w.workspace && w.workspace._id && w.workspace._id.toString() === workspaceId
+    );
+    if (member && (member.role === 'owner' || member.role === 'editor')) return workspaceId;
+    return null;
+  }
+
   initialise(router) {
-    router.post('/upload/:compId', (req, res, next) => {
+    router.post('/upload/:compId', async (req, res, next) => {
       const compId = req.params.compId;
+
+      // SÉCURITÉ : seul un owner/editor du workspace du composant (ou admin) peut uploader.
+      const workspaceId = await this.assertUploadAccess(req, compId);
+      if (!workspaceId) {
+        return res.status(403).send({ success: false, message: 'No right' });
+      }
 
       const busboyInstance = busboy({
         headers: req.headers
@@ -57,7 +87,8 @@ class Upload {
             const fileData = new file_model_scylla.model({
               binary: buffer, // Utiliser la chaîne hexadécimale ici
               filename: fileName,
-              frag: null // ou toute autre propriété dont vous avez besoin
+              frag: null, // ou toute autre propriété dont vous avez besoin
+              workspaceId
             });
 
             const file = await file_lib.create(fileData);

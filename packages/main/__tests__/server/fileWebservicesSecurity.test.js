@@ -115,4 +115,29 @@ describe('fileWebservices - accès fichier lié au workspace (IDOR de lecture)',
     await new Promise(r => setTimeout(r, 100));
     expect(res.status).toHaveBeenCalledWith(403);
   });
+
+  test('autorise un fichier uploadé (workspaceId) pour un owner/editor du workspace', async () => {
+    // fichier upload : pas de processId mais un workspaceId
+    fileLib.get.mockResolvedValue({ processId: null, workspaceId: 'ws1', binary: 'data' });
+    userLib.getWithRelations.mockResolvedValue({
+      admin: false,
+      workspaces: [{ workspace: { _id: 'ws1' }, role: 'editor' }]
+    });
+    const req = { params: { fileId: 'f1' }, query: {}, headers: { authorization: 'JWT x' }, body: {} };
+    const { res } = callRoute('/file/:fileId', req);
+    await new Promise(r => setTimeout(r, 100));
+    expect(res.send).toHaveBeenCalled();
+  });
+
+  test('refuse un fichier uploadé (workspaceId) pour un non-membre du workspace', async () => {
+    fileLib.get.mockResolvedValue({ processId: null, workspaceId: 'ws1', binary: 'data' });
+    userLib.getWithRelations.mockResolvedValue({
+      admin: false,
+      workspaces: [{ workspace: { _id: 'ws2' }, role: 'owner' }]
+    });
+    const req = { params: { fileId: 'f1' }, query: {}, headers: { authorization: 'JWT x' }, body: {} };
+    const { res } = callRoute('/file/:fileId', req);
+    await new Promise(r => setTimeout(r, 100));
+    expect(res.status).toHaveBeenCalledWith(403);
+  });
 });

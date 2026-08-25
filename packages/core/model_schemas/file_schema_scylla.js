@@ -8,7 +8,8 @@ class File {
       binary: data?.binary,
       filename: data?.filename,
       processId: data?.processId || data?.processid,
-      cacheId: data?.cacheId || data?.cacheid
+      cacheId: data?.cacheId || data?.cacheid,
+      workspaceId: data?.workspaceId || data?.workspaceid
     };
 
     this.id = lowerCamelData.id || uuidv4();
@@ -16,6 +17,7 @@ class File {
     this.filename = lowerCamelData.filename;
     this.processId = lowerCamelData.processId?.toString(); // This field is exclusive to the cacheId field
     this.cacheId = lowerCamelData.cacheId?.toString(); //   This field is exclusive to the processId field
+    this.workspaceId = lowerCamelData.workspaceId?.toString(); // workspace du fichier (upload)
   }
 }
 
