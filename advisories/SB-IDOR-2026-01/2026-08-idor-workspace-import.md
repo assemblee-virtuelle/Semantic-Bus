@@ -89,6 +89,9 @@ CVSS à calculer (probablement ~8.x : réseau + authentifié faible + impact él
   `POST /workspaces/` (corrige aussi le bug latent de rattachement des composants) et
   (2) un **backfill** des orphelins existants (`packages/main/scripts/backfillOrphanComponents.js`)
   — les 3 à déployer ensemble, sinon les orphelins deviennent non éditables/destructibles.
+  ⚠️ **Backfill = migration one-shot, plus nécessaire à partir de v0.11.16** (le fail-closed
+  + l'estampillage empêchent la création de nouveaux orphelins) ; à exécuter une seule fois
+  au déploiement de v0.11.16, idempotent.
 
 ## CWE
 - **CWE-639** : Authorization Bypass Through User-Controlled Key (IDOR)
