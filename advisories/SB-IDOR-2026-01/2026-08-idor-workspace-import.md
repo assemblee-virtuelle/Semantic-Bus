@@ -36,6 +36,8 @@ CVSS à calculer (probablement ~8.x : réseau + authentifié faible + impact él
 
 ## Versions corrigées (Patched versions)
 - **v0.11.3** (correctif IDOR + gestion admin en base) — PR sur master, release à venir.
+- **v0.11.10 → v0.11.14** (confused deputy sur les routes sœurs, bigdataflow legacy, admin maintenance, IDOR fichiers/upload/componentId).
+- **à venir (après v0.11.14)** : fail-open sur composants sans `workspaceId` (orphelins) — fail-closed + estampillage sur le chemin de création + backfill.
 
 ## Détails (Details)
 - `POST /workspaces/:id/import` (`packages/main/server/workspaceWebService.js:244`) :
@@ -78,6 +80,15 @@ CVSS à calculer (probablement ~8.x : réseau + authentifié faible + impact él
 - ⚠️ **Note opérationnelle** : sur une instance existante (utilisateurs déjà présents, sans
   `adminUsers` configuré), aucun utilisateur n'est admin par défaut — configurer `adminUsers`
   ou promouvoir via `PUT /users/:id/admin`.
+- ✅ **Fail-open sur composants sans `workspaceId` (orphelins, contribution 3)** :
+  `assertComponentInWorkspace` (`packages/core/lib/workspace_component_lib.js`) passait
+  `if (component.workspaceId && ... !== workspaceId)` → fail-open : un utilisateur
+  owner/editor pouvait écraser/supprimer un composant orphelin (le PUT estampait son propre
+  `workspaceId`). Corrigé **fail-closed** (`!component.workspaceId || mismatch` → 403),
+  associé à (1) l'estampillage de `workspaceId` sur le chemin embedded de
+  `POST /workspaces/` (corrige aussi le bug latent de rattachement des composants) et
+  (2) un **backfill** des orphelins existants (`packages/main/scripts/backfillOrphanComponents.js`)
+  — les 3 à déployer ensemble, sinon les orphelins deviennent non éditables/destructibles.
 
 ## CWE
 - **CWE-639** : Authorization Bypass Through User-Controlled Key (IDOR)
@@ -99,6 +110,9 @@ Signalée par **Maxim Yakovlev** (`batam111`) — divulgation coordonnée.
 - `packages/main/server/workspaceWebService.js:244` (route import — wrapperSecurity ajouté)
 - `packages/core/lib/user_lib.js:230-242` (défaut admin moindre privilège)
 - `packages/main/server/services/security.js` (wrapperSecurity)
+- `packages/core/lib/workspace_component_lib.js` (assertComponentInWorkspace fail-closed — contribution 3)
+- `packages/main/server/workspaceWebService.js` (`POST /workspaces/` embedded — workspaceId estampé — contribution 3)
+- `packages/main/scripts/backfillOrphanComponents.js` (backfill des orphelins — contribution 3)
 - Tests : `packages/main/__tests__/server/workspaceSecurity.test.js`,
-  `packages/core/__tests__/lib/user_lib.admin.test.js`
+  `packages/core/__tests__/lib/workspace_component_security.test.js`
 - À compléter : lien PR de correctif + release.

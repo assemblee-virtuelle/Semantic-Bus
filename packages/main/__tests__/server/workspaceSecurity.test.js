@@ -8,6 +8,7 @@ jest.mock('../../server/services/security', () => ({
 }));
 
 jest.mock('@semantic-bus/core/lib/workspace_lib', () => ({
+  create: jest.fn(() => Promise.resolve({ _id: 'WS', components: [] })),
   update: jest.fn(() => Promise.resolve({ components: [] })),
   getWorkspace: jest.fn(),
   addConnection: jest.fn(),
@@ -15,7 +16,9 @@ jest.mock('@semantic-bus/core/lib/workspace_lib', () => ({
   updateSimple: jest.fn()
 }));
 jest.mock('@semantic-bus/core', () => ({ user: {} }));
-jest.mock('@semantic-bus/core/lib/auth_lib', () => ({}));
+jest.mock('@semantic-bus/core/lib/auth_lib', () => ({
+  get_decoded_jwt: jest.fn(() => ({ iss: 'USER_ID' }))
+}));
 jest.mock('@semantic-bus/core/lib/workspace_component_lib', () => ({
   create: jest.fn(() => Promise.resolve([])),
   update: jest.fn(() => Promise.resolve({})),
@@ -147,5 +150,72 @@ describe('workspaceWebService - confused deputy sur les routes sœurs (SB-IDOR-2
     await mw[1](req, res, next);
     expect(workspaceComponentLib.remove).not.toHaveBeenCalled();
     expect(next).toHaveBeenCalledWith(expect.any(Error));
+  });
+});
+
+describe('workspaceWebService - POST /workspaces/ composants embarqués (SB-IDOR-2026-01)', () => {
+  const securityService = require('../../server/services/security');
+  const workspaceLib = require('@semantic-bus/core/lib/workspace_lib');
+  const workspaceComponentLib = require('@semantic-bus/core/lib/workspace_component_lib');
+
+  let routes;
+  function makeRouter() {
+    const store = { post: {}, put: {}, delete: {}, get: {} };
+    return {
+      post: (path, ...mw) => { store.post[path] = mw; },
+      put: (path, ...mw) => { store.put[path] = mw; },
+      delete: (path, ...mw) => { store.delete[path] = mw; },
+      get: (path, ...mw) => { store.get[path] = mw; },
+      store
+    };
+  }
+
+  beforeEach(() => {
+    jest.clearAllMocks();
+    routes = makeRouter();
+    registerRoutes(routes);
+  });
+
+  test('POST /workspaces/ avec composants embarqués estampe workspaceId sur chaque composant', async () => {
+    const mw = routes.store.post['/workspaces/'];
+    workspaceLib.create.mockResolvedValueOnce({ _id: 'WS_NEW', components: [] });
+    workspaceLib.update.mockResolvedValueOnce({ _id: 'WS_NEW', components: ['COMP_1'] });
+    workspaceComponentLib.create.mockResolvedValueOnce([{ _id: 'COMP_1', workspaceId: 'WS_NEW' }]);
+
+    const req = {
+      query: {},
+      headers: { authorization: 'JTW xxxx' },
+      body: { workspace: { name: 'n', limitHistoric: 1, components: [{ _id: 'c1', name: 'x' }] } }
+    };
+    const res = { send: jest.fn() };
+    const next = jest.fn();
+
+    await mw[0](req, res, next);
+
+    // le workspace est créé sans composant embarqué (components vide)
+    expect(workspaceLib.create).toHaveBeenCalledWith(
+      'USER_ID',
+      expect.objectContaining({ components: [] })
+    );
+    // les composants sont créés avec workspaceId estampé, jamais body._id
+    expect(workspaceComponentLib.create).toHaveBeenCalledWith([
+      expect.objectContaining({ _id: undefined, workspaceId: 'WS_NEW' })
+    ]);
+    expect(workspaceLib.update).toHaveBeenCalledWith(
+      expect.objectContaining({ _id: 'WS_NEW', components: ['COMP_1'] })
+    );
+    expect(res.send).toHaveBeenCalledWith({ _id: 'WS_NEW', components: ['COMP_1'] });
+    expect(next).not.toHaveBeenCalled();
+  });
+
+  test('POST /workspaces/ sans composant embarqué ne crée pas de composant', async () => {
+    const mw = routes.store.post['/workspaces/'];
+    workspaceLib.create.mockResolvedValueOnce({ _id: 'WS_NEW', components: [] });
+    const req = { query: {}, headers: { authorization: 'JTW xxxx' }, body: { workspace: { name: 'n', limitHistoric: 1 } } };
+    const res = { send: jest.fn() };
+    const next = jest.fn();
+    await mw[0](req, res, next);
+    expect(workspaceComponentLib.create).not.toHaveBeenCalled();
+    expect(res.send).toHaveBeenCalledWith({ _id: 'WS_NEW', components: [] });
   });
 });

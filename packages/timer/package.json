@@ -1,6 +1,6 @@
 {
   "name": "@semantic-bus/timer",
-  "version": "0.11.15",
+  "version": "0.11.16",
   "description": "Timer scheduler module for Semantic Bus",
   "private": true,
   "main": "app.js",

@@ -42,6 +42,20 @@ describe('workspace_component_lib.assertComponentInWorkspace', () => {
     await expect(workspaceComponentLib.assertComponentInWorkspace('comp', 'ws1')).rejects.toMatchObject({ status: 403 });
   });
 
+  test('refuse un composant sans workspaceId (orphelin, fail closed)', async () => {
+    findOneMock.mockReturnValue({
+      select: () => ({ lean: () => ({ exec: () => Promise.resolve({ _id: 'comp' }) }) })
+    });
+    await expect(workspaceComponentLib.assertComponentInWorkspace('comp', 'ws1')).rejects.toMatchObject({ status: 403 });
+  });
+
+  test('refuse un composant au workspaceId null (orphelin, fail closed)', async () => {
+    findOneMock.mockReturnValue({
+      select: () => ({ lean: () => ({ exec: () => Promise.resolve({ _id: 'comp', workspaceId: null }) }) })
+    });
+    await expect(workspaceComponentLib.assertComponentInWorkspace('comp', 'ws1')).rejects.toMatchObject({ status: 403 });
+  });
+
   test('refuse un composant inexistant', async () => {
     findOneMock.mockReturnValue({
       select: () => ({ lean: () => ({ exec: () => Promise.resolve(null) }) })

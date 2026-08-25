@@ -1,5 +1,21 @@
 # Changelog
 
+## [0.11.16] - 2026-08-25
+
+### Security
+
+- **Fail-closed sur les composants sans `workspaceId` (orphelins)** :
+  `assertComponentInWorkspace` refuse désormais (403) un composant sans `workspaceId`
+  (`!component.workspaceId || mismatch`), en plus du mismatch. Empêche un utilisateur
+  owner/editor d'un workspace d'écraser/supprimer un composant orphelin d'un autre
+  workflow (le PUT lui estampait même son propre `workspaceId`).
+- **`POST /workspaces/` (composants embarqués)** : le workspace est créé d'abord, chaque
+  composant embarqué est créé avec `workspaceId` estampé puis rattaché au workspace —
+  plus d'orphelins créés par ce chemin (corrige aussi un bug latent de rattachement).
+- **Backfill des orphelins** : `packages/main/scripts/backfillOrphanComponents.js` estampe
+  `workspaceId` sur les composants orphelins existants (retrouvés via `workspace.components`).
+  À exécuter au déploiement, en même temps que le code fail-closed (voir Makefile).
+
 ## [0.11.15] - 2026-08-24
 
 ### Fixed
