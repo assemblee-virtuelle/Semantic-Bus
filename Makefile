@@ -1,7 +1,8 @@
 .DEFAULT_GOAL := help
 .PHONY: docker-build docker-up build start log stop restart \
         rabbit-up rabbit-reset \
-        eval-up test-eval
+        eval-up test-eval \
+        backfill-orphans
 
 DOCKER_COMPOSE=docker compose -f docker-compose.yaml
 DOCKER_COMPOSE_TEST=docker compose -f docker-compose.test.yaml
@@ -55,6 +56,15 @@ test-eval:
 	  sleep 2; \
 	done
 	EVAL_SERVICE_URL=http://localhost:8083 ENGINE_HMAC_SECRET=${ENGINE_HMAC_SECRET:-secret} npx jest packages/eval-service/__tests__/eval-service.integration.test.js
+
+# Backfill des composants sans workspaceId (orphelins) — SB-IDOR-2026-01.
+# À exécuter AVANT ou EN MÊME TEMPS que le déploiement du code fail-closed
+# (assertComponentInWorkspace), sinon les composants orphelins deviennent
+# non éditables/destructibles par personne (même leur propriétaire).
+# Lance le script dans le container main (config.local.json monté → base locale).
+backfill-orphans:
+	@docker compose ps --status running main >/dev/null 2>&1 || { echo "❌ Container main non démarré — démarrer d'abord (make up / docker-up)"; exit 1; }
+	@docker compose exec -T main node -e "require('/data/packages/main/scripts/backfillOrphanComponents').work()"
 
 # Start
 start: docker-restart

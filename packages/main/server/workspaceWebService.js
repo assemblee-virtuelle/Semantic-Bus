@@ -294,35 +294,35 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.post('/workspaces/', function (req, res, next) {
-    let workspaceBody = req.body.workspace
-    let userIdBody = UserIdFromToken(req)
+  router.post('/workspaces/', async function (req, res, next) {
+    try {
+      let workspaceBody = req.body.workspace
+      let userIdBody = UserIdFromToken(req)
 
-    if (workspaceBody.components) {
-      // dans le cas ou il n'y a pas de save à la création : save du WS et des comp
-      if (workspaceBody.components.length > 0) {
-        workspace_component_lib.create(workspaceBody.components).then(function (workspaceComponent) {
-          workspaceBody.components = []
-          workspaceBody.components.push(workspaceComponent._id)
-          workspace_lib.create(userIdBody, workspaceBody).then(function (workspace) {
-            res.send(workspace)
-          })
-        }).catch(e => {
-          next(e)
-        })
+      const hasComponents = workspaceBody && workspaceBody.components && workspaceBody.components.length > 0
+
+      // SÉCURITÉ : le workspace est créé d'abord (son _id est connu), puis les
+      // composants embarqués sont créés avec workspaceId estampé — plus de composant
+      // orphelin (sans workspaceId) via ce chemin. Les composants créés sont
+      // rattachés au workspace (components = ids) dans la foulée.
+      if (hasComponents) {
+        const workspaceBodyInit = { ...workspaceBody, components: [] }
+        const workspace = await workspace_lib.create(userIdBody, workspaceBodyInit)
+        const componentsToCreate = workspaceBody.components.map(c => ({
+          ...c,
+          _id: undefined,
+          workspaceId: workspace._id
+        }))
+        const workspaceComponents = await workspace_component_lib.create(componentsToCreate)
+        workspace.components = workspaceComponents.map(c => c._id)
+        const workspaceUpdated = await workspace_lib.update(workspace)
+        res.send(workspaceUpdated)
       } else {
-        workspace_lib.create(userIdBody, workspaceBody).then(function (workspace) {
-          res.send(workspace)
-        }).catch(e => {
-          next(e)
-        })
-      }
-    } else {
-      workspace_lib.create(userIdBody, workspaceBody).then(function (workspace) {
+        const workspace = await workspace_lib.create(userIdBody, workspaceBody)
         res.send(workspace)
-      }).catch(e => {
-        next(e)
-      })
+      }
+    } catch (e) {
+      next(e)
     }
   }) // <= create_workspace
 
