@@ -362,14 +362,16 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.delete('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), async function (req, res, next) {
+  router.delete('/workspaces/:id/components/:componentId', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), async function (req, res, next) {
     try {
-      // SÉCURITÉ : le composant cible doit appartenir au workspace autorisé (req.params.id).
-      await workspace_component_lib.assertComponentInWorkspace(req.body._id, req.params.id)
+      // SÉCURITÉ : le composant cible vient de l'URL (req.params.componentId) et doit
+      // appartenir au workspace autorisé (req.params.id). Aucune cible body._id.
+      const componentId = req.params.componentId
+      await workspace_component_lib.assertComponentInWorkspace(componentId, req.params.id)
       await workspace_component_lib.remove({
-        _id: req.body._id
+        _id: componentId
       })
-      res.json(req.body)
+      res.json({ _id: componentId })
     } catch (e) {
       if (e && e.status) {
         return res.status(e.status).send({ success: false, message: e.message || 'Forbidden' })
@@ -390,14 +392,18 @@ module.exports = function (router) {
 
   // --------------------------------------------------------------------------------
 
-  router.put('/workspaces/:id/components', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), async function (req, res, next) {
+  router.put('/workspaces/:id/components/:componentId', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), async function (req, res, next) {
     try {
-      // SÉCURITÉ : le composant cible doit appartenir au workspace autorisé (req.params.id).
-      if (req.body && req.body._id) {
-        await workspace_component_lib.assertComponentInWorkspace(req.body._id, req.params.id)
-        req.body.workspaceId = req.params.id
-      }
-      const componentUpdated = await workspace_component_lib.update(req.body)
+      // SÉCURITÉ : la cible vient de l'URL (req.params.componentId) et doit appartenir
+      // au workspace autorisé (req.params.id). L'objet à écrire assemble le body (contenu)
+      // avec l'id et le workspaceId issus des params — jamais body._id.
+      const componentId = req.params.componentId
+      await workspace_component_lib.assertComponentInWorkspace(componentId, req.params.id)
+      const componentUpdated = await workspace_component_lib.update({
+        ...req.body,
+        _id: componentId,
+        workspaceId: req.params.id
+      })
       res.json(componentUpdated)
     } catch (e) {
       if (e && e.status) {
@@ -486,18 +492,18 @@ module.exports = function (router) {
 
   router.put('/workspaces/:id', (req, res, next) => securityService.wrapperSecurity(req, res, next,undefined,'workflow'), function (req, res, next) {
     if (req.body != null) {
-      // SÉCURITÉ : lier la cible d'écriture au workspace autorisé par wrapperSecurity.
-      // Ne jamais autoriser sur req.params.id et écrire sur req.body._id (confused deputy).
-      req.body._id = req.params.id
-      workspace_lib.update(req.body).then(workspaceUpdate => {
-        for (var c of workspaceUpdate.components) {
+      // SÉCURITÉ : la cible d'écriture est le workspace autorisé par wrapperSecurity.
+      // Objet intermédiaire : le body (contenu) + l'id venant des params (jamais body._id).
+      const workspaceUpdate = { ...req.body, _id: req.params.id }
+      workspace_lib.update(workspaceUpdate).then(result => {
+        for (var c of result.components) {
           if (technicalComponentDirectory[c.module] != null) {
             c.graphIcon = technicalComponentDirectory[c.module].graphIcon
           } else {
             c.graphIcon = 'default'
           }
         }
-        res.send(workspaceUpdate)
+        res.send(result)
       }).catch(e => {
         next(e)
       }).catch(e => {
