@@ -166,7 +166,12 @@ async function _assertComponentInWorkspace(componentId, workspaceId) {
     err.status = 404;
     throw err;
   }
-  if (component.workspaceId && component.workspaceId.toString() !== workspaceId.toString()) {
+  // FAIL CLOSED : un composant sans workspaceId (orphelin) n'est ni éditable ni
+  // destructible — y compris par son propriétaire légitime, jusqu'au backfill qui
+  // lui pose son workspaceId. Évite le fail-open cross-tenant (un utilisateur qui
+  // possède un workspace pouvait écraser/supprimer un composant orphelin, et le
+  // PUT lui estampait son propre workspaceId).
+  if (!component.workspaceId || component.workspaceId.toString() !== workspaceId.toString()) {
     const err = new global.Error('component_not_in_workspace');
     err.status = 403;
     throw err;
