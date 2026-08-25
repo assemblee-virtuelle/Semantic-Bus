@@ -602,7 +602,7 @@ function WorkspaceStore(utilStore, specificStoreList) {
     return new Promise((resolve, reject) => {
       utilStore.ajaxCall({
         method: 'put',
-        url: '../data/core/workspaces/' + this.itemCurrent.workspaceId + '/components',
+        url: '../data/core/workspaces/' + this.itemCurrent.workspaceId + '/components/' + this.itemCurrent._id,
         data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(this.itemCurrent))
       }, true).then(data => {
         this.itemCurrent = data
@@ -661,7 +661,7 @@ function WorkspaceStore(utilStore, specificStoreList) {
   this.on('item_persist', function (item) {
     this.utilStore.ajaxCall({
       method: 'put',
-      url: '../data/core/workspaces/' + item.workspaceId + '/components',
+      url: '../data/core/workspaces/' + item.workspaceId + '/components/' + item._id,
       data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(item))
     }, true).then(data => {
       item = data
@@ -1009,7 +1009,7 @@ function WorkspaceStore(utilStore, specificStoreList) {
   this.on('workspace_current_delete_component', function (record) {
     this.utilStore.ajaxCall({
       method: 'delete',
-      url: '../data/core/workspaces/' + record.workspaceId + '/components',
+      url: '../data/core/workspaces/' + record.workspaceId + '/components/' + record._id,
       data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(record))
     }, true).then(data => {
       sift({

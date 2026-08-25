@@ -112,24 +112,25 @@ describe('workspaceWebService - confused deputy sur les routes sœurs (SB-IDOR-2
     const res = { send: jest.fn() };
     const next = jest.fn();
     await mw[1](req, res, next);
-    // le body._id doit être écrasé par req.params.id (pas de confused deputy)
-    expect(workspaceLib.update).toHaveBeenCalledWith(expect.objectContaining({ _id: 'WS_AUTHORIZED' }));
-    expect(req.body._id).toBe('WS_AUTHORIZED');
+    // la cible vient de req.params.id via un objet intermédiaire — req.body n est pas muté
+    expect(workspaceLib.update).toHaveBeenCalledWith(expect.objectContaining({ _id: 'WS_AUTHORIZED', name: 'PWNED' }));
+    expect(req.body._id).toBe('WS_ATTACKER'); // le body d'origine n est pas modifié
   });
 
-  test('PUT /workspaces/:id/components vérifie l appartenance du composant au workspace', async () => {
-    const mw = routes.store.put['/workspaces/:id/components'];
-    const req = { params: { id: 'WS_AUTHORIZED' }, body: { _id: 'COMP_X', name: 'x' } };
+  test('PUT /workspaces/:id/components/:componentId vérifie l appartenance du composant au workspace', async () => {
+    const mw = routes.store.put['/workspaces/:id/components/:componentId'];
+    const req = { params: { id: 'WS_AUTHORIZED', componentId: 'COMP_X' }, body: { name: 'x' } };
     const res = { json: jest.fn() };
     const next = jest.fn();
     await mw[1](req, res, next);
     expect(workspaceComponentLib.assertComponentInWorkspace).toHaveBeenCalledWith('COMP_X', 'WS_AUTHORIZED');
-    expect(workspaceComponentLib.update).toHaveBeenCalled();
+    // la cible (componentId) et le workspaceId viennent des params, jamais du body._id
+    expect(workspaceComponentLib.update).toHaveBeenCalledWith(expect.objectContaining({ _id: 'COMP_X', workspaceId: 'WS_AUTHORIZED' }));
   });
 
-  test('DELETE /workspaces/:id/components vérifie l appartenance du composant au workspace', async () => {
-    const mw = routes.store.delete['/workspaces/:id/components'];
-    const req = { params: { id: 'WS_AUTHORIZED' }, body: { _id: 'COMP_X' } };
+  test('DELETE /workspaces/:id/components/:componentId vérifie l appartenance du composant au workspace', async () => {
+    const mw = routes.store.delete['/workspaces/:id/components/:componentId'];
+    const req = { params: { id: 'WS_AUTHORIZED', componentId: 'COMP_X' }, body: {} };
     const res = { json: jest.fn() };
     const next = jest.fn();
     await mw[1](req, res, next);
@@ -137,10 +138,10 @@ describe('workspaceWebService - confused deputy sur les routes sœurs (SB-IDOR-2
     expect(workspaceComponentLib.remove).toHaveBeenCalledWith({ _id: 'COMP_X' });
   });
 
-  test('DELETE /workspaces/:id/components propage l erreur si composant hors workspace', async () => {
-    const mw = routes.store.delete['/workspaces/:id/components'];
+  test('DELETE /workspaces/:id/components/:componentId propage l erreur si composant hors workspace', async () => {
+    const mw = routes.store.delete['/workspaces/:id/components/:componentId'];
     workspaceComponentLib.assertComponentInWorkspace.mockRejectedValueOnce(new Error('component_not_in_workspace'));
-    const req = { params: { id: 'WS_AUTHORIZED' }, body: { _id: 'COMP_X' } };
+    const req = { params: { id: 'WS_AUTHORIZED', componentId: 'COMP_X' }, body: {} };
     const res = { json: jest.fn() };
     const next = jest.fn();
     await mw[1](req, res, next);
