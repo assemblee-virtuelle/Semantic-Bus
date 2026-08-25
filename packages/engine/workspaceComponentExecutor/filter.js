@@ -68,7 +68,14 @@ class Filter {
           if (item !== undefined && item !== null) {
             if (typeof item === 'object') {
               try {
-                collection.insert(item);
+                // Loki n'accepte que des objets : un item TABLEAU (ex. une ligne d'un
+                // xlsx/csv : [c1,c2,...]) est enveloppé dans { _wrapped: item } pour être
+                // insérable, puis dé-enveloppé avant l'évaluation et dans le résultat.
+                if (Array.isArray(item)) {
+                  collection.insert({ _wrapped: item });
+                } else {
+                  collection.insert(item);
+                }
               } catch (insertError) {
                 insertionErrors.push({
                   error: insertError.message,
@@ -140,19 +147,26 @@ class Filter {
             const whereCondition = filter['$where'].replace(/this/g, 'obj');
             validateExpression(whereCondition);
             const whereItems = collection.find({});
+            // Dé-enveloppe les items tableaux (insérés via { _wrapped: item }) :
+            // l'évaluation porte sur l'item d'origine (le tableau).
+            const unwrappedItems = whereItems.map(doc =>
+              doc && doc._wrapped !== undefined ? doc._wrapped : doc
+            );
             const whereMatches = [];
-            for (let i = 0; i < whereItems.length; i++) {
-              const res = await runEvalInRemote(whereCondition, { obj: whereItems[i] });
+            for (let i = 0; i < unwrappedItems.length; i++) {
+              const res = await runEvalInRemote(whereCondition, { obj: unwrappedItems[i] });
               if (res == true) whereMatches.push(i);
             }
-            resultData = whereMatches.map(i => whereItems[i]);
+            resultData = whereMatches.map(i => unwrappedItems[i]);
           } else {
             reject({ error: '$where have to be the only property when it is used' });
           }
         } else {
-          resultData = collection.find(filter);
+          resultData = collection.find(filter).map(doc =>
+            doc && doc._wrapped !== undefined ? doc._wrapped : doc
+          );
         }
-        resultData = resultData.map(r => { delete r['$loki']; return r; });
+        resultData = resultData.map(r => { if (r && typeof r === 'object' && !Array.isArray(r)) delete r['$loki']; return r; });
         resolve(resultData);
       } catch (e) {
         reject(e);
@@ -188,14 +202,15 @@ class Filter {
             pathTable: pathTable,
             callBackOnPath: async (item) => {
               // console.log('___item', item);
-              if (item!==undefined && item!==null) {
+              if (item!==undefined && item!==null && !Array.isArray(item)) {
                 delete item['$loki'];
               }
               if (item!==undefined) {
                 // Check if item is an object before inserting (LokiJS requires objects)
                 if (typeof item === 'object' && item !== null) {
                   try {
-                    collection.insert(item);
+                    // Les tableaux sont enveloppés dans { _wrapped: item } (voir filterRawItems)
+                    collection.insert(Array.isArray(item) ? { _wrapped: item } : item);
                   } catch (insertError) {
                     insertionErrors.push({
                       error: insertError.message,

@@ -1,6 +1,6 @@
 {
   "name": "@semantic-bus/engine",
-  "version": "0.11.14",
+  "version": "0.11.15",
   "description": "Processing engine module for Semantic Bus",
   "private": true,
   "main": "app.js",
