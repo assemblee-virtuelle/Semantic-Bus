@@ -28,7 +28,8 @@ const createFileTable = async() => {
     'ALTER TABLE mykeyspace.file ADD frag UUID',
     'ALTER TABLE mykeyspace.file ADD filename text',
     'ALTER TABLE mykeyspace.file ADD cacheId text',
-    'ALTER TABLE mykeyspace.file ADD processId text'
+    'ALTER TABLE mykeyspace.file ADD processId text',
+    'ALTER TABLE mykeyspace.file ADD workspaceId text'
   ];
 
   try {

@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.11.13] - 2026-08-24
+
+### Security
+
+- **Upload de fichier réservé aux owner/editor du workflow** : `POST /upload/:compId`
+  vérifie que l'appelant est owner/editor du workspace du composant cible (ou admin),
+  403 sinon.
+- **Fichiers upload liés au workspace** : le `workspaceId` est stocké sur le fichier
+  (Scylla) à l'upload ; `GET /file/:fileId` et `/download` vérifient l'accès via le
+  `workspaceId` pour les fichiers sans `processId` (owner/editor, ou admin).
+
 ## [0.11.12] - 2026-08-24
 
 ### Security

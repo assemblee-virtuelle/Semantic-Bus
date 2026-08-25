@@ -10,8 +10,8 @@ const insertFile = async(file) => {
     throw new Error(`The file is too large (${(file.binary.length / 1024 / 1024).toFixed(2)}MB). The maximum allowed size is 15MB.`);
   }
   const query = `
-    INSERT INTO file (id, binary, frag, filename, processId, cacheId)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO file (id, binary, frag, filename, processId, cacheId, workspaceId)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `;
   const insertResult = await client.execute(query, [
     file.id,
@@ -19,7 +19,8 @@ const insertFile = async(file) => {
     file.frag,
     file.filename,
     file.processId,
-    file.cacheId
+    file.cacheId,
+    file.workspaceId
   ], {
     prepare: true
   });
@@ -97,7 +98,7 @@ const getAllFiles = async(query, params) => {
 const updateFile = async(file) => {
   const query = `
     UPDATE file 
-    SET binary = ?, filename = ?, processId = ?, cacheId = ?
+    SET binary = ?, filename = ?, processId = ?, cacheId = ?, workspaceId = ?
     WHERE id = ?
   `;
 
@@ -106,6 +107,7 @@ const updateFile = async(file) => {
     file.filename !== undefined ? file.filename : null,
     file.processId !== undefined ? file.processId : null,
     file.cacheId !== undefined ? file.cacheId : null,
+    file.workspaceId !== undefined ? file.workspaceId : null,
     file.id
   ];
 

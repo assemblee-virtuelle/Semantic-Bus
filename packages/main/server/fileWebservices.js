@@ -11,24 +11,32 @@ var config = require('../config.json')
 // si le user est admin, ou owner/editor de ce workspace. Ferme l'IDOR de lecture
 // (tout user authentifié pouvait lire n'importe quel fichier par id).
 async function assertFileAccess(req, file) {
-  if (!file || !file.processId) return true // fichier cache sans process : accès JWT
+  if (!file) return false
   const token = req.body.token || req.query.token || req.headers['authorization']
   if (!token) return false
   const decoded = auth_lib_jwt.get_decoded_jwt(token.substring(4, token.length))
   if (!decoded || !decoded.iss) return false
 
-  const process = await processModel.getInstance().model
-    .findOne({ _id: file.processId })
-    .select('workflowId')
-    .lean()
-    .exec()
-    .catch(() => null)
-  if (!process || !process.workflowId) return false
+  // Déterminer le workspace du fichier : via processId (flux) ou workspaceId (upload).
+  let workspaceId = null
+  if (file.processId) {
+    const process = await processModel.getInstance().model
+      .findOne({ _id: file.processId })
+      .select('workflowId')
+      .lean()
+      .exec()
+      .catch(() => null)
+    if (!process || !process.workflowId) return false
+    workspaceId = process.workflowId.toString()
+  } else if (file.workspaceId) {
+    workspaceId = file.workspaceId.toString()
+  } else {
+    return true // fichier cache legacy sans lien : accès JWT
+  }
 
   const result = await user_lib.getWithRelations(decoded.iss, config)
   if (!result) return false
   if (result.admin) return true
-  const workspaceId = process.workflowId.toString()
   // Accès réservé aux owners/editors du workspace du workflow lié au fichier.
   return (result.workspaces || []).some(w =>
     w.workspace && w.workspace._id &&
