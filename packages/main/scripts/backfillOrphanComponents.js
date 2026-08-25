@@ -24,6 +24,9 @@
 // Usage :
 //   node -e "require('./packages/main/scripts/backfillOrphanComponents').work()"
 // (à exécuter depuis la racine du repo, config.json chargé via getConfiguration)
+// Le script ferme la connexion Mongo en fin d'exécution : le process se termine seul.
+
+const mongoClient = require('@semantic-bus/core/db/mongo_client');
 
 module.exports = {
   workspaceComponent_model: require('@semantic-bus/core/models').workspaceComponent,
@@ -80,5 +83,13 @@ module.exports = {
       console.log('\nIls resteront non-éditables/destructibles tant qu\'un workspaceId ne leur est pas attribué manuellement.');
     }
     console.log('--- Backfill terminé ---');
+
+    // Ferme la connexion Mongo pour que le process se termine seul (sinon la
+    // boucle d'événements reste ouverte et l'exécution via node -e reste bloquée).
+    try {
+      await mongoClient.getInstance().connection.close();
+    } catch {
+      // pas grave si la connexion est déjà fermée
+    }
   }
 };
