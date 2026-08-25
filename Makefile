@@ -58,9 +58,11 @@ test-eval:
 	EVAL_SERVICE_URL=http://localhost:8083 ENGINE_HMAC_SECRET=${ENGINE_HMAC_SECRET:-secret} npx jest packages/eval-service/__tests__/eval-service.integration.test.js
 
 # Backfill des composants sans workspaceId (orphelins) — SB-IDOR-2026-01.
-# À exécuter AVANT ou EN MÊME TEMPS que le déploiement du code fail-closed
-# (assertComponentInWorkspace), sinon les composants orphelins deviennent
-# non éditables/destructibles par personne (même leur propriétaire).
+# MIGRATION ONE-SHOT : plus nécessaire à partir de v0.11.16 (le fail-closed +
+# l'estampillage workspaceId sur POST /workspaces/ empêchent les nouveaux orphelins).
+# À exécuter une seule fois, au déploiement du code fail-closed, sinon les composants
+# orphelins existants deviennent non éditables/destructibles par personne (même leur
+# propriétaire). Idempotent — inutile de le relancer sur une instance déjà ≥ v0.11.16.
 # Lance le script dans le container main (config.local.json monté → base locale).
 backfill-orphans:
 	@docker compose ps --status running main >/dev/null 2>&1 || { echo "❌ Container main non démarré — démarrer d'abord (make up / docker-up)"; exit 1; }

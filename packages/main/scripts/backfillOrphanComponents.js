@@ -8,6 +8,14 @@
 // tourner AVANT ou EN MÊME TEMPS que le déploiement du code corrigé, pour que les
 // flux PUT/DELETE légitimes continuent de fonctionner.
 //
+// ⚠️ MIGRATION ONE-SHOT — PLUS NÉCESSAIRE À PARTIR DE v0.11.16.
+// Depuis v0.11.16 : le fail-closed + l'estampillage de workspaceId sur le chemin
+// embedded de POST /workspaces/ garantissent qu'aucun nouveau composant sans
+// workspaceId ne peut être créé. Ce script n'est donc utile que pour les instances
+// qui ont des orphelins pré-existants (créés avant v0.11.16) : il suffit de l'exécuter
+// une fois au déploiement de v0.11.16. Idempotent — sans danger de le relancer,
+// mais sur une instance déjà ≥ v0.11.16 il n'aura plus rien à faire.
+//
 // Principe : pour chaque composant sans workspaceId, on cherche le workspace qui le
 // référence dans sa liste `workspace.components` et on estampe workspaceId = workspace._id.
 // Les composants non retrouvés (vraiment orphelins) sont listés à la fin pour contrôle
