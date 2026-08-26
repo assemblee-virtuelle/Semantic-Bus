@@ -18,50 +18,7 @@
 
 const { parentPort } = require('worker_threads');
 const vm = require('vm');
-const unicode = require('unicode-encode');
 const { createSecureContext, stripDangerousGlobals } = require('./secureContext.js');
-
-// Helpers compatibles avec le scope master (utilisés par certaines expressions).
-function resolveString(source) {
-  if (typeof source === 'string' || source instanceof String) {
-    const strict = /^eval\(this\.unicode\.atou\(`([^`]*)`\)\)$/.exec(source);
-    if (strict) return unicode.atou(strict[1]);
-    return source;
-  } else if (Array.isArray(source)) {
-    return source.map((r) => resolveString(r));
-  } else if (source != null && typeof source === 'object') {
-    const out = {};
-    for (const key in source) out[unicode.atou(key)] = resolveString(source[key]);
-    return out;
-  }
-  return source;
-}
-function escapeString(source) {
-  if (typeof source === 'string' || source instanceof String) {
-    return `eval(this.unicode.atou(\`${unicode.utoa(source)}\`))`;
-  } else if (Array.isArray(source)) {
-    return source.map((r) => escapeString(r));
-  } else if (source != null && source.toJSON !== undefined) {
-    return escapeString(source.toJSON());
-  } else if (source != null && typeof source === 'object') {
-    const out = {};
-    for (const key in source) out[unicode.utoa(key)] = escapeString(source[key]);
-    return out;
-  }
-  return source;
-}
-function parseAndResolveString(source) {
-  return resolveString(JSON.parse(source));
-}
-
-// Helpers locaux (spécifiques à l'éval d'une expression) injectés EN PLUS du
-// contexte sécurisé fourni par secureContext.js.
-const localHelpers = {
-  unicode,
-  resolveString,
-  escapeString,
-  parseAndResolveString
-};
 
 stripDangerousGlobals();
 
@@ -71,7 +28,14 @@ parentPort.on('message', (msg) => {
 
   // Contexte vm NEUF et SÉCURISÉ (libs épurées/gelées + import bloqué) par job.
   const ctx = createSecureContext();
-  Object.assign(ctx, localHelpers);
+  // CONTRAT DE SÉCURITÉ : les `variables` injectées dans le scope sont considérées
+  // SÛRES à la SEULE condition qu'elles aient transité par `runEvalInRemote`
+  // (engine), qui applique `sanitizeValue` (retrait des clés __proto__/constructor/
+  // prototype + des accessors/getters) avant la sérialisation HTTP — c'est le point
+  // d'application unique côté engine (voir evalSecurity.js). Ce container est INTERNE
+  // (non exposé, signé HMAC, appelable uniquement par l'application) : ne pas appeler
+  // /eval avec des variables non assainies et ne pas exposer ce port hors du réseau
+  // interne. Tout nouveau chemin d'entrée DOIT passer par runEvalInRemote.
   if (variables) Object.assign(ctx, variables);
 
   try {

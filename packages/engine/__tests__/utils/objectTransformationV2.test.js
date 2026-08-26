@@ -1,6 +1,6 @@
 jest.mock('../../utils/evalSecurity');
 const objectTransformation = require('../../utils/objectTransformationV2');
-const { runEvalInWorker } = require('../../utils/evalSecurity');
+const { runEvalInRemote } = require('../../utils/evalSecurity');
 
 describe('objectTransformationV2 - eval master + validation pré-éval', () => {
   test('expression simple avec {$path}', async () => {
@@ -90,14 +90,14 @@ describe('objectTransformationV2 - eval master + validation pré-éval', () => {
     });
   });
 
-  describe('timeout (point 3) — worker terminable', () => {
+  describe('timeout — logique du container eval-service (vm)', () => {
     test('expression bloquante est réellement interrompue par le timeout', async () => {
-      // runEvalInWorker est testé directement (le validateur bloque déjà les
-      // boucles au niveau AST) : on vérifie que le worker_threads termine une
-      // boucle infinie au bout du délai au lieu de bloquer le process.
+      // runEvalInRemote est mocké vers la logique du container (secureContext.js
+      // de l'eval-service) : vm.runInContext avec timeout. On vérifie que la
+      // boucle infinie est interrompue au lieu de bloquer le process.
       let error;
       try {
-        await runEvalInWorker('while(true){}', {}, 150);
+        await runEvalInRemote('while(true){}', {}, 150);
       } catch (e) {
         error = e;
       }
@@ -106,7 +106,7 @@ describe('objectTransformationV2 - eval master + validation pré-éval', () => {
     }, 5000);
 
     test('résultat sérialisable retourné intact', async () => {
-      const r = await runEvalInWorker('({a: 1, b: "x"})');
+      const r = await runEvalInRemote('({a: 1, b: "x"})');
       expect(r).toEqual({ a: 1, b: 'x' });
     });
   });

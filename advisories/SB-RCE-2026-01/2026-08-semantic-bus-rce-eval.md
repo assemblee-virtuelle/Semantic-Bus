@@ -37,8 +37,12 @@ Vecteur : `AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H`
   moteur d'évaluation `eval` (V2).
 
 ## Versions corrigées (Patched versions)
-- Version à définir lors de la release du correctif (correctif porté sur la branche
-  `security/remove-sift-and-secure-eval`, à merger dans `production`).
+- **v0.11.2** (inclut le correctif du bypass `lodash.template`, PR #458) — release
+  `v0.11.1` puis `v0.11.2` sur la branche `security/remove-sift-and-secure-eval`, mergées
+  dans `production`.
+- **Hardening validateur (whitelist 100 %, sanitize, raw-eval vm)** : correctifs des gaps
+  du chercheur (2026-08-24) + vecteur introspection + suppression du raw-eval — release à
+  définir lors de la publication.
 
 ## Détails (Details)
 Le process engine (`packages/engine`) évalue du JavaScript écrit par l'utilisateur dans
@@ -75,6 +79,53 @@ dans les chaînes évaluées → RCE complète.
 6. **Authentification des points d'exécution** : signature HMAC sur `POST /engine/work-ask/:componentId`,
    validation JWT + autorisation sur la file AMQP `work-ask`, rate-limit sur `/data/api/*`.
 7. **Validation `specificData` à l'écriture** des composants.
+8. **Bypass `lodash.template`** (signalé après v0.11.1) : whitelist par lib dans le validateur
+   (`LIB_METHOD_WHITELISTS`), lodash épuré dans le scope eval, `importModuleDynamically`
+   rejette tout `import()` dynamique, strip `fetch`/`WebSocket`, retour à l'évaluation
+   atomique par item (correctif v0.11.2, PR #458).
+9. **Validateur passé en whitelist 100 %** (suite à la review v0.11.2 du chercheur, 2026-08-24,
+   et au vecteur introspection découvert) :
+   - **constant-folding** des clés computed statiquement résolubles (`'con'+'structor'` →
+     bloqué) ;
+   - **whitelist étendue** à toutes les libs du scope (dotProp, cheerio,
+     sanitizeHtml, removeMarkdown, decodeUnicode) ;
+   - **`LIB_FORBIDDEN_METHODS` supprimé** (blacklist) ;
+   - **objets produits whitelistés** (`PRODUCED_WHITELISTS` + inférence de type d'appel) ;
+   - **JS intrinsics en whitelist stricte** : `Reflect`, `Proxy`, `Object.getPrototypeOf`,
+     `Object.getOwnPropertyDescriptor`, `Object.defineProperty`, `Object.setPrototypeOf`
+     **bloqués** (neutralise le vecteur argument-string `Reflect.get(he.decode,
+     'constructor')`).
+10. **`sanitizeValue` dans `runEvalInRemote`** (avant sérialisation) : toutes les variables
+    envoyées au eval-service sont assainies (getters + clés `__proto__`/`constructor`/
+    `prototype`) — point unique d'application couvrant transformation + `$where`.
+11. **Raw-eval ÉLIMINÉ** : `whereWorker.js` supprimé (v0.11.2), puis l'`evalWorker.js` engine
+    (`(0, eval)`, code mort signalé par le chercheur) **supprimé** avec `runEvalInWorker` et
+    `workerGlobals.js` engine → **l'engine n'a plus aucune méthode d'évaluation interne** ;
+    le seul chemin est `runEvalInRemote` (HTTP signé → container eval-service). Plus aucun
+    `eval` brut dans l'engine ni l'eval-service.
+12. **Code mort retiré** : helpers `escapeString`/`resolveString`/`parseAndResolveString`
+    (engine + container) et lib `unicode-encode` — le mécanisme d'encodage des valeurs dans
+    l'expression était mort (les valeurs partent en variables séparées). `decodeUnicode`
+    (décodage `\uXXXX` des données) conservé côté container (pattern prod).
+
+### Gaps du validateur — corrigés, limitation connue documentée
+
+La review du correctif v0.11.2 par le chercheur (2026-08-24) a signalé 3 gaps de correctness
+du validateur, **tous corrigés** :
+
+- **Clé computed non-littérale** : fermé par constant-folding (`he.decode['con'+'structor']`
+  → bloqué) ;
+- **Whitelist par lib incomplète** : fermé (dotProp.set, cheerio.merge, ... → bloqués) ;
+- **`evalWorker.js` `Object.assign` sans sanitize** : fermé (`sanitizeValue` dans
+  `runEvalInRemote` + contrat documenté).
+
+**Limitation connue (non-vulnérabilité)** : les clés computed **dynamiques** (`obj[key]`,
+`items.map(x => he[x])`) restent autorisées (non résolubles statiquement). Ce n'est **pas une
+faille ouverte** : le host `Function` obtenu à l'exécution s'exécute dans un worker aux
+globals strippés (pas de `process`/`require`/`fs`/réseau — vérifié), avec contexte vm neuf
+par job et container eval-service isolé/signé HMAC. Elle ne deviendrait une RCE que si
+l'isolation runtime était affaiblie ; tracée comme dette de défense en profondeur (garde
+runtime ou isolated-vm en backstop).
 
 ## CWE
 - **CWE-94** : Improper Control of Generation of Code ('Code Injection')
@@ -96,10 +147,13 @@ Vulnérabilité signalée par **Maxim Yakovlev** (divulgation coordonnée).
 ## Chronologie (Timeline / Disclosure)
 | Date | Étape |
 |---|---|
-| (à compléter) | Réception et accusé de réception du rapport par le chercheur |
-| (à compléter) | Confirmation de l'exploitabilité, du périmètre et de la gravité |
-| (à compléter) | Développement et test du correctif (branche dédiée) |
-| (à compléter) | Mise à disposition de la release corrigée |
+| 2026-08-12 | Réception et accusé de réception du rapport par le chercheur |
+| 2026-08-13 → 2026-08-19 | Confirmation de l'exploitabilité, du périmètre et de la gravité |
+| 2026-08-19 | Correctif initial développé et testé (branche dédiée) — release v0.11.1 |
+| 2026-08-19 | Chercheur signale un bypass RCE via `lodash.template` (v0.11.1 incomplet) |
+| 2026-08-20 | Correctif du bypass mergé (PR #458) + release v0.11.2 + déploiement prod |
+| 2026-08-24 | Review chercheur de v0.11.2 : RCE fermée ; gaps de correctness du validateur signalés |
+| (à compléter) | Mise à disposition de la release corrigée finale (hardening validateur) |
 | (à compléter) | Publication de l'advisory (après fix, ≤ 90 jours) |
 
 > **Note de coordination** : le correctif est prêt dans cette branche. Avant publication,

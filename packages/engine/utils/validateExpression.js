@@ -63,7 +63,9 @@ const FORBIDDEN_PROPERTIES = new Set([
 // blacklist (retirer une liste) : toute nouvelle méthode doit être ajoutée ici,
 // ce qui passe par une revue (PR) et garantit qu'aucune fonction compilant du
 // code host-realm (comme lodash.template) ne peut être appelée.
-// Ces whitelists doivent rester COHÉRENTES avec secureContext.js (eval-service).
+// Ces whitelists doivent rester COHÉRENTES avec secureContext.js (eval-service) :
+// TOUTE lib exposée dans le scope eval (makeHelpers) DOIT figurer ici, sinon ses
+// méthodes échappent au contrôle (voir SB-RCE-2026-01, review 2026-08-24).
 // -----------------------------------------------------------------------------
 const LIB_METHOD_WHITELISTS = {
   // Alias lodash/underscore
@@ -85,15 +87,202 @@ const LIB_METHOD_WHITELISTS = {
   dayjs: new Set(['unix', 'utc', 'locale', 'isDayjs', 'duration', 'max', 'min']),
   moment: new Set(['utc', 'unix', 'locale', 'duration', 'min', 'max', 'now', 'isMoment']),
   Buffer: new Set(['from']),
-  crypto: new Set(['createHash', 'randomUUID', 'randomBytes'])
+  crypto: new Set(['createHash', 'randomUUID', 'randomBytes']),
+  // --- Libs/helpers exposés par makeHelpers (secureContext.js) mais hors whitelist
+  // --- auparavant (SB-RCE-2026-01, point 2 du chercheur). Cohérence validateur ↔ scope.
+  cheerio: new Set(['load']), // seul point d'entrée de parse DOM (pattern prod)
+  dotProp: new Set(['get', 'has', 'delete']), // `set` bloqué (proto-pollution, via whitelist)
+  sanitizeHtml: new Set(), // appel nu uniquement
+  removeMarkdown: new Set(), // appel nu uniquement
+  decodeUnicode: new Set(), // appel nu uniquement
+  // ---------------------------------------------------------------------------
+  // JS INTRINSICS GLOBAUX — WHITELIST STRICTE (plus aucun "par défaut autorisé").
+  // Les built-ins d'introspection (Reflect, Proxy, Object.getPrototypeOf,
+  // Object.getOwnPropertyDescriptor, ...) sont ABSENTS ou en whitelist VIDE :
+  // tout accès membre est bloqué. C'est ce qui neutralise le vecteur
+  // "nom de propriété dangereux passé en ARGUMENT string" (SB-RCE-2026-01,
+  // au-delà des points du chercheur) : Reflect.get(he.decode,'constructor')
+  // est désormais rejeté.
+  // ---------------------------------------------------------------------------
+  Object: new Set(['keys', 'values', 'entries', 'assign', 'create', 'fromEntries', 'is', 'hasOwn']),
+  Math: new Set([
+    'round', 'floor', 'ceil', 'abs', 'max', 'min', 'pow', 'sqrt', 'cbrt', 'trunc',
+    'sign', 'random', 'hypot', 'log', 'log2', 'log10', 'log1p', 'exp', 'expm1',
+    'sin', 'cos', 'tan', 'asin', 'acos', 'atan', 'atan2', 'sinh', 'cosh', 'tanh',
+    'asinh', 'acosh', 'atanh', 'clamp', 'fround', 'imul',
+    'PI', 'E', 'LN2', 'LN10', 'LOG2E', 'LOG10E', 'SQRT2', 'SQRT1_2'
+  ]),
+  JSON: new Set(['parse', 'stringify']),
+  Array: new Set(['isArray', 'from', 'of']),
+  String: new Set(['fromCharCode', 'fromCodePoint', 'raw']),
+  Number: new Set([
+    'isInteger', 'isFinite', 'isNaN', 'isSafeInteger', 'parseFloat', 'parseInt',
+    'MAX_SAFE_INTEGER', 'MIN_SAFE_INTEGER', 'MAX_VALUE', 'MIN_VALUE', 'EPSILON',
+    'POSITIVE_INFINITY', 'NEGATIVE_INFINITY', 'NaN'
+  ]),
+  Date: new Set(['now', 'parse', 'UTC']),
+  Symbol: new Set(['for', 'keyFor']),
+  // Utilisables via `new` (DEFAULT_NEW_WHITELIST) ou appel nu ; membres statiques
+  // TOUS bloqués par défaut (whitelist vide).
+  Boolean: new Set(),
+  BigInt: new Set(),
+  RegExp: new Set(),
+  Map: new Set(),
+  Set: new Set(),
+  WeakMap: new Set(),
+  WeakSet: new Set(),
+  ArrayBuffer: new Set(),
+  SharedArrayBuffer: new Set(),
+  DataView: new Set(),
+  Atomics: new Set(),
+  Promise: new Set(),
+  Error: new Set(),
+  AggregateError: new Set(),
+  EvalError: new Set(),
+  RangeError: new Set(),
+  ReferenceError: new Set(),
+  SyntaxError: new Set(),
+  TypeError: new Set(),
+  URIError: new Set(),
+  Int8Array: new Set(),
+  Uint8Array: new Set(),
+  Uint8ClampedArray: new Set(),
+  Int16Array: new Set(),
+  Uint16Array: new Set(),
+  Int32Array: new Set(),
+  Uint32Array: new Set(),
+  Float32Array: new Set(),
+  Float64Array: new Set(),
+  BigInt64Array: new Set(),
+  BigUint64Array: new Set(),
+  Intl: new Set(),
+  FinalizationRegistry: new Set(),
+  WeakRef: new Set(),
+  Reflect: new Set(), // introspection -> TOUT bloqué
+  Proxy: new Set() // constructeur d'interposition -> TOUT bloqué
 };
-// Méthodes statiques dont l'accès est TOUJOURS interdit sur les libs exposées
-// (compilation de code / proto-pollution / évasion) — blacklist complémentaire.
-const LIB_FORBIDDEN_METHODS = new Set([
-  'template', 'templateSettings',
-  'merge', 'mergeWith', 'defaultsDeep', 'set', 'setWith', 'assign', 'defaults',
-  'update', 'updateWith', 'zipObjectDeep', 'transform', 'create'
+
+// -----------------------------------------------------------------------------
+// WHITELIST des MÉTHODES sur les OBJETS PRODUITS par les libs exposées.
+// Une lib autorisée ne donne accès qu'aux méthodes de ses objets produits qui
+// figurent explicitement ici (stratégie 100% WHITELIST — plus aucune blacklist).
+// Le type de l'objet produit est inféré statiquement de la chaîne d'appels
+// (voir exprType). Les résultats de type "data" (strings/tableaux/objets plats
+// produits par he.decode, lodash.*, les variables du flux, ...) ne sont PAS
+// restreints ici : leurs méthodes natives ne sont pas des surfaces d'API de lib,
+// et le seul vecteur d'évasion (constructor/__proto__/prototype) est bloqué par
+// FORBIDDEN_PROPERTIES + le constant-folding.
+// -----------------------------------------------------------------------------
+const PRODUCED_WHITELISTS = {
+  dayjsInstance: new Set([
+    'format', 'add', 'subtract', 'diff', 'startOf', 'endOf', 'get', 'set', 'unix',
+    'valueOf', 'toISOString', 'toDate', 'toJSON', 'toArray', 'toString', 'isBefore',
+    'isAfter', 'isSame', 'isSameOrBefore', 'isSameOrAfter', 'isValid', 'isDayjs',
+    'year', 'month', 'date', 'day', 'dayOfYear', 'week', 'isoWeek', 'hour', 'minute',
+    'second', 'millisecond', 'daysInMonth', 'utcOffset', 'local', 'utc', 'clone'
+  ]),
+  momentInstance: new Set([
+    'format', 'add', 'subtract', 'diff', 'startOf', 'endOf', 'get', 'set', 'unix',
+    'valueOf', 'toISOString', 'toDate', 'toJSON', 'toString', 'isBefore', 'isAfter',
+    'isSame', 'isSameOrBefore', 'isSameOrAfter', 'isValid', 'isMoment', 'year',
+    'month', 'date', 'day', 'dayOfYear', 'week', 'isoWeek', 'hour', 'minute',
+    'second', 'millisecond', 'daysInMonth', 'utcOffset', 'local', 'utc', 'clone',
+    'fromNow', 'calendar'
+  ]),
+  cheerioInstance: new Set([
+    'text', 'html', 'map', 'get', 'each', 'find', 'filter', 'first', 'last', 'eq',
+    'attr', 'removeAttr', 'addClass', 'removeClass', 'hasClass', 'prop', 'removeProp',
+    'val', 'data', 'removeData', 'next', 'nextAll', 'prev', 'prevAll', 'parent',
+    'parents', 'parentsUntil', 'closest', 'children', 'contents', 'siblings',
+    'toArray', 'serialize', 'serializeArray', 'is', 'not', 'has', 'add', 'slice',
+    'end', 'append', 'prepend', 'after', 'before', 'remove', 'empty', 'clone',
+    'wrap', 'unwrap', 'css', 'replaceWith', 'length'
+  ]),
+  // `cheerio.load(...)` retourne la fonction de sélection (`$`) ; ses méthodes
+  // et l'instance produite partagent la même surface d'API.
+  cheerioCallable: new Set([
+    'text', 'html', 'map', 'get', 'each', 'find', 'filter', 'first', 'last', 'eq',
+    'attr', 'prop', 'val', 'data', 'toArray', 'serialize', 'is', 'not', 'has',
+    'add', 'slice', 'end', 'clone', 'length'
+  ]),
+  hash: new Set(['update', 'digest']),
+  bufferResult: new Set(['toString'])
+};
+
+// Méthodes statiques d'une lib dont l'appel PRODUIT une instance (ex. dayjs.utc).
+const DATE_STATIC_PRODUCING = new Set(['utc', 'unix']);
+// Méthodes d'une instance date qui renvoient une instance du même type (chaînage).
+const DATE_INSTANCE_PRODUCING = new Set(['add', 'subtract', 'startOf', 'endOf', 'set', 'utc', 'local', 'clone']);
+// Méthodes d'un objet cheerio qui renvoient un objet cheerio (chaînage).
+const CHEERIO_INSTANCE_PRODUCING = new Set([
+  'map', 'find', 'filter', 'first', 'last', 'eq', 'slice', 'add', 'not', 'has',
+  'end', 'parent', 'parents', 'closest', 'children', 'siblings', 'next', 'prev',
+  'nextAll', 'prevAll', 'clone', 'append', 'prepend', 'after', 'before', 'wrap', 'unwrap'
 ]);
+
+/**
+ * Infère statiquement le type d'une expression (mini type-system dédié au
+ * validateur), pour appliquer PRODUCED_WHITELISTS aux objets produits par les
+ * libs exposées. Types : libs ('dayjs', 'he', ...), objets produits
+ * ('dayjsInstance', 'cheerioInstance', 'hash', 'bufferResult', ...), 'this',
+ * 'data' (données/variables, non restreint) ou `undefined` (inconnu).
+ */
+function exprType(node) {
+  if (!node) return undefined;
+  switch (node.type) {
+  case 'Identifier': {
+    if (LIB_METHOD_WHITELISTS[node.name] !== undefined) return node.name;
+    return undefined; // variable du flux (v0, obj, source, key, ...) : non restreinte
+  }
+  case 'ThisExpression':
+    return 'this';
+  case 'Literal':
+    return 'data';
+  case 'CallExpression': {
+    const calleeType = exprType(node.callee);
+    switch (calleeType) {
+    case 'dayjs': return 'dayjsInstance';
+    case 'moment': return 'momentInstance';
+    case 'cheerioLoad': return 'cheerioCallable';
+    case 'cheerioCallable':
+    case 'cheerioInstance':
+      return 'cheerioInstance';
+    case 'dayjsInstance':
+    case 'momentInstance':
+    case 'hash':
+    case 'bufferResult':
+      return calleeType;
+    default:
+      return 'data';
+    }
+  }
+  case 'MemberExpression': {
+    const objType = exprType(node.object);
+    const meth = node.computed ? foldStaticValue(node.property) : node.property && node.property.name;
+    // `this.moment` / `this.dayjs` / ... : membre d'accès sur `this` = la lib.
+    if (objType === 'this' && typeof meth === 'string' && LIB_METHOD_WHITELISTS[meth] !== undefined) {
+      return meth;
+    }
+    if (typeof meth !== 'string') return 'data';
+    if (objType === 'dayjs' || objType === 'moment') {
+      return DATE_STATIC_PRODUCING.has(meth) ? (objType === 'dayjs' ? 'dayjsInstance' : 'momentInstance') : 'data';
+    }
+    if (objType === 'cheerio') return meth === 'load' ? 'cheerioLoad' : 'data';
+    if (objType === 'crypto') return meth === 'createHash' ? 'hash' : 'data';
+    if (objType === 'Buffer') return meth === 'from' ? 'bufferResult' : 'data';
+    if (objType === 'dayjsInstance' || objType === 'momentInstance') {
+      return DATE_INSTANCE_PRODUCING.has(meth) ? objType : 'data';
+    }
+    if (objType === 'cheerioInstance' || objType === 'cheerioCallable' || objType === 'cheerioLoad') {
+      return CHEERIO_INSTANCE_PRODUCING.has(meth) ? 'cheerioInstance' : 'data';
+    }
+    if (objType === 'hash') return meth === 'update' ? 'hash' : 'data';
+    return 'data';
+  }
+  default:
+    return 'data';
+  }
+}
 
 // Constructeurs autorisés pour `new` par défaut (sûrs).
 const DEFAULT_NEW_WHITELIST = new Set([
@@ -143,7 +332,9 @@ function getReceptorLib(node) {
   if (cur && cur.type === 'Identifier') {
     const name = cur.name;
     if (name === '_' || name === 'underscore') return 'lodash';
-    if (LIB_METHOD_WHITELISTS[name]) return name;
+    // Toute lib exposée OU tout JS intrinsic global : si whitelist absente/vide
+    // (Reflect, Proxy, introspection...), tout accès membre sera bloqué.
+    if (LIB_METHOD_WHITELISTS[name] !== undefined) return name;
   }
   return null;
 }
@@ -151,6 +342,47 @@ function getReceptorLib(node) {
 // Maintient isLodashReceptor (utilisé plus bas) en se basant sur getReceptorLib.
 function isLodashReceptor(node) {
   return getReceptorLib(node) === 'lodash';
+}
+
+/**
+ * Constant-folding d'une clé computed : résout statiquement une expression de
+ * clé composée uniquement de constantes (littéraux, concaténations, templates
+ * sans interpolation). Retourne `undefined` si la clé n'est pas statiquement
+ * résolvable (variable dynamique, appel, ...).
+ *
+ * Objectif sécurité : une clé computed non-littérale comme `'con'+'structor'`
+ * (BinaryExpression) n'a pas de `.value`, ce qui faisait sauter les gardes
+ * `prop !== undefined` (FORBIDDEN_PROPERTIES / whitelist / blacklist) — voir
+ * SB-RCE-2026-01 (review chercheur 2026-08-24). En repliant la clé, le résultat
+ * (`'constructor'`) passe dans les mêmes contrôles que les clés littérales.
+ *
+ * Le cas non résolu (clé dynamique, ex. `obj[key]`) reste autorisé : il n'est
+ * fermable que par un garde runtime (contenu par l'isolation du worker).
+ */
+function foldStaticValue(node) {
+  if (!node) return undefined;
+  if (node.type === 'Literal') return node.value;
+  if (node.type === 'TemplateLiteral') {
+    // Replie les templates dont toutes les interpolations sont statiquement
+    // résolubles : `con${''}structor` -> 'constructor'. Si une interpolation
+    // est dynamique (variable), on ne peut pas replier.
+    const parts = [];
+    for (let i = 0; i < node.quasis.length; i++) {
+      parts.push(node.quasis[i].value.cooked ?? '');
+      if (i < node.expressions.length) {
+        const v = foldStaticValue(node.expressions[i]);
+        if (v === undefined) return undefined;
+        parts.push(String(v));
+      }
+    }
+    return parts.join('');
+  }
+  if (node.type === 'BinaryExpression' && node.operator === '+') {
+    const left = foldStaticValue(node.left);
+    const right = foldStaticValue(node.right);
+    if (left !== undefined && right !== undefined) return String(left) + String(right);
+  }
+  return undefined;
 }
 
 /**
@@ -185,7 +417,10 @@ function validateExpression(source, options = {}) {
 
     // 2. Membre : propriété interdite (y compris via notation calcée)
     if (node.type === 'MemberExpression') {
-      const prop = node.computed ? node.property.value : node.property && node.property.name;
+      // Constant-folding des clés computed statiquement résolubles : une clé
+      // non-littérale (`'con'+'structor'`) est repliée vers sa valeur afin de
+      // passer par les mêmes contrôles que les clés littérales.
+      const prop = node.computed ? foldStaticValue(node.property) : node.property && node.property.name;
       if (prop !== undefined && FORBIDDEN_PROPERTIES.has(prop)) {
         throw new ExpressionValidationError(`Forbidden property access: ${prop}`);
       }
@@ -203,14 +438,17 @@ function validateExpression(source, options = {}) {
       const lib = getReceptorLib(node.object);
       if (lib && prop !== undefined && typeof prop === 'string') {
         const whitelist = LIB_METHOD_WHITELISTS[lib];
-        if (whitelist && !whitelist.has(prop)) {
+        if (!whitelist || !whitelist.has(prop)) {
           throw new ExpressionValidationError(`Forbidden method on ${lib}: ${prop}`);
         }
       }
-      // Blacklist complémentaire : méthodes toujours interdites (compilation de
-      // code host-realm / proto-pollution) sur toute lib exposée.
-      if (lib && prop !== undefined && LIB_FORBIDDEN_METHODS.has(prop)) {
-        throw new ExpressionValidationError(`Forbidden method on ${lib}: ${prop}`);
+      // WHITELIST des objets PRODUITS par les libs exposées (ex. dayjs(x).format,
+      // cheerio.load(x)(sel).text(), crypto.createHash().digest()). Le type du
+      // récepteur est inféré statiquement ; toute méthode non listée est interdite.
+      const producedType = exprType(node.object);
+      const producedWhitelist = PRODUCED_WHITELISTS[producedType];
+      if (producedWhitelist && prop !== undefined && typeof prop === 'string' && !producedWhitelist.has(prop)) {
+        throw new ExpressionValidationError(`Forbidden method on ${producedType}: ${prop}`);
       }
     }
 
@@ -282,15 +520,13 @@ function validateExpression(source, options = {}) {
         // La méthode doit figurer dans la whitelist de la lib. Couvre à la fois
         // la proto-pollution (lodash.merge/_.set), la compilation de code
         // host-realm (lodash.template) et toute autre méthode non autorisée.
+        // (Les méthodes sur objets produits sont contrôlées au niveau du
+        // MemberExpression — voir PRODUCED_WHITELISTS.)
         const lib = getReceptorLib(node.callee.object);
         if (lib) {
           const whitelist = LIB_METHOD_WHITELISTS[lib];
           const meth = node.callee.property.name;
-          if (whitelist && !whitelist.has(meth)) {
-            throw new ExpressionValidationError(`Forbidden method call on ${lib}: ${meth}`);
-          }
-          // Blacklist complémentaire (même si whitelist undefined — alias).
-          if (LIB_FORBIDDEN_METHODS.has(meth)) {
+          if (!whitelist || !whitelist.has(meth)) {
             throw new ExpressionValidationError(`Forbidden method call on ${lib}: ${meth}`);
           }
         }

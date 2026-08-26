@@ -56,7 +56,6 @@
     "speakingurl": "^14.0.1",
     "ssh2-sftp-client": "^12.0.1",
     "superagent": "^10.2.1",
-    "unicode-encode": "^1.4.2",
     "webdriverio": "^9.4.0",
     "xml2js": "^0.6.2"
   },

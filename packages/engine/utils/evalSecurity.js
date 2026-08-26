@@ -145,64 +145,6 @@ function evalWithTimeout(fn, ms = 10000) {
   });
 }
 
-/**
- * Exécute `expression` (évaluée par eval) dans un worker_threads TERMINABLE,
- * avec un timeout strict (point 3).
- *
- * Contrairement à `evalWithTimeout`, un eval exécuté ici peut être réellement
- * interrompu : si le délai est dépassé, le worker est terminé via
- * `worker.terminate()` (un eval synchrone dans le thread principal bloquerait le
- * event loop et ne pourrait pas être interrompu par un simple setTimeout).
- *
- * En bonus, le code évalué tourne dans un thread isolé : il n'accède PAS aux
- * variables / modules du process principal (défense en profondeur).
- *
- * @param {string} expression code source à évaluer (scope master exposé dans le worker)
- * @param {Object} [scope] variables additionnelles exposées au code évalué (sécurisées)
- * @param {number} [timeoutMs=10000] délai maximal d'exécution
- * @returns {Promise<*>} le résultat du eval (structured clone via postMessage)
- */
-function runEvalInWorker(expression, scope = {}, timeoutMs = 10000) {
-  return new Promise((resolve, reject) => {
-    const worker = new Worker(path.join(__dirname, 'evalWorker.js'), {
-      workerData: { expression, scope }
-    });
-
-    let settled = false;
-    const settle = (fn, val) => {
-      if (settled) return;
-      settled = true;
-      clearTimeout(timer);
-      fn(val);
-    };
-
-    const timer = setTimeout(() => {
-      worker.terminate();
-      settle(reject, new Error(`Expression evaluation timed out after ${timeoutMs}ms`));
-    }, timeoutMs);
-
-    worker.on('message', (msg) => {
-      if (msg && msg.ok === true) {
-        settle(resolve, msg.result);
-      } else {
-        settle(reject, new Error((msg && msg.error) || 'Unknown eval error'));
-      }
-      // Worker jetable : on le ferme après le résultat (évite un handle ouvert,
-      // qui ferait timeout `jest --detectOpenHandles` en CI).
-      worker.terminate().catch(() => {});
-    });
-    worker.on('error', (err) => {
-      settle(reject, err);
-      worker.terminate().catch(() => {});
-    });
-    worker.on('exit', (code) => {
-      if (code !== 0 && !settled) {
-        settle(reject, new Error(`Eval worker exited with code ${code}`));
-      }
-    });
-  });
-}
-
 // Limites anti-ReDoS appliquées à l'opération RegExp (point 3) :
 // longueur max du motif et de la chaîne d'entrée, timeout d'exécution.
 const MAX_REGEX_PATTERN_LENGTH = 2048;
@@ -320,19 +262,34 @@ async function postEval(route, body, httpTimeoutMs, resultKey = 'result') {
  * Évalue une expression dans le eval-service (container isolé).
  * La résolution des valeurs ($/£) est faite AVANT (par l'appelant) : on envoie
  * l'expression épurée + un objet `variables` séparé.
+ *
+ * SÉCURITÉ — POINT D'APPLICATION UNIQUE : c'est ici (AVANT `postEval`, donc
+ * AVANT le `JSON.stringify` du corps HTTP) que les `variables` sont assainies
+ * (`sanitizeValue`). Ceci est le SEUL endroit qui :
+ *   1. neutralise les getters/accessors : un getter s'exécute au moment du
+ *      `JSON.stringify` DANS le process engine — le retirer avant empêche toute
+ *      exécution de code au moment de la sérialisation ;
+ *   2. retire les clés dangereuses (`__proto__`/`constructor`/`prototype`) qui
+ *      survivent au transport JSON et seraient réactivées côté récepteur par
+ *      `Object.assign(ctx, variables)`.
+ * Tous les chemins d'éval (transformation, `$where`, ...) passent par ici :
+ * `$where` (filter.js, arraySplitByCondition.js) ne sanitize PAS par-caller.
+ * CONTRAT : le eval-service considère ses `variables` SÛRES à la seule condition
+ * qu'elles aient transité par `runEvalInRemote`. Ne pas contourner ce point.
+ *
  * @param {string} expression expression JS (déjà résolue, sans {$..}/{£..})
  * @param {Object} [variables] variables exposées dans le scope (résolues à l'extérieur)
  * @param {number} [timeoutMs] timeout d'exécution côté service
  * @returns {Promise<*>} résultat de l'évaluation
  */
 async function runEvalInRemote(expression, variables = {}, timeoutMs = 10000) {
-  return postEval('/eval', { expression, variables, timeoutMs }, EVAL_HTTP_TIMEOUT_MS);
+  const sanitizedVariables = sanitizeValue(variables);
+  return postEval('/eval', { expression, variables: sanitizedVariables, timeoutMs }, EVAL_HTTP_TIMEOUT_MS);
 }
 
 module.exports = {
   sanitizeValue,
   evalWithTimeout,
-  runEvalInWorker,
   runRegexInWorker,
   runEvalInRemote,
   DANGEROUS_KEYS,
