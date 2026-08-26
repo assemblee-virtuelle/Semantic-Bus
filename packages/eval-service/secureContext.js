@@ -24,7 +24,6 @@ const removeMarkdown = require('remove-markdown');
 const sanitizeHtml = require('sanitize-html');
 const cheerio = require('cheerio');
 const moment = require('moment');
-const unicode = require('unicode-encode');
 const dotProp = require('dot-prop');
 const nodeCrypto = require('crypto');
 const { stripDangerousGlobals } = require('./workerGlobals.js');
@@ -153,7 +152,6 @@ function makeHelpers() {
     cheerio,
     decodeUnicode,
     dotProp,
-    unicode,
     crypto: safeCrypto,       // wrapper minimal (createHash/randomUUID)
     Buffer: safeBuffer        // wrapper minimal (from uniquement)
   };
@@ -173,6 +171,10 @@ const helpers = makeHelpers();
 // Crée un contexte vm NEUF et SÉCURISÉ, pré-rempli avec les libs épurées.
 // Les variables additionnelles (résolues à l'extérieur) sont injectées par
 // l'appelant. Toute import() dynamique depuis le contexte est rejeté.
+// CONTRAT DE SÉCURITÉ : les variables injectées dans le contexte sont considérées
+// sûres à la seule condition d'avoir transité par `runEvalInRemote` (engine), qui
+// applique `sanitizeValue` avant sérialisation. Ne pas alimenter ce contexte avec
+// des variables non assainies.
 function createSecureContext() {
   const ctx = vm.createContext({}, {
     importModuleDynamically: () =>

@@ -5,28 +5,39 @@
 // seule fois avec variables.obj = item. C'est le code appelant (filter.js /
 // arraySplitByCondition.js, comme Loki) qui ITÈRE sur les items.
 //
-// Deux volets :
-//   1. L'évaluation atomique du worker local (runEvalInWorker) avec la boucle
+// L'engine n'a AUCUNE méthode d'évaluation interne : toute évaluation passe par
+// le eval-service (container). Deux volets :
+//   1. La logique du CONTAINER (secureContext.js de l'eval-service) + la boucle
 //      répliquée côté test (ce que filter.js fait).
 //   2. Le contrat HTTP /eval de runEvalInRemote (avec node-fetch mocké).
 // -----------------------------------------------------------------------------
 
-const { runEvalInWorker, runEvalInRemote } = require('../../utils/evalSecurity.js');
+const vm = require('vm');
+const { createSecureContext } = require('../../../eval-service/secureContext.js');
+const { runEvalInRemote } = require('../../utils/evalSecurity.js');
 jest.mock('node-fetch', () => jest.fn());
 const fetch = require('node-fetch');
+
+// Réplique l'exécution d'un job du container (eval-service/evalWorker.js) :
+// contexte vm neuf + injection des variables + runInContext avec timeout.
+function evaluateInContainer(expression, variables, timeoutMs) {
+  const ctx = createSecureContext();
+  Object.assign(ctx, variables);
+  return vm.runInContext(expression, ctx, { timeout: timeoutMs });
+}
 
 // Réplique la boucle que filter.js/arraySplitByCondition.js font (comme Loki) :
 // évaluation atomique par item avec variables.obj = item.
 async function evaluateWhereLocal(expression, items) {
   const matches = [];
   for (let i = 0; i < items.length; i++) {
-    const res = await runEvalInWorker(expression, { obj: items[i] }, 5000);
+    const res = evaluateInContainer(expression, { obj: items[i] }, 5000);
     if (res == true) matches.push(i);
   }
   return matches;
 }
 
-describe('évaluation $where atomique (retour Loki) — worker local', () => {
+describe('évaluation $where atomique — logique du container eval-service', () => {
   test('retourne les indices des items matchant (== true)', async () => {
     const items = [{ age: 10 }, { age: 25 }, { age: 18 }];
     const matches = await evaluateWhereLocal('obj.age >= 18', items);
@@ -50,8 +61,8 @@ describe('évaluation $where atomique (retour Loki) — worker local', () => {
     expect(matches).toEqual([0, 2]);
   });
 
-  test('expression invalide -> rejet', async () => {
-    await expect(runEvalInWorker('obj.', { obj: { x: 1 } }, 5000)).rejects.toThrow();
+  test('expression invalide -> rejet (erreur vm du container)', async () => {
+    expect(() => evaluateInContainer('obj.', { obj: { x: 1 } }, 5000)).toThrow();
   });
 });
 
