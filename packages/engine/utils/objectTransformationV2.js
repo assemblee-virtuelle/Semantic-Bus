@@ -67,21 +67,12 @@ const loadCldrData = () => {
 // Initialisation de Globalize avec toutes les locales
 loadCldrData();
 
-function decodeUnicode(str) {
-  // On définit le pattern : '\\\\u' pour \u et '([\\dA-Fa-f]{4})' pour les 4 chiffres hexadécimaux
-  const regex = new RegExp('\\\\u([\\dA-Fa-f]{4})', 'g');
-  return str.replace(regex, (match, grp) =>
-    String.fromCharCode(parseInt(grp, 16))
-  );
-}
-
 
 
 module.exports = {
   // Intl: require('intl'),
   moment: require('moment'),
   dotProp: require('dot-prop'),
-  unicode: require('unicode-encode'),
   executeWithParams: async function (source, pullParams, jsonTransformPattern, options, config) {
     // console.log('config',config);
     const out = await this.execute(source, pullParams, jsonTransformPattern, options, config);
@@ -162,50 +153,6 @@ module.exports = {
       return out;
     } else {
       return jsonTransformPattern;
-    }
-  },
-  escapeString(source) {
-    if (typeof source === 'string' || source instanceof String) {
-      return `eval(this.unicode.atou(\`${this.unicode.utoa(source)}\`))`;
-    } else if (Array.isArray(source)) {
-      return source.map(r => this.escapeString(r));
-    } else if (source != null && source.toJSON !== undefined) {
-      return this.escapeString(source.toJSON());
-    } else if (source != null && typeof source === 'object') {
-      const out = {};
-      for (const key in source) {
-        out[this.unicode.utoa(key)] = this.escapeString(source[key]);
-      }
-      return out;
-    } else {
-      return source;
-    }
-  },
-  parseAndResolveString(source) {
-    return this.resolveString(JSON.parse(source));
-  },
-  resolveString(source) {
-    if (typeof source === 'string' || source instanceof String) {
-      // SÉCURITÉ (point 1) : on ne décode que la forme EXACTE produite par notre
-      // `escapeString` : `eval(this.unicode.atou(\`...\`))`. Toute autre string
-      // est retournée telle quelle sans eval, même si elle contient un `eval(...)`
-      // — empêche `this.resolveString(donnéeUtilisateur)` de contourner le
-      // validateur en exécutant du code embarqué dans une valeur.
-      const strict = /^eval\(this\.unicode\.atou\(`([^`]*)`\)\)$/.exec(source);
-      if (strict) {
-        return this.unicode.atou(strict[1]);
-      }
-      return source;
-    } else if (Array.isArray(source)) {
-      return source.map(r => this.resolveString(r));
-    } else if (source != null && typeof source === 'object') {
-      const out = {};
-      for (const key in source) {
-        out[this.unicode.atou(key)] = this.resolveString(source[key]);
-      }
-      return out;
-    } else {
-      return source;
     }
   },
   getValueFromSource(source, pullParams, pattern) {
