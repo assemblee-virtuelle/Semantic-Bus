@@ -13,7 +13,7 @@
     "cheerio": "^1.1.0",
     "dayjs-with-plugins": "^1.0.4",
     "dot-prop": "^5.2.0",
-    "express": "^5.1.0",
+    "express": "^5.2.1",
     "he": "^1.2.0",
     "lodash": "^4.17.21",
     "moment": "^2.30.1",
