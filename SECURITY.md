@@ -21,7 +21,7 @@ Nous suivons un processus de **divulgation coordonnée** :
 
 - **Security advisory GitHub** : créez un *security advisory* privé sur le dépôt
   (onglet *Security → Advisories*), ou ouvrez un rapport privé via l'interface de signalement.
-- **Email** : *(à renseigner — adresse de contact sécurité du mainteneur)*.
+- **Email** : contact@data-plyers.com
 
 ## Scope
 
@@ -31,14 +31,6 @@ Ce périmètre concerne le code du dépôt : `packages/engine`, `packages/main`,
 
 Sont hors périmètre : les dépendances tierces (signaler via leur propre politique) et les
 services hébergés par des tiers.
-
-## Exemples de vulnérabilités pertinentes
-
-- Exécution de code (RCE) via les `eval` / `new Function` de l'engine.
-- Injection / évaluation non sécurisée dans les composants de transformation, filtrage, Mongo.
-- Prototype pollution via les données injectées.
-- ReDoS / déni de service via les expressions regex ou `$where`.
-- Accès non autorisé aux endpoints d'exécution (authentification / autorisation).
 
 ## Reporting security advisories
 
