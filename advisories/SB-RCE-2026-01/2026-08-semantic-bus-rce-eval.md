@@ -37,12 +37,10 @@ Vecteur : `AV:N/AC:L/PR:N/UI:N/S:U/C:H/I:H/A:H`
   moteur d'évaluation `eval` (V2).
 
 ## Versions corrigées (Patched versions)
-- **v0.11.2** (inclut le correctif du bypass `lodash.template`, PR #458) — release
-  `v0.11.1` puis `v0.11.2` sur la branche `security/remove-sift-and-secure-eval`, mergées
-  dans `production`.
-- **Hardening validateur (whitelist 100 %, sanitize, raw-eval vm)** : correctifs des gaps
-  du chercheur (2026-08-24) + vecteur introspection + suppression du raw-eval — release à
-  définir lors de la publication.
+- **v0.11.1** (correctif initial), **v0.11.2** (bypass `lodash.template`, PR #458),
+  **v0.11.17** (hardening validateur 100 % whitelist, PR #502),
+  **v0.11.18** (clés computed fail-closed + flux de valeur, PR #506).
+  Recommandé : **v0.11.18** ou ultérieur.
 
 ## Détails (Details)
 Le process engine (`packages/engine`) évalue du JavaScript écrit par l'utilisateur dans
@@ -107,6 +105,18 @@ dans les chaînes évaluées → RCE complète.
     (engine + container) et lib `unicode-encode` — le mécanisme d'encodage des valeurs dans
     l'expression était mort (les valeurs partent en variables séparées). `decodeUnicode`
     (décodage `\uXXXX` des données) conservé côté container (pattern prod).
+13. **Clés computed — fail-closed + flux de valeur** (v0.11.18, review chercheur 2026-08-26) :
+    `foldStaticValue` ne résolvait que 3 types de nœuds ; toute clé statiquement constante
+    d'un autre type (séquence `(0,'constructor')`, logique, ternaire, index de tableau,
+    appels `String.fromCharCode(...)`, méthodes de littéraux `'x'.slice(1)`, membre de
+    littéral `{k:'constructor'}.k`) était traitée comme dynamique et contournait les gardes.
+    Désormais : une clé **sans variable libre** (identifiants dans `KNOWN_BINDINGS` = tables
+    du validateur) doit être résolue en valeur sûre ou est **rejetée** (fail-closed) ; une
+    clé à variable libre reste acceptée (résiduel) mais tout sous-chemin statiquement
+    atteignable qui résout à une valeur interdite est rejeté (flux de valeur à travers les
+    branches, ex. `(x?['constructor']:[v])[0]`, `(obj,'constructor')`). PoCs fermés :
+    `he[(0,'constructor')][(0,'constructor')]('return process.pid')()`,
+    `_[(0,'template')]('<%= 7*6 %>')({})`.
 
 ### Gaps du validateur — corrigés, limitation connue documentée
 
@@ -153,7 +163,8 @@ Vulnérabilité signalée par **Maxim Yakovlev** (divulgation coordonnée).
 | 2026-08-19 | Chercheur signale un bypass RCE via `lodash.template` (v0.11.1 incomplet) |
 | 2026-08-20 | Correctif du bypass mergé (PR #458) + release v0.11.2 + déploiement prod |
 | 2026-08-24 | Review chercheur de v0.11.2 : RCE fermée ; gaps de correctness du validateur signalés |
-| (à compléter) | Mise à disposition de la release corrigée finale (hardening validateur) |
+| 2026-08-26 | Hardening validateur (v0.11.17) : whitelist 100 %, introspection fermée, raw-eval éliminé |
+| 2026-08-26 | Review chercheur : classe des clés statiquement constantes non repliées → fail-closed + flux de valeur (v0.11.18) |
 | (à compléter) | Publication de l'advisory (après fix, ≤ 90 jours) |
 
 > **Note de coordination** : le correctif est prêt dans cette branche. Avant publication,
