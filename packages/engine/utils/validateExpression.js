@@ -306,6 +306,20 @@ const ALLOWED_BARE_CALLS = new Set([
   'eval'
 ]);
 
+// -----------------------------------------------------------------------------
+// LIENS CONNUS (non "variables libres") : libs exposées + globals autorisés +
+// constructeurs whitelistés. Une clé computed dont TOUS les identifiants sont
+// dans cet ensemble ne dépend d'AUCUNE variable libre du flux : elle est
+// statiquement constante → si elle n'est pas résolvable en valeur sûre, on la
+// REJETTE (fail-closed) plutôt que de la traiter comme dynamique. Construit à
+// partir des tables du validateur pour ne pas dériver (review chercheur 2026-08-26).
+// -----------------------------------------------------------------------------
+const KNOWN_BINDINGS = new Set([
+  ...Object.keys(LIB_METHOD_WHITELISTS),
+  ...ALLOWED_BARE_CALLS,
+  ...DEFAULT_NEW_WHITELIST
+]);
+
 /**
  * Détecte si le récepteur d'un member call est lodash/underscore (libs pouvant
  * effectuer une proto-pollution via merge/set/defaultsDeep/...).
@@ -346,26 +360,24 @@ function isLodashReceptor(node) {
 
 /**
  * Constant-folding d'une clé computed : résout statiquement une expression de
- * clé composée uniquement de constantes (littéraux, concaténations, templates
- * sans interpolation). Retourne `undefined` si la clé n'est pas statiquement
- * résolvable (variable dynamique, appel, ...).
+ * clé composée uniquement de constantes (littéraux, concaténations, templates,
+ * séquences, logiques, ternaires, unaires, index/accès de membres, littéraux
+ * tableau/objet). Retourne `undefined` si la clé n'est PAS entièrement
+ * résolvable (dépend d'une variable libre, appel, ...).
  *
  * Objectif sécurité : une clé computed non-littérale comme `'con'+'structor'`
  * (BinaryExpression) n'a pas de `.value`, ce qui faisait sauter les gardes
- * `prop !== undefined` (FORBIDDEN_PROPERTIES / whitelist / blacklist) — voir
- * SB-RCE-2026-01 (review chercheur 2026-08-24). En repliant la clé, le résultat
- * (`'constructor'`) passe dans les mêmes contrôles que les clés littérales.
- *
- * Le cas non résolu (clé dynamique, ex. `obj[key]`) reste autorisé : il n'est
- * fermable que par un garde runtime (contenu par l'isolation du worker).
+ * `prop !== undefined` (FORBIDDEN_PROPERTIES / whitelist) — voir SB-RCE-2026-01.
+ * En repliant la clé, le résultat (`'constructor'`) passe dans les mêmes
+ * contrôles que les clés littérales. Voir `resolveKey` pour la posture
+ * fail-closed + flux de valeur à travers les branches (review 2026-08-26).
  */
 function foldStaticValue(node) {
   if (!node) return undefined;
-  if (node.type === 'Literal') return node.value;
-  if (node.type === 'TemplateLiteral') {
-    // Replie les templates dont toutes les interpolations sont statiquement
-    // résolubles : `con${''}structor` -> 'constructor'. Si une interpolation
-    // est dynamique (variable), on ne peut pas replier.
+  switch (node.type) {
+  case 'Literal':
+    return node.value;
+  case 'TemplateLiteral': {
     const parts = [];
     for (let i = 0; i < node.quasis.length; i++) {
       parts.push(node.quasis[i].value.cooked ?? '');
@@ -377,12 +389,260 @@ function foldStaticValue(node) {
     }
     return parts.join('');
   }
-  if (node.type === 'BinaryExpression' && node.operator === '+') {
+  case 'BinaryExpression': {
+    if (node.operator !== '+') return undefined;
     const left = foldStaticValue(node.left);
     const right = foldStaticValue(node.right);
     if (left !== undefined && right !== undefined) return String(left) + String(right);
+    return undefined;
   }
-  return undefined;
+  case 'UnaryExpression': {
+    const arg = foldStaticValue(node.argument);
+    if (arg === undefined) return undefined;
+    switch (node.operator) {
+    case '!': return !arg;
+    case '-': return -arg;
+    case '+': return +arg;
+    case '~': return ~arg;
+    default: return undefined;
+    }
+  }
+  case 'LogicalExpression': {
+    const left = foldStaticValue(node.left);
+    if (left === undefined) return undefined;
+    const t = Boolean(left);
+    if (node.operator === '||') return t ? left : foldStaticValue(node.right);
+    if (node.operator === '&&') return t ? foldStaticValue(node.right) : left;
+    if (node.operator === '??') return left == null ? foldStaticValue(node.right) : left;
+    return undefined;
+  }
+  case 'ConditionalExpression': {
+    const test = foldStaticValue(node.test);
+    if (test === undefined) return undefined;
+    return test ? foldStaticValue(node.consequent) : foldStaticValue(node.alternate);
+  }
+  case 'SequenceExpression':
+    return foldStaticValue(node.expressions[node.expressions.length - 1]);
+  case 'ArrayExpression': {
+    const arr = [];
+    for (const el of node.elements) {
+      const v = foldStaticValue(el);
+      if (v === undefined) return undefined;
+      arr.push(v);
+    }
+    return arr;
+  }
+  case 'ObjectExpression': {
+    const obj = {};
+    for (const p of node.properties) {
+      let k;
+      if (p.computed) {
+        k = foldStaticValue(p.key);
+        if (k === undefined) return undefined;
+        k = String(k);
+      } else {
+        k = p.key.name !== undefined ? p.key.name : p.key.value;
+      }
+      const v = foldStaticValue(p.value);
+      if (v === undefined) return undefined;
+      obj[k] = v;
+    }
+    return obj;
+  }
+  case 'MemberExpression': {
+    const obj = foldStaticValue(node.object);
+    const prop = foldStaticValue(node.property);
+    if (obj !== undefined && prop !== undefined && obj !== null &&
+        (typeof obj === 'object' || typeof obj === 'string')) {
+      return obj[prop];
+    }
+    return undefined;
+  }
+  default:
+    return undefined;
+  }
+}
+
+/**
+ * Détecte si une expression de clé contient une VARIABLE LIBRE (identifiant hors
+ * KNOWN_BINDINGS). Une clé sans variable libre est statiquement constante : elle
+ * doit être résolue en valeur sûre ou rejetée (fail-closed). Les noms de
+ * propriétés non-computées ne sont pas des variables.
+ */
+function hasFreeVariables(node) {
+  if (!node) return false;
+  switch (node.type) {
+  case 'Identifier':
+    return !KNOWN_BINDINGS.has(node.name);
+  case 'MemberExpression':
+    if (node.computed) return hasFreeVariables(node.object) || hasFreeVariables(node.property);
+    return hasFreeVariables(node.object);
+  case 'ObjectExpression':
+    for (const p of node.properties) {
+      if (p.computed && hasFreeVariables(p.key)) return true;
+      if (hasFreeVariables(p.value)) return true;
+    }
+    return false;
+  case 'ThisExpression':
+  case 'Literal':
+    return false;
+  default:
+    for (const key in node) {
+      if (key === 'parent' || key === 'start' || key === 'end' || key === 'loc' || key === 'range') continue;
+      const val = node[key];
+      if (Array.isArray(val)) {
+        for (const c of val) if (c && typeof c.type === 'string' && hasFreeVariables(c)) return true;
+      } else if (val && typeof val.type === 'string' && hasFreeVariables(val)) {
+        return true;
+      }
+    }
+    return false;
+  }
+}
+
+/**
+ * Construit le prédicat "valeur interdite" pour une clé computed sur `objectNode` :
+ * propriété d'évasion (constructor/__proto__/prototype) OU méthode hors whitelist
+ * de la lib/récepteur. Utilisé par resolveKey pour rejeter toute constante
+ * statiquement atteignable.
+ */
+function memberForbiddenCheck(objectNode) {
+  const lib = getReceptorLib(objectNode);
+  const producedType = exprType(objectNode);
+  const libWhitelist = lib ? LIB_METHOD_WHITELISTS[lib] : undefined;
+  const producedWhitelist = PRODUCED_WHITELISTS[producedType];
+  return function (v) {
+    if (typeof v !== 'string') return false;
+    if (FORBIDDEN_PROPERTIES.has(v)) return true;
+    if (libWhitelist && !libWhitelist.has(v)) return true;
+    if (producedWhitelist && !producedWhitelist.has(v)) return true;
+    return false;
+  };
+}
+
+/**
+ * Résout une clé computed avec posture FAIL-CLOSED + flux de valeur (review
+ * chercheur 2026-08-26) :
+ *  - clé entièrement constante → repliée puis contrôlée (interdite → throw) ;
+ *  - clé SANS variable libre mais non résolvable (appel, méthode de littéral, ...)
+ *    → REJETÉE (constant-unknown, fail-closed) ;
+ *  - clé AVEC variable libre → acceptée comme résiduelle dynamique, MAIS tout
+ *    sous-chemin statiquement constant qui atteint une valeur interdite → rejeté
+ *    (ex. `(x?['constructor']:[v])[0]`, `(obj,'constructor')`).
+ * Retourne `{ value }` (constante sûre) ou `{ dynamic }` ; lève sinon.
+ */
+function resolveKey(node, ctx) {
+  if (!node) return { dynamic: true };
+  const folded = foldStaticValue(node);
+  if (folded !== undefined) {
+    if (ctx.isForbidden(folded)) {
+      throw new ExpressionValidationError(`Forbidden property access: ${String(folded)}`);
+    }
+    return { value: folded };
+  }
+  switch (node.type) {
+  case 'SequenceExpression':
+    return resolveKey(node.expressions[node.expressions.length - 1], ctx);
+  case 'ConditionalExpression':
+  case 'LogicalExpression':
+    return resolveBranch(node, ctx);
+  case 'MemberExpression':
+    return resolveIndexed(node, ctx);
+  default:
+    if (hasFreeVariables(node)) return { dynamic: true };
+    throw new ExpressionValidationError('Computed key is statically constant but not resolvable (fail-closed)');
+  }
+}
+
+// Résout une expression de branche (ternaire / logique) : si le test est
+// constant on suit la branche prise ; sinon on contrôle LES DEUX branches (toute
+// constante interdite atteignable → throw) et on reste dynamique.
+function resolveBranch(node, ctx) {
+  const test = resolveKey(node.test, ctx);
+  if (test.value !== undefined) {
+    const t = Boolean(test.value);
+    if (node.type === 'ConditionalExpression') {
+      return resolveKey(t ? node.consequent : node.alternate, ctx);
+    }
+    // LogicalExpression : test résolu → applique l'opérateur
+    if (node.operator === '||') return t ? test : resolveKey(node.right, ctx);
+    if (node.operator === '&&') return t ? resolveKey(node.right, ctx) : test;
+    if (node.operator === '??') return test.value == null ? resolveKey(node.right, ctx) : test;
+    return { dynamic: true };
+  }
+  // test dynamique : contrôler les branches constantes atteignables
+  if (node.type === 'ConditionalExpression') {
+    resolveKey(node.consequent, ctx);
+    resolveKey(node.alternate, ctx);
+    return { dynamic: true };
+  }
+  resolveKey(node.left, ctx);
+  resolveKey(node.right, ctx);
+  return { dynamic: true };
+}
+
+// Résout un MemberExpression utilisé comme clé : applique l'index à l'objet,
+// en propageant l'index à travers les branches de l'objet (flux de valeur).
+function resolveIndexed(node, ctx) {
+  const prop = resolveKey(node.property, ctx);
+  if (prop.value !== undefined && (typeof prop.value === 'number' || typeof prop.value === 'string')) {
+    return resolveIndexedObject(node.object, prop.value, ctx);
+  }
+  // index non résolvable : contrôler les constantes de l'objet, fail-closed si constant-unknown
+  resolveKey(node.object, ctx);
+  if (hasFreeVariables(node)) return { dynamic: true };
+  throw new ExpressionValidationError('Computed key is statically constant but not resolvable (fail-closed)');
+}
+
+// Résout `objectNode[index]` en propageant l'index à travers les branches.
+function resolveIndexedObject(objNode, index, ctx) {
+  const folded = foldStaticValue(objNode);
+  if (folded !== undefined) {
+    if (Array.isArray(folded) || typeof folded === 'string') {
+      const v = folded[index];
+      if (v !== undefined && ctx.isForbidden(v)) {
+        throw new ExpressionValidationError(`Forbidden property access: ${String(v)}`);
+      }
+      return { value: v };
+    }
+    return { dynamic: true };
+  }
+  switch (objNode.type) {
+  case 'SequenceExpression':
+    return resolveIndexedObject(objNode.expressions[objNode.expressions.length - 1], index, ctx);
+  case 'ConditionalExpression': {
+    const test = resolveKey(objNode.test, ctx);
+    if (test.value !== undefined) {
+      return resolveIndexedObject(test.value ? objNode.consequent : objNode.alternate, index, ctx);
+    }
+    resolveIndexedObject(objNode.consequent, index, ctx);
+    resolveIndexedObject(objNode.alternate, index, ctx);
+    return { dynamic: true };
+  }
+  case 'LogicalExpression': {
+    const test = resolveKey(objNode.left, ctx);
+    if (test.value !== undefined) {
+      const t = Boolean(test.value);
+      if (objNode.operator === '||') return t ? resolveIndexedObject(objNode.right, index, ctx) : { value: test.value };
+      if (objNode.operator === '&&') return t ? resolveIndexedObject(objNode.right, index, ctx) : { value: test.value };
+      if (objNode.operator === '??') return test.value == null ? resolveIndexedObject(objNode.right, index, ctx) : { value: test.value };
+    }
+    resolveIndexedObject(objNode.left, index, ctx);
+    resolveIndexedObject(objNode.right, index, ctx);
+    return { dynamic: true };
+  }
+  default:
+    if (hasFreeVariables(objNode)) return { dynamic: true };
+    throw new ExpressionValidationError('Computed key is statically constant but not resolvable (fail-closed)');
+  }
+}
+
+// Point d'entrée : résout la clé computed et retourne la valeur sûre (ou undefined
+// si dynamique). Lève sur valeur interdite / constant-unknown.
+function resolveComputedKey(keyNode, objectNode) {
+  const ctx = { isForbidden: memberForbiddenCheck(objectNode) };
+  const res = resolveKey(keyNode, ctx);
+  return res.value;
 }
 
 /**
@@ -417,10 +677,17 @@ function validateExpression(source, options = {}) {
 
     // 2. Membre : propriété interdite (y compris via notation calcée)
     if (node.type === 'MemberExpression') {
-      // Constant-folding des clés computed statiquement résolubles : une clé
-      // non-littérale (`'con'+'structor'`) est repliée vers sa valeur afin de
-      // passer par les mêmes contrôles que les clés littérales.
-      const prop = node.computed ? foldStaticValue(node.property) : node.property && node.property.name;
+      // Résolution de la clé computed : repli constant + flux de valeur +
+      // fail-closed (posture 2026-08-26). Une clé constante non résolvable est
+      // rejetée ; une clé dynamique à variable libre reste acceptée (résiduel
+      // contenu par l'isolation du worker), sauf si un sous-chemin atteint une
+      // valeur interdite.
+      let prop;
+      if (node.computed) {
+        prop = resolveComputedKey(node.property, node.object);
+      } else {
+        prop = node.property && node.property.name;
+      }
       if (prop !== undefined && FORBIDDEN_PROPERTIES.has(prop)) {
         throw new ExpressionValidationError(`Forbidden property access: ${prop}`);
       }

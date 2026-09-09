@@ -115,6 +115,41 @@ describe('validateExpression - contrôle du contenu avant éval', () => {
       }
     });
 
+    describe('classe des clés statiquement constantes (review chercheur 2026-08-26)', () => {
+      // Nouvelle review du chercheur : foldStaticValue ne résolvait que 3 types
+      // de nœuds ; tout le reste était traité comme "dynamique" et contournait
+      // les gardes. Posture fail-closed + flux de valeur à travers les branches.
+      const constantKeyAttacks = [
+        "he[(0,'constructor')]",                    // séquence
+        "he[(false||'constructor')]",               // logique ||
+        "he[(true&&'constructor')]",                // logique &&
+        "he[(null??'constructor')]",                // logique ??
+        "he[(1?'constructor':'x')]",                // ternaire
+        "he[['constructor'][0]]",                   // index de tableau
+        'he[String.fromCharCode(99,111,110,115,116,114,117,99,116,111,114)]', // appel
+        "he[(obj,'constructor')]",                  // séquence : dernier = constant
+        "he[(x?['constructor']:[v])[0]]",           // ternaire dynamique, branche interdite
+        "he['CONSTRUCTOR'.toLowerCase()]",          // méthode String sur littéral
+        "he['xconstructor'.slice(1)]",
+        "he['con'.concat('structor')]",
+        "he['constructor'.repeat(1)]",
+        "he['constructor'.toString()]",
+        "he[String('constructor')]",
+        "he[Array.of('constructor')[0]]",
+        "he[Object.keys({constructor:1})[0]]",
+        "he[({k:'constructor'}).k]",                // membre de littéral objet
+        "he[(0, 'con'+'structor')]",                // séquence + concat
+        // PoC end-to-end du chercheur (atteignent host Function / lodash.template)
+        "he[(0,'constructor')][(0,'constructor')]('return process.pid')()",
+        "_[(0,'template')]('<%= 7*6 %>')({})"
+      ];
+      for (const src of constantKeyAttacks) {
+        test(`bloque (fail-closed/flux): ${src.slice(0, 50)}`, () => {
+          expect(() => validateExpression(src)).toThrow();
+        });
+      }
+    });
+
     describe('cas légitimes préservés', () => {
       test('index numériques et clés dynamiques', () => {
         expect(() => validateExpression('arr[0]')).not.toThrow();
