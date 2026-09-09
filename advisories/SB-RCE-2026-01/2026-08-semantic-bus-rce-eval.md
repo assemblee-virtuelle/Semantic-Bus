@@ -105,7 +105,7 @@ dans les chaînes évaluées → RCE complète.
     (engine + container) et lib `unicode-encode` — le mécanisme d'encodage des valeurs dans
     l'expression était mort (les valeurs partent en variables séparées). `decodeUnicode`
     (décodage `\uXXXX` des données) conservé côté container (pattern prod).
-13. **Clés computed — fail-closed + flux de valeur** (v0.11.18, review chercheur 2026-08-26) :
+13. **Clés computed — fail-closed + flux de valeur** (v0.11.18, review chercheur 2026-09-09) :
     `foldStaticValue` ne résolvait que 3 types de nœuds ; toute clé statiquement constante
     d'un autre type (séquence `(0,'constructor')`, logique, ternaire, index de tableau,
     appels `String.fromCharCode(...)`, méthodes de littéraux `'x'.slice(1)`, membre de
@@ -164,7 +164,7 @@ Vulnérabilité signalée par **Maxim Yakovlev** (divulgation coordonnée).
 | 2026-08-20 | Correctif du bypass mergé (PR #458) + release v0.11.2 + déploiement prod |
 | 2026-08-24 | Review chercheur de v0.11.2 : RCE fermée ; gaps de correctness du validateur signalés |
 | 2026-08-26 | Hardening validateur (v0.11.17) : whitelist 100 %, introspection fermée, raw-eval éliminé |
-| 2026-08-26 | Review chercheur : classe des clés statiquement constantes non repliées → fail-closed + flux de valeur (v0.11.18) |
+| 2026-09-09 | Review chercheur : classe des clés statiquement constantes non repliées → fail-closed + flux de valeur (v0.11.18) |
 | (à compléter) | Publication de l'advisory (après fix, ≤ 90 jours) |
 
 > **Note de coordination** : le correctif est prêt dans cette branche. Avant publication,
