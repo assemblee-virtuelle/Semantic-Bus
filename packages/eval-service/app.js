@@ -33,7 +33,11 @@ const app = express();
 // Corps reçu en OCTETS BRUTS (Buffer). La signature HMAC est calculée sur ces
 // mêmes octets (signBuffer/verifyBuffer) : pas de re-sérialisation canonique.
 // On ne parse JSON qu'APRÈS vérification de la signature.
-app.use(express.raw({ type: 'application/json', limit: '10mb' }));
+// Limite alignée sur l'engine (100mb) : un item de flux peut être volumineux
+// (champ texte/base64) et $where envoie l'item ENTIER par appel. Une limite
+// plus basse ici provoquait un HTTP 413 sur les gros items. Configurable via env.
+const MAX_BODY_SIZE = process.env.EVAL_MAX_BODY_SIZE || '100mb';
+app.use(express.raw({ type: 'application/json', limit: MAX_BODY_SIZE }));
 
 // Identifiant "composant" utilisé pour la signature HMAC de ce service.
 const SIGN_COMPONENT = 'eval';

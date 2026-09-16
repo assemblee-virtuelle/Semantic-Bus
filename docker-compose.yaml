@@ -168,6 +168,7 @@ services:
     environment:
       - APP_PORT=8083
       - EVAL_TIMEOUT_MS=10000
+      - EVAL_MAX_BODY_SIZE=100mb
     volumes:
       - ./config.local.json:/data/packages/engine/config.json
     ports:
