@@ -18,6 +18,6 @@
     "lodash": "^4.17.21",
     "moment": "^2.30.1",
     "remove-markdown": "^0.6.2",
-    "sanitize-html": "^2.17.0"
+    "sanitize-html": "^2.17.7"
   }
 }
