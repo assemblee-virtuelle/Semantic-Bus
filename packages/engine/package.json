@@ -38,7 +38,7 @@
     "he": "^1.2.0",
     "himalaya": "^1.1.1",
     "imap": "^0.8.17",
-    "jsonld": "^8.3.2",
+    "jsonld": "^9.0.0",
     "jsonpath-object-transform": "^1.0.4",
     "lodash": "^4.17.21",
     "lokijs": "^1.5.12",
