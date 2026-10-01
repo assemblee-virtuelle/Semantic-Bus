@@ -16,7 +16,7 @@
     "express": "^5.1.0",
     "he": "^1.2.0",
     "lodash": "^4.17.21",
-    "moment": "^2.30.1",
+    "moment": "^2.31.0",
     "remove-markdown": "^0.6.2",
     "sanitize-html": "^2.17.0"
   }
