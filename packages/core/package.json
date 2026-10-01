@@ -31,7 +31,7 @@
     "jsonld-streaming-parser": "^5.0.0",
     "jszip": "^3.10.1",
     "jwt-simple": "^0.5.1",
-    "moment": "^2.30.1",
+    "moment": "^2.31.0",
     "mongoose": "^8.16.1",
     "node-fetch": "^2.7.0",
     "object-sizeof": "^2.6.5",
