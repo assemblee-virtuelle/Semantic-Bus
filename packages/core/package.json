@@ -20,7 +20,7 @@
     "@json2csv/plainjs": "^7.0.6",
     "bcryptjs": "^3.0.2",
     "bson": "^6.10.4",
-    "cassandra-driver": "^4.8.0",
+    "cassandra-driver": "^4.10.0",
     "csvtojson": "^2.0.10",
     "error-stack-parser": "^2.0.1",
     "exceljs": "^4.4.0",
