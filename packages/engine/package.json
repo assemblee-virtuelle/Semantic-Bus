@@ -33,7 +33,7 @@
     "dot-prop": "^5.2.0",
     "express": "^5.1.0",
     "fix-esm": "^1.0.1",
-    "follow-redirects": "^1.4.1",
+    "follow-redirects": "^1.16.1",
     "globalize": "^1.7.0",
     "he": "^1.2.0",
     "himalaya": "^1.1.1",
