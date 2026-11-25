@@ -1,7 +1,7 @@
 <graph class="containerV containerGrid">
   <!-- page graph -->
   <div id="graphContainer" style="flex-grow:1;" class="containerH contentrGrid">
-    <svg ref="graphSvgCanvas" style="flex-grow:1; position: relative" ondrop={drag_drop} ondragover={drag_over_prevent} onClick={graph_background_click}>
+    <svg ref="graphSvgCanvas" style="flex-grow:1; position: relative" ondrop={drag_drop} ondragover={drag_over_prevent}>
       <filter id="dropshadow" x="1%" y="1%" width="110%" height="110%">
         <feGaussianBlur in="SourceAlpha" stdDeviation="3"/>
         <feOffset dx="-2" dy="-1" result="offsetblur1"/>
@@ -30,6 +30,7 @@
         </svg>
         <g id="lineCommandLayer"></g>
         <g id="shapeCommandLayer"></g>
+        <g id="selectionRectLayer" style="pointer-events: none;"></g>
       </g>
       <div class="tableRowStatus" style={showComponent? "right: 30%": "right: 5%"}>
         <div class={innerData &&  innerData.status} onClick={stopFlow}>
@@ -325,158 +326,180 @@
       this.update();
     }.bind(this);
 
+    // --------------------------------------------------------------------------------
+    // Elements of the graph that act as the background (pan / marquee / context menu)
+    // --------------------------------------------------------------------------------
+    function isGraphBackgroundTarget (el) {
+      if (!el || !el.tagName) return false
+      if (el.id === 'background') return true
+      if (el.closest && el.closest('#shapeLayer, #shapeSelector, #shapeCommandLayer, #lineCommandLayer, #lineSelector, #lineLayer, #backgroundImg, #stateLayer, #roundLayer, #nodeTitleLayer')) {
+        return false
+      }
+      if (el.closest && el.closest('.axis')) return true
+      if (el.tagName.toLowerCase() === 'svg') return true
+      return false
+    }
+
     // track deplacement
     this.dragstarted = function (d) {
-      d.xOrigin = d.x;
-      d.yOrigin = d.y;
-    };
+      let connectModeActive = this.modeConnectBefore || this.modeConnectAfter || this.modeConnectBeforeSecond
+      // A selected node drags the whole selection; otherwise only the dragged node moves.
+      if (connectModeActive || !d.selected) {
+        this.movingNodes = [d]
+      } else {
+        this.movingNodes = sift({
+          'selected': true
+        }, this.graph.nodes);
+        if (this.movingNodes.indexOf(d) === -1) {
+          this.movingNodes = [d]
+        }
+      }
+      this.movingNodes.forEach(function (node) {
+        node.xOrigin = node.x;
+        node.yOrigin = node.y;
+      });
+    }.bind(this);
 
-    // drag compute for all elements of dragged node
-    this.dragged = function (dragged) {
-      let containerStyle = document.querySelector('#graphContainer').getBoundingClientRect();
-      let width = containerStyle.width ;
-      let height = containerStyle.height;
+    // Redraw one node and every line attached to it (used while dragging)
+    this.redrawNodeAt = function (d) {
+      let x = d.x;
+      let y = d.y;
 
-     //let containerStyle = document.querySelector('#graphContainer').getBoundingClientRect();
-
-      var start_x = d3.event.x;
-      var start_y = d3.event.y;
-      let gridX = snapToGrid(d3.event.x, 40);
-      let gridY = snapToGrid(d3.event.y, 40);
-      dragged.x = gridX;
-      dragged.y = gridY;
-
-      RiotControl.trigger('workspace_current_move_component', dragged);
-
-      this.nodes = this.svg
+      this.svg
         .select("#shapeLayer")
         .selectAll("image")
-        .data([dragged], function (d) {return d.id})
-        .attr("x", gridX)
-        .attr("y", gridY)
+        .data([d], function (n) {return n.id + '-node-component'})
+        .attr("x", x)
+        .attr("y", y)
 
-      this.backgroundImg = this.svg
+      this.svg
         .select("#backgroundImg")
         .selectAll("circle")
-        .data([dragged], function (d) {return d.id})
-        .attr('cx', function (d) {return d.x + 34})
-        .attr('cy', function (d) {return d.y + 34})
+        .data([d], function (n) {return n.id})
+        .attr('cx', x + 34)
+        .attr('cy', y + 34)
 
-      this.selectorsNodes = this.svg
+      this.svg
         .select("#shapeSelector")
         .selectAll("rect")
-        .data([dragged], function (d) {return d.id + '-shapeSelector'})
-        .attr("x", gridX - 30)
-        .attr("y", gridY - 30)
+        .data([d], function (n) {return n.id + '-selected'})
+        .attr("x", x - 37)
+        .attr("y", y - 50)
 
-      this.selectorsShapeCommandeBar = this.svg
+      this.svg
         .select("#shapeCommandLayer")
         .selectAll("svg")
-        .data([dragged], function (d) {return d.id + '-shapeCommandLayer'})
-        .attr("x", gridX - 30)
-        .attr("y", gridY - 50)
+        .data([d], function (n) {return n.id + '-shapeCommandBarComponent'})
+        .attr('x', x - 30)
+        .attr('y', y - 50)
 
-      let beforeLinks = sift({
-        "target.id": dragged.id
-      }, this.graph.links);
-      this.links = this.svg
-        .select("#lineLayer")
-        .selectAll("line")
-        .data(beforeLinks, function (d) {return d.id})
-        .attr("x2", gridX -5)
-        //.attr("y2", gridY + 35)
-        .attr('y2', function (d) {return gridY+ (d.targetInput=='second'?0:35)})
-
-      let beforeLinksSelected = sift({
-        "target.id": dragged.id
-      }, this.selectedLines)
-
-      this.selectorsLines = this.svg
-        .select("#lineSelector")
-        .selectAll("line")
-        .data(beforeLinksSelected, function (d) {return d.id})
-        .attr("x2", gridX -5)
-        //.attr("y2", gridY + 35)
-        .attr('y2', function (d) {return gridY + (d.targetInput=='second'?0:35)})
-
-      this.selectorsLineCommandeBar = this.svg
-        .select("#lineCommandLayer")
-        .selectAll("svg")
-        .data(beforeLinksSelected, function (d) {return d.id})
-        .attr('x', function (d) {return ((d.source.x + dragged.x) / 2) + 35})
-        .attr('y', function (d) {return ((d.source.y + gridY) / 2) + 10})
-
-      // Connect Before / After
-      this.subNode = this.svg
+      this.svg
         .select("#roundLayer")
         .selectAll("svg")
-        .data([dragged], function (d) {return d.id})
-      this.subNode = this.subNode
-        .attr('x', function (d) {return dragged.x - 30})
-        .attr('y', function (d) {return dragged.y - 30})
+        .data([d], function (n) {return n.id})
+        .attr('x', x - 30)
+        .attr('y', y - 30)
 
-      this.nodesTitle = this.svg
+      this.svg
         .select("#nodeTitleLayer")
         .selectAll("text")
-        .data([dragged], function (d) {return d.id})
-        .attr('x', function (d) {return dragged.x +35})
-        .attr('y', function (d) {return dragged.y -15})
+        .data([d], function (n) {return n.id + '-node-title'})
+        .attr('x', x + 35)
+        .attr('y', y - 15)
 
-
-
-      let afterLinks = sift({
-        "source.id": dragged.id
-      }, this.graph.links);
-
-      this.links = this.svg
-        .select("#lineLayer")
-        .selectAll("line")
-        .data(afterLinks, function (d) {return d.id})
-        .attr("x1", gridX + 75)
-        .attr("y1", gridY + 35)
-
-      let afterLinksSelected = sift({
-        "source.id": dragged.id
-      }, this.selectedLines);
-
-      this.selectorsLines = this.svg
-        .select("#lineSelector")
-        .selectAll("line")
-        .data(afterLinksSelected, function (d) {return d.id})
-        .attr("x1", gridX + 75)
-        .attr("y1", gridY + 35)
-
-      this.selectorsLineCommandeBar = this.svg
-        .select("#lineCommandLayer")
-        .selectAll("svg")
-        .data(afterLinksSelected, function (d) {return d.id})
-        .attr('x', function (d) {return ((gridX + d.target.x) / 2) + 95})
-        .attr('y', function (d) {return ((gridY + d.target.y) / 2) + 10})
-
-      let nodesWithStatus = sift({
-        $and: [
-          {
-            status: {
-              $exists: true
-            }
-          }, {
-            id: dragged.id
-          }
-        ]
-      }, this.graph.nodes);
-
-      this.status = this.svg
+      this.svg
         .select("#stateLayer")
         .selectAll("circle")
-        .data(nodesWithStatus, function (d) {return d.id})
-        .attr('cx', function (d) {return gridX + 34})
-        .attr('cy', function (d) {return gridY + 34})
+        .data([d], function (n) {return n.id})
+        .attr('cx', x + 34)
+        .attr('cy', y + 34)
+
+      // incoming lines
+      let beforeLinks = sift({
+        "target.id": d.id
+      }, this.graph.links);
+      this.svg
+        .select("#lineLayer")
+        .selectAll("line")
+        .data(beforeLinks, function (l) {return l.id})
+        .attr("x2", x - 5)
+        .attr('y2', function (l) {return y + (l.targetInput == 'second' ? 0 : 35)})
+
+      let beforeLinksSelected = sift({
+        "target.id": d.id
+      }, this.selectedLines || []);
+      this.svg
+        .select("#lineSelector")
+        .selectAll("line")
+        .data(beforeLinksSelected, function (l) {return l.id + 'selected'})
+        .attr("x2", x - 5)
+        .attr('y2', function (l) {return y + (l.targetInput == 'second' ? 0 : 35)})
+      this.svg
+        .select("#lineCommandLayer")
+        .selectAll("svg")
+        .data(beforeLinksSelected, function (l) {return l.id + '-lineCommandBarComponent'})
+        .attr('x', function (l) {return ((l.source.x + x) / 2) + 35})
+        .attr('y', function (l) {return ((l.source.y + y) / 2) + 10})
+
+      // outgoing lines
+      let afterLinks = sift({
+        "source.id": d.id
+      }, this.graph.links);
+      this.svg
+        .select("#lineLayer")
+        .selectAll("line")
+        .data(afterLinks, function (l) {return l.id})
+        .attr("x1", x + 75)
+        .attr("y1", y + 35)
+
+      let afterLinksSelected = sift({
+        "source.id": d.id
+      }, this.selectedLines || []);
+      this.svg
+        .select("#lineSelector")
+        .selectAll("line")
+        .data(afterLinksSelected, function (l) {return l.id + 'selected'})
+        .attr("x1", x + 75)
+        .attr("y1", y + 35)
+      this.svg
+        .select("#lineCommandLayer")
+        .selectAll("svg")
+        .data(afterLinksSelected, function (l) {return l.id + '-lineCommandBarComponent'})
+        .attr('x', function (l) {return ((x + l.target.x) / 2) + 95})
+        .attr('y', function (l) {return ((y + l.target.y) / 2) + 10})
+    }.bind(this);
+
+    // drag compute for all selected elements (group move)
+    this.dragged = function (dragged) {
+      let gridX = snapToGrid(d3.event.x, 40);
+      let gridY = snapToGrid(d3.event.y, 40);
+      let dx = gridX - dragged.x;
+      let dy = gridY - dragged.y;
+
+      if (!this.movingNodes || this.movingNodes.indexOf(dragged) === -1) {
+        this.movingNodes = [dragged]
+      }
+      if (dx === 0 && dy === 0) return;
+
+      this.movingNodes.forEach(function (node) {
+        node.x += dx;
+        node.y += dy;
+      });
+
+      this.movingNodes.forEach(function (node) {
+        this.redrawNodeAt(node);
+        RiotControl.trigger('workspace_current_move_component', node);
+      }, this);
     }.bind(this);
 
     // drag end, save current position or save connect before/after
     this.dragended = function (d) {
+      let movedNodes = this.movingNodes && this.movingNodes.length ? this.movingNodes : [d]
+      let hasMoved = movedNodes.some(function (node) {
+        return node.x !== node.xOrigin || node.y !== node.yOrigin
+      })
 
-      if (d.x == d.xOrigin && d.y == d.yOrigin) {
+      if (!hasMoved) {
         if ((this.modeConnectBeforeSecond || this.modeConnectBefore || this.modeConnectAfter) && this.selectedNodes[0]) {
           if (this.modeConnectBefore) {
             RiotControl.trigger('connect_components', d.component, this.selectedNodes[0].component);
@@ -492,10 +515,13 @@
           this.tooltip.classed("tooltipHide", true);
         }
       } else {
-        d.component.graphPositionX = d.x;
-        d.component.graphPositionY = d.y;
-        RiotControl.trigger('item_persist', d.component);
+        movedNodes.forEach(function (node) {
+          node.component.graphPositionX = node.x;
+          node.component.graphPositionY = node.y;
+        })
+        RiotControl.trigger('items_persist', movedNodes.map(function (node) {return node.component}));
       }
+      this.movingNodes = [];
     }.bind(this);
 
     drag_drop(event) {
@@ -516,14 +542,6 @@
       event.preventDefault();
     }
 
-    graph_background_click(e){
-      if(e.target.id=="background"){
-        //console.log('click',e);
-        RiotControl.trigger('component_current_set', undefined);
-      }
-
-    }
-
     // init all element of content graph
     this.drawGraph = function (dataCompiled) {
 
@@ -531,7 +549,7 @@
       console.log('graph',this.graph)
       // this.position = position;
       if (this.svg == undefined) {
-        this.svg = d3.select("svg");
+        this.svg = d3.select(this.refs.graphSvgCanvas);
       }
       // Node
       this.nodes = this.svg
@@ -730,13 +748,153 @@
       // }
     }.bind(this)
 
+    // --------------------------------------------------------------------------------
+    // Context menu (same look and feel as the other context menus of the app)
+    // --------------------------------------------------------------------------------
+    this.closeGraphContextMenu = function () {
+      if (this.currentContextMenu && this.currentContextMenu.parentNode) {
+        this.currentContextMenu.parentNode.removeChild(this.currentContextMenu)
+      }
+      this.currentContextMenu = null
+    };
+
+    this.showGraphContextMenu = function (event, items) {
+      this.closeGraphContextMenu()
+      let menu = document.createElement('div')
+      menu.style.position = 'absolute'
+      menu.style.top = event.pageY + 'px'
+      menu.style.left = event.pageX + 'px'
+      menu.style.backgroundColor = '#fff'
+      menu.style.border = '1px solid #ccc'
+      menu.style.padding = '5px'
+      menu.style.zIndex = 1000
+      items.forEach(function (item) {
+        let menuItem = document.createElement('div')
+        menuItem.className = 'graph-context-menu-item' + (item.disabled ? ' graph-context-menu-item-disabled' : '')
+        menuItem.style.cursor = item.disabled ? 'default' : 'pointer'
+        menuItem.style.padding = '5px'
+        menuItem.style.border = '1px solid #ccc'
+        menuItem.style.backgroundColor = '#f9f9f9'
+        menuItem.style.whiteSpace = 'nowrap'
+        if (item.disabled) {
+          menuItem.style.color = '#aaa'
+        }
+        menuItem.innerHTML = item.label
+        if (!item.disabled) {
+          menuItem.addEventListener('click', function (e) {
+            e.stopPropagation()
+            this.closeGraphContextMenu()
+            item.action()
+          }.bind(this))
+        }
+        menu.appendChild(menuItem)
+      }, this)
+      document.body.appendChild(menu)
+      this.currentContextMenu = menu
+      let menuRect = menu.getBoundingClientRect()
+      if (menuRect.right > window.innerWidth) {
+        menu.style.left = Math.max(0, event.pageX - menuRect.width) + 'px'
+      }
+      if (menuRect.bottom > window.innerHeight) {
+        menu.style.top = Math.max(0, event.pageY - menuRect.height) + 'px'
+      }
+    }.bind(this);
+
+    this.openGraphContextMenu = function (event, graphPoint, targetElement) {
+      if (!this.graph) return
+      let node = null
+      let element = targetElement
+      while (element && element !== document.body) {
+        let dataId = element.getAttribute ? (element.getAttribute('data-id') || element.getAttribute('data-ids')) : null
+        if (dataId) {
+          node = sift({ id: dataId }, this.graph.nodes)[0]
+          if (node) break
+        }
+        element = element.parentElement
+      }
+
+      if (node) {
+        if (!node.selected) {
+          RiotControl.trigger('component_current_set', node.component)
+        }
+        this.showGraphContextMenu(event, [{
+          label: 'Copier',
+          action: function () {RiotControl.trigger('workspace_current_copy_selection')}
+        }])
+        return
+      }
+
+      let selectedCount = sift({ selected: true }, this.graph.nodes).length
+      let items = []
+      if (selectedCount > 0) {
+        items.push({
+          label: 'Copier la sélection (' + selectedCount + ')',
+          action: function () {RiotControl.trigger('workspace_current_copy_selection')}
+        })
+      }
+      if (this.hasClipboard) {
+        items.push({
+          label: 'Coller ici',
+          action: function () {
+            RiotControl.trigger('workspace_current_paste_selection', {
+              graphPositionX: graphPoint[0],
+              graphPositionY: graphPoint[1]
+            })
+          }
+        })
+      }
+      if (!items.length) {
+        items.push({ label: 'Aucune sélection', disabled: true })
+      }
+      this.showGraphContextMenu(event, items)
+    }.bind(this);
+
+    // Select every node intersecting the marquee rectangle
+    this.selectNodesInRect = function (x1, y1, x2, y2, additive) {
+      if (!this.graph) return
+      let minX = Math.min(x1, x2)
+      let maxX = Math.max(x1, x2)
+      let minY = Math.min(y1, y2)
+      let maxY = Math.max(y1, y2)
+      let hits = this.graph.nodes.filter(function (node) {
+        return node.x + 78 >= minX && node.x - 10 <= maxX && node.y + 78 >= minY && node.y - 22 <= maxY
+      })
+
+      if (!hits.length && !additive) {
+        RiotControl.trigger('component_current_set', undefined)
+        if (this.tooltip) this.tooltip.classed("tooltipHide", true)
+        return
+      }
+
+      this.graph.nodes.forEach(function (node) {
+        node.connectBeforeMode = false
+        node.connectBeforeSecondMode = false
+        node.connectAfterMode = false
+        if (additive) {
+          if (hits.indexOf(node) !== -1) node.selected = true
+        } else {
+          node.selected = hits.indexOf(node) !== -1
+        }
+      })
+      this.graph.links.forEach(function (link) {
+        link.selected = false
+      })
+
+      if (!additive && hits.length === 1) {
+        RiotControl.trigger('component_current_set', hits[0].component)
+      } else {
+        RiotControl.trigger('workspace_graph_selection_changed', this.graph)
+      }
+    }.bind(this);
+
     // init grid and grid's function
     this.initGraph = function(position) {
-      this.position=position;
+      this.position = position || {};
       this.initGraphDone = true
-      let svg = d3.select('svg');
+      let svg = d3.select(this.refs.graphSvgCanvas);
       let view = d3.select('#main-container');
-      let containerStyle = document.querySelector('#main-container').getBoundingClientRect();
+      let mainContainerNode = document.querySelector('#main-container');
+      let containerStyle = mainContainerNode.getBoundingClientRect();
       let width = containerStyle.width;
       let height = containerStyle.height;
       let Square;
@@ -776,12 +934,21 @@
           .call(yAxis);
 
       /// ZOOOM ////
+      // Pan with the right button only: the left button is used for selection
+      // (marquee on the background, node/group move on nodes).
       var zoom = d3.zoom()
         .scaleExtent([0.3, 5])
         .translateExtent([
             [-width * 2, -height * 2],
             [width * 2, height * 2]
         ])
+        .filter(function () {
+          if (!d3.event) return false
+          if (d3.event.type === 'wheel') return true
+          if (d3.event.type === 'touchstart') return true
+          if (d3.event.button !== 2) return false
+          return isGraphBackgroundTarget(d3.event.target)
+        })
         .on("zoom", zoomed.bind(this));
 
       function zoomed() {
@@ -799,6 +966,99 @@
 
       svg.call(zoom.transform, d3.zoomIdentity.translate(this.position.x || 0 , this.position.y || 0).scale(this.position.k || 0.5))
       svg.call(zoom)
+
+      // --------------------------------------------------------------------------------
+      // Left button: marquee selection on the background. Right button: pan (zoom above).
+      // --------------------------------------------------------------------------------
+      this.marqueeState = null
+      this.rightPress = null
+      this.closeGraphContextMenu()
+
+      svg.on('contextmenu.graphmenu', function () {
+        d3.event.preventDefault();
+      })
+
+      svg.on('mousedown.graphmarquee', function () {
+        if (d3.event.button !== 0) return;
+        if (!isGraphBackgroundTarget(d3.event.target)) return;
+        d3.event.preventDefault();
+        let point = d3.mouse(mainContainerNode);
+        this.marqueeState = {
+          startX: point[0],
+          startY: point[1],
+          clientX: d3.event.clientX,
+          clientY: d3.event.clientY,
+          additive: d3.event.shiftKey || d3.event.ctrlKey || d3.event.metaKey,
+          moved: false
+        };
+        d3.select('#selectionRectLayer').selectAll('*').remove();
+        d3.select('#selectionRectLayer')
+          .append('rect')
+          .attr('class', 'graph-selection-rect')
+          .attr('x', point[0])
+          .attr('y', point[1])
+          .attr('width', 0)
+          .attr('height', 0);
+      }.bind(this));
+
+      d3.select(window).on('mousedown.graphright', function () {
+        if (d3.event.button !== 2) return;
+        if (!this.refs.graphSvgCanvas.contains(d3.event.target)) return;
+        this.rightPress = {
+          clientX: d3.event.clientX,
+          clientY: d3.event.clientY,
+          moved: false
+        };
+      }.bind(this), true);
+
+      d3.select(window).on('mousemove.graphinteraction', function () {
+        let event = d3.event;
+        if (this.rightPress) {
+          if (Math.abs(event.clientX - this.rightPress.clientX) > 4 || Math.abs(event.clientY - this.rightPress.clientY) > 4) {
+            this.rightPress.moved = true;
+          }
+        }
+        let marquee = this.marqueeState;
+        if (marquee) {
+          if (Math.abs(event.clientX - marquee.clientX) > 4 || Math.abs(event.clientY - marquee.clientY) > 4) {
+            marquee.moved = true;
+          }
+          if (marquee.moved) {
+            let point = d3.mouse(mainContainerNode);
+            d3.select('#selectionRectLayer')
+              .select('rect')
+              .attr('x', Math.min(marquee.startX, point[0]))
+              .attr('y', Math.min(marquee.startY, point[1]))
+              .attr('width', Math.abs(point[0] - marquee.startX))
+              .attr('height', Math.abs(point[1] - marquee.startY));
+          }
+        }
+      }.bind(this), true);
+
+      d3.select(window).on('mouseup.graphinteraction', function () {
+        let event = d3.event;
+        if (this.rightPress) {
+          let press = this.rightPress;
+          this.rightPress = null;
+          if (!press.moved) {
+            let point = d3.mouse(mainContainerNode);
+            let targetElement = document.elementFromPoint(event.clientX, event.clientY);
+            this.openGraphContextMenu(event, point, targetElement);
+          }
+        }
+        let marquee = this.marqueeState;
+        if (marquee) {
+          this.marqueeState = null;
+          let point = d3.mouse(mainContainerNode);
+          d3.select('#selectionRectLayer').selectAll('*').remove();
+          if (marquee.moved) {
+            this.selectNodesInRect(marquee.startX, marquee.startY, point[0], point[1], marquee.additive);
+          } else if (!marquee.additive) {
+            RiotControl.trigger('component_current_set', undefined);
+            if (this.tooltip) this.tooltip.classed("tooltipHide", true);
+          }
+        }
+      }.bind(this), true);
     }.bind(this)
 
     this.updateData=(dataToUpdate)=>{
@@ -808,13 +1068,30 @@
       this.update();
     };
 
+    this.clipboardChanged = function (payload) {
+      this.hasClipboard = !!(payload && payload.count > 0)
+    }.bind(this);
+
+    this.documentClickListener = function () {
+      this.closeGraphContextMenu()
+    }.bind(this);
+
+    this.documentKeydownListener = function (event) {
+      if (event.key === 'Escape') this.closeGraphContextMenu()
+    }.bind(this);
+
     this.on('mount', function () {
+      this.hasClipboard = false
       RiotControl.on('graph_position_from_store', this.initGraph)
       RiotControl.on('workspace_graph_compute_done', this.drawGraph)
       RiotControl.on('workspace_current_changed', this.updateData);
       RiotControl.on('workspace_graph_selection_changed', this.drawSelected);
+      RiotControl.on('workspace_clipboard_changed', this.clipboardChanged);
+      document.addEventListener('click', this.documentClickListener);
+      document.addEventListener('keydown', this.documentKeydownListener);
       RiotControl.trigger('workspace_graph_compute', this.refs.graphSvgCanvas);
       RiotControl.trigger('get_graph_position_on_store');
+      RiotControl.trigger('workspace_clipboard_state_request');
     });
 
     this.on('unmount', function () {
@@ -822,6 +1099,17 @@
       RiotControl.off('workspace_graph_compute_done', this.drawGraph)
       RiotControl.off('workspace_current_changed', this.updateData);
       RiotControl.off('workspace_graph_selection_changed', this.drawSelected);
+      RiotControl.off('workspace_clipboard_changed', this.clipboardChanged);
+      document.removeEventListener('click', this.documentClickListener);
+      document.removeEventListener('keydown', this.documentKeydownListener);
+      d3.select(this.refs.graphSvgCanvas)
+        .on('contextmenu.graphmenu', null)
+        .on('mousedown.graphmarquee', null);
+      d3.select(window)
+        .on('mousedown.graphright', null)
+        .on('mousemove.graphinteraction', null)
+        .on('mouseup.graphinteraction', null);
+      this.closeGraphContextMenu();
     });
 
   </script>
@@ -1017,6 +1305,17 @@
     #shapeSelector rect {
       /*filter:url(#dropshadow);*/
       fill-opacity: 0;
+      stroke: rgb(26, 145, 194);
+      stroke-width: 2;
+      stroke-dasharray: 6 4;
+    }
+
+    .graph-selection-rect {
+      fill: rgba(33, 150, 243, 0.12);
+      stroke: rgb(33, 150, 243);
+      stroke-width: 1.5;
+      stroke-dasharray: 6 4;
+      pointer-events: none;
     }
 
     .title-component-graph {

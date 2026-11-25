@@ -246,6 +246,8 @@ function WorkspaceStore(utilStore, specificStoreList) {
   this.modeConnectBefore = false
   this.modeConnectAfter = false
   this.position = {}
+  this.workspaceClipboard = undefined
+  this.graph = undefined
 
   this.setStompClient = function (stompClient) {
     this.stompClient = stompClient;
@@ -376,6 +378,29 @@ function WorkspaceStore(utilStore, specificStoreList) {
     }
 
     this.trigger('workspace_graph_compute_done', { graph: this.graph, position })
+  }
+
+  // --------------------------------------------------------------------------------
+
+  this.selectGraphNodes = function (ids) {
+    if (!this.graph) return
+    if (ids.length === 1) {
+      const node = sift({ id: ids[0] }, this.graph.nodes)[0]
+      if (node) {
+        this.trigger('component_current_set', node.component)
+        return
+      }
+    }
+    this.graph.nodes.forEach(n => {
+      n.selected = ids.indexOf(n.id) !== -1
+      n.connectBeforeMode = false
+      n.connectBeforeSecondMode = false
+      n.connectAfterMode = false
+    })
+    this.graph.links.forEach(l => {
+      l.selected = false
+    })
+    this.trigger('workspace_graph_selection_changed', this.graph)
   }
 
   // --------------------------------------------------------------------------------
@@ -665,6 +690,27 @@ function WorkspaceStore(utilStore, specificStoreList) {
       data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(item))
     }, true).then(data => {
       item = data
+      this.trigger('workspace_current_changed', this.workspaceCurrent)
+      if (this.viewBox) {
+        this.computeGraph()
+      }
+    }).catch(error => {
+      throw error
+    })
+  })
+
+  // --------------------------------------------------------------------------------
+
+  this.on('items_persist', function (components) {
+    if (!components || !components.length) return
+    const persistence = components.map(component => {
+      return this.utilStore.ajaxCall({
+        method: 'put',
+        url: '../data/core/workspaces/' + component.workspaceId + '/components/' + component._id,
+        data: JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(component))
+      }, true)
+    })
+    Promise.all(persistence).then(() => {
       this.trigger('workspace_current_changed', this.workspaceCurrent)
       if (this.viewBox) {
         this.computeGraph()
@@ -1003,6 +1049,100 @@ function WorkspaceStore(utilStore, specificStoreList) {
       }
     })
   }.bind(this))
+
+  // --------------------------------------------------------------------------------
+
+  this.on('workspace_current_copy_selection', function () {
+    if (!this.graph) return
+    const selectedNodes = sift({ selected: true }, this.graph.nodes)
+    if (!selectedNodes.length) return
+    const selectedIds = selectedNodes.map(n => n.id)
+    const minX = Math.min.apply(null, selectedNodes.map(n => n.x))
+    const minY = Math.min.apply(null, selectedNodes.map(n => n.y))
+    const maxX = Math.max.apply(null, selectedNodes.map(n => n.x))
+    const maxY = Math.max.apply(null, selectedNodes.map(n => n.y))
+
+    this.workspaceClipboard = {
+      width: maxX - minX,
+      height: maxY - minY,
+      nodes: selectedNodes.map(n => {
+        const component = JSON.parse(JSON.stringify(this.workspaceBusiness.serialiseWorkspaceComponent(n.component)))
+        delete component._id
+        delete component.workspaceId
+        return {
+          sourceId: n.id,
+          offsetX: n.x - minX,
+          offsetY: n.y - minY,
+          component: component
+        }
+      }),
+      links: this.graph.links.filter(l => {
+        return selectedIds.indexOf(l.source.id) !== -1 && selectedIds.indexOf(l.target.id) !== -1
+      }).map(l => {
+        return {
+          source: l.source.id,
+          target: l.target.id,
+          targetInput: l.targetInput
+        }
+      })
+    }
+    this.trigger('workspace_clipboard_changed', { count: this.workspaceClipboard.nodes.length })
+  })
+
+  // --------------------------------------------------------------------------------
+
+  this.on('workspace_clipboard_state_request', function () {
+    if (this.workspaceClipboard) {
+      this.trigger('workspace_clipboard_changed', { count: this.workspaceClipboard.nodes.length })
+    }
+  })
+
+  // --------------------------------------------------------------------------------
+
+  this.on('workspace_current_paste_selection', function (position) {
+    const clipboard = this.workspaceClipboard
+    if (!clipboard || !clipboard.nodes.length || !this.workspaceCurrent) return
+    const originX = Math.round((position.graphPositionX - (clipboard.width / 2)) / 40) * 40
+    const originY = Math.round((position.graphPositionY - (clipboard.height / 2)) / 40) * 40
+    const components = clipboard.nodes.map(n => {
+      const component = JSON.parse(JSON.stringify(n.component))
+      component.graphPositionX = originX + n.offsetX
+      component.graphPositionY = originY + n.offsetY
+      return component
+    })
+
+    this.utilStore.ajaxCall({
+      method: 'post',
+      url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/components',
+      data: JSON.stringify(components)
+    }, true).then(async created => {
+      const idMapping = {}
+      clipboard.nodes.forEach((n, index) => {
+        idMapping[n.sourceId] = created[index]._id
+      })
+      let links = this.workspaceCurrent.links || []
+      for (let link of clipboard.links) {
+        links = await this.utilStore.ajaxCall({
+          method: 'post',
+          url: '../data/core/workspaces/' + this.workspaceCurrent._id + '/components/connection',
+          data: JSON.stringify({
+            source: idMapping[link.source],
+            target: idMapping[link.target],
+            input: link.targetInput
+          })
+        }, true)
+      }
+      this.workspaceCurrent.components = this.workspaceCurrent.components.concat(created)
+      this.workspaceCurrent.links = links
+      this.trigger('workspace_current_changed', this.workspaceCurrent)
+      if (this.viewBox) {
+        this.computeGraph(null, { x: 0, y: 0 })
+      }
+      this.selectGraphNodes(created.map(c => c._id))
+    }).catch(error => {
+      this.trigger('ajax_fail', error)
+    })
+  })
 
   // --------------------------------------------------------------------------------
 

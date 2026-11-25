@@ -331,3 +331,12 @@ label {
   background-color: #eef2f9;
 }
 
+
+/* Menu contextuel du graphe (même style que les autres menus contextuels) */
+.graph-context-menu-item:hover {
+  color: rgb(41, 177, 238);
+}
+
+.graph-context-menu-item-disabled:hover {
+  color: #aaa;
+}
